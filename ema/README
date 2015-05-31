@@ -1,0 +1,142 @@
+(C) Copyright 2015 Thomson Reuters Limited. All rights reserved,
+Reuters Oak Brook, IL USA
+ 
+0. CONTENTS
+============================
+ 
+1.    REFERENCE INFORMATION
+2.    RELEASE OVERVIEW
+3.    DOCUMENTATION
+4.    INSTALLATION
+
+
+1. REFERENCE INFORMATION
+=============================
+
+    I-COS Questionnaire: 6032
+    Reuters Item Number: 
+    Product Name: Elektron Message API - C++ Edition
+    Release Number: 3.0.0
+    Load Number: 1
+    Release Status: Beta
+    Release Type: Beta
+    US ECCN: EAR99
+    EU ECCN: None
+    Export Code: NL
+	Security Compliance: Thomson Reuters Security Compliant
+    Hardware Platform (linux): Intel or AMD (See Section 5.1 for details)
+    Operating System: (See Section 5.1 for details)
+       (linux)
+          - Red Hat Enterprise Linux Advanced Server 
+          - Oracle Linux 
+		   
+	Supersedes: n/a
+    Template Version Supported: v4.20.09_TREP_14.51 RWF and Marketfeed Record
+                                Templates
+
+
+
+2. RELEASE OVERVIEW
+===================
+
+2.1 Release Purpose
+
+    This is a BETA release of the EMA product.
+	
+	This is meant for evaluation purposes only.
+
+
+2.1.1 Release Purpose History
+
+	This is Beta release of the Elektron Message API (EMA).
+		
+	The EMA is an ease of use, viewable source, OMM API. EMA is designed to 
+    provide clients rapid development of applications, minimizing lines of code
+    and providing a broad range of flexibility. It provides flexible configuration
+    with default values to simplify use and deployment. 
+    
+	EMA is written on top of the Elektron Transport API (ETA) utilizing 
+	the Value Added Reactor and Watchlist.  NOTE that ETA is a re-brand of the Ultra
+    Performance API (UPA).
+
+	Client feedback is important on an BETA as it can provide better direction 
+	on the development of the product.
+	
+	This is for internal use and BETA clients only.  
+	
+		
+	Functionality Supported:
+	------------------------
+		- Consumer Only
+		- regular item request
+		- regular item reissue
+		- regular item close
+		- multiple part distribution
+		- single connection per OmmConsumer object
+		- tcp ip connection type
+		- concrete service by name or id
+		- posting of containers
+		- on stream posting
+		- generic message with container
+		- logger functionality
+		- dictionary download
+		- dictionary load from file
+		- api dispatch / user dispatch
+		- message in message
+		- off stream posting
+		- generic message with a message
+		- posting with a message
+		- view request
+		- batch request
+		- RMTES decoder
+		- Administrative domain item requests
+		- Administrative domain configuration
+		- http and https connectivity
+
+Deficiency
+		- tunneled streams
+		
+3.  DOCUMENTATION
+============================
+
+3.1 EMA Documentation
+
+    - EMA Developers Guide
+    - EMA Configuration Guide
+    - EMA Reference Manual 
+	- Readme (This File)
+	   
+	
+4.  INSTALLATION
+============================
+ 
+4.1 Hardware/OS Requirements
+
+      (Linux)
+      - HP Intel PC or AMD Opteron (64-bit)
+      - AMD Opteron (64-bit)
+      - Red Hat Enterprise Linux Advanced Server 6.0 64-bit 
+      - Oracle Linux Server 7.0 64-bit
+
+
+
+4.2 Software Requirements
+	
+      (Linux)
+      - GCC compiler suite version 4.4.4 or higher for RHAS 6.0 (64-bit)
+	  - GCC compiler suite version 4.8.2 or higher for OLS 7.0 (64-bit)
+
+
+4.3 Installation Activities
+
+4.3.1 Installation
+      Unzip/Untar the EMA distribution to the directory of your choice.
+	  
+	  (Linux)
+      Run the command /sbin/ldconfig -n <EMA shared object location>
+
+
+4.3.2 If you are to relocate the files after untarring/unzipping,
+      A copy of the README file should remain in the same relative
+      location as untarred/unzipped for Documentation Portal reference.
+
