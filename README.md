@@ -1,4 +1,4 @@
-# Elektron SDK
+# Elektron SDK 1.0.0
 This is the Elektron SDK. This SDK is an all encompassing package of all Elektron APIs. This currently includes the Elektron Message API (EMA) and the Elektron Transport API (ETA).
 
 The **Elektron Message API (EMA)** is an ease of use, open source, OMM API. EMA is designed to provide clients rapid development of applications, minimizing lines of code and providing a broad range of flexibility. It provides flexible configuration with default values to simplify use and deployment.  EMA is written on top of the Elektron Transport API (ETA) utilizing the Value Added Reactor and Watchlist. 
@@ -17,12 +17,27 @@ Transport and OMM encoder/decoder API.  It is used by the Thomson Reuters Enterp
       - Oracle Linux Server (OLS) 7.0 64-bit
 
 
+      (Windows)
+      - Intel compatible PC and AMD Opteron for 64-bit
+      - CPUs must have high resolution timer frequencies greater than 1GHz.
+      - Microsoft Windows Server 2008 (SP1 or greater) 64-bit 
+      - Microsoft Windows 7 Professional 64-bit
+      - Microsoft Windows 8 Professional 64-bit
+      - Microsoft Windows 8.1 Professional 64-bit 
+     
+      
 # Software Requirements
       (Linux)
       - GCC compiler suite version 4.4.4 or higher for RHEL 6.0 (64-bit)
+      - GCC compiler suite version 4.4.4 or higher for OLS 6.0 (64-bit)
       - GCC compiler suite version 4.8.2 or higher for OLS 7.0 (64-bit)
+      - GCC compiler suite version 4.8.2 or higher for CentOS 7.0 (64-bit)
 
-
+      (Windows)
+      - Microsoft Visual C++ 10.0 64-bit (visual Studio 2010)
+      - Microsoft Visual C++ 11.0 64-bit (Visual Studio 2012)
+      - Microsoft Visual C++ 12.0 64-bit (Visual Studio 2013)
+      
 
 # What can you do with this release?
 The intent of this particular Elektron SDK release is to provide the Beta release of EMA.
@@ -33,8 +48,6 @@ The intent of this particular Elektron SDK release is to provide the Beta releas
 # Limitations
 - The ETA contained in this release is only part of the intended ETA pacakge.  The ETA folder will only contain the required parts for EMA (ValueAdd reactor). You will not be able to build ETA examples or the ETA Value add libraries. 
 - You will need to get the appropriate ETA library package from customer zone to build and run EMA. Instructions on how to obtain that can be found in the following section.
-- This release only supports the "static" version linux. Although the makefiles show options to build shared libraries, the shared builds will not be successful. The shared version will be available in a subsequent release.
-- Windows support will be coming in a subsequent release.
 
 
 # Setup
@@ -62,42 +75,57 @@ https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
 
 Then select the following release:
 
-    eta3.0.0.L1.beta.linux.lib
+    eta3.0.0.L1.beta.<platform>.lib
 
 
 
 # Building (EMA only)
 
-1) Get the libxml2 library
-If your system does not already have libxml2 available, you can build the version that is contained in this release. Just navigate to ema/Src/libxml/src and run the makefile.  The libxml2 library will be created in ema/Src/libxml/src/<platform>/Static.  Copy the resultant library to the corresponding platform ema/Src/Libs directory show below.
+Once you have done the Setup step above, follow these steps below: 
 
+###1) Get or build the libxml2 library.
+
+If your system does not already have libxml2 available, you can build the version that is contained in this release. Just navigate to `ema/Src/libxml/src` and run the makefile or windows project file. 
+
+**For Windows**:
+The *libxml2* library will be created in `ema/Src/libxml/src/Libs`.  Copy the resultant `Libs` directory to the corresponding platform `ema/Src/Libs` directory show below.
+
+**For Linux**: (This will be fixed in a subsequent release to be consistent with Windows)
+The *libxml2* library will be created in `ema/Src/libxml/src/<platform>` where `<platform>` is `OL7_64_gcc482` or `RHEL6_64_GCC444`.
+
+For "shared" libraries, create the following directories (if they don't exist):
 ```
-ema/Libs
-      |
-      OL7_64_gcc482/Optimized
-                   /Optimized_Assert
+ema/Libs/<platform>/Optimized/Shared
+ema/Libs/<platform>/Optimized_Assert/Shared
 ```
-or
 
-```                
-ema/Libs
-      |
-      RHEL6_64_GCC444/Optimized
-                     /Optimized_Assert
-  ```              
+Then, copy the `libxml2.so` to both of the directories listed above.
 
 
-2) Build the EMA library
-The makefile for building the EMA library is located within ema/Src/Access.  
-Once the binaries are built you will need to copy the resultant Lib directory that is created under Access to the top level ema directory.  
+For "static" libraries, create the following directories (if they don't exist):
+```
+ema/Libs/<platform>/Optimized
+ema/Libs/<platform>/Optimized_Assert
+```
 
-3) Build the EMA examples
-After that, you can build any of the EMA examples. Navigate to the example you wish to build and you will find the appropriate makefile.
+Then, copy the `libxml2.a` to both of the directories listed above.
 
-4) Get access to a providing application. 
+
+###2) Build the EMA library
+
+To build the EMA library, navigate to the `ema/Src/Access` folder and run the makefiles/windows project.  
+Once the binaries are built you will need to copy the resultant `Lib` directory that is created under `Access` to the top level `ema` directory.  
+
+####3) Build the EMA examples
+
+After that, you can build any of the EMA examples. Navigate to the example you wish to build and you will find both a makefile and windows project file.
+
+####4) Get access to a providing application. 
+
 You will need a provider component to connect the EMA consumer applications to.  This can be an ADS or API provider application from UPA or RFA.
 
-5) Run the EMA examples
+####5) Run the EMA examples
+
 Once the provider is running and accessible, you can run the EMA examples.  
 
 That should do it!  
