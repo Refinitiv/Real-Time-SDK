@@ -29,7 +29,9 @@ int main( int argc, char* argv[] )
 { 
 	try { 
 		AppClient client;
+		cout << "Starting consumer, connecting and logging on..." << endl;
 		OmmConsumer consumer( OmmConsumerConfig().host( "localhost:14002" ).username( "user" ) );
+		cout << "Consumer logged in; requesting market data..." << endl;
 		consumer.registerClient( ReqMsg().serviceName( "DIRECT_FEED" ).name( "IBM.N" ), client );
 		sleep( 60000 );				// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
 	} catch ( const OmmException& excp ) {

@@ -13,7 +13,7 @@ Transport and OMM encoder/decoder API.  It is used by the Thomson Reuters Enterp
       (Linux)
       - HP Intel PC or AMD Opteron (64-bit)
       - AMD Opteron (64-bit)
-      - Red Hat Enterprise Linux Advanced Server (RHEL) 6.0 64-bit 
+      - Red Hat Enterprise Linux Advanced Server (RHEL) 6.0 64-bit  
       - Oracle Linux Server (OLS) 7.0 64-bit
 
 
@@ -62,8 +62,11 @@ Elektron-SDK1.0.0
       |
       +ema/...
       |
-      +eta/Src
-          /Libs  //Copy the Libs directory from the customer zone package here.
+      +eta
+          |
+          +Src
+          |
+          +Libs  //Copy the Libs directory from the customer zone package here.
 ```
 
 You can find the ETA binaries at the following:
@@ -88,7 +91,7 @@ Once you have done the Setup step above, follow these steps below:
 If your system does not already have libxml2 available, you can build the version that is contained in this release. Just navigate to `ema/Src/libxml/src` and run the makefile or windows project file. 
 
 **For Windows**:
-The *libxml2* library will be created in `ema/Src/libxml/src/Libs`.  Copy the resultant `Libs` directory to the corresponding platform `ema/Src/Libs` directory show below.
+The *libxml2* library will be created in `ema/Src/libxml/src/Libs`.  Copy the resultant `Libs` directory to the corresponding platform `ema/Libs` directory.
 
 **For Linux**: (This will be fixed in a subsequent release to be consistent with Windows)
 The *libxml2* library will be created in `ema/Src/libxml/src/<platform>` where `<platform>` is `OL7_64_gcc482` or `RHEL6_64_GCC444`.
@@ -114,7 +117,7 @@ Then, copy the `libxml2.a` to both of the directories listed above.
 ###2) Build the EMA library
 
 To build the EMA library, navigate to the `ema/Src/Access` folder and run the makefiles/windows project.  
-Once the binaries are built you will need to copy the resultant `Lib` directory that is created under `Access` to the top level `ema` directory.  
+Once the binaries are built you will need to copy the resultant `Lib` directory that is created under `Access` to the top level `ema` directory, merging it with previously created libxml2 library.  
 
 ####3) Build the EMA examples
 
