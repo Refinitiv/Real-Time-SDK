@@ -13,7 +13,7 @@ Transport and OMM encoder/decoder API.  It is used by the Thomson Reuters Enterp
       (Linux)
       - HP Intel PC or AMD Opteron (64-bit)
       - AMD Opteron (64-bit)
-      - Red Hat Enterprise Linux Advanced Server (RHEL) 6.0 64-bit 
+      - Red Hat Enterprise Linux Advanced Server (RHEL) 6.0 64-bit
       - Oracle Linux Server (OLS) 7.0 64-bit
 
 
@@ -88,7 +88,7 @@ Once you have done the Setup step above, follow these steps below:
 If your system does not already have libxml2 available, you can build the version that is contained in this release. Just navigate to `ema/Src/libxml/src` and run the makefile or windows project file. 
 
 **For Windows**:
-The *libxml2* library will be created in `ema/Src/libxml/src/Libs`.  Copy the resultant `Libs` directory to the corresponding platform `ema/Src/Libs` directory show below.
+The *libxml2* library will be created in `ema/Src/libxml/src/Libs`.  Copy the resultant `Libs` directory to the corresponding platform `ema/Libs` directory.
 
 **For Linux**: (This will be fixed in a subsequent release to be consistent with Windows)
 The *libxml2* library will be created in `ema/Src/libxml/src/<platform>` where `<platform>` is `OL7_64_gcc482` or `RHEL6_64_GCC444`.
@@ -114,7 +114,7 @@ Then, copy the `libxml2.a` to both of the directories listed above.
 ###2) Build the EMA library
 
 To build the EMA library, navigate to the `ema/Src/Access` folder and run the makefiles/windows project.  
-Once the binaries are built you will need to copy the resultant `Lib` directory that is created under `Access` to the top level `ema` directory.  
+Once the binaries are built you will need to copy the resultant `Lib` directory that is created under `Access` to the top level `ema` directory, merging it with previously created libxml2 library.  
 
 ####3) Build the EMA examples
 
@@ -139,6 +139,15 @@ If you have discover any issues with regards to this project, please feel free t
 If you have coding suggestions that you would like to provide for review, please create a Pull Request.
 
 We will review issues and pull requests to determine any appropriate changes.
+
+
+# Contributing
+In the event you would like to contribute to this repository, it is required that you read and sign the following:
+
+- [Individual Contributor License Agreement](Elektron API Individual Contributor License Agreement.pdf)
+- [Entity Contributor License Agreement](Elektron API Entity Contributor License Agreement.pdf)
+
+Please email a signed and scanned copy to sdkagreement@thomsonreuters.com.  If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
 
 
 # Notes:
