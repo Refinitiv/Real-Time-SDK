@@ -85,7 +85,7 @@ const EmaString& OmmError::toString() const
 
 const EmaString& OmmError::toString( UInt64 indent ) const
 {
-	addIndent( _toString.clear(), indent++ ).append( "OmmError" );
+	addIndent( _toString.clear(), indent ).append( "OmmError" );
 
 	++indent;
 	addIndent( _toString, indent, true ).append( "ErrorCode=\"" ).append( getErrorCodeAsString() ).append( "\"" );

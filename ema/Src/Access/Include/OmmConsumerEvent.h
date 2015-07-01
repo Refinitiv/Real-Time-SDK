@@ -46,7 +46,7 @@ public :
 	UInt64 getHandle() const;
 
 	/** Returns an identifier (a.k.a., closure) associated with an open stream by consumer application
-		Application associates closure with an open iteam stream on OmmConsumer::registerClient()
+		Application associates the closure with an open item stream on OmmConsumer::registerClient()
 		@return closure value
 	*/
 	void* getClosure() const;

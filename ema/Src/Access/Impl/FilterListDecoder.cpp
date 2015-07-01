@@ -25,7 +25,6 @@ FilterListDecoder::FilterListDecoder() :
  _decodingStarted( false ),
  _atEnd( false )
 {
-	rsslClearFilterList( &_rsslFilterList );
 }
 
 FilterListDecoder::~FilterListDecoder()

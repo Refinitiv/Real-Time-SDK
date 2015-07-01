@@ -232,7 +232,7 @@ private :
 
 	friend class Msg;
 
-	MsgDecoder*		_pDecoder;
+	const Data*		_pPayload;
 
 	Payload();
 	Payload( const Payload& );

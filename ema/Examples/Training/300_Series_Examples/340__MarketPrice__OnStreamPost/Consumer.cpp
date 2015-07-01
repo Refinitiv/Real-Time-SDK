@@ -24,7 +24,8 @@ void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEve
 	if ( refreshMsg.getState().getStreamState() == OmmState::OpenEnum &&
 		refreshMsg.getState().getDataState() == OmmState::OkEnum )
 	{
-		_pOmmConsumer->submit( PostMsg().postId( 1 ).serviceId( 1701 ).name( "IBM.N" ).solicitAck( true ).complete().payload( FieldList().addReal( 25, 35, OmmReal::ExponentPos1Enum ).complete() ), ommEvent.getHandle() );
+		_pOmmConsumer->submit( PostMsg().postId( 1 ).serviceId( 1701 ).name( "IBM.N" ).solicitAck( true ).complete().payload( 
+		UpdateMsg().payload( FieldList().addReal( 25, 80, OmmReal::ExponentPos1Enum ).complete() ) ) , ommEvent.getHandle() );
 	}
 
 	decode( refreshMsg );
@@ -212,7 +213,7 @@ int main(int argc, char* argv[])
 {
 	try {
 		AppClient client;
-		OmmConsumer consumer( OmmConsumerConfig().host( "localhost:14002" ).username( "user" ) );
+		OmmConsumer consumer( OmmConsumerConfig().username( "user" ) );
 		client.setOmmConsumer( consumer );
 		void* closure = (void*)1;
 		UInt64 handle = consumer.registerClient( ReqMsg().serviceName( "DIRECT_FEED" ).name( "IBM.N" ), client, closure );

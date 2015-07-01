@@ -13,9 +13,10 @@ Transport and OMM encoder/decoder API.  It is used by the Thomson Reuters Enterp
       (Linux)
       - HP Intel PC or AMD Opteron (64-bit)
       - AMD Opteron (64-bit)
-      - Red Hat Enterprise Linux Advanced Server (RHEL) 6.0 64-bit
-      - Oracle Linux Server (OLS) 7.0 64-bit
-
+      - Red Hat Enterprise Linux Advanced Server (RHEL) 6.0 64-bit 
+      - Oracle Linux (OL) 6.0 64-bit (Qualified on RHEL 6.0)
+      - Oracle Linux (OL) 7.0 64-bit
+      - CentOS 7 64-bit (Qualified on Oracle Linux 7.0)
 
       (Windows)
       - Intel compatible PC and AMD Opteron for 64-bit
@@ -29,8 +30,8 @@ Transport and OMM encoder/decoder API.  It is used by the Thomson Reuters Enterp
 # Software Requirements
       (Linux)
       - GCC compiler suite version 4.4.4 or higher for RHEL 6.0 (64-bit)
-      - GCC compiler suite version 4.4.4 or higher for OLS 6.0 (64-bit)
-      - GCC compiler suite version 4.8.2 or higher for OLS 7.0 (64-bit)
+      - GCC compiler suite version 4.4.4 or higher for OL 6.0 (64-bit)
+      - GCC compiler suite version 4.8.2 or higher for OL 7.0 (64-bit)
       - GCC compiler suite version 4.8.2 or higher for CentOS 7.0 (64-bit)
 
       (Windows)
@@ -46,6 +47,8 @@ The intent of this particular Elektron SDK release is to provide the Beta releas
 - Consumer Interaction Only
 
 # Limitations
+- CentOS 7 is supported when building it against Oracle Linux 7 built libema.  The examples can be built with CentOS 7, but will build against Oracle Linux 7 libraries.
+- Oracle Linux 6 is supported when building it against RedHat 6 built libema.  The examples can be built with Oracle Linux 6, but will build against Redhat 6 libraries.
 - The ETA contained in this release is only part of the intended ETA pacakge.  The ETA folder will only contain the required parts for EMA (ValueAdd reactor). You will not be able to build ETA examples or the ETA Value add libraries. 
 - You will need to get the appropriate ETA library package from customer zone to build and run EMA. Instructions on how to obtain that can be found in the following section.
 

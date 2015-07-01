@@ -316,11 +316,11 @@ public :
 	*/
 	PostMsg& payload( const ComplexType& data );
 
-	/** Specifies Header.
-		@param[in] buffer an EmaBuffer containing header information
+	/** Specifies ExtendedHeader.
+		@param[in] buffer an EmaBuffer containing extendedHeader information
 		@return reference to this object
 	*/
-	PostMsg& header( const EmaBuffer& buffer );
+	PostMsg& extendedHeader( const EmaBuffer& buffer );
 
 	/** Specifies acknowledgement.
 		@param[in] ack specifies if an acknowledgement is requested (default value is false)

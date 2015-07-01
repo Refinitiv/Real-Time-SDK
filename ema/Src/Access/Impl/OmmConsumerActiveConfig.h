@@ -19,8 +19,9 @@
 #define DEFAULT_COMPRESSION_TYPE					RSSL_COMP_NONE
 #define DEFAULT_CONNECTION_TYPE						RSSL_CONN_TYPE_SOCKET
 #define DEFAULT_CONNECTION_PINGTIMEOUT				30000
+#define DEFAULT_DICTIONARY_REQUEST_TIMEOUT			45000
 #define DEFAULT_DICTIONARY_TYPE						Dictionary::FileDictionaryEnum
-#define DEFAULT_DIRECTORY_REQUEST_TIMEOUT			45
+#define DEFAULT_DIRECTORY_REQUEST_TIMEOUT			45000
 #define DEFAULT_DISPATCH_TIMEOUT_API_THREAD			-1
 #define DEFAULT_GUARANTEED_OUTPUT_BUFFERS			100
 #define DEFAULT_HANDLE_EXCEPTION					true
@@ -30,9 +31,9 @@
 #define DEFAULT_ITEM_COUNT_HINT						100000
 #define DEFAULT_LOGGER_SEVERITY						OmmLoggerClient::SuccessEnum
 #define DEFAULT_LOGGER_TYPE							OmmLoggerClient::StdoutEnum
-#define DEFAULT_LOGIN_REQUEST_TIMEOUT               45
+#define DEFAULT_LOGIN_REQUEST_TIMEOUT               45000
 #define DEFAULT_MAX_DISPATCH_COUNT_API_THREAD		100
-#define DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD		1
+#define DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD		100
 #define DEFAULT_MAX_OUTSTANDING_POSTS				100000
 #define DEFAULT_MSGKEYINUPDATES						true
 #define DEFAULT_OBEY_OPEN_WINDOW					1
@@ -230,6 +231,7 @@ public :
 	void setMaxDispatchCountUserThread(UInt64 value);
 	void setLoginRequestTimeOut( UInt64 );
 	void setDirectoryRequestTimeOut( UInt64 );
+	void setDictionaryRequestTimeOut( UInt64 );
 
 	EmaString						consumerName;
 	EmaString                       instanceName;
@@ -245,6 +247,7 @@ public :
 	UInt32							maxOutstandingPosts;
 	UInt32							loginRequestTimeOut;
 	UInt32							directoryRequestTimeOut;
+	UInt32							dictionaryRequestTimeOut;
 	bool                            catchUnhandledException;
 
 	OmmConsumerConfig::OperationModel		userDispatch;

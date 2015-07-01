@@ -123,7 +123,7 @@ int main( int argc, char* argv[] )
 	AppClient client;
 	AppErrorClient errorClient;
 	UInt64 invalidHandle = 0;
-	OmmConsumer consumer( OmmConsumerConfig().host( "localhost:14002" ).username( "user" ), errorClient );
+	OmmConsumer consumer( OmmConsumerConfig().username( "user" ), errorClient );
 	consumer.reissue( ReqMsg(), invalidHandle );
 	consumer.submit ( GenericMsg(), invalidHandle );
 	consumer.submit ( PostMsg(), invalidHandle );

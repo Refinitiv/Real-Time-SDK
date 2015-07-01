@@ -24,7 +24,8 @@ void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEve
 		refreshMsg.getState().getStreamState() == OmmState::OpenEnum &&
 		refreshMsg.getState().getDataState() == OmmState::OkEnum )
 	{
-		_pOmmConsumer->submit( PostMsg().postId( 1 ).serviceId( 1701 ).name( "IBM.N" ).solicitAck( true ).complete().payload( FieldList().addReal( 25, 35, OmmReal::ExponentPos1Enum ).complete() ), ommEvent.getHandle() );
+		_pOmmConsumer->submit( PostMsg().postId( 1 ).serviceId( 1501 ).name( "TRI.N" ).solicitAck( true ).complete().payload( 
+		RefreshMsg().payload( FieldList().addReal( 25, 35, OmmReal::ExponentPos1Enum ).complete() ).complete() ), ommEvent.getHandle() );
 	}
 
 	decode( refreshMsg );
@@ -51,7 +52,7 @@ void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent&
 		cout << endl << "Item State: " << statusMsg.getState().toString() << endl;
 }
 
-void AppClient::processAckMsg( const AckMsg& ackMsg, const OmmConsumerEvent& event )
+void AppClient::onAckMsg( const AckMsg& ackMsg, const OmmConsumerEvent& event )
 {
 	cout << endl << "Received:    AckMsg" << endl << "Item Handle: " << event.getHandle() << endl << "Closure:     " << event.getClosure() << endl;
 	
@@ -213,7 +214,7 @@ int main( int argc, char* argv[] )
 {
 	try {
 		AppClient client;
-		OmmConsumer consumer( OmmConsumerConfig().host( "localhost:14002" ).username( "user" ) );
+		OmmConsumer consumer( OmmConsumerConfig().username( "user" ) );
 		client.setOmmConsumer( consumer );
 		void* closure = (void*)1;
 

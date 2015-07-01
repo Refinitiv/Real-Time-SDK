@@ -237,7 +237,7 @@ int main( int argc, char* argv[] )
 {
 	try {
 		AppClient client;
-		OmmConsumer consumer( OmmConsumerConfig().host( "localhost:14002" ).username( "user" ) );
+		OmmConsumer consumer( OmmConsumerConfig().username( "user" ) );
 		client.setOmmConsumer( consumer );
 		void* closure = (void*)1;
 		UInt64 handle = consumer.registerClient( ReqMsg().domainType( 200 ).serviceName( "DIRECT_FEED" ).name( "IBM.XYZ" ).privateStream( true ), client, closure );

@@ -1,42 +1,37 @@
 Summary
 =======
 
-The 102__MarketPrice__Snapshot is an example of an OMM Consumer application
-written to the EMA library.
-
-This application demonstrates basic usage of the EMA library to access and
-parse OMM MarketPrice data either from Reuters Data Feed Direct (RDF-D),
+102__MarketPrice__Snapshot is an example of an OMM Consumer application
+written to the EMA library and demonstrates basic usage of the EMA library 
+in accessing and parsing OMM MarketPrice data either from Reuters Data Feed Direct (RDF-D),
 directly from an OMM Provider application, or from a Thomson Reuters Advanced
 Distribution Server.
 
-The 102__MarketPrice__Snapshot showcases opening of a single snapshot OMM item.
-While processing received messages this application simply prints them out to the
-screen.
+102__MarketPrice__Snapshot illustrates how to open a single snapshot OMM item.
+While processing received messages, the application prints them to the screen.
 
 
 Detailed Description
 ====================
 
-The 102__MarketPrice__Snapshot implements the following high level steps:
+102__MarketPrice__Snapshot implements the following high-level steps:
 
 + Implements the OmmConsumerClient class in an AppClient
-  - overrides desired methods
+  - Overrides desired methods
 + Instantiates an AppClient object to receive and process item messages
-+ Instantiates and modifies OmmConsumerConfig object
-  - sets user name to "user"
-  - sets host name on the preconfigured connection to "localhost"
-  - sets port on the preconfigured connection to "14002"
++ Instantiates and modifies an OmmConsumerConfig object:
+  - Sets the username to "user"
+  - Sets the hostname on the preconfigured connection to "localhost"
+  - Sets port on the preconfigured connection to "14002"
 + Instantiates an OmmConsumer object which initializes the connection 
   and logs into the specified server.
-+ Opens snapshot item interest
-  - MarketPrice IBM.N item from DIRECT_FEED service
-  - uses interestAfterRefresh( false ) to make it a snapshot request
-+ Processes data received from API for 60 seconds
-  - all received messages are processed on the API thread of control
-+ exits
++ Opens snapshot item interest:
+  - MarketPrice IBM.N item from the DIRECT_FEED service
+  - Uses interestAfterRefresh( false ) to make it a snapshot request
++ Processes data received from the API for 60 seconds
+  - The API thread of control processes all received messages.
++ Exits
 
-Note: if needed, these and other details may be modified to fit local
-      environment.
-	  
-Note: please refer to the EMA library ReadMe.txt file for details on
-      standard configuration.
+Note: If needed, you can modify these and other details to fit your local
+      environment. For details on standard configuration, refer to the
+      EMA library ReadMe.txt file and the EMA Configuration Guide.

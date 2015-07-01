@@ -264,11 +264,11 @@ public :
 	*/
 	GenericMsg& payload( const ComplexType& data );
 
-	/** Specifies Header.
-		@param[in] buffer an EmaBuffer containing header information
+	/** Specifies ExtendedHeader.
+		@param[in] buffer an EmaBuffer containing extendedHeader information
 		@return reference to this object
 	*/
-	GenericMsg& header( const EmaBuffer& buffer );
+	GenericMsg& extendedHeader( const EmaBuffer& buffer );
 
 	/** Specifies Complete.
 		\remark must be set to true for one part generic message
@@ -279,6 +279,8 @@ public :
 	//@}
 
 private :
+
+	friend class ItemCallbackClient;
 
 	const EmaString& toString( UInt64 indent ) const;
 

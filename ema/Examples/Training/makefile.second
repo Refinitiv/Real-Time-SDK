@@ -1,0 +1,23 @@
+include ../../../../makefile.common
+include ../../makefile.examples.common
+
+EXAMPLE_NUMBER=$(shell basename $$(pwd) | sed 's/__.*//')
+EXAMPLE_NAME = Consumer$(EXAMPLE_NUMBER)
+LNCMD= ln -is
+
+TARGETS += $(OUTPUT_DIR)/$(EXAMPLE_NAME)
+
+SRC=	$(shell ls *.cpp)
+OBJ=	$(addprefix $(OUTPUT_DIR)/obj/, $(SRC:%.cpp=%.o))
+
+$(OUTPUT_DIR)/$(EXAMPLE_NAME):		$(OBJ)
+	$(CC) -o $@ $^ $(LIBS)
+	@ln -is $(ROOTNODE)/ema/Etc/RDMFieldDictionary $(ROOTNODE)/ema/Etc/enumtype.def $(EXE_DIR)
+	@if [ $(EXAMPLE_NUMBER) -eq 110 ] ||					\
+	 ( [ $(EXAMPLE_NUMBER) -ge 300 ] && [ $(EXAMPLE_NUMBER) -ne 421 ] );	\
+		then $(LNCMD) $(ROOTNODE)/ema/Examples/EmaConfig.xml $(EXE_DIR);fi
+
+optimizedStatic:	$(TARGETS)
+optimizedShared:	$(TARGETS)
+optimizedAssertStatic:	$(TARGETS)
+optimizedAssertShared:	$(TARGETS)

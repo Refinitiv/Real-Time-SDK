@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Release MD|x64">
@@ -27,8 +27,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>Ema</ProjectName>
-    <ProjectGuid>{090776CA-C1F0-424E-AA82-04420F842D96}</ProjectGuid>
+    <ProjectName>ema</ProjectName>
+    <ProjectGuid>{DB5232C4-2812-4622-976E-64F26C10908D}</ProjectGuid>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'" Label="Configuration">
@@ -60,7 +60,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-  </PropertyGroup>
+   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -106,8 +106,8 @@
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release Shared MD Assert|x64'">Libs\WIN_64_VS100\Release_MD_Assert\Shared</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release Shared MD Assert|x64'">Libs\WIN_64_VS100\Release_MD_Assert\Shared</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release Shared MD Assert|x64'">Libs\WIN_64_VS100\Release_MD_Assert\Shared\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release Shared MD Assert|x64'">Libs\WIN_64_VS100\Release_MD_Assert\Shared\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release Shared MD Assert|x64'">false</LinkIncremental>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release Shared MD Assert|x64'">libema</TargetName>
   </PropertyGroup>
@@ -151,7 +151,7 @@
       <DisableSpecificWarnings>4290;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>msvcprt.lib;msvcrt.lib;ws2_32.lib; %(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>msvcprt.lib;msvcrt.lib; ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)libema.lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\Libs\WIN_64_VS100\Release_MD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -166,7 +166,7 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <Lib>
-      <AdditionalDependencies>librsslTransport.lib;librsslReactor.lib;librsslRDM.lib;librsslVAUtil.lib;libxml2.lib</AdditionalDependencies>
+      <AdditionalDependencies> librsslTransport.lib; librsslReactor.lib; librsslRDM.lib; librsslVAUtil.lib; libxml2.lib;</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>..\..\..\eta\Libs\ValueAdd\WIN_64_VS100\Release_MD;..\..\Libs\WIN_64_VS100\Release_MD;..\..\..\eta\Libs\WIN_64_VS100\Release_MD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -200,7 +200,7 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>msvcprt.lib;msvcrt.lib;ws2_32.lib;libxml2.lib;librssl.lib;librsslVA.lib; %(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>msvcprt.lib;msvcrt.lib; ws2_32.lib; libxml2.lib; librssl.lib; librsslVA.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)libema.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\..\eta\Libs\ValueAdd\WIN_64_VS100\Release_MD\Shared;..\..\..\eta\Libs\WIN_64_VS100\Release_MD\Shared;..\..\Libs\WIN_64_VS100\Release_MD\Shared;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -242,7 +242,7 @@
       <DisableSpecificWarnings>4290;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>msvcprt.lib;msvcrt.lib;ws2_32.lib; %(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>msvcprt.lib;msvcrt.lib; ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)libema.lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\Libs\WIN_64_VS100\Release_MD_Assert;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -257,7 +257,7 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <Lib>
-      <AdditionalDependencies>librsslTransport.lib;librsslReactor.lib;librsslRDM.lib;librsslVAUtil.lib;libxml2.lib</AdditionalDependencies>
+      <AdditionalDependencies> librsslTransport.lib; librsslReactor.lib; librsslRDM.lib; librsslVAUtil.lib; libxml2.lib;</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>..\..\..\eta\Libs\ValueAdd\WIN_64_VS100\Release_MD_Assert;..\..\Libs\WIN_64_VS100\Release_MD_Assert;..\..\..\eta\Libs\WIN_64_VS100\Release_MD_Assert;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -291,7 +291,7 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>msvcprt.lib;msvcrt.lib;ws2_32.lib;libxml2.lib;librssl.lib;librsslVA.lib; %(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>msvcprt.lib;msvcrt.lib; ws2_32.lib; libxml2.lib; librssl.lib; librsslVA.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)libema.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\..\eta\Libs\ValueAdd\WIN_64_VS100\Release_MD_Assert\Shared;..\..\..\eta\Libs\WIN_64_VS100\Release_MD_Assert\Shared;..\..\Libs\WIN_64_VS100\Release_MD_Assert\Shared;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -333,7 +333,7 @@
       <DisableSpecificWarnings>4290;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>msvcprtd.lib;msvcrtd.lib;ws2_32.lib; %(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>msvcprtd.lib;msvcrtd.lib; ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)libema.lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\Libs\WIN_64_VS100\Debug_MDd;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -348,7 +348,7 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <Lib>
-      <AdditionalDependencies>librsslTransport.lib;librsslReactor.lib;librsslRDM.lib;librsslVAUtil.lib;libxml2.lib</AdditionalDependencies>
+      <AdditionalDependencies> librsslTransport.lib; librsslReactor.lib; librsslRDM.lib; librsslVAUtil.lib; libxml2.lib;</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>..\..\..\eta\Libs\ValueAdd\WIN_64_VS100\Debug_MDd;..\..\..\eta\Libs\WIN_64_VS100\Debug_MDd;..\..\Libs\WIN_64_VS100\Debug_MDd;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -382,7 +382,7 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>msvcprtd.lib;msvcrtd.lib;ws2_32.lib;libxml2.lib;librssl.lib;librsslVA.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>msvcprtd.lib;msvcrtd.lib; ws2_32.lib; libxml2.lib; librssl.lib; librsslVA.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)libema.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\..\eta\Libs\ValueAdd\WIN_64_VS100\Debug_MDd\Shared;..\..\..\eta\Libs\WIN_64_VS100\Debug_MDd\Shared;..\..\Libs\WIN_64_VS100\Debug_MDd\Shared;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -543,7 +543,7 @@
     <ClCompile Include="Impl\StatusMsg.cpp" />
     <ClCompile Include="Impl\StatusMsgDecoder.cpp" />
     <ClCompile Include="Impl\StatusMsgEncoder.cpp" />
-    <ClCompile Include="Impl\Summary.cpp" />
+    <ClCompile Include="Impl\SummaryData.cpp" />
     <ClCompile Include="Impl\Thread.cpp" />
     <ClCompile Include="Impl\TimeOut.cpp" />
     <ClCompile Include="Impl\UpdateMsg.cpp" />
@@ -715,15 +715,13 @@
     <ClInclude Include="Include\Series.h" />
     <ClInclude Include="Include\SeriesEntry.h" />
     <ClInclude Include="Include\StatusMsg.h" />
-    <ClInclude Include="Include\Summary.h" />
+    <ClInclude Include="Include\SummaryData.h" />
     <ClInclude Include="Include\UpdateMsg.h" />
     <ClInclude Include="Include\Vector.h" />
     <ClInclude Include="Include\VectorEntry.h" />
     <ClInclude Include="..\Rdm\Impl\RdmUtilities.h" />
     <ClInclude Include="..\Rdm\Include\EmaRdm.h" />
     <ClInclude Include="EmaVersion.h" />
-  </ItemGroup>
-  <ItemGroup>
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>

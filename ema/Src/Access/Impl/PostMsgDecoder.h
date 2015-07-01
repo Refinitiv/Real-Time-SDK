@@ -56,7 +56,7 @@ public :
 
 	bool hasPayload() const;
 
-	bool hasHeader() const;
+	bool hasExtendedHeader() const;
 
 	bool hasSeqNum() const;
 
@@ -100,7 +100,7 @@ public :
 
 	const EmaBuffer& getPermissionData() const;
 
-	const EmaBuffer& getHeader() const;
+	const EmaBuffer& getExtendedHeader() const;
 
 	const EmaBuffer& getHexBuffer() const;
 

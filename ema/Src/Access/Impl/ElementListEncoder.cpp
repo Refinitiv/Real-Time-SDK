@@ -38,8 +38,6 @@ ElementListEncoder::ElementListEncoder() :
  _rsslElementList(),
  _rsslElementEntry()
 {
-	rsslClearElementList( &_rsslElementList );
-	rsslClearElementEntry( &_rsslElementEntry );
 }
 
 ElementListEncoder::~ElementListEncoder()
@@ -325,8 +323,8 @@ void ElementListEncoder::addTime( const EmaString& name, UInt8 hour, UInt8 minut
 		temp.append( (UInt32)hour ).append( ":" ).
 			append( (UInt32)minute ).append( ":" ).
 			append( (UInt32)second ).append( "." ).
-			append( (UInt32)second ).append( "." ).
-			append( (UInt32)second ).append( "." ).
+			append( (UInt32)millisecond ).append( "." ).
+			append( (UInt32)microsecond ).append( "." ).
 			append( (UInt32)nanosecond ).append( "'." );
 		throwOorException( temp );
 		return;
@@ -369,8 +367,8 @@ void ElementListEncoder::addDateTime( const EmaString& name,
 			append( (UInt32)hour ).append( ":" ).
 			append( (UInt32)minute ).append( ":" ).
 			append( (UInt32)second ).append( "." ).
-			append( (UInt32)second ).append( "." ).
-			append( (UInt32)second ).append( "." ).
+			append( (UInt32)millisecond ).append( "." ).
+			append( (UInt32)microsecond ).append( "." ).
 			append( (UInt32)nanosecond ).append( "'." );
 		throwOorException( temp );
 		return;

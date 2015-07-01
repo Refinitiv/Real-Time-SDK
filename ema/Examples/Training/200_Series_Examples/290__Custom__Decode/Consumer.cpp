@@ -95,19 +95,19 @@ void AppClient::decode( const Payload& payload )
 
 void AppClient::decode( const Map& map )
 {
-	switch ( map.getSummary().getDataType() )
+	switch ( map.getSummaryData().getDataType() )
 	{
 	case DataType::FieldListEnum :
-		decode( map.getSummary().getFieldList() );
+		decode( map.getSummaryData().getFieldList() );
 		break;
 	case DataType::MapEnum :
-		decode( map.getSummary().getMap() );
+		decode( map.getSummaryData().getMap() );
 		break;
 	case DataType::RefreshMsgEnum :
-		decode( map.getSummary().getRefreshMsg() );
+		decode( map.getSummaryData().getRefreshMsg() );
 		break;
 	case DataType::UpdateMsgEnum :
-		decode( map.getSummary().getUpdateMsg() );
+		decode( map.getSummaryData().getUpdateMsg() );
 		break;
 	}
 

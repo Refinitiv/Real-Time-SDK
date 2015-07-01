@@ -70,10 +70,10 @@ void AppClient::decode( const Msg& msg )
 
 void AppClient::decode( const Series & sr )
 {
-	switch ( sr.getSummary().getDataType() )
+	switch ( sr.getSummaryData().getDataType() )
 	{
 	case DataType::ElementListEnum:
-		decode( sr.getSummary().getElementList() );
+		decode( sr.getSummaryData().getElementList() );
 		break;
 	default:
 		cout << endl;
@@ -238,7 +238,7 @@ int main( int argc, char* argv[] )
 {
 	try {
 		AppClient client;
-		OmmConsumer consumer( OmmConsumerConfig().host( "localhost:14002" ).username( "user" ) );
+		OmmConsumer consumer( OmmConsumerConfig().username( "user" ) );
 		void* closure = (void*)1;
 		
 		// Open Dictionary streams

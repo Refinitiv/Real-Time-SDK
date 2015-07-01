@@ -38,26 +38,10 @@ void OmmAsciiDecoder::setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataD
 
 void OmmAsciiDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* )
 {
-	RsslRet retCode = rsslDecodeBuffer( dIter, &_rsslBuffer );
-
-	switch ( retCode )
-	{
-	case RSSL_RET_BLANK_DATA :
-		_dataCode = Data::BlankEnum;
-		break;
-	case RSSL_RET_SUCCESS :
+	if ( rsslDecodeBuffer( dIter, &_rsslBuffer ) == RSSL_RET_SUCCESS )
 		_dataCode = Data::NoCodeEnum;
-		break;
-	case RSSL_RET_INCOMPLETE_DATA :
-	default :
-		{
-			_dataCode = Data::BlankEnum;
-			EmaString temp( "Failed to decode OmmAscii. Reason: " );
-			temp += rsslRetCodeToString( retCode );
-			throwIueException( temp );
-		}
-		break;
-	}
+	else
+		_dataCode = Data::BlankEnum;
 }
 
 const EmaString& OmmAsciiDecoder::toString()

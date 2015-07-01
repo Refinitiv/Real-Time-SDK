@@ -35,7 +35,7 @@ var searchData=
   ['_7ermtesbuffer',['~RmtesBuffer',['../a00062.html#aebebb1c5fde5d94930aeeda5abefc4aa',1,'thomsonreuters::ema::access::RmtesBuffer']]],
   ['_7eseries',['~Series',['../a00063.html#a06eff953b89404c635dd306d571eb038',1,'thomsonreuters::ema::access::Series']]],
   ['_7estatusmsg',['~StatusMsg',['../a00065.html#a8bf6be034b0a002f075d2b1428e4263c',1,'thomsonreuters::ema::access::StatusMsg']]],
-  ['_7esummary',['~Summary',['../a00066.html#a35f969f9b8d36c3920298a64a4dd10ca',1,'thomsonreuters::ema::access::Summary']]],
+  ['_7esummarydata',['~SummaryData',['../a00066.html#ae485289aa71f6231587e06cbec203e62',1,'thomsonreuters::ema::access::SummaryData']]],
   ['_7eupdatemsg',['~UpdateMsg',['../a00067.html#aadd1ec3e401c3741ba7a8ab2e3f49e89',1,'thomsonreuters::ema::access::UpdateMsg']]],
   ['_7evector',['~Vector',['../a00068.html#a7d7a0a9e986f7aecb1aac642035f0354',1,'thomsonreuters::ema::access::Vector']]]
 ];

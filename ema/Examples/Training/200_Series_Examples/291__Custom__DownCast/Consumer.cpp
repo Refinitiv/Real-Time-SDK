@@ -115,7 +115,7 @@ void AppClient::decode( const Data& data )
 void AppClient::decodeMap( const Map& map )
 {
 	cout << "Map Summary" << endl;
-	decode( map.getSummary().getData() );
+	decode( map.getSummaryData().getData() );
 
 	while ( !map.forth() )
 	{

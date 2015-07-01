@@ -415,7 +415,7 @@ void ReqMsgEncoder::checkBatchView( RsslBuffer* pRsslBuffer )
 
 							while ( rsslDecodeArrayEntry( &decodeIter, &rsslBuffer ) != RSSL_RET_END_OF_CONTAINER )
 							{
-								if (rsslDecodeBuffer( &decodeIter, &rsslBuffer ) == RSSL_RET_SUCCESS )
+								if ( rsslDecodeBuffer( &decodeIter, &rsslBuffer ) == RSSL_RET_SUCCESS )
 								{
 									numOfItems++;
 									addBatchItemList( rsslBuffer );

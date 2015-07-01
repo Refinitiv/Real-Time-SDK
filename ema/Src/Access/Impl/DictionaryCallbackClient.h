@@ -116,7 +116,7 @@ public :
 
 	void removeListener( DictionaryItem* item );
 
-	const EmaList<Item>* getListenerList() const;
+	const EmaVector<DictionaryItem*>* getListenerList() const;
 
 private :
 
@@ -130,7 +130,7 @@ private :
 	bool						_isFldLoaded;
 	bool						_isEnumLoaded;
 	Mutex						_channelDictLock;
-	EmaList<Item>* 				_pListenerList;
+	EmaVector<DictionaryItem*>* 				_pListenerList;
 
 	ChannelDictionary( const ChannelDictionary& );
 	ChannelDictionary& operator=( const ChannelDictionary& );
@@ -206,6 +206,7 @@ public :
 	bool submit( const PostMsg& );
 	bool submit( const GenericMsg& );
 	bool close();
+	void remove();
 
 	const EmaString& getName();
 	unsigned char getFilter();
@@ -221,20 +222,20 @@ public :
 
 	static void ScheduleRemove( void* );
 
-	virtual ~DictionaryItem();
-	DictionaryItem();
+	ItemType getType() const { return Item::DictionaryItemEnum; }
 
 private :
 		
 	static const EmaString		_clientName;
-
-	EmaString _name;
-	unsigned char _filter;
-	Int32 _currentFid;
-	bool _isRemoved;
+	EmaString					_name;
+	UInt8						_filter;
+	Int32						_currentFid;
+	bool						_isRemoved;
 
 	DictionaryItem( OmmConsumerImpl& , OmmConsumerClient& , void* );
 	
+	DictionaryItem();
+	virtual ~DictionaryItem();
 	DictionaryItem( const DictionaryItem& );
 	DictionaryItem& operator=( const DictionaryItem& );
 };

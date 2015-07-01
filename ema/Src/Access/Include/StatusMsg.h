@@ -294,11 +294,11 @@ public :
 	*/
 	StatusMsg& payload( const ComplexType& data );
 
-	/** Specifies Header.
-		@param[in] buffer an EmaBuffer containing header information
+	/** Specifies ExtendedHeader.
+		@param[in] buffer an EmaBuffer containing extendedHeader information
 		@return reference to this object
 	*/
-	StatusMsg& header( const EmaBuffer& buffer );
+	StatusMsg& extendedHeader( const EmaBuffer& buffer );
 
 	/** Specifies ClearCache.
 		@param[in] clearCache true if cache needs to be cleared; false otherwise (default value is false)

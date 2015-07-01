@@ -200,7 +200,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a18bf90254ecda4fcf2ab244a814ff3e8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00002.html">AckMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00002.html#a18bf90254ecda4fcf2ab244a814ff3e8">text</a> (const <a class="el" href="a00011.html">EmaString</a> &amp;<a class="el" href="a00002.html#a18bf90254ecda4fcf2ab244a814ff3e8">text</a>)</td></tr>
 <tr class="memitem:a48179a2abe8586bf5b11d6232b675667"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00002.html">AckMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00002.html#a48179a2abe8586bf5b11d6232b675667">attrib</a> (const <a class="el" href="a00004.html">ComplexType</a> &amp;<a class="el" href="a00002.html#a48179a2abe8586bf5b11d6232b675667">attrib</a>)</td></tr>
 <tr class="memitem:a9102f1feec1f5474aa68d1baf3e8fb1c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00002.html">AckMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00002.html#a9102f1feec1f5474aa68d1baf3e8fb1c">payload</a> (const <a class="el" href="a00004.html">ComplexType</a> &amp;<a class="el" href="a00002.html#a9102f1feec1f5474aa68d1baf3e8fb1c">payload</a>)</td></tr>
-<tr class="memitem:a39460c805bc40dfcde4062f85b2b9eda"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00002.html">AckMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00002.html#a39460c805bc40dfcde4062f85b2b9eda">header</a> (const <a class="el" href="a00009.html">EmaBuffer</a> &amp;buffer)</td></tr>
+<tr class="memitem:a8ae330143576f85ec4312846a1684d91"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00002.html">AckMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00002.html#a8ae330143576f85ec4312846a1684d91">extendedHeader</a> (const <a class="el" href="a00009.html">EmaBuffer</a> &amp;buffer)</td></tr>
 <tr class="memitem:af82b8f49d8ac7aaeac817f3f29df25b8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00002.html">AckMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00002.html#af82b8f49d8ac7aaeac817f3f29df25b8">privateStream</a> (bool <a class="el" href="a00002.html#af82b8f49d8ac7aaeac817f3f29df25b8">privateStream</a>=false)</td></tr>
 <tr><td colspan="2"><h2><a name="friends"></a>
 Friends</h2></td></tr>
@@ -425,6 +425,31 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">domainType</td><td>specifies RDM Message Model Type (default value is rdm::MMT_MARKET_PRICE) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a8ae330143576f85ec4312846a1684d91"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00002.html">AckMsg</a>&amp; <a class="el" href="a00002.html#a8ae330143576f85ec4312846a1684d91">thomsonreuters::ema::access::AckMsg::extendedHeader</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00009.html">EmaBuffer</a> &amp;&#160;</td>
+          <td class="paramname"><em>buffer</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Specifies ExtendedHeader. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">buffer</td><td>an <a class="el" href="a00009.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> containing extendedHeader information </td></tr>
   </table>
   </dd>
 </dl>
@@ -740,31 +765,6 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 <p>Indicates presence of Text. </p>
 <dl class="section remark"><dt>Remarks:</dt><dd>Text is an optional member of <a class="el" href="a00002.html" title="AckMsg indicates success or failure of PostMsg.">AckMsg</a> </dd></dl>
 <dl class="section return"><dt>Returns:</dt><dd>true if text is set; false otherwise </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a39460c805bc40dfcde4062f85b2b9eda"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="a00002.html">AckMsg</a>&amp; <a class="el" href="a00002.html#a39460c805bc40dfcde4062f85b2b9eda">thomsonreuters::ema::access::AckMsg::header</a> </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="a00009.html">EmaBuffer</a> &amp;&#160;</td>
-          <td class="paramname"><em>buffer</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Specifies Header. </p>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">buffer</td><td>an <a class="el" href="a00009.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> containing header information </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
 
 </div>
 </div>
@@ -1092,7 +1092,7 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Fri May 29 2015</td>
+			<td><p class="smallfont">Mon Jun 29 2015</td>
           </tr>
         </table>
         </td>

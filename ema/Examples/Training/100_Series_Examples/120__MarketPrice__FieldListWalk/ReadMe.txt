@@ -1,46 +1,42 @@
 Summary
 =======
 
-The 120__MarketPrice__FieldListWalk application is provided as an example
-of OMM Consumer application written to the EMA library.
+120__MarketPrice__FieldListWalk is an example of an OMM Consumer application 
+and demonstrates how to use the EMA library for accessing and parsing OMM 
+MarketPrice data from Reuters Data Feed Direct (RDF-D), directly from an OMM
+Provider application, or from an Advanced Distribution Server.
 
-This application demonstrates basic usage of the EMA library for accessing
-and parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),
-directly from an OMM Provider application, or from Thomson Reuters Advanced
-Distribution Server.
-
-The 120__MarketPrice__FieldListWalk showcases OMM data extraction from the
-received FieldList.  Application simply "walks" or iterates over all the field
-entries. While iterating, this application extracts content of each field entry
+120__MarketPrice__FieldListWalk illustrates how to extract OMM data from the
+received FieldList. The Application "walks" or iterates over all field entries.
+While iterating, this application extracts the content of each field entry
 and prints it to the screen.
 
 
 Detailed Description
 ====================
 
-The 120__MarketPrice__FieldListWalk implements the following high level steps:
+120__MarketPrice__FieldListWalk implements the following high-level steps:
 
-+ Implements OmmConsumerClient class in AppClient
-  - overrides desired methods
-  - provides own methods as needed, e.g. decode( const FieldList& )
-    - the decode( const FieldList& ) iterates through the received FieldList,
++ Implements the OmmConsumerClient class in an AppClient
+  - Overrides desired methods
+  - Provides its own methods as needed (e.g.: decode( const FieldList& ) )
+  - The decode( const FieldList& ) iterates through the received FieldList,
 	  extracts each FieldEntry reference from the current position on the
-	  FieldList, and extracts field id, name and value of the current FieldEntry
-+ Instantiates AppClient object that receives and processes item messages
-+ Instantiates and modifies OmmConsumerConfig object
-  - sets user name to "user"
-  - sets host name on the preconfigured connection to "localhost"
-  - sets port on the preconfigured connection to "14002"
+	  FieldList, and then extracts the field id, name, and value of the current
+	  FieldEntry
++ Instantiates an AppClient object that receives and processes item messages
++ Instantiates and modifies an OmmConsumerConfig object
+  - Sets the username to "user"
+  - Sets the hostname on the preconfigured connection to "localhost"
+  - Sets the port on the preconfigured connection to "14002"
 + Instantiates an OmmConsumer object which initializes the connection 
   and logs into the specified server.
-+ Opens streaming item interest
-  - MarketPrice IBM.N item from DIRECT_FEED service
-+ Processes data received from API for 60 seconds
-  - all received messages are processed on API thread of control
++ Opens a streaming item interest
+  - MarketPrice IBM.N item from the DIRECT_FEED service
++ Processes data received from the API for 60 seconds
+  - All received messages are processed on the API's thread of control
 + Exits
 
-Note: if needed, these and other details may be modified to fit local
-      environment.
-	  
-Note: please refer to the EMA library ReadMe.txt file for details on
-      standard configuration.
+Note: If needed, you can modify these and other details to fit your local
+      environment. For details on standard configuration, refer to the EMA library 
+      ReadMe.txt file or EMA Configuration Guide.

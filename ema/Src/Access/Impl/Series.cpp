@@ -8,7 +8,7 @@
 
 #include "Series.h"
 #include "SeriesDecoder.h"
-#include "Summary.h"
+#include "SummaryData.h"
 #include "ExceptionTranslator.h"
 #include "Utilities.h"
 #include "GlobalPool.h"
@@ -139,7 +139,7 @@ const Encoder& Series::getEncoder() const
 	return *_pEncoder;
 }
 
-const Summary& Series::getSummary() const
+const SummaryData& Series::getSummaryData() const
 {
 	return _summary;
 }
@@ -196,12 +196,12 @@ Series& Series::totalCountHint( UInt32 totalCountHint )
 	return *this;
 }
 
-Series& Series::summary( const ComplexType& data )
+Series& Series::summaryData( const ComplexType& data )
 {
 	if ( !_pEncoder )
 		_pEncoder = g_pool._seriesEncoderPool.getItem();
 
-	_pEncoder->summary( data );
+	_pEncoder->summaryData( data );
 
 	return *this;
 }

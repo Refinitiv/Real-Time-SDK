@@ -154,7 +154,7 @@ const Encoder& Vector::getEncoder() const
 	return *_pEncoder;
 }
 
-const Summary& Vector::getSummary() const
+const SummaryData& Vector::getSummaryData() const
 {
 	return _summary;
 }
@@ -212,12 +212,12 @@ Vector& Vector::totalCountHint( UInt32 totalCountHint )
 	return *this;
 }
 
-Vector& Vector::summary( const ComplexType& data )
+Vector& Vector::summaryData( const ComplexType& data )
 {
 	if ( !_pEncoder )
 		_pEncoder = g_pool._vectorEncoderPool.getItem();
 
-	_pEncoder->summary( data );
+	_pEncoder->summaryData( data );
 
 	return *this;
 }

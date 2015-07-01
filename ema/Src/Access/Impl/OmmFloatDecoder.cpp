@@ -12,12 +12,11 @@
 using namespace thomsonreuters::ema::access;
 
 OmmFloatDecoder::OmmFloatDecoder() :
- _rsslBuffer(),
+ _pRsslBuffer( 0 ),
  _rsslFloat( 0 ),
  _toString(),
  _hexBuffer(),
- _dataCode( Data::BlankEnum ),
- _toStringSet( false )
+ _dataCode( Data::BlankEnum )
 {
 }
 
@@ -38,62 +37,42 @@ void OmmFloatDecoder::setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataD
 {
 }
 
-void OmmFloatDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* rsslBuffer )
+void OmmFloatDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* pRsslBuffer )
 {
-	_rsslBuffer = *rsslBuffer;
+	_pRsslBuffer = pRsslBuffer;
 
-	_toStringSet = false;
-
-	RsslRet retCode = rsslDecodeFloat( dIter, &_rsslFloat );
-
-	switch ( retCode )
-	{
-	case RSSL_RET_BLANK_DATA :
-		_dataCode = Data::BlankEnum;
-		break;
-	case RSSL_RET_SUCCESS :
+	if ( rsslDecodeFloat( dIter, &_rsslFloat ) == RSSL_RET_SUCCESS )
 		_dataCode = Data::NoCodeEnum;
-		break;
-	case RSSL_RET_INCOMPLETE_DATA :
-	default :
-		{
-			_dataCode = Data::BlankEnum;
-			EmaString temp( "Failed to decode OmmFloat. Reason: " );
-			temp += rsslRetCodeToString( retCode );
-			throwIueException( temp );
-		}
-		break;
+	else
+	{
+		_dataCode = Data::BlankEnum;
+		_rsslFloat = 0;
 	}
 }
 
 const EmaString& OmmFloatDecoder::toString()
 {
-	if ( !_toStringSet )
+	if ( _dataCode == Data::BlankEnum )
 	{
-		if ( _dataCode == Data::BlankEnum )
-		{
-			_toStringSet = true;
-			_toString.set( "(blank data)" );
-			return _toString;
-		}
+		_toString.set( "(blank data)" );
+		return _toString;
+	}
 
-		char temp[256];
-		RsslBuffer tempBuffer;
-		tempBuffer.length = 256;
-		tempBuffer.data = temp;
-		RsslRet retCode = rsslPrimitiveToString( &_rsslFloat, RSSL_DT_FLOAT, &tempBuffer );
+	char temp[256];
+	RsslBuffer tempBuffer;
+	tempBuffer.length = 256;
+	tempBuffer.data = temp;
+	RsslRet retCode = rsslPrimitiveToString( &_rsslFloat, RSSL_DT_FLOAT, &tempBuffer );
 
-		if ( RSSL_RET_SUCCESS != retCode )
-		{
-			EmaString text( "Failed to convert OmmFloat to string. Reason: " );
-			text += rsslRetCodeToString( retCode );
-			throwIueException( text );
-		}
-		else
-		{
-			_toStringSet = true;
-			_toString.set( temp );
-		}
+	if ( RSSL_RET_SUCCESS != retCode )
+	{
+		EmaString text( "Failed to convert OmmFloat to string. Reason: " );
+		text += rsslRetCodeToString( retCode );
+		throwIueException( text );
+	}
+	else
+	{
+		_toString.set( temp );
 	}
 
 	return _toString;
@@ -106,7 +85,7 @@ float OmmFloatDecoder::getFloat() const
 
 const EmaBuffer& OmmFloatDecoder::getHexBuffer()
 {
-	_hexBuffer.setFromInt( _rsslBuffer.data, _rsslBuffer.length );
+	_hexBuffer.setFromInt( _pRsslBuffer->data, _pRsslBuffer->length );
 
 	return _hexBuffer.toBuffer();
 }

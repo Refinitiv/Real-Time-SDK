@@ -15,6 +15,7 @@
 #include "OmmConsumerImpl.h"
 #include "ReqMsg.h"
 #include "ReqMsgEncoder.h"
+#include "GenericMsgEncoder.h"
 #include "StaticDecoder.h"
 #include "Utilities.h"
 
@@ -645,10 +646,7 @@ DirectoryCallbackClient* DirectoryCallbackClient::create( OmmConsumerImpl& ommCo
 		if ( OmmLoggerClient::ErrorEnum >= ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
 
-		if ( ommConsImpl.hasOmmConnsumerErrorClient() )
-			ommConsImpl.getOmmConsumerErrorClient().onMemoryExhaustion( temp );
-		else
-			throwMeeException( temp );
+		throwMeeException( temp );
 	}
 
 	return pClient;
@@ -1331,6 +1329,9 @@ RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor* pR
 			_event._pItem = pItem;
 			_event._pItem->getClient().onAllMsg( _refreshMsg, _event );
 			_event._pItem->getClient().onRefreshMsg( _refreshMsg, _event );
+
+			if ( _refreshMsg.getState().getStreamState() != OmmState::OpenEnum )
+				_event._pItem->remove();
 		}
 		break;
 	case RDM_DR_MT_UPDATE :
@@ -1353,6 +1354,9 @@ RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor* pR
 			_event._pItem = pItem;
 			_event._pItem->getClient().onAllMsg( _statusMsg, _event );
 			_event._pItem->getClient().onStatusMsg( _statusMsg, _event );
+
+			if ( _statusMsg.hasState() && ( _statusMsg.getState().getStreamState() != OmmState::OpenEnum ) )
+				_event._pItem->remove();
 		}
 		break;
 	case RDM_DR_MT_CONSUMER_STATUS :
@@ -1382,15 +1386,28 @@ RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor* pR
 
 const EmaString DirectoryItem::_clientName( "DirectoryCallbackClient" );
 
-DirectoryItem::DirectoryItem( OmmConsumerImpl& ommConsImpl,  OmmConsumerClient& ommConsClient, void* closure, const Channel * channel ) :
-	Item( ommConsImpl, ommConsClient, closure ), channel( channel )
+DirectoryItem::DirectoryItem( OmmConsumerImpl& ommConsImpl,  OmmConsumerClient& ommConsClient, void* closure, const Channel* channel ) :
+ Item( ommConsImpl, ommConsClient, closure ),
+ _channel( channel ),
+ _closedStatusInfo( 0 ),
+ _pDirectory( 0 )
 {
-	_itemType = DirectoryItemEnum;
 }
 
-DirectoryItem* DirectoryItem::create( OmmConsumerImpl& ommConsImpl, OmmConsumerClient& ommConsClient, void* closure, const Channel * channel )
+DirectoryItem::~DirectoryItem()
 {
-	DirectoryItem * pItem;
+	_ommConsImpl.getItemCallbackClient().removeFromList( this );
+
+	if ( _closedStatusInfo )
+	{
+		delete _closedStatusInfo;
+		_closedStatusInfo = 0;
+	}
+}
+
+DirectoryItem* DirectoryItem::create( OmmConsumerImpl& ommConsImpl, OmmConsumerClient& ommConsClient, void* closure, const Channel* channel )
+{
+	DirectoryItem* pItem = 0;
 	try {
 		pItem = new DirectoryItem( ommConsImpl, ommConsClient, closure, channel );
 	}
@@ -1414,39 +1431,86 @@ DirectoryItem* DirectoryItem::create( OmmConsumerImpl& ommConsImpl, OmmConsumerC
 bool DirectoryItem::open( const ReqMsg& reqMsg )
 {	
 	const ReqMsgEncoder& reqMsgEncoder = static_cast<const ReqMsgEncoder&>( reqMsg.getEncoder() );
-	hasServiceName = reqMsgEncoder.hasServiceName();
+
+	const Directory* pDirectory = 0;
+
+	if ( reqMsgEncoder.hasServiceName() )
+	{
+		pDirectory = _ommConsImpl.getDirectoryCallbackClient().getDirectory( reqMsgEncoder.getServiceName() );
+
+		if ( !pDirectory )
+		{
+			EmaString temp( "Service name of '" );
+			temp.append( reqMsgEncoder.getServiceName() ).append( "' is not found." );
+
+			_closedStatusInfo = new ClosedStatusInfo( this, reqMsgEncoder, temp );
+			new TimeOut( _ommConsImpl, 1000, ItemCallbackClient::sendItemClosedStatus, _closedStatusInfo );
+			
+			return true;
+		}
+	}
+	else
+	{
+		if ( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.flags & RSSL_MKF_HAS_SERVICE_ID )
+		{
+			pDirectory = _ommConsImpl.getDirectoryCallbackClient().getDirectory( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.serviceId );
+
+			if ( !pDirectory )
+			{
+				EmaString temp( "Service id of '" );
+				temp.append( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.serviceId ).
+					append( "' is not found." );
+
+				_closedStatusInfo = new ClosedStatusInfo( this, reqMsgEncoder, temp );
+				new TimeOut( _ommConsImpl, 1000, ItemCallbackClient::sendItemClosedStatus, _closedStatusInfo );
+
+				return true;
+			}
+		}
+	}
+
+	_pDirectory = pDirectory;
+
 	return submit( reqMsgEncoder.getRsslRequestMsg() );
 }
 
-bool DirectoryItem::modify( const ReqMsg& )
+bool DirectoryItem::modify( const ReqMsg& reqMsg )
 {
-	return false;
+	return submit( static_cast<const ReqMsgEncoder&>( reqMsg.getEncoder() ).getRsslRequestMsg() );
 }
 
 bool DirectoryItem::submit( const PostMsg& )
 {
+	EmaString temp( "Invalid attempt to submit PostMsg on directory stream. " );
+	temp.append( "OmmConsumer name='" ).append( _ommConsImpl .getConsumerName() ).append( "'." );
+
+	if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
+
+	if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
+		_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( temp );
+	else
+		throwIueException( temp );
+
 	return false;
 }
 
-bool DirectoryItem::submit( const GenericMsg& )
+bool DirectoryItem::submit( const GenericMsg& genMsg )
 {
-	return false;
+	return submit( static_cast<const GenericMsgEncoder&>( genMsg.getEncoder() ).getRsslGenericMsg() );
 }
 
 bool DirectoryItem::close()
 {
 	bool retCode(true);
 
-	if ( hasServiceName )
-	{
-		RsslCloseMsg rsslCloseMsg;
-		rsslClearCloseMsg( &rsslCloseMsg );
+	RsslCloseMsg rsslCloseMsg;
+	rsslClearCloseMsg( &rsslCloseMsg );
 
-		rsslCloseMsg.msgBase.containerType = RSSL_DT_NO_DATA;
-		rsslCloseMsg.msgBase.domainType = _domainType;
+	rsslCloseMsg.msgBase.containerType = RSSL_DT_NO_DATA;
+	rsslCloseMsg.msgBase.domainType = _domainType;
 
-		retCode = submit( &rsslCloseMsg );
-	}
+	retCode = submit( &rsslCloseMsg );
 
 	remove();
 	return retCode;
@@ -1457,12 +1521,55 @@ void DirectoryItem::remove()
 	delete this;
 }
 
-bool DirectoryItem::submit( RsslGenericMsg* )
+bool DirectoryItem::submit( RsslGenericMsg* pRsslGenericMsg )
 {
-	return false;
+	RsslReactorSubmitMsgOptions submitMsgOpts;
+	rsslClearReactorSubmitMsgOptions( &submitMsgOpts );
+
+	submitMsgOpts.pRsslMsg = (RsslMsg*)pRsslGenericMsg;
+
+	submitMsgOpts.majorVersion = _channel->getRsslChannel()->majorVersion;
+	submitMsgOpts.minorVersion = _channel->getRsslChannel()->minorVersion;
+
+	submitMsgOpts.pRsslMsg->msgBase.streamId = _streamId;
+	submitMsgOpts.pRsslMsg->msgBase.domainType = _domainType;
+
+	RsslErrorInfo rsslErrorInfo;
+	RsslRet ret;
+	if ( ( ret = rsslReactorSubmitMsg( _channel->getRsslReactor(),
+										_channel->getRsslChannel(),
+										&submitMsgOpts, &rsslErrorInfo ) ) != RSSL_RET_SUCCESS )
+	{
+		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		{
+			EmaString temp( "Internal error. rsslReactorSubmitMsg() failed in submit( RsslGenericMsg* )" );
+			temp.append( CR )
+				.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
+				.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
+				.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
+				.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
+				.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
+
+			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
+		}
+
+		EmaString text( "Failed to submit GenericMsg on directory stream. Reason: " );
+		text.append( rsslRetCodeToString( ret ) )
+			.append( ". Error text: " )
+			.append( rsslErrorInfo.rsslError.text );
+
+		if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
+			_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( text );
+		else
+			throwIueException( text );
+			
+		return false;
+	}
+
+	return true;
 }
 
-bool DirectoryItem::submit( RsslRequestMsg* pRsslRequestMsg)
+bool DirectoryItem::submit( RsslRequestMsg* pRsslRequestMsg )
 {	
 	RsslReactorSubmitMsgOptions submitMsgOpts;
 	rsslClearReactorSubmitMsgOptions( &submitMsgOpts );
@@ -1482,17 +1589,27 @@ bool DirectoryItem::submit( RsslRequestMsg* pRsslRequestMsg)
 	pRsslRequestMsg->flags |= _ommConsImpl.getActiveConfig().channelConfig->msgKeyInUpdates ? RSSL_RQMF_MSG_KEY_IN_UPDATES : 0;
 	submitMsgOpts.pRsslMsg = (RsslMsg*)pRsslRequestMsg;
 
-	submitMsgOpts.pServiceName = 0;
+	RsslBuffer serviceNameBuffer;
+	if ( _pDirectory )
+	{
+		serviceNameBuffer.data = (char*)_pDirectory->getName().c_str();
+		serviceNameBuffer.length = _pDirectory->getName().length();
+		submitMsgOpts.pServiceName = &serviceNameBuffer;
+	}
+	else
+	{
+		submitMsgOpts.pServiceName = 0;
+	}
 
-	submitMsgOpts.majorVersion = channel->getRsslChannel()->majorVersion;
-	submitMsgOpts.minorVersion = channel->getRsslChannel()->minorVersion;
+	submitMsgOpts.majorVersion = _channel->getRsslChannel()->majorVersion;
+	submitMsgOpts.minorVersion = _channel->getRsslChannel()->minorVersion;
 
 	submitMsgOpts.requestMsgOptions.pUserSpec = (void*)this;
 
 	if ( !_streamId )
 	{
 		if ( !submitMsgOpts.pRsslMsg->msgBase.streamId )
-			submitMsgOpts.pRsslMsg->msgBase.streamId = const_cast< Channel* >(channel)->getNextStreamId();
+			submitMsgOpts.pRsslMsg->msgBase.streamId = const_cast< Channel* >(_channel)->getNextStreamId();
 		_streamId = submitMsgOpts.pRsslMsg->msgBase.streamId;
 	}
 	else
@@ -1504,23 +1621,32 @@ bool DirectoryItem::submit( RsslRequestMsg* pRsslRequestMsg)
 		submitMsgOpts.pRsslMsg->msgBase.domainType = _domainType;
 
 	RsslErrorInfo rsslErrorInfo;
-	RsslRet ret = rsslReactorSubmitMsg( channel->getRsslReactor(), channel->getRsslChannel(), &submitMsgOpts, &rsslErrorInfo );
+	RsslRet ret = rsslReactorSubmitMsg( _channel->getRsslReactor(), _channel->getRsslChannel(), &submitMsgOpts, &rsslErrorInfo );
 	if ( ret != RSSL_RET_SUCCESS )
 	{
 		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Internal error: rsslReactorSubmitMsg() failed in submit( RsslRequestMsg* )" );
 			temp.append( CR )
-				.append( "Channel " ).append( channel->toString() ).append( CR )
 				.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
 				.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
 				.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
 				.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
 				.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
 			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
-
-			return false;
 		}
+
+		EmaString text( "Failed to open or modify directory request. Reason: " );
+		text.append( rsslRetCodeToString( ret ) )
+			.append( ". Error text: " )
+			.append( rsslErrorInfo.rsslError.text );
+
+		if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
+			_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( text );
+		else
+			throwIueException( text );
+
+		return false;
 	}
 
 	return true;
@@ -1533,12 +1659,12 @@ bool DirectoryItem::submit( RsslCloseMsg* pRsslCloseMsg )
 
 	submitMsgOpts.pRsslMsg = (RsslMsg*)pRsslCloseMsg;
 
-	submitMsgOpts.majorVersion = channel->getRsslChannel()->majorVersion;
-	submitMsgOpts.minorVersion = channel->getRsslChannel()->minorVersion;
+	submitMsgOpts.majorVersion = _channel->getRsslChannel()->majorVersion;
+	submitMsgOpts.minorVersion = _channel->getRsslChannel()->minorVersion;
 	if ( !_streamId )
 	{
 		if ( !submitMsgOpts.pRsslMsg->msgBase.streamId )
-			submitMsgOpts.pRsslMsg->msgBase.streamId = const_cast< Channel* >(channel)->getNextStreamId();
+			submitMsgOpts.pRsslMsg->msgBase.streamId = const_cast< Channel* >(_channel)->getNextStreamId();
 		_streamId = submitMsgOpts.pRsslMsg->msgBase.streamId;
 	}
 	else
@@ -1546,14 +1672,13 @@ bool DirectoryItem::submit( RsslCloseMsg* pRsslCloseMsg )
 
 	RsslErrorInfo rsslErrorInfo;
 	RsslRet ret;
-	if ( ( ret = rsslReactorSubmitMsg( channel->getRsslReactor(), channel->getRsslChannel(),
+	if ( ( ret = rsslReactorSubmitMsg( _channel->getRsslReactor(), _channel->getRsslChannel(),
 									   &submitMsgOpts, &rsslErrorInfo ) ) != RSSL_RET_SUCCESS )
 	{
 		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Internal error: rsslReactorSubmitMsg() failed in submit( pRsslCloseMsg* )" );
 			temp.append( CR )
-				.append( "Channel" ).append( channel->toString() ).append( CR )
 				.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
 				.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
 				.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
@@ -1561,6 +1686,16 @@ bool DirectoryItem::submit( RsslCloseMsg* pRsslCloseMsg )
 				.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
 			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
+
+		EmaString text( "Failed to close directory stream. Reason: " );
+		text.append( rsslRetCodeToString( ret ) )
+			.append( ". Error text: " )
+			.append( rsslErrorInfo.rsslError.text );
+
+		if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
+			_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( text );
+		else
+			throwIueException( text );
 
 		return false;
 	}

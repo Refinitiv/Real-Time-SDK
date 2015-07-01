@@ -12,24 +12,24 @@
 ! ENUMERATED TYPES
 ! ================
 ! 
-! Version 4.20.17_TREP_15.41
+! Version 4.20.19_TREP_15.51
 ! -------------------------------------
 !
-!     * Modified May 7, 2015 at Oak Brook:
-!        - This file is based on enumtype.001 version 15.41.
-!        - New enumerations added in 4.20.17_TREP have been defined with placeholder values.
+!     * Modified June 10, 2015 at Oak Brook:
+!        - This file is based on enumtype.001 version 15.51.
+!        - New enumerations added in 4.20.19_TREP have been defined with placeholder values.
 ! 
-! RDMD Version 4.20.17_TREP
-! Display Version 15.41
+! RDMD Version 4.20.19_TREP
+! Display Version 15.51
 ! --------------------
-! 03/18/2015
+! 06/10/2015
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.17
-!tag Build_RDMD  4.20.17
-!tag DT_Version  15.41
-!tag Date        5-May-2015
+!tag RT_Version  4.20.19
+!tag Build_RDMD  4.20.19
+!tag DT_Version  15.51
+!tag Date        8-Jun-2015
 !
 ! This file contains all the enumerated types used by the head-end
 ! systems, and for each type, the range of possible values
@@ -1836,6 +1836,12 @@ AYLD_TICK3 12853
 BYLD_TICK1 12854
 BYLD_TICK2 12855
 BYLD_TICK3 12856
+BID_TICK1  12921
+BID_TICK2  12922
+BID_TICK3  12923
+ASK_TICK1  12924
+ASK_TICK2  12925
+ASK_TICK3  12926
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -4940,6 +4946,7 @@ OFF_CD_IN2  1055
      52        "SSE"   China SSE local code
      53        "EII"   Eurex Individual ISIN
      54        "EPI"   Exchange Product ISIN
+     55        "ALF"   Alpha Code
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -5275,6 +5282,9 @@ RATING_ID6 12894
      40        "GCR"   Golden Credit Rating International Co Ltd
      41        "CCR"   China Credit Rating Co Ltd
      42        "IRR"   India Ratings & Research
+     43        "MLN"   Moody's National Scale Rating
+     44        "SLN"   Standard and Poor's National Scale Rating
+     45        "FLN"   Fitch's National Scale Rating
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -8236,6 +8246,12 @@ COR_EXID   13402
    1396        "ILR"   LBMA Gold Price Real Time
    1397        "ILD"   LBMA Gold Price Intraday
    1398        "ILE"   LBMA Gold Price EOD
+   1399        "KEI"   KOREA EXCHANGE - ETN IIV
+   1400        "NEB"   NATIONAL ENERGY BOARD
+   1401        "MXT"   MEXICO SE MARKET DATA FOR TRADING
+   1402        "BMC"   BMF - Commodities and Futures -LEVEL 1
+   1403        "BOV"   BOV- BVMF BOVESPA - Equities and Indices -LEVEL 1
+   1404        "HWR"   HWR- HAWKINS WRIGHT
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12063,6 +12079,7 @@ MK_PHASE   12765
      12        "AP "   Administration Phase
      13        "PET"   Pre-Market Trading
      14        "POT"   Post-Market Trading
+     15        "IC "   Intra-day Close (scheduled)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12347,6 +12364,7 @@ BNS_WT_FLG  8948
 REF_PRC_TP  8949
 REFPRC_TP2 13434
 REFPRC_TP3 13435
+REFPRC_TP4 13491
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -15371,16 +15389,51 @@ DELIV_FQUT 12919
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET219 12920
-PRE_1ET220 12921
-PRE_1ET221 12922
-PRE_1ET222 12923
-PRE_1ET223 12924
-PRE_1ET224 12925
-PRE_1ET225 12926
-PRE_1ET226 12927
-PRE_1ET227 12928
-PRE_1ET228 12929
+RFQ_SIDE   12920
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   undefined
+      1        "BID"   Bid
+      2        "ASK"   Ask
+      3        "BAS"   Bid and Ask
+!
+! ACRONYM    FID
+! -------    ---
+!
+SP_SHS_RES 12927
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   Undefined
+      1        "N  "   Short selling allowed.  Special trade scheme Short Sale Restriction Not In Effect
+      2        "Y  "   Short selling suspended.  Special trade scheme Short selling restriction.
+!
+! ACRONYM    FID
+! -------    ---
+!
+LAT_PREC   12928
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0         "MS"   milliseconds
+      1         "NS"   nanoseconds
+!
+! ACRONYM    FID
+! -------    ---
+!
+CLK_SRC    12929
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "  NTP   "   NTP
+      2   "  PTP   "   PTP
+      3   " NTP+PPS"   NTP+PPS
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_1ET229 12930
 PRE_1ET230 12931
 PRE_1ET231 12932
@@ -16475,6 +16528,7 @@ COL_UNC_TR 13431
 ! -------    ---
 !
 TR_TRD_FLG 13432
+CAN_TRTFLG 13489
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -16846,12 +16900,58 @@ INST_C_TP  13484
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET165 13486
-PRE_2ET166 13487
-PRE_2ET167 13488
-PRE_2ET168 13489
-PRE_2ET169 13490
-PRE_2ET170 13491
+RQT_MET_TP 13486
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+RQT_MET_MD 13487
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+IND_BA_QL  13488
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "PRC     "   Price Indication
+      2   "TRDRNG  "   Trading Range Indication
+      3   "MPREO   "   Mandatory Pre-opening Indication
+!
+! ACRONYM    FID
+! -------    ---
+!
+ORDBK_DEPH 13490
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0     "      "   Undefined
+      1     "FB    "   Full Book
+      2     "5_PL  "   5 Price Levels
+      3     "10_PL "   10 Price Levels
+      4     "15_PL "   15 Price Levels
+      5     "20_PL "   20 Price Levels
+      6     "25_PL "   25 Price Levels
+      7     "30_PL "   30 Price Levels
+      8     "5_OL  "   5 Order Levels
+      9     "10_OL "   10 Order Levels
+     10     "15_OL "   15 Order Levels
+     11     "20_OL "   20 Order Levels
+     12     "25_OL "   25 Order Levels
+     13     "30_OL "   30 Order Levels
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_2ET171 13492
 PRE_2ET172 13493
 PRE_2ET173 13494

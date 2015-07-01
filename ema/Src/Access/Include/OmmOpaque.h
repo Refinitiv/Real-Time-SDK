@@ -33,7 +33,7 @@
 	{
 		while ( !fList.forth() )
 		{
-			const FieldEntry& fEntry = flist.getEntry();
+			const FieldEntry& fEntry = fList.getEntry();
 
 			if ( fEntry.getCode() != Data::BlankEnum )
 				switch ( fEntry.getLoadType() )

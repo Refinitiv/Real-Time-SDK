@@ -68,7 +68,7 @@ int main( int argc, char* argv[] )
 {
 	try
 	{
-		OmmConsumer consumer( OmmConsumerConfig().host( "localhost:14002" ).username( "user" ) );
+		OmmConsumer consumer( OmmConsumerConfig().username( "user" ) );
 		AppClient client( consumer );
 		requestedSPSs.insert( topLevelSPSName );
 		consumer.registerClient( ReqMsg().domainType( MMT_SERVICE_PROVIDER_STATUS ).serviceName( serviceName ).name( topLevelSPSName ), client );

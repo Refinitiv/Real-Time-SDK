@@ -53,7 +53,7 @@ public :
 
 	void totalCountHint( UInt32 totalCountHint );
 
-	void summary( const ComplexType& data );
+	void summaryData( const ComplexType& data );
 
 	void addKeyInt( Int64 key, MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData );

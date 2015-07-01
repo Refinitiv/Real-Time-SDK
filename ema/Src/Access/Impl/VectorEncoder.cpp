@@ -18,8 +18,6 @@ VectorEncoder::VectorEncoder() :
   _rsslVector(),
  _rsslVectorEntry()
 {
-	rsslClearVector( &_rsslVector );
-	rsslClearVectorEntry( &_rsslVectorEntry );
 }
 
 VectorEncoder::~VectorEncoder()
@@ -209,7 +207,7 @@ void VectorEncoder::totalCountHint( UInt32 totalCountHint )
 	}
 }
 
-void VectorEncoder::summary( const ComplexType& data )
+void VectorEncoder::summaryData( const ComplexType& data )
 {
 	if ( !_containerInitialized )
 	{
@@ -220,13 +218,13 @@ void VectorEncoder::summary( const ComplexType& data )
 		}
 		else
 		{
-			EmaString temp( "Invalid attempt to pass not completed container to summary()." );
+			EmaString temp( "Invalid attempt to pass not completed container to summaryData()." );
 			throwIueException( temp );
 		}
 	}
 	else
 	{
-		EmaString temp( "Invalid attempt to call summary() when container is not empty." );
+		EmaString temp( "Invalid attempt to call summaryData() when container is not empty." );
 		throwIueException( temp );
 	}
 }

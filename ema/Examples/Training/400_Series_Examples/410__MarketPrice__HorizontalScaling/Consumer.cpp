@@ -13,7 +13,7 @@ using namespace std;
 
 void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEvent& ommEvent )
 {
-	cout << endl << "Handle: " << ommEvent.getHandle() << " Closure: " << ommEvent.getClosure() << endl;
+	cout << endl << "Handle: " << ommEvent.getHandle() << " Closure: " << (char *)ommEvent.getClosure() << endl;
 
 	if ( refreshMsg.hasMsgKey() )
 		cout << "Item Name: " << refreshMsg.getName() << endl << "Service Name: " << ( refreshMsg.hasServiceName() ? refreshMsg.getServiceName() : EmaString( "not set" ) ) << endl;
@@ -26,7 +26,7 @@ void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEve
 
 void AppClient::onUpdateMsg( const UpdateMsg& updateMsg, const OmmConsumerEvent& ommEvent )
 {
-	cout << endl << "Handle: " << ommEvent.getHandle() << " Closure: " << ommEvent.getClosure() << endl;
+	cout << endl << "Handle: " << ommEvent.getHandle() << " Closure: " << (char *)ommEvent.getClosure() << endl;
 
 	if ( updateMsg.hasMsgKey() )
 		cout << "Item Name: " << updateMsg.getName() << endl << "Service Name: " << ( updateMsg.hasServiceName() ? updateMsg.getServiceName() : EmaString( "not set" ) ) << endl;
@@ -37,7 +37,7 @@ void AppClient::onUpdateMsg( const UpdateMsg& updateMsg, const OmmConsumerEvent&
 
 void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent& ommEvent )
 {
-	cout << endl << "Handle: " << ommEvent.getHandle() << " Closure: " << ommEvent.getClosure() << endl;
+	cout << endl << "Handle: " << ommEvent.getHandle() << " Closure: " << (char *)ommEvent.getClosure() << endl;
 
 	if ( statusMsg.hasMsgKey() )
 		cout << "Item Name: " << statusMsg.getName() << endl << "Service Name: " << ( statusMsg.hasServiceName() ? statusMsg.getServiceName() : EmaString( "not set" ) ) << endl;

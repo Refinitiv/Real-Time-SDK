@@ -11,6 +11,7 @@
 
 #include "EmaPool.h"
 #include "MsgDecoder.h"
+#include "OmmQos.h"
 #include "EmaStringInt.h"
 #include "EmaBufferInt.h"
 
@@ -52,7 +53,7 @@ public :
 
 	bool hasPayload() const;
 
-	bool hasHeader() const;
+	bool hasExtendedHeader() const;
 
 	Int32 getStreamId() const;
 
@@ -70,7 +71,7 @@ public :
 
 	UInt32 getFilter() const;
 
-	const EmaBuffer& getHeader() const;
+	const EmaBuffer& getExtendedHeader() const;
 
 	bool hasPriority() const;
 
@@ -98,7 +99,7 @@ public :
 
 	bool getPrivateStream() const;
 
-	void setServiceName( const char* , UInt32 );
+	void setServiceName( const char* , UInt32 , bool nullTerm = true );
 
 	const EmaBuffer& getHexBuffer() const;
 
@@ -116,7 +117,7 @@ private :
 
 	mutable EmaBufferInt				_extHeader;
 
-	NoDataImpl							_qos;
+	OmmQos								_qos;
 
 	mutable EmaBufferInt				_hexBuffer;
 

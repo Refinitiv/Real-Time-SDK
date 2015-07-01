@@ -53,7 +53,7 @@ protected :
 
 	void onStatusMsg( const thomsonreuters::ema::access::StatusMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
 
-	void processAckMsg( const thomsonreuters::ema::access::AckMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
+	void onAckMsg( const thomsonreuters::ema::access::AckMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
 
 	thomsonreuters::ema::access::OmmConsumer* _pOmmConsumer;
 };

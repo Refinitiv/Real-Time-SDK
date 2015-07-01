@@ -66,6 +66,7 @@ OmmConsumerActiveConfig::OmmConsumerActiveConfig() :
  maxOutstandingPosts( DEFAULT_MAX_OUTSTANDING_POSTS ),
  loginRequestTimeOut( DEFAULT_LOGIN_REQUEST_TIMEOUT ),
  directoryRequestTimeOut( DEFAULT_DIRECTORY_REQUEST_TIMEOUT ),
+ dictionaryRequestTimeOut( DEFAULT_DICTIONARY_REQUEST_TIMEOUT ),
  userDispatch( DEFAULT_USER_DISPATCH ),
  channelConfig( 0 ),
  dictionaryConfig(),
@@ -172,6 +173,14 @@ void OmmConsumerActiveConfig::setDirectoryRequestTimeOut( UInt64 value )
 		directoryRequestTimeOut = 0xFFFFFFFF;
 	else if ( value > 0 )
 		directoryRequestTimeOut = (UInt32) value;
+}
+
+void OmmConsumerActiveConfig::setDictionaryRequestTimeOut( UInt64 value )
+{
+	if ( value > 0xFFFFFFFF )
+		dictionaryRequestTimeOut = 0xFFFFFFFF;
+	else if ( value > 0 )
+		dictionaryRequestTimeOut = (UInt32) value;
 }
 
 void OmmConsumerActiveConfig::setMaxOutstandingPosts( UInt64 value )

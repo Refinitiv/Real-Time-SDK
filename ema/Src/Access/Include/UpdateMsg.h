@@ -302,11 +302,11 @@ public :
 	*/
 	UpdateMsg& payload( const ComplexType& data );
 
-	/** Specifies Header.
-		@param[in] buffer an EmaBuffer containing header information
+	/** Specifies ExtendedHeader.
+		@param[in] buffer an EmaBuffer containing extendedHeader information
 		@return reference to this object
 	*/
-	UpdateMsg& header( const EmaBuffer& buffer );
+	UpdateMsg& extendedHeader( const EmaBuffer& buffer );
 
 	/** Specifies DoNotCache.
 		@param[in] doNotCache true if this update must not be cached; false otherwise (default value is false)

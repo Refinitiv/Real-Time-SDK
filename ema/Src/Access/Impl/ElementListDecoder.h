@@ -50,6 +50,8 @@ public :
 
 	const Data& getLoad() const;
 
+	Data** getLoadPtr();
+
 	const EmaBuffer& getHexBuffer();
 	
 	void clone( const ElementListDecoder& );
@@ -66,7 +68,7 @@ private :
 
 	bool getNextData( const EmaVector< EmaString >& );
 
-	bool decodeViewList( RsslBuffer* , RsslDataType& , EmaVector< EmaString >& );
+	void decodeViewList( RsslBuffer* , RsslDataType& , EmaVector< EmaString >& );
 
 	RsslElementList				_rsslElementList;
 
@@ -76,7 +78,9 @@ private :
 
 	RsslDecodeIterator			_decodeIter;
 
-	NoDataImpl					_load;
+	Data**						_pLoadPool;
+
+	Data*						_pLoad;
 
 	const RsslDataDictionary*	_pRsslDictionary;
 

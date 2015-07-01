@@ -78,26 +78,31 @@ void GenericMsgDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rss
 	}
 
 	retCode = rsslDecodeMsg( &decodeIter, _pRsslMsg );
+
 	switch ( retCode )
 	{
 	case RSSL_RET_SUCCESS :
 		_errorCode = OmmError::NoErrorEnum;
-		break;
+		StaticDecoder::setRsslData( &_attrib, &_pRsslMsg->msgBase.msgKey.encAttrib,
+									hasAttrib() ? _pRsslMsg->msgBase.msgKey.attribContainerType : RSSL_DT_NO_DATA, majVer, minVer, _pRsslDictionary );
+		StaticDecoder::setRsslData( &_payload, &_pRsslMsg->msgBase.encDataBody, _pRsslMsg->msgBase.containerType, majVer, minVer, _pRsslDictionary );
+		return;
 	case RSSL_RET_ITERATOR_OVERRUN :
 		_errorCode = OmmError::IteratorOverrunEnum;
-		break;
+		Decoder::setRsslData( &_attrib, _errorCode, &decodeIter, rsslBuffer );
+		Decoder::setRsslData( &_payload, _errorCode, &decodeIter, rsslBuffer );
+		return;
 	case RSSL_RET_INCOMPLETE_DATA :
 		_errorCode = OmmError::IncompleteDataEnum;
-		break;
+		Decoder::setRsslData( &_attrib, _errorCode, &decodeIter, rsslBuffer );
+		Decoder::setRsslData( &_payload, _errorCode, &decodeIter, rsslBuffer );
+		return;
 	default :
 		_errorCode = OmmError::UnknownErrorEnum;
-		break;
+		Decoder::setRsslData( &_attrib, _errorCode, &decodeIter, rsslBuffer );
+		Decoder::setRsslData( &_payload, _errorCode, &decodeIter, rsslBuffer );
+		return;
 	}
-
-	StaticDecoder::setRsslData( &_attrib, &_pRsslMsg->msgBase.msgKey.encAttrib,
-		hasAttrib() ? _pRsslMsg->msgBase.msgKey.attribContainerType : RSSL_DT_NO_DATA, majVer, minVer, _pRsslDictionary );
-
-	StaticDecoder::setRsslData( &_payload, &_pRsslMsg->msgBase.encDataBody, _pRsslMsg->msgBase.containerType, majVer, minVer, _pRsslDictionary );
 }
 
 void GenericMsgDecoder::setRsslData( RsslDecodeIterator* , RsslBuffer* )
@@ -150,7 +155,7 @@ bool GenericMsgDecoder::hasPayload() const
 	return _pRsslMsg->msgBase.containerType != RSSL_DT_NO_DATA ? true : false;
 }
 
-bool GenericMsgDecoder::hasHeader() const
+bool GenericMsgDecoder::hasExtendedHeader() const
 {
 	return ( _pRsslMsg->genericMsg.flags & RSSL_GNMF_HAS_EXTENDED_HEADER ) ? true : false;
 }
@@ -293,11 +298,11 @@ UInt32 GenericMsgDecoder::getFilter() const
 	return _pRsslMsg->msgBase.msgKey.filter;
 }
 
-const EmaBuffer& GenericMsgDecoder::getHeader() const
+const EmaBuffer& GenericMsgDecoder::getExtendedHeader() const
 {
-	if ( !hasHeader() )
+	if ( !hasExtendedHeader() )
 	{
-		EmaString temp( "Attempt to getHeader() while it is NOT set." );
+		EmaString temp( "Attempt to getExtendedHeader() while it is NOT set." );
 		throwIueException( temp );
 	}
 

@@ -17,9 +17,6 @@ This application implements the following high level steps:
 - instantiates AppClient object that receives and processes item messages
 - instantiates and modifies OmmConsumerConfig object
   - sets user name to "user"
-  - sets host name on the preconfigured connection to "localhost" (user will
-    have to change to provider address that supplies SPS domain)
-  - sets port on the preconfigured connection to "14002"
 - instantiates OmmConsumer object which
   - initializes connection and logs into specified server
 - opens item interest

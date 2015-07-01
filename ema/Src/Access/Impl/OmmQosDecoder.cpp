@@ -13,14 +13,12 @@
 using namespace thomsonreuters::ema::access;
 
 OmmQosDecoder::OmmQosDecoder() :
- _rsslBuffer(),
+ _pRsslBuffer( 0 ),
  _rsslQos(),
  _toString(),
  _hexBuffer(),
- _dataCode( Data::BlankEnum ),
- _toStringSet( false )
+ _dataCode( Data::BlankEnum )
 {
-	rsslClearQos( &_rsslQos );
 }
 
 OmmQosDecoder::~OmmQosDecoder()
@@ -40,38 +38,21 @@ void OmmQosDecoder::setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDic
 {
 }
 
-void OmmQosDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* rsslBuffer )
+void OmmQosDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* pRsslBuffer )
 {
-	_rsslBuffer = *rsslBuffer;
+	_pRsslBuffer = pRsslBuffer;
 
-	_toStringSet = false;
-
-	RsslRet retCode = rsslDecodeQos( dIter, &_rsslQos );
-
-	switch ( retCode )
-	{
-	case RSSL_RET_BLANK_DATA :
-		_dataCode = Data::BlankEnum;
-		break;
-	case RSSL_RET_SUCCESS :
+	if ( rsslDecodeQos( dIter, &_rsslQos ) == RSSL_RET_SUCCESS )
 		_dataCode = Data::NoCodeEnum;
-		break;
-	case RSSL_RET_INCOMPLETE_DATA :
-	default :
-		{
-			_dataCode = Data::BlankEnum;
-			EmaString temp( "Failed to decode OmmQos. Reason: " );
-			temp += rsslRetCodeToString( retCode );
-			throwIueException( temp );
-		}
-		break;
+	else
+	{
+		_dataCode = Data::BlankEnum;
+		rsslClearQos( &_rsslQos );
 	}
 }
 
 void OmmQosDecoder::setRsslData( RsslQos* rsslQos )
 {
-	_toStringSet = false;
-
 	if ( rsslQos )
 	{
 		_rsslQos = *rsslQos;
@@ -86,44 +67,38 @@ void OmmQosDecoder::setRsslData( RsslQos* rsslQos )
 
 const EmaString& OmmQosDecoder::toString()
 {
-	if ( !_toStringSet )
+	if ( _dataCode == Data::BlankEnum )
 	{
-		if ( _dataCode == Data::BlankEnum )
-		{
-			_toStringSet = true;
-			_toString.set( "(blank data)" );
-			return _toString;
-		}
+		_toString.set( "(blank data)" );
+		return _toString;
+	}
 
-		switch( _rsslQos.timeliness )
-		{
-		case RSSL_QOS_TIME_REALTIME:
-			_toString.set( "RealTime" );
-			break;
-		case RSSL_QOS_TIME_DELAYED_UNKNOWN :
-			_toString.set( "InexactDelayed" );
-			break;
-		case RSSL_QOS_TIME_DELAYED:
-			_toString.set( "Timeliness: " ).append( _rsslQos.timeInfo );
-			break;
-		}
+	switch( _rsslQos.timeliness )
+	{
+	case RSSL_QOS_TIME_REALTIME:
+		_toString.set( "RealTime" );
+		break;
+	case RSSL_QOS_TIME_DELAYED_UNKNOWN :
+		_toString.set( "InexactDelayed" );
+		break;
+	case RSSL_QOS_TIME_DELAYED:
+		_toString.set( "Timeliness: " ).append( _rsslQos.timeInfo );
+		break;
+	}
 
-		_toString.append("/");
+	_toString.append("/");
 
-		switch( _rsslQos.rate )
-		{
-		case RSSL_QOS_RATE_TICK_BY_TICK:
-			_toString.append( "TickByTick" );
-			break;
-		case RSSL_QOS_RATE_JIT_CONFLATED:
-			_toString.append( "JustInTimeConflated" );
-			break;
-		case RSSL_QOS_RATE_TIME_CONFLATED:
-			_toString.append("Rate: ").append( _rsslQos.rateInfo );
-			break;
-		}
-
-		_toStringSet = true;
+	switch( _rsslQos.rate )
+	{
+	case RSSL_QOS_RATE_TICK_BY_TICK:
+		_toString.append( "TickByTick" );
+		break;
+	case RSSL_QOS_RATE_JIT_CONFLATED:
+		_toString.append( "JustInTimeConflated" );
+		break;
+	case RSSL_QOS_RATE_TIME_CONFLATED:
+		_toString.append("Rate: ").append( _rsslQos.rateInfo );
+		break;
 	}
 
 	return _toString;
@@ -212,7 +187,7 @@ void OmmQosDecoder::convertToRssl( RsslQos* pQos, UInt32 timeliness, UInt32 rate
 
 const EmaBuffer& OmmQosDecoder::getHexBuffer()
 {
-	_hexBuffer.setFromInt( _rsslBuffer.data, _rsslBuffer.length );
+	_hexBuffer.setFromInt( _pRsslBuffer->data, _pRsslBuffer->length );
 
 	return _hexBuffer.toBuffer();
 }

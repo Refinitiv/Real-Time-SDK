@@ -362,6 +362,20 @@ public:
 			++retVal;
 		return retVal;
 	}
+	bool empty()
+	{
+		return ( theList == 0 );
+	}
+	const T * getFirst() { return theList->e; }
+	const T * getNext( const T * current )
+	{
+		for ( Node * p = theList; p; p = p->next )
+		{
+			if ( p->e == current )
+				return p->next ? p->next->e : 0;
+		}
+		return 0;
+	}
 	~xmlList()
 	{
 		Node * q;
@@ -494,6 +508,36 @@ public:
 	void appendErrorMessage( const EmaString & errorMsg, OmmLoggerClient::Severity severity);
 	int errorCount() { return _errors.count(); }
 	EmaConfigErrorList & errors() { return _errors; }
+	
+	class NameString : public EmaString, public ListLinks< NameString >
+	{
+	public:
+		NameString() : EmaString() {}
+		NameString( EmaString & n ) : EmaString( n ) {}
+	};
+
+	void verifyDefaultConsumer();
+
+	void getNames( EmaList< NameString > & theNames )
+	{
+		if ( _children && ! _children->empty() )
+		{
+			EmaString searchString( "Name" );
+			const XMLnode * child( _children->getFirst() );
+			while ( child )
+			{
+				EmaString name;
+				bool found( const_cast< XMLnode * >(child)->get< EmaString >( searchString, name ) );
+				if ( found )
+				{
+					NameString * nS( new NameString( name ) );
+					theNames.insert( nS );
+				}
+				child = _children->getNext( child );
+			}
+		}
+	}
+
 private:
 	EmaString _name;
 	XMLnode * _parent;
@@ -502,6 +546,50 @@ private:
 	int _level;
 	EmaConfigErrorList _errors;
 };
+
+template< >
+inline XMLnode *
+XMLnode::find< XMLnode >(const EmaString & itemToRetrieve )
+{
+	Int32 begin(0), end;
+	const char * nodeSeparator( "|" );
+	Int32 length( itemToRetrieve.length() );
+	EmaString nodeName;
+	XMLnode * tmp( this );
+	EmaConfigErrorList * e( new EmaConfigErrorList );
+	EmaString foundPath;
+	while ( length )
+	{
+		if ( tmp->_children->empty() )
+			return 0;
+
+		end = itemToRetrieve.find( nodeSeparator, begin );
+		if ( end == -1 )
+		{
+			nodeName = itemToRetrieve.substr( begin, length );
+			length = 0;
+		}
+		else
+		{
+			nodeName = itemToRetrieve.substr( begin, end - begin );
+			length -= ( end - begin + 1 );
+			begin = end + 1;
+		}
+
+		tmp = const_cast< XMLnode *>( tmp->_children->find( nodeName, &e ) );
+		if ( tmp )
+		{
+			if ( foundPath.length() )
+				foundPath += nodeSeparator;
+			foundPath += nodeName;
+			if ( itemToRetrieve == foundPath )
+				return tmp;
+		}
+		else
+			return 0;
+	}
+	return 0;
+}
 
 class OmmConsumerConfigImpl;
 
@@ -730,6 +818,7 @@ private:
 	ConfigElement* createConfigElement( const char * name, XMLnode*, const char* value, EmaString & );
 	bool validateConfigElement( const char *, ConfigElement::ConfigElementType );
 	void createNameToValueHashTable();
+	void verifyXMLdefaultConsumer();
 	HashTable< EmaString, ConfigElement::ConfigElementType> nameToValueHashTable;
 };
 

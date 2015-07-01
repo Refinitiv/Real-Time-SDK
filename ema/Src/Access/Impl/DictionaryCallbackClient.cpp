@@ -63,10 +63,7 @@ LocalDictionary* LocalDictionary::create( OmmConsumerImpl& ommConsImpl )
 		if ( OmmLoggerClient::ErrorEnum >= ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
 
-		if ( ommConsImpl.hasOmmConnsumerErrorClient() )
-			ommConsImpl.getOmmConsumerErrorClient().onMemoryExhaustion( temp );
-		else
-			throwMeeException( temp );
+		throwMeeException( temp );
 	}
 
 	return pDictionary;
@@ -216,7 +213,6 @@ ChannelDictionary::ChannelDictionary( OmmConsumerImpl& ommConsImpl ) :
  _pListenerList( 0 ),
  _channelDictLock()
 {
-	rsslClearDataDictionary( &_rsslDictionary );
 }
 
 const RsslDataDictionary* ChannelDictionary::getRsslDictionary() const
@@ -591,12 +587,13 @@ void ChannelDictionary::notifyStatusToListener( RsslRDMDictionaryStatus& status 
 {
 	_channelDictLock.lock();
 
-	if ( _pListenerList == 0 )
+	if ( !_pListenerList || _pListenerList->size() == 0 )
+	{
+		_channelDictLock.unlock();
 		return;
+	}
 
 	DictionaryItem* dictItem;
-	DictionaryItem*  next = static_cast<DictionaryItem*>(_pListenerList->front());
-
 	RsslStatusMsg statusMsg = RSSL_INIT_STATUS_MSG;
 	RsslEncodeIterator encodeIter;
 	RsslBuffer msgBuf;
@@ -604,9 +601,13 @@ void ChannelDictionary::notifyStatusToListener( RsslRDMDictionaryStatus& status 
 	msgBuf.data = new char[msgBuf.length];
 	RsslRet ret;
 
-	while( next )
+	for( int index = 0 ; index < _pListenerList->size(); index++ )
 	{
-		dictItem = next;
+		dictItem = _pListenerList->operator[](index);
+
+		if ( dictItem->getStreamId() != status.rdmMsgBase.streamId )
+			continue;
+
 		rsslClearEncodeIterator(&encodeIter);
 		statusMsg.msgBase.msgClass = RSSL_MC_STATUS;
 		statusMsg.msgBase.streamId = dictItem->getStreamId();
@@ -681,18 +682,18 @@ void ChannelDictionary::notifyStatusToListener( RsslRDMDictionaryStatus& status 
 
 		msgBuf.length = rsslGetEncodedBufferLength(&encodeIter);
 
-		next = (DictionaryItem*)dictItem->next();
-
 		dictItem->getOmmConsumerImpl().getDictionaryCallbackClient().processStatusMsg( &msgBuf, 
 			RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, dictItem );
-	}
 
-	if ( status.state.streamState  != RSSL_STREAM_OPEN )
-		_pListenerList->clear();
+		if ( status.state.streamState  != RSSL_STREAM_OPEN )
+			_pListenerList->removePosition( index );
+
+		break;
+	}
 
 	delete[] msgBuf.data;
 
-	_channelDictLock.lock();
+	_channelDictLock.unlock();
 }
 
 void ChannelDictionary::acquireLock()
@@ -709,7 +710,7 @@ void ChannelDictionary::addListener( DictionaryItem* item)
 {
 	if ( _pListenerList == 0)
 	{
-		_pListenerList = new EmaList<Item>();
+		_pListenerList = new EmaVector<DictionaryItem*>( 2 );
 	}
 
 	_pListenerList->push_back( item );
@@ -722,10 +723,10 @@ void ChannelDictionary::removeListener( DictionaryItem* item)
 		return;
 	}
 
-	_pListenerList->remove( item );
+	_pListenerList->removeValue( item );
 }
 
-const EmaList<Item>* ChannelDictionary::getListenerList() const
+const EmaVector<DictionaryItem*>* ChannelDictionary::getListenerList() const
 {
 	return _pListenerList;
 }
@@ -776,10 +777,7 @@ DictionaryCallbackClient* DictionaryCallbackClient::create( OmmConsumerImpl& omm
 		if ( OmmLoggerClient::ErrorEnum >= ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
 
-		if ( ommConsImpl.hasOmmConnsumerErrorClient() )
-			ommConsImpl.getOmmConsumerErrorClient().onMemoryExhaustion( temp );
-		else
-			throwMeeException( temp );
+		throwMeeException( temp );
 	}
 
 	return pClient;
@@ -801,13 +799,13 @@ void DictionaryCallbackClient::initialize()
 		if ( _ommConsImpl.getActiveConfig().pRsslRdmFldRequestMsg->msgBase.msgKey.serviceId != 
 			_ommConsImpl.getActiveConfig().pRsslEnumDefRequestMsg->msgBase.msgKey.serviceId )
 		{
+			EmaString temp( "Invalid dictionary configuration was specified through the OmmConsumerConfig::addAdminMsg()" );
+			temp.append( CR ).append( "Invalid attempt to download dictionaries from different services." );
+
 			if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			{
-				EmaString temp( "Invalid dictionary configuration was specified through the OmmConsumerConfig::addAdminMsg()" );
-				temp.append( CR )
-					.append( "Invalid attempt to download dictionaries from different services. Ignoring both dictionary request messages" );
 				_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-			}
+
+			throwIueException( temp );
 
 			return;
 		}
@@ -817,23 +815,24 @@ void DictionaryCallbackClient::initialize()
 	}
 	else if ( _ommConsImpl.getActiveConfig().pRsslRdmFldRequestMsg && !_ommConsImpl.getActiveConfig().pRsslEnumDefRequestMsg )
 	{
+		EmaString temp( "Invalid dictionary configuration was specified through the OmmConsumerConfig::addAdminMsg()" );
+		temp.append( CR ).append( "Enumeration type definition request message was not populated." );
+
 		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-		{
-			EmaString temp( "Invalid dictionary configuration was specified through the OmmConsumerConfig::addAdminMsg()" );
-			temp.append( CR )
-				.append( "Enumeration type definition request message was not populated. Ignoring the other dictionary request message" );
 			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-		}
+
+		throwIueException( temp );
+		return;
 	}
 	else if ( !_ommConsImpl.getActiveConfig().pRsslRdmFldRequestMsg && _ommConsImpl.getActiveConfig().pRsslEnumDefRequestMsg )
 	{
+		EmaString temp( "Invalid dictionary configuration was specified through the OmmConsumerConfig::addAdminMsg()" );
+		temp.append( CR ).append( "RDM Field Dictionary request message was not populated." );
 		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-		{
-			EmaString temp( "Invalid dictionary configuration was specified through the OmmConsumerConfig::addAdminMsg()" );
-			temp.append( CR )
-				.append( "RDM Field Dictionary request message was not populated. Ignoring other the dictionary request message" );
 			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-		}
+
+		throwIueException( temp );
+		return;
 	}
 
 	if ( _ommConsImpl.getActiveConfig().dictionaryConfig.dictionaryType == Dictionary::FileDictionaryEnum )
@@ -1472,6 +1471,8 @@ bool DictionaryCallbackClient::isDictionaryReady() const
 	{
 		ChannelDictionary* dictionary = _channelDictionaryList.front();
 
+		if ( !dictionary ) return false;
+
 		while ( dictionary )
 		{
 			retCode &= dictionary->isLoaded();
@@ -1658,13 +1659,12 @@ void DictionaryCallbackClient::sendInternalMsg( void* item )
 }
 
 DictionaryItem::DictionaryItem( OmmConsumerImpl& ommConsumerImpl, OmmConsumerClient& ommConsumerClient, void* closure ) :
-SingleItem( ommConsumerImpl, ommConsumerClient, closure, 0 ),
-_name(),
-_currentFid( 0 ),
-_filter ( 0 ),
-_isRemoved( false )
+ SingleItem( ommConsumerImpl, ommConsumerClient, closure, 0 ),
+ _name(),
+ _currentFid( 0 ),
+ _filter ( 0 ),
+ _isRemoved( false )
 {
-	_itemType = Item::DictionaryItemEnum;
 }
 
 DictionaryItem::~DictionaryItem()
@@ -1825,6 +1825,16 @@ bool DictionaryItem::submit( const GenericMsg& )
 	return false;
 }
 
+void DictionaryItem::remove()
+{
+	if ( !_isRemoved )
+	{
+		_isRemoved = true;
+
+		new TimeOut( getOmmConsumerImpl(), 2000, &DictionaryItem::ScheduleRemove, this );
+	}
+}
+
 bool DictionaryItem::close()
 {
 	if ( _streamId > 4 )
@@ -1833,24 +1843,25 @@ bool DictionaryItem::close()
 	}
 	else
 	{
-		_isRemoved = true;
-
-		Dictionary* dictionary = _ommConsImpl.getDictionaryCallbackClient().getDefaultDictionary();
-
-		if ( dictionary->getType() == Dictionary::ChannelDictionaryEnum )
+		if ( _isRemoved == false )
 		{
-			ChannelDictionary* channelDict = static_cast<ChannelDictionary*>(dictionary);
+			_isRemoved = true;
 
-			channelDict->acquireLock();
+			Dictionary* dictionary = _ommConsImpl.getDictionaryCallbackClient().getDefaultDictionary();
 
-			channelDict->removeListener( this );
+			if ( dictionary->getType() == Dictionary::ChannelDictionaryEnum )
+			{
+				ChannelDictionary* channelDict = static_cast<ChannelDictionary*>(dictionary);
 
-			channelDict->releaseLock();
+				channelDict->acquireLock();
+
+				channelDict->removeListener( this );
+
+				channelDict->releaseLock();
+			}
+
+			new TimeOut( this->getOmmConsumerImpl(), 2000, &DictionaryItem::ScheduleRemove, this );
 		}
-
-		_ommConsImpl.getItemCallbackClient().removeFromMap( this );
-
-		new TimeOut( this->getOmmConsumerImpl(), 2000, &DictionaryItem::ScheduleRemove, this );
 	}
 
 	return true;
@@ -1858,7 +1869,7 @@ bool DictionaryItem::close()
 
 void DictionaryItem::ScheduleRemove( void* item )
 {
-	static_cast<SingleItem*>(item)->remove();
+	delete (DictionaryItem*)item;
 }
 
 RsslRet DictionaryItem::encodeDataDictionaryResp( RsslBuffer& msgBuf, const EmaString& name, unsigned char filter, RsslInt32 streamId,
@@ -1943,23 +1954,12 @@ RsslRet DictionaryItem::encodeDataDictionaryResp( RsslBuffer& msgBuf, const EmaS
 		}
 
 		if ( ( ret = rsslEncodeMsgComplete( &encodeIter, RSSL_TRUE ) ) < RSSL_RET_SUCCESS )
-		{
 			return ret;
-		}
 
 		break;
 	}
 
 	msgBuf.length = rsslGetEncodedBufferLength( &encodeIter );
 
-	if ( dictionaryComplete )
-	{
-		return RSSL_RET_SUCCESS;
-	}
-	else
-	{
-		return RSSL_RET_DICT_PART_ENCODED;
-	}
+	return dictionaryComplete ? RSSL_RET_SUCCESS : RSSL_RET_DICT_PART_ENCODED;
 }
-
-

@@ -305,7 +305,8 @@ class DirectoryItem : public Item
 {
 public :
 
-	static DirectoryItem * create( OmmConsumerImpl&, OmmConsumerClient&, void* closure, const Channel * );
+	static DirectoryItem * create( OmmConsumerImpl&, OmmConsumerClient&, void* closure, const Channel* );
+
 	bool open( const ReqMsg& );
 	bool modify( const ReqMsg& );
 	bool submit( const PostMsg& );
@@ -314,17 +315,24 @@ public :
 	void remove();
 	bool submit( RsslGenericMsg* );
 
-protected:
-
-	DirectoryItem( OmmConsumerImpl&, OmmConsumerClient&, void* closure, const Channel * );
+	ItemType getType() const { return Item::DirectoryItemEnum; }
 
 private :
 
-	static const EmaString _clientName;
-	const Channel * channel;
+	static const EmaString		_clientName;
+	const Channel*				_channel;
+
+	const Directory*					_pDirectory;
+	ClosedStatusInfo*					_closedStatusInfo;
+
 	bool submit( RsslRequestMsg* );
 	bool submit( RsslCloseMsg* );
-	bool hasServiceName;
+
+	DirectoryItem( OmmConsumerImpl&, OmmConsumerClient&, void* closure, const Channel * );
+	DirectoryItem();
+	virtual ~DirectoryItem();
+	DirectoryItem( const BatchItem& );
+	DirectoryItem& operator=( const DirectoryItem& );
 };
 
 }

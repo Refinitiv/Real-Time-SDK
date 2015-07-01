@@ -89,12 +89,13 @@ int main( int argc, char* argv[] )
 	try {
 		AppClient client;
 
-		 // Modify Administrative domains with ReqMsg to override default configurations
-		OmmConsumer consumer( OmmConsumerConfig().host( "localhost:14002" ) 
-			.operationModel( OmmConsumerConfig::UserDispatchEnum )
-			.addAdminMsg( ReqMsg().domainType( MMT_LOGIN ).name( "user" ).nameType( 1 )
-			.attrib( ElementList().addAscii( "ApplicationId", "127" ).addAscii( "Password", "password" )
-			.addAscii("Position", "127.0.0.1/net").addUInt("allowSuspect",1).complete() ) )
+		// Modify Administrative domains with ReqMsg to override default configurations
+		OmmConsumer consumer( OmmConsumerConfig().operationModel( OmmConsumerConfig::UserDispatchEnum )
+			.addAdminMsg( ReqMsg().domainType( MMT_LOGIN ).name( "user" ).nameType( USER_NAME )
+				.attrib( ElementList().addAscii( ENAME_APP_ID, "127" )
+					.addAscii( ENAME_POSITION, "127.0.0.1/net" )
+					.addUInt( ENAME_ALLOW_SUSPECT_DATA, 1 )
+					.complete() ) )
 			.addAdminMsg( ReqMsg().domainType( MMT_DIRECTORY ).filter( SERVICE_INFO_FILTER | SERVICE_STATE_FILTER | SERVICE_GROUP_FILTER ) )
 			.addAdminMsg( ReqMsg().domainType( MMT_DICTIONARY ).filter( DICTIONARY_VERBOSE ).name( "RWFFld" ).serviceId( 1 ) )
 			.addAdminMsg( ReqMsg().domainType( MMT_DICTIONARY ).filter( DICTIONARY_VERBOSE ).name( "RWFEnum" ).serviceId( 1 ) )

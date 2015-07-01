@@ -16,7 +16,8 @@ void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEve
 	cout << "Handle: " << ommEvent.getHandle() << " Closure: " << ommEvent.getClosure() << endl;
 
 	if ( refreshMsg.hasMsgKey() )
-		cout << "Item Name: " << refreshMsg.getName() << endl << "Service Name: " << ( refreshMsg.hasServiceName() ? refreshMsg.getServiceName() : EmaString( "not set" ) ) << endl;
+		cout << "Item Name: " << ( refreshMsg.hasName() ? refreshMsg.getName() : EmaString( "name not set" ) ) << endl 
+		<< "Service Name: " << ( refreshMsg.hasServiceName() ? refreshMsg.getServiceName() : EmaString( "service name not set" ) ) << endl;
 
 	cout << "Item State: " << refreshMsg.getState().toString() << endl;
 
@@ -28,7 +29,8 @@ void AppClient::onUpdateMsg( const UpdateMsg& updateMsg, const OmmConsumerEvent&
 	cout << "Handle: " << ommEvent.getHandle() << " Closure: " << ommEvent.getClosure() << endl;
 
 	if ( updateMsg.hasMsgKey() )
-		cout << "Item Name: " << updateMsg.getName() << endl << "Service Name: " << ( updateMsg.hasServiceName() ? updateMsg.getServiceName() : EmaString( "not set" ) ) << endl;
+		cout << "Item Name: " << ( updateMsg.hasName() ? updateMsg.getName() : EmaString( "name not set" ) ) << endl 
+		<< "Service Name: " << ( updateMsg.hasServiceName() ? updateMsg.getServiceName() : EmaString( "service name not set" ) ) << endl;
 
 	decode( updateMsg );
 }
@@ -38,7 +40,8 @@ void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent&
 	cout << "Handle: " << ommEvent.getHandle() << " Closure: " << ommEvent.getClosure() << endl;
 
 	if ( statusMsg.hasMsgKey() )
-		cout << "Item Name: " << statusMsg.getName() << endl << "Service Name: " << ( statusMsg.hasServiceName() ? statusMsg.getServiceName() : EmaString( "not set" ) ) << endl;
+			cout << "Item Name: " << ( statusMsg.hasName() ? statusMsg.getName() : EmaString( "name not set" ) ) << endl 
+		<< "Service Name: " << ( statusMsg.hasServiceName() ? statusMsg.getServiceName() : EmaString( "service name not set" ) ) << endl;
 
 	if ( statusMsg.hasState() )
 		cout << endl << "Item State: " << statusMsg.getState().toString() << endl;
@@ -206,7 +209,7 @@ int main( int argc, char* argv[] )
 {
 	try {
 		AppClient client;
-		OmmConsumer consumer( OmmConsumerConfig().host( "localhost:14002" ).username( "user" ) );
+		OmmConsumer consumer( OmmConsumerConfig().username( "user" ) );
 		void* closure = (void*)1;
 		
 		// open directory stream

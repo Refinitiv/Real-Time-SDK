@@ -42,7 +42,7 @@ public :
 
 	virtual bool hasPayload() const = 0;
 
-	virtual bool hasHeader() const = 0;
+	virtual bool hasExtendedHeader() const = 0;
 
 	virtual Int32 getStreamId() const = 0;
 
@@ -58,7 +58,7 @@ public :
 
 	virtual UInt32 getFilter() const = 0;
 
-	virtual const EmaBuffer& getHeader() const = 0;
+	virtual const EmaBuffer& getExtendedHeader() const = 0;
 
 	void setAtExit();
 

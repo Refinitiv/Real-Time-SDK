@@ -12,15 +12,13 @@
 using namespace thomsonreuters::ema::access;
 
 OmmRealDecoder::OmmRealDecoder() :
- _rsslBuffer(),
+ _pRsslBuffer( 0 ),
  _rsslReal(),
  _toDouble( 0 ),
  _toString(),
  _hexBuffer(),
- _toDoubleSet( false ),
- _toStringSet( false )
+ _toDoubleSet( false )
 {
-	rsslClearReal( &_rsslReal );
 }
 
 OmmRealDecoder::~OmmRealDecoder()
@@ -50,64 +48,42 @@ void OmmRealDecoder::setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDi
 {
 }
 
-void OmmRealDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* rsslBuffer )
+void OmmRealDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* pRsslBuffer )
 {
-	_rsslBuffer = *rsslBuffer;
+	_pRsslBuffer = pRsslBuffer;
 
 	_toDoubleSet = false;
 
-	_toStringSet = false;
-
-	RsslRet retCode = rsslDecodeReal( dIter, &_rsslReal );
-
-	switch ( retCode )
+	if ( rsslDecodeReal( dIter, &_rsslReal ) != RSSL_RET_SUCCESS )
 	{
-	case RSSL_RET_BLANK_DATA :
+		rsslClearReal( &_rsslReal );
 		_rsslReal.isBlank = RSSL_TRUE;
-		break;
-	case RSSL_RET_SUCCESS :
-		_rsslReal.isBlank = RSSL_FALSE;
-		break;
-	case RSSL_RET_INCOMPLETE_DATA :
-	default :
-		{
-			_rsslReal.isBlank = RSSL_TRUE;
-			EmaString temp( "Failed to decode OmmReal. Reason: " );
-			temp += rsslRetCodeToString( retCode );
-			throwIueException( temp );
-		}
-		break;
 	}
 }
 
 const EmaString& OmmRealDecoder::toString()
 {
-	if ( !_toStringSet )
+	if ( _rsslReal.isBlank == RSSL_TRUE )
 	{
-		if ( _rsslReal.isBlank == RSSL_TRUE )
-		{
-			_toStringSet = true;
-			_toString.set( "(blank data)" );
-			return _toString;
-		}
+		_toString.set( "(blank data)" );
+		return _toString;
+	}
 
-		char realString[256];
-		RsslBuffer tempRsslBuffer;
-		tempRsslBuffer.data = realString;
-		tempRsslBuffer.length = 256;
-		RsslRet retCode = rsslRealToString( &tempRsslBuffer, &_rsslReal );
+	char realString[256];
+	RsslBuffer tempRsslBuffer;
+	tempRsslBuffer.data = realString;
+	tempRsslBuffer.length = 256;
+	RsslRet retCode = rsslRealToString( &tempRsslBuffer, &_rsslReal );
 
-		if ( RSSL_RET_SUCCESS != retCode )
-		{
-			EmaString temp( "Failed to convert OmmReal to string. Reason: " );
-			temp += rsslRetCodeToString( retCode );
-			throwIueException( temp );
-		}
-		else
-		{
-			_toStringSet = true;
-			_toString.set( realString );
-		}
+	if ( RSSL_RET_SUCCESS != retCode )
+	{
+		EmaString temp( "Failed to convert OmmReal to string. Reason: " );
+		temp += rsslRetCodeToString( retCode );
+		throwIueException( temp );
+	}
+	else
+	{
+		_toString.set( realString );
 	}
 
 	return _toString;
@@ -137,7 +113,7 @@ double OmmRealDecoder::toDouble()
 
 const EmaBuffer& OmmRealDecoder::getHexBuffer()
 {
-	_hexBuffer.setFromInt( _rsslBuffer.data, _rsslBuffer.length );
+	_hexBuffer.setFromInt( _pRsslBuffer->data, _pRsslBuffer->length );
 
 	return _hexBuffer.toBuffer();
 }

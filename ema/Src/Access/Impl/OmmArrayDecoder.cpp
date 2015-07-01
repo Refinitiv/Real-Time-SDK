@@ -26,7 +26,6 @@ OmmArrayDecoder::OmmArrayDecoder() :
  _decodingStarted( false ),
  _atEnd( false )
 {
-	rsslClearArray( &_rsslArray );
 }
 
 OmmArrayDecoder::~OmmArrayDecoder()

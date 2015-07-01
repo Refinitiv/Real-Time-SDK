@@ -52,7 +52,7 @@ public :
 
 private :
 
-	RsslBuffer		_rsslBuffer;
+	RsslBuffer*		_pRsslBuffer;
 
 	RsslReal		_rsslReal;
 
@@ -63,8 +63,6 @@ private :
 	EmaBufferInt	_hexBuffer;
 
 	bool			_toDoubleSet;
-
-	bool			_toStringSet;
 };
 
 }

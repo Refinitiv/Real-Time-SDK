@@ -161,19 +161,19 @@ const EmaString& AckMsg::toString(  UInt64 indent ) const
 		}
 	}
 
-	if ( pTempDecoder->hasHeader() )
+	if ( pTempDecoder->hasExtendedHeader() )
 	{
 		indent++;
-		addIndent( _toString, indent, true ).append( "Header\n" );
+		addIndent( _toString, indent, true ).append( "ExtendedHeader\n" );
 
 		indent++;
 
 		addIndent( _toString, indent );
-		hexToString( _toString, pTempDecoder->getHeader() );
+		hexToString( _toString, pTempDecoder->getExtendedHeader() );
 
 		indent--;
 
-		addIndent( _toString, indent, true ).append( "HeaderEnd" );
+		addIndent( _toString, indent, true ).append( "ExtendedHeaderEnd" );
 		indent--;
 	}
 
@@ -391,7 +391,7 @@ AckMsg& AckMsg::payload( const ComplexType& data )
 	return *this;
 }
 
-AckMsg& AckMsg::header( const EmaBuffer& Buffer )
+AckMsg& AckMsg::extendedHeader( const EmaBuffer& Buffer )
 {
 	if ( !_pEncoder )
 		_pEncoder = g_pool._ackMsgEncoderPool.getItem();

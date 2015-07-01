@@ -103,6 +103,8 @@ private :
 
 	friend class Decoder;
 	friend class StaticDecoder;
+	friend class RefreshMsgDecoder;
+	friend class ReqMsgDecoder;
 
 	Decoder& getDecoder();
 

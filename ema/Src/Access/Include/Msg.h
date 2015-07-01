@@ -78,10 +78,10 @@ public :
 	*/
 	bool hasFilter() const;
 
-	/** Indicates presence of the Header.
-		@return true if header is set; false otherwise
+	/** Indicates presence of the ExtendedHeader.
+		@return true if extendedHeader is set; false otherwise
 	*/
-	bool hasHeader() const;
+	bool hasExtendedHeader() const;
 
 	/** Returns the StreamId, which is the unique open message stream identifier on the wire.
 		@return stream id value
@@ -123,11 +123,11 @@ public :
 	*/
 	UInt32 getFilter() const;
 
-	/** Returns the Header.
-		@throw OmmInvalidUsageException if hasHeader() returns false
-		@return EmaBuffer containing header info value
+	/** Returns the ExtendedHeader.
+		@throw OmmInvalidUsageException if hasExtendedHeader() returns false
+		@return EmaBuffer containing extendedHeader info value
 	*/
-	const EmaBuffer& getHeader() const;
+	const EmaBuffer& getExtendedHeader() const;
 
 	/** Returns the contained attributes Data based on the attributes DataType.
 		\remark Attrib contains no data if Attrib::getDataType() returns DataType::NoDataEnum

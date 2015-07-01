@@ -1,0 +1,60 @@
+ROOTNODE=$(shell cd ../../../../../; pwd)
+
+CFLAGS += -m64 -D_REENTRANT -DLinux  -DCOMPILE_64BITS
+
+ifeq ($(findstring RedHat,$(DIST)), RedHat)
+    ifeq ($(findstring 6, $(OS_VER)), 6)
+	IDENT= RHEL6_64_GCC444
+    endif
+else
+	ifeq ($(findstring OracleServer, $(DIST)), OracleServer)
+		ifeq ($(findstring 6, $(OS_VER)), 6)
+			IDENT= RHEL6_64_GCC444
+		else
+			IDENT= OL7_64_GCC482
+		endif
+	else
+		ifeq ($(findstring CentOS, $(DIST)), CentOS)
+			ifeq ($(findstring 7, $(OS_VER)), 7)
+				IDENT= OL7_64_GCC482
+			endif
+		endif
+	endif
+endif
+
+ifndef IDENT	
+$(error unsupported environment)
+endif
+
+optimizedStatic:	LIBTYPE=Optimized
+optimizedStatic:	LIBS=$(STATIC_LIBS)
+optimizedShared:	LIBTYPE=Optimized
+optimizedShared:	LIBS=$(SHARED_LIBS)
+optimizedAssertStatic:	LIBTYPE=Optimized_Assert
+optimizedAssertStatic:	LIBS=$(STATIC_LIBS)
+optimizedAssertShared:	LIBTYPE=Optimized_Assert
+optimizedAssertShared:	LIBS=$(SHARED_LIBS)
+
+INCLUDES = -I$(ROOTNODE)/ema/Src/Include -I$(ROOTNODE)/ema/Src
+
+EXE_DIR     = $(OUTPUT_DIR)
+SYSTEM_LIBS = -lnsl -lpthread -ldl -lrt
+ifdef USE_CUSTOM_BUILD
+STATIC_LIBS = -L$(ROOTNODE)/ema/Src/Access/Libs/$(IDENT)/$(LIBTYPE)
+else
+STATIC_LIBS = -L$(ROOTNODE)/ema/Libs/$(IDENT)/$(LIBTYPE)
+endif
+STATIC_LIBS += -lema $(SYSTEM_LIBS)
+
+ifdef USE_CUSTOM_BUILD
+SHARED_LIBS =	-L$(ROOTNODE)/ema/Src/Access/Libs/$(IDENT)/$(LIBTYPE)/Shared	\
+		-L$(ROOTNODE)/ema/Src/libxml/src/$(IDENT)/Shared
+else
+SHARED_LIBS =	-L$(ROOTNODE)/ema/Libs/$(IDENT)/$(LIBTYPE)/Shared
+endif
+SHARED_LIBS +=	-L$(ROOTNODE)/eta/Libs/$(IDENT)/$(LIBTYPE)/Shared		\
+		-L$(ROOTNODE)/eta/Libs/ValueAdd/$(IDENT)/$(LIBTYPE)/Shared	\
+		-lema -lxml2 -lrssl -lrsslVA $(SYSTEM_LIBS)
+
+$(OUTPUT_DIR)/obj/%.o : %.cpp
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<

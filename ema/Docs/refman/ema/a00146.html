@@ -134,6 +134,7 @@ This is the complete list of members for <a class="el" href="a00002.html">thomso
   <tr bgcolor="#f0f0f0"><td><b>DictionaryItem</b> (defined in <a class="el" href="a00021.html">thomsonreuters::ema::access::Msg</a>)</td><td><a class="el" href="a00021.html">thomsonreuters::ema::access::Msg</a></td><td><code> [friend]</code></td></tr>
   <tr bgcolor="#f0f0f0"><td><b>DirectoryItem</b> (defined in <a class="el" href="a00021.html">thomsonreuters::ema::access::Msg</a>)</td><td><a class="el" href="a00021.html">thomsonreuters::ema::access::Msg</a></td><td><code> [friend]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="a00002.html#a094fa4f3e82590ab23531a474a423ad3">domainType</a>(UInt16 domainType=rdm::MMT_MARKET_PRICE)</td><td><a class="el" href="a00002.html">thomsonreuters::ema::access::AckMsg</a></td><td></td></tr>
+  <tr class="memlist"><td><a class="el" href="a00002.html#a8ae330143576f85ec4312846a1684d91">extendedHeader</a>(const EmaBuffer &amp;buffer)</td><td><a class="el" href="a00002.html">thomsonreuters::ema::access::AckMsg</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00002.html#a1a23308f9e1cf41b773efc22a8ecc249">filter</a>(UInt32 filter)</td><td><a class="el" href="a00002.html">thomsonreuters::ema::access::AckMsg</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00002.html#a8ee36cc23e95d69d8b865146e876c4fbafd03e814ab4e102d9f6de3d68681d909">GatewayDownEnum</a> enum value</td><td><a class="el" href="a00002.html">thomsonreuters::ema::access::AckMsg</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00002.html#aeb68740c387df1f4980b4dd8f59e80ec">getAckId</a>() const </td><td><a class="el" href="a00002.html">thomsonreuters::ema::access::AckMsg</a></td><td></td></tr>
@@ -144,8 +145,8 @@ This is the complete list of members for <a class="el" href="a00002.html">thomso
   <tr class="memlist"><td><a class="el" href="a00002.html#a296561163b3e730fdf4e02d67b7e6e34">getDataType</a>() const </td><td><a class="el" href="a00002.html">thomsonreuters::ema::access::AckMsg</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="a00021.html#a10aee7a597dda8f3876b590bda2ef983">getDomainType</a>() const </td><td><a class="el" href="a00021.html">thomsonreuters::ema::access::Msg</a></td><td></td></tr>
   <tr bgcolor="#f0f0f0"><td><b>getEncoder</b>() const  (defined in <a class="el" href="a00021.html">thomsonreuters::ema::access::Msg</a>)</td><td><a class="el" href="a00021.html">thomsonreuters::ema::access::Msg</a></td><td><code> [protected, virtual]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="a00021.html#a1f5b75079da8638d85362638c310f460">getExtendedHeader</a>() const </td><td><a class="el" href="a00021.html">thomsonreuters::ema::access::Msg</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00021.html#af9456c87a40dc7bad29bf7ef5b389f84">getFilter</a>() const </td><td><a class="el" href="a00021.html">thomsonreuters::ema::access::Msg</a></td><td></td></tr>
-  <tr class="memlist"><td><a class="el" href="a00021.html#ac9b95a41d8cd93e226f8333f54b50e7b">getHeader</a>() const </td><td><a class="el" href="a00021.html">thomsonreuters::ema::access::Msg</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00021.html#a8dda8dab566a6e6536c524153ef7445b">getId</a>() const </td><td><a class="el" href="a00021.html">thomsonreuters::ema::access::Msg</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00002.html#a61a8eb935622e588c3d557f3b0204205">getNackCode</a>() const </td><td><a class="el" href="a00002.html">thomsonreuters::ema::access::AckMsg</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00002.html#a240f7c246f8b161d7a48f4f9caf38014">getNackCodeAsString</a>() const </td><td><a class="el" href="a00002.html">thomsonreuters::ema::access::AckMsg</a></td><td></td></tr>
@@ -158,8 +159,8 @@ This is the complete list of members for <a class="el" href="a00002.html">thomso
   <tr class="memlist"><td><a class="el" href="a00002.html#a6cc02ac37e43c9bbb41952304f0a3bcb">getServiceName</a>() const </td><td><a class="el" href="a00002.html">thomsonreuters::ema::access::AckMsg</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00021.html#aa418fe1cfad088eb0e3c8f91e56f0e84">getStreamId</a>() const </td><td><a class="el" href="a00021.html">thomsonreuters::ema::access::Msg</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00002.html#a0aecb5d49f386f392b5c6dfb1bfbc9c6">getText</a>() const </td><td><a class="el" href="a00002.html">thomsonreuters::ema::access::AckMsg</a></td><td></td></tr>
+  <tr class="memlist"><td><a class="el" href="a00021.html#a3bbfd46d1f1dffe459d89f3408b66791">hasExtendedHeader</a>() const </td><td><a class="el" href="a00021.html">thomsonreuters::ema::access::Msg</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00021.html#a6095193394324ca40c20e65b3c489f49">hasFilter</a>() const </td><td><a class="el" href="a00021.html">thomsonreuters::ema::access::Msg</a></td><td></td></tr>
-  <tr class="memlist"><td><a class="el" href="a00021.html#a3e139538e3815d851f4a1f40135496f6">hasHeader</a>() const </td><td><a class="el" href="a00021.html">thomsonreuters::ema::access::Msg</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00021.html#a92234f7934d900298526cf08b5ba1d8d">hasId</a>() const </td><td><a class="el" href="a00021.html">thomsonreuters::ema::access::Msg</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00021.html#aa27382f2d4c3d9a6504a67a59b282244">hasMsgKey</a>() const </td><td><a class="el" href="a00021.html">thomsonreuters::ema::access::Msg</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00002.html#a3b0a852df7bd8fc754f137266f9c9f1c">hasNackCode</a>() const </td><td><a class="el" href="a00002.html">thomsonreuters::ema::access::AckMsg</a></td><td></td></tr>
@@ -169,7 +170,6 @@ This is the complete list of members for <a class="el" href="a00002.html">thomso
   <tr class="memlist"><td><a class="el" href="a00021.html#adfecdc7274870cd393bb543a3245fc3f">hasServiceId</a>() const </td><td><a class="el" href="a00021.html">thomsonreuters::ema::access::Msg</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00002.html#ad5d16319b8ab660e0ded972ab182a518">hasServiceName</a>() const </td><td><a class="el" href="a00002.html">thomsonreuters::ema::access::AckMsg</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00002.html#aadb937f936b65eba4162d94cceb05831">hasText</a>() const </td><td><a class="el" href="a00002.html">thomsonreuters::ema::access::AckMsg</a></td><td></td></tr>
-  <tr class="memlist"><td><a class="el" href="a00002.html#a39460c805bc40dfcde4062f85b2b9eda">header</a>(const EmaBuffer &amp;buffer)</td><td><a class="el" href="a00002.html">thomsonreuters::ema::access::AckMsg</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00002.html#a25f9e9e2ca10ab9e6f7ca2b2378b01a6">id</a>(Int32 id)</td><td><a class="el" href="a00002.html">thomsonreuters::ema::access::AckMsg</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00002.html#a8ee36cc23e95d69d8b865146e876c4fbae2b0c016045c09d8d6602e8fdaf0f1bc">InvalidContentEnum</a> enum value</td><td><a class="el" href="a00002.html">thomsonreuters::ema::access::AckMsg</a></td><td></td></tr>
   <tr bgcolor="#f0f0f0"><td><b>ItemCallbackClient</b> (defined in <a class="el" href="a00002.html">thomsonreuters::ema::access::AckMsg</a>)</td><td><a class="el" href="a00002.html">thomsonreuters::ema::access::AckMsg</a></td><td><code> [friend]</code></td></tr>
@@ -220,7 +220,7 @@ This is the complete list of members for <a class="el" href="a00002.html">thomso
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Fri May 29 2015</td>
+			<td><p class="smallfont">Mon Jun 29 2015</td>
           </tr>
         </table>
         </td>

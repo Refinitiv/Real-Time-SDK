@@ -19,34 +19,38 @@ namespace ema {
 
 namespace access {
 
+class OmmQos;
+class OmmState;
+class RefreshMsg;
+class StatusMsg;
+class UpdateMsg;
+
 class StaticDecoder
 {
 public :
 
-	// entry point to decode / translate all message classes
+	// entry point to decode any received message class
 	//
 	// Data*			-> Data class object to be morphed into a message class object
 	// RsslMsg*			-> decoded RsslMsg (contains message class)
-	// majVer / minVer	-> wire format version
+	// majVer / minVer	-> wire format version number
 	// RsslDataDictionary* -> field dictionary used to decode FieldList
 	static void setRsslData( Data* , RsslMsg* , UInt8 majVer, UInt8 minVer, const RsslDataDictionary* );
 
 	// entry point to decode all containers
 	//
-	// Data*			-> Data class object to be morphed into given message
+	// Data*			-> Data class object to be morphed into message or container
 	// RsslBuffer*		-> decoded RsslBuffer
-	// RsslDataType	-> container type
-	// majVer / minVer	-> wire format version
+	// RsslDataType		-> type of container pointed by the above RsslBuffer
+	// majVer / minVer	-> wire format version number
 	// RsslDataDictionary* -> field dictionary used to decode FieldList
 	static void setRsslData( Data* , RsslBuffer* , RsslDataType , UInt8 majVer, UInt8 minVer, const RsslDataDictionary* );
 
 	// helper method to convert decoded RsslQos struct into Qos object
-	// note: used primarily by RespMsgDecoder
-	static void setRsslData( Data* , RsslQos* );
+	static void setRsslData( OmmQos* , RsslQos* );
 
 	// helper method to convert decoded RsslState struct into State object
-	// note: used primarily by RespMsgDecoder
-	static void setRsslData( Data* , RsslState* );
+	static void setRsslData( OmmState* , RsslState* );
 
 	// helper method allowing decoding of just encoded container
 	static void setData( Data* pData, const RsslDataDictionary* );

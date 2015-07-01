@@ -54,7 +54,8 @@ RefreshMsgEncoder::RefreshMsgEncoder() :
  _complete( false ),
  _doNotRipple( false ),
  _privateStream( false ),
- _qosSet( false )
+ _qosSet( false ),
+ _stateSet( false )
 {
 	clearRsslRefreshMsg();
 }
@@ -461,7 +462,11 @@ RsslRefreshMsg* RefreshMsgEncoder::getRsslRefreshMsg() const
 	}
 	else
 	{
-		rsslClearState( &_rsslRefreshMsg.state );
+		_rsslRefreshMsg.state.streamState = RSSL_STREAM_OPEN;
+		_rsslRefreshMsg.state.dataState = RSSL_DATA_OK;
+		_rsslRefreshMsg.state.code = RSSL_SC_NONE;
+		_rsslRefreshMsg.state.text.data = 0;
+		_rsslRefreshMsg.state.text.length = 0;
 	}
 #else
 	if ( _pExtendedHeader )
@@ -505,7 +510,11 @@ RsslRefreshMsg* RefreshMsgEncoder::getRsslRefreshMsg() const
 	}
 	else
 	{
-		rsslClearState( &_rsslRefreshMsg.state );
+		_rsslRefreshMsg.state.streamState = RSSL_STREAM_OPEN;
+		_rsslRefreshMsg.state.dataState = RSSL_DATA_OK;
+		_rsslRefreshMsg.state.code = RSSL_SC_NONE;
+		_rsslRefreshMsg.state.text.data = 0;
+		_rsslRefreshMsg.state.text.length = 0;
 	}
 #endif
 

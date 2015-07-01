@@ -160,10 +160,10 @@ void AppClient::decode( const FieldList& fl )
 
 void AppClient::decode( const Vector& vt )
 {
-	switch ( vt.getSummary().getDataType() )
+	switch ( vt.getSummaryData().getDataType() )
 	{
 	case DataType::ElementListEnum:
-		decode( vt.getSummary().getElementList() );
+		decode( vt.getSummaryData().getElementList() );
 		break;
 	default:
 		cout << endl;
@@ -197,7 +197,7 @@ int main( int argc, char* argv[] )
 {
 	try {
 		AppClient client;
-		OmmConsumer consumer( OmmConsumerConfig().operationModel( OmmConsumerConfig::UserDispatchEnum ).host( "localhost:14002" ).username( "user" ));
+		OmmConsumer consumer( OmmConsumerConfig().operationModel( OmmConsumerConfig::UserDispatchEnum ).username( "user" ));
 		client.setOmmConsumer( consumer );
 		void* closure = (void*)1;
 		

@@ -350,11 +350,11 @@ public :
 	*/
 	RefreshMsg& payload( const ComplexType& data );
 
-	/** Specifies Header.
-		@param[in] buffer an EmaBuffer containing header information
+	/** Specifies ExtendedHeader.
+		@param[in] buffer an EmaBuffer containing extendedHeader information
 		@return reference to this object
 	*/
-	RefreshMsg& header( const EmaBuffer& buffer );
+	RefreshMsg& extendedHeader( const EmaBuffer& buffer );
 
 	/** Specifies Solicited.
 		@param[in] solicited true if this refresh is solicited; false otherwise (default value is true)

@@ -31,7 +31,7 @@ using namespace thomsonreuters::ema::access;
 extern const EmaString& getDTypeAsString( DataType::DataTypeEnum dType );
 
 Payload::Payload() :
- _pDecoder( 0 )
+ _pPayload( 0 )
 {
 }
 
@@ -41,234 +41,202 @@ Payload::~Payload()
 
 DataType::DataTypeEnum Payload::getDataType() const
 {
-	return _pDecoder->getPayloadData().getDataType();
+	return _pPayload->getDataType();
 }
 
 const ComplexType& Payload::getData() const
 {
-	return static_cast<const ComplexType&>( _pDecoder->getPayloadData() );
+	return static_cast<const ComplexType&>( *_pPayload );
 }
 
 const ReqMsg& Payload::getReqMsg() const
 {
-	const Data& payload = _pDecoder->getPayloadData();
-
-	if ( payload.getDataType() != DataType::ReqMsgEnum )
+	if ( _pPayload->getDataType() != DataType::ReqMsgEnum )
 	{
 		EmaString temp( "Attempt to getReqMsg() while actual dataType is " );
-		temp += getDTypeAsString( payload.getDataType() );
+		temp += getDTypeAsString( _pPayload->getDataType() );
 		throwIueException( temp );
 	}
 
-	return static_cast<const ReqMsg&>( payload );
+	return static_cast<const ReqMsg&>( *_pPayload );
 }
 
 const RefreshMsg& Payload::getRefreshMsg() const
 {
-	const Data& payload = _pDecoder->getPayloadData();
-
-	if ( payload.getDataType() != DataType::RefreshMsgEnum )
+	if ( _pPayload->getDataType() != DataType::RefreshMsgEnum )
 	{
 		EmaString temp( "Attempt to getRefreshMsg() while actual dataType is " );
-		temp += getDTypeAsString( payload.getDataType() );
+		temp += getDTypeAsString( _pPayload->getDataType() );
 		throwIueException( temp );
 	}
 
-	return static_cast<const RefreshMsg&>( payload );
+	return static_cast<const RefreshMsg&>( *_pPayload );
 }
 
 const UpdateMsg& Payload::getUpdateMsg() const
 {
-	const Data& payload = _pDecoder->getPayloadData();
-
-	if ( payload.getDataType() != DataType::UpdateMsgEnum )
+	if ( _pPayload->getDataType() != DataType::UpdateMsgEnum )
 	{
 		EmaString temp( "Attempt to getUpdateMsg() while actual dataType is " );
-		temp += getDTypeAsString( payload.getDataType() );
+		temp += getDTypeAsString( _pPayload->getDataType() );
 		throwIueException( temp );
 	}
 
-	return static_cast<const UpdateMsg&>( payload );
+	return static_cast<const UpdateMsg&>( *_pPayload );
 }
 
 const StatusMsg& Payload::getStatusMsg() const
 {
-	const Data& payload = _pDecoder->getPayloadData();
-
-	if ( payload.getDataType() != DataType::StatusMsgEnum )
+	if ( _pPayload->getDataType() != DataType::StatusMsgEnum )
 	{
 		EmaString temp( "Attempt to getStatusMsg() while actual dataType is " );
-		temp += getDTypeAsString( payload.getDataType() );
+		temp += getDTypeAsString( _pPayload->getDataType() );
 		throwIueException( temp );
 	}
 
-	return static_cast<const StatusMsg&>( payload );
+	return static_cast<const StatusMsg&>( *_pPayload );
 }
 
 const PostMsg& Payload::getPostMsg() const
 {
-	const Data& payload = _pDecoder->getPayloadData();
-
-	if ( payload.getDataType() != DataType::PostMsgEnum )
+	if ( _pPayload->getDataType() != DataType::PostMsgEnum )
 	{
 		EmaString temp( "Attempt to getPostMsg() while actual dataType is " );
-		temp += getDTypeAsString( payload.getDataType() );
+		temp += getDTypeAsString( _pPayload->getDataType() );
 		throwIueException( temp );
 	}
 
-	return static_cast<const PostMsg&>( payload );
+	return static_cast<const PostMsg&>( *_pPayload );
 }
 
 const AckMsg& Payload::getAckMsg() const
 {
-	const Data& payload = _pDecoder->getPayloadData();
-
-	if ( payload.getDataType() != DataType::AckMsgEnum )
+	if ( _pPayload->getDataType() != DataType::AckMsgEnum )
 	{
 		EmaString temp( "Attempt to getAckMsg() while actual dataType is " );
-		temp += getDTypeAsString( payload.getDataType() );
+		temp += getDTypeAsString( _pPayload->getDataType() );
 		throwIueException( temp );
 	}
 
-	return static_cast<const AckMsg&>( payload );
+	return static_cast<const AckMsg&>( *_pPayload );
 }
 
 const GenericMsg& Payload::getGenericMsg() const
 {
-	const Data& payload = _pDecoder->getPayloadData();
-
-	if ( payload.getDataType() != DataType::GenericMsgEnum )
+	if ( _pPayload->getDataType() != DataType::GenericMsgEnum )
 	{
 		EmaString temp( "Attempt to getGenericMsg() while actual dataType is " );
-		temp += getDTypeAsString( payload.getDataType() );
+		temp += getDTypeAsString( _pPayload->getDataType() );
 		throwIueException( temp );
 	}
 
-	return static_cast<const GenericMsg&>( payload );
+	return static_cast<const GenericMsg&>( *_pPayload );
 }
 
 const FieldList& Payload::getFieldList() const
 {
-	const Data& payload = _pDecoder->getPayloadData();
-
-	if ( payload.getDataType() != DataType::FieldListEnum )
+	if ( _pPayload->getDataType() != DataType::FieldListEnum )
 	{
 		EmaString temp( "Attempt to getFieldList() while actual dataType is " );
-		temp += getDTypeAsString( payload.getDataType() );
+		temp += getDTypeAsString( _pPayload->getDataType() );
 		throwIueException( temp );
 	}
 
-	return static_cast<const FieldList&>( payload );
+	return static_cast<const FieldList&>( *_pPayload );
 }
 
 const ElementList& Payload::getElementList() const
 {
-	const Data& payload = _pDecoder->getPayloadData();
-
-	if ( payload.getDataType() != DataType::ElementListEnum )
+	if ( _pPayload->getDataType() != DataType::ElementListEnum )
 	{
 		EmaString temp( "Attempt to getElementList() while actual dataType is " );
-		temp += getDTypeAsString( payload.getDataType() );
+		temp += getDTypeAsString( _pPayload->getDataType() );
 		throwIueException( temp );
 	}
 
-	return static_cast<const ElementList&>( payload );
+	return static_cast<const ElementList&>( *_pPayload );
 }
 
 const Map& Payload::getMap() const
 {
-	const Data& payload = _pDecoder->getPayloadData();
-
-	if ( payload.getDataType() != DataType::MapEnum )
+	if ( _pPayload->getDataType() != DataType::MapEnum )
 	{
 		EmaString temp( "Attempt to getMap() while actual dataType is " );
-		temp += getDTypeAsString( payload.getDataType() );
+		temp += getDTypeAsString( _pPayload->getDataType() );
 		throwIueException( temp );
 	}
 
-	return static_cast<const Map&>( payload );
+	return static_cast<const Map&>( *_pPayload );
 }
 
 const Vector& Payload::getVector() const
 {
-	const Data& payload = _pDecoder->getPayloadData();
-
-	if ( payload.getDataType() != DataType::VectorEnum )
+	if ( _pPayload->getDataType() != DataType::VectorEnum )
 	{
 		EmaString temp( "Attempt to getVector() while actual dataType is " );
-		temp += getDTypeAsString( payload.getDataType() );
+		temp += getDTypeAsString( _pPayload->getDataType() );
 		throwIueException( temp );
 	}
 
-	return static_cast<const Vector&>( payload );
+	return static_cast<const Vector&>( *_pPayload );
 }
 
 const Series& Payload::getSeries() const
 {
-	const Data& payload = _pDecoder->getPayloadData();
-
-	if ( payload.getDataType() != DataType::SeriesEnum )
+	if ( _pPayload->getDataType() != DataType::SeriesEnum )
 	{
 		EmaString temp( "Attempt to getSeries() while actual dataType is " );
-		temp += getDTypeAsString( payload.getDataType() );
+		temp += getDTypeAsString( _pPayload->getDataType() );
 		throwIueException( temp );
 	}
 
-	return static_cast<const Series&>( payload );
+	return static_cast<const Series&>( *_pPayload );
 }
 
 const FilterList& Payload::getFilterList() const
 {
-	const Data& payload = _pDecoder->getPayloadData();
-
-	if ( payload.getDataType() != DataType::FilterListEnum )
+	if ( _pPayload->getDataType() != DataType::FilterListEnum )
 	{
 		EmaString temp( "Attempt to getFilterList() while actual dataType is " );
-		temp += getDTypeAsString( payload.getDataType() );
+		temp += getDTypeAsString( _pPayload->getDataType() );
 		throwIueException( temp );
 	}
 
-	return static_cast<const FilterList&>( payload );
+	return static_cast<const FilterList&>( *_pPayload );
 }
 
 const OmmOpaque& Payload::getOpaque() const
 {
-	const Data& payload = _pDecoder->getPayloadData();
-
-	if ( payload.getDataType() != DataType::OpaqueEnum )
+	if ( _pPayload->getDataType() != DataType::OpaqueEnum )
 	{
 		EmaString temp( "Attempt to getOpaque() while actual dataType is " );
-		temp += getDTypeAsString( payload.getDataType() );
+		temp += getDTypeAsString( _pPayload->getDataType() );
 		throwIueException( temp );
 	}
 
-	return static_cast<const OmmOpaque&>( payload );
+	return static_cast<const OmmOpaque&>( *_pPayload );
 }
 
 const OmmXml& Payload::getXml() const
 {
-	const Data& payload = _pDecoder->getPayloadData();
-
-	if ( payload.getDataType() != DataType::XmlEnum )
+	if ( _pPayload->getDataType() != DataType::XmlEnum )
 	{
 		EmaString temp( "Attempt to getXml() while actual dataType is " );
-		temp += getDTypeAsString( payload.getDataType() );
+		temp += getDTypeAsString( _pPayload->getDataType() );
 		throwIueException( temp );
 	}
 
-	return static_cast<const OmmXml&>( payload );
+	return static_cast<const OmmXml&>( *_pPayload );
 }
 
 const OmmAnsiPage& Payload::getAnsiPage() const
 {
-	const Data& payload = _pDecoder->getPayloadData();
-
-	if ( payload.getDataType() != DataType::AnsiPageEnum )
+	if ( _pPayload->getDataType() != DataType::AnsiPageEnum )
 	{
 		EmaString temp( "Attempt to getAnsiPage() while actual dataType is " );
-		temp += getDTypeAsString( payload.getDataType() );
+		temp += getDTypeAsString( _pPayload->getDataType() );
 		throwIueException( temp );
 	}
 
-	return static_cast<const OmmAnsiPage&>( payload );
+	return static_cast<const OmmAnsiPage&>( *_pPayload );
 }

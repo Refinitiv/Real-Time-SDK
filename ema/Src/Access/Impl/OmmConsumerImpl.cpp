@@ -163,6 +163,8 @@ void OmmConsumerImpl::readConfig( const OmmConsumerConfig& config )
 		_activeConfig.loginRequestTimeOut = static_cast<UInt32>( tmp > maxUInt32 ? maxUInt32 : tmp );
 	if ( pConfigImpl->get< UInt64 >( consumerNodeName + "DirectoryRequestTimeOut", tmp ) )
 		_activeConfig.directoryRequestTimeOut = static_cast<UInt32>( tmp > maxUInt32 ? maxUInt32 : tmp );
+	if ( pConfigImpl->get< UInt64 >( consumerNodeName + "DictionaryRequestTimeOut", tmp ) )
+		_activeConfig.dictionaryRequestTimeOut = static_cast<UInt32>( tmp > maxUInt32 ? maxUInt32 : tmp );
 	if ( pConfigImpl->get<UInt64>(consumerNodeName + "MaxOutstandingPosts", tmp ) )
 		_activeConfig.maxOutstandingPosts = static_cast<UInt32>( tmp > maxUInt32 ? maxUInt32 : tmp );
 
@@ -244,7 +246,7 @@ void OmmConsumerImpl::readConfig( const OmmConsumerConfig& config )
 	{
 		try {
 			_activeConfig.channelConfig = new SocketChannelConfig();
-			if ( _activeConfig.channelConfig->getType() == RSSL_CONN_TYPE_SOCKET )
+			if ( _activeConfig.channelConfig->getType() == ChannelConfig::SocketChannelEnum)
 			{
 				EmaString & tmp( pConfigImpl->getUserSpecifiedHostname() );
 				if ( tmp.length() )
@@ -576,7 +578,7 @@ void OmmConsumerImpl::initialize( const OmmConsumerConfig& config )
 		_pChannelCallbackClient = ChannelCallbackClient::create( *this, _pRsslReactor );
 		_pChannelCallbackClient->initialize( _pLoginCallbackClient->getLoginRequest(), _pDirectoryCallbackClient->getDirectoryRequest() );
 
-		UInt64 timeOutLengthInMicroSeconds = _activeConfig.loginRequestTimeOut * static_cast< UInt64 >( 1E6 );
+		UInt64 timeOutLengthInMicroSeconds = _activeConfig.loginRequestTimeOut * 1000;
 		_eventTimedOut = false;
 		TimeOut * loginWatcher( new TimeOut ( *this, timeOutLengthInMicroSeconds, &OmmConsumerImpl::terminateIf, reinterpret_cast< void * >( this ) ) );
 		while ( ! _atExit && ! _eventTimedOut && ( _ommConsumerState < LoginStreamOpenOkEnum ) )
@@ -585,7 +587,7 @@ void OmmConsumerImpl::initialize( const OmmConsumerConfig& config )
 		if ( _eventTimedOut )
 		{
 			EmaString failureMsg( "login failed (timed out after waiting " );
-			failureMsg.append( _activeConfig.loginRequestTimeOut ).append( " seconds) for " );
+			failureMsg.append( _activeConfig.loginRequestTimeOut ).append( " milliseconds) for " );
 			if ( _activeConfig.channelConfig->getType() == ChannelConfig::SocketChannelEnum )
 			{
 				SocketChannelConfig * channelConfig( reinterpret_cast< SocketChannelConfig * >( _activeConfig.channelConfig ) );
@@ -610,7 +612,7 @@ void OmmConsumerImpl::initialize( const OmmConsumerConfig& config )
 		else
 			loginWatcher->cancel();
 
-		timeOutLengthInMicroSeconds = _activeConfig.directoryRequestTimeOut * static_cast< UInt64 >( 1E6 );
+		timeOutLengthInMicroSeconds = _activeConfig.directoryRequestTimeOut * 1000;
 		_eventTimedOut = false;
 		loginWatcher = new TimeOut ( *this, timeOutLengthInMicroSeconds, &OmmConsumerImpl::terminateIf, reinterpret_cast< void * >( this ) );
 		while ( ! _atExit && ! _eventTimedOut && ( _ommConsumerState < DirectoryStreamOpenOkEnum ) )
@@ -619,7 +621,7 @@ void OmmConsumerImpl::initialize( const OmmConsumerConfig& config )
 		if ( _eventTimedOut )
 		{
 			EmaString failureMsg( "directory retrieval failed (timed out after waiting " );
-			failureMsg.append( _activeConfig.directoryRequestTimeOut ).append( " seconds) for " );
+			failureMsg.append( _activeConfig.directoryRequestTimeOut ).append( " milliseconds) for " );
 			if ( _activeConfig.channelConfig->getType() == ChannelConfig::SocketChannelEnum )
 			{
 				SocketChannelConfig * channelConfig( reinterpret_cast< SocketChannelConfig * >( _activeConfig.channelConfig ) );
@@ -633,8 +635,28 @@ void OmmConsumerImpl::initialize( const OmmConsumerConfig& config )
 		else
 			loginWatcher->cancel();
 
-		while ( !_atExit && !_pDictionaryCallbackClient->isDictionaryReady() )
+		timeOutLengthInMicroSeconds = _activeConfig.dictionaryRequestTimeOut * 1000;
+		_eventTimedOut = false;
+		loginWatcher = new TimeOut ( *this, timeOutLengthInMicroSeconds, &OmmConsumerImpl::terminateIf, reinterpret_cast< void * >( this ) );
+		while ( !_atExit && ! _eventTimedOut && !_pDictionaryCallbackClient->isDictionaryReady() )
 			rsslReactorDispatchLoop( _activeConfig.dispatchTimeoutApiThread, _activeConfig.maxDispatchCountApiThread );
+
+		if ( _eventTimedOut )
+		{
+			EmaString failureMsg( "dictionary retrieval failed (timed out after waiting " );
+			failureMsg.append( _activeConfig.dictionaryRequestTimeOut ).append( " milliseconds) for " );
+			if ( _activeConfig.channelConfig->getType() == ChannelConfig::SocketChannelEnum )
+			{
+				SocketChannelConfig * channelConfig( reinterpret_cast< SocketChannelConfig * >( _activeConfig.channelConfig ) );
+				failureMsg.append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append(")");
+			}
+			if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
+				_pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::ErrorEnum, failureMsg);
+			throwIueException( failureMsg );
+			return;
+		}
+		else
+			loginWatcher->cancel();
 
 		if ( !_atExit && _activeConfig.userDispatch == OmmConsumerConfig::ApiDispatchEnum ) start();
 

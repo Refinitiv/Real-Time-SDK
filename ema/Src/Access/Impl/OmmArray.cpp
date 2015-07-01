@@ -112,6 +112,10 @@ const EmaString& OmmArray::toString( UInt64 indent ) const
 			{
 				_toString.append( "\n\n" ).append( tempDecoder.getLoad().getAsHex() );
 			}
+			else if ( tempDecoder.getLoad().getDataType() == DataType::ErrorEnum )
+			{
+				_toString.append( "\n\n" ).append( tempDecoder.getLoad().toString() );
+			}
 			else
 			{
 				_toString.append( "\"" ).append( tempDecoder.getLoad().toString() ).append( "\"" );

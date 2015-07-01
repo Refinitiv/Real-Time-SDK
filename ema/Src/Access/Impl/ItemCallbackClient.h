@@ -90,14 +90,14 @@ public :
 	virtual bool close() = 0;
 	virtual void remove() = 0;
 	virtual bool submit( RsslGenericMsg* ) = 0;
-	virtual ~Item();
 
-	ItemType getType() const;
+	virtual ItemType getType() const = 0;
+
 	UInt32 addItem( Item* );
 	void removeItem( Item* );
-	bool operator<(const Item & rhs) { return true; }
+	bool operator<( const Item & rhs ) { return true; }
 
-	OmmConsumerImpl&			getOmmConsumerImpl();
+	OmmConsumerImpl& getOmmConsumerImpl();
 
 protected :
 
@@ -106,9 +106,9 @@ protected :
 	void*						_closure;
 	OmmConsumerClient&			_ommConsClient;
 	OmmConsumerImpl&			_ommConsImpl;
-	ItemType					_itemType;
 
 	Item( OmmConsumerImpl& , OmmConsumerClient& , void* );
+	virtual ~Item();
 
 private :
 
@@ -162,6 +162,8 @@ public :
 
 	void state( const OmmState& );
 
+	ItemType getType() const { return Item::SingleItemEnum; }
+
 protected :
 
 	SingleItem( OmmConsumerImpl& , OmmConsumerClient& , void* , SingleItem *);
@@ -199,7 +201,7 @@ public :
 	bool submit( const GenericMsg& );
 	bool close();
 
-	void addBatchItems( const EmaVector<EmaString>& );
+	bool addBatchItems( const EmaVector<EmaString>& );
 
 	const EmaVector<SingleItem*> & getSingleItemList();
 
@@ -207,7 +209,9 @@ public :
 
 	void decreaseItemCount();
 
-protected :
+	ItemType getType() const { return Item::BatchItemEnum; }
+
+	Item* getItem( Int32 );
 
 private :
 
@@ -250,8 +254,8 @@ public :
 
 	RsslReactorCallbackRet processCallback(  RsslReactor* , RsslReactorChannel* , RsslMsgEvent* );
 
-	void addToList( SingleItem* );
-	void removeFromList( SingleItem* );
+	void addToList( Item* );
+	void removeFromList( Item* );
 
 	void addToMap( Item* );
 	void removeFromMap( Item* );

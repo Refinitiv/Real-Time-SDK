@@ -14,13 +14,13 @@
 	@brief OmmConsumer class encapsulates functionality of an Omm consuming type application.
 
 	OmmConsumer provides interfaces to open, modify and close items. It establishes and maintains
-	connection to server, maintaines open item watch list, performs connection and item recovery, etc.
+	connection to server, maintains open item watch list, performs connection and item recovery, etc.
 
-	OmmConsumer provides a default behaviour / functioanlity. This may be tuned / modified by
+	OmmConsumer provides a default behaviour / functionality. This may be tuned / modified by
 	application when using OmmConsumerConfig.
 
 	Application interacts with server through the OmmConsumer interface methods. The results of
-	these interactions are communicatedx back to application through OmmConsumerClient and
+	these interactions are communicated back to application through OmmConsumerClient and
 	OmmConsumerErrorclient.
 
 	The following code snippet shows basic usage of OmmConsumer class in a simple consumer type app.
@@ -127,7 +127,10 @@ public :
 		@param[in] client specifies OmmConsumerClient instance receiving notifications about this item
 		@param[in] closure specifies application defined item identification
 		@return item identifier (a.k.a. handle)
+		@throw OmmMemoryExhaustionException if system runs out of memory
+		@throw OmmInvalidUsageException if application passes invalid ReqMsg
 		\remark This method is \ref ObjectLevelSafe
+		\remark if OmmConsumerErrorClient is used and an error condition is encountered, then null handle is returned
 	*/
 	UInt64 registerClient( const ReqMsg& reqMsg, OmmConsumerClient& client, void* closure = 0 );
 
@@ -139,6 +142,7 @@ public :
 		@param[in] handle identifies item to be modified
 		@return void
 		@throw OmmInvalidHandleException if passed in handle does not refer to an open stream
+		@throw OmmInvalidUsageException if passed in ReqMsg violates reissue rules
 		\remark This method is \ref ObjectLevelSafe
 	*/
 	void reissue( const ReqMsg& reqMsg, UInt64 handle );
@@ -165,7 +169,7 @@ public :
 
 	/** Relinquish application thread of control to receive callbacks via OmmConsumerClient descendant.
 		\remark Requires OperationalModel to be set to UserDispatchEnum.
-		@param[in] timeout specifies time in microseconds to wait in dispatch() for a message to dispatch
+		@param[in] time-out specifies time in microseconds to wait in dispatch() for a message to dispatch
 		@return TimeoutEnum if nothing was dispatched; DispatchedEnum otherwise
 		@throw OmmInvalidUsageException if OperationalModel is not set to UserDispatchEnum
 		\remark This method is \ref ObjectLevelSafe

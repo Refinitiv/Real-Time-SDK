@@ -107,7 +107,8 @@ const EmaString& ElementList::toString( UInt64 indent ) const
 			.append( "ElementEntry name=\"" ).append( tempDecoder.getName() )
 			.append( "\" dataType=\"" ).append( getDTypeAsString( tempDecoder.getLoad().getDataType() ) );
 
-		if ( tempDecoder.getLoad().getDataType() <= DataType::ArrayEnum )
+		if ( tempDecoder.getLoad().getDataType() <= DataType::ArrayEnum ||
+			tempDecoder.getLoad().getDataType() == DataType::ErrorEnum )
 		{
 			++indent; 
 			_toString.append( "\"\n" ).append( tempDecoder.getLoad().toString( indent ) );
@@ -139,9 +140,8 @@ Decoder& ElementList::getDecoder()
 {
 	if ( !_pDecoder )
 	{
-		_pDecoder = g_pool._elementListDecoderPool.getItem();
-		_entry._pDecoder = _pDecoder;
-		_entry._pLoad = &_pDecoder->getLoad();
+		_entry._pDecoder = _pDecoder = g_pool._elementListDecoderPool.getItem();
+		_entry._pLoad = _pDecoder->getLoadPtr();
 	}
 
 	return *_pDecoder;

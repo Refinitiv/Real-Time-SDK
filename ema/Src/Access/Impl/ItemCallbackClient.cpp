@@ -25,6 +25,7 @@
 #include "OmmConsumerErrorClient.h"
 #include "Utilities.h"
 #include "RdmUtilities.h"
+#include "ExceptionTranslator.h"
 
 #include <new>
 
@@ -69,11 +70,6 @@ void* Item::getClosure() const
 	return _closure;
 }
 
-Item::ItemType Item::getType() const
-{
-	return _itemType;
-}
-
 OmmConsumerImpl& Item::getOmmConsumerImpl()
 {
 	return _ommConsImpl;
@@ -109,7 +105,6 @@ SingleItem::SingleItem( OmmConsumerImpl& ommConsImpl, OmmConsumerClient& ommCons
  _closedStatusInfo( 0 ),
  _pBatchItem( batchItem )
 {
-	_itemType = Item::SingleItemEnum;
 }
 
 SingleItem::~SingleItem()
@@ -156,7 +151,7 @@ bool SingleItem::open( const ReqMsg& reqMsg )
 			pDirectory = _ommConsImpl.getDirectoryCallbackClient().getDirectory( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.serviceId );
 		else
 		{
-			EmaString temp( "Passed in request message does not identify service." );
+			EmaString temp( "Passed in request message does not identify any service." );
 			scheduleItemClosedStatus( reqMsgEncoder, temp );
 
 			return true;
@@ -290,16 +285,25 @@ bool SingleItem::submit( RsslRequestMsg* pRsslRequestMsg )
 		{
 			EmaString temp( "Internal error: rsslReactorSubmitMsg() failed in submit( RsslRequestMsg* )" );
 			temp.append( CR )
-				.append( "Channel " ).append( _pDirectory->getChannel()->toString() ).append( CR )
 				.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
 				.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
 				.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
 				.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
 				.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
 			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
-
-			return false;
 		}
+
+		EmaString text( "Failed to open or modify item request. Reason: " );
+		text.append( rsslRetCodeToString( ret ) )
+			.append( ". Error text: " )
+			.append( rsslErrorInfo.rsslError.text );
+
+		if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
+			_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( text );
+		else
+			throwIueException( text );
+
+		return false;
 	}
 
 	return true;
@@ -326,7 +330,6 @@ bool SingleItem::submit( RsslCloseMsg* pRsslCloseMsg )
 		{
 			EmaString temp( "Internal error. rsslReactorSubmitMsg() failed in submit( RsslCloseMsg* )" );
 			temp.append( CR )
-				.append( "Channel" ).append( _pDirectory->getChannel()->toString() ).append( CR )
 				.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
 				.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
 				.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
@@ -334,6 +337,16 @@ bool SingleItem::submit( RsslCloseMsg* pRsslCloseMsg )
 				.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
 			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
+
+		EmaString text( "Failed to close item request. Reason: " );
+		text.append( rsslRetCodeToString( ret ) )
+			.append( ". Error text: " )
+			.append( rsslErrorInfo.rsslError.text );
+
+		if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
+			_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( text );
+		else
+			throwIueException( text );
 
 		return false;
 	}
@@ -363,7 +376,6 @@ bool SingleItem::submit( RsslGenericMsg* pRsslGenericMsg )
 		{
 			EmaString temp( "Internal error. rsslReactorSubmitMsg() failed in submit( RsslGenericMsg* )" );
 			temp.append( CR )
-				.append( "Channel " ).append( _pDirectory->getChannel()->toString() ).append( CR )
 				.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
 				.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
 				.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
@@ -372,6 +384,16 @@ bool SingleItem::submit( RsslGenericMsg* pRsslGenericMsg )
 
 			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
+
+		EmaString text( "Failed to submit GenericMsg on item stream. Reason: " );
+		text.append( rsslRetCodeToString( ret ) )
+			.append( ". Error text: " )
+			.append( rsslErrorInfo.rsslError.text );
+
+		if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
+			_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( text );
+		else
+			throwIueException( text );
 
 		return false;
 	}
@@ -401,7 +423,6 @@ bool SingleItem::submit( RsslPostMsg* pRsslPostMsg )
 		{
 			EmaString temp( "Internal error: rsslReactorSubmitMsg() failed in submit( RsslPostMsg* ) " );
 			temp.append( CR )
-				.append( "Channel " ).append( _pDirectory->getChannel()->toString() ).append( CR )
 				.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
 				.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
 				.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
@@ -409,6 +430,16 @@ bool SingleItem::submit( RsslPostMsg* pRsslPostMsg )
 				.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
 			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
+
+		EmaString text( "Failed to submit PostMsg on item stream. Reason: " );
+		text.append( rsslRetCodeToString( ret ) )
+			.append( ". Error text: " )
+			.append( rsslErrorInfo.rsslError.text );
+
+		if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
+			_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( text );
+		else
+			throwIueException( text );
 
 		return false;
 	}
@@ -430,6 +461,8 @@ void ItemCallbackClient::sendItemClosedStatus( void* pInfo )
 	rsslStatusMsg.state.code = RSSL_SC_SOURCE_UNKNOWN;
 	rsslStatusMsg.state.dataState = RSSL_DATA_SUSPECT;
 	rsslStatusMsg.state.streamState = RSSL_STREAM_CLOSED;
+	rsslStatusMsg.state.text.data = (char*)pClosedStatusInfo->getStatusText().c_str();
+	rsslStatusMsg.state.text.length = pClosedStatusInfo->getStatusText().length();
 
 	rsslStatusMsg.msgBase.msgKey = *(pClosedStatusInfo->getRsslMsgKey());
 
@@ -527,7 +560,6 @@ BatchItem::BatchItem( OmmConsumerImpl& ommConsImpl, OmmConsumerClient& ommConsCl
  _singleItemList( 10 ),
  _itemCount( 1 )
 {
-	_itemType = Item::BatchItemEnum;
 	_singleItemList.push_back( 0 );
 }
 
@@ -604,21 +636,23 @@ bool BatchItem::submit( const GenericMsg& )
 	return false;
 }
 
-void BatchItem::addBatchItems( const EmaVector<EmaString>& batchItemList )
+bool BatchItem::addBatchItems( const EmaVector<EmaString>& batchItemList )
 {
 	SingleItem * item = 0;
 
 	for( UInt32 i = 0 ; i < batchItemList.size() ; i++ )
 	{
-		item = SingleItem::create( _ommConsImpl, _ommConsClient, 0, this);
+		item = SingleItem::create( _ommConsImpl, _ommConsClient, 0, this );
 
 		if ( item )
-		{
 			_singleItemList.push_back( item );
-		}
+		else
+			return false;
 	}
 	
 	_itemCount = _singleItemList.size() - 1;
+
+	return true;
 }
 
 const EmaVector<SingleItem*> & BatchItem::getSingleItemList()
@@ -626,7 +660,7 @@ const EmaVector<SingleItem*> & BatchItem::getSingleItemList()
 	return _singleItemList;
 }
 
-SingleItem * BatchItem::getSingleItem( Int32 streamId )
+SingleItem* BatchItem::getSingleItem( Int32 streamId )
 {
 	return _singleItemList[ streamId - _streamId ];
 }
@@ -636,7 +670,7 @@ void BatchItem::decreaseItemCount()
 	_itemCount--;
 	
 	if ( _itemCount == 0 )
-			remove();
+		remove();
 }
 
 ItemList* ItemList::create( OmmConsumerImpl& ommConsImpl )
@@ -763,10 +797,7 @@ ItemCallbackClient* ItemCallbackClient::create( OmmConsumerImpl& ommConsImpl )
 		if ( OmmLoggerClient::ErrorEnum >= ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
 
-		if ( ommConsImpl.hasOmmConnsumerErrorClient() )
-			ommConsImpl.getOmmConsumerErrorClient().onMemoryExhaustion( temp );
-		else
-			throwMeeException( temp );
+		throwMeeException( temp );
 	}
 
 	return pClient;
@@ -793,8 +824,6 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslReactor* pRsslRe
 
 	if ( !pRsslMsg )
 	{
-		_ommConsImpl.closeChannel( pRsslReactorChannel );
-
 		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			RsslErrorInfo* pError = pEvent->pErrorInfo;
@@ -814,33 +843,8 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslReactor* pRsslRe
 		return RSSL_RC_CRET_SUCCESS;
 	}
 
-	if ( pRsslMsg->msgBase.streamId == 1 )
-	{
-		switch ( pRsslMsg->msgBase.msgClass )
-		{
-		case RSSL_MC_ACK :
-			return _ommConsImpl.getLoginCallbackClient().processAckMsg( pRsslMsg, pRsslReactorChannel, 0 );
-
-		default :
-			if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			{
-				EmaString temp( "Received an item event on login stream. Received RsslMsg contains unhandled rssl message class" );
-				temp.append( CR )
-					.append( "Message class " ).append( pRsslMsg->msgBase.msgClass ).append( CR )
-					.append( "Consumer Name " ).append( _ommConsImpl.getConsumerName() ).append( CR )
-					.append( "RsslReactor " ).append( ptrToStringAsHex( pRsslReactor ) ).append( CR )
-					.append( "RsslReactorChannel " ).append( ptrToStringAsHex( pRsslReactorChannel ) ).append( CR )
-					.append( "RsslSocket " ).append( (UInt64)pRsslReactorChannel->socketId );
-
-				_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-			}
-			break;
-		}
-
-		return RSSL_RC_CRET_SUCCESS;
-	}
-
-	if ( !pEvent->pStreamInfo || !pEvent->pStreamInfo->pUserSpec )
+	if ( pRsslMsg->msgBase.streamId != 1 && 
+		( !pEvent->pStreamInfo || !pEvent->pStreamInfo->pUserSpec ) )
 	{
 		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
@@ -860,20 +864,18 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslReactor* pRsslRe
 	switch ( pRsslMsg->msgBase.msgClass )
 	{
 	case RSSL_MC_ACK :
-		processAckMsg( pRsslMsg, pRsslReactorChannel, pEvent );
-		break;
+		if ( pRsslMsg->msgBase.streamId == 1 )
+			return _ommConsImpl.getLoginCallbackClient().processAckMsg( pRsslMsg, pRsslReactorChannel, 0 );
+		else
+			return processAckMsg( pRsslMsg, pRsslReactorChannel, pEvent );
 	case RSSL_MC_GENERIC :
-		processGenericMsg( pRsslMsg, pRsslReactorChannel, pEvent );
-		break;
+		return processGenericMsg( pRsslMsg, pRsslReactorChannel, pEvent );
 	case RSSL_MC_REFRESH :
-		processRefreshMsg( pRsslMsg, pRsslReactorChannel, pEvent );
-		break;
+		return processRefreshMsg( pRsslMsg, pRsslReactorChannel, pEvent );
 	case RSSL_MC_STATUS :
-		processStatusMsg( pRsslMsg, pRsslReactorChannel, pEvent );
-		break;
+		return processStatusMsg( pRsslMsg, pRsslReactorChannel, pEvent );
 	case RSSL_MC_UPDATE :
-		processUpdateMsg( pRsslMsg, pRsslReactorChannel, pEvent );
-		break;
+		return processUpdateMsg( pRsslMsg, pRsslReactorChannel, pEvent );
 	default :
 		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
@@ -900,23 +902,18 @@ RsslReactorCallbackRet ItemCallbackClient::processRefreshMsg( RsslMsg* pRsslMsg,
  		static_cast<Channel*>( pRsslReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
 
 	_event._pItem = (Item*)( pEvent->pStreamInfo->pUserSpec );
-	
-	SingleItem* singleItem = static_cast<SingleItem*>(_event._pItem);
 
-	if ( singleItem->getType() == Item::BatchItemEnum )
-	{
-		singleItem = static_cast<BatchItem *>(singleItem)->getSingleItem( pRsslMsg->msgBase.streamId );
-		_event._pItem = (Item *)singleItem;
-	}
+	if ( _event._pItem->getType() == Item::BatchItemEnum )
+		_event._pItem = static_cast<BatchItem *>(_event._pItem)->getSingleItem( pRsslMsg->msgBase.streamId );
 	
-	_refreshMsg.getDecoder().setServiceName( singleItem->getDirectory()->getName().c_str(),
-											singleItem->getDirectory()->getName().length() );
+	_refreshMsg.getDecoder().setServiceName( static_cast<SingleItem*>(_event._pItem)->getDirectory()->getName().c_str(),
+		static_cast<SingleItem*>(_event._pItem)->getDirectory()->getName().length() );
 
 	_event._pItem->getClient().onAllMsg( _refreshMsg, _event );
 	_event._pItem->getClient().onRefreshMsg( _refreshMsg, _event );
 
 	if ( _refreshMsg.getState().getStreamState() != OmmState::OpenEnum )
-		singleItem->remove();
+		_event._pItem->remove();
 
 	return RSSL_RC_CRET_SUCCESS;
 }
@@ -930,16 +927,11 @@ RsslReactorCallbackRet ItemCallbackClient::processUpdateMsg( RsslMsg* pRsslMsg, 
 
 	_event._pItem = (Item*)( pEvent->pStreamInfo->pUserSpec );
 
-	SingleItem* singleItem = static_cast<SingleItem*>(_event._pItem);
-
-	if ( singleItem->getType() == Item::BatchItemEnum )
-	{
-		singleItem = static_cast<BatchItem *>(singleItem)->getSingleItem( pRsslMsg->msgBase.streamId );
-		_event._pItem = (Item *)singleItem;
-	}
+	if ( _event._pItem->getType() == Item::BatchItemEnum )
+		_event._pItem = static_cast<BatchItem *>(_event._pItem)->getSingleItem( pRsslMsg->msgBase.streamId );
 	
-	_updateMsg.getDecoder().setServiceName( singleItem->getDirectory()->getName().c_str(),
-											singleItem->getDirectory()->getName().length() );
+	_updateMsg.getDecoder().setServiceName( static_cast<SingleItem*>(_event._pItem)->getDirectory()->getName().c_str(),
+		static_cast<SingleItem*>(_event._pItem)->getDirectory()->getName().length() );
 
 	_event._pItem->getClient().onAllMsg( _updateMsg, _event );
 	_event._pItem->getClient().onUpdateMsg( _updateMsg, _event );
@@ -956,23 +948,18 @@ RsslReactorCallbackRet ItemCallbackClient::processStatusMsg( RsslMsg* pRsslMsg, 
 
 	_event._pItem = (Item*)( pEvent->pStreamInfo->pUserSpec );
 
-	SingleItem* singleItem = static_cast<SingleItem*>(_event._pItem);
-
-	if ( singleItem->getType() == Item::BatchItemEnum )
-	{
-		singleItem = static_cast<BatchItem *>(singleItem)->getSingleItem( pRsslMsg->msgBase.streamId );
-		_event._pItem = (Item *)singleItem;
-	}
+	if ( _event._pItem->getType() == Item::BatchItemEnum )
+		_event._pItem = static_cast<BatchItem *>(_event._pItem)->getSingleItem( pRsslMsg->msgBase.streamId );
 	
-	_statusMsg.getDecoder().setServiceName( singleItem->getDirectory()->getName().c_str(),
-											singleItem->getDirectory()->getName().length() );
+	_statusMsg.getDecoder().setServiceName( reinterpret_cast<const SingleItem*>(_event._pItem)->getDirectory()->getName().c_str(),
+		static_cast<SingleItem*>(_event._pItem)->getDirectory()->getName().length() );
 
 	_event._pItem->getClient().onAllMsg( _statusMsg, _event );
 	_event._pItem->getClient().onStatusMsg( _statusMsg, _event );
 
 	if ( pRsslMsg->statusMsg.flags & RSSL_STMF_HAS_STATE )
 		if ( _statusMsg.getState().getStreamState() != OmmState::OpenEnum )
-			singleItem->remove();
+			_event._pItem->remove();
 
 	return RSSL_RC_CRET_SUCCESS;
 }
@@ -986,16 +973,10 @@ RsslReactorCallbackRet ItemCallbackClient::processGenericMsg( RsslMsg* pRsslMsg,
 
 	_event._pItem = (Item*)( pEvent->pStreamInfo->pUserSpec );
 
-	SingleItem* singleItem = static_cast<SingleItem*>(_event._pItem);
-
-	if ( singleItem->getType() == Item::BatchItemEnum )
-	{
-		singleItem = static_cast<BatchItem *>(singleItem)->getSingleItem( pRsslMsg->msgBase.streamId );
-		_event._pItem = (Item *)singleItem;
-	}
+	if ( _event._pItem->getType() == Item::BatchItemEnum )
+		_event._pItem  = static_cast<BatchItem *>(_event._pItem )->getSingleItem( pRsslMsg->msgBase.streamId );
 
 	OmmConsumerClient& client = _event._pItem->getClient();
-	
 	client.onAllMsg( _genericMsg, _event );
 	client.onGenericMsg( _genericMsg, _event );
 
@@ -1010,19 +991,14 @@ RsslReactorCallbackRet ItemCallbackClient::processAckMsg( RsslMsg* pRsslMsg, Rss
 		static_cast<Channel*>( pRsslReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
 
 	_event._pItem = (Item*)( pEvent->pStreamInfo->pUserSpec );
-	OmmConsumerClient& client = static_cast<Item*>( pEvent->pStreamInfo->pUserSpec )->getClient();
 
-	SingleItem* singleItem = static_cast<SingleItem*>(_event._pItem);
-
-	if ( singleItem->getType() == Item::BatchItemEnum )
-	{
-		singleItem = static_cast<BatchItem *>(singleItem)->getSingleItem( pRsslMsg->msgBase.streamId );
-		_event._pItem = (Item *)singleItem;
-	}
+	if ( _event._pItem->getType() == Item::BatchItemEnum )
+		_event._pItem = static_cast<BatchItem *>(_event._pItem)->getSingleItem( pRsslMsg->msgBase.streamId );
 	
-	_ackMsg.getDecoder().setServiceName( static_cast<const SingleItem*>(_event._pItem)->getDirectory()->getName().c_str(),
-											static_cast<const SingleItem*>(_event._pItem)->getDirectory()->getName().length() );
+	_ackMsg.getDecoder().setServiceName( reinterpret_cast<const SingleItem*>(_event._pItem)->getDirectory()->getName().c_str(),
+		static_cast<SingleItem*>(_event._pItem)->getDirectory()->getName().length() );
 
+	OmmConsumerClient& client = _event._pItem->getClient();
 	client.onAllMsg( _ackMsg, _event );
 	client.onAckMsg( _ackMsg, _event );
 
@@ -1110,7 +1086,7 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 
 			if ( pItem )
 			{
-				if ( pItem && !pItem->open( reqMsg ) )
+				if ( !pItem->open( reqMsg ) )
 				{
 					Item::destroy( (Item*&)pItem );
 				}
@@ -1125,19 +1101,36 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 		}
 	case RSSL_DMT_SOURCE :
 		{
-			const ChannelList & channels( _ommConsImpl.getChannelCallbackClient().getChannelList() );
-			const Channel * c( channels.front() );
+			const ChannelList& channels( _ommConsImpl.getChannelCallbackClient().getChannelList() );
+			const Channel* c( channels.front() );
 			while( c )
 			{
-				DirectoryItem * pItem = DirectoryItem::create( _ommConsImpl, ommConsClient, closure, c );
+				DirectoryItem* pItem = DirectoryItem::create( _ommConsImpl, ommConsClient, closure, c );
+
 				if ( pItem )
-					if ( ! pItem->open( reqMsg ) )
+				{
+					try {
+						if ( !pItem->open( reqMsg ) )
+							Item::destroy( (Item*&)pItem );
+						else
+						{
+							addToList( pItem );
+							addToMap( pItem );
+						}
+					}
+					catch ( ... )
+					{
 						Item::destroy( (Item*&)pItem );
-				return reinterpret_cast< UInt64> (pItem);
+						throw;
+					}
+				}
+
+				return (UInt64)pItem;
+				
 				c = c->next();
 			}
+
 			return 0;
-			break;
 		}
 	default :
 		{
@@ -1145,14 +1138,36 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 
 			if ( reqMsgEncoder.getRsslRequestMsg()->flags & RSSL_RQMF_HAS_BATCH )
 			{
-				BatchItem*  pBatchItem = BatchItem::create( _ommConsImpl, ommConsClient, closure );
+				BatchItem* pBatchItem = BatchItem::create( _ommConsImpl, ommConsClient, closure );
 
 				if ( pBatchItem )
 				{
-					pItem = pBatchItem;
-					pBatchItem->addBatchItems( reqMsgEncoder.getBatchItemList() );
+					try {
+						pItem = pBatchItem;
+						pBatchItem->addBatchItems( reqMsgEncoder.getBatchItemList() );
 
-					if ( !pBatchItem->open( reqMsg ) )
+						if ( !pBatchItem->open( reqMsg ) )
+						{
+							for ( UInt32 i = 1 ; i < pBatchItem->getSingleItemList().size() ; i++ )
+							{
+								Item::destroy( (Item*&)pBatchItem->getSingleItemList()[i] );
+							}
+
+							Item::destroy( (Item*&)pItem );
+						}
+						else
+						{
+							addToList( pBatchItem );
+							addToMap( pBatchItem );
+
+							for ( UInt32 i = 1 ; i < pBatchItem->getSingleItemList().size() ; i++ )
+							{
+								addToList( pBatchItem->getSingleItemList()[i] );
+								addToMap( pBatchItem->getSingleItemList()[i] );
+							}
+						}
+					}
+					catch ( ... )
 					{
 						for ( UInt32 i = 1 ; i < pBatchItem->getSingleItemList().size() ; i++ )
 						{
@@ -1160,17 +1175,8 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 						}
 
 						Item::destroy( (Item*&)pItem );
-					}
-					else
-					{
-						addToList( pBatchItem );
-						addToMap( pBatchItem );
 
-						for ( UInt32 i = 1 ; i < pBatchItem->getSingleItemList().size() ; i++ )
-						{
-							addToList( pBatchItem->getSingleItemList()[i] );
-							addToMap( pBatchItem->getSingleItemList()[i] );
-						}
+						throw;
 					}
 				}
 			}
@@ -1180,12 +1186,19 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 
 				if ( pItem )
 				{
-					if ( !pItem->open( reqMsg ) )
-						Item::destroy( (Item*&)pItem );
-					else
+					try {
+						if ( !pItem->open( reqMsg ) )
+							Item::destroy( (Item*&)pItem );
+						else
+						{
+							addToList( pItem );
+							addToMap( pItem );
+						}
+					}
+					catch ( ... )
 					{
-						addToList( pItem );
-						addToMap( pItem );
+						Item::destroy( (Item*&)pItem );
+						throw;
 					}
 				}
 			}
@@ -1275,12 +1288,12 @@ bool ItemCallbackClient::UInt64Equal_To::operator()( const UInt64& x, const UInt
 	return x == y;
 }
 
-void ItemCallbackClient::addToList( SingleItem* pItem )
+void ItemCallbackClient::addToList( Item* pItem )
 {
 	_itemList->addItem( pItem );
 }
 
-void ItemCallbackClient::removeFromList( SingleItem* pItem )
+void ItemCallbackClient::removeFromList( Item* pItem )
 {
 	_itemList->removeItem( pItem );
 }

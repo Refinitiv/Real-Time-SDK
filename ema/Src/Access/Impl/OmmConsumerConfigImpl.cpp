@@ -49,6 +49,8 @@ OmmConsumerConfigImpl::OmmConsumerConfigImpl() :
 		errorMsg.append( tmp ).append( "]" );
 		_pEmaConfig->appendErrorMessage( errorMsg, result );
 	}
+
+	verifyXMLdefaultConsumer();
 }
 
 OmmConsumerConfigImpl::~OmmConsumerConfigImpl()
@@ -114,10 +116,42 @@ void OmmConsumerConfigImpl::consumerName(const EmaString& consumerName)
 	EmaString item( "ConsumerGroup|ConsumerList|Consumer." );
 	item.append( consumerName ).append( "|Name" );
 	EmaString name;
-	if ( get( item, name ) )
-		set( "ConsumerGroup|DefaultConsumer", consumerName);
+	if ( get( item, name ) ) {
+		if ( ! set( "ConsumerGroup|DefaultConsumer", consumerName) )
+		{
+			EmaString mergeString( "<EmaConfig><ConsumerGroup><DefaultConsumer value=\"" );
+			mergeString.append( consumerName ).append( "\"/></ConsumerGroup></EmaConfig>" );
+			xmlDocPtr xmlDoc = xmlReadMemory( mergeString.c_str(), mergeString.length(), NULL, "notnamed.xml", XML_PARSE_HUGE );
+			if ( xmlDoc == NULL )
+				return;
+			xmlNodePtr _xmlNodePtr = xmlDocGetRootElement( xmlDoc );
+			if ( _xmlNodePtr == NULL )
+				return;
+			if ( xmlStrcmp(_xmlNodePtr->name, (const xmlChar *) "EmaConfig" ) )
+				return;
+			XMLnode * tmp( new XMLnode("EmaConfig", 0, 0) );
+			processXMLnodePtr(tmp, _xmlNodePtr);
+			_pEmaConfig->merge(tmp);
+			xmlFreeDoc( xmlDoc );
+			delete tmp;
+		}
+	}
 	else
 	{
+		if ( consumerName == "EmaConsumer" )
+		{
+			XMLnode * consumerList( _pEmaConfig->find< XMLnode >( "ConsumerGroup|ConsumerList" ) );
+			if ( consumerList )
+			{
+				EmaList< XMLnode::NameString > theNames;
+				consumerList->getNames( theNames );
+				if ( theNames.empty() )
+					return;
+			}
+			else
+				return;
+		}
+
 		EmaString errorMsg( "OmmConsumerConfigImpl::consumerName parameter [" );
 		errorMsg.append( consumerName ).append( "] is an non-existent consumer name" );
 		throwIceException( errorMsg );
@@ -353,11 +387,11 @@ void OmmConsumerConfigImpl::addDictionaryReqMsg( RsslRequestMsg* pRsslRequestMsg
 	}
 
 	RsslBuffer rdmFldDictionaryName;
-	rdmFldDictionaryName.data = "RWFFld";
+	rdmFldDictionaryName.data = (char *) "RWFFld";
 	rdmFldDictionaryName.length = 6;
 
 	RsslBuffer enumtypedefName;
-	enumtypedefName.data = "RWFEnum";
+	enumtypedefName.data = (char *) "RWFEnum";
 	enumtypedefName.length = 7;
 
 	if ( rsslBufferIsEqual( &pRsslRequestMsg->msgBase.msgKey.name , &rdmFldDictionaryName ) )
@@ -387,6 +421,11 @@ void OmmConsumerConfigImpl::addDirectoryReqMsg( RsslRequestMsg* pRsslRequestMsg 
 		_pDirectoryReqRsslMsg = new AdminReqMsg( *this );
 
 	_pDirectoryReqRsslMsg->set( pRsslRequestMsg );
+}
+
+void OmmConsumerConfigImpl::verifyXMLdefaultConsumer()
+{
+	_pEmaConfig->verifyDefaultConsumer();
 }
 
 RsslRDMLoginRequest* OmmConsumerConfigImpl::getLoginReq()
@@ -2326,4 +2365,39 @@ void XMLConfigElement< bool >::print()
 
 }
 
+}
+
+void XMLnode::verifyDefaultConsumer()
+{
+	const EmaString searchString("ConsumerGroup|DefaultConsumer" );
+	const EmaString * defaultConsumerName ( find< EmaString >( searchString ) );
+	if ( defaultConsumerName )
+	{
+		XMLnode * consumerList( find< XMLnode >( "ConsumerGroup|ConsumerList" ) );
+		if ( consumerList )
+		{
+			EmaList< NameString > theNames;
+			consumerList->getNames( theNames );
+
+			if ( theNames.empty() && *defaultConsumerName == "EmaConsumer" )
+				return;
+
+			NameString * name( theNames.pop_front() );
+			while ( name )
+			{
+				if ( *name == *defaultConsumerName )
+					return;
+				else name = theNames.pop_front();
+			}
+			EmaString errorMsg( "specified default consumer name [" );
+			errorMsg.append( *defaultConsumerName ).append( "] was not found in the configured consumers" );
+			throwIceException( errorMsg );
+		}
+		else if ( *defaultConsumerName != "EmaConsumer" )
+		{
+			EmaString errorMsg( "default consumer name [" );
+			errorMsg.append( *defaultConsumerName ).append( "] was specified, but no consumers were configured" );
+			throwIceException( errorMsg );
+		}
+	}
 }

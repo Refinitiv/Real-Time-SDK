@@ -184,7 +184,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ac5444dc9680d0bf025c0c51b72bf38df"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00060.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00060.html#ac5444dc9680d0bf025c0c51b72bf38df">publisherId</a> (UInt32 userId, UInt32 userAddress)</td></tr>
 <tr class="memitem:a19d8641f0420cf09a4fcd40c35db9c74"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00060.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00060.html#a19d8641f0420cf09a4fcd40c35db9c74">attrib</a> (const <a class="el" href="a00004.html">ComplexType</a> &amp;data)</td></tr>
 <tr class="memitem:adeab8aaa3fdd122fd49fb1f5821771f3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00060.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00060.html#adeab8aaa3fdd122fd49fb1f5821771f3">payload</a> (const <a class="el" href="a00004.html">ComplexType</a> &amp;data)</td></tr>
-<tr class="memitem:a07effe26e0f03b9d1efac88dfed097d8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00060.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00060.html#a07effe26e0f03b9d1efac88dfed097d8">header</a> (const <a class="el" href="a00009.html">EmaBuffer</a> &amp;buffer)</td></tr>
+<tr class="memitem:abd6d7bbba4aa33844c28c4352936cbeb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00060.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00060.html#abd6d7bbba4aa33844c28c4352936cbeb">extendedHeader</a> (const <a class="el" href="a00009.html">EmaBuffer</a> &amp;buffer)</td></tr>
 <tr class="memitem:a473d9c97a300bf8b4702de1daa472300"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00060.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00060.html#a473d9c97a300bf8b4702de1daa472300">solicited</a> (bool <a class="el" href="a00060.html#a473d9c97a300bf8b4702de1daa472300">solicited</a>=true)</td></tr>
 <tr class="memitem:a67a969adb5fa694630cbff5e13b41d0b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00060.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00060.html#a67a969adb5fa694630cbff5e13b41d0b">doNotCache</a> (bool <a class="el" href="a00060.html#a67a969adb5fa694630cbff5e13b41d0b">doNotCache</a>=false)</td></tr>
 <tr class="memitem:a49121ed208f56d341c682e523c3da712"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00060.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00060.html#a49121ed208f56d341c682e523c3da712">clearCache</a> (bool <a class="el" href="a00060.html#a49121ed208f56d341c682e523c3da712">clearCache</a>=false)</td></tr>
@@ -417,6 +417,31 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">doNotCache</td><td>true if this refresh must not be cached; false otherwise (default value is false) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="abd6d7bbba4aa33844c28c4352936cbeb"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00060.html">RefreshMsg</a>&amp; <a class="el" href="a00060.html#abd6d7bbba4aa33844c28c4352936cbeb">thomsonreuters::ema::access::RefreshMsg::extendedHeader</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00009.html">EmaBuffer</a> &amp;&#160;</td>
+          <td class="paramname"><em>buffer</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Specifies ExtendedHeader. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">buffer</td><td>an <a class="el" href="a00009.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> containing extendedHeader information </td></tr>
   </table>
   </dd>
 </dl>
@@ -916,31 +941,6 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 
 </div>
 </div>
-<a class="anchor" id="a07effe26e0f03b9d1efac88dfed097d8"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="a00060.html">RefreshMsg</a>&amp; <a class="el" href="a00060.html#a07effe26e0f03b9d1efac88dfed097d8">thomsonreuters::ema::access::RefreshMsg::header</a> </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="a00009.html">EmaBuffer</a> &amp;&#160;</td>
-          <td class="paramname"><em>buffer</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Specifies Header. </p>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">buffer</td><td>an <a class="el" href="a00009.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> containing header information </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
-
-</div>
-</div>
 <a class="anchor" id="abd320ba3710a1f5c209a12d2ee9051ff"></a>
 <div class="memitem">
 <div class="memproto">
@@ -1437,7 +1437,7 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Fri May 29 2015</td>
+			<td><p class="smallfont">Mon Jun 29 2015</td>
           </tr>
         </table>
         </td>

@@ -45,6 +45,7 @@ thomsonreuters::ema::access::EmaString Int64Values[] = {
 
 thomsonreuters::ema::access::EmaString UInt64Values[] = {
 	"ConnectionPingTimeout",
+	"DictionaryRequestTimeOut",
 	"DirectoryRequestTimeOut",
 	"GuaranteedOutputBuffers",
 	"HandleException",

@@ -42,10 +42,10 @@ void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent&
 
 void AppClient::decode( const Map& map )
 {
-	if ( map.getSummary().getDataType() == DataType::FieldListEnum )
+	if ( map.getSummaryData().getDataType() == DataType::FieldListEnum )
 	{
 		cout << "Map Summary data:" << endl;
-		decode( map.getSummary().getFieldList() );
+		decode( map.getSummaryData().getFieldList() );
 	}
 
 	while ( !map.forth() )

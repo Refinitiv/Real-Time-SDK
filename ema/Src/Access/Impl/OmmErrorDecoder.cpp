@@ -12,11 +12,9 @@
 using namespace thomsonreuters::ema::access;
 
 OmmErrorDecoder::OmmErrorDecoder() :
- _rsslBuffer(),
+ _pRsslBuffer( 0 ),
  _errorCode( OmmError::NoErrorEnum ),
- _toHex(),
- _rsslMajVer( RSSL_RWF_MAJOR_VERSION ),
- _rsslMinVer( RSSL_RWF_MINOR_VERSION )
+ _toHex()
 {
 }
 
@@ -33,13 +31,9 @@ void OmmErrorDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDict
 {
 }
 
-void OmmErrorDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuffer, const RsslDataDictionary* error , void* )
+void OmmErrorDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* pRsslBuffer, const RsslDataDictionary* error , void* )
 {
-	_rsslMajVer = majVer;
-
-	_rsslMinVer = minVer;
-
-	_rsslBuffer = *rsslBuffer;
+	_pRsslBuffer = pRsslBuffer;
 
 	_errorCode = (OmmError::ErrorCode)(UInt64)error;
 }
@@ -50,7 +44,7 @@ void OmmErrorDecoder::setRsslData( RsslDecodeIterator* , RsslBuffer* )
 
 const EmaBuffer& OmmErrorDecoder::getAsHex()
 {
-	_toHex.setFromInt( _rsslBuffer.data, _rsslBuffer.length );
+	_toHex.setFromInt( _pRsslBuffer->data, _pRsslBuffer->length );
 
 	return _toHex.toBuffer();
 }

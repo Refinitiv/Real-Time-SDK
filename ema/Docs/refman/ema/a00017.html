@@ -112,6 +112,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   </div>
 </div>
 <div class="header">
+  <div class="summary">
+<a href="#friends">Friends</a>  </div>
   <div class="headertitle">
 <div class="title">thomsonreuters::ema::access::GenericMsg Class Reference</div>  </div>
 </div><!--header-->
@@ -168,8 +170,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a01dbf5d241d33872045268400b450197"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00017.html">GenericMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00017.html#a01dbf5d241d33872045268400b450197">permissionData</a> (const <a class="el" href="a00009.html">EmaBuffer</a> &amp;<a class="el" href="a00017.html#a01dbf5d241d33872045268400b450197">permissionData</a>)</td></tr>
 <tr class="memitem:a13b385394afce23f1063e6d493c9c9a7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00017.html">GenericMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00017.html#a13b385394afce23f1063e6d493c9c9a7">attrib</a> (const <a class="el" href="a00004.html">ComplexType</a> &amp;data)</td></tr>
 <tr class="memitem:a32b84efcbb91ecbaa0f4898adb3b921a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00017.html">GenericMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00017.html#a32b84efcbb91ecbaa0f4898adb3b921a">payload</a> (const <a class="el" href="a00004.html">ComplexType</a> &amp;data)</td></tr>
-<tr class="memitem:a43381a852654de966f25143c6d0984bf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00017.html">GenericMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00017.html#a43381a852654de966f25143c6d0984bf">header</a> (const <a class="el" href="a00009.html">EmaBuffer</a> &amp;buffer)</td></tr>
+<tr class="memitem:a37162255a56ddb8fd058f3e38937a626"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00017.html">GenericMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00017.html#a37162255a56ddb8fd058f3e38937a626">extendedHeader</a> (const <a class="el" href="a00009.html">EmaBuffer</a> &amp;buffer)</td></tr>
 <tr class="memitem:a95be55fd06d755fefa15ea2b268ed9cd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00017.html">GenericMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00017.html#a95be55fd06d755fefa15ea2b268ed9cd">complete</a> (bool <a class="el" href="a00017.html#a95be55fd06d755fefa15ea2b268ed9cd">complete</a>=true)</td></tr>
+<tr><td colspan="2"><h2><a name="friends"></a>
+Friends</h2></td></tr>
+<tr class="memitem:a2d17cf4fb054d2ceef456e505fc45972"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2d17cf4fb054d2ceef456e505fc45972"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>ItemCallbackClient</b></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p><a class="el" href="a00017.html" title="GenericMsg allows applications to bidirectionally send messages without any implied message semantics...">GenericMsg</a> may be sent on any item stream using <a class="el" href="a00027.html#ac684eceec221d8d9ddc9f4e908f38bdd">OmmConsumer::submit( const GenericMsg&amp; , UInt64 )</a>.</p>
@@ -350,6 +356,31 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">domainType</td><td>specifies RDM Message Model Type (default value is rdm::MMT_MARKET_PRICE) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a37162255a56ddb8fd058f3e38937a626"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00017.html">GenericMsg</a>&amp; <a class="el" href="a00017.html#a37162255a56ddb8fd058f3e38937a626">thomsonreuters::ema::access::GenericMsg::extendedHeader</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00009.html">EmaBuffer</a> &amp;&#160;</td>
+          <td class="paramname"><em>buffer</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Specifies ExtendedHeader. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">buffer</td><td>an <a class="el" href="a00009.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> containing extendedHeader information </td></tr>
   </table>
   </dd>
 </dl>
@@ -629,31 +660,6 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 <p>Indicates presence of SeqNum. </p>
 <dl class="section remark"><dt>Remarks:</dt><dd>sequence number is an optional member of <a class="el" href="a00017.html" title="GenericMsg allows applications to bidirectionally send messages without any implied message semantics...">GenericMsg</a> </dd></dl>
 <dl class="section return"><dt>Returns:</dt><dd>true if sequence number is set; false otherwise </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a43381a852654de966f25143c6d0984bf"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="a00017.html">GenericMsg</a>&amp; <a class="el" href="a00017.html#a43381a852654de966f25143c6d0984bf">thomsonreuters::ema::access::GenericMsg::header</a> </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="a00009.html">EmaBuffer</a> &amp;&#160;</td>
-          <td class="paramname"><em>buffer</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Specifies Header. </p>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">buffer</td><td>an <a class="el" href="a00009.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> containing header information </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
 
 </div>
 </div>
@@ -944,7 +950,7 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Fri May 29 2015</td>
+			<td><p class="smallfont">Mon Jun 29 2015</td>
           </tr>
         </table>
         </td>

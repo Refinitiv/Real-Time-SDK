@@ -350,7 +350,7 @@ private :
 	friend class ElementList;
 
 	ElementListDecoder*		_pDecoder;
-	const Data*				_pLoad;
+	const Data*	const*		_pLoad;
 
 	mutable EmaString		_toString;
 

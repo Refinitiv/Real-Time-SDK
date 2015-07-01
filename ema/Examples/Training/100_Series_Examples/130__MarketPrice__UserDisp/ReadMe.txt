@@ -1,47 +1,44 @@
 Summary
 =======
 
-The 130__MarketPrice__UserDisp application is provided as an example of
-OMM Consumer application written to the EMA library.
+130__MarketPrice__UserDisp is provided as an example of an OMM Consumer 
+application that demonstrates basic usage of the EMA library in accessing
+and parsing OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),
+directly from an OMM Provider  application, or from an Advanced Distribution
+Server.
 
-This application demonstrates basic usage of the EMA library for accessing
-and parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),
-directly from an OMM Provider  application, or from Thomson Reuters Advanced
-Distribution Server.
-
-The 130__MarketPrice__UserDisp showcases the so called "user dispatch" mode
-in which all callbacks are executed on the application thread of control.
-They are executed on the thread calling the dispatch() method.
+130__MarketPrice__UserDisp illustrates a "user dispatch" mode in which all 
+callbacks execute on the application's thread of control and call the 
+dispatch() method.
 
  
 Detailed Description
 ====================
 
-The 130__MarketPrice__UserDisp implements the following high level steps:
+130__MarketPrice__UserDisp implements the following high-level steps:
 
-+ Implements OmmConsumerClient class in AppClient
-  - overrides desired methods
-  - provides own methods as needed, e.g. decode( const FieldList& )
-    - the decode( const FieldList& ) iterates through the received FieldList,
-	  extracts each FieldEntry reference from the current position on the
-	  FieldList, and extracts field id, name and value of the current FieldEntry
-+ Instantiates AppClient object that receives and processes item messages
-+ Instantiates and modifies OmmConsumerConfig object
-  - sets user name to "user"
-  - sets host name on the preconfigured connection to "localhost"
-  - sets port on the preconfigured connection to "14002"
-  - sets operationModel to UserDispatchEnum
++ Implements an OmmConsumerClient class in an AppClient
+  - Overrides desired methods.
+  - Provides its own methods as needed (e.g.: decode( const FieldList& ))
+    - The decode( const FieldList& ) iterates through the received FieldList
+	  extracting each FieldEntry reference from the current position on the
+	  FieldList. The decode method then extracts the fieldentry's field id, 
+	  name, and value.
++ Instantiates an AppClient object that receives and processes item messages.
++ Instantiates and modifies an OmmConsumerConfig object
+  - Sets the username to "user".
+  - Sets the hostname on the preconfigured connection to "localhost".
+  - Sets the port on the preconfigured connection to "14002".
+  - Sets the operationModel to UserDispatchEnum.
 + Instantiates an OmmConsumer object which initializes the connection 
   and logs into the specified server.
-  - application calls dispatch() in a while loop
-+ Opens a streaming item interest
-  - MarketPrice IBM.N item from DIRECT_FEED service
-+ Processes data received with user dispatch loop for 60 seconds
-  - all received messages are processed on the main application thread of control
+  - The application calls dispatch() in a while loop.
++ Opens a streaming item interest for the MarketPrice IBM.N item from the DIRECT_FEED
+  service
++ Processes data received with a user dispatch loop for 60 seconds
+  - All messages received are processed on the application's main thread of control
 + Exits
 
-Note: if needed, these and other details may be modified to fit local
-      environment.
-	  
-Note: please refer to the EMA library ReadMe.txt file for details on
-      standard configuration.
+Note: If needed, you can modify these and other details to fit your local environment.
+      For details on standard configuration, refer to the EMA library ReadMe.txt file
+      or to the EMA COnfiguration Guide.

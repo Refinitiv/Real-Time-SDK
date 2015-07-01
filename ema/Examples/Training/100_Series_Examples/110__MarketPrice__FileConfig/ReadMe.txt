@@ -1,42 +1,39 @@
 Summary
 =======
 
-The 110__MarketPrice__FileConfig application is provided as an example
-of OMM Consumer application written to the EMA library.
-
-This application demonstrates basic usage of the EMA library to access
-and parse OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),
-directly from an OMM Provider application, or from Thomson Reuters Advanced
+110__MarketPrice__FileConfig is an OMM Consumer application example
+that demonstrates basic usage of the EMA library in accessing
+and parsing OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),
+directly from an OMM Provider application, or from an Advanced
 Distribution Server.
 
-The 110__MarketPrice__FileConfig showcases implicit dependence of the EMA
-OmmConsumer on the EmaConfig.xml file locates in the application working
-directory. Specific connectivity of this application is specified in the config
-file unlike all the other training examples.
+110__MarketPrice__FileConfig illustrates an implicit dependence of the 
+Omm Consumer on the EmaConfig.xml file located in the application's
+working directory. Unlike other training examples, this application depends 
+on EmaConfig.xml to determine its connectivity parameters.
 
 
 Detailed Description
 ====================
 
-The 110__MarketPrice__FileConfig implements the following high level steps:
+110__MarketPrice__FileConfig implements the following high-level steps:
 
 + Implements OmmConsumerClient class in AppClient
-  - overrides desired methods
-+ Instantiates AppClient object to receive and processe item messages
-+ Instantiates and modifies OmmConsumerConfig object
-  - sets consumer name to "Consumer_2"
-  - loads configuration information for the specified consumer name
-    from the EmaConfig.xml file present in its working folder
+  - Overrides desired methods
++ Instantiates an AppClient object to receive and process item messages
++ Instantiates and modifies an OmmConsumerConfig object
+  - Sets the consumer name to "Consumer_2"
+  - Loads configuration information for the specified consumer name
+    from the EmaConfig.xml file in the application's working folder
 + Instantiates an OmmConsumer object which initializes the connection 
   and logs into the specified server.
 + Opens a streaming item interest
-  - MarketPrice IBM.N item from DIRECT_FEED service
-+ Processes data received from API for 60 seconds
-  - all received messages are processed on API thread of control
+  - MarketPrice IBM.N item from the DIRECT_FEED service
++ Processes data received from the API for 60 seconds
+  - All received messages are processed on the API's thread of control
 + Exits
 
-Note: if needed, these and other details may be modified to fit local
-      environment using EmaConfig.xml file.
-	  
-Note: please refer to the EMA library ReadMe.txt file for details on
-      standard configuration.
+Note: If needed, you can modify these and other details to fit your local
+      environment using the EmaConfig.xml file. For details on the standard 
+      configuration, refer to the EMA library ReadMe.txt file or the EMA 
+      Configuration Guide.

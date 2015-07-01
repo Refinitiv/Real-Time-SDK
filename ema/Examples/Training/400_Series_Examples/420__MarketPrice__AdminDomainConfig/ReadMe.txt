@@ -27,8 +27,6 @@ The 420__MarketPrice__AdminDomainConfig implements the following high level step
 + Instantiates AppClient object that receives and processes item messages
 + Instantiates and modifies OmmConsumerConfig object
   - sets user name to "user"
-  - sets host name on the preconfigured connection to "localhost"
-  - sets port on the preconfigured connection to "14002"
   - sets request message for Login domain to override default
   - sets request message for Directory domain to override default
   - sets request message for Dictionary domain to override default

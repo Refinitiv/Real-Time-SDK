@@ -61,7 +61,7 @@
 
 #include "Access/Include/Attrib.h"
 #include "Access/Include/Payload.h"
-#include "Access/Include/Summary.h"
+#include "Access/Include/SummaryData.h"
 #include "Access/Include/Key.h"
 
 #include "Access/Include/OmmArrayEntry.h"

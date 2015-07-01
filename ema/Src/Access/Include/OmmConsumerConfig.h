@@ -18,7 +18,7 @@
 	The default configuration may be modified and or appended by using EmaConfig.xml file or any interface methods
 	of this class.
 
-	The Emaconfig.xml file is read in if it is present in the working directory fo the application.
+	The EmaConfig.xml file is read in if it is present in the working directory of the application.
 
 	Calling any interface methods of OmmConsumerconfig class overrides or appends the existing configuration.
 
@@ -120,14 +120,14 @@ public :
 
 	/** Create an OmmConsumer with consumer name. The OmmConsumer enables functionality that includes
 	    subscribing, posting and distributing generic messages. This name identifies configuration
-		section to be used by Ommconsumer instance.
+		section to be used by OmmConsumer instance.
 		@param[in] consumerName specifies name of OmmConsumer instance
 		@return reference to this object
 	*/
 	OmmConsumerConfig& consumerName( const EmaString& consumerName );
 
 	/** Specifies the local configuration, overriding and adding to the current content. 
-		@param[in] config specifies Ommconsumer configuration
+		@param[in] config specifies OmmConsumer configuration
 		@return reference to this object
 	*/
 	OmmConsumerConfig& config( const Data& config );

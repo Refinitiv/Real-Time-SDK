@@ -101,133 +101,133 @@ public :
 
 	/** Assignment operator
 		\remark a null character determines length of the copied in string
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] other copied in character string
 		@return reference to this object
 	*/
 	EmaString& operator=( const char* other );
 
 	/** Append method. Appends string representation of passed in Int64
-		@throw OmmMemoryExhaustionException if appruns out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] value to be appended to this object
 		@return reference to this object
 	*/
 	EmaString& append( Int64 value );
 
 	/** Append method. Appends string representation of passed in UInt64
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] value to be appended to this object
 		@return reference to this object
 	*/
 	EmaString& append( UInt64 value );
 
 	/** Append method. Appends string representation of passed in Int32 
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] value to be appended to this object
 		@return reference to this object
 	*/
 	EmaString& append( Int32 value );
 
 	/** Append method. Appends string representation of passed in UInt32
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] value to be appended to this object
 		@return reference to this object
 	*/
 	EmaString& append( UInt32 value );
 
 	/** Append method. Appends string representation of passed in float 
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] value to be appended to this object
 		@return reference to this object
 	*/
 	EmaString& append( float value );
 
 	/** Append method. Appends string representation of passed in double 
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] value to be appended to this object
 		@return reference to this object
 	*/
 	EmaString& append( double value );
 
 	/** Append method. Appends string representation of passed in const char* 
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] value to be appended to this object
 		@return reference to this object
 	*/
 	EmaString& append( const char* value );
 
 	/** Append method. Appends string representation of passed in EmaString 
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] value to be appended to this object
 		@return reference to this object
 	*/
 	EmaString& append( const EmaString& value );
 
 	/** Append operator. Appends string representation of passed in Int64
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] value to be appended to this object
 		@return reference to this object
 	*/
 	EmaString& operator+=( Int64 value );
 
 	/** Append operator. Appends string representation of passed in UInt64
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] value to be appended to this object
 		@return reference to this object
 	*/
 	EmaString& operator+=( UInt64 value );
 
 	/** Append operator. Appends string representation of passed in Int32
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] value to be appended to this object
 		@return reference to this object
 	*/
 	EmaString& operator+=( Int32 value );
 
 	/** Append operator. Appends string representation of passed in UInt32
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] value to be appended to this object
 		@return reference to this object
 	*/
 	EmaString& operator+=( UInt32 value );
 
 	/** Append operator. Appends string representation of passed in float
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] value to be appended to this object
 		@return reference to this object
 	*/
 	EmaString& operator+=( float value );
 
 	/** Append operator. Appends string representation of passed in double
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] value to be appended to this object
 		@return reference to this object
 	*/
 	EmaString& operator+=( double value );
 
 	/** Append operator. Appends string representation of passed in const char* 
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] value to be appended to this object
 		@return reference to this object
 	*/
 	EmaString& operator+=( const char* value );
 
 	/** Append operator. Appends string representation of passed in EmaString 
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] value to be appended to this object
 		@return reference to this object
 	*/
 	EmaString& operator+=( const EmaString& value );
 
 	/** Addition operator. Allows a = b + c;
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] str specifies EmaString to be added to this EmaString
 		@return result of addition
 	*/
 	EmaString operator+( const EmaString& str );
 
 	/** Addition operator. Allows a = b + c;
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] str specifies char string to be added to this EmaString
 		@return result of addition
 	*/

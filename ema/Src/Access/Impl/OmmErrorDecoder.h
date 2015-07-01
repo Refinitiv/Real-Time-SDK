@@ -39,15 +39,11 @@ public :
 
 private :
 
-	RsslBuffer					_rsslBuffer;
+	RsslBuffer*					_pRsslBuffer;
 
 	OmmError::ErrorCode			_errorCode;
 
 	EmaBufferInt				_toHex;
-
-	UInt8						_rsslMajVer;
-
-	UInt8						_rsslMinVer;
 };
 
 }

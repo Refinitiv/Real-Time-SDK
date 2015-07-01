@@ -19,9 +19,9 @@
 
 	decodeFieldList( const FieldList& fList )
 	{
-		while ( !flist.forth() )
+		while ( !fList.forth() )
 		{
-			const FieldEntry& fieldEntry = flist.getEntry();
+			const FieldEntry& fieldEntry = fList.getEntry();
 
 			Int32 fieldId = fieldEntry.getFieldId();
 
@@ -366,7 +366,7 @@ private :
 	friend class FieldList;
 
 	FieldListDecoder*		_pDecoder;
-	const Data*				_pLoad;
+	const Data* const*		_pLoad;
 
 	mutable EmaString		_toString;
 

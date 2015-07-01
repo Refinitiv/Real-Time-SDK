@@ -19,7 +19,8 @@ ElementListDecoder::ElementListDecoder() :
  _rsslElementListBuffer(),
  _rsslElementEntry(),
  _decodeIter(),
- _load(),
+ _pLoadPool( 0 ),
+ _pLoad( 0 ),
  _pRsslDictionary( 0 ),
  _rsslLocalELSetDefDb( 0 ),
  _name(),
@@ -30,12 +31,12 @@ ElementListDecoder::ElementListDecoder() :
  _decodingStarted( false ),
  _atEnd( false )
 {
-	rsslClearElementList( &_rsslElementList );
- }
+	createLoadPool( _pLoadPool );
+}
 
 ElementListDecoder::~ElementListDecoder()
 {
-	StaticDecoder::morph( &_load, DataType::NoDataEnum );
+	destroyLoadPool( _pLoadPool );
 }
 
 bool ElementListDecoder::hasInfo() const
@@ -251,7 +252,7 @@ bool ElementListDecoder::getNextData()
 	{
 		_atEnd = true;
 		_decodingStarted = true;
-		Decoder::setRsslData( &_load, _errorCode, &_decodeIter, &_rsslElementListBuffer ); 
+		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], _errorCode, &_decodeIter, &_rsslElementListBuffer ); 
 		return false;
 	}
 
@@ -265,17 +266,17 @@ bool ElementListDecoder::getNextData()
 		_atEnd = true;
 		return true;
 	case RSSL_RET_SUCCESS :
-		Decoder::setRsslData( &_load, _rsslElementEntry.dataType,
+		_pLoad = Decoder::setRsslData( _pLoadPool, _rsslElementEntry.dataType,
 								&_decodeIter, &_rsslElementEntry.encData, _pRsslDictionary, 0 ); 
 		return false;
 	case RSSL_RET_INCOMPLETE_DATA :
-		Decoder::setRsslData( &_load, OmmError::IncompleteDataEnum, &_decodeIter, &_rsslElementEntry.encData ); 
+		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::IncompleteDataEnum, &_decodeIter, &_rsslElementEntry.encData ); 
 		return false;
 	case RSSL_RET_UNSUPPORTED_DATA_TYPE :
-		Decoder::setRsslData( &_load, OmmError::UnsupportedDataTypeEnum, &_decodeIter, &_rsslElementEntry.encData ); 
+		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::UnsupportedDataTypeEnum, &_decodeIter, &_rsslElementEntry.encData ); 
 		return false;
 	default :
-		Decoder::setRsslData( &_load, OmmError::UnknownErrorEnum, &_decodeIter, &_rsslElementEntry.encData );
+		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::UnknownErrorEnum, &_decodeIter, &_rsslElementEntry.encData );
 		return false;
 	}
 }
@@ -293,7 +294,7 @@ bool ElementListDecoder::getNextData( const EmaString& name )
 		{
 			_atEnd = true;
 			_decodingStarted = true;
-			Decoder::setRsslData( &_load, _errorCode, &_decodeIter, &_rsslElementListBuffer ); 
+			_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], _errorCode, &_decodeIter, &_rsslElementListBuffer ); 
 			return false;
 		}
 
@@ -316,17 +317,17 @@ bool ElementListDecoder::getNextData( const EmaString& name )
 	switch ( retCode )
 	{
 	case RSSL_RET_SUCCESS :
-		Decoder::setRsslData( &_load, _rsslElementEntry.dataType,
+		_pLoad = Decoder::setRsslData( _pLoadPool, _rsslElementEntry.dataType,
 								&_decodeIter, &_rsslElementEntry.encData, _pRsslDictionary, 0 ); 
 		return false;
 	case RSSL_RET_INCOMPLETE_DATA :
-		Decoder::setRsslData( &_load, OmmError::IncompleteDataEnum, &_decodeIter, &_rsslElementEntry.encData ); 
+		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::IncompleteDataEnum, &_decodeIter, &_rsslElementEntry.encData ); 
 		return false;
 	case RSSL_RET_UNSUPPORTED_DATA_TYPE :
-		Decoder::setRsslData( &_load, OmmError::UnsupportedDataTypeEnum, &_decodeIter, &_rsslElementEntry.encData ); 
+		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::UnsupportedDataTypeEnum, &_decodeIter, &_rsslElementEntry.encData ); 
 		return false;
 	default :
-		Decoder::setRsslData( &_load, OmmError::UnknownErrorEnum, &_decodeIter, &_rsslElementEntry.encData );
+		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::UnknownErrorEnum, &_decodeIter, &_rsslElementEntry.encData );
 		return false;
 	}
 }
@@ -344,7 +345,7 @@ bool ElementListDecoder::getNextData( const EmaVector< EmaString >& stringList )
 		{
 			_atEnd = true;
 			_decodingStarted = true;
-			Decoder::setRsslData( &_load, _errorCode, &_decodeIter, &_rsslElementListBuffer );  
+			_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], _errorCode, &_decodeIter, &_rsslElementListBuffer );  
 			return false;
 		}
 
@@ -374,17 +375,16 @@ bool ElementListDecoder::getNextData( const EmaVector< EmaString >& stringList )
 	switch ( retCode )
 	{
 	case RSSL_RET_SUCCESS :
-		Decoder::setRsslData( &_load, _rsslElementEntry.dataType,
-								&_decodeIter, &_rsslElementEntry.encData, _pRsslDictionary, 0 ); 
+		_pLoad = Decoder::setRsslData( _pLoadPool, _rsslElementEntry.dataType, &_decodeIter, &_rsslElementEntry.encData, _pRsslDictionary, 0 ); 
 		return false;
 	case RSSL_RET_INCOMPLETE_DATA :
-		Decoder::setRsslData( &_load, OmmError::IncompleteDataEnum, &_decodeIter, &_rsslElementEntry.encData ); 
+		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::IncompleteDataEnum, &_decodeIter, &_rsslElementEntry.encData ); 
 		return false;
 	case RSSL_RET_UNSUPPORTED_DATA_TYPE :
-		Decoder::setRsslData( &_load, OmmError::UnsupportedDataTypeEnum, &_decodeIter, &_rsslElementEntry.encData ); 
+		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::UnsupportedDataTypeEnum, &_decodeIter, &_rsslElementEntry.encData ); 
 		return false;
 	default :
-		Decoder::setRsslData( &_load, OmmError::UnknownErrorEnum, &_decodeIter, &_rsslElementEntry.encData );
+		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], OmmError::UnknownErrorEnum, &_decodeIter, &_rsslElementEntry.encData );
 		return false;
 	}
 }
@@ -393,30 +393,28 @@ bool ElementListDecoder::getNextData( const Data& data )
 {
 	if ( data.getDataType() != DataType::ElementListEnum )
 	{
-		_atEnd = true;
+		EmaString temp( "Wrong container type used for passing search list. Expecting ElementList. Passed in container is " );
+		temp += getDTypeAsString( data.getDataType() );
+		throwIueException( temp );
 		return true;
 	}
 
-	RsslDataType listDataType = RSSL_DT_NO_DATA;
+	RsslDataType listDataType = RSSL_DT_UNKNOWN;
 	EmaVector< EmaString > stringList;	
 
-	if ( !decodeViewList( &data.getEncoder().getRsslBuffer(), listDataType, stringList ) )
-	{
-		_atEnd = true;
-		return true;
-	}
+	decodeViewList( &data.getEncoder().getRsslBuffer(), listDataType, stringList );
 
 	switch ( listDataType )
 	{
 	case RSSL_DT_ASCII_STRING :
 		return getNextData( stringList );
 	default :
-		_atEnd = true;
+		throwIueException( EmaString( "Passed in search list contains wrong data type." ) );
 		return true;
 	}
 }
 
-bool ElementListDecoder::decodeViewList( RsslBuffer* rsslBuffer, RsslDataType& rsslDataType, EmaVector< EmaString >& stringList )
+void ElementListDecoder::decodeViewList( RsslBuffer* rsslBuffer, RsslDataType& rsslDataType, EmaVector< EmaString >& stringList )
 {
 	RsslDecodeIterator dIter;
 	rsslClearDecodeIterator( &dIter );
@@ -432,7 +430,6 @@ bool ElementListDecoder::decodeViewList( RsslBuffer* rsslBuffer, RsslDataType& r
 	rsslClearElementEntry( &rsslElementEntry );
 
 	RsslRet retCode = rsslDecodeElementEntry( &dIter, &rsslElementEntry );
-	bool searchListCompiled = false;
 
 	while ( retCode == RSSL_RET_SUCCESS )
 	{
@@ -467,20 +464,19 @@ bool ElementListDecoder::decodeViewList( RsslBuffer* rsslBuffer, RsslDataType& r
 
 					if ( retCode != RSSL_RET_END_OF_CONTAINER )
 					{
-						EmaString temp( "Error decoding OmmArray with strings while compiling search list." );
-
-						// todo ...   logger output
-					}
-					else
-					{
-						searchListCompiled = true;
-						rsslDataType = RSSL_DT_ASCII_STRING;
+						EmaString temp( "Error decoding OmmArray with Ascii while compiling search list." );
+						throwIueException( temp );
+						return;
 					}
 				}
+
+				rsslDataType = rsslArray.primitiveType;
 			}
 			break;
 		default :
-			break;
+			EmaString temp( "Search list does not contain expected OmmArray of Ascii." );
+			throwIueException( temp );
+			return;
 		}
 
 		retCode = rsslDecodeElementEntry( &dIter, &rsslElementEntry );
@@ -489,26 +485,18 @@ bool ElementListDecoder::decodeViewList( RsslBuffer* rsslBuffer, RsslDataType& r
 	if ( retCode != RSSL_RET_END_OF_CONTAINER )
 	{
 		EmaString temp( "Error decoding ElementList while compiling a search list." );
-
-		// todo logger output to be provided
-		
-		return false;
+		throwIueException( temp );
 	}
-
-	if ( !searchListCompiled )
-	{
-		EmaString temp( "Search list was not compiled." );
-
-		// todo ... logger output to be provided
-		return false;
-	}
-
-	return true;
 }
 
 const Data& ElementListDecoder::getLoad() const
 {
-	return _load;
+	return *_pLoad;
+}
+
+Data** ElementListDecoder::getLoadPtr()
+{
+	return &_pLoad;
 }
 
 void ElementListDecoder::setAtExit()

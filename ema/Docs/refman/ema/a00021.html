@@ -152,7 +152,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:adfecdc7274870cd393bb543a3245fc3f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#adfecdc7274870cd393bb543a3245fc3f">hasServiceId</a> () const </td></tr>
 <tr class="memitem:a92234f7934d900298526cf08b5ba1d8d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a92234f7934d900298526cf08b5ba1d8d">hasId</a> () const </td></tr>
 <tr class="memitem:a6095193394324ca40c20e65b3c489f49"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a6095193394324ca40c20e65b3c489f49">hasFilter</a> () const </td></tr>
-<tr class="memitem:a3e139538e3815d851f4a1f40135496f6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a3e139538e3815d851f4a1f40135496f6">hasHeader</a> () const </td></tr>
+<tr class="memitem:a3bbfd46d1f1dffe459d89f3408b66791"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a3bbfd46d1f1dffe459d89f3408b66791">hasExtendedHeader</a> () const </td></tr>
 <tr class="memitem:aa418fe1cfad088eb0e3c8f91e56f0e84"><td class="memItemLeft" align="right" valign="top">Int32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#aa418fe1cfad088eb0e3c8f91e56f0e84">getStreamId</a> () const </td></tr>
 <tr class="memitem:a10aee7a597dda8f3876b590bda2ef983"><td class="memItemLeft" align="right" valign="top">UInt16&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a10aee7a597dda8f3876b590bda2ef983">getDomainType</a> () const </td></tr>
 <tr class="memitem:abb9b56fb65bc90ebc1f165e71239da7f"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00011.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#abb9b56fb65bc90ebc1f165e71239da7f">getName</a> () const </td></tr>
@@ -160,7 +160,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ae63fd37284bf7765018342512d212742"><td class="memItemLeft" align="right" valign="top">UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#ae63fd37284bf7765018342512d212742">getServiceId</a> () const </td></tr>
 <tr class="memitem:a8dda8dab566a6e6536c524153ef7445b"><td class="memItemLeft" align="right" valign="top">Int32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a8dda8dab566a6e6536c524153ef7445b">getId</a> () const </td></tr>
 <tr class="memitem:af9456c87a40dc7bad29bf7ef5b389f84"><td class="memItemLeft" align="right" valign="top">UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#af9456c87a40dc7bad29bf7ef5b389f84">getFilter</a> () const </td></tr>
-<tr class="memitem:ac9b95a41d8cd93e226f8333f54b50e7b"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00009.html">EmaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#ac9b95a41d8cd93e226f8333f54b50e7b">getHeader</a> () const </td></tr>
+<tr class="memitem:a1f5b75079da8638d85362638c310f460"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00009.html">EmaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a1f5b75079da8638d85362638c310f460">getExtendedHeader</a> () const </td></tr>
 <tr class="memitem:a6344e790a7c9361c2d4ee665c9cad738"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00003.html">Attrib</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a6344e790a7c9361c2d4ee665c9cad738">getAttrib</a> () const </td></tr>
 <tr class="memitem:a5e60d1de7ddb84e02ed183545ac94c64"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00057.html">Payload</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a5e60d1de7ddb84e02ed183545ac94c64">getPayload</a> () const </td></tr>
 <tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
@@ -257,6 +257,30 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>SingleItem</b></td><
 
 </div>
 </div>
+<a class="anchor" id="a1f5b75079da8638d85362638c310f460"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00009.html">EmaBuffer</a>&amp; <a class="el" href="a00021.html#a1f5b75079da8638d85362638c310f460">thomsonreuters::ema::access::Msg::getExtendedHeader</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the ExtendedHeader. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00043.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00021.html#a3bbfd46d1f1dffe459d89f3408b66791">hasExtendedHeader()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00009.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> containing extendedHeader info value </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="af9456c87a40dc7bad29bf7ef5b389f84"></a>
 <div class="memitem">
 <div class="memproto">
@@ -278,30 +302,6 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>SingleItem</b></td><
   </dd>
 </dl>
 <dl class="section return"><dt>Returns:</dt><dd>filter value </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="ac9b95a41d8cd93e226f8333f54b50e7b"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="a00009.html">EmaBuffer</a>&amp; <a class="el" href="a00021.html#ac9b95a41d8cd93e226f8333f54b50e7b">thomsonreuters::ema::access::Msg::getHeader</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns the Header. </p>
-<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
-  <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00043.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00021.html#a3e139538e3815d851f4a1f40135496f6">hasHeader()</a> returns false </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00009.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> containing header info value </dd></dl>
 
 </div>
 </div>
@@ -438,6 +438,24 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>SingleItem</b></td><
 
 </div>
 </div>
+<a class="anchor" id="a3bbfd46d1f1dffe459d89f3408b66791"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00021.html#a3bbfd46d1f1dffe459d89f3408b66791">thomsonreuters::ema::access::Msg::hasExtendedHeader</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of the ExtendedHeader. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if extendedHeader is set; false otherwise </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="a6095193394324ca40c20e65b3c489f49"></a>
 <div class="memitem">
 <div class="memproto">
@@ -453,24 +471,6 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>SingleItem</b></td><
 <div class="memdoc">
 <p>Indicates presence of the Filter within the MsgKey. </p>
 <dl class="section return"><dt>Returns:</dt><dd>true if filter is set; false otherwise </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a3e139538e3815d851f4a1f40135496f6"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool <a class="el" href="a00021.html#a3e139538e3815d851f4a1f40135496f6">thomsonreuters::ema::access::Msg::hasHeader</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Indicates presence of the Header. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if header is set; false otherwise </dd></dl>
 
 </div>
 </div>
@@ -581,7 +581,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>SingleItem</b></td><
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Fri May 29 2015</td>
+			<td><p class="smallfont">Mon Jun 29 2015</td>
           </tr>
         </table>
         </td>

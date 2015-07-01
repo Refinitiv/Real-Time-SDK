@@ -18,8 +18,6 @@ SeriesEncoder::SeriesEncoder() :
  _rsslSeries(),
  _rsslSeriesEntry()
 {
-	rsslClearSeries( &_rsslSeries );
-	rsslClearSeriesEntry( &_rsslSeriesEntry );
 }
 
 SeriesEncoder::~SeriesEncoder()
@@ -185,7 +183,7 @@ void SeriesEncoder::totalCountHint( UInt32 totalCountHint )
 	}
 }
 
-void SeriesEncoder::summary( const ComplexType& data )
+void SeriesEncoder::summaryData( const ComplexType& data )
 {
 	if ( !_containerInitialized )
 	{
@@ -196,13 +194,13 @@ void SeriesEncoder::summary( const ComplexType& data )
 		}
 		else
 		{
-			EmaString temp( "Invalid attempt to pass not completed container to summary()." );
+			EmaString temp( "Invalid attempt to pass not completed container to summaryData()." );
 			throwIueException( temp );
 		}
 	}
 	else
 	{
-		EmaString temp( "Invalid attempt to call summary() when container is not empty." );
+		EmaString temp( "Invalid attempt to call summaryData() when container is not empty." );
 		throwIueException( temp );
 	}
 }

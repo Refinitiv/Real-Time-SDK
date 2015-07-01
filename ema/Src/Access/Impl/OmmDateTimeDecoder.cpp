@@ -12,14 +12,12 @@
 using namespace thomsonreuters::ema::access;
 
 OmmDateTimeDecoder::OmmDateTimeDecoder() :
- _rsslBuffer(),
+ _pRsslBuffer( 0 ),
  _rsslDateTime(),
  _toString(),
  _hexBuffer(),
- _dataCode( Data::BlankEnum ),
- _toStringSet( false )
+ _dataCode( Data::BlankEnum )
 {
-	rsslClearDateTime( &_rsslDateTime );
 }
 
 OmmDateTimeDecoder::~OmmDateTimeDecoder()
@@ -39,62 +37,42 @@ void OmmDateTimeDecoder::setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDa
 {
 }
 
-void OmmDateTimeDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* rsslBuffer )
+void OmmDateTimeDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* pRsslBuffer )
 {
-	_rsslBuffer = *rsslBuffer;
+	_pRsslBuffer = pRsslBuffer;
 
-	_toStringSet = false;
-
-	RsslRet retCode = rsslDecodeDateTime( dIter, &_rsslDateTime );
-
-	switch ( retCode )
-	{
-	case RSSL_RET_BLANK_DATA :
-		_dataCode = Data::BlankEnum;
-		break;
-	case RSSL_RET_SUCCESS :
+	if ( rsslDecodeDateTime( dIter, &_rsslDateTime ) == RSSL_RET_SUCCESS )
 		_dataCode = Data::NoCodeEnum;
-		break;
-	case RSSL_RET_INCOMPLETE_DATA :
-	default :
-		{
-			_dataCode = Data::BlankEnum;
-			EmaString temp( "Failed to decode OmmDateTime. Reason: " );
-			temp += rsslRetCodeToString( retCode );
-			throwIueException( temp );
-		}
-		break;
+	else
+	{
+		_dataCode = Data::BlankEnum;
+		rsslClearDateTime( &_rsslDateTime );
 	}
 }
 
 const EmaString& OmmDateTimeDecoder::toString()
 {
-	if ( !_toStringSet )
+	if ( _dataCode == Data::BlankEnum )
 	{
-		if ( _dataCode == Data::BlankEnum )
-		{
-			_toStringSet = true;
-			_toString.set( "(blank data)" );
-			return _toString;
-		}
+		_toString.set( "(blank data)" );
+		return _toString;
+	}
 
-		char dateTimeString[512];
-		RsslBuffer tempRsslBuffer;
-		tempRsslBuffer.data = dateTimeString;
-		tempRsslBuffer.length = 512;
-		RsslRet retCode = rsslDateTimeToString( &tempRsslBuffer, RSSL_DT_DATETIME, &_rsslDateTime );
+	char dateTimeString[512];
+	RsslBuffer tempRsslBuffer;
+	tempRsslBuffer.data = dateTimeString;
+	tempRsslBuffer.length = 512;
+	RsslRet retCode = rsslDateTimeToString( &tempRsslBuffer, RSSL_DT_DATETIME, &_rsslDateTime );
 
-		if ( RSSL_RET_SUCCESS != retCode )
-		{
-			EmaString temp( "Failed to convert OmmDateTime to string. Reason: " );
-			temp += rsslRetCodeToString( retCode );
-			throwIueException( temp );
-		}
-		else
-		{
-			_toStringSet = true;
-			_toString.set( dateTimeString );
-		}
+	if ( RSSL_RET_SUCCESS != retCode )
+	{
+		EmaString temp( "Failed to convert OmmDateTime to string. Reason: " );
+		temp += rsslRetCodeToString( retCode );
+		throwIueException( temp );
+	}
+	else
+	{
+		_toString.set( dateTimeString );
 	}
 
 	return _toString;
@@ -147,7 +125,7 @@ UInt16 OmmDateTimeDecoder::getNanosecond() const
 
 const EmaBuffer& OmmDateTimeDecoder::getHexBuffer()
 {
-	_hexBuffer.setFromInt( _rsslBuffer.data, _rsslBuffer.length );
+	_hexBuffer.setFromInt( _pRsslBuffer->data, _pRsslBuffer->length );
 
 	return _hexBuffer.toBuffer();
 }

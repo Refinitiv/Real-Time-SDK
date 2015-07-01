@@ -28,7 +28,7 @@
 	memory copy incurred by the first method. This method is useful in source applications
 	setting OMM data from native data formats.
 
-	The following code snippet shows addition of entry and summary to Series.
+	The following code snippet shows addition of entry and summaryData to Series.
 
 	\code
 
@@ -39,7 +39,7 @@
 		complete();
 
 	Series series;
-	series.summary( fList ).
+	series.summaryData( fList ).
 		.add( fList ).
 		complete();
 
@@ -51,10 +51,10 @@
 
 	void decodeSeries( const Series& series )
 	{
-		switch ( series.getSummary().getDataType() )
+		switch ( series.getSummaryData().getDataType() )
 		{
 		case DataType::FieldListEnum :
-			decodeFieldList( series.getSummary().getFieldList() );
+			decodeFieldList( series.getSummaryData().getFieldList() );
 			break;
 		case DataType::NoDataEnum :
 			break;
@@ -86,7 +86,7 @@
 
 	@see Data,
 		SeriesEntry,
-		Summary,
+		SummaryData,
 		ReqMsg,
 		RefreshMsg,
 		UpdateMsg,
@@ -108,7 +108,7 @@
  */
 
 #include "Access/Include/SeriesEntry.h"
-#include "Access/Include/Summary.h"
+#include "Access/Include/SummaryData.h"
 
 namespace thomsonreuters {
 
@@ -151,12 +151,12 @@ public :
 	*/
 	Series& totalCountHint( UInt32 totalCountHint );
 
-	/** Specifies the Summary OMM Data.
-		\remark Call to summary( ) must happen prior to calling the add( ) method
-		@param[in] summary specifies complex type as summary
+	/** Specifies the SummaryData OMM Data.
+		\remark Call to summaryData( ) must happen prior to calling the add( ) method
+		@param[in] summaryData specifies complex type as summaryData
 		@return reference to this object
 	*/
-	Series& summary( const ComplexType& data );
+	Series& summaryData( const ComplexType& data );
 
 	/** Adds complex OMM data identified by a specific complex type of OMM data.
 		\remark All entries must have same complex data type
@@ -221,11 +221,11 @@ public :
 	*/
 	UInt32 getTotalCountHint() const;
 
-	/** Returns the contained summary Data based on the summary DataType.
-		\remark Summary contains no data if Summary::getDataType() returns Data::NoDataEnum
-		@return Summary
+	/** Returns the contained summaryData Data based on the summaryData DataType.
+		\remark SummaryData contains no data if SummaryData::getDataType() returns Data::NoDataEnum
+		@return SummaryData
 	*/
-	const Summary& getSummary() const;
+	const SummaryData& getSummaryData() const;
 	//@}
 
 private :
@@ -238,7 +238,7 @@ private :
 
 	mutable EmaString			_toString;
 	SeriesEntry					_entry;
-	Summary						_summary;
+	SummaryData					_summary;
 	SeriesDecoder*				_pDecoder;
 	mutable SeriesEncoder*		_pEncoder;
 

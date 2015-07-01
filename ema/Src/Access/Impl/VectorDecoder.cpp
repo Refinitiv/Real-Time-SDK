@@ -31,7 +31,6 @@ VectorDecoder::VectorDecoder() :
  _atEnd( false ),
  _atExit( false )
 {
-	rsslClearVector( &_rsslVector );
 }
 
 VectorDecoder::~VectorDecoder()

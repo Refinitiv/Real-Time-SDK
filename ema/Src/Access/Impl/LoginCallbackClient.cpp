@@ -436,7 +436,7 @@ bool Login::populate( RsslRefreshMsg& refresh, RsslBuffer& buffer )
 	refresh.state.code = _stateCode;
 	refresh.state.streamState = _streamState;
 	refresh.state.dataState = _dataState;
-	refresh.state.text.data = "Refresh Completed";
+	refresh.state.text.data = (char *) "Refresh Completed";
 	refresh.state.text.length = 17;
 
 	return true;
@@ -592,10 +592,7 @@ LoginCallbackClient* LoginCallbackClient::create( OmmConsumerImpl& ommConsImpl )
 		if ( OmmLoggerClient::ErrorEnum >= ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
 
-		if ( ommConsImpl.hasOmmConnsumerErrorClient() )
-			ommConsImpl.getOmmConsumerErrorClient().onMemoryExhaustion( temp );
-		else
-			throwMeeException( temp );
+		throwMeeException( temp );
 	}
 
 	return pClient;
@@ -739,9 +736,11 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback(  RsslReactor* pRssl
 
 		RsslState* pState = &pLoginMsg->refresh.state;
 
+		bool closeChannel = false;
+
 		if ( pState->streamState != RSSL_STREAM_OPEN )
 		{
-			_ommConsImpl.closeChannel( pRsslReactorChannel );
+			closeChannel = true;
 
 			if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			{
@@ -799,17 +798,22 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback(  RsslReactor* pRssl
 
 		_loginItemLock.unlock();
 
+		if ( closeChannel )
+			_ommConsImpl.closeChannel( pRsslReactorChannel );
+
 		break;
 	}
 	case RDM_LG_MT_STATUS:
 	{
+		bool closeChannel = false;
+
 		if ( pLoginMsg->status.flags & RDM_LG_STF_HAS_STATE )
     	{
 			RsslState* pState = &pLoginMsg->status.state;
 
 			if ( pState->streamState != RSSL_STREAM_OPEN )
 			{
-				_ommConsImpl.closeChannel( pRsslReactorChannel );
+				closeChannel = true;
 
 				if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 				{
@@ -881,6 +885,9 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback(  RsslReactor* pRssl
 
 		_loginItemLock.unlock();
 
+		if ( closeChannel )
+			_ommConsImpl.closeChannel( pRsslReactorChannel );
+
 		break;
 	}
 	default:
@@ -922,25 +929,18 @@ RsslReactorCallbackRet LoginCallbackClient::processRefreshMsg( RsslMsg* pRsslMsg
  			0 );
 	}
 
-	_event._pItem = reinterpret_cast< Item* >( _loginItems.front() );
-	while( _event._pItem )
+	for ( UInt32 idx = 0; idx < _loginItems.size(); ++idx )
 	{
+		_event._pItem = _loginItems[idx];
 		_event._pItem->getClient().onAllMsg( _refreshMsg, _event );
 		_event._pItem->getClient().onRefreshMsg( _refreshMsg, _event );
-
-		_event._pItem = reinterpret_cast< Item* >( _event._pItem->next() );
 	}
 
 	if ( _refreshMsg.getState().getStreamState() != OmmState::OpenEnum )
 	{
-		while( true )
-		{
-			_event._pItem = reinterpret_cast< Item* >( _loginItems.pop_front() );
-			if ( _event._pItem )
-				_event._pItem->remove();
-			else
-				break;
-		}
+		for ( UInt32 idx = 0; idx < _loginItems.size(); ++idx )
+			_loginItems[idx]->remove();
+
 		_loginItems.clear();
 	}
 		
@@ -973,26 +973,19 @@ RsslReactorCallbackRet LoginCallbackClient::processStatusMsg( RsslMsg* pRsslMsg,
  			0 );
 	}
 
-	_event._pItem = reinterpret_cast< Item* >( _loginItems.front() );
-	while( _event._pItem )
+	for ( UInt32 idx = 0; idx < _loginItems.size(); ++idx )
 	{
+		_event._pItem = _loginItems[idx];
 		_event._pItem->getClient().onAllMsg( _statusMsg, _event );
 		_event._pItem->getClient().onStatusMsg( _statusMsg, _event );
-
-		_event._pItem = reinterpret_cast< Item* >( _event._pItem->next() );
 	}
 
-	if ( pRsslMsg->statusMsg.flags & RSSL_STMF_HAS_STATE && 
+	if ( _statusMsg.hasState() && 
 		_statusMsg.getState().getStreamState() != OmmState::OpenEnum )
 	{
-		while( true )
-		{
-			_event._pItem = reinterpret_cast< Item* >( _loginItems.pop_front() );
-			if ( _event._pItem )
-				_event._pItem->remove();
-			else
-				break;
-		}
+		for ( UInt32 idx = 0; idx < _loginItems.size(); ++idx )
+			_loginItems[idx]->remove();
+
 		_loginItems.clear();
 	}
 
@@ -1007,18 +1000,15 @@ RsslReactorCallbackRet LoginCallbackClient::processGenericMsg( RsslMsg* pRsslMsg
 	StaticDecoder::setRsslData( &_genericMsg, pRsslMsg,
 		pRsslReactorChannel->majorVersion,
 		pRsslReactorChannel->minorVersion,
-		0 );
-	
-	_event._pItem = reinterpret_cast< Item* >( _loginItems.front() );
-	while( _event._pItem )
+		static_cast<Channel*>( pRsslReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
+
+	for ( UInt32 idx = 0; idx < _loginItems.size(); ++idx )
 	{
-		OmmConsumerClient& client = reinterpret_cast< Item* >( _loginItems.front() )->getClient();
-
-		client.onAllMsg( _genericMsg, _event );
-		client.onGenericMsg( _genericMsg, _event );
-
-		_event._pItem = reinterpret_cast< Item* >( _event._pItem->next() );
+		_event._pItem = _loginItems[idx];
+		_event._pItem->getClient().onAllMsg( _genericMsg, _event );
+		_event._pItem->getClient().onGenericMsg( _genericMsg, _event );
 	}
+
 	return RSSL_RC_CRET_SUCCESS;
 }
 
@@ -1027,17 +1017,13 @@ RsslReactorCallbackRet LoginCallbackClient::processAckMsg( RsslMsg* pRsslMsg, Rs
 	StaticDecoder::setRsslData( &_ackMsg, pRsslMsg,
 		pRsslReactorChannel->majorVersion,
 		pRsslReactorChannel->minorVersion,
-		0 );
+		static_cast<Channel*>( pRsslReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
 
-	_event._pItem = reinterpret_cast< Item* >( _loginItems.front() );
-	while( _event._pItem )
+	for ( UInt32 idx = 0; idx < _loginItems.size(); ++idx )
 	{
-		OmmConsumerClient& client = reinterpret_cast< Item* >( _loginItems.front() )->getClient();
-
-		client.onAllMsg( _ackMsg, _event );
-		client.onAckMsg( _ackMsg, _event );
-
-		_event._pItem = reinterpret_cast< Item* >( _event._pItem->next() );
+		_event._pItem = _loginItems[idx];
+		_event._pItem->getClient().onAllMsg( _ackMsg, _event );
+		_event._pItem->getClient().onAckMsg( _ackMsg, _event );
 	}
 
 	return RSSL_RC_CRET_SUCCESS;
@@ -1139,39 +1125,24 @@ bool LoginCallbackClient::convertRdmLoginToRsslBuffer( RsslReactorChannel* pRssl
 
 LoginItem* LoginCallbackClient::getLoginItem( const ReqMsg& , OmmConsumerClient& ommConsClient, void* closure )
 {
+	LoginItem* li = LoginItem::create ( _ommConsImpl, ommConsClient, closure, _loginList );
+		
+	if ( li )
 	{
-		LoginItem* li = LoginItem::create ( _ommConsImpl, ommConsClient, closure );
-		LoginItemCreationCallbackStruct  * liccs( new LoginItemCreationCallbackStruct( this, li ) );
-		TimeOut * timeOut = new TimeOut( _ommConsImpl, 10, LoginCallbackClient::handleLoginItemCallback, liccs );
-		_loginItems.insert( li );
-		return li;
-	}
-}
-
-void LoginCallbackClient::clearLoginItem( LoginItem* loginItem )
-{
-	_loginItemLock.lock();
-
-	LoginItem * li = static_cast< LoginItem *>( _loginItems.front() );
-	while( li )
-	{
-		if ( li == loginItem )
-		{
-			_loginItems.remove( li );
-			break;
-		}
-		li = reinterpret_cast< LoginItem* >( li->next() );
+		LoginItemCreationCallbackStruct* liccs( new LoginItemCreationCallbackStruct( this, li ) );
+		TimeOut* timeOut = new TimeOut( _ommConsImpl, 10, LoginCallbackClient::handleLoginItemCallback, liccs );
+		_loginItems.push_back( li );
 	}
 
-	_loginItemLock.unlock();
+	return li;
 }
 
-LoginItem* LoginItem::create( OmmConsumerImpl& ommConsImpl, OmmConsumerClient& ommConsClient, void* closure )
+LoginItem* LoginItem::create( OmmConsumerImpl& ommConsImpl, OmmConsumerClient& ommConsClient, void* closure, const LoginList& loginList )
 {
 	LoginItem* pItem = 0;
 
 	try {
-		pItem = new LoginItem( ommConsImpl, ommConsClient, closure );
+		pItem = new LoginItem( ommConsImpl, ommConsClient, closure, loginList );
 	}
 	catch( std::bad_alloc ) {}
 
@@ -1190,12 +1161,11 @@ LoginItem* LoginItem::create( OmmConsumerImpl& ommConsImpl, OmmConsumerClient& o
 	return pItem;
 }
 
-LoginItem::LoginItem( OmmConsumerImpl& ommConsImpl, OmmConsumerClient& ommConsClient, void* closure ) :
+LoginItem::LoginItem( OmmConsumerImpl& ommConsImpl, OmmConsumerClient& ommConsClient, void* closure, const LoginList& loginList ) :
  SingleItem( ommConsImpl, ommConsClient, closure, 0),
- _loginList( 0 )
+ _loginList( &loginList )
 {
 	_streamId = 1;
-	_itemType = LoginItemEnum;
 }
 
 LoginItem::~LoginItem()
@@ -1262,15 +1232,25 @@ bool LoginItem::submit( RsslRequestMsg* pRsslRequestMsg )
 			{
 				EmaString temp( "Internal error: rsslReactorSubmitMsg() failed in submit( RsslRequestMsg* )" );
 				temp.append( CR )
-					.append( "Channel " ).append( _loginList->operator[]( idx )->getChannel()->toString() ).append( CR )
 					.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
 					.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
 					.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
 					.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
-					.append( "Error Text" ).append( rsslErrorInfo.rsslError.text );
+					.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
 				_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
-				return false;
 			}
+
+			EmaString text( "Failed to reissue login request. Reason: " );
+			text.append( rsslRetCodeToString( ret ) )
+				.append( ". Error text: " )
+				.append( rsslErrorInfo.rsslError.text );
+
+			if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
+				_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( text );
+			else
+				throwIueException( text );
+
+			return false;
 		}
 	}
 
@@ -1300,9 +1280,8 @@ bool LoginItem::submit( RsslGenericMsg* pRsslGenericMsg )
 		{
 			if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			{
-				EmaString temp( "Internal error. rsslReactorSubmitMsg() failed in submit( RsslPostMsg* )" );
+				EmaString temp( "Internal error. rsslReactorSubmitMsg() failed in submit( RsslGenericMsg* )" );
 				temp.append( CR )
-					.append( "Channel" ).append( _loginList->operator[]( idx )->getChannel()->toString() ).append( CR )
 					.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
 					.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
 					.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
@@ -1311,6 +1290,16 @@ bool LoginItem::submit( RsslGenericMsg* pRsslGenericMsg )
 
 				_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 			}
+
+			EmaString text( "Failed to submit GenericMsg on login stream. Reason: " );
+			text.append( rsslRetCodeToString( ret ) )
+				.append( ". Error text: " )
+				.append( rsslErrorInfo.rsslError.text );
+
+			if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
+				_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( text );
+			else
+				throwIueException( text );
 
 			return false;
 		}
@@ -1344,7 +1333,6 @@ bool LoginItem::submit( RsslPostMsg* pRsslPostMsg )
 			{
 				EmaString temp( "Internal error. rsslReactorSubmitMsg() failed in submit( RsslPostMsg* )" );
 				temp.append( CR )
-					.append( "Channel " ).append( _loginList->operator[]( idx )->getChannel()->toString() ).append( CR )
 					.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
 					.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
 					.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
@@ -1353,6 +1341,16 @@ bool LoginItem::submit( RsslPostMsg* pRsslPostMsg )
 				_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 			}
 
+			EmaString text( "Failed to submit PostMsg on login stream. Reason: " );
+			text.append( rsslRetCodeToString( ret ) )
+				.append( ". Error text: " )
+				.append( rsslErrorInfo.rsslError.text );
+
+			if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
+				_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( text );
+			else
+				throwIueException( text );
+
 			return false;
 		}
 	}
@@ -1360,7 +1358,7 @@ bool LoginItem::submit( RsslPostMsg* pRsslPostMsg )
 	return true;
 }
 
-void LoginCallbackClient::sendInternalMsg( LoginItem * loginItem )
+void LoginCallbackClient::sendInternalMsg( LoginItem* loginItem )
 {
 	RsslRefreshMsg rsslRefreshMsg;
 	char tempBuffer[1000];
@@ -1385,11 +1383,9 @@ void LoginCallbackClient::sendInternalMsg( LoginItem * loginItem )
 		loginItem->remove();
 }
 
-void
-LoginCallbackClient::handleLoginItemCallback( void * args )
+void LoginCallbackClient::handleLoginItemCallback( void * args )
 {
-	LoginItemCreationCallbackStruct * arguments = reinterpret_cast< LoginItemCreationCallbackStruct * >( args );
+	LoginItemCreationCallbackStruct* arguments = reinterpret_cast< LoginItemCreationCallbackStruct * >( args );
 
 	arguments->loginCallbackClient->sendInternalMsg( arguments->loginItem );
 }
-

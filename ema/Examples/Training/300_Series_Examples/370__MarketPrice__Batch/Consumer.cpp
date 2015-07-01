@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
 {
 	try {
 		AppClient client;
-		OmmConsumer consumer( OmmConsumerConfig().host( "localhost:14002" ).username( "user" ) );
+		OmmConsumer consumer( OmmConsumerConfig().username( "user" ) );
 		UInt64 handle = consumer.registerClient( ReqMsg().serviceName( "DIRECT_FEED" )
 			.payload( ElementList().addArray( ":ItemList", OmmArray().addAscii( "TRI.N" ).addAscii( "IBM.N" ).complete() ).complete() ), client );
 		sleep( 60000 );				// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()

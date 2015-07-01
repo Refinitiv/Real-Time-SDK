@@ -28,7 +28,7 @@
 	memory copy incurred by the first method. This method is useful in source applications
 	setting OMM data from native data formats.
 
-	The following code snippet shows addition of entry and summary to Vector.
+	The following code snippet shows addition of entry and summaryData to Vector.
 
 	\code
 
@@ -38,7 +38,7 @@
 	Vector vector;
 	vector.sortable( true ).
 		totalCountHint( 1 ).
-		summary( fList ).
+		summaryData( fList ).
 		add( 1, VectorEntry::SetEnum, fList ).
 		complete();
 
@@ -50,10 +50,10 @@
 
 	void decodeVector( const Vector& vector )
 	{
-		switch ( vector.getSummary().getDataType() )
+		switch ( vector.getSummaryData().getDataType() )
 		{
 		case DataType::FieldListEnum :
-			decodeFieldList( vector.getSummary().getFieldList() );
+			decodeFieldList( vector.getSummaryData().getFieldList() );
 			break;
 		case DataType::NoDataEnum :
 			break;
@@ -85,7 +85,7 @@
 
 	@see Data,
 		VectorEntry,
-		Summary,
+		SummaryData,
 		ReqMsg,
 		RefreshMsg,
 		UpdateMsg,
@@ -107,7 +107,7 @@
 */
 
 #include "Access/Include/VectorEntry.h"
-#include "Access/Include/Summary.h"
+#include "Access/Include/SummaryData.h"
 
 namespace thomsonreuters {
 
@@ -183,11 +183,11 @@ public :
 	*/
 	UInt32 getTotalCountHint() const;
 
-	/** Returns the contained summary Data based on the summary DataType.
-		\remark Summary contains no data if Summary::getDataType() returns DataType::NoDataEnum
-		@return Summary
+	/** Returns the contained summaryData Data based on the summaryData DataType.
+		\remark SummaryData contains no data if SummaryData::getDataType() returns DataType::NoDataEnum
+		@return SummaryData
 	*/
-	const Summary& getSummary() const;
+	const SummaryData& getSummaryData() const;
 
 	/** Returns Entry.
 		@throw OmmInvalidUsageException if forth() was not called first
@@ -223,7 +223,7 @@ public :
 	const Vector& complete();
 
 	/** Specifies Sortable.
-		@param[in] sortable specifies if this objecxt is sortable
+		@param[in] sortable specifies if this object is sortable
 		@return reference to this object
 	*/
 	Vector& sortable( bool sortable = false );
@@ -234,13 +234,13 @@ public :
 	*/
 	Vector& totalCountHint( UInt32 totalCountHint );
 
-	/** Specifies the Summary OMM Data.
-		\remark Call to summary( ) must happen prior to calling the add( ) method
+	/** Specifies the SummaryData OMM Data.
+		\remark Call to summaryData( ) must happen prior to calling the add( ) method
 		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
-		@param[in] summary specifies complex type as summary
+		@param[in] summaryData specifies complex type as summaryData
 		@return reference to this object
 	*/
-	Vector& summary( const ComplexType& data );
+	Vector& summaryData( const ComplexType& data );
 	//@}
 
 private :
@@ -253,7 +253,7 @@ private :
 
 	mutable EmaString			_toString;
 	VectorEntry					_entry;
-	Summary						_summary;
+	SummaryData					_summary;
 	VectorDecoder*				_pDecoder;
 	mutable VectorEncoder*		_pEncoder;
 

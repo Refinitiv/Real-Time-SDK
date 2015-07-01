@@ -14,8 +14,6 @@
 #include "EmaBufferInt.h"
 #include "EmaVector.h"
 #include "EmaPool.h"
-#include "OmmError.h"
-#include "NoDataImpl.h"
 #include "rtr/rsslSetData.h"
 
 namespace thomsonreuters {
@@ -56,6 +54,8 @@ public :
 
 	const Data& getLoad() const;
 
+	Data** getLoadPtr();
+
 	const EmaBuffer& getHexBuffer();
 	
 	void clone( const FieldListDecoder& );
@@ -76,7 +76,7 @@ private :
 
 	bool getNextData( const EmaVector< EmaString >& );
 
-	bool decodeViewList( RsslBuffer* , RsslDataType& , EmaVector< Int16 >& , EmaVector< EmaString >& );
+	void decodeViewList( RsslBuffer* , RsslDataType& , EmaVector< Int16 >& , EmaVector< EmaString >& );
 
 	RsslFieldList				_rsslFieldList;
 
@@ -86,7 +86,9 @@ private :
 
 	RsslDecodeIterator			_decodeIter;
 
-	NoDataImpl					_load;
+	Data**						_pLoadPool;
+
+	Data*						_pLoad;
 
 	const RsslDataDictionary*	_pRsslDictionary;
 

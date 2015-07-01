@@ -30,7 +30,7 @@
 	memory copy incurred by the first method. This method is useful in source applications
 	setting OMM data from native data formats.
 
-	The following code snippet shows addition of entry and summary to Map.
+	The following code snippet shows addition of entry and summaryData to Map.
 
 	\code
 
@@ -42,7 +42,7 @@
 
 	Map map;
 	map.totalCountHint( 1 ).
-		summary( fList ).
+		summaryData( fList ).
 		addKeyBuffer( EmaBuffer( "1234567" ), MapEntry::AddEnum, fList ).
 		complete();
 
@@ -54,10 +54,10 @@
 
 	void decodeMap( const Map& map )
 	{
-		switch ( map.getSummary().getDataType() )
+		switch ( map.getSummaryData().getDataType() )
 		{
 		case DataType::FieldListEnum :
-			decodeFieldList( map.getSummary().getFieldList() );
+			decodeFieldList( map.getSummaryData().getFieldList() );
 			break;
 		case DataType::NoDataEnum :
 			break;
@@ -99,7 +99,7 @@
 
 	@see Data,
 		MapEntry,
-		Summary,
+		SummaryData,
 		ReqMsg,
 		RefreshMsg,
 		UpdateMsg,
@@ -123,7 +123,7 @@
 #include "Access/Include/OmmReal.h"
 #include "Access/Include/OmmState.h"
 #include "Access/Include/MapEntry.h"
-#include "Access/Include/Summary.h"
+#include "Access/Include/SummaryData.h"
 
 namespace thomsonreuters {
 
@@ -211,11 +211,11 @@ public :
 	*/
 	UInt32 getTotalCountHint() const;
 
-	/** Returns the contained summary Data based on the summary DataType.
-		\remark Summary contains no data if Summary::getDataType() returns DataType::NoDataEnum
-		@return Summary
+	/** Returns the contained summaryData Data based on the summaryData DataType.
+		\remark SummaryData contains no data if SummaryData::getDataType() returns DataType::NoDataEnum
+		@return SummaryData
 	*/
-	const Summary& getSummary() const;
+	const SummaryData& getSummaryData() const;
 	//@}
 
 	///@name Operations
@@ -238,13 +238,13 @@ public :
 	*/
 	Map& totalCountHint( UInt32 totalCountHint );
 
-	/** Specifies the Summary OMM Data.
-		\remark Call to summary( ) must happen prior to calling any add***( ) method
+	/** Specifies the SummaryData OMM Data.
+		\remark Call to summaryData( ) must happen prior to calling any add***( ) method
 		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
-		@param[in] summary specifies complex type as summary
+		@param[in] summaryData specifies complex type as summaryData
 		@return reference to this object
 	*/
-	Map& summary( const ComplexType& summary );
+	Map& summaryData( const ComplexType& summaryData );
 
 	/** Adds complex OMM data identified by a specific simple type of OMM data.
 		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
@@ -470,7 +470,7 @@ private :
 
 	mutable EmaString		_toString;
 	MapEntry				_entry;
-	Summary					_summary;
+	SummaryData				_summary;
 	MapDecoder*				_pDecoder;
 	mutable MapEncoder*		_pEncoder;
 

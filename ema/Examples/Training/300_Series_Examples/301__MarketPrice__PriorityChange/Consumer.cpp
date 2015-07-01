@@ -112,7 +112,7 @@ int main( int argc, char* argv[] )
 { 
 	try { 
 		AppClient client;
-		OmmConsumer consumer( OmmConsumerConfig().operationModel( OmmConsumerConfig::UserDispatchEnum ).host( "localhost:14002" ).username( "user" ) );
+		OmmConsumer consumer( OmmConsumerConfig().operationModel( OmmConsumerConfig::UserDispatchEnum ));
 		client.setOmmConsumer( consumer );
 		void* closure = (void*)1;
 		UInt64 handle = consumer.registerClient( ReqMsg().serviceName( "DIRECT_FEED" ).name( "IBM.N" ), client, closure );

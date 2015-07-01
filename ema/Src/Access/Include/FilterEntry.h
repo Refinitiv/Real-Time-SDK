@@ -17,7 +17,7 @@
 
 	\code
 
-	decodeFilterList( const FilterList& flist )
+	decodeFilterList( const FilterList& fList )
 	{
 		while ( !fList.forth() )
 		{

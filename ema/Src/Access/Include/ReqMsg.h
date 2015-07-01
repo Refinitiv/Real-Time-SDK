@@ -307,11 +307,11 @@ public :
 	*/
 	ReqMsg& payload( const ComplexType& data );
 
-	/** Specifies Header.
-		@param[in] buffer an EmaBuffer containing header information
+	/** Specifies ExtendedHeader.
+		@param[in] buffer an EmaBuffer containing extendedHeader information
 		@return reference to this object
 	*/
-	ReqMsg& header( const EmaBuffer& Buffer );
+	ReqMsg& extendedHeader( const EmaBuffer& Buffer );
 
 	/** Specifies InitialImage.
 		@param[in] initialImage specifies if initial image / refresh is requested (default value is true)

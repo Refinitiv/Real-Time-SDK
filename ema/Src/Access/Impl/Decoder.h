@@ -49,7 +49,7 @@ public :
 	// RsslBuffer -> buffer containing actual wire data
 	virtual void setRsslData( RsslDecodeIterator* , RsslBuffer* ) = 0;
 
-	virtual void setServiceName( const char* , UInt32 ) {}
+	virtual void setServiceName( const char* , UInt32 , bool nullTerm = true ) {}
 
 	virtual const Data* getSummaryData() const { return 0; }
 
@@ -70,9 +70,15 @@ protected :
 	// UInt8 -> major rwf version
 	// UInt8 -> minor rwf version
 	// Rsslbuffer -> buffer containing actual wire format data
-	void setRsslData( Data* , OmmError::ErrorCode , RsslDecodeIterator* , RsslBuffer* ) const;
+	Data* setRsslData( Data* , OmmError::ErrorCode , RsslDecodeIterator* , RsslBuffer* ) const;
 
 	void create( Data* , DataType::DataTypeEnum ) const;
+
+	void createLoadPool( Data**& );
+
+	void destroyLoadPool( Data**& );
+
+	Data* setRsslData( Data** , RsslDataType rsslType, RsslDecodeIterator* , RsslBuffer* , const RsslDataDictionary* , void* localDb ) const;
 };
 
 }

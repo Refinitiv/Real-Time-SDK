@@ -18,8 +18,6 @@ FilterListEncoder::FilterListEncoder() :
  _rsslFilterList(),
  _rsslFilterEntry()
 {
-	rsslClearFilterList( &_rsslFilterList );
-	rsslClearFilterEntry( &_rsslFilterEntry );
 }
 
 FilterListEncoder::~FilterListEncoder()

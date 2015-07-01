@@ -53,7 +53,7 @@ public :
 
 	bool hasPayload() const;
 
-	bool hasHeader() const;
+	bool hasExtendedHeader() const;
 
 	bool hasState() const;
 
@@ -73,7 +73,7 @@ public :
 
 	UInt32 getFilter() const;
 
-	const EmaBuffer& getHeader() const;
+	const EmaBuffer& getExtendedHeader() const;
 
 	bool hasItemGroup() const;
 
@@ -95,7 +95,7 @@ public :
 
 	bool getPrivateStream() const;
 
-	void setServiceName( const char* , UInt32 );
+	void setServiceName( const char* , UInt32 , bool nullTerm = true );
 
 	const EmaBuffer& getHexBuffer() const;
 
@@ -117,7 +117,7 @@ private :
 
 	mutable EmaBufferInt				_itemGroup;
 
-	mutable NoDataImpl					_state;
+	mutable OmmState					_state;
 
 	mutable EmaBufferInt				_hexBuffer;
 

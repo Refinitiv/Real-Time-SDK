@@ -148,7 +148,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:af864c084d57e8bdd19f6af7d4abfcd11"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00068.html#af864c084d57e8bdd19f6af7d4abfcd11">hasTotalCountHint</a> () const </td></tr>
 <tr class="memitem:a834e1856a46bd5b8df0d983712ad9caa"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00068.html#a834e1856a46bd5b8df0d983712ad9caa">getSortable</a> () const </td></tr>
 <tr class="memitem:a890e64bdb9380f188b418270268b80ce"><td class="memItemLeft" align="right" valign="top">UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00068.html#a890e64bdb9380f188b418270268b80ce">getTotalCountHint</a> () const </td></tr>
-<tr class="memitem:a220d703297a5ada8bba25187c3020690"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00066.html">Summary</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00068.html#a220d703297a5ada8bba25187c3020690">getSummary</a> () const </td></tr>
+<tr class="memitem:a93830dce3ebc667bbd76400315a29b67"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00066.html">SummaryData</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00068.html#a93830dce3ebc667bbd76400315a29b67">getSummaryData</a> () const </td></tr>
 <tr class="memitem:a2c3c9587b936e67491ddfc3b4e10e323"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00069.html">VectorEntry</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00068.html#a2c3c9587b936e67491ddfc3b4e10e323">getEntry</a> () const </td></tr>
 <tr><td colspan="2"><div class="groupHeader">Operations</div></td></tr>
 <tr class="memitem:a96acc9bf6cc8d421c73313d2ab2793d5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00068.html">Vector</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00068.html#a96acc9bf6cc8d421c73313d2ab2793d5">clear</a> ()</td></tr>
@@ -156,7 +156,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a9cca34b3e3b97f3ef5c95ae9974d0770"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00068.html">Vector</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00068.html#a9cca34b3e3b97f3ef5c95ae9974d0770">complete</a> ()</td></tr>
 <tr class="memitem:a2c019e970e4e81570ba19acabf5945bb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00068.html">Vector</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00068.html#a2c019e970e4e81570ba19acabf5945bb">sortable</a> (bool <a class="el" href="a00068.html#a2c019e970e4e81570ba19acabf5945bb">sortable</a>=false)</td></tr>
 <tr class="memitem:a382c858e5a42a80a0d774105efc0d38c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00068.html">Vector</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00068.html#a382c858e5a42a80a0d774105efc0d38c">totalCountHint</a> (UInt32 <a class="el" href="a00068.html#a382c858e5a42a80a0d774105efc0d38c">totalCountHint</a>)</td></tr>
-<tr class="memitem:a829ab0ea95280ee7cc4d4781f00b96cc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00068.html">Vector</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00068.html#a829ab0ea95280ee7cc4d4781f00b96cc">summary</a> (const <a class="el" href="a00004.html">ComplexType</a> &amp;data)</td></tr>
+<tr class="memitem:ae6b603ada97464a460e639fff15a019f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00068.html">Vector</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00068.html#ae6b603ada97464a460e639fff15a019f">summaryData</a> (const <a class="el" href="a00004.html">ComplexType</a> &amp;data)</td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p><a class="el" href="a00068.html" title="Vector is a homogeneous container of complex data type entries.">Vector</a> entries are identified by index.</p>
@@ -167,23 +167,23 @@ Public Member Functions</h2></td></tr>
 </ul>
 <p>The first method of adding of already populated containers allows for easy data manipulation but incurs additional memory copy. This method is useful in applications extracting data containers from some messages or containers and then setting them on other containers.</p>
 <p>The second method allows for fast container population since it avoids additional memory copy incurred by the first method. This method is useful in source applications setting OMM data from native data formats.</p>
-<p>The following code snippet shows addition of entry and summary to <a class="el" href="a00068.html" title="Vector is a homogeneous container of complex data type entries.">Vector</a>.</p>
+<p>The following code snippet shows addition of entry and summaryData to <a class="el" href="a00068.html" title="Vector is a homogeneous container of complex data type entries.">Vector</a>.</p>
 <div class="fragment"><pre class="fragment">    FieldList fList;
     fList.addInt( 1, 1 ).addUInt( 100, 2 ).addArray( 2000, Array().addInt( 1 ).addInt( 2 ).<a class="code" href="a00068.html#a9cca34b3e3b97f3ef5c95ae9974d0770">complete</a>() ).complete();
 
     <a class="code" href="a00068.html#a0fc43a06253bcf64af9e1c4c2faa22f7">Vector</a> vector;
     vector.sortable( <span class="keyword">true</span> ).
         <a class="code" href="a00068.html#a382c858e5a42a80a0d774105efc0d38c">totalCountHint</a>( 1 ).
-        <a class="code" href="a00068.html#a829ab0ea95280ee7cc4d4781f00b96cc">summary</a>( fList ).
+        <a class="code" href="a00068.html#ae6b603ada97464a460e639fff15a019f">summaryData</a>( fList ).
         <a class="code" href="a00068.html#ad27586e2349b7f474e6160d4ee658b74">add</a>( 1, <a class="code" href="a00069.html#a640186581823af3a0d476a58c5e400ada90fd0420f81833e23ee9aa232a3fc394">VectorEntry::SetEnum</a>, fList ).
         <a class="code" href="a00068.html#a9cca34b3e3b97f3ef5c95ae9974d0770">complete</a>();
 </pre></div><p>The following code snippet shows extracting of <a class="el" href="a00068.html" title="Vector is a homogeneous container of complex data type entries.">Vector</a> and its content.</p>
 <div class="fragment"><pre class="fragment">    <span class="keywordtype">void</span> decodeVector( <span class="keyword">const</span> <a class="code" href="a00068.html#a0fc43a06253bcf64af9e1c4c2faa22f7">Vector</a>&amp; vector )
     {
-        <span class="keywordflow">switch</span> ( vector.getSummary().getDataType() )
+        <span class="keywordflow">switch</span> ( vector.getSummaryData().getDataType() )
         {
         <span class="keywordflow">case</span> <a class="code" href="a00006.html#a00b6b8b97b2425aa6d71a100ad70c0f0a1960065e8455c9fdd53c2f2b42fcdb64">DataType::FieldListEnum</a> :
-            decodeFieldList( vector.getSummary().getFieldList() );
+            decodeFieldList( vector.getSummaryData().getFieldList() );
             <span class="keywordflow">break</span>;
         <span class="keywordflow">case</span> <a class="code" href="a00006.html#a00b6b8b97b2425aa6d71a100ad70c0f0ae1fc1137764a910645a904928e322107">DataType::NoDataEnum</a> :
             <span class="keywordflow">break</span>;
@@ -212,7 +212,7 @@ This class is designed to efficiently perform setting and extracting of <a class
 Objects of this class are not cache-able. </dd>
 <dd>
 All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free Method</a>.</dd></dl>
-<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00005.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a>, <a class="el" href="a00069.html" title="VectorEntry represents an entry of Vector.">VectorEntry</a>, <a class="el" href="a00066.html" title="Summary is used to convey Omm Summary information optionally present on Map, Series and Vector...">Summary</a>, <a class="el" href="a00061.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a>, <a class="el" href="a00060.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a>, <a class="el" href="a00067.html" title="UpdateMsg conveys changes to item data.">UpdateMsg</a>, <a class="el" href="a00065.html" title="StatusMsg conveys item state information.">StatusMsg</a>, <a class="el" href="a00017.html" title="GenericMsg allows applications to bidirectionally send messages without any implied message semantics...">GenericMsg</a>, <a class="el" href="a00058.html" title="PostMsg allows consumer applications to contribute content.">PostMsg</a>, <a class="el" href="a00002.html" title="AckMsg indicates success or failure of PostMsg.">AckMsg</a>, <a class="el" href="a00008.html" title="ElementList is a heterogeneous container of complex and primitive data type entries.">ElementList</a>, <a class="el" href="a00019.html" title="Map is a homogeneous container of complex data type entries.">Map</a>, <a class="el" href="a00068.html" title="Vector is a homogeneous container of complex data type entries.">Vector</a>, <a class="el" href="a00063.html" title="Series is a homogeneous container of complex data type entries.">Series</a>, <a class="el" href="a00015.html" title="FilterList is a heterogeneous container of complex data type entries.">FilterList</a>, <a class="el" href="a00045.html" title="OmmOpaque represents Opaque data format in Omm.">OmmOpaque</a>, <a class="el" href="a00056.html" title="OmmXml represents XML data format in Omm.">OmmXml</a>, <a class="el" href="a00022.html" title="OmmAnsiPage represents AnsiPage data format in Omm.">OmmAnsiPage</a>, <a class="el" href="a00036.html" title="OmmError represents received Omm data who fails to process properly.">OmmError</a>, <a class="el" href="a00011.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>, <a class="el" href="a00009.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> </dd></dl>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00005.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a>, <a class="el" href="a00069.html" title="VectorEntry represents an entry of Vector.">VectorEntry</a>, <a class="el" href="a00066.html" title="SummaryData is used to convey Omm SummaryData information optionally present on Map, Series and Vector.">SummaryData</a>, <a class="el" href="a00061.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a>, <a class="el" href="a00060.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a>, <a class="el" href="a00067.html" title="UpdateMsg conveys changes to item data.">UpdateMsg</a>, <a class="el" href="a00065.html" title="StatusMsg conveys item state information.">StatusMsg</a>, <a class="el" href="a00017.html" title="GenericMsg allows applications to bidirectionally send messages without any implied message semantics...">GenericMsg</a>, <a class="el" href="a00058.html" title="PostMsg allows consumer applications to contribute content.">PostMsg</a>, <a class="el" href="a00002.html" title="AckMsg indicates success or failure of PostMsg.">AckMsg</a>, <a class="el" href="a00008.html" title="ElementList is a heterogeneous container of complex and primitive data type entries.">ElementList</a>, <a class="el" href="a00019.html" title="Map is a homogeneous container of complex data type entries.">Map</a>, <a class="el" href="a00068.html" title="Vector is a homogeneous container of complex data type entries.">Vector</a>, <a class="el" href="a00063.html" title="Series is a homogeneous container of complex data type entries.">Series</a>, <a class="el" href="a00015.html" title="FilterList is a heterogeneous container of complex data type entries.">FilterList</a>, <a class="el" href="a00045.html" title="OmmOpaque represents Opaque data format in Omm.">OmmOpaque</a>, <a class="el" href="a00056.html" title="OmmXml represents XML data format in Omm.">OmmXml</a>, <a class="el" href="a00022.html" title="OmmAnsiPage represents AnsiPage data format in Omm.">OmmAnsiPage</a>, <a class="el" href="a00036.html" title="OmmError represents received Omm data who fails to process properly.">OmmError</a>, <a class="el" href="a00011.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>, <a class="el" href="a00009.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> </dd></dl>
 
 <p>Definition at line <a class="el" href="a00135_source.html#l00121">121</a> of file <a class="el" href="a00135_source.html">Vector.h</a>.</p>
 </div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
@@ -471,12 +471,12 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 
 </div>
 </div>
-<a class="anchor" id="a220d703297a5ada8bba25187c3020690"></a>
+<a class="anchor" id="a93830dce3ebc667bbd76400315a29b67"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="a00066.html">Summary</a>&amp; <a class="el" href="a00068.html#a220d703297a5ada8bba25187c3020690">thomsonreuters::ema::access::Vector::getSummary</a> </td>
+          <td class="memname">const <a class="el" href="a00066.html">SummaryData</a>&amp; <a class="el" href="a00068.html#a93830dce3ebc667bbd76400315a29b67">thomsonreuters::ema::access::Vector::getSummaryData</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -484,9 +484,9 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
       </table>
 </div>
 <div class="memdoc">
-<p>Returns the contained summary <a class="el" href="a00005.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a> based on the summary <a class="el" href="a00006.html" title="DataType class provides enumeration representing Omm data types.">DataType</a>. </p>
-<dl class="section remark"><dt>Remarks:</dt><dd><a class="el" href="a00066.html" title="Summary is used to convey Omm Summary information optionally present on Map, Series and Vector...">Summary</a> contains no data if <a class="el" href="a00066.html#a74018ad3042cd59150fa6cc20e8e22ac">Summary::getDataType()</a> returns <a class="el" href="a00006.html#a00b6b8b97b2425aa6d71a100ad70c0f0ae1fc1137764a910645a904928e322107">DataType::NoDataEnum</a> </dd></dl>
-<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00066.html" title="Summary is used to convey Omm Summary information optionally present on Map, Series and Vector...">Summary</a> </dd></dl>
+<p>Returns the contained summaryData <a class="el" href="a00005.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a> based on the summaryData <a class="el" href="a00006.html" title="DataType class provides enumeration representing Omm data types.">DataType</a>. </p>
+<dl class="section remark"><dt>Remarks:</dt><dd><a class="el" href="a00066.html" title="SummaryData is used to convey Omm SummaryData information optionally present on Map, Series and Vector.">SummaryData</a> contains no data if <a class="el" href="a00066.html#aacda49ed8f1b65ea1008be40d154e239">SummaryData::getDataType()</a> returns <a class="el" href="a00006.html#a00b6b8b97b2425aa6d71a100ad70c0f0ae1fc1137764a910645a904928e322107">DataType::NoDataEnum</a> </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00066.html" title="SummaryData is used to convey Omm SummaryData information optionally present on Map, Series and Vector.">SummaryData</a> </dd></dl>
 
 </div>
 </div>
@@ -566,7 +566,7 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 <p>Specifies Sortable. </p>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">sortable</td><td>specifies if this objecxt is sortable </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">sortable</td><td>specifies if this object is sortable </td></tr>
   </table>
   </dd>
 </dl>
@@ -574,12 +574,12 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 
 </div>
 </div>
-<a class="anchor" id="a829ab0ea95280ee7cc4d4781f00b96cc"></a>
+<a class="anchor" id="ae6b603ada97464a460e639fff15a019f"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00068.html">Vector</a>&amp; <a class="el" href="a00068.html#a829ab0ea95280ee7cc4d4781f00b96cc">thomsonreuters::ema::access::Vector::summary</a> </td>
+          <td class="memname"><a class="el" href="a00068.html">Vector</a>&amp; <a class="el" href="a00068.html#ae6b603ada97464a460e639fff15a019f">thomsonreuters::ema::access::Vector::summaryData</a> </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="a00004.html">ComplexType</a> &amp;&#160;</td>
           <td class="paramname"><em>data</em></td><td>)</td>
@@ -588,8 +588,8 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
       </table>
 </div>
 <div class="memdoc">
-<p>Specifies the <a class="el" href="a00066.html" title="Summary is used to convey Omm Summary information optionally present on Map, Series and Vector...">Summary</a> OMM <a class="el" href="a00005.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a>. </p>
-<dl class="section remark"><dt>Remarks:</dt><dd>Call to <a class="el" href="a00068.html#a829ab0ea95280ee7cc4d4781f00b96cc">summary( )</a> must happen prior to calling the <a class="el" href="a00068.html#ad27586e2349b7f474e6160d4ee658b74">add( )</a> method </dd></dl>
+<p>Specifies the <a class="el" href="a00066.html" title="SummaryData is used to convey Omm SummaryData information optionally present on Map, Series and Vector.">SummaryData</a> OMM <a class="el" href="a00005.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a>. </p>
+<dl class="section remark"><dt>Remarks:</dt><dd>Call to <a class="el" href="a00068.html#ae6b603ada97464a460e639fff15a019f">summaryData( )</a> must happen prior to calling the <a class="el" href="a00068.html#ad27586e2349b7f474e6160d4ee658b74">add( )</a> method </dd></dl>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
     <tr><td class="paramname"><a class="el" href="a00043.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if an error is detected (exception will specify the cause of the error) </td></tr>
@@ -598,7 +598,7 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 </dl>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">summary</td><td>specifies complex type as summary </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">summaryData</td><td>specifies complex type as summaryData </td></tr>
   </table>
   </dd>
 </dl>
@@ -668,7 +668,7 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Fri May 29 2015</td>
+			<td><p class="smallfont">Mon Jun 29 2015</td>
           </tr>
         </table>
         </td>

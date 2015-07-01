@@ -2,15 +2,15 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{8C10B440-1E07-4A8C-92BB-3C8801E93E60}</UniqueIdentifier>
+      <UniqueIdentifier>{A3EB6A49-4C3F-4DC7-BE9A-8CEA5CB2D8E7}</UniqueIdentifier>
       <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{51753617-D950-46B4-AEEA-C71E1C726070}</UniqueIdentifier>
+      <UniqueIdentifier>{01DCB043-2891-4509-817D-350A3322551A}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
     <Filter Include="Resource Files">
-      <UniqueIdentifier>{ED8D1CC1-3DBA-4171-B900-2B035299692F}</UniqueIdentifier>
+      <UniqueIdentifier>{4F8E4CFB-7BF2-4793-A7FB-A776186BCD75}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
     </Filter>
   </ItemGroup>
@@ -447,7 +447,7 @@
 	<ClCompile Include="Impl\StatusMsgEncoder.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
-	<ClCompile Include="Impl\Summary.cpp">
+	<ClCompile Include="Impl\SummaryData.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
 	<ClCompile Include="Impl\Thread.cpp">
@@ -960,7 +960,7 @@
 		<ClInclude Include="Include\StatusMsg.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
-		<ClInclude Include="Include\Summary.h">
+		<ClInclude Include="Include\SummaryData.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Include\UpdateMsg.h">

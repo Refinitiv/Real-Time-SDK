@@ -33,7 +33,6 @@ ReqMsgDecoder::ReqMsgDecoder() :
 
 ReqMsgDecoder::~ReqMsgDecoder()
 {
-	StaticDecoder::morph( &_qos, DataType::NoDataEnum );
 }
 
 void ReqMsgDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslMsg* rsslMsg, const RsslDataDictionary* rsslDictionary )
@@ -89,28 +88,32 @@ void ReqMsgDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuf
 	}
 
 	retCode = rsslDecodeMsg( &decodeIter, _pRsslMsg );
+
 	switch ( retCode )
 	{
 	case RSSL_RET_SUCCESS :
 		_errorCode = OmmError::NoErrorEnum;
-		break;
+		StaticDecoder::setRsslData( &_attrib, &_pRsslMsg->msgBase.msgKey.encAttrib,
+									hasAttrib() ? _pRsslMsg->msgBase.msgKey.attribContainerType : RSSL_DT_NO_DATA, majVer, minVer, _pRsslDictionary );
+		StaticDecoder::setRsslData( &_payload, &_pRsslMsg->msgBase.encDataBody, _pRsslMsg->msgBase.containerType, majVer, minVer, _pRsslDictionary );
+		setQosInt();
+		return;
 	case RSSL_RET_ITERATOR_OVERRUN :
 		_errorCode = OmmError::IteratorOverrunEnum;
-		break;
+		Decoder::setRsslData( &_attrib, _errorCode, &decodeIter, rsslBuffer );
+		Decoder::setRsslData( &_payload, _errorCode, &decodeIter, rsslBuffer );
+		return;
 	case RSSL_RET_INCOMPLETE_DATA :
 		_errorCode = OmmError::IncompleteDataEnum;
-		break;
+		Decoder::setRsslData( &_attrib, _errorCode, &decodeIter, rsslBuffer );
+		Decoder::setRsslData( &_payload, _errorCode, &decodeIter, rsslBuffer );
+		return;
 	default :
 		_errorCode = OmmError::UnknownErrorEnum;
-		break;
+		Decoder::setRsslData( &_attrib, _errorCode, &decodeIter, rsslBuffer );
+		Decoder::setRsslData( &_payload, _errorCode, &decodeIter, rsslBuffer );
+		return;
 	}
-
-	StaticDecoder::setRsslData( &_attrib, &_pRsslMsg->msgBase.msgKey.encAttrib,
-		hasAttrib() ? _pRsslMsg->msgBase.msgKey.attribContainerType : RSSL_DT_NO_DATA, majVer, minVer, _pRsslDictionary );
-
-	StaticDecoder::setRsslData( &_payload, &_pRsslMsg->msgBase.encDataBody, _pRsslMsg->msgBase.containerType, majVer, minVer, _pRsslDictionary );
-
-	setQosInt();
 }
 
 void ReqMsgDecoder::setRsslData( RsslDecodeIterator* , RsslBuffer* )
@@ -157,7 +160,7 @@ bool ReqMsgDecoder::hasPayload() const
 	return _pRsslMsg->msgBase.containerType != RSSL_DT_NO_DATA ? true : false;
 }
 
-bool ReqMsgDecoder::hasHeader() const
+bool ReqMsgDecoder::hasExtendedHeader() const
 {
 	return ( _pRsslMsg->requestMsg.flags & RSSL_RQMF_HAS_EXTENDED_HEADER ) ? true : false;
 }
@@ -245,11 +248,11 @@ UInt32 ReqMsgDecoder::getFilter() const
 	return _pRsslMsg->msgBase.msgKey.filter;
 }
 
-const EmaBuffer& ReqMsgDecoder::getHeader() const
+const EmaBuffer& ReqMsgDecoder::getExtendedHeader() const
 {
-	if ( !hasHeader() )
+	if ( !hasExtendedHeader() )
 	{
-		EmaString temp( "Attempt to getHeader() while it is NOT set." );
+		EmaString temp( "Attempt to getExtendedHeader() while it is NOT set." );
 		throwIueException( temp );
 	}
 
@@ -445,11 +448,11 @@ void ReqMsgDecoder::setQosInt()
 	StaticDecoder::setRsslData( &_qos, rsslQos );
 }
 
-void ReqMsgDecoder::setServiceName( const char* serviceName, UInt32 length )
+void ReqMsgDecoder::setServiceName( const char* serviceName, UInt32 length, bool nullTerm )
 {
 	_serviceNameSet = length ? true : false;
 
-	_serviceName.setInt( serviceName, length, false );
+	_serviceName.setInt( serviceName, length, nullTerm );
 }
 
 const EmaBuffer& ReqMsgDecoder::getHexBuffer() const

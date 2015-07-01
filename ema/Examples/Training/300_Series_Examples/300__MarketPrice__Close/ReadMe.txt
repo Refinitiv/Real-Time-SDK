@@ -25,8 +25,6 @@ The 300__MarketPrice__Close implements the following high level steps:
 + Instantiates AppClient object that receives and processes item messages
 + Instantiates and modifies OmmConsumerConfig object
   - sets user name to "user"
-  - sets host name on the preconfigured connection to "localhost"
-  - sets port on the preconfigured connection to "14002"
 + Instantiates an OmmConsumer object which initializes the connection 
   and logs into the specified server.
 + Opens a streaming item interest

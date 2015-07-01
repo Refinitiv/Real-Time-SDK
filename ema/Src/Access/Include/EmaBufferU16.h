@@ -39,14 +39,14 @@ public :
 	EmaBufferU16();
 
 	/** Assignment constructor
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] buf pointer to the memory containing copied in buffer
 		@param[in] length specifies number of characters to copy
 	*/
 	EmaBufferU16( const UInt16* buf, UInt32 length );
 
 	/** Copy constructor.
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] buf copied in EmaBufferU16 object
 	*/
 	EmaBufferU16( const EmaBufferU16& buf );
@@ -67,14 +67,14 @@ public :
 	EmaBufferU16& clear();
 
 	/** Assignment operator.
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] buf copied in EmaBufferU16 object
 		@return reference to this object
 	*/
 	EmaBufferU16& operator=( const EmaBufferU16& buf );
 
 	/** Method to set Buffer.
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] buf pointer to the memory are containing copied in buffer
 		@param[in] length specifies number of characters to copy
 		@return reference to this object
@@ -82,21 +82,21 @@ public :
 	EmaBufferU16& setFrom( const UInt16* buf, UInt32 length );
 
 	/** method to append this object with the passed in EmaBufferU16 object
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] buf EmaBufferU16 to append to this object
 		@return reference to this object
 	*/
 	EmaBufferU16& append( const EmaBufferU16& buf );
 
 	/** method to append this object with the passed in 16 byte long character
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] c character to append to this object
 		@return reference to this object
 	*/
 	EmaBufferU16& append( UInt16 c );
 
 	/** method to append this object with the passed in char buffer
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] buf pointer to the memory containing appended buffer
 		@param[in] length specifies number of characters to append
 		@return reference to this object
@@ -104,21 +104,21 @@ public :
 	EmaBufferU16& append( const UInt16* buf, UInt32 length );
 
 	/** method to append this object with the passed in EmaBufferU16 object
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] buf EmaBuffer to append to this object
 		@return reference to this object
 	*/
 	EmaBufferU16& operator+=( const EmaBufferU16& buf );
 	
 	/** method to append this object with the passed in 16 byte long char
-		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] c character to append to this object
 		@return reference to this object
 	*/
 	EmaBufferU16& operator+=( UInt16 );
 
 	/** read write index operator
-		@throw OmmOutOfRangeException if passed in index is greater than thelength of the contained buffer
+		@throw OmmOutOfRangeException if passed in index is greater than the length of the contained buffer
 		@param[in] index specifies position to read or write
 		@return reference to the byte at the specified position
 	*/

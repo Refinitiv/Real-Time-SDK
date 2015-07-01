@@ -31,7 +31,6 @@ SeriesDecoder::SeriesDecoder() :
  _atEnd( false ),
  _atExit( false )
 {
-	rsslClearSeries( &_rsslSeries );
 }
 
 SeriesDecoder::~SeriesDecoder()

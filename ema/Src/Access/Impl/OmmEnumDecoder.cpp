@@ -12,12 +12,11 @@
 using namespace thomsonreuters::ema::access;
 
 OmmEnumDecoder::OmmEnumDecoder() :
- _rsslBuffer(),
+ _pRsslBuffer( 0 ),
  _rsslEnum( 0 ),
  _toString(),
  _hexBuffer(),
- _dataCode( Data::BlankEnum ),
- _toStringSet( false )
+ _dataCode( Data::BlankEnum )
 {
 }
 
@@ -38,62 +37,42 @@ void OmmEnumDecoder::setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDi
 {
 }
 
-void OmmEnumDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* rsslBuffer )
+void OmmEnumDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* pRsslBuffer )
 {
-	_rsslBuffer = *rsslBuffer;
+	_pRsslBuffer = pRsslBuffer;
 
-	_toStringSet = false;
-
-	RsslRet retCode = rsslDecodeEnum( dIter, &_rsslEnum );
-
-	switch ( retCode )
-	{
-	case RSSL_RET_BLANK_DATA :
-		_dataCode = Data::BlankEnum;
-		break;
-	case RSSL_RET_SUCCESS :
+	if ( rsslDecodeEnum( dIter, &_rsslEnum ) == RSSL_RET_SUCCESS )
 		_dataCode = Data::NoCodeEnum;
-		break;
-	case RSSL_RET_INCOMPLETE_DATA :
-	default :
-		{
-			_dataCode = Data::BlankEnum;
-			EmaString temp( "Failed to decode OmmEnum. Reason: " );
-			temp += rsslRetCodeToString( retCode );
-			throwIueException( temp );
-		}
-		break;
+	else
+	{
+		_dataCode = Data::BlankEnum;
+		_rsslEnum = 0;
 	}
 }
 
 const EmaString& OmmEnumDecoder::toString()
 {
-	if ( !_toStringSet )
+	if ( _dataCode == Data::BlankEnum )
 	{
-		if ( _dataCode == Data::BlankEnum )
-		{
-			_toStringSet = true;
-			_toString.set( "(blank data)" );
-			return _toString;
-		}
+		_toString.set( "(blank data)" );
+		return _toString;
+	}
 
-		char temp[256];
-		RsslBuffer tempBuffer;
-		tempBuffer.length = 256;
-		tempBuffer.data = temp;
-		RsslRet retCode = rsslPrimitiveToString( &_rsslEnum, RSSL_DT_ENUM, &tempBuffer );
+	char temp[256];
+	RsslBuffer tempBuffer;
+	tempBuffer.length = 256;
+	tempBuffer.data = temp;
+	RsslRet retCode = rsslPrimitiveToString( &_rsslEnum, RSSL_DT_ENUM, &tempBuffer );
 
-		if ( RSSL_RET_SUCCESS != retCode )
-		{
-			EmaString text( "Failed to convert OmmEnum to string. Reason: " );
-			text += rsslRetCodeToString( retCode );
-			throwIueException( text );
-		}
-		else
-		{
-			_toStringSet = true;
-			_toString.set( temp );
-		}
+	if ( RSSL_RET_SUCCESS != retCode )
+	{
+		EmaString text( "Failed to convert OmmEnum to string. Reason: " );
+		text += rsslRetCodeToString( retCode );
+		throwIueException( text );
+	}
+	else
+	{
+		_toString.set( temp );
 	}
 
 	return _toString;
@@ -106,7 +85,7 @@ UInt16 OmmEnumDecoder::getEnum() const
 
 const EmaBuffer& OmmEnumDecoder::getHexBuffer()
 {
-	_hexBuffer.setFromInt( _rsslBuffer.data, _rsslBuffer.length );
+	_hexBuffer.setFromInt( _pRsslBuffer->data, _pRsslBuffer->length );
 
 	return _hexBuffer.toBuffer();
 }

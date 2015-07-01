@@ -32,7 +32,6 @@ MapDecoder::MapDecoder() :
  _atEnd( false ),
  _atExit( false )
 {
-	rsslClearMap( &_rsslMap );
 }
 
 MapDecoder::~MapDecoder()

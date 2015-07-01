@@ -522,7 +522,7 @@ int emaProblemReport( void* pContext, const char* sourceFile, unsigned int line,
 	WideCharToMultiByte(CP_UTF8, 0, pWPosition, -1, appNameStr, MAX_PATH, NULL, NULL);
 	
 #else
-	char* appNameStr  = "EMA Application";
+	char* appNameStr  = (char *) "EMA Application";
 #endif 
 
 	SNPRINTF( reportBuffer, reportBufferLen,  "%s" 

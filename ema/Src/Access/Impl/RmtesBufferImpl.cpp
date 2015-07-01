@@ -71,7 +71,7 @@ RmtesBufferImpl::RmtesBufferImpl( const char* buf, UInt32 length ) :
 	
 	if ( _rsslBuffer.length )
 	{
-		if ( !rsslHasPartialRMTESUpdate( &_rsslBuffer ) )
+		if ( rsslHasPartialRMTESUpdate( &_rsslBuffer ) )
 		{
 			EmaString temp( "Failed to construct RmtesBufferImpl( const char*, UInt32 ) due to invalid data." );
 			throwIueException( temp );
@@ -522,6 +522,21 @@ void RmtesBufferImpl::apply( const RmtesBufferImpl& source )
 		}
 
 		RsslRet retCode = rsslRMTESApplyToCache( &_rsslBuffer, &_rsslCacheBuffer );
+
+		while ( RSSL_RET_BUFFER_TOO_SMALL == retCode )
+		{
+			free( _rsslCacheBuffer.data );
+
+			_rsslCacheBuffer.length += _rsslCacheBuffer.length;
+
+			_rsslCacheBuffer.data = (char*)malloc( _rsslCacheBuffer.allocatedLength );
+			if ( !_rsslCacheBuffer.data )
+			{
+				throwMeeException( "Failed to allocate memory in RmtesBufferImpl::apply( const RmtesBufferImpl& )" );
+				return;
+			}
+		}
+
 		if ( retCode < RSSL_RET_SUCCESS )
 		{
 			EmaString temp( "Failed to apply in RmtesBufferImpl::apply( const RmtesBufferImpl& ). Reason: " );
@@ -581,6 +596,20 @@ void RmtesBufferImpl::apply( const char* buf, UInt32 length )
 		}
 
 		RsslRet retCode = rsslRMTESApplyToCache( &_rsslBuffer, &_rsslCacheBuffer );
+		while ( RSSL_RET_BUFFER_TOO_SMALL == retCode )
+		{
+			free( _rsslCacheBuffer.data );
+
+			_rsslCacheBuffer.length += _rsslCacheBuffer.length;
+
+			_rsslCacheBuffer.data = (char*)malloc( _rsslCacheBuffer.allocatedLength );
+			if ( !_rsslCacheBuffer.data )
+			{
+				throwMeeException( "Failed to allocate memory in RmtesBufferImpl::apply( const char* , UInt32 )" );
+				return;
+			}
+		}
+
 		if ( retCode < RSSL_RET_SUCCESS )
 		{
 			EmaString temp( "Failed to apply in RmtesBufferImpl::apply( const char* , UInt32 ). Reason: " );

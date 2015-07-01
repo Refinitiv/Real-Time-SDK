@@ -21,8 +21,6 @@ MapEncoder::MapEncoder() :
  _rsslMap(),
  _rsslMapEntry()
 {
-	rsslClearMap( &_rsslMap );
-	rsslClearMapEntry( &_rsslMapEntry );
 }
 
 MapEncoder::~MapEncoder()
@@ -172,7 +170,7 @@ void MapEncoder::totalCountHint( UInt32 totalCountHint )
 	}
 }
 
-void MapEncoder::summary( const ComplexType& data )
+void MapEncoder::summaryData( const ComplexType& data )
 {
 	if ( !_containerInitialized )
 	{
@@ -183,13 +181,13 @@ void MapEncoder::summary( const ComplexType& data )
 		}
 		else
 		{
-			EmaString temp( "Invalid attempt to pass not completed container to summary()." );
+			EmaString temp( "Invalid attempt to pass not completed container to summaryData()." );
 			throwIueException( temp );
 		}
 	}
 	else
 	{
-		EmaString temp( "Invalid attempt to call summary() when container is not empty." );
+		EmaString temp( "Invalid attempt to call summaryData() when container is not empty." );
 		throwIueException( temp );
 	}
 }
@@ -415,8 +413,8 @@ void MapEncoder::addKeyTime( UInt8 hour, UInt8 minute, UInt8 second, UInt16 mill
 		temp.append( (UInt32)hour ).append( ":" ).
 			append( (UInt32)minute ).append( ":" ).
 			append( (UInt32)second ).append( "." ).
-			append( (UInt32)second ).append( "." ).
-			append( (UInt32)second ).append( "." ).
+			append( (UInt32)millisecond ).append( "." ).
+			append( (UInt32)microsecond ).append( "." ).
 			append( (UInt32)nanosecond ).append( "'." );
 		throwOorException( temp );
 		return;
@@ -467,8 +465,8 @@ void MapEncoder::addKeyDateTime( UInt16 year, UInt8 month, UInt8 day, UInt8 hour
 			append( (UInt32)hour ).append( ":" ).
 			append( (UInt32)minute ).append( ":" ).
 			append( (UInt32)second ).append( "." ).
-			append( (UInt32)second ).append( "." ).
-			append( (UInt32)second ).append( "." ).
+			append( (UInt32)millisecond ).append( "." ).
+			append( (UInt32)microsecond ).append( "." ).
 			append( (UInt32)nanosecond ).append( "'." );
 		throwOorException( temp );
 		return;

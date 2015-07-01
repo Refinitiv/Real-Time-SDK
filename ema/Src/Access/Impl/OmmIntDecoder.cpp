@@ -12,12 +12,11 @@
 using namespace thomsonreuters::ema::access;
 
 OmmIntDecoder::OmmIntDecoder() :
- _rsslBuffer(),
+ _pRsslBuffer( 0 ),
  _rsslInt( 0 ),
  _toString(),
  _hexBuffer(),
- _dataCode( Data::BlankEnum ),
- _toStringSet( false )
+ _dataCode( Data::BlankEnum )
 {
 }
 
@@ -38,62 +37,42 @@ void OmmIntDecoder::setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDic
 {
 }
 
-void OmmIntDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* rsslBuffer )
+void OmmIntDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* pRsslBuffer )
 {
-	_rsslBuffer = *rsslBuffer;
+	_pRsslBuffer = pRsslBuffer;
 
-	_toStringSet = false;
-
-	RsslRet retCode = rsslDecodeInt( dIter, &_rsslInt );
-
-	switch ( retCode )
-	{
-	case RSSL_RET_BLANK_DATA :
-		_dataCode = Data::BlankEnum;
-		break;
-	case RSSL_RET_SUCCESS :
+	if ( rsslDecodeInt( dIter, &_rsslInt ) == RSSL_RET_SUCCESS )
 		_dataCode = Data::NoCodeEnum;
-		break;
-	case RSSL_RET_INCOMPLETE_DATA :
-	default :
-		{
-			_dataCode = Data::BlankEnum;
-			EmaString temp( "Failed to decode OmmInt. Reason: " );
-			temp += rsslRetCodeToString( retCode );
-			throwIueException( temp );
-		}
-		break;
+	else
+	{
+		_dataCode = Data::BlankEnum;
+		_rsslInt = 0;
 	}
 }
 
 const EmaString& OmmIntDecoder::toString()
 {
-	if ( !_toStringSet )
+	if ( _dataCode == Data::BlankEnum )
 	{
-		if ( _dataCode == Data::BlankEnum )
-		{
-			_toStringSet = true;
-			_toString.set( "(blank data)" );
-			return _toString;
-		}
+		_toString.set( "(blank data)" );
+		return _toString;
+	}
 
-		char temp[256];
-		RsslBuffer tempBuffer;
-		tempBuffer.length = 256;
-		tempBuffer.data = temp;
-		RsslRet retCode = rsslPrimitiveToString( &_rsslInt, RSSL_DT_INT, &tempBuffer );
+	char temp[256];
+	RsslBuffer tempBuffer;
+	tempBuffer.length = 256;
+	tempBuffer.data = temp;
+	RsslRet retCode = rsslPrimitiveToString( &_rsslInt, RSSL_DT_INT, &tempBuffer );
 
-		if ( RSSL_RET_SUCCESS != retCode )
-		{
-			EmaString text( "Failed to convert OmmInt to string. Reason: " );
-			text += rsslRetCodeToString( retCode );
-			throwIueException( text );
-		}
-		else
-		{
-			_toStringSet = true;
-			_toString.set( temp );
-		}
+	if ( RSSL_RET_SUCCESS != retCode )
+	{
+		EmaString text( "Failed to convert OmmInt to string. Reason: " );
+		text += rsslRetCodeToString( retCode );
+		throwIueException( text );
+	}
+	else
+	{
+		_toString.set( temp );
 	}
 
 	return _toString;
@@ -106,7 +85,7 @@ Int64 OmmIntDecoder::getInt() const
 
 const EmaBuffer& OmmIntDecoder::getHexBuffer()
 {
-	_hexBuffer.setFromInt( _rsslBuffer.data, _rsslBuffer.length );
+	_hexBuffer.setFromInt( _pRsslBuffer->data, _pRsslBuffer->length );
 
 	return _hexBuffer.toBuffer();
 }

@@ -53,7 +53,7 @@ public :
 
 	bool hasPayload() const;
 
-	bool hasHeader() const;
+	bool hasExtendedHeader() const;
 
 	bool hasSeqNum() const;
 
@@ -85,13 +85,13 @@ public :
 
 	UInt8 getNackCode() const;
 
-	const EmaBuffer& getHeader() const;
+	const EmaBuffer& getExtendedHeader() const;
 
 	const EmaBuffer& getHexBuffer() const;
 
 	bool getPrivateStream() const;
 
-	void setServiceName( const char* , UInt32 );
+	void setServiceName( const char* , UInt32 , bool nullTerm = true );
 
 private :
 

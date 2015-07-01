@@ -38,8 +38,6 @@ FieldListEncoder::FieldListEncoder() :
  _rsslFieldList(),
  _rsslFieldEntry()
 {
-	rsslClearFieldList( &_rsslFieldList );
-	rsslClearFieldEntry( &_rsslFieldEntry );
 }
 
 FieldListEncoder::~FieldListEncoder()
@@ -323,8 +321,8 @@ void FieldListEncoder::addTime( Int16 fieldId, UInt8 hour, UInt8 minute, UInt8 s
 		temp.append( (UInt32)hour ).append( ":" ).
 			append( (UInt32)minute ).append( ":" ).
 			append( (UInt32)second ).append( "." ).
-			append( (UInt32)second ).append( "." ).
-			append( (UInt32)second ).append( "." ).
+			append( (UInt32)millisecond ).append( "." ).
+			append( (UInt32)microsecond ).append( "." ).
 			append( (UInt32)nanosecond ).append( "'." );
 		throwOorException( temp );
 		return;
@@ -367,8 +365,8 @@ void FieldListEncoder::addDateTime( Int16 fieldId,
 			append( (UInt32)hour ).append( ":" ).
 			append( (UInt32)minute ).append( ":" ).
 			append( (UInt32)second ).append( "." ).
-			append( (UInt32)second ).append( "." ).
-			append( (UInt32)second ).append( "." ).
+			append( (UInt32)millisecond ).append( "." ).
+			append( (UInt32)microsecond ).append( "." ).
 			append( (UInt32)nanosecond ).append( "'." );
 		throwOorException( temp );
 		return;

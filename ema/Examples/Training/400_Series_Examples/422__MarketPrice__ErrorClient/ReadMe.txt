@@ -26,8 +26,6 @@ The 422__MarketPrice__ErrorClient implements the following high level steps:
 + Instantiates AppErrorClient object that receives error messages
 + Instantiates and modifies OmmConsumerConfig object
   - sets user name to "user"
-  - sets host name on the preconfigured connection to "localhost"
-  - sets port on the preconfigured connection to "14002"
 + Instantiates OmmConsumer object which initializes connection and logins into
   specified server
   - handles errors with AppErrorClient

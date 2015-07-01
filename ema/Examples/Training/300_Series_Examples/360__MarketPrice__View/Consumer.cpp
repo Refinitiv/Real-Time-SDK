@@ -87,7 +87,7 @@ int main( int argc, char* argv[] )
 { 
 	try { 
 		AppClient client;
-		OmmConsumer consumer( OmmConsumerConfig().host( "localhost:14002" ).username( "user" ) );
+		OmmConsumer consumer( OmmConsumerConfig().username( "user" ) );
 		consumer.registerClient( ReqMsg().serviceName( "DIRECT_FEED" ).name( "IBM.N" )
 			.payload( ElementList().addUInt( ":ViewType", 1 ).
 				addArray( ":ViewData", OmmArray().fixedWidth( 2 ).addInt( 22 ).addInt( 25 ).complete() ).complete() ), client );

@@ -1,0 +1,4 @@
+DIST = $(shell lsb_release -i)
+OS_VER= $(shell lsb_release -r | sed 's/\.[0-9]//')
+CC= /usr/bin/g++
+PWD=$(shell pwd)

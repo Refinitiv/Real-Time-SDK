@@ -111,17 +111,13 @@ void StaticDecoder::setData( Data* pData, const RsslDataDictionary* dictionary )
 									&pData->getEncoder().getRsslBuffer(), dictionary, 0 );
 }
 
-void StaticDecoder::setRsslData( Data* pData, RsslQos* pRsslQos )
+void StaticDecoder::setRsslData( OmmQos* pData, RsslQos* pRsslQos )
 {
-	morph( pData, DataType::QosEnum );
-
 	static_cast<OmmQosDecoder&>( pData->getDecoder() ).setRsslData( pRsslQos );
 }
 
-void StaticDecoder::setRsslData( Data* pData, RsslState* pRsslState )
+void StaticDecoder::setRsslData( OmmState* pData, RsslState* pRsslState )
 {
-	morph( pData, DataType::StateEnum );
-
 	static_cast<OmmStateDecoder&>( pData->getDecoder() ).setRsslData( pRsslState );
 }
 

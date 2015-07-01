@@ -119,7 +119,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00123"></a>00123 <span class="preprocessor">#include &quot;Access/Include/OmmReal.h&quot;</span>
 <a name="l00124"></a>00124 <span class="preprocessor">#include &quot;Access/Include/OmmState.h&quot;</span>
 <a name="l00125"></a>00125 <span class="preprocessor">#include &quot;Access/Include/MapEntry.h&quot;</span>
-<a name="l00126"></a>00126 <span class="preprocessor">#include &quot;Access/Include/Summary.h&quot;</span>
+<a name="l00126"></a>00126 <span class="preprocessor">#include &quot;Access/Include/SummaryData.h&quot;</span>
 <a name="l00127"></a>00127 
 <a name="l00128"></a>00128 <span class="keyword">namespace </span>thomsonreuters {
 <a name="l00129"></a>00129 
@@ -166,7 +166,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00207"></a>00207 
 <a name="l00212"></a>00212     UInt32 getTotalCountHint() <span class="keyword">const</span>;
 <a name="l00213"></a>00213 
-<a name="l00218"></a>00218     <span class="keyword">const</span> <a class="code" href="a00066.html" title="Summary is used to convey Omm Summary information optionally present on Map, Series and Vector...">Summary</a>&amp; getSummary() <span class="keyword">const</span>;
+<a name="l00218"></a>00218     <span class="keyword">const</span> <a class="code" href="a00066.html" title="SummaryData is used to convey Omm SummaryData information optionally present on Map, Series and Vector.">SummaryData</a>&amp; getSummaryData() <span class="keyword">const</span>;
 <a name="l00220"></a>00220 
 <a name="l00222"></a>00222 
 <a name="l00223"></a>00223 
@@ -176,7 +176,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00234"></a>00234 
 <a name="l00239"></a>00239     <a class="code" href="a00019.html" title="Map is a homogeneous container of complex data type entries.">Map</a>&amp; totalCountHint( UInt32 totalCountHint );
 <a name="l00240"></a>00240 
-<a name="l00247"></a>00247     <a class="code" href="a00019.html" title="Map is a homogeneous container of complex data type entries.">Map</a>&amp; summary( <span class="keyword">const</span> <a class="code" href="a00004.html" title="ComplexType class is a parent class from whom all complex data types inherit.">ComplexType</a>&amp; summary );
+<a name="l00247"></a>00247     <a class="code" href="a00019.html" title="Map is a homogeneous container of complex data type entries.">Map</a>&amp; summaryData( <span class="keyword">const</span> <a class="code" href="a00004.html" title="ComplexType class is a parent class from whom all complex data types inherit.">ComplexType</a>&amp; summaryData );
 <a name="l00248"></a>00248 
 <a name="l00256"></a>00256     <a class="code" href="a00019.html" title="Map is a homogeneous container of complex data type entries.">Map</a>&amp; addKeyInt( Int64 key, <a class="code" href="a00020.html#aed8b40ab1ed01424b963661b1ba99287">MapEntry::MapAction</a> action,
 <a name="l00257"></a>00257         <span class="keyword">const</span> <a class="code" href="a00004.html" title="ComplexType class is a parent class from whom all complex data types inherit.">ComplexType</a>&amp; value, <span class="keyword">const</span> <a class="code" href="a00009.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a>&amp; permissionData = <a class="code" href="a00009.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a>() );
@@ -246,7 +246,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00470"></a>00470 
 <a name="l00471"></a>00471     <span class="keyword">mutable</span> <a class="code" href="a00011.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>       _toString;
 <a name="l00472"></a>00472     <a class="code" href="a00020.html" title="MapEntry represents an entry of Map.">MapEntry</a>                _entry;
-<a name="l00473"></a>00473     <a class="code" href="a00066.html" title="Summary is used to convey Omm Summary information optionally present on Map, Series and Vector...">Summary</a>                 _summary;
+<a name="l00473"></a>00473     <a class="code" href="a00066.html" title="SummaryData is used to convey Omm SummaryData information optionally present on Map, Series and Vector.">SummaryData</a>             _summary;
 <a name="l00474"></a>00474     MapDecoder*             _pDecoder;
 <a name="l00475"></a>00475     <span class="keyword">mutable</span> MapEncoder*     _pEncoder;
 <a name="l00476"></a>00476 
@@ -278,7 +278,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Fri May 29 2015</td>
+			<td><p class="smallfont">Mon Jun 29 2015</td>
           </tr>
         </table>
         </td>

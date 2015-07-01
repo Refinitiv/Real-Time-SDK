@@ -118,13 +118,15 @@ class LoginItem : public SingleItem
 {
 public :
 
-	static LoginItem* create( OmmConsumerImpl& , OmmConsumerClient& , void* );
+	static LoginItem* create( OmmConsumerImpl& , OmmConsumerClient& , void* , const LoginList& );
 
 	bool open( RsslRDMLoginRequest* , const LoginList& );
 	bool modify( const ReqMsg& );
 	bool submit( const PostMsg& );
 	bool submit( const GenericMsg& );
 	bool close();
+
+	ItemType getType() const { return Item::LoginItemEnum; }
 
 private :
 
@@ -136,7 +138,7 @@ private :
 
 	const LoginList*			_loginList;
 
-	LoginItem( OmmConsumerImpl& , OmmConsumerClient& , void* );
+	LoginItem( OmmConsumerImpl& , OmmConsumerClient& , void* , const LoginList& );
 	LoginItem();
 	virtual ~LoginItem();
 	LoginItem( const LoginItem& );
@@ -162,8 +164,6 @@ public :
 	LoginItem* getLoginItem( const ReqMsg& , OmmConsumerClient& , void* );
 
 	void sendInternalMsg( LoginItem * );
-
-	void clearLoginItem( LoginItem* );
 
 	RsslReactorCallbackRet processAckMsg( RsslMsg* , RsslReactorChannel* , RsslRDMLoginMsgEvent* );
 	
@@ -195,7 +195,7 @@ private :
 
 	Login*							_requestLogin;
 
-	EmaList< Item >					_loginItems;
+	EmaVector< LoginItem* >			_loginItems;
 
 	RsslReactorCallbackRet processGenericMsg( RsslMsg* , RsslReactorChannel* , RsslRDMLoginMsgEvent* );
 	RsslReactorCallbackRet processRefreshMsg( RsslMsg* , RsslReactorChannel* , RsslRDMLoginMsgEvent* );

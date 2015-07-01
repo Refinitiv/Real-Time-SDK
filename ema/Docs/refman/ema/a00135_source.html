@@ -117,7 +117,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_ema_access_vector_h</span>
 <a name="l00011"></a>00011 <span class="preprocessor"></span>
 <a name="l00109"></a>00109 <span class="preprocessor">#include &quot;Access/Include/VectorEntry.h&quot;</span>
-<a name="l00110"></a>00110 <span class="preprocessor">#include &quot;Access/Include/Summary.h&quot;</span>
+<a name="l00110"></a>00110 <span class="preprocessor">#include &quot;Access/Include/SummaryData.h&quot;</span>
 <a name="l00111"></a>00111 
 <a name="l00112"></a>00112 <span class="keyword">namespace </span>thomsonreuters {
 <a name="l00113"></a>00113 
@@ -160,7 +160,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00179"></a>00179 
 <a name="l00184"></a>00184     UInt32 getTotalCountHint() <span class="keyword">const</span>;
 <a name="l00185"></a>00185 
-<a name="l00190"></a>00190     <span class="keyword">const</span> <a class="code" href="a00066.html" title="Summary is used to convey Omm Summary information optionally present on Map, Series and Vector...">Summary</a>&amp; getSummary() <span class="keyword">const</span>;
+<a name="l00190"></a>00190     <span class="keyword">const</span> <a class="code" href="a00066.html" title="SummaryData is used to convey Omm SummaryData information optionally present on Map, Series and Vector.">SummaryData</a>&amp; getSummaryData() <span class="keyword">const</span>;
 <a name="l00191"></a>00191 
 <a name="l00196"></a>00196     <span class="keyword">const</span> <a class="code" href="a00069.html" title="VectorEntry represents an entry of Vector.">VectorEntry</a>&amp; getEntry() <span class="keyword">const</span>;
 <a name="l00198"></a>00198 
@@ -177,7 +177,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00230"></a>00230 
 <a name="l00235"></a>00235     <a class="code" href="a00068.html" title="Vector is a homogeneous container of complex data type entries.">Vector</a>&amp; totalCountHint( UInt32 totalCountHint );
 <a name="l00236"></a>00236 
-<a name="l00243"></a>00243     <a class="code" href="a00068.html" title="Vector is a homogeneous container of complex data type entries.">Vector</a>&amp; summary( <span class="keyword">const</span> <a class="code" href="a00004.html" title="ComplexType class is a parent class from whom all complex data types inherit.">ComplexType</a>&amp; data );
+<a name="l00243"></a>00243     <a class="code" href="a00068.html" title="Vector is a homogeneous container of complex data type entries.">Vector</a>&amp; summaryData( <span class="keyword">const</span> <a class="code" href="a00004.html" title="ComplexType class is a parent class from whom all complex data types inherit.">ComplexType</a>&amp; data );
 <a name="l00245"></a>00245 
 <a name="l00246"></a>00246 <span class="keyword">private</span> :
 <a name="l00247"></a>00247 
@@ -189,7 +189,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00253"></a>00253 
 <a name="l00254"></a>00254     <span class="keyword">mutable</span> <a class="code" href="a00011.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>           _toString;
 <a name="l00255"></a>00255     <a class="code" href="a00069.html" title="VectorEntry represents an entry of Vector.">VectorEntry</a>                 _entry;
-<a name="l00256"></a>00256     <a class="code" href="a00066.html" title="Summary is used to convey Omm Summary information optionally present on Map, Series and Vector...">Summary</a>                     _summary;
+<a name="l00256"></a>00256     <a class="code" href="a00066.html" title="SummaryData is used to convey Omm SummaryData information optionally present on Map, Series and Vector.">SummaryData</a>                 _summary;
 <a name="l00257"></a>00257     VectorDecoder*              _pDecoder;
 <a name="l00258"></a>00258     <span class="keyword">mutable</span> VectorEncoder*      _pEncoder;
 <a name="l00259"></a>00259 
@@ -221,7 +221,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Fri May 29 2015</td>
+			<td><p class="smallfont">Mon Jun 29 2015</td>
           </tr>
         </table>
         </td>

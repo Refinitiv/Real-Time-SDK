@@ -48,8 +48,6 @@ private :
 	EmaBufferInt			_utf8Buffer;
 
 	Data::DataCode			_dataCode;
-
-	bool					_toStringSet;
 };
 
 }

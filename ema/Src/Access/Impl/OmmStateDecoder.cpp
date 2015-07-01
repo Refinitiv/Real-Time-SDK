@@ -13,15 +13,13 @@
 using namespace thomsonreuters::ema::access;
 
 OmmStateDecoder::OmmStateDecoder() :
- _rsslBuffer(),
+ _pRsslBuffer( 0 ),
  _rsslState(),
  _toString(),
  _statusText(),
  _hexBuffer(),
- _dataCode( Data::BlankEnum ),
- _toStringSet( false )
+ _dataCode( Data::BlankEnum )
 {
-	rsslClearState( & _rsslState );
 }
 
 OmmStateDecoder::~OmmStateDecoder()
@@ -41,38 +39,21 @@ void OmmStateDecoder::setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataD
 {
 }
 
-void OmmStateDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* rsslBuffer )
+void OmmStateDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* pRsslBuffer )
 {
-	_rsslBuffer = *rsslBuffer;
+	_pRsslBuffer = pRsslBuffer;
 
-	_toStringSet = false;
-
-	RsslRet retCode = rsslDecodeState( dIter, &_rsslState );
-
-	switch ( retCode )
-	{
-	case RSSL_RET_BLANK_DATA :
-		_dataCode = Data::BlankEnum;
-		break;
-	case RSSL_RET_SUCCESS :
+	if ( rsslDecodeState( dIter, &_rsslState ) == RSSL_RET_SUCCESS )
 		_dataCode = Data::NoCodeEnum;
-		break;
-	case RSSL_RET_INCOMPLETE_DATA :
-	default :
-		{
-			_dataCode = Data::BlankEnum;
-			EmaString temp( "Failed to decode OmmState. Reason: " );
-			temp += rsslRetCodeToString( retCode );
-			throwIueException( temp );
-		}
-		break;
+	else
+	{
+		_dataCode = Data::BlankEnum;
+		rsslClearState( &_rsslState );
 	}
 }
 
 void OmmStateDecoder::setRsslData( RsslState* rsslState )
 {
-	_toStringSet = false;
-
 	if ( rsslState )
 	{
 		_dataCode = Data::NoCodeEnum;
@@ -92,15 +73,10 @@ void OmmStateDecoder::setRsslData( RsslState* rsslState )
 
 const EmaString& OmmStateDecoder::toString()
 {
-	if ( !_toStringSet )
-	{
-		_toStringSet = true;
-
-		if ( _dataCode == Data::BlankEnum )
-			_toString.clear().set( "(blank data)" );
-		else
-			stateToString( &_rsslState, _toString );
-	}
+	if ( _dataCode == Data::BlankEnum )
+		_toString.clear().set( "(blank data)" );
+	else
+		stateToString( &_rsslState, _toString );
 
 	return _toString;
 }
@@ -129,7 +105,7 @@ const EmaString& OmmStateDecoder::getStatusText()
 
 const EmaBuffer& OmmStateDecoder::getHexBuffer()
 {
-	_hexBuffer.setFromInt( _rsslBuffer.data, _rsslBuffer.length );
+	_hexBuffer.setFromInt( _pRsslBuffer->data, _pRsslBuffer->length );
 	
 	return _hexBuffer.toBuffer();
 }

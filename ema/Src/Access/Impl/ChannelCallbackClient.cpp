@@ -32,10 +32,10 @@ Channel* Channel::create( OmmConsumerImpl& ommConsImpl, const EmaString& name , 
 	if ( !pChannel )
 	{
 		const char* temp = "Failed to create Channel.";
-		if ( ommConsImpl.hasOmmConnsumerErrorClient() )
-			ommConsImpl.getOmmConsumerErrorClient().onMemoryExhaustion( temp );
-		else
-			throwMeeException( temp );
+		if ( OmmLoggerClient::ErrorEnum >= ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+			ommConsImpl.getOmmLoggerClient().log( "Channel", OmmLoggerClient::ErrorEnum, temp );
+
+		throwMeeException( temp );
 	}
 
 	return pChannel;
@@ -345,10 +345,7 @@ ChannelCallbackClient* ChannelCallbackClient::create( OmmConsumerImpl& ommConsIm
 		if ( OmmLoggerClient::ErrorEnum >= ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
 
-		if ( ommConsImpl.hasOmmConnsumerErrorClient() )
-			ommConsImpl.getOmmConsumerErrorClient().onMemoryExhaustion( temp );
-		else
-			throwMeeException( temp );
+		throwMeeException( temp );
 	}
 
 	return pClient;
@@ -408,8 +405,9 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 		connectOpt.rsslConnectOptions.connectionType = _ommConsImpl.getActiveConfig().channelConfig->connectionType;
 		connectOpt.rsslConnectOptions.pingTimeout = _ommConsImpl.getActiveConfig().channelConfig->connectionPingTimeout;
 		connectOpt.rsslConnectOptions.guaranteedOutputBuffers = _ommConsImpl.getActiveConfig().channelConfig->guaranteedOutputBuffers;
+
 		EmaString strConnectionType;
-		switch(connectOpt.rsslConnectOptions.connectionType)
+		switch ( connectOpt.rsslConnectOptions.connectionType )
 		{
 		case RSSL_CONN_TYPE_SOCKET:
 			{
@@ -435,16 +433,34 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 			strConnectionType = "RSSL_CONN_TYPE_HTTP";
 			break;
 			}
+		default :
+			break;
 		}
 
 		connectOpt.rsslConnectOptions.connectionInfo.unified.interfaceName = (char*)_ommConsImpl.getActiveConfig().channelConfig->interfaceName.c_str();
-		connectOpt.rsslConnectOptions.connectionInfo.unified.unicastServiceName = "";
+		connectOpt.rsslConnectOptions.connectionInfo.unified.unicastServiceName = (char *) "";
 
 		if ( OmmLoggerClient::VerboseEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
-			EmaString tcpDelay = ( connectOpt.rsslConnectOptions.tcpOpts.tcp_nodelay == RSSL_FALSE ) ? "RSSL_FASLE" : "RSSL_TRUE" ;
+			EmaString compType;
+			switch ( connectOpt.rsslConnectOptions.compressionType )
+			{
+			case RSSL_COMP_ZLIB :
+				compType.set( "ZLib" );
+				break;
+			case RSSL_COMP_LZ4 :
+				compType.set( "LZ4" );
+				break;
+			case RSSL_COMP_NONE :
+				compType.set( "None" );
+				break;
+			default :
+				compType.set( "Unknown Compression Type" );
+				break;
+			}
+
 			EmaString temp( "Attempt to connect using ");
-			temp.append(strConnectionType).append( CR )
+			temp.append( strConnectionType ).append( CR )
 				.append( "Channel name ").append( pChannel->getName() ).append( CR )
 				.append( "Consumer Name " ).append( _ommConsImpl.getConsumerName() ).append( CR )
 				.append( "RsslReactor " ).append( ptrToStringAsHex( _pRsslReactor ) ).append( CR )
@@ -452,11 +468,11 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 				.append( "hostName " ).append( connectOpt.rsslConnectOptions.connectionInfo.unified.address ).append( CR )
 				.append( "port " ).append( connectOpt.rsslConnectOptions.connectionInfo.unified.serviceName ).append( CR )
 				.append( "reconnectAttemptLimit " ).append( connectOpt.reconnectAttemptLimit ).append( CR )
-				.append( "reconnectMinDelay " ).append( connectOpt.reconnectMinDelay ).append( CR )
-				.append( "reconnectMaxDelay " ).append( connectOpt.reconnectMaxDelay).append( CR )
-				.append( "CompressionType " ).append( connectOpt.rsslConnectOptions.pingTimeout ).append( CR )
-				.append( "connectionPingTimeout " ).append( connectOpt.rsslConnectOptions.pingTimeout ).append( CR )
-				.append( "tcpNodelay " ).append( tcpDelay );
+				.append( "reconnectMinDelay " ).append( connectOpt.reconnectMinDelay ).append( " msec" ).append( CR )
+				.append( "reconnectMaxDelay " ).append( connectOpt.reconnectMaxDelay).append( " msec" ).append( CR )
+				.append( "CompressionType " ).append( compType ).append( CR )
+				.append( "connectionPingTimeout " ).append( connectOpt.rsslConnectOptions.pingTimeout ).append( " msec" ).append( CR )
+				.append( "tcpNodelay " ).append( (connectOpt.rsslConnectOptions.tcpOpts.tcp_nodelay ? "true" : "false" ) );
 			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
 		}
 
@@ -480,10 +496,7 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 
 			Channel::destroy( pChannel );
 
-			if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-				_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( temp );
-			else
-				throwIueException( temp );
+			throwIueException( temp );
 
 			return;
 		}
@@ -504,7 +517,9 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 	}
 	else
 	{
-		// todo ... impl for other connection types
+		EmaString temp( "Unknown connection type. Passed in type is " );
+		temp.append( _ommConsImpl.getActiveConfig().channelConfig->connectionType );
+		throwIueException( temp );
 	}
 }
 

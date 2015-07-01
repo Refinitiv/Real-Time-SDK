@@ -90,10 +90,10 @@ void AppClient::decode( const FieldList& fl, bool newLine )
 
 void AppClient::decode( const Map& map )
 {
-	if ( map.getSummary().getDataType() == DataType::FieldListEnum )
+	if ( map.getSummaryData().getDataType() == DataType::FieldListEnum )
 	{
 		cout << endl << "Summary :" << endl;
-		decode( map.getSummary().getFieldList(), true );
+		decode( map.getSummaryData().getFieldList(), true );
 	}
 
 	bool firstEntry = true;

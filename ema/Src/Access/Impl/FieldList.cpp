@@ -99,7 +99,7 @@ const EmaString& FieldList::toString() const
 
 const EmaString& FieldList::toString( UInt64 indent ) const
 {
-	FieldListDecoder tempDecoder;
+ 	FieldListDecoder tempDecoder;
 	tempDecoder.clone( *_pDecoder );
 
 	addIndent( _toString.clear(), indent ).append( "FieldList" );
@@ -117,7 +117,8 @@ const EmaString& FieldList::toString( UInt64 indent ) const
 			.append( "\" name=\"" ).append( tempDecoder.getName() )
 			.append( "\" dataType=\"" ).append( getDTypeAsString( tempDecoder.getLoad().getDataType() ) );
 
-		if ( tempDecoder.getLoad().getDataType() <= DataType::ArrayEnum )
+		if ( tempDecoder.getLoad().getDataType() <= DataType::ArrayEnum ||
+			tempDecoder.getLoad().getDataType() == DataType::ErrorEnum )
 		{
 			++indent; 
 			_toString.append( "\"\n" ).append( tempDecoder.getLoad().toString( indent ) );
@@ -157,9 +158,8 @@ Decoder& FieldList::getDecoder()
 {
 	if ( !_pDecoder )
 	{
-		_pDecoder = g_pool._fieldListDecoderPool.getItem();
-		_entry._pDecoder = _pDecoder;
-		_entry._pLoad = &_pDecoder->getLoad();
+		_entry._pDecoder = _pDecoder = g_pool._fieldListDecoderPool.getItem();
+		_entry._pLoad = _pDecoder->getLoadPtr();
 	}
 
 	return *_pDecoder;

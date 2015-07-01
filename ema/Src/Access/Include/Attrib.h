@@ -236,7 +236,7 @@ private :
 
 	friend class Msg;
 
-	MsgDecoder*		_pDecoder;
+	const Data*		_pAttrib;
 
 	Attrib();
 	Attrib( const Attrib& );

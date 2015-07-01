@@ -243,119 +243,120 @@ static const thomsonreuters::ema::access::UInt32 SYMBOL_LIST_DATA_SNAPSHOTS    =
 //@{
 /** Well known login attribute names.
 */
-static const  thomsonreuters::ema::access::EmaString ENAME_APP_ID( "ApplicationId", 14 );
-static const  thomsonreuters::ema::access::EmaString ENAME_APP_NAME( "ApplicationName", 16 );
-static const  thomsonreuters::ema::access::EmaString ENAME_POSITION( "Position", 9 );
-static const  thomsonreuters::ema::access::EmaString ENAME_PASSWORD( "Password", 9 );
-static const  thomsonreuters::ema::access::EmaString ENAME_PROV_PERM_PROF( "ProvidePermissionProfile", 25 );
-static const  thomsonreuters::ema::access::EmaString ENAME_PROV_PERM_EXP( "ProvidePermissionExpressions", 29 );
-static const  thomsonreuters::ema::access::EmaString ENAME_ALLOW_SUSPECT_DATA( "AllowSuspectData", 17 );
-static const  thomsonreuters::ema::access::EmaString ENAME_SINGLE_OPEN( "SingleOpen", 11 );
-static const  thomsonreuters::ema::access::EmaString ENAME_INST_ID( "InstanceId", 11 );
-static const  thomsonreuters::ema::access::EmaString ENAME_ROLE( "Role", 5 );
-static const  thomsonreuters::ema::access::EmaString ENAME_SUPPORT_PR( "SupportPauseResume", 19 );
-static const  thomsonreuters::ema::access::EmaString ENAME_SUPPORT_OPR( "SupportOptimizedPauseResume", 28 );
-static const  thomsonreuters::ema::access::EmaString ENAME_SUPPORT_POST( "SupportOMMPost", 15 );
-static const  thomsonreuters::ema::access::EmaString ENAME_SUPPORT_BATCH( "SupportBatchRequests", 21 );
-static const  thomsonreuters::ema::access::EmaString ENAME_SUPPORT_VIEW( "SupportViewRequests", 20 );
-static const  thomsonreuters::ema::access::EmaString ENAME_SUPPORT_ENH_SYMBOL_LIST( "SupportEnhancedSymbolList", 26 );
-static const  thomsonreuters::ema::access::EmaString ENAME_SUPPORT_PROVIDER_DICTIONARY_DOWNLOAD( "SupportProviderDictionaryDownload", 34 );
-static const  thomsonreuters::ema::access::EmaString ENAME_SEQUENCE_RETRY_INTERVAL( "SequenceRetryInterval", 22 );
-static const  thomsonreuters::ema::access::EmaString ENAME_UPDATE_BUFFER_LIMIT( "UpdateBufferLimit", 18 );
-static const  thomsonreuters::ema::access::EmaString ENAME_SEQUENCE_NUMBER_RECOVERY( "SequenceNumberRecovery", 23 );
+static const  thomsonreuters::ema::access::EmaString ENAME_APP_ID( "ApplicationId", 13 );
+static const  thomsonreuters::ema::access::EmaString ENAME_APP_NAME( "ApplicationName", 15 );
+static const  thomsonreuters::ema::access::EmaString ENAME_APPAUTH_TOKEN ( "ApplicationAuthorizationToken", 29 );
+static const  thomsonreuters::ema::access::EmaString ENAME_POSITION( "Position", 8 );
+static const  thomsonreuters::ema::access::EmaString ENAME_PASSWORD( "Password", 8 );
+static const  thomsonreuters::ema::access::EmaString ENAME_PROV_PERM_PROF( "ProvidePermissionProfile", 24 );
+static const  thomsonreuters::ema::access::EmaString ENAME_PROV_PERM_EXP( "ProvidePermissionExpressions", 28 );
+static const  thomsonreuters::ema::access::EmaString ENAME_ALLOW_SUSPECT_DATA( "AllowSuspectData", 16 );
+static const  thomsonreuters::ema::access::EmaString ENAME_SINGLE_OPEN( "SingleOpen", 10 );
+static const  thomsonreuters::ema::access::EmaString ENAME_INST_ID( "InstanceId", 10 );
+static const  thomsonreuters::ema::access::EmaString ENAME_ROLE( "Role", 4 );
+static const  thomsonreuters::ema::access::EmaString ENAME_SUPPORT_PR( "SupportPauseResume", 18 );
+static const  thomsonreuters::ema::access::EmaString ENAME_SUPPORT_OPR( "SupportOptimizedPauseResume", 27 );
+static const  thomsonreuters::ema::access::EmaString ENAME_SUPPORT_POST( "SupportOMMPost", 14 );
+static const  thomsonreuters::ema::access::EmaString ENAME_SUPPORT_BATCH( "SupportBatchRequests", 20 );
+static const  thomsonreuters::ema::access::EmaString ENAME_SUPPORT_VIEW( "SupportViewRequests", 19 );
+static const  thomsonreuters::ema::access::EmaString ENAME_SUPPORT_ENH_SYMBOL_LIST( "SupportEnhancedSymbolList", 25 );
+static const  thomsonreuters::ema::access::EmaString ENAME_SUPPORT_PROVIDER_DICTIONARY_DOWNLOAD( "SupportProviderDictionaryDownload", 33 );
+static const  thomsonreuters::ema::access::EmaString ENAME_SEQUENCE_RETRY_INTERVAL( "SequenceRetryInterval", 21 );
+static const  thomsonreuters::ema::access::EmaString ENAME_UPDATE_BUFFER_LIMIT( "UpdateBufferLimit", 17 );
+static const  thomsonreuters::ema::access::EmaString ENAME_SEQUENCE_NUMBER_RECOVERY( "SequenceNumberRecovery", 22 );
 //@}
 
 ///@name Source Directory Names
 //@{
 /** Well known source directory names.
 */
-static const  thomsonreuters::ema::access::EmaString ENAME_NAME( "Name", 5 );
-static const  thomsonreuters::ema::access::EmaString ENAME_SERVICE_ID( "ServiceID", 10 );
-static const  thomsonreuters::ema::access::EmaString ENAME_VENDOR( "Vendor", 7 );
-static const  thomsonreuters::ema::access::EmaString ENAME_IS_SOURCE( "IsSource", 9 );
-static const  thomsonreuters::ema::access::EmaString ENAME_CAPABILITIES( "Capabilities", 13 );
-static const  thomsonreuters::ema::access::EmaString ENAME_DICTIONARYS_PROVIDED( "DictionariesProvided", 21 );
-static const  thomsonreuters::ema::access::EmaString ENAME_DICTIONARYS_USED( "DictionariesUsed", 17 );
-static const  thomsonreuters::ema::access::EmaString ENAME_QOS( "QoS", 4 );
-static const  thomsonreuters::ema::access::EmaString ENAME_SUPPS_QOS_RANGE( "SupportsQoSRange", 17 );
-static const  thomsonreuters::ema::access::EmaString ENAME_ITEM_LIST( "ItemList", 9 );
-static const  thomsonreuters::ema::access::EmaString ENAME_SUPPS_OOB_SNAPSHOTS( "SupportsOutOfBandSnapshots", 27 );
-static const  thomsonreuters::ema::access::EmaString ENAME_ACCEPTING_CONS_STATUS( "AcceptingConsumerStatus", 24 );
-static const  thomsonreuters::ema::access::EmaString ENAME_CONS_SOURCE_MIROR_MODE( "SourceMirroringMode", 20 );
-static const  thomsonreuters::ema::access::EmaString ENAME_CONS_STATUS( "ConsumerStatus", 15 );
-static const  thomsonreuters::ema::access::EmaString ENAME_SVC_STATE( "ServiceState", 13 );
-static const  thomsonreuters::ema::access::EmaString ENAME_ACCEPTING_REQS( "AcceptingRequests", 18 );
-static const  thomsonreuters::ema::access::EmaString ENAME_STATUS( "Status", 7 );
-static const  thomsonreuters::ema::access::EmaString ENAME_GROUP( "Group", 6 );
-static const  thomsonreuters::ema::access::EmaString ENAME_MERG_TO_GRP( "MergedToGroup", 14 );
-static const  thomsonreuters::ema::access::EmaString ENAME_OPEN_LIMIT( "OpenLimit", 10 );
-static const  thomsonreuters::ema::access::EmaString ENAME_OPEN_WINDOW( "OpenWindow", 11 );
-static const  thomsonreuters::ema::access::EmaString ENAME_LOAD_FACT( "LoadFactor", 11 );
-static const  thomsonreuters::ema::access::EmaString ENAME_TYPE( "Type", 5 );
-static const  thomsonreuters::ema::access::EmaString ENAME_DATA( "Data", 5 );
-static const  thomsonreuters::ema::access::EmaString ENAME_LINK_STATE( "LinkState", 10 );
-static const  thomsonreuters::ema::access::EmaString ENAME_LINK_CODE( "LinkCode", 9 );
+static const  thomsonreuters::ema::access::EmaString ENAME_NAME( "Name", 4 );
+static const  thomsonreuters::ema::access::EmaString ENAME_SERVICE_ID( "ServiceID", 9 );
+static const  thomsonreuters::ema::access::EmaString ENAME_VENDOR( "Vendor", 6 );
+static const  thomsonreuters::ema::access::EmaString ENAME_IS_SOURCE( "IsSource", 8 );
+static const  thomsonreuters::ema::access::EmaString ENAME_CAPABILITIES( "Capabilities", 12 );
+static const  thomsonreuters::ema::access::EmaString ENAME_DICTIONARYS_PROVIDED( "DictionariesProvided", 20 );
+static const  thomsonreuters::ema::access::EmaString ENAME_DICTIONARYS_USED( "DictionariesUsed", 16 );
+static const  thomsonreuters::ema::access::EmaString ENAME_QOS( "QoS", 3 );
+static const  thomsonreuters::ema::access::EmaString ENAME_SUPPS_QOS_RANGE( "SupportsQoSRange", 16 );
+static const  thomsonreuters::ema::access::EmaString ENAME_ITEM_LIST( "ItemList", 8 );
+static const  thomsonreuters::ema::access::EmaString ENAME_SUPPS_OOB_SNAPSHOTS( "SupportsOutOfBandSnapshots", 26 );
+static const  thomsonreuters::ema::access::EmaString ENAME_ACCEPTING_CONS_STATUS( "AcceptingConsumerStatus", 23 );
+static const  thomsonreuters::ema::access::EmaString ENAME_CONS_SOURCE_MIROR_MODE( "SourceMirroringMode", 19 );
+static const  thomsonreuters::ema::access::EmaString ENAME_CONS_STATUS( "ConsumerStatus", 14 );
+static const  thomsonreuters::ema::access::EmaString ENAME_SVC_STATE( "ServiceState", 12 );
+static const  thomsonreuters::ema::access::EmaString ENAME_ACCEPTING_REQS( "AcceptingRequests", 17 );
+static const  thomsonreuters::ema::access::EmaString ENAME_STATUS( "Status", 6 );
+static const  thomsonreuters::ema::access::EmaString ENAME_GROUP( "Group", 5 );
+static const  thomsonreuters::ema::access::EmaString ENAME_MERG_TO_GRP( "MergedToGroup", 13 );
+static const  thomsonreuters::ema::access::EmaString ENAME_OPEN_LIMIT( "OpenLimit", 9 );
+static const  thomsonreuters::ema::access::EmaString ENAME_OPEN_WINDOW( "OpenWindow", 10 );
+static const  thomsonreuters::ema::access::EmaString ENAME_LOAD_FACT( "LoadFactor", 10 );
+static const  thomsonreuters::ema::access::EmaString ENAME_TYPE( "Type", 4 );
+static const  thomsonreuters::ema::access::EmaString ENAME_DATA( "Data", 4 );
+static const  thomsonreuters::ema::access::EmaString ENAME_LINK_STATE( "LinkState", 9 );
+static const  thomsonreuters::ema::access::EmaString ENAME_LINK_CODE( "LinkCode", 8 );
 //@}
 
 ///@name Server Configuration Names
 //@{
 /** Well known server configuration names.
 */
-static const  thomsonreuters::ema::access::EmaString ENAME_SUPPORT_STANDBY( "SupportStandby", 15 );
-static const  thomsonreuters::ema::access::EmaString ENAME_WARMSTANDBY_INFO( "WarmStandbyInfo", 16 );
-static const  thomsonreuters::ema::access::EmaString ENAME_WARMSTANDBY_MODE( "WarmStandbyMode", 16 );
-static const  thomsonreuters::ema::access::EmaString ENAME_CONS_CONN_STATUS( "ConsumerConnectionStatus", 25 );
-static const  thomsonreuters::ema::access::EmaString ENAME_DOWNLOAD_CON_CONFIG( "DownloadConnectionConfig", 25 );
-static const  thomsonreuters::ema::access::EmaString ENAME_CONNECTION_CONFIG( "ConnectionConfig", 17 );
-static const  thomsonreuters::ema::access::EmaString ENAME_NUM_STANDBY_SERVERS( "NumStandbyServers", 18 );
-static const  thomsonreuters::ema::access::EmaString ENAME_HOSTNAME( "Hostname", 9 );
-static const  thomsonreuters::ema::access::EmaString ENAME_PORT( "Port", 5 );
-static const  thomsonreuters::ema::access::EmaString ENAME_SERVER_TYPE( "ServerType", 11 );
-static const  thomsonreuters::ema::access::EmaString ENAME_SYSTEM_ID( "SystemID", 9 );
+static const  thomsonreuters::ema::access::EmaString ENAME_SUPPORT_STANDBY( "SupportStandby", 14 );
+static const  thomsonreuters::ema::access::EmaString ENAME_WARMSTANDBY_INFO( "WarmStandbyInfo", 15 );
+static const  thomsonreuters::ema::access::EmaString ENAME_WARMSTANDBY_MODE( "WarmStandbyMode", 15 );
+static const  thomsonreuters::ema::access::EmaString ENAME_CONS_CONN_STATUS( "ConsumerConnectionStatus", 24 );
+static const  thomsonreuters::ema::access::EmaString ENAME_DOWNLOAD_CON_CONFIG( "DownloadConnectionConfig", 24 );
+static const  thomsonreuters::ema::access::EmaString ENAME_CONNECTION_CONFIG( "ConnectionConfig", 16 );
+static const  thomsonreuters::ema::access::EmaString ENAME_NUM_STANDBY_SERVERS( "NumStandbyServers", 17 );
+static const  thomsonreuters::ema::access::EmaString ENAME_HOSTNAME( "Hostname", 8 );
+static const  thomsonreuters::ema::access::EmaString ENAME_PORT( "Port", 4 );
+static const  thomsonreuters::ema::access::EmaString ENAME_SERVER_TYPE( "ServerType", 10 );
+static const  thomsonreuters::ema::access::EmaString ENAME_SYSTEM_ID( "SystemID", 8 );
 //@}
 
 ///@name Dictionary Names
 //@{
 /** Well known dictionary names.
 */
-static const thomsonreuters::ema::access::EmaString ENAME_DICTIONARY_ID( "DictionaryId", 13 );
-static const thomsonreuters::ema::access::EmaString ENAME_DICT_TYPE( "Type", 5 );
-static const thomsonreuters::ema::access::EmaString ENAME_DICT_VERSION( "Version", 8 );
-static const thomsonreuters::ema::access::EmaString ENAME_FIELD_NAME( "NAME", 5 );
-static const thomsonreuters::ema::access::EmaString ENAME_FIELD_ID( "FID", 4 );
-static const thomsonreuters::ema::access::EmaString ENAME_FIELD_RIPPLETO( "RIPPLETO", 9 );
-static const thomsonreuters::ema::access::EmaString ENAME_FIELD_TYPE( "TYPE", 5 );
-static const thomsonreuters::ema::access::EmaString ENAME_FIELD_LENGTH( "LENGTH", 7 );
-static const thomsonreuters::ema::access::EmaString ENAME_FIELD_RWFTYPE( "RWFTYPE", 8 );
-static const thomsonreuters::ema::access::EmaString ENAME_FIELD_RWFLENGTH( "RWFLEN", 7  );
-static const thomsonreuters::ema::access::EmaString ENAME_FIELD_ENUMLENGTH( "ENUMLENGTH", 11 );
-static const thomsonreuters::ema::access::EmaString ENAME_FIELD_LONGNAME( "LONGNAME", 9 );
+static const thomsonreuters::ema::access::EmaString ENAME_DICTIONARY_ID( "DictionaryId", 12 );
+static const thomsonreuters::ema::access::EmaString ENAME_DICT_TYPE( "Type", 4 );
+static const thomsonreuters::ema::access::EmaString ENAME_DICT_VERSION( "Version", 7 );
+static const thomsonreuters::ema::access::EmaString ENAME_FIELD_NAME( "NAME", 4 );
+static const thomsonreuters::ema::access::EmaString ENAME_FIELD_ID( "FID", 3 );
+static const thomsonreuters::ema::access::EmaString ENAME_FIELD_RIPPLETO( "RIPPLETO", 8 );
+static const thomsonreuters::ema::access::EmaString ENAME_FIELD_TYPE( "TYPE", 4 );
+static const thomsonreuters::ema::access::EmaString ENAME_FIELD_LENGTH( "LENGTH", 6 );
+static const thomsonreuters::ema::access::EmaString ENAME_FIELD_RWFTYPE( "RWFTYPE", 7 );
+static const thomsonreuters::ema::access::EmaString ENAME_FIELD_RWFLENGTH( "RWFLEN", 6  );
+static const thomsonreuters::ema::access::EmaString ENAME_FIELD_ENUMLENGTH( "ENUMLENGTH", 10 );
+static const thomsonreuters::ema::access::EmaString ENAME_FIELD_LONGNAME( "LONGNAME", 8 );
 
-static const thomsonreuters::ema::access::EmaString ENAME_ENUM_RT_VERSION( "RT_Version", 11 );
-static const thomsonreuters::ema::access::EmaString ENAME_ENUM_DT_VERSION( "DT_Version", 11 );
+static const thomsonreuters::ema::access::EmaString ENAME_ENUM_RT_VERSION( "RT_Version", 10 );
+static const thomsonreuters::ema::access::EmaString ENAME_ENUM_DT_VERSION( "DT_Version", 10 );
 
-static const thomsonreuters::ema::access::EmaString ENAME_ENUM_FIDS( "FIDS", 5 );
-static const thomsonreuters::ema::access::EmaString ENAME_ENUM_FID( "FID", 4 );
-static const thomsonreuters::ema::access::EmaString ENAME_ENUM_VALUES( "VALUES", 7 );
-static const thomsonreuters::ema::access::EmaString ENAME_ENUM_VALUE( "VALUE", 6 );
-static const thomsonreuters::ema::access::EmaString ENAME_ENUM_DISPLAYS( "DISPLAYS", 9 );
-static const thomsonreuters::ema::access::EmaString ENAME_ENUM_DISPLAY( "DISPLAY", 8 );
-static const thomsonreuters::ema::access::EmaString ENAME_ENUM_MEANINGS( "MEANINGS", 9 );
-static const thomsonreuters::ema::access::EmaString ENAME_ENUM_MEANING( "MEANING", 8 );
+static const thomsonreuters::ema::access::EmaString ENAME_ENUM_FIDS( "FIDS", 4 );
+static const thomsonreuters::ema::access::EmaString ENAME_ENUM_FID( "FID", 3 );
+static const thomsonreuters::ema::access::EmaString ENAME_ENUM_VALUES( "VALUES", 6 );
+static const thomsonreuters::ema::access::EmaString ENAME_ENUM_VALUE( "VALUE", 5 );
+static const thomsonreuters::ema::access::EmaString ENAME_ENUM_DISPLAYS( "DISPLAYS", 8 );
+static const thomsonreuters::ema::access::EmaString ENAME_ENUM_DISPLAY( "DISPLAY", 7 );
+static const thomsonreuters::ema::access::EmaString ENAME_ENUM_MEANINGS( "MEANINGS", 8 );
+static const thomsonreuters::ema::access::EmaString ENAME_ENUM_MEANING( "MEANING", 7 );
 
-static const  thomsonreuters::ema::access::EmaString ENAME_TEXT( "Text", 5 );
-static const  thomsonreuters::ema::access::EmaString ENAME_VERSION( "Version", 8 );
+static const  thomsonreuters::ema::access::EmaString ENAME_TEXT( "Text", 4 );
+static const  thomsonreuters::ema::access::EmaString ENAME_VERSION( "Version", 7 );
 //@}
 
 ///@name Batch and View Names
 //@{
 /** Well known batch and view names.
 */
-static const  thomsonreuters::ema::access::EmaString ENAME_BATCH_ITEM_LIST( ":ItemList", 10 );
-static const  thomsonreuters::ema::access::EmaString ENAME_VIEW_TYPE( ":ViewType", 10 );
-static const  thomsonreuters::ema::access::EmaString ENAME_VIEW_DATA( ":ViewData", 10 );
-static const  thomsonreuters::ema::access::EmaString ENAME_SYMBOL_LIST_BEHAVIORS( ":SymbolListBehaviors", 21 );
-static const  thomsonreuters::ema::access::EmaString ENAME_DATA_STREAMS( ":DataStreams", 13 );
+static const  thomsonreuters::ema::access::EmaString ENAME_BATCH_ITEM_LIST( ":ItemList", 9 );
+static const  thomsonreuters::ema::access::EmaString ENAME_VIEW_TYPE( ":ViewType", 9 );
+static const  thomsonreuters::ema::access::EmaString ENAME_VIEW_DATA( ":ViewData", 9 );
+static const  thomsonreuters::ema::access::EmaString ENAME_SYMBOL_LIST_BEHAVIORS( ":SymbolListBehaviors", 20 );
+static const  thomsonreuters::ema::access::EmaString ENAME_DATA_STREAMS( ":DataStreams", 12 );
 //@}
 
 }

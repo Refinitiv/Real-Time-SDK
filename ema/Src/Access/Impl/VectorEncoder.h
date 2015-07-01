@@ -49,7 +49,7 @@ public :
 
 	void totalCountHint( UInt32 totalCountHint );
 
-	void summary( const ComplexType& data );
+	void summaryData( const ComplexType& data );
 
 	void add( UInt32 position, VectorEntry::VectorAction action, 
 				const ComplexType& complexType, const EmaBuffer& permission );

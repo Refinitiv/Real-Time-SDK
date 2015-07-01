@@ -22,7 +22,6 @@ extern const EmaString& getMTypeAsString( OmmReal::MagnitudeType mType );
 OmmArrayEncoder::OmmArrayEncoder() :
  _rsslArray()
 {
-	rsslClearArray( &_rsslArray );
 }
 
 OmmArrayEncoder::~OmmArrayEncoder()
@@ -404,8 +403,8 @@ void OmmArrayEncoder::addTime( UInt8 hour, UInt8 minute, UInt8 second, UInt16 mi
 		temp.append( (UInt32)hour ).append( ":" ).
 			append( (UInt32)minute ).append( ":" ).
 			append( (UInt32)second ).append( "." ).
-			append( (UInt32)second ).append( "." ).
-			append( (UInt32)second ).append( "." ).
+			append( (UInt32)millisecond ).append( "." ).
+			append( (UInt32)microsecond ).append( "." ).
 			append( (UInt32)nanosecond ).append( "'." );
 		throwOorException( temp );
 		return;
@@ -464,8 +463,8 @@ void OmmArrayEncoder::addDateTime( UInt16 year, UInt8 month, UInt8 day,
 			append( (UInt32)hour ).append( ":" ).
 			append( (UInt32)minute ).append( ":" ).
 			append( (UInt32)second ).append( "." ).
-			append( (UInt32)second ).append( "." ).
-			append( (UInt32)second ).append( "." ).
+			append( (UInt32)millisecond ).append( "." ).
+			append( (UInt32)microsecond ).append( "." ).
 			append( (UInt32)nanosecond ).append( "'." );
 		throwOorException( temp );
 		return;

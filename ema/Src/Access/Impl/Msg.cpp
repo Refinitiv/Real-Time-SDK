@@ -59,9 +59,9 @@ bool Msg::hasFilter() const
 	return _pDecoder->hasFilter();
 }
 
-bool Msg::hasHeader() const
+bool Msg::hasExtendedHeader() const
 {
-	return _pDecoder->hasHeader();
+	return _pDecoder->hasExtendedHeader();
 }
 
 Int32 Msg::getStreamId() const
@@ -99,9 +99,9 @@ UInt32 Msg::getFilter() const
 	return _pDecoder->getFilter();
 }
 
-const EmaBuffer& Msg::getHeader() const
+const EmaBuffer& Msg::getExtendedHeader() const
 {
-	return _pDecoder->getHeader();
+	return _pDecoder->getExtendedHeader();
 }
 
 const Encoder& Msg::getEncoder() const
@@ -121,5 +121,7 @@ const Payload& Msg::getPayload() const
 
 void Msg::setDecoder( MsgDecoder* pDecoder )
 {
-	_attrib._pDecoder = _payload._pDecoder = _pDecoder = pDecoder;
+	_pDecoder = pDecoder;
+	_payload._pPayload = &pDecoder->getPayloadData();
+	_attrib._pAttrib = &pDecoder->getAttribData();
 }

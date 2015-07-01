@@ -291,11 +291,11 @@ public :
 	*/
 	AckMsg& payload( const ComplexType& payload );
 
-	/** Specifies Header.
-		@param[in] buffer an EmaBuffer containing header information
+	/** Specifies ExtendedHeader.
+		@param[in] buffer an EmaBuffer containing extendedHeader information
 		@return reference to this object
 	*/
-	AckMsg& header( const EmaBuffer& buffer );
+	AckMsg& extendedHeader( const EmaBuffer& buffer );
 
 	/** Specifies PrivateStream.
 		@param[in] privateStream specifies if this is a private stream (default is false)

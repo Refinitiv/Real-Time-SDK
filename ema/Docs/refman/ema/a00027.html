@@ -156,9 +156,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aa66c2fdefec501f56e9628f0d6eb6c83"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00027.html#aa66c2fdefec501f56e9628f0d6eb6c83">unregister</a> (UInt64 handle)</td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p><a class="el" href="a00027.html" title="OmmConsumer class encapsulates functionality of an Omm consuming type application.">OmmConsumer</a> provides interfaces to open, modify and close items. It establishes and maintains connection to server, maintaines open item watch list, performs connection and item recovery, etc.</p>
-<p><a class="el" href="a00027.html" title="OmmConsumer class encapsulates functionality of an Omm consuming type application.">OmmConsumer</a> provides a default behaviour / functioanlity. This may be tuned / modified by application when using <a class="el" href="a00029.html" title="OmmConsumerConfig is used to modify configuration and behaviour of OmmConsumer.">OmmConsumerConfig</a>.</p>
-<p>Application interacts with server through the <a class="el" href="a00027.html" title="OmmConsumer class encapsulates functionality of an Omm consuming type application.">OmmConsumer</a> interface methods. The results of these interactions are communicatedx back to application through <a class="el" href="a00028.html" title="OmmConsumerClient class provides callback interfaces to pass received messages.">OmmConsumerClient</a> and OmmConsumerErrorclient.</p>
+<div class="textblock"><p><a class="el" href="a00027.html" title="OmmConsumer class encapsulates functionality of an Omm consuming type application.">OmmConsumer</a> provides interfaces to open, modify and close items. It establishes and maintains connection to server, maintains open item watch list, performs connection and item recovery, etc.</p>
+<p><a class="el" href="a00027.html" title="OmmConsumer class encapsulates functionality of an Omm consuming type application.">OmmConsumer</a> provides a default behaviour / functionality. This may be tuned / modified by application when using <a class="el" href="a00029.html" title="OmmConsumerConfig is used to modify configuration and behaviour of OmmConsumer.">OmmConsumerConfig</a>.</p>
+<p>Application interacts with server through the <a class="el" href="a00027.html" title="OmmConsumer class encapsulates functionality of an Omm consuming type application.">OmmConsumer</a> interface methods. The results of these interactions are communicated back to application through <a class="el" href="a00028.html" title="OmmConsumerClient class provides callback interfaces to pass received messages.">OmmConsumerClient</a> and OmmConsumerErrorclient.</p>
 <p>The following code snippet shows basic usage of <a class="el" href="a00027.html" title="OmmConsumer class encapsulates functionality of an Omm consuming type application.">OmmConsumer</a> class in a simple consumer type app.</p>
 <div class="fragment"><pre class="fragment">    <span class="keyword">class </span>AppClient : <span class="keyword">public</span> OmmConsumerClient
     {
@@ -316,7 +316,7 @@ This affects <a class="el" href="a00027.html" title="OmmConsumer class encapsula
 <dl class="section remark"><dt>Remarks:</dt><dd>Requires OperationalModel to be set to UserDispatchEnum. </dd></dl>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">timeout</td><td>specifies time in microseconds to wait in <a class="el" href="a00027.html#ae84b832017679b8517c817e7d4441d7e">dispatch()</a> for a message to dispatch </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">time-out</td><td>specifies time in microseconds to wait in <a class="el" href="a00027.html#ae84b832017679b8517c817e7d4441d7e">dispatch()</a> for a message to dispatch </td></tr>
   </table>
   </dd>
 </dl>
@@ -389,7 +389,16 @@ This affects <a class="el" href="a00027.html" title="OmmConsumer class encapsula
   </dd>
 </dl>
 <dl class="section return"><dt>Returns:</dt><dd>item identifier (a.k.a. handle) </dd></dl>
-<dl class="section remark"><dt>Remarks:</dt><dd>This method is <a class="el" href="a00001.html#ObjectLevelSafe">Object Level Thread Safe Method</a> </dd></dl>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00044.html" title="OmmMemoryExhaustionException represents out of memory exceptions.">OmmMemoryExhaustionException</a></td><td>if system runs out of memory </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00043.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if application passes invalid <a class="el" href="a00061.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section remark"><dt>Remarks:</dt><dd>This method is <a class="el" href="a00001.html#ObjectLevelSafe">Object Level Thread Safe Method</a> </dd>
+<dd>
+if <a class="el" href="a00030.html" title="OmmConsumerErrorclient class provides callback mechanism used in place of exceptions.">OmmConsumerErrorClient</a> is used and an error condition is encountered, then null handle is returned </dd></dl>
 
 </div>
 </div>
@@ -429,6 +438,7 @@ This affects <a class="el" href="a00027.html" title="OmmConsumer class encapsula
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
     <tr><td class="paramname"><a class="el" href="a00042.html" title="OmmInvalidHandleException is thrown when application passes in an invalid handle to OmmConsumer...">OmmInvalidHandleException</a></td><td>if passed in handle does not refer to an open stream </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00043.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if passed in <a class="el" href="a00061.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> violates reissue rules </td></tr>
   </table>
   </dd>
 </dl>
@@ -565,7 +575,7 @@ This affects <a class="el" href="a00027.html" title="OmmConsumer class encapsula
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Fri May 29 2015</td>
+			<td><p class="smallfont">Mon Jun 29 2015</td>
           </tr>
         </table>
         </td>

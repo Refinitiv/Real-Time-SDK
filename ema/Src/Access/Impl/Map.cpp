@@ -106,7 +106,7 @@ const EmaString& Map::toString( UInt64 indent ) const
         if ( tempDecoder.getKeyData().getDataType() == DataType::BufferEnum )
 		{
             _toString.append( "\" value=\n\n" ).append( tempDecoder.getKeyData().getAsHex() );
-			addIndent( _toString.append( "\n" ), indent )/*append( "\n" )*/;
+			addIndent( _toString.append( "\n" ), indent );
 		}
 		else
 			_toString.append( "\" value=\"" ).append( tempDecoder.getKeyData().toString() ).append( "\"" );
@@ -180,7 +180,7 @@ bool Map::hasKeyFieldId() const
 	return _pDecoder->hasKeyFieldId();
 }
 
-const Summary& Map::getSummary() const
+const SummaryData& Map::getSummaryData() const
 {
 	return _summary;
 }
@@ -218,12 +218,12 @@ Map& Map::totalCountHint( UInt32 totalCountHint )
 	return *this;
 }
 
-Map& Map::summary( const ComplexType& data )
+Map& Map::summaryData( const ComplexType& data )
 {
 	if ( !_pEncoder )
 		_pEncoder = g_pool._mapEncoderPool.getItem();
 
-	_pEncoder->summary( data );
+	_pEncoder->summaryData( data );
 
 	return *this;
 }

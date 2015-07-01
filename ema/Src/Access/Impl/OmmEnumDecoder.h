@@ -42,7 +42,7 @@ public :
 
 private :
 
-	RsslBuffer				_rsslBuffer;
+	RsslBuffer*				_pRsslBuffer;
 
 	RsslEnum				_rsslEnum;
 
@@ -51,8 +51,6 @@ private :
 	EmaBufferInt			_hexBuffer;
 
 	Data::DataCode			_dataCode;
-
-	bool					_toStringSet;
 };
 
 }

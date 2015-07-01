@@ -14,7 +14,7 @@
 	@brief OmmConsumerErrorclient class provides callback mechanism used in place of exceptions.
 
 	By default OmmConsumer class throws exceptions if a usage error occurs. Specifying OmmConsumerErrorClient
-	on the constructor of OmmConsumer ovewrites this behaviour. Instead of throwing exceptions, respective
+	on the constructor of OmmConsumer overwrites this behaviour. Instead of throwing exceptions, respective
 	callback method on OmmConsumerErrorClient will be invoked.
 
 	\remark Thread safety of all the methods in this class depends on user's implementation

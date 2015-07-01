@@ -78,7 +78,25 @@ void Decoder::setRsslData( Data* pData,
 		pData->getDecoder().setRsslData( pDecodeIter->_majorVersion, pDecodeIter->_minorVersion, pRsslBuffer, pRsslDictionary, localDb );
 }
 
-void Decoder::setRsslData( Data* pData, OmmError::ErrorCode errorCode, RsslDecodeIterator* pDecodeIter, RsslBuffer* pRsslBuffer ) const
+Data* Decoder::setRsslData( Data** pLoadPool, RsslDataType rsslType, RsslDecodeIterator* pDecodeIter,
+	RsslBuffer* pRsslBuffer, const RsslDataDictionary* pRsslDictionary, void* localDb ) const
+{
+	DataType::DataTypeEnum dType;
+
+	if ( rsslType == RSSL_DT_MSG )
+		dType = msgDataType[ rsslExtractMsgClass( pDecodeIter ) ];
+	else
+		dType = dataType[rsslType];
+
+	if ( dType >= DataType::OpaqueEnum && dType < DataType::ErrorEnum )
+		pLoadPool[dType]->getDecoder().setRsslData( pDecodeIter, pRsslBuffer );
+	else
+		pLoadPool[dType]->getDecoder().setRsslData( pDecodeIter->_majorVersion, pDecodeIter->_minorVersion, pRsslBuffer, pRsslDictionary, localDb );
+
+	return pLoadPool[dType];
+}
+
+Data* Decoder::setRsslData( Data* pData, OmmError::ErrorCode errorCode, RsslDecodeIterator* pDecodeIter, RsslBuffer* pRsslBuffer ) const
 {
 	if ( pData->getDataType() != DataType::ErrorEnum )
 	{
@@ -88,6 +106,8 @@ void Decoder::setRsslData( Data* pData, OmmError::ErrorCode errorCode, RsslDecod
 	}
 
 	pData->getDecoder().setRsslData( pDecodeIter->_majorVersion, pDecodeIter->_minorVersion, pRsslBuffer, (const RsslDataDictionary*)errorCode, 0 );
+
+	return pData;
 }
 
 void Decoder::create( Data* pData, DataType::DataTypeEnum dType ) const
@@ -197,4 +217,56 @@ void Decoder::create( Data* pData, DataType::DataTypeEnum dType ) const
 		new (pData) OmmError();
 		break;
 	}
+}
+
+void Decoder::createLoadPool( Data**& pLoadPool )
+{
+	pLoadPool = new Data*[34];
+
+	pLoadPool[DataType::ReqMsgEnum] = new ReqMsg;
+	pLoadPool[DataType::RefreshMsgEnum] = new RefreshMsg;
+	pLoadPool[DataType::UpdateMsgEnum] = new UpdateMsg;
+	pLoadPool[DataType::StatusMsgEnum] = new StatusMsg;
+	pLoadPool[DataType::PostMsgEnum] = new PostMsg;
+	pLoadPool[DataType::AckMsgEnum] = new AckMsg;
+	pLoadPool[DataType::GenericMsgEnum] = new GenericMsg;
+	pLoadPool[DataType::FieldListEnum] = new FieldList;
+	pLoadPool[DataType::ElementListEnum] = new ElementList;
+	pLoadPool[DataType::MapEnum] = new Map;
+	pLoadPool[DataType::VectorEnum] = new Vector;
+	pLoadPool[DataType::SeriesEnum] = new Series;
+	pLoadPool[DataType::FilterListEnum] = new FilterList;
+	pLoadPool[DataType::OpaqueEnum] = new OmmOpaque;
+	pLoadPool[DataType::XmlEnum] = new OmmXml;
+	pLoadPool[DataType::AnsiPageEnum] = new OmmAnsiPage;
+	pLoadPool[DataType::ArrayEnum] = new OmmArray;
+	pLoadPool[DataType::IntEnum] = new OmmInt;
+	pLoadPool[DataType::UIntEnum] = new OmmUInt;
+	pLoadPool[DataType::RealEnum] = new OmmReal;
+	pLoadPool[DataType::FloatEnum] = new OmmFloat;
+	pLoadPool[DataType::DoubleEnum] = new OmmDouble;
+	pLoadPool[DataType::DateEnum] = new OmmDate;
+	pLoadPool[DataType::TimeEnum] = new OmmTime;
+	pLoadPool[DataType::DateTimeEnum] = new OmmDateTime;
+	pLoadPool[DataType::QosEnum] = new OmmQos;
+	pLoadPool[DataType::StateEnum] = new OmmState;
+	pLoadPool[DataType::EnumEnum] = new OmmEnum;
+	pLoadPool[DataType::BufferEnum] = new OmmBuffer;
+	pLoadPool[DataType::AsciiEnum] = new OmmAscii;
+	pLoadPool[DataType::Utf8Enum] = new OmmUtf8;
+	pLoadPool[DataType::RmtesEnum] = new OmmRmtes;
+	pLoadPool[DataType::ErrorEnum] = new OmmError;
+	pLoadPool[DataType::NoDataEnum] = new NoDataImpl;
+}
+
+void Decoder::destroyLoadPool( Data**& pLoadPool )
+{
+	if ( !pLoadPool ) return;
+
+	for ( UInt16 idx = 0; idx < 34; ++idx )
+		delete pLoadPool[idx];
+
+	delete [] pLoadPool;
+
+	pLoadPool = 0;
 }

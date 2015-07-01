@@ -52,8 +52,6 @@ private :
 	EmaBufferInt			_getBuffer;
 
 	Data::DataCode			_dataCode;
-
-	bool					_toStringSet;
 };
 
 }
