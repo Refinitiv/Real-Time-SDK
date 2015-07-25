@@ -83,6 +83,17 @@ https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
 Place the downloaded `enumtype.def` and `RDMFieldDictionary` under `/Eta/etc`
 If these are not present when building some of the applications, their build will fail when they reach the step to copy these.  The executable will still be built properly.  
 
+# Documentation
+
+Elektron Transport API Documentation is available online at https://customers.reuters.com/a/ODL/T_API_C/8.0/Docs/WebDocs/index.html 
+
+These are also available as part of the full Elektron SDK package that can be downloaded from the customer zone from the following location. 
+
+https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
+
+- **Category**: MDS - API
+- **Products**: Elektron SDK
+
 # Developing 
 
 If you discover any issues with regards to this project, please feel free to create an Issue.
