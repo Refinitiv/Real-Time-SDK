@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{9A123957-C594-4C27-AA71-9430BF283C4E}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{B8CBDFCA-531A-45DF-92B0-18DAE9626C75}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{FAE3A6B1-47FB-4A4A-ACB6-07AD5E83F78B}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+    </Filter>
+  </ItemGroup>
+	<ItemGroup>
+		<ClCompile Include="AssemblyInfo.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="ConnectForm.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="Form1.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="NewsConsumer.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="NewsWrapper.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="NewsDisplay.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ClInclude Include="NewsWrapper.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="NewsConsumer.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="ConnectForm.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Form1.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ResourceCompile Include="app.rc">
+		<Filter>Resource Files</Filter>
+		</ResourceCompile>
+		<ResourceCompile Include="ConnectForm.resX">
+		<Filter>Resource Files</Filter>
+		</ResourceCompile>
+		<ResourceCompile Include="Form1.resX">
+		<Filter>Resource Files</Filter>
+		</ResourceCompile>
+	</ItemGroup>
+
+  <ItemGroup>
+    <None Include="readme" />
+  </ItemGroup>
+</Project>

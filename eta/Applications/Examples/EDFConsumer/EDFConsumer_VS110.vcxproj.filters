@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{F3E97264-5D39-47BE-919C-66A6371CBA2A}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{C4059AAE-7F16-47CF-B390-F6E6EEA56748}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{08D5DA35-7A2A-4CF1-8906-B051EDFFED7A}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+    </Filter>
+  </ItemGroup>
+	<ItemGroup>
+		<ClCompile Include="edfExampleConfig.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="itemList.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="msgQueue.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="realTimeSession.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="rsslMarketByOrderHandler.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="rsslMarketPriceHandler.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="rsslMarketByPriceHandler.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="rsslEDFConsumer.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="gapRequestSession.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="gapFillSession.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="refDataSession.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="snapshotSession.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ClInclude Include="edfExampleConfig.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="itemList.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="msgQueue.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="realTimeSession.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="rsslMarketByOrderHandler.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="rsslMarketPriceHandler.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="rsslMarketByPriceHandler.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="gapRequestSession.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="gapFillSession.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="refDataSession.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="snapshotSession.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+	</ItemGroup>
+
+	<ItemGroup>
+	</ItemGroup>
+
+  <ItemGroup>
+    <None Include="readme" />
+  </ItemGroup>
+</Project>

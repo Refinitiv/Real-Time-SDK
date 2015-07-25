@@ -1,0 +1,121 @@
+rsslVANIProvider Application Description
+
+--------
+Summary:
+--------
+
+The purpose of this application is to demonstrate non-interactively providing
+Level I Market Price and Level 2 Market By Order data to an Advanced Data Hub(ADH)
+using ValueAdd components. It is a single-threaded client application.
+
+The consumer application implements callbacks that process information received
+by the ADH. It creates the RsslReactor, creates the desired connections, then
+dispatches from the RsslReactor for events and messages. Once it has received the
+event indicating that the channel is ready, it begins sending refresh and update
+messages for the given items.
+
+Reliable multicast can be used to communicate between this application and any
+ADH on the network. Then the non-interactive provider can send one message to
+all ADH's on the network instead of having to fan-out messages to each ADH
+TCP/IP connection. 
+
+This application can optionally use the Value Add payload cache component. If the 
+cache option is enabled, the OMM payload for all items will be stored
+in the cache. If the connection is down, updates will continue to be cached
+until the connection recovers. If items are cached, refreshes will be encoded
+from the cache entry.
+
+This application is intended as a basic usage example. Some of the design choices
+were made to favor simplicity and readability over performance. This application
+is not intended to be used for measuring performance.
+
+-----------------
+Application Name:
+-----------------
+
+rsslVANIProvider
+
+------------------
+Setup Environment:
+------------------
+
+The RDMFieldDictionary and enumtype.def files located in the etc directory
+must be located in the directory of execution. If the dictionary files
+cannot be found, the non-interactive provider application exits.
+
+-------------------
+Command line usage:
+-------------------  
+
+./rsslVANIProvider -tcp <hostname>:<port> <service name>  <item list> [-runtime <seconds>] [-cache]
+
+For multicast connections:
+
+./rsslVANIProvider -segmentedMulticast <send address>:<send port>:<network interface address> 
+	<receive address>:<receive port> <unicast port> <service name> <item list> [-runtime <seconds>] [-cache]
+
+The items list is a comma-separated pair of <domain:item name>.  The domains for the item 
+list may be any of: mp(MarketPrice), mbo(MarketByOrder)
+
+Specifying the -runtime option controls the time the application will run
+before exiting, in seconds.
+
+- rsslVANIProvider -? displays command line options.
+
+- Pressing the CTRL+C buttons terminates the program. 
+
+-----------------
+Compiling Source:
+-----------------
+
+The included makefile is set up to run from the file
+locations as presented through the distribution package.
+It is set up for building on the UPA supported 
+Solaris or Linux platforms using the supported compilers.
+
+The VA_CUSTOM_BUILT_LIBS value in the makefile is used to 
+link in UPA ValueAdd components compiled from the provided
+source code.  If a custom library is used, VA_CUSTOM_BUILT_LIBS 
+should be set to Yes.  In addition, the user should point the 
+VA_INCLUDE locations to the location where the directory of 
+the current platform's library is built.
+
+The LINKTYPE value in the makefile is used to control
+whether the application is built using UPA static or
+shared libraries. The default build uses UPA static
+libraries. To use UPA shared libraries,
+set LINKTYPE=Shared.
+
+To compile, run the gmake command.
+
+Gmake can be obtained at http://www.gnu.org/software/make/
+
+----------------
+Example Content:
+----------------
+
+Included for this application are:
+
+- Source files.
+
+- This document.
+
+--------------------
+Detailed Description
+--------------------
+
+rsslNIProvider.c - The main file for the rsslVANIProvider application.
+
+rsslNIDirectoryProvider.c - Provides directoy refresh message to send.
+
+rsslLoginProvider.c - Provides the login message callback.
+
+rsslVANIMarketPriceItems.c - Contains code used for generating Market Price content.
+
+rsslVANIMarketByOrderItems.c - Contains code used for generating Market By Order content.
+
+rsslItemHandler.c - Manages items being provided and sending of responses.
+
+rsslVASendMessage.c - Utility functions for sending messages.
+
+rsslVACacheHandler.c - Utility functions for applying and retrieving cache payload data.

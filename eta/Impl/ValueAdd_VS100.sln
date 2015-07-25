@@ -1,0 +1,74 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RDM_VS100", "RDM\RDM_VS100.vcxproj", "{9666CC91-0B60-BD96-7369-EEFEC8019D4E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Reactor_VS100", "Reactor\Reactor_VS100.vcxproj", "{BE30EACA-C614-F941-B41F-763A225B1C68}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VAUtil_VS100", "Util\VAUtil_VS100.vcxproj", "{6B5338A5-CE22-700B-4DF6-CA38DD53AF7B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libVA_VS100", "libVA_VS100.vcxproj", "{49486505-627E-54C0-4A44-7AC523021CEE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug MDd|x64 = Debug MDd|x64
+		Debug Shared MDd|x64 = Debug Shared MDd|x64
+		Release MD Assert|x64 = Release MD Assert|x64
+		Release MD|x64 = Release MD|x64
+		Release Shared MD Assert|x64 = Release Shared MD Assert|x64
+		Release Shared MD|x64 = Release Shared MD|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9666CC91-0B60-BD96-7369-EEFEC8019D4E}.Debug MDd|x64.ActiveCfg = Debug MDd|x64
+		{9666CC91-0B60-BD96-7369-EEFEC8019D4E}.Debug MDd|x64.Build.0 = Debug MDd|x64
+		{9666CC91-0B60-BD96-7369-EEFEC8019D4E}.Debug Shared MDd|x64.ActiveCfg = Debug MDd|x64
+		{9666CC91-0B60-BD96-7369-EEFEC8019D4E}.Debug Shared MDd|x64.Build.0 = Debug MDd|x64
+		{9666CC91-0B60-BD96-7369-EEFEC8019D4E}.Release MD Assert|x64.ActiveCfg = Release MD Assert|x64
+		{9666CC91-0B60-BD96-7369-EEFEC8019D4E}.Release MD Assert|x64.Build.0 = Release MD Assert|x64
+		{9666CC91-0B60-BD96-7369-EEFEC8019D4E}.Release MD|x64.ActiveCfg = Release MD|x64
+		{9666CC91-0B60-BD96-7369-EEFEC8019D4E}.Release MD|x64.Build.0 = Release MD|x64
+		{9666CC91-0B60-BD96-7369-EEFEC8019D4E}.Release Shared MD Assert|x64.ActiveCfg = Release MD Assert|x64
+		{9666CC91-0B60-BD96-7369-EEFEC8019D4E}.Release Shared MD Assert|x64.Build.0 = Release MD Assert|x64
+		{9666CC91-0B60-BD96-7369-EEFEC8019D4E}.Release Shared MD|x64.ActiveCfg = Release MD Assert|x64
+		{9666CC91-0B60-BD96-7369-EEFEC8019D4E}.Release Shared MD|x64.Build.0 = Release MD Assert|x64
+		{BE30EACA-C614-F941-B41F-763A225B1C68}.Debug MDd|x64.ActiveCfg = Debug MDd|x64
+		{BE30EACA-C614-F941-B41F-763A225B1C68}.Debug MDd|x64.Build.0 = Debug MDd|x64
+		{BE30EACA-C614-F941-B41F-763A225B1C68}.Debug Shared MDd|x64.ActiveCfg = Debug MDd|x64
+		{BE30EACA-C614-F941-B41F-763A225B1C68}.Debug Shared MDd|x64.Build.0 = Debug MDd|x64
+		{BE30EACA-C614-F941-B41F-763A225B1C68}.Release MD Assert|x64.ActiveCfg = Release MD Assert|x64
+		{BE30EACA-C614-F941-B41F-763A225B1C68}.Release MD Assert|x64.Build.0 = Release MD Assert|x64
+		{BE30EACA-C614-F941-B41F-763A225B1C68}.Release MD|x64.ActiveCfg = Release MD|x64
+		{BE30EACA-C614-F941-B41F-763A225B1C68}.Release MD|x64.Build.0 = Release MD|x64
+		{BE30EACA-C614-F941-B41F-763A225B1C68}.Release Shared MD Assert|x64.ActiveCfg = Release MD Assert|x64
+		{BE30EACA-C614-F941-B41F-763A225B1C68}.Release Shared MD Assert|x64.Build.0 = Release MD Assert|x64
+		{BE30EACA-C614-F941-B41F-763A225B1C68}.Release Shared MD|x64.ActiveCfg = Release MD Assert|x64
+		{BE30EACA-C614-F941-B41F-763A225B1C68}.Release Shared MD|x64.Build.0 = Release MD Assert|x64
+		{6B5338A5-CE22-700B-4DF6-CA38DD53AF7B}.Debug MDd|x64.ActiveCfg = Debug MDd|x64
+		{6B5338A5-CE22-700B-4DF6-CA38DD53AF7B}.Debug MDd|x64.Build.0 = Debug MDd|x64
+		{6B5338A5-CE22-700B-4DF6-CA38DD53AF7B}.Debug Shared MDd|x64.ActiveCfg = Debug MDd|x64
+		{6B5338A5-CE22-700B-4DF6-CA38DD53AF7B}.Debug Shared MDd|x64.Build.0 = Debug MDd|x64
+		{6B5338A5-CE22-700B-4DF6-CA38DD53AF7B}.Release MD Assert|x64.ActiveCfg = Release MD Assert|x64
+		{6B5338A5-CE22-700B-4DF6-CA38DD53AF7B}.Release MD Assert|x64.Build.0 = Release MD Assert|x64
+		{6B5338A5-CE22-700B-4DF6-CA38DD53AF7B}.Release MD|x64.ActiveCfg = Release MD|x64
+		{6B5338A5-CE22-700B-4DF6-CA38DD53AF7B}.Release MD|x64.Build.0 = Release MD|x64
+		{6B5338A5-CE22-700B-4DF6-CA38DD53AF7B}.Release Shared MD Assert|x64.ActiveCfg = Release MD Assert|x64
+		{6B5338A5-CE22-700B-4DF6-CA38DD53AF7B}.Release Shared MD Assert|x64.Build.0 = Release MD Assert|x64
+		{6B5338A5-CE22-700B-4DF6-CA38DD53AF7B}.Release Shared MD|x64.ActiveCfg = Release MD Assert|x64
+		{6B5338A5-CE22-700B-4DF6-CA38DD53AF7B}.Release Shared MD|x64.Build.0 = Release MD Assert|x64
+		{49486505-627E-54C0-4A44-7AC523021CEE}.Debug MDd|x64.ActiveCfg = Debug Shared MDd|x64
+		{49486505-627E-54C0-4A44-7AC523021CEE}.Debug MDd|x64.Build.0 = Debug Shared MDd|x64
+		{49486505-627E-54C0-4A44-7AC523021CEE}.Debug Shared MDd|x64.ActiveCfg = Debug Shared MDd|x64
+		{49486505-627E-54C0-4A44-7AC523021CEE}.Debug Shared MDd|x64.Build.0 = Debug Shared MDd|x64
+		{49486505-627E-54C0-4A44-7AC523021CEE}.Release MD Assert|x64.ActiveCfg = Release Shared MD Assert|x64
+		{49486505-627E-54C0-4A44-7AC523021CEE}.Release MD Assert|x64.Build.0 = Release Shared MD Assert|x64
+		{49486505-627E-54C0-4A44-7AC523021CEE}.Release MD|x64.ActiveCfg = Release Shared MD Assert|x64
+		{49486505-627E-54C0-4A44-7AC523021CEE}.Release MD|x64.Build.0 = Release Shared MD Assert|x64
+		{49486505-627E-54C0-4A44-7AC523021CEE}.Release Shared MD Assert|x64.ActiveCfg = Release Shared MD Assert|x64
+		{49486505-627E-54C0-4A44-7AC523021CEE}.Release Shared MD Assert|x64.Build.0 = Release Shared MD Assert|x64
+		{49486505-627E-54C0-4A44-7AC523021CEE}.Release Shared MD|x64.ActiveCfg = Release Shared MD|x64
+		{49486505-627E-54C0-4A44-7AC523021CEE}.Release Shared MD|x64.Build.0 = Release Shared MD|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

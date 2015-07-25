@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{98FA5D3D-1A93-4FCF-89A3-0CCDD50139BA}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{955112F1-5344-40EB-A311-A08A1F9FF957}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{4F38DA78-5CD8-45A1-943E-0301367D8FCA}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+    </Filter>
+  </ItemGroup>
+	<ItemGroup>
+		<ClCompile Include="Util\rsslMemoryBuffer.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="Util\rsslHashTable.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="Util\DllVAMain.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="RDM\rsslRDMDictionaryMsg.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="RDM\rsslRDMDirectoryMsg.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="RDM\rsslRDMLoginMsg.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="RDM\rsslRDMQueueMsg.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="Reactor\rsslReactorWorker.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="Reactor\rsslReactor.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="Reactor\TunnelStream\bufferPool.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="Reactor\TunnelStream\tunnelManager.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="Reactor\TunnelStream\msgQueueEncDec.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="Reactor\TunnelStream\persistFile.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="Reactor\TunnelStream\rsslRDMQueueMsgInt.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="Reactor\TunnelStream\rsslTunnelStream.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="Reactor\TunnelStream\tunnelStreamImpl.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="Reactor\TunnelStream\tunnelSubstream.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="Reactor\Watchlist\rsslWatchlistImpl.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="Reactor\Watchlist\wlBase.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="Reactor\Watchlist\wlDirectory.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="Reactor\Watchlist\wlItem.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="Reactor\Watchlist\wlLogin.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="Reactor\Watchlist\wlMsgReorderQueue.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="Reactor\Watchlist\wlService.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="Reactor\Watchlist\wlServiceCache.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="Reactor\Watchlist\wlSymbolList.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="Reactor\Watchlist\wlView.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ClInclude Include="..\Include\Util\rtr\rsslEventSignal.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Include\Util\rtr\rsslMemoryBuffer.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Include\Util\rtr\rsslHashTable.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Include\Util\rtr\rsslQueue.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Include\Util\rtr\rsslThread.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Include\Util\rtr\rsslErrorInfo.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Include\RDM\rtr\rsslRDMMsgBase.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Include\RDM\rtr\rsslRDMMsg.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Include\RDM\rtr\rsslRDMDictionaryMsg.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Include\RDM\rtr\rsslRDMDirectoryMsg.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Include\RDM\rtr\rsslRDMLoginMsg.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Include\RDM\rtr\rsslRDMQueueMsg.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\rtr\rsslReactorEventsImpl.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\rtr\rsslReactorEventQueue.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\rtr\rsslReactorImpl.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Include\Reactor\rtr\rsslClassOfService.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Include\Reactor\rtr\rsslReactorEvents.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Include\Reactor\rtr\rsslReactorChannel.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Include\Reactor\rtr\rsslReactor.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Include\Reactor\rtr\rsslTunnelStream.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\TunnelStream\rtr\bufferPool.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\TunnelStream\rtr\msgQueueEncDec.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\TunnelStream\rtr\msgQueueHeader.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\TunnelStream\rtr\msgQueueSubstreamHeader.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\TunnelStream\rtr\msgQueueTimeoutCodes.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\TunnelStream\rtr\persistFile.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\TunnelStream\rtr\rsslRDMQueueMsgInt.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\TunnelStream\rtr\tunnelManager.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\TunnelStream\rtr\tunnelManagerImpl.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\TunnelStream\rtr\tunnelStreamImpl.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\TunnelStream\rtr\tunnelStreamReturnCodes.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\TunnelStream\rtr\tunnelSubstream.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\Watchlist\rtr\rsslWatchlist.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\Watchlist\rtr\rsslWatchlistImpl.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\Watchlist\rtr\wlPostIdTable.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\Watchlist\rtr\wlBase.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\Watchlist\rtr\wlDirectory.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\Watchlist\rtr\wlItem.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\Watchlist\rtr\wlLogin.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\Watchlist\rtr\wlMsgReorderQueue.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\Watchlist\rtr\wlService.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\Watchlist\rtr\wlServiceCache.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\Watchlist\rtr\wlStream.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\Watchlist\rtr\wlSymbolList.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\Watchlist\rtr\wlView.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Util\rtr\rsslReactorUtils.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+	</ItemGroup>
+
+	<ItemGroup>
+	</ItemGroup>
+
+  <ItemGroup>
+    <None Include="readme" />
+  </ItemGroup>
+</Project>

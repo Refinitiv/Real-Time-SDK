@@ -1,0 +1,77 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cacheStubsShared_VS110", "cacheStubsShared_VS110.vcxproj", "{0A3BEE08-9F9A-46B4-BE78-793AF2131344}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9F3338E0-2282-4E6E-B078-8419356437B8} = {9F3338E0-2282-4E6E-B078-8419356437B8}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cacheStubsStatic_VS110", "cacheStubsStatic_VS110.vcxproj", "{272CA2A5-A41C-4045-AB8A-1A3C1A446F31}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "stubsShared_VS110", "stubsShared_VS110.vcxproj", "{9F3338E0-2282-4E6E-B078-8419356437B8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "stubsStatic_VS110", "stubsStatic_VS110.vcxproj", "{90884576-C0CE-47F7-B295-5FF6D341DB18}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug MDd|x64 = Debug MDd|x64
+		Debug Shared MDd|x64 = Debug Shared MDd|x64
+		Release MD Assert|x64 = Release MD Assert|x64
+		Release MD|x64 = Release MD|x64
+		Release Shared MD Assert|x64 = Release Shared MD Assert|x64
+		Release Shared MD|x64 = Release Shared MD|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0A3BEE08-9F9A-46B4-BE78-793AF2131344}.Debug MDd|x64.ActiveCfg = Debug Shared MDd|x64
+		{0A3BEE08-9F9A-46B4-BE78-793AF2131344}.Debug MDd|x64.Build.0 = Debug Shared MDd|x64
+		{0A3BEE08-9F9A-46B4-BE78-793AF2131344}.Debug Shared MDd|x64.ActiveCfg = Debug Shared MDd|x64
+		{0A3BEE08-9F9A-46B4-BE78-793AF2131344}.Debug Shared MDd|x64.Build.0 = Debug Shared MDd|x64
+		{0A3BEE08-9F9A-46B4-BE78-793AF2131344}.Release MD Assert|x64.ActiveCfg = Release Shared MD Assert|x64
+		{0A3BEE08-9F9A-46B4-BE78-793AF2131344}.Release MD Assert|x64.Build.0 = Release Shared MD Assert|x64
+		{0A3BEE08-9F9A-46B4-BE78-793AF2131344}.Release MD|x64.ActiveCfg = Release Shared MD Assert|x64
+		{0A3BEE08-9F9A-46B4-BE78-793AF2131344}.Release MD|x64.Build.0 = Release Shared MD Assert|x64
+		{0A3BEE08-9F9A-46B4-BE78-793AF2131344}.Release Shared MD Assert|x64.ActiveCfg = Release Shared MD Assert|x64
+		{0A3BEE08-9F9A-46B4-BE78-793AF2131344}.Release Shared MD Assert|x64.Build.0 = Release Shared MD Assert|x64
+		{0A3BEE08-9F9A-46B4-BE78-793AF2131344}.Release Shared MD|x64.ActiveCfg = Release Shared MD|x64
+		{0A3BEE08-9F9A-46B4-BE78-793AF2131344}.Release Shared MD|x64.Build.0 = Release Shared MD|x64
+		{272CA2A5-A41C-4045-AB8A-1A3C1A446F31}.Debug MDd|x64.ActiveCfg = Debug MDd|x64
+		{272CA2A5-A41C-4045-AB8A-1A3C1A446F31}.Debug MDd|x64.Build.0 = Debug MDd|x64
+		{272CA2A5-A41C-4045-AB8A-1A3C1A446F31}.Debug Shared MDd|x64.ActiveCfg = Debug MDd|x64
+		{272CA2A5-A41C-4045-AB8A-1A3C1A446F31}.Debug Shared MDd|x64.Build.0 = Debug MDd|x64
+		{272CA2A5-A41C-4045-AB8A-1A3C1A446F31}.Release MD Assert|x64.ActiveCfg = Release MD Assert|x64
+		{272CA2A5-A41C-4045-AB8A-1A3C1A446F31}.Release MD Assert|x64.Build.0 = Release MD Assert|x64
+		{272CA2A5-A41C-4045-AB8A-1A3C1A446F31}.Release MD|x64.ActiveCfg = Release MD|x64
+		{272CA2A5-A41C-4045-AB8A-1A3C1A446F31}.Release MD|x64.Build.0 = Release MD|x64
+		{272CA2A5-A41C-4045-AB8A-1A3C1A446F31}.Release Shared MD Assert|x64.ActiveCfg = Release MD|x64
+		{272CA2A5-A41C-4045-AB8A-1A3C1A446F31}.Release Shared MD Assert|x64.Build.0 = Release MD|x64
+		{272CA2A5-A41C-4045-AB8A-1A3C1A446F31}.Release Shared MD|x64.ActiveCfg = Release MD|x64
+		{272CA2A5-A41C-4045-AB8A-1A3C1A446F31}.Release Shared MD|x64.Build.0 = Release MD|x64
+		{9F3338E0-2282-4E6E-B078-8419356437B8}.Debug MDd|x64.ActiveCfg = Debug Shared MDd|x64
+		{9F3338E0-2282-4E6E-B078-8419356437B8}.Debug MDd|x64.Build.0 = Debug Shared MDd|x64
+		{9F3338E0-2282-4E6E-B078-8419356437B8}.Debug Shared MDd|x64.ActiveCfg = Debug Shared MDd|x64
+		{9F3338E0-2282-4E6E-B078-8419356437B8}.Debug Shared MDd|x64.Build.0 = Debug Shared MDd|x64
+		{9F3338E0-2282-4E6E-B078-8419356437B8}.Release MD Assert|x64.ActiveCfg = Release Shared MD Assert|x64
+		{9F3338E0-2282-4E6E-B078-8419356437B8}.Release MD Assert|x64.Build.0 = Release Shared MD Assert|x64
+		{9F3338E0-2282-4E6E-B078-8419356437B8}.Release MD|x64.ActiveCfg = Release Shared MD Assert|x64
+		{9F3338E0-2282-4E6E-B078-8419356437B8}.Release MD|x64.Build.0 = Release Shared MD Assert|x64
+		{9F3338E0-2282-4E6E-B078-8419356437B8}.Release Shared MD Assert|x64.ActiveCfg = Release Shared MD Assert|x64
+		{9F3338E0-2282-4E6E-B078-8419356437B8}.Release Shared MD Assert|x64.Build.0 = Release Shared MD Assert|x64
+		{9F3338E0-2282-4E6E-B078-8419356437B8}.Release Shared MD|x64.ActiveCfg = Release Shared MD|x64
+		{9F3338E0-2282-4E6E-B078-8419356437B8}.Release Shared MD|x64.Build.0 = Release Shared MD|x64
+		{90884576-C0CE-47F7-B295-5FF6D341DB18}.Debug MDd|x64.ActiveCfg = Debug MDd|x64
+		{90884576-C0CE-47F7-B295-5FF6D341DB18}.Debug MDd|x64.Build.0 = Debug MDd|x64
+		{90884576-C0CE-47F7-B295-5FF6D341DB18}.Debug Shared MDd|x64.ActiveCfg = Debug MDd|x64
+		{90884576-C0CE-47F7-B295-5FF6D341DB18}.Debug Shared MDd|x64.Build.0 = Debug MDd|x64
+		{90884576-C0CE-47F7-B295-5FF6D341DB18}.Release MD Assert|x64.ActiveCfg = Release MD Assert|x64
+		{90884576-C0CE-47F7-B295-5FF6D341DB18}.Release MD Assert|x64.Build.0 = Release MD Assert|x64
+		{90884576-C0CE-47F7-B295-5FF6D341DB18}.Release MD|x64.ActiveCfg = Release MD|x64
+		{90884576-C0CE-47F7-B295-5FF6D341DB18}.Release MD|x64.Build.0 = Release MD|x64
+		{90884576-C0CE-47F7-B295-5FF6D341DB18}.Release Shared MD Assert|x64.ActiveCfg = Release MD|x64
+		{90884576-C0CE-47F7-B295-5FF6D341DB18}.Release Shared MD Assert|x64.Build.0 = Release MD|x64
+		{90884576-C0CE-47F7-B295-5FF6D341DB18}.Release Shared MD|x64.ActiveCfg = Release MD|x64
+		{90884576-C0CE-47F7-B295-5FF6D341DB18}.Release Shared MD|x64.Build.0 = Release MD|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

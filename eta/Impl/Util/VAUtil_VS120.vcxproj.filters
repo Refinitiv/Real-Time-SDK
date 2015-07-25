@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{842334D8-EDBE-4724-B6CA-4F7D56B3B961}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{1A556EA3-2F03-4F21-BB14-8E7BE83A1EA0}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{FD53AB8E-83EF-4EA4-9110-0CD06B635C0F}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+    </Filter>
+  </ItemGroup>
+	<ItemGroup>
+		<ClCompile Include="rsslMemoryBuffer.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="rsslHashTable.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ClInclude Include="..\..\Include\Util\rtr\rsslEventSignal.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\Include\Util\rtr\rsslMemoryBuffer.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\Include\Util\rtr\rsslHashTable.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\Include\Util\rtr\rsslQueue.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\Include\Util\rtr\rsslThread.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\Include\Util\rtr\rsslErrorInfo.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\Include\Util\rtr\rsslHeapBuffer.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\Include\Util\rtr\rsslMemoryPool.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\Include\Util\rtr\rsslVAExports.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\Include\Util\rtr\rsslVAUtils.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+	</ItemGroup>
+
+	<ItemGroup>
+	</ItemGroup>
+
+  <ItemGroup>
+    <None Include="readme" />
+  </ItemGroup>
+</Project>

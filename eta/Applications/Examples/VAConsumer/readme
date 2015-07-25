@@ -1,0 +1,232 @@
+rsslVAConsumer Application Description
+
+--------
+Summary:
+--------
+
+The purpose of this application is to demonstrate consuming data from
+an OMM Provider using ValueAdd components.  It is a single-threaded
+client application.
+
+The consumer application implements callbacks that process information
+received by the provider.  It creates the RsslReactor, creates the
+desired connections, then dispatches from the RsslReactor for events and
+messages.  Once it has received the event indicating that the channel is 
+ready, it will make the desired item requests (snapshot or streaming) to 
+a provider and appropriately processes the responses. The resulting decoded 
+responses from the provider are displayed on the console.
+
+If the dictionary is found in the directory of execution, then it is loaded
+directly from the file.  However, the default configuration for this application
+is to request the dictionary from the provider.  Hence, no link to the dictionary
+is made in the execution directory by the build script.  The user can change this
+behavior by manually creating a link to the dictionary in the execution directory.
+
+This application supports consuming Level I Market Price, Level II Market By
+Order, Level II Market By Price and Yield Curve. This application optionally performs
+on-stream posting for Level I Market Price content.  
+
+This application can optionally perform on-stream and off-stream posting for Level I
+Market Price content. The item name used for an off-stream post is "OFFPOST". For
+simplicity, the off-stream post item name is not configurable, but users can modify
+the code if desired.
+
+If multiple item requests are specified on the command line for the same domain and
+the provider supports batch requests, this application will send the item requests as a
+single Batch request.
+
+If supported by the provider and the application requests view use, a dynamic
+view will be requested with all Level I Market Price requests.  For simplicity,
+this view is not configurable but users can modify the code to change the
+requested view.  
+
+This application supports a symbol list request. The symbol list name is optional.
+If the user does not provide a symbol list name, the name is taken from the source
+directory response.
+
+This application can optionally use the Value Add payload cache component for storing
+the OMM payload of the open items in a cache associated with each connection. When using
+cache, payload from refreshes and updates are written to cache, instead of decoded to
+the console. The contents of the cache are retrieved and decoded to the console at the
+end of the application runtime. Optionally, the contents of cache can also be displayed
+periodically during application runtime.
+
+This application can open tunnel streams to a provider that supports them (via the -tunnel option),
+such as the included provider example, or to a queue provider service for queue messaging (see
+options such as -qSourceName).
+
+This application is intended as a basic usage example.  Some of the design choices
+were made to favor simplicity and readability over performance.  This application 
+is not intended to be used for measuring performance.
+ 
+-----------------
+Application Name:
+-----------------
+
+rsslVAConsumer
+
+------------------
+Setup Environment:
+------------------
+
+The RDMFieldDictionary and enumtype.def files located in the etc directory
+can be located in the directory of execution.  If the dictionary files
+cannot be found, they are requested from the provider.
+
+-------------------
+Command line usage:
+-------------------  
+
+rsslVAConsumer 
+(runs with a default set of paramters(-tcp localhost:14002 DIRECT_FEED mp:TRI -tcp localhost:14002 DIRECT_FEED mp:.DJI))
+
+or
+
+rsslVAConsumer [-tcp [<hostname>:<port> <service>] [<domain>:<item name>,...] [-uname <LoginUsername>] [-view] [-post] [-offpost] [-snapshot] [-x] [-runtime <seconds>] [-cache] [-cacheInterval <seconds>] [-qSourceName <name>] [-qDestName <name>] [-tsServiceName <service>] [-tunnel] [-tsAuth] [-tsDomain <domain>]
+
+
+-tcp specifies creating a channel on the given host and port, a service to request items from, and the list of items to request.
+
+The domains for the item list may be any of: mp(MarketPrice), mbo(MarketByOrder), mbp(MarketByPrice), yc(YieldCurve), sl(SymbolList)
+The domain may also be any of the private stream domains: mpps(MarketPrice PS), mbops(MarketByOrder PS), mbpps(MarketByPrice PS), ycps(YieldCurve PS)
+
+	Example Usage: -tcp localhost:14002 DIRECT_FEED mp:TRI,mp:GOOG,mpps:FB,mbo:MSFT,mbpps:IBM,yc:YCMAT01,sl
+
+Symbol list requests may optionally specify a name, e.g. "sl:_UPA_ITEM_LIST." If a name is not
+specified, the consumer will use the ItemList from the directory response.
+
+Specifying the -view option will result in a dynamic view being requested with any
+MarketPrice items.  If the provider does not indicate support for dynamic views, this
+functionality will not be performed.
+
+Specifying the -post option will enable the consumer application to attempt on-stream
+posting to the provider.  When a provider supports posting, the consumer will post to
+the first successfully established MarketPrice stream.  If no MarketPrice items are 
+requested, posting will be disabled.  While posting, the appliation will alternate
+between a Post message that contains another message and a Post message that contains
+only data payload. 
+
+Specifying the -offpost option will enable the consumer application to attempt off-stream
+posting to the VAprovider.  When a VAprovider supports posting, the consumer will post to 
+the login stream. 
+
+Specifying the -snapshot option results in a non-streaming or "snapshot" request for
+all items.
+
+Specifying the -runtime option controls the time the application will run
+before exiting, in seconds.
+
+Specifying the -cache option will store each received refresh or update payload into
+a cache, instead of decoding to the console. 
+
+The -uname option changes the username used when logging into the provider.
+
+The -x option enables tracing of messages received on the connection, to the screen and to a file.
+
+Specifying the -cacheInterval will set the number of seconds between the display of the
+cache contents. The default value is 0: cache contents are not displayed at regular intervals,
+but only displayed on exit when runtime completes.
+
+The -tunnel option opens a tunnel stream to the provider for exchanging simple messages (see
+  -qSourceName for performing queue messaging). This option may be specified once per channel.
+
+The -qSourceName option enables queue messaging and specifies a name of a queue to open. 
+Like the other queue messaging options, this is associated with a channel (specified 
+by the -tcp option). This option may be specified once per channel.
+
+The -qDestName option specifies the name of a queue to which the consumer will send messages. 
+This option requires -qSourceName to be specified. Like the other queue messaging 
+options, this is associated with a channel (specified by the -tcp option). This option may
+be specified multiple times to send to multiple destinations.
+
+The -tsServiceName option may be used to specify the name of the service used for tunnel stream
+messaging or queue messaging. This option is associated with a channel (specified by the -tcp option).  If not 
+specified, the service name used will be the same as the service name specified for the channel 
+via the -tcp option. 
+
+The -tsAuth option causes the consumer to use authentication when performing tunnel stream
+messaging or queue messaging (it is applied to either).  Like the other queue messaging options, 
+this is associated with a channel (specified by the -tcp option). This option may be specified 
+once per channel.
+
+The -tsDomain option specifies the domainType to use when opening the tunnel stream,
+for the simple tunnel messaging or queue messaging. Like the other queue messaging options, 
+this is associated with a channel (specified by the -tcp option). This option may be specified 
+once per channel.
+
+- rsslVAConsumer -? displays command line options.  
+
+- Pressing the CTRL+C buttons terminates the program.  
+
+-----------------
+Compiling Source:
+-----------------
+
+The included makefile is set up to run from the file
+locations as presented through the distribution package.
+It is set up for building on the UPA supported 
+Solaris or Linux platforms using the supported compilers.
+
+The VA_CUSTOM_BUILT_LIBS value in the makefile is used to 
+link in UPA ValueAdd components compiled from the provided
+source code.  If a custom library is used, VA_CUSTOM_BUILT_LIBS 
+should be set to Yes.  In addition, the user should point the 
+VA_INCLUDE locations to the location where the directory of 
+the current platform's library is built.
+
+The LINKTYPE value in the makefile is used to control
+whether the application is built using UPA static or
+shared libraries. The default build uses UPA static
+libraries. To use UPA shared libraries,
+set LINKTYPE=Shared.
+
+To compile, run the gmake command.
+
+Gmake can be obtained at http://www.gnu.org/software/make/
+
+----------------
+Example Content:
+----------------
+
+Included for this application are:
+
+- Source files.
+
+- This document.
+
+--------------------
+Detailed Description
+--------------------
+
+rsslConsumer.c - The main file for the rsslVAConsumer application. Provides the default message callback.
+
+rsslDictionaryHandler.c - Handles loading the dictionaries and provides the dictionary message callback.
+
+rsslDirectoryHandler.c - Provides the directory message callback.
+
+rsslLoginConsumer.c - Provides the login message callback.
+
+rsslMarketPriceHandler.c - Provides functions for encoding market price requests and decoding responses.
+
+rsslMarketByOrderHandler.c - Provides functions for encoding market by order requests and decoding responses. 
+
+rsslMarketByPriceHandler.c - Provides functions for encoding market by price requests and decoding responses. 
+
+rsslYieldCurveHandler.c - Provides functionality for encoding yield curve requests and decoding responses.
+
+rsslSymbolListHandler.c - Provides functions for encoding symbol list requests and decoding responses. 
+
+rsslPostHandler.c - This handles all post message encoding and sending when the -post option is specified.  
+
+rsslVAMarketPriceItems.c - This encodes market price content inside of the Post message when posting is enabled.
+
+rsslVASendMessage.c - Utility functions for sending messages.
+
+rsslVACacheHandler.c - Utility functions for applying and retrieving cache payload data.
+
+tunnelStreamHandler.c - Provides tunnel stream management, used by the SimpleTunnelStreamMsgHandler and QueueMsgHandler.
+
+simpleTunnelMsgHandler.c - Provides functionality for sending and receiving basic messages via a tunnel stream.
+
+queueMsgHandler.c - Provides functionality for sending and receiving queue messages via a tunnel stream.
+
