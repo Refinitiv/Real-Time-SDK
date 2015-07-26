@@ -1,0 +1,19 @@
+function FileData_Pairs(x)
+{
+x.t("omm","data");
+x.t("calls","programmatically");
+x.t("via","omm");
+x.t("via","emaconfig.xml");
+x.t("addition","changing");
+x.t("emaconfig.xml","function");
+x.t("function","calls");
+x.t("programmatically","via");
+x.t("programmatic","configuration");
+x.t("changing","ema\u2019s");
+x.t("configuration","via");
+x.t("configuration","addition");
+x.t("configuration","4.4");
+x.t("4.4","programmatic");
+x.t("data","structure");
+x.t("ema\u2019s","configuration");
+}

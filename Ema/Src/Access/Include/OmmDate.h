@@ -30,7 +30,7 @@
 
 	void decodeElementList( const ElementList& eList )
 	{
-		while ( !eList.forth() )
+		while ( eList.forth() )
 		{
 			const ElementEntry& eEntry = eList.getEntry();
 

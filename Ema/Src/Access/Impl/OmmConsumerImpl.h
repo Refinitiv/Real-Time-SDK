@@ -44,6 +44,7 @@ class ReqMsg;
 class RespMsg;
 class GenericMsg;
 class PostMsg;
+class TunnelStreamRequest;
 
 class ChannelCallbackClient;
 class LoginCallbackClient;
@@ -57,8 +58,8 @@ class OmmConsumerImplMap
 {
 public :
 
-	static UInt64 push_back( OmmConsumerImpl* );
-	static void removeValue( OmmConsumerImpl* );
+	static UInt64 add( OmmConsumerImpl* );
+	static void remove( OmmConsumerImpl* );
 
 #ifdef WIN32
 	static BOOL WINAPI TermHandlerRoutine( DWORD dwCtrlType );
@@ -72,8 +73,9 @@ private :
 	static void atExit();
 
 	static Mutex							_listLock;
-	static EmaList< OmmConsumerImpl >		_ommConsumerList;
+	static EmaVector< OmmConsumerImpl* >	_ommConsumerList;
 	static UInt64							_id;
+	static bool								_clearSigHandler;
 
 #ifndef WIN32
 	static struct sigaction _sigAction;
@@ -81,7 +83,7 @@ private :
 #endif 
 };
 
-class OmmConsumerImpl : public Thread, public ListLinks< OmmConsumerImpl >
+class OmmConsumerImpl : public Thread
 {
 public :
 
@@ -97,6 +99,12 @@ public :
 
 	static RsslReactorCallbackRet channelOpenCallback( RsslReactor* , RsslReactorChannel* , RsslReactorChannelEvent* );
 
+	static RsslReactorCallbackRet tunnelStreamStatusEventCallback( RsslTunnelStream* , RsslTunnelStreamStatusEvent* );
+
+	static RsslReactorCallbackRet tunnelStreamDefaultMsgCallback( RsslTunnelStream* , RsslTunnelStreamMsgEvent* );
+
+	static RsslReactorCallbackRet tunnelStreamQueueMsgCallback( RsslTunnelStream* , RsslTunnelStreamQueueMsgEvent* );
+
 	OmmConsumerImpl( const OmmConsumerConfig& );
 
 	OmmConsumerImpl( const OmmConsumerConfig& , OmmConsumerErrorClient& );
@@ -105,7 +113,9 @@ public :
 
 	const EmaString& getConsumerName() const;
 
-	UInt64 registerClient( const ReqMsg& , OmmConsumerClient& , void* closure = 0 ); 
+	UInt64 registerClient( const ReqMsg& , OmmConsumerClient& , void* closure = 0, UInt64 parentHandle = 0 ); 
+
+	UInt64 registerClient( const TunnelStreamRequest& , OmmConsumerClient& , void* closure = 0 );
 
 	void reissue( const ReqMsg& reqMsg, UInt64 handle ); 
 
@@ -168,13 +178,15 @@ private :
 
 	void initialize( const OmmConsumerConfig& );
 
-	void uninitialize();
+	void uninitialize( bool caughtExcep = false );
 
 	void readConfig( const OmmConsumerConfig& );
 
 	void setAtExit();
 
 	void run();
+
+	void cleanUp();
 
 	int runLog( void*, const char*, unsigned int );
 

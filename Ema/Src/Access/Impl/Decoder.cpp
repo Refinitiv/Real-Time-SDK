@@ -61,7 +61,19 @@ void Decoder::setRsslData( Data* pData,
 	DataType::DataTypeEnum dType;
 
 	if ( rsslType == RSSL_DT_MSG )
-		dType = msgDataType[ rsslExtractMsgClass( pDecodeIter ) ];
+	{
+		RsslMsg rsslMsg;
+		rsslClearMsg( &rsslMsg );
+
+		RsslDecodeIterator decodeIter;
+		rsslClearDecodeIterator( &decodeIter );
+		
+		RsslRet retCode = rsslSetDecodeIteratorRWFVersion( &decodeIter, pDecodeIter->_majorVersion, pDecodeIter->_minorVersion );
+	
+		retCode = rsslSetDecodeIteratorBuffer( &decodeIter, pRsslBuffer );
+
+		dType = msgDataType[ rsslExtractMsgClass( &decodeIter ) ];
+	}
 	else
 		dType = dataType[rsslType];
 
@@ -84,7 +96,19 @@ Data* Decoder::setRsslData( Data** pLoadPool, RsslDataType rsslType, RsslDecodeI
 	DataType::DataTypeEnum dType;
 
 	if ( rsslType == RSSL_DT_MSG )
-		dType = msgDataType[ rsslExtractMsgClass( pDecodeIter ) ];
+	{
+		RsslMsg rsslMsg;
+		rsslClearMsg( &rsslMsg );
+
+		RsslDecodeIterator decodeIter;
+		rsslClearDecodeIterator( &decodeIter );
+		
+		RsslRet retCode = rsslSetDecodeIteratorRWFVersion( &decodeIter, pDecodeIter->_majorVersion, pDecodeIter->_minorVersion );
+	
+		retCode = rsslSetDecodeIteratorBuffer( &decodeIter, pRsslBuffer );
+
+		dType = msgDataType[ rsslExtractMsgClass( &decodeIter ) ];
+	}
 	else
 		dType = dataType[rsslType];
 

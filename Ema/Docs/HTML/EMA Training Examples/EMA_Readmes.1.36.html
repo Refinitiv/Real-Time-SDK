@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>421__MarketPrice__ProgrammaticConfig</title>
+    <link rel="StyleSheet" href="css/EMA_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <br />
+    <hr align="left" />
+    <blockquote>
+      <div class="H2_NoNum"><a name="1017940">421__MarketPrice__ProgrammaticConfig</a></div>
+      <div class="Body"><a name="1026801">Summary</a></div>
+      <div class="Body"><a name="1026802">=======</a></div>
+      <div class="Body"><a name="1026803">&nbsp;</a></div>
+      <div class="Body"><a name="1026804">The 421__MarketPrice__ProgrammaticConfig application is provided as an example</a></div>
+      <div class="Body"><a name="1026805">of OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1026806">&nbsp;</a></div>
+      <div class="Body"><a name="1026807">This application demonstrates basic usage of the EMA library for accessing and</a></div>
+      <div class="Body"><a name="1026808">parsing of OMM MarketPrice Domain data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1026809">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1026810">Distribution Server.</a></div>
+      <div class="Body"><a name="1026811">&nbsp;</a></div>
+      <div class="Body"><a name="1026812">The 421__MarketPrice__ProgrammaticConfig showcases creation and usage of the </a></div>
+      <div class="Body"><a name="1026813">programmatic configuration feature of EMA. In addition to file configuration,</a></div>
+      <div class="Body"><a name="1026814">EMA allows users to programmaticaly configure Omm Consumer instances.</a></div>
+      <div class="Body"><a name="1026815">&nbsp;</a></div>
+      <div class="Body"><a name="1026816">&nbsp;</a></div>
+      <div class="Body"><a name="1026817">Detailed Description</a></div>
+      <div class="Body"><a name="1026818">====================</a></div>
+      <div class="Body"><a name="1026819">&nbsp;</a></div>
+      <div class="Body"><a name="1026820">The 421__MarketPrice__ProgrammaticConfig implements the following high level steps:</a></div>
+      <div class="Body"><a name="1026821">&nbsp;</a></div>
+      <div class="Body"><a name="1026822">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1026823">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1026824">  - provides own methods as needed</a></div>
+      <div class="Body"><a name="1026825">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1026826">+ Instantiates a Map (configMap object) and populates it with configuration info</a></div>
+      <div class="Body"><a name="1026827">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1026828">  - sets Omm Consumer configuration with data from the programmatic configuration</a></div>
+      <div class="Body"><a name="1026829">+ Instantiates OmmConsumer object which initializes connection and logins into</a></div>
+      <div class="Body"><a name="1026830">  the specified server</a></div>
+      <div class="Body"><a name="1026831">+ Opens a streaming item interest</a></div>
+      <div class="Body"><a name="1026832">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1026833">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1026834">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1026835">+ Exits</a></div>
+      <div class="Body"><a name="1026836">&nbsp;</a></div>
+      <div class="Body"><a name="1026837">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1026838">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1026839">	  </a></div>
+      <div class="Body"><a name="1026840">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1026841">      standard configuration.</a></div>
+      <div class="Body"><a name="1024812">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

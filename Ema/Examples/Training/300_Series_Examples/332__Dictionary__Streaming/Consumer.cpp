@@ -80,7 +80,7 @@ void AppClient::decode( const Series & sr )
 		break;
 	}
 
-	while ( !sr.forth() )
+	while ( sr.forth() )
 	{
 		const SeriesEntry& se = sr.getEntry();
 
@@ -100,7 +100,7 @@ void AppClient::decode( const Series & sr )
 
 void AppClient::decode( const ElementList& el )
 {
-	while ( !el.forth() )
+	while ( el.forth() )
 	{
 		const ElementEntry& ee = el.getEntry();
 
@@ -148,7 +148,7 @@ void AppClient::decode( const ElementList& el )
 
 void AppClient::decode( const OmmArray& ommArray )
 {
-	while ( !ommArray.forth() )
+	while ( ommArray.forth() )
 	{
 		const OmmArrayEntry& ae = ommArray.getEntry();
 
@@ -192,7 +192,7 @@ void AppClient::decode( const OmmArray& ommArray )
 
 void AppClient::decode( const FieldList& fl )
 {
-	while ( !fl.forth() )
+	while ( fl.forth() )
 	{
 		const FieldEntry& fe = fl.getEntry();
 

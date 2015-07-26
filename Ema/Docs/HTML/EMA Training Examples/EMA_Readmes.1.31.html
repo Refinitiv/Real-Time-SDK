@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>370__MarketPrice__Batch</title>
+    <link rel="StyleSheet" href="css/EMA_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <br />
+    <hr align="left" />
+    <blockquote>
+      <div class="H2_NoNum"><a name="1020430">370__MarketPrice__Batch</a></div>
+      <div class="Body"><a name="1026515">Summary</a></div>
+      <div class="Body"><a name="1026516">=======</a></div>
+      <div class="Body"><a name="1026517">&nbsp;</a></div>
+      <div class="Body"><a name="1026518">The 370__MarketPrice__Batch application is provided as an example of OMM</a></div>
+      <div class="Body"><a name="1026519">Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1026520">&nbsp;</a></div>
+      <div class="Body"><a name="1026521">This application demonstrates basic usage of the EMA library while opening</a></div>
+      <div class="Body"><a name="1026522">multiple item stream via a single request (a.k.a., batch request) and parsing</a></div>
+      <div class="Body"><a name="1026523">of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D), directly from</a></div>
+      <div class="Body"><a name="1026524">an OMM Provider application, or from Thomson Reuters Advanced Distribution</a></div>
+      <div class="Body"><a name="1026525">Server.</a></div>
+      <div class="Body"><a name="1026526">&nbsp;</a></div>
+      <div class="Body"><a name="1026527">The 370__MarketPrice__Batch showcases usage of batch request feature of Omm</a></div>
+      <div class="Body"><a name="1026528">Consumer.</a></div>
+      <div class="Body"><a name="1026529">&nbsp;</a></div>
+      <div class="Body"><a name="1026530">Detailed Description</a></div>
+      <div class="Body"><a name="1026531">====================</a></div>
+      <div class="Body"><a name="1026532">&nbsp;</a></div>
+      <div class="Body"><a name="1026533">The 370__MarketPrice__Batch implements the following high level steps:</a></div>
+      <div class="Body"><a name="1026534">&nbsp;</a></div>
+      <div class="Body"><a name="1026535">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1026536">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1026537">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1026538">    - each of the method provided in this example use the ease of use</a></div>
+      <div class="Body"><a name="1026539">	  data extraction methods that are data type specific</a></div>
+      <div class="Body"><a name="1026540">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1026541">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1026542">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1026543">  - sets host name on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1026544">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1026545">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1026546">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1026547">+ Opens a batch of streaming item interests</a></div>
+      <div class="Body"><a name="1026548">  - MarketPrice Domain batch request from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1026549">    - the batch (a list of item names) definition is added to the request</a></div>
+      <div class="Body"><a name="1026550">	  using the payload() method</a></div>
+      <div class="Body"><a name="1026551">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1026552">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1026553">+ Exits</a></div>
+      <div class="Body"><a name="1026554">&nbsp;</a></div>
+      <div class="Body"><a name="1026555">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1026556">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1026557">	  </a></div>
+      <div class="Body"><a name="1026558">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1026559">      standard configuration.</a></div>
+      <div class="Body"><a name="1026560">&nbsp;</a></div>
+      <div class="Body"><a name="1026561">&nbsp;</a></div>
+      <div class="Body"><a name="1026562">OmmConsumerClient and Callbacks</a></div>
+      <div class="Body"><a name="1026563">===============================</a></div>
+      <div class="Body"><a name="1026564">&nbsp;</a></div>
+      <div class="Body"><a name="1026565">The 370__MarketPrice__Batch demonstrates how to receive and process individual</a></div>
+      <div class="Body"><a name="1026566">item response messages for MarketPrice domain. Additionally this application shows</a></div>
+      <div class="Body"><a name="1024386">native / RWF decoding of FieldList container.</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

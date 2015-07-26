@@ -4,8 +4,8 @@
 ! Thomson Reuters. Thomson Reuters may update or remove this
 ! document at any time without notice.
 !
-!   Version	 4.20.19_TREP_15.51		10/06/2015
-!	* Modified 10/06/2015 at Oak Brook:
+!   Version	 4.20.19_TREP_15.61		07/15/2015
+!	* Modified 07/15/2015 at Oak Brook:
 !     - This file is a based on RWF.DAT from RDMD V4.20.19.
 !
 !   RDM Field Dictionary
@@ -31,7 +31,7 @@
 !tag Type      1
 !tag Version   4.20.19
 !tag Build     001
-!tag Date      10-Apr-2015
+!tag Date      15-Jul-2015
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
 !-------    -----------          ---  ----------  ----------     ------  --------   -------

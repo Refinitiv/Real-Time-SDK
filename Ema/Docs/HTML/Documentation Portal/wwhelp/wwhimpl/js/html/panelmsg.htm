@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <!-- Copyright (c) 2000-2014 Quadralay Corporation.  All rights reserved. -->
+
+ <head>
+  <meta http-equiv="content-type" content="text/html" />
+  <meta http-equiv="charset"      content="UTF-8" />
+  
+
+  <title>panelmsg.htm</title>
+
+  <script type="text/javascript" language="JavaScript1.2">
+   <!--
+    // Set reference to top level help frame
+    //
+    var  WWHFrame = eval("parent.parent");
+
+
+    function  WWHPanelFrame_HandleLoad()
+    {
+      if (WWHFrame.WWHHelp.mInitStage > 0)
+      {
+        WWHFrame.WWHHelp.fReplaceLocation("WWHPanelFrame", WWHFrame.WWHHelp.mHelpURLPrefix + "wwhelp/wwhimpl/js/html/panelini.htm");
+      }
+    }
+   // -->
+  </script>
+ </head>
+
+ <body onload="WWHPanelFrame_HandleLoad();" bgcolor="#FFFFFF">
+  <script type="text/javascript" language="JavaScript1.2">
+   <!--
+    // Write Message Body HTML
+    //
+    if (WWHFrame.WWHHelp.mInitStage > 0)
+    {
+      document.writeln("<h2>" + WWHFrame.WWHJavaScript.mMessages.mInitializingMessage + "<" + "/h2>");
+    }
+   // -->
+  </script>
+ </body>
+</html>

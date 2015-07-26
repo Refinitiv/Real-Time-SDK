@@ -39,17 +39,23 @@ public :
 
 	///@name Accessors
 	//@{
-	/** Returns a unique identifier (a.k.a., handle) associated by EMA with an open item stream.
+	/** Returns a unique item identifier (a.k.a., item handle) associated by EMA with an open item stream.
 		Item identifier is returned from OmmConsumer::registerClient().
 		@return item identifier or handle
 	*/
 	UInt64 getHandle() const;
 
 	/** Returns an identifier (a.k.a., closure) associated with an open stream by consumer application
-		Application associates the closure with an open item stream on OmmConsumer::registerClient()
+		Application associates the closure with an open item stream on OmmConsumer::registerClient( ... , ... , void* closure, ... )
 		@return closure value
 	*/
 	void* getClosure() const;
+
+	/** Returns current item's parent item identifier (a.k.a. parent item handle).
+		Application specifies parent item identifier on OmmConsumer::registerClient( ... , ... , ... , UInt64 parentHandle ) 
+		@return parent item identifier or parent handle
+	*/
+	UInt64 getParentHandle() const;
 	//@}
 
 private :

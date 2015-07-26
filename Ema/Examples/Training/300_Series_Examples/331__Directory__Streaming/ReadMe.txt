@@ -9,7 +9,7 @@ and parsing of OMM Directory and MarketPrice data from Reuters Data Feed
 Direct (RDF-D), directly from an OMM Provider application, or from Thomson
 Reuters Advanced Distribution Server.
 
-The 331__Directory__Streaming showcases usage of directory stream in Omm
+The 331__Directory__Streaming showcases usage of directory stream in OMM
 Consumer. It demonstrates opening of directory stream as well as its processing.
 Having a directory stream open is useful for consumer applications willing to
 know the state of services and item groups it consumes.
@@ -42,11 +42,4 @@ Note: if needed, these and other details may be modified to fit local
 	  
 Note: please refer to the EMA library ReadMe.txt file for details on
       standard configuration.
-
-
-OmmConsumerClient and Callbacks
-===============================
-
-The 331__Directory__Streaming demonstrates how to receive and process individual item
-response messages for Directory and MarketPrice domains. Additionally this application
-shows a native / RWF decoding of Map, FilterList, ElementList containers.
+	  

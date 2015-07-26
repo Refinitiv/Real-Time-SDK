@@ -9,8 +9,8 @@ and parsing of OMM Dictionary and MarketPrice data from Reuters Data Feed
 Direct (RDF-D), directly from an OMM Provider application, or from Thomson
 Reuters Advanced Distribution Server.
 
-The 332__Dictionary__Streaming showcases usage of directory stream in Omm
-Consumer. It demonstrates opening of dicitionary stream as well as its processing.
+The 332__Dictionary__Streaming showcases usage of directory stream in OMM
+Consumer. It demonstrates opening of dictionary stream as well as its processing.
 
 
 Detailed Description
@@ -41,11 +41,3 @@ Note: if needed, these and other details may be modified to fit local
 	  
 Note: please refer to the EMA library ReadMe.txt file for details on
       standard configuration.
-
-
-OmmConsumerClient and Callbacks
-===============================
-
-The 332__Dictionary__Streaming demonstrates how to receive and process individual item
-response messages for Dictionary and MarketPrice domains. Additionally this application
-shows a native / RWF decoding of Series and ElementList containers.

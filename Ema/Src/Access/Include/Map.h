@@ -63,7 +63,7 @@
 			break;
 		}
 
-		while ( !map.forth() )
+		while ( map.forth() )
 		{
 			const MapEntry& mEntry = map.getEntry();
 
@@ -175,7 +175,7 @@ public :
 	const EmaString& toString() const;
 
 	/** Iterates through a list of Data of any DataType. Typical usage is to extract the entry during each iteration via getEntry().
-		@return true at the end of Map; false otherwise
+		@return false at the end of Map; true otherwise
 	*/
 	bool forth() const;
 

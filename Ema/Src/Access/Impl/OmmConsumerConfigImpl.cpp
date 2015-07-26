@@ -33,6 +33,9 @@ extern const EmaString& getDTypeAsString( DataType::DataTypeEnum dType );
 OmmConsumerConfigImpl::OmmConsumerConfigImpl() :
 	_operationModel( OmmConsumerConfig::ApiDispatchEnum ),
 	_pEmaConfig( new XMLnode("EmaConfig", 0, 0) ),
+#ifdef WIN32
+#pragma warning( disable : 4355 )
+#endif
 	_loginRdmReqMsg( *this ),
 	_pDirectoryReqRsslMsg( 0 ),
 	_pRdmFldReqRsslMsg( 0 ),
@@ -113,6 +116,11 @@ void OmmConsumerConfigImpl::applicationName( const EmaString& applicationName )
 
 void OmmConsumerConfigImpl::consumerName(const EmaString& consumerName)
 {
+	if ( _pProgrammaticConfigure && _pProgrammaticConfigure->specifyConsumerName( consumerName ) )
+	{ 
+		return;
+	}
+
 	EmaString item( "ConsumerGroup|ConsumerList|Consumer." );
 	item.append( consumerName ).append( "|Name" );
 	EmaString name;
@@ -1471,6 +1479,7 @@ _emaConfigErrList( emaConfigErrList ),
 _configList(),
 _nameflags( 0 ),
 _loadnames( false ),
+_overrideConsName( false ),
 _consumerName(),
 _channelName(),
 _loggerName(),
@@ -1483,7 +1492,6 @@ void ProgrammaticConfigure::clear()
 {
 	_nameflags = 0;
 	_loadnames = false;
-	_consumerName.clear();
 	_channelName.clear();
 	_loggerName.clear();
 	_dictionaryName.clear();
@@ -1500,14 +1508,41 @@ void ProgrammaticConfigure::addConfigure( const Map& map )
 	_configList.push_back( &map );
 }
 
-bool ProgrammaticConfigure::getDefaultConsumer ( EmaString& defaultConsumer )
+bool ProgrammaticConfigure::getDefaultConsumer( EmaString& defaultConsumer )
 {
 	bool found = false;
 
-	clear();
+	if ( _overrideConsName )
+	{
+		defaultConsumer = _consumerName;
+		found = true;
+	}
+	else
+	{
+		clear();
+
+		for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
+			found = ProgrammaticConfigure::retrieveDefaultConsumer( *_configList[i], defaultConsumer );
+	}
+
+	return found;
+}
+
+bool ProgrammaticConfigure::specifyConsumerName( const EmaString& consumerName )
+{
+	bool found = false;
 
 	for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
-		found = ProgrammaticConfigure::retrieveDefaultConsumer( *_configList[i], defaultConsumer );
+	{
+		found = ProgrammaticConfigure::validateConsumerName( *_configList[i], consumerName );
+
+		if ( found )
+		{
+			_overrideConsName = true;
+			_consumerName = consumerName;
+			break;
+		}
+	}
 
 	return found;
 }
@@ -1516,7 +1551,7 @@ void ProgrammaticConfigure::retrieveDependencyNames( const Map& map, const EmaSt
 													EmaString& loggerName, EmaString& dictionaryName )
 {
 	map.reset();
-	while ( !map.forth() )
+	while ( map.forth() )
 	{
 		const MapEntry & mapEntry = map.getEntry();
 
@@ -1526,17 +1561,17 @@ void ProgrammaticConfigure::retrieveDependencyNames( const Map& map, const EmaSt
 			{
 				const ElementList & elementList = mapEntry.getElementList();
 
-				while ( !elementList.forth() )
+				while ( elementList.forth() )
 				{
 					const ElementEntry & elementEntry = elementList.getEntry();
 
 					if ( elementEntry.getLoadType() == DataType::MapEnum )
 					{
-						if ( elementEntry.getName() == "ConsumerList" )
+						if ( elementEntry.getName() == "ConsumerList" && ( elementEntry.getLoad().getDataType() == DataType::MapEnum ) )
 						{
 							const Map& map = elementEntry.getMap();
 
-							while ( !map.forth() )
+							while ( map.forth() )
 							{
 								const MapEntry & mapEntry = map.getEntry();
 
@@ -1546,7 +1581,7 @@ void ProgrammaticConfigure::retrieveDependencyNames( const Map& map, const EmaSt
 									{
 										const ElementList & elementListConsumer = mapEntry.getElementList();
 
-										while ( !elementListConsumer.forth() )
+										while ( elementListConsumer.forth() )
 										{
 											const ElementEntry & consumerEntry = elementListConsumer.getEntry();
 
@@ -1646,15 +1681,16 @@ bool ProgrammaticConfigure::retrieveDefaultConsumer( const Map& map, EmaString& 
 
 	StaticDecoder::setData( &const_cast<Map &>(map), 0);
 
-	while ( !map.forth() )
+	while ( map.forth() )
 	{
 		const MapEntry & mapEntry = map.getEntry();
 
-		if ( mapEntry.getLoad().getDataType() == DataType::ElementListEnum )
+		if (  ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == "ConsumerGroup" ) 
+			&& ( mapEntry.getLoad().getDataType() == DataType::ElementListEnum ) )
 		{
 			const ElementList & elementList = mapEntry.getElementList();
 
-			while ( !elementList.forth() )
+			while ( elementList.forth() )
 			{
 				const ElementEntry & elementEntry = elementList.getEntry();
 
@@ -1671,6 +1707,42 @@ bool ProgrammaticConfigure::retrieveDefaultConsumer( const Map& map, EmaString& 
 	}
 
 	return foundDefaultConsumer;
+}
+
+bool ProgrammaticConfigure::validateConsumerName( const Map & map, const EmaString& consumerName )
+{
+	StaticDecoder::setData( &const_cast<Map &>(map), 0);
+
+	while ( map.forth() )
+	{
+		const MapEntry & mapEntry = map.getEntry();
+
+		if ( ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == "ConsumerGroup" ) 
+			&& ( mapEntry.getLoad().getDataType() == DataType::ElementListEnum ) )
+		{
+			const ElementList & elementList = mapEntry.getElementList();
+
+			while ( elementList.forth() )
+			{
+				const ElementEntry & elementEntry = elementList.getEntry();
+
+				if ( ( elementEntry.getName() == "ConsumerList" ) && ( elementEntry.getLoad().getDataType() == DataType::MapEnum ) )
+				{
+					const Map& consumerMap = elementEntry.getMap();
+
+					while( consumerMap.forth() )
+					{
+						const MapEntry& consumerMapEntry = consumerMap.getEntry();
+
+						if ( ( consumerMapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( consumerMapEntry.getKey().getAscii() == consumerName ) )
+							return true;
+					}
+				}
+			}
+		}
+	}
+
+	return false;
 }
 
 void  ProgrammaticConfigure::retrieveConsumerConfig( const EmaString& consumerName, OmmConsumerActiveConfig& activeConfig )
@@ -1701,7 +1773,7 @@ void ProgrammaticConfigure::retrieveConsumer( const Map& map, const EmaString& c
 												  OmmConsumerActiveConfig& ommConsumerActiveConfig )
 {
 	map.reset();
-	while ( !map.forth() )
+	while ( map.forth() )
 	{
 		const MapEntry & mapEntry = map.getEntry();
 
@@ -1711,7 +1783,7 @@ void ProgrammaticConfigure::retrieveConsumer( const Map& map, const EmaString& c
 			{
 				const ElementList & elementList = mapEntry.getElementList();
 
-				while ( !elementList.forth() )
+				while ( elementList.forth() )
 				{
 					const ElementEntry & elementEntry = elementList.getEntry();
 
@@ -1721,7 +1793,7 @@ void ProgrammaticConfigure::retrieveConsumer( const Map& map, const EmaString& c
 						{
 							const Map& map = elementEntry.getMap();
 
-							while ( !map.forth() )
+							while ( map.forth() )
 							{
 								const MapEntry & mapEntry = map.getEntry();
 
@@ -1731,7 +1803,7 @@ void ProgrammaticConfigure::retrieveConsumer( const Map& map, const EmaString& c
 									{
 										const ElementList & elementListConsumer = mapEntry.getElementList();
 
-										while ( !elementListConsumer.forth() )
+										while ( elementListConsumer.forth() )
 										{
 											const ElementEntry & consumerEntry = elementListConsumer.getEntry();
 
@@ -1815,7 +1887,7 @@ void ProgrammaticConfigure::retrieveChannel( const Map& map, const EmaString& ch
 											OmmConsumerActiveConfig& ommConsumerActiveConfig, bool hostFnCalled )
 {
 	map.reset();
-	while ( !map.forth() )
+	while ( map.forth() )
 	{
 		const MapEntry& mapEntry = map.getEntry();
 
@@ -1825,7 +1897,7 @@ void ProgrammaticConfigure::retrieveChannel( const Map& map, const EmaString& ch
 			{
 				const ElementList& elementList = mapEntry.getElementList();
 
-				while ( !elementList.forth())
+				while ( elementList.forth())
 				{
 					const ElementEntry& elementEntry = elementList.getEntry();
 
@@ -1835,7 +1907,7 @@ void ProgrammaticConfigure::retrieveChannel( const Map& map, const EmaString& ch
 						{
 							const Map& map = elementEntry.getMap();
 
-							while ( !map.forth() )
+							while ( map.forth() )
 							{
 								const MapEntry& mapEntry = map.getEntry();
 
@@ -1845,15 +1917,16 @@ void ProgrammaticConfigure::retrieveChannel( const Map& map, const EmaString& ch
 									{
 										const ElementList& elementListChannel = mapEntry.getElementList();
 
-										EmaString name, interfaceName, host, port, xmlTraceFileName;
+										EmaString name, interfaceName, host, port, xmlTraceFileName, objectName;
 										thomsonreuters::ema::access::UInt16 channelType, compressionType;
 										thomsonreuters::ema::access::Int64 reconnectAttemptLimit, reconnectMinDelay, reconnectMaxDelay, xmlTraceMaxFileSize;
-										thomsonreuters::ema::access::UInt64 guaranteedOutputBuffers, connectionPingTimeout, tcpNodelay, xmlTraceToFile, xmlTraceToStdout,
-											xmlTraceToMultipleFiles, xmlTraceWrite, xmlTraceRead, msgKeyInUpdates;
+										thomsonreuters::ema::access::UInt64 guaranteedOutputBuffers, compressionThreshold, connectionPingTimeout, numInputBuffers, sysSendBufSize, sysRecvBufSize,
+											tcpNodelay, xmlTraceToFile, xmlTraceToStdout, xmlTraceToMultipleFiles, xmlTraceWrite, xmlTraceRead, msgKeyInUpdates;
 
 										thomsonreuters::ema::access::UInt64 flags = 0;
+										thomsonreuters::ema::access::UInt32 maxUInt32 = 0xFFFFFFFF;
 
-										while ( !elementListChannel.forth() )
+										while ( elementListChannel.forth() )
 										{
 											const ElementEntry & channelEntry = elementListChannel.getEntry();
 
@@ -1880,8 +1953,13 @@ void ProgrammaticConfigure::retrieveChannel( const Map& map, const EmaString& ch
 													interfaceName = channelEntry.getAscii();
 													flags |= 0x80000;
 												}
+												else if ( channelEntry.getName() == "ObjectName" )
+												{
+													objectName = channelEntry.getAscii();
+													flags |= 0x100000;
+												}
 												break;
-
+												
 											case DataType::EnumEnum:
 												if ( channelEntry.getName() == "ChannelType" )
 												{
@@ -1933,6 +2011,21 @@ void ProgrammaticConfigure::retrieveChannel( const Map& map, const EmaString& ch
 													guaranteedOutputBuffers = channelEntry.getUInt();
 													flags |= 0x40;
 												}
+												if ( channelEntry.getName() == "NumInputBuffers" )
+												{
+													numInputBuffers = channelEntry.getUInt();
+													flags |= 0x800000;
+												}
+												if ( channelEntry.getName() == "SysRecvBufSize" )
+												{
+													sysRecvBufSize = channelEntry.getUInt();
+													flags |= 0x200000;
+												}
+												if ( channelEntry.getName() == "SysSendBufSize" )
+												{
+													sysSendBufSize = channelEntry.getUInt();
+													flags |= 0x400000;
+												}
 												else if ( channelEntry.getName() == "TcpNodelay" )
 												{
 													tcpNodelay = channelEntry.getUInt();
@@ -1972,6 +2065,11 @@ void ProgrammaticConfigure::retrieveChannel( const Map& map, const EmaString& ch
 												{
 													connectionPingTimeout = channelEntry.getUInt();
 													flags |= 0x8000;
+												}
+												else if ( channelEntry.getName() == "CompressionThreshold" )
+												{
+													compressionThreshold = channelEntry.getUInt();
+													flags |= 0x1000000;
 												}
 												break;
 
@@ -2066,6 +2164,9 @@ void ProgrammaticConfigure::retrieveChannel( const Map& map, const EmaString& ch
 
 													if ( flags & 0x04 )
 														httpChanelConfig->serviceName = port;
+
+													if( flags & 0x100000)
+														httpChanelConfig->objectName = objectName;
 												}
 												else if ( channelType == RSSL_CONN_TYPE_ENCRYPTED )
 												{
@@ -2087,7 +2188,11 @@ void ProgrammaticConfigure::retrieveChannel( const Map& map, const EmaString& ch
 														encryptChanelConfig->hostName = host;
 
 													if ( flags & 0x04 )
-														encryptChanelConfig->serviceName = port;;
+														encryptChanelConfig->serviceName = port;
+
+													if( flags & 0x100000)
+														encryptChanelConfig->objectName = objectName;
+												
 												}
 											} catch ( std::bad_alloc ) 
 											{
@@ -2103,20 +2208,32 @@ void ProgrammaticConfigure::retrieveChannel( const Map& map, const EmaString& ch
 											if ( flags & 0x20 )
 												ommConsumerActiveConfig.channelConfig->compressionType = (RsslCompTypes)compressionType;
 
+											if ( flags & 0x1000000 )
+												ommConsumerActiveConfig.channelConfig->compressionThreshold = compressionThreshold > maxUInt32 ? maxUInt32 : (UInt32)compressionThreshold;
+
 											if ( flags & 0x40 )
 												ommConsumerActiveConfig.channelConfig->setGuaranteedOutputBuffers(guaranteedOutputBuffers);
 
+											if ( flags & 0x800000 )
+												ommConsumerActiveConfig.channelConfig->setNumInputBuffers(numInputBuffers);
+
+											if ( flags & 0x200000 )
+												ommConsumerActiveConfig.channelConfig->sysRecvBufSize = sysRecvBufSize > maxUInt32 ? maxUInt32 : (UInt32)sysRecvBufSize;
+
+											if ( flags & 0x400000 )
+												ommConsumerActiveConfig.channelConfig->sysSendBufSize = sysSendBufSize > maxUInt32 ? maxUInt32 : (UInt32)sysSendBufSize;
+
 											if ( flags & 0x8000 )
-												ommConsumerActiveConfig.channelConfig->connectionPingTimeout = (UInt32)connectionPingTimeout;
+												ommConsumerActiveConfig.channelConfig->connectionPingTimeout = connectionPingTimeout > maxUInt32  ? maxUInt32 : (UInt32)connectionPingTimeout;
 
 											if ( flags & 0x10000 )
-												ommConsumerActiveConfig.channelConfig->reconnectAttemptLimit = reconnectAttemptLimit;
+												ommConsumerActiveConfig.channelConfig->setReconnectAttemptLimit( reconnectAttemptLimit );
 
 											if ( flags & 0x20000 )
-												ommConsumerActiveConfig.channelConfig->reconnectMinDelay = reconnectMinDelay;
+												ommConsumerActiveConfig.channelConfig->setReconnectMinDelay( reconnectMinDelay );
 
 											if ( flags & 0x40000 )
-												ommConsumerActiveConfig.channelConfig->reconnectMaxDelay = reconnectMaxDelay;
+												ommConsumerActiveConfig.channelConfig->setReconnectMaxDelay( reconnectMaxDelay );
 
 											if ( flags & 0x08 )
 												ommConsumerActiveConfig.channelConfig->xmlTraceFileName = xmlTraceFileName;
@@ -2157,7 +2274,7 @@ void ProgrammaticConfigure::retrieveLogger( const Map& map, const EmaString& log
 										  OmmConsumerActiveConfig& ommConsumerActiveConfig )
 {
 	map.reset();
-	while ( !map.forth() )
+	while ( map.forth() )
 	{
 		const MapEntry & mapEntry = map.getEntry();
 
@@ -2167,7 +2284,7 @@ void ProgrammaticConfigure::retrieveLogger( const Map& map, const EmaString& log
 			{
 				const ElementList & elementList = mapEntry.getElementList();
 
-				while ( !elementList.forth() )
+				while ( elementList.forth() )
 				{
 					const ElementEntry & elementEntry = elementList.getEntry();
 
@@ -2177,7 +2294,7 @@ void ProgrammaticConfigure::retrieveLogger( const Map& map, const EmaString& log
 						{
 							const Map & map = elementEntry.getMap();
 
-							while ( !map.forth() )
+							while ( map.forth() )
 							{
 								const MapEntry & mapEntry = map.getEntry();
 
@@ -2187,7 +2304,7 @@ void ProgrammaticConfigure::retrieveLogger( const Map& map, const EmaString& log
 									{
 										const ElementList & elementListLogger = mapEntry.getElementList();
 
-										while ( !elementListLogger.forth() )
+										while ( elementListLogger.forth() )
 										{
 											const ElementEntry & loggerEntry = elementListLogger.getEntry();
 
@@ -2257,7 +2374,7 @@ void ProgrammaticConfigure::retrieveDictionary( const Map& map, const EmaString&
 											  OmmConsumerActiveConfig& ommConsumerActiveConfig )
 {
 	map.reset();
-	while ( !map.forth() )
+	while ( map.forth() )
 	{
 		const MapEntry & mapEntry = map.getEntry();
 
@@ -2267,7 +2384,7 @@ void ProgrammaticConfigure::retrieveDictionary( const Map& map, const EmaString&
 			{
 				const ElementList & elementList = mapEntry.getElementList();
 
-				while ( !elementList.forth() )
+				while ( elementList.forth() )
 				{
 					const ElementEntry & elementEntry = elementList.getEntry();
 
@@ -2277,7 +2394,7 @@ void ProgrammaticConfigure::retrieveDictionary( const Map& map, const EmaString&
 						{
 							const Map & map = elementEntry.getMap();
 
-							while ( !map.forth() )
+							while ( map.forth() )
 							{
 								const MapEntry & mapEntry = map.getEntry();
 
@@ -2287,7 +2404,7 @@ void ProgrammaticConfigure::retrieveDictionary( const Map& map, const EmaString&
 									{
 										const ElementList & elementListDictionary = mapEntry.getElementList();
 
-										while ( !elementListDictionary.forth() )
+										while ( elementListDictionary.forth() )
 										{
 											const ElementEntry & loggerEntry = elementListDictionary.getEntry();
 

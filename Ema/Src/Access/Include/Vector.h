@@ -59,7 +59,7 @@
 			break;
 		}
 
-		while ( !vector.forth() )
+		while ( vector.forth() )
 		{
 			const VectorEntry& vEntry = vector.getEntry();
 
@@ -159,7 +159,7 @@ public :
 	const EmaString& toString() const;
 
 	/** Iterates through a list of Data of any DataType. Typical usage is to extract the entry during each iteration via getEntry().
-		@return true at the end of Vector; false otherwise
+		@return false at the end of Vector; true otherwise
 	*/
 	bool forth() const;
 

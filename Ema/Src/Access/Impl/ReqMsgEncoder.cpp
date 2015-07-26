@@ -197,6 +197,11 @@ void ReqMsgEncoder::privateStream( bool privateStream )
 		_rsslRequestMsg.flags &= ~RSSL_RQMF_PRIVATE_STREAM;
 }
 
+bool ReqMsgEncoder::getPrivateStream() const
+{
+	return ( _rsslRequestMsg.flags & RSSL_RQMF_PRIVATE_STREAM ) ? true : false;
+}
+
 RsslRequestMsg* ReqMsgEncoder::getRsslRequestMsg() const
 {
 	return (RsslRequestMsg*)&_rsslRequestMsg;
@@ -449,7 +454,6 @@ void ReqMsgEncoder::checkBatchView( RsslBuffer* pRsslBuffer )
 				}
 			}
 			break;
-			// todo ... what to do with the errors? ignore / skip them?
 		case RSSL_RET_INCOMPLETE_DATA :
 		case RSSL_RET_UNSUPPORTED_DATA_TYPE :
 		default :

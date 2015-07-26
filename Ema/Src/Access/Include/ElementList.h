@@ -91,7 +91,7 @@
 	{
 		const ElementList& eList = map.getElementList();
 
-		while ( !eList.forth() )
+		while ( eList.forth() )
 		{
 			const ElementEntry& eEntry = eList.getEntry();
 			switch ( eEntry.getLoadType() )
@@ -226,21 +226,21 @@ public :
 
 	/** Iterates through a list of Data of any DataType.
 		Typical usage is to extract the entry during each iteration via getEntry().
-		@return true at the end of ElementList; false otherwise
+		@return false at the end of ElementList; true otherwise
 	*/
 	bool forth() const;
 
 	/** Iterates through a list of Data matching the name.
 		Typical usage is to extract the entry during each iteration via getEntry().
 		@param[in] name looked up ElementEntry's name
-		@return true at the end of ElementList; false otherwise
+		@return false at the end of ElementList; true otherwise
 	*/
 	bool forth( const EmaString& name ) const;
 
 	/** Iterates through a list of Data having the name matching the specified Data.
 		Typical usage is for the Data to be a view, and thus extract each matched entry during each iteration via getEntry().
 		@param[in] data containing ElementList with a view definition specifying looked up names
-		@return true at the end of ElementList; false otherwise
+		@return false at the end of ElementList; true otherwise
 	*/
 	bool forth( const Data& data ) const;
 

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>Data</title>
+    <link rel="StyleSheet" href="css/EMA_RDMUsageGuide.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <br />
+    <hr align="left" />
+    <blockquote>
+      <div class="Heading_2_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Heading_2_inner" style="width: 54pt; white-space: nowrap">
+                <span style="color: #666666; font-size: 18pt; font-style: normal; font-weight: bold; vertical-align: baseline">5.4	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Heading_2_inner"><a name="pID0E0FS0HA">Data</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Heading_3_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Heading_3_inner" style="width: 54pt; white-space: nowrap">
+                <span style="color: #FF9100; font-family: Arial; font-size: 13pt; font-style: normal; font-weight: bold; vertical-align: baseline">5.4.1	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Heading_3_inner"><a name="pID0E0ES0HA">Filter</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Normal"><a name="pID0E0DS0HA">While Dictionary’s Filters values correlate to a bitmap, only the combinations in </a><a href="javascript:WWHClickedPopup('EMA_RDM_Usage_Guide', 'EMA_RDMUsageGuide.1.071.html#pID0E05R0HA', '');" title="Data">Table 33</a> are supported. For example a Dictionary’s <span class="Char_Code">Filter</span> cannot be <span class="Char_Parameter">0x2</span> or <span class="Char_Parameter">0x6</span>.</div>
+      <div class="Normal"><a name="pID0E0CS0HA">Dictionary providers are required to support DICTIONARY_INFO and DICTIONARY_NORMAL filers. </a><span class="Char_Code">Filter</span> can be changed for Directory and Dictionary domain message models as part of a reissue. It cannot be changed in other domain message models. If an unsupported Filter is requested, the provider may do either of the following:</div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #FF9100; font-size: 10.5pt">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="pID0E0BS0HA">Change the Filter in response message to a supported one.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #FF9100; font-size: 10.5pt">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="pID0E0AS0HA">Send a Closed State in the response message.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <table class="TR_Table" style="width: 540pt" cellspacing="0" summary="">
+        <tr>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-style: solid; border-bottom-width: 1pt; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-color: #A0968C; border-left-style: solid; border-left-style: solid; border-left-width: 1pt; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-color: #A0968C; border-top-style: solid; border-top-style: solid; border-top-width: 1pt; border-top-width: 1pt; color: #FFFFFF; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt; text-transform: uppercase; width: 137.9pt">
+            <div class="Column_Heading"><a name="pID0EACE06R0HA">Mask</a></div>
+          </td>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-style: solid; border-bottom-width: 1pt; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-color: #A0968C; border-top-style: solid; border-top-style: solid; border-top-width: 1pt; border-top-width: 1pt; color: #FFFFFF; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt; text-transform: uppercase; width: 159.45pt">
+            <div class="Column_Heading"><a name="pID0EABE06R0HA">Provider Must Support in Response Message</a></div>
+          </td>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-style: solid; border-bottom-width: 1pt; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #FF9100; border-right-color: #A0968C; border-right-style: solid; border-right-style: solid; border-right-width: 1pt; border-right-width: 1pt; border-top-color: #FF9100; border-top-color: #A0968C; border-top-style: solid; border-top-style: solid; border-top-width: 1pt; border-top-width: 1pt; color: #FFFFFF; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt; text-transform: uppercase; width: 242.65pt">
+            <div class="Column_Heading"><a name="pID0EAAE06R0HA">Description</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Parameter"><a name="pID0EACD06R0HA">DICTIONARY_INFO=0x0</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABD06R0HA">Yes</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAAD06R0HA">Dictionary summary information, such as DictionaryType and version. The response </a><span class="Char_LucidaConsole">Payload.SummaryData</span> will contain data but the response payload will contain no entries.</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Parameter"><a name="pID0EACC06R0HA">DICTIONARY_MINIMAL=0x3</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABC06R0HA">No</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAAC06R0HA">DICTIONARY_INFO plus the minimum data needed to cache or convert data</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Parameter"><a name="pID0EACB06R0HA">DICTIONARY_NORMAL=0x7</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABB06R0HA">Yes</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAAB06R0HA">DICTIONARY_MINIMAL plus all other data, except descriptions and comments</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Parameter"><a name="pID0EACA06R0HA">DICTIONARY_VERBOSE=0xF</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABA06R0HA">No</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAAA06R0HA">All available data</a></div>
+          </td>
+        </tr>
+      </table>
+      <div class="Caption"><a name="pID0E05R0HA">Table 33: Dictionary's Filter </a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

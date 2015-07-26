@@ -111,7 +111,7 @@ void AppClient::decode( const Map& map )
 		break;
 	}
 
-	while ( !map.forth() )
+	while ( map.forth() )
 	{
 		const MapEntry& me = map.getEntry();
 
@@ -145,7 +145,7 @@ void AppClient::decode( const Map& map )
 
 void AppClient::decode( const FieldList& fl )
 {
-	while ( !fl.forth() )
+	while ( fl.forth() )
 	{
 		const FieldEntry& fe = fl.getEntry();
 	

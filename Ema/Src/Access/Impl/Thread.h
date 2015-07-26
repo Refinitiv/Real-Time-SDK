@@ -56,6 +56,8 @@ protected:
 
 	virtual void run() = 0;
 
+	virtual void cleanUp();
+
 	virtual int runLog( void* pExceptionStructure, const char* file, unsigned int line ) = 0;
 
 	Thread();

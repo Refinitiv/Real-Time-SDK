@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <meta http-equiv="Content-Style-Type" content="text/css">
+    <title>default.htm</title>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+    var  WWHFrame = null;
+
+
+    // Set reference to top level help frame
+    //
+    if ((typeof(parent.WWHHelp) != "undefined") &&
+        (parent.WWHHelp != null))
+    {
+      WWHFrame = eval("parent");
+    }
+    else if ((typeof(parent.parent.WWHHelp) != "undefined") &&
+             (parent.parent.WWHHelp != null))
+    {
+      WWHFrame = eval("parent.parent");
+    }
+
+    function  WWHOnLoad(ParamDisplayFirst)
+    {
+      if (WWHFrame != null)
+      {
+        if (ParamDisplayFirst)
+        {
+          // Display the first topic in the help set
+          //
+          WWHFrame.WWHHelp.fDisplayFirst();
+        }
+        else
+        {
+          // Show splash page
+          //
+          WWHFrame.WWHHelp.fUpdate(location.href);
+        }
+      }
+    }
+
+    function  WWHHandleKeyDown(ParamEvent)
+    {
+      return WWHFrame.WWHHelp.fHandleKeyDown(ParamEvent);
+    }
+
+    function  WWHHandleKeyPress(ParamEvent)
+    {
+      return WWHFrame.WWHHelp.fHandleKeyPress(ParamEvent);
+    }
+
+    function  WWHHandleKeyUp(ParamEvent)
+    {
+      return WWHFrame.WWHHelp.fHandleKeyUp(ParamEvent);
+    }
+   // -->
+    </script>
+  </head>
+  <body onload="WWHOnLoad(true);" bgcolor="#FFFFFF" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);"></body>
+</html>

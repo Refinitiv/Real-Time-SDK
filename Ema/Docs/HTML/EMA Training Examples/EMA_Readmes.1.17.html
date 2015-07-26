@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>280__MarketPrice__Performance</title>
+    <link rel="StyleSheet" href="css/EMA_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <br />
+    <hr align="left" />
+    <blockquote>
+      <div class="H2_NoNum"><a name="1019438">280__MarketPrice__Performance</a></div>
+      <div class="Body"><a name="1025780">Summary</a></div>
+      <div class="Body"><a name="1025781">=======</a></div>
+      <div class="Body"><a name="1025782">&nbsp;</a></div>
+      <div class="Body"><a name="1025783">The 280__MarketPrice__Performance application is provided as an example</a></div>
+      <div class="Body"><a name="1025784">of OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1025785">&nbsp;</a></div>
+      <div class="Body"><a name="1025786">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1025787">and parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1025788">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1025789">Distribution Server.</a></div>
+      <div class="Body"><a name="1025790">&nbsp;</a></div>
+      <div class="Body"><a name="1025791">The 280__MarketPrice__Performance is a simple performance focused application</a></div>
+      <div class="Body"><a name="1025792">opening and processing a number of MarketPrice items.</a></div>
+      <div class="Body"><a name="1025793">&nbsp;</a></div>
+      <div class="Body"><a name="1025794">&nbsp;</a></div>
+      <div class="Body"><a name="1025795">Detailed Description</a></div>
+      <div class="Body"><a name="1025796">====================</a></div>
+      <div class="Body"><a name="1025797">&nbsp;</a></div>
+      <div class="Body"><a name="1025798">The 280__MarketPrice__Performance implements the following high level steps:</a></div>
+      <div class="Body"><a name="1025799">&nbsp;</a></div>
+      <div class="Body"><a name="1025800">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1025801">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1025802">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1025803">    - the decode( const FieldList&amp; ) is a performance focused method</a></div>
+      <div class="Body"><a name="1025804">	  extracting the minimum needed for an application and not performing any</a></div>
+      <div class="Body"><a name="1025805">	  time and cpu consuming application specific functionalities (e.g., printing)</a></div>
+      <div class="Body"><a name="1025806">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1025807">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1025808">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1025809">  - sets host name on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1025810">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1025811">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1025812">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1025813">+ Opens a number of streaming item interests</a></div>
+      <div class="Body"><a name="1025814">  - MarketPrice RTR####.N items from DIRECT_FEED service (#### - a sequence number)</a></div>
+      <div class="Body"><a name="1025815">+ Processes data received from API for 300 seconds</a></div>
+      <div class="Body"><a name="1025816">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1025817">  - prints out</a></div>
+      <div class="Body"><a name="1025818">    - total number of refreshes</a></div>
+      <div class="Body"><a name="1025819">    - total number of status messages</a></div>
+      <div class="Body"><a name="1025820">    - number of updates received in a second</a></div>
+      <div class="Body"><a name="1025821">&nbsp;</a></div>
+      <div class="Body"><a name="1025822">+ Exits</a></div>
+      <div class="Body"><a name="1025823">&nbsp;</a></div>
+      <div class="Body"><a name="1025824">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1025825">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1025826">	  </a></div>
+      <div class="Body"><a name="1025827">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1025828">      standard configuration.</a></div>
+      <div class="Body"><a name="1023297">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

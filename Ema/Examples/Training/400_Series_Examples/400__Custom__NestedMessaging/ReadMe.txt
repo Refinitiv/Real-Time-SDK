@@ -5,15 +5,15 @@ The 400__Custom__NestedMessaging application is provided as an example of
 OMM Consumer application written to the EMA library.
 
 This application demonstrates basic usage of the EMA library while using
-nested messaging feature and parsing of custom Omm Data data from an OMM
+nested messaging feature and parsing of custom OMM Data data from an OMM
 Provider application, or from Thomson Reuters Advanced Distribution Server.
 
-The 400__Custom__NestedMessaging opens up a parent stream on which, whne 
-this stream is open / ok it opens a sub stream. This is also known as nested
+The 400__Custom__NestedMessaging opens up a parent stream on which, when 
+this stream is open / ok, it opens a sub stream. This is also known as nested
 messaging feature.
 
 Note: effective use of the nested messaging feature requires support from an
-Omm Provider application.
+	  OMM Provider application.
 
 
 Detailed Description
@@ -32,7 +32,7 @@ The 400__Custom__NestedMessaging implements the following high level steps:
 + Instantiates an OmmConsumer object which initializes the connection 
   and logs into the specified server.
 + Opens a private streaming item interest
-  - Costom Domain (200) IBM.XYZ item from DIRECT_FEED service
+  - Custom Domain (200) IBM.XYZ item from DIRECT_FEED service
   - when this item becomes open / ok this application requests
     a sub stream using a GenericMsg submitted on the handle of the 
 	IBM.XYZ stream
@@ -42,14 +42,3 @@ The 400__Custom__NestedMessaging implements the following high level steps:
 
 Note: if needed, these and other details may be modified to fit local
       environment using EmaConfig.xml file.
-	  
-Note: please refer to the EMA library ReadMe.txt file for details on
-      standard configuration.
-
-
-OmmConsumerClient and Callbacks
-===============================
-
-The 400__Custom__NestedMessaging demonstrates how to receive and process individual
-item response and generic messages. Additionally this application shows a native / RWF
-decoding of FieldList and other containers.

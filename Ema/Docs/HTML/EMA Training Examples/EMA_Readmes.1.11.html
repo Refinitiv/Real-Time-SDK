@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>220__MarketByPrice__PrivateStream</title>
+    <link rel="StyleSheet" href="css/EMA_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <br />
+    <hr align="left" />
+    <blockquote>
+      <div class="H2_NoNum"><a name="1019288">220__MarketByPrice__PrivateStream</a></div>
+      <div class="Body"><a name="1025469">Summary</a></div>
+      <div class="Body"><a name="1025470">=======</a></div>
+      <div class="Body"><a name="1025471">&nbsp;</a></div>
+      <div class="Body"><a name="1025472">The 220__MarketByPrice__PrivateStream application is provided as an example</a></div>
+      <div class="Body"><a name="1025473">of OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1025474">&nbsp;</a></div>
+      <div class="Body"><a name="1025475">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1025476">and parsing of OMM MarketByPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1025477">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1025478">Distribution Server.</a></div>
+      <div class="Body"><a name="1025479">&nbsp;</a></div>
+      <div class="Body"><a name="1025480">The 220__MarketByPrice__PrivateStream showcases opening and processing of</a></div>
+      <div class="Body"><a name="1025481">private stream MarketByPrice item. The item is requested as private by</a></div>
+      <div class="Body"><a name="1025482">setting parivateStream( true ) on the ReqMsg.</a></div>
+      <div class="Body"><a name="1025483">&nbsp;</a></div>
+      <div class="Body"><a name="1025484">&nbsp;</a></div>
+      <div class="Body"><a name="1025485">Detailed Description</a></div>
+      <div class="Body"><a name="1025486">====================</a></div>
+      <div class="Body"><a name="1025487">&nbsp;</a></div>
+      <div class="Body"><a name="1025488">The 220__MarketByPrice__PrivateStream implements the following high level steps:</a></div>
+      <div class="Body"><a name="1025489">&nbsp;</a></div>
+      <div class="Body"><a name="1025490">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1025491">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1025492">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1025493">    - the decode( const FieldList&amp; ) iterates through the received FieldList,</a></div>
+      <div class="Body"><a name="1025494">	  extracts each FieldEntry reference from the current position on the</a></div>
+      <div class="Body"><a name="1025495">	  FieldList, and extracts field id, name and value of the current FieldEntry</a></div>
+      <div class="Body"><a name="1025496">	- the decode( const Map&amp; ) iterates through the received Map, extracts Summary</a></div>
+      <div class="Body"><a name="1025497">	  if it is present, extracts MapEntry from which it extracts key, and load values</a></div>
+      <div class="Body"><a name="1025498">	- both methods use native / RWF data format while extracting data</a></div>
+      <div class="Body"><a name="1025499">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1025500">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1025501">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1025502">  - sets host name on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1025503">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1025504">  - sets operationModel to UserDispatchEnum</a></div>
+      <div class="Body"><a name="1025505">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1025506">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1025507">+ Opens private streaming item interest</a></div>
+      <div class="Body"><a name="1025508">  - MarketByPrice BBH.ITC item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1025509">  - uses privateStream() interface to mark this item as private</a></div>
+      <div class="Body"><a name="1025510">+ Processes data received with user dispatch loop for 60 seconds</a></div>
+      <div class="Body"><a name="1025511">  - all received messages are processed on main application thread of control</a></div>
+      <div class="Body"><a name="1025512">+ Exits</a></div>
+      <div class="Body"><a name="1025513">&nbsp;</a></div>
+      <div class="Body"><a name="1025514">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1025515">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1025516">	  </a></div>
+      <div class="Body"><a name="1025517">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1025518">      standard configuration.</a></div>
+      <div class="Body"><a name="1022838">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

@@ -15,7 +15,7 @@
 #include "OmmConsumerConfig.h"
 #include "rtr/rsslTransport.h"
 
-#define DEFAULT_COMPRESSION_THRESHOLD				0
+#define DEFAULT_COMPRESSION_THRESHOLD				30
 #define DEFAULT_COMPRESSION_TYPE					RSSL_COMP_NONE
 #define DEFAULT_CONNECTION_TYPE						RSSL_CONN_TYPE_SOCKET
 #define DEFAULT_CONNECTION_PINGTIMEOUT				30000
@@ -24,6 +24,9 @@
 #define DEFAULT_DIRECTORY_REQUEST_TIMEOUT			45000
 #define DEFAULT_DISPATCH_TIMEOUT_API_THREAD			-1
 #define DEFAULT_GUARANTEED_OUTPUT_BUFFERS			100
+#define DEFAULT_NUM_INPUT_BUFFERS					10
+#define DEFAULT_SYS_SEND_BUFFER_SIZE				0
+#define DEFAULT_SYS_RECEIVE_BUFFER_SIZE				0
 #define DEFAULT_HANDLE_EXCEPTION					true
 #define DEFAULT_HOST_NAME							EmaString( "localhost" )
 #define DEFAULT_INCLUDE_DATE_IN_LOGGER_OUTPUT		false
@@ -46,6 +49,7 @@
 #define DEFAULT_REQUEST_TIMEOUT						15000
 #define DEFAULT_SERVICE_COUNT_HINT					513
 #define DEFAULT_SERVICE_NAME						EmaString( "14002" )
+#define DEFAULT_OBJECT_NAME							EmaString( "" )
 #define DEFAULT_TCP_NODELAY							RSSL_TRUE
 #define DEFAULT_USER_DISPATCH						OmmConsumerConfig::ApiDispatchEnum
 #define DEFAULT_XML_TRACE_FILE_NAME					EmaString( "EmaTrace" )
@@ -81,6 +85,10 @@ public :
 	virtual void clear();
 
 	void setGuaranteedOutputBuffers(UInt64 value);
+	void setNumInputBuffers(UInt64 value);
+	void setReconnectAttemptLimit(Int64 value);
+	void setReconnectMinDelay(Int64 value);
+	void setReconnectMaxDelay(Int64 value);
 
 	virtual ChannelType getType() const = 0;
 
@@ -88,13 +96,16 @@ public :
 	EmaString				interfaceName;
 	EmaString				xmlTraceFileName;
 	RsslCompTypes			compressionType;
-	Int64					compressionThreshold; // <TODO> post EAP.
+	UInt32					compressionThreshold;
 	RsslConnectionTypes		connectionType;
 	UInt32					connectionPingTimeout;
 	UInt32					guaranteedOutputBuffers;
-	Int64					reconnectAttemptLimit;
-	Int64					reconnectMinDelay;
-	Int64					reconnectMaxDelay;
+	UInt32					numInputBuffers;
+	UInt32					sysRecvBufSize;
+	UInt32					sysSendBufSize;
+	Int32					reconnectAttemptLimit;
+	Int32					reconnectMinDelay;
+	Int32					reconnectMaxDelay;
 	Int64					xmlTraceMaxFileSize;
 	bool					xmlTraceToFile;
 	bool					xmlTraceToStdout;
@@ -155,6 +166,7 @@ public :
 
 	EmaString				hostName;
 	EmaString				serviceName;
+	EmaString				objectName;
 	
 	RsslBool				tcpNodelay;
 
@@ -174,6 +186,7 @@ public :
 
 	EmaString				hostName;
 	EmaString				serviceName;
+	EmaString				objectName;
 	
 	RsslBool				tcpNodelay;
 

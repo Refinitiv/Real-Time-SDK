@@ -25,6 +25,7 @@ The 310__MarketPrice__Rmtes implements the following high level steps:
 + Instantiates AppClient object that receives and processes item messages
 + Instantiates and modifies OmmConsumerConfig object
   - sets user name to "user"
+  - sets operationModel to UserDispatchEnum
 + Instantiates an OmmConsumer object which initializes the connection 
   and logs into the specified server.
 + Opens a streaming item interest

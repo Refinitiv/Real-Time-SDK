@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['refreshmsg',['RefreshMsg',['../a00060.html',1,'thomsonreuters::ema::access']]],
-  ['reqmsg',['ReqMsg',['../a00061.html',1,'thomsonreuters::ema::access']]],
-  ['rmtesbuffer',['RmtesBuffer',['../a00062.html',1,'thomsonreuters::ema::access']]]
+  ['refreshmsg',['RefreshMsg',['../a00066.html',1,'thomsonreuters::ema::access']]],
+  ['reqmsg',['ReqMsg',['../a00067.html',1,'thomsonreuters::ema::access']]],
+  ['rmtesbuffer',['RmtesBuffer',['../a00068.html',1,'thomsonreuters::ema::access']]]
 ];

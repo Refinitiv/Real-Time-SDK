@@ -1,0 +1,23 @@
+function FileData_Pairs(x)
+{
+x.t("uniquely","identified");
+x.t("defines","parameters");
+x.t("dictionarylist","contains");
+x.t("components","uniquely");
+x.t("group","3.4");
+x.t("group","dictionarygroup");
+x.t("entry","dictionary");
+x.t("3.4","dictionary");
+x.t("name","entry");
+x.t("dictionary","components");
+x.t("dictionary","group");
+x.t("dictionary","component");
+x.t("dictionary","accessed");
+x.t("component","defines");
+x.t("parameters","relating");
+x.t("identified","name");
+x.t("dictionarygroup","contains");
+x.t("relating","dictionary");
+x.t("contains","dictionarylist");
+x.t("contains","dictionary");
+}

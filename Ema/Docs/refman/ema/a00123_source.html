@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EMA: OmmUtf8.h Source File</title>
+<title>EMA: OmmReal.h Source File</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -102,7 +102,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div class="header">
   <div class="headertitle">
-<div class="title">OmmUtf8.h</div>  </div>
+<div class="title">OmmReal.h</div>  </div>
 </div><!--header-->
 <div class="contents">
 <div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 <span class="comment">/*|-----------------------------------------------------------------------------</span>
@@ -113,62 +113,106 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00006"></a>00006 <span class="comment"> *|-----------------------------------------------------------------------------</span>
 <a name="l00007"></a>00007 <span class="comment"> */</span>
 <a name="l00008"></a>00008 
-<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_ema_access_OmmUtf8_h</span>
-<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_ema_access_OmmUtf8_h</span>
+<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_ema_access_OmmReal_h</span>
+<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_ema_access_OmmReal_h</span>
 <a name="l00011"></a>00011 <span class="preprocessor"></span>
-<a name="l00040"></a>00040 <span class="preprocessor">#include &quot;Access/Include/Data.h&quot;</span>
-<a name="l00041"></a>00041 
-<a name="l00042"></a>00042 <span class="keyword">namespace </span>thomsonreuters {
-<a name="l00043"></a>00043 
-<a name="l00044"></a>00044 <span class="keyword">namespace </span>ema {
-<a name="l00045"></a>00045 
-<a name="l00046"></a>00046 <span class="keyword">namespace </span>access {
-<a name="l00047"></a>00047 
-<a name="l00048"></a>00048 <span class="keyword">class </span>OmmUtf8Decoder;
-<a name="l00049"></a>00049 
-<a name="l00050"></a><a class="code" href="a00055.html">00050</a> <span class="keyword">class </span>EMA_ACCESS_API <a class="code" href="a00055.html" title="OmmUtf8 represents Utf8 string value in Omm.">OmmUtf8</a> : <span class="keyword">public</span> <a class="code" href="a00005.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a>
-<a name="l00051"></a>00051 {
-<a name="l00052"></a>00052 <span class="keyword">public</span> :
-<a name="l00053"></a>00053 
-<a name="l00055"></a>00055 
-<a name="l00056"></a>00056 
-<a name="l00059"></a>00059     <a class="code" href="a00006.html#a00b6b8b97b2425aa6d71a100ad70c0f0">DataType::DataTypeEnum</a> getDataType() <span class="keyword">const</span>;
-<a name="l00060"></a>00060 
-<a name="l00064"></a>00064     <a class="code" href="a00005.html#abe4fa6d2527b42396246aad6aa66d8b4">Data::DataCode</a> getCode() <span class="keyword">const</span>;
-<a name="l00065"></a>00065 
-<a name="l00069"></a>00069     <span class="keyword">const</span> <a class="code" href="a00009.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a>&amp; getAsHex() <span class="keyword">const</span>;
+<a name="l00061"></a>00061 <span class="preprocessor">#include &quot;Access/Include/Data.h&quot;</span>
+<a name="l00062"></a>00062 
+<a name="l00063"></a>00063 <span class="keyword">namespace </span>thomsonreuters {
+<a name="l00064"></a>00064 
+<a name="l00065"></a>00065 <span class="keyword">namespace </span>ema {
+<a name="l00066"></a>00066 
+<a name="l00067"></a>00067 <span class="keyword">namespace </span>access {
+<a name="l00068"></a>00068 
+<a name="l00069"></a>00069 <span class="keyword">class </span>OmmRealDecoder;
 <a name="l00070"></a>00070 
-<a name="l00074"></a>00074     <span class="keyword">const</span> <a class="code" href="a00011.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; toString() <span class="keyword">const</span>;
-<a name="l00075"></a>00075 
-<a name="l00079"></a>00079     <span class="keyword">const</span> <a class="code" href="a00009.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a>&amp; getUtf8() <span class="keyword">const</span>;
-<a name="l00081"></a>00081 
-<a name="l00082"></a>00082 <span class="keyword">private</span> :
-<a name="l00083"></a>00083 
-<a name="l00084"></a>00084     <span class="keyword">friend</span> <span class="keyword">class </span>Decoder;
-<a name="l00085"></a>00085     <span class="keyword">friend</span> <span class="keyword">class </span>StaticDecoder;
-<a name="l00086"></a>00086 
-<a name="l00087"></a>00087     Decoder&amp; getDecoder();
-<a name="l00088"></a>00088 
-<a name="l00089"></a>00089     <span class="keyword">const</span> <a class="code" href="a00011.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; toString( UInt64 ) <span class="keyword">const</span>;
-<a name="l00090"></a>00090 
-<a name="l00091"></a>00091     <span class="keyword">const</span> Encoder&amp; getEncoder() <span class="keyword">const</span>;
-<a name="l00092"></a>00092 
-<a name="l00093"></a>00093     <a class="code" href="a00055.html" title="OmmUtf8 represents Utf8 string value in Omm.">OmmUtf8</a>();
-<a name="l00094"></a>00094     <span class="keyword">virtual</span> ~<a class="code" href="a00055.html" title="OmmUtf8 represents Utf8 string value in Omm.">OmmUtf8</a>();
-<a name="l00095"></a>00095     <a class="code" href="a00055.html" title="OmmUtf8 represents Utf8 string value in Omm.">OmmUtf8</a>( <span class="keyword">const</span> <a class="code" href="a00055.html" title="OmmUtf8 represents Utf8 string value in Omm.">OmmUtf8</a>&amp; );
-<a name="l00096"></a>00096     <a class="code" href="a00055.html" title="OmmUtf8 represents Utf8 string value in Omm.">OmmUtf8</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00055.html" title="OmmUtf8 represents Utf8 string value in Omm.">OmmUtf8</a>&amp; );
-<a name="l00097"></a>00097 
-<a name="l00098"></a>00098     OmmUtf8Decoder*         _pDecoder;
-<a name="l00099"></a>00099     UInt64                  _space[13];
-<a name="l00100"></a>00100 };
-<a name="l00101"></a>00101 
-<a name="l00102"></a>00102 }
-<a name="l00103"></a>00103 
-<a name="l00104"></a>00104 }
-<a name="l00105"></a>00105 
-<a name="l00106"></a>00106 }
-<a name="l00107"></a>00107 
-<a name="l00108"></a>00108 <span class="preprocessor">#endif // __thomsonreuters_ema_access_OmmUtf8_h</span>
+<a name="l00071"></a><a class="code" href="a00054.html">00071</a> <span class="keyword">class </span>EMA_ACCESS_API <a class="code" href="a00054.html" title="OmmReal represents Real number in Omm.">OmmReal</a> : <span class="keyword">public</span> <a class="code" href="a00011.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a>
+<a name="l00072"></a>00072 {
+<a name="l00073"></a>00073 <span class="keyword">public</span> :
+<a name="l00074"></a>00074 
+<a name="l00078"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdc">00078</a>     <span class="keyword">enum</span> <a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdc">MagnitudeType</a>
+<a name="l00079"></a>00079     {
+<a name="l00080"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdca6ae9ccd44882942b9cac3b8c5bc6ffea">00080</a>         ExponentNeg14Enum = 0,      
+<a name="l00082"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdca79a5416a222b5d60e471c261d8f8a32a">00082</a>         ExponentNeg13Enum = 1,      
+<a name="l00084"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdca97d526cb8e53bac8939411f10a2a7785">00084</a>         ExponentNeg12Enum = 2,      
+<a name="l00086"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdcaf9ccd1e62d1c4996a734fca9484fdaf6">00086</a>         ExponentNeg11Enum = 3,      
+<a name="l00088"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdca8bb9d57f7c779e18f16db54e656a71a1">00088</a>         ExponentNeg10Enum = 4,      
+<a name="l00090"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdcaaea6015328443168a4c8f9dd908a8435">00090</a>         ExponentNeg9Enum = 5,       
+<a name="l00092"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdca932ec8ec9c6f372c0bb2306e2821ef66">00092</a>         ExponentNeg8Enum = 6,       
+<a name="l00094"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdca6d63b378ff5b8b9e59d800430830297f">00094</a>         ExponentNeg7Enum = 7,       
+<a name="l00096"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdca6b23b1c636c1ae517f6c5ecf5c0257f1">00096</a>         ExponentNeg6Enum = 8,       
+<a name="l00098"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdca08f0be293ffbb999b9fd671382db7b52">00098</a>         ExponentNeg5Enum = 9,       
+<a name="l00100"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdcad6d5ffaf2f3d883f6377d2e1a2f09bf6">00100</a>         ExponentNeg4Enum = 10,      
+<a name="l00102"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdcacfd45ba0943f1cb9fadd2058c197de32">00102</a>         ExponentNeg3Enum = 11,      
+<a name="l00104"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdca69a0ba642eeb1a19580ed0103e648ae9">00104</a>         ExponentNeg2Enum = 12,      
+<a name="l00106"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdca2ae9445f678c89b1605daa45f8bc04c4">00106</a>         ExponentNeg1Enum = 13,      
+<a name="l00108"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdcac99a9c508dde01164eaa569fff3a75c1">00108</a>         Exponent0Enum = 14,         
+<a name="l00110"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdca286a571f9ff5b0a28359de10edf247f1">00110</a>         ExponentPos1Enum = 15,      
+<a name="l00112"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdca5fca58f0a8150f71455f7b35c88d6e8e">00112</a>         ExponentPos2Enum = 16,      
+<a name="l00114"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdcabc9d96741c4ac28abbc227aac6ee6538">00114</a>         ExponentPos3Enum = 17,      
+<a name="l00116"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdca485992d8db0496af171277b6e9b3f001">00116</a>         ExponentPos4Enum = 18,      
+<a name="l00118"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdcabde13f39f8ae92a7951093843ac615bd">00118</a>         ExponentPos5Enum = 19,      
+<a name="l00120"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdcaf4c0d961f65ec5d7c8751f5cd35162f2">00120</a>         ExponentPos6Enum = 20,      
+<a name="l00122"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdcab42d07565d8b19a1dd3ce292755626f3">00122</a>         ExponentPos7Enum = 21,      
+<a name="l00124"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdca2c4ac5dfb860d914f7668a3314361f69">00124</a>         Divisor1Enum = 22,          
+<a name="l00126"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdca27033cc4b02e1d82db96ed313fc377d0">00126</a>         Divisor2Enum = 23,          
+<a name="l00128"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdcae82032c4038d2b9d771ee539823fc3e8">00128</a>         Divisor4Enum = 24,          
+<a name="l00130"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdca811e7382a84a70b14b527e2d96c09121">00130</a>         Divisor8Enum = 25,          
+<a name="l00132"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdcae9fd84ecddac92fd527d817189f6e863">00132</a>         Divisor16Enum = 26,         
+<a name="l00134"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdcab91c0430340e95c6b6d0875e04459d28">00134</a>         Divisor32Enum = 27,         
+<a name="l00136"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdca29e093bdec5f51ab5640e3cbfdc524c1">00136</a>         Divisor64Enum = 28,         
+<a name="l00138"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdcac6894114b4db09c618e49399ad62aa36">00138</a>         Divisor128Enum = 29,        
+<a name="l00140"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdca507580d7ef8c996f772b0f58cd9fdf5e">00140</a>         Divisor256Enum = 30,        
+<a name="l00142"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdcac4cb7ee690a23c2ab723fb02ace511a0">00142</a>         InfinityEnum = 33,          
+<a name="l00144"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdca3fc22b48ae50b73e1ea28ae6742c9d8f">00144</a>         NegInfinityEnum = 34,       
+<a name="l00146"></a><a class="code" href="a00054.html#a5cb7e63e3e809fc496624eeee7ab6fdca93069b0dda9b7c18b82433ad59f21d15">00146</a>         NotANumberEnum = 35         
+<a name="l00147"></a>00147     };
+<a name="l00148"></a>00148 
+<a name="l00150"></a>00150 
+<a name="l00151"></a>00151 
+<a name="l00154"></a>00154     <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; getMagnitudeTypeAsString() <span class="keyword">const</span>;
+<a name="l00155"></a>00155         
+<a name="l00159"></a>00159     <a class="code" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0">DataType::DataTypeEnum</a> getDataType() <span class="keyword">const</span>;
+<a name="l00160"></a>00160 
+<a name="l00164"></a>00164     <a class="code" href="a00011.html#abe4fa6d2527b42396246aad6aa66d8b4">Data::DataCode</a> getCode() <span class="keyword">const</span>;
+<a name="l00165"></a>00165 
+<a name="l00169"></a>00169     <span class="keyword">const</span> <a class="code" href="a00015.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a>&amp; getAsHex() <span class="keyword">const</span>;
+<a name="l00170"></a>00170 
+<a name="l00174"></a>00174     <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; toString() <span class="keyword">const</span>;
+<a name="l00175"></a>00175 
+<a name="l00179"></a>00179     Int64 getMantissa() <span class="keyword">const</span>;
+<a name="l00180"></a>00180 
+<a name="l00184"></a>00184     MagnitudeType getMagnitudeType() <span class="keyword">const</span>;
+<a name="l00185"></a>00185 
+<a name="l00189"></a>00189     <span class="keywordtype">double</span> getAsDouble() <span class="keyword">const</span>;
+<a name="l00191"></a>00191 
+<a name="l00192"></a>00192 <span class="keyword">private</span> :
+<a name="l00193"></a>00193 
+<a name="l00194"></a>00194     <span class="keyword">friend</span> <span class="keyword">class </span>Decoder;
+<a name="l00195"></a>00195     <span class="keyword">friend</span> <span class="keyword">class </span>StaticDecoder;
+<a name="l00196"></a>00196 
+<a name="l00197"></a>00197     Decoder&amp; getDecoder();
+<a name="l00198"></a>00198 
+<a name="l00199"></a>00199     <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; toString( UInt64 ) <span class="keyword">const</span>;
+<a name="l00200"></a>00200 
+<a name="l00201"></a>00201     <span class="keyword">const</span> Encoder&amp; getEncoder() <span class="keyword">const</span>;
+<a name="l00202"></a>00202 
+<a name="l00203"></a>00203     <a class="code" href="a00054.html" title="OmmReal represents Real number in Omm.">OmmReal</a>();
+<a name="l00204"></a>00204     <span class="keyword">virtual</span> ~<a class="code" href="a00054.html" title="OmmReal represents Real number in Omm.">OmmReal</a>();
+<a name="l00205"></a>00205     <a class="code" href="a00054.html" title="OmmReal represents Real number in Omm.">OmmReal</a>( <span class="keyword">const</span> <a class="code" href="a00054.html" title="OmmReal represents Real number in Omm.">OmmReal</a>&amp; );
+<a name="l00206"></a>00206     <a class="code" href="a00054.html" title="OmmReal represents Real number in Omm.">OmmReal</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00054.html" title="OmmReal represents Real number in Omm.">OmmReal</a>&amp; );
+<a name="l00207"></a>00207 
+<a name="l00208"></a>00208     OmmRealDecoder*     _pDecoder;
+<a name="l00209"></a>00209     UInt64              _space[14];
+<a name="l00210"></a>00210 };
+<a name="l00211"></a>00211 
+<a name="l00212"></a>00212 }
+<a name="l00213"></a>00213 
+<a name="l00214"></a>00214 }
+<a name="l00215"></a>00215 
+<a name="l00216"></a>00216 }
+<a name="l00217"></a>00217 
+<a name="l00218"></a>00218 <span class="preprocessor">#endif //__thomsonreuters_ema_access_OmmReal_h</span>
 </pre></div></div><!-- contents -->
 
 <hr class="footer"/><address class="footer"><small>
@@ -186,7 +230,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Jun 29 2015</td>
+			<td><p class="smallfont">Sat Jul 25 2015</td>
           </tr>
         </table>
         </td>

@@ -107,6 +107,9 @@ const EmaString& ReqMsg::toString(  UInt64 indent ) const
 	addIndent( _toString, indent, true ).append( "streamId=\"" ).append( pTempDecoder->getStreamId() ).append( "\"" );
 	addIndent( _toString, indent, true ).append( "domain=\"" ).append( rdmDomainToString( getDomainType() ) ).append( "\"" );
 
+	if ( pTempDecoder->getPrivateStream() )
+		addIndent( _toString, indent, true ).append( "privateStream" );
+
 	indent--;
 	if ( pTempDecoder->hasMsgKey() )
 	{

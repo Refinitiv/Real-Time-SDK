@@ -397,14 +397,17 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 		connectOpt.rsslConnectOptions.protocolType = RSSL_RWF_PROTOCOL_TYPE;
 
 		connectOpt.initializationTimeout = 5;
-		connectOpt.reconnectAttemptLimit = (Int32)_ommConsImpl.getActiveConfig().channelConfig->reconnectAttemptLimit;
-		connectOpt.reconnectMinDelay = (Int32)_ommConsImpl.getActiveConfig().channelConfig->reconnectMinDelay;
-		connectOpt.reconnectMaxDelay = (Int32)_ommConsImpl.getActiveConfig().channelConfig->reconnectMaxDelay;
+		connectOpt.reconnectAttemptLimit = _ommConsImpl.getActiveConfig().channelConfig->reconnectAttemptLimit;
+		connectOpt.reconnectMinDelay = _ommConsImpl.getActiveConfig().channelConfig->reconnectMinDelay;
+		connectOpt.reconnectMaxDelay = _ommConsImpl.getActiveConfig().channelConfig->reconnectMaxDelay;
 
 		connectOpt.rsslConnectOptions.compressionType = _ommConsImpl.getActiveConfig().channelConfig->compressionType;
 		connectOpt.rsslConnectOptions.connectionType = _ommConsImpl.getActiveConfig().channelConfig->connectionType;
 		connectOpt.rsslConnectOptions.pingTimeout = _ommConsImpl.getActiveConfig().channelConfig->connectionPingTimeout;
 		connectOpt.rsslConnectOptions.guaranteedOutputBuffers = _ommConsImpl.getActiveConfig().channelConfig->guaranteedOutputBuffers;
+		connectOpt.rsslConnectOptions.sysRecvBufSize = _ommConsImpl.getActiveConfig().channelConfig->sysRecvBufSize;
+		connectOpt.rsslConnectOptions.sysSendBufSize = _ommConsImpl.getActiveConfig().channelConfig->sysSendBufSize;
+		connectOpt.rsslConnectOptions.numInputBuffers = _ommConsImpl.getActiveConfig().channelConfig->numInputBuffers;
 
 		EmaString strConnectionType;
 		switch ( connectOpt.rsslConnectOptions.connectionType )
@@ -422,6 +425,7 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 			connectOpt.rsslConnectOptions.connectionInfo.unified.address = (char*)static_cast<EncryptedChannelConfig*>(_ommConsImpl.getActiveConfig().channelConfig)->hostName.c_str();
 			connectOpt.rsslConnectOptions.connectionInfo.unified.serviceName = (char*)static_cast<EncryptedChannelConfig*>(_ommConsImpl.getActiveConfig().channelConfig)->serviceName.c_str();
 			connectOpt.rsslConnectOptions.tcpOpts.tcp_nodelay = static_cast<EncryptedChannelConfig*>(_ommConsImpl.getActiveConfig().channelConfig)->tcpNodelay;
+			connectOpt.rsslConnectOptions.objectName = (char*) static_cast<EncryptedChannelConfig*>(_ommConsImpl.getActiveConfig().channelConfig)->objectName.c_str();
 			strConnectionType = "RSSL_CONN_TYPE_ENCRYPTED";
 			break;
 			}
@@ -430,6 +434,7 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 			connectOpt.rsslConnectOptions.connectionInfo.unified.address = (char*)static_cast<HttpChannelConfig*>(_ommConsImpl.getActiveConfig().channelConfig)->hostName.c_str();
 			connectOpt.rsslConnectOptions.connectionInfo.unified.serviceName = (char*)static_cast<HttpChannelConfig*>(_ommConsImpl.getActiveConfig().channelConfig)->serviceName.c_str();
 			connectOpt.rsslConnectOptions.tcpOpts.tcp_nodelay = static_cast<HttpChannelConfig*>(_ommConsImpl.getActiveConfig().channelConfig)->tcpNodelay;
+			connectOpt.rsslConnectOptions.objectName = (char*) static_cast<HttpChannelConfig*>(_ommConsImpl.getActiveConfig().channelConfig)->objectName.c_str();
 			strConnectionType = "RSSL_CONN_TYPE_HTTP";
 			break;
 			}
@@ -473,6 +478,9 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 				.append( "CompressionType " ).append( compType ).append( CR )
 				.append( "connectionPingTimeout " ).append( connectOpt.rsslConnectOptions.pingTimeout ).append( " msec" ).append( CR )
 				.append( "tcpNodelay " ).append( (connectOpt.rsslConnectOptions.tcpOpts.tcp_nodelay ? "true" : "false" ) );
+				if(connectOpt.rsslConnectOptions.connectionType == RSSL_CONN_TYPE_ENCRYPTED ||
+					connectOpt.rsslConnectOptions.connectionType == RSSL_CONN_TYPE_HTTP)
+					temp.append( CR ).append("ObjectName ").append(connectOpt.rsslConnectOptions.objectName);
 			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
 		}
 
@@ -551,9 +559,9 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 		}
 		case RSSL_RC_CET_CHANNEL_UP:
 		{
+			RsslErrorInfo rsslErrorInfo;
 #ifdef WIN32
 			int sendBfrSize = 65535;
-			RsslErrorInfo rsslErrorInfo;
 
 			if ( rsslReactorChannelIoctl( pRsslReactorChannel, RSSL_SYSTEM_WRITE_BUFFERS, &sendBfrSize, &rsslErrorInfo ) != RSSL_RET_SUCCESS )
 			{
@@ -600,6 +608,28 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 				return RSSL_RC_CRET_SUCCESS;
 			}
 #endif
+			if ( rsslReactorChannelIoctl( pRsslReactorChannel, RSSL_COMPRESSION_THRESHOLD, &_ommConsImpl.getActiveConfig().channelConfig->compressionThreshold, &rsslErrorInfo ) != RSSL_RET_SUCCESS )
+			{
+				if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+				{
+					EmaString temp( "Failed to set compression threshold on channel " );
+					temp.append( pChannel->getName() ).append( CR )
+						.append( "Consumer Name " ).append( _ommConsImpl.getConsumerName() ).append( CR )
+						.append( "RsslReactor " ).append( ptrToStringAsHex( pRsslReactor ) ).append( CR )
+						.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
+						.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
+						.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
+						.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
+						.append( "Error text " ).append( rsslErrorInfo.rsslError.text );
+
+					_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
+				}
+
+				_ommConsImpl.closeChannel( pRsslReactorChannel );
+
+				return RSSL_RC_CRET_SUCCESS;
+			}
+
 			pChannel->setRsslChannel( pRsslReactorChannel )
 				.setRsslSocket( pRsslReactorChannel->socketId )
 				.setChannelState( Channel::ChannelUpEnum );
@@ -640,7 +670,6 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 		
 				traceOptions.traceMsgMaxFileSize = _ommConsImpl.getActiveConfig().channelConfig->xmlTraceMaxFileSize;
 
-				RsslErrorInfo rsslErrorInfo;
 				if ( RSSL_RET_SUCCESS != rsslReactorChannelIoctl( pRsslReactorChannel, (RsslIoctlCodes)RSSL_TRACE, (void *)&traceOptions, &rsslErrorInfo ) )
 				{
 					if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )

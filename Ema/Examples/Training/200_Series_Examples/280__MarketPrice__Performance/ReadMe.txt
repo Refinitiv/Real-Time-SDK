@@ -12,6 +12,9 @@ Distribution Server.
 The 280__MarketPrice__Performance is a simple performance focused application
 opening and processing a number of MarketPrice items.
 
+Note: to effectively open up items in this example, please connect it up to 
+	  custom build provider performance application, e.g. upacProvPerf, or 
+	  rfacppProvPerf.
 
 Detailed Description
 ====================

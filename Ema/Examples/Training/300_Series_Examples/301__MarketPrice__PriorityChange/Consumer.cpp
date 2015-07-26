@@ -56,7 +56,7 @@ void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent&
 
 void AppClient::decode( const FieldList& fl )
 {
-	while ( !fl.forth() )
+	while ( fl.forth() )
 	{
 		const FieldEntry& fe = fl.getEntry();
 	

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>422__MarketPrice__ErrorClient</title>
+    <link rel="StyleSheet" href="css/EMA_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <br />
+    <hr align="left" />
+    <blockquote>
+      <div class="H2_NoNum"><a name="1021535">422__MarketPrice__ErrorClient</a></div>
+      <div class="Body"><a name="1026845">Summary</a></div>
+      <div class="Body"><a name="1026846">=======</a></div>
+      <div class="Body"><a name="1026847">&nbsp;</a></div>
+      <div class="Body"><a name="1026848">The 422__MarketPrice__ErrorClient application is provided as an example of</a></div>
+      <div class="Body"><a name="1026849">OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1026850">&nbsp;</a></div>
+      <div class="Body"><a name="1026851">This application demonstrates basic usage of the EMA for accessing and parsing</a></div>
+      <div class="Body"><a name="1026852">of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D), directly from</a></div>
+      <div class="Body"><a name="1026853">an OMM Provider application, or from Thomson Reuters Advanced Distribution Server.</a></div>
+      <div class="Body"><a name="1026854">&nbsp;</a></div>
+      <div class="Body"><a name="1026855">The 422__MarketPrice__ErrorClient showcases usage of the OmmConsumerErrorClient</a></div>
+      <div class="Body"><a name="1026856">functionality. Omm Consumer provides two ways of notifying aqpplication about</a></div>
+      <div class="Body"><a name="1026857">encountered user errors. By default Omm Consumer throws a respective exception</a></div>
+      <div class="Body"><a name="1026858">when an error is encountered. Users may specify to receive a respective callback</a></div>
+      <div class="Body"><a name="1026859">instead of exception.</a></div>
+      <div class="Body"><a name="1026860">&nbsp;</a></div>
+      <div class="Body"><a name="1026861">&nbsp;</a></div>
+      <div class="Body"><a name="1026862">Detailed Description</a></div>
+      <div class="Body"><a name="1026863">====================</a></div>
+      <div class="Body"><a name="1026864">&nbsp;</a></div>
+      <div class="Body"><a name="1026865">The 422__MarketPrice__ErrorClient implements the following high level steps:</a></div>
+      <div class="Body"><a name="1026866">&nbsp;</a></div>
+      <div class="Body"><a name="1026867">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1026868">+ Implements OmmConsumerErrorClient class in AppErrorClient</a></div>
+      <div class="Body"><a name="1026869">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1026870">+ Instantiates AppErrorClient object that receives error messages</a></div>
+      <div class="Body"><a name="1026871">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1026872">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1026873">  - sets host name on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1026874">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1026875">+ Instantiates OmmConsumer object which initializes connection and logins into</a></div>
+      <div class="Body"><a name="1026876">  specified server</a></div>
+      <div class="Body"><a name="1026877">  - handles errors with AppErrorClient</a></div>
+      <div class="Body"><a name="1026878">+ Performs the following functionalities (this error scenarios are done on purpose</a></div>
+      <div class="Body"><a name="1026879">  to demonstrate the OmmConsumerErrorClient functionality)</a></div>
+      <div class="Body"><a name="1026880">  - Invalid handle to send reissue request </a></div>
+      <div class="Body"><a name="1026881">  - Invalid handle to submit PostMsg</a></div>
+      <div class="Body"><a name="1026882">  - Invalid handle to submit Postsg</a></div>
+      <div class="Body"><a name="1026883">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1026884">+ Processes data received from main thread for 60 seconds</a></div>
+      <div class="Body"><a name="1026885">  - all received messages and erros are processed on user thread of control</a></div>
+      <div class="Body"><a name="1026886">+ Exits</a></div>
+      <div class="Body"><a name="1026887">&nbsp;</a></div>
+      <div class="Body"><a name="1026888">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1026889">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1026890">	  </a></div>
+      <div class="Body"><a name="1026891">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1026892">      standard configuration.</a></div>
+      <div class="Body"><a name="1024918">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

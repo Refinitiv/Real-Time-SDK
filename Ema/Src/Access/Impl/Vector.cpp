@@ -60,7 +60,7 @@ bool Vector::getSortable() const
 
 bool Vector::forth() const
 {
-	return _pDecoder->getNextData();
+	return !_pDecoder->getNextData();
 }
 
 void Vector::reset() const

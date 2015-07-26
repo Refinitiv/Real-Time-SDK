@@ -54,7 +54,7 @@ void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent&
 
 void AppClient::decode( const FieldList& fl )
 {
-	while ( !fl.forth() )
+	while ( fl.forth() )
 		cout << "Fid: " << fl.getEntry().getFieldId() << " Name: " << fl.getEntry().getName() << " value: " << fl.getEntry().getLoad().toString() << endl;
 }
 

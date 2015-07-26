@@ -198,8 +198,8 @@ bool Pipe::socketpair( int& appFD, int& threadFD, int& port,
 	int SAddrSize = sizeof( struct sockaddr_in );
 
 	struct sockaddr_in srvrSAddr;
+#pragma warning( disable : 4244 )
 	threadFD = socket( AF_INET, SOCK_STREAM, PF_UNSPEC );
-
 	srvrSAddr.sin_family = AF_INET;
 	srvrSAddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 	srvrSAddr.sin_port = htons( port );
@@ -213,6 +213,7 @@ bool Pipe::socketpair( int& appFD, int& threadFD, int& port,
 	}
 		
 	appFD = accept( serverFD, (struct sockaddr *)&cliSAddr, &SAddrSize );
+#pragma warning( default : 4244 )
 	if ( appFD == -1 )
 	{
 		closesocket( serverFD ); 

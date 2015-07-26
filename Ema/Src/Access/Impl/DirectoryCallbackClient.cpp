@@ -337,20 +337,6 @@ Info& Info::addDictionaryUsed( const char* pDictionary, UInt32 length )
 	return *this;
 }
 
-const EmaString& Info::toString() const
-{
-	if ( !_toStringSet )
-	{
-		_toStringSet = true;
-
-		_toString.clear();
-
-		// todo ... need impl
-	}
-
-	return _toString;
-}
-
 State::State() :
  _serviceState( 0 ),
  _acceptingRequests( 1 ),
@@ -572,19 +558,6 @@ Directory& Directory::setId( UInt64 id )
 	_id = id;
 	_toStringSet = false;
 	return *this;
-}
-
-const EmaString& Directory::toString() const
-{
-	if ( !_toStringSet )
-	{
-		_toStringSet = true;
-
-		// todo .... need impl
-		_toString.clear();
-	}
-
-	return _toString;
 }
 
 Channel* Directory::getChannel() const
@@ -1330,8 +1303,15 @@ RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor* pR
 			_event._pItem->getClient().onAllMsg( _refreshMsg, _event );
 			_event._pItem->getClient().onRefreshMsg( _refreshMsg, _event );
 
-			if ( _refreshMsg.getState().getStreamState() != OmmState::OpenEnum )
+			if ( _refreshMsg.getState().getStreamState() == OmmState::NonStreamingEnum )
+			{
+				if ( _refreshMsg.getComplete() )
+					_event._pItem->remove();
+			}
+			else if ( _refreshMsg.getState().getStreamState() != OmmState::OpenEnum )
+			{
 				_event._pItem->remove();
+			}
 		}
 		break;
 	case RDM_DR_MT_UPDATE :
@@ -1387,7 +1367,7 @@ RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor* pR
 const EmaString DirectoryItem::_clientName( "DirectoryCallbackClient" );
 
 DirectoryItem::DirectoryItem( OmmConsumerImpl& ommConsImpl,  OmmConsumerClient& ommConsClient, void* closure, const Channel* channel ) :
- Item( ommConsImpl, ommConsClient, closure ),
+ Item( ommConsImpl, ommConsClient, closure, 0 ),
  _channel( channel ),
  _closedStatusInfo( 0 ),
  _pDirectory( 0 )
@@ -1426,6 +1406,11 @@ DirectoryItem* DirectoryItem::create( OmmConsumerImpl& ommConsImpl, OmmConsumerC
 	}
 
 	return pItem;
+}
+
+const Directory* DirectoryItem::getDirectory()
+{
+	return 0;
 }
 
 bool DirectoryItem::open( const ReqMsg& reqMsg )

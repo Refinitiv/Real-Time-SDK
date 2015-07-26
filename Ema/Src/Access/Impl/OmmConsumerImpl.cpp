@@ -26,15 +26,17 @@
 #include "OmmMemoryExhaustionException.h"
 #include "OmmInaccessibleLogFileException.h"
 #include "OmmUnsupportedDomainTypeException.h"
+#include "TunnelStreamRequest.h"
 
 #include <new>
 
 #define	EMA_BIG_STR_BUFF_SIZE (1024*4)
 using namespace thomsonreuters::ema::access;
 
-EmaList< OmmConsumerImpl > OmmConsumerImplMap::_ommConsumerList;
+EmaVector< OmmConsumerImpl* > OmmConsumerImplMap::_ommConsumerList;
 Mutex OmmConsumerImplMap::_listLock;
 UInt64 OmmConsumerImplMap::_id = 0;
+bool OmmConsumerImplMap::_clearSigHandler = true;
 
 #ifndef WIN32
 struct sigaction OmmConsumerImplMap::_sigAction;
@@ -132,7 +134,7 @@ void OmmConsumerImpl::readConfig( const OmmConsumerConfig& config )
 
 	pConfigImpl = config.getConfigImpl();
 
-	UInt64 id = OmmConsumerImplMap::push_back( this );
+	UInt64 id = OmmConsumerImplMap::add( this );
 
 	_activeConfig.consumerName = pConfigImpl->getConsumerName();
 
@@ -354,6 +356,8 @@ void OmmConsumerImpl::readConfig( const OmmConsumerConfig& config )
 				else
 					static_cast<HttpChannelConfig*>(_activeConfig.channelConfig)->tcpNodelay = RSSL_TRUE;
 
+				pConfigImpl->get<EmaString>(channelNodeName + "ObjectName", static_cast<HttpChannelConfig*>(_activeConfig.channelConfig)->objectName);
+
 				break;
 			}
 		case RSSL_CONN_TYPE_ENCRYPTED:
@@ -386,6 +390,8 @@ void OmmConsumerImpl::readConfig( const OmmConsumerConfig& config )
 				else
 					static_cast<EncryptedChannelConfig*>(_activeConfig.channelConfig)->tcpNodelay = RSSL_FALSE;
 
+				pConfigImpl->get<EmaString>(channelNodeName + "ObjectName", static_cast<EncryptedChannelConfig*>(_activeConfig.channelConfig)->objectName);
+
 				break;
 			}
 		default:
@@ -410,20 +416,56 @@ void OmmConsumerImpl::readConfig( const OmmConsumerConfig& config )
 		}
 
 		tempUInt = 0;
-		if ( pConfigImpl->get<UInt64>( channelNodeName + "ConnectionPingTimeout", tempUInt ) )
+		if (pConfigImpl->get<UInt64>( channelNodeName + "NumInputBuffers", tempUInt ) )
 		{
-			_activeConfig.channelConfig->connectionPingTimeout = (UInt32)tempUInt;
+			_activeConfig.channelConfig->setNumInputBuffers( tempUInt );
 		}
 
-		pConfigImpl->get<Int64>( channelNodeName + "ReconnectAttemptLimit", _activeConfig.channelConfig->reconnectAttemptLimit );
+		tempUInt = 0;
+		if (pConfigImpl->get<UInt64>( channelNodeName + "CompressionThreshold", tempUInt ) )
+		{
+			_activeConfig.channelConfig->compressionThreshold = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
+		}
 
-		pConfigImpl->get<Int64>( channelNodeName + "ReconnectMinDelay", _activeConfig.channelConfig->reconnectMinDelay );
-				
-		pConfigImpl->get<Int64>( channelNodeName + "ReconnectMaxDelay", _activeConfig.channelConfig->reconnectMaxDelay );
+		tempUInt = 0;
+		if ( pConfigImpl->get<UInt64>( channelNodeName + "ConnectionPingTimeout", tempUInt ) )
+		{
+			_activeConfig.channelConfig->connectionPingTimeout = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
+		}
+
+		tempUInt = 0;
+		if ( pConfigImpl->get<UInt64>( channelNodeName + "SysRecvBufSize", tempUInt ) )
+		{
+			_activeConfig.channelConfig->sysRecvBufSize = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
+		}
+
+		tempUInt = 0;
+		if ( pConfigImpl->get<UInt64>( channelNodeName + "SysSendBufSize", tempUInt ) )
+		{
+			_activeConfig.channelConfig->sysSendBufSize = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
+		}
+
+		Int64 tempInt = -1;
+		if ( pConfigImpl->get<Int64>( channelNodeName + "ReconnectAttemptLimit", tempInt ) )
+		{
+			_activeConfig.channelConfig->setReconnectAttemptLimit( tempInt );
+		}
+
+		tempInt = 0;
+		if ( pConfigImpl->get<Int64>( channelNodeName + "ReconnectMinDelay", tempInt ) )
+		{
+			_activeConfig.channelConfig->setReconnectMinDelay( tempInt );
+		}
+		
+		tempInt = 0;
+		if ( pConfigImpl->get<Int64>( channelNodeName + "ReconnectMaxDelay", tempInt ) )
+		{
+			_activeConfig.channelConfig->setReconnectMaxDelay( tempInt );
+		}
 
 		pConfigImpl->get<EmaString>( channelNodeName + "XmlTraceFileName", _activeConfig.channelConfig->xmlTraceFileName );
 
-		Int64 tempInt = 0;
+		tempInt = 0;
 		pConfigImpl->get<Int64>( channelNodeName + "XmlTraceMaxFileSize", tempInt );
 		if ( tempInt > 0 )
 			_activeConfig.channelConfig->xmlTraceMaxFileSize = tempInt;
@@ -498,11 +540,9 @@ void OmmConsumerImpl::initialize( const OmmConsumerConfig& config )
 		}
 
 		RsslError rsslError;
-
 		RsslRet retCode = rsslInitialize( RSSL_LOCK_GLOBAL_AND_CHANNEL, &rsslError );
 		if ( retCode != RSSL_RET_SUCCESS )
 		{
-			_consumerLock.unlock();
 			EmaString temp( "rsslInitialize() failed while initializing OmmConsumer." );
 			temp.append( " Internal sysError='" ).append( rsslError.sysError )
 				.append( "' Error text='" ).append( rsslError.text ).append( "'. " );
@@ -530,7 +570,6 @@ void OmmConsumerImpl::initialize( const OmmConsumerConfig& config )
 		_pRsslReactor = rsslCreateReactor( &reactorOpts, &rsslErrorInfo );
 		if ( !_pRsslReactor )
 		{
-			_consumerLock.unlock();
 			EmaString temp( "Failed to initialize OmmConsumer (rsslCreateReactor)." );
 			temp.append( "' Error Id='" ).append( rsslErrorInfo.rsslError.rsslErrorId )
 				.append( "' Internal sysError='" ).append( rsslErrorInfo.rsslError.sysError )
@@ -666,7 +705,7 @@ void OmmConsumerImpl::initialize( const OmmConsumerConfig& config )
 	{
 		_consumerLock.unlock();
 
-		uninitialize();
+ 		uninitialize();
 
 		if ( hasOmmConnsumerErrorClient() )
 			notifyOmmConsumerErrorClient( ommException, getOmmConsumerErrorClient() );
@@ -704,8 +743,15 @@ void OmmConsumerImpl::pipeRead()
 	_pipeLock.unlock();
 }
 
-void OmmConsumerImpl::uninitialize()
+void OmmConsumerImpl::cleanUp()
 {
+	uninitialize( true );
+}
+
+void OmmConsumerImpl::uninitialize( bool caughtExcep )
+{
+	OmmConsumerImplMap::remove( this );
+
 	_consumerLock.lock();
 
 	if ( _ommConsumerState == NotInitializedEnum )
@@ -714,7 +760,7 @@ void OmmConsumerImpl::uninitialize()
 		return;
 	}
 
-	if ( _activeConfig.userDispatch == OmmConsumerConfig::ApiDispatchEnum )
+	if ( _activeConfig.userDispatch == OmmConsumerConfig::ApiDispatchEnum && !caughtExcep )
 	{
 		pipeWrite();
 		stop();
@@ -725,7 +771,7 @@ void OmmConsumerImpl::uninitialize()
 
 	if ( _pRsslReactor )
 	{
-		if ( _pLoginCallbackClient )
+		if ( _pLoginCallbackClient && !caughtExcep )
 			rsslReactorDispatchLoop( 10000, _pLoginCallbackClient->sendLoginClose() );
 
 		_pChannelCallbackClient->closeChannels();
@@ -783,8 +829,6 @@ void OmmConsumerImpl::uninitialize()
 
 	OmmLoggerClient::destroy( _pLoggerClient );
 
-	OmmConsumerImplMap::removeValue( this );
-
 	_ommConsumerState = NotInitializedEnum;
 
 	_consumerLock.unlock();
@@ -823,7 +867,7 @@ bool OmmConsumerImpl::rsslReactorDispatchLoop( Int64 timeOut, UInt32 count )
 		struct timeval selectTime;
 		if ( timeOut >= 0 )
 		{
-			selectTime.tv_sec = timeOut / 1000000;
+			selectTime.tv_sec = static_cast< long >( timeOut / 1000000 );
 			selectTime.tv_usec = timeOut % 1000000;			
 			selectRetCode = select( FD_SETSIZE, &useReadFds, NULL, &useExceptFds, &selectTime );
 		}
@@ -1028,11 +1072,23 @@ OmmLoggerClient& OmmConsumerImpl::getOmmLoggerClient()
 }
 
 UInt64 OmmConsumerImpl::registerClient( const ReqMsg& reqMsg, OmmConsumerClient& ommConsClient,
-										void* closure )
+										void* closure, UInt64 parentHandle )
 {
 	_consumerLock.lock();
 
-	UInt64 handle = _pItemCallbackClient ? _pItemCallbackClient->registerClient( reqMsg, ommConsClient, closure ) : 0;
+	UInt64 handle = _pItemCallbackClient ? _pItemCallbackClient->registerClient( reqMsg, ommConsClient, closure, parentHandle ) : 0;
+
+	_consumerLock.unlock();
+
+	return handle;
+}
+
+UInt64 OmmConsumerImpl::registerClient( const TunnelStreamRequest& tunnelStreamRequest,
+									   OmmConsumerClient& ommConsClient, void* closure )
+{
+	_consumerLock.lock();
+
+	UInt64 handle = _pItemCallbackClient ? _pItemCallbackClient->registerClient( tunnelStreamRequest, ommConsClient, closure ) : 0;
 
 	_consumerLock.unlock();
 
@@ -1082,7 +1138,7 @@ OmmConsumerActiveConfig& OmmConsumerImpl::getActiveConfig()
 
 Int64 OmmConsumerImpl::dispatch( Int64 timeOut )
 {
-	if ( _activeConfig.userDispatch == OmmConsumerConfig::UserDispatchEnum )
+	if ( _activeConfig.userDispatch == OmmConsumerConfig::UserDispatchEnum && !_atExit )
 		return rsslReactorDispatchLoop( timeOut, _activeConfig.maxDispatchCountUserThread ) ? OmmConsumer::DispatchedEnum : OmmConsumer::TimeoutEnum;
 
 	return OmmConsumer::TimeoutEnum;
@@ -1109,22 +1165,22 @@ int OmmConsumerImpl::runLog( void* pExceptionStructure, const char* file, unsign
 
 RsslReactorCallbackRet OmmConsumerImpl::channelCallback( RsslReactor* pRsslReactor, RsslReactorChannel* pRsslReactorChannel, RsslReactorChannelEvent* pEvent )
 {
-	return static_cast<OmmConsumerImpl*>( pRsslReactor->userSpecPtr )->_pChannelCallbackClient->processCallback( pRsslReactor, pRsslReactorChannel, pEvent );
+	return static_cast<OmmConsumerImpl*>( pRsslReactor->userSpecPtr )->getChannelCallbackClient().processCallback( pRsslReactor, pRsslReactorChannel, pEvent );
 }
 
 RsslReactorCallbackRet OmmConsumerImpl::loginCallback( RsslReactor *pRsslReactor, RsslReactorChannel *pRsslReactorChannel, RsslRDMLoginMsgEvent *pEvent )
 {
-	return static_cast<OmmConsumerImpl*>( pRsslReactor->userSpecPtr )->_pLoginCallbackClient->processCallback( pRsslReactor, pRsslReactorChannel, pEvent );
+	return static_cast<OmmConsumerImpl*>( pRsslReactor->userSpecPtr )->getLoginCallbackClient().processCallback( pRsslReactor, pRsslReactorChannel, pEvent );
 }
 
 RsslReactorCallbackRet OmmConsumerImpl::directoryCallback( RsslReactor* pRsslReactor, RsslReactorChannel* pRsslReactorChannel, RsslRDMDirectoryMsgEvent* pEvent )
 {
-	return static_cast<OmmConsumerImpl*>( pRsslReactor->userSpecPtr )->_pDirectoryCallbackClient->processCallback( pRsslReactor, pRsslReactorChannel, pEvent );
+	return static_cast<OmmConsumerImpl*>( pRsslReactor->userSpecPtr )->getDirectoryCallbackClient().processCallback( pRsslReactor, pRsslReactorChannel, pEvent );
 }
 
 RsslReactorCallbackRet OmmConsumerImpl::dictionaryCallback( RsslReactor* pRsslReactor, RsslReactorChannel* pRsslReactorChannel, RsslRDMDictionaryMsgEvent* pEvent )
 {
-	return static_cast<OmmConsumerImpl*>( pRsslReactor->userSpecPtr )->_pDictionaryCallbackClient->processCallback( pRsslReactor, pRsslReactorChannel, pEvent );
+	return static_cast<OmmConsumerImpl*>( pRsslReactor->userSpecPtr )->getDictionaryCallbackClient().processCallback( pRsslReactor, pRsslReactorChannel, pEvent );
 }
 
 RsslReactorCallbackRet OmmConsumerImpl::itemCallback( RsslReactor* pRsslReactor, RsslReactorChannel* pRsslReactorChannel, RsslMsgEvent* pEvent )
@@ -1134,7 +1190,22 @@ RsslReactorCallbackRet OmmConsumerImpl::itemCallback( RsslReactor* pRsslReactor,
 
 RsslReactorCallbackRet OmmConsumerImpl::channelOpenCallback( RsslReactor* pRsslReactor, RsslReactorChannel* pRsslReactorChannel, RsslReactorChannelEvent* pEvent )
 {
-	return static_cast<OmmConsumerImpl*>( pRsslReactor->userSpecPtr )->_pChannelCallbackClient->processCallback( pRsslReactor, pRsslReactorChannel, pEvent );
+	return static_cast<OmmConsumerImpl*>( pRsslReactor->userSpecPtr )->getChannelCallbackClient().processCallback( pRsslReactor, pRsslReactorChannel, pEvent );
+}
+
+RsslReactorCallbackRet OmmConsumerImpl::tunnelStreamStatusEventCallback( RsslTunnelStream* pTunnelStream, RsslTunnelStreamStatusEvent* pTunnelStreamStatusEvent )
+{
+	return static_cast<TunnelItem*>( pTunnelStream->userSpecPtr )->getOmmConsumerImpl().getItemCallbackClient().processCallback( pTunnelStream, pTunnelStreamStatusEvent );
+}
+
+RsslReactorCallbackRet OmmConsumerImpl::tunnelStreamDefaultMsgCallback( RsslTunnelStream* pTunnelStream, RsslTunnelStreamMsgEvent* pTunnelStreamMsgEvent )
+{
+	return static_cast<TunnelItem*>( pTunnelStream->userSpecPtr )->getOmmConsumerImpl().getItemCallbackClient().processCallback( pTunnelStream, pTunnelStreamMsgEvent );
+}
+
+RsslReactorCallbackRet OmmConsumerImpl::tunnelStreamQueueMsgCallback( RsslTunnelStream* pTunnelStream, RsslTunnelStreamQueueMsgEvent* pTunnelStreamQueueMsgEvent )
+{
+	return static_cast<TunnelItem*>( pTunnelStream->userSpecPtr )->getOmmConsumerImpl().getItemCallbackClient().processCallback( pTunnelStream, pTunnelStreamQueueMsgEvent );
 }
 
 bool OmmConsumerImpl::hasOmmConnsumerErrorClient()
@@ -1186,9 +1257,11 @@ void OmmConsumerImplMap::init()
 
 	sigaction( SIGINT, &_sigAction, &_oldSigAction );
 #endif
+
+	_clearSigHandler = false;
 }
 
-UInt64 OmmConsumerImplMap::push_back( OmmConsumerImpl* consumer )
+UInt64 OmmConsumerImplMap::add( OmmConsumerImpl* consumer )
 {
 	_listLock.lock();
 
@@ -1206,13 +1279,13 @@ UInt64 OmmConsumerImplMap::push_back( OmmConsumerImpl* consumer )
 	return _id;
 }
 
-void OmmConsumerImplMap::removeValue( OmmConsumerImpl* consumer )
+void OmmConsumerImplMap::remove( OmmConsumerImpl* consumer )
 {
 	_listLock.lock();
 
-	_ommConsumerList.remove( consumer );
+	_ommConsumerList.removeValue( consumer );
 
-	if ( !_ommConsumerList.empty() )
+	if ( !_ommConsumerList.empty() || _clearSigHandler )
 	{
 		_listLock.unlock();
 		return;
@@ -1223,6 +1296,8 @@ void OmmConsumerImplMap::removeValue( OmmConsumerImpl* consumer )
 	sigaction( SIGINT, &_oldSigAction, NULL );
 #endif
 
+	_clearSigHandler = true;
+
 	_listLock.unlock();
 }
 
@@ -1230,33 +1305,22 @@ void OmmConsumerImplMap::atExit()
 {
 	_listLock.lock();
 
-	OmmConsumerImpl* temp = _ommConsumerList.pop_back();
+	UInt32 size = _ommConsumerList.size();
 
-	while ( temp )
+	while ( size )
 	{
+		OmmConsumerImpl* temp = _ommConsumerList[size - 1];
 		temp->setAtExit();
 		temp->uninitialize();
-		temp = _ommConsumerList.pop_back();
+		size = _ommConsumerList.size();
 	}
-
-
-#ifdef WIN32
-	Sleep( 1000 );
-#endif
-
-#ifdef WIN32
-	SetConsoleCtrlHandler( &OmmConsumerImplMap::TermHandlerRoutine, FALSE );
-#else
-	sigaction( SIGINT, &_oldSigAction, NULL );
-#endif
 
 	_listLock.unlock();
 }
 
-void
-OmmConsumerImpl::terminateIf( void * object )
+void OmmConsumerImpl::terminateIf( void* object )
 {
-	OmmConsumerImpl * consumer = reinterpret_cast<OmmConsumerImpl *>( object );
+	OmmConsumerImpl * consumer = reinterpret_cast<OmmConsumerImpl*>( object );
 	consumer->_eventTimedOut = true;
 }
 
@@ -1270,7 +1334,7 @@ BOOL WINAPI OmmConsumerImplMap::TermHandlerRoutine( DWORD dwCtrlType )
 	case CTRL_SHUTDOWN_EVENT:	
 	case CTRL_C_EVENT:
 		OmmConsumerImplMap::atExit();
-		return TRUE;
+		break;
 	}
 	return FALSE;
 }

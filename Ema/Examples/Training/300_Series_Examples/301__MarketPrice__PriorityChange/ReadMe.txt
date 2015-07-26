@@ -11,7 +11,7 @@ directly from an OMM Provider application, or from Thomson Reuters Advanced
 Distribution Server.
 
 The 301__MarketPrice__PriorityChange showcases reissue for priority feature
-of Omm Consumer. This application arbitrarily chooses to modify item's priority
+of OMM Consumer. This application arbitrarily chooses to modify item's priority
 after receiving an open ok status on this item's refresh.
 
 

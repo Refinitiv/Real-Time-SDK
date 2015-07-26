@@ -28,6 +28,12 @@ const EmaString ReplayHistoryDomainString( "ReplayHistory Domain" );
 const EmaString TransactionDomainString( "Transaction Domain" );
 const EmaString YieldCurveDomainString( "YieldCurve Domain" );
 const EmaString ContributionDomainString( "Contribution Domain" );
+const EmaString ProviderAdminDomainString( "ProviderAdmin Domain" );
+const EmaString AnalyticsDomainString( "Analytics Domain" );
+const EmaString ReferenceDomainString( "Reference Domain" );
+const EmaString NewsTextAnalyticsDomainString( "NewsTextAnalytics Domain" );
+const EmaString SystemDomainString( "System Domain" );
+
 EmaString UnknownDomainString;
 
 const EmaString& rdmDomainToString( UInt16 domain )
@@ -68,6 +74,16 @@ const EmaString& rdmDomainToString( UInt16 domain )
 		return YieldCurveDomainString;
 	case MMT_CONTRIBUTION :
 		return ContributionDomainString;
+	case MMT_PROVIDER_ADMIN :
+		return ProviderAdminDomainString;
+	case MMT_ANALYTICS :
+		return AnalyticsDomainString;
+	case MMT_REFERENCE :
+		return ReferenceDomainString;
+	case MMT_NEWS_TEXT_ANALYTICS :
+		return NewsTextAnalyticsDomainString;
+	case MMT_SYSTEM :
+		return SystemDomainString;
 	default :
 		return UnknownDomainString.set( "Unknown RDM Domain. Value='" ).append( (UInt32) domain ).append( "'" );
 	}

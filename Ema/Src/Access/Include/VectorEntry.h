@@ -19,7 +19,7 @@
 
 	decodeVector( const Vector& vector )
 	{
-		while ( !vector.forth() )
+		while ( vector.forth() )
 		{
 			const VectorEntry& vectorEntry = vector.getEntry();
 

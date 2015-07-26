@@ -1,0 +1,27 @@
+function FileData_Pairs(x)
+{
+x.t("uses","marketprice");
+x.t("provided","single");
+x.t("single","message");
+x.t("direct","uses");
+x.t("direct","marketprice");
+x.t("nasdaq","level");
+x.t("fields","even");
+x.t("opra","level");
+x.t("refresh","provided");
+x.t("6.5","specific");
+x.t("level","nasdaq");
+x.t("level","opra");
+x.t("level","data");
+x.t("message","contains");
+x.t("marketprice","6.5");
+x.t("marketprice","siac");
+x.t("marketprice","rdf");
+x.t("usage","rdf");
+x.t("specific","usage");
+x.t("siac","level");
+x.t("data","refresh");
+x.t("rdf","direct");
+x.t("even","blank");
+x.t("contains","fields");
+}

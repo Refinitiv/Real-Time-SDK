@@ -46,7 +46,7 @@ void AppClient::decode( const FieldList& fl )
 	// specify the set of fids to search for; use fid #s
 	searchList.addArray( "", OmmArray().addInt( 3 ).addInt( 21 ).addInt( 22 ).addInt( 25 ).complete() ).complete();
 
-	while ( !fl.forth( searchList ) )		// search for a set of matching fids
+	while ( fl.forth( searchList ) )		// search for a set of matching fids
 	{
 		const FieldEntry& fe = fl.getEntry();
 

@@ -1,0 +1,27 @@
+function FileData_Pairs(x)
+{
+x.t("included","link");
+x.t("included","ema");
+x.t("lies","outside");
+x.t("html","documentation");
+x.t("however","manual");
+x.t("link","convenience");
+x.t("outside","ema");
+x.t("manual","included");
+x.t("manual","search");
+x.t("manual","separate");
+x.t("manual","ema");
+x.t("search","search");
+x.t("search","function");
+x.t("search","ema");
+x.t("reference","manual");
+x.t("documentation","included");
+x.t("documentation","search");
+x.t("convenience","however");
+x.t("separate","system");
+x.t("edition","reference");
+x.t("system","lies");
+x.t("ema","html");
+x.t("ema","reference");
+x.t("ema","edition");
+}

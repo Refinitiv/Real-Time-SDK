@@ -11,7 +11,7 @@ Distribution Server.
 
 The 421__MarketPrice__ProgrammaticConfig showcases creation and usage of the 
 programmatic configuration feature of EMA. In addition to file configuration,
-EMA allows users to programmaticaly configure Omm Consumer instances.
+EMA allows users to grammatically configure Omm Consumer instances.
 
 
 Detailed Description

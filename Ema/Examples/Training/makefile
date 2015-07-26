@@ -45,7 +45,9 @@ optimizedAssertShared: outputDir
 
 help:
 	@echo "allowed build targets: optimizedStatic optimizedShared optimizedAssertStatic optimizedAssertShared"
-	@echo "use USE_CUSTOM_BUILD=True to use custom library build in examples"
+ifeq ($(findstring GSG,$(DISTRIBUTION_SRC)), GSG)
+	@echo "use USE_CUSTOM_BUILD=true to use custom library build in examples"
+endif
 	@echo "allowed clean targets: clean optimizedStaticClean optimizedSharedClean optimizedAssertStaticClean optimizedAssertSharedClean"
 	@echo "target clean will clear all build directories for $(IDENT)"
 

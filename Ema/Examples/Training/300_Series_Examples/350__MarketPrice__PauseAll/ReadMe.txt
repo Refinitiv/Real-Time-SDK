@@ -9,7 +9,7 @@ login and item streams and pausing item response messages from Reuters Data
 Feed Direct (RDF-D), directly from an OMM Provider application, or from
 Thomson Reuters Advanced Distribution Server with login stream.
 
-The 350__MarketPrice__PauseAll showcases the pause all feature of Omm Consumer.
+The 350__MarketPrice__PauseAll showcases the pause all feature of OMM Consumer.
 It sends a single pause request on login stream to pause all open items.
 
 
@@ -42,11 +42,3 @@ Note: if needed, these and other details may be modified to fit local
 	  
 Note: please refer to the EMA library ReadMe.txt file for details on
       standard configuration.
-
-
-OmmConsumerClient and Callbacks
-===============================
-
-The 350__MarketPrice__PauseAll demonstrates how to receive and process individual
-item response messages for Login and MarketPrice domains. Additionally this application
-shows a native / RWF decoding for FieldList container.

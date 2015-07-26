@@ -69,22 +69,22 @@ Int16 FieldList::getInfoDictionaryId() const
 
 bool FieldList::forth() const
 {
-	return _pDecoder->getNextData();
+	return !_pDecoder->getNextData();
 }
 
 bool FieldList::forth( Int16 fieldId ) const
 {
-	return _pDecoder->getNextData( fieldId );
+	return !_pDecoder->getNextData( fieldId );
 }
 
 bool FieldList::forth( const EmaString& name ) const
 {
-	return _pDecoder->getNextData( name );
+	return !_pDecoder->getNextData( name );
 }
 
 bool FieldList::forth( const Data& data ) const
 {
-	return _pDecoder->getNextData( data );
+	return !_pDecoder->getNextData( data );
 }
 
 void FieldList::reset() const

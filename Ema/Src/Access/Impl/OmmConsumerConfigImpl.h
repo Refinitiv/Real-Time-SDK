@@ -660,6 +660,8 @@ public:
 
 	bool getDefaultConsumer(EmaString &);
 
+	bool specifyConsumerName ( const EmaString& consumerName );
+
 	bool getActiveChannelName( const EmaString&, EmaString& );
 
 	bool getActiveLoggerName( const EmaString&, EmaString& );
@@ -688,6 +690,8 @@ private:
 
 	static void retrieveDictionary( const Map&, const EmaString&, EmaConfigErrorList&, OmmConsumerActiveConfig& );
 
+	static bool validateConsumerName(const Map &, const EmaString&);
+
 	void clear();
 
 	ProgrammaticConfigure(const ProgrammaticConfigure &);
@@ -698,6 +702,7 @@ private:
 	EmaString _loggerName;
 	EmaString _dictionaryName;
 
+	bool _overrideConsName;
 	bool _loadnames;
 	UInt8 _nameflags;
 

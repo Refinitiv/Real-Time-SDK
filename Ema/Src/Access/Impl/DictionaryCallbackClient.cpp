@@ -534,8 +534,6 @@ RsslReactorCallbackRet ChannelDictionary::processCallback( RsslReactor* ,
 					_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::WarningEnum, temp );
 				}
 
-				// todo ... need to clear existing one and rerequest the dictionary
-
 				notifyStatusToListener( pDictionaryMsg->status );
 				break;
 			}
@@ -583,7 +581,7 @@ RsslReactorCallbackRet ChannelDictionary::processCallback( RsslReactor* ,
 	return RSSL_RC_CRET_SUCCESS;
 }
 
-void ChannelDictionary::notifyStatusToListener( RsslRDMDictionaryStatus& status )
+void ChannelDictionary::notifyStatusToListener( const RsslRDMDictionaryStatus& status )
 {
 	_channelDictLock.lock();
 
@@ -593,22 +591,23 @@ void ChannelDictionary::notifyStatusToListener( RsslRDMDictionaryStatus& status 
 		return;
 	}
 
-	DictionaryItem* dictItem;
-	RsslStatusMsg statusMsg = RSSL_INIT_STATUS_MSG;
+	DictionaryItem* dictItem = 0;
+	RsslStatusMsg statusMsg;
+	rsslClearStatusMsg( &statusMsg );
 	RsslEncodeIterator encodeIter;
 	RsslBuffer msgBuf;
 	msgBuf.length = 512;
 	msgBuf.data = new char[msgBuf.length];
 	RsslRet ret;
 
-	for( int index = 0 ; index < _pListenerList->size(); index++ )
+	for( UInt32 index = 0 ; index < _pListenerList->size(); index++ )
 	{
 		dictItem = _pListenerList->operator[](index);
 
 		if ( dictItem->getStreamId() != status.rdmMsgBase.streamId )
 			continue;
 
-		rsslClearEncodeIterator(&encodeIter);
+		rsslClearEncodeIterator( &encodeIter );
 		statusMsg.msgBase.msgClass = RSSL_MC_STATUS;
 		statusMsg.msgBase.streamId = dictItem->getStreamId();
 		statusMsg.msgBase.domainType = RSSL_DMT_DICTIONARY;
@@ -627,6 +626,7 @@ void ChannelDictionary::notifyStatusToListener( RsslRDMDictionaryStatus& status 
 					"Internal error. Failed to set encode iterator buffer in ChannelDictionary::notifyStatusToListener()" );
 
 			delete[] msgBuf.data;
+			_channelDictLock.unlock();
 			return;
 		}
 
@@ -637,6 +637,7 @@ void ChannelDictionary::notifyStatusToListener( RsslRDMDictionaryStatus& status 
 					"Internal error. Failed to set encode iterator RWF version in ChannelDictionary::notifyStatusToListener()" );
 
 			delete[] msgBuf.data;
+			_channelDictLock.unlock();
 			return;
 		}
 
@@ -655,6 +656,7 @@ void ChannelDictionary::notifyStatusToListener( RsslRDMDictionaryStatus& status 
 						"Internal error. Failed to set encode iterator buffer in ChannelDictionary::notifyStatusToListener()" );
 
 				delete[] msgBuf.data;
+				_channelDictLock.unlock();
 				return;
 			}
 
@@ -666,6 +668,7 @@ void ChannelDictionary::notifyStatusToListener( RsslRDMDictionaryStatus& status 
 						"Internal error. Failed to set encode iterator RWF version in ChannelDictionary::notifyStatusToListener()" );
 
 				delete[] msgBuf.data;
+				_channelDictLock.unlock();
 				return;
 			}
 
@@ -676,6 +679,7 @@ void ChannelDictionary::notifyStatusToListener( RsslRDMDictionaryStatus& status 
 					"Internal error. Failed to encode in ChannelDictionary::notifyStatusToListener()" );
 
 				delete[] msgBuf.data;
+				_channelDictLock.unlock();
 				return;
 			}
 		}
@@ -685,7 +689,7 @@ void ChannelDictionary::notifyStatusToListener( RsslRDMDictionaryStatus& status 
 		dictItem->getOmmConsumerImpl().getDictionaryCallbackClient().processStatusMsg( &msgBuf, 
 			RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, dictItem );
 
-		if ( status.state.streamState  != RSSL_STREAM_OPEN )
+		if ( status.state.streamState != RSSL_STREAM_OPEN )
 			_pListenerList->removePosition( index );
 
 		break;
@@ -1425,8 +1429,15 @@ RsslReactorCallbackRet DictionaryCallbackClient::processRefreshMsg( RsslBuffer* 
 	_event._pItem->getClient().onAllMsg( _refreshMsg, _event );
 	_event._pItem->getClient().onRefreshMsg( _refreshMsg, _event );
 
-	if ( _refreshMsg.getState().getStreamState() != OmmState::OpenEnum )
+	if ( _refreshMsg.getState().getStreamState() == OmmState::NonStreamingEnum )
+	{
+		if ( _refreshMsg.getComplete() )
+			_event._pItem->remove();
+	}
+	else if ( _refreshMsg.getState().getStreamState() != OmmState::OpenEnum )
+	{
 		_event._pItem->remove();
+	}
 
 	return RSSL_RC_CRET_SUCCESS;
 }
@@ -1440,8 +1451,15 @@ RsslReactorCallbackRet DictionaryCallbackClient::processRefreshMsg( RsslBuffer* 
 	_event._pItem->getClient().onAllMsg( _refreshMsg, _event );
 	_event._pItem->getClient().onRefreshMsg( _refreshMsg, _event );
 
-	if ( _refreshMsg.getState().getStreamState() != OmmState::OpenEnum )
+	if ( _refreshMsg.getState().getStreamState() == OmmState::NonStreamingEnum )
+	{
+		if ( _refreshMsg.getComplete() )
+			_event._pItem->remove();
+	}
+	else if ( _refreshMsg.getState().getStreamState() != OmmState::OpenEnum )
+	{
 		_event._pItem->remove();
+	}
 
 	return RSSL_RC_CRET_SUCCESS;
 }

@@ -22,6 +22,40 @@
 
 	\remark Thread safety of all the methods in this class depends on the user's implementation.
 
+	The following code snippet shows basic usage of OmmConsumerClient class to print recevied messages to screen.
+
+	\code
+
+	class AppClient : public OmmConsumerClient
+	{
+		void onRefreshMsg( const RefreshMsg& , const OmmConsumerEvent& );
+		void onUpdateMsg( const UpdateMsg& , const OmmConsumerEvent& );
+		void onStatusMsg( const StatusMsg& , const OmmConsumerEvent&);
+	};
+
+	void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEvent& ) 
+	{
+		cout << "Handle " << event.getHandle() << endl
+			<< "Closure " << event.getClosure() << endl
+			<< refreshMsg << endl;
+	}
+
+	void AppClient::onUpdateMsg( const UpdateMsg& updateMsg, const OmmConsumerEvent& ) 
+	{
+		cout << "Handle " << event.getHandle() << endl
+			<< "Closure " << event.getClosure() << endl
+			<< updateMsg << endl;
+	}
+
+	void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent& ) 
+	{
+		cout << "Handle " << event.getHandle() << endl
+			<< "Closure " << event.getClosure() << endl
+			<< statusMsg << endl;
+	}
+
+	\endcode
+
 	@see OmmConsumer,
 		Msg,
 		AckMsg,

@@ -13,14 +13,24 @@ else
 	endif
 endif
 
+ifeq ($(findstring GitHub,$(DISTRIBUTION_SRC)), GitHub)
+	LIB_DIR=$(shell pwd | sed 's_/Ema\/.*_/Ema/Libs_')
+else
+	ifeq ($(findstring GSG,$(DISTRIBUTION_SRC)), GSG)
+		LIB_DIR=Libs
+	else
+$(error makefile.common variable DISTRIBUTION_SRC must be 'GitHub' or 'GSG')
+	endif
+endif
+
 ifndef IDENT	
 $(error unsupported environment)
 endif
 
-optimizedStatic:	OUTPUT_DIR := Libs/$(IDENT)/Optimized
-optimizedShared:	OUTPUT_DIR := Libs/$(IDENT)/Optimized/Shared
-optimizedAssertStatic:	OUTPUT_DIR := Libs/$(IDENT)/Optimized_Assert
-optimizedAssertShared:	OUTPUT_DIR := Libs/$(IDENT)/Optimized_Assert/Shared
+optimizedStatic:	OUTPUT_DIR := $(LIB_DIR)/$(IDENT)/Optimized
+optimizedShared:	OUTPUT_DIR := $(LIB_DIR)/$(IDENT)/Optimized/Shared
+optimizedAssertStatic:	OUTPUT_DIR := $(LIB_DIR)/$(IDENT)/Optimized_Assert
+optimizedAssertShared:	OUTPUT_DIR := $(LIB_DIR)/$(IDENT)/Optimized_Assert/Shared
 
 optimizedStatic: outputDir xml
 	$(MAKE) -f makefile.lib OUTPUT_DIR=$(OUTPUT_DIR) $@
@@ -44,26 +54,26 @@ help:
 outputDir:
 	mkdir -p $(OUTPUT_DIR)/obj/Access/Impl $(OUTPUT_DIR)/obj/Rdm/Impl
 
-optimizedStaticClean:		OUTPUT_DIR := Libs/$(IDENT)/Optimized
+optimizedStaticClean:		OUTPUT_DIR := $(LIB_DIR)/$(IDENT)/Optimized
 optimizedStaticClean:
 	/bin/rm -fr $(OUTPUT_DIR)/obj $(OUTPUT_DIR)/libema.a
-	rmdir $(OUTPUT_DIR) Libs/$(IDENT) Libs 2>/dev/null | true
+	rmdir $(OUTPUT_DIR) $(LIB_DIR)/$(IDENT) $(LIB_DIR) 2>/dev/null | true
 
-optimizedSharedClean:		OUTPUT_DIR := Libs/$(IDENT)/Optimized/Shared
+optimizedSharedClean:		OUTPUT_DIR := $(LIB_DIR)/$(IDENT)/Optimized/Shared
 optimizedSharedClean:		
 	/bin/rm -fr $(OUTPUT_DIR)/obj $(OUTPUT_DIR)/libema.so
-	rmdir $(OUTPUT_DIR) $(shell dirname $(OUTPUT_DIR)) Libs/$(IDENT) Libs 2>/dev/null | true
+	rmdir $(OUTPUT_DIR) $(shell dirname $(OUTPUT_DIR)) $(LIB_DIR)/$(IDENT) $(LIB_DIR) 2>/dev/null | true
 
-optimizedAssertStaticClean:	OUTPUT_DIR := Libs/$(IDENT)/Optimized_Assert
+optimizedAssertStaticClean:	OUTPUT_DIR := $(LIB_DIR)/$(IDENT)/Optimized_Assert
 optimizedAssertStaticClean:
 	/bin/rm -fr $(OUTPUT_DIR)/obj $(OUTPUT_DIR)/libema.a
-	rmdir $(OUTPUT_DIR) Libs/$(IDENT) Libs 2>/dev/null | true
+	rmdir $(OUTPUT_DIR) $(LIB_DIR)/$(IDENT) $(LIB_DIR) 2>/dev/null | true
 
-optimizedAssertSharedClean:	OUTPUT_DIR := Libs/$(IDENT)/Optimized_Assert/Shared
+optimizedAssertSharedClean:	OUTPUT_DIR := $(LIB_DIR)/$(IDENT)/Optimized_Assert/Shared
 optimizedAssertSharedClean:
 	/bin/rm -fr $(OUTPUT_DIR)/obj $(OUTPUT_DIR)/libema.so
-	rmdir $(OUTPUT_DIR) $(shell dirname $(OUTPUT_DIR)) Libs/$(IDENT) Libs 2>/dev/null | true
+	rmdir $(OUTPUT_DIR) $(shell dirname $(OUTPUT_DIR)) $(LIB_DIR)/$(IDENT) $(LIB_DIR) 2>/dev/null | true
 
 clean:
-	/bin/rm -fr Libs/$(IDENT)
+	/bin/rm -fr $(LIB_DIR)/$(IDENT)
 

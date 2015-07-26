@@ -1,0 +1,19 @@
+function FileData_Pairs(x)
+{
+x.t("taking","advantage");
+x.t("api","applications");
+x.t("oriented","approach");
+x.t("written","using");
+x.t("1.3","programming");
+x.t("approach","design");
+x.t("design","development");
+x.t("advantage","object");
+x.t("language","taking");
+x.t("language","1.3");
+x.t("language","ema");
+x.t("programming","language");
+x.t("using","programming");
+x.t("development","api");
+x.t("ema","written");
+x.t("object","oriented");
+}

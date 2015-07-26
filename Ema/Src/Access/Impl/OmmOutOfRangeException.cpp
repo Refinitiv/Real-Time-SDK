@@ -42,7 +42,7 @@ const EmaString& OmmOutOfRangeException::toString() const
 
 OmmException::ExceptionType OmmOutOfRangeException::getExceptionType() const
 {
-	return OmmException::OmmInvalidConfigurationExceptionEnum;
+	return OmmException::OmmOutOfRangeExceptionEnum;
 }
 
 const EmaString& OmmOutOfRangeException::getText() const

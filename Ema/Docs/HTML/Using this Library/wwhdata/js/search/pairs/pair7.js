@@ -1,0 +1,24 @@
+function FileData_Pairs(x)
+{
+x.t("library","library");
+x.t("library","document");
+x.t("library","supported");
+x.t("internet","explorer");
+x.t("version","1.0");
+x.t("july","2015");
+x.t("document","version");
+x.t("document","emac300li.150");
+x.t("google","chrome");
+x.t("web","browsers");
+x.t("supported","internet");
+x.t("supported","google");
+x.t("1.0","issue");
+x.t("2015","library");
+x.t("issue","date");
+x.t("firefox","web");
+x.t("browsers","library");
+x.t("explorer","mozilla");
+x.t("emac300li.150","document");
+x.t("date","july");
+x.t("mozilla","firefox");
+}

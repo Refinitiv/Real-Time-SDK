@@ -15,6 +15,7 @@
 #include "ReqMsg.h"
 #include "PostMsg.h"
 #include "GenericMsg.h"
+#include "TunnelStreamRequest.h"
 
 #include "OmmConsumerImpl.h"
 
@@ -64,9 +65,14 @@ const EmaString& OmmConsumer::getConsumerName() const
 	return _pImpl->getConsumerName();
 }
 
-UInt64 OmmConsumer::registerClient( const ReqMsg& reqMsg, OmmConsumerClient& client, void* closure ) 
+UInt64 OmmConsumer::registerClient( const ReqMsg& reqMsg, OmmConsumerClient& client, void* closure, UInt64 parentHandle ) 
 {
-	return _pImpl->registerClient( reqMsg, client, closure );
+	return _pImpl->registerClient( reqMsg, client, closure, parentHandle );
+}
+
+UInt64 OmmConsumer::registerClient( const TunnelStreamRequest& tunnelStreamRequest, OmmConsumerClient& client, void* closure )
+{
+	return _pImpl->registerClient( tunnelStreamRequest, client, closure );
 }
 
 void OmmConsumer::reissue( const ReqMsg& reqMsg, UInt64 handle ) 

@@ -53,7 +53,7 @@ const EmaBuffer& NoDataImpl::getAsHex() const
 
 Data::DataCode NoDataImpl::getCode() const
 {
-	return Data::BlankEnum;
+	return Data::NoCodeEnum;
 }
 
 Decoder& NoDataImpl::getDecoder()

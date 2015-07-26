@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>4.2.1 Use of the Correct Order in the XML Scema</title>
+    <link rel="StyleSheet" href="css/Chap_ConfigProcessing.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <br />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="H3_inner" style="width: 54pt; white-space: nowrap">
+                <span class="bold">4.2.1	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="H3_inner"><a name="1051973">Use of the Correct Order in the XML Scema</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1046764">Consider the following snippet from an </a><span class="Parameter">EmaConfig.xml</span> (only those parts needed for the example are included). In this snippet, the application creates a consumer with <span class="Parameter">Name Consumer_1</span> which logs to a file named <span class="FileOrDirectory">emaLogfile</span>.</div>
+      <div class="Blank_Line"><a name="1047357">&nbsp;</a></div>
+      <table class="Commands" style="text-align: left; width: 554.95152pt" cellspacing="0" summary="">
+        <caption></caption>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
+            <div class="command"><a name="1047021">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047023">&lt;ConsumerGroup&gt;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047025">	&lt;ConsumerList&gt;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047027">		&lt;Consumer&gt;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047029">			&lt;Name value="Consumer_1"/&gt;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047031">			&lt;Logger value="Logger_2"/&gt;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047104">		&lt;/Consumer&gt;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047106">	&lt;/ConsumerList&gt;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047108">&lt;/ConsumerGroup&gt;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047110">&lt;LoggerGroup&gt;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047112">	&lt;LoggerList&gt;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047114">		&lt;Logger&gt;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047116">			&lt;Name value="Logger_2"/&gt;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047118">			&lt;LoggerType value="LoggerType::File"/&gt;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047120">			&lt;FileName value="emaLogfile"/&gt;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047122">		&lt;/Logger&gt;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047124">	&lt;/LoggerList&gt;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047126">&lt;/LoggerGroup&gt;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047128">&nbsp;</a></div>
+          </td>
+        </tr>
+      </table>
+      <div class="Body"><a name="1047015">Now assume that the following was not included in </a><span class="FileOrDirectory">EmaConfig.xml</span>:</div>
+      <div class="Blank_Line"><a name="1047433">&nbsp;</a></div>
+      <table class="Commands" style="text-align: left; width: 554.95152pt" cellspacing="0" summary="">
+        <caption></caption>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
+            <div class="command"><a name="1047445">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047447">&lt;FileName value="emaLogfile"/&gt;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047449">&nbsp;</a></div>
+          </td>
+        </tr>
+      </table>
+      <div class="Body"><a name="1047435">In this case, the EMA application relies on its hard-coded behavior and uses the filename </a><span class="FileOrDirectory">emaLog_</span><span class="VariableValue" style="font-weight: bold">pid.</span><span class="FileOrDirectory" style="font-style: normal">log</span>.</div>
+      <div class="Body"><a name="1047437">However, if the snippet were configured in either of the following configurations, the EMA application would revert to its default behaviors because its parameters are not in the correct order (i.e., the </a><span class="Parameter">FileName</span> parameter needs to be contained in a <span class="Parameter">Logger</span> component entry):</div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1047849">Configuration 1:</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Blank_Line"><a name="1047889">&nbsp;</a></div>
+      <table class="Commands__25" style="text-align: left; width: 537.07536pt" cellspacing="0" summary="">
+        <caption></caption>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top; width: 537.07536pt">
+            <div class="command"><a name="1047895">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047897">&lt;LoggerGroup&gt;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047935">	&lt;FileName value="…"/&gt;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047937">	&lt;LoggerList&gt;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047899">		...</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047967">&nbsp;</a></div>
+          </td>
+        </tr>
+      </table>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1047870">Configuration 2:</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Blank_Line"><a name="1047847">&nbsp;</a></div>
+      <table class="Commands__25" style="text-align: left; width: 537.07536pt" cellspacing="0" summary="">
+        <caption></caption>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top; width: 537.07536pt">
+            <div class="command"><a name="1047913">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047915">&lt;LoggerGroup&gt;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047939">	&lt;LoggerList&gt;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047941">		&lt;FileName value="..."/&gt;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1047917">		...</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1048278">&nbsp;</a></div>
+          </td>
+        </tr>
+      </table>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

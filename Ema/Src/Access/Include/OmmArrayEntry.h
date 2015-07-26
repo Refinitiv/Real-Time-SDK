@@ -19,7 +19,7 @@
 
 	decodeArray( const OmmArray& array )
 	{
-		while ( !array.forth() )
+		while ( array.forth() )
 		{
 			const ArrayEntry& aEntry = array.getEntry();
 

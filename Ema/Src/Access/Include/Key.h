@@ -23,7 +23,7 @@
 	{
 		...
 
-		while ( !map.forth() )
+		while ( map.forth() )
 		{
 			const MapEntry& mEntry = map.getEntry();
 

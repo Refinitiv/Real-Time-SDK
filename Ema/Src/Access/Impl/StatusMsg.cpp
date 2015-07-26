@@ -64,6 +64,9 @@ const EmaString& StatusMsg::toString( UInt64 indent ) const
 	addIndent( _toString.clear(), indent++ ).append( "StatusMsg" );
 	addIndent( _toString, indent, true ).append( "streamId=\"" ).append( pTempDecoder->getStreamId() ).append( "\"" );
 	addIndent( _toString, indent, true ).append( "domain=\"" ).append( rdmDomainToString( getDomainType() ) ).append( "\"" );			
+	
+	if ( pTempDecoder->getPrivateStream() )
+		addIndent( _toString, indent, true ).append( "privateStream" );
 
 	if ( pTempDecoder->hasState() )
 		addIndent( _toString, indent, true ).append( "state=\"" ).append( pTempDecoder->getState().toString() ).append( "\"" );

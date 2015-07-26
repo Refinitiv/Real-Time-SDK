@@ -49,7 +49,7 @@ void AppClient::decode( const FieldList& fl )
 {
 	RmtesBuffer rmtesBuffer;
 	
-	while ( !fl.forth( "BCAST_TEXT" ) )
+	while ( fl.forth( "BCAST_TEXT" ) )
 	{
 		const FieldEntry& fe = fl.getEntry();
 

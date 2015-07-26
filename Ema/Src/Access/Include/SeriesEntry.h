@@ -19,7 +19,7 @@
 
 	decodeSeries( const Series& series )
 	{
-		while ( !series.forth() )
+		while ( series.forth() )
 		{
 			const SeriesEntry& seriesEntry = series.getEntry();
 

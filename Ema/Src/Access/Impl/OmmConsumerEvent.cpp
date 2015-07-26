@@ -29,3 +29,8 @@ void* OmmConsumerEvent::getClosure() const
 {
 	return _pItem->getClosure();
 }
+
+UInt64 OmmConsumerEvent::getParentHandle() const
+{
+	return (UInt64)_pItem->getParent();
+}

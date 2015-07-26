@@ -1,0 +1,514 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>Login Request Elements</title>
+    <link rel="StyleSheet" href="css/EMA_RDMUsageGuide.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <br />
+    <hr align="left" />
+    <blockquote>
+      <div class="Heading_3_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Heading_3_inner" style="width: 54pt; white-space: nowrap">
+                <span style="color: #FF9100; font-family: Arial; font-size: 13pt; font-style: normal; font-weight: bold; vertical-align: baseline">3.2.2	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Heading_3_inner"><a name="pID0E0F10HA">Login Request Elements</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Normal"><a name="pID0E0E10HA">Youy can use Login attribute elements to send additional authentication information and user preferences between the components. The passed in data type of </a><span class="Char_LucidaConsole">ReqMsg.Attrib</span> is the <span class="Char_Code">ElementList</span>. The predefined elements available on a Login Request are shown in the table below.</div>
+      <table class="TR_Table" style="width: 720pt" cellspacing="0" summary="">
+        <tr>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-style: solid; border-bottom-width: 1pt; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-color: #A0968C; border-left-style: solid; border-left-style: solid; border-left-width: 1pt; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-color: #A0968C; border-top-style: solid; border-top-style: solid; border-top-width: 1pt; border-top-width: 1pt; color: #FFFFFF; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt; text-transform: uppercase; width: 138.6pt">
+            <div class="Column_Heading"><a name="pID0EAFO0D10HA">Element name</a></div>
+          </td>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-style: solid; border-bottom-width: 1pt; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-color: #A0968C; border-top-style: solid; border-top-style: solid; border-top-width: 1pt; border-top-width: 1pt; color: #FFFFFF; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt; text-transform: uppercase; width: 95.4pt">
+            <div class="Column_Heading"><a name="pID0EAEO0D10HA">Type</a></div>
+          </td>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-style: solid; border-bottom-width: 1pt; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-color: #A0968C; border-top-style: solid; border-top-style: solid; border-top-width: 1pt; border-top-width: 1pt; color: #FFFFFF; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt; text-transform: uppercase; width: 63pt">
+            <div class="Column_Heading"><a name="pID0EADO0D10HA">Required</a></div>
+          </td>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-style: solid; border-bottom-width: 1pt; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-color: #A0968C; border-top-style: solid; border-top-style: solid; border-top-width: 1pt; border-top-width: 1pt; color: #FFFFFF; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt; text-transform: uppercase; width: 54pt">
+            <div class="Column_Heading"><a name="pID0EACO0D10HA">Default</a></div>
+          </td>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-style: solid; border-bottom-width: 1pt; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-color: #A0968C; border-top-style: solid; border-top-style: solid; border-top-width: 1pt; border-top-width: 1pt; color: #FFFFFF; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt; text-transform: uppercase; width: 144pt">
+            <div class="Column_Heading"><a name="pID0EABO0D10HA">Range/Example</a></div>
+          </td>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-style: solid; border-bottom-width: 1pt; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #FF9100; border-right-color: #A0968C; border-right-style: solid; border-right-style: solid; border-right-width: 1pt; border-right-width: 1pt; border-top-color: #FF9100; border-top-color: #A0968C; border-top-style: solid; border-top-style: solid; border-top-width: 1pt; border-top-width: 1pt; color: #FFFFFF; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt; text-transform: uppercase; width: 225pt">
+            <div class="Column_Heading"><a name="pID0EAAO0D10HA">Description</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAFN0D10HA">AllowSuspectData</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAEN0D10HA">UInt</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EADN0D10HA">No</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EACN0D10HA">1</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABN0D10HA">0, 1</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Bullet_table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_table_inner" style="width: 18pt; white-space: nowrap">
+                      <span style="color: #666666; font-size: 10pt">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_table_inner"><span class="Char_Parameter"><a name="pID0ECAN0D10HA">1</a></span>: Indicates that the consumer application allows <span class="Char_LucidaConsole">OmmState.</span><span class="Char_Parameter">Suspect</span> state.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_table_inner" style="width: 18pt; white-space: nowrap">
+                      <span style="color: #666666; font-size: 10pt">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_table_inner"><span class="Char_Parameter"><a name="pID0EBAN0D10HA">0</a></span>: Indicates that the consumer application prefers any suspect data result in the stream being closed with <span class="Char_LucidaConsole">OmmState.</span><span class="Char_Parameter">ClosedRecover</span> state.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Table_Text"><a name="pID0EAAN0D10HA">For more information, refer to Section </a><a href="javascript:WWHClickedPopup('EMA_RDM_Usage_Guide', 'EMA_RDMUsageGuide.1.043.html', '');" title="Single Open and Allow Suspect Data">3.4.6</a>.</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAFM0D10HA">ApplicationAuthenticationToken</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAEM0D10HA">ASCII</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EADM0D10HA">No</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EACM0D10HA">None</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABM0D10HA">Sequence of single byte characters from the base36 character set ([0-9][A-Z])</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Parameter" style="font-weight: normal"><a name="pID0EAAM0D10HA">The application authentication token indicates that application behavior was inspected and approved by Thomson Reuters. For more information on obtaining an application authentication token, contact your Thomson Reuters representative.</a></span></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAFL0D10HA">ApplicationId</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAEL0D10HA">ASCII</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EADL0D10HA">No</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EACL0D10HA">None</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EBBL0D10HA">1-65535</a></div>
+            <div class="Table_Text"><a name="pID0EABL0D10HA"> e.g. “256”</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAAL0D10HA">DACS application ID. If the server authenticates with DACS, the consumer application may be required to pass in a valid </a><span class="Char_Parameter">ApplicationId</span>. This must be unique for each application. IDs from 1 to 256 are reserved for permanent market data applications. These are assigned by Reuters and will be uniform across all client systems. IDs from 257 to 65535 are available for site-specific use.</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAFK0D10HA">ApplicationName</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAEK0D10HA">ASCII</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EADK0D10HA">No</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EACK0D10HA">None</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABK0D10HA">Name of application e.g. “Consumer”</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAAK0D10HA">Identifies the application sending the Login request or response message. When present, the application name in the Login request identifies the OMM Consumer, and the application name in the Login response identifies the OMM Provider.</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAFJ0D10HA">DownloadConnectionConfig</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAEJ0D10HA">UInt</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EADJ0D10HA">No</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EACJ0D10HA">0</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABJ0D10HA">0, 1</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0ECAJ0D10HA">Request for downloading the configuration.</a></div>
+            <div class="Bullet_table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_table_inner" style="width: 18pt; white-space: nowrap">
+                      <span style="color: #666666; font-size: 10pt">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_table_inner"><span class="Char_Parameter"><a name="pID0EBAJ0D10HA">1</a></span>: Indicates the user wants to download connection configuration information.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_table_inner" style="width: 18pt; white-space: nowrap">
+                      <span style="color: #666666; font-size: 10pt">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_table_inner"><span class="Char_Parameter"><a name="pID0EAAJ0D10HA">0</a></span> (or if absent): Indicates that no connection configuration information is desired.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAFI0D10HA">InstanceId</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAEI0D10HA">ASCII</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EADI0D10HA">No</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EACI0D10HA">None</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABI0D10HA">Any ASCII String, e.g. “Instance1”</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Parameter"><a name="pID0EAAI0D10HA">InstanceId</a></span> is used to differentiate applications running on the same client host. Because it is set by the client, it does not guarantee uniqueness across different applications on the same client host.</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAFH0D10HA">Password</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAEH0D10HA">ASCII</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EBDH0D10HA">No</a></div>
+            <div class="Table_Text"><a name="pID0EADH0D10HA">&nbsp;</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EACH0D10HA">None</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABH0D10HA">“my1pword”</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EBAH0D10HA">Sets the password for logging into the system.</a></div>
+            <div class="Table_Text"><a name="pID0EAAH0D10HA">This information may be required and encrypted in the future.</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAFG0D10HA">Position</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAEG0D10HA">ASCII</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EADG0D10HA">No</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EACG0D10HA">None</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABG0D10HA">ip addr/hostname <br />ip addr/net e.g.”192.168.1.1/net”</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAAG0D10HA">DACS position. If the server is authenticating with DACS, the consumer application might be required to pass in a valid position.</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAFF0D10HA">ProvidePermissionExpressions</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAEF0D10HA">UInt</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EADF0D10HA">No</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EACF0D10HA">1</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABF0D10HA">0, 1</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAAF0D10HA">If specified on the Login Request, this indicates a consumer wants permission expression information to be sent with responses. Permission expressions allow for items to be proxy permissioned by a consumer via content-based entitlements.</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAFE0D10HA">ProvidePermissionProfile</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAEE0D10HA">UInt</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EADE0D10HA">No</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EACE0D10HA">1</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABE0D10HA">0, 1</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAAE0D10HA">When specified on a Login Request, indicates that a consumer desires the permission profile. The permission profile can be used by an application to perform proxy permissioning.</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAFD0D10HA">SupportProviderDictionaryDownload</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAED0D10HA">UInt</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EADD0D10HA">No</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EACD0D10HA">0</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABD0D10HA">0, 1</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EEAD0D10HA">Indicates whether the server supports the Provider Dictionary Download:</a></div>
+            <div class="Bullet_table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_table_inner" style="width: 18pt; white-space: nowrap">
+                      <span style="color: #666666; font-size: 10pt">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_table_inner"><span class="Char_Parameter"><a name="pID0EDAD0D10HA">1</a></span>: The server supports the Provider Dictionary Download.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_table_inner" style="width: 18pt; white-space: nowrap">
+                      <span style="color: #666666; font-size: 10pt">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_table_inner"><span class="Char_Parameter"><a name="pID0ECAD0D10HA">0</a></span>: The server does not support the Provider Dictionary Download feature.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Table_Text"><a name="pID0EBAD0D10HA">If this element is not present, the server does not support the Provider Dictionary Download feature.</a></div>
+            <div class="Table_Text"><a name="pID0EAAD0D10HA">For more information on Provider Dictionary Download, refer to the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;EDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">EMA 3.0 Developers Guide C++ Edition</a></span>.</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAFC0D10HA">Role</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAEC0D10HA">UInt</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EADC0D10HA">No</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EACC0D10HA">0</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Parameter"><a name="pID0ECBC0D10HA">LOGIN_ROLE_CONS = 0,</a></span></div>
+            <div class="Table_Text"><span class="Char_Parameter"><a name="pID0EBBC0D10HA">LOGIN_ROLE_PROV = 1 </a></span></div>
+            <div class="Table_Text"><a name="pID0EABC0D10HA">&nbsp;</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EDAC0D10HA">Indicates the role of the application logging onto the system.</a></div>
+            <div class="Bullet_table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_table_inner" style="width: 18pt; white-space: nowrap">
+                      <span style="color: #666666; font-size: 10pt">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_table_inner"><a name="pID0ECAC0D10HA">An OMM consumer application should specify its role as </a><span class="Char_Parameter">LOGIN_ROLE_CONS</span>.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_table_inner" style="width: 18pt; white-space: nowrap">
+                      <span style="color: #666666; font-size: 10pt">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_table_inner"><a name="pID0EBAC0D10HA"> EMA will default role element with value of 1. </a></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Table_Text"><a name="pID0EAAC0D10HA">OMM consumer applications typically connect to a different port number than non-interactive provider applications. Role information allows the Enterprise Platform for Real-Time to detect and inform users of incorrect port use.</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAFB0D10HA">SingleOpen</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAEB0D10HA">Uint</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EADB0D10HA">No</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EACB0D10HA">1</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABB0D10HA">0, 1</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Bullet_table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_table_inner" style="width: 18pt; white-space: nowrap">
+                      <span style="color: #666666; font-size: 10pt">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_table_inner"><span class="Char_Parameter"><a name="pID0ECAB0D10HA">1</a></span>: indicates the consumer application wants the provider to drive stream recovery.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_table_inner" style="width: 18pt; white-space: nowrap">
+                      <span style="color: #666666; font-size: 10pt">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_table_inner"><span class="Char_Parameter"><a name="pID0EBAB0D10HA">0</a></span>: Indicates that the consumer application will drive stream recovery.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Table_Text"><a name="pID0EAAB0D10HA">For more information, refer to Section </a><a href="javascript:WWHClickedPopup('EMA_RDM_Usage_Guide', 'EMA_RDMUsageGuide.1.043.html', '');" title="Single Open and Allow Suspect Data">3.4.6</a>.</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAFA0D10HA">DisableDataConversion</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAEA0D10HA">N/A</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EADA0D10HA">N/A</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EACA0D10HA">N/A</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABA0D10HA">N/A</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAAA0D10HA">Reserved by TR.</a></div>
+          </td>
+        </tr>
+      </table>
+      <div class="Caption"><a name="pID0E0C10HA">Table 6: Login Request Attribute Elements</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

@@ -1,0 +1,20 @@
+function FileData_Pairs(x)
+{
+x.t("/channellist","/channelgroup");
+x.t("channellist","channel");
+x.t("channel","name");
+x.t("name","value=");
+x.t("follows","channelgroup");
+x.t("generic","xml");
+x.t("top-level","xml");
+x.t("channelgroup","channellist");
+x.t("channelgroup","follows");
+x.t("channelgroup","top-level");
+x.t("channelgroup","3.2.1");
+x.t("xml","schema");
+x.t("schema","channelgroup");
+x.t("value","/channel");
+x.t("/channel","/channellist");
+x.t("3.2.1","generic");
+x.t("value=","value");
+}

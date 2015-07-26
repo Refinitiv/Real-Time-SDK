@@ -27,7 +27,7 @@
 		OmmConsumerErrorClient
 */
 
-#define MAX_SIZE 1024
+#define MAX_SIZE 2048
 #define PADDING 256
 
 #include "Access/Include/Common.h"

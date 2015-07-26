@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>Enumerated Types Dictionary File Format</title>
+    <link rel="StyleSheet" href="css/EMA_RDMUsageGuide.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <br />
+    <hr align="left" />
+    <blockquote>
+      <div class="Heading_3_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Heading_3_inner" style="width: 54pt; white-space: nowrap">
+                <span style="color: #FF9100; font-family: Arial; font-size: 13pt; font-style: normal; font-weight: bold; vertical-align: baseline">5.6.2	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Heading_3_inner"><a name="pID0E0EP0HA">Enumerated Types Dictionary File Format</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Normal"><a name="pID0E0DP0HA">The </a><span class="Char_Parameter">enumtype.def</span> file format is a plain text set of tables. Rows are separated by lines and columns are separated by whitespace (excepting quoted strings as shown above). Lines beginning with an exclamation point (<span class="Char_Code">!</span>) are comments and are ignored.</div>
+      <div class="Normal"><a name="pID0E0CP0HA">The file contains a set of tables, each with two sections: </a></div>
+      <div class="List_Number_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="List_Number_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-weight: normal">1.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="List_Number_inner"><a name="pID0E0BP0HA">The list of </a><span class="Char_Code">FieldId</span> values corresponding to all fields that use the table</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="List_Number_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="List_Number_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-weight: normal">2.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="List_Number_inner"><a name="pID0E0AP0HA">The table of enumerated values and their respective display data.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Code"><a name="pID0E06O0HA">&nbsp;</a></div>
+      <div class="Code"><a name="pID0E05O0HA">! ACRONYM    FID	</a></div>
+      <div class="Code"><a name="pID0E04O0HA">! -------    ---</a></div>
+      <div class="Code"><a name="pID0E03O0HA">BIG_FIGURE  6207</a></div>
+      <div class="Code"><a name="pID0E02O0HA">PIPS_POS    6208</a></div>
+      <div class="Code"><a name="pID0E01O0HA">! VALUE      DISPLAY   MEANING</a></div>
+      <div class="Code"><a name="pID0E0ZO0HA">! -----      -------   -------</a></div>
+      <div class="Code"><a name="pID0E0YO0HA">      0        "INT"   whole number</a></div>
+      <div class="Code"><a name="pID0E0XO0HA">      1        "1DP"   1 decimal place</a></div>
+      <div class="Code"><a name="pID0E0WO0HA">      2        "2DP"   2 decimal places</a></div>
+      <div class="Code"><a name="pID0E0VO0HA">      3        "3DP"   3 decimal places</a></div>
+      <div class="Code"><a name="pID0E0UO0HA">      4        "4DP"   4 decimal places</a></div>
+      <div class="Code"><a name="pID0E0TO0HA">      5        "5DP"   5 decimal places</a></div>
+      <div class="Code"><a name="pID0E0SO0HA">      6        "6DP"   6 decimal places</a></div>
+      <div class="Code"><a name="pID0E0RO0HA">      7        "7DP"   7 decimal places</a></div>
+      <div class="Code"><a name="pID0E0QO0HA">!</a></div>
+      <div class="Code"><a name="pID0E0PO0HA">! ACRONYM    FID</a></div>
+      <div class="Code"><a name="pID0E0OO0HA">! -------    ---</a></div>
+      <div class="Code"><a name="pID0E0NO0HA">MATUR_UNIT  2378</a></div>
+      <div class="Code"><a name="pID0E0MO0HA">!</a></div>
+      <div class="Code"><a name="pID0E0LO0HA">! VALUE      DISPLAY   MEANING</a></div>
+      <div class="Code"><a name="pID0E0KO0HA">! -----      -------   -------</a></div>
+      <div class="Code"><a name="pID0E0JO0HA">      0        "   "   Undefined</a></div>
+      <div class="Code"><a name="pID0E0IO0HA">      1        "Yr "   Years</a></div>
+      <div class="Code"><a name="pID0E0HO0HA">      2        "Mth"   Months</a></div>
+      <div class="Code"><a name="pID0E0GO0HA">      3        "Wk "   Weeks</a></div>
+      <div class="Code"><a name="pID0E0FO0HA">      4        "Day"   Days</a></div>
+      <div class="Code"><a name="pID0E0EO0HA">&nbsp;</a></div>
+      <div class="Caption"><a name="pID0E0DO0HA">Figure 13: Enumerated Types Dictionary File Format Sample</a></div>
+      <div class="Normal"><a name="pID0E0CO0HA">Several tagged attributes are available at the beginning of the file. These attributes provide versioning information about the dictionary contained in the file and are processed while loading from a file-based dictionary. Some of this information is conveyed along with the domain model representation of the dictionary. Tags may be added as future dictionary versions become available.</a></div>
+      <div class="Normal"><a name="pID0E0BO0HA">For the </a><span style="font-weight: bold">enumtype.def</span>, an example of these tags are shown below.</div>
+      <div class="Code"><a name="pID0E0AO0HA">&nbsp;</a></div>
+      <div class="Code"><span class="Code_Fragment"><a name="pID0E06N0HA">!tag Filename  	ENUMTYPE.001</a></span></div>
+      <div class="Code"><span class="Code_Fragment"><a name="pID0E05N0HA">!tag Desc      	IDN Marketstream enumerated tables</a></span></div>
+      <div class="Code"><span class="Code_Fragment"><a name="pID0E04N0HA">!tag Type      	2</a></span></div>
+      <div class="Code"><span class="Code_Fragment"><a name="pID0E03N0HA">!tag RT_Version	4.20.17</a></span></div>
+      <div class="Code"><span class="Code_Fragment"><a name="pID0E02N0HA">!tag DT_Version	15.41</a></span></div>
+      <div class="Code"><span class="Code_Fragment"><a name="pID0E01N0HA">!tag Date      	5-May-2015</a></span></div>
+      <div class="Code"><a name="pID0E0ZN0HA">&nbsp;</a></div>
+      <div class="Caption"><a name="pID0E0YN0HA">Figure 14: Enumerated Types Dictionary Tagged Attribute Sample</a></div>
+      <div class="Normal"><a name="pID0E0XN0HA">The following table describes the tag attributes and indicates which are usedwhen encoding the domain representation of the file.</a></div>
+      <table class="Table_Normal" style="margin-left: 0pt; padding-bottom: 1.45pt; padding-left: 5.75pt; padding-right: 5.75pt; padding-top: 1.45pt; width: 544.55pt" cellspacing="0" summary="">
+        <tr>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-style: solid; border-left-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 5.75pt; padding-right: 5.75pt; padding-top: 1.45pt; width: 89.95pt">
+            <div class="Column_Heading"><span style="font-weight: bold; text-transform: uppercase"><a name="pID0EABG0WN0HA">TAG ATTRIBUTE</a></span></div>
+          </td>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-right-color: #FF9100; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 5.75pt; padding-right: 5.75pt; padding-top: 1.45pt; width: 454.6pt">
+            <div class="Column_Heading"><span style="font-weight: bold; text-transform: uppercase"><a name="pID0EAAG0WN0HA">DESCRIPTION</a></span></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 5.75pt; padding-right: 5.75pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABF0WN0HA">Filename</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 5.75pt; padding-right: 5.75pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EBAF0WN0HA">The original name of the file as created by Thomson Reuters. This typically does not match the current name of the file, </a><span style="font-weight: bold">enumtype.def</span>.</div>
+            <div class="Table_Text"><span class="Char_Field"><a name="pID0EAAF0WN0HA">Filename</a></span> not used when encoding the domain representation of the field dictionary.</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 5.75pt; padding-right: 5.75pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABE0WN0HA">Desc</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 5.75pt; padding-right: 5.75pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EBAE0WN0HA">A Description of the dictionary.</a></div>
+            <div class="Table_Text"><span class="Char_Field"><a name="pID0EAAE0WN0HA">Desc</a></span> is not used when encoding the domain representation of the field dictionary. </div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 5.75pt; padding-right: 5.75pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABD0WN0HA">Type</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 5.75pt; padding-right: 5.75pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EBAD0WN0HA">The dictionary type associated with this dictionary. For a field dictionary, this should be </a><span class="Char_Parameter">DICTIONARY_ENUM _TABLES=2</span>. Other types are defined in <a href="javascript:WWHClickedPopup('EMA_RDM_Usage_Guide', 'EMA_RDMUsageGuide.1.072.html#pID0E0YR0HA', '');" title="Refresh Message Summary Data">Table 34: Dictionary SummaryData</a>.</div>
+            <div class="Table_Text"><span class="Char_Field"><a name="pID0EAAD0WN0HA">Type</a></span> is used when encoding the domain representation of the field dictionary.</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 5.75pt; padding-right: 5.75pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABC0WN0HA">RT_Version</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 5.75pt; padding-right: 5.75pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EBAC0WN0HA">The version of the field dictionary associated with this enumerated type dictionary.</a></div>
+            <div class="Table_Text"><span class="Char_Field"><a name="pID0EAAC0WN0HA">RT_Version</a></span> is used when encoding the domain representation of the field dictionary.</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 5.75pt; padding-right: 5.75pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABB0WN0HA">DT_Version</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 5.75pt; padding-right: 5.75pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EBAB0WN0HA">The version of the display template version.</a></div>
+            <div class="Table_Text"><span class="Char_Field"><a name="pID0EAAB0WN0HA">DT_Version</a></span> is used when encoding the domain representation of the field dictionary. For device compatability purposes, this value is sent as both Version and DT_Version .</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 5.75pt; padding-right: 5.75pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABA0WN0HA">Date</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 5.75pt; padding-right: 5.75pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EBAA0WN0HA">Includes information regarding the dictionary release date.</a></div>
+            <div class="Table_Text"><span class="Char_Field"><a name="pID0EAAA0WN0HA">Date</a></span> is not used when encoding the domain representation of the field dictionary. </div>
+          </td>
+        </tr>
+      </table>
+      <div class="Caption"><a name="pID0E0VN0HA">Table 42: Enumerated Type Dictionary File Tag Information</a></div>
+      <div class="Heading_4_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Heading_4_inner" style="width: 54pt; white-space: nowrap">
+                <span style="color: #666666; font-family: Arial; font-size: 11pt; font-style: normal; font-weight: bold; vertical-align: baseline">5.6.2.1	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Heading_4_inner"><a name="pID0E0UN0HA">Reference Fields Section</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Normal"><a name="pID0E0TN0HA">The first section lists all the fields that use the table. These fields should have the type </a><span class="Char_Parameter">Enumeration</span> in their corresponding Field Dictionary and have matching names.</div>
+      <table class="TR_Table" style="width: 347.1pt" cellspacing="0" summary="">
+        <tr>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-style: solid; border-bottom-width: 1pt; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-color: #A0968C; border-left-style: solid; border-left-style: solid; border-left-width: 1pt; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-color: #A0968C; border-top-style: solid; border-top-style: solid; border-top-width: 1pt; border-top-width: 1pt; color: #FFFFFF; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt; text-transform: uppercase; width: 89.8pt">
+            <div class="Column_Heading"><a name="pID0EABC0SN0HA">Name</a></div>
+          </td>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-style: solid; border-bottom-width: 1pt; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #FF9100; border-right-color: #A0968C; border-right-style: solid; border-right-style: solid; border-right-width: 1pt; border-right-width: 1pt; border-top-color: #FF9100; border-top-color: #A0968C; border-top-style: solid; border-top-style: solid; border-top-width: 1pt; border-top-width: 1pt; color: #FFFFFF; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt; text-transform: uppercase; width: 257.3pt">
+            <div class="Column_Heading"><a name="pID0EAAC0SN0HA">RWF Element Name</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABB0SN0HA">ACRONYM</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAAB0SN0HA">n/a (The name of the field is not sent with the dictionary payload).</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABA0SN0HA">FID</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAAA0SN0HA">FIDS</a></div>
+          </td>
+        </tr>
+      </table>
+      <div class="Caption"><a name="pID0E0RN0HA">Table 43: RWF EnumType Dictionary File Format Reference Fields</a></div>
+      <div class="Heading_4_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Heading_4_inner" style="width: 54pt; white-space: nowrap">
+                <span style="color: #666666; font-family: Arial; font-size: 11pt; font-style: normal; font-weight: bold; vertical-align: baseline">5.6.2.2	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Heading_4_inner"><a name="pID0E0QN0HA">Values Table Section</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Normal"><a name="pID0E0PN0HA">The second section lists the value of each enumerated type and its corresponding display data.</a></div>
+      <table class="TR_Table" style="width: 540.35pt" cellspacing="0" summary="">
+        <tr>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-style: solid; border-bottom-width: 1pt; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-color: #A0968C; border-left-style: solid; border-left-style: solid; border-left-width: 1pt; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-color: #A0968C; border-top-style: solid; border-top-style: solid; border-top-width: 1pt; border-top-width: 1pt; color: #FFFFFF; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt; text-transform: uppercase; width: 73.7pt">
+            <div class="Column_Heading"><a name="pID0EACD0ON0HA">Name</a></div>
+          </td>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-style: solid; border-bottom-width: 1pt; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-color: #A0968C; border-top-style: solid; border-top-style: solid; border-top-width: 1pt; border-top-width: 1pt; color: #FFFFFF; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt; text-transform: uppercase; width: 113.85pt">
+            <div class="Column_Heading"><a name="pID0EABD0ON0HA">RWF Element Name</a></div>
+          </td>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-style: solid; border-bottom-width: 1pt; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #FF9100; border-right-color: #A0968C; border-right-style: solid; border-right-style: solid; border-right-width: 1pt; border-right-width: 1pt; border-top-color: #FF9100; border-top-color: #A0968C; border-top-style: solid; border-top-style: solid; border-top-width: 1pt; border-top-width: 1pt; color: #FFFFFF; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt; text-transform: uppercase; width: 352.8pt">
+            <div class="Column_Heading"><a name="pID0EAAD0ON0HA">Notes</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EACC0ON0HA">VALUE</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABC0ON0HA">VALUE</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAAC0ON0HA">The unsigned integer value corresponding to the enumerated value. </a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EACB0ON0HA">DISPLAY</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABB0ON0HA">DISPLAY</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EBAB0ON0HA">Quoted alphanumeric for the expanded string value.</a></div>
+            <div class="Table_Text"><a name="pID0EAAB0ON0HA">In cases where special characters are needed, the DISPLAY column uses a hexadecimal value, which is identified by using hash marks instead of quotation marks, e.g. </a><span class="Char_Code">#42FE#</span>.</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EACA0ON0HA">MEANING</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABA0ON0HA">MEANING</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAAA0ON0HA">The meaning column is not required over the network and typically not provided.</a></div>
+          </td>
+        </tr>
+      </table>
+      <div class="Caption"><a name="pID0E0NN0HA">Table 44: RWF EnumType Dictionary File Values</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

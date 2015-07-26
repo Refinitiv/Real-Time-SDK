@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>2.1 Parameter Overview</title>
+    <link rel="StyleSheet" href="css/Chap_GlobalConfigParameters.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <br />
+    <hr align="left" />
+    <blockquote>
+      <div class="H2_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="H2_inner" style="width: 54pt; white-space: nowrap">
+                <span class="bold">2.1	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="H2_inner"><a name="1045484">Parameter Overview</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1047356">Many default behaviors are hard-coded into the EMA library and globally enforced. However, if you need to change EMA behaviors or configure EMA for your specific deployment, you can use EMA’s XML configuration file (</a><span class="FileOrDirectory">EmaConfig.xml</span>) and adjust behaviors using the appropriate parameters (discussed in this section). While EMA globally enforces a set of default behaviors, certain other default behaviors are dependent on the use of the XML file and its settings.</div>
+      <div class="Body"><a name="1047573">For example:</a></div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1048063">EMA’s globally default behavior is to log its messages at a </a><span class="Parameter">LoggerSeverity</span> level of <span class="Parameter">Success</span> to a file named <span class="Parameter">emaLog_</span><span class="VariableValue" style="font-weight: bold">pid</span><span class="Parameter" style="font-style: normal">.log</span> (where <span class="VariableValue" style="font-weight: bold">pid</span> is the process ID). You can manually change the <span class="Parameter">LoggerSeverity</span> and the log filename by using <span class="FileOrDirectory">EmaConfig.xml</span>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1048185">By default (globally), the EMA does not XML trace to file (equivalent to </a><span class="Parameter">XmlTraceToFile value=“0”</span>). You need to add this parameter only if you want to turn on XML tracing. If you turn on XML tracing (a non-default behavior), the EMA will trace to a file named <span class="Parameter">EmaTrace</span> (equivalent to <span class="Parameter">XmlTraceFileName value=“EmaTrace”</span>).</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1048218">For a list of default behaviors (and the parameters that you can use to change these behaviors) refer to </a><a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_GlobalConfigParameters.2.2.html', '');" title="2.2 Default Behaviors">Section 2.2</a>.</div>
+      <div class="Body"><a name="1048224">For details on editing </a><span class="FileOrDirectory">EmaConfig.xml</span> and its XML schema, refer to Chapter 2, EMA Global Configuration Parameters.</div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

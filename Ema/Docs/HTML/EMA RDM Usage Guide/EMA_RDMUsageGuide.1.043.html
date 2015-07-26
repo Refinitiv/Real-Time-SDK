@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>Single Open and Allow Suspect Data</title>
+    <link rel="StyleSheet" href="css/EMA_RDMUsageGuide.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <br />
+    <hr align="left" />
+    <blockquote>
+      <div class="Heading_3_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Heading_3_inner" style="width: 54pt; white-space: nowrap">
+                <span style="color: #FF9100; font-family: Arial; font-size: 13pt; font-style: normal; font-weight: bold; vertical-align: baseline">3.4.6	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Heading_3_inner"><a name="pID0E0YX0HA">Single Open and Allow Suspect Data</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Normal"><a name="pID0E0XX0HA">The </a><span class="Char_Parameter">SingleOpen</span> and <span class="Char_Parameter">AllowSuspectData</span> Elements that are passed via the <span class="Char_Code">Attrib</span> can effect how state information is processed. When the provider indicates support for SingleOpen behavior, the provider should drive the recovery of item streams. If no provider support is indicated, the consumer should drive any recovery.The following table shows how a provider can convert messages to honor the consumer’s <span class="Char_Parameter">SingleOpen</span> and <span class="Char_Parameter">AllowSuspectData</span> settings.  The first column in the table shows the provider’s actual <span class="Char_Code">StreamState</span> and <span class="Char_Code">DataState</span>. Each subsequent column shows how this state information can be modified to follow that column specific <span class="Char_Parameter">SingleOpen</span> and <span class="Char_Parameter">AllowSuspectData</span> settings. If any <span class="Char_Parameter">SingleOpen</span> and <span class="Char_Parameter">AllowSuspectData</span> configuration causes a behavior contradiction (e.g., <span class="Char_Parameter">SingleOpen</span> indicates the provider should handle recovery, but <span class="Char_Parameter">AllowSuspectData</span> indicates that the consumer does not want to receive suspect status), <span class="Char_Parameter">SingleOpen</span> behavior takes precedence.</div>
+      <div class="Normal"><a name="pID0E0WX0HA">The status in the table could be from a Directory STATE filter entry, from a Directory GROUP filter entry, or from an item Status Message. For more information on Status, see the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;EDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">EMA 3.0 Developers Guide C++ Edition</a></span>.</div>
+      <div class="Note_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Note_inner" style="width: 54pt; white-space: nowrap">
+                <span style="color: #FF9100; font-family: Arial; font-size: 10pt; font-style: normal; font-weight: bold">Note:	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Note_inner"><a name="pID0E0VX0HA">If </a><span class="Char_Code">AcceptingRequests</span> is <span class="Char_Parameter">FALSE</span>, new requests should not be made to a provider application, regardless of <span class="Char_Code">ServiceState</span>. However, even if <span class="Char_Code">AcceptingRequests</span> is <span class="Char_Parameter">FALSE</span>, reissue requests can still be made for any item streams that are currently open to the provider.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <table class="TR_Table" style="width: 725.75pt" cellspacing="0" summary="">
+        <tr>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-style: solid; border-bottom-width: 1pt; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-color: #A0968C; border-left-style: solid; border-left-style: solid; border-left-width: 1pt; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-color: #A0968C; border-top-style: solid; border-top-style: solid; border-top-width: 1pt; border-top-width: 1pt; color: #FFFFFF; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt; text-transform: uppercase; width: 140.85pt">
+            <div class="Column_Heading"><a name="pID0EAEG0UX0HA">ACTUAL STATE INFORMATION</a></div>
+          </td>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-style: solid; border-bottom-width: 1pt; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-color: #A0968C; border-top-style: solid; border-top-style: solid; border-top-width: 1pt; border-top-width: 1pt; color: #FFFFFF; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt; text-transform: uppercase; width: 151.65pt">
+            <div class="Column_Heading"><a name="pID0ECDG0UX0HA">MESSAGE SENT WHEN:</a></div>
+            <div class="Column_Heading"><a name="pID0EBDG0UX0HA">SingleOpen = 1</a></div>
+            <div class="Column_Heading"><a name="pID0EADG0UX0HA">AllowSuspectData = 1</a></div>
+          </td>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-style: solid; border-bottom-width: 1pt; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-color: #A0968C; border-top-style: solid; border-top-style: solid; border-top-width: 1pt; border-top-width: 1pt; color: #FFFFFF; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt; text-transform: uppercase; width: 144pt">
+            <div class="Column_Heading"><a name="pID0ECCG0UX0HA">MESSAGE SENT WHEN:</a></div>
+            <div class="Column_Heading"><a name="pID0EBCG0UX0HA">SingleOpen = 1</a></div>
+            <div class="Column_Heading"><a name="pID0EACG0UX0HA">AllowSuspectData = 0</a></div>
+          </td>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-style: solid; border-bottom-width: 1pt; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-color: #A0968C; border-top-style: solid; border-top-style: solid; border-top-width: 1pt; border-top-width: 1pt; color: #FFFFFF; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt; text-transform: uppercase; width: 140.65pt">
+            <div class="Column_Heading"><a name="pID0ECBG0UX0HA">MESSAGE SENT WHEN:</a></div>
+            <div class="Column_Heading"><a name="pID0EBBG0UX0HA">SingleOpen = 0</a></div>
+            <div class="Column_Heading"><a name="pID0EABG0UX0HA">AllowSuspectData = 1</a></div>
+          </td>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-style: solid; border-bottom-width: 1pt; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #FF9100; border-right-color: #A0968C; border-right-style: solid; border-right-style: solid; border-right-width: 1pt; border-right-width: 1pt; border-top-color: #FF9100; border-top-color: #A0968C; border-top-style: solid; border-top-style: solid; border-top-width: 1pt; border-top-width: 1pt; color: #FFFFFF; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt; text-transform: uppercase; width: 148.6pt">
+            <div class="Column_Heading"><a name="pID0ECAG0UX0HA">MESSAGE SENT WHEN:</a></div>
+            <div class="Column_Heading"><a name="pID0EBAG0UX0HA">SingleOpen = 0</a></div>
+            <div class="Column_Heading"><a name="pID0EAAG0UX0HA">AllowSuspectData = 0</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EDEF0UX0HA">StreamState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0ECEF0UX0HA">OPEN</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EBEF0UX0HA">DataState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EAEF0UX0HA">SUSPECT</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EDDF0UX0HA">StreamState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0ECDF0UX0HA">OPEN</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EBDF0UX0HA">DataState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EADF0UX0HA">SUSPECT</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EDCF0UX0HA">StreamState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0ECCF0UX0HA">OPEN</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EBCF0UX0HA">DataState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EACF0UX0HA">SUSPECT</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EDBF0UX0HA">StreamState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0ECBF0UX0HA">OPEN</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EBBF0UX0HA">DataState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EABF0UX0HA">SUSPECT</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EDAF0UX0HA">StreamState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0ECAF0UX0HA">CLOSED_RECOVER</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EBAF0UX0HA">DataState</a></span>=<span class="Char_DomainName"> </span></div>
+            <div class="Table_Text"><a name="pID0EAAF0UX0HA">SUSPECT</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EDEE0UX0HA">StreamState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0ECEE0UX0HA">CLOSED_RECOVER</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EBEE0UX0HA">DataState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EAEE0UX0HA">SUSPECT</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EDDE0UX0HA">StreamState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0ECDE0UX0HA">OPEN</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EBDE0UX0HA">DataState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EADE0UX0HA">SUSPECT</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EDCE0UX0HA">StreamState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0ECCE0UX0HA">OPEN</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EBCE0UX0HA">DataState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EACE0UX0HA">SUSPECT</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EDBE0UX0HA">StreamState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0ECBE0UX0HA">CLOSED_RECOVER</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EBBE0UX0HA">DataState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EABE0UX0HA">SUSPECT</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EDAE0UX0HA">StreamState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0ECAE0UX0HA">CLOSED_RECOVER</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EBAE0UX0HA">DataState</a></span>=<span class="Char_DomainName"> </span></div>
+            <div class="Table_Text"><a name="pID0EAAE0UX0HA">SUSPECT</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EEED0UX0HA">New item request when:</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EDED0UX0HA">AcceptingRequests</a></span>=</div>
+            <div class="Table_Text"><a name="pID0ECED0UX0HA">TRUE</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EBED0UX0HA">ServiceState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EAED0UX0HA">DOWN</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EDDD0UX0HA">StreamState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0ECDD0UX0HA">OPEN</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EBDD0UX0HA">DataState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EADD0UX0HA">SUSPECT</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EDCD0UX0HA">StreamState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0ECCD0UX0HA">OPEN</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EBCD0UX0HA">DataState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EACD0UX0HA">SUSPECT</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0ECBD0UX0HA">StreamState</a></span>=<span class="Char_DomainName"> </span>CLOSED_RECOVER</div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EBBD0UX0HA">DataState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EABD0UX0HA">SUSPECT</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EDAD0UX0HA">StreamState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0ECAD0UX0HA">CLOSED_RECOVER</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EBAD0UX0HA">DataState</a></span>=<span class="Char_DomainName"> </span></div>
+            <div class="Table_Text"><a name="pID0EAAD0UX0HA">SUSPECT</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EEEC0UX0HA">New item request when:</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EDEC0UX0HA">AcceptingRequests</a></span>=</div>
+            <div class="Table_Text"><a name="pID0ECEC0UX0HA">TRUE</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EBEC0UX0HA">ServiceState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EAEC0UX0HA">UP</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EEDC0UX0HA">StreamState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EDDC0UX0HA">OPEN</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0ECDC0UX0HA">DataState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EBDC0UX0HA">OK or SUSPECT</a></div>
+            <div class="Table_Text"><a name="pID0EADC0UX0HA">based on individual item’s state</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EECC0UX0HA">StreamState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EDCC0UX0HA">OPEN</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0ECCC0UX0HA">DataState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EBCC0UX0HA">OK or SUSPECT</a></div>
+            <div class="Table_Text"><a name="pID0EACC0UX0HA">based on individual item’s state</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EEBC0UX0HA">StreamState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EDBC0UX0HA">OPEN</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0ECBC0UX0HA">DataState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EBBC0UX0HA">OK or SUSPECT</a></div>
+            <div class="Table_Text"><a name="pID0EABC0UX0HA">based on individual item’s state</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EFAC0UX0HA">If </a><span class="Char_Code">DataState </span>== </div>
+            <div class="Table_Text"><a name="pID0EEAC0UX0HA">OK:</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EDAC0UX0HA">StreamState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0ECAC0UX0HA">OPEN</a></div>
+            <div class="Table_Text"><a name="pID0EBAC0UX0HA">If </a><span class="Char_Code">DataState </span>== SUSPECT:</div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EAAC0UX0HA">StreamState</a></span>= CLOSED_RECOVER</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EEEB0UX0HA">New item request when:</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EDEB0UX0HA">AcceptingRequests</a></span>=</div>
+            <div class="Table_Text"><a name="pID0ECEB0UX0HA">FALSE</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EBEB0UX0HA">ServiceState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EAEB0UX0HA">UP or DOWN</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EEDB0UX0HA">StreamState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EDDB0UX0HA">OPEN</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0ECDB0UX0HA">DataState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EBDB0UX0HA">SUSPECT</a></div>
+            <div class="Table_Text"><a name="pID0EADB0UX0HA">based on individual item’s state</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EECB0UX0HA">StreamState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EDCB0UX0HA">OPEN</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0ECCB0UX0HA">DataState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EBCB0UX0HA">SUSPECT</a></div>
+            <div class="Table_Text"><a name="pID0EACB0UX0HA">based on individual item’s state</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EDBB0UX0HA">StreamState</a></span>=<span class="Char_DomainName"> </span>CLOSED_RECOVER</div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0ECBB0UX0HA">DataState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EBBB0UX0HA">SUSPECT</a></div>
+            <div class="Table_Text"><a name="pID0EABB0UX0HA">based on individual item’s state</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0ECAB0UX0HA">StreamState</a></span>=<span class="Char_DomainName"> </span>CLOSED_RECOVER</div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EBAB0UX0HA">DataState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EAAB0UX0HA">SUSPECT</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EAEA0UX0HA">Connection goes down</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EEDA0UX0HA">StreamState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EDDA0UX0HA">OPEN</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0ECDA0UX0HA">DataState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EBDA0UX0HA">SUSPECT</a></div>
+            <div class="Table_Text"><a name="pID0EADA0UX0HA">based on individual item’s state</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EECA0UX0HA">StreamState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EDCA0UX0HA">OPEN</a></div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0ECCA0UX0HA">DataState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EBCA0UX0HA">SUSPECT</a></div>
+            <div class="Table_Text"><a name="pID0EACA0UX0HA">based on individual item’s state</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EDBA0UX0HA">StreamState</a></span>=<span class="Char_DomainName"> </span>CLOSED_RECOVER</div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0ECBA0UX0HA">DataState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EBBA0UX0HA">SUSPECT</a></div>
+            <div class="Table_Text"><a name="pID0EABA0UX0HA">based on individual item’s state</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0ECAA0UX0HA">StreamState</a></span>=<span class="Char_DomainName"> </span>CLOSED_RECOVER</div>
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EBAA0UX0HA">DataState</a></span>=</div>
+            <div class="Table_Text"><a name="pID0EAAA0UX0HA">SUSPECT</a></div>
+          </td>
+        </tr>
+      </table>
+      <div class="Caption"><a name="pID0E0TX0HA">Table 14: SingleOpen and AllowSuspectData Handling</a></div>
+      <div class="Note_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Note_inner" style="width: 54pt; white-space: nowrap">
+                <span style="color: #FF9100; font-family: Arial; font-size: 10pt; font-style: normal; font-weight: bold">Note:	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Note_inner"><a name="pID0E0SX0HA">&nbsp;</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

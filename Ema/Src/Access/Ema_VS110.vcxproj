@@ -91,43 +91,43 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">Libs\WIN_64_VS110\Release_MD\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">Libs\WIN_64_VS110\Release_MD\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">..\..\Libs\WIN_64_VS110\Release_MD\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">..\..\Libs\WIN_64_VS110\Release_MD\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">false</LinkIncremental>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">libema</TargetName>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release Shared MD|x64'">Libs\WIN_64_VS110\Release_MD\Shared\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release Shared MD|x64'">Libs\WIN_64_VS110\Release_MD\Shared\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release Shared MD|x64'">..\..\Libs\WIN_64_VS110\Release_MD\Shared\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release Shared MD|x64'">..\..\Libs\WIN_64_VS110\Release_MD\Shared\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release Shared MD|x64'">false</LinkIncremental>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release Shared MD|x64'">libema</TargetName>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release MD Assert|x64'">Libs\WIN_64_VS110\Release_MD_Assert\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release MD Assert|x64'">Libs\WIN_64_VS110\Release_MD_Assert\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release MD Assert|x64'">..\..\Libs\WIN_64_VS110\Release_MD_Assert\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release MD Assert|x64'">..\..\Libs\WIN_64_VS110\Release_MD_Assert\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release MD Assert|x64'">false</LinkIncremental>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release MD Assert|x64'">libema</TargetName>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release Shared MD Assert|x64'">Libs\WIN_64_VS110\Release_MD_Assert\Shared\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release Shared MD Assert|x64'">Libs\WIN_64_VS110\Release_MD_Assert\Shared\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release Shared MD Assert|x64'">..\..\Libs\WIN_64_VS110\Release_MD_Assert\Shared\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release Shared MD Assert|x64'">..\..\Libs\WIN_64_VS110\Release_MD_Assert\Shared\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release Shared MD Assert|x64'">false</LinkIncremental>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release Shared MD Assert|x64'">libema</TargetName>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug MDd|x64'">Libs\WIN_64_VS110\Debug_MDd\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug MDd|x64'">Libs\WIN_64_VS110\Debug_MDd\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug MDd|x64'">..\..\Libs\WIN_64_VS110\Debug_MDd\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug MDd|x64'">..\..\Libs\WIN_64_VS110\Debug_MDd\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug MDd|x64'">false</LinkIncremental>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug MDd|x64'">libema</TargetName>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug Shared MDd|x64'">Libs\WIN_64_VS110\Debug_MDd\Shared\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug Shared MDd|x64'">Libs\WIN_64_VS110\Debug_MDd\Shared\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug Shared MDd|x64'">..\..\Libs\WIN_64_VS110\Debug_MDd\Shared\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug Shared MDd|x64'">..\..\Libs\WIN_64_VS110\Debug_MDd\Shared\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug Shared MDd|x64'">false</LinkIncremental>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug Shared MDd|x64'">libema</TargetName>
   </PropertyGroup>
@@ -136,13 +136,13 @@
       <TargetEnvironment>X64</TargetEnvironment>
     </Midl>
     <ClCompile>
-      <AdditionalOptions>/D EMA_LIBRARY_EXPORTS%(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D EMA_LIBRARY_EXPORTS /D LIBXML_STATIC%(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\;Impl;Include;..\Include;..\Rdm\Impl;..\Rdm\Include;..\libxml\src\include;..\libxml\src\include\libxml;..\..\..\eta\Src\Rssl\Include;..\..\..\eta\Src\ValueAdd\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;__EMA_STATIC_BUILD__;__EMA_COPY_ON_SET__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\;Impl;Include;..\Include;..\Rdm\Impl;..\Rdm\Include;..\libxml\src\include;..\libxml\src\include\libxml;..\..\..\Eta\Include;..\..\..\Eta\Include\Codec;..\..\..\Eta\Include\Transport;..\..\..\Eta\Include\RDM;..\..\..\Eta\Include\Reactor;..\..\..\Eta\Include\Util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;__EMA_STATIC_BUILD__;__EMA_COPY_ON_SET__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
@@ -172,11 +172,15 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <Lib>
-      <AdditionalDependencies> librsslTransport.lib; librsslReactor.lib; librsslRDM.lib; librsslVAUtil.lib; libxml2.lib;</AdditionalDependencies>
+      <AdditionalDependencies>librsslReactor.lib; librsslRDM.lib; librsslVAUtil.lib; librssl.lib; libxml2.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\Libs\WIN_64_VS110\Release_MD;..\..\..\Eta\Libs\WIN_64_VS110\Release_MD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>/IGNORE:4006</AdditionalOptions>
     </Lib>
-    <Lib>
-      <AdditionalLibraryDirectories>..\..\..\eta\Libs\ValueAdd\WIN_64_VS110\Release_MD;..\..\Libs\WIN_64_VS110\Release_MD;..\..\..\eta\Libs\WIN_64_VS110\Release_MD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Lib>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+          <AdditionalIncludeDirectories>;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Shared MD|x64'">
     <Midl>
@@ -188,8 +192,8 @@
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\;Impl;Include;..\Include;..\Rdm\Impl;..\Rdm\Include;..\libxml\src\include;..\libxml\src\include\libxml;..\..\..\eta\Src\Rssl\Include;..\..\..\eta\Src\ValueAdd\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;EMA_LIBRARY_EXPORTS;__EMA_COPY_ON_SET__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\;Impl;Include;..\Include;..\Rdm\Impl;..\Rdm\Include;..\libxml\src\include;..\libxml\src\include\libxml;..\..\..\Eta\Include;..\..\..\Eta\Include\Codec;..\..\..\Eta\Include\Transport;..\..\..\Eta\Include\RDM;..\..\..\Eta\Include\Reactor;..\..\..\Eta\Include\Util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;EMA_LIBRARY_EXPORTS;__EMA_COPY_ON_SET__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
@@ -209,7 +213,7 @@
       <AdditionalDependencies>msvcprt.lib;msvcrt.lib; ws2_32.lib; libxml2.lib; librssl.lib; librsslVA.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)libema.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\..\eta\Libs\ValueAdd\WIN_64_VS110\Release_MD\Shared;..\..\..\eta\Libs\WIN_64_VS110\Release_MD\Shared;..\..\Libs\WIN_64_VS110\Release_MD\Shared;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\Eta\Libs\WIN_64_VS110\Release_MD\Shared;..\..\Libs\WIN_64_VS110\Release_MD\Shared;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
@@ -221,19 +225,24 @@
       <TargetMachine>MachineX64</TargetMachine>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+          <AdditionalIncludeDirectories>;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release MD Assert|x64'">
     <Midl>
       <TargetEnvironment>X64</TargetEnvironment>
     </Midl>
     <ClCompile>
-      <AdditionalOptions>/D EMA_LIBRARY_EXPORTS%(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D EMA_LIBRARY_EXPORTS /D LIBXML_STATIC%(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\;Impl;Include;..\Include;..\Rdm\Impl;..\Rdm\Include;..\libxml\src\include;..\libxml\src\include\libxml;..\..\..\eta\Src\Rssl\Include;..\..\..\eta\Src\ValueAdd\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;__EMA_STATIC_BUILD__;__EMA_COPY_ON_SET__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\;Impl;Include;..\Include;..\Rdm\Impl;..\Rdm\Include;..\libxml\src\include;..\libxml\src\include\libxml;..\..\..\Eta\Include;..\..\..\Eta\Include\Codec;..\..\..\Eta\Include\Transport;..\..\..\Eta\Include\RDM;..\..\..\Eta\Include\Reactor;..\..\..\Eta\Include\Util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_EMA_BLDTYPE_ASSERT;_LIB;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;__EMA_STATIC_BUILD__;__EMA_COPY_ON_SET__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
@@ -263,11 +272,15 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <Lib>
-      <AdditionalDependencies> librsslTransport.lib; librsslReactor.lib; librsslRDM.lib; librsslVAUtil.lib; libxml2.lib;</AdditionalDependencies>
+      <AdditionalDependencies>librsslReactor.lib; librsslRDM.lib; librsslVAUtil.lib; librssl.lib; libxml2.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\Libs\WIN_64_VS110\Release_MD_Assert;..\..\..\Eta\Libs\WIN_64_VS110\Release_MD_Assert;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>/IGNORE:4006</AdditionalOptions>
     </Lib>
-    <Lib>
-      <AdditionalLibraryDirectories>..\..\..\eta\Libs\ValueAdd\WIN_64_VS110\Release_MD_Assert;..\..\Libs\WIN_64_VS110\Release_MD_Assert;..\..\..\eta\Libs\WIN_64_VS110\Release_MD_Assert;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Lib>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;WIN32; _EMA_BLDTYPE_ASSERT_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+          <AdditionalIncludeDirectories>;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Shared MD Assert|x64'">
     <Midl>
@@ -279,8 +292,8 @@
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\;Impl;Include;..\Include;..\Rdm\Impl;..\Rdm\Include;..\libxml\src\include;..\libxml\src\include\libxml;..\..\..\eta\Src\Rssl\Include;..\..\..\eta\Src\ValueAdd\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;EMA_LIBRARY_EXPORTS;__EMA_COPY_ON_SET__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\;Impl;Include;..\Include;..\Rdm\Impl;..\Rdm\Include;..\libxml\src\include;..\libxml\src\include\libxml;..\..\..\Eta\Include;..\..\..\Eta\Include\Codec;..\..\..\Eta\Include\Transport;..\..\..\Eta\Include\RDM;..\..\..\Eta\Include\Reactor;..\..\..\Eta\Include\Util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_EMA_BLDTYPE_ASSERT;_LIB;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;EMA_LIBRARY_EXPORTS;__EMA_COPY_ON_SET__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
@@ -300,7 +313,7 @@
       <AdditionalDependencies>msvcprt.lib;msvcrt.lib; ws2_32.lib; libxml2.lib; librssl.lib; librsslVA.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)libema.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\..\eta\Libs\ValueAdd\WIN_64_VS110\Release_MD_Assert\Shared;..\..\..\eta\Libs\WIN_64_VS110\Release_MD_Assert\Shared;..\..\Libs\WIN_64_VS110\Release_MD_Assert\Shared;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\Eta\Libs\WIN_64_VS110\Release_MD_Assert\Shared;..\..\Libs\WIN_64_VS110\Release_MD_Assert\Shared;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
@@ -312,19 +325,24 @@
       <TargetMachine>MachineX64</TargetMachine>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;WIN32; _EMA_BLDTYPE_ASSERT_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+          <AdditionalIncludeDirectories>;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug MDd|x64'">
     <Midl>
       <TargetEnvironment>X64</TargetEnvironment>
     </Midl>
     <ClCompile>
-      <AdditionalOptions>/D EMA_LIBRARY_EXPORTS%(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D EMA_LIBRARY_EXPORTS /D LIBXML_STATIC%(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\;Impl;Include;..\Include;..\Rdm\Impl;..\Rdm\Include;..\libxml\src\include;..\libxml\src\include\libxml;..\..\..\eta\Src\Rssl\Include;..\..\..\eta\Src\ValueAdd\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_CONSOLE;_CRT_SECURE_NO_WARNINGS;__EMA_STATIC_BUILD__;__EMA_COPY_ON_SET__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\;Impl;Include;..\Include;..\Rdm\Impl;..\Rdm\Include;..\libxml\src\include;..\libxml\src\include\libxml;..\..\..\Eta\Include;..\..\..\Eta\Include\Codec;..\..\..\Eta\Include\Transport;..\..\..\Eta\Include\RDM;..\..\..\Eta\Include\Reactor;..\..\..\Eta\Include\Util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;__EMA_STATIC_BUILD__;__EMA_COPY_ON_SET__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
@@ -354,11 +372,15 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <Lib>
-      <AdditionalDependencies> librsslTransport.lib; librsslReactor.lib; librsslRDM.lib; librsslVAUtil.lib; libxml2.lib;</AdditionalDependencies>
+      <AdditionalDependencies>librsslReactor.lib; librsslRDM.lib; librsslVAUtil.lib; librssl.lib; libxml2.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\Eta\Libs\WIN_64_VS110\Debug_MDd;..\..\Libs\WIN_64_VS110\Debug_MDd;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>/IGNORE:4006</AdditionalOptions>
     </Lib>
-    <Lib>
-      <AdditionalLibraryDirectories>..\..\..\eta\Libs\ValueAdd\WIN_64_VS110\Debug_MDd;..\..\..\eta\Libs\WIN_64_VS110\Debug_MDd;..\..\Libs\WIN_64_VS110\Debug_MDd;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Lib>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+          <AdditionalIncludeDirectories>;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug Shared MDd|x64'">
     <Midl>
@@ -370,8 +392,8 @@
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\;Impl;Include;..\Include;..\Rdm\Impl;..\Rdm\Include;..\libxml\src\include;..\libxml\src\include\libxml;..\..\..\eta\Src\Rssl\Include;..\..\..\eta\Src\ValueAdd\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_CONSOLE;_CRT_SECURE_NO_WARNINGS;EMA_LIBRARY_EXPORTS;__EMA_COPY_ON_SET__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\;Impl;Include;..\Include;..\Rdm\Impl;..\Rdm\Include;..\libxml\src\include;..\libxml\src\include\libxml;..\..\..\Eta\Include;..\..\..\Eta\Include\Codec;..\..\..\Eta\Include\Transport;..\..\..\Eta\Include\RDM;..\..\..\Eta\Include\Reactor;..\..\..\Eta\Include\Util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;EMA_LIBRARY_EXPORTS;__EMA_COPY_ON_SET__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
@@ -391,7 +413,7 @@
       <AdditionalDependencies>msvcprtd.lib;msvcrtd.lib; ws2_32.lib; libxml2.lib; librssl.lib; librsslVA.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)libema.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\..\eta\Libs\ValueAdd\WIN_64_VS110\Debug_MDd\Shared;..\..\..\eta\Libs\WIN_64_VS110\Debug_MDd\Shared;..\..\Libs\WIN_64_VS110\Debug_MDd\Shared;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\Eta\Libs\WIN_64_VS110\Debug_MDd\Shared;..\..\Libs\WIN_64_VS110\Debug_MDd\Shared;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
@@ -403,6 +425,11 @@
       <TargetMachine>MachineX64</TargetMachine>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+          <AdditionalIncludeDirectories>;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Impl\AckMsg.cpp" />
@@ -552,6 +579,8 @@
     <ClCompile Include="Impl\SummaryData.cpp" />
     <ClCompile Include="Impl\Thread.cpp" />
     <ClCompile Include="Impl\TimeOut.cpp" />
+    <ClCompile Include="Impl\TunnelStreamRequest.cpp" />
+    <ClCompile Include="Impl\TunnelStreamLoginReqMsgImpl.cpp" />
     <ClCompile Include="Impl\UpdateMsg.cpp" />
     <ClCompile Include="Impl\UpdateMsgDecoder.cpp" />
     <ClCompile Include="Impl\UpdateMsgEncoder.cpp" />
@@ -653,6 +682,7 @@
     <ClInclude Include="Impl\StatusMsgEncoder.h" />
     <ClInclude Include="Impl\Thread.h" />
     <ClInclude Include="Impl\TimeOut.h" />
+    <ClInclude Include="Impl\TunnelStreamLoginReqMsgImpl.h" />
     <ClInclude Include="Impl\UpdateMsgDecoder.h" />
     <ClInclude Include="Impl\UpdateMsgEncoder.h" />
     <ClInclude Include="Impl\Utilities.h" />
@@ -722,6 +752,7 @@
     <ClInclude Include="Include\SeriesEntry.h" />
     <ClInclude Include="Include\StatusMsg.h" />
     <ClInclude Include="Include\SummaryData.h" />
+    <ClInclude Include="Include\TunnelStreamRequest.h" />
     <ClInclude Include="Include\UpdateMsg.h" />
     <ClInclude Include="Include\Vector.h" />
     <ClInclude Include="Include\VectorEntry.h" />
@@ -730,6 +761,8 @@
     <ClInclude Include="EmaVersion.h" />
   </ItemGroup>
   <ItemGroup>
+    <ResourceCompile Include="Ema.rc" />
+
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

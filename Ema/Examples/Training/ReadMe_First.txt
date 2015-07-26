@@ -52,7 +52,6 @@ The Makefile/MSBuild Project file will link with EMA library in a directory name
 
 The static library will be one level deeper in /Static.
 
-
 Running Examples
 =================
 To run any example, any OMM provider application/component is needed to source

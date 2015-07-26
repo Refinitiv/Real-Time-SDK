@@ -1,4 +1,4 @@
-# Elektron SDK 1.0.0
+# Elektron SDK
 This is the Elektron SDK. This SDK is an all encompassing package of all Elektron APIs. This currently includes the Elektron Message API (EMA) and the Elektron Transport API (ETA).
 
 The **Elektron Message API (EMA)** is an ease of use, open source, OMM API. EMA is designed to provide clients rapid development of applications, minimizing lines of code and providing a broad range of flexibility. It provides flexible configuration with default values to simplify use and deployment.  EMA is written on top of the Elektron Transport API (ETA) utilizing the Value Added Reactor and Watchlist. 
@@ -6,118 +6,65 @@ The **Elektron Message API (EMA)** is an ease of use, open source, OMM API. EMA 
 The **Elektron Transport API (ETA)** is the re-branded Ultra Performance API (UPA). ETA is Thomson Reuters low-level 
 Transport and OMM encoder/decoder API.  It is used by the Thomson Reuters Enterprise Platform for Real Time and Elektron for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. 
 
-*NOTE: This first release of the Elektron SDK contain only the EMA (Beta).  You will see that there is both an EMA and ETA directory, but the ETA directory provides only the minimum required needed for the EMA product.  It is not the full ETA release.*
 
-# Hardware/OS Requirements
+# Building the APIs
 
-      (Linux)
-      - HP Intel PC or AMD Opteron (64-bit)
-      - AMD Opteron (64-bit)
-      - Red Hat Enterprise Linux Advanced Server (RHEL) 6.0 64-bit 
-      - Oracle Linux (OL) 6.0 64-bit (Qualified on RHEL 6.0)
-      - Oracle Linux (OL) 7.0 64-bit
-      - CentOS 7 64-bit (Qualified on Oracle Linux 7.0)
+## Common Setup
+This section shows the required setup needed before you can build any of the APIs within this package.
 
-      (Windows)
-      - Intel compatible PC and AMD Opteron for 64-bit
-      - CPUs must have high resolution timer frequencies greater than 1GHz.
-      - Microsoft Windows Server 2008 (SP1 or greater) 64-bit 
-      - Microsoft Windows 7 Professional 64-bit
-      - Microsoft Windows 8 Professional 64-bit
-      - Microsoft Windows 8.1 Professional 64-bit 
-     
-      
-# Software Requirements
-      (Linux)
-      - GCC compiler suite version 4.4.4 or higher for RHEL 6.0 (64-bit)
-      - GCC compiler suite version 4.4.4 or higher for OL 6.0 (64-bit)
-      - GCC compiler suite version 4.8.2 or higher for OL 7.0 (64-bit)
-      - GCC compiler suite version 4.8.2 or higher for CentOS 7.0 (64-bit)
-
-      (Windows)
-      - Microsoft Visual C++ 10.0 64-bit (visual Studio 2010)
-      - Microsoft Visual C++ 11.0 64-bit (Visual Studio 2012)
-      - Microsoft Visual C++ 12.0 64-bit (Visual Studio 2013)
-      
-
-# What can you do with this release?
-The intent of this particular Elektron SDK release is to provide the Beta release of EMA.
-- You will be able to build the EMA libraries
-- You will be able to build and run the EMA examples
-- Consumer Interaction Only
-
-# Limitations
-- CentOS 7 is supported when building it against Oracle Linux 7 built libema.  The examples can be built with CentOS 7, but will build against Oracle Linux 7 libraries.
-- Oracle Linux 6 is supported when building it against RedHat 6 built libema.  The examples can be built with Oracle Linux 6, but will build against Redhat 6 libraries.
-- The ETA contained in this release is only part of the intended ETA pacakge.  The ETA folder will only contain the required parts for EMA (ValueAdd reactor). You will not be able to build ETA examples or the ETA Value add libraries. 
-- You will need to get the appropriate ETA library package from customer zone to build and run EMA. Instructions on how to obtain that can be found in the following section.
+Firstly, obtain the source from this repository. It will contain all of the required source to build EMA and ETA libraries as detailed below.
 
 
-# Setup
-This section shows the required setup needed before you can build the EMA Beta.
+## Building ETA
 
-To start, obtain the source from this repository which will contain all of the required source to build the EMA library and EMA examples.
+#### ETA Special Instructions
+The ETA package contains transport, decoder, encoder, and cache components.  The transport, decoder and encoder components are closed source and is proprietary to Thomson Reuters and the source code is not included in this package. To facilitate the ability to build all APIs of this Elektron-SDK package a 'stub' library is provided for the closed portion of the ETA.   This 'stub' library will allow you to build and run, but will not provide implementation for connectivity or data handling. To get a fully functioning ETA library please see "Obtaining the ETA Binary Package" below.
 
-Next, since EMA relies upon the ETA product which contains closed source, you will need to obtain the library package from the customer zone. This binary package will contain only the necessary lib files to allow you to build the EMA Beta. Just place the Libs directory from the package under the eta directory and you should then be able to build the ema libraries and examples.
+####1) Build the ETA 
 
-```
-Elektron-SDK1.0.0
-      |
-      +ema/...
-      |
-      +eta/Src
-          /Libs  //Copy the Libs directory from the customer zone package here.
-```
+**For Linux/Solaris**:
+Navigate to `Eta/Impl` 
+-	Run `makefile all` to build Stub libraries and Reactor and its dependencies
+-	Run `makefile stubs` to build only the Stub libraries
+-	Run `makefile rsslVA` to build only Reactor and its dependencies
 
-You can find the ETA binaries at the following:
-
-https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
-
-- **Category**: MDS - API
-- **Products**: TREP API Controlled Binaries
-
-Then select the following release:
-
-    eta3.0.0.L1.beta.<platform>.lib
-
-
-
-# Building (EMA only)
-
-Once you have done the Setup step above, follow these steps below: 
-
-###1) Get or build the libxml2 library.
-
-If your system does not already have libxml2 available, you can build the version that is contained in this release. Just navigate to `ema/Src/libxml/src` and run the makefile or windows project file. 
+This will build both static and shared versions of the libraries.
 
 **For Windows**:
-The *libxml2* library will be created in `ema/Src/libxml/src/Libs`.  Copy the resultant `Libs` directory to the corresponding platform `ema/Libs` directory.
+Navigate to `Eta/Impl` 
+Select the specific vcxproj for the specific library you want to build, or use the provided solution file to build in Visual Studio. When building via the solution, select the configuration combination you want (Static, Shared, Debug, Release, etc) and select `Build -> Build Solution` this will create both static and shared libraries for all targets. 
 
-**For Linux**: (This will be fixed in a subsequent release to be consistent with Windows)
-The *libxml2* library will be created in `ema/Src/libxml/src/<platform>` where `<platform>` is `OL7_64_gcc482` or `RHEL6_64_GCC444`.
+NOTE: You must build the Stub libaries before building the ValueAdd libraries.
 
-For "shared" libraries, create the following directories (if they don't exist):
-```
-ema/Libs/<platform>/Optimized/Shared
-ema/Libs/<platform>/Optimized_Assert/Shared
-```
-
-Then, copy the `libxml2.so` to both of the directories listed above.
+If you have the corresponding ETA Binary Package you will not need to build the stubs. Please see "Obtaining the ETA Binary Package" below.
 
 
-For "static" libraries, create the following directories (if they don't exist):
-```
-ema/Libs/<platform>/Optimized
-ema/Libs/<platform>/Optimized_Assert
-```
+####2) Build the ETA Examples
 
-Then, copy the `libxml2.a` to both of the directories listed above.
+Navigate to `Eta/Applications`, locate the example, performance tool, or training suite you would like to build. Run the makefile or open and build the windows solution file (when applicable) or the vcxproj.
+
+####3) Run the ETA Examples
+If you have only built the 'stub' library from above, the examples will not do much.  In order to get full functioning behavior of ETA you will need to get the official binaries from the customer zone. Please see "Obtaining the ETA Binary Package" below.
 
 
-###2) Build the EMA library
+## Building EMA
 
-To build the EMA library, navigate to the `ema/Src/Access` folder and run the makefiles/windows project.  
-Once the binaries are built you will need to copy the resultant `Lib` directory that is created under `Access` to the top level `ema` directory, merging it with previously created libxml2 library.  
+EMA is built upon ETA.  Before you can build EMA you must build ETA as described above. Once you have the ETA libraries in place you can then build the EMA libraries and the examples.
+
+
+####1) Get or build the libxml2 library.
+
+If your system does not already have libxml2 available, you can build the version that is contained in this release. Just navigate to `Ema/Src/libxml/src` and run the makefile or build the windows project file. 
+
+**For Linux**: 
+This is automatically built when building the EMA library (step shown below).  Note that if you want to build libxml separately, a makefile is provided to you in `Ema/Src/libxml/src`.
+
+**For Windows**:
+The *libxml2* library will be created in `Ema/Src/libxml/src/Libs`.  Copy the resultant `Libs` directory to the corresponding platform `Ema/Libs` directory.
+
+####2) Build the EMA library
+
+To build the EMA library, navigate to the `Ema/Src/Access` folder and run the makefile or build the windows project.  
 
 ####3) Build the EMA examples
 
@@ -125,14 +72,30 @@ After that, you can build any of the EMA examples. Navigate to the example you w
 
 ####4) Get access to a providing application. 
 
-You will need a provider component to connect the EMA consumer applications to.  This can be an ADS or API provider application from UPA or RFA.
+You will need a provider component to connect the EMA consumer applications to.  This can be an ADS or API provider application from ETA or RFA.
 
-####5) Run the EMA examples
+####5) Run the EMA Examples
 
-Once the provider is running and accessible, you can run the EMA examples.  
+Once the provider is running and accessible, you can run the EMA examples.  When running examples build using shared libraries you will need to make sure that the ETA libraries are local or in your path.
 
 That should do it!  
 
+
+
+# Obtaining the ETA Binary Package
+
+If you wish to have the full functionality of ETA, please get the official ETA libraries from the following.
+
+https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
+
+- **Category**: MDS - API
+- **Products**: Elektron SDK
+
+Then select the following release:
+
+    eta3.0.0.L1.<platform>-binaries.rrg
+
+Once you have downloaded these libraries, copy them to the corresponding directories under `.../Eta/Libs`.  Note that if you are using the static library you will need to rebuild your application.  For linux, if you are using the shared libraries, you may need to remove the library links and rerun the LinuxSoLink script before rebuilding.
 
 
 # Developing 
@@ -154,6 +117,6 @@ Please email a signed and scanned copy to sdkagreement@thomsonreuters.com.  If y
 
 
 # Notes:
-- This is a BETA release.  
-- Interfaces and behaviors are subject to change (based upon feedback and suggestions)
+- For more details on each API, please see the corresponding readme file in their top level directory.
+- This package contains APIs that are subject to proprietary and open source licenses.  Please make sure to read the readme files within each package for clarification.
 - Please make sure to review the LICENSE.md file.

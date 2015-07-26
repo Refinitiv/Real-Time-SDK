@@ -93,17 +93,13 @@ OmmException& OmmException::operator=( const OmmException& other )
 
 OmmException& OmmException::statusText( const EmaString& statusText )
 {
-	// need to limit size to not cause memory corruption
 	const char* text = statusText.c_str();
 	_errorTextLength = 0;
 	while ( *(text + _errorTextLength) )
 	{
 		*(_errorText + EMASTRING_SIZE + _errorTextLength) = *(text + _errorTextLength);
-		if ( ++_errorTextLength  >= MAX_SIZE - EMASTRING_SIZE )
-		{
-			*(_errorText + EMASTRING_SIZE + _errorTextLength) = 0x00;
+		if ( ++_errorTextLength  >= MAX_SIZE - EMASTRING_SIZE - 1 )
 			break;
-		}
 	}
 
 	*(_errorText + EMASTRING_SIZE + _errorTextLength) = 0x00;
@@ -113,16 +109,12 @@ OmmException& OmmException::statusText( const EmaString& statusText )
 
 OmmException& OmmException::statusText( const char* text )
 {
-	// need to limit size to not cause memory corruption
 	_errorTextLength = 0;
 	while ( *(text + _errorTextLength) )
 	{
 		*(_errorText + EMASTRING_SIZE + _errorTextLength) = *(text + _errorTextLength);
-		if ( ++_errorTextLength  >= MAX_SIZE - EMASTRING_SIZE )
-		{
-			*(_errorText + EMASTRING_SIZE + _errorTextLength) = 0x00;
+		if ( ++_errorTextLength  >= MAX_SIZE - EMASTRING_SIZE - 1 )
 			break;
-		}
 	}
 
 	*(_errorText + EMASTRING_SIZE + _errorTextLength) = 0x00;

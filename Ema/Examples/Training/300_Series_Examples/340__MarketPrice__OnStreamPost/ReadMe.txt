@@ -9,7 +9,7 @@ posting and parsing of MarketPrice data directly directly from and to an OMM
 Provider application, or to Thomson Reuters Advanced Distribution Server.
 
 The 340__MarketPrice__OnStreamPost showcases the usage of on stream posting
-feature in Omm Consumer. It submits Omm Data for the open item and processes
+feature in OMM Consumer. It submits OMM Data for the open item and processes
 a requested AckMsg when received.
 
 
@@ -41,11 +41,3 @@ Note: if needed, these and other details may be modified to fit local
 	  
 Note: please refer to the EMA library ReadMe.txt file for details on
       standard configuration.
-
-
-OmmConsumerClient and Callbacks
-===============================
-
-The 340__MarketPrice__OnStreamPost demonstrates how to receive and process individual
-item response messages for MarketPrice domain and Ack messages. Additionally this
-application shows a native / RWF decoding of FieldList and ElementList containers.

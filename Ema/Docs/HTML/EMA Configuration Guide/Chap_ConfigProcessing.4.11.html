@@ -1,0 +1,512 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>4.4.3 Example: Programmatic Configuration</title>
+    <link rel="StyleSheet" href="css/Chap_ConfigProcessing.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <br />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="H3_inner" style="width: 54pt; white-space: nowrap">
+                <span class="bold">4.4.3	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="H3_inner"><a name="1053435">Example: Programmatic Configuration</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Blank_Line"><a name="1053507">&nbsp;</a></div>
+      <table class="Commands" style="text-align: left; width: 554.95152pt" cellspacing="0" summary="">
+        <caption></caption>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
+            <div class="command"><a name="1053513">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053515">Map configMap;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053517">Map innerMap;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053519">ElementList elementList;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053521">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053523">elementList.addAscii( "DefaultConsumer", "Consumer_1" );</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053525">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053527">innerMap.addKeyAscii( "Consumer_1", MapEntry::AddEnum, ElementList()</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053531">	.addAscii( "Channel", "Channel_1" )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053533">	.addAscii( "Logger", "Logger_1" )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053535">	.addAscii( "Dictionary", "Dictionary_1" )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053537">	.addUInt( "ItemCountHint", 5000 )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053539">	.addUInt( "ServiceCountHint", 5000 )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053541">	.addUInt( "ObeyOpenWindow", 0 )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053543">	.addUInt( "PostAckTimeout", 5000 )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053545">	.addUInt( "RequestTimeout", 5000 )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053547">	.addUInt( "MaxOutstandingPosts", 5000 )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053549">	.addInt( "DispatchTimeoutApiThread", 1 )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053551">	.addUInt( "HandleException", 0 )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053553">	.addUInt( "MaxDispatchCountApiThread", 500 )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053555">	.addUInt( "MaxDispatchCountUserThread", 500 )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053557">	.addInt( "ReactorEventFdPort", 45000 )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053559">	.addInt( "PipePort", 4001 ).complete() ).complete();</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053561">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053851">elementList.addMap( "ConsumerList", innerMap );</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053876">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053565">elementList.complete();</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053567">innerMap.clear();</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053569">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053571">configMap.addKeyAscii( "ConsumerGroup", MapEntry::AddEnum, elementList );</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053573">elementList.clear();</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053575">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053577">innerMap.addKeyAscii( "Channel_1", MapEntry::AddEnum, ElementList()</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053581">	.addEnum( "ChannelType", 0 )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053583">	.addAscii( "InterfaceName", "localhost" )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053585">	.addEnum("CompressionType", 1)</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053587">	.addUInt( "GuaranteedOutputBuffers", 5000 )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053589">	.addUInt( "ConnectionPingTimeout", 50000 )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1053591">	.addInt("ReconnectAttemptLimit", 10)</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054043">	.addInt( "ReconnectMinDelay", 2000 )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054045">	.addInt( "ReconnectMaxDelay", 6000 )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054047">	.addAscii( "Host", "localhost" )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054049">	.addAscii("Port", "14002" )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054051">	.addUInt( "TcpNodelay", 0 )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054053">	.addAscii( "XmlTraceFileName", "MyXMLTrace" )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054055">	.addInt( "XmlTraceMaxFileSize", 50000000 )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054057">	.addUInt( "XmlTraceToFile", 1 )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054066">	.addUInt( "XmlTraceToStdout", 0 )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054068">	.addUInt( "XmlTraceToMultipleFiles", 1 )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054070">	.addUInt( "XmlTraceWrite", 1 )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054072">	.addUInt( "XmlTraceRead", 1 )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054074">	.addUInt( "MsgKeyInUpdates", 1 ).complete() ).complete();</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054232">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054234">elementList.addMap( "ChannelList", innerMap );</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054236">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054250">elementList.complete();</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054252">innerMap.clear();</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054254">configMap.addKeyAscii( "ChannelGroup", MapEntry::AddEnum, elementList );</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054256">elementList.clear();</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054258">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054260">innerMap.addKeyAscii( "Logger_1", MapEntry::AddEnum,</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054262">	ElementList()</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054264">	.addEnum( "LoggerType", 0 )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054266">	.addAscii( "FileName", "logFile" )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054268">	.addEnum( "LoggerSeverity", 1 ).complete() ).complete();</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054270">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054272">elementList.addMap( "LoggerList", innerMap );</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054274">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054276">elementList.complete();</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054278">innerMap.clear();</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054427">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054429">configMap.addKeyAscii( "LoggerGroup", MapEntry::AddEnum, elementList );</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054431">elementList.clear();</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054433">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054435">innerMap.addKeyAscii( "Dictionary_1", MapEntry::AddEnum,</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054437">	ElementList()</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054439">	.addEnum( "DictionaryType", 1 )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054441">	.addAscii( "RdmFieldDictionaryFileName", "./RDMFieldDictionary" )</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054527">	.addAscii( "EnumTypeDefFileName", "./enumtype.def" ).complete() ).complete();</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054529">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054531">elementList.addMap( "DictionaryList", innerMap );</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054533">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054535">elementList.complete();</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054575">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054577">configMap.addKeyAscii( "DictionaryGroup", MapEntry::AddEnum, elementList );</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054579">elementList.clear();</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054581">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054583">configMap.complete();</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1054585">&nbsp;</a></div>
+          </td>
+        </tr>
+      </table>
+      <div class="Body"><a name="1053423">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

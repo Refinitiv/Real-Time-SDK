@@ -1,0 +1,27 @@
+function FileData_Pairs(x)
+{
+x.t("wish","develop");
+x.t("rdm","data");
+x.t("required","understanding");
+x.t("omm","concepts");
+x.t("access","rdm");
+x.t("guide","targets");
+x.t("familiar","ema");
+x.t("helpful","required");
+x.t("targets","software");
+x.t("develop","ema-based");
+x.t("ema-based","applications");
+x.t("1.2","audience");
+x.t("software","programmers");
+x.t("message","model");
+x.t("programmers","familiar");
+x.t("data","helpful");
+x.t("applications","access");
+x.t("model","wish");
+x.t("audience","guide");
+x.t("audience","1.2");
+x.t("understanding","omm");
+x.t("using","document");
+x.t("ema","message");
+x.t("concepts","using");
+}

@@ -11,7 +11,7 @@ directly from an OMM Provider application, or from Thomson Reuters
 Advanced Distribution Server.
 
 The 371__MarketPrice__BatchViewReissue showcases usage of combined
-batch and view request feature supported by Omm Consumer and Omm Provider.
+batch and view request feature supported by OMM Consumer and OMM Provider.
 
 Detailed Description
 ====================
@@ -42,11 +42,3 @@ Note: if needed, these and other details may be modified to fit local
 	  
 Note: please refer to the EMA library ReadMe.txt file for details on
       standard configuration.
-
-
-OmmConsumerClient and Callbacks
-===============================
-
-The 371__MarketPrice__BatchViewReissue demonstrates how to receive and process
-individual item response messages for MarketPrice domains. Additionally this
-application shows a native / RWF decoding of FieldList container.

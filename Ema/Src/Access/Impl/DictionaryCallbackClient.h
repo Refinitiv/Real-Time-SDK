@@ -104,7 +104,7 @@ public :
 
 	RsslReactorCallbackRet processCallback( RsslReactor* , RsslReactorChannel* , RsslRDMDictionaryMsgEvent* );
 
-	void notifyStatusToListener( RsslRDMDictionaryStatus& );
+	void notifyStatusToListener( const RsslRDMDictionaryStatus& );
 
 	DictionaryType getType() const;
 

@@ -19,7 +19,7 @@
 
 	decodeElementList( const ElementList& eList )
 	{
-		while ( !elist.forth() )
+		while ( elist.forth() )
 		{
 			const ElementEntry& elementEntry = elist.getEntry();
 

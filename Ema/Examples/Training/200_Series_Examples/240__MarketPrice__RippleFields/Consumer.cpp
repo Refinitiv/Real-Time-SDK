@@ -12,8 +12,8 @@ using namespace std;
 
 void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEvent& ommEvent ) 
 {
-	if ( refreshMsg.hasMsgKey() )
-		cout << endl << "Item Name: " << refreshMsg.getName() << endl << "Service Name: " << refreshMsg.getServiceName();
+	cout << endl << "Item Name: " << ( refreshMsg.hasName() ? refreshMsg.getName() : EmaString( "<not set>" ) ) << endl
+		<< "Service Name: " << (refreshMsg.hasServiceName() ? refreshMsg.getServiceName() : EmaString( "<not set>" ) );
 
 	cout << endl << "Item State: " << refreshMsg.getState().toString() << endl;
 
@@ -25,8 +25,8 @@ void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEve
 
 void AppClient::onUpdateMsg( const UpdateMsg& updateMsg, const OmmConsumerEvent& ommEvent ) 
 {
-	if ( updateMsg.hasMsgKey() )
-		cout << endl << "Item Name: " << updateMsg.getName() << endl << "Service Name: " << updateMsg.getServiceName() << endl;
+	cout << endl << "Item Name: " << ( updateMsg.hasName() ? updateMsg.getName() : EmaString( "<not set>" ) ) << endl
+		<< "Service Name: " << (updateMsg.hasServiceName() ? updateMsg.getServiceName() : EmaString( "<not set>" ) );
 
 	cout << "Item Handle: " << ommEvent.getHandle() << endl << "Item Closure: " << ommEvent.getClosure() << endl;
 
@@ -36,8 +36,8 @@ void AppClient::onUpdateMsg( const UpdateMsg& updateMsg, const OmmConsumerEvent&
 
 void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent& ommEvent ) 
 {
-	if ( statusMsg.hasMsgKey() )
-		cout << endl << "Item Name: " << statusMsg.getName() << endl << "Service Name: " << statusMsg.getServiceName();
+	cout << endl << "Item Name: " << ( statusMsg.hasName() ? statusMsg.getName() : EmaString( "<not set>" ) ) << endl
+		<< "Service Name: " << (statusMsg.hasServiceName() ? statusMsg.getServiceName() : EmaString( "<not set>" ) );
 
 	if ( statusMsg.hasState() )
 		cout << endl << "Item State: " << statusMsg.getState().toString() << endl;
@@ -47,7 +47,7 @@ void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent&
 
 void AppClient::decode( const FieldList& fl )
 {
-	while ( !fl.forth() )
+	while ( fl.forth() )
 	{
 		const FieldEntry& fe = fl.getEntry();
 

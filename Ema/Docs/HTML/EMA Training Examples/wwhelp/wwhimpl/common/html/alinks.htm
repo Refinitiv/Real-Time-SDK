@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <!-- Copyright (c) 2000-2014 Quadralay Corporation.  All rights reserved. -->
+
+ <head>
+  <meta http-equiv="content-type" content="text/html" />
+  <meta http-equiv="charset"      content="UTF-8" />
+  
+
+  <title>alinks.htm</title>
+
+  <script type="text/javascript" language="JavaScript1.2">
+   <!--
+    var  WWHFrame = null;
+
+
+    // Set reference to top level help frame
+    //
+    if ((typeof(parent.WWHHelp) != "undefined") &&
+        (parent.WWHHelp != null))
+    {
+      WWHFrame = eval("parent");
+    }
+    else if ((typeof(parent.parent.WWHHelp) != "undefined") &&
+             (parent.parent.WWHHelp != null))
+    {
+      WWHFrame = eval("parent.parent");
+    }
+
+    function  WWHDocumentFrame_HandleKeyDown(ParamEvent)
+    {
+      return WWHFrame.WWHHelp.fHandleKeyDown(ParamEvent);
+    }
+
+    function  WWHDocumentFrame_HandleKeyPress(ParamEvent)
+    {
+      return WWHFrame.WWHHelp.fHandleKeyPress(ParamEvent);
+    }
+
+    function  WWHDocumentFrame_HandleKeyUp(ParamEvent)
+    {
+      return WWHFrame.WWHHelp.fHandleKeyUp(ParamEvent);
+    }
+   // -->
+  </script>
+ </head>
+
+ <body bgcolor="#FFFFFF" onkeydown="WWHDocumentFrame_HandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHDocumentFrame_HandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHDocumentFrame_HandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+  <script type="text/javascript" language="JavaScript1.2">
+   <!--
+    document.writeln(WWHFrame.WWHALinks.fInlineHTML());
+   // -->
+  </script>
+ </body>
+</html>

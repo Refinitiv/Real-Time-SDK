@@ -66,13 +66,6 @@ void MapEncoder::initEncode( RsslDataTypes rsslKeyDataType, UInt8 rsslContainerD
 void MapEncoder::addEncodedEntry(void* keyValue, MapEntry::MapAction action, 
 	UInt8 rsslDataType, const ComplexType& value, const EmaBuffer& permission, const char* methodName )
 {
-	if ( !static_cast<const ComplexType&>(value).getEncoder().isComplete() )
-	{
-		EmaString temp( "Failed to " );
-		temp.append( methodName ).append( " while encoding Map. Pass not completed container." );
-		throwIueException( temp );
-	}
-
 	_rsslMapEntry.encData = static_cast<const ComplexType&>(value).getEncoder().getRsslBuffer();
 
 	_rsslMapEntry.action = action;
@@ -131,7 +124,7 @@ void MapEncoder::endEncodingEntry() const
 	{
 		_pEncodeIter->reallocate();
 
-		retCode = rsslEncodeElementEntryComplete( &_pEncodeIter->_rsslEncIter, RSSL_TRUE );
+		retCode = rsslEncodeMapEntryComplete( &_pEncodeIter->_rsslEncIter, RSSL_TRUE );
 	}
 
 	if ( retCode < RSSL_RET_SUCCESS )

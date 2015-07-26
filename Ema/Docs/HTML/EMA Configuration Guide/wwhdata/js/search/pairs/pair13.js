@@ -1,0 +1,21 @@
+function FileData_Pairs(x)
+{
+x.t("defaultconsumer","value=");
+x.t("name","value=");
+x.t("follows","consumergroup");
+x.t("/consumerlist","/consumergroup");
+x.t("3.1.1","generic");
+x.t("generic","xml");
+x.t("consumergroup","defaultconsumer");
+x.t("consumergroup","follows");
+x.t("consumergroup","3.1.1");
+x.t("consumergroup","generic");
+x.t("xml","schema");
+x.t("consumer","name");
+x.t("schema","consumergroup");
+x.t("value","/consumer");
+x.t("value","consumerlist");
+x.t("/consumer","/consumerlist");
+x.t("consumerlist","consumer");
+x.t("value=","value");
+}

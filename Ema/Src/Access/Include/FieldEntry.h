@@ -19,7 +19,7 @@
 
 	decodeFieldList( const FieldList& fList )
 	{
-		while ( !fList.forth() )
+		while ( fList.forth() )
 		{
 			const FieldEntry& fieldEntry = fList.getEntry();
 

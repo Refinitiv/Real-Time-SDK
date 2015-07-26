@@ -1,0 +1,22 @@
+function FileData_Pairs(x)
+{
+x.t("posting","ema");
+x.t("support","specified");
+x.t("details","posting");
+x.t("3.0","developers");
+x.t("guide","edition");
+x.t("specified","provider");
+x.t("provider","consumer");
+x.t("developers","guide");
+x.t("post","message");
+x.t("post","marketbyprice");
+x.t("consumer","applications");
+x.t("message","support");
+x.t("message","8.2.5");
+x.t("marketbyprice","post");
+x.t("marketbyprice","data");
+x.t("8.2.5","marketbyprice");
+x.t("data","details");
+x.t("applications","post");
+x.t("ema","3.0");
+}

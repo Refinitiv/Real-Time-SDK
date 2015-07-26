@@ -55,7 +55,7 @@ DataType::DataTypeEnum Series::getDataType() const
 
 bool Series::forth() const
 {
-	return _pDecoder->getNextData();
+	return !_pDecoder->getNextData();
 }
 
 void Series::reset() const

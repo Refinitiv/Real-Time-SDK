@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>200__MarketPrice__Streaming</title>
+    <link rel="StyleSheet" href="css/EMA_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <br />
+    <hr align="left" />
+    <blockquote>
+      <div class="H2_NoNum"><a name="1019284">200__MarketPrice__Streaming</a></div>
+      <div class="Body"><a name="1025366">Summary</a></div>
+      <div class="Body"><a name="1025367">=======</a></div>
+      <div class="Body"><a name="1025368">&nbsp;</a></div>
+      <div class="Body"><a name="1025369">The 200__MarketPrice__Streaming application is provided as an example of</a></div>
+      <div class="Body"><a name="1025370">OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1025371">&nbsp;</a></div>
+      <div class="Body"><a name="1025372">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1025373">and parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1025374">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1025375">Distribution Server.</a></div>
+      <div class="Body"><a name="1025376">&nbsp;</a></div>
+      <div class="Body"><a name="1025377">The 200__MarketPrice__Streaming showcases native or RWF decoding of received</a></div>
+      <div class="Body"><a name="1025378">FieldList. This application iterates through the received FieldList and calls</a></div>
+      <div class="Body"><a name="1025379">respective (based on the data type) get***() methods to extract data in native</a></div>
+      <div class="Body"><a name="1025380">format.</a></div>
+      <div class="Body"><a name="1025381">&nbsp;</a></div>
+      <div class="Body"><a name="1025382">&nbsp;</a></div>
+      <div class="Body"><a name="1025383">Detailed Description</a></div>
+      <div class="Body"><a name="1025384">====================</a></div>
+      <div class="Body"><a name="1025385">&nbsp;</a></div>
+      <div class="Body"><a name="1025386">The 200__MarketPrice__Streaming implements the following high level steps:</a></div>
+      <div class="Body"><a name="1025387">&nbsp;</a></div>
+      <div class="Body"><a name="1025388">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1025389">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1025390">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1025391">    - the decode( const FieldList&amp; ) iterates through the received FieldList,</a></div>
+      <div class="Body"><a name="1025392">	  extracts each FieldEntry reference from the current position on the</a></div>
+      <div class="Body"><a name="1025393">	  FieldList, and extracts field id, name and load of the FieldEntry.</a></div>
+      <div class="Body"><a name="1025394">	  The load extraction is done using native or RWF data formats</a></div>
+      <div class="Body"><a name="1025395">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1025396">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1025397">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1025398">  - sets host name on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1025399">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1025400">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1025401">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1025402">+ Opens a streaming item interest</a></div>
+      <div class="Body"><a name="1025403">  - MarketPrice IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1025404">+ Processes data received with user dispatch loop for 60 seconds</a></div>
+      <div class="Body"><a name="1025405">  - all received messages are processed on main application thread of control</a></div>
+      <div class="Body"><a name="1025406">+ Exits</a></div>
+      <div class="Body"><a name="1025407">&nbsp;</a></div>
+      <div class="Body"><a name="1025408">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1025409">      environment.</a></div>
+      <div class="Body"><a name="1025410">	  </a></div>
+      <div class="Body"><a name="1025411">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1025412">      standard configuration.</a></div>
+      <div class="Body"><a name="1022678">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

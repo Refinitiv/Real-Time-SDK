@@ -28,19 +28,15 @@ void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent&
 {
 	cout << "Received Status. Item Handle: " << ommEvent.getHandle() << " Closure: " << ommEvent.getClosure() << endl;
 
-	if ( statusMsg.hasMsgKey() )
-		cout << endl << "Item Name: " << statusMsg.getName() << endl << "Service Name: " << statusMsg.getServiceName();
-
-	if ( statusMsg.hasState() )
-		cout << endl << "Item State: " << statusMsg.getState().toString() << endl;
+	decodeStatusMsg( statusMsg );
 }
 
 void AppClient::decodeRefreshMsg( const RefreshMsg& refreshMsg )
 {
-	if ( refreshMsg.hasMsgKey() )
-		cout << endl << "Item Name: " << refreshMsg.getName() << endl << "Service Name: " << refreshMsg.getServiceName();
+	cout << endl << "Item Name: " << ( refreshMsg.hasName() ? refreshMsg.getName() : EmaString( "<not set>" ) ) << endl
+		<< "Service Name: " << (refreshMsg.hasServiceName() ? refreshMsg.getServiceName() : EmaString( "<not set>" ) ) << endl;
 
-	cout << endl << "Item State: " << refreshMsg.getState().toString() << endl;
+	cout << "Item State: " << refreshMsg.getState().toString() << endl;
 
 	cout << "Attribute" << endl;
 	decode( refreshMsg.getAttrib().getData() );
@@ -51,14 +47,23 @@ void AppClient::decodeRefreshMsg( const RefreshMsg& refreshMsg )
 
 void AppClient::decodeUpdateMsg( const UpdateMsg& updateMsg )
 {
-	if ( updateMsg.hasMsgKey() )
-		cout << endl << "Item Name: " << updateMsg.getName() << endl << "Service Name: " << updateMsg.getServiceName();
+	cout << endl << "Item Name: " << ( updateMsg.hasName() ? updateMsg.getName() : EmaString( "<not set>" ) ) << endl
+		<< "Service Name: " << (updateMsg.hasServiceName() ? updateMsg.getServiceName() : EmaString( "<not set>" ) ) << endl;
 
 	cout << "Attribute" << endl;
 	decode( updateMsg.getAttrib().getData() );
 
 	cout << "Payload" << endl;
 	decode( updateMsg.getPayload().getData() );
+}
+
+void AppClient::decodeStatusMsg( const StatusMsg& statusMsg )
+{
+	cout << endl << "Item Name: " << ( statusMsg.hasName() ? statusMsg.getName() : EmaString( "<not set>" ) ) << endl
+		<< "Service Name: " << (statusMsg.hasServiceName() ? statusMsg.getServiceName() : EmaString( "<not set>" ) ) << endl;
+
+	if ( statusMsg.hasState() )
+		cout << "Item State: " << statusMsg.getState().toString() << endl;
 }
 
 void AppClient::decode( const Data& data )
@@ -73,6 +78,9 @@ void AppClient::decode( const Data& data )
 			break;
 		case DataType::UpdateMsgEnum :
 			decodeUpdateMsg( static_cast<const UpdateMsg&>( data ) );
+			break;
+		case DataType::StatusMsgEnum :
+			decodeStatusMsg( static_cast<const StatusMsg&>( data ) );
 			break;
 		case DataType::FieldListEnum :
 			decodeFieldList( static_cast<const FieldList&>( data ) );
@@ -117,7 +125,7 @@ void AppClient::decodeMap( const Map& map )
 	cout << "Map Summary" << endl;
 	decode( map.getSummaryData().getData() );
 
-	while ( !map.forth() )
+	while ( map.forth() )
 	{
 		const MapEntry& me = map.getEntry();
 
@@ -136,7 +144,7 @@ void AppClient::decodeFieldList( const FieldList& fl )
 	if ( fl.hasInfo() )
 		cout << "FieldListNum: " << fl.getInfoFieldListNum() << " DictionaryId: " << fl.getInfoDictionaryId() << endl;
 
-	while ( !fl.forth() )
+	while ( fl.forth() )
 	{
 		cout << "Load" << endl;
 		decode( fl.getEntry().getLoad() );

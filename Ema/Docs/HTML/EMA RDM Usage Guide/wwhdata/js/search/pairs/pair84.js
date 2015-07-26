@@ -1,0 +1,19 @@
+function FileData_Pairs(x)
+{
+x.t("table","reference");
+x.t("provided","series");
+x.t("type","table");
+x.t("type","5.7.4");
+x.t("parsing","interpreting");
+x.t("5.7.4","reference");
+x.t("dictionary","type");
+x.t("reference","dictionary");
+x.t("reference","information");
+x.t("interpreting","caching");
+x.t("information","provided");
+x.t("information","used");
+x.t("displaying","data");
+x.t("used","parsing");
+x.t("caching","displaying");
+x.t("series","information");
+}

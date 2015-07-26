@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>290__Custom__Decode</title>
+    <link rel="StyleSheet" href="css/EMA_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <br />
+    <hr align="left" />
+    <blockquote>
+      <div class="H2_NoNum"><a name="1019440">290__Custom__Decode</a></div>
+      <div class="Body"><a name="1025832">Summary</a></div>
+      <div class="Body"><a name="1025833">=======</a></div>
+      <div class="Body"><a name="1025834">&nbsp;</a></div>
+      <div class="Body"><a name="1025835">The 290__Custom__Decode application is provided as an example of OMM Consumer</a></div>
+      <div class="Body"><a name="1025836">application written to the EMA library.</a></div>
+      <div class="Body"><a name="1025837">&nbsp;</a></div>
+      <div class="Body"><a name="1025838">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1025839">and parsing of OMM Custom data from Reuters Data Feed Direct (RDF-D), directly</a></div>
+      <div class="Body"><a name="1025840">from an OMM Provider application, or from Thomson Reuters Advanced Distribution</a></div>
+      <div class="Body"><a name="1025841">Server.</a></div>
+      <div class="Body"><a name="1025842">&nbsp;</a></div>
+      <div class="Body"><a name="1025843">The 290__Custom__Decode showcases decoding of items on custom OMM domain.</a></div>
+      <div class="Body"><a name="1025844">Messages of a custom OMM domain may contain any container at any level of encoding.</a></div>
+      <div class="Body"><a name="1025845">&nbsp;</a></div>
+      <div class="Body"><a name="1025846"> </a></div>
+      <div class="Body"><a name="1025847">Detailed Description</a></div>
+      <div class="Body"><a name="1025848">====================</a></div>
+      <div class="Body"><a name="1025849">&nbsp;</a></div>
+      <div class="Body"><a name="1025850">The 290__Custom__Decode implements the following high level steps:</a></div>
+      <div class="Body"><a name="1025851">&nbsp;</a></div>
+      <div class="Body"><a name="1025852">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1025853">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1025854">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1025855">    - each of the method provided in this example use the ease of use</a></div>
+      <div class="Body"><a name="1025856">	  data extraction methods that are data type specific</a></div>
+      <div class="Body"><a name="1025857">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1025858">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1025859">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1025860">  - sets host name on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1025861">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1025862">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1025863">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1025864">+ Opens a streaming item interest</a></div>
+      <div class="Body"><a name="1025865">  - Custom Domain (133) IBM.XYZ item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1025866">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1025867">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1025868">+ Exits</a></div>
+      <div class="Body"><a name="1025869">&nbsp;</a></div>
+      <div class="Body"><a name="1025870">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1025871">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1025872">&nbsp;</a></div>
+      <div class="Body"><a name="1025873">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1025874">      standard configuration.</a></div>
+      <div class="Body"><a name="1023370">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

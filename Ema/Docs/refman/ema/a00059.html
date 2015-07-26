@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EMA: thomsonreuters::ema::access::Qos Class Reference</title>
+<title>EMA: thomsonreuters::ema::access::OmmUInt Class Reference</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -104,29 +104,169 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
   <div id="nav-path" class="navpath">
     <ul>
-      <li class="navelem"><a class="el" href="a00142.html">thomsonreuters</a>      </li>
+      <li class="navelem"><a class="el" href="a00150.html">thomsonreuters</a>      </li>
       <li class="navelem"><b>ema</b>      </li>
       <li class="navelem"><b>access</b>      </li>
-      <li class="navelem"><a class="el" href="a00059.html">Qos</a>      </li>
+      <li class="navelem"><a class="el" href="a00059.html">OmmUInt</a>      </li>
     </ul>
   </div>
 </div>
 <div class="header">
+  <div class="summary">
+<a href="#friends">Friends</a>  </div>
   <div class="headertitle">
-<div class="title">thomsonreuters::ema::access::Qos Class Reference</div>  </div>
+<div class="title">thomsonreuters::ema::access::OmmUInt Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="a00047.html">OmmQos</a> represents Quality Of Service information in Omm.  
+<p><a class="el" href="a00059.html" title="OmmUInt represents UInt64 value in Omm.">OmmUInt</a> represents UInt64 value in Omm.  
  <a href="a00059.html#details">More...</a></p>
+<div class="dynheader">
+Inheritance diagram for thomsonreuters::ema::access::OmmUInt:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="a00059.png" usemap="#thomsonreuters::ema::access::OmmUInt_map" alt=""/>
+  <map id="thomsonreuters::ema::access::OmmUInt_map" name="thomsonreuters::ema::access::OmmUInt_map">
+<area href="a00011.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes..." alt="thomsonreuters::ema::access::Data" shape="rect" coords="0,0,228,24"/>
+</map>
+ </div></div>
+
+<p><a href="a00211.html">List of all members.</a></p>
+<table class="memberdecls">
+<tr><td colspan="2"><h2><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Accessors</div></td></tr>
+<tr class="memitem:afdddd17161bc60cd4bcde452804bbf1e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0">DataType::DataTypeEnum</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00059.html#afdddd17161bc60cd4bcde452804bbf1e">getDataType</a> () const </td></tr>
+<tr class="memitem:a0639f0431015f6ada1881601e1299a30"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00011.html#abe4fa6d2527b42396246aad6aa66d8b4">Data::DataCode</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00059.html#a0639f0431015f6ada1881601e1299a30">getCode</a> () const </td></tr>
+<tr class="memitem:a837389ffdf10a08792e6b6e07268f0b1"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00015.html">EmaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00059.html#a837389ffdf10a08792e6b6e07268f0b1">getAsHex</a> () const </td></tr>
+<tr class="memitem:ac05e23d5daecf555cd92ff2d91025206"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00059.html#ac05e23d5daecf555cd92ff2d91025206">toString</a> () const </td></tr>
+<tr class="memitem:a62042083e4c5b3ab421a42ffe6f5d0bf"><td class="memItemLeft" align="right" valign="top">UInt64&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00059.html#a62042083e4c5b3ab421a42ffe6f5d0bf">getUInt</a> () const </td></tr>
+<tr><td colspan="2"><h2><a name="friends"></a>
+Friends</h2></td></tr>
+<tr class="memitem:a7172b718e1a9fa826587adbe6e35d17a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7172b718e1a9fa826587adbe6e35d17a"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>Decoder</b></td></tr>
+<tr class="memitem:a331e551b1372c536ef4c71895ffce705"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a331e551b1372c536ef4c71895ffce705"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>StaticDecoder</b></td></tr>
+</table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><dl class="section remark"><dt>Remarks:</dt><dd><a class="el" href="a00047.html">OmmQos</a> is a read only class. </dd>
+<div class="textblock"><div class="fragment"><pre class="fragment">    <span class="keywordtype">void</span> decodeData( <span class="keyword">const</span> Data&amp; rcvdData )
+    {
+        <span class="keywordflow">if</span> ( rcvdData.getCode() != <a class="code" href="a00011.html#abe4fa6d2527b42396246aad6aa66d8b4a5d4acb36e8b1ceb770abf84100330cc8">Data::BlankEnum</a> )
+            <span class="keywordflow">switch</span> ( rcvdData.getDataType() )
+            {
+            <span class="keywordflow">case</span> <a class="code" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0a9a50afa516bcf39719b3617211b6310e">DataType::UIntEnum</a> :
+                UInt64 value = <span class="keyword">static_cast&lt;</span> <span class="keyword">const </span>OmmUInt&amp; <span class="keyword">&gt;</span>( rcvdData ).<a class="code" href="a00059.html#a62042083e4c5b3ab421a42ffe6f5d0bf">getUInt</a>();
+                <span class="keywordflow">break</span>;
+            }
+    }
+</pre></div><dl class="section remark"><dt>Remarks:</dt><dd><a class="el" href="a00059.html" title="OmmUInt represents UInt64 value in Omm.">OmmUInt</a> is a read only class. </dd>
 <dd>
-This class is used for extraction of <a class="el" href="a00047.html">OmmQos</a> only. </dd>
+The usage of this class is limited to downcast operation only. </dd>
 <dd>
 All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free Method</a>.</dd></dl>
-<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00005.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a>, <a class="el" href="a00011.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>, <a class="el" href="a00009.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> </dd></dl>
-</div></div><!-- contents -->
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00011.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a>, <a class="el" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>, <a class="el" href="a00015.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> </dd></dl>
+
+<p>Definition at line <a class="el" href="a00128_source.html#l00050">50</a> of file <a class="el" href="a00128_source.html">OmmUInt.h</a>.</p>
+</div><hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="a837389ffdf10a08792e6b6e07268f0b1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00015.html">EmaBuffer</a>&amp; <a class="el" href="a00059.html#a837389ffdf10a08792e6b6e07268f0b1">thomsonreuters::ema::access::OmmUInt::getAsHex</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns a buffer that in turn provides an alphanumeric null-terminated hexadecimal string representation. </p>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00015.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> with the message hex information </dd></dl>
+
+<p>Implements <a class="el" href="a00011.html#ad354334439d238097b04c5f644667dbf">thomsonreuters::ema::access::Data</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a0639f0431015f6ada1881601e1299a30"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00011.html#abe4fa6d2527b42396246aad6aa66d8b4">Data::DataCode</a> <a class="el" href="a00059.html#a0639f0431015f6ada1881601e1299a30">thomsonreuters::ema::access::OmmUInt::getCode</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the Code, which indicates a special state of a <a class="el" href="a00012.html" title="DataType class provides enumeration representing Omm data types.">DataType</a>. </p>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00011.html#abe4fa6d2527b42396246aad6aa66d8b4a5d4acb36e8b1ceb770abf84100330cc8">Data::BlankEnum</a> if received data is blank; <a class="el" href="a00011.html#abe4fa6d2527b42396246aad6aa66d8b4a88c2bb1c2e8f901631aa5ad9a0d1dc14">Data::NoCodeEnum</a> otherwise </dd></dl>
+
+<p>Implements <a class="el" href="a00011.html#a8510d00b7a009f32c9c6de8adcb45d96">thomsonreuters::ema::access::Data</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="afdddd17161bc60cd4bcde452804bbf1e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0">DataType::DataTypeEnum</a> <a class="el" href="a00059.html#afdddd17161bc60cd4bcde452804bbf1e">thomsonreuters::ema::access::OmmUInt::getDataType</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the <a class="el" href="a00012.html" title="DataType class provides enumeration representing Omm data types.">DataType</a>, which is the type of Omm data. Results in this class type. </p>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0a9a50afa516bcf39719b3617211b6310e">DataType::UIntEnum</a> </dd></dl>
+
+<p>Implements <a class="el" href="a00011.html#a361e280aecab30c47386a3e08ce325da">thomsonreuters::ema::access::Data</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a62042083e4c5b3ab421a42ffe6f5d0bf"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">UInt64 <a class="el" href="a00059.html#a62042083e4c5b3ab421a42ffe6f5d0bf">thomsonreuters::ema::access::OmmUInt::getUInt</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns UInt64. </p>
+<dl class="section return"><dt>Returns:</dt><dd>value of UInt64 </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ac05e23d5daecf555cd92ff2d91025206"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00017.html">EmaString</a>&amp; <a class="el" href="a00059.html#ac05e23d5daecf555cd92ff2d91025206">thomsonreuters::ema::access::OmmUInt::toString</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns a string representation of the class instance. </p>
+<dl class="section return"><dt>Returns:</dt><dd>string representation of the class instance (e.g., "1234" ) </dd></dl>
+
+<p>Implements <a class="el" href="a00011.html#a971a83a435b8d8f34978b72821a661a3">thomsonreuters::ema::access::Data</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
 
 <hr class="footer"/><address class="footer"><small>
     <table cellSpacing="0" cellPadding="0" width="100%" border="0">
@@ -143,7 +283,7 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Jun 29 2015</td>
+			<td><p class="smallfont">Sat Jul 25 2015</td>
           </tr>
         </table>
         </td>

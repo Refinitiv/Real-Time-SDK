@@ -45,6 +45,11 @@ unsigned int __stdcall Thread::runThread( void* arg )
 	}
 	__except( ((Thread*)arg)->_handleException ? ((Thread*)arg)->runLog( GetExceptionInformation(), __FILE__, __LINE__ ) : EXCEPTION_CONTINUE_SEARCH )
 	{
+		if ( ((Thread*)arg)->_handleException )
+		{
+			((Thread*)arg)->cleanUp();
+		}
+
 		return -1;
 	}
 
@@ -62,13 +67,23 @@ extern "C"
 		catch ( ... )
 		{
 			((Thread*)arg)->runLog( NULL, __FILE__, __LINE__ );
-			return (void*)-1;
+			if (((Thread*)arg)->_handleException)
+			{
+				((Thread*)arg)->cleanUp();
+			 	return (void*)-1;
+			}
+			else
+			  throw;
 		}
 
 		return 0;
 	}
 }
 #endif
+
+void Thread::cleanUp()
+{
+}
 
 void Thread::start()
 {

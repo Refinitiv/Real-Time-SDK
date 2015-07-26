@@ -9,27 +9,12 @@
 ! update or remove this document at any time without
 ! notice.
 !
-! ENUMERATED TYPES
-! ================
-! 
-! Version 4.20.19_TREP_15.51
-! -------------------------------------
-!
-!     * Modified June 10, 2015 at Oak Brook:
-!        - This file is based on enumtype.001 version 15.51.
-!        - New enumerations added in 4.20.19_TREP have been defined with placeholder values.
-! 
-! RDMD Version 4.20.19_TREP
-! Display Version 15.51
-! --------------------
-! 06/10/2015
-!
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
 !tag RT_Version  4.20.19
 !tag Build_RDMD  4.20.19
-!tag DT_Version  15.51
-!tag Date        8-Jun-2015
+!tag DT_Version  15.61
+!tag Date        15-Jul-2015
 !
 ! This file contains all the enumerated types used by the head-end
 ! systems, and for each type, the range of possible values
@@ -8252,6 +8237,10 @@ COR_EXID   13402
    1402        "BMC"   BMF - Commodities and Futures -LEVEL 1
    1403        "BOV"   BOV- BVMF BOVESPA - Equities and Indices -LEVEL 1
    1404        "HWR"   HWR- HAWKINS WRIGHT
+   1405        "SOL"   Solactive
+   1406        "NRP"   NORD POOL SPOT
+   1407        "BEX"   BATS EDGX OPTIONS
+   1408        "BBV"   Bolsa Boliviana De Valores S A
 !
 ! ACRONYM    FID
 ! -------    ---

@@ -151,12 +151,15 @@ public :
 
 protected :
 
+	friend class OmmConsumerConfigImpl;
 	friend class ItemCallbackClient;
 	friend class DirectoryItem;
-	friend class OmmConsumerConfigImpl;
 	friend class LoginItem;
 	friend class SingleItem;
 	friend class DictionaryItem;
+	friend class TunnelItem;
+	friend class TunnelStreamLoginReqMsgImpl;
+	friend class SubItem;
 
 	Msg();
 

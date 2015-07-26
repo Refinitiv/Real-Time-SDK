@@ -49,6 +49,8 @@ public:
 
 	void decodeUpdateMsg( const thomsonreuters::ema::access::UpdateMsg& );		// print content of passed in UpdateMsg to screen
 
+	void decodeStatusMsg( const thomsonreuters::ema::access::StatusMsg& );		// print content of passed in StatusMsg to screen
+
 protected :
 
 	void onRefreshMsg( const thomsonreuters::ema::access::RefreshMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );

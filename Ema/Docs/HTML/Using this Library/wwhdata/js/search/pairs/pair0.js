@@ -1,0 +1,21 @@
+function FileData_Pairs(x)
+{
+x.t("email","apidocumentation@thomsonreuters.com");
+x.t("every","effort");
+x.t("up-to-date","notice");
+x.t("topic","send");
+x.t("errors","details");
+x.t("details","particular");
+x.t("via","email");
+x.t("notice","errors");
+x.t("effort","ensure");
+x.t("comments","via");
+x.t("particular","topic");
+x.t("documentation","feedback");
+x.t("documentation","accurate");
+x.t("ensure","documentation");
+x.t("send","comments");
+x.t("feedback","every");
+x.t("feedback","documentation");
+x.t("accurate","up-to-date");
+}

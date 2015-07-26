@@ -119,7 +119,7 @@ void AppClient::decode( const Msg& msg )
 
 void AppClient::decode(const ElementList& el)
 {
-	while ( !el.forth() )
+	while ( el.forth() )
 	{
 		const ElementEntry& ee = el.getEntry();
 
@@ -163,7 +163,7 @@ void AppClient::decode(const ElementList& el)
 
 void AppClient::decode( const FieldList& fl )
 {
-	while ( !fl.forth() )
+	while ( fl.forth() )
 	{
 		const FieldEntry& fe = fl.getEntry();
 

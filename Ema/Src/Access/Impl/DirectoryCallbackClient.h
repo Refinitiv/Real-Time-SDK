@@ -115,8 +115,6 @@ public :
 	Info& addDictionaryUsed( const EmaString& );
 	Info& addDictionaryUsed( const char* , UInt32 );
 
-	const EmaString& toString() const;
-
 private :
 
 	void copyAll();
@@ -194,8 +192,6 @@ public :
 	Directory& setChannel( Channel* );
 
 	Directory& markDeleted();
-
-	const EmaString& toString() const;
 
 private :
 
@@ -306,6 +302,8 @@ class DirectoryItem : public Item
 public :
 
 	static DirectoryItem * create( OmmConsumerImpl&, OmmConsumerClient&, void* closure, const Channel* );
+
+	const Directory* getDirectory();
 
 	bool open( const ReqMsg& );
 	bool modify( const ReqMsg& );

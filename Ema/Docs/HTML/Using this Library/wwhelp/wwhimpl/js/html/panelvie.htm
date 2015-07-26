@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <!-- Copyright (c) 2000-2014 Quadralay Corporation.  All rights reserved. -->
+
+ <head>
+  <meta http-equiv="content-type" content="text/html" />
+  <meta http-equiv="charset"      content="UTF-8" />
+  
+
+  <title>panelvie.htm</title>
+
+  <script type="text/javascript" language="JavaScript1.2" src="../../common/scripts/strutils.js"></script>
+
+  <script type="text/javascript" language="JavaScript1.2">
+   <!--
+    // Set reference to top level help frame
+    //
+    var  WWHFrame = eval("parent.parent");
+
+
+    // Handle index, search, and favorites views
+    //
+    if (WWHFrame.document.location.href.indexOf("navigate.htm") !== -1)
+    {
+      WWHFrame = eval("parent.parent.parent");
+    }
+
+    function  WWHPanelViewFrame_HandleLoad()
+    {
+      try
+      {
+        if (WWHFrame.WWHHelp.mInitStage > 0)
+        {
+          WWHFrame.WWHJavaScript.mPanels.fPanelViewLoaded();
+        }
+      }
+      catch (e)
+      {
+        var CurrentURL, Parameters, Parts, BaseURL, TargetURL;
+
+        // Parse parameters
+        //
+        CurrentURL = window.parent.parent.location.href;
+        Parameters = "";
+        if (CurrentURL.indexOf("?") !== -1)
+        {
+          Parts = CurrentURL.split("?");
+          Parameters = "?" + Parts[1];
+        }
+        else if (CurrentURL.indexOf("#") !== -1)
+        {
+          Parts = CurrentURL.split("#");
+          Parameters = "#" + Parts.slice(1).join("#");
+        }
+
+        // Sanitize parameters
+        //
+        Parameters = Parameters.replace(/[\\<>:;"']|%5C|%3C|%3E|%3A|%3B|%22|%27/gi, "");
+
+        BaseURL = WWHStringUtilities_GetBaseURL(CurrentURL);
+        TargetURL = BaseURL + "wwhelp/wwhimpl/api.htm" + Parameters;
+        window.setTimeout(function () {
+          window.parent.parent.location.replace(TargetURL);
+        }, 1);
+      }
+    }
+
+    function  WWHPanelViewFrame_HandleKeyDown(ParamEvent)
+    {
+      return WWHFrame.WWHHelp.fHandleKeyDown(ParamEvent);
+    }
+
+    function  WWHPanelViewFrame_HandleKeyPress(ParamEvent)
+    {
+      return WWHFrame.WWHHelp.fHandleKeyPress(ParamEvent);
+    }
+
+    function  WWHPanelViewFrame_HandleKeyUp(ParamEvent)
+    {
+      return WWHFrame.WWHHelp.fHandleKeyUp(ParamEvent);
+    }
+
+    // Write Head HTML
+    //
+    if (WWHFrame.WWHHelp.mInitStage > 0)
+    {
+      document.writeln(WWHFrame.WWHJavaScript.mPanels.fGetCurrentPanelObject().fHeadHTML());
+    }
+   // -->
+  </script>
+ </head>
+
+ <body bgcolor="#FFFFFF" background="../images/viewbg.gif" onload="WWHPanelViewFrame_HandleLoad();" onkeydown="WWHPanelViewFrame_HandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHPanelViewFrame_HandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHPanelViewFrame_HandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+  <script type="text/javascript" language="JavaScript1.2">
+   <!--
+    if (WWHFrame.WWHHelp.mInitStage > 0)
+    {
+      var  PanelObject = WWHFrame.WWHJavaScript.mPanels.fGetCurrentPanelObject();
+
+
+      // Write Body HTML
+      //
+      document.writeln(PanelObject.fStartHTMLSegments());
+      while (PanelObject.fAdvanceHTMLSegment())
+      {
+        document.writeln(PanelObject.fGetHTMLSegment());
+      }
+      document.writeln(PanelObject.fEndHTMLSegments());
+
+      document.writeln(WWHFrame.WWHJavaScript.mPanels.fPopupHTML());
+    }
+   // -->
+  </script>
+ </body>
+</html>

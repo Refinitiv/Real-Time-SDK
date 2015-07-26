@@ -9,7 +9,7 @@ and parsing of OMM Custom data from Reuters Data Feed Direct (RDF-D),
 directly from an OMM Provider application, or from Thomson Reuters Advanced
 Distribution Server.
 
-The 320__Consumer__GenericMsg showcases usage of GenericMsg in Omm Consumer
+The 320__Consumer__GenericMsg showcases usage of GenericMsg in OMM Consumer
 application. It demonstrates submission of a GenericMsg as well as receiving
 and processing it.
 
@@ -43,11 +43,3 @@ Note: if needed, these and other details may be modified to fit local
 	  
 Note: please refer to the EMA library ReadMe.txt file for details on
       standard configuration.
-
-
-OmmConsumerClient and Callbacks
-===============================
-
-The 320__Consumer__GenericMsg demonstrates how to receive and process individual item
-response and generic messages. Additionally this application shows a native / RWF decoding
-of ElementList and FieldList containers.

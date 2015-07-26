@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EMA: thomsonreuters::ema::access::OmmBuffer Class Reference</title>
+<title>EMA: thomsonreuters::ema::access::MapEntry Class Reference</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -104,96 +104,135 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
   <div id="nav-path" class="navpath">
     <ul>
-      <li class="navelem"><a class="el" href="a00142.html">thomsonreuters</a>      </li>
+      <li class="navelem"><a class="el" href="a00150.html">thomsonreuters</a>      </li>
       <li class="navelem"><b>ema</b>      </li>
       <li class="navelem"><b>access</b>      </li>
-      <li class="navelem"><a class="el" href="a00026.html">OmmBuffer</a>      </li>
+      <li class="navelem"><a class="el" href="a00026.html">MapEntry</a>      </li>
     </ul>
   </div>
 </div>
 <div class="header">
   <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#friends">Friends</a>  </div>
   <div class="headertitle">
-<div class="title">thomsonreuters::ema::access::OmmBuffer Class Reference</div>  </div>
+<div class="title">thomsonreuters::ema::access::MapEntry Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="a00026.html" title="OmmBuffer represents a binary buffer value in Omm.">OmmBuffer</a> represents a binary buffer value in Omm.  
+<p><a class="el" href="a00026.html" title="MapEntry represents an entry of Map.">MapEntry</a> represents an entry of <a class="el" href="a00025.html" title="Map is a homogeneous container of complex data type entries.">Map</a>.  
  <a href="a00026.html#details">More...</a></p>
-<div class="dynheader">
-Inheritance diagram for thomsonreuters::ema::access::OmmBuffer:</div>
-<div class="dyncontent">
- <div class="center">
-  <img src="a00026.png" usemap="#thomsonreuters::ema::access::OmmBuffer_map" alt=""/>
-  <map id="thomsonreuters::ema::access::OmmBuffer_map" name="thomsonreuters::ema::access::OmmBuffer_map">
-<area href="a00005.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes..." alt="thomsonreuters::ema::access::Data" shape="rect" coords="0,0,242,24"/>
-</map>
- </div></div>
 
-<p><a href="a00170.html">List of all members.</a></p>
+<p><a href="a00178.html">List of all members.</a></p>
 <table class="memberdecls">
+<tr><td colspan="2"><h2><a name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:aed8b40ab1ed01424b963661b1ba99287"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#aed8b40ab1ed01424b963661b1ba99287">MapAction</a> { <br/>
+&#160;&#160;<a class="el" href="a00026.html#aed8b40ab1ed01424b963661b1ba99287a31e20ee19ac21b302c2cc1ac0ba62026">UpdateEnum</a> =  1, 
+<br/>
+&#160;&#160;<a class="el" href="a00026.html#aed8b40ab1ed01424b963661b1ba99287a4b2610b00ac0555ba587548e72fcf3e5">AddEnum</a> =  2, 
+<br/>
+&#160;&#160;<a class="el" href="a00026.html#aed8b40ab1ed01424b963661b1ba99287a852abf783c9365ea72a1d27df45163ec">DeleteEnum</a> =  3
+<br/>
+ }</td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Accessors</div></td></tr>
-<tr class="memitem:a92183cafe6a46e185017779759f84898"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00006.html#a00b6b8b97b2425aa6d71a100ad70c0f0">DataType::DataTypeEnum</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#a92183cafe6a46e185017779759f84898">getDataType</a> () const </td></tr>
-<tr class="memitem:a77a4c90dee8df36102b76cb3333042f7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00005.html#abe4fa6d2527b42396246aad6aa66d8b4">Data::DataCode</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#a77a4c90dee8df36102b76cb3333042f7">getCode</a> () const </td></tr>
-<tr class="memitem:ac7bc53f79bfa0c90dfcef66049e66b7f"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00009.html">EmaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#ac7bc53f79bfa0c90dfcef66049e66b7f">getAsHex</a> () const </td></tr>
-<tr class="memitem:a620279d02927133185916f9a7eb59260"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00011.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#a620279d02927133185916f9a7eb59260">toString</a> () const </td></tr>
-<tr class="memitem:a99a951bf6464deee2336c2b67a321b84"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00009.html">EmaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#a99a951bf6464deee2336c2b67a321b84">getBuffer</a> () const </td></tr>
+<tr class="memitem:a0dc0064379ff91e9ce359b6ef78d4f27"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#a0dc0064379ff91e9ce359b6ef78d4f27">getMapActionAsString</a> () const </td></tr>
+<tr class="memitem:aa3d0bf18bfc99061fbc87aab23e30e7c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0">DataType::DataTypeEnum</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#aa3d0bf18bfc99061fbc87aab23e30e7c">getLoadType</a> () const </td></tr>
+<tr class="memitem:a5cceada93458292d7136dfed9961bb37"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#a5cceada93458292d7136dfed9961bb37">toString</a> () const </td></tr>
+<tr class="memitem:aae827d62adbd472c7a662cd902b31415"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#aae827d62adbd472c7a662cd902b31415">hasPermissionData</a> () const </td></tr>
+<tr class="memitem:a4ed20c8bfe2260c50bc0892c7b8a733d"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00067.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#a4ed20c8bfe2260c50bc0892c7b8a733d">getReqMsg</a> () const </td></tr>
+<tr class="memitem:a7dab8b10ee91a25ae8a7a473192d1c82"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00066.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#a7dab8b10ee91a25ae8a7a473192d1c82">getRefreshMsg</a> () const </td></tr>
+<tr class="memitem:ab3c2c6cfb658f5951daf4bef3a68eb1a"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00074.html">UpdateMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#ab3c2c6cfb658f5951daf4bef3a68eb1a">getUpdateMsg</a> () const </td></tr>
+<tr class="memitem:a98fa970d48001f726d438c848d5c0b56"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00071.html">StatusMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#a98fa970d48001f726d438c848d5c0b56">getStatusMsg</a> () const </td></tr>
+<tr class="memitem:adddb6a6792d0976db5423544228d97e5"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00064.html">PostMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#adddb6a6792d0976db5423544228d97e5">getPostMsg</a> () const </td></tr>
+<tr class="memitem:a6fe14a685a8043f32e72951206cd9ca2"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00002.html">AckMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#a6fe14a685a8043f32e72951206cd9ca2">getAckMsg</a> () const </td></tr>
+<tr class="memitem:a8efa070f3e2a2dbc20b0920ba43cedfc"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00023.html">GenericMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#a8efa070f3e2a2dbc20b0920ba43cedfc">getGenericMsg</a> () const </td></tr>
+<tr class="memitem:a8c1e94912c7f8d51fde13cbf55851b60"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00019.html">FieldList</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#a8c1e94912c7f8d51fde13cbf55851b60">getFieldList</a> () const </td></tr>
+<tr class="memitem:a3fad2c7b59628f9a50102459d013c5a5"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00014.html">ElementList</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#a3fad2c7b59628f9a50102459d013c5a5">getElementList</a> () const </td></tr>
+<tr class="memitem:a11380acda45c924ca8128a4022b3e42f"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00025.html">Map</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#a11380acda45c924ca8128a4022b3e42f">getMap</a> () const </td></tr>
+<tr class="memitem:a8faeafc741c75727ebd007924b6e4594"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00075.html">Vector</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#a8faeafc741c75727ebd007924b6e4594">getVector</a> () const </td></tr>
+<tr class="memitem:ada196e5db183154843fb1fff586fc96f"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00069.html">Series</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#ada196e5db183154843fb1fff586fc96f">getSeries</a> () const </td></tr>
+<tr class="memitem:a8cbebbd2ee5ca0d56aebf18bc13249e0"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00021.html">FilterList</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#a8cbebbd2ee5ca0d56aebf18bc13249e0">getFilterList</a> () const </td></tr>
+<tr class="memitem:a9f1b6215e5bf6db9531090f5bdffb712"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00051.html">OmmOpaque</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#a9f1b6215e5bf6db9531090f5bdffb712">getOpaque</a> () const </td></tr>
+<tr class="memitem:aedc739ffe0949107b97d1efb90861516"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00062.html">OmmXml</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#aedc739ffe0949107b97d1efb90861516">getXml</a> () const </td></tr>
+<tr class="memitem:a3c8f411cb06509085e36afcd77f644ca"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00028.html">OmmAnsiPage</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#a3c8f411cb06509085e36afcd77f644ca">getAnsiPage</a> () const </td></tr>
+<tr class="memitem:af632887ab517f49b98f01394fc3cdf6c"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00011.html">Data</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#af632887ab517f49b98f01394fc3cdf6c">getLoad</a> () const </td></tr>
+<tr class="memitem:a0ed2f5878d6be5b8147517d0ff8bb944"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00024.html">Key</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#a0ed2f5878d6be5b8147517d0ff8bb944">getKey</a> () const </td></tr>
+<tr class="memitem:a7eba2c70bd238a8e16aaa9ada154e08b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00026.html#aed8b40ab1ed01424b963661b1ba99287">MapAction</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#a7eba2c70bd238a8e16aaa9ada154e08b">getAction</a> () const </td></tr>
+<tr class="memitem:a0e286133293d099bb1bc16cff8d4e9b5"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00015.html">EmaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#a0e286133293d099bb1bc16cff8d4e9b5">getPermissionData</a> () const </td></tr>
+<tr class="memitem:a2f754c1002585a05dcff972d5b9dbb98"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00042.html">OmmError</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00026.html#a2f754c1002585a05dcff972d5b9dbb98">getError</a> () const </td></tr>
 <tr><td colspan="2"><h2><a name="friends"></a>
 Friends</h2></td></tr>
-<tr class="memitem:a7172b718e1a9fa826587adbe6e35d17a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7172b718e1a9fa826587adbe6e35d17a"></a>
-class&#160;</td><td class="memItemRight" valign="bottom"><b>Decoder</b></td></tr>
-<tr class="memitem:a331e551b1372c536ef4c71895ffce705"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a331e551b1372c536ef4c71895ffce705"></a>
-class&#160;</td><td class="memItemRight" valign="bottom"><b>StaticDecoder</b></td></tr>
+<tr class="memitem:ad2f32e921244459f7cc6d50355429cc6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad2f32e921244459f7cc6d50355429cc6"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>Map</b></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><div class="fragment"><pre class="fragment">    <span class="keywordtype">void</span> decodeData( <span class="keyword">const</span> Data&amp; rcvdData )
+<div class="textblock"><p><a class="el" href="a00026.html" title="MapEntry represents an entry of Map.">MapEntry</a> associates entry's key, permission information, action, data and its data type.</p>
+<div class="fragment"><pre class="fragment">    decodeMap( <span class="keyword">const</span> Map&amp; map )
     {
-        <span class="keywordflow">if</span> ( rcvdData.getCode() != <a class="code" href="a00005.html#abe4fa6d2527b42396246aad6aa66d8b4a5d4acb36e8b1ceb770abf84100330cc8">Data::BlankEnum</a> )
-            <span class="keywordflow">switch</span> ( rcvdData.getDataType() )
+        <span class="keywordflow">while</span> ( map.forth() )
+        {
+            <span class="keyword">const</span> MapEntry&amp; mapEntry = map.getEntry();
+
+            <span class="keywordflow">if</span> ( mapEntry.hasPermissionData() )
             {
-            <span class="keywordflow">case</span> <a class="code" href="a00006.html#a00b6b8b97b2425aa6d71a100ad70c0f0a7b69a04ceb48576ea6ae6d4be678d92a">DataType::BufferEnum</a> :
-                <span class="keyword">const</span> EmaBuffer&amp; value = <span class="keyword">static_cast&lt;</span> <span class="keyword">const </span>OmmBuffer&amp; <span class="keyword">&gt;</span>( rcvdData ).<a class="code" href="a00026.html#a99a951bf6464deee2336c2b67a321b84">getBuffer</a>();
-                <span class="keywordflow">break</span>;
+                <span class="keyword">const</span> EmaBuffer&amp; permissionData = mapEntry.getPermissionData();
+
+                ...
             }
+
+            ...
+        }
     }
-</pre></div><dl class="section remark"><dt>Remarks:</dt><dd><a class="el" href="a00026.html" title="OmmBuffer represents a binary buffer value in Omm.">OmmBuffer</a> is a read only class. </dd>
+</pre></div><dl class="section remark"><dt>Remarks:</dt><dd>Objects of this class are intended to be short lived or rather transitional. </dd>
 <dd>
-The usage of this class is limited to downcast operation only. </dd>
+This class is designed to efficiently perform extracting of data from entry. </dd>
+<dd>
+Objects of this class are not cache-able. </dd>
 <dd>
 All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free Method</a>.</dd></dl>
-<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00005.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a>, <a class="el" href="a00011.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>, <a class="el" href="a00009.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> </dd></dl>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00011.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a>, <a class="el" href="a00005.html" title="ComplexType class is a parent class from whom all complex data types inherit.">ComplexType</a> <a class="el" href="a00067.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a>, <a class="el" href="a00066.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a>, <a class="el" href="a00074.html" title="UpdateMsg conveys changes to item data.">UpdateMsg</a>, <a class="el" href="a00071.html" title="StatusMsg conveys item state information.">StatusMsg</a>, <a class="el" href="a00023.html" title="GenericMsg allows applications to bidirectionally send messages without any implied message semantics...">GenericMsg</a>, <a class="el" href="a00064.html" title="PostMsg allows consumer applications to contribute content.">PostMsg</a>, <a class="el" href="a00002.html" title="AckMsg indicates success or failure of PostMsg.">AckMsg</a>, <a class="el" href="a00019.html" title="FieldList is a heterogeneous container of complex and primitive data type entries.">FieldList</a>, <a class="el" href="a00014.html" title="ElementList is a heterogeneous container of complex and primitive data type entries.">ElementList</a>, <a class="el" href="a00025.html" title="Map is a homogeneous container of complex data type entries.">Map</a>, <a class="el" href="a00075.html" title="Vector is a homogeneous container of complex data type entries.">Vector</a>, <a class="el" href="a00069.html" title="Series is a homogeneous container of complex data type entries.">Series</a>, <a class="el" href="a00021.html" title="FilterList is a heterogeneous container of complex data type entries.">FilterList</a>, <a class="el" href="a00051.html" title="OmmOpaque represents Opaque data format in Omm.">OmmOpaque</a>, <a class="el" href="a00062.html" title="OmmXml represents XML data format in Omm.">OmmXml</a>, <a class="el" href="a00028.html" title="OmmAnsiPage represents AnsiPage data format in Omm.">OmmAnsiPage</a>, <a class="el" href="a00042.html" title="OmmError represents received Omm data who fails to process properly.">OmmError</a>, <a class="el" href="a00015.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a>, <a class="el" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="a00094_source.html#l00050">50</a> of file <a class="el" href="a00094_source.html">OmmBuffer.h</a>.</p>
-</div><hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="ac7bc53f79bfa0c90dfcef66049e66b7f"></a>
+<p>Definition at line <a class="el" href="a00095_source.html#l00095">95</a> of file <a class="el" href="a00095_source.html">MapEntry.h</a>.</p>
+</div><hr/><h2>Member Enumeration Documentation</h2>
+<a class="anchor" id="aed8b40ab1ed01424b963661b1ba99287"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="a00009.html">EmaBuffer</a>&amp; <a class="el" href="a00026.html#ac7bc53f79bfa0c90dfcef66049e66b7f">thomsonreuters::ema::access::OmmBuffer::getAsHex</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const<code> [virtual]</code></td>
+          <td class="memname">enum <a class="el" href="a00026.html#aed8b40ab1ed01424b963661b1ba99287">thomsonreuters::ema::access::MapEntry::MapAction</a></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Returns a buffer that in turn provides an alphanumeric null-terminated hexadecimal string representation. </p>
-<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00009.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> with the object hex information </dd></dl>
+<p>An enumeration representing map entry action. </p>
+<dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em><a class="anchor" id="aed8b40ab1ed01424b963661b1ba99287a31e20ee19ac21b302c2cc1ac0ba62026"></a>UpdateEnum</em>&nbsp;</td><td>
+<p>Indicates a partial change of the current Omm data. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="aed8b40ab1ed01424b963661b1ba99287a4b2610b00ac0555ba587548e72fcf3e5"></a>AddEnum</em>&nbsp;</td><td>
+<p>Indicates to append or replace the current Omm data. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="aed8b40ab1ed01424b963661b1ba99287a852abf783c9365ea72a1d27df45163ec"></a>DeleteEnum</em>&nbsp;</td><td>
+<p>Indicates to remove current Omm data. </p>
+</td></tr>
+</table>
+</dd>
+</dl>
 
-<p>Implements <a class="el" href="a00005.html#ad354334439d238097b04c5f644667dbf">thomsonreuters::ema::access::Data</a>.</p>
+<p>Definition at line <a class="el" href="a00095_source.html#l00102">102</a> of file <a class="el" href="a00095_source.html">MapEntry.h</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a99a951bf6464deee2336c2b67a321b84"></a>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="a6fe14a685a8043f32e72951206cd9ca2"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="a00009.html">EmaBuffer</a>&amp; <a class="el" href="a00026.html#a99a951bf6464deee2336c2b67a321b84">thomsonreuters::ema::access::OmmBuffer::getBuffer</a> </td>
+          <td class="memname">const <a class="el" href="a00002.html">AckMsg</a>&amp; <a class="el" href="a00026.html#a6fe14a685a8043f32e72951206cd9ca2">thomsonreuters::ema::access::MapEntry::getAckMsg</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -201,68 +240,551 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
       </table>
 </div>
 <div class="memdoc">
-<p>Returns Buffer. </p>
-<dl class="section return"><dt>Returns:</dt><dd>binary buffer contained in <a class="el" href="a00009.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> </dd></dl>
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00002.html" title="AckMsg indicates success or failure of PostMsg.">AckMsg</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00002.html" title="AckMsg indicates success or failure of PostMsg.">AckMsg</a> class reference to contained entry's load object </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a77a4c90dee8df36102b76cb3333042f7"></a>
+<a class="anchor" id="a7eba2c70bd238a8e16aaa9ada154e08b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00005.html#abe4fa6d2527b42396246aad6aa66d8b4">Data::DataCode</a> <a class="el" href="a00026.html#a77a4c90dee8df36102b76cb3333042f7">thomsonreuters::ema::access::OmmBuffer::getCode</a> </td>
+          <td class="memname"><a class="el" href="a00026.html#aed8b40ab1ed01424b963661b1ba99287">MapAction</a> <a class="el" href="a00026.html#a7eba2c70bd238a8e16aaa9ada154e08b">thomsonreuters::ema::access::MapEntry::getAction</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td> const<code> [virtual]</code></td>
+          <td> const</td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Returns the Code, which indicates a special state of a <a class="el" href="a00006.html" title="DataType class provides enumeration representing Omm data types.">DataType</a>. </p>
-<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00005.html#abe4fa6d2527b42396246aad6aa66d8b4a5d4acb36e8b1ceb770abf84100330cc8">Data::BlankEnum</a> if received data is blank; <a class="el" href="a00005.html#abe4fa6d2527b42396246aad6aa66d8b4a88c2bb1c2e8f901631aa5ad9a0d1dc14">Data::NoCodeEnum</a> otherwise </dd></dl>
-
-<p>Implements <a class="el" href="a00005.html#a8510d00b7a009f32c9c6de8adcb45d96">thomsonreuters::ema::access::Data</a>.</p>
+<p>Returns the current action on the OMM data. </p>
+<dl class="section return"><dt>Returns:</dt><dd>MapAction </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a92183cafe6a46e185017779759f84898"></a>
+<a class="anchor" id="a3c8f411cb06509085e36afcd77f644ca"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00006.html#a00b6b8b97b2425aa6d71a100ad70c0f0">DataType::DataTypeEnum</a> <a class="el" href="a00026.html#a92183cafe6a46e185017779759f84898">thomsonreuters::ema::access::OmmBuffer::getDataType</a> </td>
+          <td class="memname">const <a class="el" href="a00028.html">OmmAnsiPage</a>&amp; <a class="el" href="a00026.html#a3c8f411cb06509085e36afcd77f644ca">thomsonreuters::ema::access::MapEntry::getAnsiPage</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td> const<code> [virtual]</code></td>
+          <td> const</td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Returns the <a class="el" href="a00006.html" title="DataType class provides enumeration representing Omm data types.">DataType</a>, which is the type of Omm data. Results in this class type. </p>
-<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00006.html#a00b6b8b97b2425aa6d71a100ad70c0f0a7b69a04ceb48576ea6ae6d4be678d92a">DataType::BufferEnum</a> </dd></dl>
-
-<p>Implements <a class="el" href="a00005.html#a361e280aecab30c47386a3e08ce325da">thomsonreuters::ema::access::Data</a>.</p>
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00028.html" title="OmmAnsiPage represents AnsiPage data format in Omm.">OmmAnsiPage</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00028.html" title="OmmAnsiPage represents AnsiPage data format in Omm.">OmmAnsiPage</a> class reference to contained entry's load object </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a620279d02927133185916f9a7eb59260"></a>
+<a class="anchor" id="a3fad2c7b59628f9a50102459d013c5a5"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="a00011.html">EmaString</a>&amp; <a class="el" href="a00026.html#a620279d02927133185916f9a7eb59260">thomsonreuters::ema::access::OmmBuffer::toString</a> </td>
+          <td class="memname">const <a class="el" href="a00014.html">ElementList</a>&amp; <a class="el" href="a00026.html#a3fad2c7b59628f9a50102459d013c5a5">thomsonreuters::ema::access::MapEntry::getElementList</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td> const<code> [virtual]</code></td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00014.html" title="ElementList is a heterogeneous container of complex and primitive data type entries.">ElementList</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00014.html" title="ElementList is a heterogeneous container of complex and primitive data type entries.">ElementList</a> class reference to contained entry's load object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a2f754c1002585a05dcff972d5b9dbb98"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00042.html">OmmError</a>&amp; <a class="el" href="a00026.html#a2f754c1002585a05dcff972d5b9dbb98">thomsonreuters::ema::access::MapEntry::getError</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns Error. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00042.html" title="OmmError represents received Omm data who fails to process properly.">OmmError</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00042.html" title="OmmError represents received Omm data who fails to process properly.">OmmError</a> class reference to contained entry's load object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a8c1e94912c7f8d51fde13cbf55851b60"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00019.html">FieldList</a>&amp; <a class="el" href="a00026.html#a8c1e94912c7f8d51fde13cbf55851b60">thomsonreuters::ema::access::MapEntry::getFieldList</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00019.html" title="FieldList is a heterogeneous container of complex and primitive data type entries.">FieldList</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00019.html" title="FieldList is a heterogeneous container of complex and primitive data type entries.">FieldList</a> class reference to contained entry's load object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a8cbebbd2ee5ca0d56aebf18bc13249e0"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00021.html">FilterList</a>&amp; <a class="el" href="a00026.html#a8cbebbd2ee5ca0d56aebf18bc13249e0">thomsonreuters::ema::access::MapEntry::getFilterList</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00021.html" title="FilterList is a heterogeneous container of complex data type entries.">FilterList</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00021.html" title="FilterList is a heterogeneous container of complex data type entries.">FilterList</a> class reference to contained entry's load object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a8efa070f3e2a2dbc20b0920ba43cedfc"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00023.html">GenericMsg</a>&amp; <a class="el" href="a00026.html#a8efa070f3e2a2dbc20b0920ba43cedfc">thomsonreuters::ema::access::MapEntry::getGenericMsg</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00023.html" title="GenericMsg allows applications to bidirectionally send messages without any implied message semantics...">GenericMsg</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00023.html" title="GenericMsg allows applications to bidirectionally send messages without any implied message semantics...">GenericMsg</a> class reference to contained entry's load object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a0ed2f5878d6be5b8147517d0ff8bb944"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00024.html">Key</a>&amp; <a class="el" href="a00026.html#a0ed2f5878d6be5b8147517d0ff8bb944">thomsonreuters::ema::access::MapEntry::getKey</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the contained key <a class="el" href="a00011.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a> based on the key <a class="el" href="a00012.html" title="DataType class provides enumeration representing Omm data types.">DataType</a>. </p>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00024.html" title="Key conveys MapEntry key information.">Key</a> class reference to contained entry's <a class="el" href="a00024.html" title="Key conveys MapEntry key information.">Key</a> object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="af632887ab517f49b98f01394fc3cdf6c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00011.html">Data</a>&amp; <a class="el" href="a00026.html#af632887ab517f49b98f01394fc3cdf6c">thomsonreuters::ema::access::MapEntry::getLoad</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the contained <a class="el" href="a00011.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a> based on the <a class="el" href="a00012.html" title="DataType class provides enumeration representing Omm data types.">DataType</a>. </p>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00011.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a> class reference to contained entry's load object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aa3d0bf18bfc99061fbc87aab23e30e7c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0">DataType::DataTypeEnum</a> <a class="el" href="a00026.html#aa3d0bf18bfc99061fbc87aab23e30e7c">thomsonreuters::ema::access::MapEntry::getLoadType</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the <a class="el" href="a00012.html" title="DataType class provides enumeration representing Omm data types.">DataType</a> of the entry's load. </p>
+<dl class="section remark"><dt>Remarks:</dt><dd>return of <a class="el" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0ae1fc1137764a910645a904928e322107">DataType::NoDataEnum</a> signifies no data present in load </dd>
+<dd>
+return of DataType::OmmErrorEnum signifies error while extracting content of load </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd>data type of the contained object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a11380acda45c924ca8128a4022b3e42f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00025.html">Map</a>&amp; <a class="el" href="a00026.html#a11380acda45c924ca8128a4022b3e42f">thomsonreuters::ema::access::MapEntry::getMap</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00025.html" title="Map is a homogeneous container of complex data type entries.">Map</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00025.html" title="Map is a homogeneous container of complex data type entries.">Map</a> class reference to contained entry's load object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a0dc0064379ff91e9ce359b6ef78d4f27"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00017.html">EmaString</a>&amp; <a class="el" href="a00026.html#a0dc0064379ff91e9ce359b6ef78d4f27">thomsonreuters::ema::access::MapEntry::getMapActionAsString</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the MapAction value as a string format. </p>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a> containing string representation of MapAction </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a9f1b6215e5bf6db9531090f5bdffb712"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00051.html">OmmOpaque</a>&amp; <a class="el" href="a00026.html#a9f1b6215e5bf6db9531090f5bdffb712">thomsonreuters::ema::access::MapEntry::getOpaque</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00051.html" title="OmmOpaque represents Opaque data format in Omm.">OmmOpaque</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00051.html" title="OmmOpaque represents Opaque data format in Omm.">OmmOpaque</a> class reference to contained entry's load object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a0e286133293d099bb1bc16cff8d4e9b5"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00015.html">EmaBuffer</a>&amp; <a class="el" href="a00026.html#a0e286133293d099bb1bc16cff8d4e9b5">thomsonreuters::ema::access::MapEntry::getPermissionData</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns PermissionData. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00026.html#aae827d62adbd472c7a662cd902b31415">hasPermissionData()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00015.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> containing permission information </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="adddb6a6792d0976db5423544228d97e5"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00064.html">PostMsg</a>&amp; <a class="el" href="a00026.html#adddb6a6792d0976db5423544228d97e5">thomsonreuters::ema::access::MapEntry::getPostMsg</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00064.html" title="PostMsg allows consumer applications to contribute content.">PostMsg</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00064.html" title="PostMsg allows consumer applications to contribute content.">PostMsg</a> class reference to contained entry's load object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a7dab8b10ee91a25ae8a7a473192d1c82"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00066.html">RefreshMsg</a>&amp; <a class="el" href="a00026.html#a7dab8b10ee91a25ae8a7a473192d1c82">thomsonreuters::ema::access::MapEntry::getRefreshMsg</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00066.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00066.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a> class reference to contained entry's load object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a4ed20c8bfe2260c50bc0892c7b8a733d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00067.html">ReqMsg</a>&amp; <a class="el" href="a00026.html#a4ed20c8bfe2260c50bc0892c7b8a733d">thomsonreuters::ema::access::MapEntry::getReqMsg</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00067.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00067.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> class reference to contained object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ada196e5db183154843fb1fff586fc96f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00069.html">Series</a>&amp; <a class="el" href="a00026.html#ada196e5db183154843fb1fff586fc96f">thomsonreuters::ema::access::MapEntry::getSeries</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00069.html" title="Series is a homogeneous container of complex data type entries.">Series</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00069.html" title="Series is a homogeneous container of complex data type entries.">Series</a> class reference to contained entry's load object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a98fa970d48001f726d438c848d5c0b56"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00071.html">StatusMsg</a>&amp; <a class="el" href="a00026.html#a98fa970d48001f726d438c848d5c0b56">thomsonreuters::ema::access::MapEntry::getStatusMsg</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00071.html" title="StatusMsg conveys item state information.">StatusMsg</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00071.html" title="StatusMsg conveys item state information.">StatusMsg</a> class reference to contained entry's load object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ab3c2c6cfb658f5951daf4bef3a68eb1a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00074.html">UpdateMsg</a>&amp; <a class="el" href="a00026.html#ab3c2c6cfb658f5951daf4bef3a68eb1a">thomsonreuters::ema::access::MapEntry::getUpdateMsg</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00074.html" title="UpdateMsg conveys changes to item data.">UpdateMsg</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00074.html" title="UpdateMsg conveys changes to item data.">UpdateMsg</a> class reference to contained entry's load object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a8faeafc741c75727ebd007924b6e4594"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00075.html">Vector</a>&amp; <a class="el" href="a00026.html#a8faeafc741c75727ebd007924b6e4594">thomsonreuters::ema::access::MapEntry::getVector</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00075.html" title="Vector is a homogeneous container of complex data type entries.">Vector</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00075.html" title="Vector is a homogeneous container of complex data type entries.">Vector</a> class reference to contained entry's load object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aedc739ffe0949107b97d1efb90861516"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00062.html">OmmXml</a>&amp; <a class="el" href="a00026.html#aedc739ffe0949107b97d1efb90861516">thomsonreuters::ema::access::MapEntry::getXml</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00062.html" title="OmmXml represents XML data format in Omm.">OmmXml</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00062.html" title="OmmXml represents XML data format in Omm.">OmmXml</a> class reference to contained entry's load object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aae827d62adbd472c7a662cd902b31415"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00026.html#aae827d62adbd472c7a662cd902b31415">thomsonreuters::ema::access::MapEntry::hasPermissionData</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of PermissionData. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if permission data is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a5cceada93458292d7136dfed9961bb37"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00017.html">EmaString</a>&amp; <a class="el" href="a00026.html#a5cceada93458292d7136dfed9961bb37">thomsonreuters::ema::access::MapEntry::toString</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
 <p>Returns a string representation of the class instance. </p>
 <dl class="section return"><dt>Returns:</dt><dd>string representation of the class instance </dd></dl>
-
-<p>Implements <a class="el" href="a00005.html#a971a83a435b8d8f34978b72821a661a3">thomsonreuters::ema::access::Data</a>.</p>
 
 </div>
 </div>
@@ -283,7 +805,7 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Jun 29 2015</td>
+			<td><p class="smallfont">Sat Jul 25 2015</td>
           </tr>
         </table>
         </td>

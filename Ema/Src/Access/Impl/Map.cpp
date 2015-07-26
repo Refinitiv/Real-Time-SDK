@@ -55,7 +55,7 @@ DataType::DataTypeEnum Map::getDataType() const
 
 bool Map::forth() const
 {
-	return _pDecoder->getNextData();
+	return !_pDecoder->getNextData();
 }
 
 void Map::reset() const

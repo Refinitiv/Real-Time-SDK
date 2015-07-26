@@ -19,7 +19,7 @@
 
 	decodeMap( const Map& map )
 	{
-		while ( !map.forth() )
+		while ( map.forth() )
 		{
 			const MapEntry& mapEntry = map.getEntry();
 

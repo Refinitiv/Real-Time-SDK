@@ -9,8 +9,8 @@ of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D), directly from
 an OMM Provider application, or from Thomson Reuters Advanced Distribution Server.
 
 The 422__MarketPrice__ErrorClient showcases usage of the OmmConsumerErrorClient
-functionality. Omm Consumer provides two ways of notifying aqpplication about
-encountered user errors. By default Omm Consumer throws a respective exception
+functionality. OMM Consumer provides two ways of notifying application about
+encountered user errors. By default OMM Consumer throws a respective exception
 when an error is encountered. Users may specify to receive a respective callback
 instead of exception.
 
@@ -26,6 +26,7 @@ The 422__MarketPrice__ErrorClient implements the following high level steps:
 + Instantiates AppErrorClient object that receives error messages
 + Instantiates and modifies OmmConsumerConfig object
   - sets user name to "user"
+  - sets operationModel to UserDispatchEnum
 + Instantiates OmmConsumer object which initializes connection and logins into
   specified server
   - handles errors with AppErrorClient
@@ -33,10 +34,10 @@ The 422__MarketPrice__ErrorClient implements the following high level steps:
   to demonstrate the OmmConsumerErrorClient functionality)
   - Invalid handle to send reissue request 
   - Invalid handle to submit PostMsg
-  - Invalid handle to submit Postsg
+  - Invalid handle to submit PostMsg
   - MarketPrice Domain IBM.N item from DIRECT_FEED service
 + Processes data received from main thread for 60 seconds
-  - all received messages and erros are processed on user thread of control
+  - all received messages and errors are processed on user thread of control
 + Exits
 
 Note: if needed, these and other details may be modified to fit local

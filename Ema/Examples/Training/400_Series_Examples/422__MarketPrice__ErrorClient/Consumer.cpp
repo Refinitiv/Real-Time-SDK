@@ -76,7 +76,7 @@ void AppErrorClient::onInvalidUsage( const EmaString& text )
 
 void AppClient::decode( const FieldList& fl )
 {
-	while ( !fl.forth() )
+	while ( fl.forth() )
 	{
 		const FieldEntry& fe = fl.getEntry();
 
@@ -123,7 +123,7 @@ int main( int argc, char* argv[] )
 	AppClient client;
 	AppErrorClient errorClient;
 	UInt64 invalidHandle = 0;
-	OmmConsumer consumer( OmmConsumerConfig().username( "user" ), errorClient );
+	OmmConsumer consumer( OmmConsumerConfig().username( "user" ).operationModel( OmmConsumerConfig::UserDispatchEnum ), errorClient );
 	consumer.reissue( ReqMsg(), invalidHandle );
 	consumer.submit ( GenericMsg(), invalidHandle );
 	consumer.submit ( PostMsg(), invalidHandle );

@@ -67,7 +67,7 @@ const OmmArrayEntry& OmmArray::getEntry() const
 
 bool OmmArray::forth() const
 {
-	return _pDecoder->getNextData();
+	return !_pDecoder->getNextData();
 }
 
 void OmmArray::reset() const

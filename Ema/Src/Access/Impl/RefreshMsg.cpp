@@ -72,6 +72,9 @@ const EmaString& RefreshMsg::toString( UInt64 indent ) const
 	if ( pTempDecoder->getComplete() )
 		addIndent( _toString, indent, true ).append( "RefreshComplete" );
 
+	if ( pTempDecoder->getPrivateStream() )
+		addIndent( _toString, indent, true ).append( "privateStream" );
+
 	addIndent( _toString, indent, true ).append( "state=\"" ).append( pTempDecoder->getState().toString() ).append( "\"" );
 
 	EmaString temp;

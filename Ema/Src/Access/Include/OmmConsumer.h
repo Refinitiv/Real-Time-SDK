@@ -24,29 +24,93 @@
 	OmmConsumerErrorclient.
 
 	The following code snippet shows basic usage of OmmConsumer class in a simple consumer type app.
+	This application opens a regular streaming item named RTR from a service RDF from the 1.1.1.1 server
+	on port 14002.
 
 	\code
 
+	// create an implementation for OmmConsumerClient to process received item messages
 	class AppClient : public OmmConsumerClient
 	{
-		...
-
-		void onRefreshMsg( ... );
-		void onUpdateMsg( ... );
-		void onstatusMsg( ... );
-		};
+		void onRefreshMsg( const RefreshMsg& , const OmmConsumerEvent& );
+		void onUpdateMsg( const UpdateMsg& , const OmmConsumerEvent& );
+		void onStatusMsg( const StatusMsg& , const OmmConsumerEvent&);
+	};
 
 	AppClient appClient;
 
+	// instantiate OmmConsumer object and connect it to a server
 	OmmConsumer consumer( OmmConsumerConfig().host( "1.1.1.1:14002" ) );
+
+	// open an item of interest
 	consumer.registerClient( ReqMsg().name( "RTR" ).serviceName( "RDF" ) );
+
+	\endcode
+
+	The following code snippet shows usage of OmmConsumer class to obtain data from the Auxiliary
+	Services Gateway (or ASG). This application opens a tunnel stream to an ASG through the 1.1.1.1 server
+	on port 14002. The tunnel stream is open from the ASG provided service named ASG_SERVICE. Then 
+	a streaming item named IBM_ASG is open on that stream from a service Id of 1.
+
+	\code
+
+	// create an implementation for OmmConsumerclient to process received item messages.
+	// this object will process tunnel item and sub item messages
+	class AppClient : public OmmConsumerClient
+	{
+		void onRefreshMsg( const RefreshMsg& , const OmmConsumerEvent& );
+		void onUpdateMsg( const UpdateMsg& , const OmmConsumerEvent& );
+		void onStatusMsg( const StatusMsg& , const OmmConsumerEvent& );
+	};
+
+	AppClient appClient;
+
+	// instantiate OmmConsumer object and connect it to a server
+	OmmConsumer consumer( OmmConsumerConfig().host( "1.1.1.1:14002" ) );
+
+	// create and populate TunnelStreamRequest object
+	CosAuthentication cosAuthentication;
+	cosAuthentication.type( CosAuthentication::OmmLoginEnum );
+
+	CosDataIntegrity cosDataIntegrity;
+	cosDataIntegrity.type( CosDataIntegrity::ReliableEnum );
+
+	CosFlowControl cosFlowControl;
+	cosFlowControl.type( CosFlowControl::BidirectionalEnum )
+		.recvWindowSize( 1200 )
+		.sendWindowSize( 1200 );
+
+	CosGuarantee cosGuarantee;
+	cosGuarantee.type( CosGuarantee::NoneEnum );
+
+	ClassOfService cos;
+	cos.authentication( cosAuthentication )
+		.dataIntegrity( cosDataIntegrity )
+		.flowControl( cosFlowControl )
+		.guarantee( cosGuarantee );
+
+	TunnelStreamRequest tsr;
+	tsr.classOfService( cos )
+		.domainType( MMT_SYSTEM )
+		.name( "TUNNEL_STREAM" )
+		.serviceName( "ASG_SERVICE" )
+		.responseTimeout( 45 );
+
+	// open tunnel stream
+	UInt64 tunnelStreamHandle = consumer.registerClient( tsr, appClient );
+
+	// open sub item
+	UInt64 subItemHandle = consumer.registerClient(
+							ReqMsg().domainType( MMT_MARKET_PRICE ).name( "IBM_ASG" ).serviceId( 1 ),
+							client, (void*)1, tunnelStreamHandle );
 
 	\endcode
 
 	@see OmmConsumerConfig,
 		OmmConsumerClient,
 		OmmConsumerErrorClient,
-		OmmException
+		OmmException,
+		TunnelStreamRequest
 */
 
 #include "Access/Include/Common.h"
@@ -64,6 +128,7 @@ class OmmConsumerErrorClient;
 class ReqMsg;
 class PostMsg;
 class GenericMsg;
+class TunnelStreamRequest;
 
 class OmmConsumerImpl;
 
@@ -126,13 +191,27 @@ public :
 		@param[in] reqMsg specifies item and its unique attributes
 		@param[in] client specifies OmmConsumerClient instance receiving notifications about this item
 		@param[in] closure specifies application defined item identification
+		@param[in] parentHandle specifies a handle of stream over which this stream is open
 		@return item identifier (a.k.a. handle)
 		@throw OmmMemoryExhaustionException if system runs out of memory
 		@throw OmmInvalidUsageException if application passes invalid ReqMsg
+		@throw OmmInvalidHandlException if application passes invalid parent item handle
 		\remark This method is \ref ObjectLevelSafe
 		\remark if OmmConsumerErrorClient is used and an error condition is encountered, then null handle is returned
 	*/
-	UInt64 registerClient( const ReqMsg& reqMsg, OmmConsumerClient& client, void* closure = 0 );
+	UInt64 registerClient( const ReqMsg& reqMsg, OmmConsumerClient& client, void* closure = 0, UInt64 parentHandle = 0 );
+
+	/** Opens a tunnel stream
+		@param[in] tunnelStreamRequest specifies tunnel stream attributes
+		@param[in] client specifies OmmConsumerClient instance receiving notifications about this item
+		@param[in] closure specifies application defined item identification
+		@return tunnel stream handle (a.k.a. parentHandle)
+		@throw OmmMemoryExhaustionException if system runs out of memory
+		@throw OmmInvalidUsageException if application passes invalid TunnelStreamRequest
+		\remark This method is \ref ObjectLevelSafe
+		\remark if OmmConsumerErrorClient is used and an error condition is encountered, then null handle is returned
+	*/
+	UInt64 registerClient( const TunnelStreamRequest& tunnelStreamRequest, OmmConsumerClient& client, void* closure = 0 );
 
 	/** Changes the interest in an open item stream. The first formal parameter houses a ReqMsg. 
 		ReqMsg attributes that may change are Priority(), InitialImage(), InterestAfterRefresh(),

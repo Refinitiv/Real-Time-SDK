@@ -10,7 +10,7 @@ directly from an OMM Provider application, or from Thomson Reuters Advanced
 Distribution Server.
 
 The 410__MarketPrice__HorizontalScaling showcases horizontal scaling capability
-of Omm Consumer to take advantage of multiple core processors.
+of OMM Consumer to take advantage of multiple core processors.
 
 
 Detailed Description
@@ -27,6 +27,7 @@ The 410__MarketPrice__HorizontalScaling implements the following high level step
   - sets user name to "user1" and "user2" for each ConsumerManager respectively
   - sets host name on the preconfigured connection to "localhost"
   - sets port on the preconfigured connection to "14002"
+  - sets operationModel to UserDispatchEnum
 + ConsumerManager instantiates OmmConsumer object which
   - initializes connection and logins into specified server
 + Instantiates AppClient object that receives and processes item messages
@@ -42,11 +43,3 @@ Note: if needed, these and other details may be modified to fit local
 	  
 Note: please refer to the EMA library ReadMe.txt file for details on
       standard configuration.
-
-
-OmmConsumerClient and Callbacks
-===============================
-
-The 410__MarketPrice__HorizontalScaling demonstrates how to receive and process
-individual item response messages. Additionally this application shows a native
-/ RWF decoding of FieldList container.

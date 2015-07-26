@@ -36,7 +36,6 @@
 			<!-- ChannelType::RSSL_SOCKET    - TCP IP connection type -->
 			<!-- ChannelType::RSSL_HTTP      - Http tunnel connection type -->
 			<!-- ChannelType::RSSL_ENCRYPTED - Https tunnel connection type -->
-			<!-- ChannelType::RSSL_RELIABLE_MCAST - MCAST connection type (not supported yet) -->
 			<ChannelType value="ChannelType::RSSL_SOCKET"/>
 
 			<!-- CompressionType is optional: defaulted to None -->
@@ -68,6 +67,8 @@
 			<GuaranteedOutputBuffers value="5000"/>
 			<Host value="122.1.1.100"/>
 			<Port value="14002"/>
+			<!-- ObjectName is optional: defaulted to "" -->
+			<ObjectName value=""/>
 		</Channel>
 		<Channel>
 			<Name value="Channel_4"/>
@@ -76,6 +77,8 @@
 			<GuaranteedOutputBuffers value="5000"/>
 			<Host value="122.1.1.100"/>
 			<Port value="14002"/>
+			<!-- ObjectName is optional: defaulted to "" -->
+			<ObjectName value=""/>
 		</Channel>
 	</ChannelList>
 </ChannelGroup>

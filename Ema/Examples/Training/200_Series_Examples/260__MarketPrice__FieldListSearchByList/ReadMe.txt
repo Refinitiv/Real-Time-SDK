@@ -40,11 +40,3 @@ Note: if needed, these and other details may be modified to fit local
 	  
 Note: please refer to the EMA library ReadMe.txt file for details on
       standard configuration.
-
-
-OmmConsumerClient and Callbacks
-===============================
-
-The 260__MarketPrice__FieldListSearchByList demonstrates how to receive and process
-item response messages. Additionally this application shows native / RWF decoding
-of FieldList container with specifying a list of looked up field IDs.

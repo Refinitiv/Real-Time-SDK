@@ -38,6 +38,7 @@ class Directory;
 class ReqMsgEncoder;
 class OmmState;
 class Item;
+class TunnelStreamRequest;
 
 class ItemList
 {
@@ -75,13 +76,20 @@ public :
 		BatchItemEnum,
 		LoginItemEnum,
 		DirectoryItemEnum,
-		DictionaryItemEnum
+		DictionaryItemEnum,
+		TunnelItemEnum,
+		SubItemEnum
 	};
+
+	const EmaString& getTypeAsString();
 
 	static void destroy( Item*& );
 
 	OmmConsumerClient& getClient() const;
 	void* getClosure() const;
+	Item* getParent() const;
+	
+	virtual const Directory* getDirectory() = 0;
 
 	virtual bool open( const ReqMsg& ) = 0;
 	virtual bool modify( const ReqMsg& ) = 0;
@@ -89,13 +97,8 @@ public :
 	virtual bool submit( const GenericMsg& ) = 0;
 	virtual bool close() = 0;
 	virtual void remove() = 0;
-	virtual bool submit( RsslGenericMsg* ) = 0;
 
 	virtual ItemType getType() const = 0;
-
-	UInt32 addItem( Item* );
-	void removeItem( Item* );
-	bool operator<( const Item & rhs ) { return true; }
 
 	OmmConsumerImpl& getOmmConsumerImpl();
 
@@ -104,10 +107,11 @@ protected :
 	UInt8						_domainType;
 	Int32						_streamId;
 	void*						_closure;
+	Item*						_parent;
 	OmmConsumerClient&			_ommConsClient;
 	OmmConsumerImpl&			_ommConsImpl;
 
-	Item( OmmConsumerImpl& , OmmConsumerClient& , void* );
+	Item( OmmConsumerImpl& , OmmConsumerClient& , void* , Item* );
 	virtual ~Item();
 
 private :
@@ -122,9 +126,12 @@ class ClosedStatusInfo
 public :
 
 	ClosedStatusInfo( Item* , const ReqMsgEncoder& , const EmaString& );
+
+	ClosedStatusInfo( Item* , const TunnelStreamRequest& , const EmaString& );
+
 	virtual ~ClosedStatusInfo();
 
-	UInt8 getDomainType() const { return _domainType; }
+	UInt16 getDomainType() const { return _domainType; }
 
 	const EmaString& getStatusText() const { return _statusText; }
 
@@ -134,22 +141,28 @@ public :
 
 	Item* getItem() const { return _pItem; }
 
+	bool getPrivateStream() const { return _privateStream; }
+
+	Int32 getStreamId() const { return _streamId; }
+
 private :
 
 	RsslMsgKey		_msgKey;
 	EmaString		_statusText;
 	EmaString		_serviceName;
-	UInt8			_domainType;
+	UInt16			_domainType;
+	Int32			_streamId;
 	Item*			_pItem;
+	bool			_privateStream;
 };
 
 class SingleItem : public Item
 {
 public :
 
-	static SingleItem* create( OmmConsumerImpl& , OmmConsumerClient& , void* , SingleItem* );
+	static SingleItem* create( OmmConsumerImpl& , OmmConsumerClient& , void* , Item* );
 
-	const Directory* getDirectory() const;
+	const Directory* getDirectory();
 
 	bool open( const ReqMsg& );
 	bool modify( const ReqMsg& );
@@ -158,31 +171,29 @@ public :
 	bool close();
 	void remove();
 
-	bool submit( RsslGenericMsg* );
-
 	void state( const OmmState& );
 
-	ItemType getType() const { return Item::SingleItemEnum; }
+	ItemType getType() const;
 
 protected :
 
-	SingleItem( OmmConsumerImpl& , OmmConsumerClient& , void* , SingleItem *);
+	SingleItem( OmmConsumerImpl& , OmmConsumerClient& , void* , Item* );
+
 	virtual ~SingleItem();
 
 	void scheduleItemClosedStatus( const ReqMsgEncoder& , const EmaString& );
 
 private :
 
+	bool submit( RsslGenericMsg* );
 	bool submit( RsslRequestMsg* );
 	bool submit( RsslCloseMsg* );
 	bool submit( RsslPostMsg* );
 
-	static const EmaString				_clientName;
+	static const EmaString		_clientName;
 
-	SingleItem*							_pBatchItem;
-
-	const Directory*					_pDirectory;
-	ClosedStatusInfo*					_closedStatusInfo;
+	const Directory*			_pDirectory;
+	ClosedStatusInfo*			_closedStatusInfo;
 
 	SingleItem();
 	SingleItem( const SingleItem& );
@@ -203,13 +214,13 @@ public :
 
 	bool addBatchItems( const EmaVector<EmaString>& );
 
-	const EmaVector<SingleItem*> & getSingleItemList();
+	const EmaVector<SingleItem*>& getSingleItemList();
 
-	SingleItem * getSingleItem( Int32 );
+	SingleItem* getSingleItem( Int32 );
 
 	void decreaseItemCount();
 
-	ItemType getType() const { return Item::BatchItemEnum; }
+	ItemType getType() const;
 
 	Item* getItem( Int32 );
 
@@ -218,7 +229,6 @@ private :
 	static const EmaString		_clientName;
 
 	EmaVector<SingleItem*>		_singleItemList;
-
 	UInt32						_itemCount;
 
 	BatchItem( OmmConsumerImpl& , OmmConsumerClient& , void* );
@@ -226,6 +236,85 @@ private :
 	virtual ~BatchItem();
 	BatchItem( const BatchItem& );
 	BatchItem& operator=( const BatchItem& );
+};
+
+class TunnelItem : public Item
+{
+public :
+
+	static TunnelItem* create( OmmConsumerImpl& , OmmConsumerClient& , void* );
+
+	ItemType getType() const;
+
+	const Directory* getDirectory();
+
+	bool open( const TunnelStreamRequest& );
+	bool open( const ReqMsg& );
+	bool modify( const ReqMsg& );
+	bool submit( const PostMsg& );
+	bool submit( const GenericMsg& );
+	bool close();
+	void remove();
+
+	void rsslTunnelStream( RsslTunnelStream* );
+
+	UInt32 addSubItem( Item* , UInt32 streamId = 0 );
+	void removeSubItem( UInt32 );
+
+	Item* getSubItem( UInt32 );
+
+	bool submitSubItemMsg( RsslMsg* );
+
+protected :
+
+	TunnelItem( OmmConsumerImpl& , OmmConsumerClient& , void* );
+	virtual ~TunnelItem();
+
+	void scheduleItemClosedStatus( const TunnelStreamRequest& , const EmaString& );
+
+private :
+
+	bool submit( const TunnelStreamRequest& );
+
+	static const EmaString		_clientName;
+	static const UInt32			_startingStreamId = 5;
+
+	const Directory*			_pDirectory;
+	RsslTunnelStream*			_pRsslTunnelStream;
+	ClosedStatusInfo*			_closedStatusInfo;
+	EmaVector< Item* >			_subItemList;
+};
+
+class SubItem : public Item
+{
+public :
+
+	static SubItem* create( OmmConsumerImpl& , OmmConsumerClient& , void* , Item* );
+
+	ItemType getType() const;
+
+	const Directory* getDirectory();
+
+	bool open( const ReqMsg& );
+	bool modify( const ReqMsg& );
+	bool submit( const PostMsg& );
+	bool submit( const GenericMsg& );
+	bool close();
+	void remove();
+
+protected :
+
+	SubItem( OmmConsumerImpl& , OmmConsumerClient& , void* , Item* );
+
+	virtual ~SubItem();
+
+	void scheduleItemClosedStatus( const ReqMsgEncoder& , const EmaString& );
+
+private :
+
+	static const EmaString		_clientName;
+
+	ClosedStatusInfo*			_closedStatusInfo;
 };
 
 typedef Item* ItemPtr;
@@ -242,7 +331,9 @@ public :
 
 	void initialize();
 
-	UInt64 registerClient( const ReqMsg& , OmmConsumerClient& , void* );
+	UInt64 registerClient( const ReqMsg& , OmmConsumerClient& , void* , UInt64 );
+
+	UInt64 registerClient( const TunnelStreamRequest& , OmmConsumerClient& , void* );
 
 	void reissue( const ReqMsg& , UInt64 );
 
@@ -252,7 +343,13 @@ public :
 
 	void submit( const GenericMsg& , UInt64 );
 
-	RsslReactorCallbackRet processCallback(  RsslReactor* , RsslReactorChannel* , RsslMsgEvent* );
+	RsslReactorCallbackRet processCallback( RsslReactor* , RsslReactorChannel* , RsslMsgEvent* );
+
+	RsslReactorCallbackRet processCallback( RsslTunnelStream* , RsslTunnelStreamStatusEvent* );
+
+	RsslReactorCallbackRet processCallback( RsslTunnelStream* , RsslTunnelStreamMsgEvent* );
+
+	RsslReactorCallbackRet processCallback( RsslTunnelStream* , RsslTunnelStreamQueueMsgEvent* );
 
 	void addToList( Item* );
 	void removeFromList( Item* );
@@ -299,6 +396,12 @@ private :
 	RsslReactorCallbackRet processRefreshMsg( RsslMsg* , RsslReactorChannel* , RsslMsgEvent* );
 	RsslReactorCallbackRet processUpdateMsg( RsslMsg* , RsslReactorChannel* , RsslMsgEvent* );
 	RsslReactorCallbackRet processStatusMsg( RsslMsg* , RsslReactorChannel* , RsslMsgEvent* );
+
+	RsslReactorCallbackRet processAckMsg( RsslTunnelStream* , RsslTunnelStreamMsgEvent* );
+	RsslReactorCallbackRet processGenericMsg( RsslTunnelStream* , RsslTunnelStreamMsgEvent* );
+	RsslReactorCallbackRet processRefreshMsg( RsslTunnelStream* , RsslTunnelStreamMsgEvent* );
+	RsslReactorCallbackRet processUpdateMsg( RsslTunnelStream* , RsslTunnelStreamMsgEvent* );
+	RsslReactorCallbackRet processStatusMsg( RsslTunnelStream* , RsslTunnelStreamMsgEvent* );
 
 	ItemCallbackClient( OmmConsumerImpl& );
 	virtual ~ItemCallbackClient();

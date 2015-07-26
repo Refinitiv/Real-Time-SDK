@@ -34,7 +34,6 @@ The 210__MarketByOrder__Streaming implements the following high level steps:
   - sets user name to "user"
   - sets host name on the preconfigured connection to "localhost"
   - sets port on the preconfigured connection to "14002"
-  - sets operationModel to UserDispatchEnum
 + Instantiates an OmmConsumer object which initializes the connection 
   and logs into the specified server.
 + Opens a streaming item interest

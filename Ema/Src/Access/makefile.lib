@@ -26,30 +26,32 @@ optimizedShared:        $(OUTPUT_DIR)/libema.so
 optimizedStatic:	CFLAGS += -D__EMA_STATIC_BUILD__
 optimizedStatic:	LIBTYPE=Optimized
 optimizedStatic:        $(OUTPUT_DIR)/libema.a
-optimizedAssertStatic:	CFLAGS += -D__EMA_STATIC_BUILD__
+optimizedAssertStatic:	CFLAGS += -D__EMA_STATIC_BUILD__ -D_EMA_BLDTYPE_ASSERT_
 optimizedAssertStatic:	LIBTYPE=Optimized_Assert
 optimizedAssertStatic:  $(OUTPUT_DIR)/libema.a
-optimizedAssertShared:	CFLAGS += -shared -fPIC
+optimizedAssertShared:	CFLAGS += -shared -fPIC -D_EMA_BLDTYPE_ASSERT_
 optimizedAssertShared:	LIBTYPE=Optimized_Assert
 optimizedAssertShared:  $(OUTPUT_DIR)/libema.so
 
 INCLUDES=	-I./Include					\
 		-I..						\
-		-I../../../eta/Src/Rssl/Include			\
-		-I../../../eta/Src/ValueAdd/Include		\
-		-I../../../ema/Src/Rdm/Impl			\
-		-I../../../ema/Src/Rdm/Include			\
-		-I../../../ema/Src/libxml/src/include
-STATIC_LIBS=	$(ROOTNODE)/eta/Libs/$(IDENT)/$(LIBTYPE)/librsslData.a			\
-		$(ROOTNODE)/eta/Libs/$(IDENT)/$(LIBTYPE)/librsslMessages.a		\
-		$(ROOTNODE)/eta/Libs/$(IDENT)/$(LIBTYPE)/librsslTransport.a		\
-		$(ROOTNODE)/eta/Libs/ValueAdd/$(IDENT)/$(LIBTYPE)/librsslRDM.a		\
-		$(ROOTNODE)/eta/Libs/ValueAdd/$(IDENT)/$(LIBTYPE)/librsslReactor.a	\
-		$(ROOTNODE)/eta/Libs/ValueAdd/$(IDENT)/$(LIBTYPE)/librsslVAUtil.a	\
-		$(ROOTNODE)/ema/Src/libxml/src/$(IDENT)/Static/libxml2.a
-SHARED_LIBS=    -L$(ROOTNODE)/eta/Libs/$(IDENT)/$(LIBTYPE)/Shared/		\
-		-L$(ROOTNODE)/eta/Libs/ValueAdd/$(IDENT)/$(LIBTYPE)/Shared/	\
-		-L$(ROOTNODE)/ema/Src/libxml/src/$(IDENT)/Shared/		\
+		-I../../../Eta/Include			\
+		-I../../../Eta/Include/Codec		\
+		-I../../../Eta/Include/Transport		\
+		-I../../../Eta/Include/RDM	\
+		-I../../../Eta/Include/Reactor	\
+		-I../../../Eta/Include/Util		\
+		-I../../../Ema/Src/Rdm/Impl			\
+		-I../../../Ema/Src/Rdm/Include			\
+		-I../../../Ema/Src/libxml/src/include
+STATIC_LIBS=	 $(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/librsslRDM.a		\
+		$(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/librssl.a	\
+		$(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/librsslReactor.a	\
+		$(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/librsslVAUtil.a	\
+		$(ROOTNODE)/Ema/Src/libxml/src/$(IDENT)/Static/libxml2.a
+SHARED_LIBS=    -L$(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/Shared/		\
+		-L$(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/Shared/	\
+		-L$(ROOTNODE)/Ema/Src/libxml/src/$(IDENT)/Shared/		\
 		-lrssl -lrsslVA -lxml2
 
 EMA_LIB_SRC=	$(shell ls Impl/*.cpp)
@@ -80,5 +82,7 @@ $(OUTPUT_DIR)/libema.a: $(RDM_LIB_OBJ) $(EMA_VER_OBJ) $(EMA_LIB_OBJ)
 	$(shell rmdir $(tmpdir))
 
 $(OUTPUT_DIR)/libema.so: $(RDM_LIB_OBJ) $(EMA_VER_OBJ) $(EMA_LIB_OBJ)
-	$(CC) $(CFLAGS) -o $(OUTPUT_DIR)/libema.so $^ $(SHARED_LIBS)
+	$(CC) $(CFLAGS) -Wl,-soname,libema.so.3 -o $(OUTPUT_DIR)/libema.so.3.0 $^ $(SHARED_LIBS)
+	ln -fs libema.so.3.0 $(OUTPUT_DIR)/libema.so.3
+	ln -fs libema.so.3 $(OUTPUT_DIR)/libema.so
 

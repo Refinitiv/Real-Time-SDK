@@ -1,6 +1,6 @@
 ROOTNODE=$(shell cd ../../../../../; pwd)
 
-CFLAGS += -m64 -D_REENTRANT -DLinux  -DCOMPILE_64BITS
+CFLAGS += -m64 -D_REENTRANT -DLinux -O3 -DCOMPILE_64BITS
 
 ifeq ($(findstring RedHat,$(DIST)), RedHat)
     ifeq ($(findstring 6, $(OS_VER)), 6)
@@ -35,25 +35,35 @@ optimizedAssertStatic:	LIBS=$(STATIC_LIBS)
 optimizedAssertShared:	LIBTYPE=Optimized_Assert
 optimizedAssertShared:	LIBS=$(SHARED_LIBS)
 
-INCLUDES = -I$(ROOTNODE)/ema/Src/Include -I$(ROOTNODE)/ema/Src
+INCLUDES = -I$(ROOTNODE)/Ema/Src/Include -I$(ROOTNODE)/Ema/Src
 
 EXE_DIR     = $(OUTPUT_DIR)
 SYSTEM_LIBS = -lnsl -lpthread -ldl -lrt
-ifdef USE_CUSTOM_BUILD
-STATIC_LIBS = -L$(ROOTNODE)/ema/Src/Access/Libs/$(IDENT)/$(LIBTYPE)
+ifeq ($(USE_CUSTOM_BUILD),true)
+STATIC_LIBS = -L$(ROOTNODE)/Ema/Src/Access/Libs/$(IDENT)/$(LIBTYPE)
 else
-STATIC_LIBS = -L$(ROOTNODE)/ema/Libs/$(IDENT)/$(LIBTYPE)
+STATIC_LIBS = -L$(ROOTNODE)/Ema/Libs/$(IDENT)/$(LIBTYPE)
 endif
 STATIC_LIBS += -lema $(SYSTEM_LIBS)
 
-ifdef USE_CUSTOM_BUILD
-SHARED_LIBS =	-L$(ROOTNODE)/ema/Src/Access/Libs/$(IDENT)/$(LIBTYPE)/Shared	\
-		-L$(ROOTNODE)/ema/Src/libxml/src/$(IDENT)/Shared
+ifeq ($(findstring GSG,$(DISTRIBUTION_SRC)), GSG)
+	ifeq ($(USE_CUSTOM_BUILD),true)
+		SHARED_LIBS =	-L$(ROOTNODE)/Ema/Src/Access/Libs/$(IDENT)/$(LIBTYPE)/Shared	\
+				-L$(ROOTNODE)/Ema/Src/libxml/src/$(IDENT)/Shared
+	else
+		SHARED_LIBS =	-L$(ROOTNODE)/Ema/Libs/$(IDENT)/$(LIBTYPE)/Shared
+	endif
 else
-SHARED_LIBS =	-L$(ROOTNODE)/ema/Libs/$(IDENT)/$(LIBTYPE)/Shared
+	ifeq ($(findstring GitHub,$(DISTRIBUTION_SRC)), GitHub)
+	SHARED_LIBS =	-L$(ROOTNODE)/Ema/Libs/$(IDENT)/$(LIBTYPE)/Shared	\
+			-L$(ROOTNODE)/Ema/Src/libxml/src/$(IDENT)/Shared
+	STATIC_LIBS =   -L$(ROOTNODE)/Ema/Libs/$(IDENT)/$(LIBTYPE) -lema $(SYSTEM_LIBS)
+	else
+$(error makefile.common variable DISTRIBUTION_SRC must be 'GitHub' or 'GSG')
+	endif
 endif
-SHARED_LIBS +=	-L$(ROOTNODE)/eta/Libs/$(IDENT)/$(LIBTYPE)/Shared		\
-		-L$(ROOTNODE)/eta/Libs/ValueAdd/$(IDENT)/$(LIBTYPE)/Shared	\
+SHARED_LIBS +=	-L$(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/Shared		\
+		-L$(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/Shared	\
 		-lema -lxml2 -lrssl -lrsslVA $(SYSTEM_LIBS)
 
 $(OUTPUT_DIR)/obj/%.o : %.cpp

@@ -60,7 +60,7 @@
 			break;
 		}
 
-		while ( !series.forth() )
+		while ( series.forth() )
 		{
 			const SeriesEntry& sEntry = series.getEntry();
 
@@ -196,7 +196,7 @@ public :
 	const EmaString& toString() const;
 
 	/** Iterates through a list of Data of any DataType. Typical usage is to extract the entry during each iteration via getEntry().
-		@return true at the end of Series; false otherwise
+		@return false at the end of Series; true otherwise
 	*/
 	bool forth() const;
 

@@ -67,7 +67,9 @@ public :
 
 	RsslRequestMsg* getRsslRequestMsg() const;
 
-	const EmaVector<EmaString> & getBatchItemList() const;
+	const EmaVector<EmaString>& getBatchItemList() const;
+
+	bool getPrivateStream() const;
 
 private :
 

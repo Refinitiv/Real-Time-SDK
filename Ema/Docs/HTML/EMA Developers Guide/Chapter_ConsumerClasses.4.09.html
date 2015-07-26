@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>4.2.2 Example: OmmConsumerClient</title>
+    <link rel="StyleSheet" href="css/Chapter_ConsumerClasses.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <br />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="H3_inner" style="width: 54pt; white-space: nowrap">
+                <span class="bold">4.2.2	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="H3_inner"><a name="1020927">Example: OmmConsumerClient</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1020958">The following example illustrates an application client-type class, depicting </a><span class="CodeOrCommand">onRefreshMsg()</span> method implementation.</div>
+      <div class="Blank_Line"><a name="1020844">&nbsp;</a></div>
+      <table class="Commands" style="text-align: left; width: 554.95152pt" cellspacing="0" summary="">
+        <caption></caption>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><a name="1020967">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span class="Color_003aBlue"><a name="1020969">class</a></span> <span class="Color_003aLight_Blue">AppClient</span> : <span class="Color_003aBlue">public</span> thomsonreuters::ema::access::<span class="Color_003aLight_Blue">OmmConsumerClient</span></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1020977">{</a></span></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span class="Color_003aBlue"><a name="1020979">protected</a></span> :</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><a name="1020981">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1020983">	</a></span><span class="Color_003aBlue">void</span> onRefreshMsg( <span class="Color_003aBlue">const</span> thomsonreuters::ema::access::<span class="Color_003aLight_Blue">RefreshMsg</span>&amp;, <span class="Color_003aBlue">const</span> </div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1020985">				thomsonreuters::ema::access::</a></span><span class="Color_003aLight_Blue">OmmConsumerEvent</span>&amp; );</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><a name="1020987">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1020989">	</a></span><span class="Color_003aBlue">void</span> onUpdateMsg( <span class="Color_003aBlue">const</span> thomsonreuters::ema::access::<span class="Color_003aLight_Blue">UpdateMsg</span>&amp;, <span class="Color_003aBlue">const</span> </div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1020991">				thomsonreuters::ema::access::</a></span><span class="Color_003aLight_Blue">OmmConsumerEvent</span>&amp; );</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><a name="1020993">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1020995">	</a></span><span class="Color_003aBlue">void</span> onStatusMsg( <span class="Color_003aBlue">const</span> thomsonreuters::ema::access::<span class="Color_003aLight_Blue">StatusMsg</span>&amp;, <span class="Color_003aBlue">const</span> </div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1020997">				thomsonreuters::ema::access::</a></span><span class="Color_003aLight_Blue">OmmConsumerEvent</span>&amp; );</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1020999">};</a></span></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span class="Color_003aBlue"><a name="1021001">void</a></span> <span class="Color_003aLight_Blue">AppClient</span>::onRefreshMsg( <span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">RefreshMsg</span>&amp; refreshMsg, <span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">OmmConsumerEvent</span>&amp; ) </div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1021003">{</a></span></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1021005">	</a></span><span class="Color_003aBlue">if</span> ( refreshMsg.hasMsgKey() )</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1021007">		cout &lt;&lt; endl &lt;&lt; </a></span><span class="Color_003aRed">"Item Name: "</span> &lt;&lt; refreshMsg.getName() &lt;&lt; endl &lt;&lt; <span class="Color_003aRed">"Service Name: "</span> &lt;&lt; </div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1021009">					refreshMsg.getServiceName();</a></span></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><a name="1021011">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1021013">	cout &lt;&lt; endl &lt;&lt; </a></span><span class="Color_003aRed">"Item State: "</span> &lt;&lt; refreshMsg.getState().toString() &lt;&lt; endl;</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><a name="1021015">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1021017">	</a></span><span class="Color_003aBlue">if</span> ( <span class="Color_003aLight_Blue">DataType</span>::NoDataEnum != refreshMsg.getPayload().getDataType() )</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1021019">		decode( refreshMsg.getPayload().getData() );</a></span></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1021021">}</a></span></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><a name="1020971">&nbsp;</a></div>
+          </td>
+        </tr>
+      </table>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

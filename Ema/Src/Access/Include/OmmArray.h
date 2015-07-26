@@ -34,7 +34,7 @@
 	{
 		const OmmArray& array = eList.getArray();
 
-		while ( !array.forth() )
+		while ( array.forth() )
 		{
 			const OmmArrayEntry& aEntry = array.getEntry();
 			switch ( aEntry.getLoadType() )
@@ -134,6 +134,7 @@ public :
 
 	/** Iterates through a list of Data of any DataType. Typical usage is
 		to extract the entry during each iteration via getEntry().
+		@return false at the end of Ommarray; true otherwise
 	*/
 	bool forth() const;
 

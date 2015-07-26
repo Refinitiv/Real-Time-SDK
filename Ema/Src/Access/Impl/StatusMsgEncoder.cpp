@@ -353,6 +353,13 @@ RsslStatusMsg* StatusMsgEncoder::getRsslStatusMsg() const
 		_rsslStatusMsg.flags |= RSSL_STMF_HAS_GROUP_ID;
 	}
 
+	if ( _payloadDataType != RSSL_DT_NO_DATA )
+	{
+		_rsslStatusMsg.msgBase.containerType = _payloadDataType;
+		_rsslStatusMsg.msgBase.encDataBody.data = (char*)_payload.c_buf();
+		_rsslStatusMsg.msgBase.encDataBody.length = _payload.length();
+	}
+
 	if ( _stateSet )
 	{
 		_rsslStatusMsg.state.streamState = _streamState;
@@ -386,6 +393,12 @@ RsslStatusMsg* StatusMsgEncoder::getRsslStatusMsg() const
 		_rsslStatusMsg.groupId.data = (char*)_pItemGroup->c_buf();
 		_rsslStatusMsg.groupId.length = _pItemGroup->length();
 		_rsslStatusMsg.flags |= RSSL_STMF_HAS_GROUP_ID;
+	}
+
+	if ( _payloadDataType != RSSL_DT_NO_DATA )
+	{
+		_rsslStatusMsg.msgBase.containerType = _payloadDataType;
+		_rsslStatusMsg.msgBase.encDataBody = *_pPayload;
 	}
 
 	if ( _stateSet )

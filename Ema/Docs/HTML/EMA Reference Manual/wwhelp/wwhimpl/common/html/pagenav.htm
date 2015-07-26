@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <!-- Copyright (c) 2000-2014 Quadralay Corporation.  All rights reserved. -->
+
+ <head>
+  <meta http-equiv="content-type" content="text/html" />
+  <meta http-equiv="charset"      content="UTF-8" />
+  
+
+  <title>pagenav.htm</title>
+
+  <script type="text/javascript" language="JavaScript1.2">
+   <!--
+    var  WWHFrame = null;
+
+
+    // Set reference to top level help frame
+    //
+    try
+    {
+      if ((typeof(parent.WWHHelp) != "undefined") &&
+          (parent.WWHHelp != null))
+      {
+        WWHFrame = eval("parent");
+      }
+      else if ((typeof(parent.parent.WWHHelp) != "undefined") &&
+               (parent.parent.WWHHelp != null))
+      {
+        WWHFrame = eval("parent.parent");
+      }
+    }
+    catch (exception)
+    {
+      // Assume we've got a security situation on our hands
+      //
+    }
+
+    function  WWHPageNavFrame_HandleKeyDown(ParamEvent)
+    {
+      return WWHFrame.WWHHelp.fHandleKeyDown(ParamEvent);
+    }
+
+    function  WWHPageNavFrame_HandleKeyPress(ParamEvent)
+    {
+      return WWHFrame.WWHHelp.fHandleKeyPress(ParamEvent);
+    }
+
+    function  WWHPageNavFrame_HandleKeyUp(ParamEvent)
+    {
+      return WWHFrame.WWHHelp.fHandleKeyUp(ParamEvent);
+    }
+   // -->
+  </script>
+ </head>
+
+ <frameset cols="87,*,160" border="0" frameborder="0" framespacing="0" onkeydown="WWHPageNavFrame_HandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHPageNavFrame_HandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHPageNavFrame_HandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+  <frame name="" src="blank.htm" scrolling="no" />
+  <frame name="" src="blank.htm" scrolling="no" role="presentation" />
+  <frame name="" src="blank.htm" scrolling="no" />
+
+  <noframes>
+   <body>
+    <p>This page uses frames, but your browser doesn't support them.</p>
+   </body>
+  </noframes>
+ </frameset>
+</html>

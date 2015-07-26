@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>410__MarketPrice__HorizontalScaling</title>
+    <link rel="StyleSheet" href="css/EMA_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <br />
+    <hr align="left" />
+    <blockquote>
+      <div class="H2_NoNum"><a name="1019302">410__MarketPrice__HorizontalScaling</a></div>
+      <div class="Body"><a name="1026688">Summary</a></div>
+      <div class="Body"><a name="1026689">=======</a></div>
+      <div class="Body"><a name="1026690">&nbsp;</a></div>
+      <div class="Body"><a name="1026691">The 410__MarketPrice__HorizontalScaling application is provided as an example</a></div>
+      <div class="Body"><a name="1026692">of OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1026693">&nbsp;</a></div>
+      <div class="Body"><a name="1026694">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1026695">and parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1026696">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1026697">Distribution Server.</a></div>
+      <div class="Body"><a name="1026698">&nbsp;</a></div>
+      <div class="Body"><a name="1026699">The 410__MarketPrice__HorizontalScaling showcases horizontal scaling capability</a></div>
+      <div class="Body"><a name="1026700">of Omm Consumer to take advantage of multiple core processors.</a></div>
+      <div class="Body"><a name="1026701">&nbsp;</a></div>
+      <div class="Body"><a name="1026702">&nbsp;</a></div>
+      <div class="Body"><a name="1026703">Detailed Description</a></div>
+      <div class="Body"><a name="1026704">====================</a></div>
+      <div class="Body"><a name="1026705">&nbsp;</a></div>
+      <div class="Body"><a name="1026706">The 410__MarketPrice__HorizontalScaling implements the following high level steps:</a></div>
+      <div class="Body"><a name="1026707">&nbsp;</a></div>
+      <div class="Body"><a name="1026708">+ Implements ConsumerManager to manage OmmConsumer and control user dispatch thread</a></div>
+      <div class="Body"><a name="1026709">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1026710">  - provides own methods as needed</a></div>
+      <div class="Body"><a name="1026711">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1026712">+ Instantiates two ConsumerManager to create OmmConsumer and user threads with the </a></div>
+      <div class="Body"><a name="1026713">  following configuration</a></div>
+      <div class="Body"><a name="1026714">  - sets user name to “user1” and “user2” for each ConsumerManager respectively</a></div>
+      <div class="Body"><a name="1026715">  - sets host name on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1026716">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1026717">+ ConsumerManager instantiates OmmConsumer object which</a></div>
+      <div class="Body"><a name="1026718">  - initializes connection and logins into specified server</a></div>
+      <div class="Body"><a name="1026719">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1026720">+ Opens streaming item interests from each ConsumerManager </a></div>
+      <div class="Body"><a name="1026721">  - MarketPrice IBM.N item from DIRECT_FEED service for first ConsumerManager</a></div>
+      <div class="Body"><a name="1026722">  - MarketPrice TRI.N item from DIRECT_FEED service for second ConsumerManager</a></div>
+      <div class="Body"><a name="1026723">+ Processes data received from user thread in ConsumerManager for 60 seconds</a></div>
+      <div class="Body"><a name="1026724">  - all received messages are processed on user thread of control  </a></div>
+      <div class="Body"><a name="1026725">+ Exits</a></div>
+      <div class="Body"><a name="1026726">&nbsp;</a></div>
+      <div class="Body"><a name="1026727">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1026728">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1026729">	  </a></div>
+      <div class="Body"><a name="1026730">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1026731">      standard configuration.</a></div>
+      <div class="Body"><a name="1026732">&nbsp;</a></div>
+      <div class="Body"><a name="1026733">&nbsp;</a></div>
+      <div class="Body"><a name="1026734">OmmConsumerClient and Callbacks</a></div>
+      <div class="Body"><a name="1026735">===============================</a></div>
+      <div class="Body"><a name="1026736">&nbsp;</a></div>
+      <div class="Body"><a name="1026737">The 410__MarketPrice__HorizontalScaling demonstrates how to receive and process</a></div>
+      <div class="Body"><a name="1026738">individual item response messages. Additionally this application shows a native</a></div>
+      <div class="Body"><a name="1024653">/ RWF decoding of FieldList container.</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

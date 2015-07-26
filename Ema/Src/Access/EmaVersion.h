@@ -7,23 +7,40 @@
 #define Ema_Release_Major		3
 #define Ema_Release_Minor		0
 #define Ema_Product_Major		0
-#define Ema_Product_Minor		8
+#define Ema_Product_Minor		9
 #define PRODNAME			"Elektron Message API EMA "
-#define PRODVERNAME			"3.0.0.L1 beta2"
+#define PRODVERNAME			"3.0.0.L1 RRG"
 #define COMPANYNAME			"Thomson Reuters, Oak Brook, IL"
 #define COPYRIGHTYEAR			"2015"
-#define DDATE				"Thu Jun 25 12:21:03 CDT 2015"
-#define INTERNALVERSION			"(Internal Node: Ema 3.0.F8)"
+#define DDATE				"Wed Jul  24 11:11:42 CDT 2015"
+#define INTERNALVERSION			"(Internal Node: Ema 3.0.F9)"
 /*--------------------------------------------------------------------------
 	 CHANGE ABOVE HERE
 --------------------------------------------------------------------------*/
 
 
-#ifdef NDEBUG
-	#define BLDTYPE "RELEASE"
+#ifdef WIN32
+	#ifdef NDEBUG
+		#ifdef _EMA_BLDTYPE_ASSERT_
+			#define BLDTYPE "Release_MD_Assert"
+		#else
+			#define BLDTYPE "Release_MD"
+		#endif
+	#else
+		#define BLDTYPE "Debug_MDd"
+	#endif
 #else
-	#define BLDTYPE "DEBUG"
-#endif
+	#ifdef NDEBUG
+		#ifdef _EMA_BLDTYPE_ASSERT_
+			#define BLDTYPE "Optimized_Assert"
+		#else
+			#define BLDTYPE "Optimized"
+		#endif
+	#else
+		#define BLDTYPE "Debug"
+	#endif
+#endif 
+
 
 #define STR_EXPAND(str) #str
 #define MKSTR(str) STR_EXPAND(str)

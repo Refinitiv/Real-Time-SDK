@@ -20,6 +20,7 @@ UpdateMsgEncoder::UpdateMsgEncoder() :
 #else
  _pPermissionData( 0 ),
 #endif
+ _updateTypeNum( 0 ),
  _nameType( 0 ),
  _domainType( RSSL_DMT_MARKET_PRICE ),
  _serviceId( 0 ),
@@ -59,6 +60,7 @@ void UpdateMsgEncoder::clear()
 	_streamId = 0;
 	_identifierSet = false;
 	_filterSet = false;
+	_updateTypeNum = 0;
 	_nameTypeSet = false;
 	_serviceIdSet = false;
 	_sequenceNumSet = false;

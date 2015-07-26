@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>332__Dictionary__Streaming</title>
+    <link rel="StyleSheet" href="css/EMA_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <br />
+    <hr align="left" />
+    <blockquote>
+      <div class="H2_NoNum"><a name="1020350">332__Dictionary__Streaming</a></div>
+      <div class="Body"><a name="1026234">Summary</a></div>
+      <div class="Body"><a name="1026235">=======</a></div>
+      <div class="Body"><a name="1026236">&nbsp;</a></div>
+      <div class="Body"><a name="1026237">The 332__Dictionary__Streaming application is provided as an example of</a></div>
+      <div class="Body"><a name="1026238">OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1026239">&nbsp;</a></div>
+      <div class="Body"><a name="1026240">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1026241">and parsing of OMM Dictionary and MarketPrice data from Reuters Data Feed</a></div>
+      <div class="Body"><a name="1026242">Direct (RDF-D), directly from an OMM Provider application, or from Thomson</a></div>
+      <div class="Body"><a name="1026243">Reuters Advanced Distribution Server.</a></div>
+      <div class="Body"><a name="1026244">&nbsp;</a></div>
+      <div class="Body"><a name="1026245">The 332__Dictionary__Streaming showcases usage of directory stream in Omm</a></div>
+      <div class="Body"><a name="1026246">Consumer. It demonstrates opening of dicitionary stream as well as its processing.</a></div>
+      <div class="Body"><a name="1026247">&nbsp;</a></div>
+      <div class="Body"><a name="1026248">&nbsp;</a></div>
+      <div class="Body"><a name="1026249">Detailed Description</a></div>
+      <div class="Body"><a name="1026250">====================</a></div>
+      <div class="Body"><a name="1026251">&nbsp;</a></div>
+      <div class="Body"><a name="1026252">The 332__Dictionary__Streaming implements the following high level steps:</a></div>
+      <div class="Body"><a name="1026253">&nbsp;</a></div>
+      <div class="Body"><a name="1026254">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1026255">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1026256">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1026257">    - each of the method provided in this example use the ease of use</a></div>
+      <div class="Body"><a name="1026258">	  data extraction methods that are data type specific</a></div>
+      <div class="Body"><a name="1026259">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1026260">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1026261">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1026262">  - sets host name on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1026263">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1026264">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1026265">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1026266">+ Opens three streaming item interests</a></div>
+      <div class="Body"><a name="1026267">  - Dictionary Domain stream for RWFFld</a></div>
+      <div class="Body"><a name="1026268">  - Dictionary Domain stream for RWFEnum</a></div>
+      <div class="Body"><a name="1026269">  - Market Price Domain IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1026270">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1026271">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1026272">+ Exits</a></div>
+      <div class="Body"><a name="1026273">&nbsp;</a></div>
+      <div class="Body"><a name="1026274">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1026275">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1026276">	  </a></div>
+      <div class="Body"><a name="1026277">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1026278">      standard configuration.</a></div>
+      <div class="Body"><a name="1026279">&nbsp;</a></div>
+      <div class="Body"><a name="1026280">&nbsp;</a></div>
+      <div class="Body"><a name="1026281">OmmConsumerClient and Callbacks</a></div>
+      <div class="Body"><a name="1026282">===============================</a></div>
+      <div class="Body"><a name="1026283">&nbsp;</a></div>
+      <div class="Body"><a name="1026284">The 332__Dictionary__Streaming demonstrates how to receive and process individual item</a></div>
+      <div class="Body"><a name="1026285">response messages for Dictionary and MarketPrice domains. Additionally this application</a></div>
+      <div class="Body"><a name="1023979">shows a native / RWF decoding of Series and ElementList containers.</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

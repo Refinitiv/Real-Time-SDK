@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>230__MarketByOrder__SwitchEntryAction</title>
+    <link rel="StyleSheet" href="css/EMA_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <br />
+    <hr align="left" />
+    <blockquote>
+      <div class="H2_NoNum"><a name="1019282">230__MarketByOrder__SwitchEntryAction</a></div>
+      <div class="Body"><a name="1025522">Summary</a></div>
+      <div class="Body"><a name="1025523">=======</a></div>
+      <div class="Body"><a name="1025524">&nbsp;</a></div>
+      <div class="Body"><a name="1025525">The 230__MarketByOrder__SwitchEntryAction application is provided as an</a></div>
+      <div class="Body"><a name="1025526">example of OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1025527">&nbsp;</a></div>
+      <div class="Body"><a name="1025528">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1025529">and parsing of OMM MarketByOrder data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1025530">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1025531">Distribution Server.</a></div>
+      <div class="Body"><a name="1025532">&nbsp;</a></div>
+      <div class="Body"><a name="1025533">The 230__MarketByOrder__SwitchEntryAction showcases application varying processing</a></div>
+      <div class="Body"><a name="1025534">of Map Entry based on this Map Entry’s Action value (see decode( const Map&amp; ( ) )</a></div>
+      <div class="Body"><a name="1025535">for details.</a></div>
+      <div class="Body"><a name="1025536">&nbsp;</a></div>
+      <div class="Body"><a name="1025537">&nbsp;</a></div>
+      <div class="Body"><a name="1025538">Detailed Description</a></div>
+      <div class="Body"><a name="1025539">====================</a></div>
+      <div class="Body"><a name="1025540">&nbsp;</a></div>
+      <div class="Body"><a name="1025541">The 230__MarketByOrder__SwitchEntryAction implements the following high level steps:</a></div>
+      <div class="Body"><a name="1025542">&nbsp;</a></div>
+      <div class="Body"><a name="1025543">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1025544">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1025545">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1025546">    - the decode( const FieldList&amp; ) iterates through the received FieldList,</a></div>
+      <div class="Body"><a name="1025547">	  extracts each FieldEntry reference from the current position on the</a></div>
+      <div class="Body"><a name="1025548">	  FieldList, and extracts field id, name and value of the current FieldEntry</a></div>
+      <div class="Body"><a name="1025549">	- the decode( const Map&amp; ) iterates through the received Map, extracts Summary</a></div>
+      <div class="Body"><a name="1025550">	  if it is present, extracts MapEntry from which it extracts key, and load values</a></div>
+      <div class="Body"><a name="1025551">	- both methods use native / RWF data format while extracting data</a></div>
+      <div class="Body"><a name="1025552">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1025553">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1025554">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1025555">  - sets host name on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1025556">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1025557">  - sets operationModel to UserDisptchEnum</a></div>
+      <div class="Body"><a name="1025558">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1025559">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1025560">+ Opens streaming item interest</a></div>
+      <div class="Body"><a name="1025561">  - MarketByOrder Domain AAO.V item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1025562">+ Processes data received with user dispatch loop for 60 seconds</a></div>
+      <div class="Body"><a name="1025563">  - all received messages are processed on main application thread of control</a></div>
+      <div class="Body"><a name="1025564">+ Exits</a></div>
+      <div class="Body"><a name="1025565">&nbsp;</a></div>
+      <div class="Body"><a name="1025566">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1025567">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1025568">	  </a></div>
+      <div class="Body"><a name="1025569">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1025570">      standard configuration.</a></div>
+      <div class="Body"><a name="1022917">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

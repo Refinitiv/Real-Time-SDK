@@ -71,7 +71,7 @@
 
 	\code
 
-	while ( !filterList.forth() )
+	while ( filterList.forth() )
 	{
 		const FilterEntry& entry = filterList.getEntry();
 		switch ( entry.getLoadType() )
@@ -182,14 +182,14 @@ public :
 
 	/** Iterates through a list of Data of any DataType.
 		Typical usage is to extract the entry during each iteration via getEntry().
-		@return true at the end of FilterList; false otherwise
+		@return false at the end of FilterList; true otherwise
 	*/
 	bool forth() const;
 
 	/** Iterates through a list of Data having matched actual filterId with the one passed in.
 		Typical usage is to extract the entry during each iteration via getEntry().
 		@param[in] filterId looked up filter id
-		@return true at the end of FilterList; false otherwise
+		@return false at the end of FilterList; true otherwise
 	*/
 	bool forth( UInt8 filterId ) const;
 

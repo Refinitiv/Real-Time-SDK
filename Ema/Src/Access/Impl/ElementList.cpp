@@ -66,17 +66,17 @@ Int16 ElementList::getInfoElementListNum() const
 
 bool ElementList::forth() const
 {
-	return _pDecoder->getNextData();
+	return !_pDecoder->getNextData();
 }
 
 bool ElementList::forth( const EmaString& name ) const
 {
-	return _pDecoder->getNextData( name );
+	return !_pDecoder->getNextData( name );
 }
 
 bool ElementList::forth( const Data& data ) const
 {
-	return _pDecoder->getNextData( data );
+	return !_pDecoder->getNextData( data );
 }
 
 void ElementList::reset() const

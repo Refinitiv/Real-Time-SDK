@@ -61,6 +61,11 @@ static const thomsonreuters::ema::access::UInt8 MMT_REPLAYSTORY				= 16;	/*!< Re
 static const thomsonreuters::ema::access::UInt8 MMT_TRANSACTION				= 17;	/*!< Transaction Message Model Type */
 static const thomsonreuters::ema::access::UInt8 MMT_YIELD_CURVE				= 22;	/*!< Yield Curve Message Model Type */
 static const thomsonreuters::ema::access::UInt8 MMT_CONTRIBUTION			= 27;	/*!< Contribution Message Model Type */
+static const thomsonreuters::ema::access::UInt8 MMT_PROVIDER_ADMIN			= 29;	
+static const thomsonreuters::ema::access::UInt8 MMT_ANALYTICS				= 30;	/*!< Analytics content */
+static const thomsonreuters::ema::access::UInt8 MMT_REFERENCE				= 31;	/*!< Reference content */
+static const thomsonreuters::ema::access::UInt8 MMT_NEWS_TEXT_ANALYTICS		= 33;	/*!< News Text Analytics domain for machine readable news content */
+static const thomsonreuters::ema::access::UInt8 MMT_SYSTEM					= 127;	/*!< System domain for use with domain netural content (e.g. tunnel stream creation) */
 static const thomsonreuters::ema::access::UInt8 MMT_MAX_RESERVED			= 127;	/*!< Maximum reserved message model type value */
 static const thomsonreuters::ema::access::UInt8 MMT_MAX_VALUE				= 255;	/*!< Maximum message model type value */
 //@}

@@ -230,6 +230,9 @@ ChannelConfig::ChannelConfig( RsslConnectionTypes type ) :
  connectionType( type ),
  connectionPingTimeout( DEFAULT_CONNECTION_PINGTIMEOUT ),
  guaranteedOutputBuffers( DEFAULT_GUARANTEED_OUTPUT_BUFFERS ),
+ numInputBuffers( DEFAULT_NUM_INPUT_BUFFERS ),
+ sysSendBufSize( DEFAULT_SYS_SEND_BUFFER_SIZE ),
+ sysRecvBufSize( DEFAULT_SYS_RECEIVE_BUFFER_SIZE ),
  reconnectAttemptLimit( DEFAULT_RECONNECT_ATTEMPT_LIMIT ),
  reconnectMinDelay( DEFAULT_RECONNECT_MIN_DELAY ),
  reconnectMaxDelay( DEFAULT_RECONNECT_MAX_DELAY ),
@@ -252,6 +255,9 @@ void ChannelConfig::clear()
 	compressionThreshold = DEFAULT_COMPRESSION_THRESHOLD;
 	connectionPingTimeout = DEFAULT_CONNECTION_PINGTIMEOUT;
 	guaranteedOutputBuffers = DEFAULT_GUARANTEED_OUTPUT_BUFFERS;
+	numInputBuffers = DEFAULT_NUM_INPUT_BUFFERS;
+	sysSendBufSize = DEFAULT_SYS_SEND_BUFFER_SIZE;
+	sysRecvBufSize = DEFAULT_SYS_RECEIVE_BUFFER_SIZE;
 	reconnectAttemptLimit = DEFAULT_RECONNECT_ATTEMPT_LIMIT;
 	reconnectMinDelay = DEFAULT_RECONNECT_MIN_DELAY;
 	reconnectMaxDelay = DEFAULT_RECONNECT_MAX_DELAY;
@@ -275,6 +281,37 @@ void ChannelConfig::setGuaranteedOutputBuffers(UInt64 value)
 		guaranteedOutputBuffers = 0xFFFFFFFF;
 	else
 		guaranteedOutputBuffers = (UInt32)value;
+}
+
+void ChannelConfig::setNumInputBuffers(UInt64 value)
+{
+	if ( value == 0 ) {} 
+	else
+	{
+		numInputBuffers = value > 0xFFFFFFFF ? 0xFFFFFFFF : (UInt32)value;
+	}
+}
+
+void ChannelConfig::setReconnectAttemptLimit(Int64 value)
+{
+	if ( value >= 0 )
+	{
+		reconnectAttemptLimit = value > 0x7FFFFFFF ? 0x7FFFFFFF : (Int32)value;
+	}
+}
+void ChannelConfig::setReconnectMinDelay(Int64 value)
+{
+	if( value > 0 )
+	{
+		reconnectMinDelay = value > 0x7FFFFFFF ? 0x7FFFFFFF : (Int32)value;
+	}
+}
+void ChannelConfig::setReconnectMaxDelay(Int64 value)
+{
+	if( value > 0 )
+	{
+		reconnectMaxDelay = value > 0x7FFFFFFF ? 0x7FFFFFFF : (Int32)value;
+	}
 }
 
 SocketChannelConfig::SocketChannelConfig() :
@@ -323,7 +360,8 @@ ChannelConfig::ChannelType ReliableMcastChannelConfig::getType() const
 }
 
 EncryptedChannelConfig::EncryptedChannelConfig() :
- ChannelConfig( RSSL_CONN_TYPE_ENCRYPTED )
+ ChannelConfig( RSSL_CONN_TYPE_ENCRYPTED ), 
+ objectName(DEFAULT_OBJECT_NAME)
 {
 }
 
@@ -338,6 +376,7 @@ void EncryptedChannelConfig::clear()
 	hostName = DEFAULT_HOST_NAME;
 	serviceName = DEFAULT_SERVICE_NAME;
 	tcpNodelay = DEFAULT_TCP_NODELAY;
+	objectName = DEFAULT_OBJECT_NAME;
 }
 
 ChannelConfig::ChannelType EncryptedChannelConfig::getType() const
@@ -346,7 +385,8 @@ ChannelConfig::ChannelType EncryptedChannelConfig::getType() const
 }
 
 HttpChannelConfig::HttpChannelConfig() :
- ChannelConfig( RSSL_CONN_TYPE_HTTP )
+ ChannelConfig( RSSL_CONN_TYPE_HTTP ),
+ objectName(DEFAULT_OBJECT_NAME)
 {
 }
 
@@ -361,6 +401,7 @@ void HttpChannelConfig::clear()
 	hostName = DEFAULT_HOST_NAME;
 	serviceName = DEFAULT_SERVICE_NAME;
 	tcpNodelay = DEFAULT_TCP_NODELAY;
+	objectName = DEFAULT_OBJECT_NAME;
 }
 
 ChannelConfig::ChannelType HttpChannelConfig::getType() const

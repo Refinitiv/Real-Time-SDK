@@ -89,7 +89,7 @@
 	{
 		const FieldList& fList = map.getFieldList();
 
-		while ( !fList.forth() )
+		while ( fList.forth() )
 		{
 			const FieldEntry& fEntry = fList.getEntry();
 			switch ( fEntry.getLoadType() )
@@ -228,28 +228,28 @@ public :
 
 	/** Iterates through a list of Data of any DataType.
 		Typical usage is to extract the entry during each iteration via getEntry().
-		@return true at the end of FieldList; false otherwise
+		@return false at the end of FieldList; true otherwise
 	*/
 	bool forth() const;
 
 	/** Iterates through a list of Data having the FieldId matching in the field dictionary.
 		Typical usage is to extract the entry during each iteration via getEntry().
 		@param[in] fieldId looked up FieldEntry's FieldId
-		@return true at the end of FieldList; false otherwise
+		@return false at the end of FieldList; true otherwise
 	*/
 	bool forth( Int16 fieldId ) const;
 
 	/** Iterates through a list of Data having the name matching the acronym in the field dictionary.
 		Typical usage is to extract the entry during each iteration via getEntry().
 		@param[in] name looked up FieldEntry's Field name (from RdmFieldDictionary)
-		@return true at the end of FieldList; false otherwise
+		@return false at the end of FieldList; true otherwise
 	*/
 	bool forth( const EmaString& name ) const;
 
 	/** Iterates through a list of Data having the name matching the specified Data.
 	    Typical usage is for the Data to be a view, and thus extract each matched entry during each iteration via getEntry().
 		@param[in] data containing ElementList with a view definition specifying looked up field Ids
-		@return true at the end of FieldList; false otherwise
+		@return false at the end of FieldList; true otherwise
 	*/
 	bool forth( const Data& data ) const;
 

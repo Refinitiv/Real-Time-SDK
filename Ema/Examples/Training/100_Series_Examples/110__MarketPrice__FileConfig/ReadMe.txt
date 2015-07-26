@@ -8,7 +8,7 @@ directly from an OMM Provider application, or from an Advanced
 Distribution Server.
 
 110__MarketPrice__FileConfig illustrates an implicit dependence of the 
-Omm Consumer on the EmaConfig.xml file located in the application's
+OMM Consumer on the EmaConfig.xml file located in the application's
 working directory. Unlike other training examples, this application depends 
 on EmaConfig.xml to determine its connectivity parameters.
 

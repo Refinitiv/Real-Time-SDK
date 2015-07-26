@@ -54,12 +54,12 @@ DataType::DataTypeEnum FilterList::getDataType() const
 
 bool FilterList::forth() const
 {
-	return _pDecoder->getNextData();
+	return !_pDecoder->getNextData();
 }
 
 bool FilterList::forth( UInt8 filterId ) const
 {
-	return _pDecoder->getNextData( filterId );
+	return !_pDecoder->getNextData( filterId );
 }
 
 void FilterList::reset() const

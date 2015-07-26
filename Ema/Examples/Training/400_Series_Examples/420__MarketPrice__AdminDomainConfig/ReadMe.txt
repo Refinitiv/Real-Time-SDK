@@ -30,6 +30,7 @@ The 420__MarketPrice__AdminDomainConfig implements the following high level step
   - sets request message for Login domain to override default
   - sets request message for Directory domain to override default
   - sets request message for Dictionary domain to override default
+  - sets operationModel to UserDispatchEnum
 + Instantiates OmmConsumer object which initializes connection and logins into
   the specified server
 + Opens a streaming item interest
@@ -43,11 +44,3 @@ Note: if needed, these and other details may be modified to fit local
 	  
 Note: please refer to the EMA library ReadMe.txt file for details on
       standard configuration.
-
-
-OmmConsumerClient and Callbacks
-===============================
-
-The 420__MarketPrice__AdminDomainConfig demonstrates how to receive and process individual
-item response messages. Additionally this application shows a native / RWF decoding of FieldList
-container.

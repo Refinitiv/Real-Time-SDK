@@ -19,7 +19,7 @@
 
 	decodeFilterList( const FilterList& fList )
 	{
-		while ( !fList.forth() )
+		while ( fList.forth() )
 		{
 			const FilterEntry& filterEntry = fList.getEntry();
 

@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <!-- Copyright (c) 2000-2014 Quadralay Corporation.  All rights reserved. -->
+
+ <head>
+  <meta http-equiv="content-type" content="text/html" />
+  <meta http-equiv="charset"      content="UTF-8" />
+  
+
+  <title>reset.htm</title>
+
+  <script type="text/javascript" language="JavaScript1.2" src="../private/options.js"></script>
+  <script type="text/javascript" language="JavaScript1.2" src="../scripts/browser.js"></script>
+  <script type="text/javascript" language="JavaScript1.2" src="../scripts/strutils.js"></script>
+
+  <script type="text/javascript" language="JavaScript1.2">
+   <!--
+    // Set reference to top level help frame
+    //
+    var  WWHFrame = eval("window.self");
+    window.name = "WWHFrame";
+
+    // Create browser info object
+    //
+    var  WWHBrowser = new WWHBrowser_Object();
+
+    // Create settings object
+    //
+    var  WWHCommonSettings = new WWHCommonSettings_Object();
+
+    // Set cookie path
+    //
+    WWHFrame.WWHBrowser.fSetCookiePath(WWHStringUtilities_GetBaseURL(location.href));
+
+    // Set cookie keys
+    //
+    var  VarAccessibilityCookie = "WWH" + WWHCommonSettings.mCookiesID + "_Acs";
+    var  VarFavoritesCookie = "WWH" + WWHCommonSettings.mCookiesID + "_Favs";
+    var  VarImplementationCookie = "WWH" + WWHCommonSettings.mCookiesID + "_Impl";
+   // -->
+  </script>
+
+  <script type="text/javascript" language="JavaScript1.2">
+   <!--
+    function  WWHHelpCookies_ShowAllCookies()
+    {
+      alert("All Cookies\n"
+          + "  " + VarAccessibilityCookie + " == " + WWHFrame.WWHBrowser.fGetCookie(VarAccessibilityCookie) + "\n"
+          + "  " + VarFavoritesCookie + " == " + WWHFrame.WWHBrowser.fGetCookie(VarFavoritesCookie) + "\n"
+          + "  " + VarImplementationCookie + " == " + WWHFrame.WWHBrowser.fGetCookie(VarImplementationCookie) + "\n"
+           );
+    }
+
+    function  WWHHelpCookies_ShowAccessibilityCookie()
+    {
+      alert(VarAccessibilityCookie + " == " + WWHFrame.WWHBrowser.fGetCookie(VarAccessibilityCookie));
+    }
+
+    function  WWHHelpCookies_ShowFavoritesCookie()
+    {
+      alert(VarFavoritesCookie + " == " + WWHFrame.WWHBrowser.fGetCookie(VarFavoritesCookie));
+    }
+
+    function  WWHHelpCookies_ShowImplementationCookie()
+    {
+      alert(VarImplementationCookie + " == " + WWHFrame.WWHBrowser.fGetCookie(VarImplementationCookie));
+    }
+
+    function  WWHHelpCookies_ResetAllCookies()
+    {
+      WWHFrame.WWHBrowser.fDeleteCookie(VarAccessibilityCookie);
+      WWHFrame.WWHBrowser.fDeleteCookie(VarFavoritesCookie);
+      WWHFrame.WWHBrowser.fDeleteCookie(VarImplementationCookie);
+
+      WWHHelpCookies_ShowAllCookies();
+    }
+
+    function  WWHHelpCookies_ResetAccessibilityCookie()
+    {
+      WWHFrame.WWHBrowser.fDeleteCookie(VarAccessibilityCookie);
+
+      WWHHelpCookies_ShowAccessibilityCookie();
+    }
+
+    function  WWHHelpCookies_ResetFavoritesCookie()
+    {
+      WWHFrame.WWHBrowser.fDeleteCookie(VarFavoritesCookie);
+
+      WWHHelpCookies_ShowFavoritesCookie();
+    }
+
+    function  WWHHelpCookies_ResetImplementationCookie()
+    {
+      WWHFrame.WWHBrowser.fDeleteCookie(VarImplementationCookie);
+
+      WWHHelpCookies_ShowImplementationCookie();
+    }
+   // -->
+  </script>
+ </head>
+
+ <body>
+  <table border="1">
+   <tr bgcolor="#CCCCCC" >
+    <th align="left">Cookie</th>
+    <th align="center">Show</th>
+    <th align="center">Reset</th>
+   </tr>
+   <tr>
+    <th align="left">All</th>
+    <td align="center"><a href="javascript:WWHHelpCookies_ShowAllCookies();">Show</a></td>
+    <td align="center"><a href="javascript:WWHHelpCookies_ResetAllCookies();">Reset</a></td>
+   </tr>
+   <tr>
+    <th align="left">Accessibility</th>
+    <td align="center"><a href="javascript:WWHHelpCookies_ShowAccessibilityCookie();">Show</a></td>
+    <td align="center"><a href="javascript:WWHHelpCookies_ResetAccessibilityCookie();">Reset</a></td>
+   </tr>
+   <tr>
+    <th align="left">Favorites</th>
+    <td align="center"><a href="javascript:WWHHelpCookies_ShowFavoritesCookie();">Show</a></td>
+    <td align="center"><a href="javascript:WWHHelpCookies_ResetFavoritesCookie();">Reset</a></td>
+   </tr>
+   <tr>
+    <th align="left">Implementation</th>
+    <td align="center"><a href="javascript:WWHHelpCookies_ShowImplementationCookie();">Show</a></td>
+    <td align="center"><a href="javascript:WWHHelpCookies_ResetImplementationCookie();">Reset</a></td>
+   </tr>
+  </table>
+ </body>
+</html>

@@ -41,7 +41,7 @@ void AppClient::decode( const FieldList& fl )
 {
 	try
 	{
-	while ( !fl.forth() )
+	while ( fl.forth() )
 	{
 		const FieldEntry& fe = fl.getEntry();
 	

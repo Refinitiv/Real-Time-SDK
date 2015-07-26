@@ -10,7 +10,7 @@ data from Reuters Data Feed Direct (RDF-D), directly from an OMM Provider
 application, or from Thomson Reuters Advanced Distribution Server.
 
 The 360__MarketPrice__View showcases usage of view request feature supported
-by Omm Consumer and server.
+by OMM Consumer and server.
 
 
 Detailed Description
@@ -40,11 +40,3 @@ Note: if needed, these and other details may be modified to fit local
 	  
 Note: please refer to the EMA library ReadMe.txt file for details on
       standard configuration.
-
-
-OmmConsumerClient and Callbacks
-===============================
-
-The 360__MarketPrice__View demonstrates how to receive and process individual
-item response messages for MarketPrice domain. Additionally this application
-shows native / RWF decoding of FieldList container.

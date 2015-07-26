@@ -9,7 +9,7 @@ and parsing of OMM Login and MarketPrice data from Reuters Data Feed Direct
 (RDF-D), directly from an OMM Provider application, or from Thomson Reuters
 Advanced Distribution Server.
 
-The 330__Login__Streaming showcases usage of login stream in Omm Consumer.
+The 330__Login__Streaming showcases usage of login stream in OMM Consumer.
 It demonstrates opening of login stream as well as its processing. Having
 a login stream open is useful for consumer applications willing to do
 Off Stream Posting and or knowing the state of its connectivity to server.

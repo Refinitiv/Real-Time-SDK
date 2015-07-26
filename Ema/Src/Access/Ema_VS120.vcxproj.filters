@@ -2,15 +2,15 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{722218C9-4E76-4C93-A192-ACF3AAE5363B}</UniqueIdentifier>
+      <UniqueIdentifier>{0DD513EF-D4B8-4DF9-B87A-13CA8ADC50A2}</UniqueIdentifier>
       <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{2952098E-EA37-43D2-B615-EC503248D790}</UniqueIdentifier>
+      <UniqueIdentifier>{393154AA-4436-4B61-BCA6-A8A1A1501DA8}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
     <Filter Include="Resource Files">
-      <UniqueIdentifier>{14156BE3-BE7A-4217-BF29-E5DBB9689681}</UniqueIdentifier>
+      <UniqueIdentifier>{846730BD-E472-4057-9E1E-D15222DD4AA1}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
     </Filter>
   </ItemGroup>
@@ -456,6 +456,12 @@
 	<ClCompile Include="Impl\TimeOut.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+	<ClCompile Include="Impl\TunnelStreamRequest.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="Impl\TunnelStreamLoginReqMsgImpl.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 	<ClCompile Include="Impl\UpdateMsg.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
@@ -756,6 +762,9 @@
 		<ClInclude Include="Impl\TimeOut.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
+		<ClInclude Include="Impl\TunnelStreamLoginReqMsgImpl.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
 		<ClInclude Include="Impl\UpdateMsgDecoder.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
@@ -963,6 +972,9 @@
 		<ClInclude Include="Include\SummaryData.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
+		<ClInclude Include="Include\TunnelStreamRequest.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
 		<ClInclude Include="Include\UpdateMsg.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
@@ -983,6 +995,16 @@
 		</ClInclude>
 	</ItemGroup>
 
+	<ItemGroup>
+		<None Include="Ema.rc">
+		<Filter>None Files</Filter>
+		</None>
+	</ItemGroup>
 
+	<ItemGroup>
+		<ResourceCompile Include="Ema.rc">
+		<Filter>Resource Files</Filter>
+		</ResourceCompile>
+	</ItemGroup>
 
 </Project>

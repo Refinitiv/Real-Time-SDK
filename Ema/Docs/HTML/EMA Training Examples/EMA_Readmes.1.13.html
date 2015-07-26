@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>240__MarketPrice__RippleFields</title>
+    <link rel="StyleSheet" href="css/EMA_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <br />
+    <hr align="left" />
+    <blockquote>
+      <div class="H2_NoNum"><a name="1019378">240__MarketPrice__RippleFields</a></div>
+      <div class="Body"><a name="1025574">Summary</a></div>
+      <div class="Body"><a name="1025575">=======</a></div>
+      <div class="Body"><a name="1025576">&nbsp;</a></div>
+      <div class="Body"><a name="1025577">The 240__MarketPrice__RippleFields application is provided as an example</a></div>
+      <div class="Body"><a name="1025578">of OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1025579">&nbsp;</a></div>
+      <div class="Body"><a name="1025580">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1025581">and handling ripple fields of OMM MarketPrice data from Reuters Data Feed</a></div>
+      <div class="Body"><a name="1025582">Direct (RDF-D), directly from an OMM Provider application, or from Thomson</a></div>
+      <div class="Body"><a name="1025583">Reuters Advanced Distribution Server.</a></div>
+      <div class="Body"><a name="1025584">&nbsp;</a></div>
+      <div class="Body"><a name="1025585">&nbsp;</a></div>
+      <div class="Body"><a name="1025586">Detailed Description</a></div>
+      <div class="Body"><a name="1025587">====================</a></div>
+      <div class="Body"><a name="1025588">&nbsp;</a></div>
+      <div class="Body"><a name="1025589">The 240__MarketPrice__RippleFields implements the following high level steps:</a></div>
+      <div class="Body"><a name="1025590">&nbsp;</a></div>
+      <div class="Body"><a name="1025591">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1025592">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1025593">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1025594">    - the decode( const FieldList&amp; ) iterates through the received FieldList,</a></div>
+      <div class="Body"><a name="1025595">	  extracts each FieldEntry reference from the current position on the</a></div>
+      <div class="Body"><a name="1025596">	  FieldList, and extracts field id, name and value of the current FieldEntry.</a></div>
+      <div class="Body"><a name="1025597">	  In addition to that, it checks the ripple to fields and performs the rippling</a></div>
+      <div class="Body"><a name="1025598">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1025599">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1025600">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1025601">  - sets host name on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1025602">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1025603">  - sets operationModel to UserDispatchEnum</a></div>
+      <div class="Body"><a name="1025604">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1025605">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1025606">+ Opens streaming item interest</a></div>
+      <div class="Body"><a name="1025607">  - MarketPrice IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1025608">+ Processes data received with user dispatch loop for 60 seconds</a></div>
+      <div class="Body"><a name="1025609">  - all received messages are processed on main application thread</a></div>
+      <div class="Body"><a name="1025610">+ Exits</a></div>
+      <div class="Body"><a name="1025611">&nbsp;</a></div>
+      <div class="Body"><a name="1025612">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1025613">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1025614">	  </a></div>
+      <div class="Body"><a name="1025615">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1025616">      standard configuration.</a></div>
+      <div class="Body"><a name="1025617">&nbsp;</a></div>
+      <div class="Body"><a name="1025618">&nbsp;</a></div>
+      <div class="Body"><a name="1025619">OmmConsumerClient and Callbacks</a></div>
+      <div class="Body"><a name="1025620">===============================</a></div>
+      <div class="Body"><a name="1025621">&nbsp;</a></div>
+      <div class="Body"><a name="1025622">The 240__MarketPrice__RippleFields demonstrates how to receive and process item</a></div>
+      <div class="Body"><a name="1025623">response messages. Additionally this application shows native / RWF decoding of</a></div>
+      <div class="Body"><a name="1025624">FieldList container.</a></div>
+      <div class="Body"><a name="1022994">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

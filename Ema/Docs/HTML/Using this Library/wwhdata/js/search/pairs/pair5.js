@@ -1,0 +1,26 @@
+function FileData_Pairs(x)
+{
+x.t("times","won\u2019t");
+x.t("initially","figure");
+x.t("text","top");
+x.t("link","figure");
+x.t("link","hotspots");
+x.t("top","screen");
+x.t("figures","link");
+x.t("figures","links");
+x.t("place","text");
+x.t("jump","figure");
+x.t("reason","click");
+x.t("won\u2019t","initially");
+x.t("click","link");
+x.t("scroll","page");
+x.t("figure","times");
+x.t("figure","scroll");
+x.t("figure","title");
+x.t("figure","itself");
+x.t("title","place");
+x.t("screen","reason");
+x.t("hotspots","jump");
+x.t("itself","figure");
+x.t("links","figures");
+}
