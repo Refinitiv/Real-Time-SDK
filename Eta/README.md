@@ -23,9 +23,9 @@ users understand how to develop to this API.
 **For Linux/Solaris**:
 
 Navigate to `Eta/Impl` 
--	Run `makefile all` to build Stub libraries and Reactor and its dependencies
--	Run `makefile stubs` to build only the Stub libraries
--	Run `makefile rsslVA` to build only Reactor and its dependencies
+-	Run `make all` to build Stub libraries and Reactor and its dependencies
+-	Run `make stubs` to build only the Stub libraries
+-	Run `make rsslVA` to build only Reactor and its dependencies
 
 This will build both static and shared versions of the libraries and will build Optimized libraries by default.  
 If Optimized_Assert libraries are preferred, this can be modified from within the makefiles.
@@ -70,6 +70,21 @@ Additional information about the contents of the closed source ETA libraries are
 
 **NOTE:** If you are using shared libraries, you will need to run the LinuxSoLink or SolarisSoLink to properly soft link for versioned libraries.  
 
+####Supported Platforms
+The makefiles and Windows project files provided facilitate building on a subset of platforms, generally overlapping with platforms supported or qualified by the ETA Binary Pack.
+
+At the current time, the makefiles and project files support the following platform/compiler combinations:
+- RedHat Advanced Server 6.X 64-bit (gcc4.4.4)
+- Oracle Linux Server 7.X 64-bit (gcc4.8.2)
+- CentOS 7.X 64-bit (gcc4.8.2)
+- Windows 7 64-bit, Windows 8 64-bit, Windows 8.1 64-bit, Windows Server 2008 64-bit, Windows Server 2012 64-bit
+	- Visual Studio 10 (2010)
+	- Visual Studio 11 (2012)
+	- Visual Studio 12 (2013)
+- Solaris 10 X86 64-bit (SunStudio12)
+- Solaris 11 X86 64-bit (SunStudio12)
+
+Users are welcome to migrate open source code to the platforms they prefer, however support for the ETA Binary Pack is only provided on platforms captured in the README file provided with the Binary Pack.  Please see that package's README for more detailed platorm and compiler information.
 # Obtaining the Thomson Reuters Field Dictionaries
 
 The Thomson Reuters `RDMFieldDictionary` and `enumtype.def` files are distributed with the ETA Binary Package.  
