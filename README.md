@@ -6,6 +6,9 @@ The **Elektron Message API (EMA)** is an ease of use, open source, OMM API. EMA 
 The **Elektron Transport API (ETA)** is the re-branded Ultra Performance API (UPA). ETA is Thomson Reuters low-level 
 Transport and OMM encoder/decoder API.  It is used by the Thomson Reuters Enterprise Platform for Real Time and Elektron for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. 
 
+# Supported Platforms and Compilers
+
+The Elektron-SDK has support for Linux, Windows and Solaris.  Please see the individual API README.md for further details on supported platforms and compilers.
 
 # Building the APIs
 
