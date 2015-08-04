@@ -3,19 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.30110.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Provider_Module_1a_Connect_VS120", "C:\Users\U0151672\Desktop\ETA\eta3.0.0.L1.win.rrg\Applications\Training\Provider\Module_1a_Connect\Provider_Module_1a_Connect_VS120.vcxproj", "{E78F6BBE-67B5-4CB4-8659-3A5F536DF879}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Provider_Module_1a_Connect_VS120", "Module_1a_Connect\Provider_Module_1a_Connect_VS120.vcxproj", "{E78F6BBE-67B5-4CB4-8659-3A5F536DF879}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Provider_Module_1b_Ping_VS120", "C:\Users\U0151672\Desktop\ETA\eta3.0.0.L1.win.rrg\Applications\Training\Provider\Module_1b_Ping\Provider_Module_1b_Ping_VS120.vcxproj", "{46C9F5FA-C406-484A-9783-9EB69D422D7F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Provider_Module_1b_Ping_VS120", "Module_1b_Ping\Provider_Module_1b_Ping_VS120.vcxproj", "{46C9F5FA-C406-484A-9783-9EB69D422D7F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Provider_Module_1c_ReadWrite_VS120", "C:\Users\U0151672\Desktop\ETA\eta3.0.0.L1.win.rrg\Applications\Training\Provider\Module_1c_ReadWrite\Provider_Module_1c_ReadWrite_VS120.vcxproj", "{D8A0DF08-10D8-4FCC-9FBC-4238E653C63B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Provider_Module_1c_ReadWrite_VS120", "Module_1c_ReadWrite\Provider_Module_1c_ReadWrite_VS120.vcxproj", "{D8A0DF08-10D8-4FCC-9FBC-4238E653C63B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Provider_Module_2_HandleLogin_VS110", "C:\Users\U0151672\Desktop\ETA\eta3.0.0.L1.win.rrg\Applications\Training\Provider\Module_2_HandleLogin\Provider_Module_2_HandleLogin_VS110.vcxproj", "{8580883C-08A0-4A20-AF0A-B0C1D09FBF60}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Provider_Module_2_HandleLogin_VS110", "Module_2_HandleLogin\Provider_Module_2_HandleLogin_VS110.vcxproj", "{8580883C-08A0-4A20-AF0A-B0C1D09FBF60}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Provider_Module_3_ProvideDirectory_VS120", "C:\Users\U0151672\Desktop\ETA\eta3.0.0.L1.win.rrg\Applications\Training\Provider\Module_3_ProvideDirectory\Provider_Module_3_ProvideDirectory_VS120.vcxproj", "{4F6EA5D4-CEC5-4D46-B256-70899D3F2C24}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Provider_Module_3_ProvideDirectory_VS120", "Module_3_ProvideDirectory\Provider_Module_3_ProvideDirectory_VS120.vcxproj", "{4F6EA5D4-CEC5-4D46-B256-70899D3F2C24}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Provider_Module_4_ProvideDictionary_VS120", "C:\Users\U0151672\Desktop\ETA\eta3.0.0.L1.win.rrg\Applications\Training\Provider\Module_4_ProvideDictionary\Provider_Module_4_ProvideDictionary_VS120.vcxproj", "{4083D519-F1B3-4EB8-8B44-5971DB71931A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Provider_Module_4_ProvideDictionary_VS120", "Module_4_ProvideDictionary\Provider_Module_4_ProvideDictionary_VS120.vcxproj", "{4083D519-F1B3-4EB8-8B44-5971DB71931A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Provider_Module_5_HandleItemRequest_VS120", "C:\Users\U0151672\Desktop\ETA\eta3.0.0.L1.win.rrg\Applications\Training\Provider\Module_5_HandleItemRequest\Provider_Module_5_HandleItemRequest_VS120.vcxproj", "{088D6B89-1FB5-4BFB-9AA2-C6EC460C427D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Provider_Module_5_HandleItemRequest_VS120", "Module_5_HandleItemRequest\Provider_Module_5_HandleItemRequest_VS120.vcxproj", "{088D6B89-1FB5-4BFB-9AA2-C6EC460C427D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -146,8 +146,8 @@ EncDecExample_objs = $(addprefix $(OUTPUT_DIR)/obj/,$(EncDecExample_src:%.c=%.o)
 EncDecExample : $(EncDecExample_objs) 
 	mkdir -p $(EXE_DIR)
 	$(CC) -g -o $(EXE_DIR)/$@ $(EncDecExample_objs) $(CFLAGS) $(HEADER_INC) $(LIB_PATH) $(RSSL_LIB) $(SYSTEM_LIBS) 
-	$(LNCMD) $(LN_HOMEPATH)/../../etc/RDMFieldDictionary $(EXE_DIR)/RDMFieldDictionary
-	$(LNCMD) $(LN_HOMEPATH)/../../etc/enumtype.def $(EXE_DIR)/enumtype.def
+	$(LNCMD) $(LN_HOMEPATH)/../../../etc/RDMFieldDictionary $(EXE_DIR)/RDMFieldDictionary
+	$(LNCMD) $(LN_HOMEPATH)/../../../etc/enumtype.def $(EXE_DIR)/enumtype.def
 
 clean:
 	rm -rf $(OUTPUT_DIR)

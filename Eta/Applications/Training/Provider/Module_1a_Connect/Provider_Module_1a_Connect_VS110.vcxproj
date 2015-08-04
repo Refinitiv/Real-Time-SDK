@@ -178,7 +178,7 @@
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
-	<Command></Command>
+	<Command>copy /Y &quot;$(SolutionDir)\..\..\..\etc\enumtype.def&quot; &quot;$(TargetDir)\enumtype.def&quot;&#x0D;&#x0A;copy /Y &quot;$(SolutionDir)\..\..\..\etc\RDMFieldDictionary&quot; &quot;$(TargetDir)\RDMFieldDictionary&quot;</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   
@@ -227,7 +227,7 @@
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
-	<Command></Command>
+	<Command>copy /Y &quot;$(SolutionDir)\..\..\..\etc\enumtype.def&quot; &quot;$(TargetDir)\enumtype.def&quot;&#x0D;&#x0A;copy /Y &quot;$(SolutionDir)\..\..\..\etc\RDMFieldDictionary&quot; &quot;$(TargetDir)\RDMFieldDictionary&quot;</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   
@@ -276,7 +276,7 @@
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
-	<Command></Command>
+	<Command>copy /Y &quot;$(SolutionDir)\..\..\..\etc\enumtype.def&quot; &quot;$(TargetDir)\enumtype.def&quot;&#x0D;&#x0A;copy /Y &quot;$(SolutionDir)\..\..\..\etc\RDMFieldDictionary&quot; &quot;$(TargetDir)\RDMFieldDictionary&quot;</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   
@@ -325,7 +325,7 @@
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
-	<Command></Command>
+	<Command>copy /Y &quot;$(SolutionDir)\..\..\..\etc\enumtype.def&quot; &quot;$(TargetDir)\enumtype.def&quot;&#x0D;&#x0A;copy /Y &quot;$(SolutionDir)\..\..\..\etc\RDMFieldDictionary&quot; &quot;$(TargetDir)\RDMFieldDictionary&quot;</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   
@@ -374,7 +374,7 @@
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
-	<Command></Command>
+	<Command>copy /Y &quot;$(SolutionDir)\..\..\..\etc\enumtype.def&quot; &quot;$(TargetDir)\enumtype.def&quot;&#x0D;&#x0A;copy /Y &quot;$(SolutionDir)\..\..\..\etc\RDMFieldDictionary&quot; &quot;$(TargetDir)\RDMFieldDictionary&quot;</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   
@@ -423,7 +423,7 @@
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
-	<Command></Command>
+	<Command>copy /Y &quot;$(SolutionDir)\..\..\..\etc\enumtype.def&quot; &quot;$(TargetDir)\enumtype.def&quot;&#x0D;&#x0A;copy /Y &quot;$(SolutionDir)\..\..\..\etc\RDMFieldDictionary&quot; &quot;$(TargetDir)\RDMFieldDictionary&quot;</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   

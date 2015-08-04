@@ -154,8 +154,8 @@ Provider_objs2 = $(addprefix $(OUTPUT_DIR)/obj/Dummy/,$(Provider_common:%.c=%.o)
 Provider : $(Provider_objs) $(Provider_objs2) 
 	mkdir -p $(EXE_DIR)
 	$(CC) -g -o $(EXE_DIR)/$@ $(Provider_objs) $(Provider_objs2) $(CFLAGS) $(HEADER_INC) $(LIB_PATH) $(RSSL_LIB) $(SYSTEM_LIBS) 
-	$(LNCMD) $(LN_HOMEPATH)/../../etc/RDMFieldDictionary $(EXE_DIR)/RDMFieldDictionary
-	$(LNCMD) $(LN_HOMEPATH)/../../etc/enumtype.def $(EXE_DIR)/enumtype.def
+	$(LNCMD) $(LN_HOMEPATH)/../../../etc/RDMFieldDictionary $(EXE_DIR)/RDMFieldDictionary
+	$(LNCMD) $(LN_HOMEPATH)/../../../etc/enumtype.def $(EXE_DIR)/enumtype.def
 
 clean:
 	rm -rf $(OUTPUT_DIR)

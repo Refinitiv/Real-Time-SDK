@@ -155,8 +155,8 @@ Consumer_objs2 = $(addprefix $(OUTPUT_DIR)/obj/Dummy/,$(Consumer_common:%.c=%.o)
 Consumer : $(Consumer_objs) $(Consumer_objs2) 
 	mkdir -p $(EXE_DIR)
 	$(CC) -g -o $(EXE_DIR)/$@ $(Consumer_objs) $(Consumer_objs2) $(CFLAGS) $(HEADER_INC) $(LIB_PATH) $(RSSL_LIB) $(SYSTEM_LIBS) 
-	$(LNCMD) $(LN_HOMEPATH)/../../etc/RDMFieldDictionary $(EXE_DIR)/RDMFieldDictionary
-	$(LNCMD) $(LN_HOMEPATH)/../../etc/enumtype.def $(EXE_DIR)/enumtype.def
+	$(LNCMD) $(LN_HOMEPATH)/../../../etc/RDMFieldDictionary $(EXE_DIR)/RDMFieldDictionary
+	$(LNCMD) $(LN_HOMEPATH)/../../../etc/enumtype.def $(EXE_DIR)/enumtype.def
 
 
 clean:

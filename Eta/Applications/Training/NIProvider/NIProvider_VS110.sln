@@ -1,17 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NIProvider_Module_1a_Connect_VS110", "C:\Users\U0151672\Desktop\ETA\eta3.0.0.L1.win.rrg\Applications\Training\NIProvider\Module_1a_Connect\NIProvider_Module_1a_Connect_VS110.vcxproj", "{3A6C041B-6022-48F1-8281-7FDBD0A8C9A3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NIProvider_Module_1a_Connect_VS110", "Module_1a_Connect\NIProvider_Module_1a_Connect_VS110.vcxproj", "{3A6C041B-6022-48F1-8281-7FDBD0A8C9A3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NIProvider_Module_1b_Ping_VS110", "C:\Users\U0151672\Desktop\ETA\eta3.0.0.L1.win.rrg\Applications\Training\NIProvider\Module_1b_Ping\NIProvider_Module_1b_Ping_VS110.vcxproj", "{2AC69B33-2061-4C2C-A8E7-B3DAF98E4739}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NIProvider_Module_1b_Ping_VS110", "Module_1b_Ping\NIProvider_Module_1b_Ping_VS110.vcxproj", "{2AC69B33-2061-4C2C-A8E7-B3DAF98E4739}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NIProvider_Module_1c_ReadWrite_VS110", "C:\Users\U0151672\Desktop\ETA\eta3.0.0.L1.win.rrg\Applications\Training\NIProvider\Module_1c_ReadWrite\NIProvider_Module_1c_ReadWrite_VS110.vcxproj", "{C5295A0C-0C88-47BD-9F9D-5B7B20B149AD}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NIProvider_Module_1c_ReadWrite_VS110", "Module_1c_ReadWrite\NIProvider_Module_1c_ReadWrite_VS110.vcxproj", "{C5295A0C-0C88-47BD-9F9D-5B7B20B149AD}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NIProvider_Module_2_Login_VS110", "C:\Users\U0151672\Desktop\ETA\eta3.0.0.L1.win.rrg\Applications\Training\NIProvider\Module_2_Login\NIProvider_Module_2_Login_VS110.vcxproj", "{8D7457A8-BCA0-4B5B-BADE-079EC403EE21}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NIProvider_Module_2_Login_VS110", "Module_2_Login\NIProvider_Module_2_Login_VS110.vcxproj", "{8D7457A8-BCA0-4B5B-BADE-079EC403EE21}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NIProvider_Module_4_Dictionary_VS110", "C:\Users\U0151672\Desktop\ETA\eta3.0.0.L1.win.rrg\Applications\Training\NIProvider\Module_4_Dictionary\NIProvider_Module_4_Dictionary_VS110.vcxproj", "{75CAAF6D-D03F-467C-882A-B65A7EFC0059}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NIProvider_Module_4_Dictionary_VS110", "Module_4_Dictionary\NIProvider_Module_4_Dictionary_VS110.vcxproj", "{75CAAF6D-D03F-467C-882A-B65A7EFC0059}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NIProvider_Module_5_ProvideContent_VS110", "C:\Users\U0151672\Desktop\ETA\eta3.0.0.L1.win.rrg\Applications\Training\NIProvider\Module_5_ProvideContent\NIProvider_Module_5_ProvideContent_VS110.vcxproj", "{D49DEB92-BC89-44A7-913E-6C8ACC85C4DE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NIProvider_Module_5_ProvideContent_VS110", "Module_5_ProvideContent\NIProvider_Module_5_ProvideContent_VS110.vcxproj", "{D49DEB92-BC89-44A7-913E-6C8ACC85C4DE}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NIProvider_Module_3_ProvideDirectory_VS110", "Module_3_ProvideDirectory\NIProvider_Module_3_ProvideDirectory_VS110.vcxproj", "{5753C0FE-B1CF-44A0-A252-11BFC5A62DEB}"
 EndProject

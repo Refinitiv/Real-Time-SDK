@@ -126,8 +126,8 @@ provider_training4_providedictionary_objs = $(addprefix $(OUTPUT_DIR)/obj/,$(pro
 ProvMod4 : $(provider_training4_providedictionary_objs) 
 	mkdir -p $(EXE_DIR)
 	$(CC) -g -o $(EXE_DIR)/$@ $(provider_training4_providedictionary_objs) $(CFLAGS) $(HEADER_INC) $(LIB_PATH) $(RSSL_LIB) $(SYSTEM_LIBS) 
-	$(LNCMD) $(LN_HOMEPATH)/../../../etc/RDMFieldDictionary $(EXE_DIR)/RDMFieldDictionary
-	$(LNCMD) $(LN_HOMEPATH)/../../../etc/enumtype.def $(EXE_DIR)/enumtype.def
+	$(LNCMD) $(LN_HOMEPATH)/../../../../etc/RDMFieldDictionary $(EXE_DIR)/RDMFieldDictionary
+	$(LNCMD) $(LN_HOMEPATH)/../../../../etc/enumtype.def $(EXE_DIR)/enumtype.def
 
 clean:
 	rm -rf $(OUTPUT_DIR)

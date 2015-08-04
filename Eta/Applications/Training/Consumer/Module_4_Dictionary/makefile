@@ -126,8 +126,8 @@ consumer_training4_dictionary_objs = $(addprefix $(OUTPUT_DIR)/obj/,$(consumer_t
 ConsMod4 : $(consumer_training4_dictionary_objs) 
 	mkdir -p $(EXE_DIR)
 	$(CC) -g -o $(EXE_DIR)/$@ $(consumer_training4_dictionary_objs) $(CFLAGS) $(HEADER_INC) $(LIB_PATH) $(RSSL_LIB) $(SYSTEM_LIBS) 
-	$(LNCMD) $(LN_HOMEPATH)/../../../etc/RDMFieldDictionary $(EXE_DIR)/RDMFieldDictionary
-	$(LNCMD) $(LN_HOMEPATH)/../../../etc/enumtype.def $(EXE_DIR)/enumtype.def
+	$(LNCMD) $(LN_HOMEPATH)/../../../../etc/RDMFieldDictionary $(EXE_DIR)/RDMFieldDictionary
+	$(LNCMD) $(LN_HOMEPATH)/../../../../etc/enumtype.def $(EXE_DIR)/enumtype.def
 
 clean:
 	rm -rf $(OUTPUT_DIR)

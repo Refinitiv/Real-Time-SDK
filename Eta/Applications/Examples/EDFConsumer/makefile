@@ -3,7 +3,7 @@ ROOTPLAT=../../..
 #If User wants to build with Optimized_Assert builds, change LIBTYPE=Optimized_Assert
 LIBTYPE=Optimized
 #If User wants to build with Shared libraries, change LINKTYPE=Shared
-LINKTYPE=Shared
+LINKTYPE=
 
 ARCHTYPE=$(shell uname -m)
 ifeq ($(ARCHTYPE),i86pc)	
@@ -141,8 +141,8 @@ rsslEDFConsumer_objs = $(addprefix $(OUTPUT_DIR)/obj/,$(rsslEDFConsumer_src:%.c=
 EDFConsumer : $(rsslEDFConsumer_objs)
 	mkdir -p $(EXE_DIR)
 	$(CC) -o $(EXE_DIR)/$@ $(rsslEDFConsumer_objs) $(CFLAGS) $(HEADER_INC) $(LIB_PATH) $(RSSL_LIB) $(SYSTEM_LIBS) 
-	$(LNCMD) $(LN_HOMEPATH)/../../etc/RDMFieldDictionary $(EXE_DIR)
-	$(LNCMD) $(LN_HOMEPATH)/../../etc/enumtype.def $(EXE_DIR)
+	$(LNCMD) $(LN_HOMEPATH)/../../../etc/RDMFieldDictionary $(EXE_DIR)
+	$(LNCMD) $(LN_HOMEPATH)/../../../etc/enumtype.def $(EXE_DIR)
 
 clean:
 	rm -rf $(OUTPUT_DIR)
