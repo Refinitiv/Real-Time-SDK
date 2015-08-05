@@ -85,42 +85,42 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">Libs\WIN_64_VS100\Release_MD\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">..\..\..\Libs\WIN_64_VS100\Release_MD\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">Libs\WIN_64_VS100\Release_MD\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">false</LinkIncremental>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">libxml2</TargetName>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release Shared MD|x64'">Libs\WIN_64_VS100\Release_MD\Shared\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release Shared MD|x64'">..\..\..\Libs\WIN_64_VS100\Release_MD\Shared\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release Shared MD|x64'">Libs\WIN_64_VS100\Release_MD\Shared\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release Shared MD|x64'">false</LinkIncremental>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release Shared MD|x64'">libxml2</TargetName>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release MD Assert|x64'">Libs\WIN_64_VS100\Release_MD_Assert\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release MD Assert|x64'">..\..\..\Libs\WIN_64_VS100\Release_MD_Assert\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release MD Assert|x64'">Libs\WIN_64_VS100\Release_MD_Assert\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release MD Assert|x64'">false</LinkIncremental>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release MD Assert|x64'">libxml2</TargetName>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release Shared MD Assert|x64'">Libs\WIN_64_VS100\Release_MD_Assert\Shared</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release Shared MD Assert|x64'">..\..\..\Libs\WIN_64_VS100\Release_MD_Assert\Shared</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release Shared MD Assert|x64'">Libs\WIN_64_VS100\Release_MD_Assert\Shared</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release Shared MD Assert|x64'">false</LinkIncremental>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release Shared MD Assert|x64'">libxml2</TargetName>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug MDd|x64'">Libs\WIN_64_VS100\Debug_MDd\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug MDd|x64'">..\..\..\Libs\WIN_64_VS100\Debug_MDd\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug MDd|x64'">Libs\WIN_64_VS100\Debug_MDd\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug MDd|x64'">false</LinkIncremental>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug MDd|x64'">libxml2</TargetName>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug Shared MDd|x64'">Libs\WIN_64_VS100\Debug_MDd\Shared\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug Shared MDd|x64'">..\..\..\Libs\WIN_64_VS100\Debug_MDd\Shared\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug Shared MDd|x64'">Libs\WIN_64_VS100\Debug_MDd\Shared\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug Shared MDd|x64'">false</LinkIncremental>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug Shared MDd|x64'">libxml2</TargetName>
