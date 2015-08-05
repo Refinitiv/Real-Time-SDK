@@ -63,7 +63,7 @@ If your system does not already have libxml2 available, you can build the versio
 This is automatically built when building the EMA library (step shown below).  Note that if you want to build libxml separately, a makefile is provided to you in `Ema/Src/libxml/src`.
 
 **For Windows**:
-The *libxml2* library will be created in `Ema/Src/libxml/src/Libs`.  Copy the resultant `Libs` directory to the corresponding platform `Ema/Libs` directory.
+Building the windows project file will put the resulting libxml2 libraries in the `Ema/Libs` directory.
 
 ####2) Build the EMA library
 
