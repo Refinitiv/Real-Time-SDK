@@ -89,6 +89,8 @@ That should do it!
 
 If you wish to have the full functionality of ETA, please get the official ETA libraries from the following.
 
+**NOTE: Access to this download requires TRDC membership.**
+
 https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
 
 - **Category**: MDS - API
