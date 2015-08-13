@@ -87,8 +87,8 @@ At the current time, the makefiles and project files support the following platf
 Users are welcome to migrate open source code to the platforms they prefer, however support for the ETA Binary Pack is only provided on platforms captured in the README file provided with the Binary Pack.  Please see that package's README for more detailed platorm and compiler information.
 # Obtaining the Thomson Reuters Field Dictionaries
 
-The Thomson Reuters `RDMFieldDictionary` and `enumtype.def` files are distributed with the ETA Binary Package.  
-In addition, they can be downloaded from the Customer Zone from the following location.
+The Thomson Reuters `RDMFieldDictionary` and `enumtype.def` files are present in the GitHub repo under `Eta/etc` and also distributed with the ETA Binary Package.  
+In addition, the most current version can be downloaded from the Customer Zone from the following location.
 
 https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
 
