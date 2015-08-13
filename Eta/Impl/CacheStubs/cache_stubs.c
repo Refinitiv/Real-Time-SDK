@@ -68,7 +68,7 @@ RsslBool rsslPayloadCacheIsInitialized()
  */
 RsslPayloadCacheHandle rsslPayloadCacheCreate(const RsslPayloadCacheConfigOptions* configOptions, RsslCacheError* error)
 {
-	return RSSL_RET_FAILURE;
+	return NULL;
 }
 
 /**
@@ -228,7 +228,7 @@ void rsslPayloadCacheClearAll(RsslPayloadCacheHandle cacheHandle)
  */
 RsslPayloadCursorHandle rsslPayloadCursorCreate()
 {
-	return RSSL_RET_FAILURE;
+	return NULL;
 }
 
 /**
@@ -274,7 +274,7 @@ RsslBool rsslPayloadCursorIsComplete(RsslPayloadCursorHandle cursorHandle)
  */
 RsslPayloadEntryHandle rsslPayloadEntryCreate(RsslPayloadCacheHandle cacheHandle, RsslCacheError *error)
 {
-	return RSSL_RET_FAILURE;
+	return NULL;
 }
 
 /**

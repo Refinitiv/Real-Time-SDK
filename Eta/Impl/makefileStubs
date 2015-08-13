@@ -5,23 +5,23 @@ LIBTYPE=Optimized
 
 
 ARCHTYPE=$(shell uname -m)
-ifeq ($(ARCHTYPE),i86pc)	
+ifeq ($(ARCHTYPE),i86pc)
 	LIB_DIR=Libs/SOL10_X64_64_SS12/$(LIBTYPE)
 	RSSL_LIB_DIR=$(ROOTPLAT)/Libs/SOL10_X64_64_SS12/$(LIBTYPE)
 	OUTPUT_DIR=$(ROOTPLAT)/Libs/SOL10_X64_64_SS12/$(LIBTYPE)
-	CFLAGS = -m64 -xtarget=opteron -xarch=sse2 -nofstore -xregs=frameptr -Di86pc -Di86pc_SunOS_510_64 -KPIC 
+	CFLAGS = -m64 -xtarget=opteron -xarch=sse2 -nofstore -xregs=frameptr -Di86pc -Di86pc_SunOS_510_64 -KPIC
 else
 	#
-	# assume this is some type of Linux 
+	# assume this is some type of Linux
 	#
 	OS_VER=$(shell lsb_release -r | sed 's/\.[0-9]//')
 	DIST=$(shell lsb_release -i)
-	CFLAGS = -m64 
+	CFLAGS = -m64
 
 	# check for RedHat Linux first
 	ifeq ($(findstring RedHat,$(DIST)),RedHat)
 		ifeq ($(findstring 5, $(OS_VER)), 5)
-       		#AS5 
+       		#AS5
 		   	LIB_DIR=Libs/RHEL5_64_GCC412/$(LIBTYPE)
 		   	RSSL_LIB_DIR=$(ROOTPLAT)/Libs/RHEL5_64_GCC412/$(LIBTYPE)
 		   	OUTPUT_DIR=./RHEL5_64_GCC412/$(LIBTYPE)
@@ -31,7 +31,7 @@ else
 			RSSL_LIB_DIR=$(ROOTPLAT)/Libs/RHEL6_64_GCC444/$(LIBTYPE)
 			OUTPUT_DIR=$(ROOTPLAT)/Libs/RHEL6_64_GCC444/$(LIBTYPE)
 		endif
-	else 
+	else
 		ifeq ($(findstring SUSE,$(DIST)),SUSE)	 # check for SUSE Linux
 			ifeq ($(findstring 11, $(OS_VER)), 11)
 				# use AS5 for SUSE 11 (or greater)
@@ -39,7 +39,7 @@ else
 				RSSL_LIB_DIR=$(ROOTPLAT)/Libs/RHEL5_64_GCC412/$(LIBTYPE)
 				OUTPUT_DIR=$(ROOTPLAT)/Libs/RHEL5_64_GCC412/$(LIBTYPE)
 			else
-				# if we dont know what it is, assume AS5 
+				# if we dont know what it is, assume AS5
 				LIB_DIR=$(ROOTPLAT)/Libs/RHEL5_64_GCC412/$(LIBTYPE)
 				RSSL_LIB_DIR=$(ROOTPLAT)/Libs/RHEL5_64_GCC412/$(LIBTYPE)
 				OUTPUT_DIR=$(ROOTPLAT)/Libs/RHEL5_64_GCC412/$(LIBTYPE)
@@ -54,7 +54,7 @@ else
 				DIST=$(shell cat /etc/oracle-release)
 				ifeq ($(findstring Oracle,$(DIST)),Oracle)  # check for Oracle Linux
 					ifeq ($(findstring 5, $(OS_VER)), 5)
-						#AS5 			
+						#AS5
 						LIB_DIR=$(ROOTPLAT)/Libs/RHEL5_64_GCC412/$(LIBTYPE)
 						RSSL_LIB_DIR=$(ROOTPLAT)/Libs/RHEL5_64_GCC412/$(LIBTYPE)
 						OUTPUT_DIR=$(ROOTPLAT)/Libs/RHEL5_64_GCC412/$(LIBTYPE)
@@ -77,8 +77,8 @@ else
 	endif
 endif
 
-CFLAGS += -D_SVID_SOURCE=1 -DCOMPILE_64BITS 
-HEADER_INC = -I$(ROOTPLAT)/Include/Codec/ -I$(ROOTPLAT)/Include/Transport/ -I$(ROOTPLAT)/Include/Cache/ 
+CFLAGS += -D_SVID_SOURCE=1 -DCOMPILE_64BITS
+HEADER_INC = -I$(ROOTPLAT)/Include/Codec/ -I$(ROOTPLAT)/Include/Transport/ -I$(ROOTPLAT)/Include/Cache/ -I$(ROOTPLAT)/Include/Util/
 
 EXE_DIR=$(OUTPUT_DIR)
 LN_HOMEPATH=../..
@@ -114,7 +114,7 @@ $(OUTPUT_DIR)/%.o : %.c
 	rm -f $@
 	mkdir -p $(dir $@)
 	$(CC)  -c $(CFLAGS) $(HEADER_INC) -o $@ $<
-	
+
 $(OUTPUT_DIR)/obj/%.o : %.C
 	rm -f $@
 	mkdir -p $(dir $@)
@@ -126,31 +126,45 @@ $(OUTPUT_DIR)/%.o : %.C
 	$(CC)  -c $(CFLAGS) $(HEADER_INC) -o $@ $<
 
 
-main: librssl.a librssl.so
+main: librssl.a librssl.so librsslVACache.a librsslVACache.so
 
 librssl_src = \
 	CodecStubs/data_stubs.c \
 	CodecStubs/message_stubs.c \
-	TransportStubs/transport_stubs.c 
-
-librssl_objs = $(addprefix $(OUTPUT_DIR)/obj/,$(librssl_src:%.c=%.o))
+	TransportStubs/transport_stubs.c
 
 librsslVACache_src = \
-	CacheStubs/cache_stubs.C 
+	CacheStubs/cache_stubs.c
 
-librsslVACache_objs = $(addprefix $(OUTPUT_DIR)/obj/,$(librsslVACache_src:%.C=%.o))
+
+librssl_objs = $(addprefix $(OUTPUT_DIR)/obj/,$(librssl_src:%.c=%.o))
+librsslVACache_objs = $(addprefix $(OUTPUT_DIR)/obj/,$(librsslVACache_src:%.c=%.o))
+
 
 librssl.a : $(librssl_objs)
 	mkdir -p $(EXE_DIR)
-	ar -ruv $(EXE_DIR)/librssl.a $(librssl_objs) 
-	
+	ar -ruv $(EXE_DIR)/librssl.a $(librssl_objs)
+
+librsslVACache.a : $(librsslVACache_objs)
+	mkdir -p $(EXE_DIR)
+	ar -ruv $(EXE_DIR)/librsslVACache.a $(librsslVACache_objs)
+
+
 librssl.so : librssl.so.4
 	( cd $(EXE_DIR)/Shared; rm -f librssl.so; ln -s librssl.so.4 librssl.so; )
 
 librssl.so.4 : $(librssl_objs)
 	mkdir -p $(EXE_DIR)/Shared
 	$(CC) $(CFLAGS) -o $(EXE_DIR)/Shared/$@ $(librssl_objs) $(SONAME_OPT)$@ $(SYSTEM_LIBS)
-	
+
+
+librsslVACache.so : librsslVACache.so.2
+	( cd $(EXE_DIR)/Shared; rm -f librsslVACache.so; ln -s librsslVACache.so.2 librsslVACache.so; )
+
+librsslVACache.so.2 : $(librsslVACache_objs)
+	mkdir -p $(EXE_DIR)/Shared
+	$(CC) $(CFLAGS) -o $(EXE_DIR)/Shared/$@ $(librsslVACache_objs) $(SONAME_OPT)$@ $(SYSTEM_LIBS)
+
 clean:
 	rm -rf $(OUTPUT_DIR)
 
