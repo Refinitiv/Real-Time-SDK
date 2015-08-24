@@ -10,7 +10,7 @@ CONTENTS
 4.    INTEROPERABILITY
 5.    INSTALLATION
 6.    ISSUES AND WORKAROUNDS
-7.    RELEASE HISTORY
+7.    OBTAINING THE THOMSON REUTERS FIELD DICTIONARIES
 
 
 
@@ -179,3 +179,16 @@ CONTENTS
     - EMACPP-412: Cannot pass decoded complex type objects into encoding methods of complex types.
 	- EMACPP-444: Cannot open emaconfig.xml file from example project files on windows 
 
+7. OBTAINING THE THOMSON REUTERS FIELD DICTIONARIES
+===================================================
+
+The Thomson Reuters `RDMFieldDictionary` and `enumtype.def` files are present in the GitHub repo under `Ema/Etc`.
+
+In addition, the most current version can be downloaded from the Customer Zone from the following location.
+
+https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
+
+- **Category**: MDS - General
+- **Products**: TREP Templates Service Pack
+
+Place the downloaded `enumtype.def` and `RDMFieldDictionary` under `/Ema/Etc` If these are not present when building some of the applications, their build will fail when they reach the step to copy these. The executable will still be built properly. 
