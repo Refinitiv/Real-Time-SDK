@@ -60,13 +60,17 @@ CONTENTS
 
 
     Features Supported:
-	-------------------
+    -------------------
     - Default Admin Domain Requests: EMA uses default login, directory and 
       dictionary request while connecting to server. This provides minimum 
       configuration for applications to get up and running. 
 	  
     - Configurable Admin Domain Requests:  EMA provides means for modifying the
       default admin domain requests. 
+      
+    - Tunnel Streams: EMA supports private streams, with additional associated 
+      behaviors (e.g., end-to-end authentication, guaranteed delivery, and
+      flow control).
 	  
     - Batch Request: Application may use a single request message to specify 
       interest in multiple items via the item list
