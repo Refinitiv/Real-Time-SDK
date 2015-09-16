@@ -50,6 +50,8 @@ public :
 
 private :
 	
+	void reallocateRmtesCacheBuffer( const char* errorText ); 
+	
 	friend class OmmRmtesDecoder;
 
 	RsslBuffer				_rsslBuffer;
