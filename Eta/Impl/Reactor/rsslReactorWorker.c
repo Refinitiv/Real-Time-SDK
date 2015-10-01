@@ -727,8 +727,12 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 		RSSL_QUEUE_FOR_EACH_LINK(&pReactorWorker->activeChannels, pLink)
 		{
 			pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, workerLink, pLink);
+
+			/* Check if the elapsed time is greater than our ping-send interval. */
 			if ((pReactorWorker->lastRecordedTimeMs - pReactorChannel->lastPingSentMs) > pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor )
 			{
+
+				/* If so, send a ping. */
 				ret = rsslPing(pReactorChannel->reactorChannel.pRsslChannel, &pReactorChannel->channelWorkerCerr.rsslError);
 				if (ret < 0)
 				{
@@ -737,10 +741,14 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 						return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 				}
 				else
+				{
 					pReactorChannel->lastPingSentMs = pReactorWorker->lastRecordedTimeMs;
+					_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor));
+				}
 			}
 			else
 			{
+				/* Otherwise, figure out when to wake up again. (Ping interval - (current time - time of last ping). */
 				_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->lastPingSentMs + (RsslInt64)(pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor) - pReactorWorker->lastRecordedTimeMs));
 			}
 

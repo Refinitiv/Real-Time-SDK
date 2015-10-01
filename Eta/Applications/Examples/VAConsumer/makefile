@@ -54,7 +54,7 @@ else
 			ifeq ($(findstring CentOS,$(DIST)),CentOS)
 				# assume Oracle 7 (or greater)
 				RSSL_LIB_DIR=$(RSSL_ROOTPLAT)/Libs/OL7_64_GCC482/$(LIBTYPE)/$(LINKTYPE)
-				LIB_DIR=$(RSSL_LIB_DIR)
+				LIB_DIR=$(RSSL_LIB_DIR) 
 				OUTPUT_DIR=./CENTOS7_64_GCC482/$(LIBTYPE)/$(LINKTYPE)
 			else
 				DIST=$(shell cat /etc/oracle-release)

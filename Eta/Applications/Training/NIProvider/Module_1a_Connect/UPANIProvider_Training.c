@@ -1,9 +1,12 @@
 /*
- * This source code is provided under the Apache 2.0 license and is provided
- * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
- * LICENSE.md for details. 
- * Copyright Thomson Reuters 2015. All rights reserved.
-*/
+ *|-------------------------------------------------------------------------------
+ *| This source code is provided under the Apache 2.0 license and is provided	--
+ *| AS IS with no warranty or guarantee of fit for purpose.  See the project's 	--
+ *| LICENSE.md for details.														--
+ *| Copyright Thomson Reuters 2015. All rights reserved.						--
+ *|-------------------------------------------------------------------------------
+ */
+
 
 /*
  * This is the UPA NI Provider Training series of the UPA Training Suite
@@ -60,42 +63,51 @@
 int main(int argc, char **argv)
 {
 	/* For this simple training app, only a single channel/connection is used for the entire life of this app. */
-	RsslChannel *upaChannel;
 
-	char srvrHostname[128], srvrPortNo[128], interfaceName[128];
-
-	/* This example suite uses write descriptor in our client/NI Provider type examples in mainly 2 areas with 
-	 * the I/O notification mechanism being used: 
-	 * 1) rsslInitChannel() function which exchanges various messages to perform necessary UPA transport 
-	 *    negotiations and handshakes to complete channel initialization. 
+	/* This example suite uses write descriptor in our client/NI Provider type examples in mainly 2 areas with
+	 * the I/O notification mechanism being used:
+	 * 1) rsslInitChannel() function which exchanges various messages to perform necessary UPA transport
+	 *    negotiations and handshakes to complete channel initialization.
 	 * 2) rsslFlush() calls used throughout the application (after module 1a), together with rsslWrite() calls, such
-	 *    as in sendMessage() function. The write descriptor can be used to indicate when the socketId has write 
-	 *    availability and help with determining when the network is able to accept additional bytes for writing. 
+	 *    as in sendMessage() function. The write descriptor can be used to indicate when the socketId has write
+	 *    availability and help with determining when the network is able to accept additional bytes for writing.
 	 *
-	 * For the RsslChannel initialization process, if using I/O, a client/NI Provider application should register the 
-	 * RsslChannel.socketId with the read, write, and exception file descriptor sets. When the write descriptor 
-	 * alerts the user that the socketId is ready for writing, rsslInitChannel is called (this sends the 
-	 * initial connection handshake message). When the read file descriptor alerts the user that the socketId 
-	 * has data to read, rsslInitChannel is called - this typically reads the next portion of the handshake. 
+	 * For the RsslChannel initialization process, if using I/O, a client/NI Provider application should register the
+	 * RsslChannel.socketId with the read, write, and exception file descriptor sets. When the write descriptor
+	 * alerts the user that the socketId is ready for writing, rsslInitChannel is called (this sends the
+	 * initial connection handshake message). When the read file descriptor alerts the user that the socketId
+	 * has data to read, rsslInitChannel is called - this typically reads the next portion of the handshake.
 	 * This process would continue until the connection is active.
 	 *
-	 * Typically, calls to rsslInitChannel are driven by I/O on the connection, however this can also be 
-	 * accomplished by using a timer to periodically call the function or looping on a call until the channel 
-	 * transitions to active or a failure occurs. Other than any overhead associated with the function call, 
-	 * there is no harm in calling rsslInitChannel more frequently than required. If no work is required at 
+	 * Typically, calls to rsslInitChannel are driven by I/O on the connection, however this can also be
+	 * accomplished by using a timer to periodically call the function or looping on a call until the channel
+	 * transitions to active or a failure occurs. Other than any overhead associated with the function call,
+	 * there is no harm in calling rsslInitChannel more frequently than required. If no work is required at
 	 * the current time, the function will return and indicate that connection is still in progress.
 	 */
 
 	/* This example suite also uses a clean FD sets and a dirty FD sets for I/O notification.
-	 * Since select() modifies its file descriptor sets, if the call is being used in a loop, then the fd sets must 
-	 * be reinitialized before each call. Since they act as input/output parameters for the select() system call; 
-	 * they are read by and modified by the system call. When select() returns, the values have all been modified 
-	 * to reflect the set of file descriptors ready. So, every time before you call select(), you have to 
-	 * (re)initialize the fd_set values. Here we maintain 2 sets FD sets: 
-	 * a) clean FD sets so that we can repeatedly call select call 
+
+	 *		select() - a system call for examining the status of file_descriptors.
+	 *					Tells us that there is data to read on the FDs.
+
+	 * Since select() modifies its file descriptor sets, if the call is being used in a loop, then the fd sets must
+	 * be reinitialized before each call. Since they act as input/output parameters for the select() system call;
+	 * they are read by and modified by the system call. When select() returns, the values have all been modified
+	 * to reflect the set of file descriptors ready. So, every time before you call select(), you have to
+	 * (re)initialize the fd_set values. Here we maintain 2 sets FD sets:
+	 * a) clean FD sets so that we can repeatedly call select call
 	 * b) dirty FD sets used in the actual select call (I/O notification mechanism)
 	 * Typically, you reset the dirty FD sets to be equal to the clean FD sets before you call select().
 	 */
+
+	/******************************************************************************************************************
+				DECLARING VARIABLES
+	******************************************************************************************************************/
+	/* For this simple training app, only a single channel/connection is used for the entire life of this app. */
+	RsslChannel *upaChannel;
+
+	char srvrHostname[128], srvrPortNo[128], interfaceName[128];
 
 	/* clean FD sets so that we can repeatedly call select call */
 	fd_set cleanReadFds;
@@ -113,7 +125,7 @@ int main(int argc, char **argv)
 
 	RsslError error;
 
-	RsslConnectOptions cOpts  = RSSL_INIT_CONNECT_OPTS;	
+	RsslConnectOptions cOpts  = RSSL_INIT_CONNECT_OPTS;
 
 	/* RsslInProgInfo Information for the In Progress Connection State */
 	RsslInProgInfo inProgInfo = RSSL_INIT_IN_PROG_INFO;
@@ -125,14 +137,14 @@ int main(int argc, char **argv)
 	/* connect to server running on same machine */
 	snprintf(srvrHostname, 128, "%s", "localhost");
 	/* server is running on port number 14003 */
-	snprintf(srvrPortNo, 128, "%s", "14003");	
+	snprintf(srvrPortNo, 128, "%s", "14003");
 	/* use default NIC network interface card to bind to for all inbound and outbound data */
-	snprintf(interfaceName, 128, "%s", "");		
+	snprintf(interfaceName, 128, "%s", "");
 
 	/* User specifies options such as address, port, and interface from the command line.
 	 * User can have the flexibilty of specifying any or all of the parameters in any order.
 	 */
-	if (argc > 1) 
+	if (argc > 1)
 	{
 		int i = 1;
 
@@ -162,22 +174,25 @@ int main(int argc, char **argv)
 		}
 	}
 
+	/******************************************************************************************************************
+				INITIALIZATION - USING rsslInitialize()
+	******************************************************************************************************************/
 	/*********************************************************
 	 * Client/NIProv Application Liefcycle Major Step 1:
 	 * Initialize UPA Transport using rsslInitialize
-	 * The first UPA Transport function that an application should call. This creates and initializes 
-	 * internal memory and structures, as well as performing any boot strapping for underlying dependencies. 
-	 * The rsslInitialize function also allows the user to specify the locking model they want applied 
-	 * to the UPA Transport. 
+	 * The first UPA Transport function that an application should call. This creates and initializes
+	 * internal memory and structures, as well as performing any boot strapping for underlying dependencies.
+	 * The rsslInitialize function also allows the user to specify the locking model they want applied
+	 * to the UPA Transport.
 	 *********************************************************/
 
-	/* RSSL_LOCK_NONE is used since this is a single threaded application. 
-	 * For applications with other thread models (RSSL_LOCK_GLOBAL_AND_CHANNEL, RSSL_LOCK_GLOBAL), 
-	 * see the UPA C developers guide for definitions of other locking models supported by UPA 
+	/* RSSL_LOCK_NONE is used since this is a single threaded application.
+	 * For applications with other thread models (RSSL_LOCK_GLOBAL_AND_CHANNEL, RSSL_LOCK_GLOBAL),
+	 * see the UPA C developers guide for definitions of other locking models supported by UPA
 	 */
 	if (rsslInitialize(RSSL_LOCK_NONE, &error) != RSSL_RET_SUCCESS)
 	{
-		printf("Error %s (%d) (errno: %d) encountered with rsslInitialize. Error Text: %s\n", 
+		printf("Error %s (%d) (errno: %d) encountered with rsslInitialize. Error Text: %s\n",
 			rsslRetCodeToString(error.rsslErrorId), error.rsslErrorId, error.sysError, error.text);
 		/* End application */
 		exit(RSSL_RET_FAILURE);
@@ -186,64 +201,77 @@ int main(int argc, char **argv)
 	FD_ZERO(&cleanReadFds);
 	FD_ZERO(&cleanExceptFds);
 	FD_ZERO(&cleanWriteFds);
-	
-	/* populate connect options, then pass to rsslConnect function - 
-	 * UPA Transport should already be initialized 
+
+	/* populate connect options, then pass to rsslConnect function -
+	 * UPA Transport should already be initialized
 	 */
 	/* use standard socket connection */
-	cOpts.connectionType = RSSL_CONN_TYPE_SOCKET; /*!< (0) Channel is a standard TCP socket connection type */		
+	cOpts.connectionType = RSSL_CONN_TYPE_SOCKET; /*!< (0) Channel is a standard TCP socket connection type */
 	cOpts.connectionInfo.unified.address = srvrHostname;
-	cOpts.connectionInfo.unified.serviceName = srvrPortNo;		
-	cOpts.connectionInfo.unified.interfaceName = interfaceName;		
-	
+	cOpts.connectionInfo.unified.serviceName = srvrPortNo;
+	cOpts.connectionInfo.unified.interfaceName = interfaceName;
+
 	/* populate version and protocol with RWF information (found in rsslIterators.h) or protocol specific info */
-	cOpts.protocolType = RSSL_RWF_PROTOCOL_TYPE; /* Protocol type definition for RWF */ 
+	cOpts.protocolType = RSSL_RWF_PROTOCOL_TYPE; /* Protocol type definition for RWF */
 	cOpts.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	cOpts.minorVersion = RSSL_RWF_MINOR_VERSION;
 
+	/******************************************************************************************************************
+				CONNECTION SETUP - USING rsslConnect()
+	******************************************************************************************************************/
 	/*********************************************************
 	 * Client/NIProv Application Liefcycle Major Step 2:
 	 * Connect using rsslConnect (OS connection establishment handshake)
-	 * rsslConnect call Establishes an outbound connection, which can leverage standard sockets, HTTP, 
-	 * or HTTPS. Returns an RsslChannel that represents the connection to the user. In the event of an error, 
+	 * rsslConnect call Establishes an outbound connection, which can leverage standard sockets, HTTP,
+	 * or HTTPS. Returns an RsslChannel that represents the connection to the user. In the event of an error,
 	 * NULL is returned and additional information can be found in the RsslError structure.
 	 * Connection options are passed in via an RsslConnectOptions structure.
 	 *********************************************************/
 
 	if ((upaChannel = rsslConnect(&cOpts, &error)) == 0)
 	{
-		printf("Error %s (%d) (errno: %d) encountered with rsslConnect. Error Text: %s\n", 
+		printf("Error %s (%d) (errno: %d) encountered with rsslConnect. Error Text: %s\n",
 			rsslRetCodeToString(error.rsslErrorId), error.rsslErrorId, error.sysError, error.text);
- 
+
 		/* End application, uninitialize to clean up first */
 		rsslUninitialize();
 		exit(RSSL_RET_FAILURE);
-	} 
- 
+	}
+
 	/* Connection was successful, add socketId to I/O notification mechanism and initialize connection */
 	/* Typical FD_SET use, this may vary depending on the I/O notification mechanism the application is using */
 	FD_SET(upaChannel->socketId, &cleanReadFds);
 	FD_SET(upaChannel->socketId, &cleanExceptFds);
 
-	/* for non-blocking I/O (default), write descriptor is set initially in case this end starts the message 
-	 * handshakes that rsslInitChannel() performs. Once rsslInitChannel() is called for the first time the 
-	 * channel can wait on the read descriptor for more messages. Without using the write descriptor, we would 
-	 * have to keep looping and calling rsslInitChannel to complete the channel initialization process, which 
-	 * can be CPU-intensive. We will set the write descriptor again if a FD_CHANGE event occurs.  
+	/* for non-blocking I/O (default), write descriptor is set initially in case this end starts the message
+	 * handshakes that rsslInitChannel() performs. Once rsslInitChannel() is called for the first time the
+	 * channel can wait on the read descriptor for more messages. Without using the write descriptor, we would
+	 * have to keep looping and calling rsslInitChannel to complete the channel initialization process, which
+	 * can be CPU-intensive. We will set the write descriptor again if a FD_CHANGE event occurs.
 	 */
 	if (!cOpts.blocking)
-	{	
+	{
 		if (!FD_ISSET(upaChannel->socketId, &cleanWriteFds))
 			FD_SET(upaChannel->socketId, &cleanWriteFds);
 	}
-	
+
 	printf("\nChannel IPC descriptor = %d\n", upaChannel->socketId);
 
-	/* Main loop for getting connection active and successful completion of the initialization process 
-	 * The loop calls select() to wait for notification 
+	/******************************************************************************************************************
+				MAIN LOOP TO SEE IF RESPONSE RECEIVED FROM PROVIDER
+	******************************************************************************************************************/
+	/* Main loop for getting connection active and successful completion of the initialization process
+	 * The loop calls select() to wait for notification
 	 * Currently, the main loop would exit if an error condition is triggered or
-	 * RsslChannel.state transitions to RSSL_CH_STATE_ACTIVE. 
+	 * RsslChannel.state transitions to RSSL_CH_STATE_ACTIVE.
 	 */
+
+	/*
+	 *If we want a non-blocking read call to the selector, we use select before read as read is a blocking call but select is not
+	 *If we want a blocking read call to the selector, such that we want to wait till we get a message, we should use read without select.
+	 *In the program below we will use select(), as it is non-blocking
+	 */
+
 	while (upaChannel->state != RSSL_CH_STATE_ACTIVE)
 	{
 		useReadFds = cleanReadFds;
@@ -251,21 +279,21 @@ int main(int argc, char **argv)
 		useExceptFds = cleanExceptFds;
 
 		/* Set a timeout value if the ADH Infra server accepts the connection, but does not initialize it */
-		/* On Linux platform, select() modifies timeout to reflect the amount of time not slept; 
-		 * most other implementations do not do this. (POSIX.1-2001 permits either behaviour.)   
-		 * This causes problems both when Linux code which reads timeout is ported to other operating systems, 
+		/* On Linux platform, select() modifies timeout to reflect the amount of time not slept;
+		 * most other implementations do not do this. (POSIX.1-2001 permits either behaviour.)
+		 * This causes problems both when Linux code which reads timeout is ported to other operating systems,
 		 * and when code is ported to Linux that reuses a struct timeval for multiple select()s
 		 * in a loop without reinitializing it. Consider timeout to be undefined after select() returns.
 		 *
-		 * Note: You should reset the values of your timeout before you call select() every time. 
+		 * Note: You should reset the values of your timeout before you call select() every time.
 		 */
 		time_interval.tv_sec = 60;
 		time_interval.tv_usec = 0;
 
-		/* By employing an I/O notification mechanism (e.g. select, poll), an application can leverage a 
-		 * non-blocking I/O model, using the I/O notification to alert the application when data is available 
-		 * to read or when output space is available for writing to. The training examples are written from a 
-		 * non-blocking I/O perspective. Here, we use the select I/O notification mechanism in our examples. 
+		/* By employing an I/O notification mechanism (e.g. select, poll), an application can leverage a
+		 * non-blocking I/O model, using the I/O notification to alert the application when data is available
+		 * to read or when output space is available for writing to. The training examples are written from a
+		 * non-blocking I/O perspective. Here, we use the select I/O notification mechanism in our examples.
 		 */
 		selRet = select(FD_SETSIZE, &useReadFds, &useWriteFds, &useExceptFds, &time_interval);
 
@@ -281,84 +309,85 @@ int main(int argc, char **argv)
 		{
 			/* Received a response from the provider. */
 
-			/* On success, select() return the number of file descriptors contained in the three returned descriptor sets 
-			 * (that is, the total number of bits that are set in readfds, writefds, exceptfds) 
+			/* On success, select() return the number of file descriptors contained in the three returned descriptor sets
+			 * (that is, the total number of bits that are set in readfds, writefds, exceptfds)
 			 */
 
-			/* Wait for channel to become active. After an RsslChannel is returned from the client's rsslConnect or server's rsslAccept call, 
-			 * the channel may need to continue the initialization process. This additional initialization is required 
-			 * as long as the RsslChannel.state is RSSL_CH_STATE_INITIALIZING. When using non-blocking I/O, this is the 
-			 * typical state that an RsslChannel will start from and it may require multiple initialization calls to 
-			 * transition to active. rsslInitChannel is typically called based on activity on the socketId, though a timer or 
-			 * looping can be used - the rsslInitChannel function should continue to be called until the 
+			/* Wait for channel to become active. After an RsslChannel is returned from the client's rsslConnect or server's rsslAccept call,
+			 * the channel may need to continue the initialization process. This additional initialization is required
+			 * as long as the RsslChannel.state is RSSL_CH_STATE_INITIALIZING. When using non-blocking I/O, this is the
+			 * typical state that an RsslChannel will start from and it may require multiple initialization calls to
+			 * transition to active. rsslInitChannel is typically called based on activity on the socketId, though a timer or
+			 * looping can be used - the rsslInitChannel function should continue to be called until the
 			 * connection becomes active, at which point reading and writing can begin.
 			 */
 			switch (upaChannel->state)
 			{
-				/* Indicates that an RsslChannel requires additional initialization. This initialization is typically additional 
-				 * connection handshake messages that need to be exchanged. 
+				/* Indicates that an RsslChannel requires additional initialization. This initialization is typically additional
+				 * connection handshake messages that need to be exchanged.
 				 */
 				case RSSL_CH_STATE_INITIALIZING:
 				{
 					/* rsslInitChannel is called if read or write or except is triggered */
 					if (FD_ISSET(upaChannel->socketId, &useReadFds) || FD_ISSET(upaChannel->socketId, &useWriteFds) || FD_ISSET(upaChannel->socketId, &useExceptFds))
 					{
-						/* Write descriptor is set initially in case this end starts the message handshakes that rsslInitChannel() performs. 
-						 * Once rsslInitChannel() is called for the first time the channel can wait on the read descriptor for more messages.  
+						/* Write descriptor is set initially in case this end starts the message handshakes that rsslInitChannel() performs.
+						 * Once rsslInitChannel() is called for the first time the channel can wait on the read descriptor for more messages.
 						 * We will set the write descriptor again if a FD_CHANGE event occurs. */
 						FD_CLR(upaChannel->socketId, &cleanWriteFds);
 
 						/*********************************************************
 						 * Client/NIProv Application Liefcycle Major Step 3:
 						 * Initialize until active using rsslInitChannel (UPA Transport connection establishment handshake)
-						 * Continues initialization of an RsslChannel. This channel could originate from rsslConnect or rsslAccept. 
-						 * This function exchanges various messages to perform necessary UPA negotiations and handshakes to 
-						 * complete channel initialization. 
+						 * Continues initialization of an RsslChannel. This channel could originate from rsslConnect or rsslAccept.
+						 * This function exchanges various messages to perform necessary UPA negotiations and handshakes to
+						 * complete channel initialization.
 						 * Requires the use of an RsslInProgInfo structure.
-						 * The RsslChannel can be used for all additional transport functionality (e.g. reading, writing) once the 
-						 * state transitions to RSSL_CH_STATE_ACTIVE. If a connection is rejected or initialization fails, 
+						 * The RsslChannel can be used for all additional transport functionality (e.g. reading, writing) once the
+						 * state transitions to RSSL_CH_STATE_ACTIVE. If a connection is rejected or initialization fails,
 						 * the state will transition to RSSL_CH_STATE_CLOSED.
 						 *********************************************************/
 
-						/* Internally, the UPA initialization process includes several actions. The initialization includes 
-						 * any necessary UPA connection handshake exchanges, including any HTTP or HTTPS negotiation. 
-						 * Compression, ping timeout, and versioning related negotiations also take place during the 
-						 * initialization process. This process involves exchanging several messages across the connection, 
-						 * and once all message exchanges have completed the RsslChannel.state will transition. If the connection 
-						 * is accepted and all types of negotiations completed properly, the RsslChannel.state will become 
-						 * RSSL_CH_STATE_ACTIVE. If the connection is rejected, either due to some kind of negotiation failure 
-						 * or because an RsslServer rejected the connection by setting nakMount to RSSL_TRUE, the RsslChannel.state 
+						/* Internally, the UPA initialization process includes several actions. The initialization includes
+						 * any necessary UPA connection handshake exchanges, including any HTTP or HTTPS negotiation.
+						 * Compression, ping timeout, and versioning related negotiations also take place during the
+						 * initialization process. This process involves exchanging several messages across the connection,
+						 * and once all message exchanges have completed the RsslChannel.state will transition. If the connection
+						 * is accepted and all types of negotiations completed properly, the RsslChannel.state will become
+						 * RSSL_CH_STATE_ACTIVE. If the connection is rejected, either due to some kind of negotiation failure
+						 * or because an RsslServer rejected the connection by setting nakMount to RSSL_TRUE, the RsslChannel.state
 						 * will become RSSL_CH_STATE_CLOSED.
 						 *
 						 * Note:
-						 * For both client and server channels, more than one call to rsslInitChannel can be required to complete 
+						 * For both client and server channels, more than one call to rsslInitChannel can be required to complete
 						 * the channel initialization process.
 						 */
 						if ((retval = rsslInitChannel(upaChannel, &inProgInfo, &error)) < RSSL_RET_SUCCESS)
 						{
-							printf("Error %s (%d) (errno: %d) encountered with rsslInitChannel fd=%d. Error Text: %s\n", 
+							printf("Error %s (%d) (errno: %d) encountered with rsslInitChannel fd=%d. Error Text: %s\n",
 								rsslRetCodeToString(error.rsslErrorId), error.rsslErrorId, error.sysError, upaChannel->socketId, error.text);
 							/* Closes channel, cleans up and exits the application. */
 							closeChannelCleanUpAndExit(upaChannel, RSSL_RET_FAILURE);
-							break; 
+							break;
 						}
-						else 
+						else
 						{
 							/* Handle return code appropriately */
 			  				switch (retval)
 							{
+								/*!< (2)  Transport Success: Channel initialization is In progress, returned from rsslInitChannel. */
 								case RSSL_RET_CHAN_INIT_IN_PROGRESS:
 								{
 									/* Initialization is still in progress, check the RsslInProgInfo for additional information */
 									if (inProgInfo.flags & RSSL_IP_FD_CHANGE)
 									{
-										/* The rsslInitChannel function requires the use of an additional parameter, a RsslInProgInfo structure. 
-										 * Under certain circumstances, the initialization process may be required to create new or additional underlying connections. 
-										 * If this occurs, the application is required to unregister the previous socketId and register the new socketId with 
+										/* The rsslInitChannel function requires the use of an additional parameter, a RsslInProgInfo structure.
+										 * Under certain circumstances, the initialization process may be required to create new or additional underlying connections.
+										 * If this occurs, the application is required to unregister the previous socketId and register the new socketId with
 										 * the I/O notification mechanism being used. When this occurs, the information is conveyed by the RsslInProgInfo and the RsslInProgFlags.
 										 *
-										 * RSSL_IP_FD_CHANGE indicates that a socketId change has occurred as a result of this call. The previous socketId has been 
-										 * stored in RsslInProgInfo.oldSocket so it can be unregistered with the I/O notification mechanism. 
+										 * RSSL_IP_FD_CHANGE indicates that a socketId change has occurred as a result of this call. The previous socketId has been
+										 * stored in RsslInProgInfo.oldSocket so it can be unregistered with the I/O notification mechanism.
 										 * The new socketId has been stored in RsslInProgInfo.newSocket so it can be registered with the
 										 * I/O notification mechanism. The channel initialization is still in progress and subsequent calls
 										 * to rsslInitChannel are required to complete it.
@@ -380,33 +409,34 @@ int main(int argc, char **argv)
 									}
 								}
 								break;
-								/* channel connection becomes active! 
-								 * Once a connection is established and transitions to the RSSL_CH_STATE_ACTIVE state, 
+
+								/* channel connection becomes active!
+								 * Once a connection is established and transitions to the RSSL_CH_STATE_ACTIVE state,
 								 * this RsslChannel can be used for other transport operations.
 								 */
-								case RSSL_RET_SUCCESS:			
+								case RSSL_RET_SUCCESS:
 								{
-									printf("\nChannel on fd %d is now active - reading and writing can begin.\n", upaChannel->socketId);					
+									printf("\nChannel on fd %d is now active - reading and writing can begin.\n", upaChannel->socketId);
 
 									/*********************************************************
-									 * Connection is now active. The RsslChannel can be used for all additional 
-									 * transport functionality (e.g. reading, writing) now that the state 
-									 * transitions to RSSL_CH_STATE_ACTIVE 
+									 * Connection is now active. The RsslChannel can be used for all additional
+									 * transport functionality (e.g. reading, writing) now that the state
+									 * transitions to RSSL_CH_STATE_ACTIVE
 									 *********************************************************/
 
-									/* After channel is active, use UPA Transport utility function rsslGetChannelInfo to query RsslChannel negotiated 
-									 * parameters and settings and retrieve all current settings. This includes maxFragmentSize and negotiated 
-									 * compression information as well as many other values. 
+									/* After channel is active, use UPA Transport utility function rsslGetChannelInfo to query RsslChannel negotiated
+									 * parameters and settings and retrieve all current settings. This includes maxFragmentSize and negotiated
+									 * compression information as well as many other values.
 									 */
 									if ((retval = rsslGetChannelInfo(upaChannel, &channelInfo, &error)) != RSSL_RET_SUCCESS)
 									{
-										printf("Error %s (%d) (errno: %d) encountered with rsslGetChannelInfo. Error Text: %s\n", 			
-											rsslRetCodeToString(error.rsslErrorId), error.rsslErrorId, error.sysError, error.text);		
+										printf("Error %s (%d) (errno: %d) encountered with rsslGetChannelInfo. Error Text: %s\n",
+											rsslRetCodeToString(error.rsslErrorId), error.rsslErrorId, error.sysError, error.text);
 
 										/* Connection should be closed, return failure */
 										/* Closes channel, cleans up and exits the application. */
 										closeChannelCleanUpAndExit(upaChannel, RSSL_RET_FAILURE);
-									} 
+									}
 
 									printf( "Channel %d active. Channel Info:\n"
 										"	Max Fragment Size: %u\n"
@@ -414,17 +444,15 @@ int main(int argc, char **argv)
 										"	Input Buffers: %u\n"
 										"	Send/Recv Buffer Sizes: %u/%u\n"
 										"	Ping Timeout: %u\n"
-										"	Connected component version: ", 
-										upaChannel->socketId, /*!< @brief Socket ID of this RSSL channel. */
-										channelInfo.maxFragmentSize, /*!< @brief This is the max fragment size before fragmentation and reassembly is necessary. */ 
-										channelInfo.maxOutputBuffers, /*!< @brief This is the maximum number of output buffers available to the channel. */
+										"	Connected component version: ",
+										upaChannel->socketId,			/*!< @brief Socket ID of this RSSL channel. */
+										channelInfo.maxFragmentSize,	/*!< @brief This is the max fragment size before fragmentation and reassembly is necessary. */
+										channelInfo.maxOutputBuffers,	/*!< @brief This is the maximum number of output buffers available to the channel. */
 										channelInfo.guaranteedOutputBuffers, /*!< @brief This is the guaranteed number of output buffers available to the channel. */
-										channelInfo.numInputBuffers, /*!< @brief This is the number of input buffers available to the channel. */
-										channelInfo.sysSendBufSize, /*!< @brief This is the systems Send Buffer size. This reports the systems send buffer size 
-																	respective to the transport type being used (TCP, UDP, etc) */
-										channelInfo.sysRecvBufSize, /*!< @brief This is the systems Receive Buffer size. This reports the systems receive buffer 
-																	size respective to the transport type being used (TCP, UDP, etc) */
-										channelInfo.pingTimeout /*!< @brief This is the value of the negotiated ping timeout */
+										channelInfo.numInputBuffers,	/*!< @brief This is the number of input buffers available to the channel. */
+										channelInfo.sysSendBufSize,		/*!< @brief This is the systems Send Buffer size. This reports the systems send buffer size respective to the transport type being used (TCP, UDP, etc) */
+										channelInfo.sysRecvBufSize,		/*!< @brief This is the systems Receive Buffer size. This reports the systems receive buffer size respective to the transport type being used (TCP, UDP, etc) */
+										channelInfo.pingTimeout 		/*!< @brief This is the value of the negotiated ping timeout */
 									);
 
 									if (channelInfo.componentInfoCount == 0)
@@ -434,14 +462,14 @@ int main(int argc, char **argv)
 										RsslUInt32 count;
 										for(count = 0; count < channelInfo.componentInfoCount; ++count)
 										{
-											printf("%.*s", 
+											printf("%.*s",
 													channelInfo.componentInfo[count]->componentVersion.length,
 													channelInfo.componentInfo[count]->componentVersion.data);
 											if (count < channelInfo.componentInfoCount - 1)
 												printf(", ");
 										}
 									}
-									printf ("\n\n"); 
+									printf ("\n\n");
 								}
 								break;
 								default: /* Error handling */
@@ -457,30 +485,30 @@ int main(int argc, char **argv)
 					}
 				}
 				break;
-				
+
 				/* Indicates that an RsslChannel is active. This channel can perform any connection related actions, such as reading or writing. */
 				case RSSL_CH_STATE_ACTIVE:
 				{
 					/*********************************************************
-					 * Connection is now active. The RsslChannel can be used for all additional 
-					 * transport functionality (e.g. reading, writing) now that the state 
-					 * transitions to RSSL_CH_STATE_ACTIVE 
+					 * Connection is now active. The RsslChannel can be used for all additional
+					 * transport functionality (e.g. reading, writing) now that the state
+					 * transitions to RSSL_CH_STATE_ACTIVE
 					 *********************************************************/
 				}
 				break;
-					
-				/* RSSL_CH_STATE_CLOSED, RSSL_CH_STATE_INACTIVE, and default should be handled same way: just call closeChannelCleanUpAndExit function and break. */
-					
-				/* Indicates that an RsslChannel has been closed. This typically occurs as a result of an error inside of a transport function call 
-				 * and is often related to a socket being closed or becoming unavailable. Appropriate error value return codes and RsslError 
-				 * information should be available for the user. 
-				 */
-				case RSSL_CH_STATE_CLOSED: /* fall through to default. */	
 
-				/* Indicates that an RsslChannel is inactive. This channel cannot be used. This state typically occurs after a channel 
-				 * is closed by the user. 
+				/* RSSL_CH_STATE_CLOSED, RSSL_CH_STATE_INACTIVE, and default should be handled same way: just call closeChannelCleanUpAndExit function and break. */
+
+				/* Indicates that an RsslChannel has been closed. This typically occurs as a result of an error inside of a transport function call
+				 * and is often related to a socket being closed or becoming unavailable. Appropriate error value return codes and RsslError
+				 * information should be available for the user.
 				 */
-				case RSSL_CH_STATE_INACTIVE: /* fall through to default. */	
+				case RSSL_CH_STATE_CLOSED: /* fall through to default. */
+
+				/* Indicates that an RsslChannel is inactive. This channel cannot be used. This state typically occurs after a channel
+				 * is closed by the user.
+				 */
+				case RSSL_CH_STATE_INACTIVE: /* fall through to default. */
 
 				default: /* Error handling */
 				{
@@ -514,32 +542,32 @@ void closeChannelCleanUpAndExit(RsslChannel* upaChannel, int code)
 	/*********************************************************
 	 * Client/NIProv Application Liefcycle Major Step 5:
 	 * Close connection using rsslCloseChannel (OS connection release handshake)
-	 * rsslCloseChannel closes the client based RsslChannel. This will release any pool based resources 
+	 * rsslCloseChannel closes the client based RsslChannel. This will release any pool based resources
 	 * back to their respective pools, close the connection, and perform any additional necessary cleanup.
-	 * When shutting down the RSSL Transport, the application should release all unwritten pool buffers. 
+	 * When shutting down the RSSL Transport, the application should release all unwritten pool buffers.
 	 * Calling rsslCloseChannel terminates the connection to the ADH.
 	 *********************************************************/
 
 	if ((retval = rsslCloseChannel(upaChannel, &error)) < RSSL_RET_SUCCESS)
 	{
-		printf("Error %s (%d) (errno: %d) encountered with rsslCloseChannel. Error Text: %s\n", 		
+		printf("Error %s (%d) (errno: %d) encountered with rsslCloseChannel. Error Text: %s\n",
 			rsslRetCodeToString(error.rsslErrorId), error.rsslErrorId, error.sysError, error.text);
 	}
 
 	/*********************************************************
 	 * Client/NIProv Application Liefcycle Major Step 6:
 	 * Uninitialize UPA Transport using rsslUninitialize
-	 * The last UPA Transport function that an application should call. This uninitializes internal data 
+	 * The last UPA Transport function that an application should call. This uninitializes internal data
 	 * structures and deletes any allocated memory.
 	 *********************************************************/
-	
-	/* All UPA Transport use is complete, must uninitialize. 
-	 * The uninitialization process allows for any heap allocated memory to be cleaned up properly. 
+
+	/* All UPA Transport use is complete, must uninitialize.
+	 * The uninitialization process allows for any heap allocated memory to be cleaned up properly.
 	 */
 	rsslUninitialize();
 
 	/* For applications that do not exit due to errors/exceptions such as:
-	 * Exits the application if the run-time has expired. 
+	 * Exits the application if the run-time has expired.
 	 */
 	if (code == RSSL_RET_SUCCESS)
 		printf("\nUPA NI Provider Training application successfully ended.\n");
@@ -547,4 +575,3 @@ void closeChannelCleanUpAndExit(RsslChannel* upaChannel, int code)
 	/* End application */
 	exit(code);
 }
-

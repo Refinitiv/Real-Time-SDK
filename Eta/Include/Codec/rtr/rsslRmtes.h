@@ -102,7 +102,11 @@ RTR_C_INLINE void rsslClearU16Buffer(RsslU16Buffer *pBuffer)
  *
  *	@param inBuffer Input rsslBuffer that contains RMTES data
  *	@param RsslRmtesCacheBuffer Cache buffer, this is populated after the function is complete
- *	@return Returns an RsslRet code to provide success or failure information.
+ *	@return RsslRet code indicating success or failure:<BR>  
+ *			::RSSL_RET_SUCCESS if the operation completes<BR>
+ *			::RSSL_RET_INVALID_ARGUMENT if the input buffer has not been allocated<BR> 
+ *			::RSSL_RET_BUFFER_TOO_SMALL if the cache buffer is too small<BR>
+ *			::RSSL_RET_FAILURE if the operation is unable to complete due to invalid data<BR>
  */
 RSSL_API RsslRet rsslRMTESApplyToCache(RsslBuffer *inBuffer, RsslRmtesCacheBuffer *cacheBuf);
 
@@ -117,7 +121,11 @@ RSSL_API RsslRet rsslRMTESApplyToCache(RsslBuffer *inBuffer, RsslRmtesCacheBuffe
  *
  *	@param pRmtesBuffer Input RMTES cache buffer that contains RMTES data
  *	@param charBuffer character buffer, populated after the function is complete
- *	@return Returns an RsslRet code to provide success or failure information.
+ *	@return RsslRet code indicating success or failure:<BR>  
+ *			::RSSL_RET_SUCCESS if the operation completes<BR>
+ *			::RSSL_RET_INVALID_DATA if the input buffer has not been allocated<BR> 
+ *			::RSSL_RET_BUFFER_TOO_SMALL if the output buffer is too small<BR>
+ *			::RSSL_RET_FAILURE if the operation is unable to complete due to invalid data<BR>
  */
 RSSL_API RsslRet rsslRMTESToUTF8(RsslRmtesCacheBuffer *pRmtesBuffer, RsslBuffer *charBuffer);
 
@@ -132,7 +140,11 @@ RSSL_API RsslRet rsslRMTESToUTF8(RsslRmtesCacheBuffer *pRmtesBuffer, RsslBuffer 
  *
  *	@param pRmtesBuffer Input RMTES cache buffer that contains RMTES data
  *	@param shortBuffer unsigned 16-bit integer buffer, populated after the function is complete
- *	@return Returns an RsslRet code to provide success or failure information.
+ *	@return RsslRet code indicating success or failure:<BR>  
+ *			::RSSL_RET_SUCCESS if the operation completes<BR>
+ *			::RSSL_RET_INVALID_DATA if the input buffer has not been allocated<BR> 
+ *			::RSSL_RET_BUFFER_TOO_SMALL if the output buffer is too small<BR>
+ *			::RSSL_RET_FAILURE if the operation is unable to complete due to invalid data<BR>
  */
 RSSL_API RsslRet rsslRMTESToUCS2(RsslRmtesCacheBuffer *pRmtesBuffer, RsslU16Buffer *shortBuffer);
 

@@ -1,7 +1,9 @@
 #Sets the root directory for this package
 ROOTPLAT=..
 #If User wants to build with Optimized_Assert builds, change LIBTYPE=Optimized_Assert
-LIBTYPE=Optimized
+ifeq ($(LIBTYPE),)
+	LIBTYPE=Optimized
+endif
 
 
 ARCHTYPE=$(shell uname -m)

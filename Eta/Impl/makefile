@@ -1,3 +1,7 @@
+#If User wants to build with Optimized_Assert builds, change LIBTYPE = Optimized_Assert
+export LIBTYPE = Optimized
+
+
 main: rsslVA
 
 rsslVA:
