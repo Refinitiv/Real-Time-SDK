@@ -1,0 +1,96 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+   <meta name="GENERATOR" content="Mozilla/4.79 [en] (Windows NT 5.0; U) [Netscape]" />
+   <meta name="Microsoft Theme" content="none">
+   <meta name="Microsoft Border" content="none" />
+   <title>Select Help System</title>
+<link href="includes/styles.css" type="text/css" rel="stylesheet" />
+
+<script type="text/javascript">
+
+    function detectBrowser() 
+    {
+         var browser = "unknown";
+         var userAgent = navigator.userAgent.toLowerCase();
+         if (userAgent.indexOf("opera") > -1)
+             browser = "Opera";
+         else if (userAgent.indexOf("konqueror") > -1)
+             browser = "Konqueror";
+         else if (userAgent.indexOf("firefox") > -1)
+             browser = "Firefox";
+         else if (userAgent.indexOf("netscape") > -1)
+             browser = "Netscape";
+         else if (userAgent.indexOf("msie") > -1)
+             browser = "Internet Explorer";
+         else if (userAgent.indexOf("chrome") > -1)
+             browser = "Chrome";
+         else if (userAgent.indexOf("safari") > -1)
+             browser = "Safari";
+
+         var brSupportDiv = document.getElementById("browserSupport");
+
+         if (browser != "Chrome") 
+         {
+             window.top.location = "../HTML/index.html";
+         }
+         else {
+             brSupportDiv.innerHTML = "<font color=\"red\"><b>*Warning* </b></font> Your browser is detected as \"<b>" + browser + "</b>\". If you are accessing this documentation directly from file(s), please make sure to use the Chrome parameter <font color=\"red\">--allow-file-access-from-files</font>  (eg. \"<*path*>/chrome.exe\" --allow-file-access-from-files) .";
+         }
+     }
+
+     window.onload = detectBrowser;
+  </script>
+
+</head>
+<body bgcolor="#FFFFFF">
+<table border="0" cellspacing="0" cellpadding="7" >
+<tr>
+<td>
+
+<center><! -- END PAGE TITLE --><! -- START FOURTH LEVEL NAVIGATION --></center>
+
+<p>This documentation supports only select browsers. </p>
+
+    <div id="browserSupport"></div>
+
+<ul>
+    <li><! -- label id="webDocText" --><! -- EMA C++ Web Documentation --><! -- /label -->
+        <a id="webDoc" href="../HTML/index.html" target="_top">EMA C++ Documentation</a>
+    </li>
+
+    <div class="web_doc_launch_page">Launch page: <span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Docs/HTML/index.html</span></div>
+
+</ul>
+
+<br>
+
+
+<br>
+
+<p>Copyright &copy; 2015 Thomson Reuters. All Rights Reserved. </p>
+
+<p><!-- BOTTOM BAR --> </p>
+<br>&nbsp;
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<tr>
+<td BGCOLOR="#CCCCCC"><img SRC="images/invis.gif" height=3 width=1></td>
+</tr>
+</table>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<tr>
+<td><img SRC="images/invis.gif" height=1 width=11></td>
+
+<td ALIGN=LEFT VALIGN=TOP WIDTH="100%"><! -- START OF FOOTER --></td>
+
+<td ALIGN=RIGHT VALIGN=TOP WIDTH="141"><a href="http://www.thomsonreuters.com/" target="display"><img SRC="images/logo_colour_01.gif" ALT="The Business of Information" BORDER=0 height=28 width=120></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+
+</body>
+</html>
