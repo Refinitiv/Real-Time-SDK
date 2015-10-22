@@ -276,8 +276,8 @@ void RefreshMsgEncoder::payload( const ComplexType& load )
 	_payloadDataType = convertDataType( load.getDataType() );
 
 #ifdef __EMA_COPY_ON_SET__
-	_payload.setFrom( static_cast<const Data&>(load).getEncoder().getRsslBuffer().data,
-					static_cast<const Data&>(load).getEncoder().getRsslBuffer().length );
+	RsslBuffer& rsslBuf = static_cast<const Data&>(load).getEncoder().getRsslBuffer();
+	_payload.setFrom( rsslBuf.data, rsslBuf.length );
 #else
 	_pPayload = &static_cast<const Data&>(load).getEncoder().getRsslBuffer();
 #endif
@@ -290,8 +290,8 @@ void RefreshMsgEncoder::attrib( const ComplexType& attrib )
 	_attribDataType = convertDataType( attrib.getDataType() );
 
 #ifdef __EMA_COPY_ON_SET__
-	_attrib.setFrom( static_cast<const Data&>(attrib).getEncoder().getRsslBuffer().data,
-					static_cast<const Data&>(attrib).getEncoder().getRsslBuffer().length );
+	RsslBuffer& rsslBuf = static_cast<const Data&>(attrib).getEncoder().getRsslBuffer();
+	_attrib.setFrom( rsslBuf.data, rsslBuf.length );
 #else
 	_pAttrib = &static_cast<const Data&>(attrib).getEncoder().getRsslBuffer();
 #endif

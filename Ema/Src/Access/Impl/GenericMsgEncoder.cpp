@@ -166,8 +166,8 @@ void GenericMsgEncoder::attrib( const ComplexType& attrib )
 	_rsslGenericMsg.msgBase.msgKey.attribContainerType = convertDataType( attrib.getDataType() );
 
 #ifdef __EMA_COPY_ON_SET__
-	_attrib.setFrom( static_cast<const Data&>(attrib).getEncoder().getRsslBuffer().data,
-					static_cast<const Data&>(attrib).getEncoder().getRsslBuffer().length );
+	RsslBuffer& rsslBuf = static_cast<const Data&>(attrib).getEncoder().getRsslBuffer();
+	_attrib.setFrom( rsslBuf.data, rsslBuf.length );
 
 	_rsslGenericMsg.msgBase.msgKey.encAttrib.data = (char*)_attrib.c_buf();
 	_rsslGenericMsg.msgBase.msgKey.encAttrib.length = _attrib.length();
@@ -222,8 +222,8 @@ void GenericMsgEncoder::payload( const ComplexType& load )
 	_rsslGenericMsg.msgBase.containerType = convertDataType( load.getDataType() );
 
 #ifdef __EMA_COPY_ON_SET__
-	_payload.setFrom( static_cast<const Data&>(load).getEncoder().getRsslBuffer().data,
-					static_cast<const Data&>(load).getEncoder().getRsslBuffer().length );
+	RsslBuffer& rsslBuf = static_cast<const Data&>(load).getEncoder().getRsslBuffer();
+	_payload.setFrom( rsslBuf.data, rsslBuf.length );
 
 	_rsslGenericMsg.msgBase.encDataBody.data = (char*)_payload.c_buf();
 	_rsslGenericMsg.msgBase.encDataBody.length = _payload.length();
