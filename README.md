@@ -8,7 +8,7 @@ Transport and OMM encoder/decoder API.  It is used by the Thomson Reuters Enterp
 
 # Supported Platforms and Compilers
 
-The Elektron-SDK has support for Linux, Windows and Solaris.  Please see the individual API README.md for further details on supported platforms and compilers.
+The Elektron-SDK has support for Linux, Windows and Solaris.  Please see the individual API README.md files for further details on supported platforms and compilers.
 
 # Building the APIs
 
@@ -27,9 +27,9 @@ The ETA package contains transport, decoder, encoder, and cache components.  The
 
 **For Linux/Solaris**:
 Navigate to `Eta/Impl` 
--	Run `makefile all` to build Stub libraries and Reactor and its dependencies
--	Run `makefile stubs` to build only the Stub libraries
--	Run `makefile rsslVA` to build only Reactor and its dependencies
+-	Run `make all` to build Stub libraries and Reactor and its dependencies
+-	Run `make stubs` to build only the Stub libraries
+-	Run `make rsslVA` to build only Reactor and its dependencies
 
 This will build both static and shared versions of the libraries.
 
@@ -56,14 +56,9 @@ EMA is built upon ETA.  Before you can build EMA you must build ETA as described
 
 
 ####1) Get or build the libxml2 library.
+If your system does not already have libxml2 available, you can build the version that is contained in this release. Just navigate to `Eta/Utils/libxml2` and run the makefile or build the windows project file. 
 
-If your system does not already have libxml2 available, you can build the version that is contained in this release. Just navigate to `Ema/Src/libxml/src` and run the makefile or build the windows project file. 
-
-**For Linux**: 
-This is automatically built when building the EMA library (step shown below).  Note that if you want to build libxml separately, a makefile is provided to you in `Ema/Src/libxml/src`.
-
-**For Windows**:
-Building the windows project file will put the resulting libxml2 libraries in the `Ema/Libs` directory.
+For **Linux**, if you will be using the shared object version of libxml2, you will need to either specify the resultant library location in the **LD_LIBRARY_PATH** or copy the libxml2 library to a location in the path.
 
 ####2) Build the EMA library
 
@@ -83,6 +78,11 @@ Once the provider is running and accessible, you can run the EMA examples.  When
 
 That should do it!  
 
+### Windows Solution Files
+
+As an alternative, after you build ETA as described above, you can build using the windows solution files.  Solutions files can be found in the `.../Ema/Examples/Training` directory or the `.../Ema/Src/Access`.  
+
+
 
 
 # Obtaining the ETA Binary Package
@@ -98,9 +98,9 @@ https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
 
 Then select the following release:
 
-    eta3.0.0.L1.<platform>-binaries.rrg
+    eta3.0.1.L1.<platform>-binaries.rrg
 
-Once you have downloaded these libraries, copy them to the corresponding directories under `.../Eta/Libs`.  Note that if you are using the static library you will need to rebuild your application.  For linux, if you are using the shared libraries, you may need to remove the library links and rerun the LinuxSoLink script before rebuilding.
+Once you have downloaded these libraries, copy them to the corresponding directories under `.../Eta/Libs`. Next, for Windows, build the `ValueAdd_VSXXX.sln`. For Linux, build `make all`  .  Note that if you are using the static library you will need to rebuild your application.  For linux, if you are using the shared libraries, you may need to remove the library links and rerun the LinuxSoLink script before rebuilding.
 
 
 # Developing 
