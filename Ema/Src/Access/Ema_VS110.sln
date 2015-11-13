@@ -1,0 +1,58 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ema", "Ema_VS110.vcxproj", "{DB5232C4-2812-4622-976E-64F26C10908D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DCC3B367-8031-4261-BF87-9BD745CE29E9} = {DCC3B367-8031-4261-BF87-9BD745CE29E9}
+		{423221D5-6DFB-4EEC-AF52-711E1B0DC44D} = {423221D5-6DFB-4EEC-AF52-711E1B0DC44D}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Libxml2_VS110", "..\..\..\Eta\Utils\Libxml2\Libxml2_VS110.vcxproj", "{423221D5-6DFB-4EEC-AF52-711E1B0DC44D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Libxml2_shared_VS110", "..\..\..\Eta\Utils\Libxml2\Libxml2_shared_VS110.vcxproj", "{DCC3B367-8031-4261-BF87-9BD745CE29E9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug MDd|x64 = Debug MDd|x64
+		Debug Shared MDd|x64 = Debug Shared MDd|x64
+		Release MD Assert|x64 = Release MD Assert|x64
+		Release MD|x64 = Release MD|x64
+		Release Shared MD Assert|x64 = Release Shared MD Assert|x64
+		Release Shared MD|x64 = Release Shared MD|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DB5232C4-2812-4622-976E-64F26C10908D}.Debug MDd|x64.ActiveCfg = Debug MDd|x64
+		{DB5232C4-2812-4622-976E-64F26C10908D}.Debug MDd|x64.Build.0 = Debug MDd|x64
+		{DB5232C4-2812-4622-976E-64F26C10908D}.Debug Shared MDd|x64.ActiveCfg = Debug Shared MDd|x64
+		{DB5232C4-2812-4622-976E-64F26C10908D}.Debug Shared MDd|x64.Build.0 = Debug Shared MDd|x64
+		{DB5232C4-2812-4622-976E-64F26C10908D}.Release MD Assert|x64.ActiveCfg = Release MD Assert|x64
+		{DB5232C4-2812-4622-976E-64F26C10908D}.Release MD Assert|x64.Build.0 = Release MD Assert|x64
+		{DB5232C4-2812-4622-976E-64F26C10908D}.Release MD|x64.ActiveCfg = Release MD|x64
+		{DB5232C4-2812-4622-976E-64F26C10908D}.Release MD|x64.Build.0 = Release MD|x64
+		{DB5232C4-2812-4622-976E-64F26C10908D}.Release Shared MD Assert|x64.ActiveCfg = Release Shared MD Assert|x64
+		{DB5232C4-2812-4622-976E-64F26C10908D}.Release Shared MD Assert|x64.Build.0 = Release Shared MD Assert|x64
+		{DB5232C4-2812-4622-976E-64F26C10908D}.Release Shared MD|x64.ActiveCfg = Release Shared MD|x64
+		{DB5232C4-2812-4622-976E-64F26C10908D}.Release Shared MD|x64.Build.0 = Release Shared MD|x64
+		{423221D5-6DFB-4EEC-AF52-711E1B0DC44D}.Debug MDd|x64.ActiveCfg = Debug MDd|x64
+		{423221D5-6DFB-4EEC-AF52-711E1B0DC44D}.Debug MDd|x64.Build.0 = Debug MDd|x64
+		{423221D5-6DFB-4EEC-AF52-711E1B0DC44D}.Debug Shared MDd|x64.ActiveCfg = Debug MDd|x64
+		{423221D5-6DFB-4EEC-AF52-711E1B0DC44D}.Release MD Assert|x64.ActiveCfg = Release MD Assert|x64
+		{423221D5-6DFB-4EEC-AF52-711E1B0DC44D}.Release MD Assert|x64.Build.0 = Release MD Assert|x64
+		{423221D5-6DFB-4EEC-AF52-711E1B0DC44D}.Release MD|x64.ActiveCfg = Release MD|x64
+		{423221D5-6DFB-4EEC-AF52-711E1B0DC44D}.Release MD|x64.Build.0 = Release MD|x64
+		{423221D5-6DFB-4EEC-AF52-711E1B0DC44D}.Release Shared MD Assert|x64.ActiveCfg = Release MD Assert|x64
+		{423221D5-6DFB-4EEC-AF52-711E1B0DC44D}.Release Shared MD|x64.ActiveCfg = Release MD|x64
+		{DCC3B367-8031-4261-BF87-9BD745CE29E9}.Debug MDd|x64.ActiveCfg = Debug Shared MDd|x64
+		{DCC3B367-8031-4261-BF87-9BD745CE29E9}.Debug Shared MDd|x64.ActiveCfg = Debug Shared MDd|x64
+		{DCC3B367-8031-4261-BF87-9BD745CE29E9}.Debug Shared MDd|x64.Build.0 = Debug Shared MDd|x64
+		{DCC3B367-8031-4261-BF87-9BD745CE29E9}.Release MD Assert|x64.ActiveCfg = Release Shared MD Assert|x64
+		{DCC3B367-8031-4261-BF87-9BD745CE29E9}.Release MD|x64.ActiveCfg = Release Shared MD|x64
+		{DCC3B367-8031-4261-BF87-9BD745CE29E9}.Release Shared MD Assert|x64.ActiveCfg = Release Shared MD Assert|x64
+		{DCC3B367-8031-4261-BF87-9BD745CE29E9}.Release Shared MD Assert|x64.Build.0 = Release Shared MD Assert|x64
+		{DCC3B367-8031-4261-BF87-9BD745CE29E9}.Release Shared MD|x64.ActiveCfg = Release Shared MD|x64
+		{DCC3B367-8031-4261-BF87-9BD745CE29E9}.Release Shared MD|x64.Build.0 = Release Shared MD|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
