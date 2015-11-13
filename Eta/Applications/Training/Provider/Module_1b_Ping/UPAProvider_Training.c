@@ -1073,3 +1073,4 @@ RsslRet processPingManagementHandler(UpaChannelManagementInfo *upaChannelManagem
 
 	return retval;
 }
+

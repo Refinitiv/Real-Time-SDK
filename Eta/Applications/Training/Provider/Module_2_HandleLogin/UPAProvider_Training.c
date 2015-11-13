@@ -2278,3 +2278,4 @@ RsslRet sendLoginCloseStatusMsg(UpaChannelManagementInfo *upaChannelManagementIn
 
 	return retval;
 }
+

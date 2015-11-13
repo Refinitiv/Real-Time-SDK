@@ -5085,3 +5085,4 @@ void closeMarketPriceItemStream(RsslInt32 streamId, UpaChannelManagementInfo *up
 		clearMarketPriceItemReqInfo(&upaChannelManagementInfo->marketPriceItemRequestInfo);
 	}
 }
+

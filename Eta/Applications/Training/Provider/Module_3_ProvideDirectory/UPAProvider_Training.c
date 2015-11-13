@@ -3243,3 +3243,4 @@ void closeSourceDirectoryStream(RsslInt32 streamId, UpaChannelManagementInfo *up
 		clearSourceDirectoryReqInfo(&upaChannelManagementInfo->sourceDirectoryRequestInfo);
 	}
 }
+

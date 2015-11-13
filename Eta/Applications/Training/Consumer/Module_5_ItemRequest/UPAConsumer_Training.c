@@ -4187,3 +4187,4 @@ RsslRet closeMarketPriceItemStream(UpaChannelManagementInfo *upaChannelManagemen
 
 	return retval;
 }
+

@@ -3293,3 +3293,4 @@ RsslRet sendItemCloseStatusMsg(RsslChannel* upaChannel, RsslUInt32 maxMsgSize, R
 
 	return retval;
 }
+

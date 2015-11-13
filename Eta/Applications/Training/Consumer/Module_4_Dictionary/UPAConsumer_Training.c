@@ -3387,3 +3387,4 @@ RsslRet sendDictionaryRequest(UpaChannelManagementInfo *upaChannelManagementInfo
 
 	return retval;
 }
+

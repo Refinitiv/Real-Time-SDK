@@ -1249,3 +1249,4 @@ RsslRet sendMessage(RsslChannel* upaChannel, RsslBuffer* msgBuf)
 
 	return retval;
 }
+

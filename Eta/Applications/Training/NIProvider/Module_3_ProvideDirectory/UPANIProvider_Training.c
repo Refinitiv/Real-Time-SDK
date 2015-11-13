@@ -2627,3 +2627,4 @@ RsslRet sendSourceDirectoryResponse(RsslChannel* upaChannel, RsslUInt32 maxMsgSi
 
 	return retval;
 }
+

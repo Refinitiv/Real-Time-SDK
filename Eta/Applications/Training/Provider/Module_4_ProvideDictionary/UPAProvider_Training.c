@@ -4125,3 +4125,4 @@ void closeDictionaryStream(RsslInt32 streamId, UpaChannelManagementInfo *upaChan
 		clearDictionaryReqInfo(&upaChannelManagementInfo->enumTypeDictionaryRequestInfo);
 	}
 }
+

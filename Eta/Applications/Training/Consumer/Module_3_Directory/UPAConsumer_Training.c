@@ -2794,3 +2794,4 @@ RsslRet processSourceDirectoryResponse(UpaChannelManagementInfo *upaChannelManag
 
 	return RSSL_RET_SUCCESS;
 }
+

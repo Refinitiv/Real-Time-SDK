@@ -532,3 +532,4 @@ void closeChannelCleanUpAndExit(RsslChannel* upaChannel, int code)
 	/* End application */
 	exit(code);
 }
+

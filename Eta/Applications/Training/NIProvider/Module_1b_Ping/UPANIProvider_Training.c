@@ -945,3 +945,4 @@ RsslRet processPingManagementHandler(RsslChannel* upaChannel, UpaPingManagementI
 
 	return retval;
 }
+

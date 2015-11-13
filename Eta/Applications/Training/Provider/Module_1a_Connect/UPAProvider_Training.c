@@ -692,3 +692,4 @@ void closeChannelServerCleanUpAndExit(RsslChannel* upaChannel, RsslServer* upaSr
 	/* End application */
 	exit(code);
 }
+

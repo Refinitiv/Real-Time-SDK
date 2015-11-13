@@ -1921,3 +1921,4 @@ RsslBuffer* upaGetBuffer(RsslChannel *upaChannel, RsslUInt32 size, RsslError *rs
 	/* return RSSL buffer to be filled in with valid memory */
 	return msgBuf;
 }
+
