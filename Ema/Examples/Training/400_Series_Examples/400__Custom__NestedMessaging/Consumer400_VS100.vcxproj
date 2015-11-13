@@ -166,7 +166,7 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <PostBuildEvent>
-    <Command>copy /Y &quot;..\..\..\EmaConfig.xml&quot; &quot;$(TargetDir)\EmaConfig.xml&quot;</Command>
+    <Command>if not exist WIN_64_VS100\Release_MD\EmaConfig.xml mklink /h WIN_64_VS100\Release_MD\EmaConfig.xml EmaConfig.xml</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Shared MD|x64'">
@@ -214,7 +214,7 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
-    <Command>copy /Y &quot;..\..\..\EmaConfig.xml&quot; &quot;$(TargetDir)\EmaConfig.xml&quot;</Command>
+    <Command>if not exist WIN_64_VS100\Release_MD\Shared\EmaConfig.xml mklink /h WIN_64_VS100\Release_MD\Shared\EmaConfig.xml EmaConfig.xml</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release MD Assert|x64'">
@@ -259,7 +259,7 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <PostBuildEvent>
-    <Command>copy /Y &quot;..\..\..\EmaConfig.xml&quot; &quot;$(TargetDir)\EmaConfig.xml&quot;</Command>
+    <Command>if not exist WIN_64_VS100\Release_MD_Assert\EmaConfig.xml mklink /h WIN_64_VS100\Release_MD_Assert\EmaConfig.xml EmaConfig.xml</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Shared MD Assert|x64'">
@@ -307,7 +307,7 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
-    <Command>copy /Y &quot;..\..\..\EmaConfig.xml&quot; &quot;$(TargetDir)\EmaConfig.xml&quot;</Command>
+    <Command>if not exist WIN_64_VS100\Release_MD_Assert\Shared\EmaConfig.xml mklink /h WIN_64_VS100\Release_MD_Assert\Shared\EmaConfig.xml EmaConfig.xml</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug MDd|x64'">
@@ -352,7 +352,7 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <PostBuildEvent>
-    <Command>copy /Y &quot;..\..\..\EmaConfig.xml&quot; &quot;$(TargetDir)\EmaConfig.xml&quot;</Command>
+    <Command>if not exist WIN_64_VS100\Debug_MDd\EmaConfig.xml mklink /h WIN_64_VS100\Debug_MDd\EmaConfig.xml EmaConfig.xml</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug Shared MDd|x64'">
@@ -400,7 +400,7 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
-    <Command>copy /Y &quot;..\..\..\EmaConfig.xml&quot; &quot;$(TargetDir)\EmaConfig.xml&quot;</Command>
+    <Command>if not exist WIN_64_VS100\Debug_MDd\Shared\EmaConfig.xml mklink /h WIN_64_VS100\Debug_MDd\Shared\EmaConfig.xml EmaConfig.xml</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
