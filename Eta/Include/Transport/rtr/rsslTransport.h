@@ -524,6 +524,7 @@ typedef struct {
 	RsslShmemOpts		shmemOpts;				/*!< @brief shmem transport specific options (used by ::RSSL_CONN_TYPE_UNIDIR_SHMEM). */
 	RsslSeqMCastOpts	seqMulticastOpts;		/*!< @brief Sequenced Multicast transport specific options (used by ::RSSL_CONN_TYPE_SEQ_MCAST). */
 	RsslProxyOpts		proxyOpts;
+	char*				componentVersion;		/*!< @brief User defined component version information*/
 
 } RsslConnectOptions;
 
@@ -531,7 +532,7 @@ typedef struct {
  * @brief RSSL Connect Options initialization
  * @see RsslConnectOptions
  */
-#define RSSL_INIT_CONNECT_OPTS { 0, 0, 0, RSSL_CONN_TYPE_SOCKET, RSSL_INIT_CONNECTION_INFO, RSSL_COMP_NONE, RSSL_FALSE, RSSL_FALSE, 60, 50, 10, 0, 0, 0, 0, 0, 0, RSSL_INIT_TCP_OPTS, RSSL_INIT_MCAST_OPTS, RSSL_INIT_SHMEM_OPTS, RSSL_INIT_SEQ_MCAST_OPTS, RSSL_INIT_PROXY_OPTS }
+#define RSSL_INIT_CONNECT_OPTS { 0, 0, 0, RSSL_CONN_TYPE_SOCKET, RSSL_INIT_CONNECTION_INFO, RSSL_COMP_NONE, RSSL_FALSE, RSSL_FALSE, 60, 50, 10, 0, 0, 0, 0, 0, 0, RSSL_INIT_TCP_OPTS, RSSL_INIT_MCAST_OPTS, RSSL_INIT_SHMEM_OPTS, RSSL_INIT_SEQ_MCAST_OPTS, RSSL_INIT_PROXY_OPTS, 0 }
 
 
 
@@ -594,6 +595,7 @@ RTR_C_INLINE void rsslClearConnectOpts(RsslConnectOptions *opts)
 	opts->seqMulticastOpts.instanceId = 0;
 	opts->proxyOpts.proxyHostName = 0;
 	opts->proxyOpts.proxyPort = 0;
+	opts->componentVersion = NULL;
 }
 
 /**
@@ -759,6 +761,7 @@ typedef struct {
 	RsslUInt32		sysRecvBufSize;			/*!< @brief The size (in kilobytes) of the system's receive buffer used for this connection, where applicable.  Setting of 0 indicates to use default sizes.  This setting will carry through on all connections accepted with rsslAccept(). This can also be set or changed via rsslIoctl(), however setting prior to connection may allow for larger sizes to be specified. */
 	void			*userSpecPtr;			/*!< @brief A user specified pointer, returned as userSpecPtr of the RsslServer. */ 
 	RsslTcpOpts		tcpOpts;				/*!< @brief TCP transport specific options (used by RSSL_CONN_TYPE_SOCKET and RSSL_CONN_TYPE_HTTP). */
+	char*			componentVersion;		/*!< @brief User defined component version information */
 } RsslBindOptions;
 
 
@@ -766,7 +769,7 @@ typedef struct {
  * @brief RSSL Bind Options initialization
  * @see RsslBindOptions
  */
-#define RSSL_INIT_BIND_OPTS { 0, 0, RSSL_COMP_NONE, 0, RSSL_FALSE, RSSL_FALSE, RSSL_FALSE, RSSL_FALSE, RSSL_TRUE, RSSL_TRUE, RSSL_CONN_TYPE_SOCKET, 60, 20, 6144, 50, 50, 10, 0, RSSL_FALSE, 0, 0, 0, 0, 0, 0, RSSL_INIT_TCP_OPTS }
+#define RSSL_INIT_BIND_OPTS { 0, 0, RSSL_COMP_NONE, 0, RSSL_FALSE, RSSL_FALSE, RSSL_FALSE, RSSL_FALSE, RSSL_TRUE, RSSL_TRUE, RSSL_CONN_TYPE_SOCKET, 60, 20, 6144, 50, 50, 10, 0, RSSL_FALSE, 0, 0, 0, 0, 0, 0, RSSL_INIT_TCP_OPTS, 0 }
 
 /**
  * @brief Clears RSSL Bind Options 
@@ -804,6 +807,7 @@ RTR_C_INLINE void rsslClearBindOpts(RsslBindOptions *opts)
 	opts->tcpOpts.tcp_nodelay = RSSL_FALSE;
 	opts->sysSendBufSize = 0;
 	opts->sysRecvBufSize = 0;
+	opts->componentVersion = NULL;
 }
 
 /**

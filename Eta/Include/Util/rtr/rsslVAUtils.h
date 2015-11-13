@@ -147,6 +147,18 @@ RTR_C_INLINE RsslRet rsslDeepCopyConnectOpts(RsslConnectOptions *destOpts, RsslC
 		strncpy(destOpts->connectionInfo.segmented.sendServiceName, sourceOpts->connectionInfo.segmented.sendServiceName, tempLen);
 	}
 
+	if (sourceOpts->componentVersion != 0)
+	{
+		tempLen = (strlen(sourceOpts->componentVersion)+1)*sizeof(char);
+		destOpts->componentVersion = (char*)malloc(tempLen);
+
+		if (destOpts->componentVersion == 0)
+		{
+			return RSSL_RET_FAILURE;
+		}
+
+		strncpy(destOpts->componentVersion, sourceOpts->componentVersion, tempLen);
+	}
 	destOpts->tcpOpts.tcp_nodelay = sourceOpts->tcpOpts.tcp_nodelay;
 
 	destOpts->multicastOpts = sourceOpts->multicastOpts;
