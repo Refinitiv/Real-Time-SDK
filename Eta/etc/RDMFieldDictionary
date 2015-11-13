@@ -4,14 +4,14 @@
 ! Thomson Reuters. Thomson Reuters may update or remove this
 ! document at any time without notice.
 !
-!   Version	 4.20.19_TREP_15.61		07/15/2015
-!	* Modified 07/15/2015 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.19.
+!   Version	 4.20.21_TREP_15.91		11/04/2015
+!	* Modified 11/04/2015 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.21.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.19_TREP
+!   Version: 4.20.21_TREP
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -29,9 +29,9 @@
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.19
+!tag Version   4.20.21
 !tag Build     001
-!tag Date      15-Jul-2015
+!tag Date      02-Jul-2015
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
 !-------    -----------          ---  ----------  ----------     ------  --------   -------
@@ -2856,9 +2856,8 @@ QTE_CNT2   "QTE CNT2"             956  NULL        PRICE              17  REAL64
 !
 SEC_HIGH   "SEC HIGH"             957  NULL        PRICE              17  REAL64           7
 !
-! Secondary high value field corresponding to the HIGH_1 field for those quotations 
-! involving more than one high field. For certain Bond Rics this will display the Ask 
-! High value.
+! Secondary high value field corresponding to the HIGH_1 for the securities having 
+! more than one high
 !
 SEC_HI_TP  "SEC HI TP"            958  NULL        ENUMERATED    3 ( 1 )  ENUM             1
 !
@@ -2866,9 +2865,8 @@ SEC_HI_TP  "SEC HI TP"            958  NULL        ENUMERATED    3 ( 1 )  ENUM  
 !
 SEC_LOW    "SEC LOW"              959  NULL        PRICE              17  REAL64           7
 !
-! Secondary low value field corresponding to the LOW_1 field for those quotations 
-! involving more than one low field. For certain Bond Rics this will display the Ask 
-! low value.
+! Secondary low value field corresponding to the LOW_1 for the securities having more 
+! than one low
 !
 SEC_LO_TP  "SEC LO TP"            960  NULL        ENUMERATED    3 ( 1 )  ENUM             1
 !
@@ -3062,12 +3060,11 @@ AS_FLAG    "AS FLAG"             1017  NULL        ALPHANUMERIC        1  RMTES_
 !
 IRGXID     "IRGXID"              1018  NULL        ENUMERATED    3 ( 3 )  ENUM             1
 !
-! For Consolidated Records, identifies the exchange for a Last Ineligible Trade event. 
-!  Currenly also used for cancellations.
+! Code identifying the market participant on the buy side of an ineligible trade
 !
 IRGBUY     "IRGBUY"              1019  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 !
-! Buyer ID field for last ineligible  trades
+! Code identifying the market participant on the sell side of an ineligible trade
 !
 IRGSELL    "IRGSELL"             1020  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 !
@@ -5079,7 +5076,7 @@ DIV_FREQ   "DIVIDEND FREQ"       2140  NULL        ENUMERATED    3 ( 1 )  ENUM  
 !
 AMT_ISSUE  "AMNT SHRS ISSUED"    2142  NULL        INTEGER            15  REAL64           7
 !
-! Total amount of issued share.
+! Total amount of shares(unit of instruments) issued.
 !
 ACVO_X_PR1 "ACVOL X PRICE 1"     2143  NULL        PRICE              17  REAL64           7
 !
@@ -9319,7 +9316,7 @@ SES1_VTIM1 "SESSION1 VOL TIM1"   3762  NULL        TIME_SECONDS        8  TIME  
 !
 SESS1_LAST "SESSION1LAST"        3763  NULL        PRICE              17  REAL64           7
 !
-! Last Trade Price for the day session
+! Last Trade Price for the first session
 !
 SES2_HTIM1 "SESSION2 HIGH TIM1"  3764  NULL        TIME_SECONDS        8  TIME             5
 !
@@ -13172,6 +13169,10 @@ TRTN_PRICE "DAILY TOT RETURN"    4988  NULL        PRICE              17  REAL64
 SPONSOR    "SPONSOR"             4989  NULL        ALPHANUMERIC       30  RMTES_STRING    30
 !
 ! The sponsor of the loan.
+!
+MID_PRICE1 "MID-PRICE 1"         4990  MID_PRICE2  PRICE              17  REAL64           7
+!
+! The mid-price between the BID(#22) and ASK(#25) prices.
 !
 FRNTRD_PRC "FRN TRADE PRICE"     5001  NULL        PRICE              17  REAL64           7
 !
@@ -18011,7 +18012,7 @@ TRD_STATUS "TRADING STATUS"      6614  NULL        ENUMERATED    3 ( 2 )  ENUM  
 !
 HALT_RSN   "HALT REASON ENUM"    6615  NULL        ENUMERATED    3 ( 2 )  ENUM             1
 !
-! Enumerated/Standardized Halt Reason Code
+! Enumerated/Standardized Halt, Suspended or Restricted Reason Code. 
 !
 RPT_HLT_DR "REPORTED HALT DUR"   6616  NULL        ENUMERATED    3 ( 3 )  ENUM             1
 !
@@ -19471,23 +19472,76 @@ DUDT_MAXLA "DUDT MAX LATENCY"    7061  NULL        INTEGER            15  INT64 
 !
 ! Maximum calculated latency in ms or ns depending on value in LAT_PREC FID#12928
 !
-PRE_INT183 "PRED INTEGER 183"    7062  NULL        INTEGER            15  INT64            6
-PRE_INT184 "PRED INTEGER 184"    7063  NULL        INTEGER            15  INT64            6
-PRE_INT185 "PRED INTEGER 185"    7064  NULL        INTEGER            15  INT64            6
-PRE_INT186 "PRED INTEGER 186"    7065  NULL        INTEGER            15  INT64            6
-PRE_INT187 "PRED INTEGER 187"    7066  NULL        INTEGER            15  INT64            6
-PRE_INT188 "PRED INTEGER 188"    7067  NULL        INTEGER            15  INT64            6
-PRE_INT189 "PRED INTEGER 189"    7068  NULL        INTEGER            15  INT64            6
-PRE_INT190 "PRED INTEGER 190"    7069  NULL        INTEGER            15  INT64            6
-PRE_INT191 "PRED INTEGER 191"    7070  NULL        INTEGER            15  INT64            6
-PRE_INT192 "PRED INTEGER 192"    7071  NULL        INTEGER            15  INT64            6
-PRE_INT193 "PRED INTEGER 193"    7072  NULL        INTEGER            15  INT64            6
-PRE_INT194 "PRED INTEGER 194"    7073  NULL        INTEGER            15  INT64            6
-PRE_INT195 "PRED INTEGER 195"    7074  NULL        INTEGER            15  INT64            6
-PRE_INT196 "PRED INTEGER 196"    7075  NULL        INTEGER            15  INT64            6
-PRE_INT197 "PRED INTEGER 197"    7076  NULL        INTEGER            15  INT64            6
-PRE_INT198 "PRED INTEGER 198"    7077  NULL        INTEGER            15  INT64            6
-PRE_INT199 "PRED INTEGER 199"    7078  NULL        INTEGER            15  INT64            6
+BLK_SEQNO  "BLK TRADE SEQ NUM"   7062  NULL        INTEGER            15  INT64            6
+!
+! Sequence Number of block trade
+!
+ODD_SEQNO  "ODD TRADE SEQ NUM"   7063  NULL        INTEGER            15  INT64            6
+!
+! Sequence Number of odd lot trade
+!
+CRS_SEQNO  "CRS SEQUENCE NUM"    7064  NULL        INTEGER            15  INT64            6
+!
+! Sequence Number of cross trade
+!
+CRS_TRDVOL "CRS TRD VOL"         7065  NULL        INTEGER            15  INT64            6
+!
+! Volume of the last cross trade
+!
+CRS_NUMOV  "CRS NUM MOVES"       7066  NULL        INTEGER            15  INT64            6
+!
+! Number of cross trades
+!
+ORDREC_MSP "ORDER RECV TM MSP"   7067  NULL        INTEGER            15  INT64            6
+!
+! The submillisecond part of the timestamp for when order was received by the 
+! exchange/venue
+!
+TRDREC_MSP "TRD RECV TM MSP"     7068  NULL        INTEGER            15  INT64            6
+!
+! The submillisecond part of the timestamp for when trade request was received by the 
+! source
+!
+EFR_COUNT  "EFR COUNT"           7069  NULL        INTEGER            15  INT64            6
+!
+! Number of Exchange For Risk trades
+!
+EFRP_SEQNO "EFRP TRD SEQNO"      7070  NULL        INTEGER            15  INT64            6
+!
+! Sequence Number of Exchange For Related Position trade
+!
+EFRPTRDVOL "EFRP TRD VOL"        7071  NULL        INTEGER            15  INT64            6
+!
+! The volume of the latest EFPR trade
+!
+EFS_COUNT  "EFS COUNT"           7072  NULL        INTEGER            15  INT64            6
+!
+! Number of Exchange For Swaps trades
+!
+EOO_COUNT  "EOO COUNT"           7073  NULL        INTEGER            15  INT64            6
+!
+! Number of Exchange of Options For Options trades
+!
+OPNT_COUNT "OPNT COUNT"          7074  NULL        INTEGER            15  INT64            6
+!
+! Number of OTC Privately Negotiated trades
+!
+SUB_COUNT  "SUB COUNT"           7075  NULL        INTEGER            15  INT64            6
+!
+! Number of Substitution For Forward trades
+!
+DAYS_ACCR  "NUM ACCRUED DAYS"    7076  NULL        INTEGER            15  INT64            6
+!
+! Number of accrued days.
+!
+BBO_ASK_SZ "BBO ASK SZ"          7077  NULL        INTEGER            15  INT64            6
+!
+! Best Bid Offer Ask Size
+!
+BBO_BID_SZ "BBO BID SZ"          7078  NULL        INTEGER            15  INT64            6
+!
+! Best Bid Offer Bid Size
+!
 PRE_INT200 "PRED INTEGER 200"    7079  NULL        INTEGER            15  INT64            6
 PRE_INT201 "PRED INTEGER 201"    7080  NULL        INTEGER            15  INT64            6
 PRE_INT202 "PRED INTEGER 202"    7081  NULL        INTEGER            15  INT64            6
@@ -23136,7 +23190,7 @@ REAL_YLDM  "MID REAL YIELD"      8258  NULL        PRICE              17  REAL64
 !
 ! The high and low yield from the previous 52 weeks.
 !
-MID_PRICE2 "MID-PRICE 2"         8261  NULL        PRICE              17  REAL64           7
+MID_PRICE2 "MID-PRICE 2"         8261  MID_PRICE3  PRICE              17  REAL64           7
 MID_PRICE3 "MID-PRICE 3"         8262  NULL        PRICE              17  REAL64           7
 !
 ! The mid-price between the bid and ask prices
@@ -23535,7 +23589,10 @@ INS_SUBIND "INS SUBMT IND"       8414  NULL        ALPHANUMERIC        1  RMTES_
 !
 ! Submarket indicator associated with corrected trade price
 !
-PRE_1TX016 "PRED 1 TXT 016"      8415  NULL        ALPHANUMERIC        1  RMTES_STRING     1
+EVENT_TH_X "EVENT TRD THRU X"    8415  NULL        ALPHANUMERIC        1  RMTES_STRING     1
+!
+! Trade through exempt flags for EVENT_VAL
+!
 PRE_1TX017 "PRED 1 TXT 017"      8416  NULL        ALPHANUMERIC        1  RMTES_STRING     1
 PRE_1TX018 "PRED 1 TXT 018"      8417  NULL        ALPHANUMERIC        1  RMTES_STRING     1
 PRE_1TX019 "PRED 1 TXT 019"      8418  NULL        ALPHANUMERIC        1  RMTES_STRING     1
@@ -23757,11 +23814,17 @@ DRK_CONCD1 "DARK COND CDE 1"     8508  NULL        ALPHANUMERIC        4  RMTES_
 !
 ! Secondary native Dark condition code
 !
-PRE_4TX062 "PRED 4 TXT 062"      8509  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX063 "PRED 4 TXT 063"      8510  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX064 "PRED 4 TXT 064"      8511  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+BLK_CONCD1 "BLK TRD COND CDE 1"  8509  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 !
-! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
+! Secondary native block trade condition code
+!
+ODD_CONCD1 "ODD TRD COND CDE 1"  8510  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Secondary native odd lot trade condition code
+!
+CRSSALCOND "CRS SALE COND"       8511  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Native sale condition of cross trade
 !
 CRT_MNTH   "CONTRACT MNTH"       8512  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 !
@@ -23951,19 +24014,19 @@ ONBK_SELID "ON BOOK SELLER ID"   8554  NULL        ALPHANUMERIC       10  RMTES_
 !
 OFBK_BUYID "OFF BOOK BUYER ID"   8555  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 !
-! Derived buy side broker code for an off-book trade
+! Code identifying the market participant on the buy side of an off book trade
 !
 OFBK_SELID "OFF BOOK SELLER ID"  8556  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 !
-! Derived sell side broker code for an off-book trade
+! Code identifying the market participant on the sell side of an off book trade
 !
 CAN_BUY_ID "CAN BUYER ID"        8557  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 !
-! Buy side broker code of a cancelled trade.
+! Code identifying the market participant on the buy side of a cancelled trade
 !
 CAN_SEL_ID "CAN SELLER ID"       8558  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 !
-! Sell side broker code of a cancelled trade.
+! Code identifying the market participant on the sell side of a cancelled trade
 !
 B_STL_RUL1 "BID SETTLE RULE 1"   8559  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 B_STL_RUL2 "BID SETTLE RULE 2"   8560  NULL        ALPHANUMERIC       10  RMTES_STRING    10
@@ -24252,11 +24315,11 @@ DRK_PHA_N  "NATVE DARK PHA CDE"  8660  NULL        ALPHANUMERIC       24  RMTES_
 !
 BLK_BO_ID  "BLK BUY ORD ID"      8661  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 !
-! Buyer ID field for Block trades
+! Bid order identifier for a block trade
 !
 BLK_AO_ID  "BLK SELL ORD ID"     8662  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 !
-! Seller ID field for Block trades
+! Ask order identifier for a block trade
 !
 TRD_ID_ALT "TRADE ID ALT"        8663  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 !
@@ -24266,11 +24329,26 @@ CAN_TRDIDA "CAN TRADE ID ALT"    8664  NULL        ALPHANUMERIC       24  RMTES_
 !
 ! Alterntive unique trade identification of a cancelled trade
 !
-PRE_24T034 "PRED 24 TXT 034"     8665  NULL        ALPHANUMERIC       24  RMTES_STRING    24
-PRE_24T035 "PRED 24 TXT 035"     8666  NULL        ALPHANUMERIC       24  RMTES_STRING    24
-PRE_24T036 "PRED 24 TXT 036"     8667  NULL        ALPHANUMERIC       24  RMTES_STRING    24
-PRE_24T037 "PRED 24 TXT 037"     8668  NULL        ALPHANUMERIC       24  RMTES_STRING    24
-PRE_24T038 "PRED 24 TXT 038"     8669  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+BLK_TRDID  "BLK TRADE ID"        8665  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Unique trade identification of block trade
+!
+CRS_TRDID  "CRS TRADE ID"        8666  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Unique trade identification of cross trade
+!
+ODD_TRDID  "ODD TRADE ID"        8667  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Unique trade identification of odd lot trade
+!
+SPRD_TRDID "SPRD TRADE ID"       8668  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Unique trade identification of strategy trade
+!
+EFRP_TRDID "EFRP TRADE ID"       8669  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Unique trade identification of Exchange For Related Position trade
+!
 PRE_24T039 "PRED 24 TXT 039"     8670  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 PRE_24T040 "PRED 24 TXT 040"     8671  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 PRE_24T041 "PRED 24 TXT 041"     8672  NULL        ALPHANUMERIC       24  RMTES_STRING    24
@@ -25738,15 +25816,42 @@ HST_TN_DT  "HST TNOV DATE"       9240  NULL        DATE               11  DATE  
 !
 ! The date when a particular turnover occurred in HST_TNOV
 !
-PRE_DT130  "PRED DATE 130"       9241  NULL        DATE               11  DATE             4
-PRE_DT131  "PRED DATE 131"       9242  NULL        DATE               11  DATE             4
-PRE_DT132  "PRED DATE 132"       9243  NULL        DATE               11  DATE             4
-PRE_DT133  "PRED DATE 133"       9244  NULL        DATE               11  DATE             4
-PRE_DT134  "PRED DATE 134"       9245  NULL        DATE               11  DATE             4
-PRE_DT135  "PRED DATE 135"       9246  NULL        DATE               11  DATE             4
-PRE_DT136  "PRED DATE 136"       9247  NULL        DATE               11  DATE             4
-PRE_DT137  "PRED DATE 137"       9248  NULL        DATE               11  DATE             4
-PRE_DT138  "PRED DATE 138"       9249  NULL        DATE               11  DATE             4
+SESSION_DT "SESSION DATE"        9241  NULL        DATE               11  DATE             4
+!
+! Date for instruments with multiple trading sessions
+!
+EVENT_DATE "EVENT DATE"          9242  NULL        DATE               11  DATE             4
+!
+! Date associated with EVENT_VAL and EVENT_VOL
+!
+CRS_DATE   "CRS TRD DT"          9243  NULL        DATE               11  DATE             4
+!
+! Date of cross trade
+!
+ODD_DATE   "ODD TRD DT"          9244  NULL        DATE               11  DATE             4
+!
+! Date of odd lot trade
+!
+EFRP_DATE  "EFRP TRD DT"         9245  NULL        DATE               11  DATE             4
+!
+! Date of Exchange For Related Position trade
+!
+YR_HYDAT   "YEAR HIGH YLD DATE"  9246  NULL        DATE               11  DATE             4
+!
+! Year High Yield Date
+!
+YR_LYDAT   "YEAR LOW YLD DATE"   9247  NULL        DATE               11  DATE             4
+!
+! Year Low Yield Date
+!
+HLT_RSM_DT "HALT RESUME DATE"    9248  NULL        DATE               11  DATE             4
+!
+! Trade resumption date for a halted/suspended security
+!
+PRV_DATE   "PREV DATE"           9249  NULL        DATE               11  DATE             4
+!
+! Date associated with the previous value fields. E.g. PRV_LST PRV_OPEN
+!
 PRE_DT139  "PRED DATE 139"       9250  NULL        DATE               11  DATE             4
 PRE_DT140  "PRED DATE 140"       9251  NULL        DATE               11  DATE             4
 PRE_DT141  "PRED DATE 141"       9252  NULL        DATE               11  DATE             4
@@ -26610,42 +26715,156 @@ REF_PRC_4  "REFERENCE PRICE 4"   9911  NULL        PRICE              17  REAL64
 !
 ! Fourth Reference Price qualified by REFPRC_TP4
 !
-PREREAL921 "PRED REAL 921"       9912  NULL        PRICE              17  REAL64           7
-PREREAL922 "PRED REAL 922"       9913  NULL        PRICE              17  REAL64           7
-PREREAL923 "PRED REAL 923"       9914  NULL        PRICE              17  REAL64           7
-PREREAL924 "PRED REAL 924"       9915  NULL        PRICE              17  REAL64           7
-PREREAL925 "PRED REAL 925"       9916  NULL        PRICE              17  REAL64           7
-PREREAL926 "PRED REAL 926"       9917  NULL        PRICE              17  REAL64           7
-PREREAL927 "PRED REAL 927"       9918  NULL        PRICE              17  REAL64           7
-PREREAL928 "PRED REAL 928"       9919  NULL        PRICE              17  REAL64           7
-PREREAL929 "PRED REAL 929"       9920  NULL        PRICE              17  REAL64           7
-PREREAL930 "PRED REAL 930"       9921  NULL        PRICE              17  REAL64           7
-PREREAL931 "PRED REAL 931"       9922  NULL        PRICE              17  REAL64           7
-PREREAL932 "PRED REAL 932"       9923  NULL        PRICE              17  REAL64           7
-PREREAL933 "PRED REAL 933"       9924  NULL        PRICE              17  REAL64           7
-PREREAL934 "PRED REAL 934"       9925  NULL        PRICE              17  REAL64           7
-PREREAL935 "PRED REAL 935"       9926  NULL        PRICE              17  REAL64           7
-PREREAL936 "PRED REAL 936"       9927  NULL        PRICE              17  REAL64           7
-PREREAL937 "PRED REAL 937"       9928  NULL        PRICE              17  REAL64           7
-PREREAL938 "PRED REAL 938"       9929  NULL        PRICE              17  REAL64           7
-PREREAL939 "PRED REAL 939"       9930  NULL        PRICE              17  REAL64           7
-PREREAL940 "PRED REAL 940"       9931  NULL        PRICE              17  REAL64           7
-PREREAL941 "PRED REAL 941"       9932  NULL        PRICE              17  REAL64           7
-PREREAL942 "PRED REAL 942"       9933  NULL        PRICE              17  REAL64           7
-PREREAL943 "PRED REAL 943"       9934  NULL        PRICE              17  REAL64           7
-PREREAL944 "PRED REAL 944"       9935  NULL        PRICE              17  REAL64           7
-PREREAL945 "PRED REAL 945"       9936  NULL        PRICE              17  REAL64           7
-PREREAL946 "PRED REAL 946"       9937  NULL        PRICE              17  REAL64           7
-PREREAL947 "PRED REAL 947"       9938  NULL        PRICE              17  REAL64           7
-PREREAL948 "PRED REAL 948"       9939  NULL        PRICE              17  REAL64           7
-PREREAL949 "PRED REAL 949"       9940  NULL        PRICE              17  REAL64           7
-PREREAL950 "PRED REAL 950"       9941  NULL        PRICE              17  REAL64           7
-PREREAL951 "PRED REAL 951"       9942  NULL        PRICE              17  REAL64           7
-PREREAL952 "PRED REAL 952"       9943  NULL        PRICE              17  REAL64           7
-PREREAL953 "PRED REAL 953"       9944  NULL        PRICE              17  REAL64           7
-PREREAL954 "PRED REAL 954"       9945  NULL        PRICE              17  REAL64           7
-PREREAL955 "PRED REAL 955"       9946  NULL        PRICE              17  REAL64           7
-PREREAL956 "PRED REAL 956"       9947  NULL        PRICE              17  REAL64           7
+DSPLY_FMT  "DISPLAY FORMAT"      9912  NULL        PRICE              17  REAL64           7
+!
+! Display Format field
+!
+DSPL_FRAC1 "DISPLAY FRACTION 1"  9913  NULL        PRICE              17  REAL64           7
+!
+! Price denominator of main fraction
+!
+DSPL_FRAC2 "DISPLAY FRACTION 2"  9914  NULL        PRICE              17  REAL64           7
+!
+! Price denominator of sub fraction
+!
+SESS2_LAST "SESS2 LAST"          9915  NULL        PRICE              17  REAL64           7
+!
+! Last Trade Price for the second session
+!
+QUTABA_PCT "TDAY QUTA BAL PCT"   9916  NULL        PRICE              17  REAL64           7
+!
+! Daily quota balance in percentage
+!
+CB_REFPRC2 "CIR BRK REFPRC 2"    9917  NULL        PRICE              17  REAL64           7
+!
+! Second Circuit breaker reference price
+!
+CB_INST_T1 "CB INSTRU THRES 1"   9918  NULL        PRICE              17  REAL64           7
+!
+! Threshold value for the first level instrument circuit breaker
+!
+CB_INST_T2 "CB INSTRU THRES 2"   9919  NULL        PRICE              17  REAL64           7
+!
+! Threshold value for the second level instrument circuit breaker
+!
+CB_INST_T3 "CB INSTRU THRES 3"   9920  NULL        PRICE              17  REAL64           7
+!
+! Threshold value for the third level instrument circuit breaker
+!
+LM_INST_T1 "LMT INST THRES 1"    9921  NULL        PRICE              17  REAL64           7
+!
+! Threshold value for the first level instrument price limit
+!
+LM_INST_T2 "LMT INST THRES 2"    9922  NULL        PRICE              17  REAL64           7
+!
+! Threshold value for the second level instrument price limit
+!
+LM_INST_T3 "LMT INST THRES 3"    9923  NULL        PRICE              17  REAL64           7
+!
+! Threshold value for the third level instrument price limit
+!
+EFRP_PRC   "EFRP TRD PRC"        9924  NULL        PRICE              17  REAL64           7
+!
+! Last Exchange For Related Position Trade Price
+!
+ISS_YLD    "ISSUE YIELD"         9925  NULL        PRICE              17  REAL64           7
+!
+! Bond Yield at issue
+!
+YR_H_YLD   "YEAR HIGH YIELD"     9926  NULL        PRICE              17  REAL64           7
+!
+! Year High Yield
+!
+YR_L_YLD   "YEAR LOW YIELD"      9927  NULL        PRICE              17  REAL64           7
+!
+! Year Low Yield
+!
+TD_ISS_PCT "TRADE ISSUE PCT"     9928  NULL        PRICE              17  REAL64           7
+!
+! The percentage of number of issues traded over all index constituents at a given 
+! point in time
+!
+HI_AVGPRC  "HIGH AVERAGE PRICE"  9929  NULL        PRICE              17  REAL64           7
+!
+! High Average Price
+!
+HIGH_CMPYD "HIGH CMP YIELD"      9930  NULL        PRICE              17  REAL64           7
+!
+! High Compound Yield
+!
+HIGH_SMPYD "HIGH SIMPLE YIELD"   9931  NULL        PRICE              17  REAL64           7
+!
+! High Simple Yield
+!
+LO_AVGPRC  "LOW AVERAGE PRICE"   9932  NULL        PRICE              17  REAL64           7
+!
+! Low Average Price
+!
+LOW_CMPYD  "LOW CMP YIELD"       9933  NULL        PRICE              17  REAL64           7
+!
+! Low Compound Yield
+!
+LOW_SMPYD  "LOW SIMPLE YIELD"    9934  NULL        PRICE              17  REAL64           7
+!
+! Low Simple Yield
+!
+GYLD_7DAY  "GROSS YIELD 7D"      9935  NULL        PRICE              17  REAL64           7
+!
+! Gross 7 Day Yield defined as the gross 7 day yield for a money market fund
+!
+YLD_30DAY  "YIELD 30D"           9936  NULL        PRICE              17  REAL64           7
+!
+! 30 Day Yield for a money market fund
+!
+PCT_TNOV   "PCT TURNOVER"        9937  NULL        PRICE              17  REAL64           7
+!
+! To display segment (or group of instruments) total turnover vs. total volume for all 
+! instruments in percentage
+!
+ADJUST_CL2 "ADJUSTED CLOSE 2"    9938  NULL        PRICE              17  REAL64           7
+!
+! Fully Adjusted Closing Price (Allowing for all Dividends and Capital Changes)
+!
+ACC_SZ_DEC "ACCUM SIZE DEC"      9939  NULL        PRICE              17  REAL64           7
+!
+! The total quantity of unit of instruments represented in an aggregated MBP row with 
+! decimal
+!
+ACVOL_DEC  "ACVOL DEC"           9940  NULL        PRICE              17  REAL64           7
+!
+! Accumulated number of shares, lots or contracts traded according to the market 
+! convention. With decimals.
+!
+ASKSZ_DEC  "ASK SIZE DEC"        9941  NULL        PRICE              17  REAL64           7
+!
+! The number of shares, lots, or contracts willing to sell at the Ask price in decimal
+!
+BIDSZ_DEC  "BID SIZE DEC"        9942  NULL        PRICE              17  REAL64           7
+!
+! The number of shares, lots, or contracts willing to sell at the Bid price in decimal
+!
+ORD_SZ_DEC "ORDER SIZE DEC"      9943  NULL        PRICE              17  REAL64           7
+!
+! The Quantity of the order in decimal
+!
+BBO_ASK    "BBO ASK"             9944  NULL        PRICE              17  REAL64           7
+!
+! Best Bid Offer Ask Price
+!
+BBO_BID    "BBO BID"             9945  NULL        PRICE              17  REAL64           7
+!
+! Best Bid Offer Bid Price
+!
+PRV_S_HIGH "PREV SEC HIGH"       9946  NULL        PRICE              17  REAL64           7
+!
+! The previous day's secondary high value field for those quotations involving more 
+! than one high field.
+!
+PRV_S_LOW  "PREV SEC LOW"        9947  NULL        PRICE              17  REAL64           7
+!
+! The previous day's secondary low value field for those quotations involving more 
+! than one low field.
+!
 PREREAL957 "PRED REAL 957"       9948  NULL        PRICE              17  REAL64           7
 PREREAL958 "PRED REAL 958"       9949  NULL        PRICE              17  REAL64           7
 PREREAL959 "PRED REAL 959"       9950  NULL        PRICE              17  REAL64           7
@@ -28320,26 +28539,64 @@ PRE_2TX027 "PRED 2 TXT 27"      11618  NULL        ALPHANUMERIC        2  RMTES_
 PRE_2TX028 "PRED 2 TXT 28"      11619  NULL        ALPHANUMERIC        2  RMTES_STRING     2
 PRE_2TX029 "PRED 2 TXT 29"      11620  NULL        ALPHANUMERIC        2  RMTES_STRING     2
 PRE_2TX030 "PRED 2 TXT 30"      11621  NULL        ALPHANUMERIC        2  RMTES_STRING     2
-PRE_4TX065 "PRED 4 TXT 065"     11622  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX066 "PRED 4 TXT 066"     11623  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX067 "PRED 4 TXT 067"     11624  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX068 "PRED 4 TXT 068"     11625  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX069 "PRED 4 TXT 069"     11626  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX070 "PRED 4 TXT 070"     11627  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX071 "PRED 4 TXT 071"     11628  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX072 "PRED 4 TXT 072"     11629  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX073 "PRED 4 TXT 073"     11630  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX074 "PRED 4 TXT 074"     11631  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX075 "PRED 4 TXT 075"     11632  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX076 "PRED 4 TXT 076"     11633  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX077 "PRED 4 TXT 077"     11634  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX078 "PRED 4 TXT 078"     11635  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX079 "PRED 4 TXT 079"     11636  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX080 "PRED 4 TXT 080"     11637  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX081 "PRED 4 TXT 081"     11638  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX082 "PRED 4 TXT 082"     11639  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX083 "PRED 4 TXT 083"     11640  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX084 "PRED 4 TXT 084"     11641  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
+!
+ODDSALCOND "ODD SALE COND"      11622  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Native sale condition of odd lot trade
+!
+CRS_CONCD1 "CRS COND CDE 1"     11623  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+CRS_CONCD2 "CRS COND CDE 2"     11624  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+CRS_CONCD3 "CRS COND CDE 3"     11625  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+CRS_CONCD4 "CRS COND CDE 4"     11626  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Secondary native cross trade condition code
+!
+QTE_SESS   "QOUTE SESSION"      11627  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Session of last best bid or ask price. Used in multi session or in RICs that 
+! consolidate quotes from different sessions, pit / ring vs. electronic, quotes from 
+! earlier session reported late, etc.
+!
+EFRP_COND1 "EFRP COND CDE 1"    11628  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Secondary condition code for Exchange For Related Position trade
+!
+EFRPSALCND "EFRP CRS SALE COND" 11629  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Native sale condition of Exchange For Related Position trade
+!
+BLK_CONCD2 "BLK TRD COND CDE 2" 11630  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+BLK_CONCD3 "BLK TRD COND CDE 3" 11631  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+BLK_CONCD4 "BLK TRD COND CDE 4" 11632  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Secondary native block trade condition code
+!
+DRK_CONCD2 "DARK COND CDE 2"    11633  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+DRK_CONCD3 "DARK COND CDE 3"    11634  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+DRK_CONCD4 "DARK COND CDE 4"    11635  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Secondary native Dark condition code
+!
+ODD_CONCD2 "ODD TRD COND CDE 2" 11636  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+ODD_CONCD3 "ODD TRD COND CDE 3" 11637  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+ODD_CONCD4 "ODD TRD COND CDE 4" 11638  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Secondary native odd lot trade condition code
+!
+ATMFL_EXCH "EXCH ATM FLG"       11639  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Intrinsic value flag for an instruments provided by the source/exchange
+!
+CANQTE_IND "CANCELLED QTE IND"  11640  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Cancelled or Correction indicator for quotes
+!
+BLKSALCOND "BLK SALE COND"      11641  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Native sale condition of block trade
+!
 PRE_4TX085 "PRED 4 TXT 085"     11642  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 PRE_4TX086 "PRED 4 TXT 086"     11643  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 PRE_4TX087 "PRED 4 TXT 087"     11644  NULL        ALPHANUMERIC        4  RMTES_STRING     4
@@ -28555,26 +28812,87 @@ MRN_V_MIN  "MRN VER MINOR"      11787  NULL        ALPHANUMERIC       10  RMTES_
 !
 ! Minor version of data model used in FRAGMENT
 !
-PRE_10T063 "PRED 10 TXT 063"    11788  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T064 "PRED 10 TXT 064"    11789  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T065 "PRED 10 TXT 065"    11790  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T066 "PRED 10 TXT 066"    11791  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T067 "PRED 10 TXT 067"    11792  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T068 "PRED 10 TXT 068"    11793  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T069 "PRED 10 TXT 069"    11794  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T070 "PRED 10 TXT 070"    11795  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T071 "PRED 10 TXT 071"    11796  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T072 "PRED 10 TXT 072"    11797  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T073 "PRED 10 TXT 073"    11798  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T074 "PRED 10 TXT 074"    11799  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T075 "PRED 10 TXT 075"    11800  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T076 "PRED 10 TXT 076"    11801  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T077 "PRED 10 TXT 077"    11802  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T078 "PRED 10 TXT 078"    11803  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T079 "PRED 10 TXT 079"    11804  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T080 "PRED 10 TXT 080"    11805  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T081 "PRED 10 TXT 081"    11806  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T082 "PRED 10 TXT 082"    11807  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+EVENT_CDE1 "EVENT COND CDE 1"   11788  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Condition code or flag for an event
+!
+EVENT_CDE2 "EVENT COND CDE 2"   11789  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Secondary Condition Code for an event
+!
+LULD_IND1  "LULD INDICATOR 1"   11790  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! National BBO LULD Indicator
+!
+LULD_IND2  "LULD INDICATOR 2"   11791  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Secondary BBO LULD Indicator
+!
+BLK_BUYID  "BLK BUYER ID"       11792  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Code identifying the market participant on the buy side of a block trade
+!
+BLK_SELID  "BLK SELLER ID"      11793  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Code identifying the market participant on the sell side of a block trade
+!
+CRS_BUYID  "CRS BUYER ID"       11794  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Code identifying the market participant on the buy side of a cross trade
+!
+CRS_SELID  "CRS SELLER ID"      11795  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Code identifying the market participant on the sell side of a cross trade
+!
+DRK_BUYID  "DRK BUYER ID"       11796  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Code identifying the market participant on the buy side of a dark pool trade
+!
+DRK_SELID  "DRK SELLER ID"      11797  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Code identifying the market participant on the sell side of a dark pool trade
+!
+INS_BUYID  "INS BUYER ID"       11798  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Code identifying the market participant on the buy side of a corrected trade
+!
+INS_SELID  "INS SELLER ID"      11799  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Code identifying the market participant on the sell side of a corrected trade
+!
+ODD_BUYID  "ODD BUYER ID"       11800  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Code identifying the market participant on the buy side of an odd lot trade
+!
+ODD_SELID  "ODD SELLER ID"      11801  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Code identifying the market participant on the sell side of an odd lot trade
+!
+PD_BUYID   "PRVD BUYER ID"      11802  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Code identifying the market participant on the buy side of a previous day trade
+!
+PD_SELID   "PRVD SELLER ID"     11803  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Code identifying the market participant on the sell side of a previous day trade
+!
+ODD_AGGID  "ODD AGGR ID"        11804  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Code identifying the market participant on the aggressive side of an odd lot trade
+!
+ODD_PASID  "ODD PASSIVE ID"     11805  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Code identifying the market participant on the passive side of an odd lot trade
+!
+TRD_AGGID  "TRD AGGR ID"        11806  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Code identifying the market participant on the aggressive side of a last eligible 
+! trade
+!
+TRD_PASID  "TRD PASSIVE ID"     11807  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Code identifying the market participant on the passive side of a last eligible trade
+!
 PRE_10T083 "PRED 10 TXT 083"    11808  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 PRE_10T084 "PRED 10 TXT 084"    11809  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 PRE_10T085 "PRED 10 TXT 085"    11810  NULL        ALPHANUMERIC       10  RMTES_STRING    10
@@ -29043,7 +29361,10 @@ MRN_SRC    "MRN SOURCE"         12215  NULL        ALPHANUMERIC       40  RMTES_
 !
 ! Identifies the scoring/processing system that publishes the FRAGMENT
 !
-PRE_40T029 "PRED 40 TXT 029"    12216  NULL        ALPHANUMERIC       40  RMTES_STRING    40
+U_PROVSYMB "UNDLY PROV SYMB"    12216  NULL        ALPHANUMERIC       40  RMTES_STRING    40
+!
+! Official code for the underlying instrument
+!
 PRE_40T030 "PRED 40 TXT 030"    12217  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 PRE_40T031 "PRED 40 TXT 031"    12218  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 PRE_40T032 "PRED 40 TXT 032"    12219  NULL        ALPHANUMERIC       40  RMTES_STRING    40
@@ -29106,7 +29427,7 @@ INST_DESC2 "INST DESCRIPTION 2" 12272  NULL        ALPHANUMERIC       60  RMTES_
 !
 ! Instrument Description
 !
-PRE_60T002 "PRED 60 TXT 002"    12273  NULL        ALPHANUMERIC       60  RMTES_STRING    60
+CNTX_NAME  "CONTEXT NAME"       12273  NULL        ALPHANUMERIC       60  RMTES_STRING    60
 PRE_60T003 "PRED 60 TXT 003"    12274  NULL        ALPHANUMERIC       60  RMTES_STRING    60
 PRE_60T004 "PRED 60 TXT 004"    12275  NULL        ALPHANUMERIC       60  RMTES_STRING    60
 PRE_60T005 "PRED 60 TXT 005"    12276  NULL        ALPHANUMERIC       60  RMTES_STRING    60
@@ -30181,10 +30502,23 @@ CLK_SRC    "CLOCK SOURCE"       12929  NULL        ENUMERATED    3 ( 8 )  ENUM  
 !
 ! Indicates clock source protocol
 !
-PRE_1ET229 "PRED 1 ET 229"      12930  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET230 "PRED 1 ET 230"      12931  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET231 "PRED 1 ET 231"      12932  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET232 "PRED 1 ET 232"      12933  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+FBBO_IND   "FINRA NBBO IND"     12930  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! FINRA BBO indicator
+!
+YR_HYIND   "YR HIGH YLD IND"    12931  NULL        ENUMERATED    3 ( 1 )  ENUM             1
+!
+! Year Low Yield Indicator
+!
+YR_LYIND   "YR LOW YLD IND"     12932  NULL        ENUMERATED    3 ( 1 )  ENUM             1
+!
+! Year High Yield Indicator
+!
+BBO_LT_IND "BBO LT IND"         12933  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! Indicator to show if the Tolerance level was calculated using a BBO from the Primary 
+! exchange
+!
 PRE_1ET233 "PRED 1 ET 233"      12934  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET234 "PRED 1 ET 234"      12935  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET235 "PRED 1 ET 235"      12936  NULL        ENUMERATED    3 ( 8 )  ENUM             1
@@ -30971,12 +31305,30 @@ REFPRC_TP4 "REF PRICE TYPE 4"   13491  NULL        ENUMERATED    5 ( 8 )  ENUM  
 !
 ! Indicates the type/method of calculation for REF_PRC_4
 !
-PRE_2ET171 "PRED 2 ET 171"      13492  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET172 "PRED 2 ET 172"      13493  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET173 "PRED 2 ET 173"      13494  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET174 "PRED 2 ET 174"      13495  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET175 "PRED 2 ET 175"      13496  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET176 "PRED 2 ET 176"      13497  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+CB_TYPE2   "CIRCUIT BRK TYPE 2" 13492  NULL        ENUMERATED    5 ( 5 )  ENUM             2
+!
+! Second Circuit Breaker Type
+!
+CB_INST_LV "CB INSTRU LEVEL"    13493  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Flag to show which instrument level circuit break (if any) has been triggered
+!
+LMT_STATUS "PRC LMT STATUS"     13494  NULL        ENUMERATED    5 ( 6 )  ENUM             2
+!
+! Indicates the Price Limit status
+!
+ODD_EXID   "ODD TRADE EXCH ID"  13495  NULL        ENUMERATED    5 ( 3 )  ENUM             2
+!
+! Identifier of the exchange odd lot trade originated from. Used for consolidated feeds
+!
+TRDQTE_QL  "TRD QTE QUAL"       13496  NULL        ENUMERATED    5 ( 5 )  ENUM             2
+!
+! Enumerated trade and quote condition qualifier
+!
+REFTIMZONE "REF TIME ZONE"      13497  NULL        ENUMERATED    5 ( 5 )  ENUM             2
+!
+! Indicates the venue's time zone for REF_TIME #14248
+!
 PRE_2ET177 "PRED 2 ET 177"      13498  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET178 "PRED 2 ET 178"      13499  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET179 "PRED 2 ET 179"      13500  NULL        ENUMERATED    5 ( 8 )  ENUM             2
@@ -32004,14 +32356,39 @@ MET_EET_MS "MET VAL EFF END MS" 14244  NULL        INTEGER            15  TIME  
 !
 ! Metric effective end time. End time of content used to calculate value
 !
-PRE_113_MS "PRED TIME MS2 113"  14245  NULL        INTEGER            15  TIME             5
-PRE_114_MS "PRED TIME MS2 114"  14246  NULL        INTEGER            15  TIME             5
-PRE_115_MS "PRED TIME MS2 115"  14247  NULL        INTEGER            15  TIME             5
-PRE_116_MS "PRED TIME MS2 116"  14248  NULL        INTEGER            15  TIME             5
-PRE_117_MS "PRED TIME MS2 117"  14249  NULL        INTEGER            15  TIME             5
-PRE_118_MS "PRED TIME MS2 118"  14250  NULL        INTEGER            15  TIME             5
-PRE_119_MS "PRED TIME MS2 119"  14251  NULL        INTEGER            15  TIME             5
-PRE_120_MS "PRED TIME MS2 120"  14252  NULL        INTEGER            15  TIME             5
+LMTXTM_MS  "PRC LMT EXP TG MS"  14245  NULL        INTEGER            15  TIME             5
+!
+! Time the price limit is expected to be triggered
+!
+ORDREC2_MS "ORDER RECV TM2 MS"  14246  NULL        INTEGER            15  TIME             5
+!
+! A secondary field for the time when order was received
+!
+TRDREC2_MS "TRD RECV TM2 MS"    14247  NULL        INTEGER            15  TIME             5
+!
+! A secondary field for the time when trade was received
+!
+REF_TM_MS  "REF TIME"           14248  NULL        INTEGER            15  TIME             5
+!
+! Reference time in milliseconds for converting local dates into GMT where no related 
+! timestamp is provided
+!
+CRSTIM_MS  "CRSTIM MS"          14249  NULL        INTEGER            15  TIME             5
+!
+! Time of cross trade with precision in milliseconds
+!
+HLT_RSM_MS "HALT RESUME TIME"   14250  NULL        INTEGER            15  TIME             5
+!
+! Trade resumption time for a halted/suspended security
+!
+ODDTIM_MS  "ODDTIM MS"          14251  NULL        INTEGER            15  TIME             5
+!
+! Time of odd lot trade with precision in milliseconds
+!
+SPRDTIM_MS "SPRDTIM MS"         14252  NULL        INTEGER            15  TIME             5
+!
+! Time of  strategy trade with precision in milliseconds
+!
 PRE_121_MS "PRED TIME MS2 121"  14253  NULL        INTEGER            15  TIME             5
 PRE_122_MS "PRED TIME MS2 122"  14254  NULL        INTEGER            15  TIME             5
 PRE_123_MS "PRED TIME MS2 123"  14255  NULL        INTEGER            15  TIME             5
@@ -32040,7 +32417,7 @@ QUOTIM_NS  "QUOTIM NS"          14265  QUOTIM_NS2  INTEGER            15  TIME  
 ! Time of best bid/ask quote update - self describing timestamp supporting up to 
 ! nanosecond granularity
 !
-SALTIM_NS  "SALTIM NS"          14266  NULL        INTEGER            15  TIME             8
+SALTIM_NS  "SALTIM NS"          14266  SALTIM_NS2  INTEGER            15  TIME             8
 !
 ! Time of the last eligible trade - the time of the last update to the field TRDPRC_1 
 ! (FID 6). - self describing timestamp supporting up to nanosecond granularity
@@ -32128,18 +32505,46 @@ DUDT_TM_NS "DUDT TMSTMP IN NS"  14286  NULL        INTEGER            15  TIME  
 !
 ! Local System Time carrying up to nanosecond granularity
 !
-PRE_007_NS "PRED TIME NS 007"   14287  NULL        INTEGER            15  TIME             8
-PRE_008_NS "PRED TIME NS 008"   14288  NULL        INTEGER            15  TIME             8
-PRE_009_NS "PRED TIME NS 009"   14289  NULL        INTEGER            15  TIME             8
-PRE_010_NS "PRED TIME NS 010"   14290  NULL        INTEGER            15  TIME             8
-PRE_011_NS "PRED TIME NS 011"   14291  NULL        INTEGER            15  TIME             8
-PRE_012_NS "PRED TIME NS 012"   14292  NULL        INTEGER            15  TIME             8
-PRE_013_NS "PRED TIME NS 013"   14293  NULL        INTEGER            15  TIME             8
-PRE_014_NS "PRED TIME NS 014"   14294  NULL        INTEGER            15  TIME             8
-PRE_015_NS "PRED TIME NS 015"   14295  NULL        INTEGER            15  TIME             8
-PRE_016_NS "PRED TIME NS 016"   14296  NULL        INTEGER            15  TIME             8
-PRE_017_NS "PRED TIME NS 017"   14297  NULL        INTEGER            15  TIME             8
-PRE_018_NS "PRED TIME NS 018"   14298  NULL        INTEGER            15  TIME             8
+EVENTIM_NS "EVENTTIM NS"        14287  NULL        INTEGER            15  TIME             8
+!
+! Time to nanoseconds precision associated with EVENT_VAL and EVENT_VOL
+!
+CRSTIM_NS  "CRSTIM NS"          14288  NULL        INTEGER            15  TIME             8
+!
+! Time of cross trade
+!
+DRKTIM_NS  "DRKTIM NS"          14289  NULL        INTEGER            15  TIME             8
+!
+! Time of dark trade
+!
+ODDTIM_NS  "ODDTIM NS"          14290  NULL        INTEGER            15  TIME             8
+!
+! Time of odd lot trade
+!
+PDTRDTM_NS "PDTIM NS"           14291  NULL        INTEGER            15  TIME             8
+!
+! Time of previous day trade
+!
+EFRPTIM_NS "EFRPTIM NS"         14292  NULL        INTEGER            15  TIME             8
+!
+! Time of Exchange For Related Position trade in nanoseconds
+!
+ORDREC_NS  "ORDER RECV TIME NS" 14293  NULL        INTEGER            15  TIME             8
+!
+! The time when order was received
+!
+TRDREC_NS  "TRD RECV TIME NS"   14294  NULL        INTEGER            15  TIME             8
+!
+! The time when trade was received
+!
+SALTIM_NS2 "SALTIM NS 2"        14295  SALTIM_NS3  INTEGER            15  TIME             8
+SALTIM_NS3 "SALTIM NS 3"        14296  SALTIM_NS4  INTEGER            15  TIME             8
+SALTIM_NS4 "SALTIM NS 4"        14297  SALTIM_NS5  INTEGER            15  TIME             8
+SALTIM_NS5 "SALTIM NS 5"        14298  NULL        INTEGER            15  TIME             8
+!
+! Time of the last eligible trade - the time of the last update to the field TRDPRC_1 
+! (FID 6)
+!
 PRE_019_NS "PRED TIME NS 019"   14299  NULL        INTEGER            15  TIME             8
 PRE_020_NS "PRED TIME NS 020"   14300  NULL        INTEGER            15  TIME             8
 PRE_021_NS "PRED TIME NS 021"   14301  NULL        INTEGER            15  TIME             8
@@ -32554,9 +32959,9 @@ RSYNTX_VER "REND SYNTAX VER"    32315  NULL        INTEGER            15  UINT64
 !
 ! Rendition Expression Syntax Version
 !
-CNTX_DESC  "CONTEXT DESCR"      32316  NULL        ALPHANUMERIC       30  RMTES_STRING    30
+PRE_30T001 "PRED 30 TXT 001"    32316  NULL        ALPHANUMERIC       30  RMTES_STRING    30
 !
-! Context Description
+! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
 !
 REND_TGT   "REND TARGET"        32317  NULL        ALPHANUMERIC       20  RMTES_STRING    20
 !
@@ -32681,11 +33086,26 @@ ELG_ACVOL  "ELIGBL TRD ACVOL"   32482  NULL        INTEGER            15  UINT64
 !
 ! Accumulated Eligible Trade Volume
 !
-PR_UINT005 "PRED UNS INT 005"   32483  NULL        INTEGER            15  UINT64           8
-PR_UINT006 "PRED UNS INT 006"   32484  NULL        INTEGER            15  UINT64           8
-PR_UINT007 "PRED UNS INT 007"   32485  NULL        INTEGER            15  UINT64           8
-PR_UINT008 "PRED UNS INT 008"   32486  NULL        INTEGER            15  UINT64           8
-PR_UINT009 "PRED UNS INT 009"   32487  NULL        INTEGER            15  UINT64           8
+STREAM_ID  "STREAM ID"          32483  NULL        INTEGER            15  UINT64           8
+!
+! Unique ID for the instrument
+!
+EFR_ACVOL  "EFR TRD ACVOL"      32484  NULL        INTEGER            15  UINT64           8
+!
+! Total volume of Exchange For Risk trades
+!
+EOO_ACVOL  "EOO TRD ACVOL"      32485  NULL        INTEGER            15  UINT64           8
+!
+! Total volume of Exchange Of Options for Options trades
+!
+OPNT_ACVOL "OPNT TRD ACVOL"     32486  NULL        INTEGER            15  UINT64           8
+!
+! Volume of OTC Privately Negotiated trades
+!
+SUB_ACVOL  "SUB TRD ACVOL"      32487  NULL        INTEGER            15  UINT64           8
+!
+! Total volume of Substitution For Forward trades
+!
 PR_UINT010 "PRED UNS INT 010"   32488  NULL        INTEGER            15  UINT64           8
 PR_UINT011 "PRED UNS INT 011"   32489  NULL        INTEGER            15  UINT64           8
 PR_UINT012 "PRED UNS INT 012"   32490  NULL        INTEGER            15  UINT64           8
@@ -32833,10 +33253,22 @@ EX_TN_UNS  "EXCHANGE TNOV UNS"  32576  NULL        PRICE              17  REAL64
 ! Un-scaled turnover reported by the exchange/source.   Includes more trade reporting 
 ! types than last eligible. 
 !
-PRE_LRL019 "PRED LRG REAL 019"  32577  NULL        PRICE              17  REAL64           8
-PRE_LRL020 "PRED LRG REAL 020"  32578  NULL        PRICE              17  REAL64           8
-PRE_LRL021 "PRED LRG REAL 021"  32579  NULL        PRICE              17  REAL64           8
-PRE_LRL022 "PRED LRG REAL 022"  32580  NULL        PRICE              17  REAL64           8
+EVENT_VAL  "EVENT VALUE"        32577  NULL        PRICE              17  REAL64           8
+!
+! Price or value of an event on the feed
+!
+EVENT_VOL  "EVENT VOLUME"       32578  NULL        PRICE              17  REAL64           8
+!
+! Volume of an event, paired with EVENT_VOL
+!
+QUTAUD_UNS "TDAY QUTA USED UNS" 32579  NULL        PRICE              17  REAL64           8
+!
+! Daily Quota Used
+!
+TCASH_DIST "TTL CASH DISTRIB"   32580  NULL        PRICE              17  REAL64           8
+!
+! Total Cash Distribution
+!
 PRE_LRL023 "PRED LRG REAL 023"  32581  NULL        PRICE              17  REAL64           8
 PRE_LRL024 "PRED LRG REAL 024"  32582  NULL        PRICE              17  REAL64           8
 PRE_LRL025 "PRED LRG REAL 025"  32583  NULL        PRICE              17  REAL64           8
