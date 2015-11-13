@@ -152,10 +152,10 @@ librsslVACache.a : $(librsslVACache_objs)
 	ar -ruv $(EXE_DIR)/librsslVACache.a $(librsslVACache_objs)
 
 
-librssl.so : librssl.so.4
-	( cd $(EXE_DIR)/Shared; rm -f librssl.so; ln -s librssl.so.4 librssl.so; )
+librssl.so : librssl.so.5
+	( cd $(EXE_DIR)/Shared; rm -f librssl.so; ln -s librssl.so.5 librssl.so; )
 
-librssl.so.4 : $(librssl_objs)
+librssl.so.5 : $(librssl_objs)
 	mkdir -p $(EXE_DIR)/Shared
 	$(CC) $(CFLAGS) -o $(EXE_DIR)/Shared/$@ $(librssl_objs) $(SONAME_OPT)$@ $(SYSTEM_LIBS)
 
