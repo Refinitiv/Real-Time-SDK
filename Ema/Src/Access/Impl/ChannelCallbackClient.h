@@ -24,6 +24,8 @@ class OmmConsumerImpl;
 class Login;
 class Directory;
 class Dictionary;
+class StreamId;
+class ChannelConfig;
 
 class Channel : public ListLinks< Channel > 
 {
@@ -58,11 +60,12 @@ public :
 	Dictionary* getDictionary() const;
 	Channel& setDictionary( Dictionary* );
 
-	const EmaList< Directory >& getDirectoryList() const;
+	const EmaList< Directory* >& getDirectoryList() const;
 	Channel& addDirectory( Directory* );
 	Channel& removeDirectory( Directory* );
 
-	Int32 getNextStreamId();
+	Int32 getNextStreamId( UInt32 numberOfBatchItems = 0 );
+	void returnStreamId( Int32 );
 
 	const EmaString& toString() const;
 
@@ -78,9 +81,10 @@ private :
 	ChannelState			_state;
 	Login*					_pLogin;
 	Dictionary*				_pDictionary;
-	Int32					_streamId;
-	EmaList< Directory >	_directoryList;
+	EmaList< Directory* >	_directoryList;
 	mutable bool			_toStringSet;
+	static Int32            nextStreamId;
+	static EmaList< StreamId* > recoveredStreamIds;
 
 	Channel( const EmaString& , RsslReactor* );
 	virtual ~Channel();
@@ -115,7 +119,7 @@ public :
 
 private :
 
-	EmaList< Channel >			_list;
+	EmaList< Channel* >			_list;
 
 	ChannelList( const ChannelList& );
 	ChannelList& operator=( const ChannelList& );
@@ -148,6 +152,8 @@ private :
 	OmmConsumerImpl&				_ommConsImpl;
 
 	RsslReactor*					_pRsslReactor;
+
+	void  channelParametersToString (ChannelConfig *, EmaString& );
 
 	ChannelCallbackClient( OmmConsumerImpl& , RsslReactor* );
 

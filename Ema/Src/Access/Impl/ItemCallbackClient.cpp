@@ -28,9 +28,7 @@
 #include "ExceptionTranslator.h"
 #include "TunnelStreamRequest.h"
 #include "TunnelStreamLoginReqMsgImpl.h"
-
-#include <new>
-#include <limits.h>
+#include "StreamId.h"
 
 using namespace thomsonreuters::ema::access;
 using namespace thomsonreuters::ema::rdm;
@@ -113,6 +111,11 @@ Item* Item::getParent() const
 	return _parent;
 }
 
+Int32 Item::getStreamId() const
+{
+	return _streamId;
+}
+
 OmmConsumerImpl& Item::getOmmConsumerImpl()
 {
 	return _ommConsImpl;
@@ -158,6 +161,8 @@ SingleItem::~SingleItem()
 		delete _closedStatusInfo;
 		_closedStatusInfo = 0;
 	}
+	if ( _pDirectory && _pDirectory->getChannel() )
+		_pDirectory->getChannel()->returnStreamId( _streamId );
 }
 
 Item::ItemType SingleItem::getType() const 
@@ -278,7 +283,7 @@ bool SingleItem::submit( RsslRequestMsg* pRsslRequestMsg )
 		pRsslRequestMsg->flags |= (RSSL_RQMF_HAS_QOS | RSSL_RQMF_HAS_WORST_QOS);
 	}	
 
-	pRsslRequestMsg->flags |= _ommConsImpl.getActiveConfig().channelConfig->msgKeyInUpdates ? RSSL_RQMF_MSG_KEY_IN_UPDATES : 0;
+	pRsslRequestMsg->flags |= _ommConsImpl.getActiveConfig().configChannelSet[0]->msgKeyInUpdates ? RSSL_RQMF_MSG_KEY_IN_UPDATES : 0;
 	submitMsgOpts.pRsslMsg = (RsslMsg*)pRsslRequestMsg;
 
 	RsslBuffer serviceNameBuffer;
@@ -295,14 +300,14 @@ bool SingleItem::submit( RsslRequestMsg* pRsslRequestMsg )
 	{
 		if ( pRsslRequestMsg->flags & RSSL_RQMF_HAS_BATCH )
 		{
-			submitMsgOpts.pRsslMsg->msgBase.streamId = _pDirectory->getChannel()->getNextStreamId();
-			_streamId = submitMsgOpts.pRsslMsg->msgBase.streamId;
-
 			const EmaVector<SingleItem*>& singleItemList = static_cast<BatchItem &>(*this).getSingleItemList();
+
+			submitMsgOpts.pRsslMsg->msgBase.streamId = _pDirectory->getChannel()->getNextStreamId( singleItemList.size() - 1 );
+			_streamId = submitMsgOpts.pRsslMsg->msgBase.streamId;
 
 			for( UInt32 i = 1; i < singleItemList.size(); ++i )
 			{
-				singleItemList[i]->_streamId = _pDirectory->getChannel()->getNextStreamId();
+				singleItemList[i]->_streamId = _streamId + i;
 				singleItemList[i]->_pDirectory = _pDirectory;
 				singleItemList[i]->_domainType = submitMsgOpts.pRsslMsg->msgBase.domainType;
 			}
@@ -311,6 +316,7 @@ bool SingleItem::submit( RsslRequestMsg* pRsslRequestMsg )
 		{
 			if ( !submitMsgOpts.pRsslMsg->msgBase.streamId )
 				submitMsgOpts.pRsslMsg->msgBase.streamId = _pDirectory->getChannel()->getNextStreamId();
+
 			_streamId = submitMsgOpts.pRsslMsg->msgBase.streamId;
 		}
 	}
@@ -544,7 +550,7 @@ void SingleItem::scheduleItemClosedStatus( const ReqMsgEncoder& reqMsgEncoder, c
 
 	_closedStatusInfo = new ClosedStatusInfo( this, reqMsgEncoder, text );
 
-	new TimeOut( _ommConsImpl, 1000, ItemCallbackClient::sendItemClosedStatus, _closedStatusInfo );
+	new TimeOut( _ommConsImpl, 1000, ItemCallbackClient::sendItemClosedStatus, _closedStatusInfo, true );
 }
 
 ClosedStatusInfo::ClosedStatusInfo( Item* pItem, const ReqMsgEncoder& reqMsgEncoder, const EmaString& text ) :
@@ -772,10 +778,8 @@ SingleItem* BatchItem::getSingleItem( Int32 streamId )
 }
 
 void BatchItem::decreaseItemCount()
-{
-	_itemCount--;
-	
-	if ( _itemCount == 0 )
+{	
+	if ( --_itemCount == 0 )
 		delete this;
 }
 
@@ -807,7 +811,9 @@ TunnelItem::TunnelItem( OmmConsumerImpl& ommConsImpl, OmmConsumerClient& ommCons
  Item( ommConsImpl, ommConsClient, closure, 0 ),
  _pDirectory( 0 ),
  _pRsslTunnelStream( 0 ),
- _closedStatusInfo( 0 )
+ _closedStatusInfo( 0 ),
+ nextSubItemStreamId( _startingSubItemStreamId ),
+ _subItems( 32 )
 {
 }
 
@@ -815,11 +821,17 @@ TunnelItem::~TunnelItem()
 {
 	_ommConsImpl.getItemCallbackClient().removeFromList( this );
 
+	for ( UInt32 i = 0; i < _subItems.size(); ++i )
+		if ( _subItems[ i ] )
+			removeSubItem (_subItems[ i ]->getStreamId() );
+
 	if ( _closedStatusInfo )
 	{
 		delete _closedStatusInfo;
 		_closedStatusInfo = 0;
 	}
+	if ( _pDirectory  && _pDirectory->getChannel() )
+		_pDirectory->getChannel()->returnStreamId( _streamId );
 }
 
 const Directory* TunnelItem::getDirectory()
@@ -832,41 +844,30 @@ Item::ItemType TunnelItem::getType() const
 	return Item::TunnelItemEnum;
 }
 
-UInt32 TunnelItem::addSubItem( Item* pSubItem, UInt32 streamId )
+Int32 TunnelItem::getSubItemStreamId()
+{
+	if ( returnedSubItemStreamIds.empty() )
+		return nextSubItemStreamId++;
+
+	StreamId * tmp( returnedSubItemStreamIds.pop_back() );
+	Int32 retVal( (*tmp)() );
+	delete tmp;
+	return retVal;
+}
+
+void TunnelItem::returnSubItemStreamId( Int32 subItemStreamId )
+{
+	StreamId* sId( new StreamId( subItemStreamId ) );
+	returnedSubItemStreamIds.push_back( sId );
+}
+
+UInt32 TunnelItem::addSubItem( Item* pSubItem, Int32 streamId )
 {
 	if ( streamId == 0 )
-	{
-		UInt32 position = 0;
-		UInt32 size = _subItemList.size();
-
-		for ( ; position < size; ++position )
-			if ( !_subItemList[position ] )
-				break;
-
-		if ( position > INT_MAX )
-		{
-			EmaString temp( "Attempt to open too many concurent sub streams." );
-			if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-				_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-
-			if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-				_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( temp );
-			else
-				throwIueException( temp );
-
-			return 0;
-		}
-
-		if ( position == size )
-			_subItemList.push_back( pSubItem );
-		else
-			_subItemList[ position ] = pSubItem;
-
-		return position + _startingStreamId;
-	}
+		streamId = getSubItemStreamId();
 	else
 	{
-		if ( streamId < _startingStreamId )
+		if ( streamId < _startingSubItemStreamId )
 		{
 			EmaString temp( "Invalid attempt to open a sub stream with streamId smaller than starting stream id. Passed in stream id is " );
 			temp.append( streamId );
@@ -882,41 +883,48 @@ UInt32 TunnelItem::addSubItem( Item* pSubItem, UInt32 streamId )
 			return 0;
 		}
 
-		if ( streamId - _startingStreamId < _subItemList.size() )
+		StreamId* sId( returnedSubItemStreamIds.front() );
+		bool foundReturnedStreamId( false );
+		while( sId )
 		{
-			if ( _subItemList[ streamId - _startingStreamId ] )
+			if ( sId->operator()() == streamId )
 			{
-				EmaString temp( "Invalid attempt to open a sub stream with streamId already in use. Passed in stream id is " );
-				temp.append( streamId );
+				returnedSubItemStreamIds.remove( sId );
+				delete sId;
+				foundReturnedStreamId = true;
+				break;
+			}
+			else
+				sId = sId->next();
+		}
 
+		if ( ! foundReturnedStreamId )
+		{
+			if ( static_cast< UInt32 >( streamId ) < _subItems.size() && _subItems[ streamId ] )
+			{
+				EmaString errorMsg( "Invalid attempt to open a substream: substream streamId (" );
+				errorMsg.append( streamId ).append( ") is already in use" );
 				if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-					_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
+					_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, errorMsg );
 
 				if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-					_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( temp );
+					_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( errorMsg );
 				else
-					throwIueException( temp );
-
+					throwIueException( errorMsg );
 				return 0;
 			}
-
-			_subItemList[ streamId - _startingStreamId ] = pSubItem;
 		}
-		else
-		{
-			while ( _subItemList.size() <= streamId - _startingStreamId )
-				_subItemList.push_back( 0 );
-
-			_subItemList[ streamId - _startingStreamId ] = pSubItem;
-		}
-
-		return streamId;
 	}
+
+	while ( static_cast< UInt32 >( streamId ) >= _subItems.size() )
+			_subItems.push_back( 0 );
+	_subItems[ streamId ] = pSubItem;
+	return streamId;
 }
 
 void TunnelItem::removeSubItem( UInt32 streamId )
 {
-	if ( streamId < _startingStreamId )
+	if ( streamId < _startingSubItemStreamId )
 	{
 		if ( streamId > 0 )
 		{
@@ -929,7 +937,7 @@ void TunnelItem::removeSubItem( UInt32 streamId )
 		return;
 	}
 
-	if ( streamId - _startingStreamId >= _subItemList.size() )
+	if ( streamId >= _subItems.size() )
 	{
 		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
@@ -939,12 +947,15 @@ void TunnelItem::removeSubItem( UInt32 streamId )
 		return;
 	}
 
-	_subItemList[ streamId - _startingStreamId ] = 0;
+    if ( _subItems[ streamId ] )
+	{
+		_subItems[ streamId ] = 0;
+	}
 }
 
 Item* TunnelItem::getSubItem( UInt32 streamId )
 {
-	if ( streamId < _startingStreamId )
+	if ( streamId < _startingSubItemStreamId )
 	{
 		if ( streamId > 0 )
 		{
@@ -957,7 +968,7 @@ Item* TunnelItem::getSubItem( UInt32 streamId )
 		return 0;
 	}
 
-	if ( streamId - _startingStreamId >= _subItemList.size() )
+	if ( streamId >= _subItems.size() )
 	{
 		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
@@ -967,7 +978,7 @@ Item* TunnelItem::getSubItem( UInt32 streamId )
 		return 0;
 	}
 
-	return _subItemList[ streamId - _startingStreamId ];	
+	return _subItems[ streamId ];	
 }
 
 bool TunnelItem::open( const TunnelStreamRequest& tunnelStreamRequest )
@@ -1015,7 +1026,7 @@ void TunnelItem::scheduleItemClosedStatus( const TunnelStreamRequest& tunnelStre
 
 	_closedStatusInfo = new ClosedStatusInfo( this, tunnelStreamRequest, text );
 
-	new TimeOut( _ommConsImpl, 1000, ItemCallbackClient::sendItemClosedStatus, _closedStatusInfo );
+	new TimeOut( _ommConsImpl, 1000, ItemCallbackClient::sendItemClosedStatus, _closedStatusInfo, true );
 }
 
 void TunnelItem::rsslTunnelStream( RsslTunnelStream* pRsslTunnelStream )
@@ -1298,14 +1309,10 @@ bool TunnelItem::close()
 
 void TunnelItem::remove()
 {
-	UInt32 subItemCount = _subItemList.size();
-
-	for ( UInt32 pos = 0; pos < subItemCount; ++pos )
-	{
-		if ( !_subItemList[pos] ) continue;
-
-		_subItemList[pos]->remove();
-	}
+	UInt32 last( _subItems.size() );
+	for ( UInt32 i = 0; i < last; ++i )
+		if (_subItems[i] ) 
+			_subItems[i]->remove();
 
 	delete this;
 }
@@ -1520,7 +1527,7 @@ void SubItem::scheduleItemClosedStatus( const ReqMsgEncoder& reqMsgEncoder, cons
 
 	_closedStatusInfo = new ClosedStatusInfo( this, reqMsgEncoder, text );
 
-	new TimeOut( _ommConsImpl, 1000, ItemCallbackClient::sendItemClosedStatus, _closedStatusInfo );
+	new TimeOut( _ommConsImpl, 1000, ItemCallbackClient::sendItemClosedStatus, _closedStatusInfo, true );
 }
 
 bool SubItem::open( const ReqMsg& reqMsg )
@@ -1605,9 +1612,10 @@ bool SubItem::close()
 	rsslCloseMsg.msgBase.containerType = RSSL_DT_NO_DATA;
 	rsslCloseMsg.msgBase.domainType = _domainType;
 	rsslCloseMsg.msgBase.streamId = _streamId;
-
-	bool retCode = static_cast<TunnelItem*>( _parent )->submitSubItemMsg( (RsslMsg*)&rsslCloseMsg );
-
+    bool retCode = static_cast<TunnelItem*>( _parent )->submitSubItemMsg( (RsslMsg*)&rsslCloseMsg );
+	
+	static_cast<TunnelItem*>( _parent )->returnSubItemStreamId( _streamId );
+	
 	remove();
 
 	return retCode;
@@ -2368,34 +2376,29 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 			{
 				const ChannelList& channels( _ommConsImpl.getChannelCallbackClient().getChannelList() );
 				const Channel* c( channels.front() );
-				while( c )
-				{
-					DirectoryItem* pItem = DirectoryItem::create( _ommConsImpl, ommConsClient, closure, c );
 
-					if ( pItem )
-					{
-						try {
-							if ( !pItem->open( reqMsg ) )
-								Item::destroy( (Item*&)pItem );
-							else
-							{
-								addToList( pItem );
-								addToMap( pItem );
-							}
-						}
-						catch ( ... )
-						{
+				DirectoryItem* pItem = DirectoryItem::create( _ommConsImpl, ommConsClient, closure, c );
+
+				if ( pItem )
+				{
+					try {
+						if ( !pItem->open( reqMsg ) )
 							Item::destroy( (Item*&)pItem );
-							throw;
+						else
+						{
+							addToList( pItem );
+							addToMap( pItem );
 						}
 					}
-
-					return (UInt64)pItem;
-				
-					c = c->next();
+					catch ( ... )
+					{
+						Item::destroy( (Item*&)pItem );
+						throw;
+					}
 				}
 
-				return 0;
+				return (UInt64)pItem;
+
 			}
 		default :
 			{

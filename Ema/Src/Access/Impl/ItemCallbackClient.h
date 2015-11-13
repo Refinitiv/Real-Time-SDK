@@ -39,6 +39,7 @@ class ReqMsgEncoder;
 class OmmState;
 class Item;
 class TunnelStreamRequest;
+class StreamId;
 
 class ItemList
 {
@@ -56,7 +57,7 @@ private :
 
 	static const EmaString		_clientName;
 
-	EmaList< Item >				_list;
+	EmaList< Item* >				_list;
 	OmmConsumerImpl&			_ommConsImpl;
 
 	ItemList( OmmConsumerImpl& );
@@ -88,6 +89,7 @@ public :
 	OmmConsumerClient& getClient() const;
 	void* getClosure() const;
 	Item* getParent() const;
+	Int32 getStreamId() const;
 	
 	virtual const Directory* getDirectory() = 0;
 
@@ -258,8 +260,9 @@ public :
 
 	void rsslTunnelStream( RsslTunnelStream* );
 
-	UInt32 addSubItem( Item* , UInt32 streamId = 0 );
+	UInt32 addSubItem( Item* , Int32 streamId = 0 );
 	void removeSubItem( UInt32 );
+	void returnSubItemStreamId( Int32 );
 
 	Item* getSubItem( UInt32 );
 
@@ -269,7 +272,7 @@ protected :
 
 	TunnelItem( OmmConsumerImpl& , OmmConsumerClient& , void* );
 	virtual ~TunnelItem();
-
+	Int32 getSubItemStreamId();
 	void scheduleItemClosedStatus( const TunnelStreamRequest& , const EmaString& );
 
 private :
@@ -277,12 +280,13 @@ private :
 	bool submit( const TunnelStreamRequest& );
 
 	static const EmaString		_clientName;
-	static const UInt32			_startingStreamId = 5;
-
+	Int32                       nextSubItemStreamId;
+	EmaList< StreamId* >        returnedSubItemStreamIds;
 	const Directory*			_pDirectory;
 	RsslTunnelStream*			_pRsslTunnelStream;
 	ClosedStatusInfo*			_closedStatusInfo;
-	EmaVector< Item* >			_subItemList;
+	EmaVector< Item* >			_subItems;
+    static const Int32          _startingSubItemStreamId = 5;
 };
 
 class SubItem : public Item
