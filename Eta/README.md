@@ -63,7 +63,7 @@ https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
 
 Then select the following release, where `<platform>` is linux, win, or solaris based on your preferred platform.
 
-    eta3.0.0.L1.<platform>-binaries.lib
+    eta3.0.1.L1.<platform>-binaries.lib
 	
 Once you have downloaded these libraries, copy them to the corresponding directories under `Eta/Libs`
 Additional information about the contents of the closed source ETA libraries are available in the README contained in that distribution package.
