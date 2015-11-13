@@ -90,8 +90,9 @@ typedef enum
 	RSSL_DT_SERIES				= 138,	/*!< (138) Series container type, represents row based tabular information where no specific indexing is required.   <BR>*/
 
 	RSSL_DT_MSG					= 141,	/*!< (141) RsslMsg container type.  This can be used to nest a message inside another message (e.g. RsslPostMsg containing an RsslUpdateMsg) or nesting a message inside of another container entry (e.g. RsslMapEntry contains an RsslMsg).   <BR>*/
+	RSSL_DT_JSON				= 142,  /*!< (142) JSON formatted data, use Non-RWF type encoders.  <BR> */
 
-	RSSL_DT_CONTAINER_TYPE_MAX	= 141,	/*!<  Maximum supported container type value for this release - used for internal UPA range checking <BR>*/
+	RSSL_DT_CONTAINER_TYPE_MAX	= 142,	/*!<  Maximum supported container type value for this release - used for internal UPA range checking <BR>*/
 	RSSL_DT_MAX_RESERVED		= 224,	/*!< (224) Maximum Thomson Reuters reserved value.  Values beyond this can be user defined types <BR>*/
 
 	RSSL_DT_LAST				= 255	/*!< (255) Maximum allowed enumeration value - used for internal UPA range checking. <BR>*/
