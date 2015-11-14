@@ -1,0 +1,24 @@
+function FileData_Pairs(x)
+{
+x.t("navigating","topics");
+x.t("contents","tab");
+x.t("buttons","navigating");
+x.t("figures","setting");
+x.t("bookmarks","firefox");
+x.t("search","feature");
+x.t("resolution","links");
+x.t("feature","toolbar");
+x.t("documentation","documentation");
+x.t("documentation","online");
+x.t("documentation","feedback");
+x.t("firefox","browser");
+x.t("online","documentation");
+x.t("toolbar","buttons");
+x.t("image","resolution");
+x.t("feedback","using");
+x.t("topics","contents");
+x.t("links","figures");
+x.t("using","search");
+x.t("setting","bookmarks");
+x.t("tab","image");
+}

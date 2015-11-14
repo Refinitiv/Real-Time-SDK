@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <WebWorksHelpBooks version="5.0" name="WebWorks_5" expandalltopentries="false" showbooks="true" xmlns="urn:WebWorks-Help-Books-Schema">
-  <Book directory="Documentation%20Portal" />
-  <Book directory="EMA%20Developers%20Guide" />
-  <Book directory="EMA%20RDM%20Usage%20Guide" />
-  <Book directory="EMA%20Reference%20Manual" />
-  <Book directory="EMA%20Configuration%20Guide" />
-  <Book directory="EMA%20Training%20Examples" />
-  <Book directory="Using%20this%20Library" />
+  <Book directory="Documentation_Portal" />
+  <Book directory="EMA_Developers_Guide" />
+  <Book directory="EMA_RDM_Usage_Guide" />
+  <Book directory="EMA_Reference_Manual" />
+  <Book directory="EMA_Configuration_Guide" />
+  <Book directory="EMA_Training_Examples" />
+  <Book directory="Using_this_Library" />
 </WebWorksHelpBooks>

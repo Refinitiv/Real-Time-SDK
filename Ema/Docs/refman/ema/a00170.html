@@ -93,7 +93,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerator</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -133,7 +133,7 @@ This is the complete list of members for <a class="el" href="a00017.html">thomso
   <tr class="memlist"><td><a class="el" href="a00017.html#a0c9ca5be7594f065ae8a85fe79f446b4">caseInsensitiveCompare</a>(const char *str) const </td><td><a class="el" href="a00017.html">thomsonreuters::ema::access::EmaString</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00017.html#a5bbb332f77be62274617d4cd3e330720">clear</a>()</td><td><a class="el" href="a00017.html">thomsonreuters::ema::access::EmaString</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00017.html#aa25af732435b1794de0ad05eb15d9b1e">EmaString</a>()</td><td><a class="el" href="a00017.html">thomsonreuters::ema::access::EmaString</a></td><td></td></tr>
-  <tr class="memlist"><td><a class="el" href="a00017.html#a4910defcb0a2908073db844ab8c9c4bc">EmaString</a>(const char *str, UInt32 length=0)</td><td><a class="el" href="a00017.html">thomsonreuters::ema::access::EmaString</a></td><td></td></tr>
+  <tr class="memlist"><td><a class="el" href="a00017.html#a148b3dfdf8de81e0b355b61f13a47083">EmaString</a>(const char *str, UInt32 length=EmaString::npos)</td><td><a class="el" href="a00017.html">thomsonreuters::ema::access::EmaString</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00017.html#a6a89c3d58ea1d44a59a7f27b84a2db91">EmaString</a>(const EmaString &amp;other)</td><td><a class="el" href="a00017.html">thomsonreuters::ema::access::EmaString</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00017.html#a7b5535122dcd3e1293b1a2db7410a5ad">empty</a>() const </td><td><a class="el" href="a00017.html">thomsonreuters::ema::access::EmaString</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00017.html#afc0c4e0d820e038c8a37c7a295a1c6cb">find</a>(const EmaString &amp;str, Int32 index=0) const </td><td><a class="el" href="a00017.html">thomsonreuters::ema::access::EmaString</a></td><td></td></tr>
@@ -141,6 +141,7 @@ This is the complete list of members for <a class="el" href="a00017.html">thomso
   <tr class="memlist"><td><a class="el" href="a00017.html#a778ba5451807a74ce04efd368f4f0e97">findLast</a>(const EmaString &amp;str) const </td><td><a class="el" href="a00017.html">thomsonreuters::ema::access::EmaString</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00017.html#a67a8c4dd56a60ae9f36d374bcd8325cb">findLast</a>(const char *) const </td><td><a class="el" href="a00017.html">thomsonreuters::ema::access::EmaString</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00017.html#ade9632d4720bf1be8bfd9853cbe26812">length</a>() const </td><td><a class="el" href="a00017.html">thomsonreuters::ema::access::EmaString</a></td><td></td></tr>
+  <tr class="memlist"><td><a class="el" href="a00017.html#a53e74875c3501eebd79d4ff574a8ee66">npos</a></td><td><a class="el" href="a00017.html">thomsonreuters::ema::access::EmaString</a></td><td><code> [static]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="a00017.html#ab0c101ad17b08c13429b5cae9cd6b90e">operator const char *</a>() const </td><td><a class="el" href="a00017.html">thomsonreuters::ema::access::EmaString</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00017.html#acf8bf53224742f96b6c044398c9a2604">operator!=</a>(const EmaString &amp;str) const </td><td><a class="el" href="a00017.html">thomsonreuters::ema::access::EmaString</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00017.html#a03cd4a4199407f93eb69446701bb8727">operator!=</a>(const char *str) const </td><td><a class="el" href="a00017.html">thomsonreuters::ema::access::EmaString</a></td><td></td></tr>
@@ -168,7 +169,7 @@ This is the complete list of members for <a class="el" href="a00017.html">thomso
   <tr class="memlist"><td><a class="el" href="a00017.html#aa8a6677c9645faf98cd400c0c42f2f9c">operator&gt;=</a>(const char *str) const </td><td><a class="el" href="a00017.html">thomsonreuters::ema::access::EmaString</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00017.html#a07e06043b975d6aa5519c496856adb6d">operator[]</a>(UInt32 index)</td><td><a class="el" href="a00017.html">thomsonreuters::ema::access::EmaString</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00017.html#ab4d010d87b51d9e91add5a71abc8d5fd">operator[]</a>(UInt32 index) const </td><td><a class="el" href="a00017.html">thomsonreuters::ema::access::EmaString</a></td><td></td></tr>
-  <tr class="memlist"><td><a class="el" href="a00017.html#af1fe31f5776da80756dfd70151db2cf3">set</a>(const char *str, UInt32 length=0)</td><td><a class="el" href="a00017.html">thomsonreuters::ema::access::EmaString</a></td><td></td></tr>
+  <tr class="memlist"><td><a class="el" href="a00017.html#ad1ef8786515de0291890e6b4d07c3b1b">set</a>(const char *str, UInt32 length=EmaString::npos)</td><td><a class="el" href="a00017.html">thomsonreuters::ema::access::EmaString</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00017.html#aaad6e49cb244f1b93e0e6ab996d70703">substr</a>(UInt32 index, UInt32 length) const </td><td><a class="el" href="a00017.html">thomsonreuters::ema::access::EmaString</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00017.html#a1e81853759fd17a594d340eb0314f6cf">trimWhitespace</a>()</td><td><a class="el" href="a00017.html">thomsonreuters::ema::access::EmaString</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="a00017.html#aa0f32e1828fd10409b4f3ab17e0e95f3">~EmaString</a>()</td><td><a class="el" href="a00017.html">thomsonreuters::ema::access::EmaString</a></td><td><code> [virtual]</code></td></tr>
@@ -189,7 +190,7 @@ This is the complete list of members for <a class="el" href="a00017.html">thomso
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Sat Jul 25 2015</td>
+			<td><p class="smallfont">Thu Nov 12 2015</td>
           </tr>
         </table>
         </td>

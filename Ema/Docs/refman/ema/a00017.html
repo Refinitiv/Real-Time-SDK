@@ -93,7 +93,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerator</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -113,6 +113,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div>
 <div class="header">
   <div class="summary">
+<a href="#pub-static-attribs">Static Public Attributes</a> &#124;
 <a href="#pro-attribs">Protected Attributes</a>  </div>
   <div class="headertitle">
 <div class="title">thomsonreuters::ema::access::EmaString Class Reference</div>  </div>
@@ -128,13 +129,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 Public Member Functions</h2></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Constructor</div></td></tr>
 <tr class="memitem:aa25af732435b1794de0ad05eb15d9b1e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00017.html#aa25af732435b1794de0ad05eb15d9b1e">EmaString</a> ()</td></tr>
-<tr class="memitem:a4910defcb0a2908073db844ab8c9c4bc"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00017.html#a4910defcb0a2908073db844ab8c9c4bc">EmaString</a> (const char *str, UInt32 <a class="el" href="a00017.html#ade9632d4720bf1be8bfd9853cbe26812">length</a>=0)</td></tr>
+<tr class="memitem:a148b3dfdf8de81e0b355b61f13a47083"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00017.html#a148b3dfdf8de81e0b355b61f13a47083">EmaString</a> (const char *str, UInt32 <a class="el" href="a00017.html#ade9632d4720bf1be8bfd9853cbe26812">length</a>=<a class="el" href="a00017.html#a53e74875c3501eebd79d4ff574a8ee66">EmaString::npos</a>)</td></tr>
 <tr class="memitem:a6a89c3d58ea1d44a59a7f27b84a2db91"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00017.html#a6a89c3d58ea1d44a59a7f27b84a2db91">EmaString</a> (const <a class="el" href="a00017.html">EmaString</a> &amp;other)</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
 <tr class="memitem:aa0f32e1828fd10409b4f3ab17e0e95f3"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00017.html#aa0f32e1828fd10409b4f3ab17e0e95f3">~EmaString</a> ()</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Operations</div></td></tr>
 <tr class="memitem:a5bbb332f77be62274617d4cd3e330720"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00017.html#a5bbb332f77be62274617d4cd3e330720">clear</a> ()</td></tr>
-<tr class="memitem:af1fe31f5776da80756dfd70151db2cf3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00017.html#af1fe31f5776da80756dfd70151db2cf3">set</a> (const char *str, UInt32 <a class="el" href="a00017.html#ade9632d4720bf1be8bfd9853cbe26812">length</a>=0)</td></tr>
+<tr class="memitem:ad1ef8786515de0291890e6b4d07c3b1b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00017.html#ad1ef8786515de0291890e6b4d07c3b1b">set</a> (const char *str, UInt32 <a class="el" href="a00017.html#ade9632d4720bf1be8bfd9853cbe26812">length</a>=<a class="el" href="a00017.html#a53e74875c3501eebd79d4ff574a8ee66">EmaString::npos</a>)</td></tr>
 <tr class="memitem:a0ba2eb8a5cc99b45e63f9c4f816d836a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00017.html#a0ba2eb8a5cc99b45e63f9c4f816d836a">operator=</a> (const <a class="el" href="a00017.html">EmaString</a> &amp;other)</td></tr>
 <tr class="memitem:a4b5ee0b7961fa9be7e412b757e0f4c72"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00017.html#a4b5ee0b7961fa9be7e412b757e0f4c72">operator=</a> (const char *other)</td></tr>
 <tr class="memitem:ad59afcf19f5e1556aeb7ced23cf15e25"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00017.html#ad59afcf19f5e1556aeb7ced23cf15e25">append</a> (Int64 value)</td></tr>
@@ -182,6 +183,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a8a2770ce6c40f5ce714a785dbf64d984"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00017.html#a8a2770ce6c40f5ce714a785dbf64d984">operator&lt;=</a> (const char *str) const </td></tr>
 <tr class="memitem:aae707f9bd98e364e4821963ee5c33a4f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00017.html#aae707f9bd98e364e4821963ee5c33a4f">caseInsensitiveCompare</a> (const <a class="el" href="a00017.html">EmaString</a> &amp;str) const </td></tr>
 <tr class="memitem:a0c9ca5be7594f065ae8a85fe79f446b4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00017.html#a0c9ca5be7594f065ae8a85fe79f446b4">caseInsensitiveCompare</a> (const char *str) const </td></tr>
+<tr><td colspan="2"><h2><a name="pub-static-attribs"></a>
+Static Public Attributes</h2></td></tr>
+<tr class="memitem:a53e74875c3501eebd79d4ff574a8ee66"><td class="memItemLeft" align="right" valign="top">static const unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00017.html#a53e74875c3501eebd79d4ff574a8ee66">npos</a> = -1</td></tr>
 <tr><td colspan="2"><h2><a name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
 <tr class="memitem:a470563b3e9fa02391db1a341ca419951"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a470563b3e9fa02391db1a341ca419951"></a>
@@ -195,20 +199,30 @@ char *&#160;</td><td class="memItemRight" valign="bottom"><b>_pString</b></td></
 <div class="textblock"><p>The following code snippet shows simple usage of <a class="el" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>;</p>
 <div class="fragment"><pre class="fragment">    <a class="code" href="a00017.html#aa25af732435b1794de0ad05eb15d9b1e">EmaString</a> myString( <span class="stringliteral">&quot;ABCDEFG&quot;</span> );
 
-    Int32 position = myString.find( <span class="stringliteral">&quot;DE&quot;</span> );
+    Int32 position = myString.find( <span class="stringliteral">&quot;DE&quot;</span> );         <span class="comment">// Returns 3</span>
 
+    position = myString.find(<span class="stringliteral">&quot;XYZ&quot;</span>);                <span class="comment">// Returns EmaString::npos (-1)</span>
+    
     ...
 
-    myString.append( position );
+    <a class="code" href="a00017.html#aa25af732435b1794de0ad05eb15d9b1e">EmaString</a> temp = myString.substr( 3, 4 )        <span class="comment">// Returns &quot;DEFG&quot;</span>
 
-    std::cout &lt;&lt; myString &lt;&lt; endl;
+    temp = myString.substr( 0, <a class="code" href="a00017.html#a53e74875c3501eebd79d4ff574a8ee66">EmaString::npos</a> );   <span class="comment">// Returns &quot;ABCDEFG&quot;</span>
+
+    temp = myString.substr( 4, <a class="code" href="a00017.html#a53e74875c3501eebd79d4ff574a8ee66">EmaString::npos</a> );   <span class="comment">// Returns &quot;EFG&quot;</span>
+    
+    ...
+
+    myString.append( ( Int32 ) 4 );
+
+    std::cout &lt;&lt; myString &lt;&lt; endl;                  <span class="comment">// Prints &quot;ABCDEFG4&quot;</span>
 
     ...
 </pre></div><dl class="section remark"><dt>Remarks:</dt><dd><a class="el" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a> class contains a copy of the passed in string. </dd>
 <dd>
 All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free Method</a>. </dd></dl>
 
-<p>Definition at line <a class="el" href="a00087_source.html#l00046">46</a> of file <a class="el" href="a00087_source.html">EmaString.h</a>.</p>
+<p>Definition at line <a class="el" href="a00087_source.html#l00056">56</a> of file <a class="el" href="a00087_source.html">EmaString.h</a>.</p>
 </div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="aa25af732435b1794de0ad05eb15d9b1e"></a>
 <div class="memitem">
@@ -227,7 +241,7 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 
 </div>
 </div>
-<a class="anchor" id="a4910defcb0a2908073db844ab8c9c4bc"></a>
+<a class="anchor" id="a148b3dfdf8de81e0b355b61f13a47083"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -241,7 +255,7 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">UInt32&#160;</td>
-          <td class="paramname"><em>length</em> = <code>0</code>&#160;</td>
+          <td class="paramname"><em>length</em> = <code><a class="el" href="a00017.html#a53e74875c3501eebd79d4ff574a8ee66">EmaString::npos</a></code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1311,7 +1325,7 @@ If length parameter is set to 0 (zero), then the actual length is determined loo
 <p>Assignment operator </p>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00050.html" title="OmmMemoryExhaustionException represents out of memory exceptions.">OmmMemoryExhaustionException</a></td><td>if appruns out of memory </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00050.html" title="OmmMemoryExhaustionException represents out of memory exceptions.">OmmMemoryExhaustionException</a></td><td>if app runs out of memory </td></tr>
   </table>
   </dd>
 </dl>
@@ -1575,12 +1589,12 @@ If length parameter is set to 0 (zero), then the actual length is determined loo
 
 </div>
 </div>
-<a class="anchor" id="af1fe31f5776da80756dfd70151db2cf3"></a>
+<a class="anchor" id="ad1ef8786515de0291890e6b4d07c3b1b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00017.html">EmaString</a>&amp; <a class="el" href="a00017.html#af1fe31f5776da80756dfd70151db2cf3">thomsonreuters::ema::access::EmaString::set</a> </td>
+          <td class="memname"><a class="el" href="a00017.html">EmaString</a>&amp; <a class="el" href="a00017.html#ad1ef8786515de0291890e6b4d07c3b1b">thomsonreuters::ema::access::EmaString::set</a> </td>
           <td>(</td>
           <td class="paramtype">const char *&#160;</td>
           <td class="paramname"><em>str</em>, </td>
@@ -1589,7 +1603,7 @@ If length parameter is set to 0 (zero), then the actual length is determined loo
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">UInt32&#160;</td>
-          <td class="paramname"><em>length</em> = <code>0</code>&#160;</td>
+          <td class="paramname"><em>length</em> = <code><a class="el" href="a00017.html#a53e74875c3501eebd79d4ff574a8ee66">EmaString::npos</a></code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1678,6 +1692,26 @@ If length parameter is set to 0 (zero), then the actual length is determined loo
 
 </div>
 </div>
+<hr/><h2>Member Data Documentation</h2>
+<a class="anchor" id="a53e74875c3501eebd79d4ff574a8ee66"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const unsigned int <a class="el" href="a00017.html#a53e74875c3501eebd79d4ff574a8ee66">thomsonreuters::ema::access::EmaString::npos</a> = -1<code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>npos. Represents the greatest possible value of type unsigned int </p>
+<dl class="section remark"><dt>Remarks:</dt><dd>npos is often used as a length parameter in <a class="el" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a> methods to mean "until the end of the string" </dd>
+<dd>
+When used as a return value, npos indicates that the element was "not found" </dd></dl>
+
+<p>Definition at line <a class="el" href="a00087_source.html#l00064">64</a> of file <a class="el" href="a00087_source.html">EmaString.h</a>.</p>
+
+</div>
+</div>
 </div><!-- contents -->
 
 <hr class="footer"/><address class="footer"><small>
@@ -1695,7 +1729,7 @@ If length parameter is set to 0 (zero), then the actual length is determined loo
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Sat Jul 25 2015</td>
+			<td><p class="smallfont">Thu Nov 12 2015</td>
           </tr>
         </table>
         </td>
