@@ -996,6 +996,12 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 					pDirectory->setId( pServiceList[jdx].serviceId );
 					_directoryByIdHt.insert( pServiceList[jdx].serviceId, pDirectory );
 				}
+				if((*pDeletedDirectoryPtr)->getChannel() != ((Channel *) userSpecPtr))
+				{
+					static_cast<Channel*>( userSpecPtr )->setDictionary((*pDeletedDirectoryPtr)->getChannel()->getDictionary());
+					(*pDeletedDirectoryPtr)->setChannel( (Channel *) userSpecPtr);
+					static_cast<Channel*>( userSpecPtr )->addDirectory( *pDeletedDirectoryPtr );
+				}
 			}
 			else 
 			{
@@ -1034,7 +1040,12 @@ void DirectoryCallbackClient::processDirectoryPayload( UInt32 count, RsslRDMServ
 					.append( "Service id " ).append( pServiceList[ jdx ].serviceId );
 				_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
 			}
-
+			if((*pDirectoryPtr)->getChannel() != ((Channel *) userSpecPtr))
+			{
+				static_cast<Channel*>( userSpecPtr )->setDictionary((*pDirectoryPtr)->getChannel()->getDictionary());
+				(*pDirectoryPtr)->setChannel((Channel *) userSpecPtr);
+				static_cast<Channel*>( userSpecPtr )->addDirectory( *pDirectoryPtr );
+			}
 			if ( pServiceList[jdx].flags & RDM_SVCF_HAS_INFO )
 			{
 				Info info;
@@ -1429,7 +1440,7 @@ bool DirectoryItem::open( const ReqMsg& reqMsg )
 			temp.append( reqMsgEncoder.getServiceName() ).append( "' is not found." );
 
 			_closedStatusInfo = new ClosedStatusInfo( this, reqMsgEncoder, temp );
-			new TimeOut( _ommConsImpl, 1000, ItemCallbackClient::sendItemClosedStatus, _closedStatusInfo );
+			new TimeOut( _ommConsImpl, 1000, ItemCallbackClient::sendItemClosedStatus, _closedStatusInfo, true );
 			
 			return true;
 		}
@@ -1447,7 +1458,7 @@ bool DirectoryItem::open( const ReqMsg& reqMsg )
 					append( "' is not found." );
 
 				_closedStatusInfo = new ClosedStatusInfo( this, reqMsgEncoder, temp );
-				new TimeOut( _ommConsImpl, 1000, ItemCallbackClient::sendItemClosedStatus, _closedStatusInfo );
+				new TimeOut( _ommConsImpl, 1000, ItemCallbackClient::sendItemClosedStatus, _closedStatusInfo, true );
 
 				return true;
 			}
@@ -1571,7 +1582,7 @@ bool DirectoryItem::submit( RsslRequestMsg* pRsslRequestMsg )
 		pRsslRequestMsg->flags |= (RSSL_RQMF_HAS_QOS | RSSL_RQMF_HAS_WORST_QOS);
 	}
 
-	pRsslRequestMsg->flags |= _ommConsImpl.getActiveConfig().channelConfig->msgKeyInUpdates ? RSSL_RQMF_MSG_KEY_IN_UPDATES : 0;
+	pRsslRequestMsg->flags |= _ommConsImpl.getActiveConfig().configChannelSet[0]->msgKeyInUpdates ? RSSL_RQMF_MSG_KEY_IN_UPDATES : 0;
 	submitMsgOpts.pRsslMsg = (RsslMsg*)pRsslRequestMsg;
 
 	RsslBuffer serviceNameBuffer;

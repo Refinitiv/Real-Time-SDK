@@ -47,9 +47,12 @@ void OmmAsciiDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* )
 const EmaString& OmmAsciiDecoder::toString()
 {
 	if ( _dataCode == Data::BlankEnum )
-		_toString.setInt( "(blank data)", 12, true );
-	else
-		_toString.setInt( _rsslBuffer.data, _rsslBuffer.length, false );
+	{
+		static const EmaString blankData( "(blank data)" );
+		return blankData;
+	}
+
+	_toString.setInt( _rsslBuffer.data, _rsslBuffer.length, false );
 
 	return _toString.toString();
 }

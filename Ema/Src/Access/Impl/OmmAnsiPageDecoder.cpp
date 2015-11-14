@@ -16,8 +16,7 @@ _rsslBuffer(),
 _toString(),
 _getString(),
 _getBuffer(),
-_dataCode( Data::BlankEnum ),
-_toStringSet( false )
+_dataCode( Data::BlankEnum )
 {
 }
 
@@ -32,8 +31,6 @@ Data::DataCode OmmAnsiPageDecoder::getCode() const
 
 void OmmAnsiPageDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* )
 {
-	_toStringSet = false;
-
 	if ( rsslDecodeBuffer( dIter, &_rsslBuffer ) == RSSL_RET_SUCCESS )
 		_dataCode = Data::NoCodeEnum;
 	else
@@ -49,8 +46,6 @@ void OmmAnsiPageDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rs
 {
 	RsslDecodeIterator decodeIterator;
 	rsslClearDecodeIterator( &decodeIterator );
-
-	_toStringSet = false;
 
 	RsslRet retCode = rsslSetDecodeIteratorBuffer( &decodeIterator, rsslBuffer );
 	if ( RSSL_RET_SUCCESS != retCode )
@@ -74,15 +69,13 @@ void OmmAnsiPageDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rs
 
 const EmaString& OmmAnsiPageDecoder::toString()
 {
-	if ( !_toStringSet )
+	if ( _dataCode == Data::BlankEnum )
 	{
-		_toStringSet = true;
-
-		if ( _dataCode == Data::BlankEnum )
-			_toString.setInt( "(blank data)", 12, true );
-		else
-			_toString.setInt( _rsslBuffer.data, _rsslBuffer.length, false );
+		static const EmaString blankData( "(blank data)" );
+		return blankData;
 	}
+
+	_toString.setInt( _rsslBuffer.data, _rsslBuffer.length, false );
 
 	return _toString.toString();
 }

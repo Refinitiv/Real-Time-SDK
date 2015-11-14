@@ -41,7 +41,7 @@ void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent&
 
 void AppClient::decode( const OmmOpaque& oq )
 {
-	cout <<  "OmmOpaque data: " << oq.getAsHex() << endl;
+	cout << endl<<  "OmmOpaque data: " << oq.getAsHex() << endl;
 }
 
 int main( int argc, char* argv[] )

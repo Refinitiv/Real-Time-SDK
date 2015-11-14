@@ -800,8 +800,44 @@ void DictionaryCallbackClient::initialize()
 {
 	if ( _ommConsImpl.getActiveConfig().pRsslRdmFldRequestMsg && _ommConsImpl.getActiveConfig().pRsslEnumDefRequestMsg )
 	{
-		if ( _ommConsImpl.getActiveConfig().pRsslRdmFldRequestMsg->msgBase.msgKey.serviceId != 
-			_ommConsImpl.getActiveConfig().pRsslEnumDefRequestMsg->msgBase.msgKey.serviceId )
+		if ( ( _ommConsImpl.getActiveConfig().pRsslRdmFldRequestMsg->get()->msgBase.msgKey.flags & RSSL_MKF_HAS_SERVICE_ID ) && 
+			 ( _ommConsImpl.getActiveConfig().pRsslEnumDefRequestMsg->get()->msgBase.msgKey.flags & RSSL_MKF_HAS_SERVICE_ID )
+			)
+		{
+			if ( ( _ommConsImpl.getActiveConfig().pRsslRdmFldRequestMsg->get()->msgBase.msgKey.serviceId != 
+				_ommConsImpl.getActiveConfig().pRsslEnumDefRequestMsg->get()->msgBase.msgKey.serviceId ) )
+			{
+
+				EmaString temp( "Invalid dictionary configuration was specified through the OmmConsumerConfig::addAdminMsg()" );
+				temp.append( CR ).append( "Invalid attempt to download dictionaries from different service IDs." );
+
+				if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+					_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
+
+				throwIueException( temp );
+
+				return;
+			}
+		}
+		else if ( _ommConsImpl.getActiveConfig().pRsslRdmFldRequestMsg->hasServiceName() &&
+				_ommConsImpl.getActiveConfig().pRsslEnumDefRequestMsg->hasServiceName() )
+		{
+			if ( ( _ommConsImpl.getActiveConfig().pRsslRdmFldRequestMsg->getServiceName() != 
+				_ommConsImpl.getActiveConfig().pRsslEnumDefRequestMsg->getServiceName() ) )
+			{
+
+				EmaString temp( "Invalid dictionary configuration was specified through the OmmConsumerConfig::addAdminMsg()" );
+				temp.append( CR ).append( "Invalid attempt to download dictionaries from different service names." );
+
+				if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+					_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
+
+				throwIueException( temp );
+
+				return;
+			}
+		}
+		else
 		{
 			EmaString temp( "Invalid dictionary configuration was specified through the OmmConsumerConfig::addAdminMsg()" );
 			temp.append( CR ).append( "Invalid attempt to download dictionaries from different services." );
@@ -854,9 +890,15 @@ bool DictionaryCallbackClient::downloadDictionary( const Directory& directory )
 {
 	if ( _ommConsImpl.getActiveConfig().pRsslRdmFldRequestMsg && _ommConsImpl.getActiveConfig().pRsslEnumDefRequestMsg )
 	{
-		if ( _ommConsImpl.getActiveConfig().pRsslRdmFldRequestMsg->msgBase.msgKey.serviceId == directory.getId() )
+		if ( _ommConsImpl.getActiveConfig().pRsslRdmFldRequestMsg->get()->msgBase.msgKey.serviceId == directory.getId() )
+		{
 			downloadDictionaryFromService( directory );
-		
+		}
+		else if (_ommConsImpl.getActiveConfig().pRsslRdmFldRequestMsg->getServiceName() == directory.getName() )
+		{
+			downloadDictionaryFromService( directory );
+		}
+
 		return true;
 	}
 	else if ( _localDictionary )
@@ -965,9 +1007,9 @@ bool DictionaryCallbackClient::downloadDictionaryFromService( const Directory& d
 	requestMsg.msgBase.domainType = RSSL_DMT_DICTIONARY;
 	requestMsg.msgBase.containerType = RSSL_DT_NO_DATA;
 	requestMsg.msgBase.msgKey.flags = RSSL_MKF_HAS_NAME | RSSL_MKF_HAS_FILTER;
-	requestMsg.msgBase.msgKey.filter = _ommConsImpl.getActiveConfig().pRsslRdmFldRequestMsg->msgBase.msgKey.filter;
+	requestMsg.msgBase.msgKey.filter = _ommConsImpl.getActiveConfig().pRsslRdmFldRequestMsg->get()->msgBase.msgKey.filter;
 
-	if ( _ommConsImpl.getActiveConfig().pRsslRdmFldRequestMsg->flags & RSSL_RQMF_STREAMING )
+	if ( _ommConsImpl.getActiveConfig().pRsslRdmFldRequestMsg->get()->flags & RSSL_RQMF_STREAMING )
 		requestMsg.flags = RSSL_RQMF_STREAMING;
 
 	ChannelDictionary* pDictionary = ChannelDictionary::create( _ommConsImpl );
@@ -982,7 +1024,7 @@ bool DictionaryCallbackClient::downloadDictionaryFromService( const Directory& d
 	submitMsgOpts.minorVersion = directory.getChannel()->getRsslChannel()->minorVersion;
 	submitMsgOpts.requestMsgOptions.pUserSpec = (void*)pDictionary;
 
-	requestMsg.msgBase.msgKey.name = _ommConsImpl.getActiveConfig().pRsslRdmFldRequestMsg->msgBase.msgKey.name;
+	requestMsg.msgBase.msgKey.name = _ommConsImpl.getActiveConfig().pRsslRdmFldRequestMsg->get()->msgBase.msgKey.name;
 
 	requestMsg.msgBase.streamId = 3;
 
@@ -1011,8 +1053,8 @@ bool DictionaryCallbackClient::downloadDictionaryFromService( const Directory& d
 	{
 		if ( OmmLoggerClient::VerboseEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
-			EmaString dictionaryName( _ommConsImpl.getActiveConfig().pRsslRdmFldRequestMsg->msgBase.msgKey.name.data,
-				_ommConsImpl.getActiveConfig().pRsslRdmFldRequestMsg->msgBase.msgKey.name.length );
+			EmaString dictionaryName( _ommConsImpl.getActiveConfig().pRsslRdmFldRequestMsg->get()->msgBase.msgKey.name.data,
+				_ommConsImpl.getActiveConfig().pRsslRdmFldRequestMsg->get()->msgBase.msgKey.name.length );
 
 			EmaString temp( "Requested Dictionary " );
 			temp.append( dictionaryName ).append( CR )
@@ -1027,12 +1069,12 @@ bool DictionaryCallbackClient::downloadDictionaryFromService( const Directory& d
 	requestMsg.msgBase.domainType = RSSL_DMT_DICTIONARY;
 	requestMsg.msgBase.containerType = RSSL_DT_NO_DATA;
 	requestMsg.msgBase.msgKey.flags = RSSL_MKF_HAS_NAME | RSSL_MKF_HAS_FILTER;
-	requestMsg.msgBase.msgKey.filter = _ommConsImpl.getActiveConfig().pRsslEnumDefRequestMsg->msgBase.msgKey.filter;
+	requestMsg.msgBase.msgKey.filter = _ommConsImpl.getActiveConfig().pRsslEnumDefRequestMsg->get()->msgBase.msgKey.filter;
 
-	if ( _ommConsImpl.getActiveConfig().pRsslEnumDefRequestMsg->flags & RSSL_RQMF_STREAMING )
+	if ( _ommConsImpl.getActiveConfig().pRsslEnumDefRequestMsg->get()->flags & RSSL_RQMF_STREAMING )
 		requestMsg.flags = RSSL_RQMF_STREAMING;
 
-	requestMsg.msgBase.msgKey.name = _ommConsImpl.getActiveConfig().pRsslEnumDefRequestMsg->msgBase.msgKey.name;
+	requestMsg.msgBase.msgKey.name = _ommConsImpl.getActiveConfig().pRsslEnumDefRequestMsg->get()->msgBase.msgKey.name;
 
 	requestMsg.msgBase.streamId = 4;
 
@@ -1057,8 +1099,8 @@ bool DictionaryCallbackClient::downloadDictionaryFromService( const Directory& d
 	{
 		if ( OmmLoggerClient::VerboseEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
-			EmaString dictionaryName( _ommConsImpl.getActiveConfig().pRsslEnumDefRequestMsg->msgBase.msgKey.name.data,
-				_ommConsImpl.getActiveConfig().pRsslEnumDefRequestMsg->msgBase.msgKey.name.length );
+			EmaString dictionaryName( _ommConsImpl.getActiveConfig().pRsslEnumDefRequestMsg->get()->msgBase.msgKey.name.data,
+				_ommConsImpl.getActiveConfig().pRsslEnumDefRequestMsg->get()->msgBase.msgKey.name.length );
 			EmaString temp( "Requested Dictionary " );
 			temp.append( dictionaryName ).append( CR )
 				.append( "from Service " ).append( directory.getName() ).append( CR )
@@ -1550,7 +1592,7 @@ void DictionaryCallbackClient::sendInternalMsg( void* item )
 
 		if ( ret == RSSL_RET_DICT_PART_ENCODED )
 		{
-			new TimeOut( dictItem->getOmmConsumerImpl(), 500, &DictionaryCallbackClient::sendInternalMsg, dictItem );
+			new TimeOut( dictItem->getOmmConsumerImpl(), 500, &DictionaryCallbackClient::sendInternalMsg, dictItem, true );
 			return;
 		}
 		
@@ -1759,7 +1801,7 @@ bool DictionaryItem::open( const ReqMsg& reqMsg )
 				channelDict->releaseLock();
 			}
 
-			new TimeOut( _ommConsImpl, 500, &DictionaryCallbackClient::sendInternalMsg, this );
+			new TimeOut( _ommConsImpl, 500, &DictionaryCallbackClient::sendInternalMsg, this, true );
 
 			return true;
 		}
@@ -1849,7 +1891,7 @@ void DictionaryItem::remove()
 	{
 		_isRemoved = true;
 
-		new TimeOut( getOmmConsumerImpl(), 2000, &DictionaryItem::ScheduleRemove, this );
+		new TimeOut( getOmmConsumerImpl(), 2000, &DictionaryItem::ScheduleRemove, this, true );
 	}
 }
 
@@ -1878,7 +1920,7 @@ bool DictionaryItem::close()
 				channelDict->releaseLock();
 			}
 
-			new TimeOut( this->getOmmConsumerImpl(), 2000, &DictionaryItem::ScheduleRemove, this );
+			new TimeOut( this->getOmmConsumerImpl(), 2000, &DictionaryItem::ScheduleRemove, this, true );
 		}
 	}
 

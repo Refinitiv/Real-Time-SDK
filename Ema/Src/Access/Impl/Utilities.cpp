@@ -169,7 +169,7 @@ const char* ptrToStringAsHex( void* ptr )
 {
     static char tmp[ 32 ];
     tmp[ 0 ] = 0;
-    sprintf( tmp, "0x%llx", ptr );
+    sprintf( tmp, "0x%p", ptr );
     return tmp;
 }
 
@@ -432,7 +432,7 @@ void  GenerateStackTrace( void* pContext, char* reportBuffer, int reportBufferLe
 			 if (  addresses[i] == 0 )
 				 continue;
 
-			IMAGEHLP_MODULE		moduleInfo;
+			IMAGEHLP_MODULE64 moduleInfo;
 			ZeroMemory( &moduleInfo, sizeof(moduleInfo) );
 			moduleInfo.SizeOfStruct = sizeof( IMAGEHLP_MODULE );
 

@@ -35,12 +35,13 @@ class TimeOut : public ListLinks< TimeOut >
 {
 public :
 
-	TimeOut( OmmConsumerImpl & , Int64 , void (*functor)( void * ), void* args = 0 );
+	TimeOut( OmmConsumerImpl & , Int64 , void (*functor)( void * ), void* args, bool allocatedOnHeap );
 	bool operator <( const TimeOut & rhs ) const;
 	void operator()() { _functor( _args ); }
 	static bool getTimeOutInMicroSeconds( OmmConsumerImpl &, Int64 & );
-	static void execute( OmmConsumerImpl &, EmaList<TimeOut> & );
+	static void execute( OmmConsumerImpl &, EmaList< TimeOut* > & );
 	void cancel() { canceled = true; }
+	bool allocatedOnHeap() { return _allocatedOnHeap; }
 
 private :
 
@@ -50,7 +51,8 @@ private :
 	TimeOutTimeType setAt;
 	TimeOutTimeType timeoutTime;
 	static TimeOutTimeType frequency;
-	bool canceled;	
+	bool canceled;
+	bool _allocatedOnHeap;
 	TimeOutTimeType setTime() { return setAt; }
 	OmmConsumerImpl & theConsumer;
 };

@@ -19,8 +19,6 @@ namespace ema {
 
 namespace access {
 
-class Encoder;
-
 class Decoder
 {
 public :

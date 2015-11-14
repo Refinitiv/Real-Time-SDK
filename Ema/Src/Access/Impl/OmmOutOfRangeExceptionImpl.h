@@ -17,7 +17,7 @@ namespace ema {
 
 namespace access {
 
-class EMA_ACCESS_API OmmOutOfRangeExceptionImpl : public OmmOutOfRangeException
+class OmmOutOfRangeExceptionImpl : public OmmOutOfRangeException
 {
 public :
 	

@@ -17,7 +17,7 @@ namespace ema {
 
 namespace access {
 
-class EMA_ACCESS_API OmmInvalidConfigurationExceptionImpl : public OmmInvalidConfigurationException
+class OmmInvalidConfigurationExceptionImpl : public OmmInvalidConfigurationException
 {
 public :
 

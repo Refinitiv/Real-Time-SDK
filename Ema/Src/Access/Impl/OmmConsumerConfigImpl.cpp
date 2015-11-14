@@ -151,7 +151,7 @@ void OmmConsumerConfigImpl::consumerName(const EmaString& consumerName)
 			XMLnode * consumerList( _pEmaConfig->find< XMLnode >( "ConsumerGroup|ConsumerList" ) );
 			if ( consumerList )
 			{
-				EmaList< XMLnode::NameString > theNames;
+				EmaList< XMLnode::NameString* > theNames;
 				consumerList->getNames( theNames );
 				if ( theNames.empty() )
 					return;
@@ -204,20 +204,6 @@ void OmmConsumerConfigImpl::operationModel( OmmConsumerConfig::OperationModel op
 	_operationModel = operationModel;
 }
 
-const EmaString& OmmConsumerConfigImpl::getHostname() const
-{
-	static EmaString hostname;
-	get( "Hostname", hostname );
-	return hostname;
-}
-
-const EmaString& OmmConsumerConfigImpl::getPort() const
-{
-	static EmaString port;
-	get( "Port", port );
-	return port;
-}
-
 OmmConsumerConfig::OperationModel OmmConsumerConfigImpl::getOperationModel() const
 {
 	return _operationModel;
@@ -255,7 +241,8 @@ void OmmConsumerConfigImpl::addAdminMsg( const ReqMsg& reqMsg )
 		addLoginReqMsg( pRsslRequestMsg );
 		break;
 	case RSSL_DMT_DICTIONARY :
-		addDictionaryReqMsg( pRsslRequestMsg );
+		addDictionaryReqMsg( pRsslRequestMsg , static_cast<const ReqMsgEncoder&>( reqMsg.getEncoder() ).hasServiceName() ? 
+			&static_cast<const ReqMsgEncoder&>( reqMsg.getEncoder() ).getServiceName() : 0 );
 		break;
 	case RSSL_DMT_SOURCE :
 		addDirectoryReqMsg( pRsslRequestMsg );
@@ -324,7 +311,7 @@ EmaString  OmmConsumerConfigImpl::getLoggerName( const EmaString& consumerName )
 {
 	EmaString retVal;
 
-	if ( _pProgrammaticConfigure && _pProgrammaticConfigure->getActiveLoggerName(consumerName, retVal ) )
+		if ( _pProgrammaticConfigure && _pProgrammaticConfigure->getActiveLoggerName(consumerName, retVal ) )
 	{
 		return retVal;
 	}
@@ -367,7 +354,7 @@ void OmmConsumerConfigImpl::addLoginReqMsg( RsslRequestMsg* pRsslRequestMsg )
 	_loginRdmReqMsg.set( pRsslRequestMsg );
 }
 
-void OmmConsumerConfigImpl::addDictionaryReqMsg( RsslRequestMsg* pRsslRequestMsg )
+void OmmConsumerConfigImpl::addDictionaryReqMsg( RsslRequestMsg* pRsslRequestMsg, const EmaString* serviceName )
 {
 	if ( !( pRsslRequestMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_NAME ) )
 	{
@@ -375,11 +362,14 @@ void OmmConsumerConfigImpl::addDictionaryReqMsg( RsslRequestMsg* pRsslRequestMsg
 		_pEmaConfig->appendErrorMessage( temp, OmmLoggerClient::ErrorEnum );
 		return;
 	}
-	else if ( !( pRsslRequestMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_SERVICE_ID ) )
+	if ( !( pRsslRequestMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_SERVICE_ID ) )
 	{
-		EmaString temp( "Received dicionary request message contains no serviceId. Message ignored." );
-		_pEmaConfig->appendErrorMessage( temp, OmmLoggerClient::ErrorEnum );
-		return;
+		if ( !serviceName )
+		{
+			EmaString temp( "Received dicionary request message contains no serviceId or service name. Message ignored." );
+			_pEmaConfig->appendErrorMessage( temp, OmmLoggerClient::ErrorEnum );
+			return;
+		}
 	}
 	else if ( !( pRsslRequestMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_FILTER ) )
 	{
@@ -408,6 +398,9 @@ void OmmConsumerConfigImpl::addDictionaryReqMsg( RsslRequestMsg* pRsslRequestMsg
 			_pRdmFldReqRsslMsg = new AdminReqMsg( *this );
 
 		_pRdmFldReqRsslMsg->set( pRsslRequestMsg );
+
+		if ( serviceName )
+			_pRdmFldReqRsslMsg->setServiceName ( *serviceName );
 	}
 	else if ( rsslBufferIsEqual( &pRsslRequestMsg->msgBase.msgKey.name , &enumtypedefName ) )
 	{
@@ -415,6 +408,9 @@ void OmmConsumerConfigImpl::addDictionaryReqMsg( RsslRequestMsg* pRsslRequestMsg
 			_pEnumDefReqRsslMsg = new AdminReqMsg( *this );
 
 		_pEnumDefReqRsslMsg->set( pRsslRequestMsg );
+
+		if ( serviceName )
+			_pEnumDefReqRsslMsg->setServiceName ( *serviceName );
 	}
 	else
 	{
@@ -446,14 +442,14 @@ RsslRequestMsg* OmmConsumerConfigImpl::getDirectoryReq()
 	return _pDirectoryReqRsslMsg ? _pDirectoryReqRsslMsg->get() : 0;
 }
 
-RsslRequestMsg* OmmConsumerConfigImpl::getRdmFldDictionaryReq()
+AdminReqMsg* OmmConsumerConfigImpl::getRdmFldDictionaryReq()
 {
-	return _pRdmFldReqRsslMsg ? _pRdmFldReqRsslMsg->get() : 0;
+	return _pRdmFldReqRsslMsg ? _pRdmFldReqRsslMsg : 0;
 }
 
-RsslRequestMsg* OmmConsumerConfigImpl::getEnumDefDictionaryReq()
+AdminReqMsg* OmmConsumerConfigImpl::getEnumDefDictionaryReq()
 {
-	return _pEnumDefReqRsslMsg ? _pEnumDefReqRsslMsg->get() : 0;
+	return _pEnumDefReqRsslMsg ? _pEnumDefReqRsslMsg : 0;
 }
 
 OmmLoggerClient::Severity OmmConsumerConfigImpl::readXMLconfiguration( const EmaString & fileName )
@@ -1026,7 +1022,8 @@ EmaString ConfigElement::changeMessage( const EmaString & actualName, const Conf
 }
 
 AdminReqMsg::AdminReqMsg( OmmConsumerConfigImpl& ommConsConfigImpl ) :
- _ommConsConfigImpl( ommConsConfigImpl )
+ _ommConsConfigImpl( ommConsConfigImpl ),
+ _hasServiceName( false )
 {
 	rsslClearRequestMsg( &_rsslMsg );
 	rsslClearBuffer( &_name );
@@ -1045,6 +1042,9 @@ AdminReqMsg::~AdminReqMsg()
 
 	if ( _payload.data )
 		free( _payload.data );
+
+	if ( _header.data )
+		free( _header.data );
 }
 
 AdminReqMsg& AdminReqMsg::set( RsslRequestMsg* pRsslRequestMsg )
@@ -1133,6 +1133,7 @@ AdminReqMsg& AdminReqMsg::set( RsslRequestMsg* pRsslRequestMsg )
 AdminReqMsg& AdminReqMsg::clear()
 {
 	rsslClearRequestMsg( &_rsslMsg );
+	_hasServiceName = false;
 
 	return *this;
 }
@@ -1140,6 +1141,22 @@ AdminReqMsg& AdminReqMsg::clear()
 RsslRequestMsg* AdminReqMsg::get()
 {
 	return &_rsslMsg;
+}
+
+bool AdminReqMsg::hasServiceName()
+{
+	return _hasServiceName;
+}
+
+void AdminReqMsg::setServiceName( const EmaString& serviceName )
+{
+	_serviceName = serviceName;
+	_hasServiceName = true;
+}
+
+const EmaString& AdminReqMsg::getServiceName()
+{
+	return _serviceName;
 }
 
 LoginRdmReqMsg::LoginRdmReqMsg( OmmConsumerConfigImpl& ommConsConfigImpl ) :
@@ -1474,988 +1491,7 @@ LoginRdmReqMsg& LoginRdmReqMsg::applicationName( const EmaString& value )
 	return *this;
 }
 
-ProgrammaticConfigure::ProgrammaticConfigure( const Map& map, EmaConfigErrorList& emaConfigErrList ) :
-_emaConfigErrList( emaConfigErrList ),
-_configList(),
-_nameflags( 0 ),
-_loadnames( false ),
-_overrideConsName( false ),
-_consumerName(),
-_channelName(),
-_loggerName(),
-_dictionaryName()
-{
-	addConfigure( map );
-}
 
-void ProgrammaticConfigure::clear()
-{
-	_nameflags = 0;
-	_loadnames = false;
-	_channelName.clear();
-	_loggerName.clear();
-	_dictionaryName.clear();
-}
-
-void ProgrammaticConfigure::addConfigure( const Map& map )
-{
-	for( UInt32 i = 0; i < _configList.size() ; i ++ )
-	{ 
-		if ( _configList[i] == &map )
-			return;
-	}
-
-	_configList.push_back( &map );
-}
-
-bool ProgrammaticConfigure::getDefaultConsumer( EmaString& defaultConsumer )
-{
-	bool found = false;
-
-	if ( _overrideConsName )
-	{
-		defaultConsumer = _consumerName;
-		found = true;
-	}
-	else
-	{
-		clear();
-
-		for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
-			found = ProgrammaticConfigure::retrieveDefaultConsumer( *_configList[i], defaultConsumer );
-	}
-
-	return found;
-}
-
-bool ProgrammaticConfigure::specifyConsumerName( const EmaString& consumerName )
-{
-	bool found = false;
-
-	for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
-	{
-		found = ProgrammaticConfigure::validateConsumerName( *_configList[i], consumerName );
-
-		if ( found )
-		{
-			_overrideConsName = true;
-			_consumerName = consumerName;
-			break;
-		}
-	}
-
-	return found;
-}
-
-void ProgrammaticConfigure::retrieveDependencyNames( const Map& map, const EmaString& consumerName, UInt8& flags, EmaString& channelName, 
-													EmaString& loggerName, EmaString& dictionaryName )
-{
-	map.reset();
-	while ( map.forth() )
-	{
-		const MapEntry & mapEntry = map.getEntry();
-
-		if ( mapEntry.getKey().getDataType() == DataType::AsciiEnum && mapEntry.getKey().getAscii() == "ConsumerGroup" )
-		{
-			if ( mapEntry.getLoadType() == DataType::ElementListEnum )
-			{
-				const ElementList & elementList = mapEntry.getElementList();
-
-				while ( elementList.forth() )
-				{
-					const ElementEntry & elementEntry = elementList.getEntry();
-
-					if ( elementEntry.getLoadType() == DataType::MapEnum )
-					{
-						if ( elementEntry.getName() == "ConsumerList" && ( elementEntry.getLoad().getDataType() == DataType::MapEnum ) )
-						{
-							const Map& map = elementEntry.getMap();
-
-							while ( map.forth() )
-							{
-								const MapEntry & mapEntry = map.getEntry();
-
-								if ( ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == consumerName ) )
-								{
-									if ( mapEntry.getLoadType() == DataType::ElementListEnum )
-									{
-										const ElementList & elementListConsumer = mapEntry.getElementList();
-
-										while ( elementListConsumer.forth() )
-										{
-											const ElementEntry & consumerEntry = elementListConsumer.getEntry();
-
-											switch ( consumerEntry.getLoadType() )
-											{
-												case DataType::AsciiEnum:
-													if ( consumerEntry.getName() == "Channel" )
-													{
-														channelName = consumerEntry.getAscii();
-														flags |= 0x01;
-													}
-													else if ( consumerEntry.getName() == "Logger" )
-													{
-														loggerName = consumerEntry.getAscii();
-														flags |= 0x02;
-													}
-													else if ( consumerEntry.getName() == "Dictionary" )
-													{
-														dictionaryName = consumerEntry.getAscii();
-														flags |= 0x04;
-													}
-													break;
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
-bool ProgrammaticConfigure::getActiveChannelName( const EmaString& consumerName, EmaString& channelName )
-{
-	if ( !_loadnames )
-	{
-		for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
-			retrieveDependencyNames( *_configList[i], consumerName, _nameflags,_channelName, _loggerName, _dictionaryName );
-
-		_loadnames = true;
-	}
-
-	if ( _nameflags & 0x01 )
-	{
-		channelName = _channelName;
-		return true;
-	}
-	else
-		return false;
-}
-
-bool ProgrammaticConfigure::getActiveLoggerName( const EmaString& consumerName, EmaString& loggerName )
-{
-	if ( !_loadnames )
-	{
-		for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
-			retrieveDependencyNames( *_configList[i], consumerName, _nameflags,_channelName, _loggerName, _dictionaryName );
-
-		_loadnames = true;
-	}
-
-	if ( _nameflags & 0x02 )
-	{
-		loggerName = _loggerName;
-		return true;
-	}
-	else
-		return false;
-}
-
-
-bool ProgrammaticConfigure::getActiveDictionaryName( const EmaString& consumerName, EmaString& dictionaryName )
-{
-	if ( !_loadnames )
-	{
-		for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
-			retrieveDependencyNames( *_configList[i], consumerName, _nameflags,_channelName, _loggerName, _dictionaryName );
-
-		_loadnames = true;
-	}
-
-	if ( _nameflags & 0x04 )
-	{
-		dictionaryName = _dictionaryName;
-		return true;
-	}
-	else
-		return false;
-}
-
-bool ProgrammaticConfigure::retrieveDefaultConsumer( const Map& map, EmaString& defaultConsumer )
-{
-	bool foundDefaultConsumer = false;
-
-	StaticDecoder::setData( &const_cast<Map &>(map), 0);
-
-	while ( map.forth() )
-	{
-		const MapEntry & mapEntry = map.getEntry();
-
-		if (  ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == "ConsumerGroup" ) 
-			&& ( mapEntry.getLoad().getDataType() == DataType::ElementListEnum ) )
-		{
-			const ElementList & elementList = mapEntry.getElementList();
-
-			while ( elementList.forth() )
-			{
-				const ElementEntry & elementEntry = elementList.getEntry();
-
-				if ( elementEntry.getLoadType() == DataType::AsciiEnum )
-				{
-					if ( elementEntry.getName() == "DefaultConsumer" )
-					{
-						defaultConsumer = elementEntry.getAscii();
-						foundDefaultConsumer = true;
-					}
-				}
-			}
-		}
-	}
-
-	return foundDefaultConsumer;
-}
-
-bool ProgrammaticConfigure::validateConsumerName( const Map & map, const EmaString& consumerName )
-{
-	StaticDecoder::setData( &const_cast<Map &>(map), 0);
-
-	while ( map.forth() )
-	{
-		const MapEntry & mapEntry = map.getEntry();
-
-		if ( ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == "ConsumerGroup" ) 
-			&& ( mapEntry.getLoad().getDataType() == DataType::ElementListEnum ) )
-		{
-			const ElementList & elementList = mapEntry.getElementList();
-
-			while ( elementList.forth() )
-			{
-				const ElementEntry & elementEntry = elementList.getEntry();
-
-				if ( ( elementEntry.getName() == "ConsumerList" ) && ( elementEntry.getLoad().getDataType() == DataType::MapEnum ) )
-				{
-					const Map& consumerMap = elementEntry.getMap();
-
-					while( consumerMap.forth() )
-					{
-						const MapEntry& consumerMapEntry = consumerMap.getEntry();
-
-						if ( ( consumerMapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( consumerMapEntry.getKey().getAscii() == consumerName ) )
-							return true;
-					}
-				}
-			}
-		}
-	}
-
-	return false;
-}
-
-void  ProgrammaticConfigure::retrieveConsumerConfig( const EmaString& consumerName, OmmConsumerActiveConfig& activeConfig )
-{
-	for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
-		ProgrammaticConfigure::retrieveConsumer( *_configList[i], consumerName, _emaConfigErrList, activeConfig );
-}
-
-void  ProgrammaticConfigure::retrieveChannelConfig( const EmaString& channelName,  OmmConsumerActiveConfig& activeConfig, bool hostFnCalled )
-{
-	for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
-		ProgrammaticConfigure::retrieveChannel( *_configList[i], channelName, _emaConfigErrList, activeConfig, hostFnCalled );
-}
-
-void  ProgrammaticConfigure::retrieveLoggerConfig( const EmaString& loggerName, OmmConsumerActiveConfig& activeConfig )
-{
-	for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
-		ProgrammaticConfigure::retrieveLogger( *_configList[i], loggerName, _emaConfigErrList, activeConfig );
-}
-
-void  ProgrammaticConfigure::retrieveDictionaryConfig( const EmaString& dictionaryName, OmmConsumerActiveConfig& activeConfig )
-{
-	for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
-		ProgrammaticConfigure::retrieveDictionary( *_configList[i], dictionaryName, _emaConfigErrList, activeConfig );
-}
-
-void ProgrammaticConfigure::retrieveConsumer( const Map& map, const EmaString& consumerName, EmaConfigErrorList& emaConfigErrList,
-												  OmmConsumerActiveConfig& ommConsumerActiveConfig )
-{
-	map.reset();
-	while ( map.forth() )
-	{
-		const MapEntry & mapEntry = map.getEntry();
-
-		if ( mapEntry.getKey().getDataType() == DataType::AsciiEnum && mapEntry.getKey().getAscii() == "ConsumerGroup" )
-		{
-			if ( mapEntry.getLoadType() == DataType::ElementListEnum )
-			{
-				const ElementList & elementList = mapEntry.getElementList();
-
-				while ( elementList.forth() )
-				{
-					const ElementEntry & elementEntry = elementList.getEntry();
-
-					if ( elementEntry.getLoadType() == DataType::MapEnum )
-					{
-						if ( elementEntry.getName() == "ConsumerList" )
-						{
-							const Map& map = elementEntry.getMap();
-
-							while ( map.forth() )
-							{
-								const MapEntry & mapEntry = map.getEntry();
-
-								if ( ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == consumerName ) )
-								{
-									if ( mapEntry.getLoadType() == DataType::ElementListEnum )
-									{
-										const ElementList & elementListConsumer = mapEntry.getElementList();
-
-										while ( elementListConsumer.forth() )
-										{
-											const ElementEntry & consumerEntry = elementListConsumer.getEntry();
-
-											switch ( consumerEntry.getLoadType() )
-											{
-												case DataType::AsciiEnum:
-													break;
-
-												case DataType::UIntEnum:
-													if ( consumerEntry.getName() == "ItemCountHint" )
-													{
-														ommConsumerActiveConfig.setItemCountHint(consumerEntry.getUInt());
-													}
-													else if ( consumerEntry.getName() == "ServiceCountHint" )
-													{
-														ommConsumerActiveConfig.setServiceCountHint(consumerEntry.getUInt());
-													}
-													else if ( consumerEntry.getName() == "ObeyOpenWindow" )
-													{
-														ommConsumerActiveConfig.setObeyOpenWindow(consumerEntry.getUInt());
-													}
-													else if ( consumerEntry.getName() == "PostAckTimeout" )
-													{
-														ommConsumerActiveConfig.setPostAckTimeout(consumerEntry.getUInt());
-													}
-													else if ( consumerEntry.getName() == "RequestTimeout" )
-													{
-														ommConsumerActiveConfig.setRequestTimeout(consumerEntry.getUInt());
-													}
-													else if ( consumerEntry.getName() == "MaxOutstandingPosts" )
-													{
-														ommConsumerActiveConfig.setMaxOutstandingPosts(consumerEntry.getUInt());
-													}
-													else if ( consumerEntry.getName() == "CatchUnhandledException" )
-													{
-														ommConsumerActiveConfig.setCatchUnhandledException(consumerEntry.getUInt());
-													}
-													else if ( consumerEntry.getName() == "MaxDispatchCountApiThread" )
-													{
-														ommConsumerActiveConfig.setMaxDispatchCountApiThread(consumerEntry.getUInt());
-													}
-													else if ( consumerEntry.getName() == "MaxDispatchCountUserThread" )
-													{
-														ommConsumerActiveConfig.setMaxDispatchCountUserThread(consumerEntry.getUInt());
-													}
-													else if ( consumerEntry.getName() == "LoginRequestTimeout" )
-													{
-														ommConsumerActiveConfig.setLoginRequestTimeOut(consumerEntry.getUInt());
-													}
-													else if ( consumerEntry.getName() == "DirectoryRequestTimeout" )
-													{
-														ommConsumerActiveConfig.setDirectoryRequestTimeOut(consumerEntry.getUInt());
-													}
-													break;
-									
-												case DataType::IntEnum:
-
-													if ( consumerEntry.getName() == "DispatchTimeoutApiThread" )
-													{
-														ommConsumerActiveConfig.dispatchTimeoutApiThread = consumerEntry.getInt();
-													}
-													else if ( consumerEntry.getName() == "PipePort" )
-													{
-														ommConsumerActiveConfig.pipePort = consumerEntry.getInt();
-													}
-													break;
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
-void ProgrammaticConfigure::retrieveChannel( const Map& map, const EmaString& channelName, EmaConfigErrorList& emaConfigErrList,
-											OmmConsumerActiveConfig& ommConsumerActiveConfig, bool hostFnCalled )
-{
-	map.reset();
-	while ( map.forth() )
-	{
-		const MapEntry& mapEntry = map.getEntry();
-
-		if ( mapEntry.getKey().getDataType() == DataType::AsciiEnum && mapEntry.getKey().getAscii() == "ChannelGroup" )
-		{
-			if ( mapEntry.getLoadType() == DataType::ElementListEnum )
-			{
-				const ElementList& elementList = mapEntry.getElementList();
-
-				while ( elementList.forth())
-				{
-					const ElementEntry& elementEntry = elementList.getEntry();
-
-					if ( elementEntry.getLoadType() == DataType::MapEnum )
-					{
-						if ( elementEntry.getName() == "ChannelList" )
-						{
-							const Map& map = elementEntry.getMap();
-
-							while ( map.forth() )
-							{
-								const MapEntry& mapEntry = map.getEntry();
-
-								if ( ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == channelName ) )
-								{
-									if ( mapEntry.getLoadType() == DataType::ElementListEnum )
-									{
-										const ElementList& elementListChannel = mapEntry.getElementList();
-
-										EmaString name, interfaceName, host, port, xmlTraceFileName, objectName;
-										thomsonreuters::ema::access::UInt16 channelType, compressionType;
-										thomsonreuters::ema::access::Int64 reconnectAttemptLimit, reconnectMinDelay, reconnectMaxDelay, xmlTraceMaxFileSize;
-										thomsonreuters::ema::access::UInt64 guaranteedOutputBuffers, compressionThreshold, connectionPingTimeout, numInputBuffers, sysSendBufSize, sysRecvBufSize,
-											tcpNodelay, xmlTraceToFile, xmlTraceToStdout, xmlTraceToMultipleFiles, xmlTraceWrite, xmlTraceRead, msgKeyInUpdates;
-
-										thomsonreuters::ema::access::UInt64 flags = 0;
-										thomsonreuters::ema::access::UInt32 maxUInt32 = 0xFFFFFFFF;
-
-										while ( elementListChannel.forth() )
-										{
-											const ElementEntry & channelEntry = elementListChannel.getEntry();
-
-											switch ( channelEntry.getLoadType() )
-											{
-											case DataType::AsciiEnum:
-												if ( channelEntry.getName() == "Host" )
-												{
-													host = channelEntry.getAscii();
-													flags |= 0x02;
-												}
-												else if ( channelEntry.getName() == "Port" )
-												{
-													port = channelEntry.getAscii();
-													flags |= 0x04;
-												}
-												else if ( channelEntry.getName() == "XmlTraceFileName" )
-												{
-													xmlTraceFileName = channelEntry.getAscii();
-													flags |= 0x08;
-												}
-												else if ( channelEntry.getName() == "InterfaceName" )
-												{
-													interfaceName = channelEntry.getAscii();
-													flags |= 0x80000;
-												}
-												else if ( channelEntry.getName() == "ObjectName" )
-												{
-													objectName = channelEntry.getAscii();
-													flags |= 0x100000;
-												}
-												break;
-												
-											case DataType::EnumEnum:
-												if ( channelEntry.getName() == "ChannelType" )
-												{
-													channelType = channelEntry.getEnum();
-
-													switch ( channelType )
-													{
-													case RSSL_CONN_TYPE_SOCKET:
-													case RSSL_CONN_TYPE_RELIABLE_MCAST:
-													case RSSL_CONN_TYPE_HTTP:
-													case RSSL_CONN_TYPE_ENCRYPTED:
-														flags |= 0x10;
-														break;
-													default:
-														EmaString text( "Invalid ChannelType [");
-														text.append( channelType );
-														text.append("] in Programmatic Configuration. Use default ChannelType [");
-														text.append( DEFAULT_CONNECTION_TYPE );
-														text.append( "]");
-														EmaConfigError * mce( new EmaConfigError( text, OmmLoggerClient::ErrorEnum ) );
-														emaConfigErrList.add( mce );
-														break;
-													}
-												}
-												else if ( channelEntry.getName() == "CompressionType" )
-												{
-													compressionType = channelEntry.getEnum();
-
-													if ( compressionType > 2 )
-													{
-														EmaString text( "Invalid CompressionType [");
-														text.append( compressionType );
-														text.append("] in Programmatic Configuration. Use default CompressionType [");
-														text.append( DEFAULT_COMPRESSION_TYPE );
-														text.append( "] ");
-														EmaConfigError * mce( new EmaConfigError( text, OmmLoggerClient::ErrorEnum ) );
-														emaConfigErrList.add( mce );
-													}
-													else
-													{
-														flags |= 0x20;
-													}
-												}
-												break;
-
-											case DataType::UIntEnum:
-												if ( channelEntry.getName() == "GuaranteedOutputBuffers" )
-												{
-													guaranteedOutputBuffers = channelEntry.getUInt();
-													flags |= 0x40;
-												}
-												if ( channelEntry.getName() == "NumInputBuffers" )
-												{
-													numInputBuffers = channelEntry.getUInt();
-													flags |= 0x800000;
-												}
-												if ( channelEntry.getName() == "SysRecvBufSize" )
-												{
-													sysRecvBufSize = channelEntry.getUInt();
-													flags |= 0x200000;
-												}
-												if ( channelEntry.getName() == "SysSendBufSize" )
-												{
-													sysSendBufSize = channelEntry.getUInt();
-													flags |= 0x400000;
-												}
-												else if ( channelEntry.getName() == "TcpNodelay" )
-												{
-													tcpNodelay = channelEntry.getUInt();
-													flags |= 0x80;
-												}
-												else if ( channelEntry.getName() == "XmlTraceToFile" )
-												{
-													xmlTraceToFile = channelEntry.getUInt();
-													flags |= 0x200;
-												}
-												else if ( channelEntry.getName() == "XmlTraceToStdout" )
-												{
-													xmlTraceToStdout = channelEntry.getUInt();
-													flags |= 0x400;
-												}
-												else if ( channelEntry.getName() == "XmlTraceToMultipleFiles" )
-												{
-													xmlTraceToMultipleFiles = channelEntry.getUInt();
-													flags |= 0x800;
-												}
-												else if ( channelEntry.getName() == "XmlTraceWrite" )
-												{
-													xmlTraceWrite = channelEntry.getUInt();
-													flags |= 0x1000;
-												}
-												else if ( channelEntry.getName() == "XmlTraceRead" )
-												{
-													xmlTraceRead = channelEntry.getUInt();
-													flags |= 0x2000;
-												}
-												else if ( channelEntry.getName() == "MsgKeyInUpdates" )
-												{
-													msgKeyInUpdates = channelEntry.getUInt();
-													flags |= 0x4000;
-												}
-												else if ( channelEntry.getName() == "ConnectionPingTimeout" )
-												{
-													connectionPingTimeout = channelEntry.getUInt();
-													flags |= 0x8000;
-												}
-												else if ( channelEntry.getName() == "CompressionThreshold" )
-												{
-													compressionThreshold = channelEntry.getUInt();
-													flags |= 0x1000000;
-												}
-												break;
-
-											case DataType::IntEnum:
-												if ( channelEntry.getName() == "XmlTraceMaxFileSize" )
-												{
-													xmlTraceMaxFileSize = channelEntry.getInt();
-													flags |= 0x100;
-												}
-												else if ( channelEntry.getName() == "ReconnectAttemptLimit" )
-												{
-													reconnectAttemptLimit = channelEntry.getInt();
-													flags |= 0x10000;
-												}
-												else if ( channelEntry.getName() == "ReconnectMinDelay" )
-												{
-													reconnectMinDelay = channelEntry.getInt();
-													flags |= 0x20000;
-												}
-												else if ( channelEntry.getName() == "ReconnectMaxDelay" )
-												{
-													reconnectMaxDelay = channelEntry.getInt();
-													flags |= 0x40000;
-												}
-												break;
-											}
-										}
-										
-										if ( flags & 0x10 )
-										{
-											if ( hostFnCalled )
-												channelType = RSSL_CONN_TYPE_SOCKET;
-
-											if ( ommConsumerActiveConfig.channelConfig )
-											{
-												if ( ommConsumerActiveConfig.channelConfig->getType() != channelType )
-												{
-													delete ommConsumerActiveConfig.channelConfig;
-													ommConsumerActiveConfig.channelConfig = 0;
-												}
-											}
-
-											try
-											{
-												if ( channelType == RSSL_CONN_TYPE_SOCKET )
-												{
-													SocketChannelConfig * socketChannelConfig;
-													if ( ommConsumerActiveConfig.channelConfig == 0 )
-													{
-														socketChannelConfig = new SocketChannelConfig();
-														ommConsumerActiveConfig.channelConfig = socketChannelConfig;
-													}
-													else
-													{
-														socketChannelConfig = (SocketChannelConfig *)ommConsumerActiveConfig.channelConfig;
-													}
-
-													if ( flags & 0x80 )
-														socketChannelConfig->tcpNodelay = tcpNodelay ? true : false;
-
-													if ( flags & 0x02 && ! hostFnCalled )
-														socketChannelConfig->hostName = host;
-
-													if ( flags & 0x04 && ! hostFnCalled )
-														socketChannelConfig->serviceName = port;
-												}
-												else if ( channelType == RSSL_CONN_TYPE_RELIABLE_MCAST )
-												{
-													if ( ommConsumerActiveConfig.channelConfig == 0 )
-													{
-														ommConsumerActiveConfig.channelConfig = new ReliableMcastChannelConfig();
-													}
-												}
-												else if ( channelType == RSSL_CONN_TYPE_HTTP )
-												{
-													HttpChannelConfig *httpChanelConfig;
-													if ( ommConsumerActiveConfig.channelConfig == 0 )
-													{
-														httpChanelConfig = new HttpChannelConfig();
-														ommConsumerActiveConfig.channelConfig = httpChanelConfig;
-													}
-													else
-													{
-														httpChanelConfig = (HttpChannelConfig *)ommConsumerActiveConfig.channelConfig;
-													}
-
-													if ( flags & 0x80 )
-														httpChanelConfig->tcpNodelay = tcpNodelay ? true : false;
-
-													if ( flags & 0x02 )
-														httpChanelConfig->hostName = host;
-
-													if ( flags & 0x04 )
-														httpChanelConfig->serviceName = port;
-
-													if( flags & 0x100000)
-														httpChanelConfig->objectName = objectName;
-												}
-												else if ( channelType == RSSL_CONN_TYPE_ENCRYPTED )
-												{
-													EncryptedChannelConfig* encryptChanelConfig;
-													if ( ommConsumerActiveConfig.channelConfig == 0 )
-													{
-														encryptChanelConfig = new EncryptedChannelConfig();
-														ommConsumerActiveConfig.channelConfig = encryptChanelConfig;
-													}
-													else
-													{
-														encryptChanelConfig = (EncryptedChannelConfig*)ommConsumerActiveConfig.channelConfig;
-													}
-
-													if ( flags & 0x80 )
-														encryptChanelConfig->tcpNodelay = tcpNodelay ? true : false;
-
-													if ( flags & 0x02 )
-														encryptChanelConfig->hostName = host;
-
-													if ( flags & 0x04 )
-														encryptChanelConfig->serviceName = port;
-
-													if( flags & 0x100000)
-														encryptChanelConfig->objectName = objectName;
-												
-												}
-											} catch ( std::bad_alloc ) 
-											{
-												const char* temp = "Failed to allocate memory for ChannelConfig. Out of memory!";
-												throwMeeException( temp );
-											}
-
-											ommConsumerActiveConfig.channelConfig->name = channelName;
-
-											if ( flags & 0x80000 )
-												ommConsumerActiveConfig.channelConfig->interfaceName = interfaceName;
-
-											if ( flags & 0x20 )
-												ommConsumerActiveConfig.channelConfig->compressionType = (RsslCompTypes)compressionType;
-
-											if ( flags & 0x1000000 )
-												ommConsumerActiveConfig.channelConfig->compressionThreshold = compressionThreshold > maxUInt32 ? maxUInt32 : (UInt32)compressionThreshold;
-
-											if ( flags & 0x40 )
-												ommConsumerActiveConfig.channelConfig->setGuaranteedOutputBuffers(guaranteedOutputBuffers);
-
-											if ( flags & 0x800000 )
-												ommConsumerActiveConfig.channelConfig->setNumInputBuffers(numInputBuffers);
-
-											if ( flags & 0x200000 )
-												ommConsumerActiveConfig.channelConfig->sysRecvBufSize = sysRecvBufSize > maxUInt32 ? maxUInt32 : (UInt32)sysRecvBufSize;
-
-											if ( flags & 0x400000 )
-												ommConsumerActiveConfig.channelConfig->sysSendBufSize = sysSendBufSize > maxUInt32 ? maxUInt32 : (UInt32)sysSendBufSize;
-
-											if ( flags & 0x8000 )
-												ommConsumerActiveConfig.channelConfig->connectionPingTimeout = connectionPingTimeout > maxUInt32  ? maxUInt32 : (UInt32)connectionPingTimeout;
-
-											if ( flags & 0x10000 )
-												ommConsumerActiveConfig.channelConfig->setReconnectAttemptLimit( reconnectAttemptLimit );
-
-											if ( flags & 0x20000 )
-												ommConsumerActiveConfig.channelConfig->setReconnectMinDelay( reconnectMinDelay );
-
-											if ( flags & 0x40000 )
-												ommConsumerActiveConfig.channelConfig->setReconnectMaxDelay( reconnectMaxDelay );
-
-											if ( flags & 0x08 )
-												ommConsumerActiveConfig.channelConfig->xmlTraceFileName = xmlTraceFileName;
-
-											if ( flags & 0x100 )
-												ommConsumerActiveConfig.channelConfig->xmlTraceMaxFileSize = xmlTraceMaxFileSize;
-
-											if ( flags & 0x200 )
-												ommConsumerActiveConfig.channelConfig->xmlTraceToFile = xmlTraceToFile ? true : false;
-
-											if ( flags & 0x400 )
-												ommConsumerActiveConfig.channelConfig->xmlTraceToStdout = xmlTraceToStdout ? true : false;
-
-											if ( flags & 0x800 )
-												ommConsumerActiveConfig.channelConfig->xmlTraceToMultipleFiles = xmlTraceToMultipleFiles ? true : false;
-
-											if ( flags & 0x1000 )
-												ommConsumerActiveConfig.channelConfig->xmlTraceWrite = xmlTraceWrite ? true : false;
-
-											if ( flags & 0x2000 )
-												ommConsumerActiveConfig.channelConfig->xmlTraceRead = xmlTraceRead ? true : false;
-
-											if ( flags & 0x4000 )
-												ommConsumerActiveConfig.channelConfig->msgKeyInUpdates = msgKeyInUpdates ? true : false;
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
-void ProgrammaticConfigure::retrieveLogger( const Map& map, const EmaString& loggerName, EmaConfigErrorList& emaConfigErrList,
-										  OmmConsumerActiveConfig& ommConsumerActiveConfig )
-{
-	map.reset();
-	while ( map.forth() )
-	{
-		const MapEntry & mapEntry = map.getEntry();
-
-		if ( mapEntry.getKey().getDataType() == DataType::AsciiEnum && mapEntry.getKey().getAscii() == "LoggerGroup" )
-		{
-			if ( mapEntry.getLoadType() == DataType::ElementListEnum )
-			{
-				const ElementList & elementList = mapEntry.getElementList();
-
-				while ( elementList.forth() )
-				{
-					const ElementEntry & elementEntry = elementList.getEntry();
-
-					if ( elementEntry.getLoadType() == DataType::MapEnum )
-					{
-						if ( elementEntry.getName() == "LoggerList" )
-						{
-							const Map & map = elementEntry.getMap();
-
-							while ( map.forth() )
-							{
-								const MapEntry & mapEntry = map.getEntry();
-
-								if ( ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == loggerName ) )
-								{
-									if ( mapEntry.getLoadType() == DataType::ElementListEnum )
-									{
-										const ElementList & elementListLogger = mapEntry.getElementList();
-
-										while ( elementListLogger.forth() )
-										{
-											const ElementEntry & loggerEntry = elementListLogger.getEntry();
-
-											switch ( loggerEntry.getLoadType() )
-											{
-											case DataType::AsciiEnum:
-												if ( loggerEntry.getName() == "FileName" )
-												{
-													ommConsumerActiveConfig.loggerConfig.loggerFileName = loggerEntry.getAscii();
-												}
-												break;
-
-											case DataType::EnumEnum:
-												if ( loggerEntry.getName() == "LoggerType" )
-												{
-													UInt16 loggerType = loggerEntry.getEnum();
-
-													if ( loggerType > 1 )
-													{
-														EmaString text( "Invalid LoggerType [");
-														text.append( loggerType );
-														text.append("] in Programmatic Configuration. Use default LoggerType [");
-														text.append( DEFAULT_LOGGER_TYPE );
-														text.append( "]" );
-														EmaConfigError * mce( new EmaConfigError( text, OmmLoggerClient::ErrorEnum ) );
-														emaConfigErrList.add( mce );
-													}
-													else
-													{
-														ommConsumerActiveConfig.loggerConfig.loggerType = (OmmLoggerClient::LoggerType)loggerType;
-													}
-												}
-												else if ( loggerEntry.getName() == "LoggerSeverity" )
-												{
-													UInt16 severityType = loggerEntry.getEnum();
-
-													if ( severityType > 4 )
-													{
-														EmaString text( "Invalid LoggerSeverity [");
-														text.append( severityType );
-														text.append("] in Programmatic Configuration. Use default LoggerSeverity [");
-														text.append( DEFAULT_LOGGER_SEVERITY );
-														text.append( "]" );
-														EmaConfigError * mce( new EmaConfigError( text, OmmLoggerClient::ErrorEnum ) );
-														emaConfigErrList.add( mce );
-													}
-													else
-													{
-														ommConsumerActiveConfig.loggerConfig.minLoggerSeverity = (OmmLoggerClient::Severity)severityType;
-													}
-												}
-												break;
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
-void ProgrammaticConfigure::retrieveDictionary( const Map& map, const EmaString& dictionaryName, EmaConfigErrorList& emaConfigErrList,
-											  OmmConsumerActiveConfig& ommConsumerActiveConfig )
-{
-	map.reset();
-	while ( map.forth() )
-	{
-		const MapEntry & mapEntry = map.getEntry();
-
-		if ( mapEntry.getKey().getDataType() == DataType::AsciiEnum && mapEntry.getKey().getAscii() == "DictionaryGroup" )
-		{
-			if ( mapEntry.getLoadType() == DataType::ElementListEnum )
-			{
-				const ElementList & elementList = mapEntry.getElementList();
-
-				while ( elementList.forth() )
-				{
-					const ElementEntry & elementEntry = elementList.getEntry();
-
-					if ( elementEntry.getLoadType() == DataType::MapEnum )
-					{
-						if ( elementEntry.getName() == "DictionaryList" )
-						{
-							const Map & map = elementEntry.getMap();
-
-							while ( map.forth() )
-							{
-								const MapEntry & mapEntry = map.getEntry();
-
-								if ( ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == dictionaryName ) )
-								{
-									if ( mapEntry.getLoadType() == DataType::ElementListEnum )
-									{
-										const ElementList & elementListDictionary = mapEntry.getElementList();
-
-										while ( elementListDictionary.forth() )
-										{
-											const ElementEntry & loggerEntry = elementListDictionary.getEntry();
-
-											switch ( loggerEntry.getLoadType() )
-											{
-											case DataType::AsciiEnum:
-
-												if ( loggerEntry.getName() == "RdmFieldDictionaryFileName" )
-												{
-													ommConsumerActiveConfig.dictionaryConfig.rdmfieldDictionaryFileName = loggerEntry.getAscii();
-												}
-												else if ( loggerEntry.getName() == "EnumTypeDefFileName" )
-												{
-													ommConsumerActiveConfig.dictionaryConfig.enumtypeDefFileName = loggerEntry.getAscii();
-												}
-												break;
-
-											case DataType::EnumEnum:
-
-												if ( loggerEntry.getName() == "DictionaryType" )
-												{
-													UInt16 dictionaryType = loggerEntry.getEnum();
-
-													if ( dictionaryType > 1 )
-													{
-														EmaString text( "Invalid DictionaryType [");
-														text.append( dictionaryType );
-														text.append("] in Programmatic Configuration. Use default DictionaryType [");
-														text.append( DEFAULT_DICTIONARY_TYPE );
-														text.append( "]" );
-														EmaConfigError * mce( new EmaConfigError( text, OmmLoggerClient::ErrorEnum ) );
-														emaConfigErrList.add( mce );
-													}
-													else
-													{
-														ommConsumerActiveConfig.dictionaryConfig.dictionaryType = (Dictionary::DictionaryType)dictionaryType;
-													}
-												}
-												break;
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-}
 
 namespace thomsonreuters {
 
@@ -2493,7 +1529,7 @@ void XMLnode::verifyDefaultConsumer()
 		XMLnode * consumerList( find< XMLnode >( "ConsumerGroup|ConsumerList" ) );
 		if ( consumerList )
 		{
-			EmaList< NameString > theNames;
+			EmaList< NameString* > theNames;
 			consumerList->getNames( theNames );
 
 			if ( theNames.empty() && *defaultConsumerName == "EmaConsumer" )

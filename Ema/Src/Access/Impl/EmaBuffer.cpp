@@ -20,38 +20,64 @@ class thomsonreuters::ema::access::CastingOperatorContext
 public :
 
 	CastingOperatorContext() :
-	 _pHexStringBuffer( 0 ),
-	 _hexStringBufferLength( 0 ),
-	 _hexStringIsDirty( true )
+	 _pBuffer( 0 ),
+	 _allocatedLength( 0 ),
+	 _currentLength( 0 ),
+	 _bDirty( true )
 	{
 	}
 
 	virtual ~CastingOperatorContext()
 	{
-		free( _pHexStringBuffer );
+		if ( _pBuffer )
+		{
+			free( _pBuffer );
+			_pBuffer = 0;
+			_allocatedLength = 0;
+			_currentLength = 0;
+		}
+	}
+
+	UInt32 getHexStringLength() const
+	{
+		return _currentLength;
 	}
 
 	const char* getHexString( char* pBuffer, UInt32 length )
 	{
-		if ( _hexStringIsDirty )
+		if ( _bDirty )
 		{
-			static const int valuesPerLine(16);
-			RsslBuffer b = { length, pBuffer };
-			RsslUInt32 hexSize( rsslCalculateHexDumpOutputSize( &b, valuesPerLine ) );
+			const UInt32 valuesPerLine = 16;
+
+			RsslBuffer buffer;
+			buffer.length = length;
+			buffer.data = pBuffer;
+
+			UInt32 hexSize = rsslCalculateHexDumpOutputSize( &buffer, valuesPerLine );
 
 			RsslError error;
             RsslRet retVal;
 			while ( true )
 			{
-				if ( hexSize > _hexStringBufferLength )
+				if ( hexSize > _allocatedLength )
 				{
-					free ( _pHexStringBuffer );
-					_hexStringBufferLength = hexSize;
-					_pHexStringBuffer = static_cast< char *>( malloc( hexSize ) );
+					free ( _pBuffer );
+					_allocatedLength = hexSize;
+					_pBuffer = (char*)malloc( hexSize );
+
+					if ( !_pBuffer )
+					{
+						const char* temp = "Failed to allocate memory in EmaBuffer::operator const char*().";
+						throwMeeException( temp );
+						return 0;
+					}
 				}
 
-				RsslBuffer output = { hexSize, _pHexStringBuffer };
-				retVal = rsslBufferToHexDump( &b, &output, valuesPerLine, &error );
+				RsslBuffer output;
+				output.length = hexSize;
+				output.data = _pBuffer;
+
+				retVal = rsslBufferToHexDump( &buffer, &output, valuesPerLine, &error );
 				if ( retVal == RSSL_RET_SUCCESS )
 					break;
 				else if ( retVal == RSSL_RET_BUFFER_TOO_SMALL )
@@ -61,23 +87,27 @@ public :
 					EMA_ASSERT( retVal == RSSL_RET_SUCCESS, "rsslBufferToHexDump return not SUCCESS or BUFFER_TOO_SMALL" );
 					break;
 				}
+
+				_currentLength = output.length;
 			}
-			_hexStringIsDirty = false;
+
+			_bDirty = false;
 		}
 
-		return _pHexStringBuffer;
+		return _pBuffer;
 	}
 
 	void markDirty()
 	{
-		_hexStringIsDirty = true;
+		_bDirty = true;
 	}
 
 private :
 
-	char*		_pHexStringBuffer;
-	UInt32		_hexStringBufferLength;
-	bool		_hexStringIsDirty;
+	char*		_pBuffer;
+	UInt32		_allocatedLength;
+	UInt32		_currentLength;
+	bool		_bDirty;
 };
 
 
@@ -268,6 +298,8 @@ EmaBuffer& EmaBuffer::append( const EmaBuffer & other )
 		_length += other.length();
 	}
 
+	markDirty();
+
 	return *this;
 }
 
@@ -290,6 +322,8 @@ EmaBuffer& EmaBuffer::append( char c )
 	}
 
 	_pBuffer[ _length++ ] = c;
+
+	markDirty();
 
 	return *this;
 }
@@ -315,6 +349,8 @@ EmaBuffer& EmaBuffer::append( const char * str, UInt32 length )
 		memcpy( _pBuffer + _length, str, length );
 		_length += length;
 	}
+
+	markDirty();
 
 	return *this;
 }
@@ -351,6 +387,8 @@ char& EmaBuffer::operator[]( UInt32 index )
 		text.append( index ).append( " while length is " ).append( _length ).append( "." );
 		throwOorException( text );
 	}
+
+	markDirty();
 
 	return *(_pBuffer + index);
 }

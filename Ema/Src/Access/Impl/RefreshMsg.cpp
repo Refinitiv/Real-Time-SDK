@@ -266,7 +266,7 @@ const EmaString& RefreshMsg::getServiceName() const
 Decoder& RefreshMsg::getDecoder()
 {
 	if ( !_pDecoder )
-		Msg::setDecoder( g_pool._refreshMsgDecoderPool.getItem() );
+		setDecoder( g_pool._refreshMsgDecoderPool.getItem() );
 
 	return *_pDecoder;
 }

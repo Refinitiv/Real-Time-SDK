@@ -17,7 +17,7 @@ namespace ema {
 
 namespace access {
 
-class EMA_ACCESS_API OmmInvalidHandleExceptionImpl : public OmmInvalidHandleException
+class OmmInvalidHandleExceptionImpl : public OmmInvalidHandleException
 {
 public :
 

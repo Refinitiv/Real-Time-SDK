@@ -274,7 +274,7 @@ private :
 
 	DirectoryByName					_directoryByNameHt;
 
-	EmaList< Directory >			_directoryList;
+	EmaList< Directory* >			_directoryList;
 
 	OmmConsumerImpl&				_ommConsImpl;	
 

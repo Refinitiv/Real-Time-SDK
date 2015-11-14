@@ -69,8 +69,8 @@ const EmaString& OmmQosDecoder::toString()
 {
 	if ( _dataCode == Data::BlankEnum )
 	{
-		_toString.set( "(blank data)" );
-		return _toString;
+		static const EmaString blankData( "(blank data)" );
+		return blankData;
 	}
 
 	switch( _rsslQos.timeliness )

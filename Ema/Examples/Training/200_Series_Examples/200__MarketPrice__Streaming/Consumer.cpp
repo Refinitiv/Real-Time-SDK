@@ -24,7 +24,7 @@ void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEve
 void AppClient::onUpdateMsg( const UpdateMsg& updateMsg, const OmmConsumerEvent& ) 
 {
 	cout << endl << "Item Name: " << ( updateMsg.hasName() ? updateMsg.getName() : EmaString( "<not set>" ) ) << endl
-		<< "Service Name: " << (updateMsg.hasServiceName() ? updateMsg.getServiceName() : EmaString( "<not set>" ) );
+		<< "Service Name: " << (updateMsg.hasServiceName() ? updateMsg.getServiceName() : EmaString( "<not set>" ) ) << endl;
 
 	if ( DataType::FieldListEnum == updateMsg.getPayload().getDataType() )
 		decode( updateMsg.getPayload().getFieldList() );
@@ -33,7 +33,7 @@ void AppClient::onUpdateMsg( const UpdateMsg& updateMsg, const OmmConsumerEvent&
 void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent& ) 
 {
 	cout << endl << "Item Name: " << ( statusMsg.hasName() ? statusMsg.getName() : EmaString( "<not set>" ) ) << endl
-		<< "Service Name: " << (statusMsg.hasServiceName() ? statusMsg.getServiceName() : EmaString( "<not set>" ) );
+		<< "Service Name: " << (statusMsg.hasServiceName() ? statusMsg.getServiceName() : EmaString( "<not set>" ) ) << endl;
 
 	if ( statusMsg.hasState() )
 		cout << endl << "Item State: " << statusMsg.getState().toString() << endl;

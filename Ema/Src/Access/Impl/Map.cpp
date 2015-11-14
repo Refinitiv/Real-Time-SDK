@@ -105,7 +105,7 @@ const EmaString& Map::toString( UInt64 indent ) const
 			.append( "\" key dataType=\"" ).append( getDTypeAsString( tempDecoder.getKeyData().getDataType() ) );
         if ( tempDecoder.getKeyData().getDataType() == DataType::BufferEnum )
 		{
-            _toString.append( "\" value=\n\n" ).append( tempDecoder.getKeyData().getAsHex() );
+            _toString.append( "\" value=\n\n" ).append( tempDecoder.getKeyData().toString() );
 			addIndent( _toString.append( "\n" ), indent );
 		}
 		else
@@ -187,7 +187,7 @@ const SummaryData& Map::getSummaryData() const
 
 const MapEntry& Map::getEntry() const
 {
-	if ( !_pDecoder->decodingStarted() )
+	if ( !_pDecoder || !_pDecoder->decodingStarted() )
 	{
 		EmaString temp( "Attempt to getEntry() while iteration was NOT started." );
 

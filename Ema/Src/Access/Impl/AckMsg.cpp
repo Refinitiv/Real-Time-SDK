@@ -253,7 +253,7 @@ bool AckMsg::getPrivateStream() const
 Decoder& AckMsg::getDecoder()
 {
 	if ( !_pDecoder )
-		Msg::setDecoder( g_pool._ackMsgDecoderPool.getItem() );
+		setDecoder( g_pool._ackMsgDecoderPool.getItem() );
 
 	return *_pDecoder;
 }

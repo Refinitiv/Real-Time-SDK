@@ -168,7 +168,7 @@ public :
 
 	bool hasOmmConnsumerErrorClient();
 
-	EmaList< TimeOut > & getTimeOutList() { return theTimeOuts; }
+	EmaList< TimeOut* > & getTimeOutList() { return theTimeOuts; }
 	Mutex & getTimeOutMutex() { return _timeOutLock; }
 	void installTimeOut() { pipeWrite(); }
 
@@ -181,6 +181,12 @@ private :
 	void uninitialize( bool caughtExcep = false );
 
 	void readConfig( const OmmConsumerConfig& );
+
+	ChannelConfig* readChannelConfig( OmmConsumerConfigImpl*, const EmaString& );
+
+	bool readReliableMcastConfig( OmmConsumerConfigImpl*, const EmaString&, ReliableMcastChannelConfig *, EmaString& );
+
+	void useDefaultConfigValues( const EmaString &, const EmaString &, const EmaString & );
 
 	void setAtExit();
 
@@ -238,7 +244,7 @@ private :
 
 	OmmConsumerImpl( const OmmConsumerImpl& );
 	OmmConsumerImpl& operator=( const OmmConsumerImpl& );
-	EmaList<TimeOut> theTimeOuts;
+	EmaList< TimeOut* > theTimeOuts;
 };
 
 }

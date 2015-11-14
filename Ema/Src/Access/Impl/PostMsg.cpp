@@ -272,7 +272,7 @@ const EmaString& PostMsg::getServiceName() const
 Decoder& PostMsg::getDecoder()
 {
 	if ( !_pDecoder )
-		Msg::setDecoder( g_pool._postMsgDecoderPool.getItem() );
+		setDecoder( g_pool._postMsgDecoderPool.getItem() );
 
 	return *_pDecoder;
 }

@@ -329,6 +329,12 @@ const OmmState& RefreshMsgDecoder::getState() const
 
 const OmmQos& RefreshMsgDecoder::getQos() const
 {
+	if ( !hasQos() )
+	{
+		EmaString temp( "Attempt to getQos() while it is NOT set." );
+		throwIueException( temp );
+	}
+
 	setQosInt();
 
 	return static_cast<const OmmQos&>( static_cast<const Data&>( _qos ) );

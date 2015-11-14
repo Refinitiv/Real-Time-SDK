@@ -1130,7 +1130,7 @@ LoginItem* LoginCallbackClient::getLoginItem( const ReqMsg& , OmmConsumerClient&
 	if ( li )
 	{
 		LoginItemCreationCallbackStruct* liccs( new LoginItemCreationCallbackStruct( this, li ) );
-		TimeOut* timeOut = new TimeOut( _ommConsImpl, 10, LoginCallbackClient::handleLoginItemCallback, liccs );
+		TimeOut* timeOut = new TimeOut( _ommConsImpl, 10, LoginCallbackClient::handleLoginItemCallback, liccs, true );
 		_loginItems.push_back( li );
 	}
 

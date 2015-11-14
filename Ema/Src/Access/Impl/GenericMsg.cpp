@@ -203,7 +203,7 @@ bool GenericMsg::getComplete() const
 Decoder& GenericMsg::getDecoder()
 {
 	if ( !_pDecoder )
-		Msg::setDecoder( g_pool._genericMsgDecoderPool.getItem() );
+		setDecoder( g_pool._genericMsgDecoderPool.getItem() );
 
 	return *_pDecoder;
 }

@@ -90,7 +90,7 @@ void AppClient::decode( const FieldList& fl )
 				break;
 			case DataType::Utf8Enum :
 				{
-					const EmaBuffer& uthf8Buffer = fe.getUtf8();
+					const EmaBuffer& utf8Buffer = fe.getUtf8();
 				}
 				break;
 			case DataType::EnumEnum :

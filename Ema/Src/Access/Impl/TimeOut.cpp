@@ -16,9 +16,15 @@ using namespace thomsonreuters::ema::access;
 TimeOutTimeType TimeOut::frequency = {0,0};
 #endif
 
-TimeOut::TimeOut( OmmConsumerImpl & consumer, Int64 lengthInMicroSeconds, void (* functor)( void * ), void * args )
-	: theConsumer( consumer), _lengthInMicroSeconds( lengthInMicroSeconds ), _functor( functor ), _args( args ), canceled( false )
+TimeOut::TimeOut( OmmConsumerImpl & consumer, Int64 lengthInMicroSeconds, void (* functor)( void * ), void * args, bool allocatedOnHeap )
+	: theConsumer( consumer), _lengthInMicroSeconds( lengthInMicroSeconds ), _functor( functor ), _args( args ), _allocatedOnHeap( allocatedOnHeap ), canceled( false )
 {
+	if ( lengthInMicroSeconds == 0 )
+	{
+		theConsumer.getTimeOutList().insert( this );
+		return;
+	}
+
 #ifdef WIN32
 	if ( ! frequency.QuadPart )
 		QueryPerformanceFrequency( &frequency );
@@ -52,21 +58,31 @@ TimeOut::getTimeOutInMicroSeconds( OmmConsumerImpl & consumer, Int64 & value )
 {
 	MutexLocker ml( consumer.getTimeOutMutex() );
 
-	EmaList< TimeOut > & theTimeOuts( consumer.getTimeOutList() );
+	EmaList< TimeOut* > & theTimeOuts( consumer.getTimeOutList() );
 
 	if ( theTimeOuts.empty() )
 		return false;
 
 	TimeOut * p( theTimeOuts.front() );
-	while( p->canceled )
+	while( true )
 	{
-		TimeOut * toBeDeleted( p );
-		p = p->next();
-		theTimeOuts.remove( toBeDeleted );
-		delete toBeDeleted;
-		if ( ! p )
-			return false;
+	  if ( ! p )
+	    return false;
+
+	  if ( p->canceled )
+	  {
+	    TimeOut * toBeDeleted( p );
+	    p = p->next();
+	    theTimeOuts.remove( toBeDeleted );
+	    if ( toBeDeleted->allocatedOnHeap() )
+	      delete toBeDeleted;
+	  }
+	  else if ( ! p->_lengthInMicroSeconds )
+	    p = p->next();
+	  else
+	    break;
 	}
+
 	TimeOutTimeType current;
 #ifdef WIN32
 	QueryPerformanceCounter( &current );
@@ -87,7 +103,7 @@ TimeOut::getTimeOutInMicroSeconds( OmmConsumerImpl & consumer, Int64 & value )
 }
 
 void
-TimeOut::execute( OmmConsumerImpl & consumer, EmaList<TimeOut> & theTimeOuts )
+TimeOut::execute( OmmConsumerImpl & consumer, EmaList< TimeOut* > & theTimeOuts )
 {
 	MutexLocker ml( consumer.getTimeOutMutex() );
 
@@ -111,7 +127,10 @@ TimeOut::execute( OmmConsumerImpl & consumer, EmaList<TimeOut> & theTimeOuts )
 		{
 			if ( ! p->canceled )
 				(*p)();
-			delete theTimeOuts.pop_front();
+			if ( p->allocatedOnHeap() )
+				delete theTimeOuts.pop_front();
+			else
+				theTimeOuts.pop_front();
 			p = theTimeOuts.front();
 		}
 		else

@@ -19,13 +19,23 @@
 
 	EmaString myString( "ABCDEFG" );
 
-	Int32 position = myString.find( "DE" );
+	Int32 position = myString.find( "DE" );         // Returns 3
 
+	position = myString.find("XYZ");                // Returns EmaString::npos (-1)
+	
 	...
 
-	myString.append( position );
+	EmaString temp = myString.substr( 3, 4 )        // Returns "DEFG"
 
-	std::cout << myString << endl;
+	temp = myString.substr( 0, EmaString::npos );   // Returns "ABCDEFG"
+
+	temp = myString.substr( 4, EmaString::npos );   // Returns "EFG"
+	
+	...
+
+	myString.append( ( Int32 ) 4 );
+
+	std::cout << myString << endl;                  // Prints "ABCDEFG4"
 
 	...
 
@@ -47,6 +57,12 @@ class EMA_ACCESS_API EmaString
 {
 public :
 
+	/** npos. Represents the greatest possible value of type unsigned int
+		\remark npos is often used as a length parameter in EmaString methods to mean "until the end of the string"
+		\remark When used as a return value, npos indicates that the element was "not found"
+	*/
+	static const unsigned int npos = -1;
+
 	///@name Constructor
 	//@{
 	/** Constructs EmaString.
@@ -61,7 +77,7 @@ public :
 		@param[in] str pointer to the memory containing copied in character string
 		@param[in] length specifies number of characters to copy
 	*/
-	EmaString( const char* str, UInt32 length = 0 );
+	EmaString( const char* str, UInt32 length = EmaString::npos );
 
 	/** Copy constructor.
 		@param[in] other copied in EmaString object
@@ -90,10 +106,10 @@ public :
 		@param[in] length specifies number of characters to copy
 		@return reference to this object
 	*/
-	EmaString& set( const char* str, UInt32 length = 0 );
+	EmaString& set( const char* str, UInt32 length = EmaString::npos );
 
 	/** Assignment operator
-		@throw OmmMemoryExhaustionException if appruns out of memory
+		@throw OmmMemoryExhaustionException if app runs out of memory
 		@param[in] other copied in EmaString object
 		@return reference to this object
 	*/

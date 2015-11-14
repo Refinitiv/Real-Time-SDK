@@ -55,7 +55,7 @@ Data::DataCode OmmArray::getCode() const
 
 const OmmArrayEntry& OmmArray::getEntry() const
 {
-	if ( !_pDecoder->decodingStarted() )
+	if ( !_pDecoder || !_pDecoder->decodingStarted() )
 	{
 		EmaString temp( "Attempt to getEntry() while iteration was NOT started." );
 
@@ -110,11 +110,11 @@ const EmaString& OmmArray::toString( UInt64 indent ) const
 			addIndent( _toString.append( "\n" ), indent ).append( "value=" );
 			if ( tempDecoder.getLoad().getDataType() == DataType::BufferEnum )
 			{
-				_toString.append( "\n\n" ).append( tempDecoder.getLoad().getAsHex() );
+				_toString.append( "\n" ).append( tempDecoder.getLoad().toString() );
 			}
 			else if ( tempDecoder.getLoad().getDataType() == DataType::ErrorEnum )
 			{
-				_toString.append( "\n\n" ).append( tempDecoder.getLoad().toString() );
+				_toString.append( "\n" ).append( tempDecoder.getLoad().toString( indent ) );
 			}
 			else
 			{

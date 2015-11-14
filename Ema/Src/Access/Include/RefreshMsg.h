@@ -357,10 +357,10 @@ public :
 	RefreshMsg& extendedHeader( const EmaBuffer& buffer );
 
 	/** Specifies Solicited.
-		@param[in] solicited true if this refresh is solicited; false otherwise (default value is true)
+		@param[in] solicited true if this refresh is solicited; false otherwise (default value is false)
 		@return reference to this object
 	*/
-	RefreshMsg& solicited( bool solicited = true );
+	RefreshMsg& solicited( bool solicited = false );
 		
 	/** Specifies DoNotCache.
 		@param[in] doNotCache true if this refresh must not be cached; false otherwise (default value is false)

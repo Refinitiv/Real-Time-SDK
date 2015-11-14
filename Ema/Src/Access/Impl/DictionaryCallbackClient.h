@@ -172,7 +172,7 @@ private :
 
 	static const EmaString			_clientName;
 
-	EmaList< ChannelDictionary >	_channelDictionaryList;
+	EmaList< ChannelDictionary* >	_channelDictionaryList;
 
 	LocalDictionary*				_localDictionary;
 

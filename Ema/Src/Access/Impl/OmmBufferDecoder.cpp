@@ -49,35 +49,13 @@ const EmaString& OmmBufferDecoder::toString()
 {
 	if ( _dataCode == Data::BlankEnum )
 	{
-		_toString.setInt( "(blank data)", 12, true );
-		return _toString.toString();
+		static const EmaString blankData( "(blank data)" );
+		return blankData;
 	}
 
-	RsslBuffer tempRsslBuffer;
-	tempRsslBuffer.length = _rsslBuffer.length * 3;
-	tempRsslBuffer.data = (char*)malloc( tempRsslBuffer.length );
-
-	if ( !tempRsslBuffer.data )
-	{
-		const char* text = "Failed to allocate memory in OmmBuffer::tostring()";
-		throwMeeException( text );
-		return _toString.toString();
-	}
-
-	RsslRet retCode = rsslPrimitiveToString( &_rsslBuffer, RSSL_DT_BUFFER, &tempRsslBuffer );
-
-	if ( RSSL_RET_SUCCESS != retCode )
-	{
-		free( tempRsslBuffer.data );
-		EmaString temp( "Failed to convert OmmBuffer to string. Reason: " );
-		temp += rsslRetCodeToString( retCode );
-		throwIueException( temp );
-	}
-	else
-	{
-		_toString.setInt( tempRsslBuffer.data, tempRsslBuffer.length, false );
-	}
-
+	const char* tempStr = getBuffer().operator const char *();
+	UInt32 length = strlen( tempStr );
+	_toString.setInt( tempStr, length, true );
 	return _toString.toString();
 }
 

@@ -6,6 +6,9 @@
  *|-----------------------------------------------------------------------------
  */
 
+#ifndef __thomsonreuters_ema_access_ConfigErrorHandling_h
+#define __thomsonreuters_ema_access_ConfigErrorHandling_h
+
 #include "EmaString.h"
 #include "OmmLoggerClient.h"
 
@@ -52,3 +55,5 @@ private:
 	listElement * theList;
 	int _count;
 };
+
+#endif //__thomsonreuters_ema_access_DefaultXML_h

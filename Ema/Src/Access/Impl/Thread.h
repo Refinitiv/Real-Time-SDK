@@ -79,6 +79,7 @@ private:
 
 #ifdef WIN32
 	static unsigned int __stdcall runThread( void * arg );
+	static int handleException( void * arg, _EXCEPTION_POINTERS*  );
 
 	HANDLE			_handle;
 	unsigned int	_threadId;

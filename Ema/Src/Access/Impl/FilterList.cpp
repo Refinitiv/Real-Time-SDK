@@ -142,7 +142,7 @@ bool FilterList::hasTotalCountHint() const
 
 const FilterEntry& FilterList::getEntry() const
 {
-	if ( !_pDecoder->decodingStarted() )
+	if ( !_pDecoder || !_pDecoder->decodingStarted() )
 	{
 		EmaString temp( "Attempt to getEntry() while iteration was NOT started." );
 

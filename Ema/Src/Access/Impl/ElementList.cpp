@@ -117,8 +117,10 @@ const EmaString& ElementList::toString( UInt64 indent ) const
 		}
 		else if ( tempDecoder.getLoad().getDataType() == DataType::BufferEnum )
 		{
-			_toString.append( "\" value=\n\n" ).append( tempDecoder.getLoad().getAsHex() ).append( "\n" );
-			addIndent( _toString, indent ).append( "ElementEntryEnd" );
+			if ( tempDecoder.getLoad().getCode() == Data::BlankEnum )
+				_toString.append( "\" value=\"" ).append( tempDecoder.getLoad().toString() ).append( "\"" );
+			else
+				_toString.append( "\"\n" ).append( tempDecoder.getLoad().toString() );
 		}
 		else
 			_toString.append( "\" value=\"" ).append( tempDecoder.getLoad().toString() ).append( "\"" );
@@ -149,7 +151,7 @@ Decoder& ElementList::getDecoder()
 
 const ElementEntry& ElementList::getEntry() const
 {
-	if ( !_pDecoder->decodingStarted() )
+	if ( !_pDecoder || !_pDecoder->decodingStarted() )
 	{
 		EmaString temp( "Attempt to getEntry() while iteration was NOT started." );
 

@@ -28,8 +28,6 @@
 #include "OmmUnsupportedDomainTypeException.h"
 #include "TunnelStreamRequest.h"
 
-#include <new>
-
 #define	EMA_BIG_STR_BUFF_SIZE (1024*4)
 using namespace thomsonreuters::ema::access;
 
@@ -138,7 +136,6 @@ void OmmConsumerImpl::readConfig( const OmmConsumerConfig& config )
 
 	_activeConfig.consumerName = pConfigImpl->getConsumerName();
 
-	EmaString channelName = pConfigImpl->getChannelName( _activeConfig.consumerName );
 	_activeConfig.loggerConfig.loggerName = pConfigImpl->getLoggerName( _activeConfig.consumerName );
 	_activeConfig.dictionaryConfig.dictionaryName = pConfigImpl->getDictionaryName( _activeConfig.consumerName );
 
@@ -243,276 +240,485 @@ void OmmConsumerImpl::readConfig( const OmmConsumerConfig& config )
 	}
 	else
 		_activeConfig.loggerConfig.loggerName.set( "Logger" );
+	
+	EmaString channelSet;
+	EmaString channelName = pConfigImpl->getChannelName( _activeConfig.consumerName );
 
-	if ( channelName.empty() )
+	if ( channelName.trimWhitespace().empty() )
 	{
-		try {
-			_activeConfig.channelConfig = new SocketChannelConfig();
-			if ( _activeConfig.channelConfig->getType() == ChannelConfig::SocketChannelEnum)
-			{
-				EmaString & tmp( pConfigImpl->getUserSpecifiedHostname() );
-				if ( tmp.length() )
-					static_cast<SocketChannelConfig*>(_activeConfig.channelConfig)->hostName = tmp;
-				tmp = pConfigImpl->getUserSpecifiedPort();
-				if ( tmp.length() )
-					static_cast<SocketChannelConfig*>(_activeConfig.channelConfig)->serviceName = tmp;
-			}
-		}
-		catch ( std::bad_alloc )
-		{
-			const char* temp( "Failed to allocate memory for SocketChannelConfig." );
-			throwMeeException( temp );
-			return;
-		}
+		EmaString nodeName("ConsumerGroup|ConsumerList|Consumer.");
+                              nodeName.append( _activeConfig.consumerName );
+                              nodeName.append("|ChannelSet");
 
-		if ( !_activeConfig.channelConfig )
-		{
-			const char* temp = "Failed to allocate memory for SocketChannelConfig.";
-			throwMeeException(temp);
-			return;
-		}
+		if( pConfigImpl->get<EmaString>( nodeName, channelSet ))
+		 {
+			char *pToken = NULL;
+			pToken = strtok(const_cast<char *>(channelSet.c_str()), ",");
+			do {				
+				if(pToken)
+				{
+					channelName = pToken;
+					ChannelConfig *newChannelConfig= readChannelConfig(pConfigImpl, (channelName.trimWhitespace()));
+					_activeConfig.configChannelSet.push_back(newChannelConfig);
 
-		_activeConfig.channelConfig->name.set( "Channel" );
+				}
+				pToken = strtok(NULL, ",");
+
+			} while(pToken != NULL);
+		}
+		else
+		{
+			EmaString channelName = "Channel";
+			useDefaultConfigValues(channelName, pConfigImpl->getUserSpecifiedHostname(), pConfigImpl->getUserSpecifiedPort());
+		}
 	}
 	else
 	{
-		EmaString channelNodeName( "ChannelGroup|ChannelList|Channel." );
-		channelNodeName.append( channelName ).append("|");
-
-		RsslConnectionTypes channelType;
-		if ( !pConfigImpl->get<RsslConnectionTypes>( channelNodeName + "ChannelType", channelType ) ||
-			pConfigImpl->getUserSpecifiedHostname().length() > 0 )
-			channelType = RSSL_CONN_TYPE_SOCKET;
-
-		switch ( channelType )
-		{
-		case RSSL_CONN_TYPE_SOCKET:
-			{
-				try {
-					_activeConfig.channelConfig = new SocketChannelConfig();
-				}
-				catch ( std::bad_alloc )
-				{
-					const char* temp( "Failed to allocate memory for SocketChannelConfig. (std::bad_alloc)" );
-					throwMeeException( temp );
-					return;
-				}
-
-				if ( !_activeConfig.channelConfig )
-				{
-					const char* temp = "Failed to allocate memory for SocketChannelConfig. (null ptr)";
-					throwMeeException(temp);
-					return;
-				}
-
-				EmaString & tmp( pConfigImpl->getUserSpecifiedHostname() );
-				if ( tmp.length() )
-					static_cast<SocketChannelConfig*>(_activeConfig.channelConfig)->hostName = tmp;
-				else
-					pConfigImpl->get< EmaString >( channelNodeName + "Host", static_cast<SocketChannelConfig*>(_activeConfig.channelConfig)->hostName );
-				
-				tmp = pConfigImpl->getUserSpecifiedPort();
-				if ( tmp.length() )
-					static_cast<SocketChannelConfig*>(_activeConfig.channelConfig)->serviceName = tmp;
-				else
-					pConfigImpl->get< EmaString >( channelNodeName + "Port", static_cast<SocketChannelConfig*>(_activeConfig.channelConfig)->serviceName );
-
-				UInt64 tempUInt = 1;
-				pConfigImpl->get<UInt64>( channelNodeName + "TcpNodelay", tempUInt );
-				if ( tempUInt )
-					static_cast<SocketChannelConfig*>(_activeConfig.channelConfig)->tcpNodelay = RSSL_TRUE;
-				else
-					static_cast<SocketChannelConfig*>(_activeConfig.channelConfig)->tcpNodelay = RSSL_FALSE;
-			
-				break;
-			}
-		case RSSL_CONN_TYPE_HTTP:
-			{
-				try {
-					_activeConfig.channelConfig = new HttpChannelConfig();
-				}
-				catch ( std::bad_alloc )
-				{
-					const char* temp( "Failed to allocate memory for HttpChannelConfig. (std::bad_alloc)" );
-					throwMeeException( temp );
-					return;
-				}
-
-				if ( !_activeConfig.channelConfig )
-				{
-					const char* temp = "Failed to allocate memory for HttpChannelConfig. (null ptr)";
-					throwMeeException(temp);
-					return;
-				}
-
-				pConfigImpl->get<EmaString>(channelNodeName + "Host", static_cast<HttpChannelConfig*>(_activeConfig.channelConfig)->hostName);
-
-				pConfigImpl->get<EmaString>(channelNodeName + "Port", static_cast<HttpChannelConfig*>(_activeConfig.channelConfig)->serviceName);
-
-				UInt64 tempUInt = 1;
-				pConfigImpl->get<UInt64>(channelNodeName + "TcpNodelay", tempUInt);
-				if (!tempUInt)
-					static_cast<HttpChannelConfig*>(_activeConfig.channelConfig)->tcpNodelay = RSSL_FALSE;
-				else
-					static_cast<HttpChannelConfig*>(_activeConfig.channelConfig)->tcpNodelay = RSSL_TRUE;
-
-				pConfigImpl->get<EmaString>(channelNodeName + "ObjectName", static_cast<HttpChannelConfig*>(_activeConfig.channelConfig)->objectName);
-
-				break;
-			}
-		case RSSL_CONN_TYPE_ENCRYPTED:
-			{
-				try {
-					_activeConfig.channelConfig = new EncryptedChannelConfig();
-				}
-				catch ( std::bad_alloc )
-				{
-					const char* temp( "Failed to allocate memory for EncryptedChannelConfig. (std::bad_alloc)" );
-					throwMeeException( temp );
-					return;
-				}
-
-				if ( !_activeConfig.channelConfig )
-				{
-					const char* temp = "Failed to allocate memory for EncryptedChannelConfig. (null ptr)";
-					throwMeeException(temp);
-					return;
-				}
-
-				pConfigImpl->get<EmaString>( channelNodeName + "Host", static_cast<EncryptedChannelConfig*>(_activeConfig.channelConfig)->hostName);
-
-				pConfigImpl->get<EmaString>( channelNodeName + "Port", static_cast<EncryptedChannelConfig*>(_activeConfig.channelConfig)->serviceName);
-
-				UInt64 tempUInt = 1;
-				pConfigImpl->get<UInt64>( channelNodeName + "TcpNodelay", tempUInt );
-				if ( tempUInt )
-					static_cast<EncryptedChannelConfig*>(_activeConfig.channelConfig)->tcpNodelay = RSSL_TRUE;
-				else
-					static_cast<EncryptedChannelConfig*>(_activeConfig.channelConfig)->tcpNodelay = RSSL_FALSE;
-
-				pConfigImpl->get<EmaString>(channelNodeName + "ObjectName", static_cast<EncryptedChannelConfig*>(_activeConfig.channelConfig)->objectName);
-
-				break;
-			}
-		default:
-			{
-			EmaString temp( "Not supported channel type. Type = " );
-			temp.append( (UInt32)channelType );
-			throwIueException(temp);
-			return;
-			}
-		}
-
-		_activeConfig.channelConfig->name = channelName;
-
-		pConfigImpl->get<EmaString>( channelNodeName + "InterfaceName", _activeConfig.channelConfig->interfaceName );
-
-		pConfigImpl->get<RsslCompTypes>( channelNodeName + "CompressionType", _activeConfig.channelConfig->compressionType );
-				
-		UInt64 tempUInt = 0;
-		if (pConfigImpl->get<UInt64>( channelNodeName + "GuaranteedOutputBuffers", tempUInt ) )
-		{
-			_activeConfig.channelConfig->setGuaranteedOutputBuffers( tempUInt );
-		}
-
-		tempUInt = 0;
-		if (pConfigImpl->get<UInt64>( channelNodeName + "NumInputBuffers", tempUInt ) )
-		{
-			_activeConfig.channelConfig->setNumInputBuffers( tempUInt );
-		}
-
-		tempUInt = 0;
-		if (pConfigImpl->get<UInt64>( channelNodeName + "CompressionThreshold", tempUInt ) )
-		{
-			_activeConfig.channelConfig->compressionThreshold = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
-		}
-
-		tempUInt = 0;
-		if ( pConfigImpl->get<UInt64>( channelNodeName + "ConnectionPingTimeout", tempUInt ) )
-		{
-			_activeConfig.channelConfig->connectionPingTimeout = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
-		}
-
-		tempUInt = 0;
-		if ( pConfigImpl->get<UInt64>( channelNodeName + "SysRecvBufSize", tempUInt ) )
-		{
-			_activeConfig.channelConfig->sysRecvBufSize = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
-		}
-
-		tempUInt = 0;
-		if ( pConfigImpl->get<UInt64>( channelNodeName + "SysSendBufSize", tempUInt ) )
-		{
-			_activeConfig.channelConfig->sysSendBufSize = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
-		}
-
-		Int64 tempInt = -1;
-		if ( pConfigImpl->get<Int64>( channelNodeName + "ReconnectAttemptLimit", tempInt ) )
-		{
-			_activeConfig.channelConfig->setReconnectAttemptLimit( tempInt );
-		}
-
-		tempInt = 0;
-		if ( pConfigImpl->get<Int64>( channelNodeName + "ReconnectMinDelay", tempInt ) )
-		{
-			_activeConfig.channelConfig->setReconnectMinDelay( tempInt );
-		}
-		
-		tempInt = 0;
-		if ( pConfigImpl->get<Int64>( channelNodeName + "ReconnectMaxDelay", tempInt ) )
-		{
-			_activeConfig.channelConfig->setReconnectMaxDelay( tempInt );
-		}
-
-		pConfigImpl->get<EmaString>( channelNodeName + "XmlTraceFileName", _activeConfig.channelConfig->xmlTraceFileName );
-
-		tempInt = 0;
-		pConfigImpl->get<Int64>( channelNodeName + "XmlTraceMaxFileSize", tempInt );
-		if ( tempInt > 0 )
-			_activeConfig.channelConfig->xmlTraceMaxFileSize = tempInt;
-
-		tempUInt = 0;
-		pConfigImpl->get<UInt64>( channelNodeName + "XmlTraceToFile", tempUInt );
-		if ( tempUInt > 0 )
-			_activeConfig.channelConfig->xmlTraceToFile = true;
-
-		tempUInt = 0;
-		pConfigImpl->get<UInt64>( channelNodeName + "XmlTraceToStdout", tempUInt );
-		if ( tempUInt > 0 )
-			_activeConfig.channelConfig->xmlTraceToStdout = true;
-
-		tempUInt = 0;
-		pConfigImpl->get<UInt64>( channelNodeName + "XmlTraceToMultipleFiles", tempUInt );
-		if ( tempUInt > 0 )
-			_activeConfig.channelConfig->xmlTraceToMultipleFiles = true;
-
-		tempUInt = 1;
-		pConfigImpl->get<UInt64>( channelNodeName + "XmlTraceWrite", tempUInt );
-		if (tempUInt == 0)
-			_activeConfig.channelConfig->xmlTraceWrite = false;
-
-		tempUInt = 1;
-		pConfigImpl->get<UInt64>( channelNodeName + "XmlTraceRead", tempUInt );
-		if ( tempUInt == 0 )
-			_activeConfig.channelConfig->xmlTraceRead = false;
-
-		tempUInt = 1;
-		pConfigImpl->get<UInt64>( channelNodeName + "MsgKeyInUpdates", tempUInt );
-		if ( tempUInt == 0 )
-			_activeConfig.channelConfig->msgKeyInUpdates = false;
+		ChannelConfig *newChannelConfig = readChannelConfig(pConfigImpl, (channelName.trimWhitespace()));
+		_activeConfig.configChannelSet.push_back(newChannelConfig);
 	}
+	
 	if ( ProgrammaticConfigure *  const ppc  = pConfigImpl->pProgrammaticConfigure() ) {
 		ppc->retrieveConsumerConfig( _activeConfig.consumerName, _activeConfig );
-		ppc->retrieveChannelConfig( channelName, _activeConfig, pConfigImpl->getUserSpecifiedHostname().length() > 0 );
+		bool isProgmaticCfgChannelName = ppc->getActiveChannelName(_activeConfig.consumerName, channelName.trimWhitespace());
+		bool isProgramatiCfgChannelset = ppc->getActiveChannelSet(_activeConfig.consumerName, channelSet.trimWhitespace());
+		unsigned int posInProgCfg  = 0;
+
+		if( isProgmaticCfgChannelName )
+		{
+			_activeConfig.clearChannelSet();
+			ChannelConfig *fileChannelConfig = readChannelConfig(pConfigImpl, (channelName.trimWhitespace()));
+			ppc->retrieveChannelConfig( channelName.trimWhitespace(), _activeConfig, pConfigImpl->getUserSpecifiedHostname().length() > 0, fileChannelConfig );
+			if( !(OmmConsumerActiveConfig::findChannelConfig(_activeConfig.configChannelSet, channelName.trimWhitespace(), posInProgCfg) ) )
+				_activeConfig.configChannelSet.push_back( fileChannelConfig );
+			else
+			{
+				if( fileChannelConfig )
+					delete fileChannelConfig;
+			}
+		}
+		else if(isProgramatiCfgChannelset)
+		{
+			_activeConfig.configChannelSet.clear();
+			char *pToken = NULL;
+			pToken = strtok(const_cast<char *>(channelSet.c_str()), ",");
+			while(pToken != NULL)
+			{
+				channelName = pToken;
+				ChannelConfig *fileChannelConfig = readChannelConfig(pConfigImpl, (channelName.trimWhitespace()));
+				ppc->retrieveChannelConfig( channelName.trimWhitespace(), _activeConfig, pConfigImpl->getUserSpecifiedHostname().length() > 0, fileChannelConfig );
+				if( !(OmmConsumerActiveConfig::findChannelConfig(_activeConfig.configChannelSet, channelName.trimWhitespace(), posInProgCfg) ) )
+					_activeConfig.configChannelSet.push_back( fileChannelConfig );
+				else
+				{
+					if( fileChannelConfig )
+						delete fileChannelConfig;
+				}
+
+				pToken = strtok(NULL, ",");
+			}
+		}
+
 		ppc->retrieveLoggerConfig( _activeConfig.loggerConfig.loggerName , _activeConfig );
 		ppc->retrieveDictionaryConfig( _activeConfig.dictionaryConfig.dictionaryName, _activeConfig );
 	}
 
+	if( _activeConfig.configChannelSet.size() == 0 ) {
+		EmaString channelName("Channel");
+		useDefaultConfigValues(channelName, pConfigImpl->getUserSpecifiedHostname(), pConfigImpl->getUserSpecifiedPort());
+	}
 	_activeConfig.userDispatch = pConfigImpl->getOperationModel();
 	_activeConfig.pRsslRDMLoginReq = pConfigImpl->getLoginReq();
 	_activeConfig.pRsslDirectoryRequestMsg = pConfigImpl->getDirectoryReq();
 	_activeConfig.pRsslEnumDefRequestMsg = pConfigImpl->getEnumDefDictionaryReq();
 	_activeConfig.pRsslRdmFldRequestMsg = pConfigImpl->getRdmFldDictionaryReq();
 	catchUnhandledException( _activeConfig.catchUnhandledException );
+}
+
+void OmmConsumerImpl::useDefaultConfigValues( const EmaString &channelName, const EmaString &host, const EmaString &port )
+{
+	SocketChannelConfig *newChannelConfig =  0;
+	try {
+		newChannelConfig = new SocketChannelConfig();
+		if ( host.length() )
+			newChannelConfig->hostName = host;
+		if ( port.length() )
+			newChannelConfig->serviceName = port;
+		newChannelConfig->name.set( channelName );
+		_activeConfig.configChannelSet.push_back(newChannelConfig);
+	}
+	catch ( std::bad_alloc )
+	{
+		const char* temp( "Failed to allocate memory for SocketChannelConfig." );
+		throwMeeException( temp );
+		return;
+	}
+}
+
+ChannelConfig*  OmmConsumerImpl::readChannelConfig(OmmConsumerConfigImpl* pConfigImpl, const EmaString&  channelName)
+{
+	ChannelConfig *newChannelConfig = NULL;
+	UInt32 maxUInt32( 0xFFFFFFFF );
+	EmaString channelNodeName( "ChannelGroup|ChannelList|Channel." );
+	channelNodeName.append( channelName ).append("|");
+
+	RsslConnectionTypes channelType;
+	if ( !pConfigImpl->get<RsslConnectionTypes>( channelNodeName + "ChannelType", channelType ) ||
+		pConfigImpl->getUserSpecifiedHostname().length() > 0 )
+		channelType = RSSL_CONN_TYPE_SOCKET;
+
+	switch ( channelType )
+	{
+	case RSSL_CONN_TYPE_SOCKET:
+		{
+			SocketChannelConfig *socketChannelCfg = NULL;
+			try {
+				socketChannelCfg = new SocketChannelConfig();
+				newChannelConfig = socketChannelCfg;
+			}
+			catch ( std::bad_alloc )
+			{
+				const char* temp( "Failed to allocate memory for SocketChannelConfig. (std::bad_alloc)" );
+				throwMeeException( temp );
+				return 0;
+			}
+
+			if ( !socketChannelCfg)
+			{
+				const char* temp = "Failed to allocate memory for SocketChannelConfig. (null ptr)";
+				throwMeeException(temp);
+				return 0;
+			}
+
+			EmaString  tmp = pConfigImpl->getUserSpecifiedHostname() ;
+			if ( tmp.length() )
+				socketChannelCfg->hostName = tmp;
+			else
+				pConfigImpl->get< EmaString >( channelNodeName + "Host", socketChannelCfg->hostName );
+				
+			tmp = pConfigImpl->getUserSpecifiedPort();
+			if ( tmp.length() )
+				socketChannelCfg->serviceName = tmp;
+			else
+				pConfigImpl->get< EmaString >( channelNodeName + "Port", socketChannelCfg->serviceName );
+
+			UInt64 tempUInt = 1;
+			pConfigImpl->get<UInt64>( channelNodeName + "TcpNodelay", tempUInt );
+			if ( tempUInt )
+				socketChannelCfg->tcpNodelay = RSSL_TRUE;
+			else
+				socketChannelCfg->tcpNodelay = RSSL_FALSE;
+			
+			break;
+		}
+	case RSSL_CONN_TYPE_HTTP:
+		{
+			HttpChannelConfig *httpChannelCfg = NULL;
+			try {
+				httpChannelCfg = new HttpChannelConfig();
+				newChannelConfig = httpChannelCfg;
+			}
+			catch ( std::bad_alloc )
+			{
+				const char* temp( "Failed to allocate memory for HttpChannelConfig. (std::bad_alloc)" );
+				throwMeeException( temp );
+				return 0;
+			}
+
+			if ( !httpChannelCfg )
+			{
+				const char* temp = "Failed to allocate memory for HttpChannelConfig. (null ptr)";
+				throwMeeException(temp);
+				return 0;
+			}
+
+			pConfigImpl->get<EmaString>(channelNodeName + "Host", httpChannelCfg->hostName);
+
+			pConfigImpl->get<EmaString>(channelNodeName + "Port", httpChannelCfg->serviceName);
+
+			UInt64 tempUInt = 1;
+			pConfigImpl->get<UInt64>(channelNodeName + "TcpNodelay", tempUInt);
+			if (!tempUInt)
+				httpChannelCfg->tcpNodelay = RSSL_FALSE;
+			else
+				httpChannelCfg->tcpNodelay = RSSL_TRUE;
+
+			pConfigImpl->get<EmaString>(channelNodeName + "ObjectName", httpChannelCfg->objectName);
+
+			break;
+		}
+	case RSSL_CONN_TYPE_ENCRYPTED:
+		{
+			EncryptedChannelConfig *encriptedChannelCfg = NULL;
+			try {
+				encriptedChannelCfg = new EncryptedChannelConfig();
+				newChannelConfig = encriptedChannelCfg;
+			}
+			catch ( std::bad_alloc )
+			{
+				const char* temp( "Failed to allocate memory for EncryptedChannelConfig. (std::bad_alloc)" );
+				throwMeeException( temp );
+				return 0;
+			}
+
+			if ( !newChannelConfig)
+			{
+				const char* temp = "Failed to allocate memory for EncryptedChannelConfig. (null ptr)";
+				throwMeeException(temp);
+				return 0;
+			}
+
+			pConfigImpl->get<EmaString>( channelNodeName + "Host", encriptedChannelCfg->hostName);
+
+			pConfigImpl->get<EmaString>( channelNodeName + "Port", encriptedChannelCfg->serviceName);
+
+			UInt64 tempUInt = 1;
+			pConfigImpl->get<UInt64>( channelNodeName + "TcpNodelay", tempUInt );
+			if ( tempUInt )
+				encriptedChannelCfg->tcpNodelay = RSSL_TRUE;
+			else
+				encriptedChannelCfg->tcpNodelay = RSSL_FALSE;
+
+			pConfigImpl->get<EmaString>(channelNodeName + "ObjectName", encriptedChannelCfg->objectName);
+
+			break;
+		}
+	case RSSL_CONN_TYPE_RELIABLE_MCAST:
+	{
+			ReliableMcastChannelConfig *relMcastChannelCfg = NULL;
+			try {
+				relMcastChannelCfg = new ReliableMcastChannelConfig();
+				newChannelConfig = relMcastChannelCfg;
+			}
+			catch ( std::bad_alloc )
+			{
+				const char* temp( "Failed to allocate memory for ReliableMcastChannelConfig. (std::bad_alloc)" );
+				throwMeeException( temp );
+				return 0;
+			}
+
+			if ( !newChannelConfig)
+			{
+				const char* temp = "Failed to allocate memory for ReliableMcastChannelConfig. (null ptr)";
+				throwMeeException(temp);
+				return 0;
+			}
+			EmaString errorMsg;
+			if(!readReliableMcastConfig(pConfigImpl, channelNodeName, relMcastChannelCfg, errorMsg))
+			{
+				throwIceException(errorMsg);
+				return 0;
+			}
+			break;
+		}
+	default:
+		{
+		EmaString temp( "Not supported channel type. Type = " );
+		temp.append( (UInt32)channelType );
+		throwIueException(temp);
+		return 0;
+		}
+	}
+	
+
+	newChannelConfig->name = channelName;
+
+	pConfigImpl->get<EmaString>( channelNodeName + "InterfaceName", newChannelConfig->interfaceName );
+
+	UInt64 tempUInt = 0;
+	if(channelType != RSSL_CONN_TYPE_RELIABLE_MCAST)
+	{
+		pConfigImpl->get<RsslCompTypes>( channelNodeName + "CompressionType", newChannelConfig->compressionType );
+	
+		tempUInt = 0;
+		if (pConfigImpl->get<UInt64>( channelNodeName + "CompressionThreshold", tempUInt ) )
+		{
+			newChannelConfig->compressionThreshold = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
+		}		
+	}
+
+	tempUInt = 0;
+	if (pConfigImpl->get<UInt64>( channelNodeName + "GuaranteedOutputBuffers", tempUInt ) )
+	{
+		newChannelConfig->setGuaranteedOutputBuffers( tempUInt );
+	}
+
+	tempUInt = 0;
+	if (pConfigImpl->get<UInt64>( channelNodeName + "NumInputBuffers", tempUInt ) )
+	{
+		newChannelConfig->setNumInputBuffers( tempUInt );
+	}
+
+	tempUInt = 0;
+	if ( pConfigImpl->get<UInt64>( channelNodeName + "ConnectionPingTimeout", tempUInt ) )
+	{
+		newChannelConfig->connectionPingTimeout = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
+	}
+
+	tempUInt = 0;
+	if ( pConfigImpl->get<UInt64>( channelNodeName + "SysRecvBufSize", tempUInt ) )
+	{
+		newChannelConfig->sysRecvBufSize = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
+	}
+
+	tempUInt = 0;
+	if ( pConfigImpl->get<UInt64>( channelNodeName + "SysSendBufSize", tempUInt ) )
+	{
+		newChannelConfig->sysSendBufSize = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
+	}
+
+	Int64 tempInt = -1;
+	if ( pConfigImpl->get<Int64>( channelNodeName + "ReconnectAttemptLimit", tempInt ) )
+	{
+		newChannelConfig->setReconnectAttemptLimit( tempInt );
+	}
+
+	tempInt = 0;
+	if ( pConfigImpl->get<Int64>( channelNodeName + "ReconnectMinDelay", tempInt ) )
+	{
+		newChannelConfig->setReconnectMinDelay( tempInt );
+	}
+		
+	tempInt = 0;
+	if ( pConfigImpl->get<Int64>( channelNodeName + "ReconnectMaxDelay", tempInt ) )
+	{
+		newChannelConfig->setReconnectMaxDelay( tempInt );
+	}
+
+	pConfigImpl->get<EmaString>( channelNodeName + "XmlTraceFileName", newChannelConfig->xmlTraceFileName );
+
+	tempInt = 0;
+	pConfigImpl->get<Int64>( channelNodeName + "XmlTraceMaxFileSize", tempInt );
+	if ( tempInt > 0 )
+		newChannelConfig->xmlTraceMaxFileSize = tempInt;
+
+	tempUInt = 0;
+	pConfigImpl->get<UInt64>( channelNodeName + "XmlTraceToFile", tempUInt );
+	if ( tempUInt > 0 )
+		newChannelConfig->xmlTraceToFile = true;
+
+	tempUInt = 0;
+	pConfigImpl->get<UInt64>( channelNodeName + "XmlTraceToStdout", tempUInt );
+	if ( tempUInt > 0 )
+		newChannelConfig->xmlTraceToStdout = true;
+
+	tempUInt = 0;
+	pConfigImpl->get<UInt64>( channelNodeName + "XmlTraceToMultipleFiles", tempUInt );
+	if ( tempUInt > 0 )
+		newChannelConfig->xmlTraceToMultipleFiles = true;
+
+	tempUInt = 1;
+	pConfigImpl->get<UInt64>( channelNodeName + "XmlTraceWrite", tempUInt );
+	if (tempUInt == 0)
+		newChannelConfig->xmlTraceWrite = false;
+
+	tempUInt = 1;
+	pConfigImpl->get<UInt64>( channelNodeName + "XmlTraceRead", tempUInt );
+	if ( tempUInt == 0 )
+		newChannelConfig->xmlTraceRead = false;
+
+	tempUInt = 1;
+	pConfigImpl->get<UInt64>( channelNodeName + "MsgKeyInUpdates", tempUInt );
+	if ( tempUInt == 0 )
+		newChannelConfig->msgKeyInUpdates = false;	
+
+	return newChannelConfig;
+}
+
+bool OmmConsumerImpl::readReliableMcastConfig(OmmConsumerConfigImpl* pConfigImpl, const EmaString& channNodeName, ReliableMcastChannelConfig *relMcastChannelCfg, EmaString& errorText)
+{
+	EmaString channelNodeName(channNodeName);
+
+	pConfigImpl->get<EmaString>( channelNodeName + "RecvAddress", relMcastChannelCfg->recvAddress);
+	if(	 relMcastChannelCfg->recvAddress.empty() )
+	{
+		errorText.clear();
+		errorText.append( "Invalid Channel Configuration for ChannelType [RSSL_RELIABLE_MCAST]. Missing required parameter [RecvAddress]." );
+		return false;
+	}
+
+	pConfigImpl->get<EmaString>( channelNodeName + "RecvPort", relMcastChannelCfg->recvServiceName);
+	if( relMcastChannelCfg->recvServiceName.empty() )
+	{
+		errorText.clear();
+		errorText.append( "Invalid Channel Configuration for ChannelType [RSSL_RELIABLE_MCAST]. Missing required parameter [RecvPort]." );
+		return false;
+	}
+
+	pConfigImpl->get<EmaString>( channelNodeName + "UnicastPort", relMcastChannelCfg->unicastServiceName);
+	if( relMcastChannelCfg->unicastServiceName.empty() )
+	{
+		errorText.clear();
+		errorText.append( "Invalid Channel Configuration for ChannelType [RSSL_RELIABLE_MCAST]. Missing required parameter [UnicastPort]." );
+		return false;
+	}
+
+	pConfigImpl->get<EmaString>( channelNodeName + "SendAddress", relMcastChannelCfg->sendAddress);
+	if( relMcastChannelCfg->sendAddress.empty() )
+	{
+		errorText.clear();
+		errorText.append( "Invalid Channel Configuration for ChannelType [RSSL_RELIABLE_MCAST]. Missing required parameter [SendAddress]." );
+		return false;
+	}
+
+	pConfigImpl->get<EmaString>( channelNodeName + "SendPort", relMcastChannelCfg->sendServiceName);
+	if( relMcastChannelCfg->sendServiceName.empty())
+	{
+		errorText.clear();
+		errorText.append( "Invalid Channel Configuration for ChannelType [RSSL_RELIABLE_MCAST]. Missing required parameter [SendPort]." );
+		return false;
+	}
+
+	UInt64 tempUIntval = 0;
+	if( pConfigImpl->get<UInt64>( channelNodeName + "DisconnectOnGap", tempUIntval ) )
+		relMcastChannelCfg->disconnectOnGap = (tempUIntval) ? true : false;
+		
+	tempUIntval = 0;
+	if( pConfigImpl->get<UInt64>( channelNodeName + "PacketTTL", tempUIntval ) )
+		relMcastChannelCfg->setPacketTTL(tempUIntval);
+			
+	pConfigImpl->get<EmaString>( channelNodeName + "HsmInterface", relMcastChannelCfg->hsmInterface);
+	pConfigImpl->get<EmaString>( channelNodeName + "HsmMultAddress", relMcastChannelCfg->hsmMultAddress);
+	pConfigImpl->get<EmaString>( channelNodeName + "HsmPort", relMcastChannelCfg->hsmPort);
+	tempUIntval = 0;
+	if( pConfigImpl->get<UInt64>( channelNodeName + "HsmInterval", tempUIntval ) )
+		relMcastChannelCfg->setHsmInterval(tempUIntval);
+	tempUIntval = 0;
+	if( pConfigImpl->get<UInt64>( channelNodeName + "ndata", tempUIntval ) )
+		relMcastChannelCfg->setNdata(tempUIntval);
+	tempUIntval = 0;
+	if( pConfigImpl->get<UInt64>( channelNodeName + "nmissing", tempUIntval ) )
+		relMcastChannelCfg->setNmissing(tempUIntval);
+	tempUIntval = 0;
+	if( pConfigImpl->get<UInt64>( channelNodeName + "nrreq", tempUIntval ) )
+		relMcastChannelCfg->setNrreq(tempUIntval);
+	tempUIntval = 0;
+	if( pConfigImpl->get<UInt64>( channelNodeName + "tdata", tempUIntval ) )
+		relMcastChannelCfg->setTdata(tempUIntval);
+	tempUIntval = 0;
+	if( pConfigImpl->get<UInt64>( channelNodeName + "trreq", tempUIntval ) )
+		relMcastChannelCfg->setTrreq(tempUIntval);
+	tempUIntval = 0;
+	if( pConfigImpl->get<UInt64>( channelNodeName + "pktPoolLimitHigh", tempUIntval ) )
+		relMcastChannelCfg->setPktPoolLimitHigh(tempUIntval);
+	tempUIntval = 0;
+	if( pConfigImpl->get<UInt64>( channelNodeName + "pktPoolLimitLow", tempUIntval ) )
+		relMcastChannelCfg->setPktPoolLimitLow(tempUIntval);
+	tempUIntval = 0;
+	if( pConfigImpl->get<UInt64>( channelNodeName + "twait", tempUIntval ) )
+		relMcastChannelCfg->setTwait(tempUIntval);
+	tempUIntval = 0;
+	if( pConfigImpl->get<UInt64>( channelNodeName + "tbchold", tempUIntval ) )
+		relMcastChannelCfg->setTbchold(tempUIntval);
+	tempUIntval = 0;
+	if( pConfigImpl->get<UInt64>( channelNodeName + "tpphold", tempUIntval ) )
+		relMcastChannelCfg->setTpphold(tempUIntval);
+	tempUIntval = 0;
+	if( pConfigImpl->get<UInt64>( channelNodeName + "userQLimit", tempUIntval ) )
+		relMcastChannelCfg->setUserQLimit(tempUIntval);
+	pConfigImpl->get<EmaString>( channelNodeName + "tcpControlPort", relMcastChannelCfg->tcpControlPort);
+
+	return true;
 }
 
 void OmmConsumerImpl::initialize( const OmmConsumerConfig& config )
@@ -619,27 +825,29 @@ void OmmConsumerImpl::initialize( const OmmConsumerConfig& config )
 
 		UInt64 timeOutLengthInMicroSeconds = _activeConfig.loginRequestTimeOut * 1000;
 		_eventTimedOut = false;
-		TimeOut * loginWatcher( new TimeOut ( *this, timeOutLengthInMicroSeconds, &OmmConsumerImpl::terminateIf, reinterpret_cast< void * >( this ) ) );
+		TimeOut * loginWatcher( new TimeOut ( *this, timeOutLengthInMicroSeconds, &OmmConsumerImpl::terminateIf, reinterpret_cast< void * >( this ), true ) );
 		while ( ! _atExit && ! _eventTimedOut && ( _ommConsumerState < LoginStreamOpenOkEnum ) )
 			rsslReactorDispatchLoop( _activeConfig.dispatchTimeoutApiThread, _activeConfig.maxDispatchCountApiThread );
+		
+		ChannelConfig *pChannelcfg = _activeConfig.configChannelSet[0];
 
 		if ( _eventTimedOut )
 		{
 			EmaString failureMsg( "login failed (timed out after waiting " );
 			failureMsg.append( _activeConfig.loginRequestTimeOut ).append( " milliseconds) for " );
-			if ( _activeConfig.channelConfig->getType() == ChannelConfig::SocketChannelEnum )
+			if ( pChannelcfg->getType() == ChannelConfig::SocketChannelEnum )
 			{
-				SocketChannelConfig * channelConfig( reinterpret_cast< SocketChannelConfig * >( _activeConfig.channelConfig ) );
+				SocketChannelConfig * channelConfig( reinterpret_cast< SocketChannelConfig * >( pChannelcfg ) );
 				failureMsg.append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append(")");
 			}
-			else if ( _activeConfig.channelConfig->getType() == ChannelConfig::HttpChannelEnum )
+			else if (pChannelcfg->getType() == ChannelConfig::HttpChannelEnum )
 			{
-				HttpChannelConfig * channelConfig( reinterpret_cast< HttpChannelConfig * >( _activeConfig.channelConfig ) );
+				HttpChannelConfig * channelConfig( reinterpret_cast< HttpChannelConfig * >( pChannelcfg ) );
 				failureMsg.append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append(")");
 			}
-			else if ( _activeConfig.channelConfig->getType() == ChannelConfig::EncryptedChannelEnum )
+			else if ( pChannelcfg->getType() == ChannelConfig::EncryptedChannelEnum )
 			{
-				EncryptedChannelConfig * channelConfig( reinterpret_cast< EncryptedChannelConfig * >( _activeConfig.channelConfig ) );
+				EncryptedChannelConfig * channelConfig( reinterpret_cast< EncryptedChannelConfig * >(pChannelcfg) );
 				failureMsg.append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append(")");
 			}
 
@@ -653,7 +861,7 @@ void OmmConsumerImpl::initialize( const OmmConsumerConfig& config )
 
 		timeOutLengthInMicroSeconds = _activeConfig.directoryRequestTimeOut * 1000;
 		_eventTimedOut = false;
-		loginWatcher = new TimeOut ( *this, timeOutLengthInMicroSeconds, &OmmConsumerImpl::terminateIf, reinterpret_cast< void * >( this ) );
+		loginWatcher = new TimeOut ( *this, timeOutLengthInMicroSeconds, &OmmConsumerImpl::terminateIf, reinterpret_cast< void * >( this ), true );
 		while ( ! _atExit && ! _eventTimedOut && ( _ommConsumerState < DirectoryStreamOpenOkEnum ) )
 			rsslReactorDispatchLoop( _activeConfig.dispatchTimeoutApiThread, _activeConfig.maxDispatchCountApiThread );
 
@@ -661,9 +869,9 @@ void OmmConsumerImpl::initialize( const OmmConsumerConfig& config )
 		{
 			EmaString failureMsg( "directory retrieval failed (timed out after waiting " );
 			failureMsg.append( _activeConfig.directoryRequestTimeOut ).append( " milliseconds) for " );
-			if ( _activeConfig.channelConfig->getType() == ChannelConfig::SocketChannelEnum )
+			if ( pChannelcfg->getType() == ChannelConfig::SocketChannelEnum )
 			{
-				SocketChannelConfig * channelConfig( reinterpret_cast< SocketChannelConfig * >( _activeConfig.channelConfig ) );
+				SocketChannelConfig * channelConfig( reinterpret_cast< SocketChannelConfig * >( pChannelcfg ) );
 				failureMsg.append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append(")");
 			}
 			if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
@@ -676,7 +884,7 @@ void OmmConsumerImpl::initialize( const OmmConsumerConfig& config )
 
 		timeOutLengthInMicroSeconds = _activeConfig.dictionaryRequestTimeOut * 1000;
 		_eventTimedOut = false;
-		loginWatcher = new TimeOut ( *this, timeOutLengthInMicroSeconds, &OmmConsumerImpl::terminateIf, reinterpret_cast< void * >( this ) );
+		loginWatcher = new TimeOut ( *this, timeOutLengthInMicroSeconds, &OmmConsumerImpl::terminateIf, reinterpret_cast< void * >( this ), true );
 		while ( !_atExit && ! _eventTimedOut && !_pDictionaryCallbackClient->isDictionaryReady() )
 			rsslReactorDispatchLoop( _activeConfig.dispatchTimeoutApiThread, _activeConfig.maxDispatchCountApiThread );
 
@@ -684,9 +892,9 @@ void OmmConsumerImpl::initialize( const OmmConsumerConfig& config )
 		{
 			EmaString failureMsg( "dictionary retrieval failed (timed out after waiting " );
 			failureMsg.append( _activeConfig.dictionaryRequestTimeOut ).append( " milliseconds) for " );
-			if ( _activeConfig.channelConfig->getType() == ChannelConfig::SocketChannelEnum )
+			if ( pChannelcfg->getType() == ChannelConfig::SocketChannelEnum )
 			{
-				SocketChannelConfig * channelConfig( reinterpret_cast< SocketChannelConfig * >( _activeConfig.channelConfig ) );
+				SocketChannelConfig * channelConfig( reinterpret_cast< SocketChannelConfig * >( pChannelcfg ) );
 				failureMsg.append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append(")");
 			}
 			if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
@@ -774,7 +982,8 @@ void OmmConsumerImpl::uninitialize( bool caughtExcep )
 		if ( _pLoginCallbackClient && !caughtExcep )
 			rsslReactorDispatchLoop( 10000, _pLoginCallbackClient->sendLoginClose() );
 
-		_pChannelCallbackClient->closeChannels();
+		if ( _pChannelCallbackClient )
+			_pChannelCallbackClient->closeChannels();
 
 		RsslErrorInfo rsslErrorInfo;
 		

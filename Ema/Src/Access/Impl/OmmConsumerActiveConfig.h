@@ -12,7 +12,7 @@
 #include "EmaString.h"
 #include "OmmLoggerClient.h"
 #include "DictionaryCallbackClient.h"
-#include "OmmConsumerConfig.h"
+#include "OmmConsumerConfigImpl.h"
 #include "rtr/rsslTransport.h"
 
 #define DEFAULT_COMPRESSION_THRESHOLD				30
@@ -29,6 +29,7 @@
 #define DEFAULT_SYS_RECEIVE_BUFFER_SIZE				0
 #define DEFAULT_HANDLE_EXCEPTION					true
 #define DEFAULT_HOST_NAME							EmaString( "localhost" )
+#define DEFAULT_CHANNEL_SET_NAME					EmaString( "" ) 
 #define DEFAULT_INCLUDE_DATE_IN_LOGGER_OUTPUT		false
 #define DEFAULT_INTERFACE_NAME						EmaString( "" )
 #define DEFAULT_ITEM_COUNT_HINT						100000
@@ -51,6 +52,19 @@
 #define DEFAULT_SERVICE_NAME						EmaString( "14002" )
 #define DEFAULT_OBJECT_NAME							EmaString( "" )
 #define DEFAULT_TCP_NODELAY							RSSL_TRUE
+#define DEFAULT_CONS_MCAST_CFGSTRING				EmaString( "" )
+#define DEFAULT_PACKET_TTL							5
+#define DEFAULT_NDATA								7
+#define DEFAULT_NMISSING							128
+#define DEFAULT_NREQ								3
+#define DEFAULT_PKT_POOLLIMIT_HIGH					190000
+#define DEFAULT_PKT_POOLLIMIT_LOW					180000
+#define DEFAULT_TDATA								1
+#define DEFAULT_TRREQ								4
+#define DEFAULT_TWAIT								3
+#define DEFAULT_TBCHOLD								3
+#define DEFAULT_TPPHOLD								3
+#define DEFAULT_USER_QLIMIT							65535
 #define DEFAULT_USER_DISPATCH						OmmConsumerConfig::ApiDispatchEnum
 #define DEFAULT_XML_TRACE_FILE_NAME					EmaString( "EmaTrace" )
 #define DEFAULT_XML_TRACE_MAX_FILE_SIZE				100000000
@@ -113,7 +127,7 @@ public :
 	bool					xmlTraceWrite;
 	bool					xmlTraceRead;
 	bool					msgKeyInUpdates;
-
+	Channel*				pChannel;
 private : 
 
 	ChannelConfig();
@@ -146,7 +160,58 @@ public :
 
 	virtual ~ReliableMcastChannelConfig();
 
+	void setPacketTTL(UInt64 value);
+
+	void setHsmInterval(UInt64 value);
+
+	void setNdata(UInt64 value);
+
+	void setNmissing(UInt64 value);
+
+	void setNrreq(UInt64 value);
+
+	void setTdata(UInt64 value);
+
+	void setTrreq(UInt64 value);
+
+	void setPktPoolLimitHigh(UInt64 value);
+
+	void setPktPoolLimitLow(UInt64 value);
+
+	void setTwait(UInt64 value);
+
+	void setTbchold(UInt64 value);
+
+	void setTpphold(UInt64 value);
+
+	void setUserQLimit(UInt64 value);
+
 	void clear();
+
+	EmaString				recvAddress;
+	EmaString				recvServiceName;
+	EmaString				unicastServiceName;
+	EmaString				sendAddress;
+	EmaString				sendServiceName;
+	EmaString				tcpControlPort;
+	EmaString				hsmInterface;
+	EmaString				hsmMultAddress;
+	EmaString				hsmPort;
+	UInt16					hsmInterval;
+	bool					disconnectOnGap;
+	UInt8					packetTTL;
+	UInt32					ndata;
+	UInt16					nmissing;
+	UInt32					nrreq;
+	UInt32					tdata;
+	UInt32					trreq;
+	UInt32					twait;
+	UInt32					tbchold;
+	UInt32					tpphold;
+	UInt32					pktPoolLimitHigh;
+	UInt32					pktPoolLimitLow;
+	UInt16					userQLimit;
+
 
 	ChannelType getType() const;
 
@@ -245,7 +310,9 @@ public :
 	void setLoginRequestTimeOut( UInt64 );
 	void setDirectoryRequestTimeOut( UInt64 );
 	void setDictionaryRequestTimeOut( UInt64 );
-
+	ChannelConfig* findChannelConfig(const Channel* pChannel);
+	static bool findChannelConfig(EmaVector< ChannelConfig* > &, const EmaString &, unsigned int &);
+	void	clearChannelSet();
 	EmaString						consumerName;
 	EmaString                       instanceName;
 	UInt32							itemCountHint;
@@ -265,13 +332,13 @@ public :
 
 	OmmConsumerConfig::OperationModel		userDispatch;
 	
-	ChannelConfig*					channelConfig;
+	EmaVector< ChannelConfig* >		configChannelSet;
 	DictionaryConfig				dictionaryConfig;
 	LoggerConfig					loggerConfig;
 	RsslRDMLoginRequest*			pRsslRDMLoginReq;
 	RsslRequestMsg*					pRsslDirectoryRequestMsg;
-	RsslRequestMsg*					pRsslRdmFldRequestMsg;
-	RsslRequestMsg*					pRsslEnumDefRequestMsg;
+	AdminReqMsg*					pRsslRdmFldRequestMsg;
+	AdminReqMsg*					pRsslEnumDefRequestMsg;
 };
 
 }

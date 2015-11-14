@@ -233,7 +233,7 @@ const EmaString& UpdateMsg::getServiceName() const
 Decoder& UpdateMsg::getDecoder()
 {
 	if ( !_pDecoder )
-		Msg::setDecoder( g_pool._updateMsgDecoderPool.getItem() );
+		setDecoder( g_pool._updateMsgDecoderPool.getItem() );
 
 	return *_pDecoder;
 }

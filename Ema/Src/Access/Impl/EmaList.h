@@ -10,6 +10,7 @@
 #define __thomsonreuters_ema_access_EmaList_h
 
 #include "Common.h"
+#include "Utilities.h"
 
 namespace thomsonreuters {
 
@@ -50,44 +51,46 @@ template< class T >
 class EmaList
 {
 public:
-	EmaList();
-	virtual ~EmaList();
 
+	EmaList() {
+		EMA_ASSERT( false, "EmaList only supported for pointer types" );
+	}
+};
+
+template< class T >
+class EmaList< T* >
+{
+public:
+
+	EmaList();
+	~EmaList();
+	void clear();
 	bool empty() const;
 	UInt32 size() const;
-
-	void clear();
 	void push_back( T* );
 	void push_front( T* );
 	T* pop_back();
 	T* pop_front();
+	T * back() const;
+	T * front() const;
+	void insert( T* );
 	void remove( T* );
 
-    T * front() const;
-    T * back() const;
-
-	void print();
-
-	void insert( T * );
 private:
 	UInt32 _size;
 	T * _list;
 	T * _last;
-
-	EmaList( const EmaList< T >& other );
-	EmaList< T >& operator=( const EmaList< T >& other );
-	bool operator==( const EmaList< T >& other ) const;
 };
 
 template< class T >
-EmaList< T >::EmaList() : _size( 0 ), _list( 0 ), _last(0) {}
+EmaList< T* >::EmaList() : _size( 0 ), _list( 0 ), _last(0) {}
 
 template< class T >
-EmaList<T>::~EmaList() {}
+EmaList< T* >::~EmaList() {}
 
 template< class T >
 void
-EmaList< T >::clear()
+EmaList< T* >::clear()
 {
     _list = _last = 0;
     _size = 0;
@@ -95,21 +98,21 @@ EmaList< T >::clear()
 
 template< class T >
 bool
-EmaList< T >::empty() const
+EmaList< T* >::empty() const
 {
 	return _size == 0;
 }
 
 template< class T >
 UInt32 
-EmaList< T >::size() const
+EmaList< T* >::size() const
 {
 	return _size;
 }
 
 template< class T >
 void
-EmaList< T >::push_back( T * element ) {
+EmaList< T* >::push_back( T * element ) {
 	if ( _last )
 	{
 		_last->setNextPointer( element );
@@ -124,7 +127,7 @@ EmaList< T >::push_back( T * element ) {
 
 template< class T >
 void
-EmaList< T >::push_front( T* element )
+EmaList< T* >::push_front( T* element )
 {
     if ( _list )
 	{
@@ -140,7 +143,7 @@ EmaList< T >::push_front( T* element )
 
 template< class T >
 T*
-EmaList< T >::pop_back()
+EmaList< T* >::pop_back()
 {
 	T* returnValue( _last );
 
@@ -165,7 +168,7 @@ EmaList< T >::pop_back()
 
 template< class T >
 T *
-EmaList< T >::pop_front()
+EmaList< T* >::pop_front()
 {
 	T* returnValue( _list );
 
@@ -191,21 +194,21 @@ EmaList< T >::pop_front()
 
 template< class T >
 T *
-EmaList< T >::front() const
+EmaList< T* >::front() const
 {
     return _list;
 }
 
 template< class T >
 T *
-EmaList< T >::back() const
+EmaList< T* >::back() const
 {
     return _last;
 }
 
 template< class T >
 void
-EmaList< T >::remove( T* element )
+EmaList< T* >::remove( T* element )
 {
 	if ( element->previous() )
 		element->previous()->next( element->next() );
@@ -229,7 +232,7 @@ EmaList< T >::remove( T* element )
 
 template< class T >
 void
-EmaList< T >::insert( T * item )
+EmaList< T* >::insert( T * item )
 {
 	if ( _size )
 	{

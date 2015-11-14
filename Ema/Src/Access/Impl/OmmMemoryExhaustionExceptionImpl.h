@@ -17,7 +17,7 @@ namespace ema {
 
 namespace access {
 
-class EMA_ACCESS_API OmmMemoryExhaustionExceptionImpl : public OmmMemoryExhaustionException
+class OmmMemoryExhaustionExceptionImpl : public OmmMemoryExhaustionException
 {
 public :
 

@@ -65,7 +65,7 @@ void OmmStateDecoder::setRsslData( RsslState* rsslState )
 		_dataCode = Data::BlankEnum;
 
 		_rsslState.code = RSSL_SC_NONE;
-		_rsslState.code = RSSL_DATA_OK;
+		_rsslState.dataState = RSSL_DATA_OK;
 		_rsslState.streamState = RSSL_STREAM_OPEN;
 		rsslClearBuffer( &_rsslState.text );
 	}
@@ -74,9 +74,12 @@ void OmmStateDecoder::setRsslData( RsslState* rsslState )
 const EmaString& OmmStateDecoder::toString()
 {
 	if ( _dataCode == Data::BlankEnum )
-		_toString.clear().set( "(blank data)" );
-	else
-		stateToString( &_rsslState, _toString );
+	{
+		static const EmaString blankData( "(blank data)" );
+		return blankData;
+	}
+	
+	stateToString( &_rsslState, _toString );
 
 	return _toString;
 }

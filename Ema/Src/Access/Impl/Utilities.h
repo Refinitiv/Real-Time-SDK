@@ -59,7 +59,7 @@ void emafail( const char* cond, const char* msg, const char* file, int line )
 
 #define EMAFAIL(cond, msg) emafail(cond, msg, __FILE__, __LINE__)
 
-#if defined(NDEBUG) && !defined(_EMA_RELEASE_ASSERT_) 
+#if defined(NDEBUG)
 	#define EMA_ASSERT(COND, MSG)
 #else
 	#if defined(__STDC__) || defined(_MSC_VER)

@@ -38,21 +38,23 @@ Thread::~Thread()
 }
 
 #ifdef WIN32
+int Thread::handleException( void* arg, _EXCEPTION_POINTERS* info )
+{
+	((Thread*)arg)->runLog( info, __FILE__, __LINE__ ); 
+	return ((( Thread* ) arg)->_handleException ) ? 1 : EXCEPTION_CONTINUE_SEARCH;
+}
+
 unsigned int __stdcall Thread::runThread( void* arg )
 {
 	__try {
 		((Thread*)arg)->run();
 	}
-	__except( ((Thread*)arg)->_handleException ? ((Thread*)arg)->runLog( GetExceptionInformation(), __FILE__, __LINE__ ) : EXCEPTION_CONTINUE_SEARCH )
+	__except ( handleException( arg, GetExceptionInformation() ) )
 	{
-		if ( ((Thread*)arg)->_handleException )
-		{
-			((Thread*)arg)->cleanUp();
-		}
-
+		((Thread*)arg)->cleanUp();
 		return -1;
 	}
-
+	
 	return 0;
 }
 		

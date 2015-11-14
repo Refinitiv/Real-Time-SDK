@@ -108,7 +108,7 @@ public :
 
 private :
 
-	EmaList< Login >		_list;
+	EmaList< Login* >		_list;
 
 	LoginList( const LoginList& );
 	LoginList& operator=( const LoginList& );

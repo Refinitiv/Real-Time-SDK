@@ -17,856 +17,838 @@
 using namespace thomsonreuters::ema::access;
 
 EmaString::EmaString() :
- _pString( 0 ),
- _length( 0 ),
- _capacity( 0 )
+    _pString ( 0 ),
+    _length ( 0 ),
+    _capacity ( 0 )
 {
 }
 
-EmaString::EmaString( const char* str, UInt32 length ) :
- _pString( 0 ),
- _length( str ? length : 0 ),
- _capacity( length + 1 )
+EmaString::EmaString ( const char* str, UInt32 length ) :
+    _pString ( 0 ),
+    _length ( str ? length : 0 ),
+    _capacity ( length + 1 )
 {
-	if ( !length )
-	{
-		_length = str ? static_cast<UInt32>( strlen( str ) ) : 0;
-		_capacity = _length + 1;
-	}
+    if ( length == EmaString::npos )
+    {
+        _length = str ? static_cast<UInt32> ( strlen( str ) ) : 0;
+        _capacity = _length + 1;
+    }
 
-	if ( _length )
-	{
-		_pString = (char*)malloc( _capacity );
+    if ( length )
+    {
+        _pString = ( char* )malloc( _capacity );
 
-		if ( !_pString )
-		{
-			const char* temp = "Failed to allocate memory in EmaString( const char* , UInt32 ).";
-			throwMeeException( temp );
-			return;
-		}
+        if ( !_pString )
+        {
+            const char* temp = "Failed to allocate memory in EmaString( const char* , UInt32 ).";
+            throwMeeException( temp );
+            return;
+        }
 
-		if ( str )
-		{
-			memcpy( _pString, str, _length );
-			*(_pString + _length) = 0x00;
-		}
-		else
-		{
-			*_pString = 0x00;
-		}
-	}
-	else
-	{
-		_capacity = 0;
-	}
+        memcpy( _pString, str, _length );
+        *( _pString + _length ) = 0x00;
+    }
+    else
+    {
+        _capacity = 0;
+    }
 }
 
-EmaString::EmaString( const EmaString& other ) :
- _pString( 0 ),
- _length( other._length ),
- _capacity( other._length + 1 )
+EmaString::EmaString ( const EmaString& other ) :
+    _pString ( 0 ),
+    _length ( other._length ),
+    _capacity ( other._length + 1 )
 {
-	if ( _length )
-	{
-		_pString = (char*)malloc( _capacity );
+    if ( other._length )
+    {
+        _pString = ( char* )malloc( _capacity );
 
-		if ( !_pString )
-		{
-			const char* temp = "Failed to allocate memory in EmaString( const EmaString& ).";
-			throwMeeException( temp );
-			return;
-		}
+        if ( !_pString )
+        {
+            const char* temp = "Failed to allocate memory in EmaString( const char* , UInt32 ).";
+            throwMeeException( temp );
+            return;
+        }
 
-		if ( other._pString )
-		{
-			memcpy( _pString, other._pString, _length );
-			*(_pString + _length) = 0x00;
-		}
-		else
-		{
-			*_pString = 0x00;
-		}
-	}
-	else
-	{
-		_capacity = 0;
-	}
+        memcpy( _pString, other._pString, _length );
+        *( _pString + _length ) = 0x00;
+    }
+    else
+    {
+        _capacity = 0;
+    }
 }
 
 EmaString::~EmaString()
 {
-	if ( _pString )
-		free( _pString );
+    if ( _pString )
+        free ( _pString );
 }
 
 EmaString& EmaString::clear()
 {
-	_length = 0;
-	if ( _pString )
-		*_pString = 0x00;
+    _length = 0;
+    if ( _pString )
+        *_pString = 0x00;
 
-	return *this;
+    return *this;
 }
 
 bool EmaString::empty() const
 {
-	return !_length ? true : false;
+    return !_length ? true : false;
 }
 
 const char* EmaString::c_str() const
 {
-	return _pString ? _pString : "";
+    return _pString ? _pString : "";
 }
 
 UInt32 EmaString::length() const
 {
-	return _length;
+    return _length;
 }
 
-EmaString& EmaString::operator=( const char* str )
+EmaString& EmaString::operator= ( const char* str )
 {
-	return set( str );
+    return set ( str );
 }
 
-EmaString& EmaString::operator=( const EmaString& other )
+EmaString& EmaString::operator= ( const EmaString& other )
 {
-	if ( this == &other ) return *this;
+    if ( this == &other ) return *this;
 
-	if ( other._length )
-	{
-		if ( _capacity <= other._length )
-		{
-			_capacity = other._length + 1;
-		
-			if ( _pString )
-			{
-				free( _pString );
-				_pString = 0;
-			}
-		
-			_pString = (char*)malloc( _capacity );
-			if ( !_pString )
-			{
-				const char* temp = "Failed to allocate memory in EmaString::operator=( const EmaString& ).";
-				throwMeeException( temp );
-				return *this;
-			}
-		}
+    if ( other._length )
+    {
+        if ( _capacity <= other._length )
+        {
+            _capacity = other._length + 1;
 
-		_length = other._length;
+            if ( _pString )
+            {
+                free ( _pString );
+                _pString = 0;
+            }
 
-		if ( other._pString )
-			memcpy( _pString, other._pString, _length );
+            _pString = ( char* ) malloc ( _capacity );
+            if ( !_pString )
+            {
+                const char* temp = "Failed to allocate memory in EmaString::operator=( const EmaString& ).";
+                throwMeeException ( temp );
+                return *this;
+            }
+        }
 
-		*(_pString + _length) = 0x00;
-	}
-	else
-	{
-		clear();
-	}
+        _length = other._length;
 
-	return *this;
+        if ( other._pString )
+            memcpy ( _pString, other._pString, _length );
+
+        * ( _pString + _length ) = 0x00;
+    }
+    else
+    {
+        clear();
+    }
+
+    return *this;
 }
 
-EmaString& EmaString::set( const char* str, UInt32 length )
+EmaString& EmaString::set ( const char* str, UInt32 length )
 {
-	if ( !length )
-		_length = str ? static_cast<UInt32>( strlen( str ) ) : 0;
-	else
-		_length = str ? length : 0;
+    if ( length == EmaString::npos )
+        _length = str ? static_cast<UInt32> ( strlen( str ) ) : 0;
+    else
+        _length = str ? length : 0;
 
-	if ( _length )
-	{
-		if ( _capacity <= (str ? _length : length) )
-		{
-			_capacity = (str ? _length : length) + 1;
-		
-			if ( _pString )
-			{
-				free( _pString );
-				_pString = 0;
-			}
-		
-			_pString = (char*)malloc( _capacity );
-			if ( !_pString )
-			{
-				const char* temp = "Failed to allocate memory in EmaString::set( const char* , UInt32 ).";
-				throwMeeException( temp );
-				return *this;
-			}
-		}
+    if ( length )
+    {
+        if ( _capacity <= _length )
+        {
+            _capacity = _length + 1;
 
-		if ( str )
-		{
-			memcpy( _pString, str, _length );
-			*(_pString + _length) = 0x00;
-		}
-		else
-		{
-			*_pString = 0x00;
-		}
-	}
-	else
-	{
-		clear();
-	}
+            if ( _pString )
+            {
+                free( _pString );
+                _pString = 0;
+            }
 
-	return *this;
+            _pString = ( char* )malloc( _capacity );
+            if ( !_pString )
+            {
+                const char* temp = "Failed to allocate memory in EmaString::set( const char* , UInt32 ).";
+                throwMeeException( temp );
+                return *this;
+            }
+        }
+
+        memcpy( _pString, str, _length );
+        *( _pString + _length ) = 0x00;
+    }
+
+    else
+    {
+        clear();
+    }
+
+    return *this;
 }
 
-EmaString& EmaString::append( Int64 i )
+EmaString& EmaString::append ( Int64 i )
 {
-	if ( _capacity <= _length + 21 )
-	{
-		_capacity = _length + 22;
+    if ( _capacity <= _length + 21 )
+    {
+        _capacity = _length + 22;
 
-		char* pNewString = (char*)malloc( _capacity );
-		if ( !pNewString )
-		{
-			const char* temp = "Failed to allocate memory in EmaString::append( Int64 ).";
-			throwMeeException( temp );
-			return *this;
-		}
+        char* pNewString = ( char* ) malloc ( _capacity );
+        if ( !pNewString )
+        {
+            const char* temp = "Failed to allocate memory in EmaString::append( Int64 ).";
+            throwMeeException ( temp );
+            return *this;
+        }
 
-		if ( _pString )
-		{
-			memcpy( pNewString, _pString, _length );
-			free( _pString );
-		}
+        if ( _pString )
+        {
+            memcpy ( pNewString, _pString, _length );
+            free ( _pString );
+        }
 
-		_length += sprintf( pNewString + _length, "%lld", i );
-
-		_pString = pNewString;
-	}
-	else
-	{
-		_length += sprintf( _pString + _length, "%lld", i );
-	}
-		
-	return *this;
-}
-
-EmaString& EmaString::append( UInt64 i )
-{
-	if ( _capacity <= _length + 21 )
-	{
-		_capacity = _length + 22;
-
-		char* pNewString = (char*)malloc( _capacity );
-		if ( !pNewString )
-		{
-			const char* temp = "Failed to allocate memory in EmaString::append( UInt64 ).";
-			throwMeeException( temp );
-			return *this;
-		}
-
-		if ( _pString )
-		{
-			memcpy( pNewString, _pString, _length );
-			free( _pString );
-		}
+        _length += sprintf ( pNewString + _length, "%lld", i );
 
         _pString = pNewString;
-	}
-	
-	_length += sprintf( _pString + _length, "%llu", i );
+    }
+    else
+    {
+        _length += sprintf ( _pString + _length, "%lld", i );
+    }
 
-	return *this;
+    return *this;
 }
 
-EmaString& EmaString::append( Int32 i )
+EmaString& EmaString::append ( UInt64 i )
 {
-	if ( _capacity <= _length + 12 )
-	{
-		_capacity = _length + 13;
+    if ( _capacity <= _length + 21 )
+    {
+        _capacity = _length + 22;
 
-		char* pNewString = (char*)malloc( _capacity );
-		if ( !pNewString )
-		{
-			const char* temp = "Failed to allocate memory in EmaString::append( Int32 ).";
-			throwMeeException( temp );
-			return *this;
-		}
+        char* pNewString = ( char* ) malloc ( _capacity );
+        if ( !pNewString )
+        {
+            const char* temp = "Failed to allocate memory in EmaString::append( UInt64 ).";
+            throwMeeException ( temp );
+            return *this;
+        }
 
-		if ( _pString )
-		{
-			memcpy( pNewString, _pString, _length );
-			free( _pString );
-		}
+        if ( _pString )
+        {
+            memcpy ( pNewString, _pString, _length );
+            free ( _pString );
+        }
 
-		_length += sprintf( pNewString + _length, "%i", i );
+        _pString = pNewString;
+    }
 
-		_pString = pNewString;
-	}
-	else
-	{
-		_length += sprintf( _pString + _length, "%i", i );
-	}
-		
-	return *this;
+    _length += sprintf ( _pString + _length, "%llu", i );
+
+    return *this;
 }
 
-EmaString& EmaString::append( UInt32 i )
+EmaString& EmaString::append ( Int32 i )
 {
-	if ( _capacity <= _length + 12 )
-	{
-		_capacity = _length + 13;
+    if ( _capacity <= _length + 12 )
+    {
+        _capacity = _length + 13;
 
-		char* pNewString = (char*)malloc( _capacity );
-		if ( !pNewString )
-		{
-			const char* temp = "Failed to allocate memory in EmaString::append( UInt32 ).";
-			throwMeeException( temp );
-			return *this;
-		}
+        char* pNewString = ( char* ) malloc ( _capacity );
+        if ( !pNewString )
+        {
+            const char* temp = "Failed to allocate memory in EmaString::append( Int32 ).";
+            throwMeeException ( temp );
+            return *this;
+        }
 
-		if ( _pString )
-		{
-			memcpy( pNewString, _pString, _length );
-			free( _pString );
-		}
+        if ( _pString )
+        {
+            memcpy ( pNewString, _pString, _length );
+            free ( _pString );
+        }
 
-		_length += sprintf( pNewString + _length, "%u", i );
+        _length += sprintf ( pNewString + _length, "%i", i );
 
-		_pString = pNewString;
-	}
-	else
-	{
-		_length += sprintf( _pString + _length, "%u", i );
-	}
-		
-	return *this;
+        _pString = pNewString;
+    }
+    else
+    {
+        _length += sprintf ( _pString + _length, "%i", i );
+    }
+
+    return *this;
 }
 
-EmaString& EmaString::append( float f )
+EmaString& EmaString::append ( UInt32 i )
 {
-	if ( _capacity <= _length + 32 )
-	{
-		_capacity = _length + 33;
+    if ( _capacity <= _length + 12 )
+    {
+        _capacity = _length + 13;
 
-		char* pNewString = (char*)malloc( _capacity );
-		if ( !pNewString )
-		{
-			const char* temp = "Failed to allocate memory in EmaString::append( float ).";
-			throwMeeException( temp );
-			return *this;
-		}
+        char* pNewString = ( char* ) malloc ( _capacity );
+        if ( !pNewString )
+        {
+            const char* temp = "Failed to allocate memory in EmaString::append( UInt32 ).";
+            throwMeeException ( temp );
+            return *this;
+        }
 
-		if ( _pString )
-		{
-			memcpy( pNewString, _pString, _length );
-			free( _pString );
-		}
+        if ( _pString )
+        {
+            memcpy ( pNewString, _pString, _length );
+            free ( _pString );
+        }
 
-		_length += sprintf( pNewString + _length, "%g", f );
+        _length += sprintf ( pNewString + _length, "%u", i );
 
-		_pString = pNewString;
-	}
-	else
-	{
-		_length += sprintf( _pString + _length, "%g", f );
-	}
-		
-	return *this;
+        _pString = pNewString;
+    }
+    else
+    {
+        _length += sprintf ( _pString + _length, "%u", i );
+    }
+
+    return *this;
 }
 
-EmaString& EmaString::append( double d )
+EmaString& EmaString::append ( float f )
 {
-	if ( _capacity <= _length + 32 )
-	{
-		_capacity = _length + 33;
+    if ( _capacity <= _length + 32 )
+    {
+        _capacity = _length + 33;
 
-		char* pNewString = (char*)malloc( _capacity );
-		if ( !pNewString )
-		{
-			const char* temp = "Failed to allocate memory in EmaString::append( double ).";
-			throwMeeException( temp );
-			return *this;
-		}
+        char* pNewString = ( char* ) malloc ( _capacity );
+        if ( !pNewString )
+        {
+            const char* temp = "Failed to allocate memory in EmaString::append( float ).";
+            throwMeeException ( temp );
+            return *this;
+        }
 
-		if ( _pString )
-		{
-			memcpy( pNewString, _pString, _length );
-			free( _pString );
-		}
+        if ( _pString )
+        {
+            memcpy ( pNewString, _pString, _length );
+            free ( _pString );
+        }
 
-		_length += sprintf( pNewString + _length, "%lg", d );
+        _length += sprintf ( pNewString + _length, "%g", f );
 
-		_pString = pNewString;
-	}
-	else
-	{
-		_length += sprintf( _pString + _length, "%lg", d );
-	}
-		
-	return *this;
+        _pString = pNewString;
+    }
+    else
+    {
+        _length += sprintf ( _pString + _length, "%g", f );
+    }
+
+    return *this;
 }
 
-EmaString& EmaString::append( const char* str )
+EmaString& EmaString::append ( double d )
 {
-	UInt32 strLength = str ? static_cast<UInt32>( strlen( str ) ) : 0;
+    if ( _capacity <= _length + 32 )
+    {
+        _capacity = _length + 33;
 
-	if ( !strLength ) return *this;
+        char* pNewString = ( char* ) malloc ( _capacity );
+        if ( !pNewString )
+        {
+            const char* temp = "Failed to allocate memory in EmaString::append( double ).";
+            throwMeeException ( temp );
+            return *this;
+        }
 
-	if ( _capacity <= _length + strLength )
-	{
-		_capacity = _length + strLength + 1;
+        if ( _pString )
+        {
+            memcpy ( pNewString, _pString, _length );
+            free ( _pString );
+        }
 
-		char* pNewString = (char*)malloc( _capacity );
-		if ( !pNewString )
-		{
-			const char* temp = "Failed to allocate memory in EmaString::append( const char* ).";
-			throwMeeException( temp );
-			return *this;
-		}
+        _length += sprintf ( pNewString + _length, "%lg", d );
 
-		if ( _pString )
-		{
-			memcpy( pNewString, _pString, _length );
-			free( _pString );
-		}
+        _pString = pNewString;
+    }
+    else
+    {
+        _length += sprintf ( _pString + _length, "%lg", d );
+    }
 
-		memcpy( pNewString + _length, str, strLength );
-
-		_length += strLength;
-
-		*(pNewString + _length) = 0x00;
-
-		_pString = pNewString;
-	}
-	else if ( strLength )
-	{
-		memcpy( _pString + _length, str, strLength );
-
-		_length += strLength;
-
-		*(_pString + _length) = 0x00;
-	}
-		
-	return *this;
+    return *this;
 }
 
-EmaString& EmaString::append( const EmaString& other )
+EmaString& EmaString::append ( const char* str )
 {
-	if ( !other._length ) return *this;
+    UInt32 strLength = str ? static_cast<UInt32> ( strlen ( str ) ) : 0;
 
-	if ( _capacity <= _length + other._length )
-	{
-		_capacity = _length + other._length + 1;
+    if ( !strLength ) return *this;
 
-		char* pNewString = (char*)malloc( _capacity );
-		if ( !pNewString )
-		{
-			const char* temp = "Failed to allocate memory in EmaString::append( const EmaString& ).";
-			throwMeeException( temp );
-			return *this;
-		}
+    if ( _capacity <= _length + strLength )
+    {
+        _capacity = _length + strLength + 1;
 
-		if ( _pString )
-		{
-			memcpy( pNewString, _pString, _length );
-			free( _pString );
-		}
+        char* pNewString = ( char* ) malloc ( _capacity );
+        if ( !pNewString )
+        {
+            const char* temp = "Failed to allocate memory in EmaString::append( const char* ).";
+            throwMeeException ( temp );
+            return *this;
+        }
 
-		memcpy( pNewString + _length, other._pString, other._length );
+        if ( _pString )
+        {
+            memcpy ( pNewString, _pString, _length );
+            free ( _pString );
+        }
 
-		_length += other._length;
+        memcpy ( pNewString + _length, str, strLength );
 
-		*(pNewString + _length) = 0x00;
+        _length += strLength;
 
-		_pString = pNewString;
-	}
-	else if ( other._length )
-	{
-		memcpy( _pString + _length, other._pString, other._length );
-		
-		_length += other._length;
+        * ( pNewString + _length ) = 0x00;
 
-		*(_pString + _length) = 0x00;
-	}
-		
-	return *this;
+        _pString = pNewString;
+    }
+    else if ( strLength )
+    {
+        memcpy ( _pString + _length, str, strLength );
+
+        _length += strLength;
+
+        * ( _pString + _length ) = 0x00;
+    }
+
+    return *this;
 }
 
-EmaString& EmaString::operator+=( Int64 i )
+EmaString& EmaString::append ( const EmaString& other )
 {
-	return append( i );
+    if ( !other._length ) return *this;
+
+    if ( _capacity <= _length + other._length )
+    {
+        _capacity = _length + other._length + 1;
+
+        char* pNewString = ( char* ) malloc ( _capacity );
+        if ( !pNewString )
+        {
+            const char* temp = "Failed to allocate memory in EmaString::append( const EmaString& ).";
+            throwMeeException ( temp );
+            return *this;
+        }
+
+        if ( _pString )
+        {
+            memcpy ( pNewString, _pString, _length );
+            free ( _pString );
+        }
+
+        memcpy ( pNewString + _length, other._pString, other._length );
+
+        _length += other._length;
+
+        * ( pNewString + _length ) = 0x00;
+
+        _pString = pNewString;
+    }
+    else if ( other._length )
+    {
+        memcpy ( _pString + _length, other._pString, other._length );
+
+        _length += other._length;
+
+        * ( _pString + _length ) = 0x00;
+    }
+
+    return *this;
 }
 
-EmaString& EmaString::operator+=( UInt64 i )
+EmaString& EmaString::operator+= ( Int64 i )
 {
-	return append( i );
+    return append ( i );
 }
 
-EmaString& EmaString::operator+=( Int32 i )
+EmaString& EmaString::operator+= ( UInt64 i )
 {
-	return append( i );
+    return append ( i );
 }
 
-EmaString& EmaString::operator+=( UInt32 i )
+EmaString& EmaString::operator+= ( Int32 i )
 {
-	return append( i );
+    return append ( i );
 }
 
-EmaString& EmaString::operator+=( float f )
+EmaString& EmaString::operator+= ( UInt32 i )
 {
-	return append( f );
+    return append ( i );
 }
 
-EmaString& EmaString::operator+=( double d )
+EmaString& EmaString::operator+= ( float f )
 {
-	return append( d );
+    return append ( f );
 }
 
-EmaString& EmaString::operator+=( const char* str )
+EmaString& EmaString::operator+= ( double d )
 {
-	return append( str );
+    return append ( d );
 }
 
-EmaString& EmaString::operator+=( const EmaString& str )
+EmaString& EmaString::operator+= ( const char* str )
 {
-	return append( str );
+    return append ( str );
 }
 
-EmaString EmaString::operator+( const EmaString& other )
+EmaString& EmaString::operator+= ( const EmaString& str )
 {
-	return EmaString( *this ).append( other );
+    return append ( str );
 }
 
-EmaString EmaString::operator+( const char* str )
+EmaString EmaString::operator+ ( const EmaString& other )
 {
-	return EmaString( *this ).append( str );
+    return EmaString ( *this ).append ( other );
+}
+
+EmaString EmaString::operator+ ( const char* str )
+{
+    return EmaString ( *this ).append ( str );
 }
 
 EmaString::operator const char *() const
 {
-	return c_str();
+    return c_str();
 }
 
-EmaString EmaString::substr( UInt32 index, UInt32 length ) const
+EmaString EmaString::substr ( UInt32 index, UInt32 length ) const
 {
-	if ( index > _length ||
-		index + length > _length )
-	{
-		EmaString text( "Attempt to access out of range position in EmaString::substr( UInt32 , UInt32 ) const. Passed in index is " );
-		text.append( index ).append( " and passed in length is " ).append( length ).append( " while length is " ).append( _length ).append( "." );
-		throwOorException( text );
-		return EmaString();
-	}
+    if ( length != EmaString::npos &&
+            ( index > _length ||
+              index + length > _length )
+       )
+    {
+        EmaString text ( "Attempt to access out of range position in EmaString::substr( UInt32 , UInt32 ) const. Passed in index is " );
+        text.append ( index ).append ( " and passed in length is " ).append ( length ).append ( " while length is " ).append ( _length ).append ( "." );
+        throwOorException ( text );
+        return EmaString();
+    }
 
-	EmaString retVal;
+    EmaString retVal;
 
-	retVal.set( _pString + index, length );
+    retVal.set ( _pString + index, length );
 
-	return retVal;
+    return retVal;
 }
 
-char EmaString::operator[]( UInt32 pos ) const
+char EmaString::operator[] ( UInt32 pos ) const
 {
-	if ( pos > _length )
-	{
-		EmaString text( "Attempt to access out of range position in EmaString::operator[]() const. Passed in index is " );
-		text.append( pos ).append( " while length is " ).append( _length ).append( "." );
-		throwOorException( text );
-	}
-	
-	return _pString[pos];
+    if ( pos > _length )
+    {
+        EmaString text ( "Attempt to access out of range position in EmaString::operator[]() const. Passed in index is " );
+        text.append ( pos ).append ( " while length is " ).append ( _length ).append ( "." );
+        throwOorException ( text );
+    }
+
+    return _pString[pos];
 }
 
-char& EmaString::operator[]( UInt32 pos )
+char& EmaString::operator[] ( UInt32 pos )
 {
-	if ( pos > _length )
-	{
-		EmaString text( "Attempt to access out of range position in EmaString::operator[](). Passed in index is " );
-		text.append( pos ).append( " while length is " ).append( _length ).append( "." );
-		throwOorException( text );
-	}
-	
-	return _pString[pos];
+    if ( pos > _length )
+    {
+        EmaString text ( "Attempt to access out of range position in EmaString::operator[](). Passed in index is " );
+        text.append ( pos ).append ( " while length is " ).append ( _length ).append ( "." );
+        throwOorException ( text );
+    }
+
+    return _pString[pos];
 }
 
-bool EmaString::operator==( const EmaString& other ) const
+bool EmaString::operator== ( const EmaString& other ) const
 {
-	if ( this == &other ) return true;
+    if ( this == &other ) return true;
 
-	if ( _length != other._length ) return false;
+    if ( _length != other._length ) return false;
 
-	if ( !_pString && other._pString ) return false;
+    if ( !_pString && other._pString ) return false;
 
-	if ( _pString && !other._pString ) return false;
+    if ( _pString && !other._pString ) return false;
 
-	if ( !_pString && !other._pString ) return true;
+    if ( !_pString && !other._pString ) return true;
 
-	return ( 0 == memcmp( _pString, other._pString, _length ) ? true : false );
+    return ( 0 == memcmp ( _pString, other._pString, _length ) ? true : false );
 }
 
-bool EmaString::operator!=( const EmaString& other ) const
+bool EmaString::operator!= ( const EmaString& other ) const
 {
-	if ( this == &other ) return false;
+    if ( this == &other ) return false;
 
-	if ( _length != other._length ) return true;
+    if ( _length != other._length ) return true;
 
-	if ( !_pString && other._pString ) return true;
+    if ( !_pString && other._pString ) return true;
 
-	if ( _pString && !other._pString ) return true;
+    if ( _pString && !other._pString ) return true;
 
-	if ( !_pString && !other._pString ) return true;
+    if ( !_pString && !other._pString ) return true;
 
-	return ( 0 == memcmp( _pString, other._pString, _length ) ? false : true );
+    return ( 0 == memcmp ( _pString, other._pString, _length ) ? false : true );
 }
 
-bool EmaString::operator==( const char* other ) const
+bool EmaString::operator== ( const char* other ) const
 {
-	if ( !other )
-		return false;
+    if ( !other )
+        return false;
 
-	if ( _length != strlen( other ) )
-		return false;
+    if ( _length != strlen ( other ) )
+        return false;
 
-	return !memcmp( _pString, other, _length );
+    return !memcmp ( _pString, other, _length );
 }
 
-bool EmaString::operator!=( const char* other ) const
+bool EmaString::operator!= ( const char* other ) const
 {
-	if ( !other )
-		return true;
+    if ( !other )
+        return true;
 
-	if ( _length != strlen( other ) )
-		return true;
+    if ( _length != strlen ( other ) )
+        return true;
 
-	return memcmp( _pString, other, _length ) != 0;
+    return memcmp ( _pString, other, _length ) != 0;
 }
 
-bool EmaString::operator>( const EmaString& rhs ) const
+bool EmaString::operator> ( const EmaString& rhs ) const
 {
-    return compare( rhs.c_str() ) > 0;
+    return compare ( rhs.c_str() ) > 0;
 }
 
-bool EmaString::operator<( const EmaString& rhs ) const
+bool EmaString::operator< ( const EmaString& rhs ) const
 {
-    return compare( rhs.c_str() ) < 0;
+    return compare ( rhs.c_str() ) < 0;
 }
 
-bool EmaString::operator>=( const EmaString& rhs ) const
+bool EmaString::operator>= ( const EmaString& rhs ) const
 {
-    return compare( rhs.c_str() ) >= 0;
+    return compare ( rhs.c_str() ) >= 0;
 }
 
-bool EmaString::operator<=( const EmaString& rhs ) const
+bool EmaString::operator<= ( const EmaString& rhs ) const
 {
-    return compare( rhs.c_str() ) <= 0;
-}
-	
-bool EmaString::operator>( const char* rhs ) const
-{
-    return compare( rhs ) > 0;
+    return compare ( rhs.c_str() ) <= 0;
 }
 
-bool EmaString::operator<( const char* rhs ) const
+bool EmaString::operator> ( const char* rhs ) const
 {
-    return compare( rhs ) < 0;
-}
-	
-bool EmaString::operator>=( const char* rhs ) const
-{
-    return compare( rhs ) >= 0;
+    return compare ( rhs ) > 0;
 }
 
-bool EmaString::operator<=( const char* rhs ) const
+bool EmaString::operator< ( const char* rhs ) const
 {
-    return compare( rhs ) <= 0;
+    return compare ( rhs ) < 0;
+}
+
+bool EmaString::operator>= ( const char* rhs ) const
+{
+    return compare ( rhs ) >= 0;
+}
+
+bool EmaString::operator<= ( const char* rhs ) const
+{
+    return compare ( rhs ) <= 0;
 }
 
 EmaString& EmaString::trimWhitespace()
 {
-	if ( !_length ) return *this;
+    if ( !_length ) return *this;
 
-	char* p = _pString;
-	while ( *p && isspace(*p) )
-		++p;
+    char* p = _pString;
+    while ( *p && isspace ( *p ) )
+        ++p;
 
-	if ( !*p )
-	{
-		_pString[0] = 0;
-		_length = 0;
-		return *this;
-	}
+    if ( !*p )
+    {
+        _pString[0] = 0;
+        _length = 0;
+        return *this;
+    }
 
-	if ( p != _pString )
-	{ 
-		_length -= static_cast<UInt32>( p - _pString );
-		memmove( _pString, p, _length );
-		_pString[_length] = 0;
-	}
+    if ( p != _pString )
+    {
+        _length -= static_cast<UInt32> ( p - _pString );
+        memmove ( _pString, p, _length );
+        _pString[_length] = 0;
+    }
 
-	p = _pString + _length - 1;
-	while ( isspace( *p ) )
-		--p;
+    p = _pString + _length - 1;
+    while ( isspace ( *p ) )
+        --p;
 
-	if ( p != _pString + _length - 1 )
-	{
-		_length = static_cast<UInt32>( p - _pString + 1 );
-		_pString[_length] = 0;
-	}
+    if ( p != _pString + _length - 1 )
+    {
+        _length = static_cast<UInt32> ( p - _pString + 1 );
+        _pString[_length] = 0;
+    }
 
-	return *this;
+    return *this;
 }
 
-Int32 EmaString::find( const EmaString & source, Int32 index ) const
+Int32 EmaString::find ( const EmaString & source, Int32 index ) const
 {
-	if ( index < 0 || static_cast<UInt32>(index) >= _length ||! source._length )
-		return -1;
-		   
-	char* p = _pString + index;
-	Int32 retVal( 0 );
-	while ( *p )
-	{
-		if ( _length - ( p - _pString ) < source._length )
-			return -1;
+    if ( index < 0 || static_cast<UInt32> ( index ) >= _length ||! source._length )
+        return EmaString::npos;
 
-		char* q = source._pString;
-		retVal = static_cast<UInt32>( p - _pString );
-		while ( *p == *q )
-		{
-			if ( ! *++q )
-				return retVal;
+    char* p = _pString + index;
+    Int32 retVal ( 0 );
+    while ( *p )
+    {
+        if ( _length - ( p - _pString ) < source._length )
+            return EmaString::npos;
 
-			if ( ! *++p )
-				return -1;
-		}
+        char* q = source._pString;
+        retVal = static_cast<UInt32> ( p - _pString );
+        while ( *p == *q )
+        {
+            if ( ! *++q )
+                return retVal;
 
-		if ( q == source._pString )
-			++p;
-	}
+            if ( ! *++p )
+                return EmaString::npos;
+        }
 
-	return -1;
+        if ( q == source._pString )
+            ++p;
+    }
+
+    return EmaString::npos;
 }
 
-Int32 EmaString::find( const char* source, Int32 index ) const
+Int32 EmaString::find ( const char* source, Int32 index ) const
 {
-	if ( index < 0 || static_cast<UInt32>(index) >= _length )
-		return -1;
+    if ( index < 0 || static_cast<UInt32> ( index ) >= _length )
+        return EmaString::npos;
 
-	UInt32 sourceLength( static_cast<UInt32>(strlen(source)) );
-	if ( ! sourceLength )
-		return -1;
-  
-	char *p = _pString + index;
-	Int32 retVal(0);
-	while ( *p )
-	{
-		if ( _length - static_cast<UInt32>( p - _pString ) < sourceLength )
-			return -1;
+    UInt32 sourceLength ( static_cast<UInt32> ( strlen ( source ) ) );
+    if ( ! sourceLength )
+        return EmaString::npos;
 
-		const char *q = source;
-		retVal = static_cast<Int32>( p - _pString );
-		while ( *p == *q )
-		{
-			if ( ! *++q )
-				return retVal;
+    char *p = _pString + index;
+    Int32 retVal ( 0 );
+    while ( *p )
+    {
+        if ( _length - static_cast<UInt32> ( p - _pString ) < sourceLength )
+            return EmaString::npos;
 
-			if ( ! *++p )
-				return -1;
-		}
+        const char *q = source;
+        retVal = static_cast<Int32> ( p - _pString );
+        while ( *p == *q )
+        {
+            if ( ! *++q )
+                return retVal;
 
-		if ( q == source )
-			++p;
-	}
+            if ( ! *++p )
+                return EmaString::npos;
+        }
 
-	return -1;
+        if ( q == source )
+            ++p;
+    }
+
+    return EmaString::npos;
 }
 
-Int32 EmaString::findLast( const EmaString& str ) const 
+Int32 EmaString::findLast ( const EmaString& str ) const
 {
-	if ( ! str._length || ! _length )
-		return -1;
+    if ( ! str._length || ! _length )
+        return EmaString::npos;
 
-	if ( str._length > _length )
-		return -1;
-  
-	const char *p, *q;
-	Int32 retVal( _length - str._length );
-	while ( true )
-	{
-		p = _pString + retVal;
-		q = str._pString;
-		while ( *q && *p == *q )
-		{
-			++p;
-			++q;
-		}
-    
-		if ( ! *q )
-			return retVal;
+    if ( str._length > _length )
+        return EmaString::npos;
 
-		if ( --retVal < 0 )
-			return -1;
-	}
+    const char *p, *q;
+    Int32 retVal ( _length - str._length );
+    while ( true )
+    {
+        p = _pString + retVal;
+        q = str._pString;
+        while ( *q && *p == *q )
+        {
+            ++p;
+            ++q;
+        }
+
+        if ( ! *q )
+            return retVal;
+
+        if ( --retVal < 0 )
+            return EmaString::npos;
+    }
 }
 
-Int32 EmaString::findLast( const char* str ) const
+Int32 EmaString::findLast ( const char* str ) const
 {
-	if ( !str || str[0] == 0 || !_length )
-		return -1;
+    if ( !str || str[0] == 0 || !_length )
+        return EmaString::npos;
 
-	Int32 strLen( static_cast<Int32>( strlen( str ) ) );
+    Int32 strLen ( static_cast<Int32> ( strlen ( str ) ) );
 
-	const char *p, *q;
-	Int32 retVal( _length - strLen );
-	while ( true )
-	{
-		p = _pString + retVal;
-		q = str;
-		while ( *q && *p == *q )
-		{
-			++p;
-			++q;
-		}
-    
-		if ( ! *q )
-			return retVal;
+    const char *p, *q;
+    Int32 retVal ( _length - strLen );
+    while ( true )
+    {
+        p = _pString + retVal;
+        q = str;
+        while ( *q && *p == *q )
+        {
+            ++p;
+            ++q;
+        }
 
-		if ( --retVal < 0 )
-			return -1;
-	}
+        if ( ! *q )
+            return retVal;
+
+        if ( --retVal < 0 )
+            return EmaString::npos;
+    }
 }
 
-bool EmaString::caseInsensitiveCompare( const EmaString& rhs ) const
+bool EmaString::caseInsensitiveCompare ( const EmaString& rhs ) const
 {
-	if ( ( this == &rhs ) ||
-		 ( !_pString && !rhs._pString ) )
-		return true;
+    if ( ( this == &rhs ) ||
+            ( !_pString && !rhs._pString ) )
+        return true;
 
-	if ( _length != rhs._length )
-		return false;
-	
-	for ( UInt32 i = 0; i < _length; ++i )
-        if ( tolower( _pString[i] ) != tolower( rhs._pString[i] ) )
+    if ( _length != rhs._length )
+        return false;
+
+    for ( UInt32 i = 0; i < _length; ++i )
+        if ( tolower ( _pString[i] ) != tolower ( rhs._pString[i] ) )
             return false;
 
-	return true;
+    return true;
 }
 
-bool EmaString::caseInsensitiveCompare( const char * rhs ) const
+bool EmaString::caseInsensitiveCompare ( const char * rhs ) const
 {
-	if ( ! rhs )
-		return ! _pString;
+    if ( ! rhs )
+        return ! _pString;
 
-	if ( strlen( rhs ) != _length )
-		return false;
+    if ( strlen ( rhs ) != _length )
+        return false;
 
-	for ( UInt32 i = 0; i < _length; ++i )
-		if ( tolower(_pString[i] ) != tolower( rhs[i] ) )
+    for ( UInt32 i = 0; i < _length; ++i )
+        if ( tolower ( _pString[i] ) != tolower ( rhs[i] ) )
             return false;
 
-	return true;
+    return true;
 }
-    
-int EmaString::compare( const char * rhs ) const
+
+int EmaString::compare ( const char * rhs ) const
 {
-    for ( unsigned int i = 0; i < _length  && i < strlen( rhs ); ++i )
+    for ( unsigned int i = 0; i < _length  && i < strlen ( rhs ); ++i )
         if ( _pString[ i ] != rhs[ i ] )
             return _pString[ i ] - rhs[ i ];
 
-    return static_cast< int >( _length - strlen( rhs ) );
+    return static_cast< int > ( _length - strlen ( rhs ) );
 }

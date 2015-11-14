@@ -65,8 +65,8 @@ const EmaString& OmmRealDecoder::toString()
 {
 	if ( _rsslReal.isBlank == RSSL_TRUE )
 	{
-		_toString.set( "(blank data)" );
-		return _toString;
+		static const EmaString blankData( "(blank data)" );
+		return blankData;
 	}
 
 	char realString[256];

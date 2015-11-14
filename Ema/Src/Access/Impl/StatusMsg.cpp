@@ -228,7 +228,7 @@ const EmaString& StatusMsg::getServiceName() const
 Decoder& StatusMsg::getDecoder()
 {
 	if ( !_pDecoder )
-		Msg::setDecoder( g_pool._statusMsgDecoderPool.getItem() );
+		setDecoder( g_pool._statusMsgDecoderPool.getItem() );
 
 	return *_pDecoder;
 }

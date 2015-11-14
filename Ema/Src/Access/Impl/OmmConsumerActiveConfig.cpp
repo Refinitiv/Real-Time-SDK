@@ -68,7 +68,6 @@ OmmConsumerActiveConfig::OmmConsumerActiveConfig() :
  directoryRequestTimeOut( DEFAULT_DIRECTORY_REQUEST_TIMEOUT ),
  dictionaryRequestTimeOut( DEFAULT_DICTIONARY_REQUEST_TIMEOUT ),
  userDispatch( DEFAULT_USER_DISPATCH ),
- channelConfig( 0 ),
  dictionaryConfig(),
  loggerConfig(),
  pRsslRDMLoginReq( 0 ),
@@ -81,11 +80,22 @@ OmmConsumerActiveConfig::OmmConsumerActiveConfig() :
 
 OmmConsumerActiveConfig::~OmmConsumerActiveConfig()
 {
-	if ( channelConfig )
+	clearChannelSet();
+}
+
+void OmmConsumerActiveConfig::clearChannelSet()
+{
+	if(configChannelSet.size() == 0)
+		return;
+   for(unsigned int i = 0; i < configChannelSet.size(); ++i)
 	{
-		delete channelConfig;
-		channelConfig = 0;
-	}
+		if ( configChannelSet[i] != NULL )
+		{
+			delete configChannelSet[i];
+			configChannelSet[i] = NULL;
+		}
+	}		
+	configChannelSet.clear();
 }
 
 void OmmConsumerActiveConfig::clear()
@@ -104,12 +114,7 @@ void OmmConsumerActiveConfig::clear()
 	maxOutstandingPosts = DEFAULT_MAX_OUTSTANDING_POSTS;
 	userDispatch = DEFAULT_USER_DISPATCH;
 
-	if ( channelConfig )
-	{
-		delete channelConfig;
-		channelConfig = 0;
-	}
-
+	clearChannelSet();
 	dictionaryConfig.clear();
 	loggerConfig.clear();
 	pRsslRDMLoginReq = 0;
@@ -216,6 +221,34 @@ void OmmConsumerActiveConfig::setMaxDispatchCountUserThread( UInt64 value )
 	else
 		maxDispatchCountUserThread = (UInt32)value;
 }
+ChannelConfig* OmmConsumerActiveConfig::findChannelConfig(const Channel* pChannel)
+{
+	ChannelConfig* retChannelCfg = 0;
+	for(unsigned int i = 0; i < configChannelSet.size(); ++i)
+	{
+		if(configChannelSet[i]->pChannel ==  pChannel) {
+			retChannelCfg = configChannelSet[i];
+			break;
+		}	
+	}
+	return retChannelCfg;
+}
+
+bool OmmConsumerActiveConfig::findChannelConfig(EmaVector< ChannelConfig* > &cfgChannelSet, const EmaString& channelName, unsigned int &pos)
+{
+	bool channelFound = false;
+	if(cfgChannelSet.size() > 0)
+	{	
+		for(pos = 0; pos < cfgChannelSet.size(); ++pos)
+		{
+			if(cfgChannelSet[pos]->name ==  channelName) {
+				channelFound = true;
+				break;
+			}	
+		}
+	}
+	return channelFound;
+}
 
 ChannelConfig::ChannelConfig()
 {
@@ -242,7 +275,8 @@ ChannelConfig::ChannelConfig( RsslConnectionTypes type ) :
  xmlTraceToMultipleFiles( DEFAULT_XML_TRACE_TO_MULTIPLE_FILE ),
  xmlTraceWrite( DEFAULT_XML_TRACE_WRITE ),
  xmlTraceRead( DEFAULT_XML_TRACE_READ ),
- msgKeyInUpdates( DEFAULT_MSGKEYINUPDATES )
+ msgKeyInUpdates( DEFAULT_MSGKEYINUPDATES ),
+ pChannel(0)
 {
 }
 
@@ -268,6 +302,7 @@ void ChannelConfig::clear()
 	xmlTraceWrite = DEFAULT_XML_TRACE_WRITE;
 	xmlTraceRead = DEFAULT_XML_TRACE_READ;
 	msgKeyInUpdates = DEFAULT_MSGKEYINUPDATES;
+	pChannel = 0;
 }
 
 ChannelConfig::~ChannelConfig()
@@ -341,17 +376,165 @@ ChannelConfig::ChannelType SocketChannelConfig::getType() const
 }
 
 ReliableMcastChannelConfig::ReliableMcastChannelConfig() :
- ChannelConfig( RSSL_CONN_TYPE_RELIABLE_MCAST )
+ ChannelConfig( RSSL_CONN_TYPE_RELIABLE_MCAST ),
+ recvAddress( DEFAULT_CONS_MCAST_CFGSTRING ),
+ recvServiceName( DEFAULT_CONS_MCAST_CFGSTRING ),
+ unicastServiceName( DEFAULT_CONS_MCAST_CFGSTRING ),
+ sendAddress( DEFAULT_CONS_MCAST_CFGSTRING ),
+ sendServiceName( DEFAULT_CONS_MCAST_CFGSTRING ),
+ hsmInterface( DEFAULT_CONS_MCAST_CFGSTRING ),
+ tcpControlPort( DEFAULT_CONS_MCAST_CFGSTRING ),
+ hsmMultAddress( DEFAULT_CONS_MCAST_CFGSTRING ),
+ hsmPort( DEFAULT_CONS_MCAST_CFGSTRING ),
+ hsmInterval( 0  ),
+ packetTTL( DEFAULT_PACKET_TTL ),
+ ndata( DEFAULT_NDATA ),
+ nmissing( DEFAULT_NMISSING ),
+ nrreq( DEFAULT_NREQ ),
+ pktPoolLimitHigh( DEFAULT_PKT_POOLLIMIT_HIGH ),
+ pktPoolLimitLow( DEFAULT_PKT_POOLLIMIT_LOW ),
+ tdata( DEFAULT_TDATA ),
+ trreq( DEFAULT_TRREQ ),
+ twait( DEFAULT_TWAIT ),
+ tbchold( DEFAULT_TBCHOLD ),
+ tpphold( DEFAULT_TPPHOLD ),
+ userQLimit( DEFAULT_USER_QLIMIT ),
+ disconnectOnGap( RSSL_FALSE )
 {
 }
 
 ReliableMcastChannelConfig::~ReliableMcastChannelConfig()
 {
 }
+void ReliableMcastChannelConfig::setPacketTTL(UInt64 value)
+{
+	if ( value > 255 )
+		packetTTL= 255;
+	else
+		packetTTL= (RsslUInt8) value;
+}
+
+void ReliableMcastChannelConfig::setHsmInterval(UInt64 value)
+{
+	if( value > 0 )
+		hsmInterval = value > 0xFFFF ? 0xFFFF : (UInt16)value;
+}
+
+void ReliableMcastChannelConfig::setNdata(UInt64 value)
+{
+	if ( value > 0xFFFFF )
+		ndata = 0xFFFFF;
+	else
+		ndata = (RsslUInt32) value;
+}
+
+void ReliableMcastChannelConfig::setNmissing(UInt64 value)
+{
+	if ( value > 0xFFFF )
+		nmissing = 0xFFFF;
+	else
+		nmissing = (RsslUInt16) value;
+}
+
+void ReliableMcastChannelConfig::setNrreq(UInt64 value)
+{
+	if ( value > 0xFFFFF )
+		nrreq = 0xFFFFF;
+	else
+		nrreq = (RsslUInt32) value;
+}
+
+void ReliableMcastChannelConfig::setTdata(UInt64 value)
+{
+	if ( value > 0xFFFFF )
+		tdata = 0xFFFFF;
+	else
+		tdata = (RsslUInt32) value;
+}
+
+void ReliableMcastChannelConfig::setTrreq(UInt64 value)
+{
+	if ( value > 0xFFFFF )
+		trreq = 0xFFFFF;
+	else
+		trreq = (RsslUInt32) value;
+}
+
+void ReliableMcastChannelConfig::setPktPoolLimitHigh(UInt64 value)
+{
+	if ( value > 0xFFFFF )
+		pktPoolLimitHigh = 0xFFFFF;
+	else
+		pktPoolLimitHigh = (RsslUInt32) value;
+}
+
+void ReliableMcastChannelConfig::setPktPoolLimitLow(UInt64 value)
+{
+    if ( value > 0xFFFFF )
+        pktPoolLimitLow = 0xFFFFF;
+    else
+        pktPoolLimitLow = (RsslUInt32) value;
+}
+
+void ReliableMcastChannelConfig::setTwait(UInt64 value)
+{
+    if ( value > 0xFFFFF )
+        twait = 0xFFFFF;
+    else
+        twait = (RsslUInt32) value;
+}
+
+void ReliableMcastChannelConfig::setTbchold(UInt64 value)
+{
+    if ( value > 0xFFFFF )
+        tbchold = 0xFFFFF;
+    else
+        tbchold = (RsslUInt32) value;
+}
+
+void ReliableMcastChannelConfig::setTpphold(UInt64 value)
+{
+    if ( value > 0xFFFFF )
+        tpphold = 0xFFFFF;
+    else
+        tpphold = (RsslUInt32) value;
+}
+
+void ReliableMcastChannelConfig::setUserQLimit(UInt64 value)
+{
+    if ( value > DEFAULT_USER_QLIMIT )
+        userQLimit = DEFAULT_USER_QLIMIT;
+    else
+        userQLimit = (RsslUInt32) value;
+}
+
 
 void ReliableMcastChannelConfig::clear()
 {
 	ChannelConfig::clear();
+	recvAddress = DEFAULT_CONS_MCAST_CFGSTRING;
+	recvServiceName = DEFAULT_CONS_MCAST_CFGSTRING;
+	unicastServiceName = DEFAULT_CONS_MCAST_CFGSTRING;
+	sendAddress = DEFAULT_CONS_MCAST_CFGSTRING;
+	sendServiceName = DEFAULT_CONS_MCAST_CFGSTRING;
+	hsmInterface = DEFAULT_CONS_MCAST_CFGSTRING;
+	tcpControlPort = DEFAULT_CONS_MCAST_CFGSTRING;
+	hsmMultAddress = DEFAULT_CONS_MCAST_CFGSTRING;
+	hsmPort = DEFAULT_CONS_MCAST_CFGSTRING;
+	hsmInterval = 0;
+	packetTTL	= DEFAULT_PACKET_TTL;
+    ndata = DEFAULT_NDATA;
+    nmissing = DEFAULT_NMISSING;
+    nrreq = DEFAULT_NREQ;
+    pktPoolLimitHigh = DEFAULT_PKT_POOLLIMIT_HIGH;
+    pktPoolLimitLow = DEFAULT_PKT_POOLLIMIT_LOW;
+    tdata = DEFAULT_TDATA;
+    trreq = DEFAULT_TRREQ;
+    twait = DEFAULT_TWAIT;
+    tbchold = DEFAULT_TBCHOLD;
+    tpphold = DEFAULT_TPPHOLD;
+    userQLimit = DEFAULT_USER_QLIMIT;
+	disconnectOnGap = RSSL_FALSE;
 }
 
 ChannelConfig::ChannelType ReliableMcastChannelConfig::getType() const

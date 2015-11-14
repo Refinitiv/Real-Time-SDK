@@ -17,7 +17,7 @@ namespace ema {
 
 namespace access {
 
-class EMA_ACCESS_API OmmSystemExceptionImpl : public OmmSystemException
+class OmmSystemExceptionImpl : public OmmSystemException
 {
 public :
 

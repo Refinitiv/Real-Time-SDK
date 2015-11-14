@@ -17,7 +17,7 @@ namespace ema {
 
 namespace access {
 
-class EMA_ACCESS_API OmmInvalidUsageExceptionImpl : public OmmInvalidUsageException
+class OmmInvalidUsageExceptionImpl : public OmmInvalidUsageException
 {
 public :
 

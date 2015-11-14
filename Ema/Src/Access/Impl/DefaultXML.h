@@ -6,10 +6,14 @@
  *|-----------------------------------------------------------------------------
  */
 
+#ifndef __thomsonreuters_ema_access_DefaultXML_h
+#define __thomsonreuters_ema_access_DefaultXML_h
+
 #include "EmaString.h"
 
 thomsonreuters::ema::access::EmaString AsciiValues[] = {
 	"Channel",
+	"ChannelSet",
 	"ConsumerName",
 	"DefaultConsumer",
 	"DefaultSession",
@@ -17,11 +21,19 @@ thomsonreuters::ema::access::EmaString AsciiValues[] = {
 	"EnumTypeDefFileName",
 	"FileName",
 	"Host",
-	"Hostname",
 	"InterfaceName",
 	"Logger",
 	"Name",
 	"Port",
+	"RecvAddress",
+	"RecvPort",
+	"SendAddress",
+	"SendPort",
+	"UnicastPort",
+	"HsmInterface",
+	"HsmMultAddress",
+	"HsmPort",
+	"tcpControlPort",
 	"ObjectName",
 	"RdmFieldDictionaryFileName",
 	"XmlTraceFileName",
@@ -66,9 +78,25 @@ thomsonreuters::ema::access::EmaString UInt64Values[] = {
 	"SysRecvBufSize",
 	"SysSendBufSize",
 	"TcpNodelay",
+	"PacketTTL",
+	"DisconnectOnGap",
+	"ndata",
+	"nmissing",
+	"nrreq",
+	"tdata",
+	"trreq",
+	"pktPoolLimitHigh",
+	"pktPoolLimitLow",
+	"twait",
+	"tbchold",
+	"tpphold",
+	"userQLimit",
+	"HsmInterval",
 	"XmlTraceRead",
 	"XmlTraceToFile",
 	"XmlTraceToMultipleFiles",
 	"XmlTraceToStdout",
 	"XmlTraceWrite",
 };
+
+#endif //__thomsonreuters_ema_access_DefaultXML_h

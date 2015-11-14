@@ -78,7 +78,7 @@ public :
 	*/
 	virtual const EmaString& toString() const = 0;
 
-	/** Operator char* overload.
+	/** Operator const char* overload.
 		\remark invokes toString().c_str()
 		@return a NULL terminated character string representation of this object
 	*/
@@ -119,6 +119,7 @@ private :
 	friend class ElementListDecoder;
 	friend class FieldListDecoder;
 
+	friend class OmmArray;
 	friend class AckMsg;
 	friend class GenericMsg;
 	friend class PostMsg;

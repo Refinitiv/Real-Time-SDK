@@ -313,6 +313,12 @@ void StatusMsgDecoder::setStateInt() const
 
 const OmmState& StatusMsgDecoder::getState() const
 {
+	if ( !hasState() )
+	{
+		EmaString temp( "Attempt to getState() while it is NOT set." );
+		throwIueException( temp );
+	}
+
 	setStateInt();
 
 	return static_cast<const OmmState&>( static_cast<const Data&>( _state ) );

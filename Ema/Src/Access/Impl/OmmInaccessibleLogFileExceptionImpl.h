@@ -17,7 +17,7 @@ namespace ema {
 
 namespace access {
 
-class EMA_ACCESS_API OmmInaccessibleLogFileExceptionImpl : public OmmInaccessibleLogFileException
+class OmmInaccessibleLogFileExceptionImpl : public OmmInaccessibleLogFileException
 {
 public :
 

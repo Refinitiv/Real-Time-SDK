@@ -17,7 +17,7 @@ namespace ema {
 
 namespace access {
 
-class EMA_ACCESS_API OmmUnsupportedDomainTypeExceptionImpl : public OmmUnsupportedDomainTypeException
+class OmmUnsupportedDomainTypeExceptionImpl : public OmmUnsupportedDomainTypeException
 {
 public :
 

@@ -54,8 +54,8 @@ const EmaString& OmmUIntDecoder::toString()
 {
 	if ( _dataCode == Data::BlankEnum )
 	{
-		_toString.set( "(blank data)" );
-		return _toString;
+		static const EmaString blankData( "(blank data)" );
+		return blankData;
 	}
 
 	char uintegerString[256];

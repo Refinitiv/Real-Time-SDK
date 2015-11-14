@@ -57,7 +57,7 @@ void* OmmSystemException::getSystemExceptionAddress() const
 
 const EmaString& OmmSystemException::toString() const
 {
-	int length = sprintf( _space + EMASTRING_SIZE, "Exception Type='%s', Text='%s', exceptionCode='%llu', exceptionAddress='0x%X'",
+	int length = sprintf( _space + EMASTRING_SIZE, "Exception Type='%s', Text='%s', exceptionCode='%llu', exceptionAddress='0x%p'",
 		getExceptionTypeAsString().c_str(),
 		_errorText + EMASTRING_SIZE,
 		_exceptionCode,

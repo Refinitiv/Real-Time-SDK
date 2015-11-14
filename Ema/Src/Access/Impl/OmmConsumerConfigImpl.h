@@ -13,16 +13,15 @@
 #include "direct.h"
 #endif
 
-#include "OmmConsumerConfig.h"
+#include "ProgrammaticConfigure.h"
 #include "OmmLoggerClient.h"
-#include "DictionaryCallbackClient.h"
 #include "HashTable.h"
 #include "ElementList.h"
 
 #include "libxml/parser.h"
-#include "ConfigErrorHandling.h"
 
 #include "rtr/rsslRDMLoginMsg.h"
+#include <iostream>
 
 namespace thomsonreuters {
 
@@ -32,6 +31,7 @@ namespace access {
 
 class XMLnode;
 class OmmConsumerActiveConfig;
+class MapEntry;
 
 class ConfigElement {
 public:
@@ -89,6 +89,17 @@ private:
 	T _value;
 };
 
+template < class T >
+struct NamePair
+{
+	NamePair( T first, T second ) : first( first ), second( second ) {}
+	NamePair( T & first, T & second ) : first( first ), second( second ) {}
+	T first;
+	T second;
+};
+
+static NamePair<EmaString> configReplacementPairs[] = { NamePair<EmaString>( EmaString( "Channel" ), EmaString( "ChannelSet" ) ) };
+	
 class ConfigElementList {
 public:
 	ConfigElementList() : theList(0) {}
@@ -116,6 +127,28 @@ public:
 		else
 			theList = n;
 	}
+
+
+	NamePair<bool> replaceElement( ConfigElement* existingElement, ConfigElement* newElement ) 
+	{
+		if ( existingElement->name() == newElement->name() )
+		{
+			if ( existingElement->name() != "Name" &&
+				 ! ( *existingElement == *newElement ) )
+				 return NamePair<bool>( true, true );
+			return NamePair<bool>( true, false );
+		}
+
+		for ( int i = 0; i < sizeof configReplacementPairs / sizeof configReplacementPairs[0]; ++i )
+		{
+			if ( ( configReplacementPairs[i].first == existingElement->name() && configReplacementPairs[i].second == newElement->name() ) || 
+				 ( configReplacementPairs[i].first == newElement->name() && configReplacementPairs[i].second == existingElement->name() ) )
+				 return NamePair<bool>( true, true );
+		}
+
+		return NamePair<bool>( false, false );
+	}
+
 	void appendAttributes(ConfigElementList * attributes, bool emptyList = false)
 	{
 		if (theList) {
@@ -128,31 +161,31 @@ public:
 				Node *q;
 				for (q = theList; q; q = q->next)
 				{
-					if ( p->e->name() == q->e->name() )
+					NamePair<bool> replace( replaceElement( p->e, q->e ) );
+
+					// attribute is name/value pair; this checks if two attributes have the same name
+					if ( replace.first )
 					{
-						if ( p->e->name() == "Name")
-							delete p->e;
-						else
+						if ( replace.second )
 						{
-							if (! (*(p->e) == *(q->e) ) )
+							EmaString actualName;
+							if (theList->e->name() == "Name")
 							{
-								EmaString actualName;
-								if (theList->e->name() == "Name")
-								{
-									XMLConfigElement<EmaString> * tmp(dynamic_cast<XMLConfigElement<EmaString> *>( theList->e ) );
-									if (tmp)
-										actualName = *(tmp->value());
-								}
-								EmaString errorMsg(q->e->changeMessage(actualName, *(p->e)));
-								ConfigElement * toFree( q->e );
-								q->e = p->e;
-								p->e->reParent(toFree->parent());
-								p->e->appendErrorMessage(errorMsg, OmmLoggerClient::VerboseEnum);
-								delete( toFree );
+								XMLConfigElement<EmaString> * tmp(dynamic_cast<XMLConfigElement<EmaString> *>( theList->e ) );
+								if (tmp)
+									actualName = *(tmp->value());
 							}
-							else
-								delete p->e;
+							EmaString errorMsg(q->e->changeMessage(actualName, *(p->e)));
+							ConfigElement * toFree( q->e );
+							q->e = p->e;
+							p->e->reParent(toFree->parent());
+							p->e->appendErrorMessage(errorMsg, OmmLoggerClient::VerboseEnum);
+							delete( toFree );
 						}
+
+						else
+							delete p->e;
+
 						if (attributes->theList == p)
 							attributes->theList = nextAttribute;
 						delete p;
@@ -167,7 +200,7 @@ public:
 					p->next = 0;
 				}
 			}
-			// at this point, we've either assigned p->e to an existing item or appended p to theList
+
 			attributes->theList = 0;
 			delete attributes->theList;
 		}
@@ -177,7 +210,7 @@ public:
 		if (emptyList)
 			attributes->theList = 0;
 	}
-
+	
 	template<typename T>
 	T *
 	find( const EmaString & itemToRetrieve ) const
@@ -518,7 +551,7 @@ public:
 
 	void verifyDefaultConsumer();
 
-	void getNames( EmaList< NameString > & theNames )
+	void getNames( EmaList< NameString* > & theNames )
 	{
 		if ( _children && ! _children->empty() )
 		{
@@ -606,6 +639,12 @@ public :
 
 	RsslRequestMsg* get();
 
+	bool hasServiceName();
+
+	void setServiceName( const EmaString& serviceName );
+
+	const EmaString& getServiceName();
+
 private :
 
 	OmmConsumerConfigImpl&	_ommConsConfigImpl;
@@ -614,6 +653,9 @@ private :
 	RsslBuffer				_header;
 	RsslBuffer				_attrib;
 	RsslBuffer				_payload;
+	bool					_hasServiceName;
+	EmaString				_serviceName;
+
 };
 
 class LoginRdmReqMsg
@@ -651,65 +693,6 @@ private :
 	RsslRDMLoginRequest		_rsslRdmLoginRequest;
 };
 
-class ProgrammaticConfigure
-{
-public:
-	ProgrammaticConfigure(const Map &, EmaConfigErrorList& );
-
-	void addConfigure(const Map &);
-
-	bool getDefaultConsumer(EmaString &);
-
-	bool specifyConsumerName ( const EmaString& consumerName );
-
-	bool getActiveChannelName( const EmaString&, EmaString& );
-
-	bool getActiveLoggerName( const EmaString&, EmaString& );
-
-	bool getActiveDictionaryName( const EmaString&, EmaString& );
-
-	void retrieveConsumerConfig( const EmaString&, OmmConsumerActiveConfig& );
-
-	void retrieveChannelConfig( const EmaString&, OmmConsumerActiveConfig&, bool );
-
-	void retrieveLoggerConfig( const EmaString&, OmmConsumerActiveConfig& );
-
-	void retrieveDictionaryConfig( const EmaString&, OmmConsumerActiveConfig& );
-
-private:
-
-	static bool retrieveDefaultConsumer(const Map &, EmaString&);
-
-	static void retrieveDependencyNames( const Map&, const EmaString&, UInt8& flags, EmaString&, EmaString&, EmaString& );
-
-	static void retrieveConsumer( const Map&, const EmaString&, EmaConfigErrorList&, OmmConsumerActiveConfig& );
-
-	static void retrieveChannel( const Map&, const EmaString&, EmaConfigErrorList&, OmmConsumerActiveConfig&, bool );
-
-	static void retrieveLogger( const Map&, const EmaString&, EmaConfigErrorList&, OmmConsumerActiveConfig& );
-
-	static void retrieveDictionary( const Map&, const EmaString&, EmaConfigErrorList&, OmmConsumerActiveConfig& );
-
-	static bool validateConsumerName(const Map &, const EmaString&);
-
-	void clear();
-
-	ProgrammaticConfigure(const ProgrammaticConfigure &);
-	ProgrammaticConfigure & operator=(const ProgrammaticConfigure&);
-
-	EmaString _consumerName;
-	EmaString _channelName;
-	EmaString _loggerName;
-	EmaString _dictionaryName;
-
-	bool _overrideConsName;
-	bool _loadnames;
-	UInt8 _nameflags;
-
-	EmaVector<const Map*> _configList;
-
-	EmaConfigErrorList& _emaConfigErrList;
-};
 
 class OmmConsumerConfigImpl
 {
@@ -740,9 +723,6 @@ public:
 	EmaString getDictionaryName( const EmaString& ) const;
 
 	void host( const EmaString& ); 
-
-	const EmaString& getHostname() const;
-	const EmaString& getPort() const;
 
 	template<typename T>
 	bool get(const EmaString & itemToRetrieve, T & retrievedItem) const
@@ -791,8 +771,8 @@ public:
 
 	RsslRDMLoginRequest* getLoginReq();
 	RsslRequestMsg* getDirectoryReq();
-	RsslRequestMsg* getRdmFldDictionaryReq();
-	RsslRequestMsg* getEnumDefDictionaryReq();
+	AdminReqMsg* getRdmFldDictionaryReq();
+	AdminReqMsg* getEnumDefDictionaryReq();
 
 	EmaString & getUserSpecifiedHostname() { return _hostnameSetViaFunctionCall; }
 	EmaString & getUserSpecifiedPort() { return _portSetViaFunctionCall; }
@@ -817,7 +797,7 @@ private:
 
 	void addLoginReqMsg( RsslRequestMsg* );
 	void addDirectoryReqMsg( RsslRequestMsg* );
-	void addDictionaryReqMsg( RsslRequestMsg* );
+	void addDictionaryReqMsg( RsslRequestMsg* , const EmaString* );
 
 	ConfigElement* convertEnum( const char* name, XMLnode*, const char* value, EmaString& );
 	ConfigElement* createConfigElement( const char * name, XMLnode*, const char* value, EmaString & );
