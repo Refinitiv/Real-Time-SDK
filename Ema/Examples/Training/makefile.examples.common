@@ -49,21 +49,22 @@ STATIC_LIBS += -lema $(SYSTEM_LIBS)
 ifeq ($(findstring GSG,$(DISTRIBUTION_SRC)), GSG)
 	ifeq ($(USE_CUSTOM_BUILD),true)
 		SHARED_LIBS =	-L$(ROOTNODE)/Ema/Src/Access/Libs/$(IDENT)/$(LIBTYPE)/Shared	\
-				-L$(ROOTNODE)/Ema/Src/libxml/src/$(IDENT)/Shared
+				-L$(ROOTNODE)/Eta/Utils/Libxml2/$(IDENT)/Shared
 	else
-		SHARED_LIBS =	-L$(ROOTNODE)/Ema/Libs/$(IDENT)/$(LIBTYPE)/Shared
+		SHARED_LIBS =	-L$(ROOTNODE)/Ema/Libs/$(IDENT)/$(LIBTYPE)/Shared   \
+				-L$(ROOTNODE)/Eta/Utils/Libxml2/$(IDENT)/Shared
 	endif
 else
 	ifeq ($(findstring GitHub,$(DISTRIBUTION_SRC)), GitHub)
 	SHARED_LIBS =	-L$(ROOTNODE)/Ema/Libs/$(IDENT)/$(LIBTYPE)/Shared	\
-			-L$(ROOTNODE)/Ema/Src/libxml/src/$(IDENT)/Shared
+			-L$(ROOTNODE)/Eta/Utils/Libxml2/$(IDENT)/Shared
 	STATIC_LIBS =   -L$(ROOTNODE)/Ema/Libs/$(IDENT)/$(LIBTYPE) -lema $(SYSTEM_LIBS)
 	else
 $(error makefile.common variable DISTRIBUTION_SRC must be 'GitHub' or 'GSG')
 	endif
 endif
 SHARED_LIBS +=	-L$(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/Shared		\
-		-L$(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/Shared	\
+		-L$(ROOTNODE)/Eta/Utils/Libxml2/$(IDENT)/Shared	\
 		-lema -lxml2 -lrssl -lrsslVA $(SYSTEM_LIBS)
 
 $(OUTPUT_DIR)/obj/%.o : %.cpp

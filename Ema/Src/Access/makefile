@@ -41,7 +41,7 @@ optimizedAssertStatic:	outputDir xml
 optimizedAssertShared:	outputDir xml
 	$(MAKE) -f makefile.lib OUTPUT_DIR=$(OUTPUT_DIR) $@
 xml:
-	$(MAKE) -C ../libxml/src
+	$(MAKE) -C ../../../Eta/Utils/Libxml2
 
 all:
 	$(foreach T, optimizedStatic optimizedShared optimizedAssertStatic optimizedAssertShared, $(MAKE) $T;)

@@ -27,21 +27,25 @@ $(error unsupported environment)
 endif
 
 optimizedStatic:	OUTPUT_DIR := $(IDENT)/Optimized
+optimizedStatic:	TARGET := optimizedStatic
 optimizedShared:	OUTPUT_DIR := $(IDENT)/Optimized/Shared
+optimizedShared:	TARGET := optimizedShared
 optimizedAssertStatic:	OUTPUT_DIR := $(IDENT)/Optimized_Assert
+optimizedAssertStatic:	TARGET := optimizedAssertStatic
 optimizedAssertShared:	OUTPUT_DIR := $(IDENT)/Optimized_Assert/Shared
+optimizedAssertShared:	TARGET := optimizedAssertShared
 
 optimizedStatic: outputDir
-	$(MAKE) -f ../../makefile.second OUTPUT_DIR=$(OUTPUT_DIR) $@
+	$(MAKE) -f ../../makefile.second OUTPUT_DIR=$(OUTPUT_DIR) $(TARGET)
 
 optimizedShared: outputDir
-	$(MAKE) -f ../../makefile.second OUTPUT_DIR=$(OUTPUT_DIR) $@
+	$(MAKE) -f ../../makefile.second OUTPUT_DIR=$(OUTPUT_DIR) $(TARGET)
 
 optimizedAssertStatic: outputDir
-	$(MAKE) -f ../../makefile.second OUTPUT_DIR=$(OUTPUT_DIR) $@
+	$(MAKE) -f ../../makefile.second OUTPUT_DIR=$(OUTPUT_DIR) $(TARGET)
 
 optimizedAssertShared: outputDir
-	$(MAKE) -f ../../makefile.second OUTPUT_DIR=$(OUTPUT_DIR) $@
+	$(MAKE) -f ../../makefile.second OUTPUT_DIR=$(OUTPUT_DIR) $(TARGET)
 
 help:
 	@echo "allowed build targets: optimizedStatic optimizedShared optimizedAssertStatic optimizedAssertShared"

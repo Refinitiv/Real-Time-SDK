@@ -2,15 +2,15 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{0DD513EF-D4B8-4DF9-B87A-13CA8ADC50A2}</UniqueIdentifier>
+      <UniqueIdentifier>{4CBAB86D-B4AE-4A7C-91D4-6F06F983BBB4}</UniqueIdentifier>
       <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{393154AA-4436-4B61-BCA6-A8A1A1501DA8}</UniqueIdentifier>
+      <UniqueIdentifier>{F5B94240-6957-48DB-A566-5535F9115ACD}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
     <Filter Include="Resource Files">
-      <UniqueIdentifier>{846730BD-E472-4057-9E1E-D15222DD4AA1}</UniqueIdentifier>
+      <UniqueIdentifier>{C17C67A6-4C31-425C-89D0-60E32A1CB457}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
     </Filter>
   </ItemGroup>
@@ -396,6 +396,9 @@
 	<ClCompile Include="Impl\PostMsgEncoder.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+	<ClCompile Include="Impl\ProgrammaticConfigure.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 	<ClCompile Include="..\Rdm\Impl\RdmUtilities.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
@@ -445,6 +448,9 @@
 			<Filter>Source Files</Filter>
 		</ClCompile>
 	<ClCompile Include="Impl\StatusMsgEncoder.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="Impl\StreamId.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
 	<ClCompile Include="Impl\SummaryData.cpp">
@@ -726,6 +732,9 @@
 		<ClInclude Include="Impl\PostMsgEncoder.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
+		<ClInclude Include="Impl\ProgrammaticConfigure.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
 		<ClInclude Include="Impl\RefreshMsgDecoder.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
@@ -754,6 +763,9 @@
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Impl\StatusMsgEncoder.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Impl\StreamId.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Impl\Thread.h">
