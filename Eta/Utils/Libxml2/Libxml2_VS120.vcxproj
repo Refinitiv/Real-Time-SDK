@@ -58,19 +58,19 @@
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
 	    
 	<OutDir Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">.\WIN_64_VS120\Release_MD\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">.\WIN_64_VS120\Release_MD\Libxml2\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">.\WIN_64_VS120\Release_MD\xml2\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">false</LinkIncremental>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">libLibxml2</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">libxml2</TargetName>
 	
 	<OutDir Condition="'$(Configuration)|$(Platform)'=='Release MD Assert|x64'">.\WIN_64_VS120\Release_MD_Assert\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release MD Assert|x64'">.\WIN_64_VS120\Release_MD_Assert\Libxml2\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release MD Assert|x64'">.\WIN_64_VS120\Release_MD_Assert\xml2\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release MD Assert|x64'">false</LinkIncremental>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release MD Assert|x64'">libLibxml2</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release MD Assert|x64'">libxml2</TargetName>
 	
 	<OutDir Condition="'$(Configuration)|$(Platform)'=='Debug MDd|x64'">.\WIN_64_VS120\Debug_MDd\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug MDd|x64'">.\WIN_64_VS120\Debug_MDd\Libxml2\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug MDd|x64'">.\WIN_64_VS120\Debug_MDd\xml2\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug MDd|x64'">false</LinkIncremental>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug MDd|x64'">libLibxml2</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug MDd|x64'">libxml2</TargetName>
   </PropertyGroup>
   
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">
@@ -103,7 +103,7 @@
     </ClCompile>
     <Lib>
       <AdditionalOptions>/IGNORE:4006 %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>$(OutDir)/libLibxml2.lib</OutputFile>
+      <OutputFile>$(OutDir)/libxml2.lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
 	  <UseUnicodeResponseFiles>true</UseUnicodeResponseFiles>
     </Lib>
@@ -142,7 +142,7 @@
     </ClCompile>
     <Lib>
       <AdditionalOptions>/IGNORE:4006 %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>$(OutDir)/libLibxml2.lib</OutputFile>
+      <OutputFile>$(OutDir)/libxml2.lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
 	  <UseUnicodeResponseFiles>true</UseUnicodeResponseFiles>
     </Lib>
@@ -181,7 +181,7 @@
     </ClCompile>
     <Lib>
       <AdditionalOptions>/IGNORE:4006 %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>$(OutDir)/libLibxml2.lib</OutputFile>
+      <OutputFile>$(OutDir)/libxml2.lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
 	  <UseUnicodeResponseFiles>true</UseUnicodeResponseFiles>
     </Lib>

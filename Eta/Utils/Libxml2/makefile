@@ -16,6 +16,7 @@ ifeq ($(ARCHTYPE),i86pc)
 			# This should be the Solaris 10 X86/X64 64 bit SunStudio 11 build
 			LIB_DIR=$(ROOTPLAT)/Libs/SOL10_X64_64_SS11
 			OUTPUT_DIR=./SOL10_X64_64_SS11/Static
+			OUTPUT_DIR_SHARED=./SOL10_X64_64_SS11/Shared
 			CFLAGS = -m64 -xtarget=opteron -xarch=sse2 -nofstore -xregs=frameptr -Di86pc -Di86pc_SunOS_510_64 -Xa -KPIC 
 			CFLAGS += -nofstore -xregs=frameptr -xcache=64/64/2:1024/64/16
 		else
@@ -23,6 +24,7 @@ ifeq ($(ARCHTYPE),i86pc)
 			# 64 bit SS12 case
 			LIB_DIR=$(ROOTPLAT)/Libs/SOL10_X64_64_SS12
 			OUTPUT_DIR=./SOL10_X64_64_SS12/Static
+			OUTPUT_DIR_SHARED=./SOL10_X64_64_SS12/Shared
 			CFLAGS = -m64 -xtarget=opteron -xarch=sse2 -nofstore -xregs=frameptr -Di86pc -Di86pc_SunOS_510_64 -Xa -KPIC 
 			CFLAGS += -nofstore -xregs=frameptr
 		endif
@@ -31,6 +33,7 @@ ifeq ($(ARCHTYPE),i86pc)
 		# 32 bit SS12 case
 		LIB_DIR=$(ROOTPLAT)/Libs/SOL10_X64_32_SS12
 		OUTPUT_DIR=./SOL10_X64_32_SS12/Static
+		OUTPUT_DIR_SHARED=./SOL10_X64_32_SS12/Shared
 		CFLAGS = -m32 -xtarget=opteron -xarch=sse2 -nofstore -xregs=frameptr -Di86pc -Di86pc_SunOS_510 -Xa -KPIC 
 		CFLAGS += -nofstore -xregs=frameptr
 	endif
@@ -55,6 +58,7 @@ else
 			# Assume AS6 (or greater)
 			LIB_DIR=$(ROOTPLAT)/Libs/RHEL6_$(COMPILE_BITS)_GCC444
 			OUTPUT_DIR=./RHEL6_$(COMPILE_BITS)_GCC444/Static
+			OUTPUT_DIR_SHARED=./RHEL6_$(COMPILE_BITS)_GCC444/Shared
 		endif
 	else
 		# Check for SUSE Linux
@@ -66,6 +70,7 @@ else
 			ifeq ($(findstring CentOS,$(DIST)),CentOS)
 				LIB_DIR=$(ROOTPLAT)/Libs/OL7_$(COMPILE_BITS)_GCC482
 				OUTPUT_DIR=./CENTOS7_$(COMPILE_BITS)_GCC482/Static
+				OUTPUT_DIR_SHARED=./CENTOS7_$(COMPILE_BITS)_GCC482/Shared
 			else
 				DIST=$(shell cat /etc/oracle-release)
 				ifeq ($(findstring Oracle,$(DIST)),Oracle)  # check for Oracle Linux
@@ -78,10 +83,12 @@ else
 							# AS6
 							LIB_DIR=$(ROOTPLAT)/Libs/RHEL6_$(COMPILE_BITS)_GCC444
 							OUTPUT_DIR=./OL6_$(COMPILE_BITS)_GCC444/Static
+							OUTPUT_DIR_SHARED=./OL6_$(COMPILE_BITS)_GCC444/Shared
 						else
 							# Assume AS7 (or greater)
 							LIB_DIR=$(ROOTPLAT)/Libs/OL7_$(COMPILE_BITS)_GCC482
 							OUTPUT_DIR=./OL7_$(COMPILE_BITS)_GCC482/Static
+							OUTPUT_DIR_SHARED=./OL7_$(COMPILE_BITS)_GCC482/Shared
 						endif
 					endif
 				endif
@@ -101,6 +108,7 @@ CLIBS = $(LIB_DIR)
 HEADER_INC = -I./include
 
 EXE_DIR=$(OUTPUT_DIR)
+EXE_DIR_SHARED=$(OUTPUT_DIR_SHARED)
 LN_HOMEPATH=../..
 
 OS_NAME= $(shell uname -s)
@@ -136,7 +144,7 @@ $(OUTPUT_DIR)/%.o : %.c
 	$(CC)  -c $(CFLAGS) $(HEADER_INC) -o $@ $<
 
 
-main: libxml2.a
+main: libxml2.a libxml2.so
 
 libxml2_src = parserInternals.c parser.c tree.c hash.c list.c xmlIO.c \
 	xmlmemory.c uri.c valid.c xlink.c HTMLparser.c HTMLtree.c \
@@ -145,7 +153,7 @@ libxml2_src = parserInternals.c parser.c tree.c hash.c list.c xmlIO.c \
 	xmlregexp.c xmlschemas.c xmlschemastypes.c xmlunicode.c \
 	xmlreader.c relaxng.c dict.c SAX2.c xmlwriter.c legacy.c \
 	chvalid.c pattern.c xmlsave.c xmlmodule.c schematron.c \
-	triostr.c trio.c encoding.c entities.c error.c
+	triostr.c trio.c trionan.c encoding.c entities.c error.c
 
 
 libxml2_objs = $(addprefix $(OUTPUT_DIR)/obj/,$(libxml2_src:%.c=%.o))
@@ -153,6 +161,10 @@ libxml2_objs = $(addprefix $(OUTPUT_DIR)/obj/,$(libxml2_src:%.c=%.o))
 libxml2.a : $(libxml2_objs)
 	mkdir -p $(EXE_DIR)
 	ar -ruv $(EXE_DIR)/libxml2.a $(libxml2_objs)
+	
+libxml2.so : $(libxml2_objs)
+	mkdir -p $(EXE_DIR_SHARED)
+	$(CC) $(CFLAGS) $(SOFLAGS) -o $(EXE_DIR_SHARED)/libxml2.so $(libxml2_objs)
 
 clean:
 	rm -rf $(OUTPUT_DIR)
