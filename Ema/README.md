@@ -116,7 +116,18 @@ Elektron Message API Documentation is also available online at https://customers
       - Microsoft Visual C++ 11.0 64-bit (Visual Studio 2012)
       - Microsoft Visual C++ 12.0 64-bit (Visual Studio 2013)
 	  
-
+      ---------------------------------------------------------
+      Enterprise Platform for Real-Time - RSSL/RWF connections
+      ---------------------------------------------------------
+      - ADS 2.4 or higher
+      - ADH 2.4 or higher
+	  
+       --------
+       EleKtron
+       --------
+      - EleKtron Deployed
+      - EleKtron Hosted
+      
 # Installation and Use
 
 See the top level Elektron-SDK README.md for details.
