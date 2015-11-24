@@ -8,17 +8,19 @@ This directory contains preliminary example code to show off the upcoming Elektr
 - **Examples** EMA Non-Interactive Provider examples
 - **Docs**
   - Reference manual
-- **Platforms (64bit)** 
+- **Pre-compiled Static Libraries (64bit)** 
   - Win7, WinServer 2008 (VS2012, VS2013)
   - RH6 (gcc444)
   - OL7 (gcc482)
-  - Static (Optimized and OptimizedAssert)
+  - Optimized and OptimizedAssert
   
 
 
 ####This preview is runnable!  
 
-To build and run the examples you will need to obtain the binary package.  We will eventually integrate this into the master EMA library, but for now, please use the pre-built libraries.
+Within this directory contains everything you need to build the examples and run them.  Just navigate to the example directory and run the makefile or build the windows project file.
+
+**Note:** Since this is the Non-Interactive Provider, it will require an ADH and ADS infrastructure setup.
 
 
 
