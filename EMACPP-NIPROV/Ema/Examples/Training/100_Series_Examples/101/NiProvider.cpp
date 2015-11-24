@@ -14,8 +14,9 @@ using namespace std;
 int main( int argc, char* argv[] )
 { 
 	try {
-		OmmNiProvider provider( OmmNiProviderConfig().host( "localhost:14003" ).username( "user" ) );
-		UInt64 handle = 5;
+		OmmNiProvider provider( OmmNiProviderConfig().host( "132.88.227.196:14003" ).username( "user" ) );
+		UInt64 itemHandle = 5;
+		UInt64 sourceDirectoryHandle = 11;
 
 		// Encoding and sending Source Directory Message
 		FilterList filterListPayload;
@@ -26,7 +27,7 @@ int main( int argc, char* argv[] )
 				   ElementList().addUInt( ENAME_SVC_STATE, SERVICE_UP ).complete() ).complete();
 
 		provider.submit( RefreshMsg().domainType( MMT_DIRECTORY ).filter( SERVICE_INFO_FILTER | SERVICE_STATE_FILTER )
-				 .payload( Map().addKeyUInt( 0, MapEntry::AddEnum, filterListPayload ).complete() ).complete() );
+				 .payload( Map().addKeyUInt( 0, MapEntry::AddEnum, filterListPayload ).complete() ).complete(), sourceDirectoryHandle );
 
 		// Encoding and sending Refresh Message
 		provider.submit( RefreshMsg().serviceId( 0 ).name( "TRI.N" )
@@ -37,7 +38,7 @@ int main( int argc, char* argv[] )
 			       .addReal( 30, 9, OmmReal::Exponent0Enum )
 			       .addReal( 31, 19, OmmReal::Exponent0Enum )
 			       .complete() )
-		     .complete(), handle );
+		     .complete(), itemHandle );
 
 		sleep( 2000 );
 
@@ -48,7 +49,7 @@ int main( int argc, char* argv[] )
 				.payload( FieldList()
 					.addReal( 22, 3391 + i, OmmReal::ExponentNeg2Enum )
 					.addReal( 30, 10 + i, OmmReal::Exponent0Enum )
-					.complete() ), handle );
+					.complete() ), itemHandle );
 			sleep ( 1000 );
 		}
 

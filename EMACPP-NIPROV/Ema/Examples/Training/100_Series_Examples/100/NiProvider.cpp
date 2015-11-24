@@ -17,7 +17,8 @@ int main( int argc, char* argv[] )
 { 
 	try {
 		OmmNiProvider provider( OmmNiProviderConfig().host( "localhost:14003" ).username( "user" ) );
-		UInt64 handle = 5;
+		UInt64 itemHandle = 5;
+		UInt64 sourceDirectoryHandle = 11;
 
 		// Encoding and sending Source Directory Message
 		FilterList filterListPayload;
@@ -28,18 +29,18 @@ int main( int argc, char* argv[] )
 				   ElementList().addUInt( ENAME_SVC_STATE, SERVICE_UP ).complete() ).complete();
 
 		provider.submit( RefreshMsg().domainType( MMT_DIRECTORY ).filter( SERVICE_INFO_FILTER | SERVICE_STATE_FILTER )
-				 .payload( Map().addKeyUInt( 0, MapEntry::AddEnum, filterListPayload ).complete() ).complete() );
+				 .payload( Map().addKeyUInt( 0, MapEntry::AddEnum, filterListPayload ).complete() ).complete(), sourceDirectoryHandle );
 
 		// Encoding and sending Refresh Message
 		provider.submit( RefreshMsg().serviceId( 0 ).name( "TRI.N" )
 				 .state( OmmState::OpenEnum, OmmState::OkEnum, OmmState::NoneEnum, "UnSolicited Refresh Completed" )
-				 .payload( FieldList().addReal( 22, 25, OmmReal::ExponentPos1Enum ).complete() ).complete(), handle );
+				 .payload( FieldList().addReal( 22, 25, OmmReal::ExponentPos1Enum ).complete() ).complete(), itemHandle );
 
 		sleep( 2000 );
 
 		// Encoding and sending Update Message
 		provider.submit( UpdateMsg()
-				.payload( FieldList().addReal( 22, 26, OmmReal::ExponentPos1Enum ).complete() ), handle );
+				.payload( FieldList().addReal( 22, 26, OmmReal::ExponentPos1Enum ).complete() ), itemHandle );
 
 		sleep( 10000 );
 
