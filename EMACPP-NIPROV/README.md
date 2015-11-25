@@ -22,7 +22,12 @@ Within this directory contains everything you need to build the examples and run
 
 **Note:** Since this is the Non-Interactive Provider, it will require an ADH and ADS infrastructure setup.
 
-
+## Currently Supported Features
+- TCP connection to ADH
+- Login
+- Source Directory
+- Sending of Refresh and Update messages
+- Only supports single item
 
 
 ## Can You Provide Feedback?
