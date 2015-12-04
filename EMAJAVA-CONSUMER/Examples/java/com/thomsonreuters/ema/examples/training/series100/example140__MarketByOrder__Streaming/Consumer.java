@@ -7,6 +7,7 @@
 
 package com.thomsonreuters.ema.examples.training.series100.example140__MarketByOrder__Streaming;
 
+import java.util.Iterator;
 import com.thomsonreuters.ema.access.Msg;
 import com.thomsonreuters.ema.access.AckMsg;
 import com.thomsonreuters.ema.access.GenericMsg;
@@ -17,6 +18,7 @@ import com.thomsonreuters.ema.access.UpdateMsg;
 import com.thomsonreuters.ema.access.DataType;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.EmaFactory;
+import com.thomsonreuters.ema.access.FieldEntry;
 import com.thomsonreuters.ema.access.FieldList;
 import com.thomsonreuters.ema.access.Map;
 import com.thomsonreuters.ema.access.MapEntry;
@@ -68,10 +70,15 @@ class AppClient implements OmmConsumerClient
 	public void onAckMsg( AckMsg ackMsg, OmmConsumerEvent consumerEvent ){}
 	public void onAllMsg( Msg msg, OmmConsumerEvent consumerEvent ){}
 	
-	void decode( FieldList fl )
+	void decode( FieldList fieldList )
 	{
-		while ( fl.forth() )
-			System.out.println( "Fid: " + fl.entry().fieldId() + " Name: " + fl.entry().name() + fl.entry().load() );
+		Iterator<FieldEntry> iter = fieldList.iterator();
+		FieldEntry fieldEntry;
+		while ( iter.hasNext() )
+		{
+			fieldEntry = iter.next();
+			System.out.println( "Fid: " + fieldEntry.fieldId() + " Name: " + fieldEntry.name() + " value: " + fieldEntry.load() );
+		}
 	}
 	
 	void decode( Map map )
@@ -83,17 +90,19 @@ class AppClient implements OmmConsumerClient
 			System.out.println();
 		}
 		
-		while ( map.forth() )
+		Iterator<MapEntry> iter = map.iterator();
+		MapEntry mapEntry;
+		while ( iter.hasNext() )
 		{
-			MapEntry me = map.entry();
+			mapEntry = iter.next();
+			
+			if ( DataTypes.BUFFER == mapEntry.key().dataType() )
+				System.out.println( "Action: " + mapEntry.mapActionAsString() + " key value: " + mapEntry.key().buffer() );
 
-			if ( DataTypes.BUFFER == me.key().dataType() )
-				System.out.println( "Action: " + me.mapActionToString() + " key value: " + me.key().buffer() );
-
-			if ( DataTypes.FIELD_LIST == me.loadType() )
+			if ( DataTypes.FIELD_LIST == mapEntry.loadType() )
 			{
 				System.out.println( "Entry data:" );
-				decode( me.fieldList() );
+				decode( mapEntry.fieldList() );
 				System.out.println();
 			}
 		}
@@ -116,7 +125,7 @@ public class Consumer
 			
 			consumer.registerClient( reqMsg.domainType( EmaRdm.MMT_MARKET_BY_ORDER ).serviceName( "DIRECT_FEED" ).name( "AAO.V" ), appClient, 0 );
 			
-			Thread.sleep(60000);			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()		} catch ( OmmException excp ) {
+			Thread.sleep( 60000 );			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()		} catch ( OmmException excp ) {
 		}
 		catch ( InterruptedException | OmmException excp )
 		{

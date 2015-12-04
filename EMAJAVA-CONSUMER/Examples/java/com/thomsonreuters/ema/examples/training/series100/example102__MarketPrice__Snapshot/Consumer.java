@@ -59,7 +59,7 @@ public class Consumer
 			
 			consumer.registerClient( reqMsg.serviceName( "DIRECT_FEED" ).name( "IBM.N" ).interestAfterRefresh( false ), appClient );
 			
-			Thread.sleep(60000);			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
+			Thread.sleep( 60000 );			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
 		}
 		catch ( InterruptedException | OmmException excp )
 		{

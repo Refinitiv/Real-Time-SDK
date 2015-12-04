@@ -61,7 +61,7 @@ public class Consumer
 			
 			consumer.registerClient( ReqMsg.domainType( EmaRdm.MMT_MARKET_BY_PRICE ).serviceName( "DIRECT_FEED" ).name( "IBM.N" ), appClient, 0 );
 			
-			Thread.sleep(60000);			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
+			Thread.sleep( 60000 );			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
 		}
 		catch ( InterruptedException | OmmException excp )
 		{

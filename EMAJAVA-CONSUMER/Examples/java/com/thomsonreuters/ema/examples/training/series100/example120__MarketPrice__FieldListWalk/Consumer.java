@@ -7,6 +7,8 @@
 
 package com.thomsonreuters.ema.examples.training.series100.example120__MarketPrice__FieldListWalk;
 
+import java.util.Iterator;
+import com.thomsonreuters.ema.access.FieldEntry;
 import com.thomsonreuters.ema.access.Msg;
 import com.thomsonreuters.ema.access.AckMsg;
 import com.thomsonreuters.ema.access.GenericMsg;
@@ -74,10 +76,16 @@ class AppClient implements OmmConsumerClient
 	public void onAckMsg( AckMsg ackMsg, OmmConsumerEvent consumerEvent ){}
 	public void onAllMsg( Msg msg, OmmConsumerEvent consumerEvent ){}
 
-	void decode( FieldList fl )
+								
+	void decode( FieldList fieldList )
 	{
-		while ( fl.forth() )
-			System.out.println( "Fid: " + fl.entry().fieldId() + " Name: " + fl.entry().name() + " value: " + fl.entry().load() );
+		Iterator<FieldEntry> iter = fieldList.iterator();
+		FieldEntry fieldEntry;
+		while ( iter.hasNext() )
+		{
+			fieldEntry = iter.next();
+			System.out.println( "Fid: " + fieldEntry.fieldId() + " Name: " + fieldEntry.name() + " value: " + fieldEntry.load() );
+		}
 	}
 }
 
@@ -97,7 +105,7 @@ public class Consumer
 			
 			consumer.registerClient( reqMsg.serviceName( "DIRECT_FEED" ).name( "IBM.N" ), appClient, 0 );
 			
-			Thread.sleep(60000);			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
+			Thread.sleep( 60000 );			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
 		}
 		catch ( InterruptedException | OmmException excp )
 		{

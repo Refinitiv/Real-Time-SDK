@@ -7,6 +7,7 @@
 
 package com.thomsonreuters.ema.examples.training.series200.example200__MarketPrice__Streaming;
 
+import java.util.Iterator;
 import com.thomsonreuters.ema.access.Msg;
 import com.thomsonreuters.ema.access.AckMsg;
 import com.thomsonreuters.ema.access.GenericMsg;
@@ -68,42 +69,43 @@ class AppClient implements OmmConsumerClient
 	public void onAckMsg( AckMsg ackMsg, OmmConsumerEvent consumerEvent ){}
 	public void onAllMsg( Msg msg, OmmConsumerEvent consumerEvent ){}
 
-	void decode( FieldList fl )
+	void decode( FieldList fieldList )
 	{
-		while ( fl.forth() )
+		Iterator<FieldEntry> iter = fieldList.iterator();
+		FieldEntry fieldEntry;
+		while ( iter.hasNext() )
 		{
-			FieldEntry fe = fl.entry();
+			fieldEntry = iter.next();
+			System.out.print( "Fid: " + fieldEntry.fieldId() + " Name = " + fieldEntry.name() + " DataType: " + DataType.asString( fieldEntry.load().dataType() ) + " Value: " );
 
-			System.out.print( "Fid: " + fe.fieldId() + " Name = " + fe.name() + " DataType: " + DataType.asString( fe.load().dataType() ) + " Value: " );
-
-			if ( Data.DataCode.BLANK == fe.code() )
+			if ( Data.DataCode.BLANK == fieldEntry.code() )
 				System.out.println( " blank" );
 			else
-				switch ( fe.loadType() )
+				switch ( fieldEntry.loadType() )
 				{
 				case DataTypes.REAL :
-					System.out.println( fe.real().asDouble() );
+					System.out.println( fieldEntry.real().asDouble() );
 					break;
 				case DataTypes.DATE :
-					System.out.println( fe.date().day() + " / " + fe.date().month() + " / " + fe.date().year() );
+					System.out.println( fieldEntry.date().day() + " / " + fieldEntry.date().month() + " / " + fieldEntry.date().year() );
 					break;
 				case DataTypes.TIME :
-					System.out.println( fe.time().hour() + " / " + fe.time().minute() + " / " + fe.time().second() + fe.time().millisecond());
+					System.out.println( fieldEntry.time().hour() + ":" + fieldEntry.time().minute() + ":" + fieldEntry.time().second() + ":" + fieldEntry.time().millisecond());
 					break;
 				case DataTypes.INT :
-					System.out.println( fe.intValue());
+					System.out.println( fieldEntry.intValue());
 					break;
 				case DataTypes.UINT :
-					System.out.println( fe.uintValue());
+					System.out.println( fieldEntry.uintValue());
 					break;
 				case DataTypes.ASCII :
-					System.out.println( fe.ascii() );
+					System.out.println( fieldEntry.ascii() );
 					break;
 				case DataTypes.ENUM :
-					System.out.println( fe.enumValue() );
+					System.out.println( fieldEntry.enumValue() );
 					break;
 				case DataTypes.ERROR :
-					System.out.println( "( " + fe.error().errorCodeAsString() + " )" );
+					System.out.println( "( " + fieldEntry.error().errorCodeAsString() + " )" );
 					break;
 				default :
 					System.out.println();
@@ -129,7 +131,7 @@ public class Consumer
 			
 			consumer.registerClient( reqMsg.serviceName( "DIRECT_FEED" ).name( "IBM.N" ), appClient, 0 );
 			
-			Thread.sleep(60000);			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
+			Thread.sleep( 60000 );			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
 		}
 		catch ( InterruptedException | OmmException excp )
 		{

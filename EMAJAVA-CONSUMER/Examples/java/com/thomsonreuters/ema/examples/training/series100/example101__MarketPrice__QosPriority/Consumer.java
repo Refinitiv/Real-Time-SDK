@@ -61,7 +61,7 @@ public class Consumer
 			
 			consumer.registerClient( reqMsg.serviceName( "DIRECT_FEED" ).name( "IBM.N" ).qos(Timeliness.REALTIME, Rate.TICK_BY_TICK).priority(2,1), appClient );
 			
-			Thread.sleep(60000);			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
+			Thread.sleep( 60000 );			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
 		}
 		catch ( InterruptedException | OmmException excp )
 		{
