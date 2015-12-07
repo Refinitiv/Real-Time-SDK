@@ -6,6 +6,21 @@
  *|-----------------------------------------------------------------------------
  */
 
+#ifdef WIN32
+#define EMA_COMPONENT_VER_PLATFORM ".win "
+#else
+#define EMA_COMPONENT_VER_PLATFORM ".linux "
+#endif
+
+#ifdef __EMA_STATIC_BUILD__
+#define EMA_LINK_TYPE "Static"
+#else
+#define EMA_LINK_TYPE "Shared Library"
+#endif
+
+#define EMA "ema"
+#define COMPILE_BITS_STR "64-bit "
+
 #include "ChannelCallbackClient.h"
 #include "LoginCallbackClient.h"
 #include "DirectoryCallbackClient.h"
@@ -13,6 +28,7 @@
 #include "OmmConsumerImpl.h"
 #include "OmmConsumerErrorClient.h"
 #include "StreamId.h"
+#include "../EmaVersion.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -504,6 +520,15 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 {
 	RsslReactorOMMConsumerRole consumerRole;
 	rsslClearOMMConsumerRole( &consumerRole );
+	
+	EmaString componentVersionInfo(EMA);
+	componentVersionInfo.append(NEWVERSTRING);
+	componentVersionInfo.append(EMA_COMPONENT_VER_PLATFORM);
+	componentVersionInfo.append(COMPILE_BITS_STR);
+	componentVersionInfo.append(EMA_LINK_TYPE);
+	componentVersionInfo.append("(");
+	componentVersionInfo.append(BLDTYPE);
+	componentVersionInfo.append(")");
 
 	consumerRole.pLoginRequest = loginRequest;
 	consumerRole.pDirectoryRequest = dirRequest;
@@ -567,7 +592,7 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 			reactorConnectInfo[i].rsslConnectOptions.sysRecvBufSize = consumerActivecfgChannelSet[i]->sysRecvBufSize;
 			reactorConnectInfo[i].rsslConnectOptions.sysSendBufSize = consumerActivecfgChannelSet[i]->sysSendBufSize;
 			reactorConnectInfo[i].rsslConnectOptions.numInputBuffers = consumerActivecfgChannelSet[i]->numInputBuffers;
-
+			reactorConnectInfo[i].rsslConnectOptions.componentVersion = ( char *) componentVersionInfo.c_str();
 			EmaString strConnectionType;
 			switch ( reactorConnectInfo[i].rsslConnectOptions.connectionType )
 			{
@@ -779,7 +804,17 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 		}
 		case RSSL_RC_CET_CHANNEL_UP:
 		{
+			RsslReactorChannelInfo channelInfo;
 			RsslErrorInfo rsslErrorInfo;
+			RsslRet retChanInfo;
+			retChanInfo = rsslReactorGetChannelInfo(pRsslReactorChannel, &channelInfo, &rsslErrorInfo);
+			EmaString componentInfo("Connected component version: ");
+			for(unsigned int i = 0; i < channelInfo.rsslChannelInfo.componentInfoCount; ++i)
+			{
+				componentInfo.append(channelInfo.rsslChannelInfo.componentInfo[i]->componentVersion.data);
+				if( i < (channelInfo.rsslChannelInfo.componentInfoCount - 1) )
+					componentInfo.append(", ");
+			}
 #ifdef WIN32
 			int sendBfrSize = 65535;
 
@@ -858,6 +893,8 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 				EmaString temp( "Received ChannelUp event on channel " );
 				temp.append( pChannel->getName() ).append( CR )
 					.append( "Consumer Name " ).append( _ommConsImpl.getConsumerName() );
+				if( channelInfo.rsslChannelInfo.componentInfoCount > 0)
+					temp.append( CR ).append(componentInfo);
 				_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::SuccessEnum, temp );
 			}
 
