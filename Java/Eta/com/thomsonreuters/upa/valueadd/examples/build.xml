@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="valueadd">
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.7"/>
+    <property name="source" value="1.7"/>
+	
+	<property name="dist.dir" value="../../"/>
+	<property name="upa.libs.dir" value="${dist.dir}/Libs"/>
+	<property name="valueadd.examples.bin.dir" value="${dist.dir}/ValueAdd/Examples/bin"/>
+	<property name="valueadd.libs.dir" value="${dist.dir}/ValueAdd/Libs" />
+	<property name="valueadd.examples.dir" value="${dist.dir}/ValueAdd/Examples" />
+	
+	<path id="valueadd.examples.classpath">
+        <pathelement location="${upa.libs.dir}/upa.jar"/>
+		<pathelement location="${valueadd.libs.dir}/upaValueAdd.jar"/>
+		<pathelement location="${valueadd.libs.dir}/upaValueAddCache.jar"/>
+    </path>
+
+	<target name="init">
+		<echo message="Creating a directory for the compiler output" />
+        <mkdir dir="${valueadd.examples.bin.dir}"/>
+    </target>
+
+	<target name="clean">
+		<echo message="Cleaning up old build output" />
+        <delete dir="${valueadd.examples.bin.dir}"/>
+    </target>
+
+	<target depends="init" name="build-valueadd">
+		<echo message="Building the valueadd" />
+        <javac debug="false" debuglevel="${debuglevel}" destdir="${valueadd.examples.bin.dir}" source="${source}" target="${target}" includeantruntime="false">
+        	<src path="${valueadd.examples.dir}"/>
+            <classpath refid="valueadd.examples.classpath"/>
+        </javac>
+    </target>
+	
+	<target depends="clean,build-valueadd" name="build"/>
+	
+</project>
