@@ -1,0 +1,441 @@
+/*|-----------------------------------------------------------------------------
+ *|            This source code is provided under the Apache 2.0 license      --
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+ *|                See the project's LICENSE.md for details.                  --
+ *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|-----------------------------------------------------------------------------
+ */
+
+#include "UpdateMsg.h"
+#include "UpdateMsgDecoder.h"
+#include "UpdateMsgEncoder.h"
+#include "EmaBufferInt.h"
+#include "Utilities.h"
+#include "GlobalPool.h"
+#include "RdmUtilities.h"
+
+using namespace thomsonreuters::ema::access;
+using namespace thomsonreuters::ema::rdm;
+
+extern const EmaString& getDTypeAsString( DataType::DataTypeEnum dType );
+
+UpdateMsg::UpdateMsg() :
+ Msg(),
+ _toString()
+{
+}
+
+UpdateMsg::~UpdateMsg()
+{
+	if ( _pEncoder )
+		g_pool._updateMsgEncoderPool.returnItem( static_cast<UpdateMsgEncoder*>( _pEncoder ) );
+
+	if ( _pDecoder )
+		g_pool._updateMsgDecoderPool.returnItem( static_cast<UpdateMsgDecoder*>( _pDecoder ) );
+}
+
+UpdateMsg& UpdateMsg::clear()
+{
+	if ( _pEncoder )
+		_pEncoder->clear();
+
+	return *this;
+}
+
+Data::DataCode UpdateMsg::getCode() const
+{
+	return Data::NoCodeEnum;
+}
+
+DataType::DataTypeEnum UpdateMsg::getDataType() const
+{
+	return DataType::UpdateMsgEnum;
+}
+
+const EmaString& UpdateMsg::toString() const
+{
+	return toString( 0 );
+}
+
+const EmaString& UpdateMsg::toString( UInt64 indent ) const
+{
+	const UpdateMsgDecoder* pTempDecoder = static_cast<const UpdateMsgDecoder*>( _pDecoder );
+
+	addIndent( _toString.clear(), indent++ ).append( "UpdateMsg" );
+	addIndent( _toString, indent, true ).append( "streamId=\"" ).append( pTempDecoder->getStreamId() ).append( "\"" );
+	addIndent( _toString, indent, true ).append( "domain=\"" ).append( rdmDomainToString( getDomainType() ) ).append( "\"" );			
+	addIndent( _toString, indent, true ).append( "updateTypeNum=\"" ).append( pTempDecoder->getUpdateTypeNum() ).append( "\"" );
+
+	if ( pTempDecoder->getDoNotCache() )
+		addIndent( _toString, indent, true ).append( "DoNotCache" );
+
+	if ( pTempDecoder->getDoNotConflate() )
+		addIndent( _toString, indent, true ).append( "DoNotConflate" );
+
+	if ( pTempDecoder->getDoNotRipple() )
+		addIndent( _toString, indent, true ).append( "DoNotRipple" );
+
+	if ( pTempDecoder->hasPermissionData() )
+	{
+		EmaString temp;
+		hexToString( temp, pTempDecoder->getPermissionData() );
+		addIndent( _toString, indent, true ).append( "permissionData=\"" ).append( temp ).append( "\"" );
+	}
+
+	if ( pTempDecoder->hasConflated() )
+	{
+		addIndent( _toString, indent, true ).append( "conflatedCount=\"" ).append( pTempDecoder->getConflatedCount() ).append( "\"" );
+		addIndent( _toString, indent, true ).append( "conflatedTime=\"" ).append( pTempDecoder->getConflatedTime() ).append( "\"" );
+	}
+
+	if ( pTempDecoder->hasSeqNum() )
+		addIndent( _toString, indent, true ).append( "seqNum=\"" ).append( pTempDecoder->getSeqNum() ).append( "\"" );			
+
+	if ( pTempDecoder->hasPublisherId() )
+	{
+		addIndent( _toString, indent, true ).append( "publisher user address=\"" ).append( pTempDecoder->getPublisherIdUserAddress() ).append( "\"" );			
+		addIndent( _toString, indent, true ).append( "publisher user id=\"" ).append( pTempDecoder->getPublisherIdUserId() ).append( "\"" );			
+	}
+
+	indent--;
+	if ( pTempDecoder->hasMsgKey() )
+	{
+		indent++;
+		if ( pTempDecoder->hasName() )
+			addIndent( _toString, indent, true ).append( "name=\"" ).append( pTempDecoder->getName() ).append( "\"" );
+
+		if ( pTempDecoder->hasNameType() )
+			addIndent( _toString, indent, true ).append( "nameType=\"" ).append( pTempDecoder->getNameType() ).append( "\"" );
+
+		if ( pTempDecoder->hasServiceId() )
+			addIndent( _toString, indent, true ).append( "serviceId=\"" ).append( pTempDecoder->getServiceId() ).append( "\"" );
+
+		if ( pTempDecoder->hasServiceName() )
+			addIndent( _toString, indent, true ).append( "serviceName=\"" ).append( pTempDecoder->getServiceName() ).append( "\"" );
+
+		if ( pTempDecoder->hasFilter() )
+			addIndent( _toString, indent, true ).append( "filter=\"" ).append( pTempDecoder->getFilter() ).append( "\"" );
+
+		if ( pTempDecoder->hasId() )
+			addIndent( _toString, indent, true ).append( "id=\"" ).append( pTempDecoder->getId() ).append( "\"" );
+
+		indent--;
+
+		if ( pTempDecoder->hasAttrib() )
+		{
+			indent++;
+			addIndent( _toString, indent, true ).append( "Attrib dataType=\"" ).append( getDTypeAsString( pTempDecoder->getAttribData().getDataType() ) ).append( "\"\n" );
+
+			indent++;
+			_toString.append( pTempDecoder->getAttribData().toString( indent ) );
+			indent--;
+
+			addIndent( _toString, indent, true ).append( "AttribEnd" );
+			indent--;
+		}
+	}
+		
+	if ( pTempDecoder->hasExtendedHeader() )
+	{
+		indent++;
+		addIndent( _toString, indent, true ).append( "ExtendedHeader\n" );
+
+		indent++;
+
+		addIndent( _toString, indent );
+		hexToString( _toString, pTempDecoder->getExtendedHeader() );
+
+		indent--;
+
+		addIndent( _toString, indent, true ).append( "ExtendedHeaderEnd" );
+		indent--;
+	}
+
+	if ( _pDecoder->hasPayload() )
+	{
+		indent++;
+		addIndent( _toString, indent, true ).append( "Payload dataType=\"" ).append( getDTypeAsString( pTempDecoder->getPayloadData().getDataType() ) ).append( "\"\n" );
+
+		indent++;
+		_toString.append( pTempDecoder->getPayloadData().toString( indent ) );
+		indent--;
+
+		addIndent( _toString, indent, true ).append( "PayloadEnd" );
+		indent--;
+	}
+			
+	addIndent( _toString, indent, true ).append( "UpdateMsgEnd\n" );
+
+	return _toString;
+}
+
+const EmaBuffer& UpdateMsg::getAsHex() const
+{
+	return static_cast<const UpdateMsgDecoder*>( _pDecoder )->getHexBuffer();
+}
+
+bool UpdateMsg::hasSeqNum() const
+{
+	return static_cast<const UpdateMsgDecoder*>(_pDecoder)->hasSeqNum();
+}
+
+bool UpdateMsg::hasPermissionData() const
+{
+	return static_cast<const UpdateMsgDecoder*>(_pDecoder)->hasPermissionData();
+}
+
+bool UpdateMsg::hasConflated() const
+{
+	return static_cast<const UpdateMsgDecoder*>(_pDecoder)->hasConflated();
+}
+
+bool UpdateMsg::hasPublisherId() const
+{
+	return static_cast<const UpdateMsgDecoder*>(_pDecoder)->hasPublisherId();
+}
+
+bool UpdateMsg::hasServiceName() const
+{
+	return static_cast<const UpdateMsgDecoder*>(_pDecoder)->hasServiceName();
+}
+
+UInt8 UpdateMsg::getUpdateTypeNum() const
+{
+	return static_cast<const UpdateMsgDecoder*>(_pDecoder)->getUpdateTypeNum();
+}
+
+UInt32 UpdateMsg::getSeqNum() const
+{
+	return static_cast<const UpdateMsgDecoder*>(_pDecoder)->getSeqNum();
+}
+
+const EmaBuffer& UpdateMsg::getPermissionData() const
+{
+	return static_cast<const UpdateMsgDecoder*>(_pDecoder)->getPermissionData();
+}
+
+UInt16 UpdateMsg::getConflatedTime() const
+{
+	return static_cast<const UpdateMsgDecoder*>(_pDecoder)->getConflatedTime();
+}
+
+UInt16 UpdateMsg::getConflatedCount() const
+{
+	return static_cast<const UpdateMsgDecoder*>(_pDecoder)->getConflatedCount();
+}
+
+UInt32 UpdateMsg::getPublisherIdUserId() const
+{
+	return static_cast<const UpdateMsgDecoder*>(_pDecoder)->getPublisherIdUserId();
+}
+
+UInt32 UpdateMsg::getPublisherIdUserAddress() const
+{
+	return static_cast<const UpdateMsgDecoder*>(_pDecoder)->getPublisherIdUserAddress();
+}
+
+bool UpdateMsg::getDoNotCache() const
+{
+	return static_cast<const UpdateMsgDecoder*>(_pDecoder)->getDoNotCache();
+}
+
+bool UpdateMsg::getDoNotConflate() const
+{
+	return static_cast<const UpdateMsgDecoder*>(_pDecoder)->getDoNotConflate();
+}
+
+bool UpdateMsg::getDoNotRipple() const
+{
+	return static_cast<const UpdateMsgDecoder*>(_pDecoder)->getDoNotRipple();
+}
+
+const EmaString& UpdateMsg::getServiceName() const
+{
+	return static_cast<const UpdateMsgDecoder*>(_pDecoder)->getServiceName();
+}
+
+Decoder& UpdateMsg::getDecoder()
+{
+	if ( !_pDecoder )
+		setDecoder( g_pool._updateMsgDecoderPool.getItem() );
+
+	return *_pDecoder;
+}
+
+UpdateMsg& UpdateMsg::streamId( Int32 streamId )
+{
+	if ( !_pEncoder )
+		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+
+	_pEncoder->streamId( streamId );
+	return *this;
+}
+
+UpdateMsg& UpdateMsg::domainType( UInt16 domainType )
+{
+	if ( domainType > 255 )
+	{
+		EmaString temp( "Passed in DomainType is out of range." );
+		throwDtuException( domainType, temp );
+		return *this;
+	}
+
+	if ( !_pEncoder )
+		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+
+	_pEncoder->domainType( (UInt8)domainType );
+	return *this;
+}
+
+UpdateMsg& UpdateMsg::name( const EmaString& name )
+{
+	if ( !_pEncoder )
+		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+
+	_pEncoder->name( name );
+	return *this;
+}
+
+UpdateMsg& UpdateMsg::nameType( UInt8 nameType )
+{
+	if ( !_pEncoder )
+		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+
+	_pEncoder->nameType( nameType );
+	return *this;
+}
+
+UpdateMsg& UpdateMsg::serviceName( const EmaString& serviceName )
+{
+	if ( !_pEncoder )
+		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+
+	_pEncoder->serviceName( serviceName );
+	return *this;
+}
+
+UpdateMsg& UpdateMsg::serviceId( UInt32 serviceId )
+{
+	if ( !_pEncoder )
+		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+
+	_pEncoder->serviceId( serviceId );
+	return *this;
+}
+
+UpdateMsg& UpdateMsg::id( Int32 id )
+{
+	if ( !_pEncoder )
+		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+
+	_pEncoder->identifier( id );
+	return *this;
+}
+
+UpdateMsg& UpdateMsg::filter( UInt32 filter )
+{
+	if ( !_pEncoder )
+		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+
+	_pEncoder->filter( filter );
+	return *this;
+}
+
+UpdateMsg& UpdateMsg::updateTypeNum( UInt8 updateTypeNum )
+{
+	if ( !_pEncoder )
+		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+
+	static_cast<UpdateMsgEncoder*>(_pEncoder)->updateTypeNum( updateTypeNum );
+	return *this;
+}
+
+UpdateMsg& UpdateMsg::seqNum( UInt32 seqNum )
+{
+	if ( !_pEncoder )
+		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+
+	static_cast<UpdateMsgEncoder*>(_pEncoder)->seqNum( seqNum );
+	return *this;
+}
+
+UpdateMsg& UpdateMsg::permissionData( const EmaBuffer& permissionData )
+{
+	if ( !_pEncoder )
+		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+
+	static_cast<UpdateMsgEncoder*>(_pEncoder)->permissionData( permissionData );
+	return *this;
+}
+
+UpdateMsg& UpdateMsg::conflated( UInt16 count, UInt16 time )
+{
+	if ( !_pEncoder )
+		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+
+	static_cast<UpdateMsgEncoder*>(_pEncoder)->conflated( count, time );
+	return *this;
+}
+
+UpdateMsg& UpdateMsg::publisherId( UInt32 userId, UInt32 userAddress )
+{
+	if ( !_pEncoder )
+		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+
+	static_cast<UpdateMsgEncoder*>(_pEncoder)->publisherId( userId, userAddress );
+	return *this;
+}
+
+UpdateMsg& UpdateMsg::attrib( const ComplexType& data )
+{
+	if ( !_pEncoder )
+		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+
+	_pEncoder->attrib( data );
+	return *this;
+}
+
+UpdateMsg& UpdateMsg::payload( const ComplexType& data )
+{
+	if ( !_pEncoder )
+		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+
+	_pEncoder->payload( data );
+	return *this;
+}
+
+UpdateMsg& UpdateMsg::extendedHeader( const EmaBuffer& buffer )
+{
+	if ( !_pEncoder )
+		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+
+	static_cast<UpdateMsgEncoder*>(_pEncoder)->extendedHeader( buffer );
+	return *this;
+}
+
+UpdateMsg& UpdateMsg::doNotCache( bool doNotCache )
+{
+	if ( !_pEncoder )
+		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+
+	static_cast<UpdateMsgEncoder*>(_pEncoder)->doNotCache( doNotCache );
+	return *this;
+}
+
+UpdateMsg& UpdateMsg::doNotConflate( bool doNotConflate )
+{
+	if ( !_pEncoder )
+		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+
+	static_cast<UpdateMsgEncoder*>(_pEncoder)->doNotConflate( doNotConflate );
+	return *this;
+}
+
+UpdateMsg& UpdateMsg::doNotRipple( bool doNotRipple )
+{
+	if ( !_pEncoder )
+		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+
+	static_cast<UpdateMsgEncoder*>(_pEncoder)->doNotRipple( doNotRipple );
+	return *this;
+}

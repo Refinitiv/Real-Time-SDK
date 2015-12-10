@@ -32,7 +32,7 @@ int main( int argc, char* argv[] )
 				 .payload( Map().addKeyUInt( 0, MapEntry::AddEnum, filterListPayload ).complete() ).complete(), sourceDirectoryHandle );
 
 		// Encoding and sending Refresh Message
-		provider.submit( RefreshMsg().serviceId( 0 ).name( "TRI.N" )
+		provider.submit( RefreshMsg().serviceName( "NI_PUB" ).name( "TRI.N" )
 				 .state( OmmState::OpenEnum, OmmState::OkEnum, OmmState::NoneEnum, "UnSolicited Refresh Completed" )
 				 .payload( FieldList().addReal( 22, 25, OmmReal::ExponentPos1Enum ).complete() ).complete(), itemHandle );
 

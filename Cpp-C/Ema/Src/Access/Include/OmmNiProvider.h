@@ -155,7 +155,7 @@ public :
 		@throw OmmInvalidHandleException if passed in handle does not refer to an open stream
 		\remark This method is \ref ObjectLevelSafe
 	*/
-	void submit( const RefreshMsg& refreshMsg, UInt64 handle = 0 );
+	void submit( const RefreshMsg& refreshMsg, UInt64 handle );
 
 	/** Sends a UpdateMsg.
 		@param[in] updateMsg specifies UpdateMsg to be sent
@@ -164,7 +164,7 @@ public :
 		@throw OmmInvalidHandleException if passed in handle does not refer to an open stream
 		\remark This method is \ref ObjectLevelSafe
 	*/
-	void submit( const UpdateMsg& updateMsg, UInt64 handle = 0 );
+	void submit( const UpdateMsg& updateMsg, UInt64 handle );
 	
 	/** Sends a StatusMsg.
 		@param[in] statusMsg specifies StatusMsg to be sent
@@ -173,7 +173,7 @@ public :
 		@throw OmmInvalidHandleException if passed in handle does not refer to an open stream
 		\remark This method is \ref ObjectLevelSafe
 	*/	
-	void submit( const StatusMsg& statusMsg, UInt64 handle = 0 );
+	void submit( const StatusMsg& statusMsg, UInt64 handle );
 
 	/** Relinquish application thread of control to receive callbacks via OmmNiProviderClient descendant.
 		\remark Requires OperationalModel to be set to UserDispatchEnum.

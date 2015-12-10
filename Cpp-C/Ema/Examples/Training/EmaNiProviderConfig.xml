@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmaConfig>
+
+<NiProviderGroup>
+	<!-- DefaultNiProvider parameter defines which NiProvider configuration is used by OmmNiProvider	-->
+	<!-- if application does not specify it through OmmNiProviderConfig::niProviderName()			-->
+	<!-- first niProvider on the NiProviderList is a default niProvider if this parameter is not specified	-->
+	<DefaultNiProvider value="NiProvider_1"/>
+	<NiProviderList>
+		<NiProvider>
+			<Name value="NiProvider_1"/>
+
+			<!-- Channel is optional: defaulted to "RSSL_SOCKET + localhost + 14002" -->
+			<Channel value="Channel_1"/>
+
+			<!-- Logger is optional: defaulted to "File + Success" -->
+			<Logger value="Logger_1"/>
+
+		</NiProvider>
+		<NiProvider>
+			<Name value="NiProvider_2"/>
+			<Channel value="Channel_2"/>
+			<Logger value="Logger_2"/>
+		</NiProvider>
+	</NiProviderList>
+</NiProviderGroup>
+<ChannelGroup>
+	<ChannelList>
+		<Channel>
+			<Name value="Channel_1"/>
+
+			<!-- ChannelType possible values are: -->
+			<!-- ChannelType::RSSL_SOCKET    - TCP IP connection type -->
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+
+			<!-- CompressionType is optional: defaulted to None -->
+			<!-- possible values: None, ZLib, LZ4 -->
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+
+			<!-- ConnectionPingTimeout is optional: defaulted to 30000 -->
+			<ConnectionPingTimeout value="30000"/>
+
+			<!-- TcpNodelay is optional: defaulted to 1 -->
+			<!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set) -->
+			<TcpNodelay value="1"/>
+			<Host value="localhost"/>
+			<Port value="14002"/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_2"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<Host value="122.1.1.100"/>
+			<Port value="14002"/>
+		</Channel>
+	</ChannelList>
+</ChannelGroup>
+<LoggerGroup>
+	<LoggerList>
+		<Logger>
+			<Name value="Logger_1"/>
+
+			<!-- LoggerType is optional:  defaulted to "File" -->
+			<!-- possible values: Stdout, File -->
+			<LoggerType value="LoggerType::Stdout"/>
+
+			<!-- LoggerSeverity is optional: defaulted to "Success" -->
+			<!-- possible values: Verbose, Success, Warning, Error, NoLogMsg -->
+			<LoggerSeverity value="LoggerSeverity::Success"/>
+		</Logger>
+		<Logger>
+			<Name value="Logger_2"/>
+			<LoggerType value="LoggerType::File"/>
+			<!-- FileName is optional: defaulted to "emaLog_<process id>.log" -->
+			<FileName value="emaLog"/>
+			<LoggerSeverity value="LoggerSeverity::Success"/>
+		</Logger>
+	</LoggerList>
+</LoggerGroup>
+</EmaConfig>

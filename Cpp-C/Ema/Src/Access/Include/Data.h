@@ -119,6 +119,7 @@ private :
 	friend class ElementListDecoder;
 	friend class FieldListDecoder;
 
+	friend class OmmArray;
 	friend class AckMsg;
 	friend class GenericMsg;
 	friend class PostMsg;

@@ -1,0 +1,88 @@
+include ../../makefile.common
+
+ROOTNODE= $(shell cd ../../..;pwd)
+
+ifeq ($(findstring RedHat,$(DIST)), RedHat)
+    ifeq ($(findstring 6, $(OS_VER)), 6)
+	IDENT= RHEL6_64_GCC444
+    endif
+else
+	ifeq ($(findstring OracleServer, $(DIST)), OracleServer)
+		ifeq ($(findstring 7, $(OS_VER)), 7)
+			IDENT= OL7_64_GCC482
+		endif
+	endif
+endif
+
+ifndef IDENT	
+$(error unsupported environment)
+endif
+
+CFLAGS += -DLinux -DNDEBUG -D__EMA_COPY_ON_SET__ -O3 -fbuiltin -Wno-ctor-dtor-privacy -Wno-deprecated -std=c++0x -pthread
+
+optimizedShared:	CFLAGS += -shared -fPIC
+optimizedShared:	LIBTYPE=Optimized
+optimizedShared:        $(OUTPUT_DIR)/libema.so
+optimizedStatic:	CFLAGS += -D__EMA_STATIC_BUILD__
+optimizedStatic:	LIBTYPE=Optimized
+optimizedStatic:        $(OUTPUT_DIR)/libema.a
+optimizedAssertStatic:	CFLAGS += -D__EMA_STATIC_BUILD__ -D_EMA_BLDTYPE_ASSERT_
+optimizedAssertStatic:	LIBTYPE=Optimized_Assert
+optimizedAssertStatic:  $(OUTPUT_DIR)/libema.a
+optimizedAssertShared:	CFLAGS += -shared -fPIC -D_EMA_BLDTYPE_ASSERT_
+optimizedAssertShared:	LIBTYPE=Optimized_Assert
+optimizedAssertShared:  $(OUTPUT_DIR)/libema.so
+
+INCLUDES=	-I./Include					\
+		-I..						\
+		-I../../../Eta/Include			\
+		-I../../../Eta/Include/Codec		\
+		-I../../../Eta/Include/Transport		\
+		-I../../../Eta/Include/RDM	\
+		-I../../../Eta/Include/Reactor	\
+		-I../../../Eta/Include/Util		\
+		-I../../../Ema/Src/Rdm/Impl			\
+		-I../../../Ema/Src/Rdm/Include			\
+		-I../../../Eta/Utils/Libxml2/include
+STATIC_LIBS=	 $(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/librsslRDM.a		\
+		$(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/librssl.a	\
+		$(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/librsslReactor.a	\
+		$(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/librsslVAUtil.a	\
+		$(ROOTNODE)/Eta/Utils/Libxml2/$(IDENT)/Static/libxml2.a
+SHARED_LIBS=    -L$(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/Shared/		\
+		-L$(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/Shared/	\
+		-L$(ROOTNODE)/Eta/Utils/Libxml2/$(IDENT)/Shared/		\
+		-lrssl -lrsslVA -lxml2
+
+EMA_LIB_SRC=	$(shell ls Impl/*.cpp)
+EMA_LIB_OBJ=	$(addprefix $(OUTPUT_DIR)/obj/Access/, $(EMA_LIB_SRC:%.cpp=%.o))
+RDM_LIB_SRC=	../Rdm/Impl/RdmUtilities.cpp
+RDM_LIB_OBJ=	$(addprefix $(OUTPUT_DIR)/obj/Rdm/, $(RDM_LIB_SRC:%.cpp=%.o))
+EMA_VER_SRC=	EmaVersion.c
+EMA_VER_OBJ=	$(addprefix $(OUTPUT_DIR)/obj/, $(EMA_VER_SRC:%.c=%.o))
+
+$(OUTPUT_DIR)/obj/Access/%.o : %.cpp
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(OUTPUT_DIR)/obj/Rdm/%.o : %.cpp
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(OUTPUT_DIR)/obj/%.o : %.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+
+tmpdir := $(shell echo /tmp/$$$$)
+archiver = $(shell	cd $(tmpdir);					\
+			ar -x $(file);					\
+			cd $(PWD);					\
+			ar -ru $(OUTPUT_DIR)/libema.a $(tmpdir)/*.o; 	\
+			rm $(tmpdir)/*.o;				\
+	)
+$(OUTPUT_DIR)/libema.a: $(RDM_LIB_OBJ) $(EMA_VER_OBJ) $(EMA_LIB_OBJ)
+	@ar -ru $(OUTPUT_DIR)/libema.a $^
+	$(shell mkdir -p $(tmpdir))
+	$(foreach file,$(STATIC_LIBS),$(archiver))
+	$(shell rmdir $(tmpdir))
+
+$(OUTPUT_DIR)/libema.so: $(RDM_LIB_OBJ) $(EMA_VER_OBJ) $(EMA_LIB_OBJ)
+	$(CC) $(CFLAGS) -Wl,-soname,libema.so.3 -o $(OUTPUT_DIR)/libema.so.3.0 $^ $(SHARED_LIBS)
+	ln -fs libema.so.3.0 $(OUTPUT_DIR)/libema.so.3
+	ln -fs libema.so.3 $(OUTPUT_DIR)/libema.so
+

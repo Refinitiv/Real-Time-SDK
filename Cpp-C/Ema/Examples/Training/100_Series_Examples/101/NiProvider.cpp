@@ -14,7 +14,7 @@ using namespace std;
 int main( int argc, char* argv[] )
 { 
 	try {
-		OmmNiProvider provider( OmmNiProviderConfig().host( "132.88.227.196:14003" ).username( "user" ) );
+		OmmNiProvider provider( OmmNiProviderConfig().host( "localhost:14003" ).username( "user" ) );
 		UInt64 itemHandle = 5;
 		UInt64 sourceDirectoryHandle = 11;
 
@@ -30,7 +30,7 @@ int main( int argc, char* argv[] )
 				 .payload( Map().addKeyUInt( 0, MapEntry::AddEnum, filterListPayload ).complete() ).complete(), sourceDirectoryHandle );
 
 		// Encoding and sending Refresh Message
-		provider.submit( RefreshMsg().serviceId( 0 ).name( "TRI.N" )
+		provider.submit( RefreshMsg().serviceName( "NI_PUB" ).name( "TRI.N" )
 		     .state( OmmState::OpenEnum, OmmState::OkEnum, OmmState::NoneEnum, "UnSolicited Refresh Completed" )
 		     .payload( FieldList()
 			       .addReal( 22, 3990, OmmReal::ExponentNeg2Enum )
@@ -52,6 +52,10 @@ int main( int argc, char* argv[] )
 					.complete() ), itemHandle );
 			sleep ( 1000 );
 		}
+
+		// now indicate that we've stop providing this item
+		provider.submit( StatusMsg()
+        		.state( OmmState::ClosedEnum, OmmState::SuspectEnum, OmmState::NoneEnum, "Stream Closed" ), itemHandle );
 
 		sleep( 10000 );
 

@@ -99,7 +99,7 @@ public :
 	OmmConsumerConfig& applicationId( const EmaString& applicationId );
 
 	/** Specifies a hostname and port.  Overrides prior value.
-		\remark Implies usage of TCP IP channel or RSSL_SOCKET.
+		\remark Implies usage of TCP IP channel or RSSL_CONN_TYPE_SOCKET.
 		@param[in] host specifies server and port to which OmmConsumer will connect
 		\remark if host set to "<hostname>:<port>", then hostname:port is assumed
 		\remark if host set to "", then localhost:14002 is assumed

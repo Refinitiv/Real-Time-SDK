@@ -14,6 +14,15 @@
 	@brief RmtesBuffer represents RMTES data.
 
 	RmtesBuffer stores and applies RMTES data.
+	
+	The following code snippet shows a simple decoding of RmtesBuffer.
+	
+	\code
+	
+	rmtesBuffer.apply( fe.getRmtes() );
+	cout << rmtesBuffer.toString() << endl;
+	
+	\endcode
 
 	\remark RmtesBuffer class contains a copy of the buffer passed on apply methods.
 	\remark All methods in this class are \ref SingleThreaded.
