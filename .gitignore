@@ -3,7 +3,7 @@
 *.so
 *.a
 *.exe
-*.jar
+#*.jar
 
 #VI Editor temporary files
 *.swp
