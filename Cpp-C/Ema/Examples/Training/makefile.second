@@ -1,12 +1,7 @@
 include ../../../../makefile.common
 include ../../makefile.examples.common
 
-NAME_TEST=$(shell dirname $$(pwd) | grep _NiProvider)
-ifeq ($(NAME_TEST),)
-EXAMPLE_NAME_START=Consumer
-else
 EXAMPLE_NAME_START=NiProvider
-endif
 
 EXAMPLE_NUMBER=$(shell basename $$(pwd) | sed 's/__.*//')
 EXAMPLE_NAME = $(EXAMPLE_NAME_START)$(EXAMPLE_NUMBER)

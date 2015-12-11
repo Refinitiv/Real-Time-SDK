@@ -14,10 +14,6 @@ Detailed Description
 
 100__NiProvider__X implements the following high-level steps:
 
-+ Implements the OmmConsumerClient class in the AppClient
-  - Overrides desired methods
-+ Instantiates an AppClient object to receive and process item messages (in this case, resulting from
-login or dictionary messages)
 + Instantiates an OmmNiProvider object which initializes the connection and logs into an ADH at the
 default location ( localhost:14002 ) using the default username ( "user" )
  - the OmmNiProvider uses a default configuration.
