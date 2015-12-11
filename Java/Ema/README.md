@@ -32,7 +32,9 @@ Within this directory contains everything you need to build the examples and run
 Add java run option to point to the path of java.util.logging configuration file.
 
 For example:
+
 	set LOGGINGCONFIGPATH=..\main\resource\logging.properties
+
 	java -cp %CLASSPATH% -Djava.util.logging.config.file=%LOGGINGCONFIGPATH% com.thomsonreuters.ema.examples.training.series100.example100__MarketPrice__Streaming.Consumer
 
 ## Can You Provide Feedback?
