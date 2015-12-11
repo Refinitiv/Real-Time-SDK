@@ -9,27 +9,12 @@
 ! update or remove this document at any time without
 ! notice.
 !
-! ENUMERATED TYPES
-! ================
-! 
-! Version 4.20.17_TREP_15.41
-! -------------------------------------
-!
-!     * Modified May 7, 2015 at Oak Brook:
-!        - This file is based on enumtype.001 version 15.41.
-!        - New enumerations added in 4.20.17_TREP have been defined with placeholder values.
-! 
-! RDMD Version 4.20.17_TREP
-! Display Version 15.41
-! --------------------
-! 03/18/2015
-!
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.17
-!tag Build_RDMD  4.20.17
-!tag DT_Version  15.41
-!tag Date        5-May-2015
+!tag RT_Version  4.20.21
+!tag Build_RDMD  4.20.21
+!tag DT_Version  15.91
+!tag Date        2-Nov-2015
 !
 ! This file contains all the enumerated types used by the head-end
 ! systems, and for each type, the range of possible values
@@ -960,6 +945,7 @@ BIDXID      3298
     226        "NLB"   Aequitas NEO LIT BOOK
     227        "NEO"   Aequitas NEO NEO EXCHANGE
     228        "NLS"   Aequitas NEO LIT Special Terms
+    229        "IEX"   IEX GROUP INC - (CTA)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -1039,6 +1025,7 @@ BLKTRDP_UT 12847
      23       "10c "   2 Decimal places, MPV = 10 cents
      24       "Dlr "   2 Decimal places, MPV = whole dollars
      25       "0.5c"   3 Decimal places, MPV = 0.5 cents (or 0.005)
+     26       "8DP "   8 decimal places
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -1774,6 +1761,7 @@ CONTR_HIND  8945
 CONTR_LIND  8946
 MYRHGH_IND 12763
 52W_HYIND  12899
+YR_HYIND   12931
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -1788,6 +1776,7 @@ YCLOW_IND    111
 LIFE_LIND   3671
 MYRLOW_IND 12764
 52W_LYIND  12898
+YR_LYIND   12932
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -1836,6 +1825,12 @@ AYLD_TICK3 12853
 BYLD_TICK1 12854
 BYLD_TICK2 12855
 BYLD_TICK3 12856
+BID_TICK1  12921
+BID_TICK2  12922
+BID_TICK3  12923
+ASK_TICK1  12924
+ASK_TICK2  12925
+ASK_TICK3  12926
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -2511,7 +2506,7 @@ PRC_QL2      131
     244        "STL"   Stopped Stock - Sold Last
     245        "STO"   Stopped Stock - Sold out of sequence
     246        "G  "   at this price, only buyers (Geld)
-    247        "MOC"   Market on Close (MOC) Order Imbalance - supplied by Toronto SE
+    247        "MOC"   Market on Close (MOC)
     248        "CTH"   Trading halted, last price is the official close
     249        "CQO"   Trading halted, only quotes permitted, last price is the official close
     250        "CTR"   Trading resumed, last price is the official close
@@ -2607,6 +2602,8 @@ HIGHTP_1     196
      15          "R"   Reference Price
      16          "y"   Simple Yield
      17          "Y"   Compound Yield
+     18          "L"   Large volume trade
+     19          "S"   Small volume trade
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -2633,6 +2630,8 @@ LOWTP_1      197
      15          "R"   Reference Price
      16          "y"   Simple Yield
      17          "Y"   Compound Yield
+     18          "L"   Large volume trade
+     19          "S"   Small volume trade
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -4940,6 +4939,7 @@ OFF_CD_IN2  1055
      52        "SSE"   China SSE local code
      53        "EII"   Eurex Individual ISIN
      54        "EPI"   Exchange Product ISIN
+     55        "ALF"   Alpha Code
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -5099,6 +5099,8 @@ THRD_HI_TP  1338
      11          "R"   Reference Price
      12          "y"   Simple Yield
      13          "Y"   Compound Yield
+     14          "L"   Large volume trade
+     15          "S"   Small volume trade
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -5122,6 +5124,8 @@ THRD_LO_TP  1340
      11          "R"   Reference Price
      12          "y"   Simple Yield
      13          "Y"   Compound Yield
+     14          "L"   Large volume trade
+     15          "S"   Small volume trade
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -5275,6 +5279,9 @@ RATING_ID6 12894
      40        "GCR"   Golden Credit Rating International Co Ltd
      41        "CCR"   China Credit Rating Co Ltd
      42        "IRR"   India Ratings & Research
+     43        "MLN"   Moody's National Scale Rating
+     44        "SLN"   Standard and Poor's National Scale Rating
+     45        "FLN"   Fitch's National Scale Rating
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -6834,6 +6841,7 @@ CAN_EXID    8992
 LEG1_EXCH   9058
 LEG2_EXCH   9059
 COR_EXID   13402
+ODD_EXID   13495
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -8236,6 +8244,41 @@ COR_EXID   13402
    1396        "ILR"   LBMA Gold Price Real Time
    1397        "ILD"   LBMA Gold Price Intraday
    1398        "ILE"   LBMA Gold Price EOD
+   1399        "KEI"   KOREA EXCHANGE - ETN IIV
+   1400        "NEB"   NATIONAL ENERGY BOARD
+   1401        "MXT"   MEXICO SE MARKET DATA FOR TRADING
+   1402        "BMC"   BMF - Commodities and Futures -LEVEL 1
+   1403        "BOV"   BOV- BVMF BOVESPA - Equities and Indices -LEVEL 1
+   1404        "HWR"   HWR- HAWKINS WRIGHT
+   1405        "SOL"   Solactive
+   1406        "NRP"   NORD POOL SPOT
+   1407        "BEX"   BATS EDGX OPTIONS
+   1408        "BBV"   Bolsa Boliviana De Valores S A
+   1409        "PFA"   PROFARMER AUSTRALIA
+   1410        "SZ2"   SHENZHEN STOCK EXCHANGE LEVEL 2 FEED
+   1411        "TC1"   THAILAND FUTURES EXCHANGE COMMODITIES LEVEL 1
+   1412        "TC2"   THAILAND FUTURES EXCHANGE COMMODITIES LEVEL 2
+   1413        "MKF"   MINI KOSPI200 INDEX FUTURES
+   1414        "MKO"   MINI KOSPI200 INDEX OPTIONS
+   1415        "SGT"   STUTTGARTSE OTC DATA (MIFID)
+   1416        "EOX"   EOX
+   1417        "VNZ"   VENEZUELA
+   1418        "CLX"   CLEARLYNX LLC
+   1419        "CMO"   ONS - Rio de Janeiro
+   1420        "CPE"   CAPRA ENERGY GROUP
+   1421        "MLE"   MALTA STOCK EXCHANGE L1 & L2
+   1422        "KOT"   KOREA OTC MARKET -- K-OTC
+   1423        "IEE"   Shanghai International Energy Exchange
+   1424        "PAN"   Panama Stock Exchange
+   1425        "CED"   CONTRIBUTED EQUITY DERIVATIVE DATA
+   1426        "KFO"   MINI KOSPI200 INDEX FUTURES AND OPTIONS
+   1427        "IEQ"   NATIONAL STOCK EXCHANGE OF INDIA EQUITIES
+   1428        "IDR"   NATIONAL STOCK EXCHANGE OF INDIA DERIVATIVES
+   1429        "NML"   NASDAQ BASIC FOR NYSE MKT LISTINGS
+   1430        "NSB"   NASDAQ BASIC FOR NYSE LISTINGS
+   1431        "NLD"   NASDAQ BASIC FOR NASDAQ LISTINGS
+   1432        "BDR"   BOAT Russian Segment
+   1433        "OMN"   OMF CommTrade CARBON
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -10537,6 +10580,27 @@ PRC_QL3     3264
     372        "BAS"   Basis Cross
     373        "VWP"   VWAP Cross
     374        "NON"   Non Cross Trade from another venue
+    375        "bZF"   all orders were executed.
+    376        "bGF"   the buy orders with a limit corresponding to the price determined were not necessarily executed in full; there were additional bids.
+    377        "bBF"   the sell orders with a limit corresponding to the price determined were not necessarily executed in full; there were additional offers.
+    378        "rGF"   the buy orders with a limit corresponding to or above the price determined and buy market orders could only be executed in part.
+    379        "rBF"   the sell orders with a limit corresponding to or below the price determined and sell market orders could only be executed in part.
+    380        "_P "   no price could be determined;
+    381        "GP "   see combination of G and P
+    382        "_GP"   no price could be determined - there were market bids.
+    383        "_BP"   no price could be determined - there were market offers.
+    384        "_TP"   a price could not be determined - the price is estimated
+    385        "_TF"   A price could not be determined - the price is estimated (quotation cancelled, estimated)
+    386        "_BF"   No price could be determined -  there were market offers. (quotation cancelled, offers)
+    387        "_GF"   No price could be determined -  there were market bids. (quotation cancelled, bids)
+    388        "BF "   See combination of B and F (ask Bundesbank Fixing)
+    389        "GF "   See combination of G and F (bid Bundesbank Fixing)
+    390        "_F "   No price could be determined; (quotation cancelled)
+    391        "ISH"   Inflation adjusted Clean Cash Price (face value of bond)
+    392        "ISG"   Inflation Adjusted Gross Cash Price
+    393        "IXG"   Inflation adjusted Gross Price (percentage of par)
+    394        "IXC"   Inflation adjusted Clean Price (percentage of par)
+    395        "ILD"   Inflation Adjusted Yield
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -10848,6 +10912,11 @@ PRICE_METH  4396
      17        "PRC"   CDS price as percentage of notional amount
      18        "NPV"   Net Present Value
      19        "RAT"   Rate
+     20        "ISH"   Inflation adjusted Clean Cash Price (face value of bond)
+     21        "ISG"   Inflation Adjusted Gross Cash Price
+     22        "IXG"   Inflation adjusted Gross Price (percentage of par)
+     23        "IXC"   Inflation adjusted Clean Price (percentage of par)
+     24        "ILD"   Inflation Adjusted Yield
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -10954,6 +11023,7 @@ CANCEL_IND  4761
       0          "0"   undefined
       1          "1"   Regular trade
       2          "2"   Canceled trade
+      3          "3"   Error trade
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11215,12 +11285,17 @@ CF_TICK     5370
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0         "  "   no tick!            - FROM HERE PRCTCK_1 enum with offset=0
-      1         " U"   up tick or zero uptick
-      2         " D"   down tick or zero downtick
+      1       #20DE#   up tick or zero uptick
+      2       #20FE#   down tick or zero downtick
       3         "  "   unchanged tick
+      4         " 0"   Trade price no variation
+      5         " U"   Trade price no variation but higher than the previous different price
+      6         " D"   Trade price no variation but lower than the previous different price
+      7         " +"   Trade price goes up
+      8         " -"   Trade price goes down
      20         "  "   no tick             - FROM HERE BID_TICK_1 enum with offset=20
-     21         " U"   up tick or zero uptick
-     22         " D"   down tick or zero downtick
+     21       #20DE#   up tick or zero uptick
+     22       #20FE#   down tick or zero downtick
      23         "  "   unchanged tick
      24         " C"   T Session  Open - cabinet
      25         "  "   T Session  Open - normal
@@ -11230,8 +11305,8 @@ CF_TICK     5370
      29         "  "   Normal
      40         "  "   undefined or unknown - FROM HERE ACT_TP_1 enum with offset=40
      41         "  "   trade price, no tick
-     42         " U"   trade price, up tick or zero up tick
-     43         " D"   trade price, down tick or zero down tick
+     42       #20DE#   trade price, up tick or zero up tick
+     43       #20FE#   trade price, down tick or zero down tick
      44         " S"   settlement price
      45         "OB"   first half of open range, bid price
      46         "OA"   first half of open range, ask price
@@ -11254,18 +11329,18 @@ CF_TICK     5370
      63         "RH"   1st half of resumption range, high price
      64         "RL"   1st half of resumption range, low price
      65         " N"   nominal price
-     66         "BU"   bid price, up or zero up tick
-     67         "BD"   bid price, down or zero down tick
+     66       #42DE#   bid price, up or zero up tick
+     67       #42FE#   bid price, down or zero down tick
      68         " k"   kerb, or dopo chiusura, price for Italian equities
      69         " c"   official closing price or chiusura, for Italian equities
      70         " K"   kassakurs price, for German equities
      71         " b"   dealt rate at the bid price
      72         " s"   dealt rate at the sell price
-     73         "BU"   bid yield, up or zero up tick
-     74         "BD"   bid yield, down or zero down tick
+     73       #42DE#   bid yield, up or zero up tick
+     74       #42FE#   bid yield, down or zero down tick
      75         " B"   bid yield, no tick
-     76         " U"   trade yield, up tick or zero up tick
-     77         " D"   trade yield, down tick or zero down tick
+     76       #20DE#   trade yield, up tick or zero up tick
+     77       #20FE#   trade yield, down tick or zero down tick
      78         "  "   trade yield, no tick
      79         " H"   trade resulting from "hitting" the bid price
      80         " T"   trade resulting from "taking" the ask price
@@ -11289,8 +11364,8 @@ CF_TICK     5370
      98         " #"   Temporary stoppage, Itayose, Suspension or system stoppage for Japanese stock exchanges
      99         "SB"   Special Bid tone price for Japanese stock exchanges
     100         "SA"   Special Ask tone price for Japanese stock exchanges
-    101         "MU"   mid price, up or zero up tick
-    102         "MD"   mid price, down or zero down tick
+    101       #4DDE#   mid price, up or zero up tick
+    102       #4DFE#   mid price, down or zero down tick
     103         "AP"   Auction Price
     104         " X"   CROSS
     105         "IX"   INTENT_CROSS
@@ -11298,16 +11373,11 @@ CF_TICK     5370
     107         "BS"   Block Trade with special settlement
     108         "XT"   Cross Trade
     109         "PT"   Phone Trade
-    110         "0 "   Trade price no variation
-    111         "U "   Trade price no variation but higher than the previous different price
-    112         "D "   Trade price no variation but lower than the previous different price
-    113         "PB"   Phone Bid
-    114         "PA"   Phone Ask
-    115       #20DE#   up tick or zero uptick
-    116       #20FE#   down tick or zero downtick
-    117         "DB"   DIFFERENTIAL BID
-    118         "DA"   DIFFERENTIAL ASK
-    119         "DT"   DIFFERENTIAL TRADE
+    110         "PB"   Phone Bid
+    111         "PA"   Phone Ask
+    112         "DB"   DIFFERENTIAL BID
+    113         "DA"   DIFFERENTIAL ASK
+    114         "DT"   DIFFERENTIAL TRADE
     255         "  "   Reserved
 !
 ! ACRONYM    FID
@@ -11675,6 +11745,7 @@ SETL_TYPE   6513
       8        "IND"   Indicative
       9        "EDP"   Exchange delivery settlement price
      10        "AMD"   Amended
+     11        "NXD"   Next Day Settlement
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11927,6 +11998,8 @@ OFFBK_H_RN 14142
      67         "NR"   News and Resumption Times
      68         "QP"   Single Stock Trading Pause/Quotation-Only Period
      69         "RP"   No Reference Price
+     70         "DE"   Delisting
+     71         "DV"   Voluntary Delisting
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12063,6 +12136,7 @@ MK_PHASE   12765
      12        "AP "   Administration Phase
      13        "PET"   Pre-Market Trading
      14        "POT"   Post-Market Trading
+     15        "IC "   Intra-day Close (scheduled)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12347,6 +12421,7 @@ BNS_WT_FLG  8948
 REF_PRC_TP  8949
 REFPRC_TP2 13434
 REFPRC_TP3 13435
+REFPRC_TP4 13491
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -12362,6 +12437,9 @@ REFPRC_TP3 13435
       9   "KS      "   Kassa Price (German Exchanges)
      10   "LIBSD IS"   LIBOR Spread @ Issue
      11   "FRN Ref "   FRN Reference Rate
+     12   "ASIAREF "   Asia reference price
+     13   "SO      "   Special Index value calculated with the OPEN prices of the index constituents
+     14   "VAL     "   Valuation Trade
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -14313,6 +14391,8 @@ THEO_OPNTP  9054
       8        "  8"   Need DPM Quote To Open
       9        "  9"   DPM Quote Invalid
      10        " 10"   Price Not In BOTR Range
+     11        "PRI"   (Preliminary) Reference Index
+     12        "CRP"   (Confirmed) Reference Index
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -14764,6 +14844,8 @@ PHASE_RSN  12822
       7   "UV      "   Unavailable
       8   "HOL     "   Trading Holiday
       9   "DELAY   "   Market Maker/Liquid Provider requested Delay
+     10   "SV      "   Volatility range breached - static
+     11   "SD      "   Volatility range breached - dynamic
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -14812,6 +14894,29 @@ COUPN_TYPE 12823
      37   "FRRS    "   Floating: Floating then Resettable
      38   "FXRS    "   Fixed: Resettable Coupon
      39   "RSFR    "   Floating: Resettable then Floating
+     40   "ARB     "   Ascending Rate
+     41   "CFLT    "   Complex Floater
+     42   "DRB     "   Descending Rate
+     43   "FLT     "   Floater
+     44   "      44"   Not allocated (was Floater to Fixed)
+     45   "      45"   Not allocated (was Floater to Variable)
+     46   "FLTWAC  "   Floater to WAC
+     47   "FXFL    "   Fixed to Floater
+     48   "FXVAR   "   Fixed to Variable
+     49   "FXWAC   "   Fixed to WAC
+     50   "INV     "   Inverse Floating Rate
+     51   "STRFLT  "   Structured Floater
+     52   "STRINV  "   Structured Inverse Floater
+     53   "TFLT    "   Toggle Floater
+     54   "TINV    "   Toggle Inverse
+     55   "A       "   Arm
+     56   "B       "   Balloon
+     57   "G       "   GPM
+     58   "H       "   GEM
+     59   "L       "   Level Pay
+     60   "R       "   Fixed Rate Reverse
+     61   "T       "   TPM
+     62   "W       "   Biweekly
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -15371,20 +15476,75 @@ DELIV_FQUT 12919
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET219 12920
-PRE_1ET220 12921
-PRE_1ET221 12922
-PRE_1ET222 12923
-PRE_1ET223 12924
-PRE_1ET224 12925
-PRE_1ET225 12926
-PRE_1ET226 12927
-PRE_1ET227 12928
-PRE_1ET228 12929
-PRE_1ET229 12930
-PRE_1ET230 12931
-PRE_1ET231 12932
-PRE_1ET232 12933
+RFQ_SIDE   12920
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   undefined
+      1        "BID"   Bid
+      2        "ASK"   Ask
+      3        "BAS"   Bid and Ask
+!
+! ACRONYM    FID
+! -------    ---
+!
+SP_SHS_RES 12927
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   Undefined
+      1        "N  "   Short selling allowed.  Special trade scheme Short Sale Restriction Not In Effect
+      2        "Y  "   Short selling suspended.  Special trade scheme Short selling restriction.
+!
+! ACRONYM    FID
+! -------    ---
+!
+LAT_PREC   12928
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0         "MS"   milliseconds
+      1         "NS"   nanoseconds
+!
+! ACRONYM    FID
+! -------    ---
+!
+CLK_SRC    12929
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "  NTP   "   NTP
+      2   "  PTP   "   PTP
+      3   " NTP+PPS"   NTP+PPS
+!
+! ACRONYM    FID
+! -------    ---
+!
+FBBO_IND   12930
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   undefined
+      1        "0  "   No FINRA BBO Change, Do not publish .DF Quote
+      2        "1  "   Quote contains all FINRA BBO Information
+      3        "2  "   No FINRA BBO, BID and ASK related FIDs publish "0"
+      4        "3  "   FINRA BBO Appendage contains .DF Quote Information
+!
+! ACRONYM    FID
+! -------    ---
+!
+BBO_LT_IND 12933
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   undefined
+      1        "P  "   Includes Primary
+      2        "N  "   Excludes Primary
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_1ET233 12934
 PRE_1ET234 12935
 PRE_1ET235 12936
@@ -16425,6 +16585,10 @@ MIN_BQT_UT 13421
     284      "RMB  "   Chinese Renminbi
     285      "CNH  "   Chinese Yuan Offshore
     286      " GBp "   Penny Sterling
+    287      " KG5 "   5 Kg Bags
+    288      "INR H"   Hundreds of Indian Rupees
+    289      "NIKEL"   1% nickel content in NPI.
+    290      "FLASK"   1 flask (mercury) appox. 76 lb
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16475,6 +16639,7 @@ COL_UNC_TR 13431
 ! -------    ---
 !
 TR_TRD_FLG 13432
+CAN_TRTFLG 13489
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -16604,6 +16769,7 @@ SESS_FILT  13443
 ! -------    ---
 !
 CB_TYPE    13444
+CB_TYPE2   13492
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -16846,18 +17012,112 @@ INST_C_TP  13484
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET165 13486
-PRE_2ET166 13487
-PRE_2ET167 13488
-PRE_2ET168 13489
-PRE_2ET169 13490
-PRE_2ET170 13491
-PRE_2ET171 13492
-PRE_2ET172 13493
-PRE_2ET173 13494
-PRE_2ET174 13495
-PRE_2ET175 13496
-PRE_2ET176 13497
+RQT_MET_TP 13486
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+RQT_MET_MD 13487
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+IND_BA_QL  13488
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "PRC     "   Price Indication
+      2   "TRDRNG  "   Trading Range Indication
+      3   "MPREO   "   Mandatory Pre-opening Indication
+!
+! ACRONYM    FID
+! -------    ---
+!
+ORDBK_DEPH 13490
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0     "      "   Undefined
+      1     "FB    "   Full Book
+      2     "5_PL  "   5 Price Levels
+      3     "10_PL "   10 Price Levels
+      4     "15_PL "   15 Price Levels
+      5     "20_PL "   20 Price Levels
+      6     "25_PL "   25 Price Levels
+      7     "30_PL "   30 Price Levels
+      8     "5_OL  "   5 Order Levels
+      9     "10_OL "   10 Order Levels
+     10     "15_OL "   15 Order Levels
+     11     "20_OL "   20 Order Levels
+     12     "25_OL "   25 Order Levels
+     13     "30_OL "   30 Order Levels
+!
+! ACRONYM    FID
+! -------    ---
+!
+CB_INST_LV 13493
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "D       "   Dynamic Circuit Breaker Breached
+      2   "S       "   Static Circuit Breaker Breached
+      3   "DS      "   Dynamic & Static Circuit Breaker Breached
+!
+! ACRONYM    FID
+! -------    ---
+!
+LMT_STATUS 13494
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0     "      "   Undefined
+      1     "U1    "   Upper Price Limit Level 1 in Effect
+      2     "L1    "   Lower Price Limit Level 1 in Effect
+      3     "U1L1  "   Upper Price Limit Level 1 & Lower Limit Price Level 1 in Effect
+      4     "U1L2  "   Upper Price Limit Level 1 & Lower Limit Price Level 2 in Effect
+      5     "U1L3  "   Upper Price Limit Level 1 & Lower Limit Price Level 3 in Effect
+      6     "U2    "   Upper Price Limit Level 2 in Effect
+      7     "L2    "   Lower Price Limit Level 2 in Effect
+      8     "U2L1  "   Upper Price Limit Level 2 & Lower Price Limit Level 1 in Effect
+      9     "U2L2  "   Upper Price Limit Level 2 & Lower Price Limit Level 2 in Effect
+     10     "U2L3  "   Upper Price Limit Level 2 & Lower Price Limit Level 3 in Effect
+     11     "U3    "   Upper Price Limit Level 3 in Effect
+     12     "L3    "   Lower Price Limit Level 3 in Effect
+     13     "U3L1  "   Upper Price Limit Level 3 & Lower Limit Price Level 1 in Effect
+     14     "U3L2  "   Upper Price Limit Level 3 & Lower Limit Price Level 2 in Effect
+     15     "U3L3  "   Upper Price Limit Level 3 & Lower Limit Price Level 3 in Effect
+!
+! ACRONYM    FID
+! -------    ---
+!
+TRDQTE_QL  13496
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0      "     "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+REFTIMZONE 13497
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0      "     "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_2ET177 13498
 PRE_2ET178 13499
 PRE_2ET179 13500
