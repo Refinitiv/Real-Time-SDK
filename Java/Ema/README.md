@@ -10,7 +10,7 @@ This directory contains preliminary example code to show off the upcoming Elektr
 
 - **EMA Library** One Jar file for the EMA Consumer library nesting dependent jar files.
 - **Examples** EMA Consumer examples
-- **Examples Compile Scripts** Help to compile all examples on windows platform or unix platform
+- **Example Compile Scripts** Help to compile all examples on windows platform or unix platform
 - **Logging Properties** Logging configuration for Java Logging API if needed   
 
 ####This preview is runnable!  
@@ -29,11 +29,11 @@ Within this directory contains everything you need to build the examples and run
 - Enable/Disable log tracing to console or file
 
 ## Turn on log tracing ( one way to turn on log, SLF4J interface with java.util.logging implementation )
-add java run option to point to the path of java.util.logging configuration file.
+Add java run option to point to the path of java.util.logging configuration file.
 
-for example:
-set LOGGINGCONFIGPATH=..\main\resource\logging.properties
-java -cp %CLASSPATH% -Djava.util.logging.config.file=%LOGGINGCONFIGPATH% com.thomsonreuters.ema.examples.training.series100.example100__MarketPrice__Streaming.Consumer
+For example:
+	set LOGGINGCONFIGPATH=..\main\resource\logging.properties
+	java -cp %CLASSPATH% -Djava.util.logging.config.file=%LOGGINGCONFIGPATH% com.thomsonreuters.ema.examples.training.series100.example100__MarketPrice__Streaming.Consumer
 
 ## Can You Provide Feedback?
 Not just yet!  In the coming months we will continue to update you with ema library open source and more examples and prototypes. As the product matures, we will be able to accept your feedback. 
