@@ -33,47 +33,47 @@ int main( int argc, char* argv[] )
 				 .payload( Map().addKeyUInt( 0, MapEntry::AddEnum, filterListPayload ).complete() ).complete(), sourceDirectoryHandle );
 
 		// Encoding and sending Refresh Message
-                provider.submit( RefreshMsg().serviceName( "NI_PUB" ).name( "TRI.N" )
-                     .state( OmmState::OpenEnum, OmmState::OkEnum, OmmState::NoneEnum, "UnSolicited Refresh Completed" )
-                     .payload( FieldList()
-                               .addReal( 22, 3990, OmmReal::ExponentNeg2Enum )
-                               .addReal( 25, 3994, OmmReal::ExponentNeg2Enum )
-                               .addReal( 30, 9, OmmReal::Exponent0Enum )
-                               .addReal( 31, 19, OmmReal::Exponent0Enum )
-                               .complete() )
-                     .complete(), itemHandleOne );
+        provider.submit( RefreshMsg().serviceName( "NI_PUB" ).name( "TRI.N" )
+                .state( OmmState::OpenEnum, OmmState::OkEnum, OmmState::NoneEnum, "UnSolicited Refresh Completed" )
+                .payload( FieldList()
+                        .addReal( 22, 3990, OmmReal::ExponentNeg2Enum )
+                        .addReal( 25, 3994, OmmReal::ExponentNeg2Enum )
+                        .addReal( 30, 9, OmmReal::Exponent0Enum )
+                        .addReal( 31, 19, OmmReal::Exponent0Enum )
+                        .complete() )
+                .complete(), itemHandleOne );
 
 		// Encoding and sending Refresh Message
-                provider.submit( RefreshMsg().serviceName( "NI_PUB" ).name( "IBM.N" )
-                     .state( OmmState::OpenEnum, OmmState::OkEnum, OmmState::NoneEnum, "UnSolicited Refresh Completed" )
-                     .payload( FieldList()
-                               .addReal( 22, 1190, OmmReal::ExponentNeg2Enum )
-                               .addReal( 25, 1194, OmmReal::ExponentNeg2Enum )
-                               .addReal( 30, 239, OmmReal::Exponent0Enum )
-                               .addReal( 31, 41, OmmReal::Exponent0Enum )
-                               .complete() )
-                     .complete(), itemHandleTwo );
+        provider.submit( RefreshMsg().serviceName( "NI_PUB" ).name( "IBM.N" )
+                .state( OmmState::OpenEnum, OmmState::OkEnum, OmmState::NoneEnum, "UnSolicited Refresh Completed" )
+                .payload( FieldList()
+                        .addReal( 22, 1190, OmmReal::ExponentNeg2Enum )
+                        .addReal( 25, 1194, OmmReal::ExponentNeg2Enum )
+                        .addReal( 30, 239, OmmReal::Exponent0Enum )
+                        .addReal( 31, 41, OmmReal::Exponent0Enum )
+                        .complete() )
+                .complete(), itemHandleTwo );
 
 		sleep( 2000 );
 
-                for ( int i = 0; i < 50; i++ )
-                {
-                        // Encoding and sending Update Message
-                        provider.submit( UpdateMsg()
-                                .payload( FieldList()
-                                        .addReal( 22, 3391 + i, OmmReal::ExponentNeg2Enum )
-                                        .addReal( 30, 10 + i, OmmReal::Exponent0Enum )
-                                        .complete() ), itemHandleOne );
+        for ( int i = 0; i < 50; i++ )
+        {
+			// Encoding and sending Update Message
+			provider.submit( UpdateMsg()
+					.payload( FieldList()
+							.addReal( 22, 3391 + i, OmmReal::ExponentNeg2Enum )
+							.addReal( 30, 10 + i, OmmReal::Exponent0Enum )
+							.complete() ), itemHandleOne );
 
-                        // Encoding and sending Update Message
-                        provider.submit( UpdateMsg()
-                                .payload( FieldList()
-                                        .addReal( 22, 1191 + i, OmmReal::ExponentNeg2Enum )
-                                        .addReal( 30, 240 + i, OmmReal::Exponent0Enum )
-                                        .complete() ), itemHandleTwo );
+			// Encoding and sending Update Message
+			provider.submit( UpdateMsg()
+					.payload( FieldList()
+							.addReal( 22, 1191 + i, OmmReal::ExponentNeg2Enum )
+							.addReal( 30, 240 + i, OmmReal::Exponent0Enum )
+							.complete() ), itemHandleTwo );
 
-                        sleep ( 1000 );
-                }
+			sleep ( 1000 );
+        }
 
 		sleep( 10000 );
 
