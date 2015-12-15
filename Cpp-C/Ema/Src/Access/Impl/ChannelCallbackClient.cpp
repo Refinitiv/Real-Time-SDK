@@ -12,12 +12,6 @@
 #define EMA_COMPONENT_VER_PLATFORM ".linux "
 #endif
 
-#ifdef __EMA_STATIC_BUILD__
-#define EMA_LINK_TYPE "Static"
-#else
-#define EMA_LINK_TYPE "Shared Library"
-#endif
-
 #define EMA "ema"
 #define COMPILE_BITS_STR "64-bit "
 
