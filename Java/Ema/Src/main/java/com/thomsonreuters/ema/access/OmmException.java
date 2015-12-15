@@ -1,0 +1,88 @@
+///*|-----------------------------------------------------------------------------
+// *|            This source code is provided under the Apache 2.0 license      --
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+// *|                See the project's LICENSE.md for details.                  --
+// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+///*|-----------------------------------------------------------------------------
+
+package com.thomsonreuters.ema.access;
+
+/**
+ * OmmException is a parent class for all exception types thrown by EMA.
+ */
+public abstract class OmmException extends RuntimeException
+{
+	private static final long serialVersionUID = -7319103509448033081L;
+	private static final String EXCEPT_TYPE_STRING	= "Exception Type=";
+	private static final String MESSAGE_STRING  = " Message=";
+	
+	protected String _exceptMessage;
+
+	/**
+	 * ExceptionType represents exception type.
+	 */
+	public class ExceptionType
+	{
+		/**
+		 * Indicates invalid usage exception
+		 */
+		public static final int OmmInvalidUsageException = 1;
+		
+		/**
+		 * Indicates invalid configuration exception
+		 */
+		public static final int OmmInvalidConfigurationException = 2;
+
+		/**
+		 * Indicates out of range exception
+		 */
+		public static final int OmmOutOfRangeException = 3;
+		
+		/**
+		 * Indicates invalid handle exception
+		 */
+		public static final int OmmInvalidHandleException = 4;
+		
+		/**
+		 *  Indicates unsupported domain type exception
+		 */
+		public static final int OmmUnsupportedDomainTypeException = 5;
+	}
+
+	
+	/**
+	 * Returns the ExceptionType value as a string format.
+	 * 
+	 * @return string representation of this object's exception type as string
+	 */
+	public abstract String exceptionTypeToString();
+
+	/**
+	 * Returns ExceptionType.
+	 * 
+	 * @return exception type value
+	 */
+	public abstract int exceptionType();
+
+	/**
+	 * Returns Text.
+	 * 
+	 * @return String with exception text information
+	 */
+
+	@Override
+	public String getMessage()
+	{
+		return _exceptMessage;
+	}
+	/**
+	 * Returns a string representation of the class instance.
+	 * 
+	 * @return string representation of the class instance
+	 */
+	@Override
+	public String toString()
+	{
+		return (EXCEPT_TYPE_STRING + exceptionTypeToString() + MESSAGE_STRING + getMessage());
+	}
+}

@@ -4,13 +4,15 @@
 
 ##Overview
 
-This directory contains preliminary example code to show off the upcoming Elektron Message API (EMA) - Java Edition Consumer. It is a work in progress, but we would like to share with you what we have done so far. 
+This directory contains preliminary library source code and example code to show off the upcoming Elektron Message API (EMA) - Java Edition Consumer. It is a work in progress, but we would like to share with you what we have done so far. 
 
 ##Contents
 
 - **EMA Library** One Jar file for the EMA Consumer library nesting dependent jar files.
+- **EMA Library Source** Source codes for the EMA Consumer library. 
 - **Examples** EMA Consumer examples
 - **Example Compile Scripts** Help to compile all examples on windows platform or unix platform
+- **EMA Doc** Reference manual for the EMA Consumer interfaces.
 - **Logging Properties** Logging configuration for Java Logging API if needed   
 
 ####This preview is runnable!  
