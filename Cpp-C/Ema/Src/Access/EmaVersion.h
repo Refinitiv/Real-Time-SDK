@@ -41,6 +41,11 @@
 	#endif
 #endif 
 
+#ifdef __EMA_STATIC_BUILD__
+	#define EMA_LINK_TYPE "Static"
+#else
+	#define EMA_LINK_TYPE "Shared Library"
+#endif
 
 #define STR_EXPAND(str) #str
 #define MKSTR(str) STR_EXPAND(str)
