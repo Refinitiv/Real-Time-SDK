@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{0EEA3D49-9EA9-4843-80C1-E7CB192CB114}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{8E9B1EC0-4FB4-49C4-8876-F874234F1206}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{DF541648-9D87-4821-ABE3-BD7532B4A3CA}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+    </Filter>
+  </ItemGroup>
+	<ItemGroup>
+		<ClCompile Include="upacNIProvPerf.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="niProvPerfConfig.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\directoryProvider.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\providerThreads.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\channelHandler.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\getTime.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\itemEncoder.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\latencyRandomArray.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\marketByOrderEncoder.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\marketPriceEncoder.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\statistics.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\xmlMsgDataParser.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\xmlItemListParser.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ClInclude Include="upacNIProvPerf.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="niProvPerfConfig.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\directoryProvider.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\hashTable.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\providerThreads.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\channelHandler.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\getTime.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\itemEncoder.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\latencyRandomArray.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\marketByOrderEncoder.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\marketPriceEncoder.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\statistics.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\xmlMsgDataParser.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\xmlItemListParser.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+	</ItemGroup>
+
+	<ItemGroup>
+	</ItemGroup>
+
+  <ItemGroup>
+    <None Include="readme" />
+  </ItemGroup>
+</Project>

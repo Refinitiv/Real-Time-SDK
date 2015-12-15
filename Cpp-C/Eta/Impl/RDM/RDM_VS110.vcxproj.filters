@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{31CA5242-1C05-4844-942E-A07248B351FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{EFA8B15D-C5FC-4514-AA6B-50A0C8C21D5F}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{DEAF99C5-7DCC-4930-B197-36941C318F0D}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+    </Filter>
+  </ItemGroup>
+	<ItemGroup>
+		<ClCompile Include="rsslRDMDictionaryMsg.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="rsslRDMDirectoryMsg.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="rsslRDMLoginMsg.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="rsslRDMQueueMsg.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ClInclude Include="..\..\Include\RDM\rtr\rsslRDMMsgBase.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\Include\RDM\rtr\rsslRDMMsg.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\Include\RDM\rtr\rsslRDMDictionaryMsg.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\Include\RDM\rtr\rsslRDMDirectoryMsg.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\Include\RDM\rtr\rsslRDMLoginMsg.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\Include\RDM\rtr\rsslRDMQueueMsg.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+	</ItemGroup>
+
+	<ItemGroup>
+	</ItemGroup>
+
+  <ItemGroup>
+    <None Include="readme" />
+  </ItemGroup>
+</Project>

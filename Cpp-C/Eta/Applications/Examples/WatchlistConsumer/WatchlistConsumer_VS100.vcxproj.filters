@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{FAFDCAC4-D922-46D9-8B99-3E0FED1FA652}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{FD46A0FE-6B1C-435F-9BB2-1A5DC1956360}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{6B7EBA23-BC34-49B5-83FB-B0C0CDE648DD}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+    </Filter>
+  </ItemGroup>
+	<ItemGroup>
+		<ClCompile Include="postHandler.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="rsslWatchlistConsumer.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="itemDecoder.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="watchlistConsumerConfig.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\VACommon\simpleTunnelMsgHandler.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\VACommon\tunnelStreamHandler.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\VACommon\queueMsgHandler.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ClInclude Include="postHandler.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="itemDecoder.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="watchlistConsumerConfig.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\VACommon\simpleTunnelMsgHandler.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\VACommon\tunnelStreamHandler.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\VACommon\queueMsgHandler.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+	</ItemGroup>
+
+	<ItemGroup>
+	</ItemGroup>
+
+  <ItemGroup>
+    <None Include="readme" />
+  </ItemGroup>
+</Project>

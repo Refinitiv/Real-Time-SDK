@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{8229E3AA-0829-4CE0-A650-AB47259ABF80}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{5BE111D1-47F2-4FEA-B046-266910AF334B}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{DFC591FB-AEF6-4753-B382-BAFCA809E536}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+    </Filter>
+  </ItemGroup>
+	<ItemGroup>
+		<ClCompile Include="CacheStubs\cache_stubs.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ClInclude Include="..\Include\Cache\rtr\rsslCacheDefs.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Include\Cache\rtr\rsslCacheError.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Include\Cache\rtr\rsslPayloadCache.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Include\Cache\rtr\rsslPayloadCacheConfig.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Include\Cache\rtr\rsslPayloadCursor.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Include\Cache\rtr\rsslPayloadEntry.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+	</ItemGroup>
+
+	<ItemGroup>
+	</ItemGroup>
+
+  <ItemGroup>
+    <None Include="readme" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{B253C2A4-08E7-4E4F-BE66-95A9747F3828}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{F07EFB0C-9E88-428C-8F93-F223F28E847D}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{20027D79-44E5-4BE0-BC1B-70A6C4CDA22A}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+    </Filter>
+  </ItemGroup>
+	<ItemGroup>
+		<ClCompile Include="rsslProvider.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="rsslLoginHandler.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\rsslLoginEncodeDecode.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="rsslDirectoryHandler.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\rsslDirectoryEncodeDecode.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\rsslDictionaryProvider.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="rsslItemHandler.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\rsslItemEncode.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\rsslMarketPriceItems.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\rsslMarketByOrderItems.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\rsslMarketByPriceItems.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\rsslSymbolListItems.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\rsslSendMessage.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ClInclude Include="rsslProvider.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="rsslLoginHandler.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\rsslLoginEncodeDecode.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="rsslDirectoryHandler.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\rsslDirectoryEncodeDecode.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\rsslDictionaryProvider.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="rsslItemHandler.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\rsslItemEncode.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\rsslMarketPriceItems.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\rsslMarketByPriceItems.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\rsslMarketByOrderItems.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\rsslSymbolListHandler.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\rsslSendMessage.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+	</ItemGroup>
+
+	<ItemGroup>
+	</ItemGroup>
+
+  <ItemGroup>
+    <None Include="readme" />
+  </ItemGroup>
+</Project>
