@@ -6,15 +6,6 @@
  *|-----------------------------------------------------------------------------
  */
 
-#ifdef WIN32
-#define EMA_COMPONENT_VER_PLATFORM ".win "
-#else
-#define EMA_COMPONENT_VER_PLATFORM ".linux "
-#endif
-
-#define EMA "ema"
-#define COMPILE_BITS_STR "64-bit "
-
 #include "ChannelCallbackClient.h"
 #include "LoginCallbackClient.h"
 #include "DirectoryCallbackClient.h"
@@ -515,13 +506,13 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 	RsslReactorOMMConsumerRole consumerRole;
 	rsslClearOMMConsumerRole( &consumerRole );
 	
-	EmaString componentVersionInfo(EMA);
+	EmaString componentVersionInfo(COMPONENT_NAME);
 	componentVersionInfo.append(NEWVERSTRING);
 	componentVersionInfo.append(EMA_COMPONENT_VER_PLATFORM);
 	componentVersionInfo.append(COMPILE_BITS_STR);
-	componentVersionInfo.append(EMA_LINK_TYPE);
+	componentVersionInfo.append(emaComponentLinkType);
 	componentVersionInfo.append("(");
-	componentVersionInfo.append(BLDTYPE);
+	componentVersionInfo.append(emaComponentBldtype);
 	componentVersionInfo.append(")");
 
 	consumerRole.pLoginRequest = loginRequest;
