@@ -18,7 +18,11 @@
 	 CHANGE ABOVE HERE
 --------------------------------------------------------------------------*/
 
-
+#ifdef __EMA_STATIC_BUILD__
+	#define EMA_LINK_TYPE "Static"
+#else
+	#define EMA_LINK_TYPE "Shared Library"
+#endif
 #ifdef WIN32
 	#ifdef NDEBUG
 		#ifdef _EMA_BLDTYPE_ASSERT_
@@ -41,11 +45,18 @@
 	#endif
 #endif 
 
-#ifdef __EMA_STATIC_BUILD__
-	#define EMA_LINK_TYPE "Static"
+#ifdef WIN32
+#define EMA_COMPONENT_VER_PLATFORM ".win "
+static char emaComponentBldtype[] = BLDTYPE;
+static char emaComponentLinkType[] = EMA_LINK_TYPE;
 #else
-	#define EMA_LINK_TYPE "Shared Library"
+#define EMA_COMPONENT_VER_PLATFORM ".linux "
+extern char emaComponentBldtype[];
+extern char emaComponentLinkType[]; 
 #endif
+
+#define COMPONENT_NAME "ema"
+#define COMPILE_BITS_STR "64-bit "
 
 #define STR_EXPAND(str) #str
 #define MKSTR(str) STR_EXPAND(str)

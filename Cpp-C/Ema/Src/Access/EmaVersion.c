@@ -6,6 +6,11 @@
 
 #include "EmaVersion.h"
 
+#ifndef WIN32
+char emaComponentBldtype[] = BLDTYPE;
+char emaComponentLinkType[] = EMA_LINK_TYPE;
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
