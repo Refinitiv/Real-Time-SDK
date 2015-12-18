@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmaConfig>
+
+<ConsumerGroup>
+	<!-- DefaultConsumer parameter defines which consumer configuration is used by OmmConsumer			-->
+	<!-- if application does not specify it through OmmConsumerConfig::consumerName()					-->
+	<!-- first consumer on the ConsumerList is a default consumer if this parameter is not specified	-->
+	<DefaultConsumer value="Consumer_1"/>
+	<ConsumerList>
+		<Consumer>
+			<Name value="Consumer_1"/>
+
+			<!-- Channel is optional: defaulted to "RSSL_SOCKET + localhost + 14002" -->
+			<Channel value="Channel_1"/>
+
+			<!-- Logger is optional: defaulted to "File + Success" -->
+			<Logger value="Logger_1"/>
+
+			<!-- Dictionary is optional: defaulted to "ChannelDictionary" -->
+			<Dictionary value="Dictionary_1"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_2"/>
+			<Channel value="Channel_2"/>
+			<Logger value="Logger_2"/>
+			<Dictionary value="Dictionary_2"/>
+		</Consumer>
+	</ConsumerList>
+</ConsumerGroup>
+<ChannelGroup>
+	<ChannelList>
+		<Channel>
+			<Name value="Channel_1"/>
+
+			<!-- ChannelType possible values are: -->
+			<!-- ChannelType::RSSL_SOCKET    - TCP IP connection type -->
+			<!-- ChannelType::RSSL_HTTP      - Http tunnel connection type -->
+			<!-- ChannelType::RSSL_ENCRYPTED - Https tunnel connection type -->
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+
+			<!-- CompressionType is optional: defaulted to None -->
+			<!-- possible values: None, ZLib, LZ4 -->
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+
+			<!-- ConnectionPingTimeout is optional: defaulted to 30000 -->
+			<ConnectionPingTimeout value="30000"/>
+
+			<!-- TcpNodelay is optional: defaulted to 1 -->
+			<!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set) -->
+			<TcpNodelay value="1"/>
+			<Host value="localhost"/>
+			<Port value="14002"/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_2"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<Host value="122.1.1.100"/>
+			<Port value="14002"/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_3"/>
+			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<Host value="122.1.1.100"/>
+			<Port value="14002"/>
+			<!-- ObjectName is optional: defaulted to "" -->
+			<ObjectName value=""/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_4"/>
+			<ChannelType value="ChannelType::RSSL_HTTP"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<Host value="122.1.1.100"/>
+			<Port value="14002"/>
+			<!-- ObjectName is optional: defaulted to "" -->
+			<ObjectName value=""/>
+		</Channel>
+	</ChannelList>
+</ChannelGroup>
+<LoggerGroup>
+	<LoggerList>
+		<Logger>
+			<Name value="Logger_1"/>
+
+			<!-- LoggerType is optional:  defaulted to "File" -->
+			<!-- possible values: Stdout, File -->
+			<LoggerType value="LoggerType::Stdout"/>
+
+			<!-- LoggerSeverity is optional: defaulted to "Success" -->
+			<!-- possible values: Verbose, Success, Warning, Error, NoLogMsg -->
+			<LoggerSeverity value="LoggerSeverity::Success"/>
+		</Logger>
+		<Logger>
+			<Name value="Logger_2"/>
+			<LoggerType value="LoggerType::File"/>
+			<!-- FileName is optional: defaulted to "emaLog_<process id>.log" -->
+			<FileName value="emaLog"/>
+			<LoggerSeverity value="LoggerSeverity::Success"/>
+		</Logger>
+	</LoggerList>
+</LoggerGroup>
+<DictionaryGroup>
+	<DictionaryList>
+		<Dictionary>
+			<Name value="Dictionary_1"/>
+
+			<!-- DictionaryType is optional: defaulted to ChannelDictionary" -->
+			<!-- possible values: FileDictionary, ChannelDictionary -->
+			<!-- if DictionaryType is set to ChannelDictionary, file names are ignored -->
+			<DictionaryType value="DictionaryType::ChannelDictionary"/>
+		</Dictionary>
+		<Dictionary>
+			<Name value="Dictionary_2"/>
+			<DictionaryType value="DictionaryType::FileDictionary"/>
+
+			<!-- dictionary names are optional: defaulted to RDMFieldDictionary and enumtype.def -->
+			<RdmFieldDictionaryFileName value="./RDMFieldDictionary"/>
+			<EnumTypeDefFileName value="./enumtype.def"/>
+		</Dictionary>
+	</DictionaryList>
+</DictionaryGroup>
+</EmaConfig>

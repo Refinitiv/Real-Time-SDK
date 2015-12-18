@@ -1,0 +1,42 @@
+ROOTNODE=$(shell cd ../../../../../../; pwd)
+
+CFLAGS += -m64 -D_REENTRANT -DLinux -O3 -DCOMPILE_64BITS -std=c++0x
+
+ifeq ($(findstring OracleServer, $(DIST)), OracleServer)
+	ifeq ($(findstring 7, $(OS_VER)), 7)
+		IDENT= OL7_64_GCC482
+	endif
+else
+	ifeq ($(findstring CentOS, $(DIST)), CentOS)
+		ifeq ($(findstring 7, $(OS_VER)), 7)
+			IDENT= OL7_64_GCC482
+		endif
+	endif
+endif
+
+ifndef IDENT	
+$(error unsupported environment)
+endif
+
+optimizedStatic:	LIBTYPE=Optimized
+optimizedStatic:	LIBS=$(STATIC_LIBS)
+optimizedAssertStatic:	LIBTYPE=Optimized_Assert
+optimizedAssertStatic:	LIBS=$(STATIC_LIBS)
+
+INCLUDES = -I$(ROOTNODE)/Eoa/Src \
+	-I$(ROOTNODE)/Eoa/Src/Include \
+	-I$(ROOTNODE)/Eoa/Src/Domain/MarketPrice/Include \
+	-I$(ROOTNODE)/Eoa/Src/Domain/MarketByPrice/Include \
+	-I$(ROOTNODE)/Eoa/Src/Domain/MarketByOrder/Include
+
+EXE_DIR     = $(OUTPUT_DIR)
+SYSTEM_LIBS = -lnsl -lpthread -ldl -lrt
+ifeq ($(USE_CUSTOM_BUILD),true)
+STATIC_LIBS = -L$(ROOTNODE)/Eoa/Src/Foundation/Libs/$(IDENT)/$(LIBTYPE) -L$(ROOTNODE)/Eoa/Src/Domain/Libs/$(IDENT)/$(LIBTYPE)
+else
+STATIC_LIBS = -L$(ROOTNODE)/Eoa/Libs/$(IDENT)/$(LIBTYPE)
+endif
+STATIC_LIBS += -ldomain -leoa $(SYSTEM_LIBS)
+
+$(OUTPUT_DIR)/obj/%.o : %.cpp
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<

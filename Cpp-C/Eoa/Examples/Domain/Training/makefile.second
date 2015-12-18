@@ -1,0 +1,18 @@
+include ../../../../../makefile.common
+include ../../makefile.examples.common
+
+EXAMPLE_NUMBER=$(shell basename $$(pwd) | sed 's/__.*//')
+EXAMPLE_NAME = DomainConsumer$(EXAMPLE_NUMBER)
+LNCMD= ln -is
+
+TARGETS += $(OUTPUT_DIR)/$(EXAMPLE_NAME)
+
+SRC=	$(shell ls *.cpp)
+OBJ=	$(addprefix $(OUTPUT_DIR)/obj/, $(SRC:%.cpp=%.o))
+
+$(OUTPUT_DIR)/$(EXAMPLE_NAME):		$(OBJ)
+	$(CC) -o $@ $^ $(LIBS)
+	@ln -is $(ROOTNODE)/Eoa/Etc/RDMFieldDictionary $(ROOTNODE)/Eoa/Etc/enumtype.def $(EXE_DIR)
+
+optimizedStatic:	$(TARGETS)
+optimizedAssertStatic:	$(TARGETS)
