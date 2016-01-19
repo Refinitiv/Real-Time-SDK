@@ -9,6 +9,7 @@
 #include "RefreshMsgEncoder.h"
 #include "ComplexType.h"
 #include "OmmStateDecoder.h"
+#include "OmmQosDecoder.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -441,8 +442,9 @@ RsslRefreshMsg* RefreshMsgEncoder::getRsslRefreshMsg() const
 	}
 	else
 	{
-		_rsslRefreshMsg.groupId.data = (char*)"0";
-		_rsslRefreshMsg.groupId.length = 1;
+		_itemGroup.clear().append( '\0' ).append( '\0' );
+		_rsslRefreshMsg.groupId.data = (char*)_itemGroup.c_buf();
+		_rsslRefreshMsg.groupId.length = _itemGroup.length();
 	}
 
 	if ( _payloadDataType != RSSL_DT_NO_DATA )
@@ -540,8 +542,7 @@ RsslRefreshMsg* RefreshMsgEncoder::getRsslRefreshMsg() const
 	if ( _qosSet )
 	{
 		_rsslRefreshMsg.flags |= RSSL_RFMF_HAS_QOS;
-		_rsslRefreshMsg.qos.timeInfo = _timeliness;
-		_rsslRefreshMsg.qos.rateInfo = _rate;
+		OmmQosDecoder::convertToRssl( &_rsslRefreshMsg.qos, _timeliness, _rate );
 	}
 
 	return &_rsslRefreshMsg;

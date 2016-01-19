@@ -92,7 +92,7 @@ private :
 
 #ifdef __EMA_COPY_ON_SET__
 	EmaBuffer				_permissionData;
-	EmaBuffer				_itemGroup;
+	mutable EmaBuffer			_itemGroup;
 	EmaString				_statusText;
 	bool					_permissionDataSet;
 	bool					_itemGroupSet;
