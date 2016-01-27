@@ -554,7 +554,8 @@ LoginCallbackClient::LoginCallbackClient( OmmConsumerImpl& ommConsImpl ) :
  _ackMsg(),
  _event(),
  _ommConsImpl( ommConsImpl ),
- _requestLogin( 0 )
+ _requestLogin( 0 ),
+ _loginFailureMsg()
 {
 	if ( OmmLoggerClient::VerboseEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 	{
@@ -741,18 +742,17 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback(  RsslReactor* pRssl
 		if ( pState->streamState != RSSL_STREAM_OPEN )
 		{
 			closeChannel = true;
+			_ommConsImpl.setState( OmmConsumerImpl::RsslChannelUpStreamNotOpenEnum );
+			stateToString( pState, _loginFailureMsg );
 
 			if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			{
-				EmaString tempState( 0, 256 );
-				stateToString( pState, tempState );
-
 				EmaString temp( "RDMLogin stream was closed with refresh message" );
 				temp.append( CR );
 				Login* pLogin = _loginList.getLogin( (Channel*)(pRsslReactorChannel->userSpecPtr) );
 				if ( pLogin )
 					temp.append( pLogin->toString() ).append( CR );
-				temp.append( "State: ").append( tempState );
+				temp.append( "State: ").append( _loginFailureMsg );
 				_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
 			}
 		}
@@ -814,18 +814,17 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback(  RsslReactor* pRssl
 			if ( pState->streamState != RSSL_STREAM_OPEN )
 			{
 				closeChannel = true;
+				_ommConsImpl.setState( OmmConsumerImpl::RsslChannelUpStreamNotOpenEnum );
+				stateToString( pState, _loginFailureMsg );
 
 				if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 				{
-					EmaString tempState( 0, 256 );
-					stateToString( pState, tempState );
-
 					EmaString temp( "RDMLogin stream was closed with status message" );
 					temp.append( CR );
 					Login* pLogin = _loginList.getLogin( (Channel*)(pRsslReactorChannel->userSpecPtr) );
 					if ( pLogin )
 						temp.append( pLogin->toString() ).append( CR );
-					temp.append( "State: ").append( tempState );
+					temp.append( "State: ").append( _loginFailureMsg );
 					_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
 				}
 			}
@@ -1135,6 +1134,11 @@ LoginItem* LoginCallbackClient::getLoginItem( const ReqMsg& , OmmConsumerClient&
 	}
 
 	return li;
+}
+
+const EmaString& LoginCallbackClient::getLoginFailureMessage()
+{
+	return _loginFailureMsg;
 }
 
 LoginItem* LoginItem::create( OmmConsumerImpl& ommConsImpl, OmmConsumerClient& ommConsClient, void* closure, const LoginList& loginList )

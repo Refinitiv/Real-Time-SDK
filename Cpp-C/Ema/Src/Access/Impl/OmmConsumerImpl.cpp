@@ -826,7 +826,9 @@ void OmmConsumerImpl::initialize( const OmmConsumerConfig& config )
 		UInt64 timeOutLengthInMicroSeconds = _activeConfig.loginRequestTimeOut * 1000;
 		_eventTimedOut = false;
 		TimeOut * loginWatcher( new TimeOut ( *this, timeOutLengthInMicroSeconds, &OmmConsumerImpl::terminateIf, reinterpret_cast< void * >( this ), true ) );
-		while ( ! _atExit && ! _eventTimedOut && ( _ommConsumerState < LoginStreamOpenOkEnum ) )
+		while ( ! _atExit && ! _eventTimedOut &&
+			( _ommConsumerState < LoginStreamOpenOkEnum ) &&
+			( _ommConsumerState != RsslChannelUpStreamNotOpenEnum ) )
 			rsslReactorDispatchLoop( _activeConfig.dispatchTimeoutApiThread, _activeConfig.maxDispatchCountApiThread );
 		
 		ChannelConfig *pChannelcfg = _activeConfig.configChannelSet[0];
@@ -854,6 +856,11 @@ void OmmConsumerImpl::initialize( const OmmConsumerConfig& config )
 			if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
 				_pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::ErrorEnum, failureMsg);
 			throwIueException( failureMsg );
+			return;
+		}
+		else if ( _ommConsumerState == RsslChannelUpStreamNotOpenEnum )
+		{
+			throwIueException( getLoginCallbackClient().getLoginFailureMessage() );
 			return;
 		}
 		else

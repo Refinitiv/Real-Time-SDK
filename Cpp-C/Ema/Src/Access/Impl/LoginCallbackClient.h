@@ -169,6 +169,8 @@ public :
 	
 	static void handleLoginItemCallback ( void * );
 
+	const EmaString& getLoginFailureMessage();
+
 private :
 
 	static const EmaString			_clientName;
@@ -196,6 +198,8 @@ private :
 	Login*							_requestLogin;
 
 	EmaVector< LoginItem* >			_loginItems;
+
+	EmaString _loginFailureMsg;
 
 	RsslReactorCallbackRet processGenericMsg( RsslMsg* , RsslReactorChannel* , RsslRDMLoginMsgEvent* );
 	RsslReactorCallbackRet processRefreshMsg( RsslMsg* , RsslReactorChannel* , RsslRDMLoginMsgEvent* );

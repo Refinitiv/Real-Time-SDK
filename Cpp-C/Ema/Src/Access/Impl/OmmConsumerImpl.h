@@ -139,6 +139,7 @@ public :
 		ReactorInitializedEnum,
 		RsslChannelDownEnum,
 		RsslChannelUpEnum,
+		RsslChannelUpStreamNotOpenEnum,
 		LoginStreamOpenSuspectEnum,
 		LoginStreamOpenOkEnum,
 		LoginStreamClosedEnum,
