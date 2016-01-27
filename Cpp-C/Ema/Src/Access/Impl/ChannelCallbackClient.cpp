@@ -18,9 +18,6 @@ using namespace thomsonreuters::ema::access;
 
 const EmaString ChannelCallbackClient::_clientName( "ChannelCallbackClient" );
 
-Int32 Channel::nextStreamId(4);
-EmaList< StreamId* > Channel::recoveredStreamIds;
-
 Channel* Channel::create( OmmConsumerImpl& ommConsImpl, const EmaString& name , RsslReactor* pRsslReactor )
 {
 	Channel* pChannel = 0;
@@ -61,7 +58,8 @@ Channel::Channel( const EmaString& name, RsslReactor* pRsslReactor ) :
  _pLogin( 0 ),
  _pDictionary( 0 ),
  _directoryList(),
- _toStringSet( false )
+ _toStringSet( false ),
+ nextStreamId(4)
 {
 }
 
@@ -157,29 +155,41 @@ Channel& Channel::setDictionary( Dictionary* pDictionary )
 
 Int32 Channel::getNextStreamId( UInt32 numberOfBatchItems )
 {
+	Int32 retVal;
+
 	if ( numberOfBatchItems )
 	{
-		Int32 retVal ( ++nextStreamId );
+		streamIdMutex.lock();
+		retVal = ++nextStreamId;
 		nextStreamId += numberOfBatchItems;
-		return retVal;
+		streamIdMutex.unlock();
 	}
-
-	if ( recoveredStreamIds.empty() ) {
-		return ++nextStreamId;
+	else {
+		streamIdMutex.lock();
+		if ( recoveredStreamIds.empty() ) {
+			retVal = ++nextStreamId;
+			streamIdMutex.unlock();
+		}
+		else
+		{
+			StreamId* tmp( recoveredStreamIds.pop_back() );
+			streamIdMutex.unlock();
+			retVal = (*tmp)();
+			delete tmp;
+		}
 	}
-	else
-	{
-		StreamId* tmp( recoveredStreamIds.pop_back() );
-		UInt32 retVal( (*tmp)() );
-		free( tmp );
-		return retVal;
-	}	
+	return retVal;
 }
 
 void Channel::returnStreamId( Int32 streamId )
 {
-	StreamId* sId( new StreamId( streamId ) );
-	recoveredStreamIds.push_back( sId );
+	try {
+		StreamId* sId = new StreamId( streamId );
+		streamIdMutex.lock();
+		recoveredStreamIds.push_back( sId );
+		streamIdMutex.unlock();
+	}
+	catch ( std::bad_alloc ) {}
 }
 
 const EmaString& Channel::toString() const

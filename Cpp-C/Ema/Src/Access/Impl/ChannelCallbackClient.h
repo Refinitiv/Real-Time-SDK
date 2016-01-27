@@ -12,6 +12,7 @@
 #include "rtr/rsslReactor.h"
 #include "EmaList.h"
 #include "EmaVector.h"
+#include "Mutex.h"
 #include "OmmLoggerClient.h"
 
 namespace thomsonreuters {
@@ -83,9 +84,11 @@ private :
 	Dictionary*				_pDictionary;
 	EmaList< Directory* >	_directoryList;
 	mutable bool			_toStringSet;
-	static Int32            nextStreamId;
-	static EmaList< StreamId* > recoveredStreamIds;
 
+	Int32            nextStreamId;
+	EmaList< StreamId* > recoveredStreamIds;
+	Mutex streamIdMutex;
+  
 	Channel( const EmaString& , RsslReactor* );
 	virtual ~Channel();
 
