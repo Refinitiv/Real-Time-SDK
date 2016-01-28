@@ -97,8 +97,8 @@ int main( int argc, char* argv[] )
 					.addUInt( ENAME_ALLOW_SUSPECT_DATA, 1 )
 					.complete() ) )
 			.addAdminMsg( ReqMsg().domainType( MMT_DIRECTORY ).filter( SERVICE_INFO_FILTER | SERVICE_STATE_FILTER | SERVICE_GROUP_FILTER ) )
-			.addAdminMsg( ReqMsg().domainType( MMT_DICTIONARY ).filter( DICTIONARY_VERBOSE ).name( "RWFFld" ).serviceId( 1 ) )
-			.addAdminMsg( ReqMsg().domainType( MMT_DICTIONARY ).filter( DICTIONARY_VERBOSE ).name( "RWFEnum" ).serviceId( 1 ) )
+			.addAdminMsg( ReqMsg().domainType( MMT_DICTIONARY ).filter( DICTIONARY_VERBOSE ).name( "RWFFld" ).serviceName( "DIRECT_FEED" ) )
+			.addAdminMsg( ReqMsg().domainType( MMT_DICTIONARY ).filter( DICTIONARY_VERBOSE ).name( "RWFEnum" ).serviceName( "DIRECT_FEED" ) )
 			);
 
 		consumer.registerClient( ReqMsg().serviceName( "DIRECT_FEED" ).name( "IBM.N" ), client );
