@@ -43,15 +43,15 @@ INCLUDES=	-I./Include					\
 		-I../../../Eta/Include/Util		\
 		-I../../../Ema/Src/Rdm/Impl			\
 		-I../../../Ema/Src/Rdm/Include			\
-		-I../../../Ema/Src/libxml/src/include
+		-I../../../Eta/Utils/Libxml2/include
 STATIC_LIBS=	 $(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/librsslRDM.a		\
 		$(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/librssl.a	\
 		$(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/librsslReactor.a	\
 		$(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/librsslVAUtil.a	\
-		$(ROOTNODE)/Ema/Src/libxml/src/$(IDENT)/Static/libxml2.a
+		$(ROOTNODE)/Eta/Utils/Libxml2/$(IDENT)/Static/libxml2.a
 SHARED_LIBS=    -L$(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/Shared/		\
 		-L$(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/Shared/	\
-		-L$(ROOTNODE)/Ema/Src/libxml/src/$(IDENT)/Shared/		\
+		-L$(ROOTNODE)/Eta/Utils/Libxml2/$(IDENT)/Shared/		\
 		-lrssl -lrsslVA -lxml2
 
 EMA_LIB_SRC=	$(shell ls Impl/*.cpp)
