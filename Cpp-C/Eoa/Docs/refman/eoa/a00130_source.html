@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EOA: TagType.h Source File</title>
+<title>EOA: Tag.h Source File</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -103,89 +103,152 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div class="header">
   <div class="headertitle">
-<div class="title">TagType.h</div>  </div>
+<div class="title">Tag.h</div>  </div>
 </div><!--header-->
 <div class="contents">
 <div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 <span class="comment">/*|-----------------------------------------------------------------------------</span>
 <a name="l00002"></a>00002 <span class="comment"> *|            This source code is provided under the Apache 2.0 license      --</span>
 <a name="l00003"></a>00003 <span class="comment"> *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --</span>
 <a name="l00004"></a>00004 <span class="comment"> *|                See the project&#39;s LICENSE.md for details.                  --</span>
-<a name="l00005"></a>00005 <span class="comment"> *|           Copyright Thomson Reuters 2015. All rights reserved.            --</span>
+<a name="l00005"></a>00005 <span class="comment"> *|           Copyright Thomson Reuters 2016. All rights reserved.            --</span>
 <a name="l00006"></a>00006 <span class="comment"> *|-----------------------------------------------------------------------------</span>
 <a name="l00007"></a>00007 <span class="comment"> */</span>
 <a name="l00008"></a>00008 
-<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_eoa_foundation_tagtype_h</span>
-<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_eoa_foundation_tagtype_h</span>
+<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_eoa_foundation_tag_h</span>
+<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_eoa_foundation_tag_h</span>
 <a name="l00011"></a>00011 <span class="preprocessor"></span>
-<a name="l00012"></a>00012 <span class="preprocessor">#include &quot;<a class="code" href="a00099.html" title="Common.h file provides definitions of common variable types used in EOA.">Foundation/Include/Common.h</a>&quot;</span>
-<a name="l00013"></a>00013 
-<a name="l00014"></a>00014 <span class="keyword">namespace </span>thomsonreuters {
-<a name="l00015"></a>00015     
-<a name="l00016"></a>00016 <span class="keyword">namespace </span>eoa {
-<a name="l00017"></a>00017 
-<a name="l00018"></a>00018 <span class="keyword">namespace </span>foundation {
-<a name="l00019"></a>00019 
-<a name="l00020"></a><a class="code" href="a00092.html">00020</a> <span class="keyword">class </span><a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>;
-<a name="l00021"></a>00021 
-<a name="l00034"></a>00034 <span class="keyword">enum class</span> EOA_FOUNDATION_API <a class="code" href="a00092.html" title="TagType class provides enumeration representing tag types.">TagType</a>
-<a name="l00035"></a>00035 {
-<a name="l00036"></a>00036     ArrayEnum,          
-<a name="l00037"></a>00037     ElementListEnum,    
-<a name="l00038"></a>00038     FieldListEnum,      
-<a name="l00039"></a>00039     FilterListEnum,     
-<a name="l00040"></a>00040     MapAsciiEnum,       
-<a name="l00041"></a>00041     MapBufferEnum,      
-<a name="l00042"></a>00042     MapDateEnum,        
-<a name="l00043"></a>00043     MapDateTimeEnum,    
-<a name="l00044"></a>00044     MapDoubleEnum,      
-<a name="l00045"></a>00045     MapEnumEnum,        
-<a name="l00046"></a>00046     MapFloatEnum,       
-<a name="l00047"></a>00047     MapIntEnum,         
-<a name="l00048"></a>00048     MapRealEnum,        
-<a name="l00049"></a>00049     MapRmtesEnum,       
-<a name="l00050"></a>00050     MapQosEnum,         
-<a name="l00051"></a>00051     MapStateEnum,       
-<a name="l00052"></a>00052     MapTimeEnum,        
-<a name="l00053"></a>00053     MapUtf8Enum,        
-<a name="l00054"></a>00054     MapUIntEnum,        
-<a name="l00055"></a>00055     SeriesEnum,         
-<a name="l00056"></a>00056     VectorEnum          
-<a name="l00057"></a>00057 };
-<a name="l00058"></a>00058 
-<a name="l00067"></a><a class="code" href="a00093.html">00067</a> <span class="keyword">class </span>EOA_FOUNDATION_API <a class="code" href="a00093.html" title="TagTypeName class converts TagType enumeration into a string with its name.">TagTypeName</a>
-<a name="l00068"></a>00068 {
-<a name="l00069"></a>00069 <span class="keyword">public</span> :
-<a name="l00070"></a>00070 
-<a name="l00072"></a>00072 
-<a name="l00073"></a>00073 
-<a name="l00076"></a>00076     <a class="code" href="a00093.html" title="TagTypeName class converts TagType enumeration into a string with its name.">TagTypeName</a>( <a class="code" href="a00092.html" title="TagType class provides enumeration representing tag types.">TagType</a> tagType ) <span class="keywordflow">throw</span>();
-<a name="l00078"></a>00078 
+<a name="l00033"></a>00033 <span class="preprocessor">#include &quot;Foundation/Include/EoaString.h&quot;</span>
+<a name="l00034"></a>00034 <span class="preprocessor">#include &quot;Foundation/Include/TagType.h&quot;</span>
+<a name="l00035"></a>00035 <span class="preprocessor">#include &quot;Foundation/Include/OmmDate.h&quot;</span>
+<a name="l00036"></a>00036 <span class="preprocessor">#include &quot;Foundation/Include/OmmDateTime.h&quot;</span>
+<a name="l00037"></a>00037 <span class="preprocessor">#include &quot;Foundation/Include/OmmQos.h&quot;</span>
+<a name="l00038"></a>00038 <span class="preprocessor">#include &quot;Foundation/Include/OmmReal.h&quot;</span>
+<a name="l00039"></a>00039 <span class="preprocessor">#include &quot;Foundation/Include/OmmState.h&quot;</span>
+<a name="l00040"></a>00040 <span class="preprocessor">#include &quot;Foundation/Include/OmmTime.h&quot;</span>
+<a name="l00041"></a>00041 <span class="preprocessor">#include &quot;Foundation/Include/RmtesBuffer.h&quot;</span>
+<a name="l00042"></a>00042 
+<a name="l00043"></a>00043 <span class="keyword">namespace </span>thomsonreuters {
+<a name="l00044"></a>00044     
+<a name="l00045"></a>00045 <span class="keyword">namespace </span>eoa {
+<a name="l00046"></a>00046     
+<a name="l00047"></a>00047 <span class="keyword">namespace </span>foundation {
+<a name="l00048"></a>00048 
+<a name="l00049"></a>00049 <span class="keyword">class </span>EoaBuffer;
+<a name="l00050"></a>00050 
+<a name="l00051"></a><a class="code" href="a00091.html">00051</a> <span class="keyword">class </span>EOA_FOUNDATION_API <a class="code" href="a00091.html" title="Tag class represents Component name or id.">Tag</a>
+<a name="l00052"></a>00052 {
+<a name="l00053"></a>00053 <span class="keyword">public</span>:
+<a name="l00054"></a>00054     
+<a name="l00056"></a>00056 
+<a name="l00057"></a>00057 
+<a name="l00060"></a>00060     <a class="code" href="a00092.html" title="TagType class provides enumeration representing tag types.">TagType</a> getTagType() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00061"></a>00061 
+<a name="l00066"></a>00066     UInt16 getTagArray() <span class="keyword">const</span>;
+<a name="l00067"></a>00067 
+<a name="l00073"></a>00073     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; getTagElementList() <span class="keyword">const</span>;
+<a name="l00074"></a>00074 
+<a name="l00079"></a>00079     Int16 getTagFieldList() <span class="keyword">const</span>;
 <a name="l00080"></a>00080 
-<a name="l00081"></a>00081 
-<a name="l00083"></a>00083     <span class="keyword">virtual</span> ~<a class="code" href="a00093.html" title="TagTypeName class converts TagType enumeration into a string with its name.">TagTypeName</a>() <span class="keywordflow">throw</span>();
-<a name="l00085"></a>00085 
+<a name="l00086"></a>00086     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; getTagFieldListName() <span class="keyword">const</span>;
 <a name="l00087"></a>00087 
-<a name="l00088"></a>00088 
-<a name="l00091"></a>00091     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; toString() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
-<a name="l00092"></a>00092 
-<a name="l00095"></a>00095     operator const char* () <span class="keyword">const</span> <span class="keywordflow">throw</span>();
-<a name="l00097"></a>00097 
-<a name="l00098"></a>00098 <span class="keyword">private</span> :
-<a name="l00099"></a>00099 
-<a name="l00100"></a>00100     <a class="code" href="a00092.html" title="TagType class provides enumeration representing tag types.">TagType</a> _value;
-<a name="l00101"></a>00101 
-<a name="l00102"></a>00102     <a class="code" href="a00093.html" title="TagTypeName class converts TagType enumeration into a string with its name.">TagTypeName</a>();
-<a name="l00103"></a>00103     <a class="code" href="a00093.html" title="TagTypeName class converts TagType enumeration into a string with its name.">TagTypeName</a>( <span class="keyword">const</span> <a class="code" href="a00093.html" title="TagTypeName class converts TagType enumeration into a string with its name.">TagTypeName</a>&amp; );
-<a name="l00104"></a>00104     <a class="code" href="a00093.html" title="TagTypeName class converts TagType enumeration into a string with its name.">TagTypeName</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00093.html" title="TagTypeName class converts TagType enumeration into a string with its name.">TagTypeName</a>&amp; );
-<a name="l00105"></a>00105 };
+<a name="l00092"></a>00092     UInt8 getTagFilterList() <span class="keyword">const</span>;
+<a name="l00093"></a>00093 
+<a name="l00099"></a>00099     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; getTagMapAscii() <span class="keyword">const</span>;
+<a name="l00100"></a>00100 
+<a name="l00105"></a>00105     <span class="keyword">const</span> <a class="code" href="a00066.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a>&amp; getTagMapBuffer() <span class="keyword">const</span>;
 <a name="l00106"></a>00106 
-<a name="l00107"></a>00107 }
-<a name="l00108"></a>00108 
-<a name="l00109"></a>00109 }
-<a name="l00110"></a>00110 
-<a name="l00111"></a>00111 }
+<a name="l00111"></a>00111     <span class="keyword">const</span> <a class="code" href="a00074.html" title="OmmDate represents Date info in Omm.">OmmDate</a>&amp; getTagMapDate() <span class="keyword">const</span>;
 <a name="l00112"></a>00112 
-<a name="l00113"></a>00113 <span class="preprocessor">#endif // __thomsonreuters_eoa_foundation_tagtype_h</span>
+<a name="l00117"></a>00117     <span class="keyword">const</span> <a class="code" href="a00075.html" title="OmmDateTime represents DateTime info in Omm.">OmmDateTime</a>&amp; getTagMapDateTime() <span class="keyword">const</span>;
+<a name="l00118"></a>00118 
+<a name="l00123"></a>00123     <span class="keywordtype">double</span> getTagMapDouble() <span class="keyword">const</span>;
+<a name="l00124"></a>00124 
+<a name="l00129"></a>00129     UInt16 getTagMapEnum() <span class="keyword">const</span>;
+<a name="l00130"></a>00130 
+<a name="l00135"></a>00135     <span class="keywordtype">float</span> getTagMapFloat() <span class="keyword">const</span>;
+<a name="l00136"></a>00136 
+<a name="l00141"></a>00141     Int64 getTagMapInt() <span class="keyword">const</span>;
+<a name="l00142"></a>00142 
+<a name="l00147"></a>00147     <span class="keyword">const</span> <a class="code" href="a00081.html">OmmQos</a>&amp; getTagMapQos() <span class="keyword">const</span>;
+<a name="l00148"></a>00148     
+<a name="l00153"></a>00153     <span class="keyword">const</span> <a class="code" href="a00082.html" title="OmmReal represents Real number in Omm.">OmmReal</a>&amp; getTagMapReal() <span class="keyword">const</span>;
+<a name="l00154"></a>00154 
+<a name="l00159"></a>00159     <span class="keyword">const</span> <a class="code" href="a00089.html" title="RmtesBuffer represents RMTES data.">RmtesBuffer</a>&amp; getTagMapRmtes() <span class="keyword">const</span>;
+<a name="l00160"></a>00160 
+<a name="l00165"></a>00165     <span class="keyword">const</span> <a class="code" href="a00083.html" title="OmmState represents State information in Omm.">OmmState</a>&amp; getTagMapState() <span class="keyword">const</span>;
+<a name="l00166"></a>00166     
+<a name="l00171"></a>00171     <span class="keyword">const</span> <a class="code" href="a00084.html" title="OmmTime represents Time info in Omm.">OmmTime</a>&amp; getTagMapTime() <span class="keyword">const</span>;
+<a name="l00172"></a>00172 
+<a name="l00177"></a>00177     UInt64 getTagMapUInt() <span class="keyword">const</span>;
+<a name="l00178"></a>00178 
+<a name="l00183"></a>00183     <span class="keyword">const</span> <a class="code" href="a00066.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a>&amp; getTagMapUtf8() <span class="keyword">const</span>;
+<a name="l00184"></a>00184 
+<a name="l00189"></a>00189     UInt16 getTagSeries() <span class="keyword">const</span>;
+<a name="l00190"></a>00190 
+<a name="l00195"></a>00195     UInt32 getTagVector() <span class="keyword">const</span>;
+<a name="l00196"></a>00196 
+<a name="l00201"></a>00201     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; toString() <span class="keyword">const</span>;
+<a name="l00202"></a>00202 
+<a name="l00207"></a>00207     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; getHexValue() <span class="keyword">const</span>;
+<a name="l00208"></a>00208 
+<a name="l00213"></a>00213     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; getValue() <span class="keyword">const</span>;
+<a name="l00214"></a>00214 
+<a name="l00218"></a>00218     operator const char* () <span class="keyword">const</span>;
+<a name="l00220"></a>00220 
+<a name="l00222"></a>00222 
+<a name="l00223"></a>00223 
+<a name="l00225"></a>00225     <span class="keyword">virtual</span> ~<a class="code" href="a00091.html" title="Tag class represents Component name or id.">Tag</a>();
+<a name="l00227"></a>00227 
+<a name="l00228"></a>00228 <span class="keyword">private</span>:
+<a name="l00229"></a>00229 
+<a name="l00230"></a>00230     <span class="comment">// todo ... add TagDecoder so the Tag has a smaller memory footprint !!!</span>
+<a name="l00231"></a>00231 
+<a name="l00232"></a>00232     <span class="keyword">friend</span> <span class="keyword">class </span>LeafImpl;
+<a name="l00233"></a>00233     <span class="keyword">friend</span> <span class="keyword">class </span>NodeImpl;
+<a name="l00234"></a>00234     <span class="keyword">friend</span> <span class="keyword">class </span>NoComponent;
+<a name="l00235"></a>00235     <span class="keyword">friend</span> <span class="keyword">class </span>NoLeaf;
+<a name="l00236"></a>00236     <span class="keyword">friend</span> <span class="keyword">class </span>NoNode;
+<a name="l00237"></a>00237 
+<a name="l00238"></a>00238     <span class="keyword">friend</span> <span class="keyword">class </span>Decoder;
+<a name="l00239"></a>00239     <span class="keyword">friend</span> <span class="keyword">class </span>LeafImplDecoder;
+<a name="l00240"></a>00240     <span class="keyword">friend</span> <span class="keyword">class </span>NodeImplDecoder;
+<a name="l00241"></a>00241     <span class="keyword">friend</span> <span class="keyword">class </span>NoComponentDecoder;
+<a name="l00242"></a>00242     <span class="keyword">friend</span> <span class="keyword">class </span>NoLeafDecoder;
+<a name="l00243"></a>00243     <span class="keyword">friend</span> <span class="keyword">class </span>NoNodeDecoder;
+<a name="l00244"></a>00244     <span class="keyword">friend</span> <span class="keyword">class </span>CacheEntry;
+<a name="l00245"></a>00245     <span class="keyword">friend</span> <span class="keyword">class </span>CacheNode;
+<a name="l00246"></a>00246     <span class="keyword">friend</span> <span class="keyword">class </span>CacheLeaf;
+<a name="l00247"></a>00247 
+<a name="l00248"></a>00248     <a class="code" href="a00092.html" title="TagType class provides enumeration representing tag types.">TagType</a>                     _tagType;
+<a name="l00249"></a>00249     <span class="keyword">mutable</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>           _toString;
+<a name="l00250"></a>00250     <span class="keyword">mutable</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>           _valueString;
+<a name="l00251"></a>00251     <span class="keyword">mutable</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>           _hexValueString;
+<a name="l00252"></a>00252     UInt16                      _position;
+<a name="l00253"></a>00253     <span class="keyword">const</span> <span class="keywordtype">void</span>*                 _pEntry;
+<a name="l00254"></a>00254     <span class="keyword">mutable</span> <a class="code" href="a00074.html" title="OmmDate represents Date info in Omm.">OmmDate</a>             _ommDate;
+<a name="l00255"></a>00255     <span class="keyword">mutable</span> <a class="code" href="a00075.html" title="OmmDateTime represents DateTime info in Omm.">OmmDateTime</a>         _ommDateTime;
+<a name="l00256"></a>00256     <span class="keyword">mutable</span> <a class="code" href="a00082.html" title="OmmReal represents Real number in Omm.">OmmReal</a>             _ommReal;
+<a name="l00257"></a>00257     <span class="keyword">mutable</span> <a class="code" href="a00083.html" title="OmmState represents State information in Omm.">OmmState</a>            _ommState;
+<a name="l00258"></a>00258     <span class="keyword">mutable</span> <a class="code" href="a00081.html">OmmQos</a>              _ommQos;
+<a name="l00259"></a>00259     <span class="keyword">mutable</span> <a class="code" href="a00084.html" title="OmmTime represents Time info in Omm.">OmmTime</a>             _ommTime;
+<a name="l00260"></a>00260     <span class="keyword">mutable</span> UInt16              _eoaBuffer[24];
+<a name="l00261"></a>00261     <span class="keyword">mutable</span> <a class="code" href="a00089.html" title="RmtesBuffer represents RMTES data.">RmtesBuffer</a>         _rmtesBuffer;
+<a name="l00262"></a>00262     <span class="keywordtype">void</span>*                       _pCacheEntry;
+<a name="l00263"></a>00263 
+<a name="l00264"></a>00264     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; toString( UInt64 indent, <span class="keywordtype">bool</span> ) <span class="keyword">const</span>;
+<a name="l00265"></a>00265 
+<a name="l00266"></a>00266     <a class="code" href="a00091.html" title="Tag class represents Component name or id.">Tag</a>();
+<a name="l00267"></a>00267     <a class="code" href="a00091.html" title="Tag class represents Component name or id.">Tag</a>( <span class="keyword">const</span> <a class="code" href="a00091.html" title="Tag class represents Component name or id.">Tag</a>&amp; );
+<a name="l00268"></a>00268     <a class="code" href="a00091.html" title="Tag class represents Component name or id.">Tag</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00091.html" title="Tag class represents Component name or id.">Tag</a>&amp; );
+<a name="l00269"></a>00269 };
+<a name="l00270"></a>00270 
+<a name="l00271"></a>00271 }
+<a name="l00272"></a>00272 
+<a name="l00273"></a>00273 }
+<a name="l00274"></a>00274 
+<a name="l00275"></a>00275 }
+<a name="l00276"></a>00276 
+<a name="l00277"></a>00277 <span class="preprocessor">#endif // __thomsonreuters_eoa_foundation_tag_h</span>
 </pre></div></div><!-- contents -->
 
 <hr class="footer"/><address class="footer"><small>
@@ -203,7 +266,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Dec 14 2015</td>
+			<td><p class="smallfont">Mon Feb 1 2016</td>
           </tr>
         </table>
         </td>

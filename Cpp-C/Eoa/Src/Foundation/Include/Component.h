@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2016. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -15,13 +15,13 @@
 
 	\remark All methods in this class are \ref SingleThreaded.
 
-	@see Tag,
-		ComponentType,
+	@see ComponentType,
 		DataType,
 		Node,
 		Leaf,
 		EoaString,
-		OmmMemoryExhaustionException
+		OmmMemoryExhaustionException,
+		Tag
 */
 
 #include "Foundation/Include/ComponentType.h"
@@ -34,7 +34,6 @@ namespace eoa {
 namespace foundation {
 
 class Tag;
-
 class Decoder;
 
 class EOA_FOUNDATION_API Component
@@ -65,6 +64,7 @@ public:
 	virtual UInt64 getDepth() const throw() = 0;
 
 	/** Returns a string representation of this component's value.
+		@throw OmmMemoryExhaustionException if app runs out of memory
 		@return string representation of this component's value
 	*/
 	virtual const EoaString& getValue() const = 0;
@@ -109,15 +109,19 @@ protected:
 
 private :
 
-	friend class Node;
-	friend class Decoder;
-	friend class LeafDecoder;
-	friend class NodeDecoder;
-	friend class NoComponent;
-	friend class NoLeaf;
-	friend class NoNode;
+	friend class NodeImpl;
 	friend class CacheNode;
-	friend class CacheLeaf;
+
+	friend class Decoder;
+	friend class NoComponentDecoder;
+	friend class NoLeafDecoder;
+	friend class NoNodeDecoder;
+	friend class LeafImplDecoder;
+	friend class NodeImplDecoder;
+
+	friend class UpdateInfoImpl;
+	friend class RefreshInfoImpl;
+	friend class StatusInfoImpl;
 
 	virtual Decoder& getDecoder() = 0;
 

@@ -125,7 +125,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p><a class="el" href="a00073.html" title="Node::const_iterator is an external and explicit Node read iterator.">Node::const_iterator</a> is an external and explicit <a class="el" href="a00072.html" title="Node class represents all OMM container types.">Node</a> read iterator.  
  <a href="a00073.html#details">More...</a></p>
 
-<p><a href="a00202.html">List of all members.</a></p>
+<p><a href="a00203.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -147,8 +147,8 @@ Public Member Functions</h2></td></tr>
 Friends</h2></td></tr>
 <tr class="memitem:a7fff1a6a430420ba2e8a941b69d87fd2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7fff1a6a430420ba2e8a941b69d87fd2"></a>
 class&#160;</td><td class="memItemRight" valign="bottom"><b>CacheNode</b></td></tr>
-<tr class="memitem:a6db9d28bd448a131448276ee03de1e6d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6db9d28bd448a131448276ee03de1e6d"></a>
-class&#160;</td><td class="memItemRight" valign="bottom"><b>Node</b></td></tr>
+<tr class="memitem:a68de9445dc2cbe8f2765066f8dd00725"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a68de9445dc2cbe8f2765066f8dd00725"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>NodeImpl</b></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><div class="fragment"><pre class="fragment">   Node::const_iterator allows for concurent and independent iteration over the same Node instance.
@@ -158,14 +158,14 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Node</b></td></tr>
 </pre></div><p>The following code snippet shows extracting data from <a class="el" href="a00072.html" title="Node class represents all OMM container types.">Node</a> using the <a class="el" href="a00073.html" title="Node::const_iterator is an external and explicit Node read iterator.">const_iterator</a>.</p>
 <div class="fragment"><pre class="fragment">        <span class="keywordflow">for</span> ( <a class="code" href="a00073.html#adf24b821ea9f7b61f612361a2e80d0e7">const_iterator</a> iter = node.begin(); iter != node.end(); ++iter )
             cout &lt;&lt; *iter &lt;&lt; endl;
-</pre></div><dl class="section remark"><dt>Remarks:</dt><dd>Undefined behavior may occur while attempting to dereference <a class="el" href="a00073.html" title="Node::const_iterator is an external and explicit Node read iterator.">Node::const_iterator</a> objects equal to the <a class="el" href="a00072.html#a8a0f6b2776c84a9a2f437928c2a3e488">Node::end()</a>. </dd>
+</pre></div><dl class="section remark"><dt>Remarks:</dt><dd>Undefined behavior may occur while attempting to dereference <a class="el" href="a00073.html" title="Node::const_iterator is an external and explicit Node read iterator.">Node::const_iterator</a> objects equal to the <a class="el" href="a00072.html#a355fb1d6b8d67aca5e0a54cb83b28076">Node::end()</a>. </dd>
 <dd>
 Undefined behavior may occur while using objects of <a class="el" href="a00073.html" title="Node::const_iterator is an external and explicit Node read iterator.">Node::const_iterator</a> associated with the <a class="el" href="a00072.html" title="Node class represents all OMM container types.">Node</a> object who is out of scope. </dd>
 <dd>
 All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free</a>.</dd></dl>
 <dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00057.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a>, <a class="el" href="a00091.html" title="Tag class represents Component name or id.">Tag</a>, <a class="el" href="a00071.html" title="Leaf class represents all OMM simple types.">Leaf</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="a00112_source.html#l00085">85</a> of file <a class="el" href="a00112_source.html">Node.h</a>.</p>
+<p>Definition at line <a class="el" href="a00113_source.html#l00085">85</a> of file <a class="el" href="a00113_source.html">Node.h</a>.</p>
 </div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="adf24b821ea9f7b61f612361a2e80d0e7"></a>
 <div class="memitem">
@@ -181,7 +181,7 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 </div>
 <div class="memdoc">
 <p>Default constructor. </p>
-<dl class="section remark"><dt>Remarks:</dt><dd>equivalent to <a class="el" href="a00072.html#a8a0f6b2776c84a9a2f437928c2a3e488">Node::end()</a> </dd></dl>
+<dl class="section remark"><dt>Remarks:</dt><dd>equivalent to <a class="el" href="a00072.html#a355fb1d6b8d67aca5e0a54cb83b28076">Node::end()</a> </dd></dl>
 
 </div>
 </div>
@@ -440,7 +440,7 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Dec 14 2015</td>
+			<td><p class="smallfont">Mon Feb 1 2016</td>
           </tr>
         </table>
         </td>

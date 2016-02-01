@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EOA: Component.h Source File</title>
+<title>EOA: Common.h Source File</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -103,94 +103,67 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div class="header">
   <div class="headertitle">
-<div class="title">Component.h</div>  </div>
+<div class="title">Common.h</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 <span class="comment">/*|-----------------------------------------------------------------------------</span>
+<a href="a00100.html">Go to the documentation of this file.</a><div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 <span class="comment">/*|-----------------------------------------------------------------------------</span>
 <a name="l00002"></a>00002 <span class="comment"> *|            This source code is provided under the Apache 2.0 license      --</span>
 <a name="l00003"></a>00003 <span class="comment"> *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --</span>
 <a name="l00004"></a>00004 <span class="comment"> *|                See the project&#39;s LICENSE.md for details.                  --</span>
-<a name="l00005"></a>00005 <span class="comment"> *|           Copyright Thomson Reuters 2015. All rights reserved.            --</span>
+<a name="l00005"></a>00005 <span class="comment"> *|           Copyright Thomson Reuters 2016. All rights reserved.            --</span>
 <a name="l00006"></a>00006 <span class="comment"> *|-----------------------------------------------------------------------------</span>
 <a name="l00007"></a>00007 <span class="comment"> */</span>
 <a name="l00008"></a>00008 
-<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_eoa_foundation_component_h</span>
-<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_eoa_foundation_component_h</span>
+<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_eoa_foundation_common_h_</span>
+<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_eoa_foundation_common_h_</span>
 <a name="l00011"></a>00011 <span class="preprocessor"></span>
-<a name="l00027"></a>00027 <span class="preprocessor">#include &quot;Foundation/Include/ComponentType.h&quot;</span>
-<a name="l00028"></a>00028 <span class="preprocessor">#include &quot;Foundation/Include/DataType.h&quot;</span>
-<a name="l00029"></a>00029 
-<a name="l00030"></a>00030 <span class="keyword">namespace </span>thomsonreuters {
+<a name="l00012"></a>00012 <span class="preprocessor">#pragma warning( disable : 4290 )</span>
+<a name="l00013"></a>00013 <span class="preprocessor"></span>
+<a name="l00019"></a>00019 <span class="keyword">namespace </span>thomsonreuters {
+<a name="l00020"></a>00020 
+<a name="l00021"></a>00021 <span class="keyword">namespace </span>eoa {
+<a name="l00022"></a>00022 
+<a name="l00030"></a>00030 <span class="keyword">namespace </span>foundation {
 <a name="l00031"></a>00031 
-<a name="l00032"></a>00032 <span class="keyword">namespace </span>eoa {
-<a name="l00033"></a>00033 
-<a name="l00034"></a>00034 <span class="keyword">namespace </span>foundation {
-<a name="l00035"></a>00035 
-<a name="l00036"></a>00036 <span class="keyword">class </span>Tag;
+<a name="l00036"></a>00036 <span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> UInt8;
 <a name="l00037"></a>00037 
-<a name="l00038"></a>00038 <span class="keyword">class </span>Decoder;
-<a name="l00039"></a>00039 
-<a name="l00040"></a><a class="code" href="a00057.html">00040</a> <span class="keyword">class </span>EOA_FOUNDATION_API <a class="code" href="a00057.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a>
-<a name="l00041"></a>00041 {
-<a name="l00042"></a>00042 <span class="keyword">public</span>:
+<a name="l00042"></a>00042 <span class="keyword">typedef</span> <span class="keywordtype">signed</span> <span class="keywordtype">char</span> Int8;
 <a name="l00043"></a>00043 
-<a name="l00045"></a>00045 
-<a name="l00046"></a>00046 
-<a name="l00049"></a>00049     <span class="keyword">virtual</span> <a class="code" href="a00058.html" title="ComponentType class provides enumeration representing component types.">ComponentType</a> getComponentType() <span class="keyword">const</span> <span class="keywordflow">throw</span>() = 0;
-<a name="l00050"></a>00050 
-<a name="l00054"></a>00054     <span class="keyword">virtual</span> <a class="code" href="a00064.html" title="DataType class provides enumeration representing Omm data types.">DataType</a> getDataType() <span class="keyword">const</span> <span class="keywordflow">throw</span>() = 0;
+<a name="l00048"></a>00048 <span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span> UInt16;
+<a name="l00049"></a>00049 
+<a name="l00054"></a>00054 <span class="keyword">typedef</span> <span class="keywordtype">short</span> Int16;
 <a name="l00055"></a>00055 
-<a name="l00059"></a>00059     <span class="keyword">virtual</span> <span class="keyword">const</span> <a class="code" href="a00091.html" title="Tag class represents Component name or id.">Tag</a>&amp; getTag() <span class="keyword">const</span> <span class="keywordflow">throw</span>() = 0;
-<a name="l00060"></a>00060 
-<a name="l00065"></a>00065     <span class="keyword">virtual</span> UInt64 getDepth() <span class="keyword">const</span> <span class="keywordflow">throw</span>() = 0;
-<a name="l00066"></a>00066 
-<a name="l00070"></a>00070     <span class="keyword">virtual</span> <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; getValue() <span class="keyword">const</span> = 0;
-<a name="l00071"></a>00071 
-<a name="l00075"></a>00075     <span class="keyword">virtual</span> <span class="keywordtype">bool</span> isLocal() <span class="keyword">const</span> <span class="keywordflow">throw</span>() = 0;
-<a name="l00076"></a>00076 
-<a name="l00080"></a>00080     <span class="keyword">virtual</span> <span class="keywordtype">bool</span> isNonBlank() <span class="keyword">const</span> <span class="keywordflow">throw</span>() = 0;
+<a name="l00060"></a>00060 <span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> UInt32;
+<a name="l00061"></a>00061 
+<a name="l00066"></a>00066 <span class="keyword">typedef</span> <span class="keywordtype">int</span> Int32;
+<a name="l00067"></a>00067 
+<a name="l00072"></a>00072 <span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> <span class="keywordtype">long</span> UInt64;
+<a name="l00073"></a>00073 
+<a name="l00078"></a>00078 <span class="keyword">typedef</span> <span class="keywordtype">long</span> <span class="keywordtype">long</span> Int64;
+<a name="l00079"></a>00079 
+<a name="l00080"></a>00080 }
 <a name="l00081"></a>00081 
-<a name="l00085"></a>00085     <span class="keyword">virtual</span> <span class="keywordtype">bool</span> isPresent() <span class="keyword">const</span> <span class="keywordflow">throw</span>() = 0;
-<a name="l00086"></a>00086 
-<a name="l00091"></a>00091     <span class="keyword">virtual</span> <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; toString() <span class="keyword">const</span> = 0;
-<a name="l00092"></a>00092 
-<a name="l00096"></a>00096     operator const char* () <span class="keyword">const</span>;
-<a name="l00098"></a>00098 
-<a name="l00100"></a>00100 
-<a name="l00101"></a>00101 
-<a name="l00103"></a>00103     <span class="keyword">virtual</span> ~<a class="code" href="a00057.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a>();
-<a name="l00105"></a>00105 
-<a name="l00106"></a>00106 <span class="keyword">protected</span>:
-<a name="l00107"></a>00107 
-<a name="l00108"></a>00108     <a class="code" href="a00057.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a>();
-<a name="l00109"></a>00109 
-<a name="l00110"></a>00110 <span class="keyword">private</span> :
-<a name="l00111"></a>00111 
-<a name="l00112"></a>00112     <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="a00072.html" title="Node class represents all OMM container types.">Node</a>;
-<a name="l00113"></a>00113     <span class="keyword">friend</span> <span class="keyword">class </span>Decoder;
-<a name="l00114"></a>00114     <span class="keyword">friend</span> <span class="keyword">class </span>LeafDecoder;
-<a name="l00115"></a>00115     <span class="keyword">friend</span> <span class="keyword">class </span>NodeDecoder;
-<a name="l00116"></a>00116     <span class="keyword">friend</span> <span class="keyword">class </span>NoComponent;
-<a name="l00117"></a>00117     <span class="keyword">friend</span> <span class="keyword">class </span>NoLeaf;
-<a name="l00118"></a>00118     <span class="keyword">friend</span> <span class="keyword">class </span>NoNode;
-<a name="l00119"></a>00119     <span class="keyword">friend</span> <span class="keyword">class </span>CacheNode;
-<a name="l00120"></a>00120     <span class="keyword">friend</span> <span class="keyword">class </span>CacheLeaf;
-<a name="l00121"></a>00121 
-<a name="l00122"></a>00122     <span class="keyword">virtual</span> Decoder&amp; getDecoder() = 0;
-<a name="l00123"></a>00123 
-<a name="l00124"></a>00124     <span class="keyword">virtual</span> <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; toString( UInt64 indent, <span class="keywordtype">bool</span> ) <span class="keyword">const</span> = 0;
-<a name="l00125"></a>00125 
-<a name="l00126"></a>00126     <a class="code" href="a00057.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a>( <span class="keyword">const</span> <a class="code" href="a00057.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a>&amp; );
-<a name="l00127"></a>00127     <a class="code" href="a00057.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00057.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a>&amp; );
-<a name="l00128"></a>00128 };
-<a name="l00129"></a>00129 
-<a name="l00130"></a>00130 }
-<a name="l00131"></a>00131 
-<a name="l00132"></a>00132 }
-<a name="l00133"></a>00133 
-<a name="l00134"></a>00134 }
-<a name="l00135"></a>00135 
-<a name="l00136"></a>00136 <span class="preprocessor">#endif // __thomsonreuters_eoa_foundation_component_h</span>
+<a name="l00087"></a>00087 <span class="keyword">namespace </span>domain {
+<a name="l00088"></a>00088 }
+<a name="l00089"></a>00089 
+<a name="l00090"></a>00090 }
+<a name="l00091"></a>00091 
+<a name="l00092"></a>00092 }
+<a name="l00093"></a>00093 
+<a name="l00094"></a>00094 <span class="preprocessor">#if defined( WIN32 ) &amp;&amp; !defined( __EOA_STATIC_BUILD__ )</span>
+<a name="l00095"></a>00095 <span class="preprocessor"></span><span class="preprocessor">    #ifdef EOA_LIBRARY_EXPORTS </span>
+<a name="l00096"></a>00096 <span class="preprocessor"></span><span class="preprocessor">        #define EOA_FOUNDATION_API      __declspec(dllexport)</span>
+<a name="l00097"></a>00097 <span class="preprocessor"></span><span class="preprocessor">        #define EOA_DOMAIN_API          __declspec(dllexport)</span>
+<a name="l00098"></a>00098 <span class="preprocessor"></span><span class="preprocessor">    #else</span>
+<a name="l00099"></a>00099 <span class="preprocessor"></span><span class="preprocessor">        #define EOA_FOUNDATION_API      __declspec(dllimport)</span>
+<a name="l00100"></a>00100 <span class="preprocessor"></span><span class="preprocessor">        #define EOA_DOMAIN_API          __declspec(dllimport)</span>
+<a name="l00101"></a>00101 <span class="preprocessor"></span><span class="preprocessor">    #endif</span>
+<a name="l00102"></a>00102 <span class="preprocessor"></span><span class="preprocessor">#else </span>
+<a name="l00103"></a>00103 <span class="preprocessor"></span><span class="preprocessor">    #define EOA_FOUNDATION_API</span>
+<a name="l00104"></a>00104 <span class="preprocessor"></span><span class="preprocessor">    #define EOA_DOMAIN_API</span>
+<a name="l00105"></a>00105 <span class="preprocessor"></span><span class="preprocessor">#endif</span>
+<a name="l00106"></a>00106 <span class="preprocessor"></span>
+<a name="l00148"></a>00148 <span class="preprocessor">#endif // __thomsonreuters_eoa_foundation_common_h_</span>
 </pre></div></div><!-- contents -->
 
 <hr class="footer"/><address class="footer"><small>
@@ -208,7 +181,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Dec 14 2015</td>
+			<td><p class="smallfont">Mon Feb 1 2016</td>
           </tr>
         </table>
         </td>

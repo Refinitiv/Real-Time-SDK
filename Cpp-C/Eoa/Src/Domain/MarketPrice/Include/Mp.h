@@ -2,12 +2,14 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2016. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
 #ifndef __thomsonreuters_eoa_domain_marketprice_mp_h
 #define __thomsonreuters_eoa_domain_marketprice_mp_h
+
+#pragma warning( disable : 4251 )
 
 #include "Foundation/Include/EoaBuffer.h"
 #include "Foundation/Include/EoaString.h"
@@ -81,7 +83,7 @@ class ConsumerService;
 
 		@see Mp::Quote
 	*/
-	class ConsumerItem
+	class EOA_DOMAIN_API ConsumerItem
 	{
 	public:
 
@@ -194,7 +196,7 @@ class ConsumerService;
 		MpConsumerItemImpl*								_pImpl;
 		void*											_closure;
 		ConsumerItemClient*								_pClient;
-		std::function<void( const ConsumerItem& )>		_callBackFunc;		
+		std::function< void( const ConsumerItem& ) >	_callBackFunc;		
 	};
 
 	/**
@@ -207,7 +209,7 @@ class ConsumerService;
 			Mp::Qos,
 			Mp::State
 	*/
-	class RefreshInfo
+	class EOA_DOMAIN_API RefreshInfo
 	{
 	public:
 
@@ -385,7 +387,7 @@ class ConsumerService;
 
 		@see Mp::State
 	*/
-	class StatusInfo
+	class EOA_DOMAIN_API StatusInfo
 	{
 	public:
 
@@ -534,7 +536,7 @@ class ConsumerService;
 
 		@see Mp::Quote
 	*/
-	class UpdateInfo
+	class EOA_DOMAIN_API UpdateInfo
 	{
 	public:
 
@@ -710,7 +712,7 @@ class ConsumerService;
 			Mp::UpdateInfo,
 			Mp::StatusInfo
 	*/
-	class ConsumerItemClient 
+	class EOA_DOMAIN_API ConsumerItemClient 
 	{
 	public:
 
@@ -765,7 +767,7 @@ class ConsumerService;
 			Mp::ConsumerItemClient,
 			EoaString
 	*/
-	class ConsumerService
+	class EOA_DOMAIN_API ConsumerService
 	{
 	public:
 
@@ -791,12 +793,31 @@ class ConsumerService;
 		/** Request streaming subscription.
 			\remark this is an asynchronous subscription request; e.g. this method does not wait for any response
 			@throw OmmMemoryExhaustionException if app runs out of memory
+			@param[in] itemName identifies item by name (assumes all other request attributes are defaulted).
+			@param[in] consumerItemClient specifies a client callback class
+			@param[in] closure specifies application assigned value for the item. The default value is NULL.
+			@return ConsumerItem object
+		*/
+		ConsumerItem subscribe( const foundation::EoaString& itemName, ConsumerItemClient& consumerItemClient, void* closure = 0 );
+
+		/** Request streaming subscription.
+			\remark this is an asynchronous subscription request; e.g. this method does not wait for any response
+			@throw OmmMemoryExhaustionException if app runs out of memory
 			@param[in] itemSpec identifies item.
 			@param[in] consumerItemClient specifies a client callback class
 			@param[in] closure specifies application assigned value for the item. The default value is NULL.
 			@return ConsumerItem object
 		*/
 		ConsumerItem subscribe( const ReqSpec& itemSpec, ConsumerItemClient& consumerItemClient, void* closure = 0 );
+
+		/** Request streaming subscription.
+			\remark this is an asynchronous subscription request; e.g. this method does not wait for any response
+			@throw OmmMemoryExhaustionException if app runs out of memory
+			@param[in] itemName identifies item by name (assumes all other request attributes are defaulted).
+			@param[in] callBackFunc specifies a lambda expression, a function, a function pointer or any kind of function object.
+			@return ConsumerItem object
+		*/
+		ConsumerItem subscribe( const foundation::EoaString& itemName, std::function<void( const ConsumerItem& )> callBackFunc );
 
 		/** Request streaming subscription.
 			\remark this is an asynchronous subscription request; e.g. this method does not wait for any response
@@ -810,10 +831,28 @@ class ConsumerService;
 		/** Request streaming subscription.
 			this is an asynchronous subscription request; e.g. this method does not wait for any response
 			@throw OmmMemoryExhaustionException if app runs out of memory
+			@param[in] itemName identifies item by name (assumes all other request attributes are defaulted).
+			@return ConsumerItem object
+		*/
+		ConsumerItem subscribe( const foundation::EoaString& itemName );
+
+		/** Request streaming subscription.
+			this is an asynchronous subscription request; e.g. this method does not wait for any response
+			@throw OmmMemoryExhaustionException if app runs out of memory
 			@param[in] itemSpec identifies item.
 			@return ConsumerItem object
 		*/
 		ConsumerItem subscribe( const ReqSpec& itemSpec );
+
+		/** Request non streaming subscription.
+			this is an asynchronous subscription request; e.g. this method does not wait for any response
+			@throw OmmMemoryExhaustionException if app runs out of memory
+			@param[in] itemName identifies item by name (assumes all other request attributes are defaulted).
+			@param[in] consumerItemClient specifies a client callback class
+			@param[in] closure specifies application assigned value for the item. The default value is NULL.
+			@return ConsumerItem object
+		*/
+		ConsumerItem snap( const foundation::EoaString& itemName, ConsumerItemClient& consumerItemClient, void* closure = 0 );
 
 		/** Request non streaming subscription.
 			this is an asynchronous subscription request; e.g. this method does not wait for any response
@@ -828,11 +867,28 @@ class ConsumerService;
 		/** Request non streaming subscription.
 			this is an asynchronous subscription request; e.g. this method does not wait for any response
 			@throw OmmMemoryExhaustionException if app runs out of memory
+			@param[in] itemName identifies item by name (assumes all other request attributes are defaulted).
+			@param[in] callBackFunc specifies a lambda expression, a function, a function pointer or any kind of function object.
+			@return ConsumerItem object
+		*/
+		ConsumerItem snap( const foundation::EoaString& itemName, std::function<void( const ConsumerItem& )> callBackFunc );
+
+		/** Request non streaming subscription.
+			this is an asynchronous subscription request; e.g. this method does not wait for any response
+			@throw OmmMemoryExhaustionException if app runs out of memory
 			@param[in] itemSpec identifies item.
 			@param[in] callBackFunc specifies a lambda expression, a function, a function pointer or any kind of function object.
 			@return ConsumerItem object
 		*/
 		ConsumerItem snap( const ReqSpec& itemSpec, std::function<void( const ConsumerItem& )> callBackFunc );
+
+		/** Request non streaming subscription
+			this is a synchronous subscription request; e.g. this method blocks till refresh complete is received
+			@throw OmmMemoryExhaustionException if app runs out of memory
+			@param[in] itemName identifies item by name (assumes all other request attributes are defaulted).
+			@return ConsumerItem object
+		*/
+		ConsumerItem snap( const foundation::EoaString& itemName );
 
 		/** Request non streaming subscription
 			this is a synchronous subscription request; e.g. this method blocks till refresh complete is received
@@ -866,7 +922,7 @@ class ConsumerService;
 	
 		\remark All methods in this class are \ref SingleThreaded.
 	*/
-	class ReqSpec
+	class EOA_DOMAIN_API ReqSpec
 	{
 	public:
 
@@ -1002,7 +1058,7 @@ class ConsumerService;
 			Mp::RefreshInfo,
 			Mp::UpdateInfo
 	*/
-	class Quote
+	class EOA_DOMAIN_API Quote
 	{
 	public:
 
@@ -1101,7 +1157,7 @@ class ConsumerService;
 
 		@see Mp::RefreshInfo
 	*/
-	class Qos
+	class EOA_DOMAIN_API Qos
 	{
 	public :
 
@@ -1181,7 +1237,7 @@ class ConsumerService;
 		@see Mp::RefreshInfo,
 			Mp::StatusInfo
 	*/
-	class State 
+	class EOA_DOMAIN_API State 
 	{
 	public :
 

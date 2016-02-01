@@ -38,9 +38,7 @@ Here is a chance to view the upcoming Elektron Object API. This directory contai
 
 **Note**: This EOA version does not support functionality beyond that described above.
 
-**Note**: All libraries, source code, functionality, and examples are preliminary and subject to change.
-
-**Note**: Some class interfaces (e.g., Node) use virtual methods and these are subject to change. EOA will alter the use of virtual methods in a subsequent release. 
+**Note**: All libraries, source code, functionality, and examples are preliminary and subject to change. 
 
 ##List of Examples
 - **Domain Layer**

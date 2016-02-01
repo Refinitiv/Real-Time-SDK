@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EOA: Eoa.h Source File</title>
+<title>EOA: UpdateInfo.h Source File</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -103,61 +103,130 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div class="header">
   <div class="headertitle">
-<div class="title">Eoa.h</div>  </div>
+<div class="title">UpdateInfo.h</div>  </div>
 </div><!--header-->
 <div class="contents">
-<a href="a00132.html">Go to the documentation of this file.</a><div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 <span class="comment">/*|-----------------------------------------------------------------------------</span>
+<div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 <span class="comment">/*|-----------------------------------------------------------------------------</span>
 <a name="l00002"></a>00002 <span class="comment"> *|            This source code is provided under the Apache 2.0 license      --</span>
 <a name="l00003"></a>00003 <span class="comment"> *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --</span>
 <a name="l00004"></a>00004 <span class="comment"> *|                See the project&#39;s LICENSE.md for details.                  --</span>
-<a name="l00005"></a>00005 <span class="comment"> *|           Copyright Thomson Reuters 2015. All rights reserved.            --</span>
+<a name="l00005"></a>00005 <span class="comment"> *|           Copyright Thomson Reuters 2016. All rights reserved.            --</span>
 <a name="l00006"></a>00006 <span class="comment"> *|-----------------------------------------------------------------------------</span>
 <a name="l00007"></a>00007 <span class="comment"> */</span>
 <a name="l00008"></a>00008 
-<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_eoa_eoa_h</span>
-<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_eoa_eoa_h</span>
+<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_eoa_foundation_updateinfo_h</span>
+<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_eoa_foundation_updateinfo_h</span>
 <a name="l00011"></a>00011 <span class="preprocessor"></span>
-<a name="l00020"></a>00020 <span class="preprocessor">#include &quot;<a class="code" href="a00099.html" title="Common.h file provides definitions of common variable types used in EOA.">Foundation/Include/Common.h</a>&quot;</span>
-<a name="l00021"></a>00021 
-<a name="l00022"></a>00022 <span class="preprocessor">#include &quot;Foundation/Include/OmmException.h&quot;</span>
-<a name="l00023"></a>00023 <span class="preprocessor">#include &quot;Foundation/Include/OmmInvalidUsageException.h&quot;</span>
-<a name="l00024"></a>00024 <span class="preprocessor">#include &quot;Foundation/Include/OmmMemoryExhaustionException.h&quot;</span>
-<a name="l00025"></a>00025 <span class="preprocessor">#include &quot;Foundation/Include/OmmOutOfRangeException.h&quot;</span>
-<a name="l00026"></a>00026 <span class="preprocessor">#include &quot;Foundation/Include/OmmUnsupportedDomainTypeException.h&quot;</span>
-<a name="l00027"></a>00027 
-<a name="l00028"></a>00028 <span class="preprocessor">#include &quot;Foundation/Include/Action.h&quot;</span>
-<a name="l00029"></a>00029 <span class="preprocessor">#include &quot;Foundation/Include/ComponentType.h&quot;</span>
-<a name="l00030"></a>00030 <span class="preprocessor">#include &quot;Foundation/Include/DataType.h&quot;</span>
-<a name="l00031"></a>00031 <span class="preprocessor">#include &quot;Foundation/Include/FilterType.h&quot;</span>
-<a name="l00032"></a>00032 <span class="preprocessor">#include &quot;Foundation/Include/TagType.h&quot;</span>
-<a name="l00033"></a>00033 
-<a name="l00034"></a>00034 <span class="preprocessor">#include &quot;Foundation/Include/EoaBuffer.h&quot;</span>
-<a name="l00035"></a>00035 <span class="preprocessor">#include &quot;Foundation/Include/EoaString.h&quot;</span>
-<a name="l00036"></a>00036 <span class="preprocessor">#include &quot;Foundation/Include/RmtesBuffer.h&quot;</span>
-<a name="l00037"></a>00037 
-<a name="l00038"></a>00038 <span class="preprocessor">#include &quot;Foundation/Include/OmmDate.h&quot;</span>
-<a name="l00039"></a>00039 <span class="preprocessor">#include &quot;Foundation/Include/OmmDateTime.h&quot;</span>
-<a name="l00040"></a>00040 <span class="preprocessor">#include &quot;Foundation/Include/OmmQos.h&quot;</span>
-<a name="l00041"></a>00041 <span class="preprocessor">#include &quot;Foundation/Include/OmmReal.h&quot;</span>
-<a name="l00042"></a>00042 <span class="preprocessor">#include &quot;Foundation/Include/OmmState.h&quot;</span>
-<a name="l00043"></a>00043 <span class="preprocessor">#include &quot;Foundation/Include/OmmTime.h&quot;</span>
+<a name="l00025"></a>00025 <span class="preprocessor">#include &quot;<a class="code" href="a00100.html" title="Common.h file provides definitions of common variable types used in EOA.">Foundation/Include/Common.h</a>&quot;</span>
+<a name="l00026"></a>00026 
+<a name="l00027"></a>00027 <span class="keyword">namespace </span>thomsonreuters {
+<a name="l00028"></a>00028 
+<a name="l00029"></a>00029 <span class="keyword">namespace </span>eoa {
+<a name="l00030"></a>00030 
+<a name="l00031"></a>00031 <span class="keyword">namespace </span>foundation {
+<a name="l00032"></a>00032 
+<a name="l00033"></a>00033 <span class="keyword">class </span>EoaBuffer;
+<a name="l00034"></a>00034 <span class="keyword">class </span>EoaString;
+<a name="l00035"></a>00035 <span class="keyword">class </span>Node;
+<a name="l00036"></a>00036 <span class="keyword">class </span>UpdateInfoImpl;
+<a name="l00037"></a>00037 <span class="keyword">class </span>ConsumerServiceImpl;
+<a name="l00038"></a>00038 
+<a name="l00039"></a><a class="code" href="a00094.html">00039</a> <span class="keyword">class </span>EOA_FOUNDATION_API <a class="code" href="a00094.html" title="UpdateInfo provides access to the information brought in by an update message.">UpdateInfo</a>
+<a name="l00040"></a>00040 {
+<a name="l00041"></a>00041 <span class="keyword">public</span>:
+<a name="l00042"></a>00042 
 <a name="l00044"></a>00044 
-<a name="l00045"></a>00045 <span class="preprocessor">#include &quot;Foundation/Include/Component.h&quot;</span>
-<a name="l00046"></a>00046 <span class="preprocessor">#include &quot;Foundation/Include/Leaf.h&quot;</span>
-<a name="l00047"></a>00047 <span class="preprocessor">#include &quot;Foundation/Include/Node.h&quot;</span>
-<a name="l00048"></a>00048 <span class="preprocessor">#include &quot;Foundation/Include/Tag.h&quot;</span>
+<a name="l00045"></a>00045 
+<a name="l00048"></a>00048     <span class="keywordtype">bool</span> hasName() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
 <a name="l00049"></a>00049 
-<a name="l00050"></a>00050 <span class="preprocessor">#include &quot;Foundation/Include/ConsumerItem.h&quot;</span>
-<a name="l00051"></a>00051 <span class="preprocessor">#include &quot;Foundation/Include/ConsumerItemClient.h&quot;</span>
-<a name="l00052"></a>00052 <span class="preprocessor">#include &quot;Foundation/Include/ReqSpec.h&quot;</span>
-<a name="l00053"></a>00053 <span class="preprocessor">#include &quot;Foundation/Include/ConsumerService.h&quot;</span>
-<a name="l00054"></a>00054 <span class="preprocessor">#include &quot;Foundation/Include/RefreshInfo.h&quot;</span>
-<a name="l00055"></a>00055 <span class="preprocessor">#include &quot;Foundation/Include/StatusInfo.h&quot;</span>
-<a name="l00056"></a>00056 <span class="preprocessor">#include &quot;Foundation/Include/UpdateInfo.h&quot;</span>
-<a name="l00057"></a>00057 
-<a name="l00058"></a>00058 <span class="preprocessor">#include &quot;Foundation/Include/ConsumerNodeStoreClient.h&quot;</span>
+<a name="l00053"></a>00053     <span class="keywordtype">bool</span> hasNameType() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00054"></a>00054 
+<a name="l00058"></a>00058     <span class="keywordtype">bool</span> hasServiceId() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
 <a name="l00059"></a>00059 
-<a name="l00060"></a>00060 <span class="preprocessor">#endif // __thomsonreuters_eoa_eoa_h</span>
+<a name="l00063"></a>00063     <span class="keywordtype">bool</span> hasServiceName() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00064"></a>00064 
+<a name="l00068"></a>00068     <span class="keywordtype">bool</span> hasId() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00069"></a>00069 
+<a name="l00073"></a>00073     <span class="keywordtype">bool</span> hasFilter() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00074"></a>00074 
+<a name="l00078"></a>00078     <span class="keywordtype">bool</span> hasExtendedHeader() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00079"></a>00079 
+<a name="l00083"></a>00083     <span class="keywordtype">bool</span> hasSeqNum() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00084"></a>00084 
+<a name="l00088"></a>00088     <span class="keywordtype">bool</span> hasPermissionData() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00089"></a>00089 
+<a name="l00093"></a>00093     <span class="keywordtype">bool</span> hasConflated() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00094"></a>00094 
+<a name="l00098"></a>00098     <span class="keywordtype">bool</span> hasPublisherId() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00099"></a>00099 
+<a name="l00103"></a>00103     Int32 getStreamId() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00104"></a>00104 
+<a name="l00108"></a>00108     UInt16 getDomainType() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00109"></a>00109 
+<a name="l00114"></a>00114     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; getName() <span class="keyword">const</span>;
+<a name="l00115"></a>00115 
+<a name="l00120"></a>00120     UInt8 getNameType() <span class="keyword">const</span>;
+<a name="l00121"></a>00121 
+<a name="l00126"></a>00126     UInt32 getServiceId() <span class="keyword">const</span>;
+<a name="l00127"></a>00127 
+<a name="l00132"></a>00132     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; getServiceName() <span class="keyword">const</span>;
+<a name="l00133"></a>00133 
+<a name="l00138"></a>00138     Int32 getId() <span class="keyword">const</span>;
+<a name="l00139"></a>00139 
+<a name="l00144"></a>00144     UInt32 getFilter() <span class="keyword">const</span>;
+<a name="l00145"></a>00145 
+<a name="l00150"></a>00150     <span class="keyword">const</span> <a class="code" href="a00066.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a>&amp; getExtendedHeader() <span class="keyword">const</span>;
+<a name="l00151"></a>00151 
+<a name="l00155"></a>00155     <span class="keyword">const</span> <a class="code" href="a00072.html" title="Node class represents all OMM container types.">Node</a>&amp; getAttrib() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00156"></a>00156 
+<a name="l00160"></a>00160     <span class="keyword">const</span> <a class="code" href="a00072.html" title="Node class represents all OMM container types.">Node</a>&amp; getPayload() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00161"></a>00161 
+<a name="l00165"></a>00165     UInt8 getUpdateTypeNum() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00166"></a>00166 
+<a name="l00171"></a>00171     UInt32 getSeqNum() <span class="keyword">const</span>;
+<a name="l00172"></a>00172 
+<a name="l00177"></a>00177     <span class="keyword">const</span> <a class="code" href="a00066.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a>&amp; getPermissionData() <span class="keyword">const</span>;
+<a name="l00178"></a>00178 
+<a name="l00183"></a>00183     UInt16 getConflatedTime() <span class="keyword">const</span>;
+<a name="l00184"></a>00184 
+<a name="l00189"></a>00189     UInt16 getConflatedCount() <span class="keyword">const</span>;
+<a name="l00190"></a>00190 
+<a name="l00195"></a>00195     UInt32 getPublisherIdUserId() <span class="keyword">const</span>;
+<a name="l00196"></a>00196 
+<a name="l00201"></a>00201     UInt32 getPublisherIdUserAddress() <span class="keyword">const</span>;
+<a name="l00202"></a>00202 
+<a name="l00206"></a>00206     <span class="keywordtype">bool</span> getDoNotCache() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00207"></a>00207 
+<a name="l00211"></a>00211     <span class="keywordtype">bool</span> getDoNotConflate() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00212"></a>00212 
+<a name="l00216"></a>00216     <span class="keywordtype">bool</span> getDoNotRipple() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00217"></a>00217 
+<a name="l00221"></a>00221     <span class="keyword">const</span> <a class="code" href="a00066.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a>&amp; getAsHex() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00222"></a>00222 
+<a name="l00227"></a>00227     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; toString() <span class="keyword">const</span>;
+<a name="l00228"></a>00228 
+<a name="l00231"></a>00231     operator const char* () <span class="keyword">const</span>;
+<a name="l00233"></a>00233 
+<a name="l00234"></a>00234 <span class="keyword">private</span>:
+<a name="l00235"></a>00235 
+<a name="l00236"></a>00236     <a class="code" href="a00094.html" title="UpdateInfo provides access to the information brought in by an update message.">UpdateInfo</a>();
+<a name="l00237"></a>00237     <span class="keyword">virtual</span> ~<a class="code" href="a00094.html" title="UpdateInfo provides access to the information brought in by an update message.">UpdateInfo</a>();
+<a name="l00238"></a>00238 
+<a name="l00239"></a>00239     UpdateInfoImpl*         _pUpdateInfoImpl;
+<a name="l00240"></a>00240 
+<a name="l00241"></a>00241     <span class="keyword">friend</span> <span class="keyword">class </span>ConsumerServiceImpl;
+<a name="l00242"></a>00242 
+<a name="l00243"></a>00243     <a class="code" href="a00094.html" title="UpdateInfo provides access to the information brought in by an update message.">UpdateInfo</a>( <span class="keyword">const</span> <a class="code" href="a00094.html" title="UpdateInfo provides access to the information brought in by an update message.">UpdateInfo</a>&amp; );
+<a name="l00244"></a>00244     <a class="code" href="a00094.html" title="UpdateInfo provides access to the information brought in by an update message.">UpdateInfo</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00094.html" title="UpdateInfo provides access to the information brought in by an update message.">UpdateInfo</a>&amp; );
+<a name="l00245"></a>00245 };
+<a name="l00246"></a>00246 
+<a name="l00247"></a>00247 }
+<a name="l00248"></a>00248 
+<a name="l00249"></a>00249 }
+<a name="l00250"></a>00250 
+<a name="l00251"></a>00251 }
+<a name="l00252"></a>00252 
+<a name="l00253"></a>00253 <span class="preprocessor">#endif // __thomsonreuters_eoa_foundation_updateinfo_h</span>
 </pre></div></div><!-- contents -->
 
 <hr class="footer"/><address class="footer"><small>
@@ -175,7 +244,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Dec 14 2015</td>
+			<td><p class="smallfont">Mon Feb 1 2016</td>
           </tr>
         </table>
         </td>

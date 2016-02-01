@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EOA: RmtesBuffer.h Source File</title>
+<title>EOA: ReqSpec.h Source File</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -103,83 +103,111 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div class="header">
   <div class="headertitle">
-<div class="title">RmtesBuffer.h</div>  </div>
+<div class="title">ReqSpec.h</div>  </div>
 </div><!--header-->
 <div class="contents">
 <div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 <span class="comment">/*|-----------------------------------------------------------------------------</span>
 <a name="l00002"></a>00002 <span class="comment"> *|            This source code is provided under the Apache 2.0 license      --</span>
 <a name="l00003"></a>00003 <span class="comment"> *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --</span>
 <a name="l00004"></a>00004 <span class="comment"> *|                See the project&#39;s LICENSE.md for details.                  --</span>
-<a name="l00005"></a>00005 <span class="comment"> *|           Copyright Thomson Reuters 2015. All rights reserved.            --</span>
+<a name="l00005"></a>00005 <span class="comment"> *|           Copyright Thomson Reuters 2016. All rights reserved.            --</span>
 <a name="l00006"></a>00006 <span class="comment"> *|-----------------------------------------------------------------------------</span>
 <a name="l00007"></a>00007 <span class="comment"> */</span>
 <a name="l00008"></a>00008 
-<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_eoa_foundation_rmtesbuffer_h</span>
-<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_eoa_foundation_rmtesbuffer_h</span>
+<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_eoa_foundation_reqspec_h</span>
+<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_eoa_foundation_reqspec_h</span>
 <a name="l00011"></a>00011 <span class="preprocessor"></span>
-<a name="l00022"></a>00022 <span class="preprocessor">#include &quot;<a class="code" href="a00099.html" title="Common.h file provides definitions of common variable types used in EOA.">Foundation/Include/Common.h</a>&quot;</span>
-<a name="l00023"></a>00023 
-<a name="l00024"></a>00024 <span class="keyword">namespace </span>thomsonreuters{
-<a name="l00025"></a>00025 
-<a name="l00026"></a>00026 <span class="keyword">namespace </span>eoa {
-<a name="l00027"></a>00027 
-<a name="l00028"></a>00028 <span class="keyword">namespace </span>foundation {
+<a name="l00028"></a>00028 <span class="preprocessor">#include &quot;<a class="code" href="a00100.html" title="Common.h file provides definitions of common variable types used in EOA.">Foundation/Include/Common.h</a>&quot;</span>
 <a name="l00029"></a>00029 
-<a name="l00030"></a>00030 <span class="keyword">class </span>EoaBuffer;
-<a name="l00031"></a>00031 <span class="keyword">class </span>EoaString;
-<a name="l00032"></a>00032 <span class="keyword">class </span>EoaBufferU16;
+<a name="l00030"></a>00030 <span class="keyword">namespace </span>thomsonreuters {
+<a name="l00031"></a>00031 
+<a name="l00032"></a>00032 <span class="keyword">namespace </span>eoa {
 <a name="l00033"></a>00033 
-<a name="l00034"></a><a class="code" href="a00089.html">00034</a> <span class="keyword">class </span>EOA_FOUNDATION_API <a class="code" href="a00089.html" title="RmtesBuffer represents RMTES data.">RmtesBuffer</a>
-<a name="l00035"></a>00035 {
-<a name="l00036"></a>00036 <span class="keyword">public</span> :
-<a name="l00037"></a>00037 
+<a name="l00034"></a>00034 <span class="keyword">namespace </span>foundation {
+<a name="l00035"></a>00035 
+<a name="l00036"></a>00036 <span class="keyword">class </span>EoaBuffer;
+<a name="l00037"></a>00037 <span class="keyword">class </span>EoaString;
+<a name="l00038"></a>00038 <span class="keyword">class </span>Node;
 <a name="l00039"></a>00039 
-<a name="l00040"></a>00040 
-<a name="l00042"></a>00042     <a class="code" href="a00089.html" title="RmtesBuffer represents RMTES data.">RmtesBuffer</a>();
-<a name="l00043"></a>00043 
-<a name="l00049"></a>00049     <a class="code" href="a00089.html" title="RmtesBuffer represents RMTES data.">RmtesBuffer</a>( UInt32 length );
-<a name="l00050"></a>00050 
-<a name="l00056"></a>00056     <a class="code" href="a00089.html" title="RmtesBuffer represents RMTES data.">RmtesBuffer</a>( <span class="keyword">const</span> <a class="code" href="a00089.html" title="RmtesBuffer represents RMTES data.">RmtesBuffer</a>&amp; buf );
-<a name="l00058"></a>00058 
-<a name="l00060"></a>00060 
+<a name="l00040"></a>00040 <span class="keyword">class </span>ReqSpecImpl;
+<a name="l00041"></a>00041 
+<a name="l00042"></a><a class="code" href="a00088.html">00042</a> <span class="keyword">class </span>EOA_FOUNDATION_API <a class="code" href="a00088.html" title="ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>
+<a name="l00043"></a>00043 {
+<a name="l00044"></a>00044 <span class="keyword">public</span>:
+<a name="l00045"></a>00045 
+<a name="l00049"></a><a class="code" href="a00088.html#adff470d0cba871b3255338ffb1d3de8d">00049</a>     <span class="keyword">enum</span> <a class="code" href="a00088.html#adff470d0cba871b3255338ffb1d3de8d">Rate</a>
+<a name="l00050"></a>00050     {
+<a name="l00051"></a><a class="code" href="a00088.html#adff470d0cba871b3255338ffb1d3de8dafcd62b687a114167f9b69e38ccfcc89c">00051</a>         TickByTickEnum = 0,                     
+<a name="l00054"></a><a class="code" href="a00088.html#adff470d0cba871b3255338ffb1d3de8dada36f0d5cfccebc6a2f58912640e1a3a">00054</a>         JustInTimeConflatedEnum = 0xFFFFFF00,   
+<a name="l00057"></a><a class="code" href="a00088.html#adff470d0cba871b3255338ffb1d3de8da8304fffc8c092fd93440ecb5b383b469">00057</a>         BestConflatedRateEnum = 0xFFFFFFFF,     
+<a name="l00059"></a><a class="code" href="a00088.html#adff470d0cba871b3255338ffb1d3de8da3235f13f350d54158c4c4065967e5939">00059</a>         BestRateEnum = 0xFFFFFFFE               
+<a name="l00060"></a>00060     };
 <a name="l00061"></a>00061 
-<a name="l00063"></a>00063     <span class="keyword">virtual</span> ~<a class="code" href="a00089.html" title="RmtesBuffer represents RMTES data.">RmtesBuffer</a>();
-<a name="l00065"></a>00065 
-<a name="l00067"></a>00067 
-<a name="l00068"></a>00068 
-<a name="l00073"></a>00073     <span class="keyword">const</span> <a class="code" href="a00066.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a>&amp; getAsUTF8() <span class="keyword">const</span>;
+<a name="l00065"></a><a class="code" href="a00088.html#a5507e16bc5800434f973ab990919aa9b">00065</a>     <span class="keyword">enum</span> <a class="code" href="a00088.html#a5507e16bc5800434f973ab990919aa9b">Timeliness</a>
+<a name="l00066"></a>00066     {
+<a name="l00067"></a><a class="code" href="a00088.html#a5507e16bc5800434f973ab990919aa9ba36742777e339992c5845a8d7435b9826">00067</a>         RealTimeEnum = 0,                           
+<a name="l00070"></a><a class="code" href="a00088.html#a5507e16bc5800434f973ab990919aa9bafcebadf35e5b1f8fba89542b6d09f221">00070</a>         BestDelayedTimelinessEnum = 0xFFFFFFFF,     
+<a name="l00072"></a><a class="code" href="a00088.html#a5507e16bc5800434f973ab990919aa9ba9585aad1081e531e1f949bfd32059345">00072</a>         BestTimelinessEnum = 0xFFFFFFFE             
+<a name="l00073"></a>00073     };
 <a name="l00074"></a>00074 
-<a name="l00080"></a>00080     <span class="keyword">const</span> <a class="code" href="a00067.html" title="EoaBufferU16 represents general use binary buffer.">EoaBufferU16</a>&amp; getAsUTF16() <span class="keyword">const</span>;
-<a name="l00081"></a>00081 
-<a name="l00087"></a>00087     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; toString() <span class="keyword">const</span>;
-<a name="l00089"></a>00089 
+<a name="l00076"></a>00076 
+<a name="l00077"></a>00077 
+<a name="l00079"></a>00079     <a class="code" href="a00088.html" title="ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>();
+<a name="l00080"></a>00080 
+<a name="l00084"></a>00084     <a class="code" href="a00088.html" title="ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>( <span class="keyword">const</span> <a class="code" href="a00088.html" title="ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; );
+<a name="l00085"></a>00085 
+<a name="l00089"></a>00089     <a class="code" href="a00088.html" title="ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>( <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; name );
 <a name="l00091"></a>00091 
-<a name="l00092"></a>00092 
-<a name="l00095"></a>00095     <a class="code" href="a00089.html" title="RmtesBuffer represents RMTES data.">RmtesBuffer</a>&amp; clear();
-<a name="l00096"></a>00096 
-<a name="l00103"></a>00103     <a class="code" href="a00089.html" title="RmtesBuffer represents RMTES data.">RmtesBuffer</a>&amp; apply( <span class="keyword">const</span> <a class="code" href="a00089.html" title="RmtesBuffer represents RMTES data.">RmtesBuffer</a>&amp; buf );
-<a name="l00105"></a>00105 
-<a name="l00106"></a>00106 <span class="keyword">private</span> :
-<a name="l00107"></a>00107 
-<a name="l00108"></a>00108     <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="a00091.html" title="Tag class represents Component name or id.">Tag</a>;
-<a name="l00109"></a>00109     <span class="keyword">friend</span> <span class="keyword">class </span>LeafDecoder;
-<a name="l00110"></a>00110     <span class="keyword">friend</span> <span class="keyword">class </span>CacheLeaf;
-<a name="l00111"></a>00111 
-<a name="l00112"></a>00112     <span class="keywordtype">void</span> setHexData( <span class="keyword">const</span> <span class="keywordtype">char</span>* , UInt32 );
-<a name="l00113"></a>00113 
-<a name="l00114"></a>00114     UInt64              _rmtesSpace[24];
-<a name="l00115"></a>00115     <span class="keyword">mutable</span> UInt16      _bufferSpace[24];
-<a name="l00116"></a>00116     <span class="keyword">mutable</span> UInt16      _stringSpace[24];
-<a name="l00117"></a>00117     <span class="keyword">mutable</span> UInt16      _bufferU16Space[25];
-<a name="l00118"></a>00118 };
+<a name="l00093"></a>00093 
+<a name="l00094"></a>00094 
+<a name="l00096"></a>00096     <span class="keyword">virtual</span> ~<a class="code" href="a00088.html" title="ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>();
+<a name="l00098"></a>00098 
+<a name="l00100"></a>00100 
+<a name="l00101"></a>00101 
+<a name="l00105"></a>00105     <a class="code" href="a00088.html" title="ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00088.html" title="ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; );
+<a name="l00106"></a>00106 
+<a name="l00111"></a>00111     <a class="code" href="a00088.html" title="ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; streamId( Int32 <span class="keywordtype">id</span> );
+<a name="l00112"></a>00112 
+<a name="l00118"></a>00118     <a class="code" href="a00088.html" title="ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; domainType( UInt16 domainType = 6 );
 <a name="l00119"></a>00119 
-<a name="l00120"></a>00120 }
-<a name="l00121"></a>00121 
-<a name="l00122"></a>00122 }
-<a name="l00123"></a>00123 
-<a name="l00124"></a>00124 }
-<a name="l00125"></a>00125 
-<a name="l00126"></a>00126 <span class="preprocessor">#endif // __thomsonreuters_eoa_foundation_rmtesbuffer_h</span>
+<a name="l00125"></a>00125     <a class="code" href="a00088.html" title="ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; name( <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; name );
+<a name="l00126"></a>00126 
+<a name="l00131"></a>00131     <a class="code" href="a00088.html" title="ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; nameType( UInt8 nameType );
+<a name="l00132"></a>00132 
+<a name="l00137"></a>00137     <a class="code" href="a00088.html" title="ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; id( Int32 <span class="keywordtype">id</span> );
+<a name="l00138"></a>00138 
+<a name="l00143"></a>00143     <a class="code" href="a00088.html" title="ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; filter( UInt32 filter );
+<a name="l00144"></a>00144 
+<a name="l00150"></a>00150     <a class="code" href="a00088.html" title="ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; priority( UInt8 priorityClass = 1, UInt16 priorityCount = 1 );
+<a name="l00151"></a>00151 
+<a name="l00157"></a>00157     <a class="code" href="a00088.html" title="ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; qos( Int32 timeliness = BestTimelinessEnum , Int32 rate = BestRateEnum );
+<a name="l00158"></a>00158 
+<a name="l00164"></a>00164     <a class="code" href="a00088.html" title="ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; attrib( <span class="keyword">const</span> <a class="code" href="a00072.html" title="Node class represents all OMM container types.">Node</a>&amp; attrib );
+<a name="l00165"></a>00165 
+<a name="l00171"></a>00171     <a class="code" href="a00088.html" title="ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; payload( <span class="keyword">const</span> <a class="code" href="a00072.html" title="Node class represents all OMM container types.">Node</a>&amp; payload );
+<a name="l00172"></a>00172 
+<a name="l00178"></a>00178     <a class="code" href="a00088.html" title="ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; extendedHeader( <span class="keyword">const</span> <a class="code" href="a00066.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a>&amp; extendedHeader );
+<a name="l00179"></a>00179 
+<a name="l00184"></a>00184     <a class="code" href="a00088.html" title="ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; conflatedInUpdates( <span class="keywordtype">bool</span> conflatedInUpdates = <span class="keyword">false</span> );
+<a name="l00185"></a>00185 
+<a name="l00190"></a>00190     <a class="code" href="a00088.html" title="ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; privateStream( <span class="keywordtype">bool</span> privateStream = <span class="keyword">false</span> );
+<a name="l00191"></a>00191 
+<a name="l00196"></a>00196     <a class="code" href="a00088.html" title="ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; clear();
+<a name="l00198"></a>00198 
+<a name="l00199"></a>00199 <span class="keyword">private</span>:
+<a name="l00200"></a>00200 
+<a name="l00201"></a>00201     ReqSpecImpl*        _pReqSpecImpl;
+<a name="l00202"></a>00202 
+<a name="l00203"></a>00203     <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="a00063.html" title="ConsumerService represents a service provided by the platform.">ConsumerService</a>;
+<a name="l00204"></a>00204 };
+<a name="l00205"></a>00205 
+<a name="l00206"></a>00206 }
+<a name="l00207"></a>00207 
+<a name="l00208"></a>00208 }
+<a name="l00209"></a>00209 
+<a name="l00210"></a>00210 }
+<a name="l00211"></a>00211 
+<a name="l00212"></a>00212 <span class="preprocessor">#endif //__thomsonreuters_eoa_foundation_reqspec_h</span>
 </pre></div></div><!-- contents -->
 
 <hr class="footer"/><address class="footer"><small>
@@ -197,7 +225,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Dec 14 2015</td>
+			<td><p class="smallfont">Mon Feb 1 2016</td>
           </tr>
         </table>
         </td>

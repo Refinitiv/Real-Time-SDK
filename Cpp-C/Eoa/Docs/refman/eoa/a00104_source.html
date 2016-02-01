@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EOA: ConsumerNodeStoreClient.h Source File</title>
+<title>EOA: ConsumerItemClient.h Source File</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -103,50 +103,66 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div class="header">
   <div class="headertitle">
-<div class="title">ConsumerNodeStoreClient.h</div>  </div>
+<div class="title">ConsumerItemClient.h</div>  </div>
 </div><!--header-->
 <div class="contents">
 <div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 <span class="comment">/*|-----------------------------------------------------------------------------</span>
 <a name="l00002"></a>00002 <span class="comment"> *|            This source code is provided under the Apache 2.0 license      --</span>
 <a name="l00003"></a>00003 <span class="comment"> *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --</span>
 <a name="l00004"></a>00004 <span class="comment"> *|                See the project&#39;s LICENSE.md for details.                  --</span>
-<a name="l00005"></a>00005 <span class="comment"> *|           Copyright Thomson Reuters 2015. All rights reserved.            --</span>
+<a name="l00005"></a>00005 <span class="comment"> *|           Copyright Thomson Reuters 2016. All rights reserved.            --</span>
 <a name="l00006"></a>00006 <span class="comment"> *|-----------------------------------------------------------------------------</span>
 <a name="l00007"></a>00007 <span class="comment"> */</span>
 <a name="l00008"></a>00008 
-<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_eoa_foundation_consumernodestoreclient_h</span>
-<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_eoa_foundation_consumernodestoreclient_h</span>
+<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_eoa_foundation_consumeritemclient_h</span>
+<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_eoa_foundation_consumeritemclient_h</span>
 <a name="l00011"></a>00011 <span class="preprocessor"></span>
-<a name="l00012"></a>00012 <span class="preprocessor">#include &quot;<a class="code" href="a00099.html" title="Common.h file provides definitions of common variable types used in EOA.">Foundation/Include/Common.h</a>&quot;</span>
-<a name="l00013"></a>00013 
-<a name="l00021"></a>00021 <span class="keyword">namespace </span>thomsonreuters {
-<a name="l00022"></a>00022 
-<a name="l00023"></a>00023 <span class="keyword">namespace </span>eoa {
-<a name="l00024"></a>00024 
-<a name="l00025"></a>00025 <span class="keyword">namespace </span>foundation {
+<a name="l00025"></a>00025 <span class="preprocessor">#include &quot;<a class="code" href="a00100.html" title="Common.h file provides definitions of common variable types used in EOA.">Foundation/Include/Common.h</a>&quot;</span>
 <a name="l00026"></a>00026 
-<a name="l00027"></a>00027 <span class="keyword">class </span>Node;
+<a name="l00027"></a>00027 <span class="keyword">namespace </span>thomsonreuters {
 <a name="l00028"></a>00028 
-<a name="l00029"></a><a class="code" href="a00062.html">00029</a> <span class="keyword">class </span>EOA_FOUNDATION_API <a class="code" href="a00062.html" title="ConsumerNodeStoreClient class is a callback client through which app gets notifications about changes...">ConsumerNodeStoreClient</a>
-<a name="l00030"></a>00030 {
-<a name="l00031"></a>00031 <span class="keyword">public</span> :
+<a name="l00029"></a>00029 <span class="keyword">namespace </span>eoa {
+<a name="l00030"></a>00030 
+<a name="l00031"></a>00031 <span class="keyword">namespace </span>foundation {
 <a name="l00032"></a>00032 
-<a name="l00033"></a>00033     <span class="keyword">virtual</span> <span class="keywordtype">void</span> OnConsumerNodeStoreAppend( <span class="keyword">const</span> <a class="code" href="a00072.html" title="Node class represents all OMM container types.">Node</a>&amp; current ) {};
-<a name="l00034"></a>00034 
-<a name="l00035"></a>00035     <span class="keyword">virtual</span> <span class="keywordtype">void</span> OnConsumerNodeStoreReplace( <span class="keyword">const</span> <a class="code" href="a00072.html" title="Node class represents all OMM container types.">Node</a>&amp; current ) {};
-<a name="l00036"></a>00036 
-<a name="l00037"></a>00037     <span class="keyword">virtual</span> <span class="keywordtype">void</span> OnConsumerNodeStoreChange( <span class="keyword">const</span> <a class="code" href="a00072.html" title="Node class represents all OMM container types.">Node</a>&amp; current, <span class="keyword">const</span> <a class="code" href="a00072.html" title="Node class represents all OMM container types.">Node</a>&amp; change ) {};
-<a name="l00038"></a>00038 
-<a name="l00039"></a>00039     <span class="keyword">virtual</span> <span class="keywordtype">void</span> OnConsumerNodeStoreRemove( <span class="keyword">const</span> <a class="code" href="a00072.html" title="Node class represents all OMM container types.">Node</a>&amp; current ) {};
-<a name="l00040"></a>00040 };
+<a name="l00033"></a>00033 <span class="keyword">class </span>ConsumerItem;
+<a name="l00034"></a>00034 <span class="keyword">class </span>RefreshInfo;
+<a name="l00035"></a>00035 <span class="keyword">class </span>StatusInfo;
+<a name="l00036"></a>00036 <span class="keyword">class </span>UpdateInfo;
+<a name="l00037"></a>00037 
+<a name="l00038"></a><a class="code" href="a00061.html">00038</a> <span class="keyword">class </span>EOA_FOUNDATION_API <a class="code" href="a00061.html" title="ConsumerItemClient class provides callback interfaces notifying application about changes to register...">ConsumerItemClient</a>
+<a name="l00039"></a>00039 {
+<a name="l00040"></a>00040 <span class="keyword">public</span>:
 <a name="l00041"></a>00041 
-<a name="l00042"></a>00042 }
 <a name="l00043"></a>00043 
-<a name="l00044"></a>00044 }
-<a name="l00045"></a>00045 
-<a name="l00046"></a>00046 }
-<a name="l00047"></a>00047 
-<a name="l00048"></a>00048 <span class="preprocessor">#endif // __thomsonreuters_eoa_foundation_consumernodestoreclient_h</span>
+<a name="l00044"></a>00044 
+<a name="l00050"></a><a class="code" href="a00061.html#a332a7414148107dc6cbda2b3cfc7005e">00050</a>     <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="a00061.html#a332a7414148107dc6cbda2b3cfc7005e">onConsumerItemSync</a>( <span class="keyword">const</span> <a class="code" href="a00060.html" title="ConsumerItem provides access to item&#39;s key, state, attribute and payload.">ConsumerItem</a>&amp; current, <span class="keyword">const</span> <a class="code" href="a00087.html" title="RefreshInfo provides access to the information brought in by a refresh message.">RefreshInfo</a>&amp; change, <span class="keywordtype">void</span>* closure ) {}
+<a name="l00051"></a>00051 
+<a name="l00058"></a><a class="code" href="a00061.html#a967add14002dd6e0a41c27d0cff2c330">00058</a>     <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="a00061.html#a967add14002dd6e0a41c27d0cff2c330">onConsumerItemUpdate</a>( <span class="keyword">const</span> <a class="code" href="a00060.html" title="ConsumerItem provides access to item&#39;s key, state, attribute and payload.">ConsumerItem</a>&amp; current, <span class="keyword">const</span> <a class="code" href="a00094.html" title="UpdateInfo provides access to the information brought in by an update message.">UpdateInfo</a>&amp; change, <span class="keywordtype">void</span>* closure ) {}
+<a name="l00059"></a>00059 
+<a name="l00066"></a><a class="code" href="a00061.html#ab4c6c68c83daea21af2756d182e30124">00066</a>     <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="a00061.html#ab4c6c68c83daea21af2756d182e30124">onConsumerItemStatus</a>( <span class="keyword">const</span> <a class="code" href="a00060.html" title="ConsumerItem provides access to item&#39;s key, state, attribute and payload.">ConsumerItem</a>&amp; current, <span class="keyword">const</span> <a class="code" href="a00090.html" title="StatusInfo provides access to the information brought in by a status message.">StatusInfo</a>&amp; change, <span class="keywordtype">void</span>* closure ) {}
+<a name="l00067"></a>00067 
+<a name="l00074"></a><a class="code" href="a00061.html#a054fa801d4ae03aec7e1d6e5e19e70ec">00074</a>     <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="a00061.html#a054fa801d4ae03aec7e1d6e5e19e70ec">onConsumerItemPartial</a>( <span class="keyword">const</span> <a class="code" href="a00060.html" title="ConsumerItem provides access to item&#39;s key, state, attribute and payload.">ConsumerItem</a>&amp; current, <span class="keyword">const</span> <a class="code" href="a00087.html" title="RefreshInfo provides access to the information brought in by a refresh message.">RefreshInfo</a>&amp; change, <span class="keywordtype">void</span>* closure ) {}
+<a name="l00076"></a>00076 
+<a name="l00077"></a>00077 <span class="keyword">protected</span>:
+<a name="l00078"></a>00078 
+<a name="l00079"></a>00079     <a class="code" href="a00061.html" title="ConsumerItemClient class provides callback interfaces notifying application about changes to register...">ConsumerItemClient</a>();
+<a name="l00080"></a>00080 
+<a name="l00081"></a>00081     <span class="keyword">virtual</span> ~<a class="code" href="a00061.html" title="ConsumerItemClient class provides callback interfaces notifying application about changes to register...">ConsumerItemClient</a>();
+<a name="l00082"></a>00082     
+<a name="l00083"></a>00083 <span class="keyword">private</span>:
+<a name="l00084"></a>00084 
+<a name="l00085"></a>00085     <a class="code" href="a00061.html" title="ConsumerItemClient class provides callback interfaces notifying application about changes to register...">ConsumerItemClient</a>( <span class="keyword">const</span> <a class="code" href="a00061.html" title="ConsumerItemClient class provides callback interfaces notifying application about changes to register...">ConsumerItemClient</a>&amp; );
+<a name="l00086"></a>00086     <a class="code" href="a00061.html" title="ConsumerItemClient class provides callback interfaces notifying application about changes to register...">ConsumerItemClient</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00061.html" title="ConsumerItemClient class provides callback interfaces notifying application about changes to register...">ConsumerItemClient</a>&amp; );
+<a name="l00087"></a>00087 };
+<a name="l00088"></a>00088 
+<a name="l00089"></a>00089 }
+<a name="l00090"></a>00090 
+<a name="l00091"></a>00091 }
+<a name="l00092"></a>00092 
+<a name="l00093"></a>00093 }
+<a name="l00094"></a>00094 
+<a name="l00095"></a>00095 <span class="preprocessor">#endif // __thomsonreuters_eoa_foundation_consumeritemclient_h</span>
 </pre></div></div><!-- contents -->
 
 <hr class="footer"/><address class="footer"><small>
@@ -164,7 +180,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Dec 14 2015</td>
+			<td><p class="smallfont">Mon Feb 1 2016</td>
           </tr>
         </table>
         </td>

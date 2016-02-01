@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2016. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -155,8 +155,9 @@ public :
 private :
 
 	friend class Tag;
-	friend class LeafDecoder;
 	friend class Decoder;
+	friend class LeafImplDecoder;
+	friend class NoLeafDecoder;
 	friend class CacheLeaf;
 
 	Int64					_mantissa;

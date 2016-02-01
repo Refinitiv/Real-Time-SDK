@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EOA: OmmException.h Source File</title>
+<title>EOA: OmmDateTime.h Source File</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -103,83 +103,102 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div class="header">
   <div class="headertitle">
-<div class="title">OmmException.h</div>  </div>
+<div class="title">OmmDateTime.h</div>  </div>
 </div><!--header-->
 <div class="contents">
 <div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 <span class="comment">/*|-----------------------------------------------------------------------------</span>
 <a name="l00002"></a>00002 <span class="comment"> *|            This source code is provided under the Apache 2.0 license      --</span>
 <a name="l00003"></a>00003 <span class="comment"> *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --</span>
 <a name="l00004"></a>00004 <span class="comment"> *|                See the project&#39;s LICENSE.md for details.                  --</span>
-<a name="l00005"></a>00005 <span class="comment"> *|           Copyright Thomson Reuters 2015. All rights reserved.            --</span>
+<a name="l00005"></a>00005 <span class="comment"> *|           Copyright Thomson Reuters 2016. All rights reserved.            --</span>
 <a name="l00006"></a>00006 <span class="comment"> *|-----------------------------------------------------------------------------</span>
 <a name="l00007"></a>00007 <span class="comment"> */</span>
 <a name="l00008"></a>00008 
-<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_eoa_foundation_ommexception_h</span>
-<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_eoa_foundation_ommexception_h</span>
+<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_eoa_foundation_ommdatetime_h</span>
+<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_eoa_foundation_ommdatetime_h</span>
 <a name="l00011"></a>00011 <span class="preprocessor"></span>
-<a name="l00024"></a>00024 <span class="preprocessor">#define MAX_SIZE 2048</span>
-<a name="l00025"></a>00025 <span class="preprocessor"></span><span class="preprocessor">#define PADDING 256</span>
-<a name="l00026"></a>00026 <span class="preprocessor"></span>
-<a name="l00027"></a>00027 <span class="preprocessor">#include &quot;<a class="code" href="a00099.html" title="Common.h file provides definitions of common variable types used in EOA.">Foundation/Include/Common.h</a>&quot;</span>
-<a name="l00028"></a>00028 
-<a name="l00029"></a>00029 <span class="keyword">namespace </span>thomsonreuters {
+<a name="l00028"></a>00028 <span class="preprocessor">#include &quot;Foundation/Include/DataType.h&quot;</span>
+<a name="l00029"></a>00029 <span class="preprocessor">#include &quot;Foundation/Include/EoaString.h&quot;</span>
 <a name="l00030"></a>00030 
-<a name="l00031"></a>00031 <span class="keyword">namespace </span>eoa {
+<a name="l00031"></a>00031 <span class="keyword">namespace </span>thomsonreuters {
 <a name="l00032"></a>00032 
-<a name="l00033"></a>00033 <span class="keyword">namespace </span>foundation {
+<a name="l00033"></a>00033 <span class="keyword">namespace </span>eoa {
 <a name="l00034"></a>00034 
-<a name="l00035"></a>00035 <span class="keyword">class </span>EoaString;
+<a name="l00035"></a>00035 <span class="keyword">namespace </span>foundation {
 <a name="l00036"></a>00036 
-<a name="l00037"></a><a class="code" href="a00076.html">00037</a> <span class="keyword">class </span>EOA_FOUNDATION_API <a class="code" href="a00076.html" title="OmmException is a parent class for all exception types thrown by EOA.">OmmException</a>
-<a name="l00038"></a>00038 {
-<a name="l00039"></a>00039 <span class="keyword">public</span> :
-<a name="l00040"></a>00040 
-<a name="l00044"></a><a class="code" href="a00076.html#ada020f6db0483637b44e49f960296ab1">00044</a>     <span class="keyword">enum</span> <a class="code" href="a00076.html#ada020f6db0483637b44e49f960296ab1">ExceptionType</a>
-<a name="l00045"></a>00045     {
-<a name="l00046"></a><a class="code" href="a00076.html#ada020f6db0483637b44e49f960296ab1a119d108a837cc6a92c7fb86f7a579be7">00046</a>         <a class="code" href="a00076.html#ada020f6db0483637b44e49f960296ab1a119d108a837cc6a92c7fb86f7a579be7">OmmInvalidUsageExceptionEnum</a>,               
-<a name="l00048"></a><a class="code" href="a00076.html#ada020f6db0483637b44e49f960296ab1aa92da5659db50aecfafec6c15fdf8786">00048</a>         <a class="code" href="a00076.html#ada020f6db0483637b44e49f960296ab1aa92da5659db50aecfafec6c15fdf8786">OmmOutOfRangeExceptionEnum</a>,                 
-<a name="l00050"></a><a class="code" href="a00076.html#ada020f6db0483637b44e49f960296ab1ac3b6710ca32b913ca41bfdb2533c4c4e">00050</a>         <a class="code" href="a00076.html#ada020f6db0483637b44e49f960296ab1ac3b6710ca32b913ca41bfdb2533c4c4e">OmmMemoryExhaustionExceptionEnum</a>,           
-<a name="l00052"></a><a class="code" href="a00076.html#ada020f6db0483637b44e49f960296ab1a0c1e0dd08fa0676f9f72725ad898a343">00052</a>         <a class="code" href="a00076.html#ada020f6db0483637b44e49f960296ab1a0c1e0dd08fa0676f9f72725ad898a343">OmmInaccessibleLogFileExceptionEnum</a>,        
-<a name="l00054"></a><a class="code" href="a00076.html#ada020f6db0483637b44e49f960296ab1a26e523a80d7bce8760799ab932dd9d80">00054</a>         OmmUnsupportedDomainTypeExceptionEnum       
-<a name="l00055"></a>00055     };
-<a name="l00056"></a>00056 
-<a name="l00058"></a>00058 
+<a name="l00037"></a>00037 <span class="keyword">class </span>EoaBuffer;
+<a name="l00038"></a>00038 
+<a name="l00039"></a><a class="code" href="a00075.html">00039</a> <span class="keyword">class </span>EOA_FOUNDATION_API <a class="code" href="a00075.html" title="OmmDateTime represents DateTime info in Omm.">OmmDateTime</a>
+<a name="l00040"></a>00040 {
+<a name="l00041"></a>00041 <span class="keyword">public</span> :
+<a name="l00042"></a>00042 
+<a name="l00044"></a>00044 
+<a name="l00045"></a>00045 
+<a name="l00048"></a>00048     UInt16 getYear() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00049"></a>00049 
+<a name="l00053"></a>00053     UInt8 getMonth() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00054"></a>00054 
+<a name="l00058"></a>00058     UInt8 getDay() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
 <a name="l00059"></a>00059 
-<a name="l00062"></a>00062     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; getExceptionTypeAsString() <span class="keyword">const</span>;
-<a name="l00063"></a>00063 
-<a name="l00067"></a>00067     <span class="keyword">virtual</span> ExceptionType getExceptionType() <span class="keyword">const</span> = 0;
-<a name="l00068"></a>00068 
-<a name="l00072"></a>00072     <span class="keyword">virtual</span> <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; getText() <span class="keyword">const</span> = 0;
-<a name="l00073"></a>00073 
-<a name="l00077"></a>00077     <span class="keyword">virtual</span> <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; toString() <span class="keyword">const</span> = 0;
-<a name="l00078"></a>00078 
-<a name="l00081"></a>00081     operator const char*() <span class="keyword">const</span>;
-<a name="l00083"></a>00083 
-<a name="l00084"></a>00084 <span class="keyword">protected</span> :
-<a name="l00085"></a>00085 
-<a name="l00086"></a>00086     <a class="code" href="a00076.html" title="OmmException is a parent class for all exception types thrown by EOA.">OmmException</a>();
-<a name="l00087"></a>00087     <span class="keyword">virtual</span> ~<a class="code" href="a00076.html" title="OmmException is a parent class for all exception types thrown by EOA.">OmmException</a>();
-<a name="l00088"></a>00088 
-<a name="l00089"></a>00089     <a class="code" href="a00076.html" title="OmmException is a parent class for all exception types thrown by EOA.">OmmException</a>&amp; statusText( <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; statusText );
-<a name="l00090"></a>00090     <a class="code" href="a00076.html" title="OmmException is a parent class for all exception types thrown by EOA.">OmmException</a>&amp; statusText( <span class="keyword">const</span> <span class="keywordtype">char</span>* statusText );
-<a name="l00091"></a>00091 
-<a name="l00092"></a>00092     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; toStringInt() <span class="keyword">const</span>;
-<a name="l00093"></a>00093 
-<a name="l00094"></a>00094     UInt32                      _errorTextLength;
-<a name="l00095"></a>00095     <span class="keyword">mutable</span> <span class="keywordtype">char</span>                _errorText[MAX_SIZE];
-<a name="l00096"></a>00096     <span class="keyword">mutable</span> <span class="keywordtype">char</span>                _space[MAX_SIZE + PADDING];
-<a name="l00097"></a>00097 
-<a name="l00098"></a>00098     <a class="code" href="a00076.html" title="OmmException is a parent class for all exception types thrown by EOA.">OmmException</a>( <span class="keyword">const</span> <a class="code" href="a00076.html" title="OmmException is a parent class for all exception types thrown by EOA.">OmmException</a>&amp; );
-<a name="l00099"></a>00099     <a class="code" href="a00076.html" title="OmmException is a parent class for all exception types thrown by EOA.">OmmException</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00076.html" title="OmmException is a parent class for all exception types thrown by EOA.">OmmException</a>&amp; );
-<a name="l00100"></a>00100 };
-<a name="l00101"></a>00101 
-<a name="l00102"></a>00102 }
-<a name="l00103"></a>00103 
-<a name="l00104"></a>00104 }
-<a name="l00105"></a>00105 
-<a name="l00106"></a>00106 }
-<a name="l00107"></a>00107 
-<a name="l00108"></a>00108 <span class="preprocessor">#endif // __thomsonreuters_eoa_foundation_ommexception_h</span>
+<a name="l00063"></a>00063     UInt8 getHour() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00064"></a>00064 
+<a name="l00068"></a>00068     UInt8 getMinute() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00069"></a>00069 
+<a name="l00073"></a>00073     UInt8 getSecond() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00074"></a>00074 
+<a name="l00078"></a>00078     UInt16 getMillisecond() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00079"></a>00079 
+<a name="l00083"></a>00083     UInt16 getMicrosecond() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00084"></a>00084 
+<a name="l00088"></a>00088     UInt16 getNanosecond() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00089"></a>00089 
+<a name="l00093"></a>00093     <span class="keyword">const</span> <a class="code" href="a00066.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a>&amp; getAsHex() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00094"></a>00094 
+<a name="l00099"></a>00099     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; toString() <span class="keyword">const</span>;
+<a name="l00100"></a>00100 
+<a name="l00104"></a>00104     operator const char* () <span class="keyword">const</span>;
+<a name="l00106"></a>00106 
+<a name="l00107"></a>00107 <span class="keyword">private</span> :
+<a name="l00108"></a>00108 
+<a name="l00109"></a>00109     <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="a00091.html" title="Tag class represents Component name or id.">Tag</a>;
+<a name="l00110"></a>00110     <span class="keyword">friend</span> <span class="keyword">class </span>Decoder;
+<a name="l00111"></a>00111     <span class="keyword">friend</span> <span class="keyword">class </span>LeafImplDecoder;
+<a name="l00112"></a>00112     <span class="keyword">friend</span> <span class="keyword">class </span>NoLeafDecoder;
+<a name="l00113"></a>00113     <span class="keyword">friend</span> <span class="keyword">class </span>CacheLeaf;
+<a name="l00114"></a>00114 
+<a name="l00115"></a>00115     UInt16                  _year;
+<a name="l00116"></a>00116     UInt8                   _month;
+<a name="l00117"></a>00117     UInt8                   _day;
+<a name="l00118"></a>00118     UInt8                   _hour;
+<a name="l00119"></a>00119     UInt8                   _minute;
+<a name="l00120"></a>00120     UInt8                   _second;
+<a name="l00121"></a>00121     UInt16                  _millisecond;
+<a name="l00122"></a>00122     UInt16                  _microsecond;
+<a name="l00123"></a>00123     UInt16                  _nanosecond;
+<a name="l00124"></a>00124     <span class="keywordtype">bool</span>                    _isLocal;
+<a name="l00125"></a>00125 
+<a name="l00126"></a>00126     <span class="keyword">const</span> <span class="keywordtype">void</span>*             _ptr;
+<a name="l00127"></a>00127     <span class="keyword">mutable</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>       _toString;
+<a name="l00128"></a>00128     <span class="keyword">mutable</span> UInt16          _eoaBuffer[24];
+<a name="l00129"></a>00129 
+<a name="l00130"></a>00130     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; toString( UInt64 indent ) <span class="keyword">const</span>;
+<a name="l00131"></a>00131 
+<a name="l00132"></a>00132     <a class="code" href="a00075.html" title="OmmDateTime represents DateTime info in Omm.">OmmDateTime</a>( UInt16 year, UInt8 month, UInt8 day, UInt8 hour, UInt8 minute, UInt8 second, 
+<a name="l00133"></a>00133                 UInt16  millisecond, UInt16 microsecond, UInt16 nanosecond );
+<a name="l00134"></a>00134 
+<a name="l00135"></a>00135     <a class="code" href="a00075.html" title="OmmDateTime represents DateTime info in Omm.">OmmDateTime</a>();
+<a name="l00136"></a>00136     <span class="keyword">virtual</span> ~<a class="code" href="a00075.html" title="OmmDateTime represents DateTime info in Omm.">OmmDateTime</a>();
+<a name="l00137"></a>00137     <a class="code" href="a00075.html" title="OmmDateTime represents DateTime info in Omm.">OmmDateTime</a>( <span class="keyword">const</span> <a class="code" href="a00075.html" title="OmmDateTime represents DateTime info in Omm.">OmmDateTime</a>&amp; );
+<a name="l00138"></a>00138     <a class="code" href="a00075.html" title="OmmDateTime represents DateTime info in Omm.">OmmDateTime</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00075.html" title="OmmDateTime represents DateTime info in Omm.">OmmDateTime</a>&amp; );
+<a name="l00139"></a>00139 };
+<a name="l00140"></a>00140 
+<a name="l00141"></a>00141 }
+<a name="l00142"></a>00142 
+<a name="l00143"></a>00143 }
+<a name="l00144"></a>00144 
+<a name="l00145"></a>00145 }
+<a name="l00146"></a>00146 
+<a name="l00147"></a>00147 <span class="preprocessor">#endif // __thomsonreuters_eoa_foundation_ommdatetime_h</span>
 </pre></div></div><!-- contents -->
 
 <hr class="footer"/><address class="footer"><small>
@@ -197,7 +216,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Dec 14 2015</td>
+			<td><p class="smallfont">Mon Feb 1 2016</td>
           </tr>
         </table>
         </td>

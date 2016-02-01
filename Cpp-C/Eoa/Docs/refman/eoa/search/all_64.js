@@ -16,9 +16,9 @@ var searchData=
   ['divisor4enum',['Divisor4Enum',['../a00082.html#a6f180418cb1507ddec3a969800bfd05fa045da3bee6cc79d86d699a6198906ff5',1,'thomsonreuters::eoa::foundation::OmmReal']]],
   ['divisor64enum',['Divisor64Enum',['../a00082.html#a6f180418cb1507ddec3a969800bfd05fa1667ca8caa94c7fd32bc1a5e019d9ba2',1,'thomsonreuters::eoa::foundation::OmmReal']]],
   ['divisor8enum',['Divisor8Enum',['../a00082.html#a6f180418cb1507ddec3a969800bfd05fa38f025277c65525e93f1589021109629',1,'thomsonreuters::eoa::foundation::OmmReal']]],
-  ['domain',['domain',['../a00133.html',1,'']]],
+  ['domain',['domain',['../a00134.html',1,'']]],
   ['domaintype',['domainType',['../a00088.html#a9c890346f67b0c0e7a19ad08ba45704d',1,'thomsonreuters::eoa::foundation::ReqSpec']]],
-  ['marketbyorder',['marketbyorder',['../a00134.html',1,'domain']]],
-  ['marketbyprice',['marketbyprice',['../a00135.html',1,'domain']]],
-  ['marketprice',['marketprice',['../a00136.html',1,'domain']]]
+  ['marketbyorder',['marketbyorder',['../a00135.html',1,'domain']]],
+  ['marketbyprice',['marketbyprice',['../a00136.html',1,'domain']]],
+  ['marketprice',['marketprice',['../a00137.html',1,'domain']]]
 ];

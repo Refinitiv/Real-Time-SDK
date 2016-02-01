@@ -2,12 +2,14 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2016. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
 #ifndef __thomsonreuters_eoa_domain_marketbyprice_mbp_h
 #define __thomsonreuters_eoa_domain_marketbyprice_mbp_h
+
+#pragma warning( disable : 4251 )
 
 #include "Foundation/Include/EoaBuffer.h"
 #include "Foundation/Include/EoaString.h"
@@ -81,7 +83,7 @@ class ConsumerService;
 
 		@see Mbp::OrderBook
 	*/
-	class ConsumerItem
+	class EOA_DOMAIN_API ConsumerItem
 	{
 	public:
 	
@@ -194,7 +196,7 @@ class ConsumerService;
 		MbpConsumerItemImpl*							_pImpl;
 		void*											_closure;
 		ConsumerItemClient*								_pClient;
-		std::function<void( const ConsumerItem& )>		_callBackFunc;
+		std::function< void( const ConsumerItem& )>		_callBackFunc;
 	};
 
 
@@ -208,7 +210,7 @@ class ConsumerService;
 			Mbp::Qos,
 			Mbp::OrderBook
 	*/
-	class RefreshInfo
+	class EOA_DOMAIN_API RefreshInfo
 	{
 	public:
 
@@ -398,7 +400,7 @@ class ConsumerService;
 
 		@see Mbp::State
 	*/
-	class StatusInfo
+	class EOA_DOMAIN_API StatusInfo
 	{
 	public:
 
@@ -548,7 +550,7 @@ class ConsumerService;
 
 		@see Mbp::OrderBook
 	*/
-	class UpdateInfo
+	class EOA_DOMAIN_API UpdateInfo
 	{
 	public:
 
@@ -725,7 +727,7 @@ class ConsumerService;
 			Mbp::UpdateInfo,
 			Mbp::StatusInfo
 	*/
-	class ConsumerItemClient
+	class EOA_DOMAIN_API ConsumerItemClient
 	{
 	public:
 
@@ -790,7 +792,7 @@ class ConsumerService;
 			Mbp::ConsumerItemClient,
 			EoaString
 	*/
-	class ConsumerService
+	class EOA_DOMAIN_API ConsumerService
 	{
 	public:
 
@@ -816,12 +818,31 @@ class ConsumerService;
 		/** Request streaming subscription.
 			\remark this is an asynchronous subscription request; e.g. this method does not wait for any response
 			@throw OmmMemoryExhaustionException if app runs out of memory
+			@param[in] itemName identifies item by name (assumes all other request attributes are defaulted).
+			@param[in] consumerItemClient specifies a client callback class
+			@param[in] closure specifies application assigned value for the item. The default value is NULL.
+			@return ConsumerItem object
+		*/
+		ConsumerItem subscribe( const foundation::EoaString& itemName, ConsumerItemClient& consumerItemClient, void* closure = 0 );
+
+		/** Request streaming subscription.
+			\remark this is an asynchronous subscription request; e.g. this method does not wait for any response
+			@throw OmmMemoryExhaustionException if app runs out of memory
 			@param[in] itemSpec identifies item.
 			@param[in] consumerItemClient specifies a client callback class
 			@param[in] closure specifies application assigned value for the item. The default value is NULL.
 			@return ConsumerItem object
 		*/
 		ConsumerItem subscribe( const ReqSpec& itemSpec, ConsumerItemClient& consumerItemClient, void* closure = 0 );
+
+		/** Request streaming subscription.
+			\remark this is an asynchronous subscription request; e.g. this method does not wait for any response
+			@throw OmmMemoryExhaustionException if app runs out of memory
+			@param[in] itemName identifies item by name (assumes all other request attributes are defaulted).
+			@param[in] callBackFunc specifies a lambda expression, a function, a function pointer or any kind of function object.
+			@return ConsumerItem object
+		*/
+		ConsumerItem subscribe( const foundation::EoaString& itemName, std::function<void( const ConsumerItem& )> callBackFunc );
 
 		/** Request streaming subscription.
 			\remark this is an asynchronous subscription request; e.g. this method does not wait for any response
@@ -835,10 +856,28 @@ class ConsumerService;
 		/** Request streaming subscription.
 			this is an asynchronous subscription request; e.g. this method does not wait for any response
 			@throw OmmMemoryExhaustionException if app runs out of memory
+			@param[in] itemName identifies item by name (assumes all other request attributes are defaulted).
+			@return ConsumerItem object
+		*/
+		ConsumerItem subscribe( const foundation::EoaString& itemName );
+
+		/** Request streaming subscription.
+			this is an asynchronous subscription request; e.g. this method does not wait for any response
+			@throw OmmMemoryExhaustionException if app runs out of memory
 			@param[in] itemSpec identifies item.
 			@return ConsumerItem object
 		*/
 		ConsumerItem subscribe( const ReqSpec& itemSpec );
+
+		/** Request non streaming subscription.
+			this is an asynchronous subscription request; e.g. this method does not wait for any response
+			@throw OmmMemoryExhaustionException if app runs out of memory
+			@param[in] itemName identifies item by name (assumes all other request attributes are defaulted).
+			@param[in] consumerItemClient specifies a client callback class
+			@param[in] closure specifies application assigned value for the item. The default value is NULL.
+			@return ConsumerItem object
+		*/
+		ConsumerItem snap( const foundation::EoaString& itemName, ConsumerItemClient& consumerItemClient, void* closure = 0 );
 
 		/** Request non streaming subscription.
 			this is an asynchronous subscription request; e.g. this method does not wait for any response
@@ -853,11 +892,28 @@ class ConsumerService;
 		/** Request non streaming subscription.
 			this is an asynchronous subscription request; e.g. this method does not wait for any response
 			@throw OmmMemoryExhaustionException if app runs out of memory
+			@param[in] itemName identifies item by name (assumes all other request attributes are defaulted).
+			@param[in] callBackFunc specifies a lambda expression, a function, a function pointer or any kind of function object.
+			@return ConsumerItem object
+		*/
+		ConsumerItem snap( const foundation::EoaString& itemName, std::function<void( const ConsumerItem& )> callBackFunc );
+
+		/** Request non streaming subscription.
+			this is an asynchronous subscription request; e.g. this method does not wait for any response
+			@throw OmmMemoryExhaustionException if app runs out of memory
 			@param[in] itemSpec identifies item.
 			@param[in] callBackFunc specifies a lambda expression, a function, a function pointer or any kind of function object.
 			@return ConsumerItem object
 		*/
 		ConsumerItem snap( const ReqSpec& itemSpec, std::function<void( const ConsumerItem& )> callBackFunc );
+
+		/** Request non streaming subscription
+			this is a synchronous subscription request; e.g. this method blocks till refresh complete is received
+			@throw OmmMemoryExhaustionException if app runs out of memory
+			@param[in] itemName identifies item by name (assumes all other request attributes are defaulted).
+			@return ConsumerItem object
+		*/
+		ConsumerItem snap( const foundation::EoaString& itemName );
 
 		/** Request non streaming subscription
 			this is a synchronous subscription request; e.g. this method blocks till refresh complete is received
@@ -893,7 +949,7 @@ class ConsumerService;
 	
 		\remark All methods in this class are \ref SingleThreaded.
 	*/
-	class ReqSpec
+	class EOA_DOMAIN_API ReqSpec
 	{
 	public:
 
@@ -1025,7 +1081,7 @@ class ConsumerService;
 	
 		@see Mbp::PricePoint
 	*/
-	enum class Side
+	enum class EOA_DOMAIN_API Side
 	{
 		UndefinedEnum = 0,	/*!< Indicates undefined side */
 		BidEnum = 1,		/*!< Indicates PricePoint on the Bid side */
@@ -1039,14 +1095,266 @@ class ConsumerService;
 
 		@see Mbp::Summary
 	*/
-	enum class Currency
+	enum class EOA_DOMAIN_API Currency
 	{
 		NotAllocatedEnum = 0,	/*!< Indicates not allocated value */
+		AfaEnum = 4,            /*!< Indicates Afghanistan afghani */
+		AllEnum = 8,            /*!< Indicates Albanian lek */
+		DzdEnum = 12,           /*!< Indicates Algerian dinar */
+		AdpEnum = 20,           /*!< Indicates Andorran peseta */
+		AonEnum = 24,           /*!< Indicates Angolan new kwanza */
+		ArsEnum = 32,           /*!< Indicates Argentine peso */
+		AudEnum = 36,           /*!< Indicates Australian dollar */
+		AucEnum = 37,           /*!< Indicates Australian cent */
+		AtsEnum = 40,           /*!< Indicates Austrian schilling */
+		BsdEnum = 44,           /*!< Indicates Bahamian dollar */
+		BhdEnum = 48,           /*!< Indicates Bahraini dinar */
+		BdtEnum = 50,           /*!< Indicates Bangladesh taka */
+		AmdEnum = 51,           /*!< Indicates Armenian Dram */
+		BbdEnum = 52,           /*!< Indicates Barbados dollar */
+		BefEnum = 56,           /*!< Indicates Belgian franc */
+		BmdEnum = 60,           /*!< Indicates Bermudian dollar */
+		BtnEnum = 64,           /*!< Indicates Bhutan ngultrum */
+		BobEnum = 68,           /*!< Indicates Bolivian boliviano */
+		BadEnum = 70,           /*!< Indicates Bosnia and Herzegovina Dinar */
+		BwpEnum = 72,           /*!< Indicates Botswanian pula */
+		BrlEnum = 76,           /*!< Indicates Brazilian real */
+		BzdEnum = 84,           /*!< Indicates Belize dollar */
+		SbdEnum = 90,           /*!< Indicates Solomon Islands dollar */
+		BndEnum = 96,           /*!< Indicates Brunei dollar */
+		BglEnum = 100,          /*!< Indicates Bulgarian Lev (pre 5 July 1999) */
+		MmkEnum = 104,          /*!< Indicates Myanmar kyat */
+		BifEnum = 108,          /*!< Indicates Burundi franc */
+		KhrEnum = 116,          /*!< Indicates Kampuchean riel */
+		CadEnum = 124,          /*!< Indicates Canadian dollar */
+		CveEnum = 132,          /*!< Indicates Cape Verde escudo */
+		KydEnum = 136,          /*!< Indicates Cayman Islands dollar */
+		LkrEnum = 144,          /*!< Indicates Sri Lanka rupee */
+		ClpEnum = 152,          /*!< Indicates Chilean peso */
 		CnyEnum = 156,			/*!< Indicates Chinese yuan renminbi */
+		CopEnum = 170,          /*!< Indicates Colombian peso */
+		KmfEnum = 174,          /*!< Indicates Comoro franc */
+		ZrnEnum = 180,          /*!< Indicates Zaire new zaire */
+		CrcEnum = 188,          /*!< Indicates Costa Rican colon */
+		HrkEnum = 191,          /*!< Indicates Croatian Kuna */
+		CupEnum = 192,          /*!< Indicates Cuban peso */
+		CypEnum = 196,          /*!< Indicates Cyprus pound */
+		CzkEnum = 203,          /*!< Indicates Czech koruna */
+		DkkEnum = 208,          /*!< Indicates Danish krone */
+		DopEnum = 214,          /*!< Indicates Dominican peso */
+		EcsEnum = 218,          /*!< Indicates Ecuador sucre */
+		SvcEnum = 222,          /*!< Indicates El Salvador colon */
+		EekEnum = 226,          /*!< Indicates Estonian kroon */
+		EtbEnum = 230,          /*!< Indicates Ethiopian birr */
+		ErnEnum = 232,          /*!< Indicates Nakfa */
+		FkpEnum = 238,          /*!< Indicates Falkland Islands pound */
+		FjdEnum = 242,          /*!< Indicates Fiji dollar */
+		FimEnum = 246,          /*!< Indicates Finnish markka */
+		FrfEnum = 250,          /*!< Indicates French franc */
+		DjfEnum = 262,          /*!< Indicates Djibouti franc */
+		GmdEnum = 270,          /*!< Indicates Gambian dalasi */
+		DemEnum = 280,          /*!< Indicates Deutsche mark */
+		GhcEnum = 288,          /*!< Indicates Ghanaian cedi */
+		GipEnum = 292,          /*!< Indicates Gibraltar pound */
+		GrdEnum = 300,          /*!< Indicates Greek drachma */
+		GtqEnum = 320,          /*!< Indicates Guatemalan quetzal */
+		GnfEnum = 324,          /*!< Indicates Guinea franc */
+		GydEnum = 328,          /*!< Indicates Guyana dollar */
+		HtgEnum = 332,          /*!< Indicates Haitian gourde */
+		HnlEnum = 340,          /*!< Indicates Honduran lempira */
+		HkdEnum = 344,          /*!< Indicates Hong Kong dollar */
+		HkcEnum = 345,          /*!< Indicates Hong Kong cent */
+		HufEnum = 348,          /*!< Indicates Hungarian forint */
+		IskEnum = 352,          /*!< Indicates Iceland krona */
+		InrEnum = 356,          /*!< Indicates Indian rupee */
+		IdrEnum = 360,          /*!< Indicates Indonesian rupiah */
+		IrrEnum = 364,          /*!< Indicates Iranian rial */
+		IqdEnum = 368,          /*!< Indicates Iraqi dinar */
+		IepEnum = 372,          /*!< Indicates Irish pound */
+		IeeEnum = 373,          /*!< Indicates Irish pence */
+		IlsEnum = 376,          /*!< Indicates Israeli shekel */
+		ItlEnum = 380,          /*!< Indicates Italian lira */
+		JmdEnum = 388,          /*!< Indicates Jamaican dollar */
 		JpyEnum = 392,			/*!< Indicates Japanese yen */
+		KztEnum = 398,          /*!< Indicates Kazakhstan Tenge  */
+		JodEnum = 400,          /*!< Indicates Jordanian dinar */
+		KesEnum = 404,          /*!< Indicates Kenyan shilling */
+		KpwEnum = 408,          /*!< Indicates North Korean won */
+		KrwEnum = 410,          /*!< Indicates Republic of Korea won */
+		KwdEnum = 414,          /*!< Indicates Kuwaiti dinar */
+		KgsEnum = 417,          /*!< Indicates Kyrgyzstan Som */
+		LakEnum = 418,          /*!< Indicates Lao kip */
+		LbpEnum = 422,          /*!< Indicates Lebanese pound */
+		LslEnum = 426,          /*!< Indicates Lesotho loti */
+		LvlEnum = 428,          /*!< Indicates Latvian Lats */
+		LrdEnum = 430,          /*!< Indicates Liberian dollar */
+		LydEnum = 434,          /*!< Indicates Libyan dinar */
+		LtlEnum = 440,          /*!< Indicates Lithuanian litas */
+		LufEnum = 442,          /*!< Indicates Luxembourg franc */
+		MopEnum = 446,          /*!< Indicates Macau pataca */
+		MwkEnum = 454,          /*!< Indicates Malawi kwacha */
+		MyrEnum = 458,          /*!< Indicates Malaysian ringgit */
+		MycEnum = 459,          /*!< Indicates Malaysian cent */
+		MvrEnum = 462,          /*!< Indicates Maldivian rufiyaa */
+		MlfEnum = 466,          /*!< Indicates Mali franc */
+		MtlEnum = 470,          /*!< Indicates Maltese lira */
+		MroEnum = 478,          /*!< Indicates Mauritanian ouguiya */
+		MurEnum = 480,          /*!< Indicates Mauritius rupee */
+		MxnEnum = 484,          /*!< Indicates Mexican peso */
+		MntEnum = 496,          /*!< Indicates Mongolian tugrik */
+		MdlEnum = 498,          /*!< Indicates Moldovan leu */
+		MadEnum = 504,          /*!< Indicates Moroccan dirham */
+		MzmEnum = 508,          /*!< Indicates Mozambique metical */
+		OmrEnum = 512,          /*!< Indicates Rial Omani */
+		NadEnum = 516,          /*!< Indicates Namibia dollar */
+		NprEnum = 524,          /*!< Indicates Nepalese rupee */
+		NlgEnum = 528,          /*!< Indicates Netherlands guilder */
+		AngEnum = 532,          /*!< Indicates Netherlands Antillean guilder */
+		AwgEnum = 533,          /*!< Indicates Aruban florin */
+		VuvEnum = 548,          /*!< Indicates Vanuatu vatu */
+		NzdEnum = 554,          /*!< Indicates New Zealand dollar */
+		NioEnum = 558,          /*!< Indicates Nicaraguan cordoba oro */
+		NgnEnum = 566,          /*!< Indicates Nigerian naira */
+		NokEnum = 578,          /*!< Indicates Norwegian krone */
+		PkrEnum = 586,          /*!< Indicates Pakistan rupee */
+		PabEnum = 590,          /*!< Indicates Panamanian balboa */
+		PgkEnum = 598,          /*!< Indicates Papua New Guinea kina */
+		PygEnum = 600,          /*!< Indicates Paraguay guarani */
+		PenEnum = 604,          /*!< Indicates Peruvian nuevo sol */
+		PhpEnum = 608,          /*!< Indicates Philippine peso */
+		PlzEnum = 616,          /*!< Indicates Old Polish zloty */
+		PteEnum = 620,          /*!< Indicates Portuguese escudo */
+		GwpEnum = 624,          /*!< Indicates Guinea-Bissau peso */
+		TpeEnum = 626,          /*!< Indicates Timor escudo */
+		QarEnum = 634,          /*!< Indicates Qatari rial */
+		RolEnum = 642,          /*!< Indicates Romanian leu */
+		RwfEnum = 646,          /*!< Indicates Rwanda franc */
+		ShpEnum = 654,          /*!< Indicates Saint Helena pound */
+		StdEnum = 678,          /*!< Indicates Sao Tome and Principe dobra */
+		SarEnum = 682,          /*!< Indicates Saudi Arabian riyal */
+		ScrEnum = 690,          /*!< Indicates Seychelles rupee */
+		SllEnum = 694,          /*!< Indicates Sierra Leone leone */
+		SgdEnum = 702,          /*!< Indicates Singapore dollar */
+		SkkEnum = 703,          /*!< Indicates Slovak Koruna */
+		VndEnum = 704,          /*!< Indicates Vietnamese dong */
+		SitEnum = 705,          /*!< Indicates Slovenian tolar */
+		SosEnum = 706,          /*!< Indicates Somali shilling */
+		ZarEnum = 710,          /*!< Indicates South African rand */
+		ZwdEnum = 716,          /*!< Indicates Zimbabwe dollar */
+		EspEnum = 724,          /*!< Indicates Spanish peseta */
+		SspEnum = 728,          /*!< Indicates South Sudanese Pound */
+		SddEnum = 736,          /*!< Indicates Sudanese dinar */
+		SrgEnum = 740,          /*!< Indicates Suriname guilder */
+		SzlEnum = 748,          /*!< Indicates Swaziland lilangeni */
+		SekEnum = 752,          /*!< Indicates Swedish krona */
+		ChfEnum = 756,          /*!< Indicates Swiss franc */
+		SypEnum = 760,          /*!< Indicates Syrian pound */
+		ThbEnum = 764,          /*!< Indicates Thai baht */
+		TopEnum = 776,          /*!< Indicates Tongan pa'anga */
+		TtdEnum = 780,          /*!< Indicates Trinidad and Tobago dollar */
+		AedEnum = 784,          /*!< Indicates UAE dirham */
+		TndEnum = 788,          /*!< Indicates Tunisian dinar */
+		TrlEnum = 792,          /*!< Indicates Old Turkish lira */
+		TmmEnum = 795,          /*!< Indicates Turkmenistan manat */
+		UgxEnum = 800,          /*!< Indicates Uganda shilling */
+		UakEnum = 804,          /*!< Indicates Ukrainian karbovanet */
+		MkdEnum = 807,          /*!< Indicates Macedonian denar */
+		RubEnum = 810,          /*!< Indicates Russian ruble */
+		EgpEnum = 818,          /*!< Indicates Egyptian pound */
 		GbpEnum = 826,			/*!< Indicates UK pound sterling */
+		TzsEnum = 834,          /*!< Indicates Tanzanian shilling */
 		UsdEnum = 840,			/*!< Indicates US dollar */
-		EurEnum = 978			/*!< Indicates Euro */
+		UscEnum = 841,          /*!< Indicates US cents */
+		UyuEnum = 858,          /*!< Indicates Peso Uruguayo */
+		UzsEnum = 860,          /*!< Indicates Uzbekistan Sum */
+		VebEnum = 862,          /*!< Indicates Old Venezuelan bolivar */
+		WstEnum = 882,          /*!< Indicates Samoan tala */
+		YerEnum = 886,          /*!< Indicates Yemeni rial */
+		CsdEnum = 891,          /*!< Indicates Serbian Dinar */
+		ZmkEnum = 894,          /*!< Indicates Zambian kwacha */
+		RobEnum = 900,          /*!< Indicates Romanian bani */
+		TwdEnum = 901,          /*!< Indicates New Taiwan dollar */
+		BhfEnum = 902,          /*!< Indicates Bahraini Fils  */
+		KwfEnum = 903,          /*!< Indicates Kuwaiti Fils */
+		OmbEnum = 904,          /*!< Indicates Baiza Omani  */
+		SahEnum = 905,          /*!< Indicates Saudi Arabian Halalah */
+		QadEnum = 906,          /*!< Indicates Qatari Dirham */
+		AefEnum = 907,          /*!< Indicates UAE Fils */
+		CucEnum = 931,          /*!< Indicates Cuba Convertible Peso */
+		ZwlEnum = 932,          /*!< Indicates Zimbabwe Dollar  */
+		TmtEnum = 934,          /*!< Indicates Turkmenistan New Manat */
+		GhsEnum = 936,          /*!< Indicates Ghana Cedi */
+		VefEnum = 937,          /*!< Indicates Venezuelan Bolivar */
+		SdgEnum = 938,          /*!< Indicates SUDANESE POUND */
+		UyiEnum = 940,          /*!< Indicates Uruguay Peso en Unidades Indexadas */
+		RsdEnum = 941,          /*!< Indicates Serbian Dinar */
+		ZwnEnum = 942,          /*!< Indicates 'new' Zimbabwe Dollar */
+		MznEnum = 943,          /*!< Indicates Mozambique Metical */
+		AznEnum = 944,          /*!< Indicates Azerbaijanian Manat */
+		RonEnum = 946,          /*!< Indicates New Romanian Leu */
+		ChwEnum = 948,          /*!< Indicates Swiss WIR Franc */
+		TryEnum = 949,          /*!< Indicates Turkish lira */
+		XafEnum = 950,          /*!< Indicates CFA franc BEAC */
+		XcdEnum = 951,          /*!< Indicates East Caribbean dollar */
+		XofEnum = 952,          /*!< Indicates CFA franc BCEAO */
+		XpfEnum = 953,          /*!< Indicates CFP franc */
+		XeuEnum = 954,          /*!< Indicates European currency unit */
+		XbaEnum = 955,          /*!< Indicates European composite unit */
+		XbbEnum = 956,          /*!< Indicates European monetary unit */
+		XbcEnum = 957,          /*!< Indicates European unit of Account 9 */
+		XbdEnum = 958,          /*!< Indicates European unit of Account 17 */
+		XauEnum = 959,          /*!< Indicates Gold */
+		XdrEnum = 960,          /*!< Indicates Special drawing right */
+		XagEnum = 961,          /*!< Indicates Silver */
+		XptEnum = 962,          /*!< Indicates Platinum */
+		XtsEnum = 963,          /*!< Indicates Reserved for testing */
+		XpdEnum = 964,          /*!< Indicates Palladium */
+		XuaEnum = 965,          /*!< Indicates ADB Unit of Account */
+		ZmwEnum = 967,          /*!< Indicates Zambian kwacha */
+		SrdEnum = 968,          /*!< Indicates Surinam Dollar */
+		MgaEnum = 969,          /*!< Indicates Malagasy Ariary */
+		AfnEnum = 971,          /*!< Indicates Afghanistan afghani */
+		TjsEnum = 972,          /*!< Indicates Tajikistan Somoni */
+		AoaEnum = 973,          /*!< Indicates Angolan kwanza */
+		ByrEnum = 974,          /*!< Indicates Belarussian Ruble  */
+		BgnEnum = 975,          /*!< Indicates Bulgarian Lev */
+		CdfEnum = 976,          /*!< Indicates Congolese Franc  */
+		BamEnum = 977,          /*!< Indicates Convertible Mark */
+		EurEnum = 978,          /*!< Indicates Euro */
+		MxvEnum = 979,          /*!< Indicates Mexico Unidad de Inversion */
+		UahEnum = 980,          /*!< Indicates Ukrainian Hryvnia */
+		GelEnum = 981,          /*!< Indicates Georgian Lari */
+		BovEnum = 984,          /*!< Indicates Bolivian Mvdol */
+		PlnEnum = 985,          /*!< Indicates New Polish zloty */
+		ClfEnum = 990,          /*!< Indicates Chilean unidad de fomento */
+		ZalEnum = 991,          /*!< Indicates South African financial rand */
+		EsbEnum = 995,          /*!< Indicates Spanish peseta (accounts 'B') */
+		EsaEnum = 996,          /*!< Indicates Spanish peseta (accounts 'A') */
+		UsnEnum = 997,          /*!< Indicates US dollar (next day) */
+		UssEnum = 998,          /*!< Indicates US dollar (same day) */
+		XxxEnum = 999,          /*!< Indicates Code assigned for no currency transactions */
+		TstEnum = 2000,         /*!< Indicates Test */
+		CacEnum = 2002,         /*!< Indicates Canadian cents **** */
+		NzcEnum = 2006,         /*!< Indicates New Zealand cents **** */
+		SgcEnum = 2007,         /*!< Indicates Singapore cents **** */
+		ZacEnum = 2010,         /*!< Indicates South African cents **** */
+		ZwcEnum = 2011,         /*!< Indicates Zimbabwe cents */
+		EucEnum = 2012,         /*!< Indicates The Euro minor currency, the cent */
+		NacEnum = 2013,         /*!< Indicates Namibian cent */
+		IlaEnum = 2014,         /*!< Indicates Israeli Agora */
+		HrlEnum = 2016,         /*!< Indicates Croatian Lipa (was Croatian Kuna) */
+		BwtEnum = 2017,         /*!< Indicates Botswana Thebe */
+		ZzzEnum = 2018,         /*!< Indicates Multi-Currency */
+		TrkEnum = 2019,         /*!< Indicates New Turkish Kurus */
+		CouEnum = 2020,         /*!< Indicates Colombia Unidad Valor Real */
+		MwtEnum = 2021,         /*!< Indicates Malawi Tambala */
+		BrcEnum = 2022,         /*!< Indicates Brazilian Centavos */
+		CnhEnum = 2023,         /*!< Indicates Chinese Yuan Offshore */
+		UstEnum = 2024,         /*!< Indicates Thousands of US dollars */
+		XvnEnum = 2025,         /*!< Indicates Ven */
+		CruEnum = 2026,         /*!< Indicates Costa Rican Unidad de Desarrolla */
+		BtcEnum = 2027,         /*!< Indicates bitcoin */
+		UyrEnum = 2028          /*!< Indicates Unidades Reajustables */
 	};
 
 
@@ -1056,13 +1364,61 @@ class ConsumerService;
 
 		@see Mbp::Summary
 	*/
-	enum class MarketState
+	enum class EOA_DOMAIN_API MarketState
 	{
+		NorEnum = 0,    /*!< Indicates normal market */
 		FasEnum = 1,		/*!< Indicates fast market */
+		FalEnum = 2,    /*!< Indicates fire alert */
 		ThaEnum = 3,		/*!< Indicates trading halted */
 		TreEnum = 4,		/*!< Indicates trading resumed */
+		BscEnum = 5,    /*!< Indicates bomb scare */
+		CcpEnum = 6,    /*!< Indicates call completed */
+		CipEnum = 7,    /*!< Indicates call in progress */
 		ClsEnum = 8,		/*!< Indicates market closed */
-		OclEnum = 9			/*!< Indicates official close */
+		OclEnum = 9,    /*!< Indicates official close */
+		UclEnum = 10,   /*!< Indicates unofficial close */
+		ScmEnum = 11,   /*!< Indicates session closed, required for futures session trading */
+		IndEnum = 12,   /*!< Indicates indicative open for GLOBEX instruments */
+		RfqEnum = 13,   /*!< Indicates request for quote from GLOBEX traders */
+		PssEnum = 14,   /*!< Indicates post-settle session trading in progress (N.Amer.Fut.) */
+		AptEnum = 15,   /*!< Indicates automated pit trading (LIFFOE) */
+		BboEnum = 16,   /*!< Indicates best bid/offer required for CBOT */
+		ImbEnum = 17,   /*!< Indicates implied bid - NYMEX */
+		ImaEnum = 18,   /*!< Indicates implied ask - NYMEX */
+		ImqEnum = 19,   /*!< Indicates implied quote - NYMEX */
+		BasEnum = 20,   /*!< Indicates bid/ask represents current market */
+		LtpEnum = 21,   /*!< Indicates late trade price */
+		ErtEnum = 22,   /*!< Indicates erratic trade price */
+		StlEnum = 23,   /*!< Indicates Settlement Received */
+		GtoEnum = 24,   /*!< Indicates Globex Trigger Opening Received : variation recalculated - Matif */
+		GorEnum = 25,   /*!< Indicates Globex Pre-Opening Reference received - Matif */
+		GloEnum = 26,   /*!< Indicates Globex Session */
+		GlpEnum = 27,   /*!< Indicates Globex Extended Session (Bank Holidays) */
+		FlrEnum = 28,   /*!< Indicates Floor Session */
+		DtaEnum = 29,   /*!< Indicates Delta Indicator */
+		GldEnum = 30,   /*!< Indicates Globex Morning Session */
+		GdpEnum = 31,   /*!< Indicates Globex Morning Extended Session */
+		AueEnum = 32,   /*!< Indicates Auto Execution */
+		SbbEnum = 33,   /*!< Indicates Specialist Book Bid */
+		SbaEnum = 34,   /*!< Indicates Specialist Book Ask */
+		BbaEnum = 35,   /*!< Indicates Specialist Book Bid and Ask */
+		InaEnum = 36,   /*!< Indicates Inactive */
+		RotEnum = 37,   /*!< Indicates Rotation */
+		DgnEnum = 38,   /*!< Indicates Danger notice */
+		PcsEnum = 39,   /*!< Indicates Post-Close Session */
+		PreEnum = 40,   /*!< Indicates Pre-Open */
+		NetEnum = 41,   /*!< Indicates Netting/Uncrossing */
+		IraEnum = 42,   /*!< Indicates Combination of Implied and Regular ASK */
+		IrbEnum = 43,   /*!< Indicates Combination of Implied and Regular BID */
+		IrqEnum = 44,   /*!< Indicates Combination of Implied and Regular Quote */
+		OpnEnum = 45,   /*!< Indicates Market Open */
+		AucEnum = 46,   /*!< Indicates Opening Auction and Closing Auction */
+		SusEnum = 47,   /*!< Indicates Suspension */
+		MkhEnum = 48,   /*!< Indicates Market Halt */
+		SmhEnum = 49,   /*!< Indicates Segment Halt */
+		SmcEnum = 50,   /*!< Indicates Suspension Market Condition for FUTURES */
+		PscEnum = 51,   /*!< Indicates Post-Close session for FUTURES */
+		NegEnum = 52   /*!< Indicates Negdeals */
 	};
 
 
@@ -1072,18 +1428,264 @@ class ConsumerService;
 
 		@see Mbp::Summary
 	*/
-	enum class ExchangeId
+	enum class EOA_DOMAIN_API ExchangeId
 	{
 		UndefinedEnum = 0,	/*!< Indicates undefined exchange */
 		AseEnum = 1,		/*!< Indicates NYSE AMEX */
 		NysEnum = 2,		/*!< Indicates New York Stock Exchange */
 		BosEnum = 3,		/*!< Indicates Boston Stock Exchange */
-		CinEnum = 4,		/*!< Indicates National Stock Exchange */
+		CinEnum = 4,   /*!< Indicates National Stock Exchange (formerly Cincinnati Stock Exchange) */
+		PseEnum = 5,   /*!< Indicates NYSE Arca */
+		XphEnum = 6,   /*!< Indicates NASDAQ OMX PSX when trading in SIAC (formerly Philadelphia Stock Exchange) */
+		ThmEnum = 7,   /*!< Indicates NASDAQ InterMarket */
 		MidEnum = 8,		/*!< Indicates Chicago Stock Exchange */
+		NyqEnum = 9,   /*!< Indicates Consolidated Issue, listed by NYSE */
 		TorEnum = 10,		/*!< Indicates Toronto Stock Exchange */
 		MonEnum = 11,		/*!< Indicates Montreal Stock Exchange */
+		TsxEnum = 12,   /*!< Indicates TSX Venture Exchange */
+		DexEnum = 13,   /*!< Indicates Direct Edge Holdings - EDGX (CTA) */
+		AoeEnum = 14,   /*!< Indicates American Options Exchange */
+		NyoEnum = 15,   /*!< Indicates New York Options Exchange */
+		PhoEnum = 16,   /*!< Indicates Philadelphia Options Exchange */
+		PaoEnum = 17,   /*!< Indicates NYSE Arca Options */
+		WcbEnum = 18,   /*!< Indicates Chicago Board Options Exchange */
+		AsqEnum = 19,   /*!< Indicates Consolidated issues listed on NYSE MKT */
 		CmeEnum = 20,		/*!< Indicates CME:Chicago Mercantile Commodities */
-		CbtEnum = 978		/*!< Indicates Chicago Board of Trade */
+		ImmEnum = 21,   /*!< Indicates CME:International Monetary Market */
+		IomEnum = 22,   /*!< Indicates CME:Index and Options Market */
+		CbtEnum = 23,   /*!< Indicates Chicago Board of Trade */
+		ItsEnum = 24,   /*!< Indicates NYSE Alerts */
+		WpgEnum = 25,   /*!< Indicates Winnipeg Commodity Exchange */
+		MgeEnum = 26,   /*!< Indicates Minneapolis Grain Exchange */
+		PbtEnum = 27,   /*!< Indicates Philadelphia Board of Trade */
+		CmxEnum = 28,   /*!< Indicates CEI:Commodities Exchange Centre */
+		CscEnum = 29,   /*!< Indicates CEI:Coffee, Sugar and Cocoa */
+		NycEnum = 30,   /*!< Indicates CEI:New York Cotton */
+		NymEnum = 31,   /*!< Indicates NEW YORK MERCANTILE EXCHANGE (NYMEX) */
+		FisEnum = 32,   /*!< Indicates FTSE SINGAPORE */
+		CsoEnum = 33,   /*!< Indicates CEI:Coffee, Sugar and Cocoa Options */
+		CeoEnum = 34,   /*!< Indicates CEI:Commodities Exchange Centre Options */
+		ShcEnum = 35,   /*!< Indicates Shanghai Commodity Exchange */
+		NyfEnum = 36,   /*!< Indicates New York Futures Exchange */
+		TfeEnum = 37,   /*!< Indicates Toronto Futures Exchange */
+		MioEnum = 38,   /*!< Indicates Montreal SE IOM division */
+		NmsEnum = 39,   /*!< Indicates NASDAQ Stock Market Exchange Large Cap (formally known as NASDAQ NATIONAL MARKET SYSTEM) */
+		DeaEnum = 40,   /*!< Indicates Direct Edge Holdings - EDGA (CTA) */
+		MoeEnum = 41,   /*!< Indicates Montreal Options Exchange */
+		BtyEnum = 42,   /*!< Indicates BATS Y Exchange (CTA) */
+		NasEnum = 43,   /*!< Indicates NASDAQ Capital Market (from NASDAQ SmallCap) */
+		MdmEnum = 44,   /*!< Indicates Montreal SE Mercantile Division */
+		SceEnum = 45,   /*!< Indicates Shanghai Cereals & Oils Exchange */
+		BsqEnum = 46,   /*!< Indicates Consolidated Issue, listed by Boston SE */
+		ChiEnum = 47,   /*!< Indicates CHI - X Europe */
+		WcqEnum = 48,   /*!< Indicates Consolidated Issue, listed by CBOE */
+		TrcEnum = 49,   /*!< Indicates TRC (THOMSON REUTERS CONTRIBUTED DATA)  */
+		KbtEnum = 50,   /*!< Indicates Kansas City Board of Trade */
+		SomEnum = 51,   /*!< Indicates Stockholmsborsen - derivatives (was Om Stockholm) */
+		AdsEnum = 52,   /*!< Indicates NASD Alternative Display Facility for Nasdaq Capital Market */
+		AdfEnum = 53,   /*!< Indicates NASD Alternative Display Facility for Nasdaq Large Cap */
+		MifEnum = 54,   /*!< Indicates Manila International Futures Exchange */
+		JsfEnum = 55,   /*!< Indicates Japan Securities Finance */
+		TceEnum = 56,   /*!< Indicates Tokyo Commodity Exchange */
+		TffEnum = 57,   /*!< Indicates Tokyo Financial Futures Exchange */
+		RpsEnum = 58,   /*!< Indicates REUTERS PRICING SERVICE */
+		HomEnum = 59,   /*!< Indicates Helsinki Options and Futures Exchange */
+		FomEnum = 60,   /*!< Indicates Finland Options Market (Suomen Optiomeklait) */
+		FirEnum = 61,   /*!< Indicates Florence Stock Exchange */
+		AthEnum = 62,   /*!< Indicates Athens Stock Exchange */
+		SffEnum = 63,   /*!< Indicates Swiss Options and Financial Futures Exchange */
+		LseEnum = 64,   /*!< Indicates London Stock Exchange */
+		JnbEnum = 65,   /*!< Indicates Johannesburg Stock Exchange (JSE) Level 1 */
+		LifEnum = 66,   /*!< Indicates LIFFE */
+		TlvEnum = 67,   /*!< Indicates Tel Aviv Stock Exchange */
+		CphEnum = 68,   /*!< Indicates Copenhagen Stock Exchange */
+		OslEnum = 69,   /*!< Indicates Oslo Stock Exchange */
+		StoEnum = 70,   /*!< Indicates Stockholmsborsen - cash (was Stockholm Stock Exchange) */
+		CmaEnum = 71,   /*!< Indicates Madrid SE - Chi-X */
+		LuxEnum = 72,   /*!< Indicates Luxembourg Stock Exchange */
+		BruEnum = 73,   /*!< Indicates Brussels Stock Exchange */
+		ParEnum = 74,   /*!< Indicates Paris Stock Exchange */
+		MadEnum = 75,   /*!< Indicates Madrid Stock Exchange */
+		BarEnum = 76,   /*!< Indicates Barcelona Stock Exchange */
+		AexEnum = 77,   /*!< Indicates Amsterdam Exchanges */
+		EoeEnum = 78,   /*!< Indicates European Options Exchange */
+		TwbEnum = 79,   /*!< Indicates TRADEWEB */
+		VieEnum = 80,   /*!< Indicates Vienna Stock Exchange */
+		DusEnum = 81,   /*!< Indicates Dusseldorf Stock Exchange */
+		FraEnum = 82,   /*!< Indicates Frankfurt Stock Exchange */
+		HamEnum = 83,   /*!< Indicates Hamburg Stock Exchange */
+		MunEnum = 84,   /*!< Indicates Munich Stock Exchange */
+		ZrhEnum = 85,   /*!< Indicates Zurich Stock Exchange */
+		GvaEnum = 86,   /*!< Indicates Geneva Stock Exchange */
+		BslEnum = 87,   /*!< Indicates Basel Stock Exchange */
+		MilEnum = 88,   /*!< Indicates Milan Stock Exchange */
+		CsmEnum = 89,   /*!< Indicates Sibe Mercado Espanola - Chi-X */
+		CmlEnum = 90,   /*!< Indicates Milan SE - Chi-X */
+		NzcEnum = 91,   /*!< Indicates New Zealand Total - Prices, Indices, News */
+		HkgEnum = 92,   /*!< Indicates Stock Exchange of Hong Kong Limited */
+		SimEnum = 93,   /*!< Indicates Singapore Exchange Derivatives Trading */
+		KlcEnum = 94,   /*!< Indicates Mdex Commodity Market */
+		CchEnum = 95,   /*!< Indicates Copenhagen SE - Chi-X */
+		CxeEnum = 96,   /*!< Indicates Xetra - Chi-X */
+		CamEnum = 97,   /*!< Indicates Amsterdam SE - Chi-X */
+		CbsEnum = 98,   /*!< Indicates Brussels SE - Chi-X */
+		LmeEnum = 99,   /*!< Indicates LME Data - Real Time */
+		ClbEnum = 100,   /*!< Indicates Lisbon SE - Chi-X */
+		LceEnum = 101,   /*!< Indicates London Commodity Exchange */
+		CpaEnum = 102,   /*!< Indicates Paris SE - Chi-X */
+		CfrEnum = 103,   /*!< Indicates Frankfurt SE - Chi-X */
+		CloEnum = 104,   /*!< Indicates London SE - Chi-X */
+		SfeEnum = 105,   /*!< Indicates Sydney Futures Exchange */
+		TyoEnum = 106,   /*!< Indicates Tokyo Stock Exchange */
+		NgoEnum = 107,   /*!< Indicates Nagoya Stock Exchange */
+		SapEnum = 108,   /*!< Indicates Sapporo Stock Exchange */
+		ChjEnum = 109,   /*!< Indicates JAPAN - CHI-X */
+		KyoEnum = 110,   /*!< Indicates Kyoto Stock Exchange */
+		HirEnum = 111,   /*!< Indicates Hiroshima Stock Exchange */
+		FkaEnum = 112,   /*!< Indicates Fukuoka Stock Exchange */
+		OsaEnum = 113,   /*!< Indicates OSAKA EXCHANGE INC. */
+		HfeEnum = 114,   /*!< Indicates Hong Kong Futures Exchange Limited */
+		BerEnum = 115,   /*!< Indicates Berlin Stock Exchange */
+		HanEnum = 116,   /*!< Indicates Hanover Stock Exchange */
+		StuEnum = 117,   /*!< Indicates Stuttgart Stock Exchange */
+		BreEnum = 118,   /*!< Indicates Bremen Stock Exchange */
+		CokEnum = 119,   /*!< Indicates Osaka Mercantile SE - Chi-X */
+		BrnEnum = 120,   /*!< Indicates Berne Stock Exchange */
+		CssEnum = 121,   /*!< Indicates Swiss SE - Chi-X */
+		CheEnum = 122,   /*!< Indicates Helsinki SE - Chi-X */
+		CvxEnum = 123,   /*!< Indicates Virt-X - Chi-X */
+		RomEnum = 124,   /*!< Indicates Rome Stock Exchange */
+		TrnEnum = 125,   /*!< Indicates Turin Stock Exchange */
+		GoaEnum = 126,   /*!< Indicates Genoa Stock Exchange */
+		NapEnum = 127,   /*!< Indicates Naples Stock Exchange */
+		PalEnum = 128,   /*!< Indicates Palermo Stock Exchange */
+		BloEnum = 129,   /*!< Indicates Bologna Stock Exchange */
+		VceEnum = 130,   /*!< Indicates Venice Stock Exchange */
+		IsfEnum = 131,   /*!< Indicates Istanbul Stock Exchange (Mutual Funds) */
+		AqcEnum = 132,   /*!< Indicates NASDAQ Limit Order Matching System (NAQCESS) */
+		HexEnum = 133,   /*!< Indicates Helsinki Exchange */
+		WseEnum = 134,   /*!< Indicates Warsaw Stock Exchange */
+		NxtEnum = 135,   /*!< Indicates Euronext */
+		Mx2Enum = 136,   /*!< Indicates MEXICO SE DEPTH MARKET L1 AND L2 */
+		CaqEnum = 137,   /*!< Indicates Canadian Composite Quote/Trade */
+		F4eEnum = 138,   /*!< Indicates FTSE 4 Good Environmental Leaders Europe 40 Index ICW */
+		BetEnum = 139,   /*!< Indicates Bureau of Energy */
+		F4jEnum = 140,   /*!< Indicates FTSE 4 Good Japan ICW */
+		JdeEnum = 141,   /*!< Indicates Joint Asian Derivatives Exchange  */
+		LagEnum = 142,   /*!< Indicates Lagos Stock Exchange */
+		ZseEnum = 143,   /*!< Indicates Zimbabwe Stock Exchange */
+		ShhEnum = 144,   /*!< Indicates Shanghai Stock Exchange */
+		BseEnum = 145,   /*!< Indicates  BSE Ltd */
+		CalEnum = 146,   /*!< Indicates Calcutta Stock Exchange */
+		DesEnum = 147,   /*!< Indicates Delhi Stock Exchange */
+		MdsEnum = 148,   /*!< Indicates Madras Stock Exchange */
+		JktEnum = 149,   /*!< Indicates Indonesia Stock Exchange (formerly Jakarta SE) */
+		KlsEnum = 150,   /*!< Indicates Bursa Malaysia Consolidated Equities and Derivatives (formerly Kuala Lumpur Stock Exchange) */
+		KarEnum = 151,   /*!< Indicates Karachi Stock Exchange */
+		MakEnum = 152,   /*!< Indicates Makati Stock Exchange */
+		MnlEnum = 153,   /*!< Indicates Manila Stock Exchange */
+		FtmEnum = 154,   /*!< Indicates Financiele Termijn Markt, Amsterdam */
+		SesEnum = 155,   /*!< Indicates Singapore Exchange Securities Trading Ltd */
+		KscEnum = 156,   /*!< Indicates Korea Exchange - KSE */
+		MauEnum = 157,   /*!< Indicates Mauritius Stock Exchange */
+		SetEnum = 158,   /*!< Indicates The Stock Exchange of Thailand */
+		BahEnum = 159,   /*!< Indicates BAHRAIN BOURSE */
+		CaiEnum = 160,   /*!< Indicates Cairo Stock Exchange */
+		AmmEnum = 161,   /*!< Indicates Amman Stock Exchange */
+		KuwEnum = 162,   /*!< Indicates Kuwait Stock Exchange */
+		BueEnum = 163,   /*!< Indicates Buenos Aires Stock Exchange */
+		RioEnum = 164,   /*!< Indicates Rio Fixed Income Exchange */
+		SaoEnum = 165,   /*!< Indicates Sao Paolo Stock Exchange */
+		SgoEnum = 166,   /*!< Indicates Santiago Stock Exchange */
+		BogEnum = 167,   /*!< Indicates Bogota Stock Exchange */
+		MexEnum = 168,   /*!< Indicates Mexico SE Principal Market */
+		CcsEnum = 169,   /*!< Indicates Caracas Stock Exchange */
+		NfeEnum = 170,   /*!< Indicates New Zealand Futures Exchange */
+		IndEnum = 171,   /*!< Indicates World Indices */
+		FixEnum = 172,   /*!< Indicates Fixings */
+		LotEnum = 173,   /*!< Indicates London Over The Counter Market */
+		MatEnum = 174,   /*!< Indicates Paris Financial Futures Exchange ( MATIF ) */
+		TaiEnum = 175,   /*!< Indicates Taiwan Stock Exchange */
+		IpeEnum = 176,   /*!< Indicates ICE Futures */
+		CviEnum = 177,   /*!< Indicates Vienna SE - Chi-X */
+		CirEnum = 178,   /*!< Indicates Irish SE - Chi-X */
+		CluEnum = 179,   /*!< Indicates Luxemburg SE - Chi-X */
+		SopEnum = 180,   /*!< Indicates Suomen Optioporssi */
+		ReuEnum = 181,   /*!< Indicates Thomson Reuters */
+		LisEnum = 182,   /*!< Indicates Lisbon Stock Exchange */
+		OpoEnum = 183,   /*!< Indicates Oporto Stock Exchange */
+		NomEnum = 184,   /*!< Indicates Norwegian Options Market (Norsk Opsjonmarked) */
+		CltEnum = 185,   /*!< Indicates Latino / America Market in Spain - Chi-X */
+		RtsEnum = 186,   /*!< Indicates RTS Quotes */
+		AsxEnum = 187,   /*!< Indicates Australian Stock Exchange - SEATS */
+		IfxEnum = 188,   /*!< Indicates Irish Options and Futures Exchange */
+		PmiEnum = 189,   /*!< Indicates Stockholmsborsen - fixed income (was Penningsmarknads Information AB) */
+		MceEnum = 190,   /*!< Indicates BME SPANISH EXCHANGE EQUITIES LEVEL 2 */
+		CvaEnum = 191,   /*!< Indicates Valencia SE - Chi-X */
+		TgeEnum = 192,   /*!< Indicates Tokyo Grain Exchange */
+		TsuEnum = 193,   /*!< Indicates Tokyo Sugar Exchange */
+		KreEnum = 194,   /*!< Indicates Kobe Rubber Exchange */
+		MrvEnum = 195,   /*!< Indicates BME Spanish Exchange Derivatives L1+L2 */
+		KfiEnum = 196,   /*!< Indicates KOREA STOCK EXCHANGE - KOREA BONDS - KOFIA */
+		BfxEnum = 197,   /*!< Indicates Brussels Futures and Options Exchange */
+		BrtEnum = 198,   /*!< Indicates Brussels SE Forward Market */
+		DtbEnum = 199,   /*!< Indicates Deutsche Terminboerse */
+		MrfEnum = 200,   /*!< Indicates MEFF Renta Fija */
+		CbaEnum = 201,   /*!< Indicates Barcelona SE - Chi-X */
+		GerEnum = 202,   /*!< Indicates Xetra Level 1 */
+		MtsEnum = 203,   /*!< Indicates MTS Italy */
+		IstEnum = 204,   /*!< Indicates Borsa Istanbul */
+		MusEnum = 205,   /*!< Indicates Muscat Stock Exchange */
+		AbjEnum = 206,   /*!< Indicates Bourse de Valeurs d'Abidjan */
+		NaiEnum = 207,   /*!< Indicates Nairobi Stock Exchange */
+		TunEnum = 208,   /*!< Indicates Tunis Stock Exchange */
+		FsiEnum = 209,   /*!< Indicates FT-SE International */
+		NinEnum = 210,   /*!< Indicates NASDAQ International (pending SEC approval) */
+		McpEnum = 211,   /*!< Indicates Interbolsa - Portuguese Continuous Market */
+		OtbEnum = 212,   /*!< Indicates Osterreichische Termin und Optionenboerse (Austrian FOX) */
+		SicEnum = 213,   /*!< Indicates Singapore Commodity Exchange */
+		RctEnum = 214,   /*!< Indicates SOURCE IS A THOMSON REUTERS CONTRIBUTOR */
+		IgfEnum = 215,   /*!< Indicates Italian Government Forwards */
+		MwqEnum = 216,   /*!< Indicates Consolidated issue, listed by Midwest SE */
+		PsqEnum = 217,   /*!< Indicates Consolidated issue, listed by Pacific SE */
+		PhqEnum = 218,   /*!< Indicates Consolidated issue, listed by Philadelphia SE */
+		JsdEnum = 219,   /*!< Indicates JASDAQ */
+		EcmEnum = 220,   /*!< Indicates American SE Emerging Company Marketplace */
+		ObbEnum = 221,   /*!< Indicates NASD OTC Bulletin Board Market */
+		IfmEnum = 222,   /*!< Indicates SIA Futures Market */
+		MfiEnum = 223,   /*!< Indicates Madrid Fixed Income */
+		SmeEnum = 224,   /*!< Indicates Shanghai Metal Exchange */
+		ShzEnum = 225,   /*!< Indicates Shenzhen Stock Exchange */
+		RsaEnum = 226,   /*!< Indicates South African Quotations */
+		BudEnum = 227,   /*!< Indicates Budapest Stock Exchange */
+		PhsEnum = 228,   /*!< Indicates Philippine Stock Exchange */
+		MltEnum = 229,   /*!< Indicates Malta Stock Exchange */
+		CoxEnum = 230,   /*!< Indicates OFEX - Chi-X */
+		SzmEnum = 231,   /*!< Indicates Shenzhen Mercantile Exchange */
+		SzfEnum = 232,   /*!< Indicates Shenzhen Futures Exchange */
+		JbtEnum = 233,   /*!< Indicates Japan Bond Trading Co. Ltd. */
+		MdcEnum = 234,   /*!< Indicates Maebashi Dried Cocoon Exchange */
+		NtcEnum = 235,   /*!< Indicates Nagoya Textile Exchange */
+		YseEnum = 236,   /*!< Indicates Yokohama Silk Exchange */
+		OteEnum = 237,   /*!< Indicates Osaka Textile Exchange */
+		NakEnum = 238,   /*!< Indicates Nakadachi Securities */
+		CbeEnum = 239,   /*!< Indicates Berlin SE - Chi-X */
+		CexEnum = 240,   /*!< Indicates CHI-EAST Exchange */
+		AhmEnum = 241,   /*!< Indicates Ahemdebad Stock Exchange */
+		KlfEnum = 242,   /*!< Indicates Kuala Lumpur Options and Financial Futures Exchange */
+		CseEnum = 243,   /*!< Indicates Colombo Stock Exchange */
+		BecEnum = 244,   /*!< Indicates Chile Electronic Exchange, Santiago */
+		MxiEnum = 245,   /*!< Indicates Mexico SE Intermediate Market */
+		ZhcEnum = 246,   /*!< Indicates China Zhengzhou Commodity Exchange */
+		BjcEnum = 247,   /*!< Indicates Beijing Commodities Exchange */
+		EodEnum = 248,   /*!< Indicates Credit Default Swaps EOD */
+		GufEnum = 249,   /*!< Indicates Guangdong United Futures Exchange */
+		BmfEnum = 250,   /*!< Indicates Brazilian Commodties and Futures Exchange */
+		HsxEnum = 251,   /*!< Indicates HO CHI MINH STOCK EXCHANGE */
+		SfxEnum = 252,   /*!< Indicates South African Futures Exchange */
+		CmuEnum = 253,   /*!< Indicates Munich SE - Chi-X */
+		DlcEnum = 254,   /*!< Indicates Dalian Commodities Exchange */
+		CfsEnum = 255   /*!< Indicates China Foreign Exchange Trade System */
 	};
 
 
@@ -1093,8 +1695,9 @@ class ConsumerService;
 
 		@see Mbp::Summary
 	*/
-	enum class PriceRankRule
+	enum class EOA_DOMAIN_API PriceRankRule
 	{
+		UndefinedEnum = 0,      /*!< Indicates undefined market */
 		NorEnum = 1,			/*!< Indicates Normal Market */
 		InvEnum = 2,			/*!< Indicates Inverted Market */
 		SqxEnum = 3,			/*!< Indicates Firm Quote, Limit Order (LSE SETSqx) */
@@ -1109,7 +1712,7 @@ class ConsumerService;
 
 		@see Mbo::Summary
 	*/
-	enum class TradeUnit
+	enum class EOA_DOMAIN_API TradeUnit
 	{
 		IntEnum = 0,			/*!< Indicates whole number */
 		OneDpEnum = 1,			/*!< Indicates one decimal place */
@@ -1119,7 +1722,20 @@ class ConsumerService;
 		FiveDpEnum = 5,			/*!< Indicates five decimal places */
 		SixDpEnum = 6,			/*!< Indicates six decimal places */
 		SevenDpEnum = 7,		/*!< Indicates seven decimal places */
-		UndefinedEnum = 8		/*!< Indicates undefined */
+		UndefinedEnum = 8,		   /*!< Indicates undefined */
+		NineEnum = 9,              /*!< Indicates Not allocated */
+		TenEnum = 10,              /*!< Indicates Not allocated */
+		HalvesEnum = 11,           /*!< Indicates halves */
+		QuartersEnum = 12,         /*!< Indicates quarters */
+		EightsEnum = 13,           /*!< Indicates eighths */
+		SixteenthsEnum = 14,       /*!< Indicates sixteenths */
+		ThirtySecondsEnum = 15,    /*!< Indicates 1/32nds */
+		SixtyFourthsEnum = 16,     /*!< Indicates 1/64ths */
+		OneTwentyEigthsEnum = 17,  /*!< Indicates 1/128ths */
+		TwoFiftySixths = 18,       /*!< Indicates 1/256ths */
+		NineteenEnum = 19,         /*!< Indicates Not allocated */
+		VarEnum = 20,              /*!< Indicates variable */
+		EightDpEnum = 26           /*!< Indicates 8 decimal places */
 	};
 
 
@@ -1131,7 +1747,7 @@ class ConsumerService;
 
 		@see Mbp::OrderBook
 	*/
-	class PricePoint
+	class EOA_DOMAIN_API PricePoint
 	{
 	public:
 
@@ -1338,7 +1954,7 @@ class ConsumerService;
 
 		@see Mbp::OrderBook
 	*/
-	class Summary
+	class EOA_DOMAIN_API Summary
 	{
 	public:
 
@@ -1490,7 +2106,7 @@ class ConsumerService;
 			Mbp::UpdateInfo,
 			Mbp::ConsumerItem
 	*/
-	class OrderBook
+	class EOA_DOMAIN_API OrderBook
 	{
 	public:
 
@@ -1527,7 +2143,7 @@ class ConsumerService;
 			@see Mbp::PricePoint,
 				Mbp::OrderBook
 		*/
-		class const_iterator
+		class EOA_DOMAIN_API const_iterator
 		{
 		public :
 
@@ -1681,7 +2297,7 @@ class ConsumerService;
 
 		@see Mbp::RefreshInfo
 	*/
-	class Qos
+	class EOA_DOMAIN_API Qos
 	{
 	public :
 
@@ -1761,7 +2377,7 @@ class ConsumerService;
 		@see Mbp::RefreshInfo,
 			Mbp::StatusInfo
 	*/
-	class State 
+	class EOA_DOMAIN_API State 
 	{
 	public :
 

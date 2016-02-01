@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2016. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -227,15 +227,18 @@ public:
 
 private:
 
-	friend class Leaf;
-	friend class Node;
+	friend class LeafImpl;
+	friend class NodeImpl;
 	friend class NoComponent;
 	friend class NoLeaf;
 	friend class NoNode;
 
 	friend class Decoder;
-	friend class LeafDecoder;
-	friend class NodeDecoder;
+	friend class LeafImplDecoder;
+	friend class NodeImplDecoder;
+	friend class NoComponentDecoder;
+	friend class NoLeafDecoder;
+	friend class NoNodeDecoder;
 	friend class CacheEntry;
 	friend class CacheNode;
 	friend class CacheLeaf;

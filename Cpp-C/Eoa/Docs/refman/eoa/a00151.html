@@ -110,25 +110,22 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li class="navelem"><b>domain</b>      </li>
       <li class="navelem"><b>marketbyorder</b>      </li>
       <li class="navelem"><a class="el" href="a00002.html">Mbo</a>      </li>
-      <li class="navelem"><a class="el" href="a00005.html">ConsumerService</a>      </li>
+      <li class="navelem"><a class="el" href="a00004.html">ConsumerItemClient</a>      </li>
     </ul>
   </div>
 </div>
 <div class="header">
   <div class="headertitle">
-<div class="title">thomsonreuters::eoa::domain::marketbyorder::Mbo::ConsumerService Member List</div>  </div>
+<div class="title">thomsonreuters::eoa::domain::marketbyorder::Mbo::ConsumerItemClient Member List</div>  </div>
 </div><!--header-->
 <div class="contents">
-This is the complete list of members for <a class="el" href="a00005.html">thomsonreuters::eoa::domain::marketbyorder::Mbo::ConsumerService</a>, including all inherited members.<table>
-  <tr class="memlist"><td><a class="el" href="a00005.html#ae25426fdb56f6ddd29e1328dea02f504">ConsumerService</a>(const foundation::EoaString &amp;serviceName)</td><td><a class="el" href="a00005.html">thomsonreuters::eoa::domain::marketbyorder::Mbo::ConsumerService</a></td><td></td></tr>
-  <tr class="memlist"><td><a class="el" href="a00005.html#a9bc1680e8788c967b83b7f323b2f94d9">refresh</a>(ConsumerItem &amp;item)</td><td><a class="el" href="a00005.html">thomsonreuters::eoa::domain::marketbyorder::Mbo::ConsumerService</a></td><td></td></tr>
-  <tr class="memlist"><td><a class="el" href="a00005.html#a5eaa76f178425845b354d77c3f2403d6">snap</a>(const ReqSpec &amp;itemSpec, ConsumerItemClient &amp;consumerItemClient, void *closure=0)</td><td><a class="el" href="a00005.html">thomsonreuters::eoa::domain::marketbyorder::Mbo::ConsumerService</a></td><td></td></tr>
-  <tr class="memlist"><td><a class="el" href="a00005.html#aef204a638d340027ed955a649113b415">snap</a>(const ReqSpec &amp;itemSpec, std::function&lt; void(const ConsumerItem &amp;)&gt; callBackFunc)</td><td><a class="el" href="a00005.html">thomsonreuters::eoa::domain::marketbyorder::Mbo::ConsumerService</a></td><td></td></tr>
-  <tr class="memlist"><td><a class="el" href="a00005.html#a4daf881f69b6e9e221383216d7734f02">snap</a>(const ReqSpec &amp;itemSpec)</td><td><a class="el" href="a00005.html">thomsonreuters::eoa::domain::marketbyorder::Mbo::ConsumerService</a></td><td></td></tr>
-  <tr class="memlist"><td><a class="el" href="a00005.html#a583a11005bdbcfb5d19f8539b3225b6a">subscribe</a>(const ReqSpec &amp;itemSpec, ConsumerItemClient &amp;consumerItemClient, void *closure=0)</td><td><a class="el" href="a00005.html">thomsonreuters::eoa::domain::marketbyorder::Mbo::ConsumerService</a></td><td></td></tr>
-  <tr class="memlist"><td><a class="el" href="a00005.html#a84c173d2696bca87157bf84378eb50dc">subscribe</a>(const ReqSpec &amp;itemSpec, std::function&lt; void(const ConsumerItem &amp;)&gt; callBackFunc)</td><td><a class="el" href="a00005.html">thomsonreuters::eoa::domain::marketbyorder::Mbo::ConsumerService</a></td><td></td></tr>
-  <tr class="memlist"><td><a class="el" href="a00005.html#abedbf5b4e99501ae694e713efb9d4cca">subscribe</a>(const ReqSpec &amp;itemSpec)</td><td><a class="el" href="a00005.html">thomsonreuters::eoa::domain::marketbyorder::Mbo::ConsumerService</a></td><td></td></tr>
-  <tr class="memlist"><td><a class="el" href="a00005.html#a8ba40db66a335af8db5f824ec673d134">~ConsumerService</a>()</td><td><a class="el" href="a00005.html">thomsonreuters::eoa::domain::marketbyorder::Mbo::ConsumerService</a></td><td><code> [virtual]</code></td></tr>
+This is the complete list of members for <a class="el" href="a00004.html">thomsonreuters::eoa::domain::marketbyorder::Mbo::ConsumerItemClient</a>, including all inherited members.<table>
+  <tr bgcolor="#f0f0f0"><td><b>ConsumerItemClient</b>() (defined in <a class="el" href="a00004.html">thomsonreuters::eoa::domain::marketbyorder::Mbo::ConsumerItemClient</a>)</td><td><a class="el" href="a00004.html">thomsonreuters::eoa::domain::marketbyorder::Mbo::ConsumerItemClient</a></td><td><code> [protected]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="a00004.html#a7fd6e083c841d3c2debce2d487335d19">onConsumerItemPartial</a>(const ConsumerItem &amp;current, const RefreshInfo &amp;change, void *closure)</td><td><a class="el" href="a00004.html">thomsonreuters::eoa::domain::marketbyorder::Mbo::ConsumerItemClient</a></td><td><code> [inline, virtual]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="a00004.html#a8f0b9941844a029a5c3adbcfccee04d6">onConsumerItemStatus</a>(const ConsumerItem &amp;current, const StatusInfo &amp;change, void *closure)</td><td><a class="el" href="a00004.html">thomsonreuters::eoa::domain::marketbyorder::Mbo::ConsumerItemClient</a></td><td><code> [inline, virtual]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="a00004.html#a05830f288f422d712c1c4df11b2a1de0">onConsumerItemSync</a>(const ConsumerItem &amp;current, const RefreshInfo &amp;change, void *closure)</td><td><a class="el" href="a00004.html">thomsonreuters::eoa::domain::marketbyorder::Mbo::ConsumerItemClient</a></td><td><code> [inline, virtual]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="a00004.html#a679d93e8c2c501138d112823bd49fa0a">onConsumerItemUpdate</a>(const ConsumerItem &amp;current, const UpdateInfo &amp;change, void *closure)</td><td><a class="el" href="a00004.html">thomsonreuters::eoa::domain::marketbyorder::Mbo::ConsumerItemClient</a></td><td><code> [inline, virtual]</code></td></tr>
+  <tr bgcolor="#f0f0f0"><td><b>~ConsumerItemClient</b>() (defined in <a class="el" href="a00004.html">thomsonreuters::eoa::domain::marketbyorder::Mbo::ConsumerItemClient</a>)</td><td><a class="el" href="a00004.html">thomsonreuters::eoa::domain::marketbyorder::Mbo::ConsumerItemClient</a></td><td><code> [protected, virtual]</code></td></tr>
 </table></div><!-- contents -->
 
 <hr class="footer"/><address class="footer"><small>
@@ -146,7 +143,7 @@ This is the complete list of members for <a class="el" href="a00005.html">thomso
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Dec 14 2015</td>
+			<td><p class="smallfont">Mon Feb 1 2016</td>
           </tr>
         </table>
         </td>

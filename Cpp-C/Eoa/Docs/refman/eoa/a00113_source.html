@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EOA: OmmDate.h Source File</title>
+<title>EOA: Node.h Source File</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -103,81 +103,132 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div class="header">
   <div class="headertitle">
-<div class="title">OmmDate.h</div>  </div>
+<div class="title">Node.h</div>  </div>
 </div><!--header-->
 <div class="contents">
 <div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 <span class="comment">/*|-----------------------------------------------------------------------------</span>
 <a name="l00002"></a>00002 <span class="comment"> *|            This source code is provided under the Apache 2.0 license      --</span>
 <a name="l00003"></a>00003 <span class="comment"> *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --</span>
 <a name="l00004"></a>00004 <span class="comment"> *|                See the project&#39;s LICENSE.md for details.                  --</span>
-<a name="l00005"></a>00005 <span class="comment"> *|           Copyright Thomson Reuters 2015. All rights reserved.            --</span>
+<a name="l00005"></a>00005 <span class="comment"> *|           Copyright Thomson Reuters 2016. All rights reserved.            --</span>
 <a name="l00006"></a>00006 <span class="comment"> *|-----------------------------------------------------------------------------</span>
 <a name="l00007"></a>00007 <span class="comment"> */</span>
 <a name="l00008"></a>00008 
-<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_eoa_foundation_ommdate_h</span>
-<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_eoa_foundation_ommdate_h</span>
+<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_eoa_foundation_node_h</span>
+<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_eoa_foundation_node_h</span>
 <a name="l00011"></a>00011 <span class="preprocessor"></span>
-<a name="l00027"></a>00027 <span class="preprocessor">#include &quot;Foundation/Include/DataType.h&quot;</span>
-<a name="l00028"></a>00028 <span class="preprocessor">#include &quot;Foundation/Include/EoaString.h&quot;</span>
-<a name="l00029"></a>00029 
-<a name="l00030"></a>00030 <span class="keyword">namespace </span>thomsonreuters {
-<a name="l00031"></a>00031 
-<a name="l00032"></a>00032 <span class="keyword">namespace </span>eoa {
-<a name="l00033"></a>00033 
-<a name="l00034"></a>00034 <span class="keyword">namespace </span>foundation {
-<a name="l00035"></a>00035 
-<a name="l00036"></a>00036 <span class="keyword">class </span>EoaBuffer;
-<a name="l00037"></a>00037 
-<a name="l00038"></a><a class="code" href="a00074.html">00038</a> <span class="keyword">class </span>EOA_FOUNDATION_API <a class="code" href="a00074.html" title="OmmDate represents Date info in Omm.">OmmDate</a>
-<a name="l00039"></a>00039 {
-<a name="l00040"></a>00040 <span class="keyword">public</span> :
-<a name="l00041"></a>00041 
-<a name="l00043"></a>00043 
+<a name="l00030"></a>00030 <span class="preprocessor">#include &quot;Foundation/Include/Component.h&quot;</span>
+<a name="l00031"></a>00031 <span class="preprocessor">#include &quot;Foundation/Include/Action.h&quot;</span>
+<a name="l00032"></a>00032 <span class="preprocessor">#include &quot;Foundation/Include/FilterType.h&quot;</span>
+<a name="l00033"></a>00033 <span class="preprocessor">#include &quot;Foundation/Include/EoaBuffer.h&quot;</span>
+<a name="l00034"></a>00034 
+<a name="l00035"></a>00035 <span class="keyword">namespace </span>thomsonreuters {
+<a name="l00036"></a>00036 
+<a name="l00037"></a>00037 <span class="keyword">namespace </span>eoa {
+<a name="l00038"></a>00038 
+<a name="l00039"></a>00039 <span class="keyword">namespace </span>foundation {
+<a name="l00040"></a>00040 
+<a name="l00041"></a>00041 <span class="keyword">class </span>EoaString;
+<a name="l00042"></a>00042 <span class="keyword">class </span>Leaf;
+<a name="l00043"></a>00043 <span class="keyword">class </span>ConsumerNodeStoreClient;
 <a name="l00044"></a>00044 
-<a name="l00047"></a>00047     UInt16 getYear() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
-<a name="l00048"></a>00048 
-<a name="l00052"></a>00052     UInt8 getMonth() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
-<a name="l00053"></a>00053 
-<a name="l00057"></a>00057     UInt8 getDay() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
-<a name="l00058"></a>00058 
-<a name="l00062"></a>00062     <span class="keyword">const</span> <a class="code" href="a00066.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a>&amp; getAsHex() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
-<a name="l00063"></a>00063 
-<a name="l00068"></a>00068     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; toString() <span class="keyword">const</span>;
-<a name="l00069"></a>00069 
-<a name="l00073"></a>00073     operator const char* () <span class="keyword">const</span>;
-<a name="l00075"></a>00075 
-<a name="l00076"></a>00076 <span class="keyword">private</span> :
-<a name="l00077"></a>00077 
-<a name="l00078"></a>00078     <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="a00091.html" title="Tag class represents Component name or id.">Tag</a>;
-<a name="l00079"></a>00079     <span class="keyword">friend</span> <span class="keyword">class </span>LeafDecoder;
-<a name="l00080"></a>00080     <span class="keyword">friend</span> <span class="keyword">class </span>Decoder;
-<a name="l00081"></a>00081     <span class="keyword">friend</span> <span class="keyword">class </span>CacheLeaf;
-<a name="l00082"></a>00082 
-<a name="l00083"></a>00083     UInt16                  _year;
-<a name="l00084"></a>00084     UInt8                   _month;
-<a name="l00085"></a>00085     UInt8                   _day;
-<a name="l00086"></a>00086     <span class="keywordtype">bool</span>                    _isLocal;
-<a name="l00087"></a>00087 
-<a name="l00088"></a>00088     <span class="keyword">const</span> <span class="keywordtype">void</span>*             _ptr;
-<a name="l00089"></a>00089     <span class="keyword">mutable</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>       _toString;
-<a name="l00090"></a>00090     <span class="keyword">mutable</span> UInt16          _eoaBuffer[24];
+<a name="l00045"></a>00045 <span class="keyword">class </span>NodeExternalDecoder;
+<a name="l00046"></a>00046 
+<a name="l00047"></a><a class="code" href="a00072.html">00047</a> <span class="keyword">class </span>EOA_FOUNDATION_API <a class="code" href="a00072.html" title="Node class represents all OMM container types.">Node</a> : <span class="keyword">public</span> <a class="code" href="a00057.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a>
+<a name="l00048"></a>00048 {
+<a name="l00049"></a>00049 <span class="keyword">public</span>:
+<a name="l00050"></a>00050 
+<a name="l00085"></a><a class="code" href="a00073.html">00085</a>     <span class="keyword">class </span>EOA_FOUNDATION_API <a class="code" href="a00073.html" title="Node::const_iterator is an external and explicit Node read iterator.">const_iterator</a>
+<a name="l00086"></a>00086     {
+<a name="l00087"></a>00087     <span class="keyword">public</span> :
+<a name="l00088"></a>00088 
+<a name="l00090"></a>00090 
 <a name="l00091"></a>00091 
-<a name="l00092"></a>00092     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; toString( UInt64 indent ) <span class="keyword">const</span>;
-<a name="l00093"></a>00093     <a class="code" href="a00074.html" title="OmmDate represents Date info in Omm.">OmmDate</a>( UInt16 year, UInt8 month, UInt8 day );
-<a name="l00094"></a>00094 
-<a name="l00095"></a>00095     <a class="code" href="a00074.html" title="OmmDate represents Date info in Omm.">OmmDate</a>();
-<a name="l00096"></a>00096     <span class="keyword">virtual</span> ~<a class="code" href="a00074.html" title="OmmDate represents Date info in Omm.">OmmDate</a>();
-<a name="l00097"></a>00097     <a class="code" href="a00074.html" title="OmmDate represents Date info in Omm.">OmmDate</a>( <span class="keyword">const</span> <a class="code" href="a00074.html" title="OmmDate represents Date info in Omm.">OmmDate</a>&amp; );
-<a name="l00098"></a>00098     <a class="code" href="a00074.html" title="OmmDate represents Date info in Omm.">OmmDate</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00074.html" title="OmmDate represents Date info in Omm.">OmmDate</a>&amp; );
-<a name="l00099"></a>00099 };
+<a name="l00094"></a>00094         <a class="code" href="a00073.html" title="Node::const_iterator is an external and explicit Node read iterator.">const_iterator</a>();
+<a name="l00095"></a>00095         
+<a name="l00099"></a>00099         <a class="code" href="a00073.html" title="Node::const_iterator is an external and explicit Node read iterator.">const_iterator</a>( <span class="keyword">const</span> <a class="code" href="a00072.html" title="Node class represents all OMM container types.">Node</a>&amp; node );
 <a name="l00100"></a>00100 
-<a name="l00101"></a>00101 }
-<a name="l00102"></a>00102 
-<a name="l00103"></a>00103 }
-<a name="l00104"></a>00104 
-<a name="l00105"></a>00105 }
-<a name="l00106"></a>00106 
-<a name="l00107"></a>00107 <span class="preprocessor">#endif // __thomsonreuters_eoa_foundation_ommdate_h</span>
+<a name="l00104"></a>00104         <a class="code" href="a00073.html" title="Node::const_iterator is an external and explicit Node read iterator.">const_iterator</a>( <span class="keyword">const</span> <a class="code" href="a00073.html" title="Node::const_iterator is an external and explicit Node read iterator.">const_iterator</a>&amp; other );
+<a name="l00105"></a>00105         
+<a name="l00109"></a>00109         <a class="code" href="a00073.html" title="Node::const_iterator is an external and explicit Node read iterator.">const_iterator</a>( <a class="code" href="a00073.html" title="Node::const_iterator is an external and explicit Node read iterator.">const_iterator</a>&amp;&amp; other );
+<a name="l00111"></a>00111 
+<a name="l00114"></a>00114         <span class="keyword">virtual</span> ~<a class="code" href="a00073.html" title="Node::const_iterator is an external and explicit Node read iterator.">const_iterator</a>();
+<a name="l00116"></a>00116 
+<a name="l00118"></a>00118 
+<a name="l00119"></a>00119 
+<a name="l00123"></a>00123         <a class="code" href="a00073.html" title="Node::const_iterator is an external and explicit Node read iterator.">const_iterator</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00073.html" title="Node::const_iterator is an external and explicit Node read iterator.">const_iterator</a>&amp; other );
+<a name="l00124"></a>00124 
+<a name="l00128"></a>00128         <span class="keyword">const</span> <a class="code" href="a00057.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a>&amp; operator*() <span class="keyword">const</span>;
+<a name="l00129"></a>00129 
+<a name="l00133"></a>00133         <span class="keyword">const</span> <a class="code" href="a00057.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a>* operator-&gt;() <span class="keyword">const</span>;
+<a name="l00134"></a>00134 
+<a name="l00138"></a>00138         <a class="code" href="a00073.html" title="Node::const_iterator is an external and explicit Node read iterator.">const_iterator</a>&amp; operator++();
+<a name="l00139"></a>00139         
+<a name="l00143"></a>00143         <a class="code" href="a00073.html" title="Node::const_iterator is an external and explicit Node read iterator.">const_iterator</a> operator++( <span class="keywordtype">int</span> );
+<a name="l00144"></a>00144         
+<a name="l00149"></a>00149         <span class="keywordtype">bool</span> operator!=( <span class="keyword">const</span> <a class="code" href="a00073.html" title="Node::const_iterator is an external and explicit Node read iterator.">const_iterator</a>&amp; other ) <span class="keyword">const</span>;
+<a name="l00150"></a>00150 
+<a name="l00155"></a>00155         <span class="keywordtype">bool</span> operator==( <span class="keyword">const</span> <a class="code" href="a00073.html" title="Node::const_iterator is an external and explicit Node read iterator.">const_iterator</a>&amp; other ) <span class="keyword">const</span>;
+<a name="l00157"></a>00157 
+<a name="l00158"></a>00158     <span class="keyword">private</span> :
+<a name="l00159"></a>00159 
+<a name="l00160"></a>00160         <span class="keyword">friend</span> <span class="keyword">class </span>NodeImpl;
+<a name="l00161"></a>00161         <span class="keyword">friend</span> <span class="keyword">class </span>CacheNode;
+<a name="l00162"></a>00162 
+<a name="l00163"></a>00163         <a class="code" href="a00073.html" title="Node::const_iterator is an external and explicit Node read iterator.">const_iterator</a>&amp; clear();
+<a name="l00164"></a>00164 
+<a name="l00165"></a>00165         NodeExternalDecoder*        _pDecoder;
+<a name="l00166"></a>00166     };
+<a name="l00167"></a>00167 
+<a name="l00169"></a>00169 
+<a name="l00170"></a>00170 
+<a name="l00174"></a>00174     <span class="keyword">virtual</span> <a class="code" href="a00073.html" title="Node::const_iterator is an external and explicit Node read iterator.">const_iterator</a> begin() <span class="keyword">const</span> = 0;
+<a name="l00175"></a>00175 
+<a name="l00180"></a>00180     <span class="keyword">virtual</span> <a class="code" href="a00073.html" title="Node::const_iterator is an external and explicit Node read iterator.">const_iterator</a> end() <span class="keyword">const</span> = 0;
+<a name="l00182"></a>00182 
+<a name="l00184"></a>00184 
+<a name="l00185"></a>00185 
+<a name="l00189"></a>00189     <span class="keyword">virtual</span> <a class="code" href="a00055.html" title="Action class provides enumeration representing container entry action.">Action</a> getAction() <span class="keyword">const</span> = 0;
+<a name="l00190"></a>00190 
+<a name="l00195"></a>00195     <span class="keyword">virtual</span> <span class="keyword">const</span> <a class="code" href="a00072.html" title="Node class represents all OMM container types.">Node</a>&amp; getParentNode() <span class="keyword">const</span> = 0;
+<a name="l00196"></a>00196 
+<a name="l00202"></a>00202     <span class="keyword">virtual</span> <span class="keywordtype">bool</span> forth( <a class="code" href="a00069.html" title="FilterType class provides enumeration representing filter types.">FilterType</a> filterType = FilterType::BlankableEnum ) <span class="keyword">const</span> throw() = 0;
+<a name="l00203"></a>00203 
+<a name="l00207"></a>00207     virtual <span class="keywordtype">void</span> reset() const throw() = 0;
+<a name="l00208"></a>00208 
+<a name="l00213"></a>00213     virtual const <a class="code" href="a00057.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a>&amp; getComponent() const = 0;
+<a name="l00214"></a>00214 
+<a name="l00218"></a>00218     virtual <span class="keywordtype">bool</span> hasSummary() const throw() = 0;
+<a name="l00219"></a>00219 
+<a name="l00224"></a>00224     virtual const <a class="code" href="a00072.html" title="Node class represents all OMM container types.">Node</a>&amp; getSummary() const = 0;
+<a name="l00225"></a>00225 
+<a name="l00231"></a>00231     virtual const <a class="code" href="a00071.html" title="Leaf class represents all OMM simple types.">Leaf</a>&amp; fetchLeaf( const <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; name, <a class="code" href="a00069.html" title="FilterType class provides enumeration representing filter types.">FilterType</a> filterType = <a class="code" href="a00069.html" title="FilterType class provides enumeration representing filter types.">FilterType</a>::BlankableEnum ) const throw () = 0;
+<a name="l00232"></a>00232 
+<a name="l00238"></a>00238     virtual const <a class="code" href="a00072.html" title="Node class represents all OMM container types.">Node</a>&amp; fetchNode( const <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; name, <a class="code" href="a00069.html" title="FilterType class provides enumeration representing filter types.">FilterType</a> filterType = <a class="code" href="a00069.html" title="FilterType class provides enumeration representing filter types.">FilterType</a>::BlankableEnum ) const throw () = 0;
+<a name="l00239"></a>00239 
+<a name="l00245"></a>00245     virtual const <a class="code" href="a00057.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a>&amp; fetchComponent( const <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; name, <a class="code" href="a00069.html" title="FilterType class provides enumeration representing filter types.">FilterType</a> filterType = <a class="code" href="a00069.html" title="FilterType class provides enumeration representing filter types.">FilterType</a>::BlankableEnum ) const throw () = 0;
+<a name="l00247"></a>00247 
+<a name="l00249"></a>00249 
+<a name="l00250"></a>00250 
+<a name="l00252"></a>00252     virtual ~<a class="code" href="a00072.html" title="Node class represents all OMM container types.">Node</a>();
+<a name="l00254"></a>00254 
+<a name="l00255"></a>00255 protected :
+<a name="l00256"></a>00256 
+<a name="l00257"></a>00257     Node();
+<a name="l00258"></a>00258 
+<a name="l00259"></a>00259 private :
+<a name="l00260"></a>00260 
+<a name="l00261"></a>00261     Node( const Node&amp; );
+<a name="l00262"></a>00262     Node&amp; operator=( const Node&amp; );
+<a name="l00263"></a>00263 };
+<a name="l00264"></a>00264 
+<a name="l00265"></a>00265 }
+<a name="l00266"></a>00266 
+<a name="l00267"></a>00267 }
+<a name="l00268"></a>00268 
+<a name="l00269"></a>00269 }
+<a name="l00270"></a>00270 
+<a name="l00271"></a>00271 <span class="preprocessor">#endif // __thomsonreuters_eoa_foundation_node_h</span>
 </pre></div></div><!-- contents -->
 
 <hr class="footer"/><address class="footer"><small>
@@ -195,7 +246,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Dec 14 2015</td>
+			<td><p class="smallfont">Mon Feb 1 2016</td>
           </tr>
         </table>
         </td>

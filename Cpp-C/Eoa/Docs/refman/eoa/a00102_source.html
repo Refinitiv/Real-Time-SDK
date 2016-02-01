@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EOA: ConsumerItem.h Source File</title>
+<title>EOA: ComponentType.h Source File</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -103,94 +103,70 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div class="header">
   <div class="headertitle">
-<div class="title">ConsumerItem.h</div>  </div>
+<div class="title">ComponentType.h</div>  </div>
 </div><!--header-->
 <div class="contents">
 <div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 <span class="comment">/*|-----------------------------------------------------------------------------</span>
 <a name="l00002"></a>00002 <span class="comment"> *|            This source code is provided under the Apache 2.0 license      --</span>
 <a name="l00003"></a>00003 <span class="comment"> *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --</span>
 <a name="l00004"></a>00004 <span class="comment"> *|                See the project&#39;s LICENSE.md for details.                  --</span>
-<a name="l00005"></a>00005 <span class="comment"> *|           Copyright Thomson Reuters 2015. All rights reserved.            --</span>
+<a name="l00005"></a>00005 <span class="comment"> *|           Copyright Thomson Reuters 2016. All rights reserved.            --</span>
 <a name="l00006"></a>00006 <span class="comment"> *|-----------------------------------------------------------------------------</span>
 <a name="l00007"></a>00007 <span class="comment"> */</span>
 <a name="l00008"></a>00008 
-<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_eoa_foundation_consumeritem_h</span>
-<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_eoa_foundation_consumeritem_h</span>
+<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_eoa_foundation_componenttype_h</span>
+<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_eoa_foundation_componenttype_h</span>
 <a name="l00011"></a>00011 <span class="preprocessor"></span>
-<a name="l00024"></a>00024 <span class="preprocessor">#include &quot;<a class="code" href="a00099.html" title="Common.h file provides definitions of common variable types used in EOA.">Foundation/Include/Common.h</a>&quot;</span>
-<a name="l00025"></a>00025 
-<a name="l00026"></a>00026 <span class="keyword">namespace </span>thomsonreuters {
-<a name="l00027"></a>00027 
-<a name="l00028"></a>00028 <span class="keyword">namespace </span>eoa {
-<a name="l00029"></a>00029 
-<a name="l00030"></a>00030 <span class="keyword">namespace </span>foundation {
-<a name="l00031"></a>00031 
-<a name="l00032"></a>00032 <span class="keyword">class </span>Node;
-<a name="l00033"></a>00033 <span class="keyword">class </span>EoaString;
-<a name="l00034"></a>00034 
-<a name="l00035"></a>00035 <span class="keyword">class </span>ConsumerItemImpl;
-<a name="l00036"></a>00036 <span class="keyword">class </span>ConsumerServiceImpl;
-<a name="l00037"></a>00037 
-<a name="l00038"></a><a class="code" href="a00060.html">00038</a> <span class="keyword">class </span>EOA_FOUNDATION_API <a class="code" href="a00060.html" title="ConsumerItem provides access to item&#39;s key, state, attribute and payload.">ConsumerItem</a>
-<a name="l00039"></a>00039 {
-<a name="l00040"></a>00040 <span class="keyword">public</span>:
-<a name="l00041"></a>00041 
-<a name="l00043"></a>00043 
-<a name="l00044"></a>00044 
-<a name="l00047"></a>00047     <a class="code" href="a00060.html" title="ConsumerItem provides access to item&#39;s key, state, attribute and payload.">ConsumerItem</a>();
-<a name="l00048"></a>00048 
-<a name="l00053"></a>00053     <a class="code" href="a00060.html" title="ConsumerItem provides access to item&#39;s key, state, attribute and payload.">ConsumerItem</a>( <span class="keyword">const</span> <a class="code" href="a00060.html" title="ConsumerItem provides access to item&#39;s key, state, attribute and payload.">ConsumerItem</a>&amp; other );
+<a name="l00012"></a>00012 <span class="preprocessor">#include &quot;<a class="code" href="a00100.html" title="Common.h file provides definitions of common variable types used in EOA.">Foundation/Include/Common.h</a>&quot;</span>
+<a name="l00013"></a>00013 
+<a name="l00014"></a>00014 <span class="keyword">namespace </span>thomsonreuters {
+<a name="l00015"></a>00015     
+<a name="l00016"></a>00016 <span class="keyword">namespace </span>eoa {
+<a name="l00017"></a>00017 
+<a name="l00018"></a>00018 <span class="keyword">namespace </span>foundation {
+<a name="l00019"></a>00019 
+<a name="l00020"></a><a class="code" href="a00058.html">00020</a> <span class="keyword">class </span><a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>;
+<a name="l00021"></a>00021 
+<a name="l00032"></a>00032 <span class="keyword">enum class</span> EOA_FOUNDATION_API <a class="code" href="a00058.html" title="ComponentType class provides enumeration representing component types.">ComponentType</a>
+<a name="l00033"></a>00033 {
+<a name="l00034"></a>00034     NodeEnum,       
+<a name="l00037"></a>00037     LeafEnum        
+<a name="l00039"></a>00039 };
+<a name="l00040"></a>00040 
+<a name="l00049"></a><a class="code" href="a00059.html">00049</a> <span class="keyword">class </span>EOA_FOUNDATION_API <a class="code" href="a00059.html" title="ComponentTypeName class converts ComponentType enumeration into a string with its name...">ComponentTypeName</a>
+<a name="l00050"></a>00050 {
+<a name="l00051"></a>00051 <span class="keyword">public</span> :
+<a name="l00052"></a>00052 
 <a name="l00054"></a>00054 
-<a name="l00058"></a>00058     <a class="code" href="a00060.html" title="ConsumerItem provides access to item&#39;s key, state, attribute and payload.">ConsumerItem</a>( <a class="code" href="a00060.html" title="ConsumerItem provides access to item&#39;s key, state, attribute and payload.">ConsumerItem</a>&amp;&amp; other );
-<a name="l00060"></a>00060 
-<a name="l00062"></a>00062 
+<a name="l00055"></a>00055 
+<a name="l00059"></a>00059     <a class="code" href="a00059.html" title="ComponentTypeName class converts ComponentType enumeration into a string with its name...">ComponentTypeName</a>( <a class="code" href="a00058.html" title="ComponentType class provides enumeration representing component types.">ComponentType</a> componentType );
+<a name="l00061"></a>00061 
 <a name="l00063"></a>00063 
-<a name="l00065"></a>00065     <span class="keyword">virtual</span> ~<a class="code" href="a00060.html" title="ConsumerItem provides access to item&#39;s key, state, attribute and payload.">ConsumerItem</a>();
-<a name="l00067"></a>00067 
-<a name="l00069"></a>00069 
+<a name="l00064"></a>00064 
+<a name="l00066"></a>00066     <span class="keyword">virtual</span> ~<a class="code" href="a00059.html" title="ComponentTypeName class converts ComponentType enumeration into a string with its name...">ComponentTypeName</a>();
+<a name="l00068"></a>00068 
 <a name="l00070"></a>00070 
-<a name="l00075"></a>00075     <a class="code" href="a00060.html" title="ConsumerItem provides access to item&#39;s key, state, attribute and payload.">ConsumerItem</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00060.html" title="ConsumerItem provides access to item&#39;s key, state, attribute and payload.">ConsumerItem</a>&amp; other );
-<a name="l00076"></a>00076 
-<a name="l00081"></a>00081     <a class="code" href="a00060.html" title="ConsumerItem provides access to item&#39;s key, state, attribute and payload.">ConsumerItem</a>&amp; operator=( <a class="code" href="a00060.html" title="ConsumerItem provides access to item&#39;s key, state, attribute and payload.">ConsumerItem</a>&amp;&amp; other ) <span class="keywordflow">throw</span>();
-<a name="l00083"></a>00083 
-<a name="l00085"></a>00085 
-<a name="l00086"></a>00086 
-<a name="l00089"></a>00089     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; getSymbol() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
-<a name="l00090"></a>00090 
-<a name="l00094"></a>00094     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; getServiceName() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00071"></a>00071 
+<a name="l00074"></a>00074     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; toString() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00075"></a>00075 
+<a name="l00078"></a>00078     operator const char* () <span class="keyword">const</span> <span class="keywordflow">throw</span>();
+<a name="l00080"></a>00080 
+<a name="l00081"></a>00081 <span class="keyword">private</span> :
+<a name="l00082"></a>00082 
+<a name="l00083"></a>00083     <a class="code" href="a00058.html" title="ComponentType class provides enumeration representing component types.">ComponentType</a> _value;
+<a name="l00084"></a>00084 
+<a name="l00085"></a>00085     <a class="code" href="a00059.html" title="ComponentTypeName class converts ComponentType enumeration into a string with its name...">ComponentTypeName</a>();
+<a name="l00086"></a>00086     <a class="code" href="a00059.html" title="ComponentTypeName class converts ComponentType enumeration into a string with its name...">ComponentTypeName</a>( <span class="keyword">const</span> <a class="code" href="a00059.html" title="ComponentTypeName class converts ComponentType enumeration into a string with its name...">ComponentTypeName</a>&amp; );
+<a name="l00087"></a>00087     <a class="code" href="a00059.html" title="ComponentTypeName class converts ComponentType enumeration into a string with its name...">ComponentTypeName</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00059.html" title="ComponentTypeName class converts ComponentType enumeration into a string with its name...">ComponentTypeName</a>&amp; );
+<a name="l00088"></a>00088 };
+<a name="l00089"></a>00089 
+<a name="l00090"></a>00090 }
+<a name="l00091"></a>00091 
+<a name="l00092"></a>00092 }
+<a name="l00093"></a>00093 
+<a name="l00094"></a>00094 }
 <a name="l00095"></a>00095 
-<a name="l00099"></a>00099     UInt16 getDomainType() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
-<a name="l00100"></a>00100 
-<a name="l00104"></a>00104     <span class="keywordtype">bool</span> isActive() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
-<a name="l00105"></a>00105 
-<a name="l00109"></a>00109     <span class="keywordtype">bool</span> isOk() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
-<a name="l00110"></a>00110 
-<a name="l00114"></a>00114     <span class="keywordtype">bool</span> isResync() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
-<a name="l00115"></a>00115 
-<a name="l00119"></a>00119     <span class="keywordtype">bool</span> isComplete() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
-<a name="l00120"></a>00120 
-<a name="l00124"></a>00124     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; getStatusText() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
-<a name="l00125"></a>00125 
-<a name="l00129"></a>00129     <span class="keyword">const</span> <a class="code" href="a00072.html" title="Node class represents all OMM container types.">Node</a>&amp; getPayload() <span class="keyword">const</span> <span class="keywordflow">throw</span>();
-<a name="l00130"></a>00130 
-<a name="l00135"></a>00135     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; toString() <span class="keyword">const</span>;
-<a name="l00136"></a>00136 
-<a name="l00140"></a>00140     operator const char* () <span class="keyword">const</span>;
-<a name="l00142"></a>00142 
-<a name="l00143"></a>00143 <span class="keyword">private</span>:
-<a name="l00144"></a>00144 
-<a name="l00145"></a>00145     ConsumerItemImpl*       _pConsumerItemImpl;
-<a name="l00146"></a>00146     
-<a name="l00147"></a>00147     <span class="keyword">friend</span> <span class="keyword">class            </span>ConsumerServiceImpl;
-<a name="l00148"></a>00148 };
-<a name="l00149"></a>00149 
-<a name="l00150"></a>00150 }
-<a name="l00151"></a>00151 
-<a name="l00152"></a>00152 }
-<a name="l00153"></a>00153 
-<a name="l00154"></a>00154 }
-<a name="l00155"></a>00155 
-<a name="l00156"></a>00156 <span class="preprocessor">#endif // __thomsonreuters_eoa_foundation_consumeritem_h</span>
+<a name="l00096"></a>00096 <span class="preprocessor">#endif // __thomsonreuters_eoa_foundation_componenttype_h</span>
 </pre></div></div><!-- contents -->
 
 <hr class="footer"/><address class="footer"><small>
@@ -208,7 +184,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Dec 14 2015</td>
+			<td><p class="smallfont">Mon Feb 1 2016</td>
           </tr>
         </table>
         </td>
