@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EOA: OmmInaccessibleLogFileException.h Source File</title>
+<title>EOA: /projects/eoa/eoa3.0/Src/Domain/MarketByOrder/Include/Mbo.h Source File</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -86,7 +86,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="files.html"><span>File&#160;List</span></a></li>
     </ul>
   </div>
-</div>
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -101,9 +100,16 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
+  <div id="nav-path" class="navpath">
+    <ul>
+      <li class="navelem"><a class="el" href="dir_6946201a9fe9c48fe4ad4ef973e73e18.html">MarketByOrder</a>      </li>
+      <li class="navelem"><a class="el" href="dir_146dee9d71d9f733fb9560c233235626.html">Include</a>      </li>
+    </ul>
+  </div>
+</div>
 <div class="header">
   <div class="headertitle">
-<div class="title">OmmInaccessibleLogFileException.h</div>  </div>
+<div class="title">Mbo.h</div>  </div>
 </div><!--header-->
 <div class="contents">
 <div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 <span class="comment">/*|-----------------------------------------------------------------------------</span>
@@ -114,53 +120,1529 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00006"></a>00006 <span class="comment"> *|-----------------------------------------------------------------------------</span>
 <a name="l00007"></a>00007 <span class="comment"> */</span>
 <a name="l00008"></a>00008 
-<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_eoa_foundation_omminaccessiblelogfileexception_h</span>
-<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_eoa_foundation_omminaccessiblelogfileexception_h</span>
+<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_eoa_domain_marketbyorder_mbo_h</span>
+<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_eoa_domain_marketbyorder_mbo_h</span>
 <a name="l00011"></a>00011 <span class="preprocessor"></span>
-<a name="l00024"></a>00024 <span class="preprocessor">#include &quot;Foundation/Include/OmmException.h&quot;</span>
-<a name="l00025"></a>00025 <span class="preprocessor">#include &quot;Foundation/Include/EoaString.h&quot;</span>
+<a name="l00012"></a>00012 <span class="preprocessor">#pragma warning( disable : 4251 )</span>
+<a name="l00013"></a>00013 <span class="preprocessor"></span>
+<a name="l00014"></a>00014 <span class="preprocessor">#include &quot;Foundation/Include/EoaBuffer.h&quot;</span>
+<a name="l00015"></a>00015 <span class="preprocessor">#include &quot;Foundation/Include/EoaString.h&quot;</span>
+<a name="l00016"></a>00016 <span class="preprocessor">#include &quot;Foundation/Include/Leaf.h&quot;</span>
+<a name="l00017"></a>00017 <span class="preprocessor">#include &quot;Foundation/Include/Node.h&quot;</span>
+<a name="l00018"></a>00018 <span class="preprocessor">#include &quot;Foundation/Include/OmmDate.h&quot;</span>
+<a name="l00019"></a>00019 <span class="preprocessor">#include &quot;Foundation/Include/OmmMemoryExhaustionException.h&quot;</span>
+<a name="l00020"></a>00020 <span class="preprocessor">#include &quot;Foundation/Include/OmmInvalidUsageException.h&quot;</span>
+<a name="l00021"></a>00021 <span class="preprocessor">#include &quot;Foundation/Include/OmmInaccessibleLogFileException.h&quot;</span>
+<a name="l00022"></a>00022 <span class="preprocessor">#include &quot;Foundation/Include/OmmOutOfRangeException.h&quot;</span>
+<a name="l00023"></a>00023 <span class="preprocessor">#include &quot;Foundation/Include/OmmUnsupportedDomainTypeException.h&quot;</span>
+<a name="l00024"></a>00024 
+<a name="l00025"></a>00025 <span class="preprocessor">#include &lt;functional&gt;</span>
 <a name="l00026"></a>00026 
 <a name="l00027"></a>00027 <span class="keyword">namespace </span>thomsonreuters {
 <a name="l00028"></a>00028 
 <a name="l00029"></a>00029 <span class="keyword">namespace </span>eoa {
 <a name="l00030"></a>00030 
-<a name="l00031"></a>00031 <span class="keyword">namespace </span>foundation {
+<a name="l00031"></a>00031 <span class="keyword">namespace </span>domain {
 <a name="l00032"></a>00032 
-<a name="l00033"></a><a class="code" href="a00077.html">00033</a> <span class="keyword">class </span>EOA_FOUNDATION_API <a class="code" href="a00077.html" title="OmmInaccessibleLogFileException is thrown when EOA log file can not be created.">OmmInaccessibleLogFileException</a> : <span class="keyword">public</span> <a class="code" href="a00076.html" title="OmmException is a parent class for all exception types thrown by EOA.">OmmException</a>
-<a name="l00034"></a>00034 {
-<a name="l00035"></a>00035 <span class="keyword">public</span>:
-<a name="l00036"></a>00036 
-<a name="l00038"></a>00038 
-<a name="l00039"></a>00039 
-<a name="l00042"></a>00042     <a class="code" href="a00076.html#ada020f6db0483637b44e49f960296ab1">OmmException::ExceptionType</a> getExceptionType() <span class="keyword">const override</span>;
+<a name="l00042"></a>00042 <span class="keyword">namespace </span>marketbyorder {
 <a name="l00043"></a>00043 
-<a name="l00047"></a>00047     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; getText() <span class="keyword">const override</span>;
-<a name="l00048"></a>00048 
-<a name="l00052"></a>00052     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; toString() <span class="keyword">const override</span>;
-<a name="l00053"></a>00053 
-<a name="l00057"></a>00057     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; getFilename() <span class="keyword">const</span>;
-<a name="l00059"></a>00059 
-<a name="l00061"></a>00061 
-<a name="l00062"></a>00062 
-<a name="l00064"></a>00064     <span class="keyword">virtual</span> ~<a class="code" href="a00077.html" title="OmmInaccessibleLogFileException is thrown when EOA log file can not be created.">OmmInaccessibleLogFileException</a>();
-<a name="l00066"></a>00066 
-<a name="l00067"></a>00067 <span class="keyword">protected</span>:
-<a name="l00068"></a>00068 
-<a name="l00069"></a>00069     <a class="code" href="a00077.html" title="OmmInaccessibleLogFileException is thrown when EOA log file can not be created.">OmmInaccessibleLogFileException</a>( <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; );
-<a name="l00070"></a>00070 
-<a name="l00071"></a>00071     <a class="code" href="a00077.html" title="OmmInaccessibleLogFileException is thrown when EOA log file can not be created.">OmmInaccessibleLogFileException</a>( <span class="keyword">const</span> <a class="code" href="a00077.html" title="OmmInaccessibleLogFileException is thrown when EOA log file can not be created.">OmmInaccessibleLogFileException</a>&amp; );
-<a name="l00072"></a>00072     <a class="code" href="a00077.html" title="OmmInaccessibleLogFileException is thrown when EOA log file can not be created.">OmmInaccessibleLogFileException</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00077.html" title="OmmInaccessibleLogFileException is thrown when EOA log file can not be created.">OmmInaccessibleLogFileException</a>&amp; );
-<a name="l00073"></a>00073 
-<a name="l00074"></a>00074     <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>               _fileName;
-<a name="l00075"></a>00075 };
-<a name="l00076"></a>00076 
-<a name="l00077"></a>00077 }
-<a name="l00078"></a>00078 
-<a name="l00079"></a>00079 }
+<a name="l00044"></a>00044 <span class="keyword">class </span>MboConsumerItemImpl;
+<a name="l00045"></a>00045 <span class="keyword">class </span>MboReqSpecImpl;
+<a name="l00046"></a>00046 <span class="keyword">class </span>MboConsumerServiceImpl;
+<a name="l00047"></a>00047 <span class="keyword">class </span>MboRefreshInfoImpl;
+<a name="l00048"></a>00048 <span class="keyword">class </span>MboUpdateInfoImpl;
+<a name="l00049"></a>00049 <span class="keyword">class </span>MboStatusInfoImpl;
+<a name="l00050"></a>00050 <span class="keyword">class </span>MboQosImpl;
+<a name="l00051"></a>00051 <span class="keyword">class </span>MboStateImpl;
+<a name="l00052"></a>00052 
+<a name="l00068"></a><a class="code" href="a00002.html">00068</a> <span class="keyword">class </span>EOA_DOMAIN_API <a class="code" href="a00002.html" title="Mbo class contains all classes used to request and process an item from MarketByOrder domain...">Mbo</a>
+<a name="l00069"></a>00069 {
+<a name="l00070"></a>00070 <span class="keyword">public</span>:
+<a name="l00071"></a>00071 
+<a name="l00072"></a>00072 <span class="keyword">class </span><a class="code" href="a00014.html" title="Mbo::Qos represents Quality Of Service information in MarketByOrder.">Qos</a>;
+<a name="l00073"></a>00073 <span class="keyword">class </span><a class="code" href="a00018.html" title="Mbo::State represents State information in MarketByOrder.">State</a>;
+<a name="l00074"></a>00074 <span class="keyword">class </span><a class="code" href="a00010.html" title="Mbo::OrderBook specifies MarketByOrder payload.">OrderBook</a>;
+<a name="l00075"></a>00075 <span class="keyword">class </span><a class="code" href="a00009.html" title="Mbo::Order specifies an order of MarketByOrder.">Order</a>;
+<a name="l00076"></a>00076 <span class="keyword">class </span><a class="code" href="a00020.html" title="Mbo::Summary specifies summary of MarketByOrder.">Summary</a>;
+<a name="l00077"></a>00077 <span class="keyword">class </span><a class="code" href="a00004.html" title="Mbo::ConsumerItemClient class provides callback interfaces notifying application about changes to reg...">ConsumerItemClient</a>;
+<a name="l00078"></a>00078 <span class="keyword">class </span><a class="code" href="a00016.html" title="Mbo::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>;
+<a name="l00079"></a>00079 <span class="keyword">class </span><a class="code" href="a00005.html" title="Mbo::ConsumerService represents a MarketByOrder service provided by the platform.">ConsumerService</a>;
 <a name="l00080"></a>00080 
-<a name="l00081"></a>00081 }
-<a name="l00082"></a>00082 
-<a name="l00083"></a>00083 <span class="preprocessor">#endif // __thomsonreuters_eoa_foundation_omminaccessiblelogfileexception_h</span>
+<a name="l00081"></a>00081 
+<a name="l00092"></a><a class="code" href="a00003.html">00092</a>     <span class="keyword">class </span>EOA_DOMAIN_API <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a>
+<a name="l00093"></a>00093     {
+<a name="l00094"></a>00094     <span class="keyword">public</span>:
+<a name="l00095"></a>00095     
+<a name="l00097"></a>00097 
+<a name="l00098"></a>00098 
+<a name="l00101"></a>00101         <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a>();
+<a name="l00102"></a>00102 
+<a name="l00107"></a>00107         <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a>( <span class="keyword">const</span> <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a>&amp; other );
+<a name="l00108"></a>00108 
+<a name="l00112"></a>00112         <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a>( <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a>&amp;&amp; other );
+<a name="l00114"></a>00114 
+<a name="l00116"></a>00116 
+<a name="l00117"></a>00117 
+<a name="l00119"></a>00119         <span class="keyword">virtual</span> ~<a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a>();
+<a name="l00121"></a>00121 
+<a name="l00123"></a>00123 
+<a name="l00124"></a>00124 
+<a name="l00129"></a>00129         <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a>&amp; other );
+<a name="l00130"></a>00130 
+<a name="l00135"></a>00135         <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a>&amp; operator=( <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a>&amp;&amp; other );
+<a name="l00137"></a>00137 
+<a name="l00139"></a>00139 
+<a name="l00140"></a>00140 
+<a name="l00143"></a>00143         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getSymbol() <span class="keyword">const</span>;
+<a name="l00144"></a>00144 
+<a name="l00148"></a>00148         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getServiceName() <span class="keyword">const</span>;
+<a name="l00149"></a>00149 
+<a name="l00153"></a>00153         foundation::UInt16 getDomainType() <span class="keyword">const</span>;
+<a name="l00154"></a>00154 
+<a name="l00158"></a>00158         <span class="keywordtype">bool</span> isActive() <span class="keyword">const</span>;
+<a name="l00159"></a>00159 
+<a name="l00163"></a>00163         <span class="keywordtype">bool</span> isOk() <span class="keyword">const</span>;
+<a name="l00164"></a>00164 
+<a name="l00168"></a>00168         <span class="keywordtype">bool</span> isResync() <span class="keyword">const</span>;
+<a name="l00169"></a>00169 
+<a name="l00173"></a>00173         <span class="keywordtype">bool</span> isComplete() <span class="keyword">const</span>;
+<a name="l00174"></a>00174 
+<a name="l00178"></a>00178         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getStatusText() <span class="keyword">const</span>;
+<a name="l00179"></a>00179 
+<a name="l00183"></a>00183         <span class="keyword">const</span> <a class="code" href="a00010.html" title="Mbo::OrderBook specifies MarketByOrder payload.">OrderBook</a>&amp; getOrderBook() <span class="keyword">const</span>;
+<a name="l00184"></a>00184 
+<a name="l00189"></a>00189         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; toString() <span class="keyword">const</span>;
+<a name="l00190"></a>00190 
+<a name="l00194"></a>00194         operator const char* () <span class="keyword">const</span>;
+<a name="l00196"></a>00196         
+<a name="l00197"></a>00197     <span class="keyword">private</span>:
+<a name="l00198"></a>00198 
+<a name="l00199"></a>00199         <span class="keyword">friend</span> <span class="keyword">class </span>MboConsumerServiceImpl;
+<a name="l00200"></a>00200         <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="a00005.html" title="Mbo::ConsumerService represents a MarketByOrder service provided by the platform.">ConsumerService</a>;
+<a name="l00201"></a>00201 
+<a name="l00202"></a>00202         MboConsumerItemImpl*                            _pImpl;
+<a name="l00203"></a>00203         <span class="keywordtype">void</span>*                                           _closure;
+<a name="l00204"></a>00204         <a class="code" href="a00004.html" title="Mbo::ConsumerItemClient class provides callback interfaces notifying application about changes to reg...">ConsumerItemClient</a>*                             _pClient;
+<a name="l00205"></a>00205         std::function&lt; void( const ConsumerItem&amp; )&gt;     _callBackFunc;
+<a name="l00206"></a>00206     };
+<a name="l00207"></a>00207 
+<a name="l00208"></a>00208 
+<a name="l00221"></a><a class="code" href="a00015.html">00221</a>     <span class="keyword">class </span>EOA_DOMAIN_API <a class="code" href="a00015.html" title="Mbo::RefreshInfo provides access to the information brought in by a MarketByOrder refresh message...">RefreshInfo</a>
+<a name="l00222"></a>00222     {
+<a name="l00223"></a>00223     <span class="keyword">public</span>:
+<a name="l00224"></a>00224 
+<a name="l00226"></a>00226 
+<a name="l00227"></a>00227 
+<a name="l00230"></a>00230         <span class="keywordtype">bool</span> hasName() <span class="keyword">const</span>;
+<a name="l00231"></a>00231 
+<a name="l00235"></a>00235         <span class="keywordtype">bool</span> hasNameType() <span class="keyword">const</span>;
+<a name="l00236"></a>00236 
+<a name="l00240"></a>00240         <span class="keywordtype">bool</span> hasServiceId() <span class="keyword">const</span>;
+<a name="l00241"></a>00241 
+<a name="l00245"></a>00245         <span class="keywordtype">bool</span> hasServiceName() <span class="keyword">const</span>;
+<a name="l00246"></a>00246 
+<a name="l00250"></a>00250         <span class="keywordtype">bool</span> hasQos() <span class="keyword">const</span>;
+<a name="l00251"></a>00251 
+<a name="l00255"></a>00255         <span class="keywordtype">bool</span> hasSeqNum() <span class="keyword">const</span>;
+<a name="l00256"></a>00256 
+<a name="l00260"></a>00260         <span class="keywordtype">bool</span> hasPartNum() <span class="keyword">const</span>;
+<a name="l00261"></a>00261 
+<a name="l00265"></a>00265         <span class="keywordtype">bool</span> hasPermissionData() <span class="keyword">const</span>;
+<a name="l00266"></a>00266 
+<a name="l00270"></a>00270         <span class="keywordtype">bool</span> hasPublisherId() <span class="keyword">const</span>;
+<a name="l00271"></a>00271 
+<a name="l00275"></a>00275         foundation::UInt16 getDomainType() <span class="keyword">const</span>;
+<a name="l00276"></a>00276 
+<a name="l00281"></a>00281         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getName() <span class="keyword">const</span>;
+<a name="l00282"></a>00282 
+<a name="l00287"></a>00287         foundation::UInt8 getNameType() <span class="keyword">const</span>;
+<a name="l00288"></a>00288 
+<a name="l00293"></a>00293         foundation::UInt32 getServiceId() <span class="keyword">const</span>;
+<a name="l00294"></a>00294 
+<a name="l00299"></a>00299         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getServiceName() <span class="keyword">const</span>;
+<a name="l00300"></a>00300 
+<a name="l00304"></a>00304         <span class="keyword">const</span> <a class="code" href="a00010.html" title="Mbo::OrderBook specifies MarketByOrder payload.">OrderBook</a>&amp; getOrderBook() <span class="keyword">const</span>;
+<a name="l00305"></a>00305 
+<a name="l00309"></a>00309         <span class="keyword">const</span> <a class="code" href="a00018.html" title="Mbo::State represents State information in MarketByOrder.">State</a>&amp; getState() <span class="keyword">const</span>;
+<a name="l00310"></a>00310 
+<a name="l00315"></a>00315         <span class="keyword">const</span> <a class="code" href="a00014.html" title="Mbo::Qos represents Quality Of Service information in MarketByOrder.">Qos</a>&amp; getQos() <span class="keyword">const</span>;
+<a name="l00316"></a>00316 
+<a name="l00321"></a>00321         foundation::UInt32 getSeqNum() <span class="keyword">const</span>;
+<a name="l00322"></a>00322 
+<a name="l00327"></a>00327         foundation::UInt16 getPartNum() <span class="keyword">const</span>;
+<a name="l00328"></a>00328 
+<a name="l00332"></a>00332         <span class="keyword">const</span> <a class="code" href="a00087.html" title="EoaBuffer represents a general use binary buffer.">foundation::EoaBuffer</a>&amp; getItemGroup() <span class="keyword">const</span>;
+<a name="l00333"></a>00333 
+<a name="l00338"></a>00338         <span class="keyword">const</span> <a class="code" href="a00087.html" title="EoaBuffer represents a general use binary buffer.">foundation::EoaBuffer</a>&amp; getPermissionData() <span class="keyword">const</span>;
+<a name="l00339"></a>00339 
+<a name="l00344"></a>00344         foundation::UInt32 getPublisherIdUserId() <span class="keyword">const</span>;
+<a name="l00345"></a>00345 
+<a name="l00350"></a>00350         foundation::UInt32 getPublisherIdUserAddress() <span class="keyword">const</span>;
+<a name="l00351"></a>00351 
+<a name="l00355"></a>00355         <span class="keywordtype">bool</span> getSolicited() <span class="keyword">const</span>;
+<a name="l00356"></a>00356 
+<a name="l00360"></a>00360         <span class="keywordtype">bool</span> getDoNotCache() <span class="keyword">const</span>;
+<a name="l00361"></a>00361 
+<a name="l00365"></a>00365         <span class="keywordtype">bool</span> getComplete() <span class="keyword">const</span>;
+<a name="l00366"></a>00366 
+<a name="l00370"></a>00370         <span class="keywordtype">bool</span> getClearCache() <span class="keyword">const</span>;
+<a name="l00371"></a>00371 
+<a name="l00375"></a>00375         <span class="keywordtype">bool</span> getPrivateStream() <span class="keyword">const</span>;
+<a name="l00376"></a>00376 
+<a name="l00381"></a>00381         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; toString() <span class="keyword">const</span>;
+<a name="l00382"></a>00382 
+<a name="l00386"></a>00386         operator const char* () <span class="keyword">const</span>;
+<a name="l00388"></a>00388 
+<a name="l00389"></a>00389     <span class="keyword">private</span>:
+<a name="l00390"></a>00390 
+<a name="l00391"></a>00391         <span class="keyword">friend</span> <span class="keyword">class </span>MboConsumerServiceImpl;
+<a name="l00392"></a>00392 
+<a name="l00393"></a>00393         <a class="code" href="a00015.html" title="Mbo::RefreshInfo provides access to the information brought in by a MarketByOrder refresh message...">RefreshInfo</a>();
+<a name="l00394"></a>00394         <span class="keyword">virtual</span> ~<a class="code" href="a00015.html" title="Mbo::RefreshInfo provides access to the information brought in by a MarketByOrder refresh message...">RefreshInfo</a>();
+<a name="l00395"></a>00395 
+<a name="l00396"></a>00396         MboRefreshInfoImpl* _pImpl;
+<a name="l00397"></a>00397 
+<a name="l00398"></a>00398         <a class="code" href="a00015.html" title="Mbo::RefreshInfo provides access to the information brought in by a MarketByOrder refresh message...">RefreshInfo</a>( <span class="keyword">const</span> <a class="code" href="a00015.html" title="Mbo::RefreshInfo provides access to the information brought in by a MarketByOrder refresh message...">RefreshInfo</a>&amp; );
+<a name="l00399"></a>00399         <a class="code" href="a00015.html" title="Mbo::RefreshInfo provides access to the information brought in by a MarketByOrder refresh message...">RefreshInfo</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00015.html" title="Mbo::RefreshInfo provides access to the information brought in by a MarketByOrder refresh message...">RefreshInfo</a>&amp; );
+<a name="l00400"></a>00400     };
+<a name="l00401"></a>00401 
+<a name="l00402"></a>00402 
+<a name="l00413"></a><a class="code" href="a00019.html">00413</a>     <span class="keyword">class </span>EOA_DOMAIN_API <a class="code" href="a00019.html" title="Mbo::StatusInfo provides access to the information brought in by a MarketByOrder status message...">StatusInfo</a>
+<a name="l00414"></a>00414     {
+<a name="l00415"></a>00415     <span class="keyword">public</span>:
+<a name="l00416"></a>00416 
+<a name="l00418"></a>00418 
+<a name="l00419"></a>00419 
+<a name="l00422"></a>00422         <span class="keywordtype">bool</span> hasName() <span class="keyword">const</span>;
+<a name="l00423"></a>00423 
+<a name="l00427"></a>00427         <span class="keywordtype">bool</span> hasNameType() <span class="keyword">const</span>;
+<a name="l00428"></a>00428 
+<a name="l00432"></a>00432         <span class="keywordtype">bool</span> hasServiceId() <span class="keyword">const</span>;
+<a name="l00433"></a>00433 
+<a name="l00437"></a>00437         <span class="keywordtype">bool</span> hasServiceName() <span class="keyword">const</span>;
+<a name="l00438"></a>00438 
+<a name="l00442"></a>00442         <span class="keywordtype">bool</span> hasItemGroup() <span class="keyword">const</span>;
+<a name="l00443"></a>00443 
+<a name="l00447"></a>00447         <span class="keywordtype">bool</span> hasState() <span class="keyword">const</span>;
+<a name="l00448"></a>00448 
+<a name="l00452"></a>00452         <span class="keywordtype">bool</span> hasPermissionData() <span class="keyword">const</span>;
+<a name="l00453"></a>00453 
+<a name="l00458"></a>00458         <span class="keywordtype">bool</span> hasPublisherId() <span class="keyword">const</span>;
+<a name="l00459"></a>00459 
+<a name="l00463"></a>00463         foundation::UInt16 getDomainType() <span class="keyword">const</span>;
+<a name="l00464"></a>00464 
+<a name="l00469"></a>00469         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getName() <span class="keyword">const</span>;
+<a name="l00470"></a>00470 
+<a name="l00475"></a>00475         foundation::UInt8 getNameType() <span class="keyword">const</span>;
+<a name="l00476"></a>00476 
+<a name="l00481"></a>00481         foundation::UInt32 getServiceId() <span class="keyword">const</span>;
+<a name="l00482"></a>00482 
+<a name="l00487"></a>00487         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getServiceName() <span class="keyword">const</span>;
+<a name="l00488"></a>00488 
+<a name="l00493"></a>00493         <span class="keyword">const</span> <a class="code" href="a00018.html" title="Mbo::State represents State information in MarketByOrder.">State</a>&amp; getState() <span class="keyword">const</span>;
+<a name="l00494"></a>00494 
+<a name="l00499"></a>00499         <span class="keyword">const</span> <a class="code" href="a00087.html" title="EoaBuffer represents a general use binary buffer.">foundation::EoaBuffer</a>&amp; getItemGroup() <span class="keyword">const</span>;
+<a name="l00500"></a>00500 
+<a name="l00505"></a>00505         <span class="keyword">const</span> <a class="code" href="a00087.html" title="EoaBuffer represents a general use binary buffer.">foundation::EoaBuffer</a>&amp; getPermissionData() <span class="keyword">const</span>;
+<a name="l00506"></a>00506 
+<a name="l00511"></a>00511         foundation::UInt32 getPublisherIdUserId() <span class="keyword">const</span>;
+<a name="l00512"></a>00512 
+<a name="l00517"></a>00517         foundation::UInt32 getPublisherIdUserAddress() <span class="keyword">const</span>;
+<a name="l00518"></a>00518 
+<a name="l00522"></a>00522         <span class="keywordtype">bool</span> getClearCache() <span class="keyword">const</span>;
+<a name="l00523"></a>00523 
+<a name="l00527"></a>00527         <span class="keywordtype">bool</span> getPrivateStream() <span class="keyword">const</span>;
+<a name="l00528"></a>00528 
+<a name="l00533"></a>00533         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; toString() <span class="keyword">const</span>;
+<a name="l00534"></a>00534 
+<a name="l00538"></a>00538         operator const char* () <span class="keyword">const</span>;
+<a name="l00540"></a>00540 
+<a name="l00541"></a>00541     <span class="keyword">private</span>:
+<a name="l00542"></a>00542 
+<a name="l00543"></a>00543         <span class="keyword">friend</span> <span class="keyword">class </span>MboConsumerServiceImpl;
+<a name="l00544"></a>00544 
+<a name="l00545"></a>00545         <a class="code" href="a00019.html" title="Mbo::StatusInfo provides access to the information brought in by a MarketByOrder status message...">StatusInfo</a>();
+<a name="l00546"></a>00546         <span class="keyword">virtual</span> ~<a class="code" href="a00019.html" title="Mbo::StatusInfo provides access to the information brought in by a MarketByOrder status message...">StatusInfo</a>();
+<a name="l00547"></a>00547 
+<a name="l00548"></a>00548         MboStatusInfoImpl*      _pImpl;
+<a name="l00549"></a>00549 
+<a name="l00550"></a>00550         <a class="code" href="a00019.html" title="Mbo::StatusInfo provides access to the information brought in by a MarketByOrder status message...">StatusInfo</a>( <span class="keyword">const</span> <a class="code" href="a00019.html" title="Mbo::StatusInfo provides access to the information brought in by a MarketByOrder status message...">StatusInfo</a>&amp; );
+<a name="l00551"></a>00551         <a class="code" href="a00019.html" title="Mbo::StatusInfo provides access to the information brought in by a MarketByOrder status message...">StatusInfo</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00019.html" title="Mbo::StatusInfo provides access to the information brought in by a MarketByOrder status message...">StatusInfo</a>&amp; );
+<a name="l00552"></a>00552     };
+<a name="l00553"></a>00553 
+<a name="l00554"></a>00554 
+<a name="l00565"></a><a class="code" href="a00022.html">00565</a>     <span class="keyword">class </span>EOA_DOMAIN_API <a class="code" href="a00022.html" title="Mbo::UpdateInfo provides access to the information brought in by an MarketByOrder update message...">UpdateInfo</a>
+<a name="l00566"></a>00566     {
+<a name="l00567"></a>00567     <span class="keyword">public</span>:
+<a name="l00568"></a>00568 
+<a name="l00570"></a>00570 
+<a name="l00571"></a>00571 
+<a name="l00574"></a>00574         <span class="keywordtype">bool</span> hasName() <span class="keyword">const</span>;
+<a name="l00575"></a>00575 
+<a name="l00579"></a>00579         <span class="keywordtype">bool</span> hasNameType() <span class="keyword">const</span>;
+<a name="l00580"></a>00580 
+<a name="l00584"></a>00584         <span class="keywordtype">bool</span> hasServiceId() <span class="keyword">const</span>;
+<a name="l00585"></a>00585 
+<a name="l00589"></a>00589         <span class="keywordtype">bool</span> hasServiceName() <span class="keyword">const</span>;
+<a name="l00590"></a>00590 
+<a name="l00594"></a>00594         <span class="keywordtype">bool</span> hasSeqNum() <span class="keyword">const</span>;
+<a name="l00595"></a>00595 
+<a name="l00599"></a>00599         <span class="keywordtype">bool</span> hasPermissionData() <span class="keyword">const</span>;
+<a name="l00600"></a>00600 
+<a name="l00604"></a>00604         <span class="keywordtype">bool</span> hasConflated() <span class="keyword">const</span>;
+<a name="l00605"></a>00605 
+<a name="l00609"></a>00609         <span class="keywordtype">bool</span> hasPublisherId() <span class="keyword">const</span>;
+<a name="l00610"></a>00610 
+<a name="l00614"></a>00614         foundation::UInt16 getDomainType() <span class="keyword">const</span>;
+<a name="l00615"></a>00615 
+<a name="l00620"></a>00620         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getName() <span class="keyword">const</span>;
+<a name="l00621"></a>00621 
+<a name="l00626"></a>00626         foundation::UInt8 getNameType() <span class="keyword">const</span>;
+<a name="l00627"></a>00627 
+<a name="l00632"></a>00632         foundation::UInt32 getServiceId() <span class="keyword">const</span>;
+<a name="l00633"></a>00633 
+<a name="l00638"></a>00638         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getServiceName() <span class="keyword">const</span>;
+<a name="l00639"></a>00639 
+<a name="l00643"></a>00643         <span class="keyword">const</span> <a class="code" href="a00010.html" title="Mbo::OrderBook specifies MarketByOrder payload.">OrderBook</a>&amp; getOrderBook() <span class="keyword">const</span>;
+<a name="l00644"></a>00644 
+<a name="l00648"></a>00648         foundation::UInt8 getUpdateTypeNum() <span class="keyword">const</span>;
+<a name="l00649"></a>00649 
+<a name="l00654"></a>00654         foundation::UInt32 getSeqNum() <span class="keyword">const</span>;
+<a name="l00655"></a>00655 
+<a name="l00660"></a>00660         <span class="keyword">const</span> <a class="code" href="a00087.html" title="EoaBuffer represents a general use binary buffer.">foundation::EoaBuffer</a>&amp; getPermissionData() <span class="keyword">const</span>;
+<a name="l00661"></a>00661 
+<a name="l00666"></a>00666         foundation::UInt16 getConflatedTime() <span class="keyword">const</span>;
+<a name="l00667"></a>00667 
+<a name="l00672"></a>00672         foundation::UInt16 getConflatedCount() <span class="keyword">const</span>;
+<a name="l00673"></a>00673 
+<a name="l00678"></a>00678         foundation::UInt32 getPublisherIdUserId() <span class="keyword">const</span>;
+<a name="l00679"></a>00679 
+<a name="l00684"></a>00684         foundation::UInt32 getPublisherIdUserAddress() <span class="keyword">const</span>;
+<a name="l00685"></a>00685 
+<a name="l00689"></a>00689         <span class="keywordtype">bool</span> getDoNotCache() <span class="keyword">const</span>;
+<a name="l00690"></a>00690 
+<a name="l00694"></a>00694         <span class="keywordtype">bool</span> getDoNotConflate() <span class="keyword">const</span>;
+<a name="l00695"></a>00695 
+<a name="l00699"></a>00699         <span class="keywordtype">bool</span> getDoNotRipple() <span class="keyword">const</span>;
+<a name="l00700"></a>00700 
+<a name="l00705"></a>00705         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; toString() <span class="keyword">const</span>;
+<a name="l00706"></a>00706 
+<a name="l00710"></a>00710         operator const char* () <span class="keyword">const</span>;
+<a name="l00712"></a>00712 
+<a name="l00713"></a>00713     <span class="keyword">private</span>:
+<a name="l00714"></a>00714 
+<a name="l00715"></a>00715         <span class="keyword">friend</span> <span class="keyword">class </span>MboConsumerServiceImpl;
+<a name="l00716"></a>00716 
+<a name="l00717"></a>00717         <a class="code" href="a00022.html" title="Mbo::UpdateInfo provides access to the information brought in by an MarketByOrder update message...">UpdateInfo</a>();
+<a name="l00718"></a>00718         <span class="keyword">virtual</span> ~<a class="code" href="a00022.html" title="Mbo::UpdateInfo provides access to the information brought in by an MarketByOrder update message...">UpdateInfo</a>();
+<a name="l00719"></a>00719 
+<a name="l00720"></a>00720         MboUpdateInfoImpl*      _pImpl;
+<a name="l00721"></a>00721 
+<a name="l00722"></a>00722         <a class="code" href="a00022.html" title="Mbo::UpdateInfo provides access to the information brought in by an MarketByOrder update message...">UpdateInfo</a>( <span class="keyword">const</span> <a class="code" href="a00022.html" title="Mbo::UpdateInfo provides access to the information brought in by an MarketByOrder update message...">UpdateInfo</a>&amp; );
+<a name="l00723"></a>00723         <a class="code" href="a00022.html" title="Mbo::UpdateInfo provides access to the information brought in by an MarketByOrder update message...">UpdateInfo</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00022.html" title="Mbo::UpdateInfo provides access to the information brought in by an MarketByOrder update message...">UpdateInfo</a>&amp; );
+<a name="l00724"></a>00724     };
+<a name="l00725"></a>00725 
+<a name="l00726"></a>00726 
+<a name="l00742"></a><a class="code" href="a00004.html">00742</a>     <span class="keyword">class </span>EOA_DOMAIN_API <a class="code" href="a00004.html" title="Mbo::ConsumerItemClient class provides callback interfaces notifying application about changes to reg...">ConsumerItemClient</a>
+<a name="l00743"></a>00743     {
+<a name="l00744"></a>00744     <span class="keyword">public</span>:
+<a name="l00745"></a>00745 
+<a name="l00747"></a>00747 
+<a name="l00748"></a>00748 
+<a name="l00754"></a><a class="code" href="a00004.html#a05830f288f422d712c1c4df11b2a1de0">00754</a>         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="a00004.html#a05830f288f422d712c1c4df11b2a1de0">onConsumerItemSync</a>( <span class="keyword">const</span> <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a>&amp; current, <span class="keyword">const</span> <a class="code" href="a00015.html" title="Mbo::RefreshInfo provides access to the information brought in by a MarketByOrder refresh message...">RefreshInfo</a>&amp; change, <span class="keywordtype">void</span>* closure ) {}
+<a name="l00755"></a>00755 
+<a name="l00762"></a><a class="code" href="a00004.html#a7fd6e083c841d3c2debce2d487335d19">00762</a>         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="a00004.html#a7fd6e083c841d3c2debce2d487335d19">onConsumerItemPartial</a>( <span class="keyword">const</span> <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a>&amp; current, <span class="keyword">const</span> <a class="code" href="a00015.html" title="Mbo::RefreshInfo provides access to the information brought in by a MarketByOrder refresh message...">RefreshInfo</a>&amp; change, <span class="keywordtype">void</span>* closure ) {}
+<a name="l00763"></a>00763 
+<a name="l00770"></a><a class="code" href="a00004.html#a679d93e8c2c501138d112823bd49fa0a">00770</a>         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="a00004.html#a679d93e8c2c501138d112823bd49fa0a">onConsumerItemUpdate</a>( <span class="keyword">const</span> <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a>&amp; current, <span class="keyword">const</span> <a class="code" href="a00022.html" title="Mbo::UpdateInfo provides access to the information brought in by an MarketByOrder update message...">UpdateInfo</a>&amp; change, <span class="keywordtype">void</span>* closure ) {}
+<a name="l00771"></a>00771 
+<a name="l00778"></a><a class="code" href="a00004.html#a8f0b9941844a029a5c3adbcfccee04d6">00778</a>         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="a00004.html#a8f0b9941844a029a5c3adbcfccee04d6">onConsumerItemStatus</a>( <span class="keyword">const</span> <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a>&amp; current, <span class="keyword">const</span> <a class="code" href="a00019.html" title="Mbo::StatusInfo provides access to the information brought in by a MarketByOrder status message...">StatusInfo</a>&amp; change, <span class="keywordtype">void</span>* closure ) {}
+<a name="l00780"></a>00780 
+<a name="l00781"></a>00781     <span class="keyword">protected</span>:
+<a name="l00782"></a>00782 
+<a name="l00783"></a>00783         <a class="code" href="a00004.html" title="Mbo::ConsumerItemClient class provides callback interfaces notifying application about changes to reg...">ConsumerItemClient</a>();
+<a name="l00784"></a>00784         <span class="keyword">virtual</span> ~<a class="code" href="a00004.html" title="Mbo::ConsumerItemClient class provides callback interfaces notifying application about changes to reg...">ConsumerItemClient</a>();
+<a name="l00785"></a>00785 
+<a name="l00786"></a>00786     <span class="keyword">private</span>:
+<a name="l00787"></a>00787 
+<a name="l00788"></a>00788         <a class="code" href="a00004.html" title="Mbo::ConsumerItemClient class provides callback interfaces notifying application about changes to reg...">ConsumerItemClient</a>( <span class="keyword">const</span> <a class="code" href="a00004.html" title="Mbo::ConsumerItemClient class provides callback interfaces notifying application about changes to reg...">ConsumerItemClient</a>&amp; );
+<a name="l00789"></a>00789         <a class="code" href="a00004.html" title="Mbo::ConsumerItemClient class provides callback interfaces notifying application about changes to reg...">ConsumerItemClient</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00004.html" title="Mbo::ConsumerItemClient class provides callback interfaces notifying application about changes to reg...">ConsumerItemClient</a>&amp; );
+<a name="l00790"></a>00790     };
+<a name="l00791"></a>00791 
+<a name="l00792"></a>00792 
+<a name="l00806"></a><a class="code" href="a00005.html">00806</a>     <span class="keyword">class </span>EOA_DOMAIN_API <a class="code" href="a00005.html" title="Mbo::ConsumerService represents a MarketByOrder service provided by the platform.">ConsumerService</a>
+<a name="l00807"></a>00807     {
+<a name="l00808"></a>00808     <span class="keyword">public</span>:
+<a name="l00809"></a>00809 
+<a name="l00811"></a>00811 
+<a name="l00812"></a>00812 
+<a name="l00817"></a>00817         <a class="code" href="a00005.html" title="Mbo::ConsumerService represents a MarketByOrder service provided by the platform.">ConsumerService</a>( <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; serviceName );
+<a name="l00819"></a>00819 
+<a name="l00821"></a>00821 
+<a name="l00822"></a>00822 
+<a name="l00824"></a>00824         <span class="keyword">virtual</span> ~<a class="code" href="a00005.html" title="Mbo::ConsumerService represents a MarketByOrder service provided by the platform.">ConsumerService</a>();
+<a name="l00826"></a>00826 
+<a name="l00828"></a>00828 
+<a name="l00829"></a>00829 
+<a name="l00837"></a>00837         <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a> subscribe( <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; itemName, <a class="code" href="a00004.html" title="Mbo::ConsumerItemClient class provides callback interfaces notifying application about changes to reg...">ConsumerItemClient</a>&amp; consumerItemClient, <span class="keywordtype">void</span>* closure = 0 );
+<a name="l00838"></a>00838 
+<a name="l00847"></a>00847         <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a> subscribe( <span class="keyword">const</span> <a class="code" href="a00016.html" title="Mbo::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; itemSpec, <a class="code" href="a00004.html" title="Mbo::ConsumerItemClient class provides callback interfaces notifying application about changes to reg...">ConsumerItemClient</a>&amp; consumerItemClient, <span class="keywordtype">void</span>* closure = 0 );
+<a name="l00848"></a>00848 
+<a name="l00856"></a>00856         <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a> subscribe( <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; itemName, std::function&lt;<span class="keywordtype">void</span>( <span class="keyword">const</span> <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a>&amp; )&gt; callBackFunc );
+<a name="l00857"></a>00857 
+<a name="l00865"></a>00865         <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a> subscribe( <span class="keyword">const</span> <a class="code" href="a00016.html" title="Mbo::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; itemSpec, std::function&lt;<span class="keywordtype">void</span>( <span class="keyword">const</span> <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a>&amp; )&gt; callBackFunc );
+<a name="l00866"></a>00866 
+<a name="l00873"></a>00873         <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a> subscribe( <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; itemName );
+<a name="l00874"></a>00874 
+<a name="l00881"></a>00881         <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a> subscribe( <span class="keyword">const</span> <a class="code" href="a00016.html" title="Mbo::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; itemSpec );
+<a name="l00882"></a>00882 
+<a name="l00891"></a>00891         <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a> snap( <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; itemName, <a class="code" href="a00004.html" title="Mbo::ConsumerItemClient class provides callback interfaces notifying application about changes to reg...">ConsumerItemClient</a>&amp; consumerItemClient, <span class="keywordtype">void</span>* closure = 0 );
+<a name="l00892"></a>00892 
+<a name="l00901"></a>00901         <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a> snap( <span class="keyword">const</span> <a class="code" href="a00016.html" title="Mbo::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; itemSpec, <a class="code" href="a00004.html" title="Mbo::ConsumerItemClient class provides callback interfaces notifying application about changes to reg...">ConsumerItemClient</a>&amp; consumerItemClient, <span class="keywordtype">void</span>* closure = 0 );
+<a name="l00902"></a>00902 
+<a name="l00910"></a>00910         <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a> snap( <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; itemName, std::function&lt;<span class="keywordtype">void</span>( <span class="keyword">const</span> <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a>&amp; )&gt; callBackFunc );
+<a name="l00911"></a>00911 
+<a name="l00919"></a>00919         <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a> snap( <span class="keyword">const</span> <a class="code" href="a00016.html" title="Mbo::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; itemSpec, std::function&lt;<span class="keywordtype">void</span>( <span class="keyword">const</span> <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a>&amp; )&gt; callBackFunc );
+<a name="l00920"></a>00920 
+<a name="l00927"></a>00927         <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a> snap( <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; itemName );
+<a name="l00928"></a>00928 
+<a name="l00935"></a>00935         <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a> snap( <span class="keyword">const</span> <a class="code" href="a00016.html" title="Mbo::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; itemSpec );
+<a name="l00936"></a>00936 
+<a name="l00941"></a>00941         <span class="keywordtype">void</span> refresh( <a class="code" href="a00003.html" title="Mbo::ConsumerItem provides access to MarketByOrder item&#39;s key, state and payload.">ConsumerItem</a>&amp; item );
+<a name="l00943"></a>00943 
+<a name="l00944"></a>00944     <span class="keyword">private</span>:
+<a name="l00945"></a>00945 
+<a name="l00946"></a>00946         <a class="code" href="a00005.html" title="Mbo::ConsumerService represents a MarketByOrder service provided by the platform.">ConsumerService</a>( <span class="keyword">const</span> <a class="code" href="a00005.html" title="Mbo::ConsumerService represents a MarketByOrder service provided by the platform.">ConsumerService</a>&amp; );
+<a name="l00947"></a>00947         <a class="code" href="a00005.html" title="Mbo::ConsumerService represents a MarketByOrder service provided by the platform.">ConsumerService</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00005.html" title="Mbo::ConsumerService represents a MarketByOrder service provided by the platform.">ConsumerService</a>&amp; );
+<a name="l00948"></a>00948 
+<a name="l00949"></a>00949         MboConsumerServiceImpl*     _pImpl;
+<a name="l00950"></a>00950     };
+<a name="l00951"></a>00951 
+<a name="l00952"></a>00952 
+<a name="l00963"></a><a class="code" href="a00016.html">00963</a>     <span class="keyword">class </span>EOA_DOMAIN_API <a class="code" href="a00016.html" title="Mbo::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>
+<a name="l00964"></a>00964     {
+<a name="l00965"></a>00965     <span class="keyword">public</span>:
+<a name="l00966"></a>00966 
+<a name="l00970"></a><a class="code" href="a00016.html#a41d4887927affe309c363aca83336621">00970</a>         <span class="keyword">enum</span> <a class="code" href="a00016.html#a41d4887927affe309c363aca83336621">Rate</a>
+<a name="l00971"></a>00971         {
+<a name="l00972"></a><a class="code" href="a00016.html#a41d4887927affe309c363aca83336621ae2f51b1ac0379692659616f9d5107fbe">00972</a>             TickByTickEnum = 0,                     
+<a name="l00975"></a><a class="code" href="a00016.html#a41d4887927affe309c363aca83336621a450a590da5ea29acde270aafd38e1ad1">00975</a>             JustInTimeConflatedEnum = 0xFFFFFF00,   
+<a name="l00978"></a><a class="code" href="a00016.html#a41d4887927affe309c363aca83336621a5bd1b9c49bb461f0ca131aa096b1dd0c">00978</a>             BestConflatedRateEnum = 0xFFFFFFFF,     
+<a name="l00980"></a><a class="code" href="a00016.html#a41d4887927affe309c363aca83336621a9c5242d75e73bf9fc4977be2f15718ba">00980</a>             BestRateEnum = 0xFFFFFFFE               
+<a name="l00981"></a>00981         };
+<a name="l00982"></a>00982 
+<a name="l00986"></a><a class="code" href="a00016.html#a2f9cf064f7022afa6a275fc977f2ec91">00986</a>         <span class="keyword">enum</span> <a class="code" href="a00016.html#a2f9cf064f7022afa6a275fc977f2ec91">Timeliness</a>
+<a name="l00987"></a>00987         {
+<a name="l00988"></a><a class="code" href="a00016.html#a2f9cf064f7022afa6a275fc977f2ec91ac1feeb61b1b19a0376a97b851a61e25e">00988</a>             RealTimeEnum = 0,                           
+<a name="l00991"></a><a class="code" href="a00016.html#a2f9cf064f7022afa6a275fc977f2ec91aebcc56f8ab87dbda33123f3708abc177">00991</a>             BestDelayedTimelinessEnum = 0xFFFFFFFF,     
+<a name="l00993"></a><a class="code" href="a00016.html#a2f9cf064f7022afa6a275fc977f2ec91a48e7299724e69d4cd8960e7a10e1e734">00993</a>             BestTimelinessEnum = 0xFFFFFFFE             
+<a name="l00994"></a>00994         };
+<a name="l00995"></a>00995 
+<a name="l00997"></a>00997 
+<a name="l00998"></a>00998 
+<a name="l01001"></a>01001         <a class="code" href="a00016.html" title="Mbo::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>();
+<a name="l01002"></a>01002 
+<a name="l01007"></a>01007         <a class="code" href="a00016.html" title="Mbo::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>( <span class="keyword">const</span> <a class="code" href="a00016.html" title="Mbo::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; other );
+<a name="l01008"></a>01008 
+<a name="l01012"></a>01012         <a class="code" href="a00016.html" title="Mbo::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>( <a class="code" href="a00016.html" title="Mbo::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp;&amp; other );
+<a name="l01013"></a>01013 
+<a name="l01018"></a>01018         <a class="code" href="a00016.html" title="Mbo::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>( <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; name );
+<a name="l01020"></a>01020 
+<a name="l01022"></a>01022 
+<a name="l01023"></a>01023 
+<a name="l01025"></a>01025         <span class="keyword">virtual</span> ~<a class="code" href="a00016.html" title="Mbo::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>();
+<a name="l01027"></a>01027 
+<a name="l01029"></a>01029 
+<a name="l01030"></a>01030 
+<a name="l01034"></a>01034         <a class="code" href="a00016.html" title="Mbo::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00016.html" title="Mbo::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; other );
+<a name="l01035"></a>01035 
+<a name="l01040"></a>01040         <a class="code" href="a00016.html" title="Mbo::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; name( <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; name );
+<a name="l01041"></a>01041 
+<a name="l01046"></a>01046         <a class="code" href="a00016.html" title="Mbo::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; nameType( foundation::UInt8 nameType );
+<a name="l01047"></a>01047     
+<a name="l01053"></a>01053         <a class="code" href="a00016.html" title="Mbo::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; priority( foundation::UInt8 priorityClass = 1, foundation::UInt16 priorityCount = 1 );
+<a name="l01054"></a>01054 
+<a name="l01060"></a>01060         <a class="code" href="a00016.html" title="Mbo::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; qos( foundation::Int32 timeliness = BestTimelinessEnum , foundation::Int32 rate = BestRateEnum );
+<a name="l01061"></a>01061 
+<a name="l01066"></a>01066         <a class="code" href="a00016.html" title="Mbo::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; conflatedInUpdates( <span class="keywordtype">bool</span> conflatedInUpdates = <span class="keyword">false</span> );
+<a name="l01067"></a>01067     
+<a name="l01072"></a>01072         <a class="code" href="a00016.html" title="Mbo::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; privateStream( <span class="keywordtype">bool</span> privateStream = <span class="keyword">false</span> );
+<a name="l01073"></a>01073 
+<a name="l01078"></a>01078         <a class="code" href="a00016.html" title="Mbo::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>&amp; clear();
+<a name="l01080"></a>01080 
+<a name="l01081"></a>01081     <span class="keyword">private</span>:
+<a name="l01082"></a>01082 
+<a name="l01083"></a>01083         <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="a00005.html" title="Mbo::ConsumerService represents a MarketByOrder service provided by the platform.">ConsumerService</a>;
+<a name="l01084"></a>01084 
+<a name="l01085"></a>01085         MboReqSpecImpl*     _pImpl;
+<a name="l01086"></a>01086     };
+<a name="l01087"></a>01087 
+<a name="l01088"></a>01088 
+<a name="l01095"></a>01095     <span class="keyword">enum class</span> EOA_DOMAIN_API Side
+<a name="l01096"></a>01096     {
+<a name="l01097"></a>01097         UndefinedEnum = 0,  
+<a name="l01098"></a>01098         BidEnum = 1,        
+<a name="l01099"></a>01099         AskEnum = 2         
+<a name="l01100"></a>01100     };
+<a name="l01101"></a>01101 
+<a name="l01102"></a>01102 
+<a name="l01109"></a>01109     <span class="keyword">enum class</span> EOA_DOMAIN_API Currency
+<a name="l01110"></a>01110     {
+<a name="l01111"></a>01111         NotAllocatedEnum = 0,   
+<a name="l01112"></a>01112         AfaEnum = 4,            
+<a name="l01113"></a>01113         AllEnum = 8,            
+<a name="l01114"></a>01114         DzdEnum = 12,           
+<a name="l01115"></a>01115         AdpEnum = 20,           
+<a name="l01116"></a>01116         AonEnum = 24,           
+<a name="l01117"></a>01117         ArsEnum = 32,           
+<a name="l01118"></a>01118         AudEnum = 36,           
+<a name="l01119"></a>01119         AucEnum = 37,           
+<a name="l01120"></a>01120         AtsEnum = 40,           
+<a name="l01121"></a>01121         BsdEnum = 44,           
+<a name="l01122"></a>01122         BhdEnum = 48,           
+<a name="l01123"></a>01123         BdtEnum = 50,           
+<a name="l01124"></a>01124         AmdEnum = 51,           
+<a name="l01125"></a>01125         BbdEnum = 52,           
+<a name="l01126"></a>01126         BefEnum = 56,           
+<a name="l01127"></a>01127         BmdEnum = 60,           
+<a name="l01128"></a>01128         BtnEnum = 64,           
+<a name="l01129"></a>01129         BobEnum = 68,           
+<a name="l01130"></a>01130         BadEnum = 70,           
+<a name="l01131"></a>01131         BwpEnum = 72,           
+<a name="l01132"></a>01132         BrlEnum = 76,           
+<a name="l01133"></a>01133         BzdEnum = 84,           
+<a name="l01134"></a>01134         SbdEnum = 90,           
+<a name="l01135"></a>01135         BndEnum = 96,           
+<a name="l01136"></a>01136         BglEnum = 100,          
+<a name="l01137"></a>01137         MmkEnum = 104,          
+<a name="l01138"></a>01138         BifEnum = 108,          
+<a name="l01139"></a>01139         KhrEnum = 116,          
+<a name="l01140"></a>01140         CadEnum = 124,          
+<a name="l01141"></a>01141         CveEnum = 132,          
+<a name="l01142"></a>01142         KydEnum = 136,          
+<a name="l01143"></a>01143         LkrEnum = 144,          
+<a name="l01144"></a>01144         ClpEnum = 152,          
+<a name="l01145"></a>01145         CnyEnum = 156,          
+<a name="l01146"></a>01146         CopEnum = 170,          
+<a name="l01147"></a>01147         KmfEnum = 174,          
+<a name="l01148"></a>01148         ZrnEnum = 180,          
+<a name="l01149"></a>01149         CrcEnum = 188,          
+<a name="l01150"></a>01150         HrkEnum = 191,          
+<a name="l01151"></a>01151         CupEnum = 192,          
+<a name="l01152"></a>01152         CypEnum = 196,          
+<a name="l01153"></a>01153         CzkEnum = 203,          
+<a name="l01154"></a>01154         DkkEnum = 208,          
+<a name="l01155"></a>01155         DopEnum = 214,          
+<a name="l01156"></a>01156         EcsEnum = 218,          
+<a name="l01157"></a>01157         SvcEnum = 222,          
+<a name="l01158"></a>01158         EekEnum = 226,          
+<a name="l01159"></a>01159         EtbEnum = 230,          
+<a name="l01160"></a>01160         ErnEnum = 232,          
+<a name="l01161"></a>01161         FkpEnum = 238,          
+<a name="l01162"></a>01162         FjdEnum = 242,          
+<a name="l01163"></a>01163         FimEnum = 246,          
+<a name="l01164"></a>01164         FrfEnum = 250,          
+<a name="l01165"></a>01165         DjfEnum = 262,          
+<a name="l01166"></a>01166         GmdEnum = 270,          
+<a name="l01167"></a>01167         DemEnum = 280,          
+<a name="l01168"></a>01168         GhcEnum = 288,          
+<a name="l01169"></a>01169         GipEnum = 292,          
+<a name="l01170"></a>01170         GrdEnum = 300,          
+<a name="l01171"></a>01171         GtqEnum = 320,          
+<a name="l01172"></a>01172         GnfEnum = 324,          
+<a name="l01173"></a>01173         GydEnum = 328,          
+<a name="l01174"></a>01174         HtgEnum = 332,          
+<a name="l01175"></a>01175         HnlEnum = 340,          
+<a name="l01176"></a>01176         HkdEnum = 344,          
+<a name="l01177"></a>01177         HkcEnum = 345,          
+<a name="l01178"></a>01178         HufEnum = 348,          
+<a name="l01179"></a>01179         IskEnum = 352,          
+<a name="l01180"></a>01180         InrEnum = 356,          
+<a name="l01181"></a>01181         IdrEnum = 360,          
+<a name="l01182"></a>01182         IrrEnum = 364,          
+<a name="l01183"></a>01183         IqdEnum = 368,          
+<a name="l01184"></a>01184         IepEnum = 372,          
+<a name="l01185"></a>01185         IeeEnum = 373,          
+<a name="l01186"></a>01186         IlsEnum = 376,          
+<a name="l01187"></a>01187         ItlEnum = 380,          
+<a name="l01188"></a>01188         JmdEnum = 388,          
+<a name="l01189"></a>01189         JpyEnum = 392,          
+<a name="l01190"></a>01190         KztEnum = 398,          
+<a name="l01191"></a>01191         JodEnum = 400,          
+<a name="l01192"></a>01192         KesEnum = 404,          
+<a name="l01193"></a>01193         KpwEnum = 408,          
+<a name="l01194"></a>01194         KrwEnum = 410,          
+<a name="l01195"></a>01195         KwdEnum = 414,          
+<a name="l01196"></a>01196         KgsEnum = 417,          
+<a name="l01197"></a>01197         LakEnum = 418,          
+<a name="l01198"></a>01198         LbpEnum = 422,          
+<a name="l01199"></a>01199         LslEnum = 426,          
+<a name="l01200"></a>01200         LvlEnum = 428,          
+<a name="l01201"></a>01201         LrdEnum = 430,          
+<a name="l01202"></a>01202         LydEnum = 434,          
+<a name="l01203"></a>01203         LtlEnum = 440,          
+<a name="l01204"></a>01204         LufEnum = 442,          
+<a name="l01205"></a>01205         MopEnum = 446,          
+<a name="l01206"></a>01206         MwkEnum = 454,          
+<a name="l01207"></a>01207         MyrEnum = 458,          
+<a name="l01208"></a>01208         MycEnum = 459,          
+<a name="l01209"></a>01209         MvrEnum = 462,          
+<a name="l01210"></a>01210         MlfEnum = 466,          
+<a name="l01211"></a>01211         MtlEnum = 470,          
+<a name="l01212"></a>01212         MroEnum = 478,          
+<a name="l01213"></a>01213         MurEnum = 480,          
+<a name="l01214"></a>01214         MxnEnum = 484,          
+<a name="l01215"></a>01215         MntEnum = 496,          
+<a name="l01216"></a>01216         MdlEnum = 498,          
+<a name="l01217"></a>01217         MadEnum = 504,          
+<a name="l01218"></a>01218         MzmEnum = 508,          
+<a name="l01219"></a>01219         OmrEnum = 512,          
+<a name="l01220"></a>01220         NadEnum = 516,          
+<a name="l01221"></a>01221         NprEnum = 524,          
+<a name="l01222"></a>01222         NlgEnum = 528,          
+<a name="l01223"></a>01223         AngEnum = 532,          
+<a name="l01224"></a>01224         AwgEnum = 533,          
+<a name="l01225"></a>01225         VuvEnum = 548,          
+<a name="l01226"></a>01226         NzdEnum = 554,          
+<a name="l01227"></a>01227         NioEnum = 558,          
+<a name="l01228"></a>01228         NgnEnum = 566,          
+<a name="l01229"></a>01229         NokEnum = 578,          
+<a name="l01230"></a>01230         PkrEnum = 586,          
+<a name="l01231"></a>01231         PabEnum = 590,          
+<a name="l01232"></a>01232         PgkEnum = 598,          
+<a name="l01233"></a>01233         PygEnum = 600,          
+<a name="l01234"></a>01234         PenEnum = 604,          
+<a name="l01235"></a>01235         PhpEnum = 608,          
+<a name="l01236"></a>01236         PlzEnum = 616,          
+<a name="l01237"></a>01237         PteEnum = 620,          
+<a name="l01238"></a>01238         GwpEnum = 624,          
+<a name="l01239"></a>01239         TpeEnum = 626,          
+<a name="l01240"></a>01240         QarEnum = 634,          
+<a name="l01241"></a>01241         RolEnum = 642,          
+<a name="l01242"></a>01242         RwfEnum = 646,          
+<a name="l01243"></a>01243         ShpEnum = 654,          
+<a name="l01244"></a>01244         StdEnum = 678,          
+<a name="l01245"></a>01245         SarEnum = 682,          
+<a name="l01246"></a>01246         ScrEnum = 690,          
+<a name="l01247"></a>01247         SllEnum = 694,          
+<a name="l01248"></a>01248         SgdEnum = 702,          
+<a name="l01249"></a>01249         SkkEnum = 703,          
+<a name="l01250"></a>01250         VndEnum = 704,          
+<a name="l01251"></a>01251         SitEnum = 705,          
+<a name="l01252"></a>01252         SosEnum = 706,          
+<a name="l01253"></a>01253         ZarEnum = 710,          
+<a name="l01254"></a>01254         ZwdEnum = 716,          
+<a name="l01255"></a>01255         EspEnum = 724,          
+<a name="l01256"></a>01256         SspEnum = 728,          
+<a name="l01257"></a>01257         SddEnum = 736,          
+<a name="l01258"></a>01258         SrgEnum = 740,          
+<a name="l01259"></a>01259         SzlEnum = 748,          
+<a name="l01260"></a>01260         SekEnum = 752,          
+<a name="l01261"></a>01261         ChfEnum = 756,          
+<a name="l01262"></a>01262         SypEnum = 760,          
+<a name="l01263"></a>01263         ThbEnum = 764,          
+<a name="l01264"></a>01264         TopEnum = 776,          
+<a name="l01265"></a>01265         TtdEnum = 780,          
+<a name="l01266"></a>01266         AedEnum = 784,          
+<a name="l01267"></a>01267         TndEnum = 788,          
+<a name="l01268"></a>01268         TrlEnum = 792,          
+<a name="l01269"></a>01269         TmmEnum = 795,          
+<a name="l01270"></a>01270         UgxEnum = 800,          
+<a name="l01271"></a>01271         UakEnum = 804,          
+<a name="l01272"></a>01272         MkdEnum = 807,          
+<a name="l01273"></a>01273         RubEnum = 810,          
+<a name="l01274"></a>01274         EgpEnum = 818,          
+<a name="l01275"></a>01275         GbpEnum = 826,          
+<a name="l01276"></a>01276         TzsEnum = 834,          
+<a name="l01277"></a>01277         UsdEnum = 840,          
+<a name="l01278"></a>01278         UscEnum = 841,          
+<a name="l01279"></a>01279         UyuEnum = 858,          
+<a name="l01280"></a>01280         UzsEnum = 860,          
+<a name="l01281"></a>01281         VebEnum = 862,          
+<a name="l01282"></a>01282         WstEnum = 882,          
+<a name="l01283"></a>01283         YerEnum = 886,          
+<a name="l01284"></a>01284         CsdEnum = 891,          
+<a name="l01285"></a>01285         ZmkEnum = 894,          
+<a name="l01286"></a>01286         RobEnum = 900,          
+<a name="l01287"></a>01287         TwdEnum = 901,          
+<a name="l01288"></a>01288         BhfEnum = 902,          
+<a name="l01289"></a>01289         KwfEnum = 903,          
+<a name="l01290"></a>01290         OmbEnum = 904,          
+<a name="l01291"></a>01291         SahEnum = 905,          
+<a name="l01292"></a>01292         QadEnum = 906,          
+<a name="l01293"></a>01293         AefEnum = 907,          
+<a name="l01294"></a>01294         CucEnum = 931,          
+<a name="l01295"></a>01295         ZwlEnum = 932,          
+<a name="l01296"></a>01296         TmtEnum = 934,          
+<a name="l01297"></a>01297         GhsEnum = 936,          
+<a name="l01298"></a>01298         VefEnum = 937,          
+<a name="l01299"></a>01299         SdgEnum = 938,          
+<a name="l01300"></a>01300         UyiEnum = 940,          
+<a name="l01301"></a>01301         RsdEnum = 941,          
+<a name="l01302"></a>01302         ZwnEnum = 942,          
+<a name="l01303"></a>01303         MznEnum = 943,          
+<a name="l01304"></a>01304         AznEnum = 944,          
+<a name="l01305"></a>01305         RonEnum = 946,          
+<a name="l01306"></a>01306         ChwEnum = 948,          
+<a name="l01307"></a>01307         TryEnum = 949,          
+<a name="l01308"></a>01308         XafEnum = 950,          
+<a name="l01309"></a>01309         XcdEnum = 951,          
+<a name="l01310"></a>01310         XofEnum = 952,          
+<a name="l01311"></a>01311         XpfEnum = 953,          
+<a name="l01312"></a>01312         XeuEnum = 954,          
+<a name="l01313"></a>01313         XbaEnum = 955,          
+<a name="l01314"></a>01314         XbbEnum = 956,          
+<a name="l01315"></a>01315         XbcEnum = 957,          
+<a name="l01316"></a>01316         XbdEnum = 958,          
+<a name="l01317"></a>01317         XauEnum = 959,          
+<a name="l01318"></a>01318         XdrEnum = 960,          
+<a name="l01319"></a>01319         XagEnum = 961,          
+<a name="l01320"></a>01320         XptEnum = 962,          
+<a name="l01321"></a>01321         XtsEnum = 963,          
+<a name="l01322"></a>01322         XpdEnum = 964,          
+<a name="l01323"></a>01323         XuaEnum = 965,          
+<a name="l01324"></a>01324         ZmwEnum = 967,          
+<a name="l01325"></a>01325         SrdEnum = 968,          
+<a name="l01326"></a>01326         MgaEnum = 969,          
+<a name="l01327"></a>01327         AfnEnum = 971,          
+<a name="l01328"></a>01328         TjsEnum = 972,          
+<a name="l01329"></a>01329         AoaEnum = 973,          
+<a name="l01330"></a>01330         ByrEnum = 974,          
+<a name="l01331"></a>01331         BgnEnum = 975,          
+<a name="l01332"></a>01332         CdfEnum = 976,          
+<a name="l01333"></a>01333         BamEnum = 977,          
+<a name="l01334"></a>01334         EurEnum = 978,          
+<a name="l01335"></a>01335         MxvEnum = 979,          
+<a name="l01336"></a>01336         UahEnum = 980,          
+<a name="l01337"></a>01337         GelEnum = 981,          
+<a name="l01338"></a>01338         BovEnum = 984,          
+<a name="l01339"></a>01339         PlnEnum = 985,          
+<a name="l01340"></a>01340         ClfEnum = 990,          
+<a name="l01341"></a>01341         ZalEnum = 991,          
+<a name="l01342"></a>01342         EsbEnum = 995,          
+<a name="l01343"></a>01343         EsaEnum = 996,          
+<a name="l01344"></a>01344         UsnEnum = 997,          
+<a name="l01345"></a>01345         UssEnum = 998,          
+<a name="l01346"></a>01346         XxxEnum = 999,          
+<a name="l01347"></a>01347         TstEnum = 2000,         
+<a name="l01348"></a>01348         CacEnum = 2002,         
+<a name="l01349"></a>01349         NzcEnum = 2006,         
+<a name="l01350"></a>01350         SgcEnum = 2007,         
+<a name="l01351"></a>01351         ZacEnum = 2010,         
+<a name="l01352"></a>01352         ZwcEnum = 2011,         
+<a name="l01353"></a>01353         EucEnum = 2012,         
+<a name="l01354"></a>01354         NacEnum = 2013,         
+<a name="l01355"></a>01355         IlaEnum = 2014,         
+<a name="l01356"></a>01356         HrlEnum = 2016,         
+<a name="l01357"></a>01357         BwtEnum = 2017,         
+<a name="l01358"></a>01358         ZzzEnum = 2018,         
+<a name="l01359"></a>01359         TrkEnum = 2019,         
+<a name="l01360"></a>01360         CouEnum = 2020,         
+<a name="l01361"></a>01361         MwtEnum = 2021,         
+<a name="l01362"></a>01362         BrcEnum = 2022,         
+<a name="l01363"></a>01363         CnhEnum = 2023,         
+<a name="l01364"></a>01364         UstEnum = 2024,         
+<a name="l01365"></a>01365         XvnEnum = 2025,         
+<a name="l01366"></a>01366         CruEnum = 2026,         
+<a name="l01367"></a>01367         BtcEnum = 2027,         
+<a name="l01368"></a>01368         UyrEnum = 2028          
+<a name="l01369"></a>01369     };
+<a name="l01370"></a>01370 
+<a name="l01371"></a>01371 
+<a name="l01378"></a>01378     <span class="keyword">enum class</span> EOA_DOMAIN_API MarketState
+<a name="l01379"></a>01379     {
+<a name="l01380"></a>01380         NorEnum = 0,    
+<a name="l01381"></a>01381         FasEnum = 1,    
+<a name="l01382"></a>01382         FalEnum = 2,    
+<a name="l01383"></a>01383         ThaEnum = 3,    
+<a name="l01384"></a>01384         TreEnum = 4,    
+<a name="l01385"></a>01385         BscEnum = 5,    
+<a name="l01386"></a>01386         CcpEnum = 6,    
+<a name="l01387"></a>01387         CipEnum = 7,    
+<a name="l01388"></a>01388         ClsEnum = 8,    
+<a name="l01389"></a>01389         OclEnum = 9,    
+<a name="l01390"></a>01390         UclEnum = 10,   
+<a name="l01391"></a>01391         ScmEnum = 11,   
+<a name="l01392"></a>01392         IndEnum = 12,   
+<a name="l01393"></a>01393         RfqEnum = 13,   
+<a name="l01394"></a>01394         PssEnum = 14,   
+<a name="l01395"></a>01395         AptEnum = 15,   
+<a name="l01396"></a>01396         BboEnum = 16,   
+<a name="l01397"></a>01397         ImbEnum = 17,   
+<a name="l01398"></a>01398         ImaEnum = 18,   
+<a name="l01399"></a>01399         ImqEnum = 19,   
+<a name="l01400"></a>01400         BasEnum = 20,   
+<a name="l01401"></a>01401         LtpEnum = 21,   
+<a name="l01402"></a>01402         ErtEnum = 22,   
+<a name="l01403"></a>01403         StlEnum = 23,   
+<a name="l01404"></a>01404         GtoEnum = 24,   
+<a name="l01405"></a>01405         GorEnum = 25,   
+<a name="l01406"></a>01406         GloEnum = 26,   
+<a name="l01407"></a>01407         GlpEnum = 27,   
+<a name="l01408"></a>01408         FlrEnum = 28,   
+<a name="l01409"></a>01409         DtaEnum = 29,   
+<a name="l01410"></a>01410         GldEnum = 30,   
+<a name="l01411"></a>01411         GdpEnum = 31,   
+<a name="l01412"></a>01412         AueEnum = 32,   
+<a name="l01413"></a>01413         SbbEnum = 33,   
+<a name="l01414"></a>01414         SbaEnum = 34,   
+<a name="l01415"></a>01415         BbaEnum = 35,   
+<a name="l01416"></a>01416         InaEnum = 36,   
+<a name="l01417"></a>01417         RotEnum = 37,   
+<a name="l01418"></a>01418         DgnEnum = 38,   
+<a name="l01419"></a>01419         PcsEnum = 39,   
+<a name="l01420"></a>01420         PreEnum = 40,   
+<a name="l01421"></a>01421         NetEnum = 41,   
+<a name="l01422"></a>01422         IraEnum = 42,   
+<a name="l01423"></a>01423         IrbEnum = 43,   
+<a name="l01424"></a>01424         IrqEnum = 44,   
+<a name="l01425"></a>01425         OpnEnum = 45,   
+<a name="l01426"></a>01426         AucEnum = 46,   
+<a name="l01427"></a>01427         SusEnum = 47,   
+<a name="l01428"></a>01428         MkhEnum = 48,   
+<a name="l01429"></a>01429         SmhEnum = 49,   
+<a name="l01430"></a>01430         SmcEnum = 50,   
+<a name="l01431"></a>01431         PscEnum = 51,   
+<a name="l01432"></a>01432         NegEnum = 52   
+<a name="l01433"></a>01433     };
+<a name="l01434"></a>01434 
+<a name="l01435"></a>01435 
+<a name="l01442"></a>01442     <span class="keyword">enum class</span> EOA_DOMAIN_API ExchangeId
+<a name="l01443"></a>01443     {
+<a name="l01444"></a>01444         UndefinedEnum = 0,    
+<a name="l01445"></a>01445         AseEnum = 1,   
+<a name="l01446"></a>01446         NysEnum = 2,   
+<a name="l01447"></a>01447         BosEnum = 3,   
+<a name="l01448"></a>01448         CinEnum = 4,   
+<a name="l01449"></a>01449         PseEnum = 5,   
+<a name="l01450"></a>01450         XphEnum = 6,   
+<a name="l01451"></a>01451         ThmEnum = 7,   
+<a name="l01452"></a>01452         MidEnum = 8,   
+<a name="l01453"></a>01453         NyqEnum = 9,   
+<a name="l01454"></a>01454         TorEnum = 10,   
+<a name="l01455"></a>01455         MonEnum = 11,   
+<a name="l01456"></a>01456         TsxEnum = 12,   
+<a name="l01457"></a>01457         DexEnum = 13,   
+<a name="l01458"></a>01458         AoeEnum = 14,   
+<a name="l01459"></a>01459         NyoEnum = 15,   
+<a name="l01460"></a>01460         PhoEnum = 16,   
+<a name="l01461"></a>01461         PaoEnum = 17,   
+<a name="l01462"></a>01462         WcbEnum = 18,   
+<a name="l01463"></a>01463         AsqEnum = 19,   
+<a name="l01464"></a>01464         CmeEnum = 20,   
+<a name="l01465"></a>01465         ImmEnum = 21,   
+<a name="l01466"></a>01466         IomEnum = 22,   
+<a name="l01467"></a>01467         CbtEnum = 23,   
+<a name="l01468"></a>01468         ItsEnum = 24,   
+<a name="l01469"></a>01469         WpgEnum = 25,   
+<a name="l01470"></a>01470         MgeEnum = 26,   
+<a name="l01471"></a>01471         PbtEnum = 27,   
+<a name="l01472"></a>01472         CmxEnum = 28,   
+<a name="l01473"></a>01473         CscEnum = 29,   
+<a name="l01474"></a>01474         NycEnum = 30,   
+<a name="l01475"></a>01475         NymEnum = 31,   
+<a name="l01476"></a>01476         FisEnum = 32,   
+<a name="l01477"></a>01477         CsoEnum = 33,   
+<a name="l01478"></a>01478         CeoEnum = 34,   
+<a name="l01479"></a>01479         ShcEnum = 35,   
+<a name="l01480"></a>01480         NyfEnum = 36,   
+<a name="l01481"></a>01481         TfeEnum = 37,   
+<a name="l01482"></a>01482         MioEnum = 38,   
+<a name="l01483"></a>01483         NmsEnum = 39,   
+<a name="l01484"></a>01484         DeaEnum = 40,   
+<a name="l01485"></a>01485         MoeEnum = 41,   
+<a name="l01486"></a>01486         BtyEnum = 42,   
+<a name="l01487"></a>01487         NasEnum = 43,   
+<a name="l01488"></a>01488         MdmEnum = 44,   
+<a name="l01489"></a>01489         SceEnum = 45,   
+<a name="l01490"></a>01490         BsqEnum = 46,   
+<a name="l01491"></a>01491         ChiEnum = 47,   
+<a name="l01492"></a>01492         WcqEnum = 48,   
+<a name="l01493"></a>01493         TrcEnum = 49,   
+<a name="l01494"></a>01494         KbtEnum = 50,   
+<a name="l01495"></a>01495         SomEnum = 51,   
+<a name="l01496"></a>01496         AdsEnum = 52,   
+<a name="l01497"></a>01497         AdfEnum = 53,   
+<a name="l01498"></a>01498         MifEnum = 54,   
+<a name="l01499"></a>01499         JsfEnum = 55,   
+<a name="l01500"></a>01500         TceEnum = 56,   
+<a name="l01501"></a>01501         TffEnum = 57,   
+<a name="l01502"></a>01502         RpsEnum = 58,   
+<a name="l01503"></a>01503         HomEnum = 59,   
+<a name="l01504"></a>01504         FomEnum = 60,   
+<a name="l01505"></a>01505         FirEnum = 61,   
+<a name="l01506"></a>01506         AthEnum = 62,   
+<a name="l01507"></a>01507         SffEnum = 63,   
+<a name="l01508"></a>01508         LseEnum = 64,   
+<a name="l01509"></a>01509         JnbEnum = 65,   
+<a name="l01510"></a>01510         LifEnum = 66,   
+<a name="l01511"></a>01511         TlvEnum = 67,   
+<a name="l01512"></a>01512         CphEnum = 68,   
+<a name="l01513"></a>01513         OslEnum = 69,   
+<a name="l01514"></a>01514         StoEnum = 70,   
+<a name="l01515"></a>01515         CmaEnum = 71,   
+<a name="l01516"></a>01516         LuxEnum = 72,   
+<a name="l01517"></a>01517         BruEnum = 73,   
+<a name="l01518"></a>01518         ParEnum = 74,   
+<a name="l01519"></a>01519         MadEnum = 75,   
+<a name="l01520"></a>01520         BarEnum = 76,   
+<a name="l01521"></a>01521         AexEnum = 77,   
+<a name="l01522"></a>01522         EoeEnum = 78,   
+<a name="l01523"></a>01523         TwbEnum = 79,   
+<a name="l01524"></a>01524         VieEnum = 80,   
+<a name="l01525"></a>01525         DusEnum = 81,   
+<a name="l01526"></a>01526         FraEnum = 82,   
+<a name="l01527"></a>01527         HamEnum = 83,   
+<a name="l01528"></a>01528         MunEnum = 84,   
+<a name="l01529"></a>01529         ZrhEnum = 85,   
+<a name="l01530"></a>01530         GvaEnum = 86,   
+<a name="l01531"></a>01531         BslEnum = 87,   
+<a name="l01532"></a>01532         MilEnum = 88,   
+<a name="l01533"></a>01533         CsmEnum = 89,   
+<a name="l01534"></a>01534         CmlEnum = 90,   
+<a name="l01535"></a>01535         NzcEnum = 91,   
+<a name="l01536"></a>01536         HkgEnum = 92,   
+<a name="l01537"></a>01537         SimEnum = 93,   
+<a name="l01538"></a>01538         KlcEnum = 94,   
+<a name="l01539"></a>01539         CchEnum = 95,   
+<a name="l01540"></a>01540         CxeEnum = 96,   
+<a name="l01541"></a>01541         CamEnum = 97,   
+<a name="l01542"></a>01542         CbsEnum = 98,   
+<a name="l01543"></a>01543         LmeEnum = 99,   
+<a name="l01544"></a>01544         ClbEnum = 100,   
+<a name="l01545"></a>01545         LceEnum = 101,   
+<a name="l01546"></a>01546         CpaEnum = 102,   
+<a name="l01547"></a>01547         CfrEnum = 103,   
+<a name="l01548"></a>01548         CloEnum = 104,   
+<a name="l01549"></a>01549         SfeEnum = 105,   
+<a name="l01550"></a>01550         TyoEnum = 106,   
+<a name="l01551"></a>01551         NgoEnum = 107,   
+<a name="l01552"></a>01552         SapEnum = 108,   
+<a name="l01553"></a>01553         ChjEnum = 109,   
+<a name="l01554"></a>01554         KyoEnum = 110,   
+<a name="l01555"></a>01555         HirEnum = 111,   
+<a name="l01556"></a>01556         FkaEnum = 112,   
+<a name="l01557"></a>01557         OsaEnum = 113,   
+<a name="l01558"></a>01558         HfeEnum = 114,   
+<a name="l01559"></a>01559         BerEnum = 115,   
+<a name="l01560"></a>01560         HanEnum = 116,   
+<a name="l01561"></a>01561         StuEnum = 117,   
+<a name="l01562"></a>01562         BreEnum = 118,   
+<a name="l01563"></a>01563         CokEnum = 119,   
+<a name="l01564"></a>01564         BrnEnum = 120,   
+<a name="l01565"></a>01565         CssEnum = 121,   
+<a name="l01566"></a>01566         CheEnum = 122,   
+<a name="l01567"></a>01567         CvxEnum = 123,   
+<a name="l01568"></a>01568         RomEnum = 124,   
+<a name="l01569"></a>01569         TrnEnum = 125,   
+<a name="l01570"></a>01570         GoaEnum = 126,   
+<a name="l01571"></a>01571         NapEnum = 127,   
+<a name="l01572"></a>01572         PalEnum = 128,   
+<a name="l01573"></a>01573         BloEnum = 129,   
+<a name="l01574"></a>01574         VceEnum = 130,   
+<a name="l01575"></a>01575         IsfEnum = 131,   
+<a name="l01576"></a>01576         AqcEnum = 132,   
+<a name="l01577"></a>01577         HexEnum = 133,   
+<a name="l01578"></a>01578         WseEnum = 134,   
+<a name="l01579"></a>01579         NxtEnum = 135,   
+<a name="l01580"></a>01580         Mx2Enum = 136,   
+<a name="l01581"></a>01581         CaqEnum = 137,   
+<a name="l01582"></a>01582         F4eEnum = 138,   
+<a name="l01583"></a>01583         BetEnum = 139,   
+<a name="l01584"></a>01584         F4jEnum = 140,   
+<a name="l01585"></a>01585         JdeEnum = 141,   
+<a name="l01586"></a>01586         LagEnum = 142,   
+<a name="l01587"></a>01587         ZseEnum = 143,   
+<a name="l01588"></a>01588         ShhEnum = 144,   
+<a name="l01589"></a>01589         BseEnum = 145,   
+<a name="l01590"></a>01590         CalEnum = 146,   
+<a name="l01591"></a>01591         DesEnum = 147,   
+<a name="l01592"></a>01592         MdsEnum = 148,   
+<a name="l01593"></a>01593         JktEnum = 149,   
+<a name="l01594"></a>01594         KlsEnum = 150,   
+<a name="l01595"></a>01595         KarEnum = 151,   
+<a name="l01596"></a>01596         MakEnum = 152,   
+<a name="l01597"></a>01597         MnlEnum = 153,   
+<a name="l01598"></a>01598         FtmEnum = 154,   
+<a name="l01599"></a>01599         SesEnum = 155,   
+<a name="l01600"></a>01600         KscEnum = 156,   
+<a name="l01601"></a>01601         MauEnum = 157,   
+<a name="l01602"></a>01602         SetEnum = 158,   
+<a name="l01603"></a>01603         BahEnum = 159,   
+<a name="l01604"></a>01604         CaiEnum = 160,   
+<a name="l01605"></a>01605         AmmEnum = 161,   
+<a name="l01606"></a>01606         KuwEnum = 162,   
+<a name="l01607"></a>01607         BueEnum = 163,   
+<a name="l01608"></a>01608         RioEnum = 164,   
+<a name="l01609"></a>01609         SaoEnum = 165,   
+<a name="l01610"></a>01610         SgoEnum = 166,   
+<a name="l01611"></a>01611         BogEnum = 167,   
+<a name="l01612"></a>01612         MexEnum = 168,   
+<a name="l01613"></a>01613         CcsEnum = 169,   
+<a name="l01614"></a>01614         NfeEnum = 170,   
+<a name="l01615"></a>01615         IndEnum = 171,   
+<a name="l01616"></a>01616         FixEnum = 172,   
+<a name="l01617"></a>01617         LotEnum = 173,   
+<a name="l01618"></a>01618         MatEnum = 174,   
+<a name="l01619"></a>01619         TaiEnum = 175,   
+<a name="l01620"></a>01620         IpeEnum = 176,   
+<a name="l01621"></a>01621         CviEnum = 177,   
+<a name="l01622"></a>01622         CirEnum = 178,   
+<a name="l01623"></a>01623         CluEnum = 179,   
+<a name="l01624"></a>01624         SopEnum = 180,   
+<a name="l01625"></a>01625         ReuEnum = 181,   
+<a name="l01626"></a>01626         LisEnum = 182,   
+<a name="l01627"></a>01627         OpoEnum = 183,   
+<a name="l01628"></a>01628         NomEnum = 184,   
+<a name="l01629"></a>01629         CltEnum = 185,   
+<a name="l01630"></a>01630         RtsEnum = 186,   
+<a name="l01631"></a>01631         AsxEnum = 187,   
+<a name="l01632"></a>01632         IfxEnum = 188,   
+<a name="l01633"></a>01633         PmiEnum = 189,   
+<a name="l01634"></a>01634         MceEnum = 190,   
+<a name="l01635"></a>01635         CvaEnum = 191,   
+<a name="l01636"></a>01636         TgeEnum = 192,   
+<a name="l01637"></a>01637         TsuEnum = 193,   
+<a name="l01638"></a>01638         KreEnum = 194,   
+<a name="l01639"></a>01639         MrvEnum = 195,   
+<a name="l01640"></a>01640         KfiEnum = 196,   
+<a name="l01641"></a>01641         BfxEnum = 197,   
+<a name="l01642"></a>01642         BrtEnum = 198,   
+<a name="l01643"></a>01643         DtbEnum = 199,   
+<a name="l01644"></a>01644         MrfEnum = 200,   
+<a name="l01645"></a>01645         CbaEnum = 201,   
+<a name="l01646"></a>01646         GerEnum = 202,   
+<a name="l01647"></a>01647         MtsEnum = 203,   
+<a name="l01648"></a>01648         IstEnum = 204,   
+<a name="l01649"></a>01649         MusEnum = 205,   
+<a name="l01650"></a>01650         AbjEnum = 206,   
+<a name="l01651"></a>01651         NaiEnum = 207,   
+<a name="l01652"></a>01652         TunEnum = 208,   
+<a name="l01653"></a>01653         FsiEnum = 209,   
+<a name="l01654"></a>01654         NinEnum = 210,   
+<a name="l01655"></a>01655         McpEnum = 211,   
+<a name="l01656"></a>01656         OtbEnum = 212,   
+<a name="l01657"></a>01657         SicEnum = 213,   
+<a name="l01658"></a>01658         RctEnum = 214,   
+<a name="l01659"></a>01659         IgfEnum = 215,   
+<a name="l01660"></a>01660         MwqEnum = 216,   
+<a name="l01661"></a>01661         PsqEnum = 217,   
+<a name="l01662"></a>01662         PhqEnum = 218,   
+<a name="l01663"></a>01663         JsdEnum = 219,   
+<a name="l01664"></a>01664         EcmEnum = 220,   
+<a name="l01665"></a>01665         ObbEnum = 221,   
+<a name="l01666"></a>01666         IfmEnum = 222,   
+<a name="l01667"></a>01667         MfiEnum = 223,   
+<a name="l01668"></a>01668         SmeEnum = 224,   
+<a name="l01669"></a>01669         ShzEnum = 225,   
+<a name="l01670"></a>01670         RsaEnum = 226,   
+<a name="l01671"></a>01671         BudEnum = 227,   
+<a name="l01672"></a>01672         PhsEnum = 228,   
+<a name="l01673"></a>01673         MltEnum = 229,   
+<a name="l01674"></a>01674         CoxEnum = 230,   
+<a name="l01675"></a>01675         SzmEnum = 231,   
+<a name="l01676"></a>01676         SzfEnum = 232,   
+<a name="l01677"></a>01677         JbtEnum = 233,   
+<a name="l01678"></a>01678         MdcEnum = 234,   
+<a name="l01679"></a>01679         NtcEnum = 235,   
+<a name="l01680"></a>01680         YseEnum = 236,   
+<a name="l01681"></a>01681         OteEnum = 237,   
+<a name="l01682"></a>01682         NakEnum = 238,   
+<a name="l01683"></a>01683         CbeEnum = 239,   
+<a name="l01684"></a>01684         CexEnum = 240,   
+<a name="l01685"></a>01685         AhmEnum = 241,   
+<a name="l01686"></a>01686         KlfEnum = 242,   
+<a name="l01687"></a>01687         CseEnum = 243,   
+<a name="l01688"></a>01688         BecEnum = 244,   
+<a name="l01689"></a>01689         MxiEnum = 245,   
+<a name="l01690"></a>01690         ZhcEnum = 246,   
+<a name="l01691"></a>01691         BjcEnum = 247,   
+<a name="l01692"></a>01692         EodEnum = 248,   
+<a name="l01693"></a>01693         GufEnum = 249,   
+<a name="l01694"></a>01694         BmfEnum = 250,   
+<a name="l01695"></a>01695         HsxEnum = 251,   
+<a name="l01696"></a>01696         SfxEnum = 252,   
+<a name="l01697"></a>01697         CmuEnum = 253,   
+<a name="l01698"></a>01698         DlcEnum = 254,   
+<a name="l01699"></a>01699         CfsEnum = 255   
+<a name="l01700"></a>01700     };
+<a name="l01701"></a>01701 
+<a name="l01702"></a>01702 
+<a name="l01709"></a>01709     <span class="keyword">enum class</span> EOA_DOMAIN_API PriceRankRule
+<a name="l01710"></a>01710     {
+<a name="l01711"></a>01711         UndefinedEnum = 0,      
+<a name="l01712"></a>01712         NorEnum = 1,            
+<a name="l01713"></a>01713         InvEnum = 2,            
+<a name="l01714"></a>01714         SqxEnum = 3,            
+<a name="l01715"></a>01715         PonEnum = 4,            
+<a name="l01716"></a>01716         FiveEnum = 5            
+<a name="l01717"></a>01717     };
+<a name="l01718"></a>01718 
+<a name="l01719"></a>01719 
+<a name="l01726"></a>01726     <span class="keyword">enum class</span> EOA_DOMAIN_API OrderRankRule
+<a name="l01727"></a>01727     {
+<a name="l01728"></a>01728         UndefinedEnum = 0,  
+<a name="l01729"></a>01729         PstEnum = 1,        
+<a name="l01730"></a>01730         PtsEnum = 2,        
+<a name="l01731"></a>01731         PrsEnum = 3,        
+<a name="l01732"></a>01732         OptSEnum = 4,       
+<a name="l01733"></a>01733         PnEnum = 5,         
+<a name="l01734"></a>01734         QmpEnum = 6,        
+<a name="l01735"></a>01735         PenEnum = 7         
+<a name="l01736"></a>01736     };
+<a name="l01737"></a>01737 
+<a name="l01738"></a>01738 
+<a name="l01745"></a>01745     <span class="keyword">enum class</span> EOA_DOMAIN_API TradeUnit
+<a name="l01746"></a>01746     {
+<a name="l01747"></a>01747         IntEnum = 0,                
+<a name="l01748"></a>01748         OneDpEnum = 1,              
+<a name="l01749"></a>01749         TwoDpEnum = 2,              
+<a name="l01750"></a>01750         ThreeDpEnum = 3,            
+<a name="l01751"></a>01751         FourDpEnum = 4,             
+<a name="l01752"></a>01752         FiveDpEnum = 5,             
+<a name="l01753"></a>01753         SixDpEnum = 6,              
+<a name="l01754"></a>01754         SevenDpEnum = 7,            
+<a name="l01755"></a>01755         UndefinedEnum = 8,          
+<a name="l01756"></a>01756         NineEnum = 9,               
+<a name="l01757"></a>01757         TenEnum = 10,               
+<a name="l01758"></a>01758         HalvesEnum = 11,            
+<a name="l01759"></a>01759         QuartersEnum = 12,          
+<a name="l01760"></a>01760         EightsEnum = 13,            
+<a name="l01761"></a>01761         SixteenthsEnum = 14,        
+<a name="l01762"></a>01762         ThirtySecondsEnum = 15,     
+<a name="l01763"></a>01763         SixtyFourthsEnum = 16,      
+<a name="l01764"></a>01764         OneTwentyEigthsEnum = 17,   
+<a name="l01765"></a>01765         TwoFiftySixthsEnum = 18,    
+<a name="l01766"></a>01766         NineteenEnum = 19,          
+<a name="l01767"></a>01767         VarEnum = 20,               
+<a name="l01768"></a>01768         FiveCentEnum = 21,          
+<a name="l01769"></a>01769         OneCentEnum = 22,           
+<a name="l01770"></a>01770         TenCentEnum = 23,           
+<a name="l01771"></a>01771         DolarEnum = 24,             
+<a name="l01772"></a>01772         HalfCentEnum = 25           
+<a name="l01773"></a>01773     };
+<a name="l01774"></a>01774 
+<a name="l01775"></a>01775 
+<a name="l01784"></a><a class="code" href="a00009.html">01784</a>     <span class="keyword">class </span>EOA_DOMAIN_API <a class="code" href="a00009.html" title="Mbo::Order specifies an order of MarketByOrder.">Order</a>
+<a name="l01785"></a>01785     {
+<a name="l01786"></a>01786     <span class="keyword">public</span>:
+<a name="l01787"></a>01787 
+<a name="l01789"></a>01789 
+<a name="l01790"></a>01790 
+<a name="l01793"></a>01793         <span class="keyword">const</span> <a class="code" href="a00087.html" title="EoaBuffer represents a general use binary buffer.">foundation::EoaBuffer</a>&amp; getId() <span class="keyword">const</span>;
+<a name="l01794"></a>01794 
+<a name="l01798"></a>01798         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getIdAsString() <span class="keyword">const</span>;
+<a name="l01799"></a>01799 
+<a name="l01803"></a>01803         <a class="code" href="a00076.html" title="Action class provides enumeration representing container entry action.">foundation::Action</a> getAction() <span class="keyword">const</span>;
+<a name="l01804"></a>01804 
+<a name="l01808"></a>01808         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getActionAsString() <span class="keyword">const</span>;
+<a name="l01809"></a>01809 
+<a name="l01813"></a>01813         <span class="keywordtype">bool</span> hasPrice() <span class="keyword">const</span>;
+<a name="l01814"></a>01814 
+<a name="l01819"></a>01819         <span class="keywordtype">double</span> getPrice() <span class="keyword">const</span>;
+<a name="l01820"></a>01820 
+<a name="l01824"></a>01824         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getPriceAsString() <span class="keyword">const</span>;
+<a name="l01825"></a>01825 
+<a name="l01829"></a>01829         <span class="keywordtype">bool</span> hasSize() <span class="keyword">const</span>;
+<a name="l01830"></a>01830 
+<a name="l01835"></a>01835         <span class="keywordtype">double</span> getSize() <span class="keyword">const</span>;
+<a name="l01836"></a>01836 
+<a name="l01840"></a>01840         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getSizeAsString() <span class="keyword">const</span>;
+<a name="l01841"></a>01841 
+<a name="l01845"></a>01845         <span class="keywordtype">bool</span> hasSide() <span class="keyword">const</span>;
+<a name="l01846"></a>01846 
+<a name="l01851"></a>01851         <a class="code" href="a00017.html" title="Mbo::Side is an enumeration specifying order&#39;s side.">Side</a> getSide() <span class="keyword">const</span>;
+<a name="l01852"></a>01852 
+<a name="l01856"></a>01856         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getSideAsString() <span class="keyword">const</span>;
+<a name="l01857"></a>01857 
+<a name="l01861"></a>01861         <span class="keywordtype">bool</span> hasBid() <span class="keyword">const</span>;
+<a name="l01862"></a>01862 
+<a name="l01867"></a>01867         <span class="keywordtype">double</span> getBid() <span class="keyword">const</span>;
+<a name="l01868"></a>01868 
+<a name="l01872"></a>01872         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getBidAsString() <span class="keyword">const</span>;
+<a name="l01873"></a>01873 
+<a name="l01877"></a>01877         <span class="keywordtype">bool</span> hasAsk() <span class="keyword">const</span>;
+<a name="l01878"></a>01878 
+<a name="l01883"></a>01883         <span class="keywordtype">double</span> getAsk() <span class="keyword">const</span>;
+<a name="l01884"></a>01884 
+<a name="l01888"></a>01888         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getAskAsString() <span class="keyword">const</span>;
+<a name="l01889"></a>01889 
+<a name="l01893"></a>01893         <span class="keywordtype">bool</span> hasAskSize() <span class="keyword">const</span>;
+<a name="l01894"></a>01894 
+<a name="l01899"></a>01899         <span class="keywordtype">double</span> getAskSize() <span class="keyword">const</span>;
+<a name="l01900"></a>01900 
+<a name="l01904"></a>01904         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getAskSizeAsString() <span class="keyword">const</span>;
+<a name="l01905"></a>01905 
+<a name="l01909"></a>01909         <span class="keywordtype">bool</span> hasBidSize() <span class="keyword">const</span>;
+<a name="l01910"></a>01910 
+<a name="l01915"></a>01915         <span class="keywordtype">double</span> getBidSize() <span class="keyword">const</span>;
+<a name="l01916"></a>01916 
+<a name="l01920"></a>01920         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getBidSizeAsString() <span class="keyword">const</span>;
+<a name="l01921"></a>01921 
+<a name="l01925"></a>01925         <span class="keywordtype">bool</span> hasQuoteTime() <span class="keyword">const</span>;
+<a name="l01926"></a>01926 
+<a name="l01931"></a>01931         foundation::UInt64 getQuoteTime() <span class="keyword">const</span>;
+<a name="l01932"></a>01932 
+<a name="l01936"></a>01936         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getQuoteTimeAsString() <span class="keyword">const</span>;
+<a name="l01937"></a>01937 
+<a name="l01941"></a>01941         <span class="keyword">const</span> <a class="code" href="a00093.html" title="Node class represents all OMM container types.">foundation::Node</a>&amp; getAsNode() <span class="keyword">const</span>;
+<a name="l01942"></a>01942 
+<a name="l01947"></a>01947         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; toString() <span class="keyword">const</span>;
+<a name="l01948"></a>01948 
+<a name="l01952"></a>01952         operator const char* () <span class="keyword">const</span>;
+<a name="l01954"></a>01954 
+<a name="l01955"></a>01955     <span class="keyword">private</span>:
+<a name="l01956"></a>01956 
+<a name="l01957"></a>01957         <span class="keyword">friend</span> <span class="keyword">class </span>MboRefreshInfoImpl;
+<a name="l01958"></a>01958         <span class="keyword">friend</span> <span class="keyword">class </span>MboStatusInfoImpl;
+<a name="l01959"></a>01959         <span class="keyword">friend</span> <span class="keyword">class </span>MboUpdateInfoImpl;
+<a name="l01960"></a>01960         <span class="keyword">friend</span> <span class="keyword">class </span>MboConsumerItemImpl;
+<a name="l01961"></a>01961         <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="a00010.html" title="Mbo::OrderBook specifies MarketByOrder payload.">OrderBook</a>;
+<a name="l01962"></a>01962 
+<a name="l01963"></a>01963         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; toString( foundation::UInt64 indent ) <span class="keyword">const</span>;
+<a name="l01964"></a>01964 
+<a name="l01965"></a>01965         <a class="code" href="a00009.html" title="Mbo::Order specifies an order of MarketByOrder.">Order</a>();
+<a name="l01966"></a>01966         <span class="keyword">virtual</span> ~<a class="code" href="a00009.html" title="Mbo::Order specifies an order of MarketByOrder.">Order</a>();
+<a name="l01967"></a>01967 
+<a name="l01968"></a>01968         <span class="keyword">const</span> <a class="code" href="a00093.html" title="Node class represents all OMM container types.">foundation::Node</a>*         _pNode;
+<a name="l01969"></a>01969         <span class="keyword">mutable</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>   _toString;
+<a name="l01970"></a>01970         <span class="keyword">mutable</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>   _idString;
+<a name="l01971"></a>01971 
+<a name="l01972"></a>01972         <a class="code" href="a00009.html" title="Mbo::Order specifies an order of MarketByOrder.">Order</a>( <span class="keyword">const</span> <a class="code" href="a00009.html" title="Mbo::Order specifies an order of MarketByOrder.">Order</a>&amp; );
+<a name="l01973"></a>01973         <a class="code" href="a00009.html" title="Mbo::Order specifies an order of MarketByOrder.">Order</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00009.html" title="Mbo::Order specifies an order of MarketByOrder.">Order</a>&amp; );
+<a name="l01974"></a>01974     };
+<a name="l01975"></a>01975 
+<a name="l01976"></a>01976 
+<a name="l01985"></a><a class="code" href="a00020.html">01985</a>     <span class="keyword">class </span>EOA_DOMAIN_API <a class="code" href="a00020.html" title="Mbo::Summary specifies summary of MarketByOrder.">Summary</a>
+<a name="l01986"></a>01986     {
+<a name="l01987"></a>01987     <span class="keyword">public</span>:
+<a name="l01988"></a>01988 
+<a name="l01990"></a>01990 
+<a name="l01991"></a>01991 
+<a name="l01994"></a>01994         <span class="keywordtype">bool</span> hasPermission() <span class="keyword">const</span>;
+<a name="l01995"></a>01995 
+<a name="l02000"></a>02000         <span class="keyword">const</span> <a class="code" href="a00087.html" title="EoaBuffer represents a general use binary buffer.">foundation::EoaBuffer</a>&amp; getPermission() <span class="keyword">const</span>;
+<a name="l02001"></a>02001 
+<a name="l02005"></a>02005         <span class="keywordtype">bool</span> hasStockRic() <span class="keyword">const</span>;
+<a name="l02006"></a>02006 
+<a name="l02011"></a>02011         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getStockRic() <span class="keyword">const</span>;
+<a name="l02012"></a>02012 
+<a name="l02016"></a>02016         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getStockRicAsString() <span class="keyword">const</span>;
+<a name="l02017"></a>02017 
+<a name="l02021"></a>02021         <span class="keywordtype">bool</span> hasQuoteDate() <span class="keyword">const</span>;
+<a name="l02022"></a>02022 
+<a name="l02027"></a>02027         <span class="keyword">const</span> <a class="code" href="a00095.html" title="OmmDate represents Date info in Omm.">foundation::OmmDate</a>&amp; getQuoteDate() <span class="keyword">const</span>;
+<a name="l02028"></a>02028 
+<a name="l02032"></a>02032         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getQuoteDateAsString() <span class="keyword">const</span>;
+<a name="l02033"></a>02033 
+<a name="l02037"></a>02037         <span class="keywordtype">bool</span> hasTradeUnits() <span class="keyword">const</span>;
+<a name="l02038"></a>02038 
+<a name="l02043"></a>02043         <a class="code" href="a00021.html" title="Mbo::TradeUnit is an enumeration specifying Trade Unit or precision at which prices are set...">TradeUnit</a> getTradeUnits() <span class="keyword">const</span>;
+<a name="l02044"></a>02044 
+<a name="l02048"></a>02048         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getTradeUnitsAsString() <span class="keyword">const</span>;
+<a name="l02049"></a>02049 
+<a name="l02053"></a>02053         <span class="keywordtype">bool</span> hasExchangeId() <span class="keyword">const</span>;
+<a name="l02054"></a>02054 
+<a name="l02059"></a>02059         <a class="code" href="a00007.html" title="Mbo::ExchangeId is an enumeration specifying id of exchange.">ExchangeId</a> getExchangeId() <span class="keyword">const</span>;
+<a name="l02060"></a>02060 
+<a name="l02064"></a>02064         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getExchangeIdAsString() <span class="keyword">const</span>;
+<a name="l02065"></a>02065 
+<a name="l02069"></a>02069         <span class="keywordtype">bool</span> hasMarketState() <span class="keyword">const</span>;
+<a name="l02070"></a>02070 
+<a name="l02075"></a>02075         <a class="code" href="a00008.html" title="Mbo::MarketState is an enumeration specifying state of market.">MarketState</a> getMarketState() <span class="keyword">const</span>;
+<a name="l02076"></a>02076 
+<a name="l02080"></a>02080         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getMarketStateAsString() <span class="keyword">const</span>;
+<a name="l02081"></a>02081 
+<a name="l02085"></a>02085         <span class="keywordtype">bool</span> hasCurrency() <span class="keyword">const</span>;
+<a name="l02086"></a>02086 
+<a name="l02091"></a>02091         <a class="code" href="a00006.html" title="Mbo::Currency is an enumeration specifying order&#39;s currency.">Currency</a> getCurrency() <span class="keyword">const</span>;
+<a name="l02092"></a>02092 
+<a name="l02096"></a>02096         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getCurrencyAsString() <span class="keyword">const</span>;
+<a name="l02097"></a>02097 
+<a name="l02101"></a>02101         <span class="keywordtype">bool</span> hasPriceRankRule() <span class="keyword">const</span>;
+<a name="l02102"></a>02102 
+<a name="l02107"></a>02107         <a class="code" href="a00013.html" title="Mbo::PriceRankRule is an enumeration specifying price ranking rule.">PriceRankRule</a> getPriceRankRule() <span class="keyword">const</span>;
+<a name="l02108"></a>02108 
+<a name="l02112"></a>02112         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getPriceRankRuleAsString() <span class="keyword">const</span>;
+<a name="l02113"></a>02113 
+<a name="l02117"></a>02117         <span class="keywordtype">bool</span> hasOrderRankRule() <span class="keyword">const</span>;
+<a name="l02118"></a>02118 
+<a name="l02123"></a>02123         <a class="code" href="a00012.html" title="Mbo::OrderRankRule is an enumeration specifying order and price ranking rule.">OrderRankRule</a> getOrderRankRule() <span class="keyword">const</span>;
+<a name="l02124"></a>02124 
+<a name="l02128"></a>02128         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getOrderRankRuleAsString() <span class="keyword">const</span>;
+<a name="l02129"></a>02129 
+<a name="l02133"></a>02133         <span class="keyword">const</span> <a class="code" href="a00093.html" title="Node class represents all OMM container types.">foundation::Node</a>&amp; getAsNode() <span class="keyword">const</span>;
+<a name="l02134"></a>02134 
+<a name="l02139"></a>02139         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; toString() <span class="keyword">const</span>;
+<a name="l02140"></a>02140 
+<a name="l02144"></a>02144         operator const char* () <span class="keyword">const</span>;
+<a name="l02146"></a>02146 
+<a name="l02147"></a>02147     <span class="keyword">private</span>:
+<a name="l02148"></a>02148 
+<a name="l02149"></a>02149         <span class="keyword">friend</span> <span class="keyword">class </span>MboRefreshInfoImpl;
+<a name="l02150"></a>02150         <span class="keyword">friend</span> <span class="keyword">class </span>MboStatusInfoImpl;
+<a name="l02151"></a>02151         <span class="keyword">friend</span> <span class="keyword">class </span>MboUpdateInfoImpl;
+<a name="l02152"></a>02152         <span class="keyword">friend</span> <span class="keyword">class </span>MboConsumerItemImpl;
+<a name="l02153"></a>02153         <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="a00010.html" title="Mbo::OrderBook specifies MarketByOrder payload.">OrderBook</a>;
+<a name="l02154"></a>02154 
+<a name="l02155"></a>02155         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; toString( foundation::UInt64 indent ) <span class="keyword">const</span>;
+<a name="l02156"></a>02156 
+<a name="l02157"></a>02157         <a class="code" href="a00020.html" title="Mbo::Summary specifies summary of MarketByOrder.">Summary</a>();
+<a name="l02158"></a>02158         <span class="keyword">virtual</span> ~<a class="code" href="a00020.html" title="Mbo::Summary specifies summary of MarketByOrder.">Summary</a>();
+<a name="l02159"></a>02159 
+<a name="l02160"></a>02160         <span class="keyword">const</span> <a class="code" href="a00093.html" title="Node class represents all OMM container types.">foundation::Node</a>*         _pNode;
+<a name="l02161"></a>02161         <span class="keyword">mutable</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>   _toString;
+<a name="l02162"></a>02162 
+<a name="l02163"></a>02163         <a class="code" href="a00020.html" title="Mbo::Summary specifies summary of MarketByOrder.">Summary</a>( <span class="keyword">const</span> <a class="code" href="a00020.html" title="Mbo::Summary specifies summary of MarketByOrder.">Summary</a>&amp; );
+<a name="l02164"></a>02164         <a class="code" href="a00020.html" title="Mbo::Summary specifies summary of MarketByOrder.">Summary</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00020.html" title="Mbo::Summary specifies summary of MarketByOrder.">Summary</a>&amp; );
+<a name="l02165"></a>02165     };
+<a name="l02166"></a>02166 
+<a name="l02167"></a>02167 
+<a name="l02180"></a><a class="code" href="a00010.html">02180</a>     <span class="keyword">class </span>EOA_DOMAIN_API <a class="code" href="a00010.html" title="Mbo::OrderBook specifies MarketByOrder payload.">OrderBook</a>
+<a name="l02181"></a>02181     {
+<a name="l02182"></a>02182     <span class="keyword">public</span>:
+<a name="l02183"></a>02183 
+<a name="l02217"></a><a class="code" href="a00011.html">02217</a>         <span class="keyword">class </span>EOA_DOMAIN_API <a class="code" href="a00011.html" title="Mbo::OrderBook::const_iterator is an external and explicit Mbo::OrderBook read iterator.">const_iterator</a>
+<a name="l02218"></a>02218         {
+<a name="l02219"></a>02219         <span class="keyword">public</span> :
+<a name="l02220"></a>02220 
+<a name="l02222"></a>02222 
+<a name="l02223"></a>02223 
+<a name="l02226"></a>02226             <a class="code" href="a00011.html" title="Mbo::OrderBook::const_iterator is an external and explicit Mbo::OrderBook read iterator.">const_iterator</a>();
+<a name="l02227"></a>02227         
+<a name="l02231"></a>02231             <a class="code" href="a00011.html" title="Mbo::OrderBook::const_iterator is an external and explicit Mbo::OrderBook read iterator.">const_iterator</a>( <span class="keyword">const</span> <a class="code" href="a00010.html" title="Mbo::OrderBook specifies MarketByOrder payload.">Mbo::OrderBook</a>&amp; orderBook );
+<a name="l02232"></a>02232 
+<a name="l02236"></a>02236             <a class="code" href="a00011.html" title="Mbo::OrderBook::const_iterator is an external and explicit Mbo::OrderBook read iterator.">const_iterator</a>( <span class="keyword">const</span> <a class="code" href="a00011.html" title="Mbo::OrderBook::const_iterator is an external and explicit Mbo::OrderBook read iterator.">const_iterator</a>&amp; other );
+<a name="l02237"></a>02237         
+<a name="l02241"></a>02241             <a class="code" href="a00011.html" title="Mbo::OrderBook::const_iterator is an external and explicit Mbo::OrderBook read iterator.">const_iterator</a>( <a class="code" href="a00011.html" title="Mbo::OrderBook::const_iterator is an external and explicit Mbo::OrderBook read iterator.">const_iterator</a>&amp;&amp; other );
+<a name="l02243"></a>02243 
+<a name="l02246"></a>02246             <span class="keyword">virtual</span> ~<a class="code" href="a00011.html" title="Mbo::OrderBook::const_iterator is an external and explicit Mbo::OrderBook read iterator.">const_iterator</a>();
+<a name="l02248"></a>02248 
+<a name="l02250"></a>02250 
+<a name="l02251"></a>02251 
+<a name="l02255"></a>02255             <a class="code" href="a00011.html" title="Mbo::OrderBook::const_iterator is an external and explicit Mbo::OrderBook read iterator.">const_iterator</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00011.html" title="Mbo::OrderBook::const_iterator is an external and explicit Mbo::OrderBook read iterator.">const_iterator</a>&amp; other );
+<a name="l02256"></a>02256 
+<a name="l02260"></a>02260             <span class="keyword">const</span> <a class="code" href="a00009.html" title="Mbo::Order specifies an order of MarketByOrder.">Mbo::Order</a>&amp; operator*() <span class="keyword">const</span>;
+<a name="l02261"></a>02261 
+<a name="l02265"></a>02265             <span class="keyword">const</span> <a class="code" href="a00009.html" title="Mbo::Order specifies an order of MarketByOrder.">Mbo::Order</a>* operator-&gt;() <span class="keyword">const</span>;
+<a name="l02266"></a>02266 
+<a name="l02270"></a>02270             <a class="code" href="a00011.html" title="Mbo::OrderBook::const_iterator is an external and explicit Mbo::OrderBook read iterator.">const_iterator</a>&amp; operator++();
+<a name="l02271"></a>02271         
+<a name="l02275"></a>02275             <a class="code" href="a00011.html" title="Mbo::OrderBook::const_iterator is an external and explicit Mbo::OrderBook read iterator.">const_iterator</a> operator++( <span class="keywordtype">int</span> );
+<a name="l02276"></a>02276         
+<a name="l02281"></a>02281             <span class="keywordtype">bool</span> operator!=( <span class="keyword">const</span> <a class="code" href="a00011.html" title="Mbo::OrderBook::const_iterator is an external and explicit Mbo::OrderBook read iterator.">const_iterator</a>&amp; other ) <span class="keyword">const</span>;
+<a name="l02282"></a>02282 
+<a name="l02287"></a>02287             <span class="keywordtype">bool</span> operator==( <span class="keyword">const</span> <a class="code" href="a00011.html" title="Mbo::OrderBook::const_iterator is an external and explicit Mbo::OrderBook read iterator.">const_iterator</a>&amp; other ) <span class="keyword">const</span>;
+<a name="l02289"></a>02289 
+<a name="l02290"></a>02290         <span class="keyword">private</span> :
+<a name="l02291"></a>02291 
+<a name="l02292"></a>02292             <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="a00010.html" title="Mbo::OrderBook specifies MarketByOrder payload.">OrderBook</a>;
+<a name="l02293"></a>02293 
+<a name="l02294"></a>02294             <a class="code" href="a00094.html" title="Node::const_iterator is an external and explicit Node read iterator.">foundation::Node::const_iterator</a>    _nodeIterator;
+<a name="l02295"></a>02295             <span class="keyword">mutable</span> <a class="code" href="a00009.html" title="Mbo::Order specifies an order of MarketByOrder.">Order</a>                       _order;
+<a name="l02296"></a>02296         };
+<a name="l02297"></a>02297     
+<a name="l02299"></a>02299 
+<a name="l02300"></a>02300 
+<a name="l02304"></a>02304         <a class="code" href="a00011.html" title="Mbo::OrderBook::const_iterator is an external and explicit Mbo::OrderBook read iterator.">const_iterator</a> begin() <span class="keyword">const</span>;
+<a name="l02305"></a>02305 
+<a name="l02310"></a>02310         <a class="code" href="a00011.html" title="Mbo::OrderBook::const_iterator is an external and explicit Mbo::OrderBook read iterator.">const_iterator</a> end() <span class="keyword">const</span>;
+<a name="l02312"></a>02312     
+<a name="l02314"></a>02314 
+<a name="l02315"></a>02315 
+<a name="l02318"></a>02318         <span class="keywordtype">bool</span> hasSummary() <span class="keyword">const</span>;
+<a name="l02319"></a>02319 
+<a name="l02324"></a>02324         <span class="keyword">const</span> <a class="code" href="a00020.html" title="Mbo::Summary specifies summary of MarketByOrder.">Summary</a>&amp; getSummary() <span class="keyword">const</span>;
+<a name="l02325"></a>02325 
+<a name="l02328"></a>02328         <span class="keyword">const</span> <a class="code" href="a00093.html" title="Node class represents all OMM container types.">foundation::Node</a>&amp; getAsNode() <span class="keyword">const</span>;
+<a name="l02329"></a>02329 
+<a name="l02334"></a>02334         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; toString() <span class="keyword">const</span>;
+<a name="l02335"></a>02335 
+<a name="l02339"></a>02339         operator const char* () <span class="keyword">const</span>;
+<a name="l02341"></a>02341 
+<a name="l02342"></a>02342     <span class="keyword">private</span>:
+<a name="l02343"></a>02343 
+<a name="l02344"></a>02344         <span class="keyword">friend</span> <span class="keyword">class </span>MboRefreshInfoImpl;
+<a name="l02345"></a>02345         <span class="keyword">friend</span> <span class="keyword">class </span>MboStatusInfoImpl;
+<a name="l02346"></a>02346         <span class="keyword">friend</span> <span class="keyword">class </span>MboUpdateInfoImpl;
+<a name="l02347"></a>02347         <span class="keyword">friend</span> <span class="keyword">class </span>MboConsumerItemImpl;
+<a name="l02348"></a>02348 
+<a name="l02349"></a>02349         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; toString( foundation::UInt64 indent ) <span class="keyword">const</span>;
+<a name="l02350"></a>02350 
+<a name="l02351"></a>02351         <a class="code" href="a00010.html" title="Mbo::OrderBook specifies MarketByOrder payload.">OrderBook</a>();
+<a name="l02352"></a>02352         <span class="keyword">virtual</span> ~<a class="code" href="a00010.html" title="Mbo::OrderBook specifies MarketByOrder payload.">OrderBook</a>();
+<a name="l02353"></a>02353 
+<a name="l02354"></a>02354         <span class="keyword">const</span> <a class="code" href="a00093.html" title="Node class represents all OMM container types.">foundation::Node</a>*         _pNode;
+<a name="l02355"></a>02355         <span class="keyword">mutable</span> <a class="code" href="a00020.html" title="Mbo::Summary specifies summary of MarketByOrder.">Summary</a>                 _summary;
+<a name="l02356"></a>02356         <span class="keyword">mutable</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>   _toString;
+<a name="l02357"></a>02357 
+<a name="l02358"></a>02358         <a class="code" href="a00010.html" title="Mbo::OrderBook specifies MarketByOrder payload.">OrderBook</a>( <span class="keyword">const</span> <a class="code" href="a00010.html" title="Mbo::OrderBook specifies MarketByOrder payload.">OrderBook</a>&amp; );
+<a name="l02359"></a>02359         <a class="code" href="a00010.html" title="Mbo::OrderBook specifies MarketByOrder payload.">OrderBook</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00010.html" title="Mbo::OrderBook specifies MarketByOrder payload.">OrderBook</a>&amp; );
+<a name="l02360"></a>02360     };
+<a name="l02361"></a>02361 
+<a name="l02362"></a>02362 
+<a name="l02371"></a><a class="code" href="a00014.html">02371</a>     <span class="keyword">class </span>EOA_DOMAIN_API <a class="code" href="a00014.html" title="Mbo::Qos represents Quality Of Service information in MarketByOrder.">Qos</a>
+<a name="l02372"></a>02372     {
+<a name="l02373"></a>02373     <span class="keyword">public</span> :
+<a name="l02374"></a>02374 
+<a name="l02378"></a><a class="code" href="a00014.html#aeb0f1c11e498a1f74efe2b992d8b8d65">02378</a>         <span class="keyword">enum</span> <a class="code" href="a00014.html#aeb0f1c11e498a1f74efe2b992d8b8d65">Rate</a>
+<a name="l02379"></a>02379         {
+<a name="l02380"></a><a class="code" href="a00014.html#aeb0f1c11e498a1f74efe2b992d8b8d65a4603619385079fa1a2ac961973434810">02380</a>             TickByTickEnum = 0,                         
+<a name="l02382"></a><a class="code" href="a00014.html#aeb0f1c11e498a1f74efe2b992d8b8d65aab71058367de4d5a83aafbbb1ec0d476">02382</a>             JustInTimeConflatedEnum = 0xFFFFFF00        
+<a name="l02383"></a>02383         };
+<a name="l02384"></a>02384 
+<a name="l02388"></a><a class="code" href="a00014.html#a450b16df40e9709bb9ee3e561fbaee88">02388</a>         <span class="keyword">enum</span> <a class="code" href="a00014.html#a450b16df40e9709bb9ee3e561fbaee88">Timeliness</a>
+<a name="l02389"></a>02389         {
+<a name="l02390"></a><a class="code" href="a00014.html#a450b16df40e9709bb9ee3e561fbaee88a42ab88e163a3e2adb16356468bf191ef">02390</a>             RealTimeEnum = 0,                   
+<a name="l02392"></a><a class="code" href="a00014.html#a450b16df40e9709bb9ee3e561fbaee88aac7d4a4c3c0a989f1c4a111828aa6c22">02392</a>             InexactDelayedEnum = 0xFFFFFFFF     
+<a name="l02393"></a>02393         };
+<a name="l02394"></a>02394 
+<a name="l02396"></a>02396 
+<a name="l02397"></a>02397 
+<a name="l02400"></a>02400         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getRateAsString() <span class="keyword">const</span>;
+<a name="l02401"></a>02401         
+<a name="l02405"></a>02405         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getTimelinessAsString() <span class="keyword">const</span>;
+<a name="l02406"></a>02406 
+<a name="l02410"></a>02410         foundation::UInt32 getTimeliness() <span class="keyword">const</span>;
+<a name="l02411"></a>02411 
+<a name="l02415"></a>02415         foundation::UInt32 getRate() <span class="keyword">const</span>;
+<a name="l02416"></a>02416 
+<a name="l02421"></a>02421         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; toString() <span class="keyword">const</span>;
+<a name="l02422"></a>02422 
+<a name="l02426"></a>02426         operator const char* () <span class="keyword">const</span>;
+<a name="l02428"></a>02428 
+<a name="l02429"></a>02429     <span class="keyword">private</span> :
+<a name="l02430"></a>02430 
+<a name="l02431"></a>02431         <span class="keyword">friend</span> <span class="keyword">class </span>MboRefreshInfoImpl;
+<a name="l02432"></a>02432 
+<a name="l02433"></a>02433         <a class="code" href="a00014.html" title="Mbo::Qos represents Quality Of Service information in MarketByOrder.">Qos</a>();
+<a name="l02434"></a>02434         <span class="keyword">virtual</span> ~<a class="code" href="a00014.html" title="Mbo::Qos represents Quality Of Service information in MarketByOrder.">Qos</a>();
+<a name="l02435"></a>02435         <a class="code" href="a00014.html" title="Mbo::Qos represents Quality Of Service information in MarketByOrder.">Qos</a>( <span class="keyword">const</span> <a class="code" href="a00014.html" title="Mbo::Qos represents Quality Of Service information in MarketByOrder.">Qos</a>&amp; );
+<a name="l02436"></a>02436         <a class="code" href="a00014.html" title="Mbo::Qos represents Quality Of Service information in MarketByOrder.">Qos</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00014.html" title="Mbo::Qos represents Quality Of Service information in MarketByOrder.">Qos</a>&amp; );
+<a name="l02437"></a>02437 
+<a name="l02438"></a>02438         MboQosImpl* _pImpl;
+<a name="l02439"></a>02439     };
+<a name="l02440"></a>02440 
+<a name="l02441"></a>02441 
+<a name="l02451"></a><a class="code" href="a00018.html">02451</a>     <span class="keyword">class </span>EOA_DOMAIN_API <a class="code" href="a00018.html" title="Mbo::State represents State information in MarketByOrder.">State</a> 
+<a name="l02452"></a>02452     {
+<a name="l02453"></a>02453     <span class="keyword">public</span> :
+<a name="l02454"></a>02454 
+<a name="l02458"></a><a class="code" href="a00018.html#a35b84eae8bc5251aa9bb57480d209bf1">02458</a>         <span class="keyword">enum</span> <a class="code" href="a00018.html#a35b84eae8bc5251aa9bb57480d209bf1">StreamState</a>
+<a name="l02459"></a>02459         {
+<a name="l02460"></a><a class="code" href="a00018.html#a35b84eae8bc5251aa9bb57480d209bf1afe99bc0bc521b4cd5a592c79cae9df62">02460</a>             OpenEnum            = 1,    
+<a name="l02463"></a><a class="code" href="a00018.html#a35b84eae8bc5251aa9bb57480d209bf1a59558df78564ec4b5b8957ed811ef984">02463</a>             NonStreamingEnum    = 2,    
+<a name="l02466"></a><a class="code" href="a00018.html#a35b84eae8bc5251aa9bb57480d209bf1ad6afee7454a9900fd20e73c9765bb385">02466</a>             ClosedRecoverEnum   = 3,    
+<a name="l02470"></a><a class="code" href="a00018.html#a35b84eae8bc5251aa9bb57480d209bf1aa5452b96860e4eedbd6543b9e4a2847a">02470</a>             ClosedEnum          = 4,    
+<a name="l02472"></a><a class="code" href="a00018.html#a35b84eae8bc5251aa9bb57480d209bf1a198705d4c2ad950bd65495386fdcf26f">02472</a>             ClosedRedirectedEnum = 5    
+<a name="l02476"></a>02476         };
+<a name="l02477"></a>02477 
+<a name="l02481"></a><a class="code" href="a00018.html#a9a32e50cfbc316bccfe884dee51a2c65">02481</a>         <span class="keyword">enum</span> <a class="code" href="a00018.html#a9a32e50cfbc316bccfe884dee51a2c65">DataState</a>
+<a name="l02482"></a>02482         {
+<a name="l02483"></a><a class="code" href="a00018.html#a9a32e50cfbc316bccfe884dee51a2c65ae6d468cf60c969ae5b9380acd1d8c42f">02483</a>             NoChangeEnum    = 0,        
+<a name="l02485"></a><a class="code" href="a00018.html#a9a32e50cfbc316bccfe884dee51a2c65aa90b0f338426a5b7030c68c4fa262720">02485</a>             OkEnum          = 1,        
+<a name="l02487"></a><a class="code" href="a00018.html#a9a32e50cfbc316bccfe884dee51a2c65a8019b4c4c8c030b7e0684e82dec98382">02487</a>             SuspectEnum     = 2         
+<a name="l02488"></a>02488         };
+<a name="l02489"></a>02489 
+<a name="l02493"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7">02493</a>         <span class="keyword">enum</span> <a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7">StatusCode</a>
+<a name="l02494"></a>02494         {
+<a name="l02495"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7abe58a4bc10bf80b7c1513b2ad9c7bf52">02495</a>             NoneEnum                        = 0,    
+<a name="l02496"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7afa36a1a4f529f7cdbd4d109a0ee7e7b2">02496</a>             NotFoundEnum                    = 1,    
+<a name="l02497"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7a57ed9ddce3e7dcf7592218a72fc62c64">02497</a>             TimeoutEnum                     = 2,    
+<a name="l02498"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7a18b30d43c1514fc279ecbcb39d5254c7">02498</a>             NotAuthorizedEnum               = 3,    
+<a name="l02499"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7a8a9174bed73cccd838fa64db522d55ea">02499</a>             InvalidArgumentEnum             = 4,    
+<a name="l02500"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7a379afc60e8017bba82450aab2a5152e9">02500</a>             UsageErrorEnum                  = 5,    
+<a name="l02501"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7a372bfd131ffdc8b8300edef81f6e2193">02501</a>             PreemptedEnum                   = 6,    
+<a name="l02502"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7a210135432489d09425e246a175a596bb">02502</a>             JustInTimeConflationStartedEnum = 7,    
+<a name="l02503"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7a4784bf3d082c8f0c9cafd69f8e0928dc">02503</a>             TickByTickResumedEnum           = 8,    
+<a name="l02504"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7aa62552bf84ba2e4421ea20f9599b8362">02504</a>             FailoverStartedEnum             = 9,    
+<a name="l02505"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7ab1bbffd37445615f1da6279e5d969315">02505</a>             FailoverCompletedEnum           = 10,   
+<a name="l02506"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7aa2cc546cfaad48ae6ba07e11dfb5fc28">02506</a>             GapDetectedEnum                 = 11,   
+<a name="l02507"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7afef4695f3966e5c79231c6a1c69a115e">02507</a>             NoResourcesEnum                 = 12,   
+<a name="l02508"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7ae6998e8d62122072b4a4cc96cdc5c645">02508</a>             TooManyItemsEnum                = 13,   
+<a name="l02509"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7a1bf61666ba09c2d1f08348c56e82fcbb">02509</a>             AlreadyOpenEnum                 = 14,   
+<a name="l02510"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7a653ba95b22ca4409ae0590ac60c1830e">02510</a>             SourceUnknownEnum               = 15,   
+<a name="l02511"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7a39e07389a2a394f661ea026eb24e8765">02511</a>             NotOpenEnum                     = 16,   
+<a name="l02512"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7a3476a186390e5dbd75bc71d45f3b61e3">02512</a>             NonUpdatingItemEnum             = 19,   
+<a name="l02513"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7ae8f6b8214ae1d98f9b27a64e8ab629dc">02513</a>             UnsupportedViewTypeEnum         = 20,   
+<a name="l02514"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7aa080f2990112b2fdca48c8bc8d46d002">02514</a>             InvalidViewEnum                 = 21,   
+<a name="l02515"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7ac2b306c683cc101541c9c83c7c678ac1">02515</a>             FullViewProvidedEnum            = 22,   
+<a name="l02516"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7a6a8e85206d5fd6866c9d83331965c4c5">02516</a>             UnableToRequestAsBatchEnum      = 23,   
+<a name="l02517"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7a5cdec7cc2c8121a5d8205b7c267cacb6">02517</a>             NoBatchViewSupportInReqEnum     = 26,   
+<a name="l02518"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7a3b02e90f1c71c80e347159751efba8d1">02518</a>             ExceededMaxMountsPerUserEnum    = 27,   
+<a name="l02519"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7a2625b1840009ed91d71b82f213f84873">02519</a>             ErrorEnum                       = 28,   
+<a name="l02520"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7a3c7cc6a387c964f7dcd2f513b39be746">02520</a>             DacsDownEnum                    = 29,   
+<a name="l02521"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7a716d0d5742b1419d38af8b0f18b9e2f4">02521</a>             UserUnknownToPermSysEnum        = 30,   
+<a name="l02522"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7a281bad272858fd3085a2ef3b866d60a4">02522</a>             DacsMaxLoginsReachedEnum        = 31,   
+<a name="l02523"></a><a class="code" href="a00018.html#a896314650934eadab31b2aacd85891f7afe3f332a457fc967434e154aa979fd0e">02523</a>             DacsUserFoundationToAppDeniedEnum   = 32,   
+<a name="l02524"></a>02524             InvalidFormedMsgEnum            = 256,
+<a name="l02525"></a>02525             ChannelUnavailableEnum          = 257,
+<a name="l02526"></a>02526             ServiceUnavailableEnum          = 258,
+<a name="l02527"></a>02527             ServiceDownEnum                 = 259,
+<a name="l02528"></a>02528             ServiceNotAcceptingRequestsEnum = 260,
+<a name="l02529"></a>02529             LoginClosedEnum                 = 261,
+<a name="l02530"></a>02530             DirectoryClosedEnum             = 262,
+<a name="l02531"></a>02531             ItemNotFoundEnum                = 263,
+<a name="l02532"></a>02532             DictionaryUnavailableEnum       = 264,
+<a name="l02533"></a>02533             FieldIdNotFoundDictionaryUnavailableEnum = 265,
+<a name="l02534"></a>02534             ItemRequestTimeoutEnum          = 266
+<a name="l02535"></a>02535         };
+<a name="l02536"></a>02536 
+<a name="l02538"></a>02538 
+<a name="l02539"></a>02539 
+<a name="l02542"></a>02542         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getStreamStateAsString() <span class="keyword">const</span>;
+<a name="l02543"></a>02543         
+<a name="l02547"></a>02547         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getDataStateAsString() <span class="keyword">const</span>;
+<a name="l02548"></a>02548         
+<a name="l02552"></a>02552         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getStatusCodeAsString() <span class="keyword">const</span>;
+<a name="l02553"></a>02553 
+<a name="l02557"></a>02557         StreamState getStreamState() <span class="keyword">const</span>;
+<a name="l02558"></a>02558 
+<a name="l02562"></a>02562         DataState getDataState() <span class="keyword">const</span>;
+<a name="l02563"></a>02563 
+<a name="l02567"></a>02567         foundation::UInt16 getStatusCode() <span class="keyword">const</span>;
+<a name="l02568"></a>02568 
+<a name="l02572"></a>02572         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getStatusText() <span class="keyword">const</span>;
+<a name="l02573"></a>02573 
+<a name="l02578"></a>02578         <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; toString() <span class="keyword">const</span>;
+<a name="l02579"></a>02579 
+<a name="l02583"></a>02583         operator const char* () <span class="keyword">const</span>;
+<a name="l02585"></a>02585 
+<a name="l02586"></a>02586     <span class="keyword">private</span> :
+<a name="l02587"></a>02587 
+<a name="l02588"></a>02588         <span class="keyword">friend</span> <span class="keyword">class </span>MboRefreshInfoImpl;
+<a name="l02589"></a>02589         <span class="keyword">friend</span> <span class="keyword">class </span>MboStatusInfoImpl;
+<a name="l02590"></a>02590 
+<a name="l02591"></a>02591         <a class="code" href="a00018.html" title="Mbo::State represents State information in MarketByOrder.">State</a>();
+<a name="l02592"></a>02592         <span class="keyword">virtual</span> ~<a class="code" href="a00018.html" title="Mbo::State represents State information in MarketByOrder.">State</a>();
+<a name="l02593"></a>02593         <a class="code" href="a00018.html" title="Mbo::State represents State information in MarketByOrder.">State</a>( <span class="keyword">const</span> <a class="code" href="a00018.html" title="Mbo::State represents State information in MarketByOrder.">State</a>&amp; );
+<a name="l02594"></a>02594         <a class="code" href="a00018.html" title="Mbo::State represents State information in MarketByOrder.">State</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00018.html" title="Mbo::State represents State information in MarketByOrder.">State</a>&amp; );
+<a name="l02595"></a>02595 
+<a name="l02596"></a>02596         MboStateImpl*       _pImpl;
+<a name="l02597"></a>02597     };
+<a name="l02598"></a>02598 
+<a name="l02599"></a>02599 
+<a name="l02603"></a>02603     <span class="keyword">static</span> <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>&amp; getVersion();
+<a name="l02604"></a>02604 
+<a name="l02605"></a>02605 <span class="keyword">private</span>:
+<a name="l02606"></a>02606 
+<a name="l02607"></a>02607     <span class="keyword">static</span> <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">foundation::EoaString</a>      _version;
+<a name="l02608"></a>02608 
+<a name="l02609"></a>02609     <a class="code" href="a00002.html" title="Mbo class contains all classes used to request and process an item from MarketByOrder domain...">Mbo</a>();
+<a name="l02610"></a>02610     <span class="keyword">virtual</span> ~<a class="code" href="a00002.html" title="Mbo class contains all classes used to request and process an item from MarketByOrder domain...">Mbo</a>();
+<a name="l02611"></a>02611 
+<a name="l02612"></a>02612     <a class="code" href="a00002.html" title="Mbo class contains all classes used to request and process an item from MarketByOrder domain...">Mbo</a>( <span class="keyword">const</span> <a class="code" href="a00002.html" title="Mbo class contains all classes used to request and process an item from MarketByOrder domain...">Mbo</a>&amp; );
+<a name="l02613"></a>02613     <a class="code" href="a00002.html" title="Mbo class contains all classes used to request and process an item from MarketByOrder domain...">Mbo</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00002.html" title="Mbo class contains all classes used to request and process an item from MarketByOrder domain...">Mbo</a>&amp; );
+<a name="l02614"></a>02614 };
+<a name="l02615"></a>02615 
+<a name="l02616"></a>02616 }
+<a name="l02617"></a>02617 
+<a name="l02618"></a>02618 }
+<a name="l02619"></a>02619 
+<a name="l02620"></a>02620 }
+<a name="l02621"></a>02621 
+<a name="l02622"></a>02622 }
+<a name="l02623"></a>02623 
+<a name="l02624"></a>02624 <span class="preprocessor">#endif // __thomsonreuters_eoa_domain_marketbyorder_mbo_h</span>
 </pre></div></div><!-- contents -->
 
 <hr class="footer"/><address class="footer"><small>
@@ -178,7 +1660,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Feb 1 2016</td>
+			<td><p class="smallfont">Mon Feb 29 2016</td>
           </tr>
         </table>
         </td>

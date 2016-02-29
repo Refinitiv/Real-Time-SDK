@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EOA: thomsonreuters::eoa::foundation::ComponentTypeName Class Reference</title>
+<title>EOA: thomsonreuters::eoa::domain::marketmaker::Mm::State Class Reference</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -107,113 +107,499 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul>
       <li class="navelem"><b>thomsonreuters</b>      </li>
       <li class="navelem"><b>eoa</b>      </li>
-      <li class="navelem"><b>foundation</b>      </li>
-      <li class="navelem"><a class="el" href="a00059.html">ComponentTypeName</a>      </li>
+      <li class="navelem"><b>domain</b>      </li>
+      <li class="navelem"><b>marketmaker</b>      </li>
+      <li class="navelem"><a class="el" href="a00043.html">Mm</a>      </li>
+      <li class="navelem"><a class="el" href="a00059.html">State</a>      </li>
     </ul>
   </div>
 </div>
 <div class="header">
+  <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
+<a href="#friends">Friends</a>  </div>
   <div class="headertitle">
-<div class="title">thomsonreuters::eoa::foundation::ComponentTypeName Class Reference</div>  </div>
+<div class="title">thomsonreuters::eoa::domain::marketmaker::Mm::State Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="a00059.html" title="ComponentTypeName class converts ComponentType enumeration into a string with its name...">ComponentTypeName</a> class converts <a class="el" href="a00058.html" title="ComponentType class provides enumeration representing component types.">ComponentType</a> enumeration into a string with its name.  
+<p><a class="el" href="a00059.html" title="Mm::State represents State information in MarketMaker domain.">Mm::State</a> represents <a class="el" href="a00059.html" title="Mm::State represents State information in MarketMaker domain.">State</a> information in MarketMaker domain.  
  <a href="a00059.html#details">More...</a></p>
 
-<p><a href="a00191.html">List of all members.</a></p>
+<p><a href="a00212.html">List of all members.</a></p>
 <table class="memberdecls">
+<tr><td colspan="2"><h2><a name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:ad799f8c56173f8becfb4549a86a0bf13"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00059.html#ad799f8c56173f8becfb4549a86a0bf13">DataState</a> { <br/>
+&#160;&#160;<a class="el" href="a00059.html#ad799f8c56173f8becfb4549a86a0bf13a08adccccdda691d780e14fb8420577ee">NoChangeEnum</a> =  0, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#ad799f8c56173f8becfb4549a86a0bf13ad4d6d54cb3afee5fdcfbb6485a0dcf3b">OkEnum</a> =  1, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#ad799f8c56173f8becfb4549a86a0bf13a4d8a79fa6c4b9e5cabd97b0c90309523">SuspectEnum</a> =  2
+<br/>
+ }</td></tr>
+<tr class="memitem:a74b60b0ea6ac24c07652a65b812042a6"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6">StatusCode</a> { <br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6a85f4b058d54bcdb73ebc71ee25691c0d">NoneEnum</a> =  0, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6ae9e4cc71afeaa68b420147646f55141d">NotFoundEnum</a> =  1, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6a76221f8de958019fbd2246fa6846ff58">TimeoutEnum</a> =  2, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6ad78e5606ce290353b44455d59aad5353">NotAuthorizedEnum</a> =  3, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6a821f4cf5cc7494c6d63a4a9cb5e07d0c">InvalidArgumentEnum</a> =  4, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6a2932db01c6076a2debc2605d292fb034">UsageErrorEnum</a> =  5, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6ab0d2e967c8b1db1871f76038b82925a9">PreemptedEnum</a> =  6, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6ae3671aec4f42f1cbe5c66e93ac972a9e">JustInTimeConflationStartedEnum</a> =  7, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6a2737399e22572e2f971bf51b35931152">TickByTickResumedEnum</a> =  8, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6a7b259fd8db25e4af7b634272c1afe4d0">FailoverStartedEnum</a> =  9, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6aefae249c2dbc7fb9c39a1432e71f3e70">FailoverCompletedEnum</a> =  10, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6a6aca150c29c47260516a1d221a1b038f">GapDetectedEnum</a> =  11, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6a582bfb163dcfbd480fd43ff2179c4539">NoResourcesEnum</a> =  12, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6a0989112a7d93574912a7e434a40e3418">TooManyItemsEnum</a> =  13, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6afca203587f2efcc6eee544598b722f86">AlreadyOpenEnum</a> =  14, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6a42989cb62597e4981f5f1600f1b100c7">SourceUnknownEnum</a> =  15, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6a57d3d5c890885f8239056ca2fcc6e260">NotOpenEnum</a> =  16, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6a25b9964453d3753af179cf7078465d0b">NonUpdatingItemEnum</a> =  19, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6a17874e1c657c42f7b2a958b75ed7a006">UnsupportedViewTypeEnum</a> =  20, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6a8a045ec1e440aa7bcb84fbe68046c0a8">InvalidViewEnum</a> =  21, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6ae5b221797d569b3f7aaa478ea24f1a3e">FullViewProvidedEnum</a> =  22, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6a45f1b554dbef2d5c7e7eb7f1aa848f9a">UnableToRequestAsBatchEnum</a> =  23, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6a8398936f4e1f131eeca34f9c8504f021">NoBatchViewSupportInReqEnum</a> =  26, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6af3fc94f77593b20fa1b34e020bca13da">ExceededMaxMountsPerUserEnum</a> =  27, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6a41a24adaf9aa1a5a699169e00e770e58">ErrorEnum</a> =  28, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6ab438ef1ed898f98ca77881e0ba43b24b">DacsDownEnum</a> =  29, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6a6d29ee56ad80f44ce6b70396415b4ff4">UserUnknownToPermSysEnum</a> =  30, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6a07e0105c8a40df9188d6abd5fb4ed433">DacsMaxLoginsReachedEnum</a> =  31, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6abb388e743b6ca49c51eed264e78c1fd3">DacsUserFoundationToAppDeniedEnum</a> =  32, 
+<br/>
+&#160;&#160;<b>InvalidFormedMsgEnum</b> =  256, 
+<br/>
+&#160;&#160;<b>ChannelUnavailableEnum</b> =  257, 
+<br/>
+&#160;&#160;<b>ServiceUnavailableEnum</b> =  258, 
+<br/>
+&#160;&#160;<b>ServiceDownEnum</b> =  259, 
+<br/>
+&#160;&#160;<b>ServiceNotAcceptingRequestsEnum</b> =  260, 
+<br/>
+&#160;&#160;<b>LoginClosedEnum</b> =  261, 
+<br/>
+&#160;&#160;<b>DirectoryClosedEnum</b> =  262, 
+<br/>
+&#160;&#160;<b>ItemNotFoundEnum</b> =  263, 
+<br/>
+&#160;&#160;<b>DictionaryUnavailableEnum</b> =  264, 
+<br/>
+&#160;&#160;<b>FieldIdNotFoundDictionaryUnavailableEnum</b> =  265, 
+<br/>
+&#160;&#160;<b>ItemRequestTimeoutEnum</b> =  266
+<br/>
+ }</td></tr>
+<tr class="memitem:a2784253061f0c11d39fef79b9a945017"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00059.html#a2784253061f0c11d39fef79b9a945017">StreamState</a> { <br/>
+&#160;&#160;<a class="el" href="a00059.html#a2784253061f0c11d39fef79b9a945017afae24b65d1c11f07aa722d61c1d71428">OpenEnum</a> =  1, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a2784253061f0c11d39fef79b9a945017a0f20b9d32ad548ffb762ab81d81332d7">NonStreamingEnum</a> =  2, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a2784253061f0c11d39fef79b9a945017a8c69d1412032d0bc67546a7636c82dc8">ClosedRecoverEnum</a> =  3, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a2784253061f0c11d39fef79b9a945017a3613d91d26a4782defc180776621d1a0">ClosedEnum</a> =  4, 
+<br/>
+&#160;&#160;<a class="el" href="a00059.html#a2784253061f0c11d39fef79b9a945017a57fd5ed701d34316b75a87cf3098d2ba">ClosedRedirectedEnum</a> =  5
+<br/>
+ }</td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr><td colspan="2"><div class="groupHeader">Constructor</div></td></tr>
-<tr class="memitem:acc79b2a6cd9427b6943e87c355ca3250"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00059.html#acc79b2a6cd9427b6943e87c355ca3250">ComponentTypeName</a> (<a class="el" href="a00058.html">ComponentType</a> componentType)</td></tr>
-<tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
-<tr class="memitem:aba31bdd0b828626b67f0c28fec9ffb6b"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00059.html#aba31bdd0b828626b67f0c28fec9ffb6b">~ComponentTypeName</a> ()</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Accessors</div></td></tr>
-<tr class="memitem:a0d35ced07da9f081fb81ea817e2e0a7a"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00068.html">EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00059.html#a0d35ced07da9f081fb81ea817e2e0a7a">toString</a> () const   throw ()</td></tr>
-<tr class="memitem:adcb08415ef8ddd3a94ec54028cc2799a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00059.html#adcb08415ef8ddd3a94ec54028cc2799a">operator const char *</a> () const   throw ()</td></tr>
+<tr class="memitem:ab8fec960da4094dc4e5c21a888487574"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00059.html#ab8fec960da4094dc4e5c21a888487574">getStreamStateAsString</a> () const </td></tr>
+<tr class="memitem:af82ab702dd859c1ce0bed934669f091c"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00059.html#af82ab702dd859c1ce0bed934669f091c">getDataStateAsString</a> () const </td></tr>
+<tr class="memitem:a7654b0a0c40cf8451915aec0ae8baa44"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00059.html#a7654b0a0c40cf8451915aec0ae8baa44">getStatusCodeAsString</a> () const </td></tr>
+<tr class="memitem:aa6123638941e58c9705223a0e2ab691a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00059.html#a2784253061f0c11d39fef79b9a945017">StreamState</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00059.html#aa6123638941e58c9705223a0e2ab691a">getStreamState</a> () const </td></tr>
+<tr class="memitem:a4ff72af2d3a5a967080bbbb6d5e9eb87"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00059.html#ad799f8c56173f8becfb4549a86a0bf13">DataState</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00059.html#a4ff72af2d3a5a967080bbbb6d5e9eb87">getDataState</a> () const </td></tr>
+<tr class="memitem:a0ad1dcf72c7340e76a28818489a67635"><td class="memItemLeft" align="right" valign="top">foundation::UInt16&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00059.html#a0ad1dcf72c7340e76a28818489a67635">getStatusCode</a> () const </td></tr>
+<tr class="memitem:a9e13f2e075c95a190442bc0f9fd38d7f"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00059.html#a9e13f2e075c95a190442bc0f9fd38d7f">getStatusText</a> () const </td></tr>
+<tr class="memitem:ad6dca9814e1e51377dec65f6fff4cd8a"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00059.html#ad6dca9814e1e51377dec65f6fff4cd8a">toString</a> () const </td></tr>
+<tr class="memitem:a5b0ecfcdeaf91f53faecfccffe0825d9"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00059.html#a5b0ecfcdeaf91f53faecfccffe0825d9">operator const char *</a> () const </td></tr>
+<tr><td colspan="2"><h2><a name="friends"></a>
+Friends</h2></td></tr>
+<tr class="memitem:a68e53588a3464e5222a978a60b91c55d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a68e53588a3464e5222a978a60b91c55d"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>MmRefreshInfoImpl</b></td></tr>
+<tr class="memitem:a2e1d12e007f6bc1b934a0459da30b6f3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2e1d12e007f6bc1b934a0459da30b6f3"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>MmStatusInfoImpl</b></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><dl class="section remark"><dt>Remarks:</dt><dd>All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free</a>.</dd></dl>
-<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00058.html" title="ComponentType class provides enumeration representing component types.">ComponentType</a> </dd></dl>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00057.html" title="Mm::RefreshInfo provides access to the information brought in by a MarketMaker refresh message...">Mm::RefreshInfo</a>, <a class="el" href="a00060.html" title="Mm::StatusInfo provides access to the information brought in by a MarketMaker status message...">Mm::StatusInfo</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="a00102_source.html#l00049">49</a> of file <a class="el" href="a00102_source.html">ComponentType.h</a>.</p>
-</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="acc79b2a6cd9427b6943e87c355ca3250"></a>
+<p>Definition at line <a class="el" href="a00119_source.html#l02420">2420</a> of file <a class="el" href="a00119_source.html">Mm.h</a>.</p>
+</div><hr/><h2>Member Enumeration Documentation</h2>
+<a class="anchor" id="ad799f8c56173f8becfb4549a86a0bf13"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00059.html#acc79b2a6cd9427b6943e87c355ca3250">thomsonreuters::eoa::foundation::ComponentTypeName::ComponentTypeName</a> </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="a00058.html">ComponentType</a>&#160;</td>
-          <td class="paramname"><em>componentType</em></td><td>)</td>
-          <td></td>
+          <td class="memname">enum <a class="el" href="a00059.html#ad799f8c56173f8becfb4549a86a0bf13">thomsonreuters::eoa::domain::marketmaker::Mm::State::DataState</a></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Constructs <a class="el" href="a00059.html" title="ComponentTypeName class converts ComponentType enumeration into a string with its name...">ComponentTypeName</a>. </p>
-<dl class="section remark"><dt>Remarks:</dt><dd>used for string representation only. </dd></dl>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">componentType</td><td>specifies component type to be converted to string </td></tr>
+<p>An enumeration representing item data state. </p>
+<dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em><a class="anchor" id="ad799f8c56173f8becfb4549a86a0bf13a08adccccdda691d780e14fb8420577ee"></a>NoChangeEnum</em>&nbsp;</td><td>
+<p>Indicates the health of the data item did not change. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="ad799f8c56173f8becfb4549a86a0bf13ad4d6d54cb3afee5fdcfbb6485a0dcf3b"></a>OkEnum</em>&nbsp;</td><td>
+<p>Indicates the entire data item is healthy. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="ad799f8c56173f8becfb4549a86a0bf13a4d8a79fa6c4b9e5cabd97b0c90309523"></a>SuspectEnum</em>&nbsp;</td><td>
+<p>Indicates the health of some or all of the item's data is stale or unknown. </p>
+</td></tr>
+</table>
+</dd>
+</dl>
+
+<p>Definition at line <a class="el" href="a00119_source.html#l02450">2450</a> of file <a class="el" href="a00119_source.html">Mm.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="a00059.html#a74b60b0ea6ac24c07652a65b812042a6">thomsonreuters::eoa::domain::marketmaker::Mm::State::StatusCode</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<h1>enum StatusCode</h1>
+<p>An enumeration representing status code. </p>
+<dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6a85f4b058d54bcdb73ebc71ee25691c0d"></a>NoneEnum</em>&nbsp;</td><td>
+<p>None </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6ae9e4cc71afeaa68b420147646f55141d"></a>NotFoundEnum</em>&nbsp;</td><td>
+<p>Not Found </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6a76221f8de958019fbd2246fa6846ff58"></a>TimeoutEnum</em>&nbsp;</td><td>
+<p>Timeout </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6ad78e5606ce290353b44455d59aad5353"></a>NotAuthorizedEnum</em>&nbsp;</td><td>
+<p>Not Authorized </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6a821f4cf5cc7494c6d63a4a9cb5e07d0c"></a>InvalidArgumentEnum</em>&nbsp;</td><td>
+<p>Invalid Argument </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6a2932db01c6076a2debc2605d292fb034"></a>UsageErrorEnum</em>&nbsp;</td><td>
+<p>Usage Error </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6ab0d2e967c8b1db1871f76038b82925a9"></a>PreemptedEnum</em>&nbsp;</td><td>
+<p>Pre-empted </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6ae3671aec4f42f1cbe5c66e93ac972a9e"></a>JustInTimeConflationStartedEnum</em>&nbsp;</td><td>
+<p>Just In Time Filtering Started </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6a2737399e22572e2f971bf51b35931152"></a>TickByTickResumedEnum</em>&nbsp;</td><td>
+<p>Tick By Tick Resumed </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6a7b259fd8db25e4af7b634272c1afe4d0"></a>FailoverStartedEnum</em>&nbsp;</td><td>
+<p>Fail-over Started </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6aefae249c2dbc7fb9c39a1432e71f3e70"></a>FailoverCompletedEnum</em>&nbsp;</td><td>
+<p>Fail-over Completed </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6a6aca150c29c47260516a1d221a1b038f"></a>GapDetectedEnum</em>&nbsp;</td><td>
+<p>Gap Detected </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6a582bfb163dcfbd480fd43ff2179c4539"></a>NoResourcesEnum</em>&nbsp;</td><td>
+<p>No Resources </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6a0989112a7d93574912a7e434a40e3418"></a>TooManyItemsEnum</em>&nbsp;</td><td>
+<p>Too Many Items </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6afca203587f2efcc6eee544598b722f86"></a>AlreadyOpenEnum</em>&nbsp;</td><td>
+<p>Already Open </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6a42989cb62597e4981f5f1600f1b100c7"></a>SourceUnknownEnum</em>&nbsp;</td><td>
+<p>Source Unknown </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6a57d3d5c890885f8239056ca2fcc6e260"></a>NotOpenEnum</em>&nbsp;</td><td>
+<p>Not Open </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6a25b9964453d3753af179cf7078465d0b"></a>NonUpdatingItemEnum</em>&nbsp;</td><td>
+<p>Non Updating Item </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6a17874e1c657c42f7b2a958b75ed7a006"></a>UnsupportedViewTypeEnum</em>&nbsp;</td><td>
+<p>Unsupported View Type </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6a8a045ec1e440aa7bcb84fbe68046c0a8"></a>InvalidViewEnum</em>&nbsp;</td><td>
+<p>Invalid View </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6ae5b221797d569b3f7aaa478ea24f1a3e"></a>FullViewProvidedEnum</em>&nbsp;</td><td>
+<p>Full View Provided </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6a45f1b554dbef2d5c7e7eb7f1aa848f9a"></a>UnableToRequestAsBatchEnum</em>&nbsp;</td><td>
+<p>Unable To Request As Batch </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6a8398936f4e1f131eeca34f9c8504f021"></a>NoBatchViewSupportInReqEnum</em>&nbsp;</td><td>
+<p>Request does not support batch or view </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6af3fc94f77593b20fa1b34e020bca13da"></a>ExceededMaxMountsPerUserEnum</em>&nbsp;</td><td>
+<p>Exceeded maximum number of mounts per user </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6a41a24adaf9aa1a5a699169e00e770e58"></a>ErrorEnum</em>&nbsp;</td><td>
+<p>Internal error from sender </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6ab438ef1ed898f98ca77881e0ba43b24b"></a>DacsDownEnum</em>&nbsp;</td><td>
+<p>Connection to DACS down, users are not allowed to connect </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6a6d29ee56ad80f44ce6b70396415b4ff4"></a>UserUnknownToPermSysEnum</em>&nbsp;</td><td>
+<p>User unknown to permissioning system, it could be DACS, AAA or EED </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6a07e0105c8a40df9188d6abd5fb4ed433"></a>DacsMaxLoginsReachedEnum</em>&nbsp;</td><td>
+<p>Maximum logins reached </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a74b60b0ea6ac24c07652a65b812042a6abb388e743b6ca49c51eed264e78c1fd3"></a>DacsUserFoundationToAppDeniedEnum</em>&nbsp;</td><td>
+<p>User is not allowed to use application </p>
+</td></tr>
+</table>
+</dd>
+</dl>
+
+<p>Definition at line <a class="el" href="a00119_source.html#l02462">2462</a> of file <a class="el" href="a00119_source.html">Mm.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a2784253061f0c11d39fef79b9a945017"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="a00059.html#a2784253061f0c11d39fef79b9a945017">thomsonreuters::eoa::domain::marketmaker::Mm::State::StreamState</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>An enumeration representing item stream state. </p>
+<dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em><a class="anchor" id="a2784253061f0c11d39fef79b9a945017afae24b65d1c11f07aa722d61c1d71428"></a>OpenEnum</em>&nbsp;</td><td>
+<p>Indicates the stream is opened and will incur interest after the final refresh. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a2784253061f0c11d39fef79b9a945017a0f20b9d32ad548ffb762ab81d81332d7"></a>NonStreamingEnum</em>&nbsp;</td><td>
+<p>Indicates the item will not incur interest after the final refresh. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a2784253061f0c11d39fef79b9a945017a8c69d1412032d0bc67546a7636c82dc8"></a>ClosedRecoverEnum</em>&nbsp;</td><td>
+<p>Indicates the stream is closed, typically unobtainable or identity indeterminable due to a comms outage. The item may be available in the future. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a2784253061f0c11d39fef79b9a945017a3613d91d26a4782defc180776621d1a0"></a>ClosedEnum</em>&nbsp;</td><td>
+<p>Indicates the stream is closed. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a2784253061f0c11d39fef79b9a945017a57fd5ed701d34316b75a87cf3098d2ba"></a>ClosedRedirectedEnum</em>&nbsp;</td><td>
+<p>Indicates the stream is closed and has been renamed. The stream is available with another name. This stream state is only valid for refresh messages. The new item name is in the Name get accessor method. </p>
+</td></tr>
+</table>
+</dd>
+</dl>
+
+<p>Definition at line <a class="el" href="a00119_source.html#l02427">2427</a> of file <a class="el" href="a00119_source.html">Mm.h</a>.</p>
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="a4ff72af2d3a5a967080bbbb6d5e9eb87"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00059.html#ad799f8c56173f8becfb4549a86a0bf13">DataState</a> <a class="el" href="a00059.html#a4ff72af2d3a5a967080bbbb6d5e9eb87">thomsonreuters::eoa::domain::marketmaker::Mm::State::getDataState</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns DataState. </p>
+<dl class="section return"><dt>Returns:</dt><dd>value of DataState </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="af82ab702dd859c1ce0bed934669f091c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00089.html">foundation::EoaString</a>&amp; <a class="el" href="a00059.html#af82ab702dd859c1ce0bed934669f091c">thomsonreuters::eoa::domain::marketmaker::Mm::State::getDataStateAsString</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the DataState value as a string format. </p>
+<dl class="section return"><dt>Returns:</dt><dd>string representation of this object DataState if it is present </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a0ad1dcf72c7340e76a28818489a67635"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">foundation::UInt16 <a class="el" href="a00059.html#a0ad1dcf72c7340e76a28818489a67635">thomsonreuters::eoa::domain::marketmaker::Mm::State::getStatusCode</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns StatusCode. </p>
+<dl class="section return"><dt>Returns:</dt><dd>value of StatusCode </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a7654b0a0c40cf8451915aec0ae8baa44"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00089.html">foundation::EoaString</a>&amp; <a class="el" href="a00059.html#a7654b0a0c40cf8451915aec0ae8baa44">thomsonreuters::eoa::domain::marketmaker::Mm::State::getStatusCodeAsString</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the StatusCode value as a string format. </p>
+<dl class="section return"><dt>Returns:</dt><dd>string representation of this object StatusCode if it is present </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a9e13f2e075c95a190442bc0f9fd38d7f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00089.html">foundation::EoaString</a>&amp; <a class="el" href="a00059.html#a9e13f2e075c95a190442bc0f9fd38d7f">thomsonreuters::eoa::domain::marketmaker::Mm::State::getStatusText</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns StatusText. </p>
+<dl class="section return"><dt>Returns:</dt><dd>EoaString containing status text information </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aa6123638941e58c9705223a0e2ab691a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00059.html#a2784253061f0c11d39fef79b9a945017">StreamState</a> <a class="el" href="a00059.html#aa6123638941e58c9705223a0e2ab691a">thomsonreuters::eoa::domain::marketmaker::Mm::State::getStreamState</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns StreamState. </p>
+<dl class="section return"><dt>Returns:</dt><dd>value of StreamState </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ab8fec960da4094dc4e5c21a888487574"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00089.html">foundation::EoaString</a>&amp; <a class="el" href="a00059.html#ab8fec960da4094dc4e5c21a888487574">thomsonreuters::eoa::domain::marketmaker::Mm::State::getStreamStateAsString</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the StreamState value as a string format. </p>
+<dl class="section return"><dt>Returns:</dt><dd>string representation of this object StreamState if it is present </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a5b0ecfcdeaf91f53faecfccffe0825d9"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">thomsonreuters::eoa::domain::marketmaker::Mm::State::operator const char * </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Operator const char* overload. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmMemoryExhaustionException</td><td>if app runs out of memory </td></tr>
   </table>
   </dd>
 </dl>
 
 </div>
 </div>
-<a class="anchor" id="aba31bdd0b828626b67f0c28fec9ffb6b"></a>
+<a class="anchor" id="ad6dca9814e1e51377dec65f6fff4cd8a"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual <a class="el" href="a00059.html#aba31bdd0b828626b67f0c28fec9ffb6b">thomsonreuters::eoa::foundation::ComponentTypeName::~ComponentTypeName</a> </td>
+          <td class="memname">const <a class="el" href="a00089.html">foundation::EoaString</a>&amp; <a class="el" href="a00059.html#ad6dca9814e1e51377dec65f6fff4cd8a">thomsonreuters::eoa::domain::marketmaker::Mm::State::toString</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td><code> [virtual]</code></td>
+          <td> const</td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Destructor. </p>
-
-</div>
-</div>
-<hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="adcb08415ef8ddd3a94ec54028cc2799a"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">thomsonreuters::eoa::foundation::ComponentTypeName::operator const char * </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Operator const char* overload. </p>
-
-</div>
-</div>
-<a class="anchor" id="a0d35ced07da9f081fb81ea817e2e0a7a"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="a00068.html">EoaString</a>&amp; <a class="el" href="a00059.html#a0d35ced07da9f081fb81ea817e2e0a7a">thomsonreuters::eoa::foundation::ComponentTypeName::toString</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns the enum value as a string format. </p>
-<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a> containing name of the component type </dd></dl>
+<p>Returns a string representation of the class instance. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmMemoryExhaustionException</td><td>if app runs out of memory </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>string representation of the class instance </dd></dl>
 
 </div>
 </div>
@@ -234,7 +620,7 @@ Public Member Functions</h2></td></tr>
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Feb 1 2016</td>
+			<td><p class="smallfont">Mon Feb 29 2016</td>
           </tr>
         </table>
         </td>

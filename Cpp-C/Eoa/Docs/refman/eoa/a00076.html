@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EOA: thomsonreuters::eoa::foundation::OmmException Class Reference</title>
+<title>EOA: thomsonreuters::eoa::foundation::Action Class Reference</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -108,220 +108,24 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li class="navelem"><b>thomsonreuters</b>      </li>
       <li class="navelem"><b>eoa</b>      </li>
       <li class="navelem"><b>foundation</b>      </li>
-      <li class="navelem"><a class="el" href="a00076.html">OmmException</a>      </li>
+      <li class="navelem"><a class="el" href="a00076.html">Action</a>      </li>
     </ul>
   </div>
 </div>
 <div class="header">
-  <div class="summary">
-<a href="#pub-types">Public Types</a> &#124;
-<a href="#pro-methods">Protected Member Functions</a> &#124;
-<a href="#pro-attribs">Protected Attributes</a>  </div>
   <div class="headertitle">
-<div class="title">thomsonreuters::eoa::foundation::OmmException Class Reference</div>  </div>
+<div class="title">thomsonreuters::eoa::foundation::Action Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="a00076.html" title="OmmException is a parent class for all exception types thrown by EOA.">OmmException</a> is a parent class for all exception types thrown by EOA.  
+<p><a class="el" href="a00076.html" title="Action class provides enumeration representing container entry action.">Action</a> class provides enumeration representing container entry action.  
  <a href="a00076.html#details">More...</a></p>
-<div class="dynheader">
-Inheritance diagram for thomsonreuters::eoa::foundation::OmmException:</div>
-<div class="dyncontent">
- <div class="center">
-  <img src="a00076.png" usemap="#thomsonreuters::eoa::foundation::OmmException_map" alt=""/>
-  <map id="thomsonreuters::eoa::foundation::OmmException_map" name="thomsonreuters::eoa::foundation::OmmException_map">
-<area href="a00077.html" title="OmmInaccessibleLogFileException is thrown when EOA log file can not be created." alt="thomsonreuters::eoa::foundation::OmmInaccessibleLogFileException" shape="rect" coords="0,56,420,80"/>
-<area href="a00078.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces." alt="thomsonreuters::eoa::foundation::OmmInvalidUsageException" shape="rect" coords="430,56,850,80"/>
-<area href="a00079.html" title="OmmMemoryExhaustionException represents out of memory exceptions." alt="thomsonreuters::eoa::foundation::OmmMemoryExhaustionException" shape="rect" coords="860,56,1280,80"/>
-<area href="a00080.html" title="OmmOutOfRangeException is thrown when a passed in method argument is out of range." alt="thomsonreuters::eoa::foundation::OmmOutOfRangeException" shape="rect" coords="1290,56,1710,80"/>
-<area href="a00085.html" title="OmmUnsupportedDomainTypeExceptionis thrown when a domain type value is greater than 255..." alt="thomsonreuters::eoa::foundation::OmmUnsupportedDomainTypeException" shape="rect" coords="1720,56,2140,80"/>
-</map>
- </div></div>
-
-<p><a href="a00206.html">List of all members.</a></p>
-<table class="memberdecls">
-<tr><td colspan="2"><h2><a name="pub-types"></a>
-Public Types</h2></td></tr>
-<tr class="memitem:ada020f6db0483637b44e49f960296ab1"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00076.html#ada020f6db0483637b44e49f960296ab1">ExceptionType</a> { <br/>
-&#160;&#160;<a class="el" href="a00076.html#ada020f6db0483637b44e49f960296ab1a119d108a837cc6a92c7fb86f7a579be7">OmmInvalidUsageExceptionEnum</a>, 
-<br/>
-&#160;&#160;<a class="el" href="a00076.html#ada020f6db0483637b44e49f960296ab1aa92da5659db50aecfafec6c15fdf8786">OmmOutOfRangeExceptionEnum</a>, 
-<br/>
-&#160;&#160;<a class="el" href="a00076.html#ada020f6db0483637b44e49f960296ab1ac3b6710ca32b913ca41bfdb2533c4c4e">OmmMemoryExhaustionExceptionEnum</a>, 
-<br/>
-&#160;&#160;<a class="el" href="a00076.html#ada020f6db0483637b44e49f960296ab1a0c1e0dd08fa0676f9f72725ad898a343">OmmInaccessibleLogFileExceptionEnum</a>, 
-<br/>
-&#160;&#160;<a class="el" href="a00076.html#ada020f6db0483637b44e49f960296ab1a26e523a80d7bce8760799ab932dd9d80">OmmUnsupportedDomainTypeExceptionEnum</a>
-<br/>
- }</td></tr>
-<tr><td colspan="2"><h2><a name="pub-methods"></a>
-Public Member Functions</h2></td></tr>
-<tr><td colspan="2"><div class="groupHeader">Accessors</div></td></tr>
-<tr class="memitem:a2ecd99130e1bd551a65c870d9a1c917e"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00068.html">EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00076.html#a2ecd99130e1bd551a65c870d9a1c917e">getExceptionTypeAsString</a> () const </td></tr>
-<tr class="memitem:ad0e2393643c4e6fe3648f9db9a54b776"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="a00076.html#ada020f6db0483637b44e49f960296ab1">ExceptionType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00076.html#ad0e2393643c4e6fe3648f9db9a54b776">getExceptionType</a> () const =0</td></tr>
-<tr class="memitem:a23e63d794dc1ce886437aca07be7a718"><td class="memItemLeft" align="right" valign="top">virtual const <a class="el" href="a00068.html">EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00076.html#a23e63d794dc1ce886437aca07be7a718">getText</a> () const =0</td></tr>
-<tr class="memitem:a85e4ba27fdac6cf290f56f1fa705d0ad"><td class="memItemLeft" align="right" valign="top">virtual const <a class="el" href="a00068.html">EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00076.html#a85e4ba27fdac6cf290f56f1fa705d0ad">toString</a> () const =0</td></tr>
-<tr class="memitem:af7ca99ad1c07fe6b92bea7311ffe6651"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00076.html#af7ca99ad1c07fe6b92bea7311ffe6651">operator const char *</a> () const </td></tr>
-<tr><td colspan="2"><h2><a name="pro-methods"></a>
-Protected Member Functions</h2></td></tr>
-<tr class="memitem:a1140a99ea969460f5252088e7e653c91"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1140a99ea969460f5252088e7e653c91"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>OmmException</b> (const <a class="el" href="a00076.html">OmmException</a> &amp;)</td></tr>
-<tr class="memitem:a091ac78eef093593800b58a29aaba17a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a091ac78eef093593800b58a29aaba17a"></a>
-<a class="el" href="a00076.html">OmmException</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="a00076.html">OmmException</a> &amp;)</td></tr>
-<tr class="memitem:aefb34605693f083b887c830706f83413"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aefb34605693f083b887c830706f83413"></a>
-<a class="el" href="a00076.html">OmmException</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>statusText</b> (const <a class="el" href="a00068.html">EoaString</a> &amp;statusText)</td></tr>
-<tr class="memitem:aee3d16a8a0ae6cc7c8fbb9ac69c60a42"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aee3d16a8a0ae6cc7c8fbb9ac69c60a42"></a>
-<a class="el" href="a00076.html">OmmException</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>statusText</b> (const char *statusText)</td></tr>
-<tr class="memitem:a2560b9f7ef0e36863f94b08c495a0891"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2560b9f7ef0e36863f94b08c495a0891"></a>
-const <a class="el" href="a00068.html">EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>toStringInt</b> () const </td></tr>
-<tr><td colspan="2"><h2><a name="pro-attribs"></a>
-Protected Attributes</h2></td></tr>
-<tr class="memitem:a371b3a05173bb02d5ca8eb3d50dc99fd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a371b3a05173bb02d5ca8eb3d50dc99fd"></a>
-char&#160;</td><td class="memItemRight" valign="bottom"><b>_errorText</b> [MAX_SIZE]</td></tr>
-<tr class="memitem:a4e19696cd27012fdae9b0e68b99855de"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4e19696cd27012fdae9b0e68b99855de"></a>
-UInt32&#160;</td><td class="memItemRight" valign="bottom"><b>_errorTextLength</b></td></tr>
-<tr class="memitem:a9ac134e20934653fdab01f709a245cb4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9ac134e20934653fdab01f709a245cb4"></a>
-char&#160;</td><td class="memItemRight" valign="bottom"><b>_space</b> [MAX_SIZE+PADDING]</td></tr>
-</table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p>This class provides all the common functionalities and methods used by the inheriting classes.</p>
-<dl class="section remark"><dt>Remarks:</dt><dd>All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free</a>.</dd></dl>
-<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00078.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a>, <a class="el" href="a00079.html" title="OmmMemoryExhaustionException represents out of memory exceptions.">OmmMemoryExhaustionException</a> </dd></dl>
+<div class="textblock"><dl class="section remark"><dt>Remarks:</dt><dd>All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free</a>.</dd></dl>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00077.html" title="ActionName class converts Action enumeration into a string with its name.">ActionName</a>, <a class="el" href="a00093.html" title="Node class represents all OMM container types.">Node</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="a00116_source.html#l00037">37</a> of file <a class="el" href="a00116_source.html">OmmException.h</a>.</p>
-</div><hr/><h2>Member Enumeration Documentation</h2>
-<a class="anchor" id="ada020f6db0483637b44e49f960296ab1"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum <a class="el" href="a00076.html#ada020f6db0483637b44e49f960296ab1">thomsonreuters::eoa::foundation::OmmException::ExceptionType</a></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>An enumeration representing exception type. </p>
-<dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
-<tr><td valign="top"><em><a class="anchor" id="ada020f6db0483637b44e49f960296ab1a119d108a837cc6a92c7fb86f7a579be7"></a>OmmInvalidUsageExceptionEnum</em>&nbsp;</td><td>
-<p>Indicates invalid usage exception </p>
-</td></tr>
-<tr><td valign="top"><em><a class="anchor" id="ada020f6db0483637b44e49f960296ab1aa92da5659db50aecfafec6c15fdf8786"></a>OmmOutOfRangeExceptionEnum</em>&nbsp;</td><td>
-<p>Indicates out of range exception </p>
-</td></tr>
-<tr><td valign="top"><em><a class="anchor" id="ada020f6db0483637b44e49f960296ab1ac3b6710ca32b913ca41bfdb2533c4c4e"></a>OmmMemoryExhaustionExceptionEnum</em>&nbsp;</td><td>
-<p>Indicates memory exhaustion exception </p>
-</td></tr>
-<tr><td valign="top"><em><a class="anchor" id="ada020f6db0483637b44e49f960296ab1a0c1e0dd08fa0676f9f72725ad898a343"></a>OmmInaccessibleLogFileExceptionEnum</em>&nbsp;</td><td>
-<p>Indicates inaccessible log file exception </p>
-</td></tr>
-<tr><td valign="top"><em><a class="anchor" id="ada020f6db0483637b44e49f960296ab1a26e523a80d7bce8760799ab932dd9d80"></a>OmmUnsupportedDomainTypeExceptionEnum</em>&nbsp;</td><td>
-<p>Indicates unsupported domain type exception </p>
-</td></tr>
-</table>
-</dd>
-</dl>
-
-<p>Definition at line <a class="el" href="a00116_source.html#l00044">44</a> of file <a class="el" href="a00116_source.html">OmmException.h</a>.</p>
-
-</div>
-</div>
-<hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="ad0e2393643c4e6fe3648f9db9a54b776"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual <a class="el" href="a00076.html#ada020f6db0483637b44e49f960296ab1">ExceptionType</a> <a class="el" href="a00076.html#ad0e2393643c4e6fe3648f9db9a54b776">thomsonreuters::eoa::foundation::OmmException::getExceptionType</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const<code> [pure virtual]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns ExceptionType. </p>
-<dl class="section return"><dt>Returns:</dt><dd>exception type value </dd></dl>
-
-<p>Implemented in <a class="el" href="a00077.html#a80c042cc782b359243baf92d0d4e1abc">thomsonreuters::eoa::foundation::OmmInaccessibleLogFileException</a>, <a class="el" href="a00079.html#ad122b6e28f54cef9e4135accc915a98c">thomsonreuters::eoa::foundation::OmmMemoryExhaustionException</a>, <a class="el" href="a00085.html#aacce638c8b3a8bb7eaf0e991b26e0519">thomsonreuters::eoa::foundation::OmmUnsupportedDomainTypeException</a>, <a class="el" href="a00078.html#afa3e744775260b41a3e40e1a1c77a181">thomsonreuters::eoa::foundation::OmmInvalidUsageException</a>, and <a class="el" href="a00080.html#a3cbe334fb16f2e669a6e7a7aabfedb88">thomsonreuters::eoa::foundation::OmmOutOfRangeException</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a2ecd99130e1bd551a65c870d9a1c917e"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="a00068.html">EoaString</a>&amp; <a class="el" href="a00076.html#a2ecd99130e1bd551a65c870d9a1c917e">thomsonreuters::eoa::foundation::OmmException::getExceptionTypeAsString</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns the ExceptionType value as a string format. </p>
-<dl class="section return"><dt>Returns:</dt><dd>string representation of this object's exception type as string </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a23e63d794dc1ce886437aca07be7a718"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual const <a class="el" href="a00068.html">EoaString</a>&amp; <a class="el" href="a00076.html#a23e63d794dc1ce886437aca07be7a718">thomsonreuters::eoa::foundation::OmmException::getText</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const<code> [pure virtual]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns Text. </p>
-<dl class="section return"><dt>Returns:</dt><dd>EmaString with exception text information </dd></dl>
-
-<p>Implemented in <a class="el" href="a00077.html#a30e63783bfe97344a6aea8127405e48d">thomsonreuters::eoa::foundation::OmmInaccessibleLogFileException</a>, <a class="el" href="a00079.html#a4707b04b252d51ca7ea4de0223101a5d">thomsonreuters::eoa::foundation::OmmMemoryExhaustionException</a>, <a class="el" href="a00085.html#a82c69cc65ea2f217b64364faef7e1da3">thomsonreuters::eoa::foundation::OmmUnsupportedDomainTypeException</a>, <a class="el" href="a00078.html#ad46cc7031da9d79d2241426941c89ea7">thomsonreuters::eoa::foundation::OmmInvalidUsageException</a>, and <a class="el" href="a00080.html#a05a479ee8144a3a708861e113ce71a06">thomsonreuters::eoa::foundation::OmmOutOfRangeException</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="af7ca99ad1c07fe6b92bea7311ffe6651"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">thomsonreuters::eoa::foundation::OmmException::operator const char * </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Operator const char* overload. </p>
-
-</div>
-</div>
-<a class="anchor" id="a85e4ba27fdac6cf290f56f1fa705d0ad"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual const <a class="el" href="a00068.html">EoaString</a>&amp; <a class="el" href="a00076.html#a85e4ba27fdac6cf290f56f1fa705d0ad">thomsonreuters::eoa::foundation::OmmException::toString</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const<code> [pure virtual]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns a string representation of the class instance. </p>
-<dl class="section return"><dt>Returns:</dt><dd>string representation of the class instance </dd></dl>
-
-<p>Implemented in <a class="el" href="a00077.html#ab5dc79a2ea9ba2187a311ab28c21ba6b">thomsonreuters::eoa::foundation::OmmInaccessibleLogFileException</a>, <a class="el" href="a00079.html#aaa4f2610aada2d500358a12998a124d9">thomsonreuters::eoa::foundation::OmmMemoryExhaustionException</a>, <a class="el" href="a00085.html#a2b26ad736e31f03323547c76ca9a758d">thomsonreuters::eoa::foundation::OmmUnsupportedDomainTypeException</a>, <a class="el" href="a00078.html#af18c911a3221c4c478fdb0ffe3f89655">thomsonreuters::eoa::foundation::OmmInvalidUsageException</a>, and <a class="el" href="a00080.html#af0712a4c7fff3af3e40fda73af99dbad">thomsonreuters::eoa::foundation::OmmOutOfRangeException</a>.</p>
-
-</div>
-</div>
-</div><!-- contents -->
+<p>Definition at line <a class="el" href="a00121_source.html#l00020">20</a> of file <a class="el" href="a00121_source.html">Action.h</a>.</p>
+</div></div><!-- contents -->
 
 <hr class="footer"/><address class="footer"><small>
     <table cellSpacing="0" cellPadding="0" width="100%" border="0">
@@ -338,7 +142,7 @@ char&#160;</td><td class="memItemRight" valign="bottom"><b>_space</b> [MAX_SIZE+
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Feb 1 2016</td>
+			<td><p class="smallfont">Mon Feb 29 2016</td>
           </tr>
         </table>
         </td>

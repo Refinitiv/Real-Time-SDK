@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EOA: thomsonreuters::eoa::foundation::ActionName Class Reference</title>
+<title>EOA: thomsonreuters::eoa::domain::marketmaker::Mm::Qos Class Reference</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -107,113 +107,228 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul>
       <li class="navelem"><b>thomsonreuters</b>      </li>
       <li class="navelem"><b>eoa</b>      </li>
-      <li class="navelem"><b>foundation</b>      </li>
-      <li class="navelem"><a class="el" href="a00056.html">ActionName</a>      </li>
+      <li class="navelem"><b>domain</b>      </li>
+      <li class="navelem"><b>marketmaker</b>      </li>
+      <li class="navelem"><a class="el" href="a00043.html">Mm</a>      </li>
+      <li class="navelem"><a class="el" href="a00056.html">Qos</a>      </li>
     </ul>
   </div>
 </div>
 <div class="header">
+  <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
+<a href="#friends">Friends</a>  </div>
   <div class="headertitle">
-<div class="title">thomsonreuters::eoa::foundation::ActionName Class Reference</div>  </div>
+<div class="title">thomsonreuters::eoa::domain::marketmaker::Mm::Qos Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="a00056.html" title="ActionName class converts Action enumeration into a string with its name.">ActionName</a> class converts <a class="el" href="a00055.html" title="Action class provides enumeration representing container entry action.">Action</a> enumeration into a string with its name.  
+<p><a class="el" href="a00056.html" title="Mm::Qos represents Quality Of Service information in MarketMaker domain.">Mm::Qos</a> represents Quality Of Service information in MarketMaker domain.  
  <a href="a00056.html#details">More...</a></p>
 
-<p><a href="a00189.html">List of all members.</a></p>
+<p><a href="a00209.html">List of all members.</a></p>
 <table class="memberdecls">
+<tr><td colspan="2"><h2><a name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a513f4e56d4d559a852d88b95680f53d8"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00056.html#a513f4e56d4d559a852d88b95680f53d8">Rate</a> { <br/>
+&#160;&#160;<a class="el" href="a00056.html#a513f4e56d4d559a852d88b95680f53d8a996eb6479c2a8ef86cba5df90b921f07">TickByTickEnum</a> =  0, 
+<br/>
+&#160;&#160;<a class="el" href="a00056.html#a513f4e56d4d559a852d88b95680f53d8a71681973b0c0fcd3896910c6de63e7a4">JustInTimeConflatedEnum</a> =  0xFFFFFF00
+<br/>
+ }</td></tr>
+<tr class="memitem:a189d0ad02143757882b922ebe130cd91"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00056.html#a189d0ad02143757882b922ebe130cd91">Timeliness</a> { <br/>
+&#160;&#160;<a class="el" href="a00056.html#a189d0ad02143757882b922ebe130cd91ae021d7b7e40784090976c9ed44de26c4">RealTimeEnum</a> =  0, 
+<br/>
+&#160;&#160;<a class="el" href="a00056.html#a189d0ad02143757882b922ebe130cd91a12c862c53359c2675b8271c779001e6b">InexactDelayedEnum</a> =  0xFFFFFFFF
+<br/>
+ }</td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr><td colspan="2"><div class="groupHeader">Constructor</div></td></tr>
-<tr class="memitem:a5dbeb24e4b14c82eff7fdec92789c5da"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00056.html#a5dbeb24e4b14c82eff7fdec92789c5da">ActionName</a> (<a class="el" href="a00055.html">Action</a> action)</td></tr>
-<tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
-<tr class="memitem:a006f43db502a280b2d9d90a797567d39"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00056.html#a006f43db502a280b2d9d90a797567d39">~ActionName</a> ()</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Accessors</div></td></tr>
-<tr class="memitem:aa13c363a7edc90c78fd5b2e8a0af750b"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00068.html">EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00056.html#aa13c363a7edc90c78fd5b2e8a0af750b">toString</a> () const   throw ()</td></tr>
-<tr class="memitem:a1b07680e685a56d4544d076c8dfac631"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00056.html#a1b07680e685a56d4544d076c8dfac631">operator const char *</a> () const   throw ()</td></tr>
+<tr class="memitem:add307d3eedb680606c0f3147aae9b31d"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00056.html#add307d3eedb680606c0f3147aae9b31d">getRateAsString</a> () const </td></tr>
+<tr class="memitem:a23cf4122179801412cf83022e52f6096"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00056.html#a23cf4122179801412cf83022e52f6096">getTimelinessAsString</a> () const </td></tr>
+<tr class="memitem:a0077a3e8b772ed14540e55bd5c045f19"><td class="memItemLeft" align="right" valign="top">foundation::UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00056.html#a0077a3e8b772ed14540e55bd5c045f19">getTimeliness</a> () const </td></tr>
+<tr class="memitem:a9e7d883054107c77be6b2ae65564111c"><td class="memItemLeft" align="right" valign="top">foundation::UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00056.html#a9e7d883054107c77be6b2ae65564111c">getRate</a> () const </td></tr>
+<tr class="memitem:a67544f62363cdbba25c0c03c450ec0ea"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00056.html#a67544f62363cdbba25c0c03c450ec0ea">toString</a> () const </td></tr>
+<tr class="memitem:a6924e72c8dad4060c2a4b58ad8e557d7"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00056.html#a6924e72c8dad4060c2a4b58ad8e557d7">operator const char *</a> () const </td></tr>
+<tr><td colspan="2"><h2><a name="friends"></a>
+Friends</h2></td></tr>
+<tr class="memitem:a68e53588a3464e5222a978a60b91c55d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a68e53588a3464e5222a978a60b91c55d"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>MmRefreshInfoImpl</b></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><dl class="section remark"><dt>Remarks:</dt><dd>All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free</a>.</dd></dl>
-<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00055.html" title="Action class provides enumeration representing container entry action.">Action</a> </dd></dl>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00057.html" title="Mm::RefreshInfo provides access to the information brought in by a MarketMaker refresh message...">Mm::RefreshInfo</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="a00099_source.html#l00047">47</a> of file <a class="el" href="a00099_source.html">Action.h</a>.</p>
-</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="a5dbeb24e4b14c82eff7fdec92789c5da"></a>
+<p>Definition at line <a class="el" href="a00119_source.html#l02340">2340</a> of file <a class="el" href="a00119_source.html">Mm.h</a>.</p>
+</div><hr/><h2>Member Enumeration Documentation</h2>
+<a class="anchor" id="a513f4e56d4d559a852d88b95680f53d8"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00056.html#a5dbeb24e4b14c82eff7fdec92789c5da">thomsonreuters::eoa::foundation::ActionName::ActionName</a> </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="a00055.html">Action</a>&#160;</td>
-          <td class="paramname"><em>action</em></td><td>)</td>
-          <td></td>
+          <td class="memname">enum <a class="el" href="a00056.html#a513f4e56d4d559a852d88b95680f53d8">thomsonreuters::eoa::domain::marketmaker::Mm::Qos::Rate</a></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Constructs <a class="el" href="a00056.html" title="ActionName class converts Action enumeration into a string with its name.">ActionName</a>. </p>
-<dl class="section remark"><dt>Remarks:</dt><dd>used for string representation only. </dd></dl>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">action</td><td>specifies action to be converted to string </td></tr>
+<dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em><a class="anchor" id="a513f4e56d4d559a852d88b95680f53d8a996eb6479c2a8ef86cba5df90b921f07"></a>TickByTickEnum</em>&nbsp;</td><td>
+<p>Indicates tick by tick rate </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a513f4e56d4d559a852d88b95680f53d8a71681973b0c0fcd3896910c6de63e7a4"></a>JustInTimeConflatedEnum</em>&nbsp;</td><td>
+<p>Indicates just in time conflated rate </p>
+</td></tr>
+</table>
+</dd>
+</dl>
+
+<p>Definition at line <a class="el" href="a00119_source.html#l02347">2347</a> of file <a class="el" href="a00119_source.html">Mm.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a189d0ad02143757882b922ebe130cd91"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="a00056.html#a189d0ad02143757882b922ebe130cd91">thomsonreuters::eoa::domain::marketmaker::Mm::Qos::Timeliness</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em><a class="anchor" id="a189d0ad02143757882b922ebe130cd91ae021d7b7e40784090976c9ed44de26c4"></a>RealTimeEnum</em>&nbsp;</td><td>
+<p>Indicates real time timeliness </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a189d0ad02143757882b922ebe130cd91a12c862c53359c2675b8271c779001e6b"></a>InexactDelayedEnum</em>&nbsp;</td><td>
+<p>Indicates timeliness with an unknown delay value </p>
+</td></tr>
+</table>
+</dd>
+</dl>
+
+<p>Definition at line <a class="el" href="a00119_source.html#l02357">2357</a> of file <a class="el" href="a00119_source.html">Mm.h</a>.</p>
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="a9e7d883054107c77be6b2ae65564111c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">foundation::UInt32 <a class="el" href="a00056.html#a9e7d883054107c77be6b2ae65564111c">thomsonreuters::eoa::domain::marketmaker::Mm::Qos::getRate</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns Rate. </p>
+<dl class="section return"><dt>Returns:</dt><dd>value of OmmQos::Rate </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="add307d3eedb680606c0f3147aae9b31d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00089.html">foundation::EoaString</a>&amp; <a class="el" href="a00056.html#add307d3eedb680606c0f3147aae9b31d">thomsonreuters::eoa::domain::marketmaker::Mm::Qos::getRateAsString</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the QosRate value as a string format. </p>
+<dl class="section return"><dt>Returns:</dt><dd>string representation of this object Rate if it is present </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a0077a3e8b772ed14540e55bd5c045f19"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">foundation::UInt32 <a class="el" href="a00056.html#a0077a3e8b772ed14540e55bd5c045f19">thomsonreuters::eoa::domain::marketmaker::Mm::Qos::getTimeliness</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns Timeliness. </p>
+<dl class="section return"><dt>Returns:</dt><dd>value of OmmQos::Timeliness </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a23cf4122179801412cf83022e52f6096"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00089.html">foundation::EoaString</a>&amp; <a class="el" href="a00056.html#a23cf4122179801412cf83022e52f6096">thomsonreuters::eoa::domain::marketmaker::Mm::Qos::getTimelinessAsString</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the QosTimeliness value as a string format. </p>
+<dl class="section return"><dt>Returns:</dt><dd>string representation of this object timeliness if it is present </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a6924e72c8dad4060c2a4b58ad8e557d7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">thomsonreuters::eoa::domain::marketmaker::Mm::Qos::operator const char * </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Operator const char* overload. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmMemoryExhaustionException</td><td>if app runs out of memory </td></tr>
   </table>
   </dd>
 </dl>
 
 </div>
 </div>
-<a class="anchor" id="a006f43db502a280b2d9d90a797567d39"></a>
+<a class="anchor" id="a67544f62363cdbba25c0c03c450ec0ea"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual <a class="el" href="a00056.html#a006f43db502a280b2d9d90a797567d39">thomsonreuters::eoa::foundation::ActionName::~ActionName</a> </td>
+          <td class="memname">const <a class="el" href="a00089.html">foundation::EoaString</a>&amp; <a class="el" href="a00056.html#a67544f62363cdbba25c0c03c450ec0ea">thomsonreuters::eoa::domain::marketmaker::Mm::Qos::toString</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td><code> [virtual]</code></td>
+          <td> const</td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Destructor. </p>
-
-</div>
-</div>
-<hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="a1b07680e685a56d4544d076c8dfac631"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">thomsonreuters::eoa::foundation::ActionName::operator const char * </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Operator const char* overload. </p>
-
-</div>
-</div>
-<a class="anchor" id="aa13c363a7edc90c78fd5b2e8a0af750b"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="a00068.html">EoaString</a>&amp; <a class="el" href="a00056.html#aa13c363a7edc90c78fd5b2e8a0af750b">thomsonreuters::eoa::foundation::ActionName::toString</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns the enum value as a string format. </p>
-<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a> containing name of the action </dd></dl>
+<p>Returns a string representation of the class instance. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmMemoryExhaustionException</td><td>if app runs out of memory </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>string representation of the class instance </dd></dl>
 
 </div>
 </div>
@@ -234,7 +349,7 @@ Public Member Functions</h2></td></tr>
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Feb 1 2016</td>
+			<td><p class="smallfont">Mon Feb 29 2016</td>
           </tr>
         </table>
         </td>

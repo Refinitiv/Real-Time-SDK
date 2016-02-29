@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EOA: thomsonreuters::eoa::foundation::TagTypeName Class Reference</title>
+<title>EOA: thomsonreuters::eoa::foundation::Node Class Reference</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -108,70 +108,71 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li class="navelem"><b>thomsonreuters</b>      </li>
       <li class="navelem"><b>eoa</b>      </li>
       <li class="navelem"><b>foundation</b>      </li>
-      <li class="navelem"><a class="el" href="a00093.html">TagTypeName</a>      </li>
+      <li class="navelem"><a class="el" href="a00093.html">Node</a>      </li>
     </ul>
   </div>
 </div>
 <div class="header">
+  <div class="summary">
+<a href="#nested-classes">Classes</a>  </div>
   <div class="headertitle">
-<div class="title">thomsonreuters::eoa::foundation::TagTypeName Class Reference</div>  </div>
+<div class="title">thomsonreuters::eoa::foundation::Node Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="a00093.html" title="TagTypeName class converts TagType enumeration into a string with its name.">TagTypeName</a> class converts <a class="el" href="a00092.html" title="TagType class provides enumeration representing tag types.">TagType</a> enumeration into a string with its name.  
+<p><a class="el" href="a00093.html" title="Node class represents all OMM container types.">Node</a> class represents all OMM container types.  
  <a href="a00093.html#details">More...</a></p>
+<div class="dynheader">
+Inheritance diagram for thomsonreuters::eoa::foundation::Node:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="a00093.png" usemap="#thomsonreuters::eoa::foundation::Node_map" alt=""/>
+  <map id="thomsonreuters::eoa::foundation::Node_map" name="thomsonreuters::eoa::foundation::Node_map">
+<area href="a00078.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes..." alt="thomsonreuters::eoa::foundation::Component" shape="rect" coords="0,0,259,24"/>
+</map>
+ </div></div>
 
-<p><a href="a00221.html">List of all members.</a></p>
+<p><a href="a00240.html">List of all members.</a></p>
 <table class="memberdecls">
+<tr><td colspan="2"><h2><a name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00094.html">const_iterator</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="a00094.html" title="Node::const_iterator is an external and explicit Node read iterator.">Node::const_iterator</a> is an external and explicit <a class="el" href="a00093.html" title="Node class represents all OMM container types.">Node</a> read iterator.  <a href="a00094.html#details">More...</a><br/></td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr><td colspan="2"><div class="groupHeader">Constructor</div></td></tr>
-<tr class="memitem:a086de8b02bd5e0a7ee69e48e6813be6d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00093.html#a086de8b02bd5e0a7ee69e48e6813be6d">TagTypeName</a> (<a class="el" href="a00092.html">TagType</a> tagType)  throw ()</td></tr>
-<tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
-<tr class="memitem:ad1f2866cf52ffec38f5da5051e4e5247"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00093.html#ad1f2866cf52ffec38f5da5051e4e5247">~TagTypeName</a> ()  throw ()</td></tr>
+<tr><td colspan="2"><div class="groupHeader">External Iterators</div></td></tr>
+<tr class="memitem:a69589cfbcab12c4f5d9025a0a4472a7b"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="a00094.html">const_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00093.html#a69589cfbcab12c4f5d9025a0a4472a7b">begin</a> () const =0</td></tr>
+<tr class="memitem:a355fb1d6b8d67aca5e0a54cb83b28076"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="a00094.html">const_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00093.html#a355fb1d6b8d67aca5e0a54cb83b28076">end</a> () const =0</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Accessors</div></td></tr>
-<tr class="memitem:a779164cb33661874b22dc3d565b511a8"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00068.html">EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00093.html#a779164cb33661874b22dc3d565b511a8">toString</a> () const   throw ()</td></tr>
-<tr class="memitem:a281331120acebdf39ab9a48bb63beb09"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00093.html#a281331120acebdf39ab9a48bb63beb09">operator const char *</a> () const   throw ()</td></tr>
+<tr class="memitem:ad15fe477c69570132b27ba87b39456d8"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="a00076.html">Action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00093.html#ad15fe477c69570132b27ba87b39456d8">getAction</a> () const =0</td></tr>
+<tr class="memitem:aeeb6dd97f0320df2298016e55078d4f8"><td class="memItemLeft" align="right" valign="top">virtual const <a class="el" href="a00093.html">Node</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00093.html#aeeb6dd97f0320df2298016e55078d4f8">getParentNode</a> () const =0</td></tr>
+<tr class="memitem:adc529aa2fedc4f00617a4b2c31e6ee28"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00093.html#adc529aa2fedc4f00617a4b2c31e6ee28">forth</a> (<a class="el" href="a00090.html">FilterType</a> filterType=FilterType::BlankableEnum) const =0  throw ()</td></tr>
+<tr class="memitem:a76178fef46cc7bd4aa5f38ff6ba8d6c1"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00093.html#a76178fef46cc7bd4aa5f38ff6ba8d6c1">reset</a> () const =0  throw ()</td></tr>
+<tr class="memitem:aa2a6c98e54c7e25baed14baacb1c1e72"><td class="memItemLeft" align="right" valign="top">virtual const <a class="el" href="a00078.html">Component</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00093.html#aa2a6c98e54c7e25baed14baacb1c1e72">getComponent</a> () const =0</td></tr>
+<tr class="memitem:abf0e496aa31c3c1ffadec95598d18695"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00093.html#abf0e496aa31c3c1ffadec95598d18695">hasSummary</a> () const =0  throw ()</td></tr>
+<tr class="memitem:ab54e212bd367587778a368e72c495777"><td class="memItemLeft" align="right" valign="top">virtual const <a class="el" href="a00093.html">Node</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00093.html#ab54e212bd367587778a368e72c495777">getSummary</a> () const =0</td></tr>
+<tr class="memitem:af0cabb7649a1fccc2473327d53bec51d"><td class="memItemLeft" align="right" valign="top">virtual const <a class="el" href="a00092.html">Leaf</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00093.html#af0cabb7649a1fccc2473327d53bec51d">fetchLeaf</a> (const <a class="el" href="a00089.html">EoaString</a> &amp;name, <a class="el" href="a00090.html">FilterType</a> filterType=FilterType::BlankableEnum) const =0  throw ()</td></tr>
+<tr class="memitem:ae004bd12a2f2c694d913f7873a79c241"><td class="memItemLeft" align="right" valign="top">virtual const <a class="el" href="a00093.html">Node</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00093.html#ae004bd12a2f2c694d913f7873a79c241">fetchNode</a> (const <a class="el" href="a00089.html">EoaString</a> &amp;name, <a class="el" href="a00090.html">FilterType</a> filterType=FilterType::BlankableEnum) const =0  throw ()</td></tr>
+<tr class="memitem:a0c2bf2e908d373ba51c784c66933ac82"><td class="memItemLeft" align="right" valign="top">virtual const <a class="el" href="a00078.html">Component</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00093.html#a0c2bf2e908d373ba51c784c66933ac82">fetchComponent</a> (const <a class="el" href="a00089.html">EoaString</a> &amp;name, <a class="el" href="a00090.html">FilterType</a> filterType=FilterType::BlankableEnum) const =0  throw ()</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
+<tr class="memitem:a0a7b141f21ebeb8392110dfeb1d6275c"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00093.html#a0a7b141f21ebeb8392110dfeb1d6275c">~Node</a> ()</td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><dl class="section remark"><dt>Remarks:</dt><dd>All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free</a>.</dd></dl>
-<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00092.html" title="TagType class provides enumeration representing tag types.">TagType</a> </dd></dl>
+<div class="textblock"><p><a class="el" href="a00093.html" title="Node class represents all OMM container types.">Node</a> class does not represent OMM messages.</p>
+<dl class="section remark"><dt>Remarks:</dt><dd>All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free</a>.</dd></dl>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00078.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a>, <a class="el" href="a00112.html" title="Tag class represents Component name or id.">Tag</a>, <a class="el" href="a00092.html" title="Leaf class represents all OMM simple types.">Leaf</a>, <a class="el" href="a00083.html" title="ConsumerNodeStoreClient class is a callback client through which app gets notifications about changes...">ConsumerNodeStoreClient</a>, <a class="el" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>, <a class="el" href="a00087.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a>, <a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a>, <a class="el" href="a00100.html" title="OmmMemoryExhaustionException represents out of memory exceptions.">OmmMemoryExhaustionException</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="a00131_source.html#l00067">67</a> of file <a class="el" href="a00131_source.html">TagType.h</a>.</p>
+<p>Definition at line <a class="el" href="a00135_source.html#l00047">47</a> of file <a class="el" href="a00135_source.html">Node.h</a>.</p>
 </div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="a086de8b02bd5e0a7ee69e48e6813be6d"></a>
+<a class="anchor" id="a0a7b141f21ebeb8392110dfeb1d6275c"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00093.html#a086de8b02bd5e0a7ee69e48e6813be6d">thomsonreuters::eoa::foundation::TagTypeName::TagTypeName</a> </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="a00092.html">TagType</a>&#160;</td>
-          <td class="paramname"><em>tagType</em></td><td>)</td>
-          <td>  throw ()</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Constructs <a class="el" href="a00059.html" title="ComponentTypeName class converts ComponentType enumeration into a string with its name...">ComponentTypeName</a>. This is used for string representation only. </p>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">tagType</td><td>specifies tag type to be converted to string </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a class="anchor" id="ad1f2866cf52ffec38f5da5051e4e5247"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual <a class="el" href="a00093.html#ad1f2866cf52ffec38f5da5051e4e5247">thomsonreuters::eoa::foundation::TagTypeName::~TagTypeName</a> </td>
+          <td class="memname">virtual <a class="el" href="a00093.html#a0a7b141f21ebeb8392110dfeb1d6275c">thomsonreuters::eoa::foundation::Node::~Node</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td>  throw ()<code> [virtual]</code></td>
+          <td><code> [virtual]</code></td>
         </tr>
       </table>
 </div>
@@ -181,38 +182,306 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="a281331120acebdf39ab9a48bb63beb09"></a>
+<a class="anchor" id="a69589cfbcab12c4f5d9025a0a4472a7b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">thomsonreuters::eoa::foundation::TagTypeName::operator const char * </td>
+          <td class="memname">virtual <a class="el" href="a00094.html">const_iterator</a> <a class="el" href="a00093.html#a69589cfbcab12c4f5d9025a0a4472a7b">thomsonreuters::eoa::foundation::Node::begin</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
+          <td> const<code> [pure virtual]</code></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Operator const char* overload. </p>
+<p>Iterator to beginning. </p>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00094.html" title="Node::const_iterator is an external and explicit Node read iterator.">Node::const_iterator</a> object pointing to the first <a class="el" href="a00078.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a> </dd></dl>
+<dl class="section remark"><dt>Remarks:</dt><dd>Undefined behavior may occur while dereferencing returned object pointing to <a class="el" href="a00093.html#a355fb1d6b8d67aca5e0a54cb83b28076">Node::end()</a> </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a779164cb33661874b22dc3d565b511a8"></a>
+<a class="anchor" id="a355fb1d6b8d67aca5e0a54cb83b28076"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="a00068.html">EoaString</a>&amp; <a class="el" href="a00093.html#a779164cb33661874b22dc3d565b511a8">thomsonreuters::eoa::foundation::TagTypeName::toString</a> </td>
+          <td class="memname">virtual <a class="el" href="a00094.html">const_iterator</a> <a class="el" href="a00093.html#a355fb1d6b8d67aca5e0a54cb83b28076">thomsonreuters::eoa::foundation::Node::end</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
+          <td> const<code> [pure virtual]</code></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Returns the enum value as a string format. </p>
-<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a> containing name of the data type </dd></dl>
+<p>Iterator to end. </p>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00094.html" title="Node::const_iterator is an external and explicit Node read iterator.">Node::const_iterator</a> object pointing beyond the last <a class="el" href="a00078.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a> in this <a class="el" href="a00093.html" title="Node class represents all OMM container types.">Node</a> </dd></dl>
+<dl class="section remark"><dt>Remarks:</dt><dd>Undefined behavior may occur while dereferencing returned object pointing to <a class="el" href="a00093.html#a355fb1d6b8d67aca5e0a54cb83b28076">Node::end()</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a0c2bf2e908d373ba51c784c66933ac82"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual const <a class="el" href="a00078.html">Component</a>&amp; <a class="el" href="a00093.html#a0c2bf2e908d373ba51c784c66933ac82">thomsonreuters::eoa::foundation::Node::fetchComponent</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00089.html">EoaString</a> &amp;&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="a00090.html">FilterType</a>&#160;</td>
+          <td class="paramname"><em>filterType</em> = <code>FilterType::BlankableEnum</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const  throw ()<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns a <a class="el" href="a00078.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a> having the same name as passed in. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>looked up <a class="el" href="a00078.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a>'s <a class="el" href="a00112.html" title="Tag class represents Component name or id.">Tag</a> name </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">filterType</td><td>specifies a filter type to filter out data. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>matching component </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="af0cabb7649a1fccc2473327d53bec51d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual const <a class="el" href="a00092.html">Leaf</a>&amp; <a class="el" href="a00093.html#af0cabb7649a1fccc2473327d53bec51d">thomsonreuters::eoa::foundation::Node::fetchLeaf</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00089.html">EoaString</a> &amp;&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="a00090.html">FilterType</a>&#160;</td>
+          <td class="paramname"><em>filterType</em> = <code>FilterType::BlankableEnum</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const  throw ()<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns a <a class="el" href="a00092.html" title="Leaf class represents all OMM simple types.">Leaf</a> having the same name as passed in. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>looked up <a class="el" href="a00092.html" title="Leaf class represents all OMM simple types.">Leaf</a>'s <a class="el" href="a00112.html" title="Tag class represents Component name or id.">Tag</a> name </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">filterType</td><td>specifies a filter type to filter out data. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>matching leaf </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ae004bd12a2f2c694d913f7873a79c241"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual const <a class="el" href="a00093.html">Node</a>&amp; <a class="el" href="a00093.html#ae004bd12a2f2c694d913f7873a79c241">thomsonreuters::eoa::foundation::Node::fetchNode</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00089.html">EoaString</a> &amp;&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="a00090.html">FilterType</a>&#160;</td>
+          <td class="paramname"><em>filterType</em> = <code>FilterType::BlankableEnum</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const  throw ()<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Fetches a <a class="el" href="a00093.html" title="Node class represents all OMM container types.">Node</a> having the same name as passed in. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>looked up <a class="el" href="a00093.html" title="Node class represents all OMM container types.">Node</a>'s <a class="el" href="a00112.html" title="Tag class represents Component name or id.">Tag</a> name </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">filterType</td><td>specifies a filter type to filter out data. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>matching node </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="adc529aa2fedc4f00617a4b2c31e6ee28"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual bool <a class="el" href="a00093.html#adc529aa2fedc4f00617a4b2c31e6ee28">thomsonreuters::eoa::foundation::Node::forth</a> </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="a00090.html">FilterType</a>&#160;</td>
+          <td class="paramname"><em>filterType</em> = <code>FilterType::BlankableEnum</code></td><td>)</td>
+          <td> const  throw ()<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Iterates through the components contained in this object. Typical usage is to extract component during each iteration via getCompoent(). </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">filterType</td><td>specifies a filter type to filter out data. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>false at the end of <a class="el" href="a00093.html" title="Node class represents all OMM container types.">Node</a>; true otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ad15fe477c69570132b27ba87b39456d8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual <a class="el" href="a00076.html">Action</a> <a class="el" href="a00093.html#ad15fe477c69570132b27ba87b39456d8">thomsonreuters::eoa::foundation::Node::getAction</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the action associated with this node </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00078.html#a50ff019a7189a7347084a38d72cc6b41">isPresent()</a> = false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00076.html" title="Action class provides enumeration representing container entry action.">Action</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aa2a6c98e54c7e25baed14baacb1c1e72"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual const <a class="el" href="a00078.html">Component</a>&amp; <a class="el" href="a00093.html#aa2a6c98e54c7e25baed14baacb1c1e72">thomsonreuters::eoa::foundation::Node::getComponent</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns a <a class="el" href="a00078.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a> at the current position set by <a class="el" href="a00093.html#adc529aa2fedc4f00617a4b2c31e6ee28">forth()</a> </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00093.html#adc529aa2fedc4f00617a4b2c31e6ee28">forth()</a> was not called first </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00078.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aeeb6dd97f0320df2298016e55078d4f8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual const <a class="el" href="a00093.html">Node</a>&amp; <a class="el" href="a00093.html#aeeb6dd97f0320df2298016e55078d4f8">thomsonreuters::eoa::foundation::Node::getParentNode</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns parent of this <a class="el" href="a00093.html" title="Node class represents all OMM container types.">Node</a> instance. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if this object has no parent node </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>parent node </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ab54e212bd367587778a368e72c495777"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual const <a class="el" href="a00093.html">Node</a>&amp; <a class="el" href="a00093.html#ab54e212bd367587778a368e72c495777">thomsonreuters::eoa::foundation::Node::getSummary</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns summary associated with this object </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if this object contains no summary </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>summary </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="abf0e496aa31c3c1ffadec95598d18695"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual bool <a class="el" href="a00093.html#abf0e496aa31c3c1ffadec95598d18695">thomsonreuters::eoa::foundation::Node::hasSummary</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const  throw ()<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Checks if this object has summary data. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if this object contains summary; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a76178fef46cc7bd4aa5f38ff6ba8d6c1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void <a class="el" href="a00093.html#a76178fef46cc7bd4aa5f38ff6ba8d6c1">thomsonreuters::eoa::foundation::Node::reset</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const  throw ()<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Resets iteration to start of this node. </p>
+<dl class="section return"><dt>Returns:</dt><dd>void </dd></dl>
 
 </div>
 </div>
@@ -233,7 +502,7 @@ Public Member Functions</h2></td></tr>
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Feb 1 2016</td>
+			<td><p class="smallfont">Mon Feb 29 2016</td>
           </tr>
         </table>
         </td>

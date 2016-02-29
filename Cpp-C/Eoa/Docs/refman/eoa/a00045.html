@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EOA: thomsonreuters::eoa::domain::marketprice::Mp::ConsumerItemClient Class Reference</title>
+<title>EOA: thomsonreuters::eoa::domain::marketmaker::Mm::ConsumerItemClient Class Reference</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -108,37 +108,44 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li class="navelem"><b>thomsonreuters</b>      </li>
       <li class="navelem"><b>eoa</b>      </li>
       <li class="navelem"><b>domain</b>      </li>
-      <li class="navelem"><b>marketprice</b>      </li>
-      <li class="navelem"><a class="el" href="a00043.html">Mp</a>      </li>
+      <li class="navelem"><b>marketmaker</b>      </li>
+      <li class="navelem"><a class="el" href="a00043.html">Mm</a>      </li>
       <li class="navelem"><a class="el" href="a00045.html">ConsumerItemClient</a>      </li>
     </ul>
   </div>
 </div>
 <div class="header">
   <div class="headertitle">
-<div class="title">thomsonreuters::eoa::domain::marketprice::Mp::ConsumerItemClient Class Reference</div>  </div>
+<div class="title">thomsonreuters::eoa::domain::marketmaker::Mm::ConsumerItemClient Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><a href="a00180.html">List of all members.</a></p>
+<p><a class="el" href="a00045.html" title="Mm::ConsumerItemClient class provides callback interfaces notifying application about changes to regi...">Mm::ConsumerItemClient</a> class provides callback interfaces notifying application about changes to registered items.  
+ <a href="a00045.html#details">More...</a></p>
+
+<p><a href="a00204.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Callbacks</div></td></tr>
-<tr class="memitem:ab5217fdbd890fec5468d7c9dfc2586d1"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00045.html#ab5217fdbd890fec5468d7c9dfc2586d1">onConsumerItemSync</a> (const <a class="el" href="a00044.html">ConsumerItem</a> &amp;current, const <a class="el" href="a00050.html">RefreshInfo</a> &amp;change, void *closure)</td></tr>
-<tr class="memitem:a496ce7ea54570c12bc1571b29eced3c1"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00045.html#a496ce7ea54570c12bc1571b29eced3c1">onConsumerItemUpdate</a> (const <a class="el" href="a00044.html">ConsumerItem</a> &amp;current, const <a class="el" href="a00054.html">UpdateInfo</a> &amp;change, void *closure)</td></tr>
-<tr class="memitem:ade22392c64bc23647ff24969cf1d93e3"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00045.html#ade22392c64bc23647ff24969cf1d93e3">onConsumerItemStatus</a> (const <a class="el" href="a00044.html">ConsumerItem</a> &amp;current, const <a class="el" href="a00053.html">StatusInfo</a> &amp;change, void *closure)</td></tr>
+<tr class="memitem:ac35099752e95e891b37833e65d47cc79"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00045.html#ac35099752e95e891b37833e65d47cc79">onConsumerItemSync</a> (const <a class="el" href="a00044.html">ConsumerItem</a> &amp;current, const <a class="el" href="a00057.html">RefreshInfo</a> &amp;change, void *closure)</td></tr>
+<tr class="memitem:a3c98d0d3171ea8042de4a7461a5f1ccb"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00045.html#a3c98d0d3171ea8042de4a7461a5f1ccb">onConsumerItemPartial</a> (const <a class="el" href="a00044.html">ConsumerItem</a> &amp;current, const <a class="el" href="a00057.html">RefreshInfo</a> &amp;change, void *closure)</td></tr>
+<tr class="memitem:a87ed2a21f3aa0a4df915e00a1f93f448"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00045.html#a87ed2a21f3aa0a4df915e00a1f93f448">onConsumerItemUpdate</a> (const <a class="el" href="a00044.html">ConsumerItem</a> &amp;current, const <a class="el" href="a00063.html">UpdateInfo</a> &amp;change, void *closure)</td></tr>
+<tr class="memitem:a14006634c80ef75f6cc7539ae92f658a"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00045.html#a14006634c80ef75f6cc7539ae92f658a">onConsumerItemStatus</a> (const <a class="el" href="a00044.html">ConsumerItem</a> &amp;current, const <a class="el" href="a00060.html">StatusInfo</a> &amp;change, void *closure)</td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock">
-<p>Definition at line <a class="el" href="a00098_source.html#l00715">715</a> of file <a class="el" href="a00098_source.html">Mp.h</a>.</p>
+<div class="textblock"><p>Application needs to implement an application client class inheriting from <a class="el" href="a00045.html" title="Mm::ConsumerItemClient class provides callback interfaces notifying application about changes to regi...">Mm::ConsumerItemClient</a>. In its own class, application needs to override callback methods it desires to use for item processing. Default empty callback methods are implemented by <a class="el" href="a00045.html" title="Mm::ConsumerItemClient class provides callback interfaces notifying application about changes to regi...">Mm::ConsumerItemClient</a> class.</p>
+<dl class="section remark"><dt>Remarks:</dt><dd>Thread safety of all the methods in this class depends on the user's implementation.</dd></dl>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00044.html" title="Mm::ConsumerItem provides access to MarketMaker item&#39;s key, state and payload.">Mm::ConsumerItem</a>, <a class="el" href="a00057.html" title="Mm::RefreshInfo provides access to the information brought in by a MarketMaker refresh message...">Mm::RefreshInfo</a>, <a class="el" href="a00063.html" title="Mm::UpdateInfo provides access to the information brought in by an MarketMaker update message...">Mm::UpdateInfo</a>, <a class="el" href="a00060.html" title="Mm::StatusInfo provides access to the information brought in by a MarketMaker status message...">Mm::StatusInfo</a> </dd></dl>
+
+<p>Definition at line <a class="el" href="a00119_source.html#l00742">742</a> of file <a class="el" href="a00119_source.html">Mm.h</a>.</p>
 </div><hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="ade22392c64bc23647ff24969cf1d93e3"></a>
+<a class="anchor" id="a3c98d0d3171ea8042de4a7461a5f1ccb"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void <a class="el" href="a00045.html#ade22392c64bc23647ff24969cf1d93e3">thomsonreuters::eoa::domain::marketprice::Mp::ConsumerItemClient::onConsumerItemStatus</a> </td>
+          <td class="memname">virtual void <a class="el" href="a00045.html#a3c98d0d3171ea8042de4a7461a5f1ccb">thomsonreuters::eoa::domain::marketmaker::Mm::ConsumerItemClient::onConsumerItemPartial</a> </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="a00044.html">ConsumerItem</a> &amp;&#160;</td>
           <td class="paramname"><em>current</em>, </td>
@@ -146,7 +153,52 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="a00053.html">StatusInfo</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="a00057.html">RefreshInfo</a> &amp;&#160;</td>
+          <td class="paramname"><em>change</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>closure</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td><code> [inline, virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Invoked upon receiving item partial refresh. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">current</td><td>- accrued item information (contains the received change) </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">change</td><td>- received item partial refresh </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">closure</td><td>- item closure specified on subscribe( ... , <a class="el" href="a00045.html" title="Mm::ConsumerItemClient class provides callback interfaces notifying application about changes to regi...">ConsumerItemClient</a>&amp; , void* closure ) or snap( ... , <a class="el" href="a00045.html" title="Mm::ConsumerItemClient class provides callback interfaces notifying application about changes to regi...">ConsumerItemClient</a>&amp; , void* closure ) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>void </dd></dl>
+
+<p>Definition at line <a class="el" href="a00119_source.html#l00762">762</a> of file <a class="el" href="a00119_source.html">Mm.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a14006634c80ef75f6cc7539ae92f658a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void <a class="el" href="a00045.html#a14006634c80ef75f6cc7539ae92f658a">thomsonreuters::eoa::domain::marketmaker::Mm::ConsumerItemClient::onConsumerItemStatus</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00044.html">ConsumerItem</a> &amp;&#160;</td>
+          <td class="paramname"><em>current</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="a00060.html">StatusInfo</a> &amp;&#160;</td>
           <td class="paramname"><em>change</em>, </td>
         </tr>
         <tr>
@@ -168,22 +220,22 @@ Public Member Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir">[out]</td><td class="paramname">current</td><td>- accrued item information (contains the received change) </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">change</td><td>- received item status </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">closure</td><td>- item closure specified on subscribe( ... , <a class="el" href="a00045.html">ConsumerItemClient</a>&amp; , void* closure ) or snap( ... , <a class="el" href="a00045.html">ConsumerItemClient</a>&amp; , void* closure ) </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">closure</td><td>- item closure specified on subscribe( ... , <a class="el" href="a00045.html" title="Mm::ConsumerItemClient class provides callback interfaces notifying application about changes to regi...">ConsumerItemClient</a>&amp; , void* closure ) or snap( ... , <a class="el" href="a00045.html" title="Mm::ConsumerItemClient class provides callback interfaces notifying application about changes to regi...">ConsumerItemClient</a>&amp; , void* closure ) </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns:</dt><dd>void </dd></dl>
 
-<p>Definition at line <a class="el" href="a00098_source.html#l00743">743</a> of file <a class="el" href="a00098_source.html">Mp.h</a>.</p>
+<p>Definition at line <a class="el" href="a00119_source.html#l00778">778</a> of file <a class="el" href="a00119_source.html">Mm.h</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="ab5217fdbd890fec5468d7c9dfc2586d1"></a>
+<a class="anchor" id="ac35099752e95e891b37833e65d47cc79"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void <a class="el" href="a00045.html#ab5217fdbd890fec5468d7c9dfc2586d1">thomsonreuters::eoa::domain::marketprice::Mp::ConsumerItemClient::onConsumerItemSync</a> </td>
+          <td class="memname">virtual void <a class="el" href="a00045.html#ac35099752e95e891b37833e65d47cc79">thomsonreuters::eoa::domain::marketmaker::Mm::ConsumerItemClient::onConsumerItemSync</a> </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="a00044.html">ConsumerItem</a> &amp;&#160;</td>
           <td class="paramname"><em>current</em>, </td>
@@ -191,7 +243,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="a00050.html">RefreshInfo</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="a00057.html">RefreshInfo</a> &amp;&#160;</td>
           <td class="paramname"><em>change</em>, </td>
         </tr>
         <tr>
@@ -213,22 +265,22 @@ Public Member Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir">[out]</td><td class="paramname">current</td><td>- accrued item information (contains the received change) </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">change</td><td>- received item refresh </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">closure</td><td>- item closure specified on subscribe( ... , <a class="el" href="a00045.html">ConsumerItemClient</a>&amp; , void* closure ) or snap( ... , <a class="el" href="a00045.html">ConsumerItemClient</a>&amp; , void* closure ) </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">closure</td><td>- item closure specified on subscribe( ... , <a class="el" href="a00045.html" title="Mm::ConsumerItemClient class provides callback interfaces notifying application about changes to regi...">ConsumerItemClient</a>&amp; , void* closure ) or snap( ... , <a class="el" href="a00045.html" title="Mm::ConsumerItemClient class provides callback interfaces notifying application about changes to regi...">ConsumerItemClient</a>&amp; , void* closure ) </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns:</dt><dd>void </dd></dl>
 
-<p>Definition at line <a class="el" href="a00098_source.html#l00727">727</a> of file <a class="el" href="a00098_source.html">Mp.h</a>.</p>
+<p>Definition at line <a class="el" href="a00119_source.html#l00754">754</a> of file <a class="el" href="a00119_source.html">Mm.h</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a496ce7ea54570c12bc1571b29eced3c1"></a>
+<a class="anchor" id="a87ed2a21f3aa0a4df915e00a1f93f448"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void <a class="el" href="a00045.html#a496ce7ea54570c12bc1571b29eced3c1">thomsonreuters::eoa::domain::marketprice::Mp::ConsumerItemClient::onConsumerItemUpdate</a> </td>
+          <td class="memname">virtual void <a class="el" href="a00045.html#a87ed2a21f3aa0a4df915e00a1f93f448">thomsonreuters::eoa::domain::marketmaker::Mm::ConsumerItemClient::onConsumerItemUpdate</a> </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="a00044.html">ConsumerItem</a> &amp;&#160;</td>
           <td class="paramname"><em>current</em>, </td>
@@ -236,7 +288,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="a00054.html">UpdateInfo</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="a00063.html">UpdateInfo</a> &amp;&#160;</td>
           <td class="paramname"><em>change</em>, </td>
         </tr>
         <tr>
@@ -258,13 +310,13 @@ Public Member Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir">[out]</td><td class="paramname">current</td><td>- accrued item information (contains the received change) </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">change</td><td>- received item update </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">closure</td><td>- item closure specified on subscribe( ... , <a class="el" href="a00045.html">ConsumerItemClient</a>&amp; , void* closure ) or snap( ... , <a class="el" href="a00045.html">ConsumerItemClient</a>&amp; , void* closure ) </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">closure</td><td>- item closure specified on subscribe( ... , <a class="el" href="a00045.html" title="Mm::ConsumerItemClient class provides callback interfaces notifying application about changes to regi...">ConsumerItemClient</a>&amp; , void* closure ) or snap( ... , <a class="el" href="a00045.html" title="Mm::ConsumerItemClient class provides callback interfaces notifying application about changes to regi...">ConsumerItemClient</a>&amp; , void* closure ) </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns:</dt><dd>void </dd></dl>
 
-<p>Definition at line <a class="el" href="a00098_source.html#l00735">735</a> of file <a class="el" href="a00098_source.html">Mp.h</a>.</p>
+<p>Definition at line <a class="el" href="a00119_source.html#l00770">770</a> of file <a class="el" href="a00119_source.html">Mm.h</a>.</p>
 
 </div>
 </div>
@@ -285,7 +337,7 @@ Public Member Functions</h2></td></tr>
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Feb 1 2016</td>
+			<td><p class="smallfont">Mon Feb 29 2016</td>
           </tr>
         </table>
         </td>

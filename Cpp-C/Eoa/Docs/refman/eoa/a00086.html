@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EOA: thomsonreuters::eoa::foundation::Qos Class Reference</title>
+<title>EOA: thomsonreuters::eoa::foundation::DataTypeName Class Reference</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -108,22 +108,116 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li class="navelem"><b>thomsonreuters</b>      </li>
       <li class="navelem"><b>eoa</b>      </li>
       <li class="navelem"><b>foundation</b>      </li>
-      <li class="navelem"><a class="el" href="a00086.html">Qos</a>      </li>
+      <li class="navelem"><a class="el" href="a00086.html">DataTypeName</a>      </li>
     </ul>
   </div>
 </div>
 <div class="header">
   <div class="headertitle">
-<div class="title">thomsonreuters::eoa::foundation::Qos Class Reference</div>  </div>
+<div class="title">thomsonreuters::eoa::foundation::DataTypeName Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="a00081.html">OmmQos</a> represents Quality Of Service information in Omm.  
+<p><a class="el" href="a00086.html" title="DataTypeName class converts DataType enumeration into a string with its name.">DataTypeName</a> class converts <a class="el" href="a00085.html" title="DataType class provides enumeration representing Omm data types.">DataType</a> enumeration into a string with its name.  
  <a href="a00086.html#details">More...</a></p>
+
+<p><a href="a00234.html">List of all members.</a></p>
+<table class="memberdecls">
+<tr><td colspan="2"><h2><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Constructor</div></td></tr>
+<tr class="memitem:aa51c26a1b817e811b53051a474cb185d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00086.html#aa51c26a1b817e811b53051a474cb185d">DataTypeName</a> (<a class="el" href="a00085.html">DataType</a> dataType)</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
+<tr class="memitem:a80bf158a99f9ba8cecef6c12eb20c3fc"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00086.html#a80bf158a99f9ba8cecef6c12eb20c3fc">~DataTypeName</a> ()</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Accessors</div></td></tr>
+<tr class="memitem:ae5cb96180490649338a7fe5feba5ed1a"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00089.html">EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00086.html#ae5cb96180490649338a7fe5feba5ed1a">toString</a> () const   throw ()</td></tr>
+<tr class="memitem:a37cdd04df7c5830a38ffdbf1137b727a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00086.html#a37cdd04df7c5830a38ffdbf1137b727a">operator const char *</a> () const   throw ()</td></tr>
+</table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p><a class="el" href="a00081.html">OmmQos</a> is a read only class.  All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free</a>.</p>
-<dl class="section see"><dt>See also:</dt><dd>Data, <a class="el" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>, <a class="el" href="a00066.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a>, <a class="el" href="a00079.html" title="OmmMemoryExhaustionException represents out of memory exceptions.">OmmMemoryExhaustionException</a> </dd></dl>
-</div></div><!-- contents -->
+<div class="textblock"><dl class="section remark"><dt>Remarks:</dt><dd>All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free</a>.</dd></dl>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00085.html" title="DataType class provides enumeration representing Omm data types.">DataType</a> </dd></dl>
+
+<p>Definition at line <a class="el" href="a00129_source.html#l00144">144</a> of file <a class="el" href="a00129_source.html">DataType.h</a>.</p>
+</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="aa51c26a1b817e811b53051a474cb185d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00086.html#aa51c26a1b817e811b53051a474cb185d">thomsonreuters::eoa::foundation::DataTypeName::DataTypeName</a> </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="a00085.html">DataType</a>&#160;</td>
+          <td class="paramname"><em>dataType</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Constructs <a class="el" href="a00086.html" title="DataTypeName class converts DataType enumeration into a string with its name.">DataTypeName</a>. </p>
+<dl class="section remark"><dt>Remarks:</dt><dd>used for string representation only. </dd></dl>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">dataType</td><td>specifies data type to be converted to string </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a80bf158a99f9ba8cecef6c12eb20c3fc"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual <a class="el" href="a00086.html#a80bf158a99f9ba8cecef6c12eb20c3fc">thomsonreuters::eoa::foundation::DataTypeName::~DataTypeName</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td><code> [virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Destructor. </p>
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="a37cdd04df7c5830a38ffdbf1137b727a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">thomsonreuters::eoa::foundation::DataTypeName::operator const char * </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const  throw ()</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Operator const char* overload. </p>
+
+</div>
+</div>
+<a class="anchor" id="ae5cb96180490649338a7fe5feba5ed1a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00089.html">EoaString</a>&amp; <a class="el" href="a00086.html#ae5cb96180490649338a7fe5feba5ed1a">thomsonreuters::eoa::foundation::DataTypeName::toString</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const  throw ()</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the enum value as a string format. </p>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a> containing name of the data type </dd></dl>
+
+</div>
+</div>
+</div><!-- contents -->
 
 <hr class="footer"/><address class="footer"><small>
     <table cellSpacing="0" cellPadding="0" width="100%" border="0">
@@ -140,7 +234,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Feb 1 2016</td>
+			<td><p class="smallfont">Mon Feb 29 2016</td>
           </tr>
         </table>
         </td>

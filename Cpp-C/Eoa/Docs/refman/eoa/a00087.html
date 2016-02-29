@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EOA: thomsonreuters::eoa::foundation::RefreshInfo Class Reference</title>
+<title>EOA: thomsonreuters::eoa::foundation::EoaBuffer Class Reference</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -108,508 +108,364 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li class="navelem"><b>thomsonreuters</b>      </li>
       <li class="navelem"><b>eoa</b>      </li>
       <li class="navelem"><b>foundation</b>      </li>
-      <li class="navelem"><a class="el" href="a00087.html">RefreshInfo</a>      </li>
+      <li class="navelem"><a class="el" href="a00087.html">EoaBuffer</a>      </li>
     </ul>
   </div>
 </div>
 <div class="header">
   <div class="summary">
-<a href="#friends">Friends</a>  </div>
+<a href="#pro-attribs">Protected Attributes</a>  </div>
   <div class="headertitle">
-<div class="title">thomsonreuters::eoa::foundation::RefreshInfo Class Reference</div>  </div>
+<div class="title">thomsonreuters::eoa::foundation::EoaBuffer Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="a00087.html" title="RefreshInfo provides access to the information brought in by a refresh message.">RefreshInfo</a> provides access to the information brought in by a refresh message.  
+<p><a class="el" href="a00087.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a> represents a general use binary buffer.  
  <a href="a00087.html#details">More...</a></p>
 
-<p><a href="a00216.html">List of all members.</a></p>
+<p><a href="a00235.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Constructor</div></td></tr>
+<tr class="memitem:ad9b543e0def1c8e864cf68ed9ab0990c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#ad9b543e0def1c8e864cf68ed9ab0990c">EoaBuffer</a> ()</td></tr>
+<tr class="memitem:a131757b1a5c51c398c50f233155c34d5"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a131757b1a5c51c398c50f233155c34d5">EoaBuffer</a> (const char *buf, UInt32 <a class="el" href="a00087.html#ac52673bb61fc6eafb872fab96e09e348">length</a>)</td></tr>
+<tr class="memitem:a4f4d56bb2625b39a00fec6bcc2715339"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a4f4d56bb2625b39a00fec6bcc2715339">EoaBuffer</a> (const <a class="el" href="a00087.html">EoaBuffer</a> &amp;buf)</td></tr>
+<tr class="memitem:af319d1d8ca2b90fabb3a3b4e88a6d899"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#af319d1d8ca2b90fabb3a3b4e88a6d899">EoaBuffer</a> (<a class="el" href="a00087.html">EoaBuffer</a> &amp;&amp;other)</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
+<tr class="memitem:a3a8e96cf5295089626e95a7b1d4615d9"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a3a8e96cf5295089626e95a7b1d4615d9">~EoaBuffer</a> ()</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Operations</div></td></tr>
+<tr class="memitem:a8e331ee7a2716ab0ce15ce157c30a020"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00087.html">EoaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a8e331ee7a2716ab0ce15ce157c30a020">clear</a> ()  throw ()</td></tr>
+<tr class="memitem:a7e1b6789c08f7e0697e20b614983e6f2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00087.html">EoaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a7e1b6789c08f7e0697e20b614983e6f2">operator=</a> (const <a class="el" href="a00087.html">EoaBuffer</a> &amp;buf)</td></tr>
+<tr class="memitem:a1182681cbfca3bbbd0534a40fb1b9c3c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00087.html">EoaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a1182681cbfca3bbbd0534a40fb1b9c3c">operator=</a> (<a class="el" href="a00087.html">EoaBuffer</a> &amp;&amp;buf)  throw ()</td></tr>
+<tr class="memitem:a485184e9168f7e203f88604b73ae2973"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00087.html">EoaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a485184e9168f7e203f88604b73ae2973">setFrom</a> (const char *buf, UInt32 <a class="el" href="a00087.html#ac52673bb61fc6eafb872fab96e09e348">length</a>)</td></tr>
+<tr class="memitem:af829797a15af39a701c98a8385419c0b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00087.html">EoaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#af829797a15af39a701c98a8385419c0b">append</a> (const <a class="el" href="a00087.html">EoaBuffer</a> &amp;buf)</td></tr>
+<tr class="memitem:a5d1e711c1b2e59144b38cef19c30171e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00087.html">EoaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a5d1e711c1b2e59144b38cef19c30171e">append</a> (char c)</td></tr>
+<tr class="memitem:ade310eadd7738869cc14edec673a2d3e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00087.html">EoaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#ade310eadd7738869cc14edec673a2d3e">append</a> (const char *buf, UInt32 <a class="el" href="a00087.html#ac52673bb61fc6eafb872fab96e09e348">length</a>)</td></tr>
+<tr class="memitem:a55ae7b6c1f9c8da41d4385918056f25d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00087.html">EoaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a55ae7b6c1f9c8da41d4385918056f25d">operator+=</a> (const <a class="el" href="a00087.html">EoaBuffer</a> &amp;buf)</td></tr>
+<tr class="memitem:ae4119f889a9cde67232b321c5b986001"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00087.html">EoaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#ae4119f889a9cde67232b321c5b986001">operator+=</a> (char)</td></tr>
+<tr class="memitem:a03911a986262d4980eebf39836deb774"><td class="memItemLeft" align="right" valign="top">char &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a03911a986262d4980eebf39836deb774">operator[]</a> (UInt32 index)</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Accessors</div></td></tr>
-<tr class="memitem:a5a8e1c3fd477e575cdde874e5e605c1b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a5a8e1c3fd477e575cdde874e5e605c1b">hasName</a> () const   throw ()</td></tr>
-<tr class="memitem:a4fad9d5abe3e5e56341d5bb0019c07a2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a4fad9d5abe3e5e56341d5bb0019c07a2">hasNameType</a> () const   throw ()</td></tr>
-<tr class="memitem:a7ffc4ee4a3f2731916f96abb459233a7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a7ffc4ee4a3f2731916f96abb459233a7">hasServiceId</a> () const   throw ()</td></tr>
-<tr class="memitem:aaf3572b533498af379286f7383152637"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#aaf3572b533498af379286f7383152637">hasServiceName</a> () const   throw ()</td></tr>
-<tr class="memitem:a6777b705637a60ff74a8182099157f15"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a6777b705637a60ff74a8182099157f15">hasId</a> () const   throw ()</td></tr>
-<tr class="memitem:a59302c213d170c00257bd5881f99ffb1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a59302c213d170c00257bd5881f99ffb1">hasFilter</a> () const   throw ()</td></tr>
-<tr class="memitem:a8b47f68609d7ae8596b3a87d8fd8f26f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a8b47f68609d7ae8596b3a87d8fd8f26f">hasExtendedHeader</a> () const   throw ()</td></tr>
-<tr class="memitem:a6e1758686d1b86f954683177137bec3b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a6e1758686d1b86f954683177137bec3b">hasQos</a> () const   throw ()</td></tr>
-<tr class="memitem:a0c7190c6468a8e3a2f4654291db49891"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a0c7190c6468a8e3a2f4654291db49891">hasSeqNum</a> () const   throw ()</td></tr>
-<tr class="memitem:aead35abd13bb0501df36ded76fb89ccc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#aead35abd13bb0501df36ded76fb89ccc">hasPartNum</a> () const   throw ()</td></tr>
-<tr class="memitem:a24fa4fe0ace8b28cebcb39390daa9b76"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a24fa4fe0ace8b28cebcb39390daa9b76">hasPermissionData</a> () const   throw ()</td></tr>
-<tr class="memitem:a7f1eb482f55087fe3d77d454260a2152"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a7f1eb482f55087fe3d77d454260a2152">hasPublisherId</a> () const   throw ()</td></tr>
-<tr class="memitem:a2ea6a53e0d0ac356f457a91987f1cb44"><td class="memItemLeft" align="right" valign="top">Int32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a2ea6a53e0d0ac356f457a91987f1cb44">getStreamId</a> () const   throw ()</td></tr>
-<tr class="memitem:a9e9bae2b2bac1e8c7b9a33cb3fa5b2e9"><td class="memItemLeft" align="right" valign="top">UInt16&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a9e9bae2b2bac1e8c7b9a33cb3fa5b2e9">getDomainType</a> () const   throw ()</td></tr>
-<tr class="memitem:a016d7b3e358918d0c899c8173163b2e9"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00068.html">EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a016d7b3e358918d0c899c8173163b2e9">getName</a> () const </td></tr>
-<tr class="memitem:a649702ea88b935967f5a1d63c676c727"><td class="memItemLeft" align="right" valign="top">UInt8&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a649702ea88b935967f5a1d63c676c727">getNameType</a> () const </td></tr>
-<tr class="memitem:a214db71b0a11af3d8fbc30c96d2d4015"><td class="memItemLeft" align="right" valign="top">UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a214db71b0a11af3d8fbc30c96d2d4015">getServiceId</a> () const </td></tr>
-<tr class="memitem:afd6984589b475e21ce794af7d2875545"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00068.html">EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#afd6984589b475e21ce794af7d2875545">getServiceName</a> () const </td></tr>
-<tr class="memitem:a6db6d1f05e6878bd6d3ed24dd3c52141"><td class="memItemLeft" align="right" valign="top">Int32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a6db6d1f05e6878bd6d3ed24dd3c52141">getId</a> () const </td></tr>
-<tr class="memitem:ada223bb68b8671a0b790681d064b2aa5"><td class="memItemLeft" align="right" valign="top">UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#ada223bb68b8671a0b790681d064b2aa5">getFilter</a> () const </td></tr>
-<tr class="memitem:a517d998a75e03db537b96b2cd866a86a"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00066.html">EoaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a517d998a75e03db537b96b2cd866a86a">getExtendedHeader</a> () const </td></tr>
-<tr class="memitem:ac3ea879d86162162ea0106d9f9f08413"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00072.html">Node</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#ac3ea879d86162162ea0106d9f9f08413">getAttrib</a> () const   throw ()</td></tr>
-<tr class="memitem:a118daf27ae6342dd22eb35fcccb25406"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00072.html">Node</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a118daf27ae6342dd22eb35fcccb25406">getPayload</a> () const   throw ()</td></tr>
-<tr class="memitem:aa85949b101153dea573b200404681068"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00083.html">OmmState</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#aa85949b101153dea573b200404681068">getState</a> () const   throw ()</td></tr>
-<tr class="memitem:a0bfc988ed5607e164598f1d6b63abb1f"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00081.html">OmmQos</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a0bfc988ed5607e164598f1d6b63abb1f">getQos</a> () const </td></tr>
-<tr class="memitem:a833006c633c1992529b317287481b90b"><td class="memItemLeft" align="right" valign="top">UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a833006c633c1992529b317287481b90b">getSeqNum</a> () const </td></tr>
-<tr class="memitem:a0cb93ed7825c8f5eedbfc63f19908cb0"><td class="memItemLeft" align="right" valign="top">UInt16&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a0cb93ed7825c8f5eedbfc63f19908cb0">getPartNum</a> () const </td></tr>
-<tr class="memitem:af622c34af80e68e55dd505132853707f"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00066.html">EoaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#af622c34af80e68e55dd505132853707f">getItemGroup</a> () const   throw ()</td></tr>
-<tr class="memitem:a76e46ba57b3d117ff20e5bbfa30853fa"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00066.html">EoaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a76e46ba57b3d117ff20e5bbfa30853fa">getPermissionData</a> () const </td></tr>
-<tr class="memitem:a9c80b6ed5fa9ab72c919a1c140c7a775"><td class="memItemLeft" align="right" valign="top">UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a9c80b6ed5fa9ab72c919a1c140c7a775">getPublisherIdUserId</a> () const </td></tr>
-<tr class="memitem:a14c75c4ad0424f0273472ccb2195c7e4"><td class="memItemLeft" align="right" valign="top">UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a14c75c4ad0424f0273472ccb2195c7e4">getPublisherIdUserAddress</a> () const </td></tr>
-<tr class="memitem:af31260e153dd84ffe6f15f105ccbfb2f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#af31260e153dd84ffe6f15f105ccbfb2f">getSolicited</a> () const   throw ()</td></tr>
-<tr class="memitem:a37edd2a54b8b4003f0543d54ae3e8b01"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a37edd2a54b8b4003f0543d54ae3e8b01">getDoNotCache</a> () const   throw ()</td></tr>
-<tr class="memitem:af6f725f89b6a42675c28474f475d9e06"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#af6f725f89b6a42675c28474f475d9e06">getComplete</a> () const   throw ()</td></tr>
-<tr class="memitem:a0d93085347cd06f89e7308de042fa9af"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a0d93085347cd06f89e7308de042fa9af">getClearCache</a> () const   throw ()</td></tr>
-<tr class="memitem:ac007ec642cb053c56a75b816791381d7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#ac007ec642cb053c56a75b816791381d7">getPrivateStream</a> () const   throw ()</td></tr>
-<tr class="memitem:a28c59538e86a98196ad5959d38af9172"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00066.html">EoaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a28c59538e86a98196ad5959d38af9172">getAsHex</a> () const   throw ()</td></tr>
-<tr class="memitem:aaabd9547c5d499808ec4c941f82eab1d"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00068.html">EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#aaabd9547c5d499808ec4c941f82eab1d">toString</a> () const </td></tr>
-<tr class="memitem:ac43549bbda1c2c050a957f12541c7304"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#ac43549bbda1c2c050a957f12541c7304">operator const char *</a> () const </td></tr>
-<tr><td colspan="2"><h2><a name="friends"></a>
-Friends</h2></td></tr>
-<tr class="memitem:a948edb73160449f5023e0b192ceca1f8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a948edb73160449f5023e0b192ceca1f8"></a>
-class&#160;</td><td class="memItemRight" valign="bottom"><b>ConsumerServiceImpl</b></td></tr>
+<tr class="memitem:a7e74eb44f380c6d5971e9fc1d00a8d54"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a7e74eb44f380c6d5971e9fc1d00a8d54">c_buf</a> () const   throw ()</td></tr>
+<tr class="memitem:ac52673bb61fc6eafb872fab96e09e348"><td class="memItemLeft" align="right" valign="top">UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#ac52673bb61fc6eafb872fab96e09e348">length</a> () const   throw ()</td></tr>
+<tr class="memitem:a02f3f03072e25a664c8af8c96df220cd"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#a02f3f03072e25a664c8af8c96df220cd">operator const char *</a> () const </td></tr>
+<tr class="memitem:ac93b552c99b557cdb3f3745116975fa2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#ac93b552c99b557cdb3f3745116975fa2">operator==</a> (const <a class="el" href="a00087.html">EoaBuffer</a> &amp;buf) const   throw ()</td></tr>
+<tr class="memitem:af8e5afad305aabbc79e790ec8a248e7e"><td class="memItemLeft" align="right" valign="top">char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00087.html#af8e5afad305aabbc79e790ec8a248e7e">operator[]</a> (UInt32 index) const </td></tr>
+<tr><td colspan="2"><h2><a name="pro-attribs"></a>
+Protected Attributes</h2></td></tr>
+<tr class="memitem:aeed935205fe5409c684a8d5e3c456411"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aeed935205fe5409c684a8d5e3c456411"></a>
+UInt32&#160;</td><td class="memItemRight" valign="bottom"><b>_capacity</b></td></tr>
+<tr class="memitem:a72473c96b695ea783673cf21f8d1dd17"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a72473c96b695ea783673cf21f8d1dd17"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>_dirty</b></td></tr>
+<tr class="memitem:ace72827ecb4dc3f422e768efd6a71613"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ace72827ecb4dc3f422e768efd6a71613"></a>
+UInt32&#160;</td><td class="memItemRight" valign="bottom"><b>_length</b></td></tr>
+<tr class="memitem:a882d31df40be9f279e4e9429efe3c615"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a882d31df40be9f279e4e9429efe3c615"></a>
+char *&#160;</td><td class="memItemRight" valign="bottom"><b>_pBuffer</b></td></tr>
+<tr class="memitem:a5909720c422fd8a7c169bac2c9a6e810"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5909720c422fd8a7c169bac2c9a6e810"></a>
+void *&#160;</td><td class="memItemRight" valign="bottom"><b>_pToString</b></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><dl class="section remark"><dt>Remarks:</dt><dd>All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free</a>.</dd></dl>
-<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00072.html" title="Node class represents all OMM container types.">Node</a>, <a class="el" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>, <a class="el" href="a00066.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a>, <a class="el" href="a00078.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a>, <a class="el" href="a00079.html" title="OmmMemoryExhaustionException represents out of memory exceptions.">OmmMemoryExhaustionException</a> </dd></dl>
+<div class="textblock"><p><a class="el" href="a00087.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a> is a buffer of 8 bit long characters where each character is represented by char or byte.</p>
+<dl class="section remark"><dt>Remarks:</dt><dd><a class="el" href="a00087.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a> class contains a copy of the passed in buffer. </dd>
+<dd>
+All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free</a>. </dd></dl>
 
-<p>Definition at line <a class="el" href="a00126_source.html#l00041">41</a> of file <a class="el" href="a00126_source.html">RefreshInfo.h</a>.</p>
-</div><hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="a28c59538e86a98196ad5959d38af9172"></a>
+<p>Definition at line <a class="el" href="a00130_source.html#l00030">30</a> of file <a class="el" href="a00130_source.html">EoaBuffer.h</a>.</p>
+</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="ad9b543e0def1c8e864cf68ed9ab0990c"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="a00066.html">EoaBuffer</a>&amp; <a class="el" href="a00087.html#a28c59538e86a98196ad5959d38af9172">thomsonreuters::eoa::foundation::RefreshInfo::getAsHex</a> </td>
+          <td class="memname"><a class="el" href="a00087.html#ad9b543e0def1c8e864cf68ed9ab0990c">thomsonreuters::eoa::foundation::EoaBuffer::EoaBuffer</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
+          <td></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Returns a buffer that in turn provides an alphanumeric null-terminated hexadecimal string representation. </p>
-<dl class="section return"><dt>Returns:</dt><dd>a buffer with the message hex information </dd></dl>
+<p>Constructs <a class="el" href="a00087.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a>. </p>
 
 </div>
 </div>
-<a class="anchor" id="ac3ea879d86162162ea0106d9f9f08413"></a>
+<a class="anchor" id="a131757b1a5c51c398c50f233155c34d5"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="a00072.html">Node</a>&amp; <a class="el" href="a00087.html#ac3ea879d86162162ea0106d9f9f08413">thomsonreuters::eoa::foundation::RefreshInfo::getAttrib</a> </td>
+          <td class="memname"><a class="el" href="a00087.html#ad9b543e0def1c8e864cf68ed9ab0990c">thomsonreuters::eoa::foundation::EoaBuffer::EoaBuffer</a> </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>buf</em>, </td>
         </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns the contained attribute </p>
-<dl class="section return"><dt>Returns:</dt><dd>reference to <a class="el" href="a00072.html" title="Node class represents all OMM container types.">Node</a> object </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a0d93085347cd06f89e7308de042fa9af"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="a00087.html#a0d93085347cd06f89e7308de042fa9af">thomsonreuters::eoa::foundation::RefreshInfo::getClearCache</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">UInt32&#160;</td>
+          <td class="paramname"><em>length</em>&#160;</td>
         </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns ClearCache. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if cache needs to be cleared before applying this refresh; false otherwise </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="af6f725f89b6a42675c28474f475d9e06"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="a00087.html#af6f725f89b6a42675c28474f475d9e06">thomsonreuters::eoa::foundation::RefreshInfo::getComplete</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Returns Complete. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if this is the last part of the multi part refresh message </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a9e9bae2b2bac1e8c7b9a33cb3fa5b2e9"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">UInt16 <a class="el" href="a00087.html#a9e9bae2b2bac1e8c7b9a33cb3fa5b2e9">thomsonreuters::eoa::foundation::RefreshInfo::getDomainType</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns the DomainType, which is the unique identifier of a domain. </p>
-<dl class="section return"><dt>Returns:</dt><dd>domain type value </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a37edd2a54b8b4003f0543d54ae3e8b01"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool <a class="el" href="a00087.html#a37edd2a54b8b4003f0543d54ae3e8b01">thomsonreuters::eoa::foundation::RefreshInfo::getDoNotCache</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns DoNotCache. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if this refresh must not be cached; false otherwise </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a517d998a75e03db537b96b2cd866a86a"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="a00066.html">EoaBuffer</a>&amp; <a class="el" href="a00087.html#a517d998a75e03db537b96b2cd866a86a">thomsonreuters::eoa::foundation::RefreshInfo::getExtendedHeader</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns the ExtendedHeader. </p>
+<p>Assignment constructor </p>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00078.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00087.html#a8b47f68609d7ae8596b3a87d8fd8f26f">hasExtendedHeader()</a> returns false </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00100.html" title="OmmMemoryExhaustionException represents out of memory exceptions.">OmmMemoryExhaustionException</a></td><td>if application runs out of memory </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00066.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a> containing extendedHeader info value </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="ada223bb68b8671a0b790681d064b2aa5"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">UInt32 <a class="el" href="a00087.html#ada223bb68b8671a0b790681d064b2aa5">thomsonreuters::eoa::foundation::RefreshInfo::getFilter</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns the Filter. </p>
-<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
-  <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00078.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00087.html#a59302c213d170c00257bd5881f99ffb1">hasFilter()</a> returns false </td></tr>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">buf</td><td>pointer to the memory containing copied in buffer </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">length</td><td>specifies number of characters to copy </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns:</dt><dd>filter value </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a6db6d1f05e6878bd6d3ed24dd3c52141"></a>
+<a class="anchor" id="a4f4d56bb2625b39a00fec6bcc2715339"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">Int32 <a class="el" href="a00087.html#a6db6d1f05e6878bd6d3ed24dd3c52141">thomsonreuters::eoa::foundation::RefreshInfo::getId</a> </td>
+          <td class="memname"><a class="el" href="a00087.html#ad9b543e0def1c8e864cf68ed9ab0990c">thomsonreuters::eoa::foundation::EoaBuffer::EoaBuffer</a> </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
+          <td class="paramtype">const <a class="el" href="a00087.html">EoaBuffer</a> &amp;&#160;</td>
+          <td class="paramname"><em>buf</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Returns the Identifier. </p>
+<p>Copy constructor. </p>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00078.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00087.html#a6777b705637a60ff74a8182099157f15">hasId()</a> returns false </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00100.html" title="OmmMemoryExhaustionException represents out of memory exceptions.">OmmMemoryExhaustionException</a></td><td>if application runs out of memory </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns:</dt><dd>id value </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="af622c34af80e68e55dd505132853707f"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="a00066.html">EoaBuffer</a>&amp; <a class="el" href="a00087.html#af622c34af80e68e55dd505132853707f">thomsonreuters::eoa::foundation::RefreshInfo::getItemGroup</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns ItemGroup. </p>
-<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00066.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a> containing item group information </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a016d7b3e358918d0c899c8173163b2e9"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="a00068.html">EoaString</a>&amp; <a class="el" href="a00087.html#a016d7b3e358918d0c899c8173163b2e9">thomsonreuters::eoa::foundation::RefreshInfo::getName</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns the Name. </p>
-<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
-  <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00078.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00087.html#a5a8e1c3fd477e575cdde874e5e605c1b">hasName()</a> returns false </td></tr>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">buf</td><td>copied in <a class="el" href="a00087.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a> object </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a> containing name </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a649702ea88b935967f5a1d63c676c727"></a>
+<a class="anchor" id="af319d1d8ca2b90fabb3a3b4e88a6d899"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">UInt8 <a class="el" href="a00087.html#a649702ea88b935967f5a1d63c676c727">thomsonreuters::eoa::foundation::RefreshInfo::getNameType</a> </td>
+          <td class="memname"><a class="el" href="a00087.html#ad9b543e0def1c8e864cf68ed9ab0990c">thomsonreuters::eoa::foundation::EoaBuffer::EoaBuffer</a> </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
+          <td class="paramtype"><a class="el" href="a00087.html">EoaBuffer</a> &amp;&amp;&#160;</td>
+          <td class="paramname"><em>other</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Returns the NameType. </p>
-<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
-  <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00078.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00087.html#a4fad9d5abe3e5e56341d5bb0019c07a2">hasNameType()</a> returns false </td></tr>
+<p>Move Constructor </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">other</td><td><a class="el" href="a00087.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a> object from whom data is moved out </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns:</dt><dd>name type value </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a0cb93ed7825c8f5eedbfc63f19908cb0"></a>
+<a class="anchor" id="a3a8e96cf5295089626e95a7b1d4615d9"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">UInt16 <a class="el" href="a00087.html#a0cb93ed7825c8f5eedbfc63f19908cb0">thomsonreuters::eoa::foundation::RefreshInfo::getPartNum</a> </td>
+          <td class="memname">virtual <a class="el" href="a00087.html#a3a8e96cf5295089626e95a7b1d4615d9">thomsonreuters::eoa::foundation::EoaBuffer::~EoaBuffer</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td> const</td>
+          <td><code> [virtual]</code></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Returns PartNum. </p>
+<p>Destructor. </p>
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="af829797a15af39a701c98a8385419c0b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00087.html">EoaBuffer</a>&amp; <a class="el" href="a00087.html#af829797a15af39a701c98a8385419c0b">thomsonreuters::eoa::foundation::EoaBuffer::append</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00087.html">EoaBuffer</a> &amp;&#160;</td>
+          <td class="paramname"><em>buf</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>method to append this object with the passed in <a class="el" href="a00087.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a> object </p>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00078.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00087.html#aead35abd13bb0501df36ded76fb89ccc">hasPartNum()</a> returns false </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00100.html" title="OmmMemoryExhaustionException represents out of memory exceptions.">OmmMemoryExhaustionException</a></td><td>if application runs out of memory </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns:</dt><dd>part number </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a118daf27ae6342dd22eb35fcccb25406"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="a00072.html">Node</a>&amp; <a class="el" href="a00087.html#a118daf27ae6342dd22eb35fcccb25406">thomsonreuters::eoa::foundation::RefreshInfo::getPayload</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns the contained payload. </p>
-<dl class="section return"><dt>Returns:</dt><dd>reference to <a class="el" href="a00072.html" title="Node class represents all OMM container types.">Node</a> object </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a76e46ba57b3d117ff20e5bbfa30853fa"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="a00066.html">EoaBuffer</a>&amp; <a class="el" href="a00087.html#a76e46ba57b3d117ff20e5bbfa30853fa">thomsonreuters::eoa::foundation::RefreshInfo::getPermissionData</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns PermissionData. </p>
-<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
-  <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00078.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00087.html#a24fa4fe0ace8b28cebcb39390daa9b76">hasPermissionData()</a> returns false </td></tr>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">buf</td><td><a class="el" href="a00087.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a> to append to this object </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00066.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a> containing permission data </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="ac007ec642cb053c56a75b816791381d7"></a>
+<a class="anchor" id="a5d1e711c1b2e59144b38cef19c30171e"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="a00087.html#ac007ec642cb053c56a75b816791381d7">thomsonreuters::eoa::foundation::RefreshInfo::getPrivateStream</a> </td>
+          <td class="memname"><a class="el" href="a00087.html">EoaBuffer</a>&amp; <a class="el" href="a00087.html#af829797a15af39a701c98a8385419c0b">thomsonreuters::eoa::foundation::EoaBuffer::append</a> </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
+          <td class="paramtype">char&#160;</td>
+          <td class="paramname"><em>c</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Returns PrivateStream. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if this is private stream item </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a14c75c4ad0424f0273472ccb2195c7e4"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">UInt32 <a class="el" href="a00087.html#a14c75c4ad0424f0273472ccb2195c7e4">thomsonreuters::eoa::foundation::RefreshInfo::getPublisherIdUserAddress</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns PublisherIdUserAddress. </p>
+<p>method to append this object with the passed in char </p>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00078.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00087.html#a7f1eb482f55087fe3d77d454260a2152">hasPublisherId()</a> returns false </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00100.html" title="OmmMemoryExhaustionException represents out of memory exceptions.">OmmMemoryExhaustionException</a></td><td>if application runs out of memory </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns:</dt><dd>publisher's user address </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a9c80b6ed5fa9ab72c919a1c140c7a775"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">UInt32 <a class="el" href="a00087.html#a9c80b6ed5fa9ab72c919a1c140c7a775">thomsonreuters::eoa::foundation::RefreshInfo::getPublisherIdUserId</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns PublisherIdUserId. </p>
-<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
-  <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00078.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00087.html#a7f1eb482f55087fe3d77d454260a2152">hasPublisherId()</a> returns false </td></tr>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">c</td><td>character to append to this object </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns:</dt><dd>publisher's user Id </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a0bfc988ed5607e164598f1d6b63abb1f"></a>
+<a class="anchor" id="ade310eadd7738869cc14edec673a2d3e"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="a00081.html">OmmQos</a>&amp; <a class="el" href="a00087.html#a0bfc988ed5607e164598f1d6b63abb1f">thomsonreuters::eoa::foundation::RefreshInfo::getQos</a> </td>
+          <td class="memname"><a class="el" href="a00087.html">EoaBuffer</a>&amp; <a class="el" href="a00087.html#af829797a15af39a701c98a8385419c0b">thomsonreuters::eoa::foundation::EoaBuffer::append</a> </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>buf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">UInt32&#160;</td>
+          <td class="paramname"><em>length</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Returns <a class="el" href="a00086.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a>. </p>
+<p>method to append this object with the passed in char buffer </p>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00078.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00087.html#a6e1758686d1b86f954683177137bec3b">hasQos()</a> returns false </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00100.html" title="OmmMemoryExhaustionException represents out of memory exceptions.">OmmMemoryExhaustionException</a></td><td>if application runs out of memory </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00086.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> of item </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a833006c633c1992529b317287481b90b"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">UInt32 <a class="el" href="a00087.html#a833006c633c1992529b317287481b90b">thomsonreuters::eoa::foundation::RefreshInfo::getSeqNum</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns SeqNum. </p>
-<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
-  <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00078.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00087.html#a0c7190c6468a8e3a2f4654291db49891">hasSeqNum()</a> returns false </td></tr>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">buf</td><td>pointer to the memory containing appended buffer </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">length</td><td>specifies number of characters to append </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns:</dt><dd>sequence number </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a214db71b0a11af3d8fbc30c96d2d4015"></a>
+<a class="anchor" id="a7e74eb44f380c6d5971e9fc1d00a8d54"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">UInt32 <a class="el" href="a00087.html#a214db71b0a11af3d8fbc30c96d2d4015">thomsonreuters::eoa::foundation::RefreshInfo::getServiceId</a> </td>
+          <td class="memname">const char* <a class="el" href="a00087.html#a7e74eb44f380c6d5971e9fc1d00a8d54">thomsonreuters::eoa::foundation::EoaBuffer::c_buf</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const  throw ()</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns pointer to the internal storage memory </p>
+<dl class="section return"><dt>Returns:</dt><dd>pointer to the internal memory area containing buffer data </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a8e331ee7a2716ab0ce15ce157c30a020"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00087.html">EoaBuffer</a>&amp; <a class="el" href="a00087.html#a8e331ee7a2716ab0ce15ce157c30a020">thomsonreuters::eoa::foundation::EoaBuffer::clear</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td>  throw ()</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Clears contained buffer. </p>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ac52673bb61fc6eafb872fab96e09e348"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">UInt32 <a class="el" href="a00087.html#ac52673bb61fc6eafb872fab96e09e348">thomsonreuters::eoa::foundation::EoaBuffer::length</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const  throw ()</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns length of the internal storage memory. </p>
+<dl class="section return"><dt>Returns:</dt><dd>length of the internal buffer </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a02f3f03072e25a664c8af8c96df220cd"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">thomsonreuters::eoa::foundation::EoaBuffer::operator const char * </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -617,349 +473,261 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>ConsumerServiceImpl<
       </table>
 </div>
 <div class="memdoc">
-<p>Returns the ServiceId. </p>
+<p>Returns an alphanumeric null-terminated hexadecimal string representation via conversion to operator const char*. </p>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00078.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00087.html#a7ffc4ee4a3f2731916f96abb459233a7">hasServiceId()</a> returns false </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00100.html" title="OmmMemoryExhaustionException represents out of memory exceptions.">OmmMemoryExhaustionException</a></td><td>if application runs out of memory </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns:</dt><dd>service id value </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd>const char pointer used for printing out content of the internal buffer to screen </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="afd6984589b475e21ce794af7d2875545"></a>
+<a class="anchor" id="a55ae7b6c1f9c8da41d4385918056f25d"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="a00068.html">EoaString</a>&amp; <a class="el" href="a00087.html#afd6984589b475e21ce794af7d2875545">thomsonreuters::eoa::foundation::RefreshInfo::getServiceName</a> </td>
+          <td class="memname"><a class="el" href="a00087.html">EoaBuffer</a>&amp; thomsonreuters::eoa::foundation::EoaBuffer::operator+= </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
+          <td class="paramtype">const <a class="el" href="a00087.html">EoaBuffer</a> &amp;&#160;</td>
+          <td class="paramname"><em>buf</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Returns the ServiceName. </p>
+<p>method to append this object with the passed in <a class="el" href="a00087.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a> object </p>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00078.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00087.html#aaf3572b533498af379286f7383152637">hasServiceName()</a> returns false </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00100.html" title="OmmMemoryExhaustionException represents out of memory exceptions.">OmmMemoryExhaustionException</a></td><td>if application runs out of memory </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a> containing service name </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="af31260e153dd84ffe6f15f105ccbfb2f"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool <a class="el" href="a00087.html#af31260e153dd84ffe6f15f105ccbfb2f">thomsonreuters::eoa::foundation::RefreshInfo::getSolicited</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns Solicited. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if this is solicited refresh; false otherwise </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="aa85949b101153dea573b200404681068"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="a00083.html">OmmState</a>&amp; <a class="el" href="a00087.html#aa85949b101153dea573b200404681068">thomsonreuters::eoa::foundation::RefreshInfo::getState</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns State. </p>
-<dl class="section return"><dt>Returns:</dt><dd>state of item </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a2ea6a53e0d0ac356f457a91987f1cb44"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">Int32 <a class="el" href="a00087.html#a2ea6a53e0d0ac356f457a91987f1cb44">thomsonreuters::eoa::foundation::RefreshInfo::getStreamId</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns the StreamId, which is the unique stream identifier on the wire. </p>
-<dl class="section return"><dt>Returns:</dt><dd>stream id value </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a8b47f68609d7ae8596b3a87d8fd8f26f"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool <a class="el" href="a00087.html#a8b47f68609d7ae8596b3a87d8fd8f26f">thomsonreuters::eoa::foundation::RefreshInfo::hasExtendedHeader</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Indicates presence of the ExtendedHeader. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if extendedHeader is set; false otherwise </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a59302c213d170c00257bd5881f99ffb1"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool <a class="el" href="a00087.html#a59302c213d170c00257bd5881f99ffb1">thomsonreuters::eoa::foundation::RefreshInfo::hasFilter</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Indicates presence of the Filter. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if filter is set; false otherwise </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a6777b705637a60ff74a8182099157f15"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool <a class="el" href="a00087.html#a6777b705637a60ff74a8182099157f15">thomsonreuters::eoa::foundation::RefreshInfo::hasId</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Indicates presence of the Identifier. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if Id is set; false otherwise </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a5a8e1c3fd477e575cdde874e5e605c1b"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool <a class="el" href="a00087.html#a5a8e1c3fd477e575cdde874e5e605c1b">thomsonreuters::eoa::foundation::RefreshInfo::hasName</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Indicates presence of the Name. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if name is set; false otherwise </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a4fad9d5abe3e5e56341d5bb0019c07a2"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool <a class="el" href="a00087.html#a4fad9d5abe3e5e56341d5bb0019c07a2">thomsonreuters::eoa::foundation::RefreshInfo::hasNameType</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Indicates presence of the NameType. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if name type is set; false otherwise </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="aead35abd13bb0501df36ded76fb89ccc"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool <a class="el" href="a00087.html#aead35abd13bb0501df36ded76fb89ccc">thomsonreuters::eoa::foundation::RefreshInfo::hasPartNum</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Indicates presence of PartNum. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if part number is set; false otherwise </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a24fa4fe0ace8b28cebcb39390daa9b76"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool <a class="el" href="a00087.html#a24fa4fe0ace8b28cebcb39390daa9b76">thomsonreuters::eoa::foundation::RefreshInfo::hasPermissionData</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Indicates presence of PermissionData. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if permission data is set; false otherwise </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a7f1eb482f55087fe3d77d454260a2152"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool <a class="el" href="a00087.html#a7f1eb482f55087fe3d77d454260a2152">thomsonreuters::eoa::foundation::RefreshInfo::hasPublisherId</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Indicates presence of PublisherId. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if publisher id is set; false otherwise </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a6e1758686d1b86f954683177137bec3b"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool <a class="el" href="a00087.html#a6e1758686d1b86f954683177137bec3b">thomsonreuters::eoa::foundation::RefreshInfo::hasQos</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Indicates presence of <a class="el" href="a00086.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a>. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if <a class="el" href="a00086.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> is set; false otherwise </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a0c7190c6468a8e3a2f4654291db49891"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool <a class="el" href="a00087.html#a0c7190c6468a8e3a2f4654291db49891">thomsonreuters::eoa::foundation::RefreshInfo::hasSeqNum</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Indicates presence of SeqNum. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if sequence number is set; false otherwise </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a7ffc4ee4a3f2731916f96abb459233a7"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool <a class="el" href="a00087.html#a7ffc4ee4a3f2731916f96abb459233a7">thomsonreuters::eoa::foundation::RefreshInfo::hasServiceId</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Indicates presence of the ServiceId. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if service id is set; false otherwise </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="aaf3572b533498af379286f7383152637"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool <a class="el" href="a00087.html#aaf3572b533498af379286f7383152637">thomsonreuters::eoa::foundation::RefreshInfo::hasServiceName</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const  throw ()</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Indicates presence of the ServiceName. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if service name is set; false otherwise </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="ac43549bbda1c2c050a957f12541c7304"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">thomsonreuters::eoa::foundation::RefreshInfo::operator const char * </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Operator const char* overload. </p>
-
-</div>
-</div>
-<a class="anchor" id="aaabd9547c5d499808ec4c941f82eab1d"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="a00068.html">EoaString</a>&amp; <a class="el" href="a00087.html#aaabd9547c5d499808ec4c941f82eab1d">thomsonreuters::eoa::foundation::RefreshInfo::toString</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns a string representation of the class instance. </p>
-<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
-  <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00079.html" title="OmmMemoryExhaustionException represents out of memory exceptions.">OmmMemoryExhaustionException</a></td><td>if app runs out of memory </td></tr>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">buf</td><td><a class="el" href="a00087.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a> to append to this object </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns:</dt><dd>string representation of the class instance </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ae4119f889a9cde67232b321c5b986001"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00087.html">EoaBuffer</a>&amp; thomsonreuters::eoa::foundation::EoaBuffer::operator+= </td>
+          <td>(</td>
+          <td class="paramtype">char&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>method to append this object with the passed in char </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00100.html" title="OmmMemoryExhaustionException represents out of memory exceptions.">OmmMemoryExhaustionException</a></td><td>if application runs out of memory </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">c</td><td>character to append to this object </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a7e1b6789c08f7e0697e20b614983e6f2"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00087.html">EoaBuffer</a>&amp; thomsonreuters::eoa::foundation::EoaBuffer::operator= </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00087.html">EoaBuffer</a> &amp;&#160;</td>
+          <td class="paramname"><em>buf</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Assignment operator. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00100.html" title="OmmMemoryExhaustionException represents out of memory exceptions.">OmmMemoryExhaustionException</a></td><td>if application runs out of memory </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">buf</td><td>copied in <a class="el" href="a00087.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a> object </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a1182681cbfca3bbbd0534a40fb1b9c3c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00087.html">EoaBuffer</a>&amp; thomsonreuters::eoa::foundation::EoaBuffer::operator= </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="a00087.html">EoaBuffer</a> &amp;&amp;&#160;</td>
+          <td class="paramname"><em>buf</em></td><td>)</td>
+          <td>  throw ()</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Assignment move operator. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">buf</td><td>moved in <a class="el" href="a00087.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a> object </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ac93b552c99b557cdb3f3745116975fa2"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool thomsonreuters::eoa::foundation::EoaBuffer::operator== </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00087.html">EoaBuffer</a> &amp;&#160;</td>
+          <td class="paramname"><em>buf</em></td><td>)</td>
+          <td> const  throw ()</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Compare operator. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">buf</td><td>compared <a class="el" href="a00087.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a> object </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>true if this and passed in object match </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a03911a986262d4980eebf39836deb774"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char&amp; thomsonreuters::eoa::foundation::EoaBuffer::operator[] </td>
+          <td>(</td>
+          <td class="paramtype">UInt32&#160;</td>
+          <td class="paramname"><em>index</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>read write index operator </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00101.html" title="OmmOutOfRangeException is thrown when a passed in method argument is out of range.">OmmOutOfRangeException</a></td><td>if passed in index is greater than the length of the contained buffer </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">index</td><td>specifies position to read or write </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to the byte at the specified position </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="af8e5afad305aabbc79e790ec8a248e7e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char thomsonreuters::eoa::foundation::EoaBuffer::operator[] </td>
+          <td>(</td>
+          <td class="paramtype">UInt32&#160;</td>
+          <td class="paramname"><em>index</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>read only index operator </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00101.html" title="OmmOutOfRangeException is thrown when a passed in method argument is out of range.">OmmOutOfRangeException</a></td><td>if passed in index is greater than the length of the contained buffer </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">index</td><td>specifies position to read </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>byte at the specified position </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a485184e9168f7e203f88604b73ae2973"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00087.html">EoaBuffer</a>&amp; <a class="el" href="a00087.html#a485184e9168f7e203f88604b73ae2973">thomsonreuters::eoa::foundation::EoaBuffer::setFrom</a> </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>buf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">UInt32&#160;</td>
+          <td class="paramname"><em>length</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Method to set Buffer. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00100.html" title="OmmMemoryExhaustionException represents out of memory exceptions.">OmmMemoryExhaustionException</a></td><td>if application runs out of memory </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">buf</td><td>pointer to the memory are containing copied in buffer </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">length</td><td>specifies number of characters to copy </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
 
 </div>
 </div>
@@ -980,7 +748,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>ConsumerServiceImpl<
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Feb 1 2016</td>
+			<td><p class="smallfont">Mon Feb 29 2016</td>
           </tr>
         </table>
         </td>

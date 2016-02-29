@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EOA: thomsonreuters::eoa::foundation::ComponentType Class Reference</title>
+<title>EOA: thomsonreuters::eoa::domain::marketmaker::Mm::ReqSpec Class Reference</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -107,25 +107,480 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul>
       <li class="navelem"><b>thomsonreuters</b>      </li>
       <li class="navelem"><b>eoa</b>      </li>
-      <li class="navelem"><b>foundation</b>      </li>
-      <li class="navelem"><a class="el" href="a00058.html">ComponentType</a>      </li>
+      <li class="navelem"><b>domain</b>      </li>
+      <li class="navelem"><b>marketmaker</b>      </li>
+      <li class="navelem"><a class="el" href="a00043.html">Mm</a>      </li>
+      <li class="navelem"><a class="el" href="a00058.html">ReqSpec</a>      </li>
     </ul>
   </div>
 </div>
 <div class="header">
+  <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
+<a href="#friends">Friends</a>  </div>
   <div class="headertitle">
-<div class="title">thomsonreuters::eoa::foundation::ComponentType Class Reference</div>  </div>
+<div class="title">thomsonreuters::eoa::domain::marketmaker::Mm::ReqSpec Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="a00058.html" title="ComponentType class provides enumeration representing component types.">ComponentType</a> class provides enumeration representing component types.  
+<p><a class="el" href="a00058.html" title="Mm::ReqSpec is used to specify item&#39;s attributes.">Mm::ReqSpec</a> is used to specify item's attributes.  
  <a href="a00058.html#details">More...</a></p>
-<hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><dl class="section remark"><dt>Remarks:</dt><dd>All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free</a>.</dd></dl>
-<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00059.html" title="ComponentTypeName class converts ComponentType enumeration into a string with its name...">ComponentTypeName</a>, <a class="el" href="a00072.html" title="Node class represents all OMM container types.">Node</a>, <a class="el" href="a00071.html" title="Leaf class represents all OMM simple types.">Leaf</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="a00102_source.html#l00020">20</a> of file <a class="el" href="a00102_source.html">ComponentType.h</a>.</p>
-</div></div><!-- contents -->
+<p><a href="a00211.html">List of all members.</a></p>
+<table class="memberdecls">
+<tr><td colspan="2"><h2><a name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a5a2a0ea752d96a66688d649378dd321e"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00058.html#a5a2a0ea752d96a66688d649378dd321e">Rate</a> { <br/>
+&#160;&#160;<a class="el" href="a00058.html#a5a2a0ea752d96a66688d649378dd321eafff0f7311d8fdcfd79b50f06ffc912c8">TickByTickEnum</a> =  0, 
+<br/>
+&#160;&#160;<a class="el" href="a00058.html#a5a2a0ea752d96a66688d649378dd321eaefa9bed54a92963371c5a58b20a4f25c">JustInTimeConflatedEnum</a> =  0xFFFFFF00, 
+<br/>
+&#160;&#160;<a class="el" href="a00058.html#a5a2a0ea752d96a66688d649378dd321ea9ecb6aa787866a01a76267f12e3e9543">BestConflatedRateEnum</a> =  0xFFFFFFFF, 
+<br/>
+&#160;&#160;<a class="el" href="a00058.html#a5a2a0ea752d96a66688d649378dd321ea8234e55d3e339723798ff4c345da4fb7">BestRateEnum</a> =  0xFFFFFFFE
+<br/>
+ }</td></tr>
+<tr class="memitem:ae90429de58b75eb2ac620fe64feedadf"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00058.html#ae90429de58b75eb2ac620fe64feedadf">Timeliness</a> { <br/>
+&#160;&#160;<a class="el" href="a00058.html#ae90429de58b75eb2ac620fe64feedadfa7cf75e40e07d10e596e2959caa417fc6">RealTimeEnum</a> =  0, 
+<br/>
+&#160;&#160;<a class="el" href="a00058.html#ae90429de58b75eb2ac620fe64feedadfa66a2f7fd5b490271b760d94064cf4126">BestDelayedTimelinessEnum</a> =  0xFFFFFFFF, 
+<br/>
+&#160;&#160;<a class="el" href="a00058.html#ae90429de58b75eb2ac620fe64feedadfae23aea9cd4cf7bcbd05e79943a9cf24f">BestTimelinessEnum</a> =  0xFFFFFFFE
+<br/>
+ }</td></tr>
+<tr><td colspan="2"><h2><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Constructor</div></td></tr>
+<tr class="memitem:a06f8db93f8caa473174c9066fb3ed8f7"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00058.html#a06f8db93f8caa473174c9066fb3ed8f7">ReqSpec</a> ()</td></tr>
+<tr class="memitem:a491a43d3b52517ec12e03cc8d9283f87"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00058.html#a491a43d3b52517ec12e03cc8d9283f87">ReqSpec</a> (const <a class="el" href="a00058.html">ReqSpec</a> &amp;other)</td></tr>
+<tr class="memitem:a7fd0c49868a07dad819df860605203fb"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00058.html#a7fd0c49868a07dad819df860605203fb">ReqSpec</a> (<a class="el" href="a00058.html">ReqSpec</a> &amp;&amp;other)</td></tr>
+<tr class="memitem:aa36e4c5cb21b6b913c63a4b0bb268639"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00058.html#aa36e4c5cb21b6b913c63a4b0bb268639">ReqSpec</a> (const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;<a class="el" href="a00058.html#a89af34d3d45c1fc8882a643c2f69df1e">name</a>)</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
+<tr class="memitem:a2b7f68fde26762a99cd175c14bb5dd3e"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00058.html#a2b7f68fde26762a99cd175c14bb5dd3e">~ReqSpec</a> ()</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Operations</div></td></tr>
+<tr class="memitem:a8305d8f0297ea91e3408a406eaa4bf89"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00058.html">ReqSpec</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00058.html#a8305d8f0297ea91e3408a406eaa4bf89">operator=</a> (const <a class="el" href="a00058.html">ReqSpec</a> &amp;other)</td></tr>
+<tr class="memitem:a89af34d3d45c1fc8882a643c2f69df1e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00058.html">ReqSpec</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00058.html#a89af34d3d45c1fc8882a643c2f69df1e">name</a> (const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;<a class="el" href="a00058.html#a89af34d3d45c1fc8882a643c2f69df1e">name</a>)</td></tr>
+<tr class="memitem:ae9a1d31b0b0219221c2cc2020932ddb3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00058.html">ReqSpec</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00058.html#ae9a1d31b0b0219221c2cc2020932ddb3">nameType</a> (foundation::UInt8 <a class="el" href="a00058.html#ae9a1d31b0b0219221c2cc2020932ddb3">nameType</a>)</td></tr>
+<tr class="memitem:aed006066836b95c70b312c17217003f6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00058.html">ReqSpec</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00058.html#aed006066836b95c70b312c17217003f6">priority</a> (foundation::UInt8 priorityClass=1, foundation::UInt16 priorityCount=1)</td></tr>
+<tr class="memitem:a346e47f5afd271bcff6ee2237cfb9d3b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00058.html">ReqSpec</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00058.html#a346e47f5afd271bcff6ee2237cfb9d3b">qos</a> (foundation::Int32 timeliness=<a class="el" href="a00058.html#ae90429de58b75eb2ac620fe64feedadfae23aea9cd4cf7bcbd05e79943a9cf24f">BestTimelinessEnum</a>, foundation::Int32 rate=<a class="el" href="a00058.html#a5a2a0ea752d96a66688d649378dd321ea8234e55d3e339723798ff4c345da4fb7">BestRateEnum</a>)</td></tr>
+<tr class="memitem:afe09935df29f2b4845bf356d314dae28"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00058.html">ReqSpec</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00058.html#afe09935df29f2b4845bf356d314dae28">conflatedInUpdates</a> (bool <a class="el" href="a00058.html#afe09935df29f2b4845bf356d314dae28">conflatedInUpdates</a>=false)</td></tr>
+<tr class="memitem:afe6b0fb00352fb9644c09fc56d5aeb57"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00058.html">ReqSpec</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00058.html#afe6b0fb00352fb9644c09fc56d5aeb57">privateStream</a> (bool <a class="el" href="a00058.html#afe6b0fb00352fb9644c09fc56d5aeb57">privateStream</a>=false)</td></tr>
+<tr class="memitem:ae613e3900ff03621291f2ff474c91a9a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00058.html">ReqSpec</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00058.html#ae613e3900ff03621291f2ff474c91a9a">clear</a> ()</td></tr>
+<tr><td colspan="2"><h2><a name="friends"></a>
+Friends</h2></td></tr>
+<tr class="memitem:aee28d12ce781b51e6f524da3c5cc77a8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aee28d12ce781b51e6f524da3c5cc77a8"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>ConsumerService</b></td></tr>
+</table>
+<hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
+<div class="textblock"><p><a class="el" href="a00058.html" title="Mm::ReqSpec is used to specify item&#39;s attributes.">Mm::ReqSpec</a> allows application to register its interest in a specified item. Among other attributes, <a class="el" href="a00058.html" title="Mm::ReqSpec is used to specify item&#39;s attributes.">Mm::ReqSpec</a> conveys item's name, domain type, and desired quality of service.</p>
+<dl class="section remark"><dt>Remarks:</dt><dd>All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free</a>. </dd></dl>
+
+<p>Definition at line <a class="el" href="a00119_source.html#l00963">963</a> of file <a class="el" href="a00119_source.html">Mm.h</a>.</p>
+</div><hr/><h2>Member Enumeration Documentation</h2>
+<a class="anchor" id="a5a2a0ea752d96a66688d649378dd321e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="a00058.html#a5a2a0ea752d96a66688d649378dd321e">thomsonreuters::eoa::domain::marketmaker::Mm::ReqSpec::Rate</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>An enumeration representing <a class="el" href="a00056.html" title="Mm::Qos represents Quality Of Service information in MarketMaker domain.">Qos</a> Rate. </p>
+<dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em><a class="anchor" id="a5a2a0ea752d96a66688d649378dd321eafff0f7311d8fdcfd79b50f06ffc912c8"></a>TickByTickEnum</em>&nbsp;</td><td>
+<p>Rate is Tick By Tick, indicates every change to information is conveyed </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5a2a0ea752d96a66688d649378dd321eaefa9bed54a92963371c5a58b20a4f25c"></a>JustInTimeConflatedEnum</em>&nbsp;</td><td>
+<p>Rate is Just In Time Conflated, indicates extreme bursts of data may be conflated </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5a2a0ea752d96a66688d649378dd321ea9ecb6aa787866a01a76267f12e3e9543"></a>BestConflatedRateEnum</em>&nbsp;</td><td>
+<p>Request Rate with range from 1 millisecond conflation to maximum conflation. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5a2a0ea752d96a66688d649378dd321ea8234e55d3e339723798ff4c345da4fb7"></a>BestRateEnum</em>&nbsp;</td><td>
+<p>Request Rate with range from tick-by-tick to maximum conflation. </p>
+</td></tr>
+</table>
+</dd>
+</dl>
+
+<p>Definition at line <a class="el" href="a00119_source.html#l00970">970</a> of file <a class="el" href="a00119_source.html">Mm.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ae90429de58b75eb2ac620fe64feedadf"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="a00058.html#ae90429de58b75eb2ac620fe64feedadf">thomsonreuters::eoa::domain::marketmaker::Mm::ReqSpec::Timeliness</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>An enumeration representing <a class="el" href="a00056.html" title="Mm::Qos represents Quality Of Service information in MarketMaker domain.">Qos</a> Timeliness. </p>
+<dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em><a class="anchor" id="ae90429de58b75eb2ac620fe64feedadfa7cf75e40e07d10e596e2959caa417fc6"></a>RealTimeEnum</em>&nbsp;</td><td>
+<p>Timeliness is RealTime, indicates information is updated as soon as new information becomes available </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="ae90429de58b75eb2ac620fe64feedadfa66a2f7fd5b490271b760d94064cf4126"></a>BestDelayedTimelinessEnum</em>&nbsp;</td><td>
+<p>Request Timeliness with range from one second delay to maximum delay. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="ae90429de58b75eb2ac620fe64feedadfae23aea9cd4cf7bcbd05e79943a9cf24f"></a>BestTimelinessEnum</em>&nbsp;</td><td>
+<p>Request Timeliness with range from real-time to maximum delay. </p>
+</td></tr>
+</table>
+</dd>
+</dl>
+
+<p>Definition at line <a class="el" href="a00119_source.html#l00986">986</a> of file <a class="el" href="a00119_source.html">Mm.h</a>.</p>
+
+</div>
+</div>
+<hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a06f8db93f8caa473174c9066fb3ed8f7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00058.html#a06f8db93f8caa473174c9066fb3ed8f7">thomsonreuters::eoa::domain::marketmaker::Mm::ReqSpec::ReqSpec</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Default Constructor. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmMemoryExhaustionException</td><td>if app runs out of memory </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a491a43d3b52517ec12e03cc8d9283f87"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00058.html#a06f8db93f8caa473174c9066fb3ed8f7">thomsonreuters::eoa::domain::marketmaker::Mm::ReqSpec::ReqSpec</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00058.html">ReqSpec</a> &amp;&#160;</td>
+          <td class="paramname"><em>other</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Copy Constructor. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmMemoryExhaustionException</td><td>if app runs out of memory </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">other</td><td>object to copy from </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a7fd0c49868a07dad819df860605203fb"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00058.html#a06f8db93f8caa473174c9066fb3ed8f7">thomsonreuters::eoa::domain::marketmaker::Mm::ReqSpec::ReqSpec</a> </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="a00058.html">ReqSpec</a> &amp;&amp;&#160;</td>
+          <td class="paramname"><em>other</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Move Constructor. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">other</td><td>object to move from </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="aa36e4c5cb21b6b913c63a4b0bb268639"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00058.html#a06f8db93f8caa473174c9066fb3ed8f7">thomsonreuters::eoa::domain::marketmaker::Mm::ReqSpec::ReqSpec</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Constructs <a class="el" href="a00058.html" title="Mm::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmMemoryExhaustionException</td><td>if app runs out of memory </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>specifies an item name. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a2b7f68fde26762a99cd175c14bb5dd3e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual <a class="el" href="a00058.html#a2b7f68fde26762a99cd175c14bb5dd3e">thomsonreuters::eoa::domain::marketmaker::Mm::ReqSpec::~ReqSpec</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td><code> [virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Destructor. </p>
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="ae613e3900ff03621291f2ff474c91a9a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00058.html">ReqSpec</a>&amp; <a class="el" href="a00058.html#ae613e3900ff03621291f2ff474c91a9a">thomsonreuters::eoa::domain::marketmaker::Mm::ReqSpec::clear</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Clears the <a class="el" href="a00058.html" title="Mm::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>. </p>
+<dl class="section remark"><dt>Remarks:</dt><dd>Invoking <a class="el" href="a00058.html#ae613e3900ff03621291f2ff474c91a9a">clear()</a> method clears all the values and resets all the defaults </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="afe09935df29f2b4845bf356d314dae28"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00058.html">ReqSpec</a>&amp; <a class="el" href="a00058.html#afe09935df29f2b4845bf356d314dae28">thomsonreuters::eoa::domain::marketmaker::Mm::ReqSpec::conflatedInUpdates</a> </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>conflatedInUpdates</em> = <code>false</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Specifies conflated in updates. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">conflatedInUpdates</td><td>represents conflated in updates. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a89af34d3d45c1fc8882a643c2f69df1e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00058.html">ReqSpec</a>&amp; <a class="el" href="a00058.html#a89af34d3d45c1fc8882a643c2f69df1e">thomsonreuters::eoa::domain::marketmaker::Mm::ReqSpec::name</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Specifies item name. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>represents item name </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ae9a1d31b0b0219221c2cc2020932ddb3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00058.html">ReqSpec</a>&amp; <a class="el" href="a00058.html#ae9a1d31b0b0219221c2cc2020932ddb3">thomsonreuters::eoa::domain::marketmaker::Mm::ReqSpec::nameType</a> </td>
+          <td>(</td>
+          <td class="paramtype">foundation::UInt8&#160;</td>
+          <td class="paramname"><em>nameType</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Specifies name type. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">nameType</td><td>represents name type </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a8305d8f0297ea91e3408a406eaa4bf89"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00058.html">ReqSpec</a>&amp; thomsonreuters::eoa::domain::marketmaker::Mm::ReqSpec::operator= </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00058.html">ReqSpec</a> &amp;&#160;</td>
+          <td class="paramname"><em>other</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Assignment operator. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">other</td><td>object to copy from </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aed006066836b95c70b312c17217003f6"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00058.html">ReqSpec</a>&amp; <a class="el" href="a00058.html#aed006066836b95c70b312c17217003f6">thomsonreuters::eoa::domain::marketmaker::Mm::ReqSpec::priority</a> </td>
+          <td>(</td>
+          <td class="paramtype">foundation::UInt8&#160;</td>
+          <td class="paramname"><em>priorityClass</em> = <code>1</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">foundation::UInt16&#160;</td>
+          <td class="paramname"><em>priorityCount</em> = <code>1</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Specifies item priority. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">priorityClass</td><td>represents items's priority class. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">priorityCount</td><td>represents items's priority count. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="afe6b0fb00352fb9644c09fc56d5aeb57"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00058.html">ReqSpec</a>&amp; <a class="el" href="a00058.html#afe6b0fb00352fb9644c09fc56d5aeb57">thomsonreuters::eoa::domain::marketmaker::Mm::ReqSpec::privateStream</a> </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>privateStream</em> = <code>false</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Specifies private stream. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">privateStream</td><td>represents private stream. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a346e47f5afd271bcff6ee2237cfb9d3b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00058.html">ReqSpec</a>&amp; <a class="el" href="a00058.html#a346e47f5afd271bcff6ee2237cfb9d3b">thomsonreuters::eoa::domain::marketmaker::Mm::ReqSpec::qos</a> </td>
+          <td>(</td>
+          <td class="paramtype">foundation::Int32&#160;</td>
+          <td class="paramname"><em>timeliness</em> = <code><a class="el" href="a00058.html#ae90429de58b75eb2ac620fe64feedadfae23aea9cd4cf7bcbd05e79943a9cf24f">BestTimelinessEnum</a></code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">foundation::Int32&#160;</td>
+          <td class="paramname"><em>rate</em> = <code><a class="el" href="a00058.html#a5a2a0ea752d96a66688d649378dd321ea8234e55d3e339723798ff4c345da4fb7">BestRateEnum</a></code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Specifies <a class="el" href="a00056.html" title="Mm::Qos represents Quality Of Service information in MarketMaker domain.">Qos</a>. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">timeliness</td><td>represents <a class="el" href="a00056.html" title="Mm::Qos represents Quality Of Service information in MarketMaker domain.">Qos</a> timeliness. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">rate</td><td>represents <a class="el" href="a00056.html" title="Mm::Qos represents Quality Of Service information in MarketMaker domain.">Qos</a> rate. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+</div><!-- contents -->
 
 <hr class="footer"/><address class="footer"><small>
     <table cellSpacing="0" cellPadding="0" width="100%" border="0">
@@ -142,7 +597,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Feb 1 2016</td>
+			<td><p class="smallfont">Mon Feb 29 2016</td>
           </tr>
         </table>
         </td>

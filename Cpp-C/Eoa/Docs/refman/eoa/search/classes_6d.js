@@ -1,8 +1,13 @@
 var searchData=
 [
-  ['marketstate',['MarketState',['../a00008.html',1,'thomsonreuters::eoa::domain::marketbyorder::Mbo']]],
+  ['marketmakerlist',['MarketMakerList',['../a00049.html',1,'thomsonreuters::eoa::domain::marketmaker::Mm']]],
+  ['marketmakerquote',['MarketMakerQuote',['../a00051.html',1,'thomsonreuters::eoa::domain::marketmaker::Mm']]],
+  ['marketsource',['MarketSource',['../a00052.html',1,'thomsonreuters::eoa::domain::marketmaker::Mm']]],
+  ['marketstate',['MarketState',['../a00053.html',1,'thomsonreuters::eoa::domain::marketmaker::Mm']]],
   ['marketstate',['MarketState',['../a00029.html',1,'thomsonreuters::eoa::domain::marketbyprice::Mbp']]],
+  ['marketstate',['MarketState',['../a00008.html',1,'thomsonreuters::eoa::domain::marketbyorder::Mbo']]],
   ['mbo',['Mbo',['../a00002.html',1,'thomsonreuters::eoa::domain::marketbyorder']]],
   ['mbp',['Mbp',['../a00023.html',1,'thomsonreuters::eoa::domain::marketbyprice']]],
-  ['mp',['Mp',['../a00043.html',1,'thomsonreuters::eoa::domain::marketprice']]]
+  ['mm',['Mm',['../a00043.html',1,'thomsonreuters::eoa::domain::marketmaker']]],
+  ['mp',['Mp',['../a00064.html',1,'thomsonreuters::eoa::domain::marketprice']]]
 ];

@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EOA: OmmState.h Source File</title>
+<title>EOA: Component.h Source File</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -103,7 +103,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div class="header">
   <div class="headertitle">
-<div class="title">OmmState.h</div>  </div>
+<div class="title">Component.h</div>  </div>
 </div><!--header-->
 <div class="contents">
 <div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 <span class="comment">/*|-----------------------------------------------------------------------------</span>
@@ -114,11 +114,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00006"></a>00006 <span class="comment"> *|-----------------------------------------------------------------------------</span>
 <a name="l00007"></a>00007 <span class="comment"> */</span>
 <a name="l00008"></a>00008 
-<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_eoa_foundation_ommstate_h</span>
-<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_eoa_foundation_ommstate_h</span>
+<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_eoa_foundation_component_h</span>
+<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_eoa_foundation_component_h</span>
 <a name="l00011"></a>00011 <span class="preprocessor"></span>
-<a name="l00027"></a>00027 <span class="preprocessor">#include &quot;Foundation/Include/DataType.h&quot;</span>
-<a name="l00028"></a>00028 <span class="preprocessor">#include &quot;Foundation/Include/EoaString.h&quot;</span>
+<a name="l00027"></a>00027 <span class="preprocessor">#include &quot;Foundation/Include/ComponentType.h&quot;</span>
+<a name="l00028"></a>00028 <span class="preprocessor">#include &quot;Foundation/Include/DataType.h&quot;</span>
 <a name="l00029"></a>00029 
 <a name="l00030"></a>00030 <span class="keyword">namespace </span>thomsonreuters {
 <a name="l00031"></a>00031 
@@ -126,134 +126,74 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00033"></a>00033 
 <a name="l00034"></a>00034 <span class="keyword">namespace </span>foundation {
 <a name="l00035"></a>00035 
-<a name="l00036"></a>00036 <span class="keyword">class </span>EoaBuffer;
-<a name="l00037"></a>00037 
-<a name="l00038"></a><a class="code" href="a00083.html">00038</a> <span class="keyword">class </span>EOA_FOUNDATION_API <a class="code" href="a00083.html" title="OmmState represents State information in Omm.">OmmState</a> 
-<a name="l00039"></a>00039 {
-<a name="l00040"></a>00040 <span class="keyword">public</span> :
-<a name="l00041"></a>00041 
-<a name="l00045"></a><a class="code" href="a00083.html#a46cbccd2f9d07473b44b05d7da5a9854">00045</a>     <span class="keyword">enum</span> <a class="code" href="a00083.html#a46cbccd2f9d07473b44b05d7da5a9854">StreamState</a>
-<a name="l00046"></a>00046     {
-<a name="l00047"></a><a class="code" href="a00083.html#a46cbccd2f9d07473b44b05d7da5a9854ac4729161ec5fc522f92758ba75aa5fcb">00047</a>         OpenEnum            = 1,    
-<a name="l00050"></a><a class="code" href="a00083.html#a46cbccd2f9d07473b44b05d7da5a9854aaacaeb256c226d81568c6f436dae5a48">00050</a>         NonStreamingEnum    = 2,    
-<a name="l00053"></a><a class="code" href="a00083.html#a46cbccd2f9d07473b44b05d7da5a9854a5a3164a4ee14e70ded704c5168cd42de">00053</a>         ClosedRecoverEnum   = 3,    
-<a name="l00057"></a><a class="code" href="a00083.html#a46cbccd2f9d07473b44b05d7da5a9854aa2d2db8fee3adcc9c32282c0595bf94d">00057</a>         ClosedEnum          = 4,    
-<a name="l00059"></a><a class="code" href="a00083.html#a46cbccd2f9d07473b44b05d7da5a9854a010ce4dd6f684695e0fdc60168e32828">00059</a>         ClosedRedirectedEnum = 5    
-<a name="l00063"></a>00063     };
-<a name="l00064"></a>00064 
-<a name="l00068"></a><a class="code" href="a00083.html#aecc3239b7abcc7ea1bc6782601f45b83">00068</a>     <span class="keyword">enum</span> <a class="code" href="a00083.html#aecc3239b7abcc7ea1bc6782601f45b83">DataState</a>
-<a name="l00069"></a>00069     {
-<a name="l00070"></a><a class="code" href="a00083.html#aecc3239b7abcc7ea1bc6782601f45b83a9f0f015d402b24a2d63aaa2fb6d65fa2">00070</a>         NoChangeEnum    = 0,        
-<a name="l00072"></a><a class="code" href="a00083.html#aecc3239b7abcc7ea1bc6782601f45b83ab9a0ddee3d14e7a190fde29668003984">00072</a>         OkEnum          = 1,        
-<a name="l00074"></a><a class="code" href="a00083.html#aecc3239b7abcc7ea1bc6782601f45b83aa637b7bfe6fea4f4fc891b5203dfef4d">00074</a>         SuspectEnum     = 2         
-<a name="l00075"></a>00075     };
+<a name="l00036"></a>00036 <span class="keyword">class </span>Tag;
+<a name="l00037"></a>00037 <span class="keyword">class </span>Decoder;
+<a name="l00038"></a>00038 
+<a name="l00039"></a><a class="code" href="a00078.html">00039</a> <span class="keyword">class </span>EOA_FOUNDATION_API <a class="code" href="a00078.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a>
+<a name="l00040"></a>00040 {
+<a name="l00041"></a>00041 <span class="keyword">public</span>:
+<a name="l00042"></a>00042 
+<a name="l00044"></a>00044 
+<a name="l00045"></a>00045 
+<a name="l00048"></a>00048     <span class="keyword">virtual</span> <a class="code" href="a00079.html" title="ComponentType class provides enumeration representing component types.">ComponentType</a> getComponentType() <span class="keyword">const</span> <span class="keywordflow">throw</span>() = 0;
+<a name="l00049"></a>00049 
+<a name="l00053"></a>00053     <span class="keyword">virtual</span> <a class="code" href="a00085.html" title="DataType class provides enumeration representing Omm data types.">DataType</a> getDataType() <span class="keyword">const</span> <span class="keywordflow">throw</span>() = 0;
+<a name="l00054"></a>00054 
+<a name="l00058"></a>00058     <span class="keyword">virtual</span> <span class="keyword">const</span> <a class="code" href="a00112.html" title="Tag class represents Component name or id.">Tag</a>&amp; getTag() <span class="keyword">const</span> <span class="keywordflow">throw</span>() = 0;
+<a name="l00059"></a>00059 
+<a name="l00064"></a>00064     <span class="keyword">virtual</span> UInt64 getDepth() <span class="keyword">const</span> <span class="keywordflow">throw</span>() = 0;
+<a name="l00065"></a>00065 
+<a name="l00070"></a>00070     <span class="keyword">virtual</span> <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; getValue() <span class="keyword">const</span> = 0;
+<a name="l00071"></a>00071 
+<a name="l00075"></a>00075     <span class="keyword">virtual</span> <span class="keywordtype">bool</span> isLocal() <span class="keyword">const</span> <span class="keywordflow">throw</span>() = 0;
 <a name="l00076"></a>00076 
-<a name="l00080"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8">00080</a>     <span class="keyword">enum</span> <a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8">StatusCode</a>
-<a name="l00081"></a>00081     {
-<a name="l00082"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8a3614b0a224cf9399138d48dd30a95056">00082</a>         NoneEnum                        = 0,    
-<a name="l00083"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8a17b8ba0751a3e66b4512af188d863387">00083</a>         NotFoundEnum                    = 1,    
-<a name="l00084"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8ab90f192be12631dd7707209d1793bcc5">00084</a>         TimeoutEnum                     = 2,    
-<a name="l00085"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8a28c8461fb9fa94356b1ccd4ea87f5239">00085</a>         NotAuthorizedEnum               = 3,    
-<a name="l00086"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8a2ee15c4aa0a861c87bb5ae5d8e34a348">00086</a>         InvalidArgumentEnum             = 4,    
-<a name="l00087"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8a6e3c89fe6ca1160a84ae4ded32d15446">00087</a>         UsageErrorEnum                  = 5,    
-<a name="l00088"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8a9eb323e75667263f65a3f6afa46a4bb2">00088</a>         PreemptedEnum                   = 6,    
-<a name="l00089"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8abcbef4406750789be939b222b879bf89">00089</a>         JustInTimeConflationStartedEnum = 7,    
-<a name="l00090"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8ad7435ad3cbf4c3b495958e6df037e126">00090</a>         TickByTickResumedEnum           = 8,    
-<a name="l00091"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8abbdf9233ed9031f09507d168ba579a14">00091</a>         FailoverStartedEnum             = 9,    
-<a name="l00092"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8a444c68d796e46462c0aba01e853e0f0e">00092</a>         FailoverCompletedEnum           = 10,   
-<a name="l00093"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8ab5165f32b244c73623dadf8369b9e89a">00093</a>         GapDetectedEnum                 = 11,   
-<a name="l00094"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8aa648ad85b35e4c525f2dc6877c3f4c64">00094</a>         NoResourcesEnum                 = 12,   
-<a name="l00095"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8a707563aae4d46c8f00adc6ffb72a05d3">00095</a>         TooManyItemsEnum                = 13,   
-<a name="l00096"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8a163424887dab48d83607e6573b91539c">00096</a>         AlreadyOpenEnum                 = 14,   
-<a name="l00097"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8a8a60bf7abeab3cd6f32e3eb1a4be21f3">00097</a>         SourceUnknownEnum               = 15,   
-<a name="l00098"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8a6cf67d13974900476ac9d87b11a95c10">00098</a>         NotOpenEnum                     = 16,   
-<a name="l00099"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8a62e1ded80df7ab2ba19dc40f5d769f3f">00099</a>         NonUpdatingItemEnum             = 19,   
-<a name="l00100"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8ac2e9dab166b52371ee79600a04e16f59">00100</a>         UnsupportedViewTypeEnum         = 20,   
-<a name="l00101"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8a5f0110d11d369d20482d3293d9dad8a9">00101</a>         InvalidViewEnum                 = 21,   
-<a name="l00102"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8ad98353b4bfba8eef90ad2f51c0fc83b7">00102</a>         FullViewProvidedEnum            = 22,   
-<a name="l00103"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8a166184c3c3197a53cf9e647d62e102c4">00103</a>         UnableToRequestAsBatchEnum      = 23,   
-<a name="l00104"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8a13a76cd926890e396fc040a34551d971">00104</a>         NoBatchViewSupportInReqEnum     = 26,   
-<a name="l00105"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8a13105f8c3445f900b59373d82cf462b1">00105</a>         ExceededMaxMountsPerUserEnum    = 27,   
-<a name="l00106"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8ac71c6dab83114dce2ef5e76d90b4ec07">00106</a>         ErrorEnum                       = 28,   
-<a name="l00107"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8ac8467ca0c03c44b9f88304eee7d1f177">00107</a>         DacsDownEnum                    = 29,   
-<a name="l00108"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8a4bdc57fc4d0e4b9b7cf387a21bc5c5ea">00108</a>         UserUnknownToPermSysEnum        = 30,   
-<a name="l00109"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8a1563cb4433e48d0098b7c4224e2e3828">00109</a>         DacsMaxLoginsReachedEnum        = 31,   
-<a name="l00110"></a><a class="code" href="a00083.html#a564d95bdcdce0be275c030f805622dd8a0e250f4736d5f1084bb9d375b420a75d">00110</a>         DacsUserFoundationToAppDeniedEnum   = 32,   
-<a name="l00111"></a>00111         InvalidFormedMsgEnum            = 256,
-<a name="l00112"></a>00112         ChannelUnavailableEnum          = 257,
-<a name="l00113"></a>00113         ServiceUnavailableEnum          = 258,
-<a name="l00114"></a>00114         ServiceDownEnum                 = 259,
-<a name="l00115"></a>00115         ServiceNotAcceptingRequestsEnum = 260,
-<a name="l00116"></a>00116         LoginClosedEnum                 = 261,
-<a name="l00117"></a>00117         DirectoryClosedEnum             = 262,
-<a name="l00118"></a>00118         ItemNotFoundEnum                = 263,
-<a name="l00119"></a>00119         DictionaryUnavailableEnum       = 264,
-<a name="l00120"></a>00120         FieldIdNotFoundDictionaryUnavailableEnum = 265,
-<a name="l00121"></a>00121         ItemRequestTimeoutEnum          = 266
-<a name="l00122"></a>00122     };
-<a name="l00123"></a>00123 
+<a name="l00080"></a>00080     <span class="keyword">virtual</span> <span class="keywordtype">bool</span> isNonBlank() <span class="keyword">const</span> <span class="keywordflow">throw</span>() = 0;
+<a name="l00081"></a>00081 
+<a name="l00085"></a>00085     <span class="keyword">virtual</span> <span class="keywordtype">bool</span> isPresent() <span class="keyword">const</span> <span class="keywordflow">throw</span>() = 0;
+<a name="l00086"></a>00086 
+<a name="l00091"></a>00091     <span class="keyword">virtual</span> <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; toString() <span class="keyword">const</span> = 0;
+<a name="l00092"></a>00092 
+<a name="l00096"></a>00096     operator const char* () <span class="keyword">const</span>;
+<a name="l00098"></a>00098 
+<a name="l00100"></a>00100 
+<a name="l00101"></a>00101 
+<a name="l00103"></a>00103     <span class="keyword">virtual</span> ~<a class="code" href="a00078.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a>();
+<a name="l00105"></a>00105 
+<a name="l00106"></a>00106 <span class="keyword">protected</span>:
+<a name="l00107"></a>00107 
+<a name="l00108"></a>00108     <a class="code" href="a00078.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a>();
+<a name="l00109"></a>00109 
+<a name="l00110"></a>00110 <span class="keyword">private</span> :
+<a name="l00111"></a>00111 
+<a name="l00112"></a>00112     <span class="keyword">friend</span> <span class="keyword">class </span>NodeImpl;
+<a name="l00113"></a>00113     <span class="keyword">friend</span> <span class="keyword">class </span>CacheNode;
+<a name="l00114"></a>00114 
+<a name="l00115"></a>00115     <span class="keyword">friend</span> <span class="keyword">class </span>Decoder;
+<a name="l00116"></a>00116     <span class="keyword">friend</span> <span class="keyword">class </span>NoComponentDecoder;
+<a name="l00117"></a>00117     <span class="keyword">friend</span> <span class="keyword">class </span>NoLeafDecoder;
+<a name="l00118"></a>00118     <span class="keyword">friend</span> <span class="keyword">class </span>NoNodeDecoder;
+<a name="l00119"></a>00119     <span class="keyword">friend</span> <span class="keyword">class </span>LeafImplDecoder;
+<a name="l00120"></a>00120     <span class="keyword">friend</span> <span class="keyword">class </span>NodeImplDecoder;
+<a name="l00121"></a>00121 
+<a name="l00122"></a>00122     <span class="keyword">friend</span> <span class="keyword">class </span>UpdateInfoImpl;
+<a name="l00123"></a>00123     <span class="keyword">friend</span> <span class="keyword">class </span>RefreshInfoImpl;
+<a name="l00124"></a>00124     <span class="keyword">friend</span> <span class="keyword">class </span>StatusInfoImpl;
 <a name="l00125"></a>00125 
-<a name="l00126"></a>00126 
-<a name="l00129"></a>00129     <span class="keyword">const</span> <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; getStreamStateAsString() <span class="keyword">const</span> throw();
-<a name="l00130"></a>00130         
-<a name="l00134"></a>00134     const <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; getDataStateAsString() const throw();
-<a name="l00135"></a>00135         
-<a name="l00139"></a>00139     const <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; getStatusCodeAsString() const throw();
-<a name="l00140"></a>00140 
-<a name="l00144"></a>00144     StreamState getStreamState() const throw();
-<a name="l00145"></a>00145 
-<a name="l00149"></a>00149     DataState getDataState() const throw();
-<a name="l00150"></a>00150 
-<a name="l00154"></a>00154     UInt16 getStatusCode() const throw();
-<a name="l00155"></a>00155 
-<a name="l00159"></a>00159     const <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; getStatusText() const throw();
-<a name="l00160"></a>00160 
-<a name="l00164"></a>00164     const <a class="code" href="a00066.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a>&amp; getAsHex() const throw();
-<a name="l00165"></a>00165 
-<a name="l00170"></a>00170     const <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; toString() const;
-<a name="l00171"></a>00171 
-<a name="l00175"></a>00175     operator const <span class="keywordtype">char</span>* () const;
-<a name="l00177"></a>00177 
-<a name="l00178"></a>00178 private :
-<a name="l00179"></a>00179 
-<a name="l00180"></a>00180     friend class <a class="code" href="a00091.html" title="Tag class represents Component name or id.">Tag</a>;
-<a name="l00181"></a>00181     friend class Decoder;
-<a name="l00182"></a>00182     friend class LeafImplDecoder;
-<a name="l00183"></a>00183     friend class NoLeafDecoder;
-<a name="l00184"></a>00184     friend class RefreshInfoImpl;
-<a name="l00185"></a>00185     friend class StatusInfoImpl;
-<a name="l00186"></a>00186     friend class CacheLeaf;
-<a name="l00187"></a>00187 
-<a name="l00188"></a>00188     StreamState             _streamState;
-<a name="l00189"></a>00189     DataState               _dataState;
-<a name="l00190"></a>00190     UInt16                  _statusCode;
-<a name="l00191"></a>00191     <span class="keywordtype">bool</span>                    _isLocal;
-<a name="l00192"></a>00192 
-<a name="l00193"></a>00193     const <span class="keywordtype">void</span>*             _ptr;
-<a name="l00194"></a>00194     mutable UInt16          _streamStateString[24];
-<a name="l00195"></a>00195     mutable UInt16          _dataStateString[24];
-<a name="l00196"></a>00196     mutable UInt16          _statusCodeString[24];
-<a name="l00197"></a>00197     mutable UInt16          _statusTextString[24];
-<a name="l00198"></a>00198     mutable <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>       _toString;
-<a name="l00199"></a>00199     mutable UInt16          _eoaBuffer[24];
-<a name="l00200"></a>00200 
-<a name="l00201"></a>00201     const <a class="code" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; toString( UInt64 indent ) const;
-<a name="l00202"></a>00202 
-<a name="l00203"></a>00203     <a class="code" href="a00083.html" title="OmmState represents State information in Omm.">OmmState</a>( StreamState streamState, DataState dataState, UInt16 statusCode );
-<a name="l00204"></a>00204 
-<a name="l00205"></a>00205     <a class="code" href="a00083.html" title="OmmState represents State information in Omm.">OmmState</a>();
-<a name="l00206"></a>00206     virtual ~<a class="code" href="a00083.html" title="OmmState represents State information in Omm.">OmmState</a>();
-<a name="l00207"></a>00207     OmmState( const OmmState&amp; );
-<a name="l00208"></a>00208     OmmState&amp; operator=( const OmmState&amp; );
-<a name="l00209"></a>00209 };
-<a name="l00210"></a>00210 
-<a name="l00211"></a>00211 }
-<a name="l00212"></a>00212 
-<a name="l00213"></a>00213 }
-<a name="l00214"></a>00214 
-<a name="l00215"></a>00215 }
-<a name="l00216"></a>00216 
-<a name="l00217"></a>00217 <span class="preprocessor">#endif //__thomsonreuters_eoa_foundation_ommstate_h</span>
+<a name="l00126"></a>00126     <span class="keyword">virtual</span> Decoder&amp; getDecoder() = 0;
+<a name="l00127"></a>00127 
+<a name="l00128"></a>00128     <span class="keyword">virtual</span> <span class="keyword">const</span> <a class="code" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>&amp; toString( UInt64 indent, <span class="keywordtype">bool</span> ) <span class="keyword">const</span> = 0;
+<a name="l00129"></a>00129 
+<a name="l00130"></a>00130     <a class="code" href="a00078.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a>( <span class="keyword">const</span> <a class="code" href="a00078.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a>&amp; );
+<a name="l00131"></a>00131     <a class="code" href="a00078.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00078.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a>&amp; );
+<a name="l00132"></a>00132 };
+<a name="l00133"></a>00133 
+<a name="l00134"></a>00134 }
+<a name="l00135"></a>00135 
+<a name="l00136"></a>00136 }
+<a name="l00137"></a>00137 
+<a name="l00138"></a>00138 }
+<a name="l00139"></a>00139 
+<a name="l00140"></a>00140 <span class="preprocessor">#endif // __thomsonreuters_eoa_foundation_component_h</span>
 </pre></div></div><!-- contents -->
 
 <hr class="footer"/><address class="footer"><small>
@@ -271,7 +211,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Feb 1 2016</td>
+			<td><p class="smallfont">Mon Feb 29 2016</td>
           </tr>
         </table>
         </td>

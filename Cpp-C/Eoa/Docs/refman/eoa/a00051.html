@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EOA: thomsonreuters::eoa::domain::marketprice::Mp::ReqSpec Class Reference</title>
+<title>EOA: thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote Class Reference</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -108,151 +108,643 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li class="navelem"><b>thomsonreuters</b>      </li>
       <li class="navelem"><b>eoa</b>      </li>
       <li class="navelem"><b>domain</b>      </li>
-      <li class="navelem"><b>marketprice</b>      </li>
-      <li class="navelem"><a class="el" href="a00043.html">Mp</a>      </li>
-      <li class="navelem"><a class="el" href="a00051.html">ReqSpec</a>      </li>
+      <li class="navelem"><b>marketmaker</b>      </li>
+      <li class="navelem"><a class="el" href="a00043.html">Mm</a>      </li>
+      <li class="navelem"><a class="el" href="a00051.html">MarketMakerQuote</a>      </li>
     </ul>
   </div>
 </div>
 <div class="header">
   <div class="summary">
-<a href="#pub-types">Public Types</a> &#124;
 <a href="#friends">Friends</a>  </div>
   <div class="headertitle">
-<div class="title">thomsonreuters::eoa::domain::marketprice::Mp::ReqSpec Class Reference</div>  </div>
+<div class="title">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="a00051.html" title="Mp::ReqSpec is used to specify item&#39;s attributes.">Mp::ReqSpec</a> is used to specify item's attributes.  
+<p><a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">Mm::MarketMakerQuote</a> specifies an entry of <a class="el" href="a00049.html" title="Mm::MarketMakerList specifies MarketMaker domain payload.">MarketMakerList</a>.  
  <a href="a00051.html#details">More...</a></p>
 
-<p><a href="a00185.html">List of all members.</a></p>
+<p><a href="a00208.html">List of all members.</a></p>
 <table class="memberdecls">
-<tr><td colspan="2"><h2><a name="pub-types"></a>
-Public Types</h2></td></tr>
-<tr class="memitem:ace60c6508a664e4b9a680035fad1d741"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#ace60c6508a664e4b9a680035fad1d741">Rate</a> { <br/>
-&#160;&#160;<a class="el" href="a00051.html#ace60c6508a664e4b9a680035fad1d741a2d9ab904f7e545c14fa292a39f4b6a6e">TickByTickEnum</a> =  0, 
-<br/>
-&#160;&#160;<a class="el" href="a00051.html#ace60c6508a664e4b9a680035fad1d741abb8efc020a7734d6f5a540b89f75200c">JustInTimeConflatedEnum</a> =  0xFFFFFF00, 
-<br/>
-&#160;&#160;<a class="el" href="a00051.html#ace60c6508a664e4b9a680035fad1d741a7b822c04274d6ca594d90a06adcd9f3e">BestConflatedRateEnum</a> =  0xFFFFFFFF, 
-<br/>
-&#160;&#160;<a class="el" href="a00051.html#ace60c6508a664e4b9a680035fad1d741ab01d9d66d03b7b1077fb31226c00d578">BestRateEnum</a> =  0xFFFFFFFE
-<br/>
- }</td></tr>
-<tr class="memitem:a5eff98626fc55e76cd7453bc2b0f7df9"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#a5eff98626fc55e76cd7453bc2b0f7df9">Timeliness</a> { <br/>
-&#160;&#160;<a class="el" href="a00051.html#a5eff98626fc55e76cd7453bc2b0f7df9a86b89be07e78d0fa96e30dfe32fc1304">RealTimeEnum</a> =  0, 
-<br/>
-&#160;&#160;<a class="el" href="a00051.html#a5eff98626fc55e76cd7453bc2b0f7df9a88a8d2fd0fdcefa93ad7b977d0d9a6c5">BestDelayedTimelinessEnum</a> =  0xFFFFFFFF, 
-<br/>
-&#160;&#160;<a class="el" href="a00051.html#a5eff98626fc55e76cd7453bc2b0f7df9aee3de7899a5737603a7a4af8fcac1b48">BestTimelinessEnum</a> =  0xFFFFFFFE
-<br/>
- }</td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr><td colspan="2"><div class="groupHeader">Constructor</div></td></tr>
-<tr class="memitem:a4027bf11901d63b99511bac7cd83eeb7"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#a4027bf11901d63b99511bac7cd83eeb7">ReqSpec</a> ()</td></tr>
-<tr class="memitem:a2e103887adf400fdbbeec5ac2507d6b1"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#a2e103887adf400fdbbeec5ac2507d6b1">ReqSpec</a> (const <a class="el" href="a00051.html">ReqSpec</a> &amp;other)</td></tr>
-<tr class="memitem:a1dc122ea8b4701832acb4676f5cf1f26"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#a1dc122ea8b4701832acb4676f5cf1f26">ReqSpec</a> (<a class="el" href="a00051.html">ReqSpec</a> &amp;&amp;other)</td></tr>
-<tr class="memitem:a092f3293a1daecbbd276f01051cdf71e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#a092f3293a1daecbbd276f01051cdf71e">ReqSpec</a> (const <a class="el" href="a00068.html">foundation::EoaString</a> &amp;<a class="el" href="a00051.html#af643289e74ca12aaa47295fc93a8487d">name</a>)</td></tr>
-<tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
-<tr class="memitem:a4f1f51bef92a889debed82b4929dd3da"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#a4f1f51bef92a889debed82b4929dd3da">~ReqSpec</a> ()</td></tr>
-<tr><td colspan="2"><div class="groupHeader">Operations</div></td></tr>
-<tr class="memitem:a6dde72aeb620c2cd5f9e5ef89f66535e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00051.html">ReqSpec</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#a6dde72aeb620c2cd5f9e5ef89f66535e">operator=</a> (const <a class="el" href="a00051.html">ReqSpec</a> &amp;other)</td></tr>
-<tr class="memitem:af643289e74ca12aaa47295fc93a8487d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00051.html">ReqSpec</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#af643289e74ca12aaa47295fc93a8487d">name</a> (const <a class="el" href="a00068.html">foundation::EoaString</a> &amp;<a class="el" href="a00051.html#af643289e74ca12aaa47295fc93a8487d">name</a>)</td></tr>
-<tr class="memitem:a690d80be9ad1763bd531c9ac14daabfa"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00051.html">ReqSpec</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#a690d80be9ad1763bd531c9ac14daabfa">nameType</a> (foundation::UInt8 <a class="el" href="a00051.html#a690d80be9ad1763bd531c9ac14daabfa">nameType</a>)</td></tr>
-<tr class="memitem:af829822a67432fe76fd8413748242981"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00051.html">ReqSpec</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#af829822a67432fe76fd8413748242981">priority</a> (foundation::UInt8 priorityClass=1, foundation::UInt16 priorityCount=1)</td></tr>
-<tr class="memitem:ae052081d707d56465ef90e4a6fccd4a5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00051.html">ReqSpec</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#ae052081d707d56465ef90e4a6fccd4a5">qos</a> (foundation::Int32 timeliness=<a class="el" href="a00051.html#a5eff98626fc55e76cd7453bc2b0f7df9aee3de7899a5737603a7a4af8fcac1b48">BestTimelinessEnum</a>, foundation::Int32 rate=<a class="el" href="a00051.html#ace60c6508a664e4b9a680035fad1d741ab01d9d66d03b7b1077fb31226c00d578">BestRateEnum</a>)</td></tr>
-<tr class="memitem:a45cfbe3ce0916822588c93f7c4cd8cc6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00051.html">ReqSpec</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#a45cfbe3ce0916822588c93f7c4cd8cc6">conflatedInUpdates</a> (bool <a class="el" href="a00051.html#a45cfbe3ce0916822588c93f7c4cd8cc6">conflatedInUpdates</a>=false)</td></tr>
-<tr class="memitem:a4d84c88e5dd11d9f448659db01cbe405"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00051.html">ReqSpec</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#a4d84c88e5dd11d9f448659db01cbe405">privateStream</a> (bool <a class="el" href="a00051.html#a4d84c88e5dd11d9f448659db01cbe405">privateStream</a>=false)</td></tr>
-<tr class="memitem:a07412520af4099a6930b9def8895c3dd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00051.html">ReqSpec</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#a07412520af4099a6930b9def8895c3dd">clear</a> ()</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Accessors</div></td></tr>
+<tr class="memitem:a3aee1975a7a080c8fe3fba00e17a9112"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00087.html">foundation::EoaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#a3aee1975a7a080c8fe3fba00e17a9112">getId</a> () const </td></tr>
+<tr class="memitem:ae71552340a18f78b4162c154881902ff"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#ae71552340a18f78b4162c154881902ff">getIdAsString</a> () const </td></tr>
+<tr class="memitem:ac51386c85e3d860b468e7c1bb1715a99"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00076.html">foundation::Action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#ac51386c85e3d860b468e7c1bb1715a99">getAction</a> () const </td></tr>
+<tr class="memitem:ade9073942becd1d70339f4baad4370bc"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#ade9073942becd1d70339f4baad4370bc">getActionAsString</a> () const </td></tr>
+<tr class="memitem:aac7b6a61c8c4ab0bc629a70607d965c1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#aac7b6a61c8c4ab0bc629a70607d965c1">hasBid</a> () const </td></tr>
+<tr class="memitem:a4b19d821f2ce22154a4968fa4a94a7f7"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#a4b19d821f2ce22154a4968fa4a94a7f7">getBid</a> () const </td></tr>
+<tr class="memitem:a62c3e8f4c5127929ecd13306d199204a"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#a62c3e8f4c5127929ecd13306d199204a">getBidAsString</a> () const </td></tr>
+<tr class="memitem:a71bba2a35c070be55f3cefa18024544a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#a71bba2a35c070be55f3cefa18024544a">hasAsk</a> () const </td></tr>
+<tr class="memitem:af255e795b61b9433a4b666f481a1e185"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#af255e795b61b9433a4b666f481a1e185">getAsk</a> () const </td></tr>
+<tr class="memitem:a8169173907fdc07659765e2522635dd8"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#a8169173907fdc07659765e2522635dd8">getAskAsString</a> () const </td></tr>
+<tr class="memitem:a09388615877ba23696c38c1b5804e8a2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#a09388615877ba23696c38c1b5804e8a2">hasAskSize</a> () const </td></tr>
+<tr class="memitem:ac2ea99822b0817b75c48bdec822a3f94"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#ac2ea99822b0817b75c48bdec822a3f94">getAskSize</a> () const </td></tr>
+<tr class="memitem:a8181350655bc1a691f111e7309aa2ff4"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#a8181350655bc1a691f111e7309aa2ff4">getAskSizeAsString</a> () const </td></tr>
+<tr class="memitem:aa6034d6cfe98adf7462ff3252bc9de81"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#aa6034d6cfe98adf7462ff3252bc9de81">hasBidSize</a> () const </td></tr>
+<tr class="memitem:aee551052cef4bd93ebd4dd407d206df7"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#aee551052cef4bd93ebd4dd407d206df7">getBidSize</a> () const </td></tr>
+<tr class="memitem:ac6a1e3256c88366cfd22e037d18c2989"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#ac6a1e3256c88366cfd22e037d18c2989">getBidSizeAsString</a> () const </td></tr>
+<tr class="memitem:af434b8fc55c73d4e5448532918637c82"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#af434b8fc55c73d4e5448532918637c82">hasQuoteTime</a> () const </td></tr>
+<tr class="memitem:af97426f2e7b1e6ae7751b531dcf1b30a"><td class="memItemLeft" align="right" valign="top">foundation::UInt64&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#af97426f2e7b1e6ae7751b531dcf1b30a">getQuoteTime</a> () const </td></tr>
+<tr class="memitem:a1e524a966c7a2d051de7966dcc6ea63d"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#a1e524a966c7a2d051de7966dcc6ea63d">getQuoteTimeAsString</a> () const </td></tr>
+<tr class="memitem:acaeadaf2bf2bfac44e85e58ba82c6062"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#acaeadaf2bf2bfac44e85e58ba82c6062">hasMarketSource</a> () const </td></tr>
+<tr class="memitem:aa259d93b86cd479a2c6f6877c72662c9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00052.html">MarketSource</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#aa259d93b86cd479a2c6f6877c72662c9">getMarketSource</a> () const </td></tr>
+<tr class="memitem:a03443ff73dec86f6a7392e6684c05804"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#a03443ff73dec86f6a7392e6684c05804">getMarketSourceAsString</a> () const </td></tr>
+<tr class="memitem:ac4d1bb2a0c1426fd2c06291d78db2c93"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#ac4d1bb2a0c1426fd2c06291d78db2c93">hasMarketMakerName</a> () const </td></tr>
+<tr class="memitem:af5bc4574c85fb672b79c126ff21c8a00"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#af5bc4574c85fb672b79c126ff21c8a00">getMarketMakerName</a> () const </td></tr>
+<tr class="memitem:af676cc6e9ae1cfaa86621334d6ea843c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#af676cc6e9ae1cfaa86621334d6ea843c">hasPriceQualifier</a> () const </td></tr>
+<tr class="memitem:abc60a5f91a82936ed1e5454442f7acf3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00054.html">PriceQualifier</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#abc60a5f91a82936ed1e5454442f7acf3">getPriceQualifier</a> () const </td></tr>
+<tr class="memitem:a05398f91eadc18899cb65bc51140d054"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#a05398f91eadc18899cb65bc51140d054">getPriceQualifierAsString</a> () const </td></tr>
+<tr class="memitem:a9c7a03b049fd8c7eb0a16575d57b9eb6"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00093.html">foundation::Node</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#a9c7a03b049fd8c7eb0a16575d57b9eb6">getAsNode</a> () const </td></tr>
+<tr class="memitem:a6747e7f41e1ff4db5fe08215acbc5cba"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#a6747e7f41e1ff4db5fe08215acbc5cba">toString</a> () const </td></tr>
+<tr class="memitem:a0dcde1dfaed7887e03e0804b58bf50bb"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00051.html#a0dcde1dfaed7887e03e0804b58bf50bb">operator const char *</a> () const </td></tr>
 <tr><td colspan="2"><h2><a name="friends"></a>
 Friends</h2></td></tr>
-<tr class="memitem:aee28d12ce781b51e6f524da3c5cc77a8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aee28d12ce781b51e6f524da3c5cc77a8"></a>
-class&#160;</td><td class="memItemRight" valign="bottom"><b>ConsumerService</b></td></tr>
+<tr class="memitem:a4105f51e2645da5ca8a4a40b540d93a0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4105f51e2645da5ca8a4a40b540d93a0"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>MarketMakerList</b></td></tr>
+<tr class="memitem:a38b7ad3aca40036ec301d934286f9adf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a38b7ad3aca40036ec301d934286f9adf"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>MmConsumerItemImpl</b></td></tr>
+<tr class="memitem:a68e53588a3464e5222a978a60b91c55d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a68e53588a3464e5222a978a60b91c55d"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>MmRefreshInfoImpl</b></td></tr>
+<tr class="memitem:a2e1d12e007f6bc1b934a0459da30b6f3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2e1d12e007f6bc1b934a0459da30b6f3"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>MmStatusInfoImpl</b></td></tr>
+<tr class="memitem:aae16f9f69c384127041f711d936d12ed"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aae16f9f69c384127041f711d936d12ed"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>MmUpdateInfoImpl</b></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p><a class="el" href="a00051.html" title="Mp::ReqSpec is used to specify item&#39;s attributes.">Mp::ReqSpec</a> allows application to register its interest in a specified item. Among other attributes, <a class="el" href="a00051.html" title="Mp::ReqSpec is used to specify item&#39;s attributes.">Mp::ReqSpec</a> conveys item's name, and desired quality of service.</p>
-<dl class="section remark"><dt>Remarks:</dt><dd>All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free</a>. </dd></dl>
+<div class="textblock"><dl class="section remark"><dt>Remarks:</dt><dd>All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free</a>.</dd></dl>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00049.html" title="Mm::MarketMakerList specifies MarketMaker domain payload.">Mm::MarketMakerList</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="a00098_source.html#l00925">925</a> of file <a class="el" href="a00098_source.html">Mp.h</a>.</p>
-</div><hr/><h2>Member Enumeration Documentation</h2>
-<a class="anchor" id="ace60c6508a664e4b9a680035fad1d741"></a>
+<p>Definition at line <a class="el" href="a00119_source.html#l01789">1789</a> of file <a class="el" href="a00119_source.html">Mm.h</a>.</p>
+</div><hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="ac51386c85e3d860b468e7c1bb1715a99"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">enum <a class="el" href="a00051.html#ace60c6508a664e4b9a680035fad1d741">thomsonreuters::eoa::domain::marketprice::Mp::ReqSpec::Rate</a></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>An enumeration representing <a class="el" href="a00048.html" title="Mp::Qos represents Quality Of Service information in MarkePrice.">Qos</a> Rate. </p>
-<dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
-<tr><td valign="top"><em><a class="anchor" id="ace60c6508a664e4b9a680035fad1d741a2d9ab904f7e545c14fa292a39f4b6a6e"></a>TickByTickEnum</em>&nbsp;</td><td>
-<p>Rate is Tick By Tick, indicates every change to information is conveyed </p>
-</td></tr>
-<tr><td valign="top"><em><a class="anchor" id="ace60c6508a664e4b9a680035fad1d741abb8efc020a7734d6f5a540b89f75200c"></a>JustInTimeConflatedEnum</em>&nbsp;</td><td>
-<p>Rate is Just In Time Conflated, indicates extreme bursts of data may be conflated </p>
-</td></tr>
-<tr><td valign="top"><em><a class="anchor" id="ace60c6508a664e4b9a680035fad1d741a7b822c04274d6ca594d90a06adcd9f3e"></a>BestConflatedRateEnum</em>&nbsp;</td><td>
-<p>Request Rate with range from 1 millisecond conflation to maximum conflation. </p>
-</td></tr>
-<tr><td valign="top"><em><a class="anchor" id="ace60c6508a664e4b9a680035fad1d741ab01d9d66d03b7b1077fb31226c00d578"></a>BestRateEnum</em>&nbsp;</td><td>
-<p>Request Rate with range from tick-by-tick to maximum conflation. </p>
-</td></tr>
-</table>
-</dd>
-</dl>
-
-<p>Definition at line <a class="el" href="a00098_source.html#l00932">932</a> of file <a class="el" href="a00098_source.html">Mp.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a5eff98626fc55e76cd7453bc2b0f7df9"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum <a class="el" href="a00051.html#a5eff98626fc55e76cd7453bc2b0f7df9">thomsonreuters::eoa::domain::marketprice::Mp::ReqSpec::Timeliness</a></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>An enumeration representing <a class="el" href="a00048.html" title="Mp::Qos represents Quality Of Service information in MarkePrice.">Qos</a> Timeliness. </p>
-<dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
-<tr><td valign="top"><em><a class="anchor" id="a5eff98626fc55e76cd7453bc2b0f7df9a86b89be07e78d0fa96e30dfe32fc1304"></a>RealTimeEnum</em>&nbsp;</td><td>
-<p>Timeliness is RealTime, indicates information is updated as soon as new information becomes available </p>
-</td></tr>
-<tr><td valign="top"><em><a class="anchor" id="a5eff98626fc55e76cd7453bc2b0f7df9a88a8d2fd0fdcefa93ad7b977d0d9a6c5"></a>BestDelayedTimelinessEnum</em>&nbsp;</td><td>
-<p>Request Timeliness with range from one second delay to maximum delay. </p>
-</td></tr>
-<tr><td valign="top"><em><a class="anchor" id="a5eff98626fc55e76cd7453bc2b0f7df9aee3de7899a5737603a7a4af8fcac1b48"></a>BestTimelinessEnum</em>&nbsp;</td><td>
-<p>Request Timeliness with range from real-time to maximum delay. </p>
-</td></tr>
-</table>
-</dd>
-</dl>
-
-<p>Definition at line <a class="el" href="a00098_source.html#l00948">948</a> of file <a class="el" href="a00098_source.html">Mp.h</a>.</p>
-
-</div>
-</div>
-<hr/><h2>Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="a4027bf11901d63b99511bac7cd83eeb7"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="a00051.html#a4027bf11901d63b99511bac7cd83eeb7">thomsonreuters::eoa::domain::marketprice::Mp::ReqSpec::ReqSpec</a> </td>
+          <td class="memname"><a class="el" href="a00076.html">foundation::Action</a> <a class="el" href="a00051.html#ac51386c85e3d860b468e7c1bb1715a99">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::getAction</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Default Constructor. </p>
+<p>Returns action associated with this <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a> </p>
+<dl class="section return"><dt>Returns:</dt><dd>Action </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ade9073942becd1d70339f4baad4370bc"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00089.html">foundation::EoaString</a>&amp; <a class="el" href="a00051.html#ade9073942becd1d70339f4baad4370bc">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::getActionAsString</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the action associated with this <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a> as a string </p>
+<dl class="section return"><dt>Returns:</dt><dd>EoaString containing action name </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="af255e795b61b9433a4b666f481a1e185"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double <a class="el" href="a00051.html#af255e795b61b9433a4b666f481a1e185">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::getAsk</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>returns double representation of <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s ask </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmInvalidUsageException</td><td>if <a class="el" href="a00051.html#a71bba2a35c070be55f3cefa18024544a">hasAsk()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>double value of <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s ask </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a8169173907fdc07659765e2522635dd8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00089.html">foundation::EoaString</a>&amp; <a class="el" href="a00051.html#a8169173907fdc07659765e2522635dd8">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::getAskAsString</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>returns string representation of <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s ask </p>
+<dl class="section return"><dt>Returns:</dt><dd>EoaString containing value of <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s ask if it is present </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ac2ea99822b0817b75c48bdec822a3f94"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double <a class="el" href="a00051.html#ac2ea99822b0817b75c48bdec822a3f94">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::getAskSize</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns maker's ask size </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmInvalidUsageException</td><td>if <a class="el" href="a00051.html#a09388615877ba23696c38c1b5804e8a2">hasAskSize()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>double representing <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s ask size </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a8181350655bc1a691f111e7309aa2ff4"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00089.html">foundation::EoaString</a>&amp; <a class="el" href="a00051.html#a8181350655bc1a691f111e7309aa2ff4">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::getAskSizeAsString</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s ask size </p>
+<dl class="section return"><dt>Returns:</dt><dd>EoaString containing <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s ask size if it is present </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a9c7a03b049fd8c7eb0a16575d57b9eb6"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00093.html">foundation::Node</a>&amp; <a class="el" href="a00051.html#a9c7a03b049fd8c7eb0a16575d57b9eb6">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::getAsNode</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>returns <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a> as Node </p>
+<dl class="section remark"><dt>Remarks:</dt><dd>allows retrieval of any field from the <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a4b19d821f2ce22154a4968fa4a94a7f7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double <a class="el" href="a00051.html#a4b19d821f2ce22154a4968fa4a94a7f7">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::getBid</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>returns double representation of <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s bid </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmInvalidUsageException</td><td>if <a class="el" href="a00051.html#aac7b6a61c8c4ab0bc629a70607d965c1">hasBid()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>double value of <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s bid </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a62c3e8f4c5127929ecd13306d199204a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00089.html">foundation::EoaString</a>&amp; <a class="el" href="a00051.html#a62c3e8f4c5127929ecd13306d199204a">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::getBidAsString</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>returns string representation of <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s bid </p>
+<dl class="section return"><dt>Returns:</dt><dd>EoaString containing value of <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s bid if it is present </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aee551052cef4bd93ebd4dd407d206df7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double <a class="el" href="a00051.html#aee551052cef4bd93ebd4dd407d206df7">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::getBidSize</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s bid size </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmInvalidUsageException</td><td>if <a class="el" href="a00051.html#aa6034d6cfe98adf7462ff3252bc9de81">hasBidSize()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>double representing <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s bid size </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ac6a1e3256c88366cfd22e037d18c2989"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00089.html">foundation::EoaString</a>&amp; <a class="el" href="a00051.html#ac6a1e3256c88366cfd22e037d18c2989">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::getBidSizeAsString</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s bid size </p>
+<dl class="section return"><dt>Returns:</dt><dd>EoaString containing <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s bid size if it is present </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a3aee1975a7a080c8fe3fba00e17a9112"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00087.html">foundation::EoaBuffer</a>&amp; <a class="el" href="a00051.html#a3aee1975a7a080c8fe3fba00e17a9112">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::getId</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns ID of this <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a> </p>
+<dl class="section return"><dt>Returns:</dt><dd>EoaBuffer containing <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s id </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ae71552340a18f78b4162c154881902ff"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00089.html">foundation::EoaString</a>&amp; <a class="el" href="a00051.html#ae71552340a18f78b4162c154881902ff">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::getIdAsString</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns ID of this <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s </p>
+<dl class="section return"><dt>Returns:</dt><dd>EoaString containing <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s id </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="af5bc4574c85fb672b79c126ff21c8a00"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00089.html">foundation::EoaString</a>&amp; <a class="el" href="a00051.html#af5bc4574c85fb672b79c126ff21c8a00">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::getMarketMakerName</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the MarketMaker's name </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmInvalidUsageException</td><td>if <a class="el" href="a00051.html#ac4d1bb2a0c1426fd2c06291d78db2c93">hasMarketMakerName()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>EoaString containing MarketMaker's name </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aa259d93b86cd479a2c6f6877c72662c9"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00052.html">MarketSource</a> <a class="el" href="a00051.html#aa259d93b86cd479a2c6f6877c72662c9">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::getMarketSource</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s <a class="el" href="a00052.html" title="Mm::MarketSource is an enumeration specifying Market Source.">MarketSource</a> </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmInvalidUsageException</td><td>if <a class="el" href="a00051.html#acaeadaf2bf2bfac44e85e58ba82c6062">hasMarketSource()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00052.html" title="Mm::MarketSource is an enumeration specifying Market Source.">MarketSource</a> enumeration </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a03443ff73dec86f6a7392e6684c05804"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00089.html">foundation::EoaString</a>&amp; <a class="el" href="a00051.html#a03443ff73dec86f6a7392e6684c05804">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::getMarketSourceAsString</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s <a class="el" href="a00052.html" title="Mm::MarketSource is an enumeration specifying Market Source.">MarketSource</a> </p>
+<dl class="section return"><dt>Returns:</dt><dd>EoaString containing <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s <a class="el" href="a00052.html" title="Mm::MarketSource is an enumeration specifying Market Source.">MarketSource</a> if it is present </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="abc60a5f91a82936ed1e5454442f7acf3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00054.html">PriceQualifier</a> <a class="el" href="a00051.html#abc60a5f91a82936ed1e5454442f7acf3">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::getPriceQualifier</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s price qualifier </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmInvalidUsageException</td><td>if <a class="el" href="a00051.html#af676cc6e9ae1cfaa86621334d6ea843c">hasPriceQualifier()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00054.html" title="Mm::PriceQualifier is an enumeration specifying price qualifier code.">PriceQualifier</a> enumeration </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a05398f91eadc18899cb65bc51140d054"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00089.html">foundation::EoaString</a>&amp; <a class="el" href="a00051.html#a05398f91eadc18899cb65bc51140d054">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::getPriceQualifierAsString</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s price qualifier </p>
+<dl class="section return"><dt>Returns:</dt><dd>EoaString containing <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s price qualifier if it is present </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="af97426f2e7b1e6ae7751b531dcf1b30a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">foundation::UInt64 <a class="el" href="a00051.html#af97426f2e7b1e6ae7751b531dcf1b30a">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::getQuoteTime</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s quote time </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmInvalidUsageException</td><td>if <a class="el" href="a00051.html#af434b8fc55c73d4e5448532918637c82">hasQuoteTime()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>UInt64 representing <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s quote time </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a1e524a966c7a2d051de7966dcc6ea63d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00089.html">foundation::EoaString</a>&amp; <a class="el" href="a00051.html#a1e524a966c7a2d051de7966dcc6ea63d">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::getQuoteTimeAsString</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s quote time </p>
+<dl class="section return"><dt>Returns:</dt><dd>EoaString containing <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s quote time if it is present </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a71bba2a35c070be55f3cefa18024544a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00051.html#a71bba2a35c070be55f3cefa18024544a">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::hasAsk</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s ask </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s ask is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a09388615877ba23696c38c1b5804e8a2"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00051.html#a09388615877ba23696c38c1b5804e8a2">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::hasAskSize</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s ask size </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s ask size is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aac7b6a61c8c4ab0bc629a70607d965c1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00051.html#aac7b6a61c8c4ab0bc629a70607d965c1">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::hasBid</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s bid. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s bid is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aa6034d6cfe98adf7462ff3252bc9de81"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00051.html#aa6034d6cfe98adf7462ff3252bc9de81">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::hasBidSize</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s bid size </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s bid size is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ac4d1bb2a0c1426fd2c06291d78db2c93"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00051.html#ac4d1bb2a0c1426fd2c06291d78db2c93">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::hasMarketMakerName</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of the MarketMaker's name </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if MarketMaker's name is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="acaeadaf2bf2bfac44e85e58ba82c6062"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00051.html#acaeadaf2bf2bfac44e85e58ba82c6062">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::hasMarketSource</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s <a class="el" href="a00052.html" title="Mm::MarketSource is an enumeration specifying Market Source.">MarketSource</a> </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s <a class="el" href="a00052.html" title="Mm::MarketSource is an enumeration specifying Market Source.">MarketSource</a> is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="af676cc6e9ae1cfaa86621334d6ea843c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00051.html#af676cc6e9ae1cfaa86621334d6ea843c">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::hasPriceQualifier</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s price qualifier </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s price qualifier is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="af434b8fc55c73d4e5448532918637c82"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00051.html#af434b8fc55c73d4e5448532918637c82">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::hasQuoteTime</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s quote time </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if <a class="el" href="a00051.html" title="Mm::MarketMakerQuote specifies an entry of MarketMakerList.">MarketMakerQuote</a>'s quote time is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a0dcde1dfaed7887e03e0804b58bf50bb"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::operator const char * </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Operator const char* overload. </p>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
     <tr><td class="paramname">OmmMemoryExhaustionException</td><td>if app runs out of memory </td></tr>
@@ -262,321 +754,27 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>ConsumerService</b><
 
 </div>
 </div>
-<a class="anchor" id="a2e103887adf400fdbbeec5ac2507d6b1"></a>
+<a class="anchor" id="a6747e7f41e1ff4db5fe08215acbc5cba"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00051.html#a4027bf11901d63b99511bac7cd83eeb7">thomsonreuters::eoa::domain::marketprice::Mp::ReqSpec::ReqSpec</a> </td>
+          <td class="memname">const <a class="el" href="a00089.html">foundation::EoaString</a>&amp; <a class="el" href="a00051.html#a6747e7f41e1ff4db5fe08215acbc5cba">thomsonreuters::eoa::domain::marketmaker::Mm::MarketMakerQuote::toString</a> </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="a00051.html">ReqSpec</a> &amp;&#160;</td>
-          <td class="paramname"><em>other</em></td><td>)</td>
-          <td></td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Copy Constructor. </p>
+<p>Returns a string representation of the class instance. </p>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
     <tr><td class="paramname">OmmMemoryExhaustionException</td><td>if app runs out of memory </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">other</td><td>object to copy from </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a class="anchor" id="a1dc122ea8b4701832acb4676f5cf1f26"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="a00051.html#a4027bf11901d63b99511bac7cd83eeb7">thomsonreuters::eoa::domain::marketprice::Mp::ReqSpec::ReqSpec</a> </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="a00051.html">ReqSpec</a> &amp;&amp;&#160;</td>
-          <td class="paramname"><em>other</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Move Constructor. </p>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">other</td><td>object to move from </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a class="anchor" id="a092f3293a1daecbbd276f01051cdf71e"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="a00051.html#a4027bf11901d63b99511bac7cd83eeb7">thomsonreuters::eoa::domain::marketprice::Mp::ReqSpec::ReqSpec</a> </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="a00068.html">foundation::EoaString</a> &amp;&#160;</td>
-          <td class="paramname"><em>name</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Constructs <a class="el" href="a00051.html" title="Mp::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>. </p>
-<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
-  <table class="exception">
-    <tr><td class="paramname">OmmMemoryExhaustionException</td><td>if app runs out of memory </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>specifies an item name. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a class="anchor" id="a4f1f51bef92a889debed82b4929dd3da"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual <a class="el" href="a00051.html#a4f1f51bef92a889debed82b4929dd3da">thomsonreuters::eoa::domain::marketprice::Mp::ReqSpec::~ReqSpec</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td><code> [virtual]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Destructor. </p>
-
-</div>
-</div>
-<hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="a07412520af4099a6930b9def8895c3dd"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="a00051.html">ReqSpec</a>&amp; <a class="el" href="a00051.html#a07412520af4099a6930b9def8895c3dd">thomsonreuters::eoa::domain::marketprice::Mp::ReqSpec::clear</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Clears the <a class="el" href="a00051.html" title="Mp::ReqSpec is used to specify item&#39;s attributes.">ReqSpec</a>. </p>
-<dl class="section remark"><dt>Remarks:</dt><dd>Invoking <a class="el" href="a00051.html#a07412520af4099a6930b9def8895c3dd">clear()</a> method clears all the values and resets all the defaults </dd></dl>
-<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a45cfbe3ce0916822588c93f7c4cd8cc6"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="a00051.html">ReqSpec</a>&amp; <a class="el" href="a00051.html#a45cfbe3ce0916822588c93f7c4cd8cc6">thomsonreuters::eoa::domain::marketprice::Mp::ReqSpec::conflatedInUpdates</a> </td>
-          <td>(</td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>conflatedInUpdates</em> = <code>false</code></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Specifies conflated in updates. </p>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">conflatedInUpdates</td><td>represents conflated in updates. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="af643289e74ca12aaa47295fc93a8487d"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="a00051.html">ReqSpec</a>&amp; <a class="el" href="a00051.html#af643289e74ca12aaa47295fc93a8487d">thomsonreuters::eoa::domain::marketprice::Mp::ReqSpec::name</a> </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="a00068.html">foundation::EoaString</a> &amp;&#160;</td>
-          <td class="paramname"><em>name</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Specifies item name. </p>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>represents item name </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a690d80be9ad1763bd531c9ac14daabfa"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="a00051.html">ReqSpec</a>&amp; <a class="el" href="a00051.html#a690d80be9ad1763bd531c9ac14daabfa">thomsonreuters::eoa::domain::marketprice::Mp::ReqSpec::nameType</a> </td>
-          <td>(</td>
-          <td class="paramtype">foundation::UInt8&#160;</td>
-          <td class="paramname"><em>nameType</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Specifies name type. </p>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">nameType</td><td>represents name type </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a6dde72aeb620c2cd5f9e5ef89f66535e"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="a00051.html">ReqSpec</a>&amp; thomsonreuters::eoa::domain::marketprice::Mp::ReqSpec::operator= </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="a00051.html">ReqSpec</a> &amp;&#160;</td>
-          <td class="paramname"><em>other</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Assignment operator. </p>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">other</td><td>object to copy from </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="af829822a67432fe76fd8413748242981"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="a00051.html">ReqSpec</a>&amp; <a class="el" href="a00051.html#af829822a67432fe76fd8413748242981">thomsonreuters::eoa::domain::marketprice::Mp::ReqSpec::priority</a> </td>
-          <td>(</td>
-          <td class="paramtype">foundation::UInt8&#160;</td>
-          <td class="paramname"><em>priorityClass</em> = <code>1</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">foundation::UInt16&#160;</td>
-          <td class="paramname"><em>priorityCount</em> = <code>1</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Specifies item priority. </p>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">priorityClass</td><td>represents items's priority class. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">priorityCount</td><td>represents items's priority count. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a4d84c88e5dd11d9f448659db01cbe405"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="a00051.html">ReqSpec</a>&amp; <a class="el" href="a00051.html#a4d84c88e5dd11d9f448659db01cbe405">thomsonreuters::eoa::domain::marketprice::Mp::ReqSpec::privateStream</a> </td>
-          <td>(</td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>privateStream</em> = <code>false</code></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Specifies private stream. </p>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">privateStream</td><td>represents private stream. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="ae052081d707d56465ef90e4a6fccd4a5"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="a00051.html">ReqSpec</a>&amp; <a class="el" href="a00051.html#ae052081d707d56465ef90e4a6fccd4a5">thomsonreuters::eoa::domain::marketprice::Mp::ReqSpec::qos</a> </td>
-          <td>(</td>
-          <td class="paramtype">foundation::Int32&#160;</td>
-          <td class="paramname"><em>timeliness</em> = <code><a class="el" href="a00051.html#a5eff98626fc55e76cd7453bc2b0f7df9aee3de7899a5737603a7a4af8fcac1b48">BestTimelinessEnum</a></code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">foundation::Int32&#160;</td>
-          <td class="paramname"><em>rate</em> = <code><a class="el" href="a00051.html#ace60c6508a664e4b9a680035fad1d741ab01d9d66d03b7b1077fb31226c00d578">BestRateEnum</a></code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Specifies <a class="el" href="a00048.html" title="Mp::Qos represents Quality Of Service information in MarkePrice.">Qos</a>. </p>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">timeliness</td><td>represents <a class="el" href="a00048.html" title="Mp::Qos represents Quality Of Service information in MarkePrice.">Qos</a> timeliness. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">rate</td><td>represents <a class="el" href="a00048.html" title="Mp::Qos represents Quality Of Service information in MarkePrice.">Qos</a> rate. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd>string representation of the class instance </dd></dl>
 
 </div>
 </div>
@@ -597,7 +795,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>ConsumerService</b><
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Feb 1 2016</td>
+			<td><p class="smallfont">Mon Feb 29 2016</td>
           </tr>
         </table>
         </td>

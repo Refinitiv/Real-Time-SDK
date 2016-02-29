@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EOA: thomsonreuters::eoa::foundation::TagType Class Reference</title>
+<title>EOA: thomsonreuters::eoa::foundation::Leaf Class Reference</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -108,25 +108,466 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li class="navelem"><b>thomsonreuters</b>      </li>
       <li class="navelem"><b>eoa</b>      </li>
       <li class="navelem"><b>foundation</b>      </li>
-      <li class="navelem"><a class="el" href="a00092.html">TagType</a>      </li>
+      <li class="navelem"><a class="el" href="a00092.html">Leaf</a>      </li>
     </ul>
   </div>
 </div>
 <div class="header">
   <div class="headertitle">
-<div class="title">thomsonreuters::eoa::foundation::TagType Class Reference</div>  </div>
+<div class="title">thomsonreuters::eoa::foundation::Leaf Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="a00092.html" title="TagType class provides enumeration representing tag types.">TagType</a> class provides enumeration representing tag types.  
+<p><a class="el" href="a00092.html" title="Leaf class represents all OMM simple types.">Leaf</a> class represents all OMM simple types.  
  <a href="a00092.html#details">More...</a></p>
-<hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p><a class="el" href="a00092.html" title="TagType class provides enumeration representing tag types.">TagType</a> combines OMM container data type and its key data type.</p>
-<dl class="section remark"><dt>Remarks:</dt><dd>All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free</a>.</dd></dl>
-<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00093.html" title="TagTypeName class converts TagType enumeration into a string with its name.">TagTypeName</a>, <a class="el" href="a00072.html" title="Node class represents all OMM container types.">Node</a>, <a class="el" href="a00071.html" title="Leaf class represents all OMM simple types.">Leaf</a> </dd></dl>
+<div class="dynheader">
+Inheritance diagram for thomsonreuters::eoa::foundation::Leaf:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="a00092.png" usemap="#thomsonreuters::eoa::foundation::Leaf_map" alt=""/>
+  <map id="thomsonreuters::eoa::foundation::Leaf_map" name="thomsonreuters::eoa::foundation::Leaf_map">
+<area href="a00078.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes..." alt="thomsonreuters::eoa::foundation::Component" shape="rect" coords="0,0,259,24"/>
+</map>
+ </div></div>
 
-<p>Definition at line <a class="el" href="a00131_source.html#l00020">20</a> of file <a class="el" href="a00131_source.html">TagType.h</a>.</p>
-</div></div><!-- contents -->
+<p><a href="a00239.html">List of all members.</a></p>
+<table class="memberdecls">
+<tr><td colspan="2"><h2><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Accessors</div></td></tr>
+<tr class="memitem:ac061634950441985534068883426f106"><td class="memItemLeft" align="right" valign="top">virtual Int64&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00092.html#ac061634950441985534068883426f106">getInt</a> () const =0</td></tr>
+<tr class="memitem:a5e0e8d4a5b27fa785ddd980fc9bfa794"><td class="memItemLeft" align="right" valign="top">virtual UInt64&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00092.html#a5e0e8d4a5b27fa785ddd980fc9bfa794">getUInt</a> () const =0</td></tr>
+<tr class="memitem:a194faf0b95f47da41501fcb6b5b39192"><td class="memItemLeft" align="right" valign="top">virtual const <a class="el" href="a00103.html">OmmReal</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00092.html#a194faf0b95f47da41501fcb6b5b39192">getReal</a> () const =0</td></tr>
+<tr class="memitem:af5ec45718e630293d2ce9aff29de8dd0"><td class="memItemLeft" align="right" valign="top">virtual float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00092.html#af5ec45718e630293d2ce9aff29de8dd0">getFloat</a> () const =0</td></tr>
+<tr class="memitem:a375354a75e18ec805eab461f0b6b1555"><td class="memItemLeft" align="right" valign="top">virtual double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00092.html#a375354a75e18ec805eab461f0b6b1555">getDouble</a> () const =0</td></tr>
+<tr class="memitem:ac29904dc58440f99fe45d219c1ddb99b"><td class="memItemLeft" align="right" valign="top">virtual const <a class="el" href="a00095.html">OmmDate</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00092.html#ac29904dc58440f99fe45d219c1ddb99b">getDate</a> () const =0</td></tr>
+<tr class="memitem:a084e48fb34c61f4737323ce3637b14d5"><td class="memItemLeft" align="right" valign="top">virtual const <a class="el" href="a00105.html">OmmTime</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00092.html#a084e48fb34c61f4737323ce3637b14d5">getTime</a> () const =0</td></tr>
+<tr class="memitem:ae3a935ca6c61708f35ff7940444113ad"><td class="memItemLeft" align="right" valign="top">virtual const <a class="el" href="a00096.html">OmmDateTime</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00092.html#ae3a935ca6c61708f35ff7940444113ad">getDateTime</a> () const =0</td></tr>
+<tr class="memitem:a4f3847b69dde117d353c68597738106d"><td class="memItemLeft" align="right" valign="top">virtual const <a class="el" href="a00102.html">OmmQos</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00092.html#a4f3847b69dde117d353c68597738106d">getQos</a> () const =0</td></tr>
+<tr class="memitem:a2f15ad4c905797f2e52b919782c14401"><td class="memItemLeft" align="right" valign="top">virtual const <a class="el" href="a00104.html">OmmState</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00092.html#a2f15ad4c905797f2e52b919782c14401">getState</a> () const =0</td></tr>
+<tr class="memitem:a03399835a8f57ce4098e588fd1255bd5"><td class="memItemLeft" align="right" valign="top">virtual UInt16&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00092.html#a03399835a8f57ce4098e588fd1255bd5">getEnum</a> () const =0</td></tr>
+<tr class="memitem:afbaacb35b3224ae55bc0722fd049769e"><td class="memItemLeft" align="right" valign="top">virtual const <a class="el" href="a00087.html">EoaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00092.html#afbaacb35b3224ae55bc0722fd049769e">getBuffer</a> () const =0</td></tr>
+<tr class="memitem:afcbf3f90df592d8b7a9b35f668feda7e"><td class="memItemLeft" align="right" valign="top">virtual const <a class="el" href="a00089.html">EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00092.html#afcbf3f90df592d8b7a9b35f668feda7e">getAscii</a> () const =0</td></tr>
+<tr class="memitem:a2c2eb559bec8e8965bb818d1271480d2"><td class="memItemLeft" align="right" valign="top">virtual const <a class="el" href="a00087.html">EoaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00092.html#a2c2eb559bec8e8965bb818d1271480d2">getUtf8</a> () const =0</td></tr>
+<tr class="memitem:a1a983d507be7137df81ac695ca85c6be"><td class="memItemLeft" align="right" valign="top">virtual const <a class="el" href="a00110.html">RmtesBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00092.html#a1a983d507be7137df81ac695ca85c6be">getRmtes</a> () const =0</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
+<tr class="memitem:aa91234bda8caffeedac601b6b5427e70"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00092.html#aa91234bda8caffeedac601b6b5427e70">~Leaf</a> ()</td></tr>
+</table>
+<hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
+<div class="textblock"><dl class="section remark"><dt>Remarks:</dt><dd>All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free</a>.</dd></dl>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00078.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a>, <a class="el" href="a00112.html" title="Tag class represents Component name or id.">Tag</a>, <a class="el" href="a00103.html" title="OmmReal represents Real number in Omm.">OmmReal</a>, <a class="el" href="a00095.html" title="OmmDate represents Date info in Omm.">OmmDate</a>, <a class="el" href="a00105.html" title="OmmTime represents Time info in Omm.">OmmTime</a>, <a class="el" href="a00096.html" title="OmmDateTime represents DateTime info in Omm.">OmmDateTime</a>, <a class="el" href="a00102.html">OmmQos</a>, <a class="el" href="a00104.html" title="OmmState represents State information in Omm.">OmmState</a>, <a class="el" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>, <a class="el" href="a00087.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a>, <a class="el" href="a00110.html" title="RmtesBuffer represents RMTES data.">RmtesBuffer</a>, <a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a>, <a class="el" href="a00100.html" title="OmmMemoryExhaustionException represents out of memory exceptions.">OmmMemoryExhaustionException</a> </dd></dl>
+
+<p>Definition at line <a class="el" href="a00134_source.html#l00050">50</a> of file <a class="el" href="a00134_source.html">Leaf.h</a>.</p>
+</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="aa91234bda8caffeedac601b6b5427e70"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual <a class="el" href="a00092.html#aa91234bda8caffeedac601b6b5427e70">thomsonreuters::eoa::foundation::Leaf::~Leaf</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td><code> [virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Destructor. </p>
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="afcbf3f90df592d8b7a9b35f668feda7e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual const <a class="el" href="a00089.html">EoaString</a>&amp; <a class="el" href="a00092.html#afcbf3f90df592d8b7a9b35f668feda7e">thomsonreuters::eoa::foundation::Leaf::getAscii</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the Ascii string simple data type of this <a class="el" href="a00092.html" title="Leaf class represents all OMM simple types.">Leaf</a>. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not Ascii </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not present </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is blank </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00089.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="afbaacb35b3224ae55bc0722fd049769e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual const <a class="el" href="a00087.html">EoaBuffer</a>&amp; <a class="el" href="a00092.html#afbaacb35b3224ae55bc0722fd049769e">thomsonreuters::eoa::foundation::Leaf::getBuffer</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the Buffer simple data type of this <a class="el" href="a00092.html" title="Leaf class represents all OMM simple types.">Leaf</a>. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not Buffer </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not present </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is blank </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00087.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ac29904dc58440f99fe45d219c1ddb99b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual const <a class="el" href="a00095.html">OmmDate</a>&amp; <a class="el" href="a00092.html#ac29904dc58440f99fe45d219c1ddb99b">thomsonreuters::eoa::foundation::Leaf::getDate</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the <a class="el" href="a00095.html" title="OmmDate represents Date info in Omm.">OmmDate</a> simple data type of this <a class="el" href="a00092.html" title="Leaf class represents all OMM simple types.">Leaf</a>. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not Date </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not present </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is blank </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00095.html" title="OmmDate represents Date info in Omm.">OmmDate</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ae3a935ca6c61708f35ff7940444113ad"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual const <a class="el" href="a00096.html">OmmDateTime</a>&amp; <a class="el" href="a00092.html#ae3a935ca6c61708f35ff7940444113ad">thomsonreuters::eoa::foundation::Leaf::getDateTime</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the <a class="el" href="a00096.html" title="OmmDateTime represents DateTime info in Omm.">OmmDateTime</a> simple data type of this <a class="el" href="a00092.html" title="Leaf class represents all OMM simple types.">Leaf</a>. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not DateTime </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not present </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is blank </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00096.html" title="OmmDateTime represents DateTime info in Omm.">OmmDateTime</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a375354a75e18ec805eab461f0b6b1555"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual double <a class="el" href="a00092.html#a375354a75e18ec805eab461f0b6b1555">thomsonreuters::eoa::foundation::Leaf::getDouble</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the double simple data type of this <a class="el" href="a00092.html" title="Leaf class represents all OMM simple types.">Leaf</a>. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not double </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not present </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is blank </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>double </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a03399835a8f57ce4098e588fd1255bd5"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual UInt16 <a class="el" href="a00092.html#a03399835a8f57ce4098e588fd1255bd5">thomsonreuters::eoa::foundation::Leaf::getEnum</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the enumeration simple data type of this <a class="el" href="a00092.html" title="Leaf class represents all OMM simple types.">Leaf</a>. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not Enum </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not present </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is blank </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>UInt16 </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="af5ec45718e630293d2ce9aff29de8dd0"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual float <a class="el" href="a00092.html#af5ec45718e630293d2ce9aff29de8dd0">thomsonreuters::eoa::foundation::Leaf::getFloat</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the float simple data type of this <a class="el" href="a00092.html" title="Leaf class represents all OMM simple types.">Leaf</a>. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not Float </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not present </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is blank </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>Float </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ac061634950441985534068883426f106"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual Int64 <a class="el" href="a00092.html#ac061634950441985534068883426f106">thomsonreuters::eoa::foundation::Leaf::getInt</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the Int simple data type of this <a class="el" href="a00092.html" title="Leaf class represents all OMM simple types.">Leaf</a>. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not Int </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not present </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is blank </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>Int64 </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a4f3847b69dde117d353c68597738106d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual const <a class="el" href="a00102.html">OmmQos</a>&amp; <a class="el" href="a00092.html#a4f3847b69dde117d353c68597738106d">thomsonreuters::eoa::foundation::Leaf::getQos</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the <a class="el" href="a00102.html">OmmQos</a> simple data type of this <a class="el" href="a00092.html" title="Leaf class represents all OMM simple types.">Leaf</a>. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not <a class="el" href="a00107.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not present </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is blank </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00102.html">OmmQos</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a194faf0b95f47da41501fcb6b5b39192"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual const <a class="el" href="a00103.html">OmmReal</a>&amp; <a class="el" href="a00092.html#a194faf0b95f47da41501fcb6b5b39192">thomsonreuters::eoa::foundation::Leaf::getReal</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the <a class="el" href="a00103.html" title="OmmReal represents Real number in Omm.">OmmReal</a> simple data type of this <a class="el" href="a00092.html" title="Leaf class represents all OMM simple types.">Leaf</a>. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not Real </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not present </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is blank </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00103.html" title="OmmReal represents Real number in Omm.">OmmReal</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a1a983d507be7137df81ac695ca85c6be"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual const <a class="el" href="a00110.html">RmtesBuffer</a>&amp; <a class="el" href="a00092.html#a1a983d507be7137df81ac695ca85c6be">thomsonreuters::eoa::foundation::Leaf::getRmtes</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the Rmtes simple data type of this <a class="el" href="a00092.html" title="Leaf class represents all OMM simple types.">Leaf</a>. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not Rmtes </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not present </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is blank </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00110.html" title="RmtesBuffer represents RMTES data.">RmtesBuffer</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a2f15ad4c905797f2e52b919782c14401"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual const <a class="el" href="a00104.html">OmmState</a>&amp; <a class="el" href="a00092.html#a2f15ad4c905797f2e52b919782c14401">thomsonreuters::eoa::foundation::Leaf::getState</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the <a class="el" href="a00104.html" title="OmmState represents State information in Omm.">OmmState</a> simple data type of this <a class="el" href="a00092.html" title="Leaf class represents all OMM simple types.">Leaf</a>. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not State </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not present </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is blank </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00104.html" title="OmmState represents State information in Omm.">OmmState</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a084e48fb34c61f4737323ce3637b14d5"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual const <a class="el" href="a00105.html">OmmTime</a>&amp; <a class="el" href="a00092.html#a084e48fb34c61f4737323ce3637b14d5">thomsonreuters::eoa::foundation::Leaf::getTime</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the <a class="el" href="a00105.html" title="OmmTime represents Time info in Omm.">OmmTime</a> simple data type of this <a class="el" href="a00092.html" title="Leaf class represents all OMM simple types.">Leaf</a>. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not Time </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not present </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is blank </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00105.html" title="OmmTime represents Time info in Omm.">OmmTime</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a5e0e8d4a5b27fa785ddd980fc9bfa794"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual UInt64 <a class="el" href="a00092.html#a5e0e8d4a5b27fa785ddd980fc9bfa794">thomsonreuters::eoa::foundation::Leaf::getUInt</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the UInt simple data type of this <a class="el" href="a00092.html" title="Leaf class represents all OMM simple types.">Leaf</a>. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not UInt </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not present </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is blank </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>UInt64 </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a2c2eb559bec8e8965bb818d1271480d2"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual const <a class="el" href="a00087.html">EoaBuffer</a>&amp; <a class="el" href="a00092.html#a2c2eb559bec8e8965bb818d1271480d2">thomsonreuters::eoa::foundation::Leaf::getUtf8</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the Utf8 simple data type of this <a class="el" href="a00092.html" title="Leaf class represents all OMM simple types.">Leaf</a>. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not Utf8 </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is not present </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00099.html" title="OmmInvalidUsageException is thrown when application violates usage of EOA interfaces.">OmmInvalidUsageException</a></td><td>if contained data is blank </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00087.html" title="EoaBuffer represents a general use binary buffer.">EoaBuffer</a>; </dd></dl>
+
+</div>
+</div>
+</div><!-- contents -->
 
 <hr class="footer"/><address class="footer"><small>
     <table cellSpacing="0" cellPadding="0" width="100%" border="0">
@@ -143,7 +584,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Feb 1 2016</td>
+			<td><p class="smallfont">Mon Feb 29 2016</td>
           </tr>
         </table>
         </td>

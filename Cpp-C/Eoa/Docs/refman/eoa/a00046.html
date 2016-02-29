@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EOA: thomsonreuters::eoa::domain::marketPrice::Mp::ConsumerItemClient Class Reference</title>
+<title>EOA: thomsonreuters::eoa::domain::marketmaker::Mm::ConsumerService Class Reference</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -108,25 +108,617 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li class="navelem"><b>thomsonreuters</b>      </li>
       <li class="navelem"><b>eoa</b>      </li>
       <li class="navelem"><b>domain</b>      </li>
-      <li class="navelem"><b>marketPrice</b>      </li>
-      <li class="navelem"><b>Mp</b>      </li>
-      <li class="navelem"><a class="el" href="a00046.html">ConsumerItemClient</a>      </li>
+      <li class="navelem"><b>marketmaker</b>      </li>
+      <li class="navelem"><a class="el" href="a00043.html">Mm</a>      </li>
+      <li class="navelem"><a class="el" href="a00046.html">ConsumerService</a>      </li>
     </ul>
   </div>
 </div>
 <div class="header">
   <div class="headertitle">
-<div class="title">thomsonreuters::eoa::domain::marketPrice::Mp::ConsumerItemClient Class Reference</div>  </div>
+<div class="title">thomsonreuters::eoa::domain::marketmaker::Mm::ConsumerService Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="a00046.html" title="Mp::ConsumerItemClient class provides callback interfaces notifying application about changes to regi...">Mp::ConsumerItemClient</a> class provides callback interfaces notifying application about changes to registered items.  
+<p><a class="el" href="a00046.html" title="Mm::ConsumerService represents a MarketMaker service provided by the platform.">Mm::ConsumerService</a> represents a MarketMaker service provided by the platform.  
  <a href="a00046.html#details">More...</a></p>
+
+<p><a href="a00205.html">List of all members.</a></p>
+<table class="memberdecls">
+<tr><td colspan="2"><h2><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Constructor</div></td></tr>
+<tr class="memitem:aa3a40b00bb2dcb076a51d5b94d9d06d3"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00046.html#aa3a40b00bb2dcb076a51d5b94d9d06d3">ConsumerService</a> (const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;serviceName)</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
+<tr class="memitem:aa13db9f15cedaa987ab84e49e8639846"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00046.html#aa13db9f15cedaa987ab84e49e8639846">~ConsumerService</a> ()</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Operations</div></td></tr>
+<tr class="memitem:aefd7c2cd2584945d1525495859e07c26"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00044.html">ConsumerItem</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00046.html#aefd7c2cd2584945d1525495859e07c26">subscribe</a> (const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;itemName, <a class="el" href="a00045.html">ConsumerItemClient</a> &amp;consumerItemClient, void *closure=0)</td></tr>
+<tr class="memitem:af8bcaa71e01e7474f001590c5a38dd96"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00044.html">ConsumerItem</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00046.html#af8bcaa71e01e7474f001590c5a38dd96">subscribe</a> (const <a class="el" href="a00058.html">ReqSpec</a> &amp;itemSpec, <a class="el" href="a00045.html">ConsumerItemClient</a> &amp;consumerItemClient, void *closure=0)</td></tr>
+<tr class="memitem:aad425fe52e748b90ebc3461b983833ee"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00044.html">ConsumerItem</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00046.html#aad425fe52e748b90ebc3461b983833ee">subscribe</a> (const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;itemName, std::function&lt; void(const <a class="el" href="a00044.html">ConsumerItem</a> &amp;)&gt; callBackFunc)</td></tr>
+<tr class="memitem:a63083270ab3036e01c0adf587ebe1ad1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00044.html">ConsumerItem</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00046.html#a63083270ab3036e01c0adf587ebe1ad1">subscribe</a> (const <a class="el" href="a00058.html">ReqSpec</a> &amp;itemSpec, std::function&lt; void(const <a class="el" href="a00044.html">ConsumerItem</a> &amp;)&gt; callBackFunc)</td></tr>
+<tr class="memitem:a3baf2bc901040c56ce3caf64514ed772"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00044.html">ConsumerItem</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00046.html#a3baf2bc901040c56ce3caf64514ed772">subscribe</a> (const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;itemName)</td></tr>
+<tr class="memitem:a3f081e0453d5582c32ddd8923bb25c67"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00044.html">ConsumerItem</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00046.html#a3f081e0453d5582c32ddd8923bb25c67">subscribe</a> (const <a class="el" href="a00058.html">ReqSpec</a> &amp;itemSpec)</td></tr>
+<tr class="memitem:aec76b5fc1ae283a9afc099bf44594a1c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00044.html">ConsumerItem</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00046.html#aec76b5fc1ae283a9afc099bf44594a1c">snap</a> (const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;itemName, <a class="el" href="a00045.html">ConsumerItemClient</a> &amp;consumerItemClient, void *closure=0)</td></tr>
+<tr class="memitem:af3288e8ac0a22f7fef6faa116cb61658"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00044.html">ConsumerItem</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00046.html#af3288e8ac0a22f7fef6faa116cb61658">snap</a> (const <a class="el" href="a00058.html">ReqSpec</a> &amp;itemSpec, <a class="el" href="a00045.html">ConsumerItemClient</a> &amp;consumerItemClient, void *closure=0)</td></tr>
+<tr class="memitem:a8754968ba05eb78f623c22fade811a9c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00044.html">ConsumerItem</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00046.html#a8754968ba05eb78f623c22fade811a9c">snap</a> (const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;itemName, std::function&lt; void(const <a class="el" href="a00044.html">ConsumerItem</a> &amp;)&gt; callBackFunc)</td></tr>
+<tr class="memitem:a640d76b5f146db432c3236048899b520"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00044.html">ConsumerItem</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00046.html#a640d76b5f146db432c3236048899b520">snap</a> (const <a class="el" href="a00058.html">ReqSpec</a> &amp;itemSpec, std::function&lt; void(const <a class="el" href="a00044.html">ConsumerItem</a> &amp;)&gt; callBackFunc)</td></tr>
+<tr class="memitem:afe8e30b018df311e27a46ad2ed801645"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00044.html">ConsumerItem</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00046.html#afe8e30b018df311e27a46ad2ed801645">snap</a> (const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;itemName)</td></tr>
+<tr class="memitem:a5eae0085a6275cb6e86e0bf84db035b4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00044.html">ConsumerItem</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00046.html#a5eae0085a6275cb6e86e0bf84db035b4">snap</a> (const <a class="el" href="a00058.html">ReqSpec</a> &amp;itemSpec)</td></tr>
+<tr class="memitem:ae5506fb9c44ddf8acd8d3c7b0473feb0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00046.html#ae5506fb9c44ddf8acd8d3c7b0473feb0">refresh</a> (<a class="el" href="a00044.html">ConsumerItem</a> &amp;item)</td></tr>
+</table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p>Application needs to implement an application client class inheriting from <a class="el" href="a00046.html" title="Mp::ConsumerItemClient class provides callback interfaces notifying application about changes to regi...">Mp::ConsumerItemClient</a>. In its own class, application needs to override callback methods it desires to use for item processing. Default empty callback methods are implemented by <a class="el" href="a00046.html" title="Mp::ConsumerItemClient class provides callback interfaces notifying application about changes to regi...">Mp::ConsumerItemClient</a> class.</p>
-<dl class="section remark"><dt>Remarks:</dt><dd>Thread safety of all the methods in this class depends on the user's implementation.</dd></dl>
-<dl class="section see"><dt>See also:</dt><dd>Mp::ConsumerItem, Mp::RefreshInfo, Mp::UpdateInfo, Mp::StatusInfo </dd></dl>
-</div></div><!-- contents -->
+<div class="textblock"><p>Application creates <a class="el" href="a00046.html" title="Mm::ConsumerService represents a MarketMaker service provided by the platform.">Mm::ConsumerService</a> to register interest in items from a service.</p>
+<dl class="section remark"><dt>Remarks:</dt><dd>All methods in this class are <a class="el" href="a00001.html#ObjectLevelSafe">Object Level Thread Safe</a></dd></dl>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00044.html" title="Mm::ConsumerItem provides access to MarketMaker item&#39;s key, state and payload.">Mm::ConsumerItem</a>, <a class="el" href="a00058.html" title="Mm::ReqSpec is used to specify item&#39;s attributes.">Mm::ReqSpec</a>, <a class="el" href="a00045.html" title="Mm::ConsumerItemClient class provides callback interfaces notifying application about changes to regi...">Mm::ConsumerItemClient</a>, EoaString </dd></dl>
+
+<p>Definition at line <a class="el" href="a00119_source.html#l00806">806</a> of file <a class="el" href="a00119_source.html">Mm.h</a>.</p>
+</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="aa3a40b00bb2dcb076a51d5b94d9d06d3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00046.html#aa3a40b00bb2dcb076a51d5b94d9d06d3">thomsonreuters::eoa::domain::marketmaker::Mm::ConsumerService::ConsumerService</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td>
+          <td class="paramname"><em>serviceName</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Constructs <a class="el" href="a00046.html" title="Mm::ConsumerService represents a MarketMaker service provided by the platform.">ConsumerService</a>. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>specifies a known service name. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmMemoryExhaustionException</td><td>if app runs out of memory </td></tr>
+    <tr><td class="paramname">OmmInaccessibleLogFileException</td><td>if app runs out of memory </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="aa13db9f15cedaa987ab84e49e8639846"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual <a class="el" href="a00046.html#aa13db9f15cedaa987ab84e49e8639846">thomsonreuters::eoa::domain::marketmaker::Mm::ConsumerService::~ConsumerService</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td><code> [virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Destructor. </p>
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="ae5506fb9c44ddf8acd8d3c7b0473feb0"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="a00046.html#ae5506fb9c44ddf8acd8d3c7b0473feb0">thomsonreuters::eoa::domain::marketmaker::Mm::ConsumerService::refresh</a> </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="a00044.html">ConsumerItem</a> &amp;&#160;</td>
+          <td class="paramname"><em>item</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Request to "pull" item's data from EOA's internal cache to <a class="el" href="a00044.html" title="Mm::ConsumerItem provides access to MarketMaker item&#39;s key, state and payload.">ConsumerItem</a> owned by application </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">item</td><td><a class="el" href="a00044.html" title="Mm::ConsumerItem provides access to MarketMaker item&#39;s key, state and payload.">ConsumerItem</a> to be refreshed return void </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="aec76b5fc1ae283a9afc099bf44594a1c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00044.html">ConsumerItem</a> <a class="el" href="a00046.html#aec76b5fc1ae283a9afc099bf44594a1c">thomsonreuters::eoa::domain::marketmaker::Mm::ConsumerService::snap</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td>
+          <td class="paramname"><em>itemName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="a00045.html">ConsumerItemClient</a> &amp;&#160;</td>
+          <td class="paramname"><em>consumerItemClient</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>closure</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Request non streaming subscription. this is an asynchronous subscription request; e.g. this method does not wait for any response </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmMemoryExhaustionException</td><td>if app runs out of memory </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">itemName</td><td>identifies item by name (assumes all other request attributes are defaulted). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">consumerItemClient</td><td>specifies a client callback class </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">closure</td><td>specifies application assigned value for the item. The default value is NULL. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00044.html" title="Mm::ConsumerItem provides access to MarketMaker item&#39;s key, state and payload.">ConsumerItem</a> object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="af3288e8ac0a22f7fef6faa116cb61658"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00044.html">ConsumerItem</a> <a class="el" href="a00046.html#aec76b5fc1ae283a9afc099bf44594a1c">thomsonreuters::eoa::domain::marketmaker::Mm::ConsumerService::snap</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00058.html">ReqSpec</a> &amp;&#160;</td>
+          <td class="paramname"><em>itemSpec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="a00045.html">ConsumerItemClient</a> &amp;&#160;</td>
+          <td class="paramname"><em>consumerItemClient</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>closure</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Request non streaming subscription. this is an asynchronous subscription request; e.g. this method does not wait for any response </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmMemoryExhaustionException</td><td>if app runs out of memory </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">itemSpec</td><td>identifies item. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">consumerItemClient</td><td>specifies a client callback class </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">closure</td><td>specifies application assigned value for the item. The default value is NULL. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00044.html" title="Mm::ConsumerItem provides access to MarketMaker item&#39;s key, state and payload.">ConsumerItem</a> object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a8754968ba05eb78f623c22fade811a9c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00044.html">ConsumerItem</a> <a class="el" href="a00046.html#aec76b5fc1ae283a9afc099bf44594a1c">thomsonreuters::eoa::domain::marketmaker::Mm::ConsumerService::snap</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td>
+          <td class="paramname"><em>itemName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::function&lt; void(const <a class="el" href="a00044.html">ConsumerItem</a> &amp;)&gt;&#160;</td>
+          <td class="paramname"><em>callBackFunc</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Request non streaming subscription. this is an asynchronous subscription request; e.g. this method does not wait for any response </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmMemoryExhaustionException</td><td>if app runs out of memory </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">itemName</td><td>identifies item by name (assumes all other request attributes are defaulted). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">callBackFunc</td><td>specifies a lambda expression, a function, a function pointer or any kind of function object. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00044.html" title="Mm::ConsumerItem provides access to MarketMaker item&#39;s key, state and payload.">ConsumerItem</a> object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a640d76b5f146db432c3236048899b520"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00044.html">ConsumerItem</a> <a class="el" href="a00046.html#aec76b5fc1ae283a9afc099bf44594a1c">thomsonreuters::eoa::domain::marketmaker::Mm::ConsumerService::snap</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00058.html">ReqSpec</a> &amp;&#160;</td>
+          <td class="paramname"><em>itemSpec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::function&lt; void(const <a class="el" href="a00044.html">ConsumerItem</a> &amp;)&gt;&#160;</td>
+          <td class="paramname"><em>callBackFunc</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Request non streaming subscription. this is an asynchronous subscription request; e.g. this method does not wait for any response </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmMemoryExhaustionException</td><td>if app runs out of memory </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">itemSpec</td><td>identifies item. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">callBackFunc</td><td>specifies a lambda expression, a function, a function pointer or any kind of function object. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00044.html" title="Mm::ConsumerItem provides access to MarketMaker item&#39;s key, state and payload.">ConsumerItem</a> object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="afe8e30b018df311e27a46ad2ed801645"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00044.html">ConsumerItem</a> <a class="el" href="a00046.html#aec76b5fc1ae283a9afc099bf44594a1c">thomsonreuters::eoa::domain::marketmaker::Mm::ConsumerService::snap</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td>
+          <td class="paramname"><em>itemName</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Request non streaming subscription this is a synchronous subscription request; e.g. this method blocks till refresh complete is received </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmMemoryExhaustionException</td><td>if app runs out of memory </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">itemName</td><td>identifies item by name (assumes all other request attributes are defaulted). </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00044.html" title="Mm::ConsumerItem provides access to MarketMaker item&#39;s key, state and payload.">ConsumerItem</a> object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a5eae0085a6275cb6e86e0bf84db035b4"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00044.html">ConsumerItem</a> <a class="el" href="a00046.html#aec76b5fc1ae283a9afc099bf44594a1c">thomsonreuters::eoa::domain::marketmaker::Mm::ConsumerService::snap</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00058.html">ReqSpec</a> &amp;&#160;</td>
+          <td class="paramname"><em>itemSpec</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Request non streaming subscription this is a synchronous subscription request; e.g. this method blocks till refresh complete is received </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmMemoryExhaustionException</td><td>if app runs out of memory </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">itemSpec</td><td>identifies item. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00044.html" title="Mm::ConsumerItem provides access to MarketMaker item&#39;s key, state and payload.">ConsumerItem</a> object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aefd7c2cd2584945d1525495859e07c26"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00044.html">ConsumerItem</a> <a class="el" href="a00046.html#aefd7c2cd2584945d1525495859e07c26">thomsonreuters::eoa::domain::marketmaker::Mm::ConsumerService::subscribe</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td>
+          <td class="paramname"><em>itemName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="a00045.html">ConsumerItemClient</a> &amp;&#160;</td>
+          <td class="paramname"><em>consumerItemClient</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>closure</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Request streaming subscription. </p>
+<dl class="section remark"><dt>Remarks:</dt><dd>this is an asynchronous subscription request; e.g. this method does not wait for any response </dd></dl>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmMemoryExhaustionException</td><td>if app runs out of memory </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">itemName</td><td>identifies item by name (assumes all other request attributes are defaulted). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">consumerItemClient</td><td>specifies a client callback class </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">closure</td><td>specifies application assigned value for the item. The default value is NULL. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00044.html" title="Mm::ConsumerItem provides access to MarketMaker item&#39;s key, state and payload.">ConsumerItem</a> object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="af8bcaa71e01e7474f001590c5a38dd96"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00044.html">ConsumerItem</a> <a class="el" href="a00046.html#aefd7c2cd2584945d1525495859e07c26">thomsonreuters::eoa::domain::marketmaker::Mm::ConsumerService::subscribe</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00058.html">ReqSpec</a> &amp;&#160;</td>
+          <td class="paramname"><em>itemSpec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="a00045.html">ConsumerItemClient</a> &amp;&#160;</td>
+          <td class="paramname"><em>consumerItemClient</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>closure</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Request streaming subscription. </p>
+<dl class="section remark"><dt>Remarks:</dt><dd>this is an asynchronous subscription request; e.g. this method does not wait for any response </dd></dl>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmMemoryExhaustionException</td><td>if app runs out of memory </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">itemSpec</td><td>identifies item. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">consumerItemClient</td><td>specifies a client callback class </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">closure</td><td>specifies application assigned value for the item. The default value is NULL. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00044.html" title="Mm::ConsumerItem provides access to MarketMaker item&#39;s key, state and payload.">ConsumerItem</a> object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aad425fe52e748b90ebc3461b983833ee"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00044.html">ConsumerItem</a> <a class="el" href="a00046.html#aefd7c2cd2584945d1525495859e07c26">thomsonreuters::eoa::domain::marketmaker::Mm::ConsumerService::subscribe</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td>
+          <td class="paramname"><em>itemName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::function&lt; void(const <a class="el" href="a00044.html">ConsumerItem</a> &amp;)&gt;&#160;</td>
+          <td class="paramname"><em>callBackFunc</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Request streaming subscription. </p>
+<dl class="section remark"><dt>Remarks:</dt><dd>this is an asynchronous subscription request; e.g. this method does not wait for any response </dd></dl>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmMemoryExhaustionException</td><td>if app runs out of memory </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">itemName</td><td>identifies item by name (assumes all other request attributes are defaulted). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">callBackFunc</td><td>specifies a lambda expression, a function, a function pointer or any kind of function object. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00044.html" title="Mm::ConsumerItem provides access to MarketMaker item&#39;s key, state and payload.">ConsumerItem</a> object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a63083270ab3036e01c0adf587ebe1ad1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00044.html">ConsumerItem</a> <a class="el" href="a00046.html#aefd7c2cd2584945d1525495859e07c26">thomsonreuters::eoa::domain::marketmaker::Mm::ConsumerService::subscribe</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00058.html">ReqSpec</a> &amp;&#160;</td>
+          <td class="paramname"><em>itemSpec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::function&lt; void(const <a class="el" href="a00044.html">ConsumerItem</a> &amp;)&gt;&#160;</td>
+          <td class="paramname"><em>callBackFunc</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Request streaming subscription. </p>
+<dl class="section remark"><dt>Remarks:</dt><dd>this is an asynchronous subscription request; e.g. this method does not wait for any response </dd></dl>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmMemoryExhaustionException</td><td>if app runs out of memory </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">itemSpec</td><td>identifies item. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">callBackFunc</td><td>specifies a lambda expression, a function, a function pointer or any kind of function object. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00044.html" title="Mm::ConsumerItem provides access to MarketMaker item&#39;s key, state and payload.">ConsumerItem</a> object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a3baf2bc901040c56ce3caf64514ed772"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00044.html">ConsumerItem</a> <a class="el" href="a00046.html#aefd7c2cd2584945d1525495859e07c26">thomsonreuters::eoa::domain::marketmaker::Mm::ConsumerService::subscribe</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td>
+          <td class="paramname"><em>itemName</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Request streaming subscription. this is an asynchronous subscription request; e.g. this method does not wait for any response </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmMemoryExhaustionException</td><td>if app runs out of memory </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">itemName</td><td>identifies item by name (assumes all other request attributes are defaulted). </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00044.html" title="Mm::ConsumerItem provides access to MarketMaker item&#39;s key, state and payload.">ConsumerItem</a> object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a3f081e0453d5582c32ddd8923bb25c67"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00044.html">ConsumerItem</a> <a class="el" href="a00046.html#aefd7c2cd2584945d1525495859e07c26">thomsonreuters::eoa::domain::marketmaker::Mm::ConsumerService::subscribe</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00058.html">ReqSpec</a> &amp;&#160;</td>
+          <td class="paramname"><em>itemSpec</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Request streaming subscription. this is an asynchronous subscription request; e.g. this method does not wait for any response </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmMemoryExhaustionException</td><td>if app runs out of memory </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">itemSpec</td><td>identifies item. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00044.html" title="Mm::ConsumerItem provides access to MarketMaker item&#39;s key, state and payload.">ConsumerItem</a> object </dd></dl>
+
+</div>
+</div>
+</div><!-- contents -->
 
 <hr class="footer"/><address class="footer"><small>
     <table cellSpacing="0" cellPadding="0" width="100%" border="0">
@@ -143,7 +735,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Feb 1 2016</td>
+			<td><p class="smallfont">Mon Feb 29 2016</td>
           </tr>
         </table>
         </td>

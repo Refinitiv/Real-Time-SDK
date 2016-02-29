@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EOA: thomsonreuters::eoa::foundation::Component Class Reference</title>
+<title>EOA: thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo Class Reference</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -107,8 +107,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul>
       <li class="navelem"><b>thomsonreuters</b>      </li>
       <li class="navelem"><b>eoa</b>      </li>
-      <li class="navelem"><b>foundation</b>      </li>
-      <li class="navelem"><a class="el" href="a00057.html">Component</a>      </li>
+      <li class="navelem"><b>domain</b>      </li>
+      <li class="navelem"><b>marketmaker</b>      </li>
+      <li class="navelem"><a class="el" href="a00043.html">Mm</a>      </li>
+      <li class="navelem"><a class="el" href="a00057.html">RefreshInfo</a>      </li>
     </ul>
   </div>
 </div>
@@ -116,246 +118,630 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div class="summary">
 <a href="#friends">Friends</a>  </div>
   <div class="headertitle">
-<div class="title">thomsonreuters::eoa::foundation::Component Class Reference</div>  </div>
+<div class="title">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="a00057.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a> class is a parent abstract class defining common interfaces for <a class="el" href="a00072.html" title="Node class represents all OMM container types.">Node</a> and <a class="el" href="a00071.html" title="Leaf class represents all OMM simple types.">Leaf</a> classes.  
+<p><a class="el" href="a00057.html" title="Mm::RefreshInfo provides access to the information brought in by a MarketMaker refresh message...">Mm::RefreshInfo</a> provides access to the information brought in by a MarketMaker refresh message.  
  <a href="a00057.html#details">More...</a></p>
-<div class="dynheader">
-Inheritance diagram for thomsonreuters::eoa::foundation::Component:</div>
-<div class="dyncontent">
- <div class="center">
-  <img src="a00057.png" usemap="#thomsonreuters::eoa::foundation::Component_map" alt=""/>
-  <map id="thomsonreuters::eoa::foundation::Component_map" name="thomsonreuters::eoa::foundation::Component_map">
-<area href="a00071.html" title="Leaf class represents all OMM simple types." alt="thomsonreuters::eoa::foundation::Leaf" shape="rect" coords="0,56,259,80"/>
-<area href="a00072.html" title="Node class represents all OMM container types." alt="thomsonreuters::eoa::foundation::Node" shape="rect" coords="269,56,528,80"/>
-</map>
- </div></div>
 
-<p><a href="a00190.html">List of all members.</a></p>
+<p><a href="a00210.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Accessors</div></td></tr>
-<tr class="memitem:abcf3a47ab54be2503cb86b7c4f33aa34"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="a00058.html">ComponentType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#abcf3a47ab54be2503cb86b7c4f33aa34">getComponentType</a> () const =0  throw ()</td></tr>
-<tr class="memitem:ab738310173cec2f15c0b66278190ac58"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="a00064.html">DataType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#ab738310173cec2f15c0b66278190ac58">getDataType</a> () const =0  throw ()</td></tr>
-<tr class="memitem:a9833d1628f85d758dcefda22cc44c367"><td class="memItemLeft" align="right" valign="top">virtual const <a class="el" href="a00091.html">Tag</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a9833d1628f85d758dcefda22cc44c367">getTag</a> () const =0  throw ()</td></tr>
-<tr class="memitem:a7027ed4e6572e2a25af1dc606f9b1067"><td class="memItemLeft" align="right" valign="top">virtual UInt64&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a7027ed4e6572e2a25af1dc606f9b1067">getDepth</a> () const =0  throw ()</td></tr>
-<tr class="memitem:a56521dcbabebab4ed9bd24b5c1360d16"><td class="memItemLeft" align="right" valign="top">virtual const <a class="el" href="a00068.html">EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a56521dcbabebab4ed9bd24b5c1360d16">getValue</a> () const =0</td></tr>
-<tr class="memitem:afc46b1c5641ab401214c5601a5557e1a"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#afc46b1c5641ab401214c5601a5557e1a">isLocal</a> () const =0  throw ()</td></tr>
-<tr class="memitem:a508606908fa16f6047ef33d50ac04e9a"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a508606908fa16f6047ef33d50ac04e9a">isNonBlank</a> () const =0  throw ()</td></tr>
-<tr class="memitem:a50ff019a7189a7347084a38d72cc6b41"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a50ff019a7189a7347084a38d72cc6b41">isPresent</a> () const =0  throw ()</td></tr>
-<tr class="memitem:a6b34e48d1772563df6ced8bb9837587e"><td class="memItemLeft" align="right" valign="top">virtual const <a class="el" href="a00068.html">EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a6b34e48d1772563df6ced8bb9837587e">toString</a> () const =0</td></tr>
-<tr class="memitem:aaafc13b6096ede0792a99bf838d4e26a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#aaafc13b6096ede0792a99bf838d4e26a">operator const char *</a> () const </td></tr>
-<tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
-<tr class="memitem:a17d7bb568723a07af95878c5a0f0185f"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a17d7bb568723a07af95878c5a0f0185f">~Component</a> ()</td></tr>
+<tr class="memitem:ac45dbc40cf54a54df5e0f15e25c77fb8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#ac45dbc40cf54a54df5e0f15e25c77fb8">hasName</a> () const </td></tr>
+<tr class="memitem:a2c25647fccfc17333a2723d1ddb876f3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a2c25647fccfc17333a2723d1ddb876f3">hasNameType</a> () const </td></tr>
+<tr class="memitem:a495faf0a173b331de5549fd593027054"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a495faf0a173b331de5549fd593027054">hasServiceId</a> () const </td></tr>
+<tr class="memitem:a4d2cc45bb8a1467f2f48998646fe94c3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a4d2cc45bb8a1467f2f48998646fe94c3">hasServiceName</a> () const </td></tr>
+<tr class="memitem:af0a7aa61443d9a3c515436bcfe17292b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#af0a7aa61443d9a3c515436bcfe17292b">hasQos</a> () const </td></tr>
+<tr class="memitem:ac1dc045d662e3330d4e2e4a240308ece"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#ac1dc045d662e3330d4e2e4a240308ece">hasSeqNum</a> () const </td></tr>
+<tr class="memitem:a3ac64358488b0a4ac5bf1ba2bbdcf5e1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a3ac64358488b0a4ac5bf1ba2bbdcf5e1">hasPartNum</a> () const </td></tr>
+<tr class="memitem:a5ee13f7f29c248436ca3bf16425a20f4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a5ee13f7f29c248436ca3bf16425a20f4">hasPermissionData</a> () const </td></tr>
+<tr class="memitem:ae73b178809a74c23ade46383d020948b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#ae73b178809a74c23ade46383d020948b">hasPublisherId</a> () const </td></tr>
+<tr class="memitem:ab97a95e57bf5a845ca8992062b272cdd"><td class="memItemLeft" align="right" valign="top">foundation::UInt16&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#ab97a95e57bf5a845ca8992062b272cdd">getDomainType</a> () const </td></tr>
+<tr class="memitem:a74b9590f9d9adfc66f67a5be9550f4b3"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a74b9590f9d9adfc66f67a5be9550f4b3">getName</a> () const </td></tr>
+<tr class="memitem:a6bc2a195924cddced6a8fefd1deb5d94"><td class="memItemLeft" align="right" valign="top">foundation::UInt8&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a6bc2a195924cddced6a8fefd1deb5d94">getNameType</a> () const </td></tr>
+<tr class="memitem:a45064583b54caf1f6d92dcde97e09bae"><td class="memItemLeft" align="right" valign="top">foundation::UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a45064583b54caf1f6d92dcde97e09bae">getServiceId</a> () const </td></tr>
+<tr class="memitem:a468cd91a6958756d403deb24101c311b"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a468cd91a6958756d403deb24101c311b">getServiceName</a> () const </td></tr>
+<tr class="memitem:a33223acc0e26d7ff0fe30a3c31a5e057"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00049.html">MarketMakerList</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a33223acc0e26d7ff0fe30a3c31a5e057">getMarketMakerList</a> () const </td></tr>
+<tr class="memitem:af799b5fce63aecf8472ab5895774899c"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00059.html">State</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#af799b5fce63aecf8472ab5895774899c">getState</a> () const </td></tr>
+<tr class="memitem:aab4e4f226d48c66de024b25f90348d4e"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00056.html">Qos</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#aab4e4f226d48c66de024b25f90348d4e">getQos</a> () const </td></tr>
+<tr class="memitem:a957450dd0fb9b00ba42c3214ab6e609b"><td class="memItemLeft" align="right" valign="top">foundation::UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a957450dd0fb9b00ba42c3214ab6e609b">getSeqNum</a> () const </td></tr>
+<tr class="memitem:ac3e24065325c1d3c36d9264cab1ec121"><td class="memItemLeft" align="right" valign="top">foundation::UInt16&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#ac3e24065325c1d3c36d9264cab1ec121">getPartNum</a> () const </td></tr>
+<tr class="memitem:a901cb2374f20d9840d91454cb53d4541"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00087.html">foundation::EoaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a901cb2374f20d9840d91454cb53d4541">getItemGroup</a> () const </td></tr>
+<tr class="memitem:a2d14b3b3891d4cef78384042535c25f3"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00087.html">foundation::EoaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a2d14b3b3891d4cef78384042535c25f3">getPermissionData</a> () const </td></tr>
+<tr class="memitem:a6534b1ba45cf4f87679aa8ba048bb329"><td class="memItemLeft" align="right" valign="top">foundation::UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a6534b1ba45cf4f87679aa8ba048bb329">getPublisherIdUserId</a> () const </td></tr>
+<tr class="memitem:a49933717a1988a20d41779739a6b58bc"><td class="memItemLeft" align="right" valign="top">foundation::UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a49933717a1988a20d41779739a6b58bc">getPublisherIdUserAddress</a> () const </td></tr>
+<tr class="memitem:af8bd5869bcb5f1de30837a9de84407be"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#af8bd5869bcb5f1de30837a9de84407be">getSolicited</a> () const </td></tr>
+<tr class="memitem:a7fe0ee700fc8a19abfd42c4e6b77f2e2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a7fe0ee700fc8a19abfd42c4e6b77f2e2">getDoNotCache</a> () const </td></tr>
+<tr class="memitem:a1470b2505d680551111db6a9fe0b7e07"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a1470b2505d680551111db6a9fe0b7e07">getComplete</a> () const </td></tr>
+<tr class="memitem:a7bb718b18f0339a5257bf596a1be9934"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a7bb718b18f0339a5257bf596a1be9934">getClearCache</a> () const </td></tr>
+<tr class="memitem:a5b0f2c8045023a4c31992fc7c7229f3b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a5b0f2c8045023a4c31992fc7c7229f3b">getPrivateStream</a> () const </td></tr>
+<tr class="memitem:ad7f60d6b11dc9dd263046157fc86137b"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00089.html">foundation::EoaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#ad7f60d6b11dc9dd263046157fc86137b">toString</a> () const </td></tr>
+<tr class="memitem:a1eeae0712a2395909b2336f7d523e65c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a1eeae0712a2395909b2336f7d523e65c">operator const char *</a> () const </td></tr>
 <tr><td colspan="2"><h2><a name="friends"></a>
 Friends</h2></td></tr>
-<tr class="memitem:a7fff1a6a430420ba2e8a941b69d87fd2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7fff1a6a430420ba2e8a941b69d87fd2"></a>
-class&#160;</td><td class="memItemRight" valign="bottom"><b>CacheNode</b></td></tr>
-<tr class="memitem:a7172b718e1a9fa826587adbe6e35d17a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7172b718e1a9fa826587adbe6e35d17a"></a>
-class&#160;</td><td class="memItemRight" valign="bottom"><b>Decoder</b></td></tr>
-<tr class="memitem:ad957d9dfcc68b71c1963216d34e749d5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad957d9dfcc68b71c1963216d34e749d5"></a>
-class&#160;</td><td class="memItemRight" valign="bottom"><b>LeafImplDecoder</b></td></tr>
-<tr class="memitem:ae2bf1ea74da2676599cb0d7e0a09839b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae2bf1ea74da2676599cb0d7e0a09839b"></a>
-class&#160;</td><td class="memItemRight" valign="bottom"><b>NoComponentDecoder</b></td></tr>
-<tr class="memitem:a68de9445dc2cbe8f2765066f8dd00725"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a68de9445dc2cbe8f2765066f8dd00725"></a>
-class&#160;</td><td class="memItemRight" valign="bottom"><b>NodeImpl</b></td></tr>
-<tr class="memitem:a7ddd9a05ebf5746e2539502362f087aa"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7ddd9a05ebf5746e2539502362f087aa"></a>
-class&#160;</td><td class="memItemRight" valign="bottom"><b>NodeImplDecoder</b></td></tr>
-<tr class="memitem:a78fda54f6764198403c1794de089bfa9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a78fda54f6764198403c1794de089bfa9"></a>
-class&#160;</td><td class="memItemRight" valign="bottom"><b>NoLeafDecoder</b></td></tr>
-<tr class="memitem:ab98175d66b44ac435747040546576ac9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab98175d66b44ac435747040546576ac9"></a>
-class&#160;</td><td class="memItemRight" valign="bottom"><b>NoNodeDecoder</b></td></tr>
-<tr class="memitem:a89be8e039e17b1b46e44f822f0b9a7ea"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a89be8e039e17b1b46e44f822f0b9a7ea"></a>
-class&#160;</td><td class="memItemRight" valign="bottom"><b>RefreshInfoImpl</b></td></tr>
-<tr class="memitem:a74e071489a0c76bd9afb2533d9e6217f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a74e071489a0c76bd9afb2533d9e6217f"></a>
-class&#160;</td><td class="memItemRight" valign="bottom"><b>StatusInfoImpl</b></td></tr>
-<tr class="memitem:a001c8388df11a07bc6c3b8fba5a12088"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a001c8388df11a07bc6c3b8fba5a12088"></a>
-class&#160;</td><td class="memItemRight" valign="bottom"><b>UpdateInfoImpl</b></td></tr>
+<tr class="memitem:a198738706e2ebdcfc68628be7f6fbac0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a198738706e2ebdcfc68628be7f6fbac0"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>MmConsumerServiceImpl</b></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><dl class="section remark"><dt>Remarks:</dt><dd>All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free</a>.</dd></dl>
-<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00058.html" title="ComponentType class provides enumeration representing component types.">ComponentType</a>, <a class="el" href="a00064.html" title="DataType class provides enumeration representing Omm data types.">DataType</a>, <a class="el" href="a00072.html" title="Node class represents all OMM container types.">Node</a>, <a class="el" href="a00071.html" title="Leaf class represents all OMM simple types.">Leaf</a>, <a class="el" href="a00068.html" title="EoaString class is a container of a null terminated Ascii character string.">EoaString</a>, <a class="el" href="a00079.html" title="OmmMemoryExhaustionException represents out of memory exceptions.">OmmMemoryExhaustionException</a>, <a class="el" href="a00091.html" title="Tag class represents Component name or id.">Tag</a> </dd></dl>
+<div class="textblock"><p><a class="el" href="a00057.html" title="Mm::RefreshInfo provides access to the information brought in by a MarketMaker refresh message...">Mm::RefreshInfo</a> provides access to temporary item data valid only in the context of a callback method.</p>
+<dl class="section remark"><dt>Remarks:</dt><dd>All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free</a>.</dd></dl>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00059.html" title="Mm::State represents State information in MarketMaker domain.">Mm::State</a>, <a class="el" href="a00056.html" title="Mm::Qos represents Quality Of Service information in MarketMaker domain.">Mm::Qos</a>, <a class="el" href="a00049.html" title="Mm::MarketMakerList specifies MarketMaker domain payload.">Mm::MarketMakerList</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="a00101_source.html#l00039">39</a> of file <a class="el" href="a00101_source.html">Component.h</a>.</p>
-</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="a17d7bb568723a07af95878c5a0f0185f"></a>
+<p>Definition at line <a class="el" href="a00119_source.html#l00221">221</a> of file <a class="el" href="a00119_source.html">Mm.h</a>.</p>
+</div><hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="a7bb718b18f0339a5257bf596a1be9934"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual <a class="el" href="a00057.html#a17d7bb568723a07af95878c5a0f0185f">thomsonreuters::eoa::foundation::Component::~Component</a> </td>
+          <td class="memname">bool <a class="el" href="a00057.html#a7bb718b18f0339a5257bf596a1be9934">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::getClearCache</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td><code> [virtual]</code></td>
+          <td> const</td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Destructor. </p>
+<p>Returns ClearCache. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if cache needs to be cleared before applying this refresh; false otherwise </dd></dl>
 
 </div>
 </div>
-<hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="abcf3a47ab54be2503cb86b7c4f33aa34"></a>
+<a class="anchor" id="a1470b2505d680551111db6a9fe0b7e07"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual <a class="el" href="a00058.html">ComponentType</a> <a class="el" href="a00057.html#abcf3a47ab54be2503cb86b7c4f33aa34">thomsonreuters::eoa::foundation::Component::getComponentType</a> </td>
+          <td class="memname">bool <a class="el" href="a00057.html#a1470b2505d680551111db6a9fe0b7e07">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::getComplete</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td> const  throw ()<code> [pure virtual]</code></td>
+          <td> const</td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Returns the type of this component </p>
-<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00058.html" title="ComponentType class provides enumeration representing component types.">ComponentType</a> </dd></dl>
+<p>Returns Complete. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if this is the last part of the multi part refresh message </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="ab738310173cec2f15c0b66278190ac58"></a>
+<a class="anchor" id="ab97a95e57bf5a845ca8992062b272cdd"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual <a class="el" href="a00064.html">DataType</a> <a class="el" href="a00057.html#ab738310173cec2f15c0b66278190ac58">thomsonreuters::eoa::foundation::Component::getDataType</a> </td>
+          <td class="memname">foundation::UInt16 <a class="el" href="a00057.html#ab97a95e57bf5a845ca8992062b272cdd">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::getDomainType</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td> const  throw ()<code> [pure virtual]</code></td>
+          <td> const</td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Returns the <a class="el" href="a00064.html" title="DataType class provides enumeration representing Omm data types.">DataType</a> of data contained in this component </p>
-<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00064.html" title="DataType class provides enumeration representing Omm data types.">DataType</a> </dd></dl>
+<p>Returns the DomainType, which is the unique identifier of a domain. </p>
+<dl class="section return"><dt>Returns:</dt><dd>domain type value </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a7027ed4e6572e2a25af1dc606f9b1067"></a>
+<a class="anchor" id="a7fe0ee700fc8a19abfd42c4e6b77f2e2"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual UInt64 <a class="el" href="a00057.html#a7027ed4e6572e2a25af1dc606f9b1067">thomsonreuters::eoa::foundation::Component::getDepth</a> </td>
+          <td class="memname">bool <a class="el" href="a00057.html#a7fe0ee700fc8a19abfd42c4e6b77f2e2">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::getDoNotCache</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td> const  throw ()<code> [pure virtual]</code></td>
+          <td> const</td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Returns the level of depth at which this component is in the current nesting hierarchy </p>
-<dl class="section return"><dt>Returns:</dt><dd>the depth level </dd></dl>
-<dl class="section remark"><dt>Remarks:</dt><dd>the depth level is a zero based index with the top level component assigned the 0 value </dd></dl>
+<p>Returns DoNotCache. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if this refresh must not be cached; false otherwise </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a9833d1628f85d758dcefda22cc44c367"></a>
+<a class="anchor" id="a901cb2374f20d9840d91454cb53d4541"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual const <a class="el" href="a00091.html">Tag</a>&amp; <a class="el" href="a00057.html#a9833d1628f85d758dcefda22cc44c367">thomsonreuters::eoa::foundation::Component::getTag</a> </td>
+          <td class="memname">const <a class="el" href="a00087.html">foundation::EoaBuffer</a>&amp; <a class="el" href="a00057.html#a901cb2374f20d9840d91454cb53d4541">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::getItemGroup</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td> const  throw ()<code> [pure virtual]</code></td>
+          <td> const</td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Returns the <a class="el" href="a00091.html" title="Tag class represents Component name or id.">Tag</a> object, which identifies this component's key type. </p>
-<dl class="section return"><dt>Returns:</dt><dd>the <a class="el" href="a00091.html" title="Tag class represents Component name or id.">Tag</a> of this object </dd></dl>
+<p>Returns ItemGroup. </p>
+<dl class="section return"><dt>Returns:</dt><dd>EoaBuffer containing item group information </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a56521dcbabebab4ed9bd24b5c1360d16"></a>
+<a class="anchor" id="a33223acc0e26d7ff0fe30a3c31a5e057"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual const <a class="el" href="a00068.html">EoaString</a>&amp; <a class="el" href="a00057.html#a56521dcbabebab4ed9bd24b5c1360d16">thomsonreuters::eoa::foundation::Component::getValue</a> </td>
+          <td class="memname">const <a class="el" href="a00049.html">MarketMakerList</a>&amp; <a class="el" href="a00057.html#a33223acc0e26d7ff0fe30a3c31a5e057">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::getMarketMakerList</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td> const<code> [pure virtual]</code></td>
+          <td> const</td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Returns a string representation of this component's value. </p>
+<p>Returns the contained <a class="el" href="a00049.html" title="Mm::MarketMakerList specifies MarketMaker domain payload.">MarketMakerList</a>. </p>
+<dl class="section return"><dt>Returns:</dt><dd>reference to <a class="el" href="a00049.html" title="Mm::MarketMakerList specifies MarketMaker domain payload.">MarketMakerList</a> object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a74b9590f9d9adfc66f67a5be9550f4b3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00089.html">foundation::EoaString</a>&amp; <a class="el" href="a00057.html#a74b9590f9d9adfc66f67a5be9550f4b3">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::getName</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the Name. </p>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00079.html" title="OmmMemoryExhaustionException represents out of memory exceptions.">OmmMemoryExhaustionException</a></td><td>if app runs out of memory </td></tr>
+    <tr><td class="paramname">OmmInvalidUsageException</td><td>if <a class="el" href="a00057.html#ac45dbc40cf54a54df5e0f15e25c77fb8">hasName()</a> returns false </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns:</dt><dd>string representation of this component's value </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd>EoaString containing name </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="afc46b1c5641ab401214c5601a5557e1a"></a>
+<a class="anchor" id="a6bc2a195924cddced6a8fefd1deb5d94"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual bool <a class="el" href="a00057.html#afc46b1c5641ab401214c5601a5557e1a">thomsonreuters::eoa::foundation::Component::isLocal</a> </td>
+          <td class="memname">foundation::UInt8 <a class="el" href="a00057.html#a6bc2a195924cddced6a8fefd1deb5d94">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::getNameType</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td> const  throw ()<code> [pure virtual]</code></td>
+          <td> const</td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>checks if this <a class="el" href="a00057.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a> is locally stored. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if this component is locally stored; false otherwise </dd></dl>
+<p>Returns the NameType. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmInvalidUsageException</td><td>if <a class="el" href="a00057.html#a2c25647fccfc17333a2723d1ddb876f3">hasNameType()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>name type value </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a508606908fa16f6047ef33d50ac04e9a"></a>
+<a class="anchor" id="ac3e24065325c1d3c36d9264cab1ec121"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual bool <a class="el" href="a00057.html#a508606908fa16f6047ef33d50ac04e9a">thomsonreuters::eoa::foundation::Component::isNonBlank</a> </td>
+          <td class="memname">foundation::UInt16 <a class="el" href="a00057.html#ac3e24065325c1d3c36d9264cab1ec121">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::getPartNum</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td> const  throw ()<code> [pure virtual]</code></td>
+          <td> const</td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>checks if this <a class="el" href="a00057.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a> is non blank. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if this component is present and non-blank; false otherwise </dd></dl>
+<p>Returns PartNum. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmInvalidUsageException</td><td>if <a class="el" href="a00057.html#a3ac64358488b0a4ac5bf1ba2bbdcf5e1">hasPartNum()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>part number </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a50ff019a7189a7347084a38d72cc6b41"></a>
+<a class="anchor" id="a2d14b3b3891d4cef78384042535c25f3"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual bool <a class="el" href="a00057.html#a50ff019a7189a7347084a38d72cc6b41">thomsonreuters::eoa::foundation::Component::isPresent</a> </td>
+          <td class="memname">const <a class="el" href="a00087.html">foundation::EoaBuffer</a>&amp; <a class="el" href="a00057.html#a2d14b3b3891d4cef78384042535c25f3">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::getPermissionData</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td> const  throw ()<code> [pure virtual]</code></td>
+          <td> const</td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>checks if this <a class="el" href="a00057.html" title="Component class is a parent abstract class defining common interfaces for Node and Leaf classes...">Component</a> is present. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if this component is present; false otherwise </dd></dl>
+<p>Returns PermissionData. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmInvalidUsageException</td><td>if <a class="el" href="a00057.html#a5ee13f7f29c248436ca3bf16425a20f4">hasPermissionData()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>EoaBuffer containing permission data </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="aaafc13b6096ede0792a99bf838d4e26a"></a>
+<a class="anchor" id="a5b0f2c8045023a4c31992fc7c7229f3b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">thomsonreuters::eoa::foundation::Component::operator const char * </td>
+          <td class="memname">bool <a class="el" href="a00057.html#a5b0f2c8045023a4c31992fc7c7229f3b">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::getPrivateStream</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns PrivateStream. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if this is private stream item </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a49933717a1988a20d41779739a6b58bc"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">foundation::UInt32 <a class="el" href="a00057.html#a49933717a1988a20d41779739a6b58bc">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::getPublisherIdUserAddress</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns PublisherIdUserAddress. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmInvalidUsageException</td><td>if <a class="el" href="a00057.html#ae73b178809a74c23ade46383d020948b">hasPublisherId()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>publisher's user address </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a6534b1ba45cf4f87679aa8ba048bb329"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">foundation::UInt32 <a class="el" href="a00057.html#a6534b1ba45cf4f87679aa8ba048bb329">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::getPublisherIdUserId</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns PublisherIdUserId. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmInvalidUsageException</td><td>if <a class="el" href="a00057.html#ae73b178809a74c23ade46383d020948b">hasPublisherId()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>publisher's user Id </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aab4e4f226d48c66de024b25f90348d4e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00056.html">Qos</a>&amp; <a class="el" href="a00057.html#aab4e4f226d48c66de024b25f90348d4e">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::getQos</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns <a class="el" href="a00056.html" title="Mm::Qos represents Quality Of Service information in MarketMaker domain.">Qos</a>. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmInvalidUsageException</td><td>if <a class="el" href="a00057.html#af0a7aa61443d9a3c515436bcfe17292b">hasQos()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00056.html" title="Mm::Qos represents Quality Of Service information in MarketMaker domain.">Qos</a> of item </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a957450dd0fb9b00ba42c3214ab6e609b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">foundation::UInt32 <a class="el" href="a00057.html#a957450dd0fb9b00ba42c3214ab6e609b">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::getSeqNum</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns SeqNum. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmInvalidUsageException</td><td>if <a class="el" href="a00057.html#ac1dc045d662e3330d4e2e4a240308ece">hasSeqNum()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>sequence number </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a45064583b54caf1f6d92dcde97e09bae"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">foundation::UInt32 <a class="el" href="a00057.html#a45064583b54caf1f6d92dcde97e09bae">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::getServiceId</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the ServiceId. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmInvalidUsageException</td><td>if <a class="el" href="a00057.html#a495faf0a173b331de5549fd593027054">hasServiceId()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>service id value </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a468cd91a6958756d403deb24101c311b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00089.html">foundation::EoaString</a>&amp; <a class="el" href="a00057.html#a468cd91a6958756d403deb24101c311b">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::getServiceName</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the ServiceName. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">OmmInvalidUsageException</td><td>if <a class="el" href="a00057.html#a4d2cc45bb8a1467f2f48998646fe94c3">hasServiceName()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>EoaString containing service name </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="af8bd5869bcb5f1de30837a9de84407be"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00057.html#af8bd5869bcb5f1de30837a9de84407be">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::getSolicited</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns Solicited. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if this is solicited refresh; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="af799b5fce63aecf8472ab5895774899c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00059.html">State</a>&amp; <a class="el" href="a00057.html#af799b5fce63aecf8472ab5895774899c">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::getState</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns <a class="el" href="a00059.html" title="Mm::State represents State information in MarketMaker domain.">State</a>. </p>
+<dl class="section return"><dt>Returns:</dt><dd>state of item </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ac45dbc40cf54a54df5e0f15e25c77fb8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00057.html#ac45dbc40cf54a54df5e0f15e25c77fb8">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::hasName</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of the Name. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if name is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a2c25647fccfc17333a2723d1ddb876f3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00057.html#a2c25647fccfc17333a2723d1ddb876f3">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::hasNameType</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of the NameType. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if name type is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a3ac64358488b0a4ac5bf1ba2bbdcf5e1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00057.html#a3ac64358488b0a4ac5bf1ba2bbdcf5e1">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::hasPartNum</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of PartNum. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if part number is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a5ee13f7f29c248436ca3bf16425a20f4"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00057.html#a5ee13f7f29c248436ca3bf16425a20f4">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::hasPermissionData</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of PermissionData. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if permission data is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ae73b178809a74c23ade46383d020948b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00057.html#ae73b178809a74c23ade46383d020948b">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::hasPublisherId</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of PublisherId. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if publisher id is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="af0a7aa61443d9a3c515436bcfe17292b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00057.html#af0a7aa61443d9a3c515436bcfe17292b">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::hasQos</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of <a class="el" href="a00056.html" title="Mm::Qos represents Quality Of Service information in MarketMaker domain.">Qos</a>. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if <a class="el" href="a00056.html" title="Mm::Qos represents Quality Of Service information in MarketMaker domain.">Qos</a> is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ac1dc045d662e3330d4e2e4a240308ece"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00057.html#ac1dc045d662e3330d4e2e4a240308ece">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::hasSeqNum</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of SeqNum. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if sequence number is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a495faf0a173b331de5549fd593027054"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00057.html#a495faf0a173b331de5549fd593027054">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::hasServiceId</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of the ServiceId. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if service id is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a4d2cc45bb8a1467f2f48998646fe94c3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00057.html#a4d2cc45bb8a1467f2f48998646fe94c3">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::hasServiceName</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of the ServiceName. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if service name is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a1eeae0712a2395909b2336f7d523e65c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::operator const char * </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -366,34 +752,34 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>UpdateInfoImpl</b></
 <p>Operator const char* overload. </p>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00079.html" title="OmmMemoryExhaustionException represents out of memory exceptions.">OmmMemoryExhaustionException</a></td><td>if app runs out of memory </td></tr>
+    <tr><td class="paramname">OmmMemoryExhaustionException</td><td>if app runs out of memory </td></tr>
   </table>
   </dd>
 </dl>
 
 </div>
 </div>
-<a class="anchor" id="a6b34e48d1772563df6ced8bb9837587e"></a>
+<a class="anchor" id="ad7f60d6b11dc9dd263046157fc86137b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual const <a class="el" href="a00068.html">EoaString</a>&amp; <a class="el" href="a00057.html#a6b34e48d1772563df6ced8bb9837587e">thomsonreuters::eoa::foundation::Component::toString</a> </td>
+          <td class="memname">const <a class="el" href="a00089.html">foundation::EoaString</a>&amp; <a class="el" href="a00057.html#ad7f60d6b11dc9dd263046157fc86137b">thomsonreuters::eoa::domain::marketmaker::Mm::RefreshInfo::toString</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td> const<code> [pure virtual]</code></td>
+          <td> const</td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Returns a string representation of this component (e.g., component type, component's data type, and value). </p>
+<p>Returns a string representation of the class instance. </p>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00079.html" title="OmmMemoryExhaustionException represents out of memory exceptions.">OmmMemoryExhaustionException</a></td><td>if app runs out of memory </td></tr>
+    <tr><td class="paramname">OmmMemoryExhaustionException</td><td>if app runs out of memory </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns:</dt><dd>string representation of this component </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd>string representation of the class instance </dd></dl>
 
 </div>
 </div>
@@ -414,7 +800,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>UpdateInfoImpl</b></
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Mon Feb 1 2016</td>
+			<td><p class="smallfont">Mon Feb 29 2016</td>
           </tr>
         </table>
         </td>
