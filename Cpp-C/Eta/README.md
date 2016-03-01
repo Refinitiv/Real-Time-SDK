@@ -75,6 +75,7 @@ The makefiles and Windows project files provided facilitate building on a subset
 
 At the current time, the makefiles and project files support the following platform/compiler combinations:
 - RedHat Advanced Server 6.X 64-bit (gcc4.4.4)
+- Oracle Linux Server 6.X 64-bit (gcc4.4.4)
 - Oracle Linux Server 7.X 64-bit (gcc4.8.2)
 - CentOS 7.X 64-bit (gcc4.8.2)
 - Windows 7 64-bit, Windows 8 64-bit, Windows 8.1 64-bit, Windows Server 2008 64-bit, Windows Server 2012 64-bit
