@@ -15,12 +15,12 @@ This directory contains preliminary library source code and example code to show
 
 ##Contents
 
-- **EMA Library** One Jar file for the EMA Consumer library nesting dependent jar files.
-- **EMA Library Source** Source codes for the EMA Consumer library. 
-- **Examples** EMA Consumer examples
-- **Example Compile Scripts** Help to compile all examples on windows platform or unix platform
-- **EMA Doc** Reference manual for the EMA Consumer interfaces.
-- **Logging Properties** Logging configuration for Java Logging API if needed   
+- EMA Library** One Jar file for the EMA Consumer library nesting dependent jar files.
+- EMA Library Source** Source codes for the EMA Consumer library. 
+- Examples** EMA Consumer examples
+- Example Compile Scripts** Help to compile all examples on windows platform or unix platform
+- EMA Doc** Reference manual for the EMA Consumer interfaces.
+- Logging Properties** Logging configuration for Java Logging API if needed   
 
 ####This preview is runnable!  
 
@@ -40,10 +40,10 @@ Within this directory contains everything you need to build the examples and run
 ## EMA Dependencies
 Building of EMA library and Running of EMA examples both depend on apache jars listed as below:
 
-apache\org.apache.commons.collections.jar;
-apache\commons-configuration-1.10\commons-configuration-1.10.jar
-apache\commons-lang-2.6\commons-lang-2.6.jar
-apache\commons-logging-1.2\commons-logging-1.2.jar
+- apache\org.apache.commons.collections.jar
+- apache\commons-configuration-1.10\commons-configuration-1.10.jar
+- apache\commons-lang-2.6\commons-lang-2.6.jar
+- apache\commons-logging-1.2\commons-logging-1.2.jar
 
 Here is one download site for apache jar files http://commons.apache.org/downloads/
 
