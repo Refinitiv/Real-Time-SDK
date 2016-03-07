@@ -15,12 +15,12 @@ This directory contains preliminary library source code and example code to show
 
 ##Contents
 
-- EMA Library** One Jar file for the EMA Consumer library nesting dependent jar files.
-- EMA Library Source** Source codes for the EMA Consumer library. 
-- Examples** EMA Consumer examples
-- Example Compile Scripts** Help to compile all examples on windows platform or unix platform
-- EMA Doc** Reference manual for the EMA Consumer interfaces.
-- Logging Properties** Logging configuration for Java Logging API if needed   
+- EMA Library: One Jar file for the EMA Consumer library
+- EMA Library Source: Source codes for the EMA Consumer library 
+- Examples: EMA Consumer examples
+- Example Compile Scripts: Help to compile all examples on windows platform or unix platform
+- EMA Doc: Reference manual for the EMA Consumer interfaces.
+- Logging Properties: Logging configuration for Java Logging API if needed   
 
 ####This preview is runnable!  
 
