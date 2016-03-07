@@ -8,10 +8,10 @@ This directory contains preliminary library source code and example code to show
 
 ## What is new
 
-- **Add EMA Encoding Interface 
-- **Add EMA Functionality for reading xml configuration file
-- **Add EMA Encoding Examples (OnStream posting and OffStream posting)
-- **Remove EMA forth() decoding interface
+- Add EMA Encoding Interface 
+- Add EMA Functionality for reading xml configuration file
+- Add EMA Encoding Examples (OnStream posting and OffStream posting)
+- Remove EMA forth() decoding interface
 
 ##Contents
 
