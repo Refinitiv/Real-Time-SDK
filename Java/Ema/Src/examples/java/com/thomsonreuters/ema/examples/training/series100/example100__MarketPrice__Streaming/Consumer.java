@@ -23,29 +23,29 @@ import com.thomsonreuters.ema.access.OmmException;
 
 class AppClient implements OmmConsumerClient
 {
-	public void onRefreshMsg( RefreshMsg refreshMsg, OmmConsumerEvent event )
+	public void onRefreshMsg(RefreshMsg refreshMsg, OmmConsumerEvent event)
 	{
-		System.out.println( refreshMsg );
+		System.out.println(refreshMsg);
 	}
 	
-	public void onUpdateMsg( UpdateMsg updateMsg, OmmConsumerEvent event ) 
+	public void onUpdateMsg(UpdateMsg updateMsg, OmmConsumerEvent event) 
 	{
-		System.out.println( updateMsg );
+		System.out.println(updateMsg);
 	}
 
-	public void onStatusMsg( StatusMsg statusMsg, OmmConsumerEvent event ) 
+	public void onStatusMsg(StatusMsg statusMsg, OmmConsumerEvent event) 
 	{
-		System.out.println( statusMsg );
+		System.out.println(statusMsg);
 	}
 
-	public void onGenericMsg( GenericMsg genericMsg, OmmConsumerEvent consumerEvent ){}
-	public void onAckMsg( AckMsg ackMsg, OmmConsumerEvent consumerEvent ){}
-	public void onAllMsg( Msg msg, OmmConsumerEvent consumerEvent ){}
+	public void onGenericMsg(GenericMsg genericMsg, OmmConsumerEvent consumerEvent){}
+	public void onAckMsg(AckMsg ackMsg, OmmConsumerEvent consumerEvent){}
+	public void onAllMsg(Msg msg, OmmConsumerEvent consumerEvent){}
 }
 
 public class Consumer 
 {
-	public static void main( String[] args )
+	public static void main(String[] args)
 	{
 		try
 		{
@@ -53,17 +53,17 @@ public class Consumer
 			
 			OmmConsumerConfig config = EmaFactory.createOmmConsumerConfig();
 			
-			OmmConsumer consumer  = EmaFactory.createOmmConsumer( config.host( "localhost:14002"  ).username( "user" ) );
+			OmmConsumer consumer  = EmaFactory.createOmmConsumer(config.host("localhost:14002").username("user"));
 			
 			ReqMsg reqMsg = EmaFactory.createReqMsg();
 			
-			consumer.registerClient( reqMsg.serviceName( "DIRECT_FEED" ).name( "IBM.N" ), appClient );
+			consumer.registerClient(reqMsg.serviceName("DIRECT_FEED").name("IBM.N"), appClient);
 			
 			Thread.sleep(60000);			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
 		} 
-		catch ( InterruptedException | OmmException excp )
+		catch (InterruptedException | OmmException excp)
 		{
-			System.out.println( excp.getMessage() );
+			System.out.println(excp.getMessage());
 		}
 	}
 }

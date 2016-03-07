@@ -31,89 +31,89 @@ class AppClient implements OmmConsumerClient
 {
 	double BID, BID_1, BID_2, ASK, ASK_1, ASK_2 = 0;
 
-	public void onRefreshMsg( RefreshMsg refreshMsg, OmmConsumerEvent event )
+	public void onRefreshMsg(RefreshMsg refreshMsg, OmmConsumerEvent event)
 	{
-		System.out.println( "Item Name: " + ( refreshMsg.hasName() ? refreshMsg.name() : "<not set>" ) );
-		System.out.println( "Service Name: " + ( refreshMsg.hasServiceName() ? refreshMsg.serviceName() : "<not set>" ) );
+		System.out.println("Item Name: " + (refreshMsg.hasName() ? refreshMsg.name() : "<not set>"));
+		System.out.println("Service Name: " + (refreshMsg.hasServiceName() ? refreshMsg.serviceName() : "<not set>"));
 		
-		System.out.println( "Item State: " + refreshMsg.state() );
+		System.out.println("Item State: " + refreshMsg.state());
 
-		System.out.println( "Item Handle: " + event.handle() + " Item Closure: " + event.closure().hashCode() );
+		System.out.println("Item Handle: " + event.handle() + " Item Closure: " + event.closure().hashCode());
 
-		if ( DataType.DataTypes.FIELD_LIST == refreshMsg.payload().dataType() )
-			decode( refreshMsg.payload().fieldList() );
+		if (DataType.DataTypes.FIELD_LIST == refreshMsg.payload().dataType())
+			decode(refreshMsg.payload().fieldList());
 		
 		System.out.println();
 	}
 	
-	public void onUpdateMsg( UpdateMsg updateMsg, OmmConsumerEvent event ) 
+	public void onUpdateMsg(UpdateMsg updateMsg, OmmConsumerEvent event) 
 	{
-		System.out.println( "Item Name: " + ( updateMsg.hasName() ? updateMsg.name() : "<not set>" ) );
-		System.out.println( "Service Name: " + ( updateMsg.hasServiceName() ? updateMsg.serviceName() : "<not set>" ) );
+		System.out.println("Item Name: " + (updateMsg.hasName() ? updateMsg.name() : "<not set>"));
+		System.out.println("Service Name: " + (updateMsg.hasServiceName() ? updateMsg.serviceName() : "<not set>"));
 		
-		System.out.println( "Item Handle: " + event.handle() + " Item Closure: " + event.closure().hashCode() );
+		System.out.println("Item Handle: " + event.handle() + " Item Closure: " + event.closure().hashCode());
 
-		if ( DataType.DataTypes.FIELD_LIST == updateMsg.payload().dataType() )
-			decode( updateMsg.payload().fieldList() );
+		if (DataType.DataTypes.FIELD_LIST == updateMsg.payload().dataType())
+			decode(updateMsg.payload().fieldList());
 		
 		System.out.println();
 	}
 
-	public void onStatusMsg( StatusMsg statusMsg, OmmConsumerEvent event ) 
+	public void onStatusMsg(StatusMsg statusMsg, OmmConsumerEvent event) 
 	{
-		System.out.println( "Item Name: " + ( statusMsg.hasName() ? statusMsg.name() : "<not set>" ) );
-		System.out.println( "Service Name: " + ( statusMsg.hasServiceName() ? statusMsg.serviceName() : "<not set>" ) );
+		System.out.println("Item Name: " + (statusMsg.hasName() ? statusMsg.name() : "<not set>"));
+		System.out.println("Service Name: " + (statusMsg.hasServiceName() ? statusMsg.serviceName() : "<not set>"));
 
-		if ( statusMsg.hasState() )
-			System.out.println( "Item State: " +statusMsg.state() );
+		if (statusMsg.hasState())
+			System.out.println("Item State: " +statusMsg.state());
 		
 		System.out.println();
 	}
 	
-	public void onGenericMsg( GenericMsg genericMsg, OmmConsumerEvent consumerEvent ){}
-	public void onAckMsg( AckMsg ackMsg, OmmConsumerEvent consumerEvent ){}
-	public void onAllMsg( Msg msg, OmmConsumerEvent consumerEvent ){}
+	public void onGenericMsg(GenericMsg genericMsg, OmmConsumerEvent consumerEvent){}
+	public void onAckMsg(AckMsg ackMsg, OmmConsumerEvent consumerEvent){}
+	public void onAllMsg(Msg msg, OmmConsumerEvent consumerEvent){}
 
-	void decode( FieldList fieldList )
+	void decode(FieldList fieldList)
 	{
 		Iterator<FieldEntry> iter = fieldList.iterator();
 		FieldEntry fieldEntry;
-		while ( iter.hasNext() )
+		while (iter.hasNext())
 		{
 			fieldEntry = iter.next();
 
-			switch ( fieldEntry.loadType() )
+			switch (fieldEntry.loadType())
 			{
 				case DataTypes.REAL :
-					if ( fieldEntry.fieldId() == 22 )	// Display data for BID field name and its ripple fields
+					if (fieldEntry.fieldId() == 22)	// Display data for BID field name and its ripple fields
 					{
-						if ( fieldEntry.rippleTo( fieldEntry.rippleTo(0) ) == 24 )
+						if (fieldEntry.rippleTo(fieldEntry.rippleTo(0)) == 24)
 							BID_2 = BID_1;
 
-						if ( fieldEntry.rippleTo(0) == 23 )
+						if (fieldEntry.rippleTo(0) == 23)
 							BID_1 = BID;
 
 						BID = fieldEntry.real().asDouble();
 
-						System.out.println( "DataType: " + DataType.asString( fieldEntry.load().dataType() ) );
-						System.out.println( "Fid: " + fieldEntry.fieldId() + " Value: " + BID );
-						System.out.println( "Fid: " + fieldEntry.rippleTo(0) + " Value: " + BID_1 );
-						System.out.println( "Fid: " + fieldEntry.rippleTo( fieldEntry.rippleTo(0) ) + " Value: " + BID_2 );
+						System.out.println("DataType: " + DataType.asString(fieldEntry.load().dataType()));
+						System.out.println("Fid: " + fieldEntry.fieldId() + " Value: " + BID);
+						System.out.println("Fid: " + fieldEntry.rippleTo(0) + " Value: " + BID_1);
+						System.out.println("Fid: " + fieldEntry.rippleTo(fieldEntry.rippleTo(0)) + " Value: " + BID_2);
 					}
-					else if ( fieldEntry.fieldId() == 25 ) // Display data for ASK field name and its ripple fields
+					else if (fieldEntry.fieldId() == 25) // Display data for ASK field name and its ripple fields
 					{
-						if ( fieldEntry.rippleTo( fieldEntry.rippleTo(0) ) == 27 )
+						if (fieldEntry.rippleTo(fieldEntry.rippleTo(0)) == 27)
 							ASK_2 = ASK_1;
 
-						if ( fieldEntry.rippleTo(0) == 26 )
+						if (fieldEntry.rippleTo(0) == 26)
 							ASK_1 = ASK;
 
 						ASK = fieldEntry.real().asDouble();
 
-						System.out.println( "DataType: " + DataType.asString( fieldEntry.load().dataType() ) );
-						System.out.println( "Fid: " + fieldEntry.fieldId() + " Value: " + ASK );
-						System.out.println( "Fid: " + fieldEntry.rippleTo(0) + " Value: " + ASK_1 );
-						System.out.println( "Fid: " + fieldEntry.rippleTo( fieldEntry.rippleTo(0) ) + " Value: " + ASK_2 );
+						System.out.println("DataType: " + DataType.asString(fieldEntry.load().dataType()));
+						System.out.println("Fid: " + fieldEntry.fieldId() + " Value: " + ASK);
+						System.out.println("Fid: " + fieldEntry.rippleTo(0) + " Value: " + ASK_1);
+						System.out.println("Fid: " + fieldEntry.rippleTo(fieldEntry.rippleTo(0)) + " Value: " + ASK_2);
 					}
 					break;
 			}
@@ -123,7 +123,7 @@ class AppClient implements OmmConsumerClient
 
 public class Consumer 
 {
-	public static void main( String[] args )
+	public static void main(String[] args)
 	{
 		try
 		{
@@ -131,19 +131,19 @@ public class Consumer
 			
 			OmmConsumerConfig config = EmaFactory.createOmmConsumerConfig();
 			
-			OmmConsumer consumer  = EmaFactory.createOmmConsumer( config.host( "localhost:14002"  ).username( "user" ) );
+			OmmConsumer consumer  = EmaFactory.createOmmConsumer(config.host("localhost:14002").username("user"));
 			
 			ReqMsg reqMsg = EmaFactory.createReqMsg();
 			
-			consumer.registerClient( reqMsg.serviceName( "DIRECT_FEED" ).name( "IBM.N" ), appClient, 1 );
+			consumer.registerClient(reqMsg.serviceName("DIRECT_FEED").name("IBM.N"), appClient, 1);
 			
 			long startTime = System.currentTimeMillis();
-			while ( startTime + 60000 > System.currentTimeMillis() )
-				consumer.dispatch( 10 );		// calls to onRefreshMsg(), onUpdateMsg(), or onStatusMsg() execute on this thread
+			while (startTime + 60000 > System.currentTimeMillis())
+				consumer.dispatch(10);		// calls to onRefreshMsg(), onUpdateMsg(), or onStatusMsg() execute on this thread
 		}
-		catch ( OmmException excp )
+		catch (OmmException excp)
 		{
-			System.out.println( excp.getMessage() );
+			System.out.println(excp);
 		}
 	}
 }

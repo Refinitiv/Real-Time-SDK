@@ -27,71 +27,71 @@ import com.thomsonreuters.ema.access.OmmException;
 
 class AppClient implements OmmConsumerClient
 {
-	public void onRefreshMsg( RefreshMsg refreshMsg, OmmConsumerEvent event )
+	public void onRefreshMsg(RefreshMsg refreshMsg, OmmConsumerEvent event)
 	{
-		if ( refreshMsg.hasName() )
-			System.out.println( "Item Name: " + refreshMsg.name() );
+		if (refreshMsg.hasName())
+			System.out.println("Item Name: " + refreshMsg.name());
 		
-		if ( refreshMsg.hasServiceName() )
-			System.out.println( "Service Name: " + refreshMsg.serviceName() );
+		if (refreshMsg.hasServiceName())
+			System.out.println("Service Name: " + refreshMsg.serviceName());
 		
-		System.out.println( "Item State: " + refreshMsg.state() );
+		System.out.println("Item State: " + refreshMsg.state());
 		
-		if ( DataType.DataTypes.FIELD_LIST == refreshMsg.payload().dataType() )
-			decode( refreshMsg.payload().fieldList() );
+		if (DataType.DataTypes.FIELD_LIST == refreshMsg.payload().dataType())
+			decode(refreshMsg.payload().fieldList());
 		
 		System.out.println("\n");
 	}
 	
-	public void onUpdateMsg( UpdateMsg updateMsg, OmmConsumerEvent event ) 
+	public void onUpdateMsg(UpdateMsg updateMsg, OmmConsumerEvent event) 
 	{
-		if ( updateMsg.hasName() )
-			System.out.println( "Item Name: " + updateMsg.name() );
+		if (updateMsg.hasName())
+			System.out.println("Item Name: " + updateMsg.name());
 		
-		if ( updateMsg.hasServiceName() )
-			System.out.println( "Service Name: " + updateMsg.serviceName() );
+		if (updateMsg.hasServiceName())
+			System.out.println("Service Name: " + updateMsg.serviceName());
 		
-		if ( DataType.DataTypes.FIELD_LIST == updateMsg.payload().dataType() )
-			decode( updateMsg.payload().fieldList() );
+		if (DataType.DataTypes.FIELD_LIST == updateMsg.payload().dataType())
+			decode(updateMsg.payload().fieldList());
 		
 		System.out.println("\n");
 	}
 
-	public void onStatusMsg( StatusMsg statusMsg, OmmConsumerEvent event ) 
+	public void onStatusMsg(StatusMsg statusMsg, OmmConsumerEvent event) 
 	{
-		if ( statusMsg.hasName() )
-			System.out.println( "Item Name: " + statusMsg.name() );
+		if (statusMsg.hasName())
+			System.out.println("Item Name: " + statusMsg.name());
 		
-		if ( statusMsg.hasServiceName() )
-			System.out.println( "Service Name: " + statusMsg.serviceName() );
+		if (statusMsg.hasServiceName())
+			System.out.println("Service Name: " + statusMsg.serviceName());
 		
-		if ( statusMsg.hasState() )
-			System.out.println( "Service State: " + statusMsg.state() );
+		if (statusMsg.hasState())
+			System.out.println("Service State: " + statusMsg.state());
 		
 		System.out.println("\n");
 	}
 
 	
-	public void onGenericMsg( GenericMsg genericMsg, OmmConsumerEvent consumerEvent ){}
-	public void onAckMsg( AckMsg ackMsg, OmmConsumerEvent consumerEvent ){}
-	public void onAllMsg( Msg msg, OmmConsumerEvent consumerEvent ){}
+	public void onGenericMsg(GenericMsg genericMsg, OmmConsumerEvent consumerEvent){}
+	public void onAckMsg(AckMsg ackMsg, OmmConsumerEvent consumerEvent){}
+	public void onAllMsg(Msg msg, OmmConsumerEvent consumerEvent){}
 
 								
-	void decode( FieldList fieldList )
+	void decode(FieldList fieldList)
 	{
 		Iterator<FieldEntry> iter = fieldList.iterator();
 		FieldEntry fieldEntry;
-		while ( iter.hasNext() )
+		while (iter.hasNext())
 		{
 			fieldEntry = iter.next();
-			System.out.println( "Fid: " + fieldEntry.fieldId() + " Name: " + fieldEntry.name() + " value: " + fieldEntry.load() );
+			System.out.println("Fid: " + fieldEntry.fieldId() + " Name: " + fieldEntry.name() + " value: " + fieldEntry.load());
 		}
 	}
 }
 
 public class Consumer 
 {
-	public static void main( String[] args )
+	public static void main(String[] args)
 	{
 		try
 		{
@@ -99,17 +99,17 @@ public class Consumer
 			
 			OmmConsumerConfig config = EmaFactory.createOmmConsumerConfig();
 			
-			OmmConsumer consumer  = EmaFactory.createOmmConsumer( config.host( "localhost:14002"  ).username( "user" ) );
+			OmmConsumer consumer  = EmaFactory.createOmmConsumer(config.host("localhost:14002").username("user"));
 			
 			ReqMsg reqMsg = EmaFactory.createReqMsg();
 			
-			consumer.registerClient( reqMsg.serviceName( "DIRECT_FEED" ).name( "IBM.N" ), appClient, 0 );
+			consumer.registerClient(reqMsg.serviceName("DIRECT_FEED").name("IBM.N"), appClient, 0);
 			
-			Thread.sleep( 60000 );			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
+			Thread.sleep(60000);			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
 		}
-		catch ( InterruptedException | OmmException excp )
+		catch (InterruptedException | OmmException excp)
 		{
-			System.out.println( excp.getMessage() );
+			System.out.println(excp.getMessage());
 		}
 	}
 }

@@ -7,4 +7,9 @@ export EXAMPLE_PATH
 
 rm -f `find . -name *.class`
 
-$JAVAC -version -target 1.7 -source 1.7 $EXAMPLE_PATH/*/*/*.java 
+set -x
+
+for file in $(find . -name '*.java')
+do
+    $JAVAC $file
+done

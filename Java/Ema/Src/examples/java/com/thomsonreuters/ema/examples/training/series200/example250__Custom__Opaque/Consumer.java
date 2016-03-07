@@ -27,54 +27,54 @@ import com.thomsonreuters.ema.access.OmmException;
 
 class AppClient implements OmmConsumerClient
 {
-	public void onRefreshMsg( RefreshMsg refreshMsg, OmmConsumerEvent event )
+	public void onRefreshMsg(RefreshMsg refreshMsg, OmmConsumerEvent event)
 	{
-		System.out.println( "Item Name: " + ( refreshMsg.hasName() ? refreshMsg.name() : "<not set>" ) );
-		System.out.println( "Service Name: " + ( refreshMsg.hasServiceName() ? refreshMsg.serviceName() : "<not set>" ) );
+		System.out.println("Item Name: " + (refreshMsg.hasName() ? refreshMsg.name() : "<not set>"));
+		System.out.println("Service Name: " + (refreshMsg.hasServiceName() ? refreshMsg.serviceName() : "<not set>"));
 		
-		System.out.println( "Item State: " + refreshMsg.state() );
+		System.out.println("Item State: " + refreshMsg.state());
 		
-		if ( DataType.DataTypes.OPAQUE == refreshMsg.payload().dataType() )
-			decode( refreshMsg.payload().opaque() );
+		if (DataType.DataTypes.OPAQUE == refreshMsg.payload().dataType())
+			decode(refreshMsg.payload().opaque());
 		
 		System.out.println();
 	}
 	
-	public void onUpdateMsg( UpdateMsg updateMsg, OmmConsumerEvent event ) 
+	public void onUpdateMsg(UpdateMsg updateMsg, OmmConsumerEvent event) 
 	{
-		System.out.println( "Item Name: " + ( updateMsg.hasName() ? updateMsg.name() : "<not set>" ) );
-		System.out.println( "Service Name: " + ( updateMsg.hasServiceName() ? updateMsg.serviceName() : "<not set>" ) );
+		System.out.println("Item Name: " + (updateMsg.hasName() ? updateMsg.name() : "<not set>"));
+		System.out.println("Service Name: " + (updateMsg.hasServiceName() ? updateMsg.serviceName() : "<not set>"));
 		
-		if ( DataType.DataTypes.OPAQUE == updateMsg.payload().dataType() )
-			decode( updateMsg.payload().opaque() );
+		if (DataType.DataTypes.OPAQUE == updateMsg.payload().dataType())
+			decode(updateMsg.payload().opaque());
 		
 		System.out.println();
 	}
 
-	public void onStatusMsg( StatusMsg statusMsg, OmmConsumerEvent event ) 
+	public void onStatusMsg(StatusMsg statusMsg, OmmConsumerEvent event) 
 	{
-		System.out.println( "Item Name: " + ( statusMsg.hasName() ? statusMsg.name() : "<not set>" ) );
-		System.out.println( "Service Name: " + ( statusMsg.hasServiceName() ? statusMsg.serviceName() : "<not set>" ) );
+		System.out.println("Item Name: " + (statusMsg.hasName() ? statusMsg.name() : "<not set>"));
+		System.out.println("Service Name: " + (statusMsg.hasServiceName() ? statusMsg.serviceName() : "<not set>"));
 
-		if ( statusMsg.hasState() )
-			System.out.println( "Item State: " +statusMsg.state() );
+		if (statusMsg.hasState())
+			System.out.println("Item State: " +statusMsg.state());
 		
 		System.out.println();
 	}
 	
-	public void onGenericMsg( GenericMsg genericMsg, OmmConsumerEvent consumerEvent ){}
-	public void onAckMsg( AckMsg ackMsg, OmmConsumerEvent consumerEvent ){}
-	public void onAllMsg( Msg msg, OmmConsumerEvent consumerEvent ){}
+	public void onGenericMsg(GenericMsg genericMsg, OmmConsumerEvent consumerEvent){}
+	public void onAckMsg(AckMsg ackMsg, OmmConsumerEvent consumerEvent){}
+	public void onAllMsg(Msg msg, OmmConsumerEvent consumerEvent){}
 
-	void decode( OmmOpaque oq )
+	void decode(OmmOpaque oq)
 	{
-		System.out.println( "OmmOpaque data: " + EmaUtility.asHexString( oq.asHex()) );
+		System.out.println("OmmOpaque data: " + EmaUtility.asHexString(oq.asHex()));
 	}
 }
 
 public class Consumer 
 {
-	public static void main( String[] args )
+	public static void main(String[] args)
 	{
 		try
 		{
@@ -82,17 +82,17 @@ public class Consumer
 			
 			OmmConsumerConfig config = EmaFactory.createOmmConsumerConfig();
 			
-			OmmConsumer consumer  = EmaFactory.createOmmConsumer( config.host( "localhost:14002"  ).username( "user" ) );
+			OmmConsumer consumer  = EmaFactory.createOmmConsumer(config.host("localhost:14002").username("user"));
 			
 			ReqMsg reqMsg = EmaFactory.createReqMsg();
 			
-			consumer.registerClient( reqMsg.domainType( 200 ).serviceName( "DIRECT_FEED" ).name( "IBM.XYZ" ), appClient, 0 );
+			consumer.registerClient(reqMsg.domainType(200).serviceName("DIRECT_FEED").name("IBM.XYZ"), appClient, 0);
 			
-			Thread.sleep( 60000 );			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
+			Thread.sleep(60000);			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
 		}
-		catch ( InterruptedException | OmmException excp )
+		catch (InterruptedException | OmmException excp)
 		{
-			System.out.println( excp.getMessage() );
+			System.out.println(excp.getMessage());
 		}
 	}
 }
