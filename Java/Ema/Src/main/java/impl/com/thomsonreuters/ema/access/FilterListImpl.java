@@ -7,17 +7,17 @@
 
 package com.thomsonreuters.ema.access;
 
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import com.thomsonreuters.ema.access.DataType;
-import com.thomsonreuters.ema.access.FilterEntry;
-import com.thomsonreuters.ema.access.FilterList;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.OmmError.ErrorCode;
 import com.thomsonreuters.upa.codec.Buffer;
+import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.codec.DataDictionary;
+import com.thomsonreuters.upa.codec.FilterEntryActions;
 
 class FilterListImpl extends CollectionDataImpl implements FilterList
 {
@@ -73,8 +73,13 @@ class FilterListImpl extends CollectionDataImpl implements FilterList
 	@Override
 	public FilterList totalCountHint(int totalCountHint)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		if (totalCountHint < 0 || totalCountHint > 1073741823)
+			throw ommOORExcept().message("totalCountHint is out of range [0 - 1073741823].");
+
+		_rsslFilterList.applyHasTotalCountHint();
+		_rsslFilterList.totalCountHint(totalCountHint);
+
+		return this;
 	}
 	
 	@Override
@@ -103,10 +108,12 @@ class FilterListImpl extends CollectionDataImpl implements FilterList
 	}
 
 	@Override
-	public boolean add(FilterEntry e)
+	public boolean add(FilterEntry filterEntry)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("FilterList collection doesn't support this operation.");
+		if (filterEntry == null)
+			throw new NullPointerException("Passed in filterEntry is null.");
+
+		return _filterListCollection.add(filterEntry);
 	}
 
 	@Override
@@ -285,9 +292,9 @@ class FilterListImpl extends CollectionDataImpl implements FilterList
 			switch(retCode)
 			{
 			case com.thomsonreuters.upa.codec.CodecReturnCodes.SUCCESS :
-				int rsslContainerType = (rsslFilterEntry.checkHasContainerType() ?
+				int rsslContainerType = (rsslFilterEntry.action() == FilterEntryActions.CLEAR) ?  com.thomsonreuters.upa.codec.DataTypes.NO_DATA : (rsslFilterEntry.checkHasContainerType() ?
 						rsslFilterEntry.containerType() : _rsslFilterList.containerType());
-				
+
 				int dType = dataType(rsslContainerType, _rsslMajVer, _rsslMinVer, rsslFilterEntry.encodedData());
 				
 				load = dataInstance(dType);
@@ -316,6 +323,71 @@ class FilterListImpl extends CollectionDataImpl implements FilterList
 	
 	Buffer encodedData()
 	{
-		return null;
+		if (_encodeComplete)
+			return _rsslBuffer; 
+		
+		if (_filterListCollection.isEmpty())
+			throw ommIUExcept().message("Series to be encoded is empty.");
+		
+		int ret = _rsslEncodeIter.setBufferAndRWFVersion(_rsslBuffer, _rsslMajVer, _rsslMinVer);
+	    if (ret != CodecReturnCodes.SUCCESS)
+	    {
+	    	String errText = errorString().append("Failed to setBufferAndRWFVersion on rssl encode iterator. Reason='")
+	    								.append(CodecReturnCodes.toString(ret))
+	    								.append("'").toString();
+	    	throw ommIUExcept().message(errText);
+	    }
+	    
+	    FilterEntryImpl firstEntry = (FilterEntryImpl)_filterListCollection.get(0);
+		_rsslFilterList.containerType(firstEntry._rsslFilterEntry.containerType());
+
+		ret = _rsslFilterList.encodeInit(_rsslEncodeIter);
+	    while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+	    {
+	    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
+	    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
+	    	ret = _rsslFilterList.encodeInit(_rsslEncodeIter);
+	    }
+	    
+	    if (ret != CodecReturnCodes.SUCCESS)
+	    {
+	    	String errText = errorString().append("Failed to intialize encoding on rssl series. Reason='")
+	    								.append(CodecReturnCodes.toString(ret))
+	    								.append("'").toString();
+	    	throw ommIUExcept().message(errText);
+	    }
+	    
+		for (com.thomsonreuters.ema.access.FilterEntry entry  : _filterListCollection)
+		{
+			ret = ((FilterEntryImpl)entry)._rsslFilterEntry.encode(_rsslEncodeIter);
+			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			{
+			   	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
+			   	_rsslEncodeIter.realignBuffer(_rsslBuffer);
+			   	ret = ((FilterEntryImpl)entry)._rsslFilterEntry.encode(_rsslEncodeIter);
+			}
+
+			if (ret != CodecReturnCodes.SUCCESS)
+		    {
+				String errText = errorString().append("Failed to ")
+						.append("rsslFilterEntry.encode()")
+						.append(" while encoding rssl series. Reason='")
+						.append(CodecReturnCodes.toString(ret))
+						.append("'").toString();
+				throw ommIUExcept().message(errText);
+		    }
+		 }
+		 
+		ret =  _rsslFilterList.encodeComplete(_rsslEncodeIter, true);
+	    if (ret != CodecReturnCodes.SUCCESS)
+	    {
+	    	String errText = errorString().append("Failed to complete encoding on rssl series. Reason='")
+	    								.append(CodecReturnCodes.toString(ret))
+	    								.append("'").toString();
+	        throw ommIUExcept().message(errText);
+	    }
+	    
+	    _encodeComplete = true;
+	    return _rsslBuffer;
 	}
 }

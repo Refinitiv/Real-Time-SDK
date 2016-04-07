@@ -10,14 +10,14 @@ package com.thomsonreuters.ema.access;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
-import com.thomsonreuters.ema.access.DataType;
-import com.thomsonreuters.ema.access.ElementEntry;
-import com.thomsonreuters.ema.access.DataType.DataTypes;
+import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.CodecFactory;
+import com.thomsonreuters.upa.codec.CodecReturnCodes;
 
 class ElementEntryImpl extends EntryImpl implements ElementEntry
 {
-	private com.thomsonreuters.upa.codec.ElementEntry	_rsslElementEntry;
+	protected com.thomsonreuters.upa.codec.ElementEntry	_rsslElementEntry;
+	protected Object _entryData;
 	
 	ElementEntryImpl() 
 	{
@@ -47,7 +47,7 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 				.append(" name=\"").append(name()).append("\"")
 				.append(" dataType=\"").append(DataType.asString(_load.dataType()));
 
-		if (_load.dataType() <= DataTypes.ARRAY)
+		if (_load.dataType() <= DataType.DataTypes.ARRAY)
 		{
 			_toString.append("\"\n").append(_load.toString(1));
 			Utilities.addIndent(_toString, 0).append("ElementEntryEnd\n");
@@ -61,459 +61,538 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 	@Override
 	public ElementEntry reqMsg(String name, ReqMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.MSG, (DataImpl) value);
 	}
 
 	@Override
 	public ElementEntry refreshMsg(String name, RefreshMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.MSG, (DataImpl) value);
 	}
 
 	@Override
 	public ElementEntry statusMsg(String name, StatusMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.MSG, (DataImpl) value);
 	}
 
 	@Override
 	public ElementEntry updateMsg(String name, UpdateMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.MSG, (DataImpl) value);
 	}
 
 	@Override
 	public ElementEntry postMsg(String name, PostMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.MSG, (DataImpl) value);
 	}
 
 	@Override
 	public ElementEntry ackMsg(String name, AckMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.MSG, (DataImpl) value);
 	}
 
 	@Override
 	public ElementEntry genericMsg(String name, GenericMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.MSG, (DataImpl) value);
 	}
 
 	@Override
 	public ElementEntry fieldList(String name, FieldList value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST, (DataImpl) value);
 	}
 
 	@Override
 	public ElementEntry elementList(String name, ElementList value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.ELEMENT_LIST, (DataImpl) value);
 	}
 
 	@Override
 	public ElementEntry map(String name, Map value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.MAP, (DataImpl) value);
 	}
 
 	@Override
 	public ElementEntry vector(String name, Vector value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.VECTOR, (DataImpl) value);
 	}
 
 	@Override
 	public ElementEntry series(String name, Series value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.SERIES, (DataImpl) value);
 	}
 
 	@Override
 	public ElementEntry filterList(String name, FilterList value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.FILTER_LIST, (DataImpl) value);
 	}
 
 	@Override
 	public ElementEntry opaque(String name, OmmOpaque value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.OPAQUE, (DataImpl) value);
 	}
 
 	@Override
 	public ElementEntry xml(String name, OmmXml value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.XML, (DataImpl) value);
 	}
 
 	@Override
 	public ElementEntry ansiPage(String name, OmmAnsiPage value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.ANSI_PAGE, (DataImpl) value);
 	}
 
 	@Override
 	public ElementEntry intValue(String name, long value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.INT);
+
+		_entryData = CodecFactory.createInt();
+		((com.thomsonreuters.upa.codec.Int)_entryData).value(value);
+		
+		return this;
 	}
 
 	@Override
 	public ElementEntry uintValue(String name, long value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.UINT);
+
+		_entryData = CodecFactory.createUInt();
+		((com.thomsonreuters.upa.codec.UInt)_entryData).value(value) ;
+		
+		return this;
 	}
 
 	@Override
 	public ElementEntry uintValue(String name, BigInteger value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.UINT);
+
+		_entryData = CodecFactory.createUInt();
+		((com.thomsonreuters.upa.codec.UInt)_entryData).value(value) ;
+		
+		return this;
 	}
 
 	@Override
 	public ElementEntry real(String name, long mantissa, int magnitudeType)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.REAL);
+
+		_entryData = CodecFactory.createReal();
+		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_entryData).value(mantissa, magnitudeType) )
+		{
+			String errText = errorString().append("Attempt to specify invalid real value. Passed mantissa, magnitudeType are='" )
+										.append( mantissa ).append( " / " )
+										.append( magnitudeType ).append( "'." ).toString();
+			throw ommIUExcept().message(errText);
+		}
+		
+		return this;
 	}
 
 	@Override
 	public ElementEntry realFromDouble(String name, double value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return realFromDouble(name, value, OmmReal.MagnitudeType.EXPONENT_0);
 	}
 
 	@Override
 	public ElementEntry realFromDouble(String name, double value, int magnitudeType)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.REAL);
+
+		_entryData = CodecFactory.createReal();
+		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_entryData).value(value, magnitudeType) )
+		{
+			String errText = errorString().append("Attempt to specify invalid real value. Passed in value,  magnitudeType are='" )
+										.append( value ).append( " / " )
+										.append( magnitudeType ).append( "'." ).toString();
+			throw ommIUExcept().message(errText);
+		}
+		
+		return this;
 	}
 
 	@Override
 	public ElementEntry floatValue(String name, float value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.FLOAT);
+
+		_entryData = CodecFactory.createFloat();
+		((com.thomsonreuters.upa.codec.Float)_entryData).value(value);
+		
+		return this;
 	}
 
 	@Override
 	public ElementEntry doubleValue(String name, double value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.DOUBLE);
+
+		_entryData = CodecFactory.createDouble();
+		((com.thomsonreuters.upa.codec.Double)_entryData).value(value);
+		
+		return this;
 	}
 
 	@Override
 	public ElementEntry date(String name, int year, int month, int day)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.DATE);
+
+		_entryData = dateValue(year, month, day);
+
+		return this;
 	}
 
 	@Override
 	public ElementEntry time(String name, int hour, int minute)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return time(name, hour, minute, 0, 0, 0, 0);
 	}
 
 	@Override
 	public ElementEntry time(String name, int hour, int minute, int second)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return time(name, hour, minute, second, 0, 0, 0);
 	}
 
 	@Override
 	public ElementEntry time(String name, int hour, int minute, int second, int millisecond)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return time(name, hour, minute, second,  millisecond, 0, 0);
 	}
 
 	@Override
 	public ElementEntry time(String name, int hour, int minute, int second, int millisecond, int microsecond)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return time(name, hour, minute, second,  millisecond, microsecond, 0);
 	}
 
 	@Override
 	public ElementEntry time(String name, int hour, int minute, int second, int millisecond, int microsecond,
 			int nanosecond)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.TIME);
+
+		_entryData = timeValue(hour, minute, second, millisecond, microsecond, nanosecond);
+
+		return this;
 	}
 
 	@Override
 	public ElementEntry dateTime(String name, int year, int month, int day)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return dateTime(name, year, month, day, 0, 0, 0, 0, 0, 0);
 	}
 
 	@Override
 	public ElementEntry dateTime(String name, int year, int month, int day, int hour)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return dateTime(name, year, month, day, hour, 0, 0, 0, 0, 0);
 	}
 
 	@Override
 	public ElementEntry dateTime(String name, int year, int month, int day, int hour, int minute)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return dateTime(name, year, month, day, hour, minute, 0, 0, 0, 0);
 	}
 
 	@Override
 	public ElementEntry dateTime(String name, int year, int month, int day, int hour, int minute, int second)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return dateTime(name, year, month, day, hour, minute, second, 0, 0, 0);
 	}
 
 	@Override
 	public ElementEntry dateTime(String name, int year, int month, int day, int hour, int minute, int second,
 			int millisecond)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return dateTime(name, year, month, day, hour, minute, second, millisecond, 0, 0);
 	}
 
 	@Override
 	public ElementEntry dateTime(String name, int year, int month, int day, int hour, int minute, int second,
 			int millisecond, int microsecond)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return dateTime(name, year, month, day, hour, minute, second, millisecond, microsecond, 0);
 	}
 
 	@Override
 	public ElementEntry dateTime(String name, int year, int month, int day, int hour, int minute, int second,
 			int millisecond, int microsecond, int nanosecond)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.DATETIME);
+
+		_entryData = dateTimeValue(year, month, day, hour, minute, second, millisecond, microsecond, nanosecond);
+		
+		return this;
 	}
 
 	@Override
 	public ElementEntry qos(String name, int timeliness)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return qos(name, timeliness, OmmQos.Rate.TICK_BY_TICK);
 	}
 
 	@Override
 	public ElementEntry qos(String name, int timeliness, int rate)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.QOS);
+
+		_entryData = CodecFactory.createQos();
+		Utilities.toRsslQos(rate, timeliness, (com.thomsonreuters.upa.codec.Qos)_entryData);
+		
+		return this;
 	}
 
 	@Override
 	public ElementEntry state(String name, int streamState)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return state(name, streamState, OmmState.DataState.OK, OmmState.StatusCode.NONE, DataImpl.EMPTY_STRING);
 	}
 
 	@Override
 	public ElementEntry state(String name, int streamState, int dataState)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return state(name, streamState, dataState, OmmState.StatusCode.NONE, DataImpl.EMPTY_STRING);
 	}
 
 	@Override
 	public ElementEntry state(String name, int streamState, int dataState, int statusCode)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return state(name, streamState, dataState, statusCode, DataImpl.EMPTY_STRING);
 	}
 
 	@Override
 	public ElementEntry state(String name, int streamState, int dataState, int statusCode, String statusText)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.STATE);
+
+		_entryData = stateValue(streamState, dataState, statusCode, statusText);
+		
+		return this;
 	}
 
 	@Override
 	public ElementEntry enumValue(String name, int value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.ENUM);
+
+		_entryData = CodecFactory.createEnum();
+		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Enum)_entryData).value(value) )
+		{
+			String errText = errorString().append("Attempt to specify invalid enum. Passed in value is='" )
+					.append( value ).append( "." ).toString();
+				throw ommIUExcept().message(errText);
+		}
+		
+		return this;
 	}
 
 	@Override
 	public ElementEntry buffer(String name, ByteBuffer value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.BUFFER);
+
+		if (value == null)
+			throw ommIUExcept().message("Passed in value is null");
+		
+		_entryData = CodecFactory.createBuffer();
+		Utilities.copy(value, (Buffer)_entryData);
+		
+		return this;
 	}
 
 	@Override
 	public ElementEntry ascii(String name, String value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.ASCII_STRING);
+
+		if (value == null)
+			throw ommIUExcept().message("Passed in value is null");
+		
+		_entryData = CodecFactory.createBuffer();
+		((Buffer)_entryData).data(value);
+		
+		return this;
 	}
 
 	@Override
 	public ElementEntry utf8(String name, ByteBuffer value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.UTF8_STRING);
+
+		if (value == null)
+			throw ommIUExcept().message("Passed in value is null");
+		
+		_entryData = CodecFactory.createBuffer();
+		Utilities.copy(value, (Buffer)_entryData);
+
+		return this;
 	}
 
 	@Override
 	public ElementEntry utf8(String name, String value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.UTF8_STRING);
+
+		if (value == null)
+			throw ommIUExcept().message("Passed in value is null");
+		
+		_entryData = CodecFactory.createBuffer();
+		((Buffer)_entryData).data(value);
+		
+		return this;
 	}
 
 	@Override
 	public ElementEntry rmtes(String name, ByteBuffer value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.RMTES_STRING);
+
+		if (value == null)
+			throw ommIUExcept().message("Passed in value is null");
+		
+		_entryData = CodecFactory.createBuffer();
+		Utilities.copy(value, (Buffer)_entryData);
+		
+		return this;
 	}
 
 	@Override
 	public ElementEntry array(String name, OmmArray value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.ARRAY, (DataImpl) value);
 	}
 
 	@Override
 	public ElementEntry codeInt(String name)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.INT);
 	}
 
 	@Override
 	public ElementEntry codeUInt(String name)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.UINT);
 	}
 
 	@Override
 	public ElementEntry codeReal(String name)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.REAL);
 	}
 
 	@Override
 	public ElementEntry codeFloat(String name)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.FLOAT);
 	}
 
 	@Override
 	public ElementEntry codeDouble(String name)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.DOUBLE);
 	}
 
 	@Override
 	public ElementEntry codeDate(String name)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.DATE);
 	}
 
 	@Override
 	public ElementEntry codeTime(String name)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.TIME);
 	}
 
 	@Override
 	public ElementEntry codeDateTime(String name)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.DATETIME);
 	}
 
 	@Override
 	public ElementEntry codeQos(String name)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.QOS);
 	}
 
 	@Override
 	public ElementEntry codeState(String name)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.STATE);
 	}
 
 	@Override
 	public ElementEntry codeEnum(String name)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.ENUM);
 	}
 
 	@Override
 	public ElementEntry codeBuffer(String name)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.BUFFER);
 	}
 
 	@Override
 	public ElementEntry codeAscii(String name)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.ASCII_STRING);
 	}
 
 	@Override
 	public ElementEntry codeUtf8(String name)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.UTF8_STRING);
 	}
 
 	@Override
 	public ElementEntry codeRmtes(String name)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(name, com.thomsonreuters.upa.codec.DataTypes.RMTES_STRING);
+	}
+
+	private ElementEntry entryValue(String name, int rsslDataType, DataImpl value)
+	{
+		if (name == null)
+			throw ommIUExcept().message("Passed in name is null");
+		if (value == null)
+			throw ommIUExcept().message("Passed in value is null");
+
+		_rsslElementEntry.name().data(name);
+		_rsslElementEntry.dataType(rsslDataType);
+		
+		Utilities.copy(value.encodedData(), _rsslElementEntry.encodedData());
+
+		return this;
+	}
+
+	private ElementEntry entryValue(String name, int rsslDataType)
+	{
+		if (name == null)
+			throw ommIUExcept().message("Passed in name is null");
+
+		_rsslElementEntry.name().data(name);
+		_rsslElementEntry.dataType(rsslDataType);
+
+		return this;
 	}
 }

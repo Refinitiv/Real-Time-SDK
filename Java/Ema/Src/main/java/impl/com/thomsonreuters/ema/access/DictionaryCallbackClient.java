@@ -12,11 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.OmmConsumerClient;
-import com.thomsonreuters.ema.access.OmmState;
-import com.thomsonreuters.ema.access.PostMsg;
-import com.thomsonreuters.ema.access.ReqMsg;
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.CodecFactory;
@@ -37,7 +32,6 @@ import com.thomsonreuters.upa.codec.StateCodes;
 import com.thomsonreuters.upa.codec.StatusMsg;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.rdm.DomainTypes;
-import com.thomsonreuters.upa.transport.TransportFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryStatus;
@@ -53,7 +47,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
 class DictionaryCallbackClient extends ConsumerCallbackClient implements RDMDictionaryMsgCallback
 {
 	private static final String CLIENT_NAME 				= "DictionaryCallbackClient";
-	private static final int MAX_DICTIONARY_BUFFER_SIZE 	= 16384;
+	private static final int MAX_DICTIONARY_BUFFER_SIZE 	= 150000;
 	protected static final String DICTIONARY_RWFFID = "RWFFld";
 	protected static final String DICTIONARY_RWFENUM = "RWFEnum";
 	
@@ -283,7 +277,14 @@ class DictionaryCallbackClient extends ConsumerCallbackClient implements RDMDict
 
 	boolean downloadDictionary(Directory directory)
 	{
-		if (directory.channelInfo().rsslDictionary() != null)
+		if (_consumer.activeConfig().dictionaryConfig.isLocalDictionary)
+		{
+			if (_rsslLocalDictionary != null && _rsslLocalDictionary.numberOfEntries() > 0)
+				directory.channelInfo().rsslDictionary(_rsslLocalDictionary);
+			return true;
+		}
+		
+		if (directory.channelInfo().rsslDictionary() != null || _consumer.activeConfig().dictionaryConfig.isLocalDictionary)
 			return true;
 		
 		if (_consumer.activeConfig().rsslFldDictRequest != null && _consumer.activeConfig().rsslEnumDictRequest != null)
@@ -292,11 +293,6 @@ class DictionaryCallbackClient extends ConsumerCallbackClient implements RDMDict
 					( _consumer.activeConfig().fldDictReqServiceName != null && _consumer.activeConfig().fldDictReqServiceName.equals(directory.serviceName())))
 				downloadDictionaryFromService(directory);
 			
-			return true;
-		}
-		else if (_rsslLocalDictionary != null && _rsslLocalDictionary.numberOfEntries() > 0)
-		{
-			directory.channelInfo().rsslDictionary(_rsslLocalDictionary);
 			return true;
 		}
 		
@@ -512,16 +508,16 @@ class DictionaryCallbackClient extends ConsumerCallbackClient implements RDMDict
 	
 	boolean isDictionaryReady()
 	{
-		if (_rsslLocalDictionary != null && _rsslLocalDictionary.numberOfEntries() > 0 &&
-			_rsslLocalDictionary.enumTableCount() > 0)
+		if (_rsslLocalDictionary != null && _rsslLocalDictionary.numberOfEntries() > 0
+				&& _rsslLocalDictionary.enumTableCount() > 0)
 			return true;
-		else 
+		else
 		{
-			if (_channelDictList.isEmpty())
+			if (_channelDictList == null || _channelDictList.isEmpty())
 				return false;
-			
+
 			for (ChannelDictionary entry : _channelDictList)
-			{ 
+			{
 				if (!(entry.isLoaded()))
 					return false;
 			}
@@ -555,7 +551,7 @@ class DictionaryCallbackClient extends ConsumerCallbackClient implements RDMDict
 		{
 			ByteBuffer byteBuf = _rsslEncBuffer.data();
         	byteBuf.clear();
-        	_rsslEncBuffer.data(byteBuf, 0, 0); 
+        	_rsslEncBuffer.data(byteBuf, 0, byteBuf.capacity()); 
 		}
 		
 		return _rsslEncBuffer;
@@ -564,7 +560,7 @@ class DictionaryCallbackClient extends ConsumerCallbackClient implements RDMDict
 	com.thomsonreuters.upa.transport.Error rsslError()
 	{
 		if (_rsslError == null)
-			_rsslError = TransportFactory.createError();
+			_rsslError = com.thomsonreuters.upa.transport.TransportFactory.createError();
 		else
 			_rsslError.clear();
 		

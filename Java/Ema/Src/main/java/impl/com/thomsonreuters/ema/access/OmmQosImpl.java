@@ -7,18 +7,15 @@
 
 package com.thomsonreuters.ema.access;
 
-import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.access.OmmQos;
-import com.thomsonreuters.upa.codec.CodecFactory;
 
 class OmmQosImpl extends DataImpl implements OmmQos
 {
-	com.thomsonreuters.upa.codec.Qos _rsslQos = CodecFactory.createQos();
+	com.thomsonreuters.upa.codec.Qos _rsslQos = com.thomsonreuters.upa.codec.CodecFactory.createQos();
 
 	@Override
 	public int dataType()
 	{
-		return DataTypes.QOS;
+		return DataType.DataTypes.QOS;
 	}
 
 	@Override
@@ -114,10 +111,10 @@ class OmmQosImpl extends DataImpl implements OmmQos
 		switch(_rsslQos.timeliness())
 		{
 		case com.thomsonreuters.upa.codec.QosTimeliness.REALTIME:
-			_toString.append("Timeliness: ").append("RealTime");
+			_toString.append("RealTime");
 			break;
 		case com.thomsonreuters.upa.codec.QosTimeliness.DELAYED_UNKNOWN:
-			_toString.append("Timeliness: ").append("InexactDelayed");
+			_toString.append("InexactDelayed");
 			break;
 		case com.thomsonreuters.upa.codec.QosTimeliness.DELAYED:
 			_toString.append("Timeliness: ").append(_rsslQos.timeInfo());
@@ -129,10 +126,10 @@ class OmmQosImpl extends DataImpl implements OmmQos
 		switch(_rsslQos.rate())
 		{
 		case com.thomsonreuters.upa.codec.QosRates.TICK_BY_TICK:
-			_toString.append("Rate: ").append("TickByTick");
+			_toString.append("TickByTick");
 			break;
 		case com.thomsonreuters.upa.codec.QosRates.JIT_CONFLATED:
-			_toString.append("Rate: ").append("JustInTimeConflated");
+			_toString.append("JustInTimeConflated");
 			break;
 		case com.thomsonreuters.upa.codec.QosRates.TIME_CONFLATED:
 			_toString.append("Rate: ").append(_rsslQos.rateInfo());

@@ -18,7 +18,7 @@ import com.thomsonreuters.upa.codec.CodecFactory;
 abstract class CollectionDataImpl extends DataImpl implements ComplexType
 {
 	protected final static int ENCODE_RSSL_BUFFER_INIT_SIZE = 4096;
-
+	
 	private OmmInvalidUsageExceptionImpl	_ommIUExcept;
 	private OmmOutOfRangeExceptionImpl 	_ommOORExcept;
 	protected com.thomsonreuters.upa.codec.DataDictionary _rsslDictionary;
@@ -38,13 +38,23 @@ abstract class CollectionDataImpl extends DataImpl implements ComplexType
 			_encodeComplete = false;
 			_rsslEncodeIter = com.thomsonreuters.upa.codec.CodecFactory.createEncodeIterator() ;
 			_rsslBuffer = CodecFactory.createBuffer();
-			_rsslBuffer.data(ByteBuffer.allocateDirect(ENCODE_RSSL_BUFFER_INIT_SIZE));
+			_rsslBuffer.data(ByteBuffer.allocate(ENCODE_RSSL_BUFFER_INIT_SIZE));
 		}
 	}
 	
 	void clear()
 	{
 		_encodeComplete = false;
+		
+		_rsslEncodeIter.clear();
+		ByteBuffer data = _rsslBuffer.data();
+		if (data != null)
+		{
+			data.clear();
+			_rsslBuffer.data(data);
+		}
+		else
+			_rsslBuffer.clear();
 	}
 
 	DataImpl dataInstance(int dType)

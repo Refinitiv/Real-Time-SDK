@@ -10,22 +10,19 @@ package com.thomsonreuters.ema.access;
 import java.nio.ByteBuffer;
 
 import com.thomsonreuters.ema.access.EmaUtility;
-import com.thomsonreuters.ema.access.OmmAnsiPage;
-import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 
 class OmmAnsiPageImpl extends DataImpl implements OmmAnsiPage
 {
 	OmmAnsiPageImpl()
 	{
-		_rsslBuffer = CodecFactory.createBuffer();
+		_rsslBuffer = com.thomsonreuters.upa.codec.CodecFactory.createBuffer();
 	}
 	
 	@Override
 	public int dataType()
 	{
-		return DataTypes.ANSI_PAGE;
+		return DataType.DataTypes.ANSI_PAGE;
 	}
 
 	@Override
@@ -52,20 +49,29 @@ class OmmAnsiPageImpl extends DataImpl implements OmmAnsiPage
 	@Override
 	public OmmAnsiPage string(String value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		_rsslBuffer.data(value);
+		return this;
 	}
 	
 	@Override
 	public OmmAnsiPage buffer(ByteBuffer value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Utilities.copy(value, _rsslBuffer);
+		return this;
 	}
 	
 	@Override
 	public OmmAnsiPage clear()
 	{
+		ByteBuffer data = _rsslBuffer.data();
+		if (data != null)
+		{
+			data.clear();
+			_rsslBuffer.data(data);
+		}
+		else
+			_rsslBuffer.clear();
+		
 		return this;
 	}
 	

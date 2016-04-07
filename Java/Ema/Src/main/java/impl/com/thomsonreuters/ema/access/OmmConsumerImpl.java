@@ -57,6 +57,8 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 		final static int DIRECTORY_STREAM_OPEN_OK = 8;
 	}
 
+	private static int CONSUMER_INSTANCE_ID = 0;
+	
 	private int _consumerState = OmmConsumerState.NOT_INITIALIZED;
 	private Logger _loggerClient;
 	private StringBuilder _consumerStrBuilder = new StringBuilder();
@@ -101,7 +103,7 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 		{
 			_consumerLock.lock();
 
-			GlobalPool.intialize();
+			GlobalPool.initialize();
 
 			_loggerClient = LoggerFactory.getLogger(OmmConsumerImpl.class);
 
@@ -217,7 +219,8 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 		}
 	}
 
-	void uninitialize()
+	@Override
+	public void uninitialize()
 	{
 		if (_consumerState == OmmConsumerState.NOT_INITIALIZED)
 			return;
@@ -230,6 +233,8 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 				if (_loginCallbackClient != null)
 					rsslReactorDispatchLoop(10000, _loginCallbackClient.sendLoginClose());
 
+				_threadRunning = false;
+				
 				if (_channelCallbackClient != null)
 					_channelCallbackClient.closeChannels();
 
@@ -613,8 +618,6 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 
 	void readConfiguration(OmmConsumerConfig config)
 	{
-		int id = 0;
-
 		OmmConsumerConfigImpl configImpl = (OmmConsumerConfigImpl) config;
 
 		if (_activeConfig == null)
@@ -625,9 +628,8 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 		_activeConfig.dictionaryConfig = (DictionaryConfig) new DictionaryConfig();
 		_activeConfig.dictionaryConfig.dictionaryName = configImpl.dictionaryName(_activeConfig.consumerName);
 
-		_activeConfig.instanceName = _activeConfig.consumerName;
-		// TODO GC??
-		_activeConfig.instanceName.concat("_").concat(Integer.toString(id));
+		_consumerStrBuilder.setLength(0);
+		_activeConfig.instanceName = _consumerStrBuilder.append(_activeConfig.consumerName).append("_").append(Integer.toString(++CONSUMER_INSTANCE_ID)).toString();
 
 		ConfigAttributes attributes = configImpl.xmlConfig().getConsumerAttributes(_activeConfig.consumerName);
 
@@ -652,7 +654,7 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 				_activeConfig.requestTimeout = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
 
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerLoginRequestTimeOut)) != null)
-				_activeConfig.loginRequestTimeOut = ce.intValue() > maxInt ? maxInt : ce.intValue();
+				_activeConfig.loginRequestTimeOut = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
 
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerDirectoryRequestTimeOut)) != null)
 				_activeConfig.directoryRequestTimeOut = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
@@ -670,10 +672,10 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 				_activeConfig.catchUnhandledException = ce.intLongValue() > 0 ? true : false;
 
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerMaxDispatchCountApiThread)) != null)
-				_activeConfig.maxDispatchCountApiThread = ce.intValue() > maxInt ? maxInt : ce.intValue();
+				_activeConfig.maxDispatchCountApiThread = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
 
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerMaxDispatchCountUserThread)) != null)
-				_activeConfig.maxDispatchCountUserThread = ce.intValue() > maxInt ? maxInt : ce.intValue();
+				_activeConfig.maxDispatchCountUserThread = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
 		}
 
 		// .........................................................................
@@ -699,6 +701,8 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 
 			if (ce.booleanValue() == true)
 			{
+				_activeConfig.dictionaryConfig.isLocalDictionary = true;
+				
 				if (attributes != null
 						&& ((ce = attributes.getPrimitiveValue(ConfigManager.DictionaryRDMFieldDictFileName)) == null))
 					_activeConfig.dictionaryConfig.rdmfieldDictionaryFileName = "./RDMFieldDictionary";
@@ -711,6 +715,8 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 				else
 					_activeConfig.dictionaryConfig.enumtypeDefFileName = ce.asciiValue();
 			}
+			else
+				_activeConfig.dictionaryConfig.isLocalDictionary = false;
 		}
 		//
 		// dictionary
@@ -724,9 +730,8 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 
 		String channelName = configImpl.channelName(_activeConfig.consumerName);
 		if (channelName != null)
-		{
 			readChannelConfig(configImpl, channelName);
-		} else
+		else
 		{
 			String checkValue = (String) configImpl.xmlConfig().getConsumerAttributeValue(_activeConfig.consumerName,
 					ConfigManager.ConsumerChannelSet);
@@ -739,32 +744,29 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 					channelName = pieces[i];
 					readChannelConfig(configImpl, channelName);
 				}
-			} else
+			}
+			else
 			{
 				SocketChannelConfig socketChannelConfig = new SocketChannelConfig();
 				if (socketChannelConfig.rsslConnectionType == ConnectionTypes.SOCKET)
 				{
-					socketChannelConfig.hostName = configImpl.getUserSpecifiedHostname();
-					if (socketChannelConfig.hostName == null)
+					String tempHost = configImpl.getUserSpecifiedHostname();
+					if (tempHost == null)
 					{
-						if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
+						if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
 							socketChannelConfig.hostName = ce.asciiValue();
-						else
-							configImpl.errorTracker().append("no configuration exists for [")
-									.append(ConfigManager.nodeName(ConfigManager.ChannelHost)).append("]")
-									.create(Severity.ERROR);
 					}
+					else
+						socketChannelConfig.hostName = tempHost;
 
-					socketChannelConfig.serviceName = configImpl.getUserSpecifiedPort();
-					if (socketChannelConfig.serviceName == null)
+					String tempService = configImpl.getUserSpecifiedPort();
+					if (tempService == null)
 					{
-						if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelPort)) != null)
+						if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelPort)) != null)
 							socketChannelConfig.serviceName = ce.asciiValue();
-						else
-							configImpl.errorTracker().append("no configuration exists for [")
-									.append(ConfigManager.nodeName(ConfigManager.ChannelPort)).append("]")
-									.create(Severity.ERROR);
 					}
+					else
+						socketChannelConfig.serviceName = tempService;
 				}
 				_activeConfig.channelConfig = socketChannelConfig;
 			}
@@ -813,7 +815,8 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 		int connectionType = ConnectionTypes.SOCKET;
 
 		attributes = configImpl.xmlConfig().getChannelAttributes(channelName);
-		ce = attributes.getPrimitiveValue(ConfigManager.ChannelType);
+		if (attributes != null) 
+			ce = attributes.getPrimitiveValue(ConfigManager.ChannelType);
 
 		if (ce == null)
 		{
@@ -831,28 +834,25 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 			SocketChannelConfig socketChannelConfig = new SocketChannelConfig();
 			_activeConfig.channelConfig = socketChannelConfig;
 
-			socketChannelConfig.hostName = configImpl.getUserSpecifiedHostname();
-			if (socketChannelConfig.hostName == null)
+			String tempHost = configImpl.getUserSpecifiedHostname();
+			if (tempHost == null)
 			{
-				if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
+				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
 					socketChannelConfig.hostName = ce.asciiValue();
-				else
-					configImpl.errorTracker().append("no configuration exists for channel host [")
-							.append(ConfigManager.nodeName(ConfigManager.ChannelHost)).create(Severity.ERROR);
 			}
+			else
+				socketChannelConfig.hostName = tempHost;
 
-			socketChannelConfig.serviceName = configImpl.getUserSpecifiedPort();
-			if (socketChannelConfig.serviceName == null)
+			String tempService = configImpl.getUserSpecifiedPort();
+			if (tempService == null)
 			{
-				if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelPort)) != null)
+				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelPort)) != null)
 					socketChannelConfig.serviceName = ce.asciiValue();
-				else
-					configImpl.errorTracker().append("no configuration exists for [")
-							.append(ConfigManager.nodeName(ConfigManager.ChannelPort)).append("]")
-							.create(Severity.ERROR);
 			}
-
-			if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
+			else
+				socketChannelConfig.serviceName = tempService;
+			
+			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
 				socketChannelConfig.tcpNodelay = ce.booleanValue();
 
 			break;
@@ -862,16 +862,28 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 			HttpChannelConfig httpChannelCfg = new HttpChannelConfig();
 			_activeConfig.channelConfig = httpChannelCfg;
 
-			if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
-				httpChannelCfg.hostName = ce.asciiValue();
+			String tempHost = configImpl.getUserSpecifiedHostname();
+			if (tempHost == null)
+			{
+				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
+					httpChannelCfg.hostName = ce.asciiValue();
+			}
+			else
+				httpChannelCfg.hostName = tempHost;
 
-			if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelPort)) != null)
-				httpChannelCfg.serviceName = ce.asciiValue();
+			String tempService = configImpl.getUserSpecifiedPort();
+			if (tempService == null)
+			{
+				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelPort)) != null)
+					httpChannelCfg.serviceName = ce.asciiValue();
+			}
+			else
+				httpChannelCfg.serviceName = tempService;
 
-			if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
+			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
 				httpChannelCfg.tcpNodelay = ce.booleanValue();
 
-			if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelObjectName)) != null)
+			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelObjectName)) != null)
 				httpChannelCfg.objectName = ce.asciiValue();
 
 			break;
@@ -881,16 +893,28 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 			EncryptedChannelConfig encryptedChannelCfg = new EncryptedChannelConfig();
 			_activeConfig.channelConfig = encryptedChannelCfg;
 
-			if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
-				encryptedChannelCfg.hostName = ce.asciiValue();
+			String tempHost = configImpl.getUserSpecifiedHostname();
+			if (tempHost == null)
+			{
+				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
+					encryptedChannelCfg.hostName = ce.asciiValue();
+			}
+			else
+				encryptedChannelCfg.hostName = tempHost;
 
-			if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelPort)) != null)
-				encryptedChannelCfg.serviceName = ce.asciiValue();
+			String tempService = configImpl.getUserSpecifiedPort();
+			if (tempService == null)
+			{
+				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelPort)) != null)
+					encryptedChannelCfg.serviceName = ce.asciiValue();
+			}
+			else
+				encryptedChannelCfg.serviceName = tempService;
 
-			if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
+			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
 				encryptedChannelCfg.tcpNodelay = ce.booleanValue();
 
-			if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelObjectName)) != null)
+			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelObjectName)) != null)
 				encryptedChannelCfg.objectName = ce.asciiValue();
 
 			break;
@@ -906,44 +930,47 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 		ChannelConfig currentChannelConfig = _activeConfig.channelConfig;
 		currentChannelConfig.name = channelName;
 
-		if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelInterfaceName)) != null)
-			currentChannelConfig.interfaceName = ce.asciiValue();
-
-		if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelCompressionType)) != null)
-			currentChannelConfig.compressionType = ce.intValue();
-
-		if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelGuaranteedOutputBuffers)) != null)
-			currentChannelConfig.guaranteedOutputBuffers = ce.intLongValue();
-
-		if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelNumInputBuffers)) != null)
-			currentChannelConfig.numInputBuffers = ce.intLongValue();
-
-		if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelCompressionThreshold)) != null)
-			currentChannelConfig.compressionThreshold = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
-
-		if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelConnectionPingTimeout)) != null)
-			currentChannelConfig.connectionPingTimeout = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
-
-		if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelSysRecvBufSize)) != null)
-			currentChannelConfig.sysRecvBufSize = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
-
-		if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelSysSendBufSize)) != null)
-			currentChannelConfig.sysSendBufSize = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
-
-		if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectAttemptLimit)) != null)
-			currentChannelConfig.reconnectAttemptLimit = ce.intValue();
-
-		if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectMinDelay)) != null)
-			currentChannelConfig.reconnectMinDelay = ce.intValue();
-
-		if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectMaxDelay)) != null)
-			currentChannelConfig.reconnectMaxDelay = ce.intValue();
-
-		if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelMsgKeyInUpdates)) != null)
-			currentChannelConfig.msgKeyInUpdates = ce.booleanValue();
-
-		if ((ce = attributes.getPrimitiveValue(ConfigManager.ChannelXmlTraceToStdout)) != null)
-			currentChannelConfig.xmlTraceEnable = ce.booleanValue();
+		if (attributes != null)
+		{
+			if((ce = attributes.getPrimitiveValue(ConfigManager.ChannelInterfaceName)) != null)
+				currentChannelConfig.interfaceName = ce.asciiValue();
+	
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelCompressionType)) != null)
+				currentChannelConfig.compressionType = ce.intValue();
+	
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelGuaranteedOutputBuffers)) != null)
+				currentChannelConfig.guaranteedOutputBuffers = ce.intLongValue();
+	
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelNumInputBuffers)) != null)
+				currentChannelConfig.numInputBuffers = ce.intLongValue();
+	
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelCompressionThreshold)) != null)
+				currentChannelConfig.compressionThreshold = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
+	
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelConnectionPingTimeout)) != null)
+				currentChannelConfig.connectionPingTimeout = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
+	
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelSysRecvBufSize)) != null)
+				currentChannelConfig.sysRecvBufSize = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
+	
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelSysSendBufSize)) != null)
+				currentChannelConfig.sysSendBufSize = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
+	
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectAttemptLimit)) != null)
+				currentChannelConfig.reconnectAttemptLimit = ce.intValue();
+	
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectMinDelay)) != null)
+				currentChannelConfig.reconnectMinDelay = ce.intValue();
+	
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectMaxDelay)) != null)
+				currentChannelConfig.reconnectMaxDelay = ce.intValue();
+	
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelMsgKeyInUpdates)) != null)
+				currentChannelConfig.msgKeyInUpdates = ce.booleanValue();
+	
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelXmlTraceToStdout)) != null)
+				currentChannelConfig.xmlTraceEnable = ce.booleanValue();
+		}
 	}
 
 	OmmInvalidUsageExceptionImpl ommIUExcept()
@@ -1056,11 +1083,11 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 
 				consumerStrBuilder().append("Failed to close reactor channel (rsslReactorChannel).")
 						.append("' RsslChannel='")
-						.append(Integer.toHexString(_rsslErrorInfo.error().channel().hashCode())).append("Error Id ")
-						.append(_rsslErrorInfo.error().errorId()).append("Internal sysError ")
-						.append(_rsslErrorInfo.error().sysError()).append("Error Location ")
-						.append(_rsslErrorInfo.location()).append("Error Text ").append(_rsslErrorInfo.error().text())
-						.append("'. ");
+						.append(Integer.toHexString(_rsslErrorInfo.error().channel() != null ? _rsslErrorInfo.error().channel().hashCode() : 0))
+						.append("Error Id ").append(_rsslErrorInfo.error().errorId())
+						.append("Internal sysError ").append(_rsslErrorInfo.error().sysError())
+						.append("Error Location ").append(_rsslErrorInfo.location())
+						.append("Error Text ").append(_rsslErrorInfo.error().text()).append("'. ");
 
 				_loggerClient.error(
 						formatLogMessage(_activeConfig.instanceName, _consumerStrBuilder.toString(), Severity.ERROR));

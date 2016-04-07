@@ -11,10 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.OmmConsumerClient;
-import com.thomsonreuters.ema.access.PostMsg;
-import com.thomsonreuters.ema.access.ReqMsg;
 import com.thomsonreuters.ema.access.OmmConsumerImpl.OmmConsumerState;
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
 import com.thomsonreuters.upa.codec.CloseMsg;
@@ -22,6 +18,7 @@ import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.DataTypes;
 import com.thomsonreuters.upa.codec.MapEntryActions;
 import com.thomsonreuters.upa.codec.Msg;
+import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.codec.MsgKeyFlags;
 import com.thomsonreuters.upa.codec.QosRates;
 import com.thomsonreuters.upa.codec.QosTimeliness;
@@ -441,7 +438,7 @@ class DirectoryCallbackClient extends ConsumerCallbackClient implements RDMDirec
 			case REFRESH:
 				{
 					_refreshMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(), 
-					((ChannelInfo)rsslReactorChannel.channel().userSpecObject()).rsslDictionary());
+					((ChannelInfo)rsslReactorChannel.userSpecObj()).rsslDictionary());
 	
 					_event._item = item;
 					_event._item.client().onAllMsg(_refreshMsg, _event);
@@ -465,7 +462,7 @@ class DirectoryCallbackClient extends ConsumerCallbackClient implements RDMDirec
 						_updateMsg = new UpdateMsgImpl(true);
 					
 					_updateMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(), 
-							((ChannelInfo)rsslReactorChannel.channel().userSpecObject()).rsslDictionary());
+							((ChannelInfo)rsslReactorChannel.userSpecObj()).rsslDictionary());
 	
 					_event._item = item;
 					_event._item.client().onAllMsg(_updateMsg, _event);
@@ -742,6 +739,7 @@ class DirectoryItem extends SingleItem
 	boolean close()
 	{
 		CloseMsg rsslCloseMsg = _consumer.directoryCallbackClient().rsslCloseMsg();
+		rsslCloseMsg.msgClass(MsgClasses.CLOSE);
 		rsslCloseMsg.containerType(DataTypes.NO_DATA);
 		rsslCloseMsg.domainType(_domainType);
 

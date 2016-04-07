@@ -7,32 +7,32 @@
 
 package com.thomsonreuters.ema.access;
 
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import com.thomsonreuters.ema.access.DataType;
-import com.thomsonreuters.ema.access.ElementEntry;
-import com.thomsonreuters.ema.access.ElementList;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.OmmError.ErrorCode;
 import com.thomsonreuters.upa.codec.Buffer;
+import com.thomsonreuters.upa.codec.CodecReturnCodes;
 
 class ElementListImpl extends CollectionDataImpl implements ElementList
 {
-	private com.thomsonreuters.upa.codec.ElementList _rsslElementList = com.thomsonreuters.upa.codec.CodecFactory.createElementList();
-	private LinkedList<ElementEntry> _elementListCollection = new LinkedList<ElementEntry>(); 
-	
-	ElementListImpl() 
+	private com.thomsonreuters.upa.codec.ElementList _rsslElementList = com.thomsonreuters.upa.codec.CodecFactory
+			.createElementList();
+	private LinkedList<ElementEntry> _elementListCollection = new LinkedList<ElementEntry>();
+
+	ElementListImpl()
 	{
 		super(false);
 	}
-	
+
 	ElementListImpl(boolean decoding)
 	{
 		super(decoding);
-	} 
-	
+	}
+
 	@Override
 	public int dataType()
 	{
@@ -58,7 +58,7 @@ class ElementListImpl extends CollectionDataImpl implements ElementList
 	public void clear()
 	{
 		super.clear();
-		
+
 		_rsslElementList.clear();
 		_elementListCollection.clear();
 	}
@@ -66,8 +66,18 @@ class ElementListImpl extends CollectionDataImpl implements ElementList
 	@Override
 	public ElementList info(int elementListNum)
 	{
-		// TODO Auto-generated method stub
+		if (elementListNum < -32768 || elementListNum > 32767)
+			throw ommOORExcept().message("elementListNum is out of range [(-32768) - 32767].");
+
+		_rsslElementList.elementListNum(elementListNum);
+		_rsslElementList.applyHasInfo();
 		return null;
+	}
+
+	@Override
+	public String toString()
+	{
+		return toString(0);
 	}
 
 	@Override
@@ -83,7 +93,7 @@ class ElementListImpl extends CollectionDataImpl implements ElementList
 	{
 		if (_fillCollection)
 			fillCollection();
-		
+
 		return new EmaIterator<ElementEntry>(_elementListCollection.iterator());
 	}
 
@@ -94,123 +104,107 @@ class ElementListImpl extends CollectionDataImpl implements ElementList
 			fillCollection();
 		return _elementListCollection.size();
 	}
-	
+
 	@Override
-	public boolean add(ElementEntry e)
+	public boolean add(ElementEntry elementEntry)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("ElementList collection doesn't support this operation.");
+		if (elementEntry == null)
+			throw new NullPointerException("Passed in elementEntry is null.");
+
+		return _elementListCollection.add(elementEntry);
 	}
 
 	@Override
 	public boolean addAll(Collection<? extends ElementEntry> c)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("ElementList collection doesn't support this operation.");
 	}
 
 	@Override
 	public boolean contains(Object o)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("ElementList collection doesn't support this operation.");
 	}
 
 	@Override
 	public boolean containsAll(Collection<?> c)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("ElementList collection doesn't support this operation.");
 	}
 
 	@Override
 	public boolean remove(Object o)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("ElementList collection doesn't support this operation.");
 	}
 
 	@Override
 	public boolean removeAll(Collection<?> c)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("ElementList collection doesn't support this operation.");
 	}
 
 	@Override
 	public boolean retainAll(Collection<?> c)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("ElementList collection doesn't support this operation.");
 	}
 
 	@Override
 	public Object[] toArray()
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("ElementList collection doesn't support this operation.");
 	}
 
 	@Override
 	public <T> T[] toArray(T[] a)
 	{
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("ElementList collection doesn't support this operation.");
 	}
-	
+
 	String toString(int indent)
 	{
 		_toString.setLength(0);
-		Utilities.addIndent(_toString, indent)
-				.append("ElementList");
-				
+		Utilities.addIndent(_toString, indent).append("ElementList");
+
 		if (hasInfo())
-			_toString.append(" ElementListNum=\"")
-					 .append(infoElementListNum())
-					 .append("\"");
+			_toString.append(" ElementListNum=\"").append(infoElementListNum()).append("\"");
 
 		if (_fillCollection)
 			fillCollection();
-		
-		if ( _elementListCollection.isEmpty() )
+
+		if (_elementListCollection.isEmpty())
 		{
 			Utilities.addIndent(_toString.append("\n"), indent).append("ElementListEnd\n");
 			return _toString.toString();
 		}
-		
+
 		++indent;
-		
+
 		DataImpl load;
 		int loadDataType;
 		for (ElementEntry elementEntry : _elementListCollection)
 		{
-			load = (DataImpl)elementEntry.load();
+			load = (DataImpl) elementEntry.load();
 			loadDataType = load.dataType();
-			
+
 			Utilities.addIndent(_toString.append("\n"), indent).append("ElementEntry name=\"")
-																  .append(elementEntry.name())
-																  .append("\" dataType=\"")
-																  .append(DataType.asString(loadDataType));
+					.append(elementEntry.name()).append("\" dataType=\"").append(DataType.asString(loadDataType));
 
 			if (DataTypes.ARRAY >= loadDataType || DataTypes.ERROR == loadDataType)
 			{
-				++indent; 
-				_toString.append("\"\n")
-						 .append(load.toString(indent));
+				++indent;
+				_toString.append("\"\n").append(load.toString(indent));
 				--indent;
 				Utilities.addIndent(_toString, indent).append("ElementEntryEnd");
-			}
-			else if (loadDataType == DataTypes.BUFFER)
+			} else if (loadDataType == DataTypes.BUFFER)
 			{
 				if (load.code() == DataCode.BLANK)
 					_toString.append("\" value=\"").append(load.toString()).append("\"");
 				else
 					_toString.append("\"\n").append(load.toString());
-			}
-			else
-				_toString.append("\" value=\"")
-						 .append(load.toString())
-					     .append("\"");
+			} else
+				_toString.append("\" value=\"").append(load.toString()).append("\"");
 		}
 
 		--indent;
@@ -219,10 +213,10 @@ class ElementListImpl extends CollectionDataImpl implements ElementList
 
 		return _toString.toString();
 	}
-	
+
 	@Override
 	void decode(com.thomsonreuters.upa.codec.Buffer rsslBuffer, int majVer, int minVer,
-				com.thomsonreuters.upa.codec.DataDictionary rsslDictionary, Object localElSeDefDb)
+			com.thomsonreuters.upa.codec.DataDictionary rsslDictionary, Object localElSeDefDb)
 	{
 		_fillCollection = true;
 
@@ -234,7 +228,7 @@ class ElementListImpl extends CollectionDataImpl implements ElementList
 
 		_rsslDictionary = rsslDictionary;
 
-		_rsslLocalELSetDefDb = (com.thomsonreuters.upa.codec.LocalElementSetDefDb)localElSeDefDb;
+		_rsslLocalELSetDefDb = (com.thomsonreuters.upa.codec.LocalElementSetDefDb) localElSeDefDb;
 
 		_rsslDecodeIter.clear();
 		int retCode = _rsslDecodeIter.setBufferAndRWFVersion(rsslBuffer, _rsslMajVer, _rsslMinVer);
@@ -243,84 +237,276 @@ class ElementListImpl extends CollectionDataImpl implements ElementList
 			_errorCode = ErrorCode.ITERATOR_SET_FAILURE;
 			return;
 		}
-		
+
 		retCode = _rsslElementList.decode(_rsslDecodeIter, _rsslLocalELSetDefDb);
 		switch (retCode)
 		{
-		case com.thomsonreuters.upa.codec.CodecReturnCodes.NO_DATA :
+		case com.thomsonreuters.upa.codec.CodecReturnCodes.NO_DATA:
 			_errorCode = ErrorCode.NO_ERROR;
 			break;
-		case com.thomsonreuters.upa.codec.CodecReturnCodes.SUCCESS :
+		case com.thomsonreuters.upa.codec.CodecReturnCodes.SUCCESS:
 			_errorCode = ErrorCode.NO_ERROR;
 			break;
-		case com.thomsonreuters.upa.codec.CodecReturnCodes.ITERATOR_OVERRUN :
+		case com.thomsonreuters.upa.codec.CodecReturnCodes.ITERATOR_OVERRUN:
 			_errorCode = ErrorCode.ITERATOR_OVERRUN;
 			break;
-		case com.thomsonreuters.upa.codec.CodecReturnCodes.INCOMPLETE_DATA :
+		case com.thomsonreuters.upa.codec.CodecReturnCodes.INCOMPLETE_DATA:
 			_errorCode = ErrorCode.INCOMPLETE_DATA;
 			break;
-		case com.thomsonreuters.upa.codec.CodecReturnCodes.SET_SKIPPED :
+		case com.thomsonreuters.upa.codec.CodecReturnCodes.SET_SKIPPED:
 			_errorCode = ErrorCode.NO_SET_DEFINITION;
 			break;
-		default :
+		default:
 			_errorCode = ErrorCode.UNKNOWN_ERROR;
 			break;
 		}
 	}
-	
+
 	void fillCollection()
 	{
 		DataImpl load;
-		com.thomsonreuters.upa.codec.ElementEntry rsslElementEntry = com.thomsonreuters.upa.codec.CodecFactory.createElementEntry();
-		
+		com.thomsonreuters.upa.codec.ElementEntry rsslElementEntry = com.thomsonreuters.upa.codec.CodecFactory
+				.createElementEntry();
+
 		_elementListCollection.clear();
-		
-		if ( ErrorCode.NO_ERROR != _errorCode)
+
+		if (ErrorCode.NO_ERROR != _errorCode)
 		{
-			load =  dataInstance(DataTypes.ERROR);
+			load = dataInstance(DataTypes.ERROR);
 			load.decode(_rsslBuffer, _errorCode);
 			_elementListCollection.add(new ElementEntryImpl(rsslElementEntry, load));
 			_fillCollection = false;
 			return;
 		}
-		
+
 		int retCode;
-		while ((retCode  = rsslElementEntry.decode(_rsslDecodeIter)) != com.thomsonreuters.upa.codec.CodecReturnCodes.END_OF_CONTAINER)
+		while ((retCode = rsslElementEntry
+				.decode(_rsslDecodeIter)) != com.thomsonreuters.upa.codec.CodecReturnCodes.END_OF_CONTAINER)
 		{
-			switch(retCode)
+			switch (retCode)
 			{
-			case com.thomsonreuters.upa.codec.CodecReturnCodes.SUCCESS :
-				int dType = dataType(rsslElementEntry.dataType(), _rsslMajVer, _rsslMinVer, rsslElementEntry.encodedData());
+			case com.thomsonreuters.upa.codec.CodecReturnCodes.SUCCESS:
+				int dType = dataType(rsslElementEntry.dataType(), _rsslMajVer, _rsslMinVer,
+						rsslElementEntry.encodedData());
 				load = dataInstance(dType);
-				
+
 				if (DataTypes.ERROR > dType && DataTypes.OPAQUE <= dType)
-					load.decode(rsslElementEntry.encodedData(),_rsslDecodeIter);
+					load.decode(rsslElementEntry.encodedData(), _rsslDecodeIter);
 				else
 					load.decode(rsslElementEntry.encodedData(), _rsslMajVer, _rsslMinVer, _rsslDictionary, null);
 				break;
-			case com.thomsonreuters.upa.codec.CodecReturnCodes.INCOMPLETE_DATA :
+			case com.thomsonreuters.upa.codec.CodecReturnCodes.INCOMPLETE_DATA:
 				load = dataInstance(DataTypes.ERROR);
-				load.decode(rsslElementEntry.encodedData(),ErrorCode.INCOMPLETE_DATA);
+				load.decode(rsslElementEntry.encodedData(), ErrorCode.INCOMPLETE_DATA);
 				break;
-			case com.thomsonreuters.upa.codec.CodecReturnCodes.UNSUPPORTED_DATA_TYPE :
+			case com.thomsonreuters.upa.codec.CodecReturnCodes.UNSUPPORTED_DATA_TYPE:
 				load = dataInstance(DataTypes.ERROR);
-				load.decode(rsslElementEntry.encodedData(),ErrorCode.UNSUPPORTED_DATA_TYPE);
+				load.decode(rsslElementEntry.encodedData(), ErrorCode.UNSUPPORTED_DATA_TYPE);
 				break;
-			default :
+			default:
 				load = dataInstance(DataTypes.ERROR);
-				load.decode(rsslElementEntry.encodedData(),ErrorCode.UNKNOWN_ERROR);
+				load.decode(rsslElementEntry.encodedData(), ErrorCode.UNKNOWN_ERROR);
 				break;
 			}
 
 			_elementListCollection.add(new ElementEntryImpl(rsslElementEntry, load));
 			rsslElementEntry = com.thomsonreuters.upa.codec.CodecFactory.createElementEntry();
 		}
-		
+
 		_fillCollection = false;
 	}
-	
+
 	Buffer encodedData()
 	{
-		return null;
+		if (_encodeComplete)
+			return _rsslBuffer;
+		else
+		{
+			_rsslEncodeIter.clear();
+			_rsslBuffer.data().clear();
+		}
+
+		if (!_elementListCollection.isEmpty())
+			_rsslElementList.applyHasStandardData();
+
+		int ret = _rsslEncodeIter.setBufferAndRWFVersion(_rsslBuffer, _rsslMajVer, _rsslMinVer);
+		if (ret != CodecReturnCodes.SUCCESS)
+		{
+			String errText = errorString().append("Failed to setBufferAndRWFVersion on rssl encode iterator. Reason='")
+					.append(CodecReturnCodes.toString(ret)).append("'").toString();
+			throw ommIUExcept().message(errText);
+		}
+
+		ret = _rsslElementList.encodeInit(_rsslEncodeIter, null, 0);
+		while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+		{
+			_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity() * 2));
+			_rsslEncodeIter.realignBuffer(_rsslBuffer);
+			ret = _rsslElementList.encodeInit(_rsslEncodeIter, null, 0);
+		}
+
+		if (ret != CodecReturnCodes.SUCCESS)
+		{
+			String errText = errorString().append("Failed to intialize encoding on rssl elementlist. Reason='")
+					.append(CodecReturnCodes.toString(ret)).append("'").toString();
+			throw ommIUExcept().message(errText);
+		}
+
+		ret = CodecReturnCodes.FAILURE;
+		for (com.thomsonreuters.ema.access.ElementEntry elementEntry : _elementListCollection)
+		{
+			if ((ret = elementEntryEncode(((ElementEntryImpl) elementEntry)._rsslElementEntry,
+					((ElementEntryImpl) elementEntry)._entryData)) != CodecReturnCodes.SUCCESS)
+			{
+				String errText = errorString().append("Failed to ").append("rsslElementEntry.encode()")
+						.append(" while encoding rssl elementlist. Reason='").append(CodecReturnCodes.toString(ret))
+						.append("'").toString();
+				throw ommIUExcept().message(errText);
+			}
+		}
+
+		ret = _rsslElementList.encodeComplete(_rsslEncodeIter, true);
+		if (ret != CodecReturnCodes.SUCCESS)
+		{
+			String errText = errorString().append("Failed to complete encoding on rssl elementlist. Reason='")
+					.append(CodecReturnCodes.toString(ret)).append("'").toString();
+			throw ommIUExcept().message(errText);
+		}
+
+		_encodeComplete = true;
+		return _rsslBuffer;
+	}
+
+	int elementEntryEncode(com.thomsonreuters.upa.codec.ElementEntry rsslElementEntry, Object cacheEntryData)
+	{
+		int ret;
+		if (cacheEntryData == null)
+		{
+			ret = rsslElementEntry.encode(_rsslEncodeIter);
+			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			{
+				_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity() * 2));
+				_rsslEncodeIter.realignBuffer(_rsslBuffer);
+				ret = rsslElementEntry.encode(_rsslEncodeIter);
+			}
+			return ret;
+		}
+
+		switch (rsslElementEntry.dataType())
+		{
+		case com.thomsonreuters.upa.codec.DataTypes.INT:
+			ret = rsslElementEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Int) cacheEntryData);
+			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			{
+				_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity() * 2));
+				_rsslEncodeIter.realignBuffer(_rsslBuffer);
+				ret = rsslElementEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Int) cacheEntryData);
+			}
+			return ret;
+		case com.thomsonreuters.upa.codec.DataTypes.UINT:
+			ret = rsslElementEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.UInt) cacheEntryData);
+			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			{
+				_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity() * 2));
+				_rsslEncodeIter.realignBuffer(_rsslBuffer);
+				ret = rsslElementEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.UInt) cacheEntryData);
+			}
+			return ret;
+		case com.thomsonreuters.upa.codec.DataTypes.REAL:
+			ret = rsslElementEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Real) cacheEntryData);
+			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			{
+				_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity() * 2));
+				_rsslEncodeIter.realignBuffer(_rsslBuffer);
+				ret = rsslElementEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Real) cacheEntryData);
+			}
+			return ret;
+		case com.thomsonreuters.upa.codec.DataTypes.DOUBLE:
+			ret = rsslElementEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Double) cacheEntryData);
+			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			{
+				_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity() * 2));
+				_rsslEncodeIter.realignBuffer(_rsslBuffer);
+				ret = rsslElementEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Double) cacheEntryData);
+			}
+			return ret;
+		case com.thomsonreuters.upa.codec.DataTypes.FLOAT:
+			ret = rsslElementEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Float) cacheEntryData);
+			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			{
+				_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity() * 2));
+				_rsslEncodeIter.realignBuffer(_rsslBuffer);
+				ret = rsslElementEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Float) cacheEntryData);
+			}
+			return ret;
+		case com.thomsonreuters.upa.codec.DataTypes.DATETIME:
+			ret = rsslElementEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.DateTime) cacheEntryData);
+			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			{
+				_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity() * 2));
+				_rsslEncodeIter.realignBuffer(_rsslBuffer);
+				ret = rsslElementEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.DateTime) cacheEntryData);
+			}
+			return ret;
+		case com.thomsonreuters.upa.codec.DataTypes.DATE:
+			ret = rsslElementEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Date) cacheEntryData);
+			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			{
+				_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity() * 2));
+				_rsslEncodeIter.realignBuffer(_rsslBuffer);
+				ret = rsslElementEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Date) cacheEntryData);
+			}
+			return ret;
+		case com.thomsonreuters.upa.codec.DataTypes.TIME:
+			ret = rsslElementEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Time) cacheEntryData);
+			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			{
+				_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity() * 2));
+				_rsslEncodeIter.realignBuffer(_rsslBuffer);
+				ret = rsslElementEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Time) cacheEntryData);
+			}
+			return ret;
+		case com.thomsonreuters.upa.codec.DataTypes.QOS:
+			ret = rsslElementEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Qos) cacheEntryData);
+			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			{
+				_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity() * 2));
+				_rsslEncodeIter.realignBuffer(_rsslBuffer);
+				ret = rsslElementEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Qos) cacheEntryData);
+			}
+			return ret;
+		case com.thomsonreuters.upa.codec.DataTypes.STATE:
+			ret = rsslElementEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.State) cacheEntryData);
+			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			{
+				_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity() * 2));
+				_rsslEncodeIter.realignBuffer(_rsslBuffer);
+				ret = rsslElementEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.State) cacheEntryData);
+			}
+			return ret;
+		case com.thomsonreuters.upa.codec.DataTypes.ENUM:
+			ret = rsslElementEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Enum) cacheEntryData);
+			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			{
+				_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity() * 2));
+				_rsslEncodeIter.realignBuffer(_rsslBuffer);
+				ret = rsslElementEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Enum) cacheEntryData);
+			}
+			return ret;
+		case com.thomsonreuters.upa.codec.DataTypes.BUFFER:
+		case com.thomsonreuters.upa.codec.DataTypes.UTF8_STRING:
+		case com.thomsonreuters.upa.codec.DataTypes.ASCII_STRING:
+		case com.thomsonreuters.upa.codec.DataTypes.RMTES_STRING:
+			ret = rsslElementEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Buffer) cacheEntryData);
+			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			{
+				_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity() * 2));
+				_rsslEncodeIter.realignBuffer(_rsslBuffer);
+				ret = rsslElementEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Buffer) cacheEntryData);
+			}
+			return ret;
+		default:
+			return CodecReturnCodes.FAILURE;
+		}
 	}
 }

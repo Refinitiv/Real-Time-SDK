@@ -9,14 +9,11 @@ package com.thomsonreuters.ema.access;
 
 import java.nio.ByteBuffer;
 
-import com.thomsonreuters.ema.access.AckMsg;
-import com.thomsonreuters.ema.access.ComplexType;
-import com.thomsonreuters.ema.access.DataType;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.OmmError.ErrorCode;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 
-public class AckMsgImpl extends MsgImpl implements AckMsg
+class AckMsgImpl extends MsgImpl implements AckMsg
 {
 	private final static String ACCESSDENIED_STRING = "AccessDenied";
 	private final static String DENIEDBYSOURCE_STRING = "DeniedBySource";
@@ -211,7 +208,7 @@ public class AckMsgImpl extends MsgImpl implements AckMsg
 	@Override
 	public AckMsg seqNum(long seqNum)
 	{
-		seqNum(seqNum);
+		msgSeqNum(seqNum);
 		return this;
 	}
 
@@ -239,12 +236,12 @@ public class AckMsgImpl extends MsgImpl implements AckMsg
 	@Override
 	public AckMsg text(String text)
 	{
-		if ( text == null)
-			throw ommOORExcept().message("Passed in text is null");
+		if (text == null)
+			throw ommIUExcept().message("Passed in value is null");
 		
 		((com.thomsonreuters.upa.codec.AckMsg)_rsslMsg).applyHasText();
 		((com.thomsonreuters.upa.codec.AckMsg)_rsslMsg).text().data(text);
-
+		
 		return this;
 	}
 

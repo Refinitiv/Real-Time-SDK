@@ -7,12 +7,9 @@
 
 package com.thomsonreuters.ema.access;
 
-
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
-import com.thomsonreuters.ema.access.DataType;
-import com.thomsonreuters.ema.access.OmmArrayEntry;
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
@@ -20,8 +17,8 @@ import com.thomsonreuters.upa.codec.CodecReturnCodes;
 class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 {
 	protected com.thomsonreuters.upa.codec.ArrayEntry	_rsslArrayEntry;
-	protected Object _cacheEntryData;
-	protected int _cacheEntryDataType;
+	protected Object _entryData;
+	protected int _entryDataType;
 	
 	OmmArrayEntryImpl()
 	{
@@ -47,20 +44,20 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	@Override
 	public OmmArrayEntry intValue(long value)
 	{
-		_cacheEntryData = CodecFactory.createInt();
-		((com.thomsonreuters.upa.codec.Int)_cacheEntryData).value(value);
+		_entryData = CodecFactory.createInt();
+		((com.thomsonreuters.upa.codec.Int)_entryData).value(value);
 		
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.INT;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.INT;
 		return this;
 	}
 
 	@Override
 	public OmmArrayEntry uintValue(long value)
 	{
-		_cacheEntryData = CodecFactory.createUInt();
-		((com.thomsonreuters.upa.codec.UInt)_cacheEntryData).value(value) ;
+		_entryData = CodecFactory.createUInt();
+		((com.thomsonreuters.upa.codec.UInt)_entryData).value(value) ;
 		
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.UINT;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.UINT;
 		
 		return this;
 	}
@@ -68,10 +65,10 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	@Override
 	public OmmArrayEntry uintValue(BigInteger value)
 	{
-		_cacheEntryData = CodecFactory.createUInt();
-		((com.thomsonreuters.upa.codec.UInt)_cacheEntryData).value(value) ;
+		_entryData = CodecFactory.createUInt();
+		((com.thomsonreuters.upa.codec.UInt)_entryData).value(value) ;
 		
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.UINT;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.UINT;
 		
 		return this;
 	}
@@ -79,8 +76,8 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	@Override
 	public OmmArrayEntry real(long mantissa, int magnitudeType)
 	{
-		_cacheEntryData = CodecFactory.createReal();
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_cacheEntryData).value(mantissa, magnitudeType) )
+		_entryData = CodecFactory.createReal();
+		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_entryData).value(mantissa, magnitudeType) )
 		{
 			String errText = errorString().append("Attempt to specify invalid real value. Passed mantissa, magnitudeType are='" )
 										.append( mantissa ).append( " / " )
@@ -88,7 +85,7 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 			throw ommIUExcept().message(errText);
 		}
 		
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.REAL;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.REAL;
 		
 		return this;
 	}
@@ -102,8 +99,8 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	@Override
 	public OmmArrayEntry realFromDouble(double value, int magnitudeType)
 	{
-		_cacheEntryData = CodecFactory.createReal();
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_cacheEntryData).value(value, magnitudeType) )
+		_entryData = CodecFactory.createReal();
+		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_entryData).value(value, magnitudeType) )
 		{
 			String errText = errorString().append("Attempt to specify invalid real value. Passed in value,  magnitudeType are='" )
 										.append( value ).append( " / " )
@@ -111,7 +108,7 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 			throw ommIUExcept().message(errText);
 		}
 		
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.REAL;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.REAL;
 		
 		return this;
 	}
@@ -119,10 +116,10 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	@Override
 	public OmmArrayEntry floatValue(float value)
 	{
-		_cacheEntryData = CodecFactory.createFloat();
-		((com.thomsonreuters.upa.codec.Float)_cacheEntryData).value(value);
+		_entryData = CodecFactory.createFloat();
+		((com.thomsonreuters.upa.codec.Float)_entryData).value(value);
 		
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.FLOAT;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.FLOAT;
 		
 		return this;
 	}
@@ -130,10 +127,10 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	@Override
 	public OmmArrayEntry doubleValue(double value)
 	{
-		_cacheEntryData = CodecFactory.createDouble();
-		((com.thomsonreuters.upa.codec.Double)_cacheEntryData).value(value);
+		_entryData = CodecFactory.createDouble();
+		((com.thomsonreuters.upa.codec.Double)_entryData).value(value);
 		
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.DOUBLE;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.DOUBLE;
 		
 		return this;
 	}
@@ -141,9 +138,9 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	@Override
 	public OmmArrayEntry date(int year, int month, int day)
 	{
-		_cacheEntryData = dateValue(year, month, day);
+		_entryData = dateValue(year, month, day);
 		
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.DATE;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.DATE;
 		
 		return this;
 	}
@@ -175,9 +172,9 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	@Override
 	public OmmArrayEntry time(int hour, int minute, int second, int millisecond, int microsecond, int nanosecond)
 	{
-		_cacheEntryData = timeValue(hour, minute, second, millisecond, microsecond, nanosecond);
+		_entryData = timeValue(hour, minute, second, millisecond, microsecond, nanosecond);
 		
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.TIME;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.TIME;
 		
 		return this;
 	}
@@ -223,9 +220,9 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	public OmmArrayEntry dateTime(int year, int month, int day, int hour, int minute, int second, int millisecond,
 			int microsecond, int nanosecond)
 	{
-		_cacheEntryData = dateTimeValue(year, month, day, hour, minute, second, millisecond, microsecond, nanosecond);
+		_entryData = dateTimeValue(year, month, day, hour, minute, second, millisecond, microsecond, nanosecond);
 		
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.DATETIME;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.DATETIME;
 		
 		return this;
 	}
@@ -239,10 +236,10 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	@Override
 	public OmmArrayEntry qos(int timeliness, int rate)
 	{
-		_cacheEntryData = CodecFactory.createQos();
-		Utilities.toRsslQos(rate, timeliness, (com.thomsonreuters.upa.codec.Qos)_cacheEntryData);
+		_entryData = CodecFactory.createQos();
+		Utilities.toRsslQos(rate, timeliness, (com.thomsonreuters.upa.codec.Qos)_entryData);
 		
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.QOS;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.QOS;
 		
 		return this;
 	}
@@ -268,11 +265,11 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	@Override
 	public OmmArrayEntry state(int streamState, int dataState, int statusCode, String statusText)
 	{
-		_cacheEntryData = CodecFactory.createState();
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_cacheEntryData).streamState(streamState) ||
-				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_cacheEntryData).dataState(dataState) ||
-				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_cacheEntryData).code(statusCode) || 
-				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_cacheEntryData).text().data(statusText))
+		_entryData = CodecFactory.createState();
+		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_entryData).streamState(streamState) ||
+				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_entryData).dataState(dataState) ||
+				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_entryData).code(statusCode) || 
+				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_entryData).text().data(statusText))
 		{
 			String errText = errorString().append("Attempt to specify invalid state. Passed in value is='" )
 					.append( streamState ).append( " / " )
@@ -282,7 +279,7 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 				throw ommIUExcept().message(errText);
 		}
 		
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.STATE;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.STATE;
 		
 		return this;
 	}
@@ -290,15 +287,15 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	@Override
 	public OmmArrayEntry enumValue(int value)
 	{
-		_cacheEntryData = CodecFactory.createEnum();
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Enum)_cacheEntryData).value(value) )
+		_entryData = CodecFactory.createEnum();
+		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Enum)_entryData).value(value) )
 		{
 			String errText = errorString().append("Attempt to specify invalid enum. Passed in value is='" )
 					.append( value ).append( "." ).toString();
 				throw ommIUExcept().message(errText);
 		}
 		
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.ENUM;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.ENUM;
 		
 		return this;
 	}
@@ -309,10 +306,10 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 		if (value == null)
 			throw ommIUExcept().message("Passed in value is null");
 		
-		_cacheEntryData = CodecFactory.createBuffer();
-		Utilities.copy(value, (Buffer)_cacheEntryData);
+		_entryData = CodecFactory.createBuffer();
+		Utilities.copy(value, (Buffer)_entryData);
 		
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.BUFFER;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.BUFFER;
 		
 		return this;
 	}
@@ -323,10 +320,10 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 		if (value == null)
 			throw ommIUExcept().message("Passed in value is null");
 		
-		_cacheEntryData = CodecFactory.createBuffer();
-		((Buffer)_cacheEntryData).data(value);
+		_entryData = CodecFactory.createBuffer();
+		((Buffer)_entryData).data(value);
 		
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.ASCII_STRING;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.ASCII_STRING;
 		
 		return this;
 	}
@@ -337,10 +334,10 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 		if (value == null)
 			throw ommIUExcept().message("Passed in value is null");
 		
-		_cacheEntryData = CodecFactory.createBuffer();
-		Utilities.copy(value, (Buffer)_cacheEntryData);
+		_entryData = CodecFactory.createBuffer();
+		Utilities.copy(value, (Buffer)_entryData);
 		
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.UTF8_STRING;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.UTF8_STRING;
 		
 		return this;
 	}
@@ -351,10 +348,10 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 		if (value == null)
 			throw ommIUExcept().message("Passed in value is null");
 		
-		_cacheEntryData = CodecFactory.createBuffer();
-		((Buffer)_cacheEntryData).data(value);
+		_entryData = CodecFactory.createBuffer();
+		((Buffer)_entryData).data(value);
 		
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.UTF8_STRING;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.UTF8_STRING;
 		
 		return this;
 	}
@@ -365,10 +362,10 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 		if (value == null)
 			throw ommIUExcept().message("Passed in value is null");
 		
-		_cacheEntryData = CodecFactory.createBuffer();
-		Utilities.copy(value, (Buffer)_cacheEntryData);
+		_entryData = CodecFactory.createBuffer();
+		Utilities.copy(value, (Buffer)_entryData);
 		
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.RMTES_STRING;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.RMTES_STRING;
 		
 		return this;
 	}
@@ -376,7 +373,7 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	@Override
 	public OmmArrayEntry codeInt()
 	{
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.INT;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.INT;
 		
 		return this;
 	}
@@ -384,7 +381,7 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	@Override
 	public OmmArrayEntry codeUInt()
 	{
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.UINT;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.UINT;
 		
 		return this;
 	}
@@ -392,7 +389,7 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	@Override
 	public OmmArrayEntry codeReal()
 	{
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.REAL;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.REAL;
 		
 		return this;
 	}
@@ -400,7 +397,7 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	@Override
 	public OmmArrayEntry codeFloat()
 	{
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.FLOAT;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.FLOAT;
 		
 		return this;
 	}
@@ -408,7 +405,7 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	@Override
 	public OmmArrayEntry codeDouble()
 	{
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.DOUBLE;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.DOUBLE;
 		
 		return this;
 	}
@@ -416,7 +413,7 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	@Override
 	public OmmArrayEntry codeDate()
 	{
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.DATE;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.DATE;
 		
 		return this;
 	}
@@ -424,7 +421,7 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	@Override
 	public OmmArrayEntry codeTime()
 	{
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.TIME;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.TIME;
 		
 		return this;
 	}
@@ -432,7 +429,7 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	@Override
 	public OmmArrayEntry codeDateTime()
 	{
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.DATETIME;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.DATETIME;
 		
 		return this;
 	}
@@ -440,7 +437,7 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	@Override
 	public OmmArrayEntry codeQos()
 	{
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.QOS;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.QOS;
 		
 		return this;
 	}
@@ -448,7 +445,7 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	@Override
 	public OmmArrayEntry codeState()
 	{
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.STATE;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.STATE;
 		
 		return this;
 	}
@@ -456,7 +453,7 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	@Override
 	public OmmArrayEntry codeEnum()
 	{
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.ENUM;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.ENUM;
 		
 		return this;
 	}
@@ -464,7 +461,7 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	@Override
 	public OmmArrayEntry codeBuffer()
 	{
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.BUFFER;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.BUFFER;
 		
 		return this;
 	}
@@ -472,7 +469,7 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	@Override
 	public OmmArrayEntry codeAscii()
 	{
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.ASCII_STRING;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.ASCII_STRING;
 		
 		return this;
 	}
@@ -480,7 +477,7 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	@Override
 	public OmmArrayEntry codeUtf8()
 	{
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.UTF8_STRING;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.UTF8_STRING;
 		
 		return this;
 	}
@@ -488,7 +485,7 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 	@Override
 	public OmmArrayEntry codeRmtes()
 	{
-		_cacheEntryDataType = com.thomsonreuters.upa.codec.DataTypes.RMTES_STRING;
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.RMTES_STRING;
 		
 		return this;
 	}

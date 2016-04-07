@@ -11,11 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.OmmConsumerClient;
-import com.thomsonreuters.ema.access.PostMsg;
-import com.thomsonreuters.ema.access.ReqMsg;
-import com.thomsonreuters.ema.access.TunnelStreamRequest;
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
 import com.thomsonreuters.upa.codec.AckMsgFlags;
 import com.thomsonreuters.upa.codec.Buffer;
@@ -128,7 +123,8 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
     		return ReactorCallbackReturnCodes.SUCCESS;
         }
         
-        if (msg.streamId() != 1 && (event.streamInfo() == null || event.streamInfo().userSpecObject() == null))
+        _event._item = (Item)(event.streamInfo() != null ? event.streamInfo().userSpecObject() : null);
+        if (( _event._item == null) && msg.streamId() != 1)
         {
         	if (_consumer.loggerClient().isErrorEnabled())
         	{
@@ -138,10 +134,13 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 	        		.append("Consumer Name ").append(_consumer.consumerName())
 	        		.append(OmmLoggerClient.CR)
 	        		.append("RsslReactor ").append(Integer.toHexString(channelInfo.rsslReactor().hashCode()))
-	        		.append(OmmLoggerClient.CR)
-        			.append("RsslReactorChannel ").append(Integer.toHexString(event.reactorChannel().hashCode()))
+	        		.append(OmmLoggerClient.CR);
+	        	if (event.reactorChannel() != null && event.reactorChannel().selectableChannel() != null)
+        			temp.append("RsslReactorChannel ").append(Integer.toHexString(event.reactorChannel().hashCode()))
         			.append(OmmLoggerClient.CR)
         			.append("RsslSelectableChannel ").append(Integer.toHexString(event.reactorChannel().selectableChannel().hashCode()));
+	        	else
+	        		temp.append("RsslReactorChannel is null").append(OmmLoggerClient.CR);
 	        	
 	        	_consumer.loggerClient().error(_consumer.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
         	}
@@ -153,17 +152,17 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
     	{
 	    	case MsgClasses.ACK :
 	    		if (msg.streamId() == 1)
-	    			return _consumer.loginCallbackClient().processAckMsg(msg, event.reactorChannel(), null);
+	    			return _consumer.loginCallbackClient().processAckMsg(msg, event.reactorChannel());
 	    		else
-	    			return _consumer.itemCallbackClient().processAckMsg(msg, event.reactorChannel(), event);
+	    			return _consumer.itemCallbackClient().processAckMsg(msg, event.reactorChannel());
 	    	case MsgClasses.GENERIC :
-	    		return _consumer.itemCallbackClient().processGenericMsg(msg, event.reactorChannel(), event);
+	    		return _consumer.itemCallbackClient().processGenericMsg(msg, event.reactorChannel());
 	    	case MsgClasses.REFRESH :
-	    		return _consumer.itemCallbackClient().processRefreshMsg(msg, event.reactorChannel(), event);
+	    		return _consumer.itemCallbackClient().processRefreshMsg(msg, event.reactorChannel());
 	    	case MsgClasses.STATUS :
-	    		return _consumer.itemCallbackClient().processStatusMsg(msg, event.reactorChannel(), event);
+	    		return _consumer.itemCallbackClient().processStatusMsg(msg, event.reactorChannel());
 	    	case MsgClasses.UPDATE :
-	    		return _consumer.itemCallbackClient().processUpdateMsg(msg, event.reactorChannel(), event);
+	    		return _consumer.itemCallbackClient().processUpdateMsg(msg, event.reactorChannel());
 	    	default :
 	    		if (_consumer.loggerClient().isErrorEnabled())
 	        	{
@@ -173,10 +172,13 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 		        		.append("Consumer Name ").append(_consumer.consumerName())
 		        		.append(OmmLoggerClient.CR)
 		        		.append("RsslReactor ").append(Integer.toHexString(channelInfo.rsslReactor().hashCode()))
-		        		.append(OmmLoggerClient.CR)
-	        			.append("RsslReactorChannel ").append(Integer.toHexString(event.reactorChannel().hashCode()))
-	        			.append(OmmLoggerClient.CR)
-	        			.append("RsslSelectableChannel ").append(Integer.toHexString(event.reactorChannel().selectableChannel().hashCode()));
+		        		.append(OmmLoggerClient.CR);
+			        	if (event.reactorChannel() != null && event.reactorChannel().selectableChannel() != null)
+		        			temp.append("RsslReactorChannel ").append(Integer.toHexString(event.reactorChannel().hashCode()))
+		        			.append(OmmLoggerClient.CR)
+		        			.append("RsslSelectableChannel ").append(Integer.toHexString(event.reactorChannel().selectableChannel().hashCode()));
+			        	else
+			        		temp.append("RsslReactorChannel is null").append(OmmLoggerClient.CR);
 		        	
 		        	_consumer.loggerClient().error(_consumer.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
 	        	}
@@ -186,17 +188,15 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 		return ReactorCallbackReturnCodes.SUCCESS;
 	}
 
-	int processRefreshMsg(Msg rsslMsg, ReactorChannel rsslReactorChannel, ReactorMsgEvent rsslEvent)
+	int processRefreshMsg(Msg rsslMsg, ReactorChannel rsslReactorChannel)
 	{
 		_refreshMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(), 
-				((ChannelInfo)rsslReactorChannel.channel().userSpecObject()).rsslDictionary());
+				((ChannelInfo)rsslReactorChannel.userSpecObj()).rsslDictionary());
 	
-		_event._item = (Item)rsslEvent.streamInfo().userSpecObject();
-
 		if (_event._item.type() == Item.ItemType.BATCH_ITEM)
 			_event._item = ((BatchItem)_event._item).singleItem(rsslMsg.streamId());
 		
-		_refreshMsg.serviceName(_event._item.directory().service().info().serviceName());
+		_refreshMsg.service(_event._item.directory().serviceName());
 
 		_event._item.client().onAllMsg(_refreshMsg, _event);
 		_event._item.client().onRefreshMsg(_refreshMsg, _event);
@@ -215,17 +215,15 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 		return ReactorCallbackReturnCodes.SUCCESS;
 	}
 
-	int processUpdateMsg(Msg rsslMsg, ReactorChannel rsslReactorChannel, ReactorMsgEvent rsslEvent)
+	int processUpdateMsg(Msg rsslMsg, ReactorChannel rsslReactorChannel)
 	{
 		_updateMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(), 
-				((ChannelInfo)rsslReactorChannel.channel().userSpecObject()).rsslDictionary());
+				((ChannelInfo)rsslReactorChannel.userSpecObj()).rsslDictionary());
 		
-		_event._item = (Item)rsslEvent.streamInfo().userSpecObject();
-
 		if (_event._item.type() == Item.ItemType.BATCH_ITEM)
 			_event._item = ((BatchItem)_event._item).singleItem(rsslMsg.streamId());
 	
-		_updateMsg.serviceName(_event._item.directory().service().info().serviceName());
+		_updateMsg.service(_event._item.directory().serviceName());
 
 		_event._item.client().onAllMsg(_updateMsg, _event);
 		_event._item.client().onUpdateMsg(_updateMsg, _event);
@@ -233,20 +231,18 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 		return ReactorCallbackReturnCodes.SUCCESS;
 	}
 
-	int processStatusMsg(Msg rsslMsg, ReactorChannel rsslReactorChannel, ReactorMsgEvent rsslEvent)
+	int processStatusMsg(Msg rsslMsg, ReactorChannel rsslReactorChannel)
 	{
 		if (_statusMsg == null)
 			_statusMsg = new StatusMsgImpl(true);
 		
 		_statusMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(), 
-				((ChannelInfo)rsslReactorChannel.channel().userSpecObject()).rsslDictionary());
-		
-		_event._item = (Item)rsslEvent.streamInfo().userSpecObject();
+				((ChannelInfo)rsslReactorChannel.userSpecObj()).rsslDictionary());
 		
 		if (_event._item.type() == Item.ItemType.BATCH_ITEM)
 			_event._item = ((BatchItem)_event._item).singleItem(rsslMsg.streamId());
 		
-		_statusMsg.serviceName(_event._item.directory().service().info().serviceName());
+		_statusMsg.service(_event._item.directory().serviceName());
 
 		_event._item.client().onAllMsg(_statusMsg, _event);
 		_event._item.client().onStatusMsg(_statusMsg, _event);
@@ -258,12 +254,13 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 		return ReactorCallbackReturnCodes.SUCCESS;
 	}
 
-	int processGenericMsg(Msg rsslMsg, ReactorChannel rsslReactorChannel, ReactorMsgEvent rsslEvent)
+	int processGenericMsg(Msg rsslMsg, ReactorChannel rsslReactorChannel)
 	{
+		if (_genericMsg == null)
+			_genericMsg = new GenericMsgImpl(true);
+
 		_genericMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(),
-				((ChannelInfo)rsslReactorChannel.channel().userSpecObject()).rsslDictionary());
-		
-		_event._item = (Item)rsslEvent.streamInfo().userSpecObject();
+				((ChannelInfo)rsslReactorChannel.userSpecObj()).rsslDictionary());
 		
 		if (_event._item.type() == Item.ItemType.BATCH_ITEM)
 			_event._item = ((BatchItem)_event._item).singleItem(rsslMsg.streamId());
@@ -274,20 +271,18 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 		return ReactorCallbackReturnCodes.SUCCESS;
 	}
 
-	int processAckMsg(Msg rsslMsg, ReactorChannel rsslReactorChannel, ReactorMsgEvent rsslEvent)
+	int processAckMsg(Msg rsslMsg, ReactorChannel rsslReactorChannel)
 	{
 		if (_ackMsg == null)
 			_ackMsg = new AckMsgImpl(true);
 		
 		_ackMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(),
-				((ChannelInfo)rsslReactorChannel.channel().userSpecObject()).rsslDictionary());
-
-		_event._item = (Item)rsslEvent.streamInfo().userSpecObject();
+				((ChannelInfo)rsslReactorChannel.userSpecObj()).rsslDictionary());
 
 		if (_event._item.type() == Item.ItemType.BATCH_ITEM)
 			_event._item = ((BatchItem)_event._item).singleItem(rsslMsg.streamId());
 				
-		_ackMsg.serviceName(_event._item.directory().service().info().serviceName());
+		_ackMsg.service(_event._item.directory().serviceName());
 
 		_event._item.client().onAllMsg(_ackMsg, _event);
 		_event._item.client().onAckMsg(_ackMsg, _event);
@@ -320,10 +315,7 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 				{
 					SingleItem item = _consumer.loginCallbackClient().loginItem(reqMsg, consumerClient, closure);
 
-					item.itemId(LongIdGenerator.nextLongId());
-					addToMap(item);
-
-					return item.itemId();
+					return addToMap(LongIdGenerator.nextLongId(), item);
 				}
 				case DomainTypes.DICTIONARY :
 				{
@@ -411,10 +403,7 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 					}
 					else
 					{
-						item.itemId(LongIdGenerator.nextLongId());
-						addToMap(item);
-						
-						return item.itemId();
+						return addToMap(LongIdGenerator.nextLongId(), item);
 					}
 				}
 				case DomainTypes.SOURCE :
@@ -440,10 +429,7 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 						}
 						else
 						{
-							item.itemId(LongIdGenerator.nextLongId());
-							addToMap(item);
-							
-							return item.itemId();
+							return addToMap(LongIdGenerator.nextLongId(), item);
 						}
 					}
 	
@@ -486,10 +472,7 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 								addToMap( batchItem );
 
 								for ( int i = 1 ; i < numOfItem ; i++ )
-								{
-									items.get(i).itemId(LongIdGenerator.nextLongId());
-									addToMap(items.get(i));
-								}
+									addToMap(LongIdGenerator.nextLongId(), items.get(i));
 								
 								return batchItem.itemId();
 							}
@@ -513,10 +496,7 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 						}
 						else
 						{
-							item.itemId(LongIdGenerator.nextLongId());
-							addToMap(item);
-							
-							return item.itemId();
+							return addToMap(LongIdGenerator.nextLongId(), item);
 						}
 					}
 				}
@@ -620,6 +600,13 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 	//	int processCallback(TunnelStream , TunnelStreamMsgEvent)
 	//	int processCallback(TunnelStream , TunnelStreamQueueMsgEvent)
 
+	long addToMap(long itemId, Item item)
+	{
+		item.itemId(itemId);
+		_itemMap.put(itemId, item);
+		return itemId;
+	}
+	
 	void addToMap(Item item)
 	{
 		_itemMap.put(item.itemId(), item);
@@ -841,6 +828,7 @@ class SingleItem extends Item
 	boolean close()
 	{
 		CloseMsg rsslCloseMsg = _consumer.itemCallbackClient().rsslCloseMsg();
+		rsslCloseMsg.msgClass(MsgClasses.CLOSE);
 		rsslCloseMsg.containerType(DataTypes.NO_DATA);
 		rsslCloseMsg.domainType(_domainType);
 
@@ -912,11 +900,12 @@ class SingleItem extends Item
 				_streamId = rsslRequestMsg.streamId();
 				
 				SingleItem item;
+				int itemStreamIdStart = _streamId;
 				for ( int index = 0; index < numOfItem; index++)
 				{
 					item = items.get(index);
 					item._directory = _directory;
-					item._streamId = _streamId + 1;
+					item._streamId = ++itemStreamIdStart;
 					item._domainType = rsslRequestMsg.domainType();
 				}
 			}
@@ -1300,19 +1289,19 @@ class BatchItem extends SingleItem
 		return _singleItemList;
 	}
 
-	SingleItem singleItem(int index)
+	SingleItem singleItem(int streamId)
 	{
-		return null;
+		int index = streamId - _streamId;
+		if (index < 0)
+			return null;
+	
+		return (index == 0) ? this : _singleItemList.get(index-1);
 	}
 
 	void decreaseItemCount()
 	{
-		//TODO
-	}
-	
-	Item item(int index)
-	{
-		return null;
+		if ( --_itemCount == 0 )
+			this.returnToPool();
 	}
 }
 
@@ -1323,7 +1312,7 @@ class ClosedStatusClient implements TimeoutClient
 {
 	private MsgKey 		_rsslMsgKey = CodecFactory.createMsgKey();
 	private Buffer 		_statusText =  CodecFactory.createBuffer();
-	private Buffer 		_serviceName = CodecFactory.createBuffer();
+	private String 		_serviceName;
 	private int 		_domainType;
 	private int 		_streamId;
 	private Item 		_item;
@@ -1342,7 +1331,7 @@ class ClosedStatusClient implements TimeoutClient
 		_statusText.data(statusText);
 		_domainType = rsslMsg.domainType();
 		_rsslMsgKey.clear();
-		_serviceName.data(serviceName);
+		_serviceName = serviceName;
 		
 		if (rsslMsg.msgKey() != null)
 			rsslMsg.msgKey().copy(_rsslMsgKey);
@@ -1394,7 +1383,7 @@ class ClosedStatusClient implements TimeoutClient
 		
 		_client._statusMsg.decode(rsslStatusMsg, Codec.majorVersion(), Codec.majorVersion(), null);
 
-		_client._statusMsg.serviceName(_serviceName);
+		_client._statusMsg.service(_serviceName);
 
 		_client._event._item = _item;
 

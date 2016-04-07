@@ -10,10 +10,6 @@ package com.thomsonreuters.ema.access;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
-import com.thomsonreuters.ema.access.ComplexType;
-import com.thomsonreuters.ema.access.DataType;
-import com.thomsonreuters.ema.access.Key;
-import com.thomsonreuters.ema.access.MapEntry;
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
@@ -26,10 +22,11 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	private final static String DEFAULTACTION_STRING 	= "Unknown MapAction value ";
 	
 	private ByteBuffer _permData;
-	private KeyImpl _keyData = new KeyImpl();
+	private KeyImpl _keyDataDecoded = new KeyImpl();
 	protected com.thomsonreuters.upa.codec.MapEntry	_rsslMapEntry;
-	protected Object _cacheKeyData;
-	protected int _cacheKeyDataType;
+	protected Object _keyData;
+	protected int _keyDataType;
+	protected int _entryDataType;
 
 	MapEntryImpl() 
 	{
@@ -40,7 +37,7 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	{
 		super(load);
 		_rsslMapEntry = rsslMapEntry;
-		_keyData.data(mapEntryKey);
+		_keyDataDecoded.data(mapEntryKey);
 	}
 	
 	@Override
@@ -68,7 +65,7 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	@Override
 	public Key key()
 	{
-		return _keyData;
+		return _keyDataDecoded;
 	}
 
 	@Override
@@ -117,12 +114,12 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	@Override
 	public MapEntry keyInt(long key, int action, ComplexType value, ByteBuffer permissionData)
 	{
-		_cacheKeyData = CodecFactory.createInt();
-		((com.thomsonreuters.upa.codec.Int)_cacheKeyData).value(key);
-	
-		mapEntryValue(_rsslMapEntry, action, value, permissionData);
-	
-		_cacheKeyDataType = com.thomsonreuters.upa.codec.DataTypes.INT;
+		_keyData = CodecFactory.createInt();
+		((com.thomsonreuters.upa.codec.Int) _keyData).value(key);
+
+		entryValue(action, value, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.INT;
 		
 		return this;
 	}
@@ -136,13 +133,13 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	@Override
 	public MapEntry keyUInt(long key, int action, ComplexType value, ByteBuffer permissionData)
 	{
-		_cacheKeyData = CodecFactory.createUInt();
-		((com.thomsonreuters.upa.codec.UInt)_cacheKeyData).value(key);
-	
-		mapEntryValue(_rsslMapEntry, action, value, permissionData);
-	
-		_cacheKeyDataType = com.thomsonreuters.upa.codec.DataTypes.UINT;
-				
+		_keyData = CodecFactory.createUInt();
+		((com.thomsonreuters.upa.codec.UInt) _keyData).value(key);
+
+		entryValue(action, value, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.UINT;
+						
 		return this;
 	}
 
@@ -155,13 +152,13 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	@Override
 	public MapEntry keyUInt(BigInteger key, int action, ComplexType value, ByteBuffer permissionData)
 	{
-		_cacheKeyData = CodecFactory.createUInt();
-		((com.thomsonreuters.upa.codec.UInt)_cacheKeyData).value(key);
-	
-		mapEntryValue(_rsslMapEntry, action, value, permissionData);
-	
-		_cacheKeyDataType = com.thomsonreuters.upa.codec.DataTypes.UINT;
-				
+		_keyData = CodecFactory.createUInt();
+		((com.thomsonreuters.upa.codec.UInt) _keyData).value(key);
+
+		entryValue(action, value, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.UINT;
+		
 		return this;
 	}
 
@@ -174,19 +171,19 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	@Override
 	public MapEntry keyReal(long mantissa, int magnitudeType, int action, ComplexType value, ByteBuffer permissionData)
 	{
-		_cacheKeyData = CodecFactory.createReal();
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_cacheKeyData).value(mantissa, magnitudeType) )
+		_keyData = CodecFactory.createReal();
+		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_keyData).value(mantissa, magnitudeType) )
 		{
 			String errText = errorString().append("Attempt to specify invalid real value. Passed in value is='" )
 										.append( mantissa ).append( " / " )
 										.append( magnitudeType ).append( "'." ).toString();
 			throw ommIUExcept().message(errText);
 		}
-	
-		mapEntryValue(_rsslMapEntry, action, value, permissionData);
-	
-		_cacheKeyDataType = com.thomsonreuters.upa.codec.DataTypes.REAL;
-				
+
+		entryValue(action, value, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.REAL;
+		
 		return this;
 	}
 
@@ -211,19 +208,19 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	@Override
 	public MapEntry keyReal(double key, int magnitudeType, int action, ComplexType value, ByteBuffer permissionData)
 	{
-		_cacheKeyData = CodecFactory.createReal();
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_cacheKeyData).value(key, magnitudeType) )
+		_keyData = CodecFactory.createReal();
+		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_keyData).value(key, magnitudeType) )
 		{
 			String errText = errorString().append("Attempt to specify invalid real value. Passed in value is='" )
 										.append( key ).append( " / " )
 										.append( magnitudeType ).append( "'." ).toString();
 			throw ommIUExcept().message(errText);
 		}
-	
-		mapEntryValue(_rsslMapEntry, action, value, permissionData);
 
-		_cacheKeyDataType = com.thomsonreuters.upa.codec.DataTypes.REAL;
-				
+		entryValue(action, value, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.REAL;
+						
 		return this;
 	}
 
@@ -236,13 +233,13 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	@Override
 	public MapEntry keyFloat(float key, int action, ComplexType value, ByteBuffer permissionData)
 	{
-		_cacheKeyData = CodecFactory.createFloat();
-		((com.thomsonreuters.upa.codec.Float)_cacheKeyData).value(key) ;
-	
-		mapEntryValue(_rsslMapEntry, action, value, permissionData);
-	
-		_cacheKeyDataType = com.thomsonreuters.upa.codec.DataTypes.FLOAT;
-	
+		_keyData = CodecFactory.createFloat();
+		((com.thomsonreuters.upa.codec.Float) _keyData).value(key);
+
+		entryValue(action, value, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.FLOAT;
+			
 		return this;
 	}
 
@@ -255,13 +252,13 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	@Override
 	public MapEntry keyDouble(double key, int action, ComplexType value, ByteBuffer permissionData)
 	{
-		_cacheKeyData = CodecFactory.createDouble();
-		((com.thomsonreuters.upa.codec.Double)_cacheKeyData).value(key) ;
-	
-		mapEntryValue(_rsslMapEntry, action, value, permissionData);
-		
-		_cacheKeyDataType = com.thomsonreuters.upa.codec.DataTypes.DOUBLE;
-				
+		_keyData = CodecFactory.createDouble();
+		((com.thomsonreuters.upa.codec.Double) _keyData).value(key);
+
+		entryValue(action, value, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.DOUBLE;
+						
 		return this;
 	}
 
@@ -274,12 +271,12 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	@Override
 	public MapEntry keyDate(int year, int month, int day, int action, ComplexType value, ByteBuffer permissionData)
 	{
-		_cacheKeyData =  dateValue(year, month, day);
+		_keyData =  dateValue(year, month, day);
 
-		mapEntryValue(_rsslMapEntry, action, value, permissionData);
+		entryValue(action, value, permissionData);
 
-		_cacheKeyDataType = com.thomsonreuters.upa.codec.DataTypes.DATE;
-		
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.DATE;
+			
 		return this;
 	}
 
@@ -294,11 +291,11 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	public MapEntry keyTime(int hour, int minute, int second, int millisecond, int microsecond, int nanosecond,
 			int action, ComplexType value, ByteBuffer permissionData)
 	{
-		_cacheKeyData = timeValue(hour, minute, second, millisecond, microsecond, nanosecond);
-		
-		mapEntryValue(_rsslMapEntry, action, value, permissionData);
-	
-		_cacheKeyDataType = com.thomsonreuters.upa.codec.DataTypes.TIME;
+		_keyData = timeValue(hour, minute, second, millisecond, microsecond, nanosecond);
+
+		entryValue(action, value, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.TIME;
 				
 		return this;
 	}
@@ -314,11 +311,11 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	public MapEntry keyDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond,
 			int microsecond, int nanosecond, int action, ComplexType value, ByteBuffer permissionData)
 	{
-		_cacheKeyData = dateTimeValue(year, month, day, hour, minute, second, millisecond, microsecond, nanosecond);
-			
-		mapEntryValue(_rsslMapEntry, action, value, permissionData);
+		_keyData = dateTimeValue(year, month, day, hour, minute, second, millisecond, microsecond, nanosecond);
 
-		_cacheKeyDataType = com.thomsonreuters.upa.codec.DataTypes.DATETIME;
+		entryValue(action, value, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.DATETIME;
 				
 		return this;
 	}
@@ -332,12 +329,12 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	@Override
 	public MapEntry keyQos(int timeliness, int rate, int action, ComplexType value, ByteBuffer permissionData)
 	{
-		_cacheKeyData = CodecFactory.createQos();
-		Utilities.toRsslQos(rate, timeliness, (com.thomsonreuters.upa.codec.Qos)_cacheKeyData);
-	
-		mapEntryValue(_rsslMapEntry, action, value, permissionData);
+		_keyData = CodecFactory.createQos();
+		Utilities.toRsslQos(rate, timeliness, (com.thomsonreuters.upa.codec.Qos) _keyData);
 
-		_cacheKeyDataType = com.thomsonreuters.upa.codec.DataTypes.QOS;
+		entryValue(action, value, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.QOS;
 		
 		return this;
 	}
@@ -353,10 +350,10 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	public MapEntry keyState(int streamState, int dataState, int statusCode, String statusText, int action,
 			ComplexType value, ByteBuffer permissionData)
 	{
-		_cacheKeyData = CodecFactory.createState();
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_cacheKeyData).streamState(streamState) ||
-				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_cacheKeyData).dataState(dataState) ||
-				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_cacheKeyData).code(statusCode) || statusText == null)
+		_keyData = CodecFactory.createState();
+		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_keyData).streamState(streamState) ||
+				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_keyData).dataState(dataState) ||
+				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_keyData).code(statusCode) || statusText == null)
 		{
 			String errText = errorString().append("Attempt to specify invalid state. Passed in value is='" )
 					.append( streamState ).append( " / " )
@@ -365,10 +362,10 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 					.append( statusText ).append( "." ).toString();
 				throw ommIUExcept().message(errText);
 		}
-	
-		mapEntryValue(_rsslMapEntry, action, value, permissionData);
 
-		_cacheKeyDataType = com.thomsonreuters.upa.codec.DataTypes.STATE;
+		entryValue(action, value, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.STATE;
 		
 		return this;
 	}
@@ -382,18 +379,18 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	@Override
 	public MapEntry keyEnum(int key, int action, ComplexType value, ByteBuffer permissionData)
 	{
-		_cacheKeyData = CodecFactory.createEnum();
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Enum)_cacheKeyData).value(key) )
+		_keyData = CodecFactory.createEnum();
+		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Enum)_keyData).value(key) )
 		{
 			String errText = errorString().append("Attempt to specify invalid enum. Passed in key is='" )
 					.append( key ).append( "." ).toString();
 				throw ommIUExcept().message(errText);
 		}
-		
-		mapEntryValue(_rsslMapEntry, action, value, permissionData);
-	
-		_cacheKeyDataType = com.thomsonreuters.upa.codec.DataTypes.ENUM;
-				
+
+		entryValue(action, value, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.ENUM;
+			
 		return this;
 	}
 
@@ -406,13 +403,13 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	@Override
 	public MapEntry keyBuffer(ByteBuffer key, int action, ComplexType value, ByteBuffer permissionData)
 	{
-		_cacheKeyData = CodecFactory.createBuffer();
-		Utilities.copy(key, (Buffer)_cacheKeyData);
-		
-		mapEntryValue(_rsslMapEntry, action, value, permissionData);
-	
-		_cacheKeyDataType = com.thomsonreuters.upa.codec.DataTypes.BUFFER;
-				
+		_keyData = CodecFactory.createBuffer();
+		Utilities.copy(key, (Buffer) _keyData);
+
+		entryValue(action, value, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.BUFFER;
+			
 		return this;
 	}
 
@@ -425,17 +422,17 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	@Override
 	public MapEntry keyAscii(String key, int action, ComplexType value, ByteBuffer permissionData)
 	{
-		_cacheKeyData = CodecFactory.createBuffer();
-		if (CodecReturnCodes.SUCCESS != ((Buffer)_cacheKeyData).data(key) )
+		_keyData = CodecFactory.createBuffer();
+		if (CodecReturnCodes.SUCCESS != ((Buffer)_keyData).data(key) )
 		{
 			String errText = errorString().append("Attempt to specify invalid string. Passed in key is='" )
 					.append( key ).append( "." ).toString();
 				throw ommIUExcept().message(errText);
 		}
-		
-		mapEntryValue(_rsslMapEntry, action, value, permissionData);
-	
-		_cacheKeyDataType = com.thomsonreuters.upa.codec.DataTypes.ASCII_STRING;
+
+		entryValue(action, value, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.ASCII_STRING;
 				
 		return this;
 	}
@@ -449,13 +446,13 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	@Override
 	public MapEntry keyUtf8(ByteBuffer key, int action, ComplexType value, ByteBuffer permissionData)
 	{
-		_cacheKeyData = CodecFactory.createBuffer();
-		Utilities.copy(key, (Buffer)_cacheKeyData);
+		_keyData = CodecFactory.createBuffer();
+		Utilities.copy(key, (Buffer) _keyData);
+
+		entryValue(action, value, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.UTF8_STRING;
 	
-		mapEntryValue(_rsslMapEntry, action, value, permissionData);
-	
-		_cacheKeyDataType = com.thomsonreuters.upa.codec.DataTypes.UTF8_STRING;
-		
 		return this;
 	}
 
@@ -468,18 +465,37 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	@Override
 	public MapEntry keyRmtes(ByteBuffer key, int action, ComplexType value, ByteBuffer permissionData)
 	{
-		_cacheKeyData = CodecFactory.createBuffer();
-		Utilities.copy(key, (Buffer)_cacheKeyData);
+		_keyData = CodecFactory.createBuffer();
+		Utilities.copy(key, (Buffer) _keyData);
 
-		mapEntryValue(_rsslMapEntry, action, value, permissionData);
+		entryValue(action, value, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.RMTES_STRING;
 	
-		_cacheKeyDataType = com.thomsonreuters.upa.codec.DataTypes.RMTES_STRING;
-		
 		return this;
 	}
-	
+
 	DataImpl decodedKey()
 	{
-		return (DataImpl)_keyData.data();
+		return (DataImpl)_keyDataDecoded.data();
+	}
+
+	private void entryValue(int action, ComplexType value, ByteBuffer permissionData)
+	{
+		if (action < 0 || action > 15)
+			throw ommOORExcept().message("action is out of range [0 - 15].");
+		if (value == null)
+			throw ommIUExcept().message("Passed in value is null");
+
+		_rsslMapEntry.action(action);
+		_entryDataType = Utilities.toRsslDataType(value.dataType());	
+		
+		Utilities.copy(((DataImpl) value).encodedData(), _rsslMapEntry.encodedData());
+
+		if (permissionData != null)
+		{
+			Utilities.copy(permissionData, _rsslMapEntry.permData());
+			_rsslMapEntry.applyHasPermData();
+		}
 	}
 }

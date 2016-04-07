@@ -9,17 +9,9 @@ package com.thomsonreuters.ema.access;
 
 import java.nio.ByteBuffer;
 
-import com.thomsonreuters.ema.access.ComplexType;
-import com.thomsonreuters.ema.access.DataType;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.OmmError.ErrorCode;
-import com.thomsonreuters.ema.access.OmmQos;
-import com.thomsonreuters.ema.access.OmmState;
-import com.thomsonreuters.ema.access.RefreshMsg;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.DataStates;
-import com.thomsonreuters.upa.codec.StateCodes;
-import com.thomsonreuters.upa.codec.StreamStates;
 
 class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 {
@@ -252,8 +244,7 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 	public RefreshMsg qos(int timeliness, int rate)
 	{
 		((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).applyHasQos();
-		((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).qos().rate(rate);
-		((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).qos().timeliness(timeliness);
+		Utilities.toRsslQos(rate, timeliness, ((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).qos());
 		
 		return this;
 	}
@@ -264,7 +255,7 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).state().streamState(streamState) ||
 				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).state().dataState(dataState) || 
 				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).state().code(statusCode) || 
-				statusText == null)
+				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).state().text().data(statusText))
 		{
 			String errText = errorString().append("Attempt to specify invalid state. Passed in value is='" )
 										.append( streamState ).append( " / " )
@@ -609,9 +600,9 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 	
 	void initialEncoding()
 	{
-		 ((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).state().streamState(StreamStates.OPEN);
-		 ((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).state().dataState(DataStates.OK);
-		 ((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).state().code(StateCodes.NONE);
+		 ((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).state().streamState(com.thomsonreuters.upa.codec.StreamStates.OPEN);
+		 ((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).state().dataState(com.thomsonreuters.upa.codec.DataStates.OK);
+		 ((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).state().code(com.thomsonreuters.upa.codec.StateCodes.NONE);
 
 		 ((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).groupId().data( ByteBuffer.wrap(defaultGroupId));
 	}

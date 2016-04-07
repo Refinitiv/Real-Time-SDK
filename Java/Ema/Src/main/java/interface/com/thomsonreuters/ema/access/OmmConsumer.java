@@ -214,5 +214,11 @@ public interface OmmConsumer
 	 * @param handle identifies item to close
 	*/
 	public void unregister(long handle);
+	
+	/**
+	 * Uninitializes the OmmConsumer object.
+	 * <p> This method is ObjectLevelSafe.</p>
+	 */
+	public void uninitialize();
 
 }

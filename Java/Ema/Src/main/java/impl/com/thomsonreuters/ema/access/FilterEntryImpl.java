@@ -9,9 +9,6 @@ package com.thomsonreuters.ema.access;
 
 import java.nio.ByteBuffer;
 
-import com.thomsonreuters.ema.access.DataType;
-import com.thomsonreuters.ema.access.FilterEntry;
-import com.thomsonreuters.upa.codec.CodecFactory;
 
 class FilterEntryImpl extends EntryImpl implements FilterEntry
 {
@@ -21,11 +18,11 @@ class FilterEntryImpl extends EntryImpl implements FilterEntry
 	private final static String DEFAULTACTION_STRING 	= "Unknown FilterAction value ";
 	
 	private ByteBuffer _permData;
-	private com.thomsonreuters.upa.codec.FilterEntry _rsslFilterEntry;
+	protected com.thomsonreuters.upa.codec.FilterEntry _rsslFilterEntry;
 	
 	FilterEntryImpl()
 	{
-		_rsslFilterEntry = CodecFactory.createFilterEntry();
+		_rsslFilterEntry = com.thomsonreuters.upa.codec.CodecFactory.createFilterEntry();
 	}
 	
 	FilterEntryImpl(com.thomsonreuters.upa.codec.FilterEntry rsslFilterEntry, DataImpl load)
@@ -102,224 +99,217 @@ class FilterEntryImpl extends EntryImpl implements FilterEntry
 	@Override
 	public FilterEntry reqMsg(int filterId, int action, ReqMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, null);
 	}
 
 	@Override
 	public FilterEntry reqMsg(int filterId, int action, ReqMsg value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
 	public FilterEntry refreshMsg(int filterId, int action, RefreshMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, null);
 	}
 
 	@Override
 	public FilterEntry refreshMsg(int filterId, int action, RefreshMsg value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
 	public FilterEntry statusMsg(int filterId, int action, StatusMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, null);
 	}
 
 	@Override
 	public FilterEntry statusMsg(int filterId, int action, StatusMsg value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
 	public FilterEntry updateMsg(int filterId, int action, UpdateMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, null);
 	}
 
 	@Override
 	public FilterEntry updateMsg(int filterId, int action, UpdateMsg value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
 	public FilterEntry postMsg(int filterId, int action, PostMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, null);
 	}
 
 	@Override
 	public FilterEntry postMsg(int filterId, int action, PostMsg value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
 	public FilterEntry ackMsg(int filterId, int action, AckMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, null);
 	}
 
 	@Override
 	public FilterEntry ackMsg(int filterId, int action, AckMsg value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
 	public FilterEntry genericMsg(int filterId, int action, GenericMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, null);
 	}
 
 	@Override
 	public FilterEntry genericMsg(int filterId, int action, GenericMsg value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
 	public FilterEntry fieldList(int filterId, int action, FieldList value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, null);
 	}
 
 	@Override
 	public FilterEntry fieldList(int filterId, int action, FieldList value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
 	public FilterEntry elementList(int filterId, int action, ElementList value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, null);
 	}
 
 	@Override
 	public FilterEntry elementList(int filterId, int action, ElementList value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
 	public FilterEntry map(int filterId, int action, Map value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, null);
 	}
 
 	@Override
 	public FilterEntry map(int filterId, int action, Map value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
 	public FilterEntry vector(int filterId, int action, Vector value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, null);
 	}
 
 	@Override
 	public FilterEntry vector(int filterId, int action, Vector value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
 	public FilterEntry series(int filterId, int action, Series value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, null);
 	}
 
 	@Override
 	public FilterEntry series(int filterId, int action, Series value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
 	public FilterEntry filterList(int filterId, int action, FilterList value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, null);
 	}
 
 	@Override
 	public FilterEntry filterList(int filterId, int action, FilterList value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
 	public FilterEntry opaque(int filterId, int action, OmmOpaque value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, null);
 	}
 
 	@Override
 	public FilterEntry opaque(int filterId, int action, OmmOpaque value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
 	public FilterEntry xml(int filterId, int action, OmmXml value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, null);
 	}
 
 	@Override
 	public FilterEntry xml(int filterId, int action, OmmXml value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
 	public FilterEntry ansiPage(int filterId, int action, OmmAnsiPage value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, null);
 	}
 
 	@Override
 	public FilterEntry ansiPage(int filterId, int action, OmmAnsiPage value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(filterId, action, (DataImpl) value, permissionData);
+	}
+
+	private FilterEntry entryValue(int filterId, int action, DataImpl value, ByteBuffer permissionData)
+	{
+		if (filterId < 0 || filterId > 255)
+			throw ommOORExcept().message("position is out of range [0 - 255].");
+		if (action < 0 || action > 15)
+			throw ommOORExcept().message("action is out of range [0 - 15].");
+		if (value == null)
+			throw ommIUExcept().message("Passed in value is null");
+
+		_rsslFilterEntry.id(filterId);
+		_rsslFilterEntry.action(action);
+		_rsslFilterEntry.applyHasContainerType();
+		_rsslFilterEntry.containerType(Utilities.toRsslDataType(value.dataType()));
+		
+		Utilities.copy(((DataImpl) value).encodedData(), _rsslFilterEntry.encodedData());
+
+		if (permissionData != null)
+		{
+			Utilities.copy(permissionData, _rsslFilterEntry.permData());
+			_rsslFilterEntry.applyHasPermData();
+		}
+
+		return this;
 	}
 }

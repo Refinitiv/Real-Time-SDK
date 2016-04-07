@@ -12,11 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.OmmConsumerClient;
-import com.thomsonreuters.ema.access.OmmState;
-import com.thomsonreuters.ema.access.PostMsg;
-import com.thomsonreuters.ema.access.ReqMsg;
 import com.thomsonreuters.ema.access.OmmConsumerImpl.OmmConsumerState;
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
 import com.thomsonreuters.upa.codec.Buffer;
@@ -31,6 +26,7 @@ import com.thomsonreuters.upa.codec.RefreshMsg;
 import com.thomsonreuters.upa.codec.RequestMsg;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.rdm.DomainTypes;
+import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginAttrib;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsg;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
@@ -88,7 +84,7 @@ class LoginCallbackClient extends ConsumerCallbackClient implements RDMLoginMsgC
 	        	StringBuilder temp = _consumer.consumerStrBuilder();
 				
 	        	temp.append("Received an event without RDMLogin message").append(OmmLoggerClient.CR)
-					.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.hashCode())).append(OmmLoggerClient.CR)
+					.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel != null ? rsslReactorChannel.reactor().hashCode() : 0)).append(OmmLoggerClient.CR)
 					.append("RsslChannel ").append("@").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)).append(OmmLoggerClient.CR)
 					.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
 					.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
@@ -111,11 +107,13 @@ class LoginCallbackClient extends ConsumerCallbackClient implements RDMLoginMsgC
 				if (_rsslRefreshMsg == null)
 				{
 					_rsslRefreshMsg = (RefreshMsg)CodecFactory.createMsg();
+					_rsslRefreshMsg.msgClass(MsgClasses.REFRESH);
 					msg.copy(_rsslRefreshMsg, CopyMsgFlags.ALL_FLAGS);
 				}
 				else
 				{
 					_rsslRefreshMsg.clear();
+					_rsslRefreshMsg.msgClass(MsgClasses.REFRESH);
 					msg.copy(_rsslRefreshMsg, CopyMsgFlags.ALL_FLAGS);
 				}
 				
@@ -406,7 +404,7 @@ class LoginCallbackClient extends ConsumerCallbackClient implements RDMLoginMsgC
         {
         	ByteBuffer byteBuf = _rsslEncBuffer.data();
         	byteBuf.clear();
-        	_rsslEncBuffer.data(byteBuf, 0, 0); 
+        	_rsslEncBuffer.data(byteBuf, 0, byteBuf.capacity()); 
         }
 	     
 	    EncodeIterator rsslEncIter = _consumer.rsslEncIter();
@@ -517,6 +515,7 @@ class LoginCallbackClient extends ConsumerCallbackClient implements RDMLoginMsgC
 		else
 			_rsslCloseMsg.clear();
 		
+		_rsslCloseMsg.msgClass(MsgClasses.CLOSE);
 		_rsslCloseMsg.streamId(1);
 		_rsslCloseMsg.containerType(com.thomsonreuters.upa.codec.DataTypes.NO_DATA);
 		_rsslCloseMsg.domainType(DomainTypes.LOGIN);
@@ -555,13 +554,13 @@ class LoginCallbackClient extends ConsumerCallbackClient implements RDMLoginMsgC
 		return item;
 	}
 
-	int processAckMsg(Msg rsslMsg , ReactorChannel rsslReactorChannel , RDMLoginMsgEvent rsslEvent)
+	int processAckMsg(Msg rsslMsg , ReactorChannel rsslReactorChannel)
 	{
 		if (_ackMsg == null)
 			_ackMsg = new AckMsgImpl(true);
 		
 		_ackMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(), 
-				((ChannelInfo)rsslReactorChannel.channel().userSpecObject()).rsslDictionary());
+				((ChannelInfo)rsslReactorChannel.userSpecObj()).rsslDictionary());
 	
 		for (Item loginItem : _loginItemList)
 		{
@@ -645,6 +644,13 @@ class LoginItem extends SingleItem implements TimeoutClient
 	{
 		ReactorSubmitOptions rsslSubmitOptions = _consumer.rsslSubmitOptions();
 		 ReactorErrorInfo rsslErrorInfo = _consumer.rsslErrorInfo();
+		 rsslRequestMsg.streamId(_streamId);
+		 if ( rsslRequestMsg.msgKey().nameType() == 0)
+		 {
+			 rsslRequestMsg.msgKey().nameType(Login.UserIdTypes.NAME);
+			 rsslRequestMsg.msgKey().applyHasNameType();
+		 }
+		 
 		 int ret;
 		for (ChannelInfo entry : _loginChannelList)
 		{
@@ -693,6 +699,7 @@ class LoginItem extends SingleItem implements TimeoutClient
 	{
 		ReactorSubmitOptions rsslSubmitOptions = _consumer.rsslSubmitOptions();
 		ReactorErrorInfo rsslErrorInfo = _consumer.rsslErrorInfo();
+		rsslPostMsg.streamId(_streamId);
 		int ret;
 		
 		rsslPostMsg.streamId(_streamId);
@@ -742,6 +749,7 @@ class LoginItem extends SingleItem implements TimeoutClient
 	{
 		ReactorSubmitOptions rsslSubmitOptions = _consumer.rsslSubmitOptions();
 		ReactorErrorInfo rsslErrorInfo = _consumer.rsslErrorInfo();
+		rsslGenericMsg.streamId(_streamId);
 		int ret;
 		
 		rsslGenericMsg.streamId(_streamId);

@@ -9,23 +9,20 @@ package com.thomsonreuters.ema.access;
 
 import java.nio.ByteBuffer;
 
-import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.EmaUtility;
-import com.thomsonreuters.ema.access.OmmBuffer;
-import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 
 class OmmBufferImpl extends DataImpl implements OmmBuffer
 {
 	OmmBufferImpl()
 	{
-		_rsslBuffer = CodecFactory.createBuffer();
+		_rsslBuffer = com.thomsonreuters.upa.codec.CodecFactory.createBuffer();
 	}
 	
 	@Override
 	public int dataType()
 	{
-		return DataTypes.BUFFER;
+		return DataType.DataTypes.BUFFER;
 	}
 
 	@Override

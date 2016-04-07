@@ -222,4 +222,19 @@ public final class EmaFactory
 	{
 		return new MapEntryImpl();
 	}
+	
+	public static OmmAnsiPage createOmmAnsiPage()
+	{
+		return new OmmAnsiPageImpl();
+	}
+	
+	public static OmmOpaque createOmmOpaque()
+	{
+		return new OmmOpaqueImpl();
+	}
+	
+	public static OmmXml createOmmXml()
+	{
+		return new OmmXmlImpl();
+	}
 }

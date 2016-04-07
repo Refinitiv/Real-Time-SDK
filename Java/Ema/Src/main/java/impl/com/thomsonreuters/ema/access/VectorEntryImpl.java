@@ -9,9 +9,6 @@ package com.thomsonreuters.ema.access;
 
 import java.nio.ByteBuffer;
 
-import com.thomsonreuters.ema.access.DataType;
-import com.thomsonreuters.ema.access.VectorEntry;
-import com.thomsonreuters.upa.codec.CodecFactory;
 
 class VectorEntryImpl extends EntryImpl implements VectorEntry
 {
@@ -23,11 +20,12 @@ class VectorEntryImpl extends EntryImpl implements VectorEntry
 	private final static String DEFAULTACTION_STRING 	= "Unknown VectorAction value ";
 	
 	private ByteBuffer _permData;
-	private com.thomsonreuters.upa.codec.VectorEntry	_rsslVectorEntry;
-
+	protected com.thomsonreuters.upa.codec.VectorEntry	_rsslVectorEntry;
+	protected int _entryDataType;
+	
 	VectorEntryImpl()
 	{
-		_rsslVectorEntry = CodecFactory.createVectorEntry();
+		_rsslVectorEntry = com.thomsonreuters.upa.codec.CodecFactory.createVectorEntry();
 	}
 	
 	VectorEntryImpl(com.thomsonreuters.upa.codec.VectorEntry rsslVectorEntry, DataImpl load)
@@ -106,226 +104,217 @@ class VectorEntryImpl extends EntryImpl implements VectorEntry
 	}
 
 	@Override
-	public VectorEntry reqMsg(int position, int action, ReqMsg value)
+	public VectorEntry reqMsg(long position, int action, ReqMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, null);
 	}
 
 	@Override
-	public VectorEntry reqMsg(int position, int action, ReqMsg value, ByteBuffer permissionData)
+	public VectorEntry reqMsg(long position, int action, ReqMsg value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
-	public VectorEntry refreshMsg(int position, int action, RefreshMsg value)
+	public VectorEntry refreshMsg(long position, int action, RefreshMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, null);
 	}
 
 	@Override
-	public VectorEntry refreshMsg(int position, int action, RefreshMsg value, ByteBuffer permissionData)
+	public VectorEntry refreshMsg(long position, int action, RefreshMsg value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
-	public VectorEntry statusMsg(int position, int action, StatusMsg value)
+	public VectorEntry statusMsg(long position, int action, StatusMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, null);
 	}
 
 	@Override
-	public VectorEntry statusMsg(int position, int action, StatusMsg value, ByteBuffer permissionData)
+	public VectorEntry statusMsg(long position, int action, StatusMsg value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
-	public VectorEntry updateMsg(int position, int action, UpdateMsg value)
+	public VectorEntry updateMsg(long position, int action, UpdateMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, null);
 	}
 
 	@Override
-	public VectorEntry updateMsg(int position, int action, UpdateMsg value, ByteBuffer permissionData)
+	public VectorEntry updateMsg(long position, int action, UpdateMsg value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
-	public VectorEntry postMsg(int position, int action, PostMsg value)
+	public VectorEntry postMsg(long position, int action, PostMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, null);
 	}
 
 	@Override
-	public VectorEntry postMsg(int position, int action, PostMsg value, ByteBuffer permissionData)
+	public VectorEntry postMsg(long position, int action, PostMsg value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
-	public VectorEntry ackMsg(int position, int action, AckMsg value)
+	public VectorEntry ackMsg(long position, int action, AckMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, null);
 	}
 
 	@Override
-	public VectorEntry ackMsg(int position, int action, AckMsg value, ByteBuffer permissionData)
+	public VectorEntry ackMsg(long position, int action, AckMsg value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
-	public VectorEntry genericMsg(int position, int action, GenericMsg value)
+	public VectorEntry genericMsg(long position, int action, GenericMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, null);
 	}
 
 	@Override
-	public VectorEntry genericMsg(int position, int action, GenericMsg value, ByteBuffer permissionData)
+	public VectorEntry genericMsg(long position, int action, GenericMsg value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
-	public VectorEntry fieldList(int position, int action, FieldList value)
+	public VectorEntry fieldList(long position, int action, FieldList value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, null);
 	}
 
 	@Override
-	public VectorEntry fieldList(int position, int action, FieldList value, ByteBuffer permissionData)
+	public VectorEntry fieldList(long position, int action, FieldList value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
-	public VectorEntry elementList(int position, int action, ElementList value)
+	public VectorEntry elementList(long position, int action, ElementList value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, null);
 	}
 
 	@Override
-	public VectorEntry elementList(int position, int action, ElementList value, ByteBuffer permissionData)
+	public VectorEntry elementList(long position, int action, ElementList value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
-	public VectorEntry map(int position, int action, Map value)
+	public VectorEntry map(long position, int action, Map value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, null);
 	}
 
 	@Override
-	public VectorEntry map(int position, int action, Map value, ByteBuffer permissionData)
+	public VectorEntry map(long position, int action, Map value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
-	public VectorEntry vector(int position, int action, Vector value)
+	public VectorEntry vector(long position, int action, Vector value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, null);
 	}
 
 	@Override
-	public VectorEntry vector(int position, int action, Vector value, ByteBuffer permissionData)
+	public VectorEntry vector(long position, int action, Vector value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
-	public VectorEntry series(int position, int action, Series value)
+	public VectorEntry series(long position, int action, Series value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, null);
 	}
 
 	@Override
-	public VectorEntry series(int position, int action, Series value, ByteBuffer permissionData)
+	public VectorEntry series(long position, int action, Series value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
-	public VectorEntry filterList(int position, int action, FilterList value)
+	public VectorEntry filterList(long position, int action, FilterList value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, null);
 	}
 
 	@Override
-	public VectorEntry filterList(int position, int action, FilterList value, ByteBuffer permissionData)
+	public VectorEntry filterList(long position, int action, FilterList value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
-	public VectorEntry opaque(int position, int action, OmmOpaque value)
+	public VectorEntry opaque(long position, int action, OmmOpaque value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, null);
 	}
 
 	@Override
-	public VectorEntry opaque(int position, int action, OmmOpaque value, ByteBuffer permissionData)
+	public VectorEntry opaque(long position, int action, OmmOpaque value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
-	public VectorEntry xml(int position, int action, OmmXml value)
+	public VectorEntry xml(long position, int action, OmmXml value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, null);
 	}
 
 	@Override
-	public VectorEntry xml(int position, int action, OmmXml value, ByteBuffer permissionData)
+	public VectorEntry xml(long position, int action, OmmXml value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, permissionData);
 	}
 
 	@Override
-	public VectorEntry ansiPage(int position, int action, OmmAnsiPage value)
+	public VectorEntry ansiPage(long position, int action, OmmAnsiPage value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, null);
 	}
 
 	@Override
-	public VectorEntry ansiPage(int filterId, int action, OmmAnsiPage value, ByteBuffer permissionData)
+	public VectorEntry ansiPage(long position, int action, OmmAnsiPage value, ByteBuffer permissionData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue(position, action, (DataImpl) value, permissionData);
+	}
+
+	private VectorEntry entryValue(long position, int action, DataImpl value, ByteBuffer permissionData)
+	{
+		if (position < 0 || position > 1073741823)
+			throw ommOORExcept().message("position is out of range [0 - 1073741823].");
+		if (action < 0 || action > 15)
+			throw ommOORExcept().message("action is out of range [0 - 15].");
+		if (value == null)
+			throw ommIUExcept().message("Passed in value is null");
+
+		_rsslVectorEntry.index(position);
+		_rsslVectorEntry.action(action);
+		_entryDataType = Utilities.toRsslDataType(value.dataType());
+		
+		Utilities.copy(((DataImpl) value).encodedData(), _rsslVectorEntry.encodedData());
+		if (permissionData != null)
+		{
+			Utilities.copy(permissionData, _rsslVectorEntry.permData());
+			_rsslVectorEntry.applyHasPermData();
+		}
+
+		return this;
 	}
 }

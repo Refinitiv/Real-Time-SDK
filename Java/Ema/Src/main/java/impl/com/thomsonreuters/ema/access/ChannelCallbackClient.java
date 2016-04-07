@@ -14,12 +14,7 @@ import java.util.List;
 
 import com.thomsonreuters.ema.access.OmmConsumerImpl.OmmConsumerState;
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
-import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.DataDictionary;
-import com.thomsonreuters.upa.transport.CompressionTypes;
-import com.thomsonreuters.upa.transport.ConnectOptions;
-import com.thomsonreuters.upa.transport.ConnectionTypes;
-import com.thomsonreuters.upa.transport.IoctlCodes;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
 import com.thomsonreuters.upa.valueadd.reactor.ConsumerRole;
@@ -140,7 +135,7 @@ class ChannelInfo
 					 .append("\tRsslReactor ")
 					 .append(Integer.toHexString(_rsslReactor.hashCode())).append(OmmLoggerClient.CR)
 					 .append("\tRsslReactorChannel ")
-					 .append(Integer.toHexString(_rsslReactorChannel.hashCode())).append(OmmLoggerClient.CR);
+					 .append(Integer.toHexString(_rsslReactorChannel != null ?  _rsslReactorChannel.hashCode() : 0)).append(OmmLoggerClient.CR);
 		}
 		
 		return _toString.toString();
@@ -210,9 +205,13 @@ class ChannelCallbackClient implements ReactorChannelEventCallback
 	    	        	StringBuilder temp = _consumer.consumerStrBuilder();
 	    	        	temp.append("Selector failed to register channel ")
 							.append(chnlInfo.name()).append(OmmLoggerClient.CR)
-							.append("Consumer Name ").append(_consumer.consumerName()).append(OmmLoggerClient.CR)
-							.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.hashCode())).append(OmmLoggerClient.CR)
-							.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode()));
+							.append("Consumer Name ").append(_consumer.consumerName()).append(OmmLoggerClient.CR);
+	    	        		if (rsslReactorChannel != null && rsslReactorChannel.channel() != null )
+								temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
+								.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR);
+							else
+								temp.append("RsslReactor Channel is null").append(OmmLoggerClient.CR);
+		    	        	
 	    	        	_consumer.loggerClient().error(_consumer.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
     	        	}
     	        	return ReactorCallbackReturnCodes.FAILURE;
@@ -221,17 +220,21 @@ class ChannelCallbackClient implements ReactorChannelEventCallback
     	        chnlInfo.rsslReactorChannel(event.reactorChannel());
     	        
     	        int sendBufSize = 65535;
-    	        if (rsslReactorChannel.ioctl(IoctlCodes.SYSTEM_WRITE_BUFFERS, sendBufSize, rsslReactorErrorInfo) != ReactorReturnCodes.SUCCESS)
+    	        if (rsslReactorChannel.ioctl(com.thomsonreuters.upa.transport.IoctlCodes.SYSTEM_WRITE_BUFFERS, sendBufSize, rsslReactorErrorInfo) != ReactorReturnCodes.SUCCESS)
                 {
     	        	if (_consumer.loggerClient().isErrorEnabled())
     	        	{
 	    	        	StringBuilder temp = _consumer.consumerStrBuilder();
 	    	        	temp.append("Failed to set send buffer size on channel ")
 							.append(chnlInfo.name()).append(OmmLoggerClient.CR)
-							.append("Consumer Name ").append(_consumer.consumerName()).append(OmmLoggerClient.CR)
-							.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.hashCode())).append(OmmLoggerClient.CR)
-							.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR)
-							.append("Error Id ").append(rsslReactorErrorInfo.error().errorId()).append(OmmLoggerClient.CR)
+							.append("Consumer Name ").append(_consumer.consumerName()).append(OmmLoggerClient.CR);
+	    	        	    if (rsslReactorChannel != null && rsslReactorChannel.channel() != null )
+								temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
+								.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR);
+							else
+								temp.append("RsslReactor Channel is null").append(OmmLoggerClient.CR);
+		    	        	
+							temp.append("Error Id ").append(rsslReactorErrorInfo.error().errorId()).append(OmmLoggerClient.CR)
 							.append("Internal sysError ").append(rsslReactorErrorInfo.error().sysError()).append(OmmLoggerClient.CR)
 							.append("Error Location ").append(rsslReactorErrorInfo.location()).append(OmmLoggerClient.CR)
 							.append("Error text ").append(rsslReactorErrorInfo.error().text());
@@ -245,17 +248,20 @@ class ChannelCallbackClient implements ReactorChannelEventCallback
                 }
 
     	    	int rcvBufSize = 65535;
-                if (rsslReactorChannel.ioctl(IoctlCodes.SYSTEM_READ_BUFFERS, rcvBufSize, rsslReactorErrorInfo) != ReactorReturnCodes.SUCCESS)
+                if (rsslReactorChannel.ioctl(com.thomsonreuters.upa.transport.IoctlCodes.SYSTEM_READ_BUFFERS, rcvBufSize, rsslReactorErrorInfo) != ReactorReturnCodes.SUCCESS)
                 {
                 	if (_consumer.loggerClient().isErrorEnabled())
     	        	{
 	    	        	StringBuilder temp = _consumer.consumerStrBuilder();
-	    	        	temp.append("Failed to set recv buffer size on channel ")
-							.append(chnlInfo.name()).append(OmmLoggerClient.CR)
-							.append("Consumer Name ").append(_consumer.consumerName()).append(OmmLoggerClient.CR)
-							.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.hashCode())).append(OmmLoggerClient.CR)
-							.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR)
-							.append("Error Id ").append(rsslReactorErrorInfo.error().errorId()).append(OmmLoggerClient.CR)
+	    	        	temp.append("Failed to set recv buffer size on channel ").append(chnlInfo.name()).append(OmmLoggerClient.CR)
+							.append("Consumer Name ").append(_consumer.consumerName()).append(OmmLoggerClient.CR);
+	    	        	if (rsslReactorChannel != null && rsslReactorChannel.channel() != null)
+							temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
+							.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR);
+						else
+							temp.append("RsslReactor Channel is null").append(OmmLoggerClient.CR);
+	    	        	
+						temp.append("Error Id ").append(rsslReactorErrorInfo.error().errorId()).append(OmmLoggerClient.CR)
 							.append("Internal sysError ").append(rsslReactorErrorInfo.error().sysError()).append(OmmLoggerClient.CR)
 							.append("Error Location ").append(rsslReactorErrorInfo.location()).append(OmmLoggerClient.CR)
 							.append("Error text ").append(rsslReactorErrorInfo.error().text());
@@ -270,27 +276,30 @@ class ChannelCallbackClient implements ReactorChannelEventCallback
                 
                 ChannelConfig channelConfig = _consumer.activeConfig().channelConfig;
                 
-                if (rsslReactorChannel.ioctl(IoctlCodes.COMPRESSION_THRESHOLD, channelConfig.compressionThreshold, rsslReactorErrorInfo) != ReactorReturnCodes.SUCCESS)
+                if (rsslReactorChannel.ioctl(com.thomsonreuters.upa.transport.IoctlCodes.COMPRESSION_THRESHOLD, channelConfig.compressionThreshold, rsslReactorErrorInfo) != ReactorReturnCodes.SUCCESS)
                 {
-                	 //TODO
-//                	if (_consumer.loggerClient().isErrorEnabled())
-//    	        	{
-//	    	        	StringBuilder temp = _consumer.consumerStrBuilder();
-//						
-//	    	        	temp.append("Failed to set compression threshold on channel ")
-//							.append(chnlInfo.name()).append(OmmLoggerClient.CR)
-//							.append("Consumer Name ").append(_consumer.consumerName()).append(OmmLoggerClient.CR)
-//							.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.hashCode())).append(OmmLoggerClient.CR)
-//							.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR)
-//							.append("Error Id ").append(rsslReactorErrorInfo.error().errorId()).append(OmmLoggerClient.CR)
-//							.append("Internal sysError ").append(rsslReactorErrorInfo.error().sysError()).append(OmmLoggerClient.CR)
-//							.append("Error Location ").append(rsslReactorErrorInfo.location()).append(OmmLoggerClient.CR)
-//							.append("Error text ").append(rsslReactorErrorInfo.error().text());
-//
-//	    	        	_consumer.loggerClient().error(_consumer.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
-//    	        	}
+                	if (_consumer.loggerClient().isErrorEnabled())
+    	        	{
+	    	        	StringBuilder temp = _consumer.consumerStrBuilder();
+						
+	    	        	temp.append("Failed to set compression threshold on channel ")
+							.append(chnlInfo.name()).append(OmmLoggerClient.CR)
+							.append("Consumer Name ").append(_consumer.consumerName()).append(OmmLoggerClient.CR);
+		    	        	if (rsslReactorChannel != null && rsslReactorChannel.channel() != null)
+								temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
+								.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR);
+							else
+								temp.append("RsslReactor Channel is null").append(OmmLoggerClient.CR);
+		    	        	
+							temp.append("Error Id ").append(rsslReactorErrorInfo.error().errorId()).append(OmmLoggerClient.CR)
+							.append("Internal sysError ").append(rsslReactorErrorInfo.error().sysError()).append(OmmLoggerClient.CR)
+							.append("Error Location ").append(rsslReactorErrorInfo.location()).append(OmmLoggerClient.CR)
+							.append("Error text ").append(rsslReactorErrorInfo.error().text());
+
+	    	        	_consumer.loggerClient().error(_consumer.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+    	        	}
                 	
-//              	_consumer.closeRsslChannel(rsslReactorChannel);
+             	_consumer.closeRsslChannel(rsslReactorChannel);
                 	
                     return ReactorCallbackReturnCodes.SUCCESS;
                 }
@@ -330,10 +339,13 @@ class ChannelCallbackClient implements ReactorChannelEventCallback
     	        	{
 	    	        	StringBuilder temp = _consumer.consumerStrBuilder();
 	    	        	temp.append("Selector failed to register channel ")
-							.append(chnlInfo.name()).append(OmmLoggerClient.CR)
-							.append("Consumer Name ").append(_consumer.consumerName()).append(OmmLoggerClient.CR)
-							.append("RsslReactor ").append("@").append(Integer.toHexString(chnlInfo.rsslReactor().hashCode())).append(OmmLoggerClient.CR)
-							.append("RsslChannel ").append("@").append(Integer.toHexString(event.reactorChannel().channel().hashCode()));
+							.append(chnlInfo.name()).append(OmmLoggerClient.CR);
+		    	        	if (rsslReactorChannel != null && rsslReactorChannel.channel() != null)
+								temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
+								.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR);
+							else
+								temp.append("RsslReactor Channel is null").append(OmmLoggerClient.CR);
+		    	        	
 	    	        	_consumer.loggerClient().error(_consumer.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
     	        	}
     	        	return ReactorCallbackReturnCodes.FAILURE;
@@ -381,11 +393,14 @@ class ChannelCallbackClient implements ReactorChannelEventCallback
             		 
   					StringBuilder temp = _consumer.consumerStrBuilder();
   		        	temp.append("Received Channel warning event on channel ")
-  						.append(chnlInfo.name()).append(OmmLoggerClient.CR)
-  						.append("Consumer Name ").append(_consumer.consumerName()).append(OmmLoggerClient.CR)
-  						.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.hashCode())).append(OmmLoggerClient.CR)
-  						.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR)
-  						.append("Error Id ").append(event.errorInfo().error().errorId()).append(OmmLoggerClient.CR)
+  						.append(chnlInfo.name()).append(OmmLoggerClient.CR);
+	    	        	if (rsslReactorChannel != null && rsslReactorChannel.channel() != null)
+							temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
+							.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR);
+						else
+							temp.append("RsslReactor Channel is null").append(OmmLoggerClient.CR);
+	    	        	
+						temp.append("Error Id ").append(event.errorInfo().error().errorId()).append(OmmLoggerClient.CR)
   						.append("Internal sysError ").append(errorInfo.error().sysError()).append(OmmLoggerClient.CR)
   						.append("Error Location ").append(errorInfo.location()).append(OmmLoggerClient.CR)
   						.append("Error text ").append(errorInfo.error().text());
@@ -411,10 +426,14 @@ class ChannelCallbackClient implements ReactorChannelEventCallback
 					StringBuilder temp = _consumer.consumerStrBuilder();
 		        	temp.append("Received ChannelDown event on channel ")
 						.append(chnlInfo.name()).append(OmmLoggerClient.CR)
-						.append("Consumer Name ").append(_consumer.consumerName()).append(OmmLoggerClient.CR)
-						.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.hashCode())).append(OmmLoggerClient.CR)
-						.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR)
-						.append("Error Id ").append(event.errorInfo().error().errorId()).append(OmmLoggerClient.CR)
+						.append("Consumer Name ").append(_consumer.consumerName()).append(OmmLoggerClient.CR);
+	    	        	if (rsslReactorChannel != null && rsslReactorChannel.channel() != null)
+							temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
+							.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR);
+						else
+							temp.append("RsslReactor Channel is null").append(OmmLoggerClient.CR);
+	    	        	
+						temp.append("Error Id ").append(event.errorInfo().error().errorId()).append(OmmLoggerClient.CR)
 						.append("Internal sysError ").append(errorInfo.error().sysError()).append(OmmLoggerClient.CR)
 						.append("Error Location ").append(errorInfo.location()).append(OmmLoggerClient.CR)
 						.append("Error text ").append(errorInfo.error().text());
@@ -437,10 +456,14 @@ class ChannelCallbackClient implements ReactorChannelEventCallback
   					StringBuilder temp = _consumer.consumerStrBuilder();
   		        	temp.append("Received Channel warning event on channel ")
   						.append(chnlInfo.name()).append(OmmLoggerClient.CR)
-  						.append("Consumer Name ").append(_consumer.consumerName()).append(OmmLoggerClient.CR)
-  						.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.hashCode())).append(OmmLoggerClient.CR)
-  						.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR)
-  						.append("Error Id ").append(event.errorInfo().error().errorId()).append(OmmLoggerClient.CR)
+  						.append("Consumer Name ").append(_consumer.consumerName()).append(OmmLoggerClient.CR);
+	    	        	if (rsslReactorChannel != null && rsslReactorChannel.channel() != null)
+							temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
+							.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR);
+						else
+							temp.append("RsslReactor Channel is null").append(OmmLoggerClient.CR);
+	    	        	
+						temp.append("Error Id ").append(event.errorInfo().error().errorId()).append(OmmLoggerClient.CR)
   						.append("Internal sysError ").append(errorInfo.error().sysError()).append(OmmLoggerClient.CR)
   						.append("Error Location ").append(errorInfo.location()).append(OmmLoggerClient.CR)
   						.append("Error text ").append(errorInfo.error().text());
@@ -457,10 +480,14 @@ class ChannelCallbackClient implements ReactorChannelEventCallback
  					StringBuilder temp = _consumer.consumerStrBuilder();
  		        	temp.append("Received unknown channel event type ")
  						.append(chnlInfo.name()).append(OmmLoggerClient.CR)
- 						.append("Consumer Name ").append(_consumer.consumerName()).append(OmmLoggerClient.CR)
- 						.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.hashCode())).append(OmmLoggerClient.CR)
- 						.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR)
- 						.append("Error Id ").append(event.errorInfo().error().errorId()).append(OmmLoggerClient.CR)
+ 						.append("Consumer Name ").append(_consumer.consumerName()).append(OmmLoggerClient.CR);
+	    	        	if (rsslReactorChannel != null && rsslReactorChannel.channel() != null )
+							temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode() )).append(OmmLoggerClient.CR)
+							.append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR);
+						else
+							temp.append("RsslReactor Channel is null").append(OmmLoggerClient.CR);
+	    	        	
+						temp.append("Error Id ").append(event.errorInfo().error().errorId()).append(OmmLoggerClient.CR)
  						.append("Internal sysError ").append(errorInfo.error().sysError()).append(OmmLoggerClient.CR)
  						.append("Error Location ").append(errorInfo.location()).append(OmmLoggerClient.CR)
  						.append("Error text ").append(errorInfo.error().text());
@@ -495,19 +522,19 @@ class ChannelCallbackClient implements ReactorChannelEventCallback
 
 		int connectionType = activeConfig.channelConfig.rsslConnectionType;
 		
-		if (connectionType == ConnectionTypes.SOCKET  ||
-			connectionType == ConnectionTypes.HTTP ||
-			connectionType == ConnectionTypes.ENCRYPTED)
+		if (connectionType == com.thomsonreuters.upa.transport.ConnectionTypes.SOCKET  ||
+			connectionType == com.thomsonreuters.upa.transport.ConnectionTypes.HTTP ||
+			connectionType == com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED)
 		{
 			ChannelInfo channelInfo = channelInfo(activeConfig.channelConfig.name, _rsslReactor);
 
-			ConnectOptions connectOptions = _rsslReactorConnOptions.connectionList().get(0).connectOptions();
+			com.thomsonreuters.upa.transport.ConnectOptions connectOptions = _rsslReactorConnOptions.connectionList().get(0).connectOptions();
 			
 			connectOptions.userSpecObject(channelInfo);
 
-			connectOptions.majorVersion(Codec.majorVersion());
-			connectOptions.minorVersion(Codec.minorVersion());
-			connectOptions.protocolType(Codec.protocolType());
+			connectOptions.majorVersion(com.thomsonreuters.upa.codec.Codec.majorVersion());
+			connectOptions.minorVersion(com.thomsonreuters.upa.codec.Codec.minorVersion());
+			connectOptions.protocolType(com.thomsonreuters.upa.codec.Codec.protocolType());
 
 			_rsslReactorConnOptions.reconnectAttemptLimit(activeConfig.channelConfig.reconnectAttemptLimit);
 			_rsslReactorConnOptions.reconnectMinDelay(activeConfig.channelConfig.reconnectMinDelay);
@@ -523,7 +550,7 @@ class ChannelCallbackClient implements ReactorChannelEventCallback
 
 			switch (connectOptions.connectionType())
 			{
-			case ConnectionTypes.SOCKET:
+			case com.thomsonreuters.upa.transport.ConnectionTypes.SOCKET:
 				{
 					connectOptions.unifiedNetworkInfo().address(((SocketChannelConfig)activeConfig.channelConfig).hostName);
 					try
@@ -542,25 +569,31 @@ class ChannelCallbackClient implements ReactorChannelEventCallback
 		        	   }
 					}
 					connectOptions.tcpOpts().tcpNoDelay(((SocketChannelConfig)activeConfig.channelConfig).tcpNodelay);
+					connectOptions.unifiedNetworkInfo().interfaceName(((SocketChannelConfig)activeConfig.channelConfig).interfaceName);
+					connectOptions.unifiedNetworkInfo().unicastServiceName("");
 				break;
 				}
-			case ConnectionTypes.ENCRYPTED:
+			case com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED:
 				{
 					connectOptions.unifiedNetworkInfo().address(((EncryptedChannelConfig)activeConfig.channelConfig).hostName);
 					connectOptions.unifiedNetworkInfo().serviceName(((EncryptedChannelConfig)activeConfig.channelConfig).serviceName);
 					connectOptions.tcpOpts().tcpNoDelay(((EncryptedChannelConfig)activeConfig.channelConfig).tcpNodelay);
 					connectOptions.tunnelingInfo().objectName(((EncryptedChannelConfig)activeConfig.channelConfig).objectName);
 					connectOptions.tunnelingInfo().tunnelingType("encrypted"); 
+					connectOptions.unifiedNetworkInfo().interfaceName(((SocketChannelConfig)activeConfig.channelConfig).interfaceName);
+					connectOptions.unifiedNetworkInfo().unicastServiceName("");
 					encryptedConfiguration(connectOptions);
 				break;
 				}
-			case ConnectionTypes.HTTP:
+			case com.thomsonreuters.upa.transport.ConnectionTypes.HTTP:
 				{
 					connectOptions.unifiedNetworkInfo().address(((HttpChannelConfig)activeConfig.channelConfig).hostName);
 					connectOptions.unifiedNetworkInfo().serviceName(((HttpChannelConfig)activeConfig.channelConfig).serviceName);
 					connectOptions.tcpOpts().tcpNoDelay(((HttpChannelConfig)activeConfig.channelConfig).tcpNodelay);
 					connectOptions.tunnelingInfo().objectName(((HttpChannelConfig)activeConfig.channelConfig).objectName);
 					connectOptions.tunnelingInfo().tunnelingType("http"); 
+					connectOptions.unifiedNetworkInfo().interfaceName(((SocketChannelConfig)activeConfig.channelConfig).interfaceName);
+					connectOptions.unifiedNetworkInfo().unicastServiceName("");
 					httpConfiguration(connectOptions);
 				break;
 				}
@@ -575,7 +608,7 @@ class ChannelCallbackClient implements ReactorChannelEventCallback
 			{
 					StringBuilder temp = _consumer.consumerStrBuilder();
 					temp.append("Attempt to connect using ")
-						.append(ConnectionTypes.toString(connectionType))
+						.append(com.thomsonreuters.upa.transport.ConnectionTypes.toString(connectionType))
 						.append(" connection type")
 						.append(OmmLoggerClient.CR)
 						.append("Channel name ").append(channelInfo.name()).append(OmmLoggerClient.CR)
@@ -587,11 +620,11 @@ class ChannelCallbackClient implements ReactorChannelEventCallback
 						.append("reconnectAttemptLimit ").append(_rsslReactorConnOptions.reconnectAttemptLimit()).append(OmmLoggerClient.CR)
 						.append("reconnectMinDelay ").append(_rsslReactorConnOptions.reconnectMinDelay()).append(" msec").append(OmmLoggerClient.CR)
 						.append("reconnectMaxDelay ").append(_rsslReactorConnOptions.reconnectMaxDelay()).append(" msec").append(OmmLoggerClient.CR)
-						.append("CompressionType ").append(CompressionTypes.toString(connectOptions.compressionType())).append(OmmLoggerClient.CR)
+						.append("CompressionType ").append(com.thomsonreuters.upa.transport.CompressionTypes.toString(connectOptions.compressionType())).append(OmmLoggerClient.CR)
 						.append("connectionPingTimeout ").append(connectOptions.pingTimeout()).append(" msec").append(OmmLoggerClient.CR)
 						.append("tcpNodelay ").append((connectOptions.tcpOpts().tcpNoDelay() ? "true" : "false"));
 					
-						if(connectionType == ConnectionTypes.ENCRYPTED || connectionType == ConnectionTypes.HTTP)
+						if(connectionType == com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED || connectionType == com.thomsonreuters.upa.transport.ConnectionTypes.HTTP)
 							temp.append(OmmLoggerClient.CR).append("ObjectName ").append(connectOptions.tunnelingInfo().objectName());
 					
 					_consumer.loggerClient().trace(_consumer.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.TRACE));
@@ -641,11 +674,11 @@ class ChannelCallbackClient implements ReactorChannelEventCallback
 		}
 	}
 
-	private void httpConfiguration(ConnectOptions rsslOptions)
+	private void httpConfiguration(com.thomsonreuters.upa.transport.ConnectOptions rsslOptions)
     {    	
 	}    
 	 
-	private void encryptedConfiguration(ConnectOptions rsslOptions)
+	private void encryptedConfiguration(com.thomsonreuters.upa.transport.ConnectOptions rsslOptions)
 	{
 	}
 

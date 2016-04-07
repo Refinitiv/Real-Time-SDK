@@ -7,15 +7,6 @@
 
 package com.thomsonreuters.ema.access;
 
-import com.thomsonreuters.ema.access.AckMsg;
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.Msg;
-import com.thomsonreuters.ema.access.OmmConsumerClient;
-import com.thomsonreuters.ema.access.OmmConsumerEvent;
-import com.thomsonreuters.ema.access.RefreshMsg;
-import com.thomsonreuters.ema.access.StatusMsg;
-import com.thomsonreuters.ema.access.UpdateMsg;
-
 
 class OmmConsumerClientImpl implements OmmConsumerClient
 {

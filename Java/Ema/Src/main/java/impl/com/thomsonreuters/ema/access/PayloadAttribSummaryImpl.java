@@ -7,30 +7,7 @@
 
 package com.thomsonreuters.ema.access;
 
-import com.thomsonreuters.ema.access.AckMsg;
-import com.thomsonreuters.ema.access.Attrib;
-import com.thomsonreuters.ema.access.ComplexType;
-import com.thomsonreuters.ema.access.Data;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.access.DataType;
-import com.thomsonreuters.ema.access.ElementList;
-import com.thomsonreuters.ema.access.FieldList;
-import com.thomsonreuters.ema.access.FilterList;
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.Map;
-import com.thomsonreuters.ema.access.OmmAnsiPage;
-import com.thomsonreuters.ema.access.OmmError;
-import com.thomsonreuters.ema.access.OmmOpaque;
-import com.thomsonreuters.ema.access.OmmXml;
-import com.thomsonreuters.ema.access.Payload;
-import com.thomsonreuters.ema.access.PostMsg;
-import com.thomsonreuters.ema.access.RefreshMsg;
-import com.thomsonreuters.ema.access.ReqMsg;
-import com.thomsonreuters.ema.access.Series;
-import com.thomsonreuters.ema.access.StatusMsg;
-import com.thomsonreuters.ema.access.SummaryData;
-import com.thomsonreuters.ema.access.UpdateMsg;
-import com.thomsonreuters.ema.access.Vector;
 
 class PayloadAttribSummaryImpl implements Payload, Attrib, SummaryData
 {

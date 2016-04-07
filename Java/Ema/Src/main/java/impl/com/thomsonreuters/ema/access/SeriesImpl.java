@@ -7,20 +7,16 @@
 
 package com.thomsonreuters.ema.access;
 
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import com.thomsonreuters.ema.access.ComplexType;
-import com.thomsonreuters.ema.access.Data;
-import com.thomsonreuters.ema.access.DataType;
-import com.thomsonreuters.ema.access.Series;
-import com.thomsonreuters.ema.access.SeriesEntry;
-import com.thomsonreuters.ema.access.SummaryData;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.OmmError.ErrorCode;
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.CodecFactory;
+import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.codec.DataDictionary;
 
 class SeriesImpl extends CollectionDataImpl implements Series
@@ -88,15 +84,25 @@ class SeriesImpl extends CollectionDataImpl implements Series
 	@Override
 	public Series totalCountHint(int totalCountHint)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		if (totalCountHint < 0 || totalCountHint > 1073741823)
+			throw ommOORExcept().message("totalCountHint is out of range [0 - 1073741823].");
+
+		_rsslSeries.applyHasTotalCountHint();
+		_rsslSeries.totalCountHint(totalCountHint);
+
+		return this;
 	}
 
 	@Override
-	public Series summaryData(ComplexType data)
+	public Series summaryData(ComplexType summaryData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		if (summaryData == null)
+			throw ommIUExcept().message("Passed in summaryData is null");
+
+		_rsslSeries.applyHasSummaryData();
+		Utilities.copy(((DataImpl) summaryData).encodedData(), _rsslSeries.encodedSummaryData());
+
+		return this;
 	}
 
 	@Override
@@ -125,10 +131,12 @@ class SeriesImpl extends CollectionDataImpl implements Series
 	}
 	
 	@Override
-	public boolean add(SeriesEntry e)
+	public boolean add(SeriesEntry seriesEntry)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Series collection doesn't support this operation.");
+		if (seriesEntry == null)
+			throw new NullPointerException("Passed in seriesEntry is null.");
+
+		return _seriesCollection.add(seriesEntry);
 	}
 
 	@Override
@@ -195,15 +203,15 @@ class SeriesImpl extends CollectionDataImpl implements Series
 				
 		if (hasTotalCountHint())
 			_toString.append(" totalCountHint=\"").append(totalCountHint()).append("\"");
-		
-		if (hasSummary())
+
+		if (_rsslSeries.checkHasSummaryData())
 		{
 			++indent;
 			Utilities.addIndent(_toString.append("\n"), indent).append("SummaryData dataType=\"")
 					 .append(DataType.asString(summaryData().dataType())).append("\"\n");
 			
 			++indent;
-			_toString.append(((DataImpl)summary()).toString(indent));
+			_toString.append(_summaryDecoded.toString(indent));
 			--indent;
 			
 			Utilities.addIndent(_toString, indent).append("SummaryDataEnd");
@@ -384,19 +392,86 @@ class SeriesImpl extends CollectionDataImpl implements Series
 		
 		_fillCollection = false;
 	}
-	
-	boolean hasSummary()
-	{
-		return _rsslSeries.checkHasSummaryData();
-	}
-	
-	Data summary()
-	{
-		return _summaryDecoded;
-	}
-	
+
 	Buffer encodedData()
 	{
-		return null;
+		if (_encodeComplete)
+			return _rsslBuffer; 
+		
+		if (_seriesCollection.isEmpty())
+			throw ommIUExcept().message("Series to be encoded is empty.");
+		
+		int ret = _rsslEncodeIter.setBufferAndRWFVersion(_rsslBuffer, _rsslMajVer, _rsslMinVer);
+	    if (ret != CodecReturnCodes.SUCCESS)
+	    {
+	    	String errText = errorString().append("Failed to setBufferAndRWFVersion on rssl encode iterator. Reason='")
+	    								.append(CodecReturnCodes.toString(ret))
+	    								.append("'").toString();
+	    	throw ommIUExcept().message(errText);
+	    }
+	    
+	    SeriesEntryImpl firstEntry = (SeriesEntryImpl)_seriesCollection.get(0);
+	    int entryType = firstEntry._entryDataType;
+		_rsslSeries.containerType(entryType);
+		
+	    ret = _rsslSeries.encodeInit(_rsslEncodeIter, 0, 0);
+	    while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+	    {
+	    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
+	    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
+	    	ret = _rsslSeries.encodeInit(_rsslEncodeIter, 0, 0);
+	    }
+	    
+	    if (ret != CodecReturnCodes.SUCCESS)
+	    {
+	    	String errText = errorString().append("Failed to intialize encoding on rssl series. Reason='")
+	    								.append(CodecReturnCodes.toString(ret))
+	    								.append("'").toString();
+	    	throw ommIUExcept().message(errText);
+	    }
+	    
+	    SeriesEntryImpl seriesEntry;
+		for (com.thomsonreuters.ema.access.SeriesEntry entry  : _seriesCollection)
+		{
+			seriesEntry = ((SeriesEntryImpl)entry);
+			if (entryType != seriesEntry._entryDataType)
+			{
+				String errText = errorString().append("Attempt to add entry of ")
+						.append(com.thomsonreuters.upa.codec.DataTypes.toString(seriesEntry._entryDataType))
+						.append("while Series contains=")
+						.append(com.thomsonreuters.upa.codec.DataTypes.toString(entryType)).toString();
+				throw ommIUExcept().message(errText);
+			}
+			
+			ret = seriesEntry._rsslSeriesEntry.encode(_rsslEncodeIter) ;
+			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			{
+			   	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
+			   	_rsslEncodeIter.realignBuffer(_rsslBuffer);
+			   	ret = seriesEntry._rsslSeriesEntry.encode(_rsslEncodeIter);
+			}
+			 
+			if (ret != CodecReturnCodes.SUCCESS)
+		    {
+		    	String errText = errorString().append("Failed to ")
+		    								.append("rsslSeriesEntry.encode()")
+		    								.append(" while encoding rssl series. Reason='")
+		    								.append(CodecReturnCodes.toString(ret))
+		    								.append("'").toString();
+		    	throw ommIUExcept().message(errText);
+		    }
+		 }
+		 
+		ret =  _rsslSeries.encodeComplete(_rsslEncodeIter, true);
+	    if (ret != CodecReturnCodes.SUCCESS)
+	    {
+	    	String errText = errorString().append("Failed to complete encoding on rssl series. Reason='")
+	    								.append(CodecReturnCodes.toString(ret))
+	    								.append("'").toString();
+	        throw ommIUExcept().message(errText);
+	    }
+	    
+	    _encodeComplete = true;
+	    return _rsslBuffer;
 	}
 }

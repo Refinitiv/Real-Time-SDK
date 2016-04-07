@@ -15,13 +15,13 @@ import com.thomsonreuters.ema.access.GenericMsg;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.OmmError.ErrorCode;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
+import com.thomsonreuters.upa.codec.GenericMsgFlags;
 
 class GenericMsgImpl extends MsgImpl implements GenericMsg
 {
 	GenericMsgImpl()
 	{
 		super(DataTypes.GENERIC_MSG, false);
-		initialEncoding();
 	}
 
 	GenericMsgImpl(boolean decoding)
@@ -33,7 +33,6 @@ class GenericMsgImpl extends MsgImpl implements GenericMsg
 	public GenericMsg clear()
 	{
 		msgClear();
-		initialEncoding();
 		return this;
 	}
 	
@@ -159,7 +158,7 @@ class GenericMsgImpl extends MsgImpl implements GenericMsg
 	@Override
 	public GenericMsg seqNum(long seqNum)
 	{
-		seqNum(seqNum);
+		msgSeqNum(seqNum);
 		return this;
 	}
 
@@ -177,7 +176,7 @@ class GenericMsgImpl extends MsgImpl implements GenericMsg
 	@Override
 	public GenericMsg partNum(int partNum)
 	{
-		partNum(partNum);
+		msgPartNum(partNum);
 		return this;
 	}
 
@@ -212,9 +211,14 @@ class GenericMsgImpl extends MsgImpl implements GenericMsg
 	@Override
 	public GenericMsg complete(boolean complete)
 	{
-		if (complete)
-			((com.thomsonreuters.upa.codec.GenericMsg)_rsslMsg).applyMessageComplete();
-
+		 int flags = 	((com.thomsonreuters.upa.codec.GenericMsg)_rsslMsg).flags();	
+		 if (complete)
+			 flags |= GenericMsgFlags.MESSAGE_COMPLETE;
+		 else
+			 flags &= ~GenericMsgFlags.MESSAGE_COMPLETE;
+		 
+		 ((com.thomsonreuters.upa.codec.GenericMsg)_rsslMsg).flags(flags);
+		 
 		return this;
 	}
 	
@@ -407,10 +411,6 @@ class GenericMsgImpl extends MsgImpl implements GenericMsg
 		}
 	}
 	
-	void initialEncoding()
-	{
-	}
-
 	com.thomsonreuters.upa.codec.GenericMsg rsslMsg()
 	{
 		return ((_rsslEncodeIter != null) ? (com.thomsonreuters.upa.codec.GenericMsg)(_rsslMsg) : null);

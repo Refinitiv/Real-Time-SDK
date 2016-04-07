@@ -10,14 +10,13 @@ package com.thomsonreuters.ema.access;
 import java.nio.ByteBuffer;
 
 import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.access.Data;
 import com.thomsonreuters.ema.access.OmmQos;
 import com.thomsonreuters.ema.rdm.EmaRdm;
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.codec.Qos;
 
-public class Utilities
+class Utilities
 {
 	private final static int UnknownDT = -1;
 
@@ -280,7 +279,7 @@ public class Utilities
 				destByteBuffer =  GlobalPool.acquireByteBuffer(srcBufferlength);
 		}
 		
-		destByteBuffer.position(0);
+		destByteBuffer.clear();
 		
 		ByteBuffer srcByteBuffer = srcBuffer.data();
 		int limit = srcBuffer.position() + srcBuffer.length();	
@@ -300,7 +299,7 @@ public class Utilities
 		if ( destByteBuffer == null || destBuffer.capacity()  < srcBufferlength)
 			destByteBuffer = ByteBuffer.allocate(srcBufferlength);
 		else
-			destByteBuffer.position(0);
+			destByteBuffer.clear();
 
 		ByteBuffer srcByteBuffer = srcBuffer.data();
 		int limit = srcBuffer.position() + srcBuffer.length();	
@@ -314,15 +313,13 @@ public class Utilities
 	
 	static void copy(ByteBuffer srcByteBuffer, Buffer destBuffer)
 	{
-		srcByteBuffer.flip();
-		
 		ByteBuffer destByteBuffer = destBuffer.data();
 		int srcByteBufferlength = srcByteBuffer.limit() - srcByteBuffer.position();
 
 		if (destByteBuffer == null || destByteBuffer.capacity() < srcByteBufferlength)
 			destByteBuffer =  ByteBuffer.allocate(srcByteBufferlength);
 		else
-			destByteBuffer.position(0);
+			destByteBuffer.clear();
 		
 		int limit = srcByteBuffer.limit();
 		for (int index = srcByteBuffer.position(); index < limit; ++index)

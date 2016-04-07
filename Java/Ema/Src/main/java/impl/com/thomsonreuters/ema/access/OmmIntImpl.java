@@ -7,18 +7,15 @@
 
 package com.thomsonreuters.ema.access;
 
-import com.thomsonreuters.ema.access.OmmInt;
-import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.upa.codec.CodecFactory;
 
 class OmmIntImpl extends DataImpl implements OmmInt
 {
-	private com.thomsonreuters.upa.codec.Int _rsslInt = CodecFactory.createInt();
+	private com.thomsonreuters.upa.codec.Int _rsslInt = com.thomsonreuters.upa.codec.CodecFactory.createInt();
 	
 	@Override
 	public int dataType()
 	{
-		return DataTypes.INT;
+		return DataType.DataTypes.INT;
 	}
 
 	@Override

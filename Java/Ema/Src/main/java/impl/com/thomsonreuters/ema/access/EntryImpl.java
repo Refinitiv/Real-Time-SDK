@@ -7,7 +7,6 @@
 
 package com.thomsonreuters.ema.access;
 
-import java.nio.ByteBuffer;
 
 import com.thomsonreuters.ema.access.AckMsg;
 import com.thomsonreuters.ema.access.Data;
@@ -16,9 +15,6 @@ import com.thomsonreuters.ema.access.DataType;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.Date;
-import com.thomsonreuters.upa.codec.DateTime;
-import com.thomsonreuters.upa.codec.Time;
 import com.thomsonreuters.ema.access.ElementList;
 import com.thomsonreuters.ema.access.FieldList;
 import com.thomsonreuters.ema.access.FilterList;
@@ -51,6 +47,10 @@ import com.thomsonreuters.ema.access.ReqMsg;
 import com.thomsonreuters.ema.access.Series;
 import com.thomsonreuters.ema.access.StatusMsg;
 import com.thomsonreuters.ema.access.Vector;
+import com.thomsonreuters.upa.codec.Date;
+import com.thomsonreuters.upa.codec.DateTime;
+import com.thomsonreuters.upa.codec.Time;
+import com.thomsonreuters.upa.codec.State;
 
 abstract class EntryImpl
 {
@@ -667,45 +667,6 @@ abstract class EntryImpl
 		return _errorString;
 	}
 	
-	void fieldEntryValue(int fieldId, com.thomsonreuters.upa.codec.FieldEntry  rsslFieldEntry, int rsslDataType, DataImpl value)
-	{
-		if (fieldId < -32768 || fieldId > 32767)
-			throw ommOORExcept().message("fieldId is out of range [(-32768) - 32767].");
-		if (value == null)
-			throw ommIUExcept().message("Passed in value is null");
-		
-		rsslFieldEntry.fieldId(fieldId);
-		rsslFieldEntry.dataType(rsslDataType);
-		Utilities.copy(value.encodedData(),  rsslFieldEntry.encodedData());
-	}
-	
-	void fieldEntryValue(int fieldId, com.thomsonreuters.upa.codec.FieldEntry  rsslFieldEntry, int rsslDataType)
-	{
-		if (fieldId < -32768 || fieldId > 32767)
-			throw ommOORExcept().message("fieldId is out of range [(-32768) - 32767].");
-		
-		rsslFieldEntry.fieldId(fieldId);
-		rsslFieldEntry.dataType(rsslDataType);
-	}
-	
-	void mapEntryValue(com.thomsonreuters.upa.codec.MapEntry  rsslMapEntry, int action, ComplexType value, ByteBuffer permissionData)
-	{
-		if (action < 0 || action > 15)
-			throw ommOORExcept().message("action is out of range [0 - 15].");
-		if (value == null)
-			throw ommIUExcept().message("Passed in value is null");
-		
-		rsslMapEntry.action(action);
-		
-		Utilities.copy(((DataImpl)value).encodedData(),  rsslMapEntry.encodedData());
-		
-		if (permissionData != null)
-		{
-			Utilities.copy(permissionData, rsslMapEntry.permData());
-			rsslMapEntry.applyHasPermData();
-		}
-	}
-	
 	Object dateTimeValue(int year, int month, int day, int hour, int minute, int second,	int millisecond, int microsecond, int nanosecond)
 	{
 		DateTime cacheEntryData = CodecFactory.createDateTime();
@@ -777,4 +738,25 @@ abstract class EntryImpl
 		
 		return cacheEntryData;
 	}
+
+	Object stateValue(int streamState, int dataState, int statusCode, String statusText)
+    {
+        State cacheEntryData = CodecFactory.createState();
+        if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)cacheEntryData).streamState(streamState) ||
+                CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)cacheEntryData).dataState(dataState) ||
+                CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)cacheEntryData).code(statusCode) || 
+                CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)cacheEntryData).text().data(statusText))
+        {
+            String errText = errorString().append("Attempt to specify invalid state. Passed in value is='" )
+                .append( streamState ).append( " / " )
+                .append( dataState ).append( " / " )
+                .append( statusCode ).append( "/ " )
+                .append( statusText ).append( "." ).toString();
+            throw ommIUExcept().message(errText);
+        }
+
+        return cacheEntryData;
+    }
+
+
 }

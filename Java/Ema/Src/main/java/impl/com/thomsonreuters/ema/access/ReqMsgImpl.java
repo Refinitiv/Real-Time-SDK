@@ -11,9 +11,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thomsonreuters.ema.access.ComplexType;
-import com.thomsonreuters.ema.access.DataType;
-import com.thomsonreuters.ema.access.ReqMsg;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.OmmError.ErrorCode;
 import com.thomsonreuters.upa.codec.Buffer;
@@ -22,8 +19,6 @@ import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.codec.Qos;
 import com.thomsonreuters.upa.codec.QosRates;
 import com.thomsonreuters.upa.codec.QosTimeliness;
-import com.thomsonreuters.upa.codec.RequestMsg;
-import com.thomsonreuters.upa.codec.RequestMsgFlags;
 
 class ReqMsgImpl extends MsgImpl implements ReqMsg
 {
@@ -263,7 +258,7 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 			throw ommIUExcept().message(temp);
 		}
 		
-		RequestMsg rsslMsg = ((com.thomsonreuters.upa.codec.RequestMsg)_rsslMsg);
+		com.thomsonreuters.upa.codec.RequestMsg rsslMsg = ((com.thomsonreuters.upa.codec.RequestMsg)_rsslMsg);
 		int timeliness = Timeliness.BEST_TIMELINESS;
 		int reqTimeliness = rsslMsg.qos().timeliness();
 		int wReqTimeliness = rsslMsg.worstQos().timeliness();
@@ -324,7 +319,7 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 			throw ommIUExcept().message(temp);
 		}
 		
-		RequestMsg rsslMsg = ((com.thomsonreuters.upa.codec.RequestMsg)_rsslMsg);
+		com.thomsonreuters.upa.codec.RequestMsg rsslMsg = ((com.thomsonreuters.upa.codec.RequestMsg)_rsslMsg);
 		int rate = Rate.BEST_RATE;
 		int reqRate = rsslMsg.qos().rate();
 		int wReqRate = rsslMsg.worstQos().rate();
@@ -604,9 +599,9 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 	{
 		int rsslFlags = ((com.thomsonreuters.upa.codec.RequestMsg)_rsslMsg).flags();
 		if (interestAfterRefresh)
-			rsslFlags |= RequestMsgFlags.STREAMING;
+			rsslFlags |= com.thomsonreuters.upa.codec.RequestMsgFlags.STREAMING;
 		else
-			rsslFlags &= ~RequestMsgFlags.STREAMING;
+			rsslFlags &= ~com.thomsonreuters.upa.codec.RequestMsgFlags.STREAMING;
 		
 		((com.thomsonreuters.upa.codec.RequestMsg)_rsslMsg).flags(rsslFlags);
 	
@@ -761,7 +756,7 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 			switch ( retCode )
 			{
 				case CodecReturnCodes.END_OF_CONTAINER :
-						break;
+						return;
 				case CodecReturnCodes.SUCCESS :
 					if ( _rsslElementEntry.name().length() == 9 && _rsslElementEntry.name().toString().compareTo( VIEW_DATA_STRING ) == 0)
 					{
@@ -774,7 +769,7 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 						else
 							_batchItemList.clear();
 	
-						if ( _rsslElementEntry.dataType() == DataTypes.ARRAY )
+						if ( _rsslElementEntry.dataType() == com.thomsonreuters.upa.codec.DataTypes.ARRAY )
 						{
 							if (_rsslArray == null)
 							{
@@ -789,7 +784,7 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 	
 							if ( _rsslArray.decode(_rsslDecodeIter) >= CodecReturnCodes.SUCCESS  )
 							{
-								if ( _rsslArray.primitiveType() == DataTypes.ASCII )
+								if ( _rsslArray.primitiveType() == com.thomsonreuters.upa.codec.DataTypes.ASCII_STRING )
 								{
 									if (_rsslItemBuffer == null)
 										_rsslItemBuffer = CodecFactory.createBuffer();

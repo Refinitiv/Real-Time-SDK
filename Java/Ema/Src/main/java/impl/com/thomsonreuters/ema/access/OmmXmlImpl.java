@@ -9,24 +9,19 @@ package com.thomsonreuters.ema.access;
 
 import java.nio.ByteBuffer;
 
-import com.thomsonreuters.ema.access.OmmXml;
-import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.upa.codec.Buffer;
-import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.DataDictionary;
 
 class OmmXmlImpl extends DataImpl implements OmmXml
 {
 	OmmXmlImpl()
 	{
-		_rsslBuffer = CodecFactory.createBuffer();
+		_rsslBuffer = com.thomsonreuters.upa.codec.CodecFactory.createBuffer();
 	}
 
 	@Override
 	public int dataType()
 	{
-		return DataTypes.XML;
+		return DataType.DataTypes.XML;
 	}
 
 	@Override
@@ -53,20 +48,29 @@ class OmmXmlImpl extends DataImpl implements OmmXml
 	@Override
 	public OmmXml string(String value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		_rsslBuffer.data(value);
+		return this;
 	}
 
 	@Override
 	public OmmXml buffer(ByteBuffer value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Utilities.copy(value, _rsslBuffer);
+		return this;
 	}
 	
 	@Override
 	public OmmXml clear()
 	{
+		ByteBuffer data = _rsslBuffer.data();
+		if (data != null)
+		{
+			data.clear();
+			_rsslBuffer.data(data);
+		}
+		else
+			_rsslBuffer.clear();
+		
 		return this;
 	}
 
@@ -90,7 +94,7 @@ class OmmXmlImpl extends DataImpl implements OmmXml
 	}
 	
 	@Override
-	void decode(Buffer rsslBuffer, int majVer, int minVer, DataDictionary rsslDictionary, Object obj)
+	void decode(com.thomsonreuters.upa.codec.Buffer rsslBuffer, int majVer, int minVer, com.thomsonreuters.upa.codec.DataDictionary rsslDictionary, Object obj)
 	{
 		_rsslDecodeIter.clear();
 		

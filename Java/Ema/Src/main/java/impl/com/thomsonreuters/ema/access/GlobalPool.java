@@ -80,7 +80,7 @@ class GlobalPool {
 		throw new AssertionError();
 	}
 
-	static void intialize() 
+	static void initialize() 
 	{
 		if (_intialized)
 			return;

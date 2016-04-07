@@ -13,10 +13,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.access.FieldEntry;
-import com.thomsonreuters.ema.access.FieldList;
 import com.thomsonreuters.ema.access.OmmError.ErrorCode;
-import com.thomsonreuters.ema.access.DataType;
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 
@@ -296,7 +293,7 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 		}
 	}
 
-	void fillCollection()
+	private void fillCollection()
 	{
 		DataImpl load;
 		com.thomsonreuters.upa.codec.DictionaryEntry rsslDictionaryEntry = null;
@@ -360,16 +357,9 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 	{
 		if (_encodeComplete)
 			return _rsslBuffer; 
-		else
-		{
-			_rsslEncodeIter.clear();
-			_rsslBuffer.data().clear();
-		}
 		
-		if (_fieldListCollection.isEmpty())
-			throw ommIUExcept().message("FieldList to be encoded is empty.");
-		
-		_rsslFieldList.applyHasStandardData();
+		if (!_fieldListCollection.isEmpty())
+			_rsslFieldList.applyHasStandardData();
 
 		int ret = _rsslEncodeIter.setBufferAndRWFVersion(_rsslBuffer, _rsslMajVer, _rsslMinVer);
 	    if (ret != CodecReturnCodes.SUCCESS)
@@ -383,8 +373,7 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 	    ret = _rsslFieldList.encodeInit(_rsslEncodeIter, null, 0);
 	    while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
 	    {
-	    	//TODO need put back original one
-	    	_rsslBuffer.data(ByteBuffer.allocateDirect(_rsslBuffer.data().capacity()*2)); //TODO from pool
+	    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
 	    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
 	    	ret = _rsslFieldList.encodeInit(_rsslEncodeIter, null, 0);
 	    }
@@ -400,24 +389,15 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 	    ret = CodecReturnCodes.FAILURE;
 		for (com.thomsonreuters.ema.access.FieldEntry fieldEntry  : _fieldListCollection)
 		{
-			 ret = ((FieldEntryImpl)fieldEntry)._rsslFieldEntry.encode(_rsslEncodeIter, ((FieldEntryImpl)fieldEntry)._cacheEntryData);
-			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
-			    {
-			    	//TODO need put back original one
-			    	_rsslBuffer.data(ByteBuffer.allocateDirect(_rsslBuffer.data().capacity()*2)); //TODO from pool
-			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-			    	ret =  ((FieldEntryImpl)fieldEntry)._rsslFieldEntry.encode(_rsslEncodeIter, ((FieldEntryImpl)fieldEntry)._cacheEntryData);
-			    }
-			  
-			  if (ret != CodecReturnCodes.SUCCESS)
-			    {
+			 if ((ret = fieldEntryEncode(((FieldEntryImpl)fieldEntry)._rsslFieldEntry, ((FieldEntryImpl)fieldEntry)._entryData)) != CodecReturnCodes.SUCCESS)
+			 {
 			    	String errText = errorString().append("Failed to ")
 			    								.append("rsslFieldEntry.encode()")
 			    								.append(" while encoding rssl fieldlist. Reason='")
 			    								.append(CodecReturnCodes.toString(ret))
 			    								.append("'").toString();
 			    	throw ommIUExcept().message(errText);
-			    }
+			 }
 		 }
 		 
 		ret =  _rsslFieldList.encodeComplete(_rsslEncodeIter, true);
@@ -428,8 +408,141 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 	    								.append("'").toString();
 	        throw ommIUExcept().message(errText);
 	    }
-	 
+	    
 	    _encodeComplete = true;
 	    return _rsslBuffer;
+	}
+	
+	private int fieldEntryEncode(com.thomsonreuters.upa.codec.FieldEntry rsslFieldEntry, Object cacheEntryData)
+	{
+		int ret;
+		if ( cacheEntryData == null )
+		{
+			ret = rsslFieldEntry.encode(_rsslEncodeIter);
+			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+		    {
+		    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
+		    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
+		    	ret = rsslFieldEntry.encode(_rsslEncodeIter);
+		    }
+			return ret;
+		}
+		
+		switch (rsslFieldEntry.dataType())
+		{
+		case com.thomsonreuters.upa.codec.DataTypes.INT:
+			ret =  rsslFieldEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Int)cacheEntryData);
+			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			    {
+			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
+			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
+			    	ret = rsslFieldEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Int)cacheEntryData);
+			    }
+			 return ret;
+		case com.thomsonreuters.upa.codec.DataTypes.UINT:
+			ret =  rsslFieldEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.UInt)cacheEntryData);
+			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			    {
+			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
+			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
+			    	ret = rsslFieldEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.UInt)cacheEntryData);
+			    }
+			 return ret;
+		case com.thomsonreuters.upa.codec.DataTypes.REAL:
+			ret =  rsslFieldEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Real)cacheEntryData);
+			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			    {
+			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
+			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
+			    	ret = rsslFieldEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Real)cacheEntryData);
+			    }
+			 return ret;
+		case com.thomsonreuters.upa.codec.DataTypes.DOUBLE:
+			ret =  rsslFieldEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Double)cacheEntryData);
+			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			    {
+			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
+			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
+			    	ret = rsslFieldEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Double)cacheEntryData);
+			    }
+			 return ret;
+		case com.thomsonreuters.upa.codec.DataTypes.FLOAT:
+			ret =  rsslFieldEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Float)cacheEntryData);
+			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			    {
+			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
+			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
+			    	ret = rsslFieldEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Float)cacheEntryData);
+			    }
+			 return ret;
+		case com.thomsonreuters.upa.codec.DataTypes.DATETIME:
+			ret =  rsslFieldEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.DateTime)cacheEntryData);
+			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			    {
+			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
+			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
+			    	ret = rsslFieldEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.DateTime)cacheEntryData);
+			    }
+			 return ret;
+		case com.thomsonreuters.upa.codec.DataTypes.DATE:
+			ret =  rsslFieldEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Date)cacheEntryData);
+			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			    {
+			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
+			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
+			    	ret = rsslFieldEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Date)cacheEntryData);
+			    }
+			 return ret;
+		case com.thomsonreuters.upa.codec.DataTypes.TIME:
+			ret =  rsslFieldEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Time)cacheEntryData);
+			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			    {
+			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
+			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
+			    	ret = rsslFieldEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Time)cacheEntryData);
+			    }
+			 return ret;
+		case com.thomsonreuters.upa.codec.DataTypes.QOS:
+			ret =  rsslFieldEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Qos)cacheEntryData);
+			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			    {
+			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
+			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
+			    	ret = rsslFieldEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Qos)cacheEntryData);
+			    }
+			 return ret;
+		case com.thomsonreuters.upa.codec.DataTypes.STATE:
+			ret =  rsslFieldEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.State)cacheEntryData);
+			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			    {
+			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
+			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
+			    	ret = rsslFieldEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.State)cacheEntryData);
+			    }
+			 return ret;
+		case com.thomsonreuters.upa.codec.DataTypes.ENUM:
+			ret =  rsslFieldEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Enum)cacheEntryData);
+			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			    {
+			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
+			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
+			    	ret = rsslFieldEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Enum)cacheEntryData);
+			    }
+			 return ret;
+		case com.thomsonreuters.upa.codec.DataTypes.BUFFER:
+		case com.thomsonreuters.upa.codec.DataTypes.UTF8_STRING:
+		case com.thomsonreuters.upa.codec.DataTypes.ASCII_STRING:
+		case com.thomsonreuters.upa.codec.DataTypes.RMTES_STRING:
+			ret =  rsslFieldEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Buffer)cacheEntryData);
+			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			    {
+			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
+			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
+			    	ret = rsslFieldEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Buffer)cacheEntryData);
+			    }
+			 return ret;
+		 default:
+			return CodecReturnCodes.FAILURE;
+		}
 	}
 }

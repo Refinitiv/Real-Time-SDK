@@ -9,22 +9,19 @@ package com.thomsonreuters.ema.access;
 
 import java.nio.ByteBuffer;
 
-import com.thomsonreuters.ema.access.OmmUtf8;
-import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 
 class OmmUtf8Impl extends DataImpl implements OmmUtf8
 {
 	OmmUtf8Impl()
 	{
-		_rsslBuffer = CodecFactory.createBuffer();
+		_rsslBuffer = com.thomsonreuters.upa.codec.CodecFactory.createBuffer();
 	}
 
 	@Override
 	public int dataType()
 	{
-		return DataTypes.UTF8;
+		return DataType.DataTypes.UTF8;
 	}
 
 	@Override

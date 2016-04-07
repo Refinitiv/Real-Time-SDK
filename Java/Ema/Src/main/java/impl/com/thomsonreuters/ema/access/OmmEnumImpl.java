@@ -7,18 +7,15 @@
 
 package com.thomsonreuters.ema.access;
 
-import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.access.OmmEnum;
-import com.thomsonreuters.upa.codec.CodecFactory;
 
 class OmmEnumImpl extends DataImpl implements OmmEnum
 {
-	private com.thomsonreuters.upa.codec.Enum _rsslEnum = CodecFactory.createEnum();
+	private com.thomsonreuters.upa.codec.Enum _rsslEnum = com.thomsonreuters.upa.codec.CodecFactory.createEnum();
 	
 	@Override
 	public int dataType()
 	{
-		return DataTypes.ENUM;
+		return DataType.DataTypes.ENUM;
 	}
 
 	@Override

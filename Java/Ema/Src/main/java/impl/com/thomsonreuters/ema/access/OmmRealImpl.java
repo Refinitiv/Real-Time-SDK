@@ -7,9 +7,6 @@
 
 package com.thomsonreuters.ema.access;
 
-import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.access.OmmReal;
-import com.thomsonreuters.upa.codec.CodecFactory;
 
 class OmmRealImpl extends DataImpl implements OmmReal
 {
@@ -49,12 +46,12 @@ class OmmRealImpl extends DataImpl implements OmmReal
 	private final static String NAN_STRING 				= "NaN";
 	private final static String DEFAULTREAL_STRING 		= "Unknown MagnitudeType value ";
 	
-	private com.thomsonreuters.upa.codec.Real _rsslReal = CodecFactory.createReal();
+	private com.thomsonreuters.upa.codec.Real _rsslReal = com.thomsonreuters.upa.codec.CodecFactory.createReal();
 	
 	@Override
 	public int dataType()
 	{
-		return DataTypes.REAL;
+		return DataType.DataTypes.REAL;
 	}
 
 	@Override

@@ -7,7 +7,6 @@
 
 package com.thomsonreuters.ema.access;
 
-import com.thomsonreuters.ema.access.OmmConsumerErrorClient;
 
 class OmmConsumerErrorClientImpl implements OmmConsumerErrorClient
 {

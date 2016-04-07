@@ -7,41 +7,44 @@
 
 package com.thomsonreuters.ema.access;
 
+import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 
 /**
- * RmtesBuffer represents RMTES data. RmtesBuffer stores and applies RMTES data.
- * <p>
- * Method {@link #asUTF16()} will trigger garbage
- * collection.
- * </p>
+ * RmtesBuffer represents RMTES data.
+ * RmtesBuffer stores and applies RMTES data.
+ * <p>Methods {@link #asUTF8()} and {@link #asUTF16()} will trigger garbage collection.</p>
  * 
- * <p>
- * RmtesBuffer class contains a copy of the buffer passed on apply methods.
- * </p>
+ * <p>RmtesBuffer class contains a copy of the buffer passed on apply methods.</p>
  */
 public interface RmtesBuffer
 {
-	/**
-	 * Returns the content converted as UTF16.
+	/** 
+	 * Returns the content converted as UTF8.
 	 * 
-	 * @throws OmmInvalidUsageException
-	 *             if fails to convert
+	 * @throws OmmInvalidUsageException if fails to convert
+	 * 
+	 * @return ByteBuffer containing RMTES data converted to UTF8
+	 */
+	public ByteBuffer asUTF8();
+	
+	/** Returns the content converted as UTF16.
+	 * 
+	 * @throws OmmInvalidUsageException if fails to convert
 	 * 
 	 * @return CharBuffer containing RMTES data converted to UTF16
 	 */
 	public CharBuffer asUTF16();
-
+	
 	/**
 	 * Returns a string representation of decoded RMTES data.
 	 * 
-	 * @throws OmmInvalidUsageException
-	 *             if fails to convert
+	 * @throws OmmInvalidUsageException if fails to convert
 	 * 
 	 * @return String containing decoded RMTES data
 	 */
 	public String toString();
-
+	
 	/**
 	 * Clears contained content.
 	 * 
@@ -52,11 +55,9 @@ public interface RmtesBuffer
 	/**
 	 * Apply passed in RMTES data
 	 * 
-	 * @throws OmmInvalidUsageException
-	 *             if fails to apply
+	 * @throws OmmInvalidUsageException if fails to apply
 	 * 
-	 * @param data
-	 *            buf specifies RmtesBuffer to be applied to this object
+	 * @param data buf specifies RmtesBuffer to be applied to this object
 	 * @return reference to this object
 	 */
 	public RmtesBuffer apply(RmtesBuffer data);
@@ -64,12 +65,9 @@ public interface RmtesBuffer
 	/**
 	 * Apply passed in RMTES data
 	 * 
-	 * @throws OmmInvalidUsageException
-	 *             if fails to apply
+	 * 	@throws OmmInvalidUsageException if fails to apply
 	 * 
-	 * @param data
-	 *            specifies OmmRmtes containing RMTES data to be applied to this
-	 *            object
+	 * @param data specifies OmmRmtes containing RMTES data to be applied to this object
 	 * @return reference to this object
 	 */
 	public RmtesBuffer apply(OmmRmtes data);

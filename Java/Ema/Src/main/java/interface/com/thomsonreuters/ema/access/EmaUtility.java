@@ -31,10 +31,10 @@ public class EmaUtility
 
         boolean processedFirst = false;
         int currentChar = 0;
-        int length = buffer.position();
+        int length = buffer.limit();
         int	eobyte= 0;
 
-        for (int i = 0; i < length; i++)
+        for (int i = buffer.position(); i < length; i++)
         {
             if (!(currentChar < charsPerLine))
             {

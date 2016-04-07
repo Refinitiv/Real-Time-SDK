@@ -13,19 +13,23 @@ import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
+import com.thomsonreuters.upa.codec.DataTypes;
 import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.codec.MsgKey;
 import com.thomsonreuters.upa.codec.RequestMsg;
+import com.thomsonreuters.upa.rdm.ElementNames;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRequest;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginAttrib;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequestFlags;
 
 class OmmConsumerConfigImpl implements OmmConsumerConfig
 {
@@ -259,17 +263,14 @@ class OmmConsumerConfigImpl implements OmmConsumerConfig
 	public OmmConsumerConfig addAdminMsg(ReqMsg reqMsg)
 	{
 		RequestMsg rsslRequestMsg = ((ReqMsgImpl)reqMsg).rsslMsg();
-		DecodeIterator dIter = rsslDecodeIterator();
-		dIter.setBufferAndRWFVersion(rsslRequestMsg.encodedMsgBuffer(), Codec.majorVersion(), Codec.minorVersion());
-
 		int ret = CodecReturnCodes.SUCCESS;
 		switch (rsslRequestMsg.domainType())
 		{
 			case com.thomsonreuters.upa.rdm.DomainTypes.LOGIN :
-				ret = _rsslLoginReq.decode(dIter, rsslRequestMsg);
+				ret = setLoginRequest(rsslRequestMsg);
 				break;
 			case com.thomsonreuters.upa.rdm.DomainTypes.DICTIONARY :
-				addDictionaryReqMsg(dIter, rsslRequestMsg, (reqMsg.hasServiceName() ? reqMsg.serviceName() : null));
+				addDictionaryReqMsg(rsslRequestMsg, (reqMsg.hasServiceName() ? reqMsg.serviceName() : null));
 				break;
 			case com.thomsonreuters.upa.rdm.DomainTypes.SOURCE :
 				if (_rsslDirectoryReq == null)
@@ -277,8 +278,7 @@ class OmmConsumerConfigImpl implements OmmConsumerConfig
 					_rsslDirectoryReq = (DirectoryRequest)DirectoryMsgFactory.createMsg();
 					_rsslDirectoryReq.rdmMsgType(DirectoryMsgType.REQUEST);
 				}
-				
-				ret = _rsslDirectoryReq.decode(dIter, rsslRequestMsg);
+				ret = setDirectoryRequest(rsslRequestMsg);
 				break;
 			default :
 				errorTracker().append("Request message with unhandled domain passed into addAdminMsg((ReqMsg reqMsg). Domain type='")
@@ -297,6 +297,221 @@ class OmmConsumerConfigImpl implements OmmConsumerConfig
 	    }
 		
 		return this;
+	}
+	
+	int setLoginRequest(RequestMsg rsslRequestMsg)
+	{
+		_rsslLoginReq.clear();
+		_rsslLoginReq.rdmMsgType(LoginMsgType.REQUEST);
+		int flags = _rsslLoginReq.flags();
+		   
+		if(!rsslRequestMsg.checkStreaming())
+			return CodecReturnCodes.FAILURE;
+	        
+		if(rsslRequestMsg.checkNoRefresh())
+		   flags |= LoginRequestFlags.NO_REFRESH;
+		
+		if(rsslRequestMsg.checkPause())
+		  flags |= LoginRequestFlags.PAUSE_ALL;
+    
+	   _rsslLoginReq.streamId(rsslRequestMsg.streamId());
+    
+	   MsgKey msgKey = rsslRequestMsg.msgKey();
+	   if (msgKey == null || !msgKey.checkHasName() || (msgKey.checkHasAttrib() && msgKey.attribContainerType() != DataTypes.ELEMENT_LIST))
+         return CodecReturnCodes.FAILURE;
+
+	   Buffer userName = msgKey.name();
+	   _rsslLoginReq.userName().data(userName.data(), userName.position(), userName.length());
+	        
+	   if ( msgKey.checkHasNameType())
+	   {
+		  _rsslLoginReq.applyHasUserNameType();
+		  _rsslLoginReq.userNameType(rsslRequestMsg.msgKey().nameType());
+	   }
+		
+	  if (msgKey.checkHasAttrib() )
+	  {
+			DecodeIterator dIter = rsslDecodeIterator();
+			com.thomsonreuters.upa.codec.ElementList elementList = CodecFactory.createElementList();
+		    com.thomsonreuters.upa.codec.ElementEntry elementEntry = CodecFactory.createElementEntry();	
+		    com.thomsonreuters.upa.codec.UInt  tmpUInt = CodecFactory.createUInt();
+		    
+		    dIter.setBufferAndRWFVersion(msgKey.encodedAttrib(), Codec.majorVersion(), Codec.minorVersion());
+	        elementList.clear();
+
+	        int ret = elementList.decode(dIter, null);
+	        if (ret != CodecReturnCodes.SUCCESS)
+	            return ret;
+
+	        elementEntry.clear();
+	        LoginAttrib attrib = _rsslLoginReq.attrib();
+	        
+	        while ((ret = elementEntry.decode(dIter)) != CodecReturnCodes.END_OF_CONTAINER)
+	        {
+	            if (ret != CodecReturnCodes.SUCCESS)
+	                return ret;
+
+	            if (elementEntry.name().equals(ElementNames.ALLOW_SUSPECT_DATA))
+	            {
+	                if (elementEntry.dataType() != DataTypes.UINT)
+	                    return CodecReturnCodes.FAILURE;
+
+	                ret = tmpUInt.decode(dIter);
+	                if (ret != CodecReturnCodes.SUCCESS)
+	                    return ret;
+	                flags |= LoginRequestFlags.HAS_ATTRIB;
+	                attrib.applyHasAllowSuspectData();
+	                attrib.allowSuspectData(tmpUInt.toLong());
+	            }
+	            else if (elementEntry.name().equals(ElementNames.APPID))
+	            {
+	                if (elementEntry.dataType() != DataTypes.ASCII_STRING)
+	                    return CodecReturnCodes.FAILURE;
+	                flags |= LoginRequestFlags.HAS_ATTRIB;
+	                Buffer applicationId = elementEntry.encodedData();
+	                attrib.applyHasApplicationId();
+	                attrib.applicationId().data(applicationId.data(), applicationId.position(), applicationId.length());
+	            }
+	            else if (elementEntry.name().equals(ElementNames.APPNAME))
+	            {
+	                if (elementEntry.dataType() != DataTypes.ASCII_STRING)
+	                    return CodecReturnCodes.FAILURE;
+	                flags |= LoginRequestFlags.HAS_ATTRIB;
+	                Buffer applicationName = elementEntry.encodedData();
+	                attrib.applyHasApplicationName();
+	                attrib.applicationName().data(applicationName.data(), applicationName.position(), applicationName.length());
+	            }
+	            else if (elementEntry.name().equals(ElementNames.POSITION))
+	            {
+	                if (elementEntry.dataType() != DataTypes.ASCII_STRING)
+	                    return CodecReturnCodes.FAILURE;
+	                
+	                flags |= LoginRequestFlags.HAS_ATTRIB;
+	                Buffer position = elementEntry.encodedData();
+	                attrib.applyHasPosition();
+	                attrib.position().data(position.data(), position.position(), position.length());
+	            }
+	            else if (elementEntry.name().equals(ElementNames.PASSWORD))
+	            {
+	                if (elementEntry.dataType() != DataTypes.ASCII_STRING)
+	                    return CodecReturnCodes.FAILURE;
+	                Buffer password = elementEntry.encodedData();
+	                flags |= LoginRequestFlags.HAS_ATTRIB;
+	                flags |= LoginRequestFlags.HAS_PASSWORD;
+	                _rsslLoginReq.password().data(password.data(), password.position(), password.length());
+	            }
+	            else if (elementEntry.name().equals(ElementNames.INST_ID))
+	            {
+	                if (elementEntry.dataType() != DataTypes.ASCII_STRING)
+	                    return CodecReturnCodes.FAILURE;
+	                Buffer instanceId = elementEntry.encodedData();
+	                flags |= LoginRequestFlags.HAS_ATTRIB;
+	                _rsslLoginReq.instanceId().data(instanceId.data(), instanceId.position(), instanceId.length());
+	            }
+	            else if (elementEntry.name().equals(ElementNames.DOWNLOAD_CON_CONFIG))
+	            {
+	                if (elementEntry.dataType() != DataTypes.UINT)
+	                    return CodecReturnCodes.FAILURE;
+	                ret = tmpUInt.decode(dIter);
+	                if (ret != CodecReturnCodes.SUCCESS)
+	                    return ret;
+	                
+	                flags |= LoginRequestFlags.HAS_DOWNLOAD_CONN_CONFIG;
+	                _rsslLoginReq.downloadConnectionConfig(tmpUInt.toLong());
+	            }
+	            else if (elementEntry.name().equals(ElementNames.PROV_PERM_EXP))
+	            {
+	                if (elementEntry.dataType() != DataTypes.UINT)
+	                    return CodecReturnCodes.FAILURE;
+	                ret = tmpUInt.decode(dIter);
+	                if (ret != CodecReturnCodes.SUCCESS)
+	                    return ret;
+	                flags |= LoginRequestFlags.HAS_ATTRIB;
+	                attrib.applyHasProvidePermissionExpressions();
+	                attrib.providePermissionExpressions(tmpUInt.toLong());
+	            }
+	            else if (elementEntry.name().equals(ElementNames.PROV_PERM_PROF))
+	            {
+	                if (elementEntry.dataType() != DataTypes.UINT)
+	                    return CodecReturnCodes.FAILURE;
+	                ret = tmpUInt.decode(dIter);
+	                if (ret != CodecReturnCodes.SUCCESS)
+	                    return ret;
+	                flags |= LoginRequestFlags.HAS_ATTRIB;
+	                attrib.applyHasProvidePermissionProfile();
+	                attrib.providePermissionProfile(tmpUInt.toLong());
+	            }
+	            else if (elementEntry.name().equals(ElementNames.SINGLE_OPEN))
+	            {
+	                if (elementEntry.dataType() != DataTypes.UINT)
+	                    return CodecReturnCodes.FAILURE;
+	                ret = tmpUInt.decode(dIter);
+	                if (ret != CodecReturnCodes.SUCCESS)
+	                    return ret;
+
+	                flags |= LoginRequestFlags.HAS_ATTRIB;
+	                attrib.applyHasSingleOpen();
+	                attrib.singleOpen(tmpUInt.toLong());
+	            }
+	            else if (elementEntry.name().equals(ElementNames.ROLE))
+	            {
+	                if (elementEntry.dataType() != DataTypes.UINT)
+	                    return CodecReturnCodes.FAILURE;
+	                ret = tmpUInt.decode(dIter);
+	                if (ret != CodecReturnCodes.SUCCESS)
+	                    return ret;
+	                
+	                flags |= LoginRequestFlags.HAS_ROLE;
+	                _rsslLoginReq.role(tmpUInt.toLong());
+	            }
+	            else if (elementEntry.name().equals(ElementNames.SUPPORT_PROVIDER_DICTIONARY_DOWNLOAD))
+	            {
+	                if (elementEntry.dataType() != DataTypes.UINT)
+	                    return CodecReturnCodes.FAILURE;
+	                ret = tmpUInt.decode(dIter);
+	                if (ret != CodecReturnCodes.SUCCESS)
+	                    return ret;
+	                
+	                flags |= LoginRequestFlags.HAS_ATTRIB;
+	                attrib.applyHasProviderSupportDictionaryDownload();
+	                attrib.supportProviderDictionaryDownload(tmpUInt.toLong());
+	            }
+        	}
+		}
+	     
+	  _rsslLoginReq.flags(flags);
+		
+	  return CodecReturnCodes.SUCCESS;
+	}
+	
+	int setDirectoryRequest(RequestMsg rsslRequestMsg)
+	{
+		_rsslDirectoryReq.clear();
+		_rsslDirectoryReq.rdmMsgType(DirectoryMsgType.REQUEST);
+		   
+        if (rsslRequestMsg.msgClass() != MsgClasses.REQUEST)
+            return CodecReturnCodes.FAILURE;
+
+
+        if (rsslRequestMsg.checkStreaming())
+        	_rsslDirectoryReq.applyStreaming();
+
+        MsgKey msgKey = rsslRequestMsg.msgKey();
+        if (msgKey == null || !msgKey.checkHasFilter())
+            return CodecReturnCodes.FAILURE;
+
+        if (msgKey.checkHasFilter())
+        	_rsslDirectoryReq.filter(rsslRequestMsg.msgKey().filter());
+        
+        _rsslDirectoryReq.streamId(rsslRequestMsg.streamId());
+        
+        if (msgKey.checkHasServiceId())
+        {
+        	_rsslDirectoryReq.applyHasServiceId();
+        	_rsslDirectoryReq.serviceId(msgKey.serviceId());
+        }
+	        
+	    return CodecReturnCodes.SUCCESS;
 	}
 	
 	int decodeDictionaryReqMsg(DictionaryRequest rdmDictionaryRequest, RequestMsg rsslRequestMsg)
@@ -328,7 +543,7 @@ class OmmConsumerConfigImpl implements OmmConsumerConfig
         return CodecReturnCodes.SUCCESS;
 	}
 	
-	int addDictionaryReqMsg(DecodeIterator dIter, RequestMsg rsslRequestMsg, String serviceName)
+	int addDictionaryReqMsg(RequestMsg rsslRequestMsg, String serviceName)
 	{
 		if (!rsslRequestMsg.msgKey().checkHasName())
 		{

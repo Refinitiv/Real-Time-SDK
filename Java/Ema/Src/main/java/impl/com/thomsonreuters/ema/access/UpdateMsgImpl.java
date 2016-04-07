@@ -9,9 +9,6 @@ package com.thomsonreuters.ema.access;
 
 import java.nio.ByteBuffer;
 
-import com.thomsonreuters.ema.access.ComplexType;
-import com.thomsonreuters.ema.access.DataType;
-import com.thomsonreuters.ema.access.UpdateMsg;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.OmmError.ErrorCode;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
@@ -21,7 +18,6 @@ class UpdateMsgImpl extends MsgImpl implements UpdateMsg
 	UpdateMsgImpl()
 	{
 		super(DataTypes.UPDATE_MSG, false);
-		initialEncoding();
 	}
 
 	UpdateMsgImpl(boolean decoding)
@@ -33,7 +29,6 @@ class UpdateMsgImpl extends MsgImpl implements UpdateMsg
 	public UpdateMsg clear()
 	{
 		msgClear();
-		initialEncoding();
 		return this;
 	}
 
@@ -470,9 +465,5 @@ class UpdateMsgImpl extends MsgImpl implements UpdateMsg
 				dataInstance(_payloadDecoded, DataTypes.ERROR).decode(rsslBuffer, _errorCode);
 				return;
 		}
-	}
-
-	void initialEncoding()
-	{
 	}
 }

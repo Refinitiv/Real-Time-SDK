@@ -7,9 +7,6 @@
 
 package com.thomsonreuters.ema.access;
 
-import com.thomsonreuters.ema.access.OmmState;
-import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.upa.codec.CodecFactory;
 
 class OmmStateImpl extends DataImpl implements OmmState
 {
@@ -68,12 +65,12 @@ class OmmStateImpl extends DataImpl implements OmmState
 	private final static String DEFAULTDS_STRING = "Unknown DataState value ";
 	private final static String DEFAULTSC_STRING = "Unknown StatusCode value ";
 	
-	private com.thomsonreuters.upa.codec.State _rsslState = CodecFactory.createState();
+	private com.thomsonreuters.upa.codec.State _rsslState = com.thomsonreuters.upa.codec.CodecFactory.createState();
 	
 	@Override
 	public int dataType()
 	{
-		return DataTypes.STATE;
+		return DataType.DataTypes.STATE;
 	}
 
 	@Override

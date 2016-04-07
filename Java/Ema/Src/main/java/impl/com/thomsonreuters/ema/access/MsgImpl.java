@@ -61,7 +61,7 @@ class MsgImpl extends DataImpl implements Msg
 			_rsslEncodeIter = com.thomsonreuters.upa.codec.CodecFactory.createEncodeIterator() ;
 			_rsslBuffer = CodecFactory.createBuffer();
 			//TODO fix me need find out best initialize size
-			_rsslBuffer.data(ByteBuffer.allocateDirect(CollectionDataImpl.ENCODE_RSSL_BUFFER_INIT_SIZE));
+			_rsslBuffer.data(ByteBuffer.allocate(CollectionDataImpl.ENCODE_RSSL_BUFFER_INIT_SIZE));
 		}
 	}
 	
@@ -343,9 +343,9 @@ class MsgImpl extends DataImpl implements Msg
 		_serviceNameSet = true;
 	}
 
-	void serviceName(com.thomsonreuters.upa.codec.Buffer serviceName)
+	void service(String serviceName)
 	{
-		_serviceName = serviceName.toString();
+		_serviceName = serviceName;
 		_serviceNameSet = true;
 	}
 	
@@ -802,17 +802,22 @@ class MsgImpl extends DataImpl implements Msg
 		}
 		
 		_encodeComplete = false;
+		
+		_rsslEncodeIter.clear();
+		ByteBuffer data = _rsslBuffer.data();
+		if (data != null)
+		{
+			data.clear();
+			_rsslBuffer.data(data);
+		}
+		else
+			_rsslBuffer.clear();
 	}
 	
 	Buffer encodedData() 
 	{
 		if (_encodeComplete)
 			return _rsslBuffer; 
-		else
-		{
-			_rsslEncodeIter.clear();
-			_rsslBuffer.data().clear();
-		}
 		
 		int ret = _rsslEncodeIter.setBufferAndRWFVersion(_rsslBuffer, _rsslMajVer, _rsslMinVer);
 	    if (ret != CodecReturnCodes.SUCCESS)
@@ -827,7 +832,7 @@ class MsgImpl extends DataImpl implements Msg
 		 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
 		  {
 			 //TODO need put back original one
-		    _rsslBuffer.data(ByteBuffer.allocateDirect(_rsslBuffer.data().capacity()*2)); //TODO from pool
+		    _rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); //TODO from pool
 		    _rsslEncodeIter.realignBuffer(_rsslBuffer);
 		    ret = _rsslMsg.encode(_rsslEncodeIter);
 		  }

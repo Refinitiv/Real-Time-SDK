@@ -7,20 +7,16 @@
 
 package com.thomsonreuters.ema.access;
 
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import com.thomsonreuters.ema.access.ComplexType;
-import com.thomsonreuters.ema.access.Data;
-import com.thomsonreuters.ema.access.DataType;
-import com.thomsonreuters.ema.access.SummaryData;
-import com.thomsonreuters.ema.access.Vector;
-import com.thomsonreuters.ema.access.VectorEntry;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.OmmError.ErrorCode;
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.CodecFactory;
+import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.codec.DataDictionary;
 import com.thomsonreuters.upa.codec.VectorEntryActions;
 
@@ -96,22 +92,34 @@ class VectorImpl extends CollectionDataImpl implements Vector
 	@Override
 	public Vector sortable(boolean sortable)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		if (sortable)
+			_rsslVector.applySupportsSorting();
+
+		return this;
 	}
 
 	@Override
 	public Vector totalCountHint(int totalCountHint)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		if (totalCountHint < 0 || totalCountHint > 1073741823)
+			throw ommOORExcept().message("totalCountHint is out of range [0 - 1073741823].");
+
+		_rsslVector.applyHasTotalCountHint();
+		_rsslVector.totalCountHint(totalCountHint);
+
+		return this;
 	}
 
 	@Override
-	public Vector summaryData(ComplexType data)
+	public Vector summaryData(ComplexType summaryData)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		if (summaryData == null)
+			throw ommIUExcept().message("Passed in summaryData is null");
+
+		_rsslVector.applyHasSummaryData();
+		Utilities.copy(((DataImpl) summaryData).encodedData(), _rsslVector.encodedSummaryData());
+
+		return this;
 	}
 
 	@Override
@@ -140,10 +148,12 @@ class VectorImpl extends CollectionDataImpl implements Vector
 	}
 	
 	@Override
-	public boolean add(VectorEntry e)
+	public boolean add(VectorEntry vectorEntry)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Vector collection doesn't support this operation.");
+		if (vectorEntry == null)
+			throw new NullPointerException("Passed in vectorEntry is null.");
+
+		return _vectorCollection.add(vectorEntry);
 	}
 
 	@Override
@@ -211,15 +221,15 @@ class VectorImpl extends CollectionDataImpl implements Vector
 		
 		if (hasTotalCountHint())
 			_toString.append(" totalCountHint=\"").append(totalCountHint()).append("\"");
-		
-		if (hasSummary())
+
+		if (_rsslVector.checkHasSummaryData())
 		{
 			++indent;
 			Utilities.addIndent(_toString.append("\n"), indent).append("SummaryData dataType=\"")
 					 .append(DataType.asString(summaryData().dataType())).append("\"\n");
 			
 			++indent;
-			_toString.append(((DataImpl)summary()).toString(indent));
+			_toString.append(_summaryDecoded.toString(indent));
 			--indent;
 			
 			Utilities.addIndent(_toString, indent).append("SummaryDataEnd");
@@ -385,7 +395,7 @@ class VectorImpl extends CollectionDataImpl implements Vector
 			switch(retCode)
 			{
 			case com.thomsonreuters.upa.codec.CodecReturnCodes.SUCCESS :
-				int rsslContainerType = (rsslVectorEntry.action() != VectorEntryActions.DELETE)?
+				int rsslContainerType = (rsslVectorEntry.action() != VectorEntryActions.DELETE && rsslVectorEntry.action() != VectorEntryActions.CLEAR)?
 														_rsslVector.containerType() : com.thomsonreuters.upa.codec.DataTypes.NO_DATA;
 				int dType = dataType(rsslContainerType, _rsslMajVer, _rsslMinVer, rsslVectorEntry.encodedData());
 				load = dataInstance(dType);
@@ -411,19 +421,87 @@ class VectorImpl extends CollectionDataImpl implements Vector
 		
 		_fillCollection = false;
 	}
-	
-	boolean hasSummary()
-	{
-		return _rsslVector.checkHasSummaryData();
-	}
-	
-	Data summary()
-	{
-		return _summaryDecoded;
-	}
+
 
 	Buffer encodedData()
 	{
-		return null;
+		if (_encodeComplete)
+			return _rsslBuffer; 
+		
+		if (_vectorCollection.isEmpty())
+			throw ommIUExcept().message("Series to be encoded is empty.");
+		
+		int ret = _rsslEncodeIter.setBufferAndRWFVersion(_rsslBuffer, _rsslMajVer, _rsslMinVer);
+	    if (ret != CodecReturnCodes.SUCCESS)
+	    {
+	    	String errText = errorString().append("Failed to setBufferAndRWFVersion on rssl encode iterator. Reason='")
+	    								.append(CodecReturnCodes.toString(ret))
+	    								.append("'").toString();
+	    	throw ommIUExcept().message(errText);
+	    }
+	    
+	    VectorEntryImpl firstEntry = (VectorEntryImpl)_vectorCollection.get(0);
+	    int entryType = firstEntry._entryDataType;
+		_rsslVector.containerType(entryType);
+
+		ret = _rsslVector.encodeInit(_rsslEncodeIter, 0, 0);
+	    while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+	    {
+	    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
+	    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
+	    	ret = _rsslVector.encodeInit(_rsslEncodeIter, 0, 0);
+	    }
+	    
+	    if (ret != CodecReturnCodes.SUCCESS)
+	    {
+	    	String errText = errorString().append("Failed to intialize encoding on rssl series. Reason='")
+	    								.append(CodecReturnCodes.toString(ret))
+	    								.append("'").toString();
+	    	throw ommIUExcept().message(errText);
+	    }
+	    
+	    VectorEntryImpl vectorEntry;
+		for (com.thomsonreuters.ema.access.VectorEntry entry  : _vectorCollection)
+		{
+			vectorEntry = ((VectorEntryImpl)entry);
+			if (entryType != vectorEntry._entryDataType)
+			{
+				String errText = errorString().append("Attempt to add entry of ")
+						.append(com.thomsonreuters.upa.codec.DataTypes.toString(vectorEntry._entryDataType))
+						.append("while Series contains=")
+						.append(com.thomsonreuters.upa.codec.DataTypes.toString(entryType)).toString();
+				throw ommIUExcept().message(errText);
+			}
+			
+			ret = vectorEntry._rsslVectorEntry.encode(_rsslEncodeIter);
+			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			{
+			   	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
+			   	_rsslEncodeIter.realignBuffer(_rsslBuffer);
+			   	ret = vectorEntry._rsslVectorEntry.encode(_rsslEncodeIter);
+			}
+
+			if (ret != CodecReturnCodes.SUCCESS)
+		    {
+				String errText = errorString().append("Failed to ")
+						.append("rsslVectorEntry.encode()")
+						.append(" while encoding rssl series. Reason='")
+						.append(CodecReturnCodes.toString(ret))
+						.append("'").toString();
+				throw ommIUExcept().message(errText);
+		    }
+		 }
+		 
+		ret =  _rsslVector.encodeComplete(_rsslEncodeIter, true);
+	    if (ret != CodecReturnCodes.SUCCESS)
+	    {
+	    	String errText = errorString().append("Failed to complete encoding on rssl series. Reason='")
+	    								.append(CodecReturnCodes.toString(ret))
+	    								.append("'").toString();
+	        throw ommIUExcept().message(errText);
+	    }
+	     
+	    _encodeComplete = true;
+	    return _rsslBuffer;
 	}
 }

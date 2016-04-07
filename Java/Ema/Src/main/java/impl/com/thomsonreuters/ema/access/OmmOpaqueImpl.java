@@ -9,23 +9,19 @@ package com.thomsonreuters.ema.access;
 
 import java.nio.ByteBuffer;
 
-import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.access.EmaUtility;
-import com.thomsonreuters.ema.access.OmmOpaque;
-import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 
 class OmmOpaqueImpl extends DataImpl implements OmmOpaque
 {
 	OmmOpaqueImpl()
 	{
-		_rsslBuffer = CodecFactory.createBuffer();
+		_rsslBuffer = com.thomsonreuters.upa.codec.CodecFactory.createBuffer();
 	}
 	
 	@Override
 	public int dataType()
 	{
-		return DataTypes.OPAQUE;
+		return DataType.DataTypes.OPAQUE;
 	}
 
 	@Override
@@ -52,20 +48,29 @@ class OmmOpaqueImpl extends DataImpl implements OmmOpaque
 		@Override
 	public OmmOpaque buffer(ByteBuffer value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Utilities.copy(value, _rsslBuffer);
+		return this;
 	}
 
 	@Override
 	public OmmOpaque string(String value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		_rsslBuffer.data(value);
+		return this;
 	}
 	
 	@Override
 	public OmmOpaque clear()
 	{
+		ByteBuffer data = _rsslBuffer.data();
+		if (data != null)
+		{
+			data.clear();
+			_rsslBuffer.data(data);
+		}
+		else
+			_rsslBuffer.clear();
+		
 		return this;
 	}
 	

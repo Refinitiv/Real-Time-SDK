@@ -10,26 +10,6 @@ package com.thomsonreuters.ema.access;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
-import com.thomsonreuters.ema.access.AckMsg;
-import com.thomsonreuters.ema.access.DataType;
-import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.access.ElementList;
-import com.thomsonreuters.ema.access.FieldEntry;
-import com.thomsonreuters.ema.access.FieldList;
-import com.thomsonreuters.ema.access.FilterList;
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.Map;
-import com.thomsonreuters.ema.access.OmmAnsiPage;
-import com.thomsonreuters.ema.access.OmmArray;
-import com.thomsonreuters.ema.access.OmmOpaque;
-import com.thomsonreuters.ema.access.OmmXml;
-import com.thomsonreuters.ema.access.PostMsg;
-import com.thomsonreuters.ema.access.RefreshMsg;
-import com.thomsonreuters.ema.access.ReqMsg;
-import com.thomsonreuters.ema.access.Series;
-import com.thomsonreuters.ema.access.StatusMsg;
-import com.thomsonreuters.ema.access.UpdateMsg;
-import com.thomsonreuters.ema.access.Vector;
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
@@ -39,7 +19,7 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 	private com.thomsonreuters.upa.codec.DictionaryEntry _rsslDictionaryEntry;
 	private FieldListImpl _fieldList;
 	protected com.thomsonreuters.upa.codec.FieldEntry	_rsslFieldEntry;
-	protected Object _cacheEntryData;
+	protected Object _entryData;
 	
 	FieldEntryImpl() 
 	{
@@ -87,7 +67,7 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 				.append(" name=\"").append(name()).append("\"")
 				.append(" dataType=\"").append(DataType.asString(_load.dataType()));
 
-		if (_load.dataType() <= DataTypes.ARRAY)
+		if (_load.dataType() <= DataType.DataTypes.ARRAY)
 		{
 			_toString.append("\"\n").append(_load.toString(1));
 			Utilities.addIndent(_toString, 0).append("FieldEntryEnd\n");
@@ -101,155 +81,139 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 	@Override
 	public FieldEntry reqMsg(int fieldId, ReqMsg value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.MSG, (DataImpl)value);
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.MSG, (DataImpl) value);
 	}
 
 	@Override
 	public FieldEntry refreshMsg(int fieldId, RefreshMsg value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.MSG, (DataImpl)value);
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.MSG, (DataImpl) value);
 	}
 
 	@Override
 	public FieldEntry statusMsg(int fieldId, StatusMsg value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.MSG, (DataImpl)value);
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.MSG, (DataImpl) value);
 	}
 
 	@Override
 	public FieldEntry updateMsg(int fieldId, UpdateMsg value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.MSG, (DataImpl)value);
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.MSG, (DataImpl) value);
 	}
 
 	@Override
 	public FieldEntry postMsg(int fieldId, PostMsg value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.MSG, (DataImpl)value);
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.MSG, (DataImpl) value);
 	}
 
 	@Override
 	public FieldEntry ackMsg(int fieldId, AckMsg value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.MSG, (DataImpl)value);
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.MSG, (DataImpl) value);
 	}
 
 	@Override
 	public FieldEntry genericMsg(int fieldId, GenericMsg value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.MSG, (DataImpl)value);
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.MSG, (DataImpl) value);
 	}
 
 	@Override
 	public FieldEntry fieldList(int fieldId, FieldList value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST, (DataImpl)value);
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST, (DataImpl) value);
 	}
 
 	@Override
 	public FieldEntry elementList(int fieldId, ElementList value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.ELEMENT_LIST, (DataImpl)value);
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.ELEMENT_LIST, (DataImpl) value);
 	}
 
 	@Override
 	public FieldEntry map(int fieldId, Map value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.MAP, (DataImpl)value);
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.MAP, (DataImpl) value);
 	}
 
 	@Override
 	public FieldEntry vector(int fieldId, Vector value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.VECTOR, (DataImpl)value);
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.VECTOR, (DataImpl) value);
 	}
 
 	@Override
 	public FieldEntry series(int fieldId, Series value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.SERIES, (DataImpl)value);
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.SERIES, (DataImpl) value);
 	}
 
 	@Override
 	public FieldEntry filterList(int fieldId, FilterList value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.FILTER_LIST, (DataImpl)value);
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.FILTER_LIST, (DataImpl) value);
 	}
 
 	@Override
 	public FieldEntry opaque(int fieldId, OmmOpaque value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.OPAQUE, (DataImpl)value);
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.OPAQUE, (DataImpl) value);
 	}
 
 	@Override
 	public FieldEntry xml(int fieldId, OmmXml value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.XML, (DataImpl)value);
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.XML, (DataImpl) value);
 	}
 
 	@Override
 	public FieldEntry ansiPage(int fieldId, OmmAnsiPage value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.ANSI_PAGE, (DataImpl)value);
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.ANSI_PAGE, (DataImpl) value);
 	}
 
 	@Override
 	public FieldEntry intValue(int fieldId, long value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.INT);
-		
-		_cacheEntryData = CodecFactory.createInt();
-		((com.thomsonreuters.upa.codec.Int)_cacheEntryData).value(value);
-		
+		entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.INT);
+
+		_entryData = CodecFactory.createInt();
+		((com.thomsonreuters.upa.codec.Int) _entryData).value(value);
+
 		return this;
 	}
 
 	@Override
 	public FieldEntry uintValue(int fieldId, long value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.UINT);
-		
-		_cacheEntryData = CodecFactory.createUInt();
-		((com.thomsonreuters.upa.codec.UInt)_cacheEntryData).value(value) ;
-		
+		entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.UINT);
+
+		_entryData = CodecFactory.createUInt();
+		((com.thomsonreuters.upa.codec.UInt) _entryData).value(value);
+
 		return this;
 	}
 
 	@Override
 	public FieldEntry uintValue(int fieldId, BigInteger value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.UINT);
-		
-		_cacheEntryData = CodecFactory.createUInt();
-		((com.thomsonreuters.upa.codec.UInt)_cacheEntryData).value(value) ;
-		
+		entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.UINT);
+
+		_entryData = CodecFactory.createUInt();
+		((com.thomsonreuters.upa.codec.UInt) _entryData).value(value);
+
 		return this;
 	}
 
 	@Override
 	public FieldEntry real(int fieldId, long mantissa, int magnitudeType)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.REAL);
-		
-		_cacheEntryData = CodecFactory.createReal();
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_cacheEntryData).value(mantissa, magnitudeType) )
+		entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.REAL);
+
+		_entryData = CodecFactory.createReal();
+		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_entryData).value(mantissa, magnitudeType) )
 		{
 			String errText = errorString().append("Attempt to specify invalid real value. Passed mantissa, magnitudeType are='" )
 										.append( mantissa ).append( " / " )
@@ -269,10 +233,10 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 	@Override
 	public FieldEntry realFromDouble(int fieldId, double value, int magnitudeType)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.REAL);
-		
-		_cacheEntryData = CodecFactory.createReal();
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_cacheEntryData).value(value, magnitudeType) )
+		entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.REAL);
+
+		_entryData = CodecFactory.createReal();
+		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_entryData).value(value, magnitudeType) )
 		{
 			String errText = errorString().append("Attempt to specify invalid real value. Passed in value,  magnitudeType are='" )
 										.append( value ).append( " / " )
@@ -286,10 +250,10 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 	@Override
 	public FieldEntry floatValue(int fieldId, float value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.FLOAT);
+		entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.FLOAT);
 
-		_cacheEntryData = CodecFactory.createFloat();
-		((com.thomsonreuters.upa.codec.Float)_cacheEntryData).value(value);
+		_entryData = CodecFactory.createFloat();
+		((com.thomsonreuters.upa.codec.Float)_entryData).value(value);
 		
 		return this;
 	}
@@ -297,10 +261,10 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 	@Override
 	public FieldEntry doubleValue(int fieldId, double value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.DOUBLE);
+		entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.DOUBLE);
 
-		_cacheEntryData = CodecFactory.createDouble();
-		((com.thomsonreuters.upa.codec.Double)_cacheEntryData).value(value);
+		_entryData = CodecFactory.createDouble();
+		((com.thomsonreuters.upa.codec.Double)_entryData).value(value);
 		
 		return this;
 	}
@@ -308,9 +272,9 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 	@Override
 	public FieldEntry date(int fieldId, int year, int month, int day)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.DATE);
-		
-		_cacheEntryData = dateValue(year, month, day);
+		entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.DATE);
+
+		_entryData = dateValue(year, month, day);
 		
 		return this;
 	}
@@ -330,21 +294,21 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 	@Override
 	public FieldEntry time(int fieldId, int hour, int minute, int second, int millisecond)
 	{
-		return time(fieldId, hour, minute, second,  millisecond, 0, 0);
+		return time(fieldId, hour, minute, second, millisecond, 0, 0);
 	}
 
 	@Override
 	public FieldEntry time(int fieldId, int hour, int minute, int second, int millisecond, int microsecond)
 	{
-		return time(fieldId, hour, minute, second,  millisecond, microsecond, 0);
+		return time(fieldId, hour, minute, second, millisecond, microsecond, 0);
 	}
 
 	@Override
 	public FieldEntry time(int fieldId, int hour, int minute, int second, int millisecond, int microsecond, int nanosecond)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.TIME);
-		
-		_cacheEntryData = timeValue(hour, minute, second, millisecond, microsecond, nanosecond);
+		entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.TIME);
+
+		_entryData = timeValue(hour, minute, second, millisecond, microsecond, nanosecond);
 
 		return this;
 	}
@@ -391,9 +355,9 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 	public FieldEntry dateTime(int fieldId, int year, int month, int day, int hour, int minute, int second,
 			int millisecond, int microsecond, int nanosecond)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.DATETIME);
-		
-		_cacheEntryData = dateTimeValue(year, month, day, hour, minute, second, millisecond, microsecond, nanosecond);
+		entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.DATETIME);
+
+		_entryData = dateTimeValue(year, month, day, hour, minute, second, millisecond, microsecond, nanosecond);
 		
 		return this;
 	}
@@ -407,10 +371,10 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 	@Override
 	public FieldEntry qos(int fieldId, int timeliness, int rate)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.QOS);
-		
-		_cacheEntryData = CodecFactory.createQos();
-		Utilities.toRsslQos(rate, timeliness, (com.thomsonreuters.upa.codec.Qos)_cacheEntryData);
+		entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.QOS);
+
+		_entryData = CodecFactory.createQos();
+		Utilities.toRsslQos(rate, timeliness, (com.thomsonreuters.upa.codec.Qos)_entryData);
 		
 		return this;
 	}
@@ -436,21 +400,9 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 	@Override
 	public FieldEntry state(int fieldId, int streamState, int dataState, int statusCode, String statusText)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.STATE);
+		entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.STATE);
 
-		_cacheEntryData = CodecFactory.createState();
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_cacheEntryData).streamState(streamState) ||
-				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_cacheEntryData).dataState(dataState) ||
-				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_cacheEntryData).code(statusCode) || 
-				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_cacheEntryData).text().data(statusText))
-		{
-			String errText = errorString().append("Attempt to specify invalid state. Passed in value is='" )
-					.append( streamState ).append( " / " )
-					.append( dataState ).append( " / " )
-					.append( statusCode ).append( "/ " )
-					.append( statusText ).append( "." ).toString();
-				throw ommIUExcept().message(errText);
-		}
+		_entryData = stateValue(streamState, dataState, statusCode, statusText);
 		
 		return this;
 	}
@@ -458,10 +410,10 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 	@Override
 	public FieldEntry enumValue(int fieldId, int value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.ENUM);
+		entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.ENUM);
 
-		_cacheEntryData = CodecFactory.createEnum();
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Enum)_cacheEntryData).value(value) )
+		_entryData = CodecFactory.createEnum();
+		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Enum)_entryData).value(value) )
 		{
 			String errText = errorString().append("Attempt to specify invalid enum. Passed in value is='" )
 					.append( value ).append( "." ).toString();
@@ -474,13 +426,13 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 	@Override
 	public FieldEntry buffer(int fieldId, ByteBuffer value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.BUFFER);
-		
+		entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.BUFFER);
+
 		if (value == null)
 			throw ommIUExcept().message("Passed in value is null");
 		
-		_cacheEntryData = CodecFactory.createBuffer();
-		Utilities.copy(value, (Buffer)_cacheEntryData);
+		_entryData = CodecFactory.createBuffer();
+		Utilities.copy(value, (Buffer)_entryData);
 		
 		return this;
 	}
@@ -488,13 +440,13 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 	@Override
 	public FieldEntry ascii(int fieldId, String value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.ASCII_STRING);
+		entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.ASCII_STRING);
 
 		if (value == null)
 			throw ommIUExcept().message("Passed in value is null");
 		
-		_cacheEntryData = CodecFactory.createBuffer();
-		((Buffer)_cacheEntryData).data(value);
+		_entryData = CodecFactory.createBuffer();
+		((Buffer)_entryData).data(value);
 		
 		return this;
 	}
@@ -502,13 +454,13 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 	@Override
 	public FieldEntry utf8(int fieldId, ByteBuffer value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.UTF8_STRING);
-		
+		entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.UTF8_STRING);
+
 		if (value == null)
 			throw ommIUExcept().message("Passed in value is null");
 		
-		_cacheEntryData = CodecFactory.createBuffer();
-		Utilities.copy(value, (Buffer)_cacheEntryData);
+		_entryData = CodecFactory.createBuffer();
+		Utilities.copy(value, (Buffer)_entryData);
 
 		return this;
 	}
@@ -516,13 +468,13 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 	@Override
 	public FieldEntry utf8(int fieldId, String value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.UTF8_STRING);
-		
+		entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.UTF8_STRING);
+
 		if (value == null)
 			throw ommIUExcept().message("Passed in value is null");
 		
-		_cacheEntryData = CodecFactory.createBuffer();
-		((Buffer)_cacheEntryData).data(value);
+		_entryData = CodecFactory.createBuffer();
+		((Buffer)_entryData).data(value);
 		
 		return this;
 	}
@@ -530,13 +482,13 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 	@Override
 	public FieldEntry rmtes(int fieldId, ByteBuffer value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.RMTES_STRING);
-		
+		entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.RMTES_STRING);
+
 		if (value == null)
 			throw ommIUExcept().message("Passed in value is null");
 		
-		_cacheEntryData = CodecFactory.createBuffer();
-		Utilities.copy(value, (Buffer)_cacheEntryData);
+		_entryData = CodecFactory.createBuffer();
+		Utilities.copy(value, (Buffer)_entryData);
 		
 		return this;
 	}
@@ -544,125 +496,121 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 	@Override
 	public FieldEntry array(int fieldId, OmmArray value)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.ARRAY, (DataImpl)value);
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.ARRAY, (DataImpl) value);
 	}
 
 	@Override
 	public FieldEntry codeInt(int fieldId)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.INT);
-		
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.INT);
 	}
 
 	@Override
 	public FieldEntry codeUInt(int fieldId)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.UINT);
-		
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.UINT);
 	}
 
 	@Override
 	public FieldEntry codeReal(int fieldId)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.REAL);
-		
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.REAL);
 	}
 
 	@Override
 	public FieldEntry codeFloat(int fieldId)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.FLOAT);
-		
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.FLOAT);
 	}
 
 	@Override
 	public FieldEntry codeDouble(int fieldId)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.DOUBLE);
-		
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.DOUBLE);
 	}
 
 	@Override
 	public FieldEntry codeDate(int fieldId)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.DATE);
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.DATE);
 	}
 
 	@Override
 	public FieldEntry codeTime(int fieldId)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.TIME);
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.TIME);
 	}
 
 	@Override
 	public FieldEntry codeDateTime(int fieldId)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.DATETIME);
-		
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.DATETIME);
 	}
 
 	@Override
 	public FieldEntry codeQos(int fieldId)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.QOS);
-		
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.QOS);
 	}
 
 	@Override
 	public FieldEntry codeState(int fieldId)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.STATE);
-		
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.STATE);
 	}
 
 	@Override
 	public FieldEntry codeEnum(int fieldId)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.ENUM);
-		
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.ENUM);
 	}
 
 	@Override
 	public FieldEntry codeBuffer(int fieldId)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.BUFFER);
-		
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.BUFFER);
 	}
 
 	@Override
 	public FieldEntry codeAscii(int fieldId)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.ANSI_PAGE);
-		
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.ASCII_STRING);
 	}
 
 	@Override
 	public FieldEntry codeUtf8(int fieldId)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.UTF8_STRING);
-		
-		return this;
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.UTF8_STRING);
 	}
 
 	@Override
 	public FieldEntry codeRmtes(int fieldId)
 	{
-		fieldEntryValue(fieldId, _rsslFieldEntry, com.thomsonreuters.upa.codec.DataTypes.RMTES_STRING);
-		
+		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.RMTES_STRING);
+	}
+
+	private FieldEntry entryValue(int fieldId, int rsslDataType, DataImpl value)
+	{
+		if (fieldId < -32768 || fieldId > 32767)
+			throw ommOORExcept().message("fieldId is out of range [(-32768) - 32767].");
+		if (value == null)
+			throw ommIUExcept().message("Passed in value is null");
+
+		_rsslFieldEntry.fieldId(fieldId);
+		_rsslFieldEntry.dataType(rsslDataType);
+		Utilities.copy(value.encodedData(), _rsslFieldEntry.encodedData());
+
+		return this;
+	}
+
+	private FieldEntry entryValue(int fieldId, int rsslDataType)
+	{
+		if (fieldId < -32768 || fieldId > 32767)
+			throw ommOORExcept().message("fieldId is out of range [(-32768) - 32767].");
+
+		_rsslFieldEntry.fieldId(fieldId);
+		_rsslFieldEntry.dataType(rsslDataType);
+
 		return this;
 	}
 }

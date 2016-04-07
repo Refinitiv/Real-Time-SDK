@@ -7,8 +7,6 @@
 
 package com.thomsonreuters.ema.access;
 
-import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.access.OmmError;
 
 class OmmErrorImpl extends DataImpl implements OmmError
 {
@@ -28,7 +26,7 @@ class OmmErrorImpl extends DataImpl implements OmmError
 	@Override
 	public int dataType()
 	{
-		return DataTypes.ERROR;
+		return DataType.DataTypes.ERROR;
 	}
 
 	@Override

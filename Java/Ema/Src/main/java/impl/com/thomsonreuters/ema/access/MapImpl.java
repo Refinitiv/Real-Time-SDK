@@ -12,15 +12,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import com.thomsonreuters.ema.access.ComplexType;
-import com.thomsonreuters.ema.access.Data;
-import com.thomsonreuters.ema.access.DataType;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.access.Map;
-import com.thomsonreuters.ema.access.MapEntry;
-import com.thomsonreuters.ema.access.OmmError;
 import com.thomsonreuters.ema.access.OmmError.ErrorCode;
-import com.thomsonreuters.ema.access.SummaryData;
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
@@ -340,14 +333,14 @@ class MapImpl extends CollectionDataImpl implements Map
 		if (hasKeyFieldId())
 			_toString.append(" keyFieldId=\"").append(keyFieldId()).append("\"");
 		
-		if (hasSummary())
+		if (_rsslMap.checkHasSummaryData())
 		{
 			++indent;
 			Utilities.addIndent(_toString.append("\n"), indent).append("SummaryData dataType=\"")
 					 .append(DataType.asString(summaryData().dataType())).append("\"\n");
 			
 			++indent;
-			_toString.append(((DataImpl)summary()).toString(indent));
+			_toString.append(_summaryDecoded.toString(indent));
 			--indent;
 			
 			Utilities.addIndent(_toString, indent).append("SummaryDataEnd");
@@ -474,25 +467,10 @@ class MapImpl extends CollectionDataImpl implements Map
 		_fillCollection = false;
 	}
 	
-	boolean hasSummary()
-	{
-		return _rsslMap.checkHasSummaryData();
-	}
-	
-	Data summary()
-	{
-		return _summaryDecoded;
-	}
-	
 	Buffer encodedData()
 	{
 		if (_encodeComplete)
 			return _rsslBuffer; 
-		else
-		{
-			_rsslEncodeIter.clear();
-			_rsslBuffer.data().clear();
-		}
 		
 		if (_mapCollection.isEmpty())
 			throw ommIUExcept().message("Map to be encoded is empty.");
@@ -507,13 +485,15 @@ class MapImpl extends CollectionDataImpl implements Map
 	    }
 	    
 	    MapEntryImpl firstEntry = (MapEntryImpl)_mapCollection.get(0);
-	    int keyType = firstEntry._cacheKeyDataType; 
+	    int keyType = firstEntry._keyDataType; 
+	    int entryType = firstEntry._entryDataType;
 		_rsslMap.keyPrimitiveType(keyType);
+		_rsslMap.containerType(entryType);
 	 
 	    ret = _rsslMap.encodeInit(_rsslEncodeIter, 0, 0);
 	    while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
 	    {
-	    	_rsslBuffer.data(ByteBuffer.allocateDirect(_rsslBuffer.data().capacity()*2)); 
+	    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
 	    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
 	    	ret = _rsslMap.encodeInit(_rsslEncodeIter, 0, 0);
 	    }
@@ -530,16 +510,25 @@ class MapImpl extends CollectionDataImpl implements Map
 		for (com.thomsonreuters.ema.access.MapEntry entry  : _mapCollection)
 		{
 			mapEntry = ((MapEntryImpl)entry);
-			if (keyType != mapEntry._cacheKeyDataType)
+			if (keyType != mapEntry._keyDataType)
 			{
 				String errText = errorString().append("Attempt to add entry of ")
-						.append(com.thomsonreuters.upa.codec.DataTypes.toString(mapEntry._cacheKeyDataType))
+						.append(com.thomsonreuters.upa.codec.DataTypes.toString(mapEntry._keyDataType))
 						.append("while Map key contains=")
 						.append(com.thomsonreuters.upa.codec.DataTypes.toString(keyType)).toString();
 				throw ommIUExcept().message(errText);
 			}
 			
-		 while ((ret = mapEntryEncode(keyType, mapEntry._rsslMapEntry,  mapEntry._cacheKeyData)) != CodecReturnCodes.SUCCESS)
+			if (entryType != mapEntry._entryDataType)
+			{
+				String errText = errorString().append("Attempt to add entry of ")
+						.append(com.thomsonreuters.upa.codec.DataTypes.toString(mapEntry._entryDataType))
+						.append("while Map contains=")
+						.append(com.thomsonreuters.upa.codec.DataTypes.toString(entryType)).toString();
+				throw ommIUExcept().message(errText);
+			}
+			
+			if ((ret = mapEntryEncode(keyType, mapEntry._rsslMapEntry,  mapEntry._keyData)) != CodecReturnCodes.SUCCESS)
 		    {
 		    	String errText = errorString().append("Failed to ")
 		    								.append("rsslMapEntry.encode()")
@@ -558,25 +547,16 @@ class MapImpl extends CollectionDataImpl implements Map
 	    								.append("'").toString();
 	        throw ommIUExcept().message(errText);
 	    }
-	 
+	    
 	    _encodeComplete = true;
 	    return _rsslBuffer;
 	}
 	
-	int mapEntryEncode(int rsslDataType, com.thomsonreuters.upa.codec.MapEntry rsslMapEntry, Object cacheKeyData)
+	private int mapEntryEncode(int rsslDataType, com.thomsonreuters.upa.codec.MapEntry rsslMapEntry, Object cacheKeyData)
 	{
 		int ret;
 		if ( cacheKeyData == null )
-		{
-			ret = rsslMapEntry.encode(_rsslEncodeIter);
-			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
-		    {
-		    	_rsslBuffer.data(ByteBuffer.allocateDirect(_rsslBuffer.data().capacity()*2)); 
-		    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-		    	ret = rsslMapEntry.encode(_rsslEncodeIter);
-		    }
-			return ret;
-		}
+			throw ommIUExcept().message("Map entry key to be encoded is empty.");
 		
 		switch (rsslDataType)
 		{
@@ -584,7 +564,7 @@ class MapImpl extends CollectionDataImpl implements Map
 			ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Int)cacheKeyData);
 			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
 			    {
-			    	_rsslBuffer.data(ByteBuffer.allocateDirect(_rsslBuffer.data().capacity()*2)); 
+			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
 			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
 			    	ret = rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Int)cacheKeyData);
 			    }
@@ -593,7 +573,7 @@ class MapImpl extends CollectionDataImpl implements Map
 			ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.UInt)cacheKeyData);
 			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
 			    {
-			    	_rsslBuffer.data(ByteBuffer.allocateDirect(_rsslBuffer.data().capacity()*2)); 
+			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
 			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
 			    	ret = rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.UInt)cacheKeyData);
 			    }
@@ -602,7 +582,7 @@ class MapImpl extends CollectionDataImpl implements Map
 			ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Real)cacheKeyData);
 			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
 			    {
-			    	_rsslBuffer.data(ByteBuffer.allocateDirect(_rsslBuffer.data().capacity()*2)); 
+			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
 			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
 			    	ret = rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Real)cacheKeyData);
 			    }
@@ -611,7 +591,7 @@ class MapImpl extends CollectionDataImpl implements Map
 			ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Double)cacheKeyData);
 			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
 			    {
-			    	_rsslBuffer.data(ByteBuffer.allocateDirect(_rsslBuffer.data().capacity()*2)); 
+			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
 			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
 			    	ret = rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Double)cacheKeyData);
 			    }
@@ -620,7 +600,7 @@ class MapImpl extends CollectionDataImpl implements Map
 			ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Float)cacheKeyData);
 			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
 			    {
-			    	_rsslBuffer.data(ByteBuffer.allocateDirect(_rsslBuffer.data().capacity()*2)); 
+			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
 			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
 			    	ret = rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Float)cacheKeyData);
 			    }
@@ -629,7 +609,7 @@ class MapImpl extends CollectionDataImpl implements Map
 			ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.DateTime)cacheKeyData);
 			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
 			    {
-			    	_rsslBuffer.data(ByteBuffer.allocateDirect(_rsslBuffer.data().capacity()*2)); 
+			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
 			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
 			    	ret = rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.DateTime)cacheKeyData);
 			    }
@@ -638,7 +618,7 @@ class MapImpl extends CollectionDataImpl implements Map
 			ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Date)cacheKeyData);
 			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
 			    {
-			    	_rsslBuffer.data(ByteBuffer.allocateDirect(_rsslBuffer.data().capacity()*2)); 
+			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
 			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
 			    	ret = rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Date)cacheKeyData);
 			    }
@@ -647,7 +627,7 @@ class MapImpl extends CollectionDataImpl implements Map
 			ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Time)cacheKeyData);
 			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
 			    {
-			    	_rsslBuffer.data(ByteBuffer.allocateDirect(_rsslBuffer.data().capacity()*2)); 
+			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
 			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
 			    	ret = rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Time)cacheKeyData);
 			    }
@@ -656,7 +636,7 @@ class MapImpl extends CollectionDataImpl implements Map
 			ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Qos)cacheKeyData);
 			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
 			    {
-			    	_rsslBuffer.data(ByteBuffer.allocateDirect(_rsslBuffer.data().capacity()*2)); 
+			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
 			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
 			    	ret = rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Qos)cacheKeyData);
 			    }
@@ -665,7 +645,7 @@ class MapImpl extends CollectionDataImpl implements Map
 			ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.State)cacheKeyData);
 			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
 			    {
-			    	_rsslBuffer.data(ByteBuffer.allocateDirect(_rsslBuffer.data().capacity()*2)); 
+			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
 			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
 			    	ret = rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.State)cacheKeyData);
 			    }
@@ -674,7 +654,7 @@ class MapImpl extends CollectionDataImpl implements Map
 			ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Enum)cacheKeyData);
 			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
 			    {
-			    	_rsslBuffer.data(ByteBuffer.allocateDirect(_rsslBuffer.data().capacity()*2)); 
+			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
 			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
 			    	ret = rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Enum)cacheKeyData);
 			    }
@@ -686,7 +666,7 @@ class MapImpl extends CollectionDataImpl implements Map
 			ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Buffer)cacheKeyData);
 			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
 			    {
-			    	_rsslBuffer.data(ByteBuffer.allocateDirect(_rsslBuffer.data().capacity()*2)); 
+			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
 			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
 			    	ret = rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Buffer)cacheKeyData);
 			    }

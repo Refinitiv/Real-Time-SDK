@@ -7,15 +7,13 @@
 
 package com.thomsonreuters.ema.access;
 
-import com.thomsonreuters.ema.access.ComplexType;
-import com.thomsonreuters.ema.access.DataType.DataTypes;
 
 class NoDataImpl extends DataImpl implements ComplexType
 {
 	@Override
 	public int dataType()
 	{
-		return DataTypes.NO_DATA;
+		return DataType.DataTypes.NO_DATA;
 	}
 
 	@Override

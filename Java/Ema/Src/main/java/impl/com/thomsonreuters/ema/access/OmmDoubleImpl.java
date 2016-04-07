@@ -7,18 +7,15 @@
 
 package com.thomsonreuters.ema.access;
 
-import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.access.OmmDouble;
-import com.thomsonreuters.upa.codec.CodecFactory;
 
 class OmmDoubleImpl extends DataImpl implements OmmDouble
 {
-	private com.thomsonreuters.upa.codec.Double _rsslDouble = CodecFactory.createDouble();
+	private com.thomsonreuters.upa.codec.Double _rsslDouble = com.thomsonreuters.upa.codec.CodecFactory.createDouble();
 	
 	@Override
 	public int dataType()
 	{
-		return DataTypes.DOUBLE;
+		return DataType.DataTypes.DOUBLE;
 	}
 
 	@Override

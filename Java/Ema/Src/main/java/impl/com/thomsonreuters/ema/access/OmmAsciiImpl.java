@@ -7,22 +7,19 @@
 
 package com.thomsonreuters.ema.access;
 
-import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.access.OmmAscii;
-import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 
 class OmmAsciiImpl extends DataImpl implements OmmAscii
 {
 	OmmAsciiImpl()
 	{
-		_rsslBuffer = CodecFactory.createBuffer();
+		_rsslBuffer = com.thomsonreuters.upa.codec.CodecFactory.createBuffer();
 	}
 	
 	@Override
 	public int dataType()
 	{
-		return DataTypes.ASCII;
+		return DataType.DataTypes.ASCII;
 	}
 
 	@Override

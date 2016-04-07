@@ -7,11 +7,6 @@
 
 package com.thomsonreuters.ema.access;
 
-import com.thomsonreuters.ema.access.OmmInvalidConfigurationException;
-import com.thomsonreuters.ema.access.OmmInvalidHandleException;
-import com.thomsonreuters.ema.access.OmmInvalidUsageException;
-import com.thomsonreuters.ema.access.OmmOutOfRangeException;
-import com.thomsonreuters.ema.access.OmmUnsupportedDomainTypeException;
 
 class OmmInvalidUsageExceptionImpl extends OmmInvalidUsageException
 {

@@ -7,9 +7,6 @@
 
 package com.thomsonreuters.ema.access;
 
-import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.access.OmmRmtes;
-import com.thomsonreuters.ema.access.RmtesBuffer;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 
 class OmmRmtesImpl extends DataImpl implements OmmRmtes
@@ -24,7 +21,7 @@ class OmmRmtesImpl extends DataImpl implements OmmRmtes
 	@Override
 	public int dataType()
 	{
-		return DataTypes.RMTES;
+		return DataType.DataTypes.RMTES;
 	}
 
 	@Override

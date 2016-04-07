@@ -9,18 +9,15 @@ package com.thomsonreuters.ema.access;
 
 import java.math.BigInteger;
 
-import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.access.OmmUInt;
-import com.thomsonreuters.upa.codec.CodecFactory;
 
 class OmmUIntImpl extends DataImpl implements OmmUInt
 {
-	private com.thomsonreuters.upa.codec.UInt _rsslUInt = CodecFactory.createUInt();
+	private com.thomsonreuters.upa.codec.UInt _rsslUInt = com.thomsonreuters.upa.codec.CodecFactory.createUInt();
 	
 	@Override
 	public int dataType()
 	{
-		return DataTypes.UINT;
+		return DataType.DataTypes.UINT;
 	}
 
 	@Override

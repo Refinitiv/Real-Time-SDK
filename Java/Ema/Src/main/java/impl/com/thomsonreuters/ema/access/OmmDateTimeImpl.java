@@ -7,18 +7,15 @@
 
 package com.thomsonreuters.ema.access;
 
-import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.access.OmmDateTime;
-import com.thomsonreuters.upa.codec.CodecFactory;
 
 class OmmDateTimeImpl extends DataImpl implements OmmDateTime
 {
-	private com.thomsonreuters.upa.codec.DateTime _rsslDateTime = CodecFactory.createDateTime();
+	private com.thomsonreuters.upa.codec.DateTime _rsslDateTime = com.thomsonreuters.upa.codec.CodecFactory.createDateTime();
 	
 	@Override
 	public int dataType()
 	{
-		return DataTypes.DATETIME;
+		return DataType.DataTypes.DATETIME;
 	}
 
 	@Override

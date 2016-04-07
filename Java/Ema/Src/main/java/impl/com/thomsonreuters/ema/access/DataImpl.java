@@ -9,12 +9,8 @@ package com.thomsonreuters.ema.access;
 
 import java.nio.ByteBuffer;
 
-import com.thomsonreuters.ema.access.Data;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.upa.codec.Buffer;
-import com.thomsonreuters.upa.codec.Codec;
-import com.thomsonreuters.upa.codec.CodecFactory;
-import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.valueadd.common.VaNode;
 
 class DataImpl extends VaNode implements Data
@@ -29,8 +25,8 @@ class DataImpl extends VaNode implements Data
 	protected ByteBuffer 												_asHex;
 	protected com.thomsonreuters.upa.codec.DecodeIterator 	_rsslDecodeIter = com.thomsonreuters.upa.codec.CodecFactory.createDecodeIterator();
 	protected com.thomsonreuters.upa.codec.DecodeIterator 	_rsslNestedMsgDecodeIter;
-	protected int 											_rsslMajVer = Codec.majorVersion();
-	protected int 											_rsslMinVer = Codec.minorVersion();
+	protected int 											_rsslMajVer = com.thomsonreuters.upa.codec.Codec.majorVersion();
+	protected int 											_rsslMinVer = com.thomsonreuters.upa.codec.Codec.minorVersion();
 	protected com.thomsonreuters.upa.codec.Buffer 			_rsslBuffer;
 	
 
@@ -73,6 +69,7 @@ class DataImpl extends VaNode implements Data
 		for (int index = _rsslBuffer.position(); index < limit; ++index)
 			_asHex.put(rsslByteBuf.get(index));
 		
+		_asHex.flip();
 		return _asHex;
 	}
 	
@@ -98,12 +95,12 @@ class DataImpl extends VaNode implements Data
 		if (com.thomsonreuters.upa.codec.DataTypes.MSG == rsslType)
 		{
 			if (_rsslNestedMsgDecodeIter == null)
-				_rsslNestedMsgDecodeIter = CodecFactory.createDecodeIterator();
+				_rsslNestedMsgDecodeIter = com.thomsonreuters.upa.codec.CodecFactory.createDecodeIterator();
 			else
 				_rsslNestedMsgDecodeIter.clear();
 
 			int retCode = _rsslNestedMsgDecodeIter.setBufferAndRWFVersion(rsslBuffer, majVer, minVer);
-			if (CodecReturnCodes.SUCCESS != retCode)
+			if (com.thomsonreuters.upa.codec.CodecReturnCodes.SUCCESS != retCode)
 				dType = DataTypes.ERROR;
 			else
 				dType = Utilities.toEmaMsgClass[_rsslNestedMsgDecodeIter.extractMsgClass()];
@@ -438,9 +435,8 @@ class DataImpl extends VaNode implements Data
             case DataTypes.OPAQUE:
             case DataTypes.XML:
             case DataTypes.ANSI_PAGE:
-            	return _rsslBuffer; //TODO fixme
             default :
-                return null;
+            	return _rsslBuffer;
         }
 	}
 }

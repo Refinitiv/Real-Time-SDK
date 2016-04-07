@@ -9,10 +9,6 @@ package com.thomsonreuters.ema.access;
 
 import java.nio.ByteBuffer;
 
-import com.thomsonreuters.ema.access.ComplexType;
-import com.thomsonreuters.ema.access.DataType;
-import com.thomsonreuters.ema.access.OmmState;
-import com.thomsonreuters.ema.access.StatusMsg;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.OmmError.ErrorCode;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
@@ -25,7 +21,6 @@ class StatusMsgImpl extends MsgImpl implements StatusMsg
 	StatusMsgImpl()
 	{
 		super(DataTypes.STATUS_MSG, false);
-		initialEncoding();
 	}
 
 	StatusMsgImpl(boolean decoding)
@@ -33,15 +28,10 @@ class StatusMsgImpl extends MsgImpl implements StatusMsg
 		super(DataTypes.STATUS_MSG, decoding);
 	}
 	
-	void initialEncoding()
-	{
-	}
-	
 	@Override
 	public StatusMsg clear()
 	{
 		msgClear();
-		initialEncoding();
 		return this;
 	}
 	
@@ -212,11 +202,15 @@ class StatusMsgImpl extends MsgImpl implements StatusMsg
 	public StatusMsg state(int streamState, int dataState, int statusCode,
 			String statusText)
 	{
+		((com.thomsonreuters.upa.codec.StatusMsg)_rsslMsg).applyHasState();
+		
 		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.StatusMsg)_rsslMsg).state().streamState(streamState) ||
 				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.StatusMsg)_rsslMsg).state().dataState(dataState) || 
 				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.StatusMsg)_rsslMsg).state().code(statusCode) || 
-				statusText == null)
+				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.StatusMsg)_rsslMsg).state().text().data(statusText))
 		{
+			((com.thomsonreuters.upa.codec.StatusMsg)_rsslMsg).flags( ((com.thomsonreuters.upa.codec.StatusMsg)_rsslMsg).flags() & ~com.thomsonreuters.upa.codec.StatusMsgFlags.HAS_STATE );
+					
 			String errText = errorString().append("Attempt to specify invalid state. Passed in value is='" )
 										.append( streamState ).append( " / " )
 										.append( dataState ).append( " / " )
@@ -237,7 +231,7 @@ class StatusMsgImpl extends MsgImpl implements StatusMsg
 			throw ommIUExcept().message("Passed in itemGroup is null");
 		
 		((com.thomsonreuters.upa.codec.StatusMsg)_rsslMsg).applyHasGroupId();
-		((com.thomsonreuters.upa.codec.StatusMsg)_rsslMsg).groupId().data(itemGroup);
+		Utilities.copy(itemGroup, ((com.thomsonreuters.upa.codec.StatusMsg)_rsslMsg).groupId());
 
 		return this;
 	}

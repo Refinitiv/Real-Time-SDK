@@ -7,17 +7,15 @@
 
 package com.thomsonreuters.ema.access;
 
-import com.thomsonreuters.ema.access.DataType;
-import com.thomsonreuters.ema.access.SeriesEntry;
-import com.thomsonreuters.upa.codec.CodecFactory;
 
 class SeriesEntryImpl extends EntryImpl implements SeriesEntry
 {
-	private com.thomsonreuters.upa.codec.SeriesEntry _rsslSeriesEntry;
+	protected com.thomsonreuters.upa.codec.SeriesEntry _rsslSeriesEntry;
+	protected int _entryDataType;
 	
 	SeriesEntryImpl() 
 	{
-		_rsslSeriesEntry = CodecFactory.createSeriesEntry();
+		_rsslSeriesEntry = com.thomsonreuters.upa.codec.CodecFactory.createSeriesEntry();
 	}
 	
 	SeriesEntryImpl(com.thomsonreuters.upa.codec.SeriesEntry rsslSeriesEntry, DataImpl load)
@@ -41,112 +39,107 @@ class SeriesEntryImpl extends EntryImpl implements SeriesEntry
 	@Override
 	public SeriesEntry reqMsg(ReqMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue((DataImpl) value);
 	}
 
 	@Override
 	public SeriesEntry refreshMsg(RefreshMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue((DataImpl) value);
 	}
 
 	@Override
 	public SeriesEntry statusMsg(StatusMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue((DataImpl) value);
 	}
 
 	@Override
 	public SeriesEntry updateMsg(UpdateMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue((DataImpl) value);
 	}
 
 	@Override
 	public SeriesEntry postMsg(PostMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue((DataImpl) value);
 	}
 
 	@Override
 	public SeriesEntry ackMsg(AckMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue((DataImpl) value);
 	}
 
 	@Override
 	public SeriesEntry genericMsg(GenericMsg value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue((DataImpl) value);
 	}
 
 	@Override
 	public SeriesEntry fieldList(FieldList value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue((DataImpl) value);
 	}
 
 	@Override
 	public SeriesEntry elementList(ElementList value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue((DataImpl) value);
 	}
 
 	@Override
 	public SeriesEntry map(Map value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue((DataImpl) value);
 	}
 
 	@Override
 	public SeriesEntry vector(Vector value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue((DataImpl) value);
 	}
 
 	@Override
 	public SeriesEntry series(Series value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue((DataImpl) value);
 	}
 
 	@Override
 	public SeriesEntry filterList(FilterList value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue((DataImpl) value);
 	}
 
 	@Override
 	public SeriesEntry opaque(OmmOpaque value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue((DataImpl) value);
 	}
 
 	@Override
 	public SeriesEntry xml(OmmXml value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue((DataImpl) value);
 	}
 
 	@Override
 	public SeriesEntry ansiPage(OmmAnsiPage value)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return entryValue((DataImpl) value);
+	}
+
+	private SeriesEntry entryValue(DataImpl value)
+	{
+		if (value == null)
+			throw ommIUExcept().message("Passed in value is null");
+
+		_entryDataType = Utilities.toRsslDataType(value.dataType());	
+		Utilities.copy(((DataImpl) value).encodedData(), _rsslSeriesEntry.encodedData());
+		
+		return this;
 	}
 }

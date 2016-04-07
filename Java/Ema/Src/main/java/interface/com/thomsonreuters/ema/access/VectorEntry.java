@@ -273,20 +273,20 @@ public interface VectorEntry
 	* @param value complex type contained in this entry
 	* @return reference to this object
 	*/
-	public VectorEntry reqMsg(int position, int action, ReqMsg value);
+	public VectorEntry reqMsg(long position, int action, ReqMsg value);
 	
 	/** Adds a ReqMsg type of OMM data  identified by a position.
 	 * <br>All entries must have same complex data type.
 	 *  
 	 * @throws OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
 	 * 
-	 * @param filterId specifies filter id for the added VectorEntry
+	* @param position specifies position of this entry in Vector
 	 * @param action specifies action for the added VectorEntry
 	 * @param value complex type contained in this entry
 	 * @param permissionData specifies permission data for this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry reqMsg(int position, int action, ReqMsg value, ByteBuffer permissionData);
+	public VectorEntry reqMsg(long position, int action, ReqMsg value, ByteBuffer permissionData);
 
 	/** Adds a RefreshMsg type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -298,7 +298,7 @@ public interface VectorEntry
 	 * @param value complex type contained in this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry refreshMsg(int position, int action, RefreshMsg value);
+	public VectorEntry refreshMsg(long position, int action, RefreshMsg value);
 
 	/** Adds a RefreshMsg type of OMM data identified by a position.
 	* <br>All entries must have same complex data type.
@@ -311,7 +311,7 @@ public interface VectorEntry
 	* @param permissionData specifies permission data for this entry
 	* @return reference to this object
 	*/
-	public VectorEntry refreshMsg(int position, int action, RefreshMsg value, ByteBuffer permissionData);
+	public VectorEntry refreshMsg(long position, int action, RefreshMsg value, ByteBuffer permissionData);
 	
 	/** Adds a StatusMsg type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -323,7 +323,7 @@ public interface VectorEntry
 	 * @param value complex type contained in this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry statusMsg(int position, int action, StatusMsg value);
+	public VectorEntry statusMsg(long position, int action, StatusMsg value);
 	
 	/** Adds a StatusMsg type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -336,7 +336,7 @@ public interface VectorEntry
 	 * @param permissionData specifies permission data for this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry statusMsg(int position, int action, StatusMsg value, ByteBuffer permissionData);
+	public VectorEntry statusMsg(long position, int action, StatusMsg value, ByteBuffer permissionData);
 
 	/** Adds a UpdateMsg type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -348,7 +348,7 @@ public interface VectorEntry
 	 * @param value complex type contained in this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry updateMsg(int position, int action, UpdateMsg value);
+	public VectorEntry updateMsg(long position, int action, UpdateMsg value);
 	
 	/** Adds a UpdateMsg type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -361,7 +361,7 @@ public interface VectorEntry
 	 * @param permissionData specifies permission data for this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry updateMsg(int position, int action, UpdateMsg value, ByteBuffer permissionData);
+	public VectorEntry updateMsg(long position, int action, UpdateMsg value, ByteBuffer permissionData);
 
 	/** Adds a PostMsg type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -373,7 +373,7 @@ public interface VectorEntry
 	 * @param value complex type contained in this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry postMsg(int position, int action, PostMsg value);
+	public VectorEntry postMsg(long position, int action, PostMsg value);
 	
 	/** Adds a PostMsg type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -386,7 +386,7 @@ public interface VectorEntry
 	 * @param permissionData specifies permission data for this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry postMsg(int position, int action, PostMsg value, ByteBuffer permissionData);
+	public VectorEntry postMsg(long position, int action, PostMsg value, ByteBuffer permissionData);
 	
 	/** Adds a AckMsg type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -398,7 +398,7 @@ public interface VectorEntry
 	 * @param value complex type contained in this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry ackMsg(int position, int action, AckMsg value);
+	public VectorEntry ackMsg(long position, int action, AckMsg value);
 	
 	/** Adds a AckMsg type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -411,7 +411,7 @@ public interface VectorEntry
 	 * @param permissionData specifies permission data for this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry ackMsg(int position, int action, AckMsg value, ByteBuffer permissionData);
+	public VectorEntry ackMsg(long position, int action, AckMsg value, ByteBuffer permissionData);
 	
 	/** Adds a GenericMsg type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -423,7 +423,7 @@ public interface VectorEntry
 	 * @param value complex type contained in this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry genericMsg(int position, int action, GenericMsg value);
+	public VectorEntry genericMsg(long position, int action, GenericMsg value);
 	
 	/** Adds a GenericMsg type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -436,7 +436,7 @@ public interface VectorEntry
 	 * @param permissionData specifies permission data for this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry genericMsg(int position, int action, GenericMsg value, ByteBuffer permissionData);
+	public VectorEntry genericMsg(long position, int action, GenericMsg value, ByteBuffer permissionData);
 	
 	/** Adds a FieldList type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -448,7 +448,7 @@ public interface VectorEntry
 	 * @param value complex type contained in this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry fieldList(int position, int action, FieldList value);
+	public VectorEntry fieldList(long position, int action, FieldList value);
 	
 	/** Adds a FieldList type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -461,7 +461,7 @@ public interface VectorEntry
 	 * @param permissionData specifies permission data for this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry fieldList(int position, int action, FieldList value, ByteBuffer permissionData);
+	public VectorEntry fieldList(long position, int action, FieldList value, ByteBuffer permissionData);
 	
 	/** Adds a ElementList type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -473,7 +473,7 @@ public interface VectorEntry
 	 * @param value complex type contained in this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry elementList(int position, int action, ElementList value);
+	public VectorEntry elementList(long position, int action, ElementList value);
 	
 	/** Adds a ElementList type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -486,7 +486,7 @@ public interface VectorEntry
 	 * @param permissionData specifies permission data for this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry elementList(int position, int action, ElementList value, ByteBuffer permissionData);
+	public VectorEntry elementList(long position, int action, ElementList value, ByteBuffer permissionData);
 	
 	/** Adds a Map type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -498,7 +498,7 @@ public interface VectorEntry
 	 * @param value complex type contained in this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry map(int position, int action, Map value);
+	public VectorEntry map(long position, int action, Map value);
 	
 	/** Adds a Map type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -511,7 +511,7 @@ public interface VectorEntry
 	 * @param permissionData specifies permission data for this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry map(int position, int action, Map value, ByteBuffer permissionData);
+	public VectorEntry map(long position, int action, Map value, ByteBuffer permissionData);
 
 	/** Adds a Vector type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -523,7 +523,7 @@ public interface VectorEntry
 	 * @param value complex type contained in this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry vector(int position, int action, Vector value);
+	public VectorEntry vector(long position, int action, Vector value);
 	
 	/** Adds a Vector type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -536,7 +536,7 @@ public interface VectorEntry
 	 * @param permissionData specifies permission data for this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry vector(int position, int action, Vector value, ByteBuffer permissionData);
+	public VectorEntry vector(long position, int action, Vector value, ByteBuffer permissionData);
 	
 	/** Adds a Series type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -548,7 +548,7 @@ public interface VectorEntry
 	 * @param value complex type contained in this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry series(int position, int action, Series value);
+	public VectorEntry series(long position, int action, Series value);
 	
 	/** Adds a Series type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -561,7 +561,7 @@ public interface VectorEntry
 	 * @param permissionData specifies permission data for this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry series(int position, int action, Series value, ByteBuffer permissionData);
+	public VectorEntry series(long position, int action, Series value, ByteBuffer permissionData);
 	
 	/** Adds a FilterList type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -573,7 +573,7 @@ public interface VectorEntry
 	 * @param value complex type contained in this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry filterList(int position, int action, FilterList value);
+	public VectorEntry filterList(long position, int action, FilterList value);
 	
 	/** Adds a FilterList type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -586,7 +586,7 @@ public interface VectorEntry
 	 * @param permissionData specifies permission data for this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry filterList(int position, int action, FilterList value, ByteBuffer permissionData);
+	public VectorEntry filterList(long position, int action, FilterList value, ByteBuffer permissionData);
 	
 	/** Adds a OmmOpaque type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -598,7 +598,7 @@ public interface VectorEntry
 	 * @param value complex type contained in this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry opaque(int position, int action, OmmOpaque value);
+	public VectorEntry opaque(long position, int action, OmmOpaque value);
 	
 	/** Adds a OmmOpaque type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -611,7 +611,7 @@ public interface VectorEntry
 	 * @param permissionData specifies permission data for this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry opaque(int position, int action, OmmOpaque value, ByteBuffer permissionData);
+	public VectorEntry opaque(long position, int action, OmmOpaque value, ByteBuffer permissionData);
 	
 	/** Adds a OmmXml type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -623,7 +623,7 @@ public interface VectorEntry
 	 * @param value complex type contained in this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry xml(int position, int action, OmmXml value);
+	public VectorEntry xml(long position, int action, OmmXml value);
 	
 	/** Adds a OmmXml type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -636,7 +636,7 @@ public interface VectorEntry
 	 * @param permissionData specifies permission data for this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry xml(int position, int action, OmmXml value, ByteBuffer permissionData);
+	public VectorEntry xml(long position, int action, OmmXml value, ByteBuffer permissionData);
 	
 	/** Adds a OmmAnsiPage type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -648,7 +648,7 @@ public interface VectorEntry
 	 * @param value complex type contained in this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry ansiPage(int position, int action, OmmAnsiPage value);
+	public VectorEntry ansiPage(long position, int action, OmmAnsiPage value);
 	
 	/** Adds a OmmAnsiPage type of OMM data identified by a position.
 	 * <br>All entries must have same complex data type.
@@ -661,5 +661,5 @@ public interface VectorEntry
 	 * @param permissionData specifies permission data for this entry
 	 * @return reference to this object
 	 */
-	public VectorEntry ansiPage(int filterId, int action, OmmAnsiPage value, ByteBuffer permissionData);
+	public VectorEntry ansiPage(long position, int action, OmmAnsiPage value, ByteBuffer permissionData);
 }

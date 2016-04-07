@@ -7,36 +7,52 @@
 
 package com.thomsonreuters.ema.access;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 
-import com.thomsonreuters.ema.access.OmmRmtes;
-import com.thomsonreuters.ema.access.RmtesBuffer;
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.codec.RmtesCacheBuffer;
 import com.thomsonreuters.upa.codec.RmtesDecoder;
 
-public class RmtesBufferImpl implements RmtesBuffer
+class RmtesBufferImpl implements RmtesBuffer
 {
-	// TODO think about if backing will help performance by not trigger GC.
+	private static final int RMTES_DECODE_BUFFER_INIT_SIZE = 256;
+	
 	private com.thomsonreuters.upa.codec.Buffer _rsslBuffer = CodecFactory.createBuffer();
 	private OmmInvalidUsageExceptionImpl _ommIUExcept;
 	private RmtesDecoder _rsslDecoder = CodecFactory.createRmtesDecoder();
-	private CharBuffer _cachedCharBuffer;
-	// TODO fixme
-	private RmtesCacheBuffer _rsslCacheBuffer = CodecFactory.createRmtesCacheBuffer(0);
-	private CharBuffer _decodedCharBuffer;
-	private com.thomsonreuters.upa.codec.RmtesBuffer _rsslDecodedBuffer = CodecFactory.createRmtesBuffer(0);
+	private RmtesCacheBuffer _rsslRmtesCacheBuffer = CodecFactory.createRmtesCacheBuffer(0, null, 0);
+	private com.thomsonreuters.upa.codec.RmtesBuffer _rsslRmtesBuffer = CodecFactory.createRmtesBuffer(0, null, 0);
 	private boolean _decodedUTF16BufferSet;
+	private boolean _decodedUTF8BufferSet;
 	private boolean _toStringSet;
+	private ByteBuffer _decodedUTF8ByteBuffer;
 	private boolean _applyToCache;
 	private String _toString;
-
-	RmtesBufferImpl()
+	
+	public RmtesBufferImpl() 
 	{
+		_rsslRmtesCacheBuffer.data(ByteBuffer.allocate(RMTES_DECODE_BUFFER_INIT_SIZE));
+		_rsslRmtesCacheBuffer.allocatedLength(RMTES_DECODE_BUFFER_INIT_SIZE);
+		
+		_rsslRmtesBuffer.data(ByteBuffer.allocate(RMTES_DECODE_BUFFER_INIT_SIZE));
+		_rsslRmtesBuffer.allocatedLength(RMTES_DECODE_BUFFER_INIT_SIZE);
+	}
+
+	@Override
+	public ByteBuffer asUTF8()
+	{
+		if (!_decodedUTF8BufferSet)
+		{
+			toString();
+			_decodedUTF8ByteBuffer = ByteBuffer.wrap(_toString.getBytes());
+			_decodedUTF8BufferSet = true;
+		}
+		
+		return _decodedUTF8ByteBuffer;
 	}
 
 	@Override
@@ -44,41 +60,11 @@ public class RmtesBufferImpl implements RmtesBuffer
 	{
 		if (!_decodedUTF16BufferSet)
 		{
-			if (!_applyToCache)
-				apply();
-
-			if (_rsslCacheBuffer.length() == 0)
-			{
-				if (_rsslDecodedBuffer.data() == null)
-				{
-					_decodedCharBuffer = CharBuffer.allocate(0);
-					_rsslDecodedBuffer.data(_decodedCharBuffer);
-					_rsslDecodedBuffer.allocatedLength(0);
-					_rsslDecodedBuffer.length(0);
-				} else
-					_rsslDecodedBuffer.data().clear();
-
-				_decodedUTF16BufferSet = true;
-				return _rsslDecodedBuffer.data();
-			}
-
-			if (_rsslDecodedBuffer.data() == null || _rsslDecodedBuffer.allocatedLength() < _rsslCacheBuffer.length())
-			{
-				int preAllocatedLen = _rsslCacheBuffer.length() + 20;
-				_decodedCharBuffer = CharBuffer.allocate(preAllocatedLen);
-				_rsslDecodedBuffer.data(_decodedCharBuffer);
-				_rsslDecodedBuffer.allocatedLength(preAllocatedLen);
-			} else
-				_rsslDecodedBuffer.data().clear();
-
-			if (_rsslDecoder.RMTESToUCS2(_rsslDecodedBuffer, _rsslCacheBuffer) != CodecReturnCodes.SUCCESS)
-				throw ommIUExcept().message("RMTES Parse error in asUTF16()");
-
-			_rsslDecodedBuffer.data().limit(_rsslDecodedBuffer.length());
-			_decodedUTF16BufferSet = true;
+			decode();
+			 _decodedUTF16BufferSet = true;
 		}
-
-		return _rsslDecodedBuffer.data();
+		
+		return _rsslRmtesBuffer.byteData().asCharBuffer();
 	}
 
 	@Override
@@ -86,36 +72,16 @@ public class RmtesBufferImpl implements RmtesBuffer
 	{
 		if (!_toStringSet)
 		{
-			if (!_applyToCache)
-				apply();
-
-			if (_rsslCacheBuffer.length() == 0)
-			{
+			decode();
+			
+			if (_rsslRmtesBuffer.length() == 0)
 				_toString = DataImpl.EMPTY_STRING;
-				_toStringSet = true;
-
-				return _toString;
-			}
-
-			if (_rsslDecodedBuffer.data() == null || _rsslDecodedBuffer.allocatedLength() < _rsslCacheBuffer.length())
-			{
-				int preAllocatedLen = _rsslCacheBuffer.length() + 20;
-				_decodedCharBuffer = CharBuffer.allocate(preAllocatedLen);
-				_rsslDecodedBuffer.data(_decodedCharBuffer);
-				_rsslDecodedBuffer.allocatedLength(preAllocatedLen);
-			} else
-				_rsslDecodedBuffer.data().clear();
-
-			// TODO test me in UTF8 format
-			if (_rsslDecoder.RMTESToUCS2(_rsslDecodedBuffer, _rsslCacheBuffer) != CodecReturnCodes.SUCCESS)
-				throw ommIUExcept().message("RMTES Parse error in toString()");
-
-			_rsslDecodedBuffer.data().limit(_rsslDecodedBuffer.length());
-			_toString = _rsslDecodedBuffer.data().toString();
+			else
+				_toString =  new String ( _rsslRmtesBuffer.byteData().array(), 0,  _rsslRmtesBuffer.length(), Charset.forName("UTF-16BE"));
 
 			_toStringSet = true;
 		}
-
+		
 		return _toString;
 	}
 
@@ -123,20 +89,26 @@ public class RmtesBufferImpl implements RmtesBuffer
 	public RmtesBuffer clear()
 	{
 		_rsslBuffer.clear();
-
-		if (_cachedCharBuffer != null)
-			_cachedCharBuffer.clear();
-		_rsslCacheBuffer.length(0);
-
-		if (_decodedCharBuffer != null)
-			_decodedCharBuffer.clear();
-		_rsslDecodedBuffer.length(0);
-
+		
+		if (_rsslRmtesCacheBuffer.byteData() != null)
+			_rsslRmtesCacheBuffer.byteData().clear();
+		_rsslRmtesCacheBuffer.length(0);
+		
+		if (_rsslRmtesBuffer.byteData() != null)
+			_rsslRmtesBuffer.byteData().clear();
+		_rsslRmtesBuffer.length(0);
+		
 		_decodedUTF16BufferSet = false;
+		_decodedUTF8BufferSet = false;
 		_toStringSet = false;
 		_applyToCache = false;
-
+		
 		return this;
+	}
+	
+	boolean applyToCache()
+	{
+		return _applyToCache;
 	}
 
 	@Override
@@ -144,83 +116,72 @@ public class RmtesBufferImpl implements RmtesBuffer
 	{
 		if (source == null)
 			throw ommIUExcept().message("Source passed in is invalid in apply(RmtesBuffer source)");
-
+		
 		if (_applyToCache)
 		{
 			_decodedUTF16BufferSet = false;
+			_decodedUTF8BufferSet = false;
 			_toStringSet = false;
 		}
-
-		CharBuffer cacheCharBuffer = _rsslCacheBuffer.data();
-		int cacheBufferPreAllocateLen = _rsslCacheBuffer.allocatedLength();
-
-		if (((RmtesBufferImpl) source)._applyToCache)
+		
+		ByteBuffer cacheByteBuffer = _rsslRmtesCacheBuffer.byteData();
+		int cacheBufferPreAllocateLen = _rsslRmtesCacheBuffer.allocatedLength();
+		
+		if (((RmtesBufferImpl)source)._applyToCache)
 		{
-			int sourceBufferLen = ((RmtesBufferImpl) source)._rsslCacheBuffer.length();
-			if (cacheCharBuffer == null || cacheBufferPreAllocateLen < sourceBufferLen)
+			int sourceBufferLen = ((RmtesBufferImpl)source)._rsslRmtesCacheBuffer.length();
+			if (cacheByteBuffer == null || cacheBufferPreAllocateLen < sourceBufferLen)
 			{
-				_cachedCharBuffer = CharBuffer.allocate(sourceBufferLen);
-				_rsslCacheBuffer.data(_cachedCharBuffer);
-				_rsslCacheBuffer.allocatedLength(sourceBufferLen);
+				_rsslRmtesCacheBuffer.data(ByteBuffer.allocate(sourceBufferLen));
+				_rsslRmtesCacheBuffer.allocatedLength(sourceBufferLen);
 			}
-
-			try
-			{
-				((RmtesBufferImpl) source)._rsslCacheBuffer.data().read(_rsslCacheBuffer.data());
-				_rsslCacheBuffer.length(sourceBufferLen);
-			} catch (IOException e)
-			{
-				throw ommIUExcept()
-						.message("CharBuffer reading failed in apply(RmtesBuffer source)" + e.getLocalizedMessage());
-			}
-
+			else 
+				cacheByteBuffer.position(0);
+			
+			_rsslRmtesCacheBuffer.byteData().put(((RmtesBufferImpl)source)._rsslRmtesCacheBuffer.byteData());
+			_rsslRmtesCacheBuffer.length(sourceBufferLen);
+			
 			_applyToCache = true;
-		} else
+		}
+		else 
 		{
-			Buffer rsslBuffer = ((RmtesBufferImpl) source)._rsslBuffer;
-
+			Buffer rsslBuffer = ((RmtesBufferImpl)source)._rsslBuffer;
+			int origCacheDataLen = 	_rsslRmtesCacheBuffer.length();
+			
 			if (_rsslDecoder.hasPartialRMTESUpdate(rsslBuffer))
 			{
-				if (cacheCharBuffer == null)
-					throw ommIUExcept().message(
-							"RmtesBuffer does not contain original RMTES encoded data in apply(RmtesBuffer source)");
-
-				int sourceBufferLen = rsslBuffer.length() + _rsslCacheBuffer.length();
-				if (cacheBufferPreAllocateLen < sourceBufferLen)
+				if (cacheByteBuffer == null)
+					throw ommIUExcept().message("RmtesBuffer does not contain original RMTES encoded data in apply(RmtesBuffer source)");
+				
+				int sourceBufferLen = rsslBuffer.length() + _rsslRmtesCacheBuffer.length();
+				if ( cacheBufferPreAllocateLen < sourceBufferLen)
 				{
-					try
-					{
-						_cachedCharBuffer = CharBuffer.allocate(sourceBufferLen);
-						cacheCharBuffer.read(_cachedCharBuffer);
-						_rsslCacheBuffer.data(_cachedCharBuffer);
-						_rsslCacheBuffer.length(cacheCharBuffer.length());
-						_rsslCacheBuffer.allocatedLength(sourceBufferLen);
-					} catch (IOException e)
-					{
-						throw ommIUExcept().message(
-								"CharBuffer reading failed in apply(RmtesBuffer source)" + e.getLocalizedMessage());
-					}
+						ByteBuffer newByteBuffer = ByteBuffer.allocate(sourceBufferLen);
+						newByteBuffer.put(cacheByteBuffer);
+						_rsslRmtesCacheBuffer.data(newByteBuffer);
+						_rsslRmtesCacheBuffer.allocatedLength(sourceBufferLen);
+						_rsslRmtesCacheBuffer.length(origCacheDataLen);
 				}
-			} else
-			{
-				int sourceBufferLen = rsslBuffer.length() + 20;
-
-				if (cacheCharBuffer == null || cacheBufferPreAllocateLen < rsslBuffer.length())
-				{
-					_cachedCharBuffer = CharBuffer.allocate(sourceBufferLen);
-					_rsslCacheBuffer.data(_cachedCharBuffer);
-					_rsslCacheBuffer.allocatedLength(sourceBufferLen);
-				}
-
-				_rsslCacheBuffer.length(0);
 			}
-
-			if (_rsslDecoder.RMTESApplyToCache(rsslBuffer, _rsslCacheBuffer) != CodecReturnCodes.SUCCESS)
-				throw ommIUExcept().message("RMTESApplyToCache() failed in apply(RmtesBuffer source)");
+			else
+			{
+				int sourceBufferLen = rsslBuffer.length();
+				
+				if (cacheByteBuffer == null || cacheBufferPreAllocateLen < sourceBufferLen)
+				{
+					_rsslRmtesCacheBuffer.data(ByteBuffer.allocate(sourceBufferLen));
+					_rsslRmtesCacheBuffer.allocatedLength(sourceBufferLen);
+				}
+				
+				_rsslRmtesCacheBuffer.length(0);
+			}
+			
+			if (_rsslDecoder.RMTESApplyToCache(rsslBuffer, _rsslRmtesCacheBuffer) != CodecReturnCodes.SUCCESS)
+				throw ommIUExcept().message("rsslDecoder.RMTESApplyToCache() failed in apply(RmtesBuffer source)");
 
 			_applyToCache = true;
 		}
-
+		
 		return this;
 	}
 
@@ -233,74 +194,95 @@ public class RmtesBufferImpl implements RmtesBuffer
 		return apply(source.rmtes());
 	}
 
-	boolean applyToCache()
-	{
-		return _applyToCache;
-	}
-	
 	RmtesBuffer apply()
 	{
-		CharBuffer cacheCharBuffer = _rsslCacheBuffer.data();
-		int cacheBufferPreAllocateLen = _rsslCacheBuffer.allocatedLength();
-
+		ByteBuffer cacheByteBuffer = _rsslRmtesCacheBuffer.byteData();
+		int cacheBufferPreAllocateLen = _rsslRmtesCacheBuffer.allocatedLength();
+		int origCacheDataLen = 	_rsslRmtesCacheBuffer.length();
+		
 		if (_rsslDecoder.hasPartialRMTESUpdate(_rsslBuffer))
 		{
-			if (cacheCharBuffer == null)
+			if (cacheByteBuffer == null)
 				throw ommIUExcept().message("RmtesBuffer does not contain original RMTES encoded data in apply()");
-
-			int sourceBufferLen = _rsslBuffer.length() + _rsslCacheBuffer.length();
-			if (cacheBufferPreAllocateLen < sourceBufferLen)
+			
+			int sourceBufferLen = _rsslBuffer.length() + _rsslRmtesCacheBuffer.length();
+			if ( cacheBufferPreAllocateLen < sourceBufferLen)
 			{
-				try
-				{
-					_cachedCharBuffer = CharBuffer.allocate(sourceBufferLen);
-					cacheCharBuffer.read(_cachedCharBuffer);
-					_rsslCacheBuffer.data(_cachedCharBuffer);
-					_rsslCacheBuffer.allocatedLength(sourceBufferLen);
-					_rsslCacheBuffer.length(cacheCharBuffer.length());
-				} catch (IOException e)
-				{
-					throw ommIUExcept().message("CharBuffer reading failed in apply()" + e.getLocalizedMessage());
-				}
+				ByteBuffer newByteBuffer = ByteBuffer.allocate(sourceBufferLen);
+				newByteBuffer.put(cacheByteBuffer);
+				_rsslRmtesCacheBuffer.data(newByteBuffer);
+				_rsslRmtesCacheBuffer.allocatedLength(sourceBufferLen);
+				_rsslRmtesCacheBuffer.length(origCacheDataLen);
 			}
-		} else
-		{
-			int sourceBufferLen = _rsslBuffer.length() + 20;
-
-			if (cacheCharBuffer == null || cacheBufferPreAllocateLen < _rsslBuffer.length())
-			{
-				_cachedCharBuffer = CharBuffer.allocate(sourceBufferLen);
-				_rsslCacheBuffer.data(_cachedCharBuffer);
-				_rsslCacheBuffer.allocatedLength(sourceBufferLen);
-			}
-
-			_rsslCacheBuffer.length(0);
 		}
-
-		if (_rsslDecoder.RMTESApplyToCache(_rsslBuffer, _rsslCacheBuffer) != CodecReturnCodes.SUCCESS)
-			throw ommIUExcept().message("RMTESApplyToCache() failed in apply()");
-
+		else
+		{
+			int sourceBufferLen = _rsslBuffer.length();
+			
+			if (cacheByteBuffer == null || cacheBufferPreAllocateLen < sourceBufferLen)
+			{
+				_rsslRmtesCacheBuffer.data(ByteBuffer.allocate(sourceBufferLen));
+				_rsslRmtesCacheBuffer.allocatedLength(sourceBufferLen);
+			}
+			
+			_rsslRmtesCacheBuffer.length(0);
+		}
+		
+		if (_rsslDecoder.RMTESApplyToCache(_rsslBuffer, _rsslRmtesCacheBuffer) != CodecReturnCodes.SUCCESS)
+			throw ommIUExcept().message("rsslDecoder.RMTESApplyToCache() failed in apply()");
+		
 		_applyToCache = true;
-
+	
 		return this;
 	}
-
+	
+	private void decode()
+	{
+		if (!_applyToCache)
+			apply();
+		
+		if (_rsslRmtesCacheBuffer.length() == 0)
+		{
+			if (_rsslRmtesBuffer.byteData() == null)
+			{
+				_rsslRmtesBuffer.data( ByteBuffer.allocate(RMTES_DECODE_BUFFER_INIT_SIZE));
+				_rsslRmtesBuffer.allocatedLength(RMTES_DECODE_BUFFER_INIT_SIZE);
+			}
+			else 
+				_rsslRmtesBuffer.clear();
+		}
+		
+		if (_rsslRmtesBuffer.byteData() == null || _rsslRmtesBuffer.allocatedLength()  < _rsslRmtesCacheBuffer.length() )
+		{
+			int preAllocatedLen = _rsslRmtesCacheBuffer.length() + 20;
+			_rsslRmtesBuffer.data(ByteBuffer.allocate(preAllocatedLen));
+			_rsslRmtesBuffer.allocatedLength(preAllocatedLen);
+		}
+		else 
+			_rsslRmtesBuffer.byteData().clear();
+		
+		 if (_rsslDecoder.RMTESToUCS2(_rsslRmtesBuffer, _rsslRmtesCacheBuffer) != CodecReturnCodes.SUCCESS)
+         	throw ommIUExcept().message("rsslDecoder.RMTESToUCS2() failed in decode()");
+		 
+		 _rsslRmtesBuffer.byteData().limit(_rsslRmtesBuffer.length());
+	}
+	
 	com.thomsonreuters.upa.codec.Buffer rsslBuffer()
 	{
 		return _rsslBuffer;
 	}
-
+	
 	OmmInvalidUsageExceptionImpl ommIUExcept()
 	{
 		if (_ommIUExcept == null)
 			_ommIUExcept = new OmmInvalidUsageExceptionImpl();
-
+		
 		return _ommIUExcept;
 	}
-
-	// used only for JUNIT tests
+	
+	//used only for JUNIT tests
 	public void setRsslData(ByteBuffer buffer)
 	{
-		_rsslBuffer.data(buffer);
+		 _rsslBuffer.data(buffer);
 	}
 }

@@ -7,7 +7,6 @@
 
 package com.thomsonreuters.ema.access;
 
-import com.thomsonreuters.ema.access.OmmConsumerEvent;
 
 class OmmConsumerEventImpl implements OmmConsumerEvent
 {

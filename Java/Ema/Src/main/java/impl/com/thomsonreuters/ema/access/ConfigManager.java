@@ -282,8 +282,6 @@ public class ConfigManager
 		"ChannelType",
 		"CompressionType",
 		"DictionaryType"
-		// ignore: "LoggerSeverity",
-		// ignore: "LoggerType",
 	};
 
 	public static String Int64Values[] = {
@@ -300,6 +298,7 @@ public class ConfigManager
 		"CompressionThreshold",
 		"ConnectionPingTimeout",
 		"DictionaryRequestTimeOut",
+		"DirectoryRequestTimeOut",
 		"DisconnectOnGap",
 		"GuaranteedOutputBuffers",
 		"HsmInterval",
@@ -547,13 +546,8 @@ public class ConfigManager
 
 		abstract  Object value();
 
-		 void setAsciiValue(String newValue) 
-		{
-		}
+		void setAsciiValue(String newValue) {}
 
-
-		// TODO ask may; change to numericValue; 
-		// can i use intValue, longValue
 		 int intValue() 
 		{
 			try 

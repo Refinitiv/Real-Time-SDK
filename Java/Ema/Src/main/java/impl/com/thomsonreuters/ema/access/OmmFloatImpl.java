@@ -7,18 +7,15 @@
 
 package com.thomsonreuters.ema.access;
 
-import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.access.OmmFloat;
-import com.thomsonreuters.upa.codec.CodecFactory;
 
 class OmmFloatImpl extends DataImpl implements OmmFloat
 {
-	private com.thomsonreuters.upa.codec.Float _rsslFloat = CodecFactory.createFloat();
+	private com.thomsonreuters.upa.codec.Float _rsslFloat = com.thomsonreuters.upa.codec.CodecFactory.createFloat();
 	
 	@Override
 	public int dataType()
 	{
-		return DataTypes.FLOAT;
+		return DataType.DataTypes.FLOAT;
 	}
 
 	@Override
