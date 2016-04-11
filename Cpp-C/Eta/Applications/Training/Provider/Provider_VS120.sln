@@ -9,7 +9,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Provider_Module_1b_Ping_VS1
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Provider_Module_1c_ReadWrite_VS120", "Module_1c_ReadWrite\Provider_Module_1c_ReadWrite_VS120.vcxproj", "{D8A0DF08-10D8-4FCC-9FBC-4238E653C63B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Provider_Module_2_HandleLogin_VS110", "Module_2_HandleLogin\Provider_Module_2_HandleLogin_VS110.vcxproj", "{8580883C-08A0-4A20-AF0A-B0C1D09FBF60}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Provider_Module_2_HandleLogin_VS120", "Module_2_HandleLogin\Provider_Module_2_HandleLogin_VS120.vcxproj", "{8580883C-08A0-4A20-AF0A-B0C1D09FBF60}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Provider_Module_3_ProvideDirectory_VS120", "Module_3_ProvideDirectory\Provider_Module_3_ProvideDirectory_VS120.vcxproj", "{4F6EA5D4-CEC5-4D46-B256-70899D3F2C24}"
 EndProject
