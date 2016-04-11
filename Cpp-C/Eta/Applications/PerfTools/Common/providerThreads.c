@@ -1116,7 +1116,13 @@ void providerWaitForThreads(Provider *pProvider)
 
 	for (i = 0; i < providerThreadConfig.threadCount; ++i)
 		if ((ret = RSSL_THREAD_JOIN(pProvider->providerThreadList[i].threadId)) < 0)
-			printf("Failed to join thread %u: %d\n", pProvider->providerThreadList[i].threadId.threadId, ret);
+			printf("Failed to join thread %u: %d\n", 
+#ifdef WIN32
+			pProvider->providerThreadList[i].threadId.threadId, 
+#else
+			pProvider->providerThreadList[i].threadId,
+#endif
+			ret);
 }
 
 void providerCleanup(Provider *pProvider)
