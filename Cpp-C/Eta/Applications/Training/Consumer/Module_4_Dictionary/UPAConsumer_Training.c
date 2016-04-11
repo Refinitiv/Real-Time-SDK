@@ -2644,7 +2644,7 @@ RsslRet processSourceDirectoryResponse(UpaChannelManagementInfo *upaChannelManag
 													/* serviceName requested by the application is FOUND */
 													foundServiceIndex = serviceCount;
 
-													printf("\tService name: %s (%d) is discovered by the OMM consumer. \n", serviceName, serviceId);
+													printf("\tService name: %s ("RTR_LLU") is discovered by the OMM consumer. \n", serviceName, serviceId);
 													upaChannelManagementInfo->serviceDiscoveryInfo.serviceId = serviceId;
 													upaChannelManagementInfo->serviceDiscoveryInfo.serviceNameFound = RSSL_TRUE;
 												}

@@ -25,7 +25,6 @@ static int currentSetId, entryCount;
 
 RsslBool decodeSetDefFile(char* setDefFilename)
 {
-	int i;
 	int ret;
 	xmlSAXHandler saxHandler;
 	RsslBuffer version;
@@ -34,7 +33,7 @@ RsslBool decodeSetDefFile(char* setDefFilename)
 	rsslClearFieldSetDb(&globalFieldSetDefDb);
 	if ((ret = rsslAllocateFieldSetDefDb(&globalFieldSetDefDb, &version)) != RSSL_RET_SUCCESS)
 	{
-		printf("rsslAllocateFieldSetDefDb() failed: %d(%s)\n", rsslRetCodeToString(ret));
+		printf("rsslAllocateFieldSetDefDb() failed: %d (%s)\n", ret, rsslRetCodeToString(ret));
 		return RSSL_FALSE;
 	}
 

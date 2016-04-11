@@ -66,7 +66,7 @@ RsslRet realTimeSessionProcessReadReady(RealTimeSession *pSession)
         if(readOutArgs.readOutFlags & RSSL_READ_OUT_SEQNUM)
                 if (readOutArgs.seqNum > pSession->gapInfo.start + 1 && pSession->gapInfo.start != 0)
                 {
-                        printf("<%s> Gap Detected, received sequence: %d expected sequence: %d \n\n",
+                        printf("<%s> Gap Detected, received sequence: %d expected sequence: "RTR_LLU" \n\n",
                                 pSession->name, readOutArgs.seqNum, pSession->gapInfo.start + 1);
 
                         pSession->gapDetected = RSSL_TRUE;

@@ -465,7 +465,7 @@ static RsslRet closeItemStream(RsslChannel *chnl, RsslInt32 streamId)
 	/* remove original item request information */
 	if (itemRequestInfo)
 	{
-		printf("Closing item stream id %d with item name: %.*s\n", itemRequestInfo->StreamId, strlen(itemRequestInfo->Itemname), itemRequestInfo->Itemname);
+		printf("Closing item stream id %d with item name: %.*s\n", itemRequestInfo->StreamId, (int)strlen(itemRequestInfo->Itemname), itemRequestInfo->Itemname);
 		if (freeItemReqInfo(itemRequestInfo) != RSSL_RET_SUCCESS)
 			return RSSL_RET_FAILURE;
 	}
@@ -495,7 +495,7 @@ void closeItemChnlStreams(RsslChannel* chnl)
 		{
 			itemRequestInfo = &itemRequestInfoList[i];
 			/* remove original item request information */
-			printf("Closing item stream id %d with item name: %.*s and domainType: %u\n", itemRequestInfo->StreamId, strlen(itemRequestInfo->Itemname), itemRequestInfo->Itemname, itemRequestInfo->domainType);
+			printf("Closing item stream id %d with item name: %.*s and domainType: %u\n", itemRequestInfo->StreamId, (int)strlen(itemRequestInfo->Itemname), itemRequestInfo->Itemname, itemRequestInfo->domainType);
 			freeItemReqInfo(itemRequestInfo);
 		}
 	}
@@ -803,11 +803,11 @@ RsslRet processSingleItemRequest(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIter
 
 	if (msg->requestMsg.flags & RSSL_RQMF_PRIVATE_STREAM)
 	{
-		printf("\nReceived Private Stream Item Request for %.*s (streamId=%d) on domain %s\n", strlen(itemReqInfo->Itemname), itemReqInfo->Itemname, msg->msgBase.streamId,  rsslDomainTypeToString(itemReqInfo->domainType));
+		printf("\nReceived Private Stream Item Request for %.*s (streamId=%d) on domain %s\n", (int)strlen(itemReqInfo->Itemname), itemReqInfo->Itemname, msg->msgBase.streamId,  rsslDomainTypeToString(itemReqInfo->domainType));
 	}
 	else
 	{
-		printf("\nReceived Item Request for %.*s (streamId=%d) on domain %s\n", strlen(itemReqInfo->Itemname), itemReqInfo->Itemname, msg->msgBase.streamId,  rsslDomainTypeToString(itemReqInfo->domainType));
+		printf("\nReceived Item Request for %.*s (streamId=%d) on domain %s\n", (int)strlen(itemReqInfo->Itemname), itemReqInfo->Itemname, msg->msgBase.streamId,  rsslDomainTypeToString(itemReqInfo->domainType));
 	}
 
 	/* send item response */
@@ -952,11 +952,11 @@ RsslRet processBatchRequest(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIterator*
 
 				if (msg->requestMsg.flags & RSSL_RQMF_PRIVATE_STREAM)
 				{
-					printf("\nReceived Private Stream Item Request for %.*s (streamId=%d) on domain %s\n", strlen(itemReqInfo->Itemname), itemReqInfo->Itemname, itemStream,  rsslDomainTypeToString(itemReqInfo->domainType));
+					printf("\nReceived Private Stream Item Request for %.*s (streamId=%d) on domain %s\n", (int)strlen(itemReqInfo->Itemname), itemReqInfo->Itemname, itemStream,  rsslDomainTypeToString(itemReqInfo->domainType));
 				}
 				else
 				{
-					printf("\nReceived Item Request for %.*s (streamId=%d) on domain %s\n", strlen(itemReqInfo->Itemname), itemReqInfo->Itemname, itemStream,  rsslDomainTypeToString(itemReqInfo->domainType));
+					printf("\nReceived Item Request for %.*s (streamId=%d) on domain %s\n", (int)strlen(itemReqInfo->Itemname), itemReqInfo->Itemname, itemStream,  rsslDomainTypeToString(itemReqInfo->domainType));
 				}
 
 				/* send item response/refresh if required */

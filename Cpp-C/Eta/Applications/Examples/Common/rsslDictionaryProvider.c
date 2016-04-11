@@ -486,7 +486,7 @@ RsslRet processDictionaryRequest(RsslChannel *chnl, RsslMsg* msg, RsslDecodeIter
 			return ret;
 		}
 
-		printf("\nReceived Dictionary Request for DictionaryName: %.*s\n", strlen(dictionaryRequestInfo->DictionaryName), dictionaryRequestInfo->DictionaryName);
+		printf("\nReceived Dictionary Request for DictionaryName: %.*s\n", (int)strlen(dictionaryRequestInfo->DictionaryName), dictionaryRequestInfo->DictionaryName);
 
 		if (!strcmp(fieldDictionaryDownloadName, dictionaryRequestInfo->DictionaryName))
 		{
@@ -670,7 +670,7 @@ void closeDictionaryChnlStreams(RsslChannel *chnl)
 		{
 			dictionaryReqInfo = &dictionaryRequestInfoList[i];
 			/* clear original request information */
-			printf("Closing dictionary stream id %d with dictionary name: %.*s\n", dictionaryReqInfo->StreamId, strlen(dictionaryReqInfo->DictionaryName), dictionaryReqInfo->DictionaryName);
+			printf("Closing dictionary stream id %d with dictionary name: %.*s\n", dictionaryReqInfo->StreamId, (int)strlen(dictionaryReqInfo->DictionaryName), dictionaryReqInfo->DictionaryName);
 			clearDictionaryReqInfo(dictionaryReqInfo);
 		}
 	}
@@ -692,7 +692,7 @@ static void closeDictionaryStream(RsslInt32 streamId)
 		{
 			dictionaryReqInfo = &dictionaryRequestInfoList[i];
 			/* clear original request information */
-			printf("Closing dictionary stream id %d with dictionary name: %.*s\n", dictionaryReqInfo->StreamId, strlen(dictionaryReqInfo->DictionaryName), dictionaryReqInfo->DictionaryName);
+			printf("Closing dictionary stream id %d with dictionary name: %.*s\n", dictionaryReqInfo->StreamId, (int)strlen(dictionaryReqInfo->DictionaryName), dictionaryReqInfo->DictionaryName);
 			clearDictionaryReqInfo(dictionaryReqInfo);
 			break;
 		}

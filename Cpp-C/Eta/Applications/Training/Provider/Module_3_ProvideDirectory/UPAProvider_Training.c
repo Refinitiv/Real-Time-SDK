@@ -1696,7 +1696,7 @@ RsslRet processLoginRequest(UpaChannelManagementInfo *upaChannelManagementInfo, 
 				return retval;
 			}
 
-			printf("\nReceived Login Request for Username: %.*s\n", strlen(upaChannelManagementInfo->loginRequestInfo.Username), upaChannelManagementInfo->loginRequestInfo.Username);
+			printf("\nReceived Login Request for Username: %.*s\n", (int)strlen(upaChannelManagementInfo->loginRequestInfo.Username), upaChannelManagementInfo->loginRequestInfo.Username);
 
 			/* send login response */
 			if (retval = sendLoginResponse(upaChannelManagementInfo) != RSSL_RET_SUCCESS)
@@ -1860,7 +1860,7 @@ RsslRet sendLoginResponse(UpaChannelManagementInfo *upaChannelManagementInfo)
 	if ((retval = rsslEncodeMsgInit(&encodeIter, (RsslMsg*)&refreshMsg, 0)) < RSSL_RET_SUCCESS)
 	{
 		rsslReleaseBuffer(msgBuf, &error);
-		printf("rsslEncodeMsgInit() failed with return code: %d\n", refreshMsg);
+		printf("rsslEncodeMsgInit() failed with return code: %d\n", retval);
 		/* Closes channel, closes server, cleans up and exits the application. */
 		return retval;
 	}
@@ -2004,7 +2004,7 @@ void closeLoginStream(RsslInt32 streamId, UpaChannelManagementInfo *upaChannelMa
 	/* find original request information associated with streamId */
 	if(upaChannelManagementInfo->loginRequestInfo.StreamId == streamId)
 	{
-		printf("Closing login stream id %d with user name: %.*s\n", upaChannelManagementInfo->loginRequestInfo.StreamId, strlen(upaChannelManagementInfo->loginRequestInfo.Username), upaChannelManagementInfo->loginRequestInfo.Username);
+		printf("Closing login stream id %d with user name: %.*s\n", upaChannelManagementInfo->loginRequestInfo.StreamId, (int)strlen(upaChannelManagementInfo->loginRequestInfo.Username), upaChannelManagementInfo->loginRequestInfo.Username);
 
 		/* Clears the original login request information */
 		clearLoginReqInfo(&upaChannelManagementInfo->loginRequestInfo);
@@ -3237,7 +3237,7 @@ void closeSourceDirectoryStream(RsslInt32 streamId, UpaChannelManagementInfo *up
 	/* find original request information associated with streamId */
 	if(upaChannelManagementInfo->sourceDirectoryRequestInfo.StreamId == streamId)
 	{
-		printf("Closing source directory stream id %d with service name: %.*s\n", upaChannelManagementInfo->sourceDirectoryRequestInfo.StreamId, strlen(upaChannelManagementInfo->sourceDirectoryRequestInfo.ServiceName), upaChannelManagementInfo->sourceDirectoryRequestInfo.ServiceName);
+		printf("Closing source directory stream id %d with service name: %.*s\n", upaChannelManagementInfo->sourceDirectoryRequestInfo.StreamId, (int)strlen(upaChannelManagementInfo->sourceDirectoryRequestInfo.ServiceName), upaChannelManagementInfo->sourceDirectoryRequestInfo.ServiceName);
 
 		/* Clears the original source directory request information */
 		clearSourceDirectoryReqInfo(&upaChannelManagementInfo->sourceDirectoryRequestInfo);

@@ -79,7 +79,7 @@ RsslRet getSourceDirectoryResponseInfo(RsslUInt serviceId, RsslSourceDirectoryRe
 		}
 	}
 	
-	printf("\nSource Directory response info does not contain service Id: %d.\n", serviceId);
+	printf("\nSource Directory response info does not contain service Id: "RTR_LLU".\n", serviceId);
 	*rsslSourceDirectoryResponseInfo = NULL;
 	return RSSL_RET_FAILURE;
 }

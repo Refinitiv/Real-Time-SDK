@@ -339,7 +339,7 @@ void closeSrcDirectoryChnlStream(RsslChannel* chnl)
 		{
 			sourceDirectoryReqInfo = &sourceDirectoryReqInfoList[i];
 			/* clear original request information */
-			printf("Closing source directory stream id %d with service name: %.*s\n", sourceDirectoryReqInfo->StreamId, strlen(serviceName), serviceName);
+			printf("Closing source directory stream id %d with service name: %.*s\n", sourceDirectoryReqInfo->StreamId, (int)strlen(serviceName), serviceName);
 			clearSourceDirectoryReqInfo(sourceDirectoryReqInfo);
 			break;
 		}
@@ -362,7 +362,7 @@ static void closeSrcDirectoryStream(RsslInt32 streamId)
 		{
 			sourceDirectoryReqInfo = &sourceDirectoryReqInfoList[i];
 			/* clear original request information */
-			printf("Closing source directory stream id %d with service name: %.*s\n", sourceDirectoryReqInfo->StreamId, strlen(serviceName), serviceName);
+			printf("Closing source directory stream id %d with service name: %.*s\n", sourceDirectoryReqInfo->StreamId, (int)strlen(serviceName), serviceName);
 			clearSourceDirectoryReqInfo(sourceDirectoryReqInfo);
 			break;
 		}

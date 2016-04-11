@@ -432,7 +432,7 @@ void closeDirectoryStreamForChannel(RsslReactorChannel* pReactorChannel)
 		{
 			sourceDirectoryReqInfo = &directoryReqList[i].dirRequest;
 			/* clear original request information */
-			printf("Closing source directory stream id %d with service name: %.*s\n", sourceDirectoryReqInfo->rdmMsgBase.streamId, strlen(serviceName), serviceName);
+			printf("Closing source directory stream id %d with service name: %.*s\n", sourceDirectoryReqInfo->rdmMsgBase.streamId, (int)strlen(serviceName), serviceName);
 			clearDirectoryRequestInfo(&directoryReqList[i]);
 			break;
 		}
@@ -455,7 +455,7 @@ static void closeDirectoryStream(RsslInt32 streamId)
 		{
 			sourceDirectoryReqInfo = &directoryReqList[i].dirRequest;
 			/* clear original request information */
-			printf("Closing source directory stream id %d with service name: %.*s\n", sourceDirectoryReqInfo->rdmMsgBase.streamId, strlen(serviceName), serviceName);
+			printf("Closing source directory stream id %d with service name: %.*s\n", sourceDirectoryReqInfo->rdmMsgBase.streamId, (int)strlen(serviceName), serviceName);
 			clearDirectoryRequestInfo(&directoryReqList[i]);
 			break;
 		}

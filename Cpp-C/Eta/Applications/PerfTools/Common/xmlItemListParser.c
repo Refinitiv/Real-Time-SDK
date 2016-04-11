@@ -290,7 +290,7 @@ XmlItemInfoList *createXmlItemList(const char *filename, unsigned int count)
 
 	if (xmlSAXUserParseFile(&saxHandler, &xmlItemListParser, filename) < 0)
 	{
-		printf("xmlSAXUserParseFile() failed.\n", xmlItemListParser.saxParsingState);
+		printf("xmlSAXUserParseFile() failed with parsing state: %d.\n", xmlItemListParser.saxParsingState);
 		goto createXmlItemList_failure;
 	}
 	else if	(xmlItemListParser.saxParsingState != XML_PARSE_ST_COMPLETE)

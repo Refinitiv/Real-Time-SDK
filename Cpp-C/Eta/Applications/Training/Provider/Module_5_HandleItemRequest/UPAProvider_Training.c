@@ -1938,7 +1938,7 @@ RsslRet processLoginRequest(UpaChannelManagementInfo *upaChannelManagementInfo, 
 				return retval;
 			}
 
-			printf("\nReceived Login Request for Username: %.*s\n", strlen(upaChannelManagementInfo->loginRequestInfo.Username), upaChannelManagementInfo->loginRequestInfo.Username);
+			printf("\nReceived Login Request for Username: %.*s\n", (int)strlen(upaChannelManagementInfo->loginRequestInfo.Username), upaChannelManagementInfo->loginRequestInfo.Username);
 
 			/* send login response */
 			if (retval = sendLoginResponse(upaChannelManagementInfo) != RSSL_RET_SUCCESS)
@@ -2102,7 +2102,7 @@ RsslRet sendLoginResponse(UpaChannelManagementInfo *upaChannelManagementInfo)
 	if ((retval = rsslEncodeMsgInit(&encodeIter, (RsslMsg*)&refreshMsg, 0)) < RSSL_RET_SUCCESS)
 	{
 		rsslReleaseBuffer(msgBuf, &error);
-		printf("rsslEncodeMsgInit() failed with return code: %d\n", refreshMsg);
+		printf("rsslEncodeMsgInit() failed with return code: %d\n", retval);
 		/* Closes channel, closes server, cleans up and exits the application. */
 		return retval;
 	}
@@ -2246,7 +2246,7 @@ void closeLoginStream(RsslInt32 streamId, UpaChannelManagementInfo *upaChannelMa
 	/* find original request information associated with streamId */
 	if(upaChannelManagementInfo->loginRequestInfo.StreamId == streamId)
 	{
-		printf("Closing login stream id %d with user name: %.*s\n", upaChannelManagementInfo->loginRequestInfo.StreamId, strlen(upaChannelManagementInfo->loginRequestInfo.Username), upaChannelManagementInfo->loginRequestInfo.Username);
+		printf("Closing login stream id %d with user name: %.*s\n", upaChannelManagementInfo->loginRequestInfo.StreamId, (int)strlen(upaChannelManagementInfo->loginRequestInfo.Username), upaChannelManagementInfo->loginRequestInfo.Username);
 
 		/* Clears the original login request information */
 		clearLoginReqInfo(&upaChannelManagementInfo->loginRequestInfo);
@@ -3479,7 +3479,7 @@ void closeSourceDirectoryStream(RsslInt32 streamId, UpaChannelManagementInfo *up
 	/* find original request information associated with streamId */
 	if(upaChannelManagementInfo->sourceDirectoryRequestInfo.StreamId == streamId)
 	{
-		printf("Closing source directory stream id %d with service name: %.*s\n", upaChannelManagementInfo->sourceDirectoryRequestInfo.StreamId, strlen(upaChannelManagementInfo->sourceDirectoryRequestInfo.ServiceName), upaChannelManagementInfo->sourceDirectoryRequestInfo.ServiceName);
+		printf("Closing source directory stream id %d with service name: %.*s\n", upaChannelManagementInfo->sourceDirectoryRequestInfo.StreamId, (int)strlen(upaChannelManagementInfo->sourceDirectoryRequestInfo.ServiceName), upaChannelManagementInfo->sourceDirectoryRequestInfo.ServiceName);
 
 		/* Clears the original source directory request information */
 		clearSourceDirectoryReqInfo(&upaChannelManagementInfo->sourceDirectoryRequestInfo);
@@ -3528,7 +3528,7 @@ RsslRet processDictionaryRequest(UpaChannelManagementInfo *upaChannelManagementI
 				}
 				upaChannelManagementInfo->fieldDictionaryRequestInfo.DictionaryName[upaChannelManagementInfo->fieldDictionaryRequestInfo.MsgKey.name.length] = '\0';
 
-				printf("\nReceived Dictionary Request for DictionaryName: %.*s\n", strlen(upaChannelManagementInfo->fieldDictionaryRequestInfo.DictionaryName), upaChannelManagementInfo->fieldDictionaryRequestInfo.DictionaryName);
+				printf("\nReceived Dictionary Request for DictionaryName: %.*s\n", (int)strlen(upaChannelManagementInfo->fieldDictionaryRequestInfo.DictionaryName), upaChannelManagementInfo->fieldDictionaryRequestInfo.DictionaryName);
 
 				/* send field dictionary response */
 				if ((retval = sendDictionaryResponse(upaChannelManagementInfo, dataDictionary, DICTIONARY_FIELD_DICTIONARY)) != RSSL_RET_SUCCESS)
@@ -3551,7 +3551,7 @@ RsslRet processDictionaryRequest(UpaChannelManagementInfo *upaChannelManagementI
 				}
 				upaChannelManagementInfo->enumTypeDictionaryRequestInfo.DictionaryName[upaChannelManagementInfo->enumTypeDictionaryRequestInfo.MsgKey.name.length] = '\0';
 
-				printf("\nReceived Dictionary Request for DictionaryName: %.*s\n", strlen(upaChannelManagementInfo->enumTypeDictionaryRequestInfo.DictionaryName), upaChannelManagementInfo->enumTypeDictionaryRequestInfo.DictionaryName);
+				printf("\nReceived Dictionary Request for DictionaryName: %.*s\n", (int)strlen(upaChannelManagementInfo->enumTypeDictionaryRequestInfo.DictionaryName), upaChannelManagementInfo->enumTypeDictionaryRequestInfo.DictionaryName);
 
 				/* send enum type dictionary response */
 				if ((retval = sendDictionaryResponse(upaChannelManagementInfo, dataDictionary, DICTIONARY_ENUM_TYPE)) != RSSL_RET_SUCCESS)
@@ -4214,14 +4214,14 @@ void closeDictionaryStream(RsslInt32 streamId, UpaChannelManagementInfo *upaChan
 	/* find the original request information associated with streamId */
 	if (upaChannelManagementInfo->fieldDictionaryRequestInfo.StreamId == streamId)
 	{
-		printf("Closing dictionary stream id %d with dictionary name: %.*s\n", upaChannelManagementInfo->fieldDictionaryRequestInfo.StreamId, strlen(upaChannelManagementInfo->fieldDictionaryRequestInfo.DictionaryName), upaChannelManagementInfo->fieldDictionaryRequestInfo.DictionaryName);
+		printf("Closing dictionary stream id %d with dictionary name: %.*s\n", upaChannelManagementInfo->fieldDictionaryRequestInfo.StreamId, (int)strlen(upaChannelManagementInfo->fieldDictionaryRequestInfo.DictionaryName), upaChannelManagementInfo->fieldDictionaryRequestInfo.DictionaryName);
 
 		/* Clears the original field dictionary request information */
 		clearDictionaryReqInfo(&upaChannelManagementInfo->fieldDictionaryRequestInfo);
 	}
 	else if (upaChannelManagementInfo->enumTypeDictionaryRequestInfo.StreamId == streamId)
 	{
-		printf("Closing dictionary stream id %d with dictionary name: %.*s\n", upaChannelManagementInfo->enumTypeDictionaryRequestInfo.StreamId, strlen(upaChannelManagementInfo->enumTypeDictionaryRequestInfo.DictionaryName), upaChannelManagementInfo->enumTypeDictionaryRequestInfo.DictionaryName);
+		printf("Closing dictionary stream id %d with dictionary name: %.*s\n", upaChannelManagementInfo->enumTypeDictionaryRequestInfo.StreamId, (int)strlen(upaChannelManagementInfo->enumTypeDictionaryRequestInfo.DictionaryName), upaChannelManagementInfo->enumTypeDictionaryRequestInfo.DictionaryName);
 
 		/* Clears the original enumType dictionary request information */
 		clearDictionaryReqInfo(&upaChannelManagementInfo->enumTypeDictionaryRequestInfo);
@@ -4340,7 +4340,7 @@ RsslRet processMarketPriceItemRequest(UpaChannelManagementInfo *upaChannelManage
 			/* Provide a refresh if one was requested. */
 			upaChannelManagementInfo->marketPriceItemRequestInfo.IsRefreshComplete = (msg->requestMsg.flags & RSSL_RQMF_NO_REFRESH) ? RSSL_TRUE : RSSL_FALSE;
 
-			printf("\nReceived Market Price Item Request for %.*s (streamId=%d)\n", strlen(upaChannelManagementInfo->marketPriceItemRequestInfo.ItemName), upaChannelManagementInfo->marketPriceItemRequestInfo.ItemName, msg->msgBase.streamId);
+			printf("\nReceived Market Price Item Request for %.*s (streamId=%d)\n", (int)strlen(upaChannelManagementInfo->marketPriceItemRequestInfo.ItemName), upaChannelManagementInfo->marketPriceItemRequestInfo.ItemName, msg->msgBase.streamId);
 
 			/* send Market Price item response */
 			/*!< (0x020) Indicates that the user does not require an RsslRefreshMsg for this request - typically used as part of a reissue to change priority, view information, or pausing/resuming a stream. */
@@ -4839,7 +4839,7 @@ RsslRet sendMarketPriceItemCloseStatusMsg(UpaChannelManagementInfo *upaChannelMa
 	/*!< (2) Data is Suspect (similar to a stale data state, indicates that the health of some or all data associated with the stream is out of date or cannot be confirmed that it is current ) */
 	msg.state.dataState = RSSL_DATA_SUSPECT;
 	msg.state.code = RSSL_SC_NONE;
-	sprintf(stateText, "Item stream closed for item: ", upaChannelManagementInfo->marketPriceItemRequestInfo.ItemName);
+	sprintf(stateText, "Item stream closed for item: %s", upaChannelManagementInfo->marketPriceItemRequestInfo.ItemName);
 	msg.state.text.data = stateText;
 	msg.state.text.length = (RsslUInt32)strlen(stateText);
 
@@ -5079,7 +5079,7 @@ void closeMarketPriceItemStream(RsslInt32 streamId, UpaChannelManagementInfo *up
 	/* find the original request information associated with streamId */
 	if (upaChannelManagementInfo->marketPriceItemRequestInfo.StreamId == streamId)
 	{
-		printf("Closing market price item stream id %d with item name: %.*s\n", upaChannelManagementInfo->marketPriceItemRequestInfo.StreamId, strlen(upaChannelManagementInfo->marketPriceItemRequestInfo.ItemName), upaChannelManagementInfo->marketPriceItemRequestInfo.ItemName);
+		printf("Closing market price item stream id %d with item name: %.*s\n", upaChannelManagementInfo->marketPriceItemRequestInfo.StreamId, (int)strlen(upaChannelManagementInfo->marketPriceItemRequestInfo.ItemName), upaChannelManagementInfo->marketPriceItemRequestInfo.ItemName);
 
 		/* Clears the original field market price item request information */
 		clearMarketPriceItemReqInfo(&upaChannelManagementInfo->marketPriceItemRequestInfo);

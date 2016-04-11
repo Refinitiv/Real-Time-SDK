@@ -657,7 +657,7 @@ static void initializeCache(RsslBool cacheOption)
 	{
 		if ((ret = rsslPayloadCacheInitialize()) != RSSL_RET_SUCCESS)
 		{
-			printf("rsslPayloadCacheInitialize() failed: %s. Cache will be disabled.", ret);
+			printf("rsslPayloadCacheInitialize() failed: %d (%s). Cache will be disabled.", ret, rsslRetCodeToString(ret));
 			cacheInfo.useCache = RSSL_FALSE;
 			return;
 		}

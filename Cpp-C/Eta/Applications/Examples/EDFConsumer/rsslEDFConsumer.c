@@ -449,7 +449,7 @@ static void initializeSnapshot()
 		if((pService->seqMCastInfo.flags & RDM_SVC_SMF_HAS_SNAPSHOT_SERV) && 
 				(pService->seqMCastInfo.snapshotServer.address.length > 0))
 		{
-			printf("Snapshot Server:\n\t%.*s %d\n\n", pService->seqMCastInfo.snapshotServer.address.length, 
+			printf("Snapshot Server:\n\t%.*s "RTR_LLU"\n\n", pService->seqMCastInfo.snapshotServer.address.length,
 				pService->seqMCastInfo.snapshotServer.address.data,
 				pService->seqMCastInfo.snapshotServer.port);
 		}	
@@ -467,7 +467,7 @@ static void initializeSnapshot()
 	}
 	else
 	{
-		snprintf(&port[0], 128, "%d", pService->seqMCastInfo.snapshotServer.port);
+		snprintf(&port[0], 128, RTR_LLU, pService->seqMCastInfo.snapshotServer.port);
 		copts.connectionInfo.segmented.recvServiceName = &port[0];
 	}
 	if (exampleConfig.snapshotServerAddr[0])
@@ -557,7 +557,7 @@ static void initialize()
 		if ((pService->seqMCastInfo.flags & RDM_SVC_SMF_HAS_GAP_REC_SERV) && 
 				(pService->seqMCastInfo.gapRecoveryServer.address.length > 0))
 		{
-			printf("Gap Recovery Server:\n\t%.*s %d\n\n", pService->seqMCastInfo.gapRecoveryServer.address.length, 
+			printf("Gap Recovery Server:\n\t%.*s "RTR_LLU"\n\n", pService->seqMCastInfo.gapRecoveryServer.address.length,
 				pService->seqMCastInfo.gapRecoveryServer.address.data,
 				pService->seqMCastInfo.gapRecoveryServer.port);
 		}	
@@ -565,7 +565,7 @@ static void initialize()
 		if ((pService->seqMCastInfo.flags & RDM_SVC_SMF_HAS_REF_DATA_SERV) && 
 				(pService->seqMCastInfo.refDataServer.address.length > 0))
 		{
-			printf("Reference Data Server:\n\t%.*s %d\n\n",  pService->seqMCastInfo.refDataServer.address.length,
+			printf("Reference Data Server:\n\t%.*s "RTR_LLU"\n\n",  pService->seqMCastInfo.refDataServer.address.length,
 				pService->seqMCastInfo.refDataServer.address.data,
 				pService->seqMCastInfo.refDataServer.port);
 		}	
@@ -579,7 +579,7 @@ static void initialize()
 			// When verbose mode is sellected connect to all the real time streams.
 			for (j = 0; j < pService->seqMCastInfo.StreamingMCastChanServerCount; j++)
 			{
-				snprintf(&port[0], 128, "%d", pService->seqMCastInfo.StreamingMCastChanServerList[j].port);
+				snprintf(&port[0], 128, RTR_LLU, pService->seqMCastInfo.StreamingMCastChanServerList[j].port);
 				snprintf(&address[0], 128, "%.*s", pService->seqMCastInfo.StreamingMCastChanServerList[j].address.length, 
 					pService->seqMCastInfo.StreamingMCastChanServerList[j].address.data);
 
@@ -650,7 +650,7 @@ static void initialize()
 
 				if (!duplicateConnection)
 				{
-					snprintf(&port[0], 128, "%d", pService->seqMCastInfo.StreamingMCastChanServerList[index].port);
+					snprintf(&port[0], 128, RTR_LLU, pService->seqMCastInfo.StreamingMCastChanServerList[index].port);
 					snprintf(&address[0], 128, "%.*s", pService->seqMCastInfo.StreamingMCastChanServerList[index].address.length, 
 							pService->seqMCastInfo.StreamingMCastChanServerList[index].address.data);
 
@@ -720,7 +720,7 @@ static void initialize()
 
 				if (!duplicateConnection)
 				{
-					snprintf(&port[0], 128, "%d", pService->seqMCastInfo.GapMCastChanServerList[index].port);
+					snprintf(&port[0], 128, RTR_LLU, pService->seqMCastInfo.GapMCastChanServerList[index].port);
 					snprintf(&address[0], 128, "%.*s", pService->seqMCastInfo.GapMCastChanServerList[index].address.length, 
 							pService->seqMCastInfo.GapMCastChanServerList[index].address.data);
 
@@ -763,7 +763,7 @@ static void initialize()
 			// When verbose mode is sellected connect to all the gap fill servers.
 			for (j = 0; j < pService->seqMCastInfo.GapMCastChanServerCount; j++)
 			{
-				snprintf(&port[0], 128, "%d", pService->seqMCastInfo.GapMCastChanServerList[j].port);
+				snprintf(&port[0], 128, RTR_LLU, pService->seqMCastInfo.GapMCastChanServerList[j].port);
 				snprintf(&address[0], 128, "%.*s", pService->seqMCastInfo.GapMCastChanServerList[j].address.length, 
 					pService->seqMCastInfo.GapMCastChanServerList[j].address.data);
 
@@ -851,7 +851,7 @@ static void initialize()
 	}
 	else
 	{
-		snprintf(&port[0], 128, "%d", pService->seqMCastInfo.gapRecoveryServer.port);
+		snprintf(&port[0], 128, RTR_LLU, pService->seqMCastInfo.gapRecoveryServer.port);
 		copts.connectionInfo.segmented.recvServiceName = &port[0];
 	}
 	if (exampleConfig.gapRequestServerAddr[0])
