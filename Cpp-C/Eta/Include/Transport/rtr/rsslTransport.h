@@ -1012,7 +1012,7 @@ RSSL_API RsslRet rsslCloseChannel(RsslChannel *chnl,
  * @see rsslReadEx
  */
 typedef enum {
-	RSSL_READ_IN_NO_FLAGS		= 0x00	/*!< (0x00) No read flags*/
+	RSSL_READ_IN_NO_FLAGS		= 0x00,	/*!< (0x00) No read flags*/
 } RsslReadFlagsIn;
 
 
@@ -1039,7 +1039,8 @@ typedef enum {
 	RSSL_READ_OUT_SEQNUM		= 0x0004,	/*!< (0x04) set when a seqnum is returned */
 	RSSL_READ_OUT_HASH_ID		= 0x0008,	/*!< (0x08) set when a hash ID is returned */
 	RSSL_READ_OUT_UNICAST		= 0x0010,	/*!< (0x10) set when the message was sent unicast to this node */
-	RSSL_READ_OUT_INSTANCE_ID	= 0x0020	/*!< (0x20) set when the message has an instance ID set */
+	RSSL_READ_OUT_INSTANCE_ID	= 0x0020,	/*!< (0x20) set when the message has an instance ID set */
+	RSSL_READ_OUT_RETRANSMIT     = 0x0040  	/*!< (0x40) indicates that this message is a retransmission of previous content*/
 } RsslReadOutFlags;
 
 typedef struct {
@@ -1248,7 +1249,10 @@ typedef enum {
 typedef enum {
 	RSSL_WRITE_IN_NO_FLAGS				 = 0x00,	/*!< (0x00) No Write Flags */
 	RSSL_WRITE_IN_DO_NOT_COMPRESS		 = 0x01,	/*!< (0x01) indicates that this message should not be compressed even if compression is enabled for this connection */
-	RSSL_WRITE_IN_DIRECT_SOCKET_WRITEN   = 0x02		/*!< (0x02) Write will attempt to pass the data directly to the transport, avoiding the queuing.  If anything is currently queued, data will be queued.  This option will increase CPU use but may decrease latency */
+	RSSL_WRITE_IN_DIRECT_SOCKET_WRITEN    = 0x02,	/*!< @deprecated DEPRECATED: (0x02) Write will attempt to pass the data directly to the transport, avoiding the queuing.  If anything is currently queued, data will be queued.  This option will increase CPU use but may decrease latency */
+	RSSL_WRITE_IN_DIRECT_SOCKET_WRITE    = 0x02,	/*!< (0x02) Write will attempt to pass the data directly to the transport, avoiding the queuing.  If anything is currently queued, data will be queued.  This option will increase CPU use but may decrease latency */
+	RSSL_WRITE_IN_SEQNUM				 = 0x04,	/*!< (0x04) indicates that the writer wants to attach a sequence number to this message */
+	RSSL_WRITE_IN_RETRANSMIT             = 0x10  	/*!< (0x10) indicates that this message is a retransmission of previous content. This requires a user supplied sequence number to indicate which packet is being retransmitted*/
 } RsslWriteFlagsIn;
 
 /**
@@ -1257,6 +1261,7 @@ typedef enum {
 typedef struct {
 	   RsslUInt32                        writeInFlags;   /*!< writeInFlags Flags for writing the buffer (RsslWriteInFlags) */
 	   RsslWritePriorities				 rsslPriority;   /*!< rsslPriority Priority to flush the message (high, medium, or low) */
+	   RsslUInt32						 seqNum;		 /*!< specifies the sequence number of the message  */
 
 } RsslWriteInArgs;
 
@@ -1266,7 +1271,7 @@ typedef struct {
  * @see rsslWriteEx
  */
 typedef enum {
-	RSSL_WRITE_OUT_NO_FLAGS			= 0x00	/*!< (0x00) No Write Flags */
+	RSSL_WRITE_OUT_NO_FLAGS			= 0x00,	/*!< (0x00) No Write Flags */
 } RsslWriteOutFlags;
 
 /**
