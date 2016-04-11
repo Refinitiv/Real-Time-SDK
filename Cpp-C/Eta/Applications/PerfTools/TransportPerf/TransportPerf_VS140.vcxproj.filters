@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{29E22497-8A65-42F6-BBFD-BE288AA6D00A}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{22AA3957-D678-4B1A-B382-4C6F8F13F07D}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{A8AA595D-03C3-42B3-88E6-27672BEB42C9}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+    </Filter>
+  </ItemGroup>
+	<ItemGroup>
+		<ClCompile Include="upacTransportPerf.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="transportPerfConfig.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="transportThreads.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\channelHandler.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\getTime.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\latencyRandomArray.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\statistics.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ClInclude Include="upacTransportPerf.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="transportPerfConfig.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="transportThreads.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\channelHandler.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\getTime.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\latencyRandomArray.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\statistics.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+	</ItemGroup>
+
+	<ItemGroup>
+	</ItemGroup>
+
+  <ItemGroup>
+    <None Include="readme" />
+  </ItemGroup>
+</Project>

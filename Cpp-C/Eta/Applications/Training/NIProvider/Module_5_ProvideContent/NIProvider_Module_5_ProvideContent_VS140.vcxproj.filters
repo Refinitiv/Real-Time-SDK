@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{14562377-DEEA-4F7F-9CA6-E2BA30322C45}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{F133F898-81B1-476A-87A0-05531669CE1D}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{A4F305E6-CF6F-4605-90EF-FC3F6D81F367}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+    </Filter>
+  </ItemGroup>
+	<ItemGroup>
+		<ClCompile Include="UPANIProvider_Training.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ClInclude Include="UPANIProvider_Training.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+	</ItemGroup>
+
+	<ItemGroup>
+	</ItemGroup>
+
+  <ItemGroup>
+    <None Include="readme" />
+  </ItemGroup>
+</Project>

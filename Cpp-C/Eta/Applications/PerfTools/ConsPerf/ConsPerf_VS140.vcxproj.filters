@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{EC1755D4-A69C-4398-ACAA-261637A0D371}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{CA67864C-FF8C-46E9-81E2-2C12C57A7B93}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{79BFD24E-2948-4319-8543-7FD6C504A374}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+    </Filter>
+  </ItemGroup>
+	<ItemGroup>
+		<ClCompile Include="upacConsPerf.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="consPerfConfig.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="consumerThreads.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="marketByOrderDecoder.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="marketPriceDecoder.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\channelHandler.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\getTime.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\itemEncoder.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\latencyRandomArray.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\marketByOrderEncoder.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\marketPriceEncoder.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\statistics.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\xmlMsgDataParser.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\Common\xmlItemListParser.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ClInclude Include="upacConsPerf.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="consPerfConfig.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="consumerThreads.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="marketByOrderDecoder.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="marketPriceDecoder.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\channelHandler.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\getTime.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\itemEncoder.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\latencyRandomArray.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\marketByOrderEncoder.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\marketPriceEncoder.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\statistics.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\xmlMsgDataParser.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Common\xmlItemListParser.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+	</ItemGroup>
+
+	<ItemGroup>
+	</ItemGroup>
+
+  <ItemGroup>
+    <None Include="readme" />
+  </ItemGroup>
+</Project>

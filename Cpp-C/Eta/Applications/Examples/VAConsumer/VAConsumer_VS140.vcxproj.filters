@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{BDD56528-D02B-4809-BE56-FAA96B706A62}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{EDE5A5AA-BC32-4CA7-9DFF-69645A31AB09}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{CDD5AC3E-D5CC-441C-A2D4-203C4F9E460C}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+    </Filter>
+  </ItemGroup>
+	<ItemGroup>
+		<ClCompile Include="rsslConsumer.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="rsslDictionaryHandler.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="rsslDirectoryHandler.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="rsslLoginConsumer.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="rsslMarketPriceHandler.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="rsslMarketByOrderHandler.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="rsslMarketByPriceHandler.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="rsslYieldCurveHandler.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="rsslSymbolListHandler.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="rsslPostHandler.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\VACommon\rsslVASendMessage.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\VACommon\rsslVAMarketPriceItems.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\VACommon\rsslVACacheHandler.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\VACommon\simpleTunnelMsgHandler.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\VACommon\tunnelStreamHandler.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="..\VACommon\queueMsgHandler.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ClInclude Include="rsslConsumer.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="rsslDictionaryHandler.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="rsslDirectoryHandler.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="rsslLoginConsumer.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="rsslMarketPriceHandler.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="rsslMarketByOrderHandler.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="rsslMarketByPriceHandler.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="rsslYieldCurveHandler.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="rsslSymbolListHandler.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="rsslPostHandler.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\VACommon\rsslVASendMessage.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\VACommon\rsslVAMarketPriceItems.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\VACommon\rsslVACacheHandler.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\VACommon\simpleTunnelMsgHandler.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\VACommon\tunnelStreamHandler.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\VACommon\queueMsgHandler.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+	</ItemGroup>
+
+	<ItemGroup>
+	</ItemGroup>
+
+  <ItemGroup>
+    <None Include="readme" />
+  </ItemGroup>
+</Project>
