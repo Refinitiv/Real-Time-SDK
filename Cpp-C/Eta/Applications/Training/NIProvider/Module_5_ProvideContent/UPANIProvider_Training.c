@@ -3247,7 +3247,7 @@ RsslRet sendItemCloseStatusMsg(RsslChannel* upaChannel, RsslUInt32 maxMsgSize, R
 	/*!< (2) Data is Suspect (similar to a stale data state, indicates that the health of some or all data associated with the stream is out of date or cannot be confirmed that it is current ) */
 	msg.state.dataState = RSSL_DATA_SUSPECT;
 	msg.state.code = RSSL_SC_NONE;
-	sprintf(stateText, "Item stream closed for item: ", marketPriceItemInfo->itemName);
+	sprintf(stateText, "Item stream closed for item: %s\n", marketPriceItemInfo->itemName);
 	msg.state.text.data = stateText;
 	msg.state.text.length = (RsslUInt32)strlen(stateText);
 

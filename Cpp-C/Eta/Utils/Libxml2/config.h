@@ -97,7 +97,10 @@ static int isnan (double d) {
 
 #if defined(_MSC_VER)
 #define mkdir(p,m) _mkdir(p)
-#define snprintf _snprintf
+#include <stdio.h>
+#ifndef snprintf
+	#define snprintf _snprintf
+#endif
 #if _MSC_VER < 1500
 #define vsnprintf(b,c,f,a) _vsnprintf(b,c,f,a)
 #endif

@@ -218,7 +218,7 @@ RsslRet gapRequestSessionProcessReadReady(GapRequestSession *pSession)
 			return gapRequestSessionInitializeChannel(pSession);
 
 		default:
-			printf("<%s> Unhandled channel state %u.\n\n", pSession->name,
+			printf("<%s> Unhandled channel state %u (%s).\n\n", pSession->name,
 					ret, rsslRetCodeToString(ret));
 			exit(-1);
 			return RSSL_RET_FAILURE;
@@ -482,7 +482,7 @@ RsslRet gapRequestSessionRequestFill(GapRequestSession *pSession, gap_info_t *in
 	if ((ret = gapRequestSessionWrite(pSession, pBuffer)) != RSSL_RET_SUCCESS)
 		return ret;
 
-	printf("<%s> Sent gap fill request for message SEQ.NO. Start-End: %u-%u on StreamId %d\n\n",
+	printf("<%s> Sent gap fill request for message SEQ.NO. Start-End: "RTR_LLU"-"RTR_LLU" on StreamId %d\n\n",
 			pSession->name, info->start, info->end, requestMsg.msgBase.streamId);
 
 	return RSSL_RET_SUCCESS;
@@ -503,7 +503,7 @@ static RsslRet gapRequestSessionWrite(GapRequestSession *pSession, RsslBuffer *p
 					&rsslError)) < RSSL_RET_SUCCESS)
 	{
 		printf("<%s> rsslWriteEx() failed: %d(%s -- %s).\n\n",
-				pSession->pRsslChannel, ret, rsslRetCodeToString(ret), rsslError.text);
+				pSession->name, ret, rsslRetCodeToString(ret), rsslError.text);
 		rsslReleaseBuffer(pBuffer, &rsslError);
 		rsslCloseChannel(pSession->pRsslChannel, &rsslError);
 		pSession->pRsslChannel = NULL;
@@ -547,7 +547,7 @@ RsslRet gapRequestSessionProcessWriteReady(GapRequestSession *pSession)
 			return gapRequestSessionInitializeChannel(pSession);
 
 		default:
-			printf("<%s> Unhandled channel state %u.\n\n", pSession->name,
+			printf("<%s> Unhandled channel state %u (%s).\n\n", pSession->name,
 					ret, rsslRetCodeToString(ret));
 			exit(-1);
 			return RSSL_RET_FAILURE;

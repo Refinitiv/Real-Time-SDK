@@ -230,7 +230,7 @@ RsslRet snapshotSessionProcessReadReady(SnapshotSession *pSession)
 			return snapshotSessionInitializeChannel(pSession);
 
 		default:
-			printf("<%s> Unhandled channel state %u.\n\n", pSession->name,
+			printf("<%s> Unhandled channel state %u (%s).\n\n", pSession->name,
 					ret, rsslRetCodeToString(ret));
 			exit(-1);
 			return RSSL_RET_FAILURE;
@@ -288,7 +288,7 @@ static RsslRet snapshotSessionProcessMessage(SnapshotSession *pSession, RsslBuff
 			switch(loginMsg.rdmMsgBase.rdmMsgType)
 			{
 				case RDM_LG_MT_REFRESH:
-					printf("<%s> Received login refresh.\n\n",
+					printf("<%s> Received login refresh.  %u (%s) Error text: %s \n\n",
 							pSession->name,
 							ret, rsslRetCodeToString(ret), rsslErrorInfo.rsslError.text);
 
@@ -418,7 +418,7 @@ static RsslRet snapshotSessionWrite(SnapshotSession *pSession, RsslBuffer *pBuff
 					&rsslError)) < RSSL_RET_SUCCESS)
 	{
 		printf("<%s> rsslWriteEx() failed: %d(%s -- %s).\n\n",
-				pSession->pRsslChannel, ret, rsslRetCodeToString(ret), rsslError.text);
+				pSession->name, ret, rsslRetCodeToString(ret), rsslError.text);
 		rsslReleaseBuffer(pBuffer, &rsslError);
 		rsslCloseChannel(pSession->pRsslChannel, &rsslError);
 		pSession->pRsslChannel = NULL;
@@ -462,7 +462,7 @@ RsslRet snapshotSessionProcessWriteReady(SnapshotSession *pSession)
 			return snapshotSessionInitializeChannel(pSession);
 
 		default:
-			printf("<%s> Unhandled channel state %u.\n\n", pSession->name,
+			printf("<%s> Unhandled channel state %u (%s).\n\n", pSession->name,
 					ret, rsslRetCodeToString(ret));
 			exit(-1);
 			return RSSL_RET_FAILURE;
@@ -664,7 +664,7 @@ static RsslRet processSymbolListResponse(SnapshotSession* pSession, RsslMsg* msg
 							{
 								if ((ret = rsslDecodeUInt(dIter, &pSession->symbolListEntry[SymbolListCounter]->streamingChannels[countStreamingChan].channelId)) == RSSL_RET_SUCCESS)
 								{	
-									printf(" StreamingChanId: %d", pSession->symbolListEntry[SymbolListCounter]->streamingChannels[countStreamingChan].channelId);
+									printf(" StreamingChanId: "RTR_LLU, pSession->symbolListEntry[SymbolListCounter]->streamingChannels[countStreamingChan].channelId);
 								}
 								else
 								{
@@ -678,7 +678,7 @@ static RsslRet processSymbolListResponse(SnapshotSession* pSession, RsslMsg* msg
 							{
 								if ((ret = rsslDecodeUInt(dIter, &pSession->symbolListEntry[SymbolListCounter]->streamingChannels[countStreamingChan].domain)) == RSSL_RET_SUCCESS)
 								{	
-									printf(" StreamingChanDom: %d", pSession->symbolListEntry[SymbolListCounter]->streamingChannels[countStreamingChan].domain);
+									printf(" StreamingChanDom: "RTR_LLU, pSession->symbolListEntry[SymbolListCounter]->streamingChannels[countStreamingChan].domain);
 								}
 								else
 								{
@@ -750,7 +750,7 @@ static RsslRet processSymbolListResponse(SnapshotSession* pSession, RsslMsg* msg
 							{
 								if ((ret = rsslDecodeUInt(dIter, &pSession->symbolListEntry[SymbolListCounter]->gapChannels[countGapChan].channelId)) == RSSL_RET_SUCCESS)
 								{	
-									printf(" GapChanId: %d", pSession->symbolListEntry[SymbolListCounter]->gapChannels[countGapChan].channelId);
+									printf(" GapChanId: "RTR_LLU, pSession->symbolListEntry[SymbolListCounter]->gapChannels[countGapChan].channelId);
 								}
 								else
 								{
@@ -764,7 +764,7 @@ static RsslRet processSymbolListResponse(SnapshotSession* pSession, RsslMsg* msg
 							{
 								if ((ret = rsslDecodeUInt(dIter, &pSession->symbolListEntry[SymbolListCounter]->gapChannels[countGapChan].domain)) == RSSL_RET_SUCCESS)
 								{	
-									printf(" GapChanlDom: %d", pSession->symbolListEntry[SymbolListCounter]->gapChannels[countGapChan].domain);
+									printf(" GapChanlDom: "RTR_LLU, pSession->symbolListEntry[SymbolListCounter]->gapChannels[countGapChan].domain);
 								}
 								else
 								{

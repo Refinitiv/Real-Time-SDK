@@ -530,7 +530,7 @@ ItemInfo *createItemInfo(ProviderThread *pProvThread, ProviderSession *pSession,
 		case RSSL_DMT_MARKET_PRICE:
 			if (!xmlMsgDataHasMarketPrice)
 			{
-				printf("createItemInfo: No MarketPrice data present in message data file.\n", pAttributes->domainType);
+				printf("createItemInfo: No MarketPrice data present in message data file.\n");
 				return NULL;
 			}
 			pItemInfo->itemData = (void*)createMarketPriceItem();
@@ -538,7 +538,7 @@ ItemInfo *createItemInfo(ProviderThread *pProvThread, ProviderSession *pSession,
 		case RSSL_DMT_MARKET_BY_ORDER:
 			if (!xmlMsgDataHasMarketByOrder)
 			{
-				printf("createItemInfo: No MarketByOrder data present in message data file.\n", pAttributes->domainType);
+				printf("createItemInfo: No MarketByOrder data present in message data file.\n");
 				return NULL;
 			}
 			pItemInfo->itemData = (void*)createMarketByOrderItem();
@@ -848,8 +848,7 @@ static RsslRet getNewBuffer(ProviderSession *pSession, RsslUInt32 length, RsslEr
 	if (!pSession->pWritingBuffer)
 	{
 		if (pError->rsslErrorId != RSSL_RET_BUFFER_NO_BUFFERS)
-			printf("rsslGetBuffer() failed: (%d) %s \n", pError->rsslErrorId, rsslRetCodeToString(pError->rsslErrorId), 
-					pError->text);
+			printf("rsslGetBuffer() failed: (%d) %s \n", pError->rsslErrorId, pError->text);
 		return pError->rsslErrorId;
 	}
 
@@ -1117,7 +1116,7 @@ void providerWaitForThreads(Provider *pProvider)
 
 	for (i = 0; i < providerThreadConfig.threadCount; ++i)
 		if ((ret = RSSL_THREAD_JOIN(pProvider->providerThreadList[i].threadId)) < 0)
-			printf("Failed to join thread %i: %d\n", pProvider->providerThreadList[i].threadId, ret);
+			printf("Failed to join thread %u: %d\n", pProvider->providerThreadList[i].threadId.threadId, ret);
 }
 
 void providerCleanup(Provider *pProvider)

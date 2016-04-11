@@ -221,7 +221,7 @@ RsslRet refDataSessionProcessReadReady(RefDataSession *pSession)
 			return refDataSessionInitializeChannel(pSession);
 
 		default:
-			printf("<%s> Unhandled channel state %u.\n\n", pSession->name,
+			printf("<%s> Unhandled channel state %u (%s).\n\n", pSession->name,
 					ret, rsslRetCodeToString(ret));
 			exit(-1);
 			return RSSL_RET_FAILURE;
@@ -318,7 +318,7 @@ static RsslRet refDataSessionProcessMessage (RefDataSession *pSession, RsslBuffe
 			if (!foundService)
 			{
 				pSession->pService = &pMsgServiceList[0];
-				printf("<%s> Error: Could not find service with service id %d. Will use (name: %.*s - serviceId: %d) service instead.\n\n", pSession->name,
+				printf("<%s> Error: Could not find service with service id %d. Will use (name: %.*s - serviceId: "RTR_LLU") service instead.\n\n", pSession->name,
 					exampleConfig.serviceId, pSession->pService->info.serviceName.length, pSession->pService->info.serviceName.data,
 					pSession->pService->serviceId);
 					exampleConfig.serviceId = (RsslUInt32)pSession->pService->serviceId;
@@ -720,7 +720,7 @@ static RsslRet refDataSessionWrite(RefDataSession *pSession, RsslBuffer *pBuffer
 					&rsslError)) < RSSL_RET_SUCCESS)
 	{
 		printf("<%s> rsslWriteEx() failed: %d(%s -- %s).\n\n",
-				pSession->pRsslChannel, ret, rsslRetCodeToString(ret), rsslError.text);
+				pSession->name, ret, rsslRetCodeToString(ret), rsslError.text);
 		rsslReleaseBuffer(pBuffer, &rsslError);
 		rsslCloseChannel(pSession->pRsslChannel, &rsslError);
 		pSession->pRsslChannel = NULL;
@@ -764,7 +764,7 @@ RsslRet refDataSessionProcessWriteReady(RefDataSession *pSession)
 			return refDataSessionInitializeChannel(pSession);
 
 		default:
-			printf("<%s> Unhandled channel state %u.\n\n", pSession->name,
+			printf("<%s> Unhandled channel state %u (%s).\n\n", pSession->name,
 					ret, rsslRetCodeToString(ret));
 			exit(-1);
 			return RSSL_RET_FAILURE;

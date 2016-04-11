@@ -65,7 +65,7 @@ void initTransportThreadConfig()
 	/* Must have room for sending both the timestamp and sequence number. */
 	if (transportThreadConfig.msgSize < sizeof(TimeValue)+sizeof(RsslUInt64) )
 	{
-		printf("Config Error: Message size must be at least %u.\n\n", sizeof(RsslUInt64));
+		printf("Config Error: Message size must be at least %u.\n\n", (int)sizeof(RsslUInt64));
 		exit(-1);
 	}
 

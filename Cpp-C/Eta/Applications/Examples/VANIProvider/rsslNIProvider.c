@@ -577,7 +577,7 @@ int main(int argc, char **argv)
 	{
 		RsslNIItemInfo *pItem = &chnlCommand.marketPriceItemInfo[j];
 		if (pItem->isActive)
-		printf(" %.*s", sizeof(pItem->Itemname), pItem->Itemname);
+		printf(" %.*s", (int)sizeof(pItem->Itemname), pItem->Itemname);
 	}
 
 	printf("		MarketByOrderItems:");
@@ -585,7 +585,7 @@ int main(int argc, char **argv)
 	{
 		RsslNIItemInfo *pItem = &chnlCommand.marketByOrderItemInfo[j];
 		if (pItem->isActive)
-		printf(" %.*s", sizeof(pItem->Itemname), pItem->Itemname);
+		printf(" %.*s", (int)sizeof(pItem->Itemname), pItem->Itemname);
 	}
 
 
@@ -751,7 +751,7 @@ static void initializeCache(RsslBool cacheOption)
 	{
 		if ((ret = rsslPayloadCacheInitialize()) != RSSL_RET_SUCCESS)
 		{
-			printf("rsslPayloadCacheInitialize() failed: %s. Cache will be disabled.", ret);
+			printf("rsslPayloadCacheInitialize() failed: %d (%s). Cache will be disabled.", ret, rsslRetCodeToString(ret));
 			cacheInfo.useCache = RSSL_FALSE;
 			return;
 		}

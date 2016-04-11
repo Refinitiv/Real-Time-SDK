@@ -147,7 +147,7 @@ RsslRet processLoginRequest(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIterator*
 			return RSSL_RET_FAILURE;
 		}
 
-		printf("\nReceived Login Request for Username: %.*s\n", strlen(loginRequestInfo->Username), loginRequestInfo->Username);
+		printf("\nReceived Login Request for Username: %.*s\n", (int)strlen(loginRequestInfo->Username), loginRequestInfo->Username);
 
 		/* send login response */
 		if (sendLoginResponse(chnl, loginRequestInfo) != RSSL_RET_SUCCESS)
@@ -334,7 +334,7 @@ void closeLoginChnlStream(RsslChannel* chnl)
 		{
 			loginReqInfo = &loginRequestInfoList[i];
 			/* clear original request information */
-			printf("Closing login stream id %d with user name: %.*s\n", loginReqInfo->StreamId, strlen(loginReqInfo->Username), loginReqInfo->Username);
+			printf("Closing login stream id %d with user name: %.*s\n", loginReqInfo->StreamId, (int)strlen(loginReqInfo->Username), loginReqInfo->Username);
 			clearLoginReqInfo(loginReqInfo);
 			break;
 		}
@@ -357,7 +357,7 @@ static void closeLoginStream(RsslInt32 streamId)
 		{
 			loginReqInfo = &loginRequestInfoList[i];
 			/* clear original request information */
-			printf("Closing login stream id %d with user name: %.*s\n", loginReqInfo->StreamId, strlen(loginReqInfo->Username), loginReqInfo->Username);
+			printf("Closing login stream id %d with user name: %.*s\n", loginReqInfo->StreamId, (int)strlen(loginReqInfo->Username), loginReqInfo->Username);
 			clearLoginReqInfo(loginReqInfo);
 			break;
 		}
