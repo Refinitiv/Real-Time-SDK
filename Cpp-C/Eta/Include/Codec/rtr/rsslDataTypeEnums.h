@@ -112,7 +112,7 @@ typedef RsslUInt8  RsslContainerType;
  * @brief An 8 bit value that uses an \ref RsslDataTypes enumerated value to specify the type of content.  This can be used to specify only primitive types.
  * 
  * The valid primitive types are defined by the \ref RsslDataTypes enumeration.
- * This type can only be a primitive type (0 - 127), and typically not the ::RSSL_DT_ARRAY type.
+ * This type can only be a primitive type (0 - 127).
  * @see RsslDataTypes
  */
 typedef RsslUInt8 RsslPrimitiveType;
