@@ -1215,6 +1215,11 @@ RsslRet rsslWatchlistReadMsg(RsslWatchlist *pWatchlist,
 
 			if (msgEvent.pRsslMsg->msgBase.domainType != RSSL_DMT_LOGIN)
 			{
+
+				wlStreamInfoClear(&streamInfo);
+				streamInfo.pUserSpec = pLoginRequest->base.pUserSpec;
+				msgEvent.pStreamInfo = &streamInfo;
+
 				/* May be an off-stream post acknowledgement, pass it through. */
 				switch(msgEvent.pRsslMsg->msgBase.msgClass)
 				{
