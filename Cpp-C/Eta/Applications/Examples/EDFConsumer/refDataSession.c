@@ -318,7 +318,7 @@ static RsslRet refDataSessionProcessMessage (RefDataSession *pSession, RsslBuffe
 			if (!foundService)
 			{
 				pSession->pService = &pMsgServiceList[0];
-				printf("<%s> Error: Could not find service with service id %d. Will use (name: %.*s - serviceId: "RTR_LLU") service instead.\n\n", pSession->name,
+				printf("<%s> Error: Could not find service with service id %d. Will use (name: %.*s - serviceId: " RTR_LLU ") service instead.\n\n", pSession->name,
 					exampleConfig.serviceId, pSession->pService->info.serviceName.length, pSession->pService->info.serviceName.data,
 					pSession->pService->serviceId);
 					exampleConfig.serviceId = (RsslUInt32)pSession->pService->serviceId;

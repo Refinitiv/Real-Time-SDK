@@ -92,7 +92,7 @@ static void _tunnelStreamFreeAckedBuffer(TunnelStreamImpl *pTunnelImpl, TunnelBu
 	rsslQueueRemoveLink(&pTunnelImpl->_tunnelBufferWaitAckList, &pBufferImpl->_tbpLink);
 	pTunnelImpl->_bytesWaitingAck -= pBufferImpl->_poolBuffer.buffer.length;
 	if (tunnelStreamDebugFlags & TS_DBG_ACKS)
-		printf("<TunnelStreamDebug streamId:%d> Inbound AckMsg freed buffer seqNum: %u, length: %u, bytes waiting ack: "RTR_LLD"\n", pTunnelImpl->base.streamId, pBufferImpl->_seqNum, pBufferImpl->_poolBuffer.buffer.length, pTunnelImpl->_bytesWaitingAck);
+		printf("<TunnelStreamDebug streamId:%d> Inbound AckMsg freed buffer seqNum: %u, length: %u, bytes waiting ack: " RTR_LLD "\n", pTunnelImpl->base.streamId, pBufferImpl->_seqNum, pBufferImpl->_poolBuffer.buffer.length, pTunnelImpl->_bytesWaitingAck);
 	tunnelStreamReleaseBuffer(pTunnelImpl, pBufferImpl);
 }
 

@@ -17,7 +17,7 @@
 extern "C" {
 #endif
 
-enum SET_DEFS_DB_IDS
+typedef enum SET_DEFS_DB_IDS
 {
 	SWAP_RATES_REFRESH_SET_DEFS_DB,
 	SWAP_RATES_UPDATE_SET_DEFS_DB,

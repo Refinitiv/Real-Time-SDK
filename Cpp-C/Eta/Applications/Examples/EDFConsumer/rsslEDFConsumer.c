@@ -449,7 +449,7 @@ static void initializeSnapshot()
 		if((pService->seqMCastInfo.flags & RDM_SVC_SMF_HAS_SNAPSHOT_SERV) && 
 				(pService->seqMCastInfo.snapshotServer.address.length > 0))
 		{
-			printf("Snapshot Server:\n\t%.*s "RTR_LLU"\n\n", pService->seqMCastInfo.snapshotServer.address.length,
+			printf("Snapshot Server:\n\t%.*s " RTR_LLU "\n\n", pService->seqMCastInfo.snapshotServer.address.length,
 				pService->seqMCastInfo.snapshotServer.address.data,
 				pService->seqMCastInfo.snapshotServer.port);
 		}	
@@ -557,7 +557,7 @@ static void initialize()
 		if ((pService->seqMCastInfo.flags & RDM_SVC_SMF_HAS_GAP_REC_SERV) && 
 				(pService->seqMCastInfo.gapRecoveryServer.address.length > 0))
 		{
-			printf("Gap Recovery Server:\n\t%.*s "RTR_LLU"\n\n", pService->seqMCastInfo.gapRecoveryServer.address.length,
+			printf("Gap Recovery Server:\n\t%.*s " RTR_LLU "\n\n", pService->seqMCastInfo.gapRecoveryServer.address.length,
 				pService->seqMCastInfo.gapRecoveryServer.address.data,
 				pService->seqMCastInfo.gapRecoveryServer.port);
 		}	
@@ -565,7 +565,7 @@ static void initialize()
 		if ((pService->seqMCastInfo.flags & RDM_SVC_SMF_HAS_REF_DATA_SERV) && 
 				(pService->seqMCastInfo.refDataServer.address.length > 0))
 		{
-			printf("Reference Data Server:\n\t%.*s "RTR_LLU"\n\n",  pService->seqMCastInfo.refDataServer.address.length,
+			printf("Reference Data Server:\n\t%.*s " RTR_LLU "\n\n",  pService->seqMCastInfo.refDataServer.address.length,
 				pService->seqMCastInfo.refDataServer.address.data,
 				pService->seqMCastInfo.refDataServer.port);
 		}	

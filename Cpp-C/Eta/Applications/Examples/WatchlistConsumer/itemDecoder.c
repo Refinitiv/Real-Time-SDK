@@ -272,7 +272,7 @@ static RsslRet decodeDataType(RsslDecodeIterator *pIter, RsslUInt8 dataType,
 		case RSSL_DT_UINT:
 			if ((ret = rsslDecodeUInt(pIter, &fidUIntValue)) == RSSL_RET_SUCCESS)
 			{
-				printf(""RTR_LLU"", fidUIntValue);
+				printf(RTR_LLU, fidUIntValue);
 			}
 			else if (ret != RSSL_RET_BLANK_DATA)
 			{
@@ -283,7 +283,7 @@ static RsslRet decodeDataType(RsslDecodeIterator *pIter, RsslUInt8 dataType,
 		case RSSL_DT_INT:
 			if ((ret = rsslDecodeInt(pIter, &fidIntValue)) == RSSL_RET_SUCCESS)
 			{
-				printf(""RTR_LLD"", fidIntValue);
+				printf(RTR_LLD, fidIntValue);
 			}
 			else if (ret != RSSL_RET_BLANK_DATA)
 			{

@@ -338,7 +338,7 @@ int main(int argc, char **argv)
 			
 
 		printf("serviceName: %s\n", serviceName);
-		printf("serviceId: "RTR_LLU"\n", serviceId);
+		printf("serviceId: " RTR_LLU "\n", serviceId);
 	}
 	
 	if (!itemProvided)

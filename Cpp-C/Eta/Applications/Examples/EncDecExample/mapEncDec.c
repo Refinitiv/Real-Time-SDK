@@ -106,7 +106,7 @@ RsslRet exampleEncodeMap(RsslEncodeIterator *encIter)
 		else
 		/* encode contained field list - this type should match rsslMap.containerType */
 		{
-			printf("\tEncoding Map Entry (key: "RTR_LLU") from non pre-encoded data and key\n", entryKeyUInt);
+			printf("\tEncoding Map Entry (key: " RTR_LLU ") from non pre-encoded data and key\n", entryKeyUInt);
 
 			/* now encode nested container using its own specific encode functions */
 			/* clear, then begin encoding of field list - using same encIterator as map */
@@ -129,7 +129,7 @@ RsslRet exampleEncodeMap(RsslEncodeIterator *encIter)
 				rsslRetCodeToString(retVal), retVal, rsslRetCodeInfo(retVal)); 
 		}
 
-		printf("\tMap Entry (key: "RTR_LLU") Encoding Complete\n", entryKeyUInt);
+		printf("\tMap Entry (key: " RTR_LLU ") Encoding Complete\n", entryKeyUInt);
 
 		
 		/* SECOND Map Entry: encode entry from pre-encoded buffer containing an encoded RsslFieldList */
@@ -177,7 +177,7 @@ RsslRet exampleEncodeMap(RsslEncodeIterator *encIter)
 				rsslRetCodeToString(retVal), retVal, rsslRetCodeInfo(retVal)); 
 		}
 
-		printf("\tMap Entry (key: "RTR_LLU") Encoding Complete\n", entryKeyUInt);
+		printf("\tMap Entry (key: " RTR_LLU ") Encoding Complete\n", entryKeyUInt);
 
 
 		/* THIRD Map Entry: encode entry with delete action.  Delete actions have no payload */
@@ -188,7 +188,7 @@ RsslRet exampleEncodeMap(RsslEncodeIterator *encIter)
 		mapEntry.action = RSSL_MPEA_DELETE_ENTRY;
 		entryKeyUInt = 3;
 
-		printf("\tEncoding Map Entry (key: "RTR_LLU") with delete action with no payload\n", entryKeyUInt);
+		printf("\tEncoding Map Entry (key: " RTR_LLU ") with delete action with no payload\n", entryKeyUInt);
 
 		/* void* parameter is passed in as pointer to key primitive value.  encData is empty for delete */
 		if ((retVal = rsslEncodeMapEntry(encIter, &mapEntry, &entryKeyUInt)) < RSSL_RET_SUCCESS) 
@@ -199,7 +199,7 @@ RsslRet exampleEncodeMap(RsslEncodeIterator *encIter)
 				rsslRetCodeToString(retVal), retVal, rsslRetCodeInfo(retVal)); 
 		}
 
-		printf("\tMap Entry (key: "RTR_LLU") Encoding Complete\n", entryKeyUInt);
+		printf("\tMap Entry (key: " RTR_LLU ") Encoding Complete\n", entryKeyUInt);
 
 	}
 
@@ -272,7 +272,7 @@ RsslRet exampleDecodeMap(RsslDecodeIterator *decIter)
 			{
 				/* Continue decoding field entries. */
 
-				printf("\tDecoding Map Entry (key: "RTR_LLU")\n", rsslUInt);
+				printf("\tDecoding Map Entry (key: " RTR_LLU ")\n", rsslUInt);
 
 				/* Delete actions have no payload and we need to avoid decoding FieldList for this situation */
 				if (mapEntry.action != RSSL_MPEA_DELETE_ENTRY)
@@ -287,10 +287,10 @@ RsslRet exampleDecodeMap(RsslDecodeIterator *decIter)
 				}
 				else
 				{
-					printf("\tMap Entry (key: "RTR_LLU") delete actions have no payload to decode\n", rsslUInt);
+					printf("\tMap Entry (key: " RTR_LLU ") delete actions have no payload to decode\n", rsslUInt);
 				}
 
-				printf("\tMap Entry (key: "RTR_LLU") Decoding Complete\n", rsslUInt);
+				printf("\tMap Entry (key: " RTR_LLU ") Decoding Complete\n", rsslUInt);
 			}
 		}
 	}

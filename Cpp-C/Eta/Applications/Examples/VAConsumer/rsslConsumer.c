@@ -1406,7 +1406,7 @@ static void displayCache(ChannelCommand *pCommand)
 		printf(":\n");
 
 	if (pCommand->cacheInfo.cacheHandle)
-		printf("Total Items in Cache: "RTR_LLU"\n", rsslPayloadCacheGetEntryCount(pCommand->cacheInfo.cacheHandle));
+		printf("Total Items in Cache: " RTR_LLU "\n", rsslPayloadCacheGetEntryCount(pCommand->cacheInfo.cacheHandle));
 
 	if (!pCommand->dictionary.isInitialized)
 	{

@@ -664,7 +664,7 @@ static RsslRet processSymbolListResponse(SnapshotSession* pSession, RsslMsg* msg
 							{
 								if ((ret = rsslDecodeUInt(dIter, &pSession->symbolListEntry[SymbolListCounter]->streamingChannels[countStreamingChan].channelId)) == RSSL_RET_SUCCESS)
 								{	
-									printf(" StreamingChanId: "RTR_LLU, pSession->symbolListEntry[SymbolListCounter]->streamingChannels[countStreamingChan].channelId);
+									printf(" StreamingChanId: " RTR_LLU, pSession->symbolListEntry[SymbolListCounter]->streamingChannels[countStreamingChan].channelId);
 								}
 								else
 								{
@@ -678,7 +678,7 @@ static RsslRet processSymbolListResponse(SnapshotSession* pSession, RsslMsg* msg
 							{
 								if ((ret = rsslDecodeUInt(dIter, &pSession->symbolListEntry[SymbolListCounter]->streamingChannels[countStreamingChan].domain)) == RSSL_RET_SUCCESS)
 								{	
-									printf(" StreamingChanDom: "RTR_LLU, pSession->symbolListEntry[SymbolListCounter]->streamingChannels[countStreamingChan].domain);
+									printf(" StreamingChanDom: " RTR_LLU, pSession->symbolListEntry[SymbolListCounter]->streamingChannels[countStreamingChan].domain);
 								}
 								else
 								{
@@ -750,7 +750,7 @@ static RsslRet processSymbolListResponse(SnapshotSession* pSession, RsslMsg* msg
 							{
 								if ((ret = rsslDecodeUInt(dIter, &pSession->symbolListEntry[SymbolListCounter]->gapChannels[countGapChan].channelId)) == RSSL_RET_SUCCESS)
 								{	
-									printf(" GapChanId: "RTR_LLU, pSession->symbolListEntry[SymbolListCounter]->gapChannels[countGapChan].channelId);
+									printf(" GapChanId: " RTR_LLU, pSession->symbolListEntry[SymbolListCounter]->gapChannels[countGapChan].channelId);
 								}
 								else
 								{
@@ -764,7 +764,7 @@ static RsslRet processSymbolListResponse(SnapshotSession* pSession, RsslMsg* msg
 							{
 								if ((ret = rsslDecodeUInt(dIter, &pSession->symbolListEntry[SymbolListCounter]->gapChannels[countGapChan].domain)) == RSSL_RET_SUCCESS)
 								{	
-									printf(" GapChanlDom: "RTR_LLU, pSession->symbolListEntry[SymbolListCounter]->gapChannels[countGapChan].domain);
+									printf(" GapChanlDom: " RTR_LLU, pSession->symbolListEntry[SymbolListCounter]->gapChannels[countGapChan].domain);
 								}
 								else
 								{

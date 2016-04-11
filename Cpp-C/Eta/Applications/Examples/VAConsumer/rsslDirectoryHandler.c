@@ -170,7 +170,7 @@ RsslReactorCallbackRet directoryMsgCallback(RsslReactor *pReactor, RsslReactorCh
 
 			pService = &pUpdate->serviceList[i];
 
-			printf("\tserviceName: %.*s Id: "RTR_LLU"\n",
+			printf("\tserviceName: %.*s Id: " RTR_LLU "\n",
 					pService->info.serviceName.length, pService->info.serviceName.data, pService->serviceId);
 
 			/* check if name matches service name entered by user. */
