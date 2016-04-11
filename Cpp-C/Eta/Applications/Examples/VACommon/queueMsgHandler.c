@@ -274,7 +274,7 @@ RsslBool queueMsgHandlerDecodeQueueData(RsslDecodeIterator *pIter)
 				case RSSL_DT_UINT:
 					if ((ret = rsslDecodeUInt(pIter, &fidUIntValue)) == RSSL_RET_SUCCESS)
 					{
-						printf(""RTR_LLU"\n", fidUIntValue);
+						printf(RTR_LLU "\n", fidUIntValue);
 					}
 					else if (ret != RSSL_RET_BLANK_DATA)
 					{
@@ -285,7 +285,7 @@ RsslBool queueMsgHandlerDecodeQueueData(RsslDecodeIterator *pIter)
 				case RSSL_DT_INT:
 					if ((ret = rsslDecodeInt(pIter, &fidIntValue)) == RSSL_RET_SUCCESS)
 					{
-						printf(""RTR_LLD"\n", fidIntValue);
+						printf(RTR_LLD "\n", fidIntValue);
 					}
 					else if (ret != RSSL_RET_BLANK_DATA)
 					{

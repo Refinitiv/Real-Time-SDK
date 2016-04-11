@@ -90,7 +90,7 @@ RsslRet decodeFieldEntry(RsslFieldEntry* fEntry, RsslDecodeIterator *dIter)
 		case RSSL_DT_UINT:
 			if ((ret = rsslDecodeUInt(dIter, &fidUIntValue)) == RSSL_RET_SUCCESS)
 			{
-				printf(""RTR_LLU"\n", fidUIntValue);
+				printf(RTR_LLU "\n", fidUIntValue);
 			}
 			else if (ret != RSSL_RET_BLANK_DATA)
 			{
@@ -101,7 +101,7 @@ RsslRet decodeFieldEntry(RsslFieldEntry* fEntry, RsslDecodeIterator *dIter)
 		case RSSL_DT_INT:
 			if ((ret = rsslDecodeInt(dIter, &fidIntValue)) == RSSL_RET_SUCCESS)
 			{
-				printf(""RTR_LLD"\n", fidIntValue);
+				printf(RTR_LLD "\n", fidIntValue);
 			}
 			else if (ret != RSSL_RET_BLANK_DATA)
 			{

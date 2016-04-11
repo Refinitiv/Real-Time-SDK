@@ -77,7 +77,7 @@ RsslRet exampleEncodeVector(RsslEncodeIterator *encIter)
 		return retVal;
 	}
 
-	printf("\tEncoding Vector Entry (index: "RTR_LLU") containing an encoded element list\n", (RsslUInt)vectorEntry.index);
+	printf("\tEncoding Vector Entry (index: " RTR_LLU ") containing an encoded element list\n", (RsslUInt)vectorEntry.index);
 
 	/* now encode nested container using its own specific encode fucntions*/
 	printf("\tElementList Encoding Begin\n");
@@ -97,7 +97,7 @@ RsslRet exampleEncodeVector(RsslEncodeIterator *encIter)
 		return retVal;
 	}
 
-	printf("\tVector Entry (index: "RTR_LLU") Encoding Complete\n", (RsslUInt)vectorEntry.index);
+	printf("\tVector Entry (index: " RTR_LLU ") Encoding Complete\n", (RsslUInt)vectorEntry.index);
 
 	/* complete vector encoding.  If success parameter is true, this will finalize encoding.  
 	   If success parameter is false, this will roll back encoding prior to rsslEncodeVectorInit */
@@ -166,7 +166,7 @@ RsslRet exampleDecodeVector(RsslDecodeIterator *decIter)
 
 		/* Continue decoding field entries. */
 
-		printf("\tDecoding Vector Entry (index: "RTR_LLU")\n", (RsslUInt)vectorEntry.index);
+		printf("\tDecoding Vector Entry (index: " RTR_LLU ")\n", (RsslUInt)vectorEntry.index);
 
 		if ((retVal = exampleDecodeElementList(decIter)) < RSSL_RET_SUCCESS)
 		{
@@ -174,7 +174,7 @@ RsslRet exampleDecodeVector(RsslDecodeIterator *decIter)
 					rsslRetCodeToString(retVal), retVal, rsslRetCodeInfo(retVal));
 			return retVal;
 		}
-		printf("\tVector Entry (index: "RTR_LLU") Decoding Complete\n", (RsslUInt)vectorEntry.index);
+		printf("\tVector Entry (index: " RTR_LLU ") Decoding Complete\n", (RsslUInt)vectorEntry.index);
 	}
 	printf("\tVector Decoding Complete\n");
 	return RSSL_RET_SUCCESS;

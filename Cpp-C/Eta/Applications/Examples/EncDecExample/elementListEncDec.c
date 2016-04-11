@@ -58,7 +58,7 @@ RsslRet exampleEncodeElementList(RsslEncodeIterator *encIter)
 	elemEntry.dataType = RSSL_DT_INT;
 	printf("\tEncoding Element Entry (name: %.*s) \n", elemEntry.name.length, elemEntry.name.data);
 	retVal = rsslEncodeElementEntry(encIter, &elemEntry, &rsslInt); 		
-	printf("\t\tEncoded signed Integer: "RTR_LLD"\n", rsslInt);
+	printf("\t\tEncoded signed Integer: " RTR_LLD "\n", rsslInt);
 
 	/* THIRD Element Entry: encode entry from the RsslUInt primitive type */
 	/* populate and encode element entry with name and dataType information for this element */
@@ -67,7 +67,7 @@ RsslRet exampleEncodeElementList(RsslEncodeIterator *encIter)
 	elemEntry.dataType = RSSL_DT_UINT;
 	printf("\tEncoding Element Entry (name: %.*s) \n", elemEntry.name.length, elemEntry.name.data);
 	retVal = rsslEncodeElementEntry(encIter, &elemEntry, &rsslUInt); 
-	printf("\t\tEncoded Unsigned Integer: "RTR_LLU"\n", rsslUInt);
+	printf("\t\tEncoded Unsigned Integer: " RTR_LLU "\n", rsslUInt);
 
 	/* FOURTH Element Entry: encode entry from the RsslReal primitive type */
 	/* populate and encode element entry with name and dataType information for this element */
@@ -150,7 +150,7 @@ RsslRet exampleDecodeElementList(RsslDecodeIterator *decIter)
 				if (rsslReal.isBlank)
 					printf("\t\tDecoded RsslReal: Blank\n");
 				else
-					printf("\t\tRsslReal Decoded: hint: %d  value: "RTR_LLD"\n", rsslReal.hint, rsslReal.value);
+					printf("\t\tRsslReal Decoded: hint: %d  value: " RTR_LLD "\n", rsslReal.hint, rsslReal.value);
 				break;
 			
 			case RSSL_DT_TIME:
@@ -170,7 +170,7 @@ RsslRet exampleDecodeElementList(RsslDecodeIterator *decIter)
 							rsslRetCodeToString(retVal), retVal, rsslRetCodeInfo(retVal));
 					return RSSL_RET_FAILURE;
 				}
-				printf("\t\tRsslInt Decoded: "RTR_LLD"\n", rsslInt);
+				printf("\t\tRsslInt Decoded: " RTR_LLD "\n", rsslInt);
 				break;
 			
 			case RSSL_DT_UINT:
@@ -180,7 +180,7 @@ RsslRet exampleDecodeElementList(RsslDecodeIterator *decIter)
 							rsslRetCodeToString(retVal), retVal, rsslRetCodeInfo(retVal));
 					return RSSL_RET_FAILURE;
 				}
-				printf("\t\tRsslUInt Decoded: "RTR_LLU"\n", rsslUInt);
+				printf("\t\tRsslUInt Decoded: " RTR_LLU "\n", rsslUInt);
 				break;
 			
 			default:

@@ -2518,9 +2518,9 @@ RsslRet processSourceDirectoryResponse(UpaChannelManagementInfo *upaChannelManag
 				else
 				{
 					if (msg->msgBase.msgClass == RSSL_MC_REFRESH)
-						printf("\nReceived Source Directory Refresh for Decoded Service Id: "RTR_LLU"", serviceId);
+						printf("\nReceived Source Directory Refresh for Decoded Service Id: " RTR_LLU "", serviceId);
 					else /*!< (4) Update Message */
-						printf("\nReceived Source Directory Update for Decoded Service Id: "RTR_LLU"", serviceId);
+						printf("\nReceived Source Directory Update for Decoded Service Id: " RTR_LLU "", serviceId);
 
 					/* if this is the current serviceId we are interested in */
 					if ((serviceId == upaChannelManagementInfo->serviceDiscoveryInfo.serviceId) && (upaChannelManagementInfo->serviceDiscoveryInfo.serviceNameFound == RSSL_TRUE))
@@ -2644,7 +2644,7 @@ RsslRet processSourceDirectoryResponse(UpaChannelManagementInfo *upaChannelManag
 													/* serviceName requested by the application is FOUND */
 													foundServiceIndex = serviceCount;
 
-													printf("\tService name: %s ("RTR_LLU") is discovered by the OMM consumer. \n", serviceName, serviceId);
+													printf("\tService name: %s (" RTR_LLU ") is discovered by the OMM consumer. \n", serviceName, serviceId);
 													upaChannelManagementInfo->serviceDiscoveryInfo.serviceId = serviceId;
 													upaChannelManagementInfo->serviceDiscoveryInfo.serviceNameFound = RSSL_TRUE;
 												}
@@ -2685,9 +2685,9 @@ RsslRet processSourceDirectoryResponse(UpaChannelManagementInfo *upaChannelManag
 															return retval;
 														}
 														if (msg->msgBase.msgClass == RSSL_MC_REFRESH)
-															printf("\tReceived Source Directory Refresh for Decoded Capabilities[%d]: "RTR_LLU"\n", arrayCount, capabilities);
+															printf("\tReceived Source Directory Refresh for Decoded Capabilities[%d]: " RTR_LLU "\n", arrayCount, capabilities);
 														else /*!< (4) Update Message */
-															printf("\tReceived Source Directory Update for Decoded Capabilities[%d]: "RTR_LLU"\n", arrayCount, capabilities);
+															printf("\tReceived Source Directory Update for Decoded Capabilities[%d]: " RTR_LLU "\n", arrayCount, capabilities);
 
 														/* if advertising Dictionary domain type is supported */
 														if (capabilities == RSSL_DMT_DICTIONARY)
@@ -2908,9 +2908,9 @@ RsslRet processSourceDirectoryResponse(UpaChannelManagementInfo *upaChannelManag
 													return retval;
 												}
 												if (msg->msgBase.msgClass == RSSL_MC_REFRESH)
-													printf("\tReceived Source Directory Refresh for Decoded ServiceState: "RTR_LLU"\n", serviceState);
+													printf("\tReceived Source Directory Refresh for Decoded ServiceState: " RTR_LLU "\n", serviceState);
 												else /*!< (4) Update Message */
-													printf("\tReceived Source Directory Update for Decoded ServiceState: "RTR_LLU"\n", serviceState);
+													printf("\tReceived Source Directory Update for Decoded ServiceState: " RTR_LLU "\n", serviceState);
 
 												/* if this is the serviceName that is requested by the application */
 												if (serviceCount == foundServiceIndex)
@@ -2931,9 +2931,9 @@ RsslRet processSourceDirectoryResponse(UpaChannelManagementInfo *upaChannelManag
 													return retval;
 												}
 												if (msg->msgBase.msgClass == RSSL_MC_REFRESH)
-													printf("\tReceived Source Directory Refresh for Decoded AcceptingRequests: "RTR_LLU"\n", acceptingRequests);
+													printf("\tReceived Source Directory Refresh for Decoded AcceptingRequests: " RTR_LLU "\n", acceptingRequests);
 												else /*!< (4) Update Message */
-													printf("\tReceived Source Directory Update for Decoded AcceptingRequests: "RTR_LLU"\n", acceptingRequests);
+													printf("\tReceived Source Directory Update for Decoded AcceptingRequests: " RTR_LLU "\n", acceptingRequests);
 
 												/* if this is the serviceName that is requested by the application */
 												if (serviceCount == foundServiceIndex)

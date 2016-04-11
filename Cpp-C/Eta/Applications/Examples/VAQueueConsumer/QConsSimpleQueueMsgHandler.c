@@ -162,7 +162,7 @@ RsslReactorCallbackRet tunnelStreamQueueMsgCallback(RsslTunnelStream *pTunnelStr
         {
 			RsslRDMQueueData *pQueueData = (RsslRDMQueueData *)pEvent->pQueueMsg;
 
-			printf("Received Msg on stream %d to %.*s from %.*s, ID: "RTR_LLU"\n",
+			printf("Received Msg on stream %d to %.*s from %.*s, ID: " RTR_LLU "\n",
 					pQueueData->rdmMsgBase.streamId, pQueueData->destName.length, pQueueData->destName.data, 
 					pQueueData->sourceName.length, pQueueData->sourceName.data, pQueueData->identifier);
 
@@ -183,7 +183,7 @@ RsslReactorCallbackRet tunnelStreamQueueMsgCallback(RsslTunnelStream *pTunnelStr
         {
 			RsslRDMQueueDataExpired *pQueueDataExpired = (RsslRDMQueueDataExpired *)pEvent->pQueueMsg;
 
-			printf("Received Msg on stream %d to %.*s from %.*s, ID: "RTR_LLU" (Undeliverable Message with code: %d(%s))\n",
+			printf("Received Msg on stream %d to %.*s from %.*s, ID: " RTR_LLU " (Undeliverable Message with code: %d(%s))\n",
 					pQueueDataExpired->rdmMsgBase.streamId, pQueueDataExpired->destName.length, pQueueDataExpired->destName.data, 
 					pQueueDataExpired->sourceName.length, pQueueDataExpired->sourceName.data, 
 					pQueueDataExpired->identifier, 
@@ -204,7 +204,7 @@ RsslReactorCallbackRet tunnelStreamQueueMsgCallback(RsslTunnelStream *pTunnelStr
 		case RDM_QMSG_MT_ACK:
 		{
 			RsslRDMQueueAck *pQueueAck = (RsslRDMQueueAck *)pEvent->pQueueMsg;
-			printf("Received persistence Ack for submitted message with ID: "RTR_LLU"\n\n", pQueueAck->identifier);
+			printf("Received persistence Ack for submitted message with ID: " RTR_LLU "\n\n", pQueueAck->identifier);
 			break;
 		}
 		case RDM_QMSG_MT_REFRESH:

@@ -101,7 +101,7 @@ RsslRet exampleEncodeFieldList(RsslEncodeIterator *encIter)
 			return retVal;
 		}
 
-		printf("\t\tFID %d  Encoded Unsigned Integer: "RTR_LLU"\n", fieldEntry.fieldId, uInt);
+		printf("\t\tFID %d  Encoded Unsigned Integer: " RTR_LLU "\n", fieldEntry.fieldId, uInt);
 
 
 		/* THIRD Field Entry: encode entry from preencoded buffer containing an encoded RsslUInt type */
@@ -164,7 +164,7 @@ RsslRet exampleEncodeFieldList(RsslEncodeIterator *encIter)
 			return retVal;
 		}
 
-		printf("\t\tFID %d  Encoded RsslReal: hint: %d  value: "RTR_LLD"\n", fieldEntry.fieldId, rsslReal.hint, rsslReal.value);
+		printf("\t\tFID %d  Encoded RsslReal: hint: %d  value: " RTR_LLD "\n", fieldEntry.fieldId, rsslReal.hint, rsslReal.value);
 
 		
 		/* SIXTH Field Entry: encode entry for another RsslReal primitive type */
@@ -179,7 +179,7 @@ RsslRet exampleEncodeFieldList(RsslEncodeIterator *encIter)
 			return retVal;
 		}
 
-		printf("\t\tFID %d  Encoded RsslReal: hint: %d  value: "RTR_LLD"\n", fieldEntry.fieldId, rsslReal.hint, rsslReal.value);
+		printf("\t\tFID %d  Encoded RsslReal: hint: %d  value: " RTR_LLD "\n", fieldEntry.fieldId, rsslReal.hint, rsslReal.value);
 
 
 		/* SEVENTH Field Entry: encode entry for another RsslTime primitive type */
@@ -208,7 +208,7 @@ RsslRet exampleEncodeFieldList(RsslEncodeIterator *encIter)
 			return retVal;
 		}
 
-		printf("\t\tFID %d  Encoded signed Integer: "RTR_LLD"\n", fieldEntry.fieldId, Int);
+		printf("\t\tFID %d  Encoded signed Integer: " RTR_LLD "\n", fieldEntry.fieldId, Int);
 
 
 		/* NINETH Field Entry: encode entry from the RsslFloat primitive type */
@@ -369,7 +369,7 @@ RsslRet exampleEncodeFieldList(RsslEncodeIterator *encIter)
 					printf("Error %s (%d) encountered with rsslEncodeArrayEntry().  Error Text: %s\n", 
 						rsslRetCodeToString(retVal), retVal, rsslRetCodeInfo(retVal)); 
 				}
-				printf(" "RTR_LLU" ", uInt1);
+				printf(" " RTR_LLU " ", uInt1);
 
 				/* encode second entry from a UInt from a primitive type */
 				if ((retVal = rsslEncodeArrayEntry(encIter, NULL, &uInt2)) < RSSL_RET_SUCCESS)
@@ -379,7 +379,7 @@ RsslRet exampleEncodeFieldList(RsslEncodeIterator *encIter)
 					printf("Error %s (%d) encountered with rsslEncodeArrayEntry().  Error Text: %s\n", 
 						rsslRetCodeToString(retVal), retVal, rsslRetCodeInfo(retVal)); 
 				}
-				printf(" "RTR_LLU" ", uInt2);
+				printf(" " RTR_LLU " ", uInt2);
 
 				/* encode third entry from a UInt from a primitive type */
 				if ((retVal = rsslEncodeArrayEntry(encIter, NULL, &uInt3)) < RSSL_RET_SUCCESS)
@@ -389,7 +389,7 @@ RsslRet exampleEncodeFieldList(RsslEncodeIterator *encIter)
 					printf("Error %s (%d) encountered with rsslEncodeArrayEntry().  Error Text: %s\n", 
 						rsslRetCodeToString(retVal), retVal, rsslRetCodeInfo(retVal)); 
 				}
-				printf(" "RTR_LLU" ", uInt3);
+				printf(" " RTR_LLU " ", uInt3);
 
 				/* encode forth entry from a UInt from a primitive type */
 				if ((retVal = rsslEncodeArrayEntry(encIter, NULL, &uInt4)) < RSSL_RET_SUCCESS)
@@ -399,7 +399,7 @@ RsslRet exampleEncodeFieldList(RsslEncodeIterator *encIter)
 					printf("Error %s (%d) encountered with rsslEncodeArrayEntry().  Error Text: %s\n", 
 						rsslRetCodeToString(retVal), retVal, rsslRetCodeInfo(retVal)); ;
 				}
-				printf(" "RTR_LLU" ", uInt4);
+				printf(" " RTR_LLU " ", uInt4);
 
 				/* encode fifth entry from a UInt from pre-encoded integer contained in a buffer */
 				/* this buffer.data should point to encoded int and the length should be number of bytes encoded */
@@ -569,7 +569,7 @@ RsslRet exampleDecodeFieldList(RsslDecodeIterator *decIter)
 						if (retVal == RSSL_RET_BLANK_DATA)
 							printf("\t\tFID %d  RsslReal Decoded as blank.\n", fieldEntry.fieldId);
 						else
-							printf("\t\tFID %d  RsslReal Decoded: hint: %d  value: "RTR_LLD"\n", fieldEntry.fieldId, rsslReal.hint, rsslReal.value);
+							printf("\t\tFID %d  RsslReal Decoded: hint: %d  value: " RTR_LLD "\n", fieldEntry.fieldId, rsslReal.hint, rsslReal.value);
 					}
 					break;
 
@@ -582,7 +582,7 @@ RsslRet exampleDecodeFieldList(RsslDecodeIterator *decIter)
 							return retVal;
 						}
 
-						printf("\t\tFID %d Rssl Unsigned Integer Decoded: "RTR_LLU"\n", fieldEntry.fieldId, uInt);
+						printf("\t\tFID %d Rssl Unsigned Integer Decoded: " RTR_LLU "\n", fieldEntry.fieldId, uInt);
 					}
 					break;
 
@@ -628,7 +628,7 @@ RsslRet exampleDecodeFieldList(RsslDecodeIterator *decIter)
 										return retVal;
 									}
 
-									printf(" "RTR_LLU" ", uInt);
+									printf(" " RTR_LLU " ", uInt);
 								}
 							}
 							printf("]\n");
@@ -652,7 +652,7 @@ RsslRet exampleDecodeFieldList(RsslDecodeIterator *decIter)
 							return retVal;
 						}
 
-						printf("\t\tFID %d Rssl signed Integer Decoded: "RTR_LLD"\n", fieldEntry.fieldId, Int);
+						printf("\t\tFID %d Rssl signed Integer Decoded: " RTR_LLD "\n", fieldEntry.fieldId, Int);
 					}
 					break;
 

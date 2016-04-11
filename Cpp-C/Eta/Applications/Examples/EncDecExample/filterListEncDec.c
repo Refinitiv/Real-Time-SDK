@@ -59,7 +59,7 @@ RsslRet exampleEncodeFilterList(RsslEncodeIterator *encIter)
 
 	/* now encode nested container using its own specific encode functions*/
 
-	printf("\tEncoding Filter Entry (id: "RTR_LLU") containing an encoded element list\n", (RsslUInt)filterEntry.id);
+	printf("\tEncoding Filter Entry (id: " RTR_LLU ") containing an encoded element list\n", (RsslUInt)filterEntry.id);
 
 	printf("\tElementList Encoding Begin\n");
 	if ((retVal = exampleEncodeElementList(encIter)) < RSSL_RET_SUCCESS)
@@ -78,7 +78,7 @@ RsslRet exampleEncodeFilterList(RsslEncodeIterator *encIter)
 		return retVal;
 	}
 
-	printf("\tFilter Entry (id: "RTR_LLU") Encoding Complete\n", (RsslUInt)filterEntry.id);
+	printf("\tFilter Entry (id: " RTR_LLU ") Encoding Complete\n", (RsslUInt)filterEntry.id);
 
 	/*SECOND FILTER ENTRY: encode entry from field list*/
 	rsslClearFilterEntry(&filterEntry);
@@ -99,7 +99,7 @@ RsslRet exampleEncodeFilterList(RsslEncodeIterator *encIter)
 
 	/* now encode nested container using its own specific encode functions*/
 
-	printf("\tEncoding Filter Entry (id: "RTR_LLU") containing an encoded field list\n", (RsslUInt)filterEntry.id);
+	printf("\tEncoding Filter Entry (id: " RTR_LLU ") containing an encoded field list\n", (RsslUInt)filterEntry.id);
 
 	printf("\tFieldList Encoding Begin\n");
 	if ((retVal = exampleEncodeFieldList(encIter)) < RSSL_RET_SUCCESS)
@@ -118,7 +118,7 @@ RsslRet exampleEncodeFilterList(RsslEncodeIterator *encIter)
 		return retVal;
 	}
 
-	printf("\tFilter Entry (id: "RTR_LLU") Encoding Complete\n", (RsslUInt)filterEntry.id);
+	printf("\tFilter Entry (id: " RTR_LLU ") Encoding Complete\n", (RsslUInt)filterEntry.id);
 
 	/*THIRD FILTER ENTRY: encode entry from element list*/
 	rsslClearFilterEntry(&filterEntry);
@@ -137,7 +137,7 @@ RsslRet exampleEncodeFilterList(RsslEncodeIterator *encIter)
 
 	/* now encode nested container using its own specific encode functions*/
 
-	printf("\tEncoding Filter Entry (id: "RTR_LLU") containing an encoded element list\n", (RsslUInt)filterEntry.id);
+	printf("\tEncoding Filter Entry (id: " RTR_LLU ") containing an encoded element list\n", (RsslUInt)filterEntry.id);
 
 	printf("\tElementList Encoding Begin\n");
 	if ((retVal = exampleEncodeElementList(encIter)) < RSSL_RET_SUCCESS)
@@ -156,7 +156,7 @@ RsslRet exampleEncodeFilterList(RsslEncodeIterator *encIter)
 		return retVal;
 	}
 
-	printf("\tFilter Entry (id: "RTR_LLU") Encoding Complete\n", (RsslUInt)filterEntry.id);
+	printf("\tFilter Entry (id: " RTR_LLU ") Encoding Complete\n", (RsslUInt)filterEntry.id);
 
 
 	/* complete filter list encoding.  If success parameter is true, this will finalize encoding.  
@@ -213,7 +213,7 @@ RsslRet exampleDecodeFilterList(RsslDecodeIterator *decIter)
 		
 		/* Continue decoding field entries. */
 
-		printf("\tDecoding Filter Entry (id: "RTR_LLU")\n", (RsslUInt)filterEntry.id);
+		printf("\tDecoding Filter Entry (id: " RTR_LLU ")\n", (RsslUInt)filterEntry.id);
 
 		/*check the filter entry's container type, and use the appropriate decoding function. 
 		since our filter-list-encode exmample only encodes elements list and field list, we only test for those two cases*/
@@ -237,7 +237,7 @@ RsslRet exampleDecodeFilterList(RsslDecodeIterator *decIter)
 				}
 			break;
 		}
-		printf("\tFilter Entry (id: "RTR_LLU") Decoding Complete\n", (RsslUInt)filterEntry.id);
+		printf("\tFilter Entry (id: " RTR_LLU ") Decoding Complete\n", (RsslUInt)filterEntry.id);
 
 		rsslClearFilterEntry(&filterEntry);
 	}

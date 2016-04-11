@@ -586,7 +586,7 @@ static RsslRet decodePrimitive(RsslDataDictionary *dictionary, RsslDecodeIterato
 	{
 		case RSSL_DT_INT:
 			if ((ret = rsslDecodeInt(dIter, &fidIntValue)) == RSSL_RET_SUCCESS)
-				printf(""RTR_LLD"", fidIntValue);
+				printf(RTR_LLD, fidIntValue);
 			else if (ret != RSSL_RET_BLANK_DATA)
 			{
 				printf("rsslDecodeInt() failed with return code: %d\n", ret);

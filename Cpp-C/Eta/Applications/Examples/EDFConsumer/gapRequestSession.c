@@ -482,7 +482,7 @@ RsslRet gapRequestSessionRequestFill(GapRequestSession *pSession, gap_info_t *in
 	if ((ret = gapRequestSessionWrite(pSession, pBuffer)) != RSSL_RET_SUCCESS)
 		return ret;
 
-	printf("<%s> Sent gap fill request for message SEQ.NO. Start-End: "RTR_LLU"-"RTR_LLU" on StreamId %d\n\n",
+	printf("<%s> Sent gap fill request for message SEQ.NO. Start-End: " RTR_LLU "-" RTR_LLU " on StreamId %d\n\n",
 			pSession->name, info->start, info->end, requestMsg.msgBase.streamId);
 
 	return RSSL_RET_SUCCESS;
