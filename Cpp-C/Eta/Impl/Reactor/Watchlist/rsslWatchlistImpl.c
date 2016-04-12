@@ -1009,36 +1009,28 @@ static RsslRet wlServiceUpdateCallback(WlServiceCache *pServiceCache,
 
 			case RSSL_MPEA_DELETE_ENTRY:
 			{
-				/* Service was deleted. All items should be considered ClosedRecover. */
+				
+				/* Separate requested services from this service now, so that they
+				 * don't attempt to recover to it. */
+				RsslQueueLink *pRequestedServiceLink;
 
-				assert(pService->pUserSpec);
 				pWlService = (WlService*)pService->pUserSpec;
-
-				if (pWlService)
+				
+				RSSL_QUEUE_FOR_EACH_LINK(&pWlService->requestedServices, pRequestedServiceLink)
 				{
-					/* Separate requested services from this service now, so that they
-					 * don't attempt to recover to it. */
-					RsslQueueLink *pRequestedServiceLink;
-
-					RSSL_QUEUE_FOR_EACH_LINK(&pWlService->requestedServices, pRequestedServiceLink)
-					{
-						WlRequestedService *pRequestedService = 
-							RSSL_QUEUE_LINK_TO_OBJECT(WlRequestedService, qlDirectoryRequests,
-									pRequestedServiceLink);
-						rsslQueueRemoveLink(&pRequestedService->pMatchingService->requestedServices,
-								&pRequestedService->qlDirectoryRequests);
-						pRequestedService->pMatchingService = NULL;
-					}
-
-					if ((ret = wlProcessRemovedService(pWatchlistImpl, pWlService, pErrorInfo))
-								!= RSSL_RET_SUCCESS)
-						return ret;
-
+					WlRequestedService *pRequestedService = 
+						RSSL_QUEUE_LINK_TO_OBJECT(WlRequestedService, qlDirectoryRequests,
+								pRequestedServiceLink);
+					rsslQueueRemoveLink(&pRequestedService->pMatchingService->requestedServices,
+							&pRequestedService->qlDirectoryRequests);
+					pRequestedService->pMatchingService = NULL;
 				}
-				break;
 			}
-		}
 
+
+			default:
+				break;
+		}
 	}
 
 	if ((ret = wlFanoutDirectoryMsg(&pWatchlistImpl->base, &pWatchlistImpl->directory,
@@ -1051,10 +1043,15 @@ static RsslRet wlServiceUpdateCallback(WlServiceCache *pServiceCache,
 				pLink);
 		if (pService->rdm.action == RSSL_MPEA_DELETE_ENTRY)
 		{
+			/* Service was deleted. All items should be considered ClosedRecover. */
+
 			WlService *pWlService = (WlService*)pService->pUserSpec;
+			if ((ret = wlProcessRemovedService(pWatchlistImpl, pWlService, pErrorInfo))
+					!= RSSL_RET_SUCCESS)
+				return ret;
+
 			rsslQueueRemoveLink(&pWatchlistImpl->services, &pWlService->qlServices);
 			wlServiceDestroy(pWlService);
-
 		}
 	}
 	return RSSL_RET_SUCCESS;
