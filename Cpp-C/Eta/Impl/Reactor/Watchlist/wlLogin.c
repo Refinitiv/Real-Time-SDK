@@ -225,6 +225,9 @@ RsslRet wlLoginProcessProviderMsg(WlLogin *pLogin, WlBase *pBase,
 						/* Logged in. */
 						pBase->channelState = WL_CHS_LOGGED_IN;
 						pLogin->pStream->flags |= WL_LSF_ESTABLISHED;
+
+						/* Let reactor know we've got a login stream open. */
+						pBase->watchlist.state |= RSSLWL_STF_RESET_CONN_DELAY;
 					}
 				}
 				else
@@ -309,7 +312,7 @@ RsslRet wlLoginProcessProviderMsg(WlLogin *pLogin, WlBase *pBase,
 			}
 		}
 
-		if (pState && pBase->config.singleOpen)
+		if (pState)
 		{
 			switch(pState->streamState)
 			{

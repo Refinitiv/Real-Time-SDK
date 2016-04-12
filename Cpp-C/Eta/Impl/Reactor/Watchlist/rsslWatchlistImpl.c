@@ -556,24 +556,18 @@ RsslRet rsslWatchlistProcessTimer(RsslWatchlist *pWatchlist, RsslInt64 currentTi
 						!= RSSL_RET_SUCCESS)
 					return ret;
 
-				/* Check correct behavior based on SingleOpen configuration. */
-				assert(pWatchlistImpl->base.config.singleOpen && loginAction == WL_LGPA_RECOVER
-						|| !pWatchlistImpl->base.config.singleOpen && loginAction == WL_LGPA_CLOSE);
+				/* Should be told to recover. */
+				assert(loginAction == WL_LGPA_RECOVER);
 
 				/* Close old login stream */
 				wlLoginStreamClose(&pWatchlistImpl->base, &pWatchlistImpl->login, RSSL_TRUE);
 
-				if (pWatchlistImpl->base.config.singleOpen)
-				{
-					/* Create new login stream. */
-					statusMsg.state.streamState = RSSL_STREAM_OPEN;
-					if (!(pWatchlistImpl->login.pStream = wlLoginStreamCreate(
-									&pWatchlistImpl->base, &pWatchlistImpl->login, pErrorInfo)))
-						return pErrorInfo->rsslError.rsslErrorId;
-					pWatchlistImpl->login.pRequest->base.pStream = &pWatchlistImpl->login.pStream->base;
-				}
-				else
-					pWatchlistImpl->login.pRequest->base.pStream = NULL;
+				/* Create new login stream. */
+				statusMsg.state.streamState = RSSL_STREAM_OPEN;
+				if (!(pWatchlistImpl->login.pStream = wlLoginStreamCreate(
+								&pWatchlistImpl->base, &pWatchlistImpl->login, pErrorInfo)))
+					return pErrorInfo->rsslError.rsslErrorId;
+				pWatchlistImpl->login.pRequest->base.pStream = &pWatchlistImpl->login.pStream->base;
 
 				msgEvent.pRsslMsg = NULL;
 				msgEvent.pRdmMsg = (RsslRDMMsg*)&loginMsg;
@@ -1281,6 +1275,8 @@ RsslRet rsslWatchlistReadMsg(RsslWatchlist *pWatchlist,
 					break;
 
 				case WL_LGPA_RECOVER:
+				{
+					WlDirectoryStream *pDirectoryStream;
 
 					msgEvent.pRsslMsg->msgBase.streamId = 
 						loginMsg.rdmMsgBase.streamId = pLoginRequest->base.streamId;
@@ -1289,11 +1285,23 @@ RsslRet rsslWatchlistReadMsg(RsslWatchlist *pWatchlist,
 							!= RSSL_RET_SUCCESS)
 						return ret;
 
-					/* Recover the login stream. */
-					wlRecoverAllItems(pWatchlistImpl, pErrorInfo);
-					wlSetStreamMsgPending(&pWatchlistImpl->base,
-							&pWatchlistImpl->login.pStream->base);
-					break;
+					/* Close directory stream, if present. */
+					pDirectoryStream = pWatchlistImpl->directory.pStream;
+					if (pDirectoryStream)
+					{
+						wlDirectoryStreamClose(&pWatchlistImpl->base,
+								&pWatchlistImpl->directory, RSSL_FALSE);
+						wlDirectoryStreamDestroy(pDirectoryStream);
+					}
+
+					/* Login stream was closed but is recoverable. In this case,
+					 * disconnect after providing the login response, so other connections
+					 * can be tried if available. 
+					 * Returning an error will trigger the disconnect. */
+					rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
+							"Received login response with Closed/Recover stream state. Disconnecting.");
+					return RSSL_RET_FAILURE;
+				}
 
 				case WL_LGPA_CLOSE:
 				{
