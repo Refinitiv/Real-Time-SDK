@@ -62,9 +62,11 @@ static void wlMsgEventClear(RsslWatchlistMsgEvent *pEvent)
 
 typedef enum
 {
-	RSSLWL_STF_NEED_FLUSH	= 0x1,	/* The watchlist has written data to the channel and needs the 
-									 * channel to be flushed. */
-	RSSLWL_STF_NEED_TIMER	= 0x2	/* The watchlist may have new timeouts. */
+	RSSLWL_STF_NEED_FLUSH		= 0x1,	/* The watchlist has written data to the channel and needs the 
+										 * channel to be flushed. */
+	RSSLWL_STF_NEED_TIMER		= 0x2,	/* The watchlist may have new timeouts. */
+	RSSLWL_STF_RESET_CONN_DELAY	= 0x4	/* The reactor should reset its reconnection time delay
+										 * (set when a login stream is established). */
 } RsslWatchlistStateFlags;
 
 /* The current state of the watchlist.  The reactor may use this to determine when certain

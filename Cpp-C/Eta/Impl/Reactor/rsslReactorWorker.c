@@ -263,8 +263,6 @@ RsslRet _reactorWorkerProcessChannelUp(RsslReactorImpl *pReactorImpl, RsslReacto
 	pReactorChannel->reactorChannel.minorVersion = pReactorChannel->reactorChannel.pRsslChannel->minorVersion;
 	pReactorChannel->reactorChannel.protocolType = pReactorChannel->reactorChannel.pRsslChannel->protocolType;
 
-	pReactorChannel->reconnectAttemptCount = 0;
-	pReactorChannel->lastReconnectAttemptMs = 0;
 
 	rsslClearReactorChannelEventImpl(pEvent);
 	pEvent->channelEvent.channelEventType = RSSL_RC_CET_CHANNEL_UP;

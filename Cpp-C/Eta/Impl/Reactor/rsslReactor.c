@@ -1575,6 +1575,13 @@ static RsslRet _reactorReadWatchlistMsg(RsslReactorImpl *pReactorImpl, RsslReact
 			return ret;
 	}
 
+	if (pReactorChannel->pWatchlist->state & RSSLWL_STF_RESET_CONN_DELAY) 
+	{
+		/* Login stream established. Reset connection delay. */
+		pReactorChannel->reconnectAttemptCount = 0;
+		pReactorChannel->pWatchlist->state &= ~RSSLWL_STF_RESET_CONN_DELAY;
+	}
+
 	if (pReactorChannel->pWatchlist->state & RSSLWL_STF_NEED_TIMER) 
 		if (_reactorSetTimer(pReactorImpl, pReactorChannel, rsslWatchlistGetNextTimeout(pReactorChannel->pWatchlist),
 					pError) != RSSL_RET_SUCCESS)
@@ -1830,6 +1837,14 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 							/* Channel has been initialized by worker thread and is ready for reading & writing. */
 							FD_SET(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorImpl->readFds);
 							FD_SET(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorImpl->exceptFds);
+
+							/* Reset reconnect attempt count (if  watchlist is enable, wait for a 
+							 * login stream first). */
+							if (pReactorChannel->pWatchlist == NULL)
+							{
+								pReactorChannel->reconnectAttemptCount = 0;
+								pReactorChannel->lastReconnectAttemptMs = 0;
+							}
 
 							_reactorMoveChannel(&pReactorImpl->activeChannels, pReactorChannel);
 							pReactorChannel->lastPingReadMs = pReactorImpl->lastRecordedTimeMs;
