@@ -215,7 +215,7 @@
       <AdditionalDependencies>msvcprt.lib;msvcrt.lib; ws2_32.lib; libxml2.lib; librssl.lib; librsslVA.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)libema.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\..\Eta\Libs\WIN_64_VS140\Release_MD\Shared;..\..\Libs\WIN_64_VS140\Release_MD\Shared;..\..\..\Eta\Utils\Libxml2\WIN_64_VS140\Release_MDd;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\Eta\Libs\WIN_64_VS140\Release_MD\Shared;..\..\Libs\WIN_64_VS140\Release_MD\Shared;..\..\..\Eta\Utils\Libxml2\WIN_64_VS140\Release_MD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
