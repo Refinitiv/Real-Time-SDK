@@ -29,11 +29,11 @@ public :
 
 	~RefreshMsgDecoder();
 
-	void setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* );
+	bool setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* );
 
-	void setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDictionary* , void* );
+	bool setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDictionary* , void* );
 
-	void setRsslData( RsslDecodeIterator* , RsslBuffer* );
+	bool setRsslData( RsslDecodeIterator* , RsslBuffer* );
 
 	bool hasMsgKey() const;
 
@@ -113,43 +113,47 @@ public :
 
 	const EmaBuffer& getHexBuffer() const;
 
+	const RsslBuffer& getRsslBuffer() const;
+
+	OmmError::ErrorCode getErrorCode() const;
+
 private :
 
 	void setStateInt() const;
 
 	void setQosInt() const;
 
-	RsslMsg								_rsslMsg;
+	RsslMsg							_rsslMsg;
 
-	RsslMsg*							_pRsslMsg;
+	RsslMsg*						_pRsslMsg;
 
-	mutable EmaStringInt				_name;
+	mutable EmaStringInt			_name;
 
-	mutable EmaStringInt				_serviceName;
+	mutable EmaStringInt			_serviceName;
 
-	mutable EmaBufferInt				_extHeader;
+	mutable EmaBufferInt			_extHeader;
 
-	mutable EmaBufferInt				_permission;
+	mutable EmaBufferInt			_permission;
 
-	mutable EmaBufferInt				_itemGroup;
+	mutable EmaBufferInt			_itemGroup;
 
-	mutable OmmState					_state;
+	mutable OmmState				_state;
 
-	mutable OmmQos						_qos;
+	mutable OmmQos					_qos;
 
-	mutable EmaBufferInt				_hexBuffer;
+	mutable EmaBufferInt			_hexBuffer;
 
-	mutable bool						_serviceNameSet;
+	mutable bool					_serviceNameSet;
 	
-	mutable bool						_stateSet;
+	mutable bool					_stateSet;
 
-	mutable bool						_qosSet;
+	mutable bool					_qosSet;
 
-	UInt8								_rsslMajVer;
+	UInt8							_rsslMajVer;
 
-	UInt8								_rsslMinVer;
+	UInt8							_rsslMinVer;
 
-	mutable OmmError::ErrorCode			_errorCode;
+	OmmError::ErrorCode				_errorCode;
 };
 
 class RefreshMsgDecoderPool : public DecoderPool< RefreshMsgDecoder >

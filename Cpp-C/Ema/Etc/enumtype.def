@@ -11,10 +11,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.21
-!tag Build_RDMD  4.20.21
-!tag DT_Version  15.91
-!tag Date        2-Nov-2015
+!tag RT_Version  4.20.23
+!tag Build_RDMD  4.20.23
+!tag DT_Version  16.21
+!tag Date        29-Feb-2016
 !
 ! This file contains all the enumerated types used by the head-end
 ! systems, and for each type, the range of possible values
@@ -4546,6 +4546,51 @@ PRICE_CONV   573
 ! ACRONYM    FID
 ! -------    ---
 !
+RESET_FRQ    590
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+2ND_FREQ     591
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+PAY_FRQ      592
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+RESET_BUS    593
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+PAY_BUS      594
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
 DLG_STATUS   604
 !
 ! VALUE      DISPLAY   MEANING
@@ -4584,6 +4629,15 @@ WITHD_REAS   627
 ! ACRONYM    FID
 ! -------    ---
 !
+PRINT_INDI   628
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
 CONVR_STAT   652
 !
 ! VALUE      DISPLAY   MEANING
@@ -4601,6 +4655,51 @@ CONVR_STAT   652
      10         "10"   No Edit
      11         "11"   Inhibit
      12         "12"   Accepting
+!
+! ACRONYM    FID
+! -------    ---
+!
+RATE_STAT    655
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+QUOTE_STAT   656
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+TRAD_STRAT   684
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+HED_DIR      685
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+HED_DIR2     686
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -5282,6 +5381,7 @@ RATING_ID6 12894
      43        "MLN"   Moody's National Scale Rating
      44        "SLN"   Standard and Poor's National Scale Rating
      45        "FLN"   Fitch's National Scale Rating
+     46        "TRC"   Taiwan Ratings Corp (TRC)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -8274,11 +8374,18 @@ ODD_EXID   13495
    1426        "KFO"   MINI KOSPI200 INDEX FUTURES AND OPTIONS
    1427        "IEQ"   NATIONAL STOCK EXCHANGE OF INDIA EQUITIES
    1428        "IDR"   NATIONAL STOCK EXCHANGE OF INDIA DERIVATIVES
-   1429        "NML"   NASDAQ BASIC FOR NYSE MKT LISTINGS
-   1430        "NSB"   NASDAQ BASIC FOR NYSE LISTINGS
-   1431        "NLD"   NASDAQ BASIC FOR NASDAQ LISTINGS
+   1429        "429"   Not allocated (was NASDAQ BASIC FOR NYSE MKT LISTINGS)
+   1430        "430"   Not allocated (was NASDAQ BASIC FOR NYSE LISTINGS)
+   1431        "431"   Not allocated (was NASDAQ BASIC FOR NASDAQ LISTINGS)
    1432        "BDR"   BOAT Russian Segment
    1433        "OMN"   OMF CommTrade CARBON
+   1434        "EXP"   EPEX SPOT REAL TIME INTRADAY
+   1435        "BOM"   BANCO DE MEXICO
+   1436        "DJO"   DJI constituents revending and SF
+   1437        "MXA"   MARKET DATA FOR TRADING FOR TRADERS
+   1438        "WDM"   WoodMackenzie
+   1439        "ENT"   ENTSOE
+   1440        "CUR"   CME Europe
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -10614,7 +10721,7 @@ PR_RNK_RUL  3423
       2        "INV"   Inverted Market
       3        "SQX"   Firm Quote, Limit Order (LSE SETSqx)
       4        "PON"   Price, Order Type, Time Priority Sequence Number
-      5        "  5"   Not allocated (was Quote Type, Market Maker ID, Price, Quote Access Payment, Size, Time)
+      5        "DCB"   Debit and Credit Book - Ranked from lowest to highest values on both sides of the book.  When in Contango, BID side shows Debit and ASK side shows Credit Transaction.  The reverse is true when the instrument is in Backwardation.
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11737,8 +11844,8 @@ SETL_TYPE   6513
       0        "   "   Undefined
       1        "FIN"   Final
       2        "PRE"   Preliminary
-      3        "CAS"   Cash Settlement
-      4        "DLV"   Physical Delivery Settlement
+      3        "CAS"   Cash Settlement (Do not use, refer to DELIV_TYPE)
+      4        "DLV"   Physical Delivery Settlement (Do not use, refer to DELIV_TYPE)
       5        "NRM"   Normal
       6        "EMR"   Emergency
       7        "THE"   Theoretical
@@ -11951,7 +12058,7 @@ OFFBK_H_RN 14142
      20         "CB"   Circuit breaker tripped
      21         "UV"   Unavailable
      22         "FU"   Off book Reason not available
-     23         "UN"   Reason not available
+     23         "UN"   Reason not available (Duplicated, do not use in future implementation)
      24         "BN"   Reason not available(auto & manual)
      25         "BS"   System suspended(auto & manual)
      26         "BP"   Matching partition suspended(auto & manual)
@@ -12000,6 +12107,8 @@ OFFBK_H_RN 14142
      69         "RP"   No Reference Price
      70         "DE"   Delisting
      71         "DV"   Voluntary Delisting
+     72         "CS"   Company Requested Suspension
+     73         "CH"   Company Requested Halt
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12137,6 +12246,7 @@ MK_PHASE   12765
      13        "PET"   Pre-Market Trading
      14        "POT"   Post-Market Trading
      15        "IC "   Intra-day Close (scheduled)
+     16        "QP "   Quotation Only Period
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12440,6 +12550,8 @@ REFPRC_TP4 13491
      12   "ASIAREF "   Asia reference price
      13   "SO      "   Special Index value calculated with the OPEN prices of the index constituents
      14   "VAL     "   Valuation Trade
+     15   "JPYREF  "   Closing price conversion exchange rate - JPY
+     16   "GBPREF  "   Closing price conversion exchange rate - GBP
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12730,6 +12842,7 @@ LIST_STAT   8975
       5   "SUS     "   Suspend
       6   "PEND    "   Pending
       7   "ISSUED  "   Issued, not yet available for trading
+      8   "ACT-OFF "   Active, for off book trading only.
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12988,6 +13101,9 @@ STRGY_TYPE  8989
     192   "XT      "   Xmas tree
     193   "STRP-O  "   Option strip
     194   "CFS     "   Cash-Futures spread
+    195   "SA      "   energy strip
+    196   "IN      "   invoice swap
+    197   "TL      "   treasury tail spread
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -14339,6 +14455,13 @@ OFFBK_COND  9049
      10   "OFFHRS  "   Out Of Hours Trade 
      11   "BUY-IN  "   Buy-In
      12   "FRGN    "   Foreign Investors Trade
+     13   "OFF     "   Offbook Trade
+     14   "BENCH   "   Benchmark Reference Trade
+     15   "TECH    "   Technical Non-Price Forming
+     16   "GIVE    "   Give Up / Give In Trade
+     17   "EXCUM   "   Ex-div or cumulative dividend trade
+     18   "COND    "   Trade with conditions outside normal market
+     19   "OTH     "   Other Trade Type
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -14846,6 +14969,8 @@ PHASE_RSN  12822
       9   "DELAY   "   Market Maker/Liquid Provider requested Delay
      10   "SV      "   Volatility range breached - static
      11   "SD      "   Volatility range breached - dynamic
+     12   "MOE     "   Market Order Extension
+     13   "PME     "   Price Monitoring Extension
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -15545,9 +15670,43 @@ BBO_LT_IND 12933
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET233 12934
-PRE_1ET234 12935
-PRE_1ET235 12936
+YIELD_METH 12934
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+UPDATE_TP  12935
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+AMR_TP_CD  12936
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "ARM     "   ARM
+      2   "BLON_MRT"   Balloon Mortgages
+      3   "BIWK_MRT"   BiWeekly Mortgages
+      4   "BYDN_MRT"   Buydown Mortgages
+      5   "DSCT_MRT"   Discount Mortgages
+      6   "GR_EQ_MT"   Growing-Equity Mortgages
+      7   "GD_PY_MT"   Graduated-Payment Mortgages
+      8   "LV_PY_MT"   Level-Payment Mortgages
+      9   "TI_PY_MT"   Tiered-Payment Mortgages
+     10   "REVR_MRT"   Reverse Mortgages
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_1ET236 12937
 PRE_1ET237 12938
 PRE_1ET238 12939
@@ -16589,6 +16748,7 @@ MIN_BQT_UT 13421
     288      "INR H"   Hundreds of Indian Rupees
     289      "NIKEL"   1% nickel content in NPI.
     290      "FLASK"   1 flask (mercury) appox. 76 lb
+    291      "1BWP "   Botswana Pula
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17026,6 +17186,11 @@ RQT_MET_MD 13487
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0   "        "   undefined
+      1   "S       "   Streaming
+      2   "H       "   Historical
+      3   "B       "   Blended
+      4   "SNAP    "   Snapshot
+      5   "STOP    "   Stop
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17118,59 +17283,531 @@ REFTIMZONE 13497
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET177 13498
-PRE_2ET178 13499
-PRE_2ET179 13500
-PRE_2ET180 13501
-PRE_2ET181 13502
-PRE_2ET182 13503
-PRE_2ET183 13504
-PRE_2ET184 13505
-PRE_2ET185 13506
-PRE_2ET186 13507
-PRE_2ET187 13508
-PRE_2ET188 13509
-PRE_2ET189 13510
-PRE_2ET190 13511
-PRE_2ET191 13512
-PRE_2ET192 13513
-PRE_2ET193 13514
-PRE_2ET194 13515
-PRE_2ET195 13516
-PRE_2ET196 13517
-PRE_2ET197 13518
-PRE_2ET198 13519
-PRE_2ET199 13520
-PRE_2ET200 13521
-PRE_2ET201 13522
-PRE_2ET202 13523
-PRE_2ET203 13524
-PRE_2ET204 13525
-PRE_2ET205 13526
-PRE_2ET206 13527
-PRE_2ET207 13528
-PRE_2ET208 13529
-PRE_2ET209 13530
-PRE_2ET210 13531
-PRE_2ET211 13532
-PRE_2ET212 13533
-PRE_2ET213 13534
-PRE_2ET214 13535
-PRE_2ET215 13536
-PRE_2ET216 13537
-PRE_2ET217 13538
-PRE_2ET218 13539
-PRE_2ET219 13540
-PRE_2ET220 13541
-PRE_2ET221 13542
-PRE_2ET222 13543
-PRE_2ET223 13544
-PRE_2ET224 13545
-PRE_2ET225 13546
-PRE_2ET226 13547
-PRE_2ET227 13548
-PRE_2ET228 13549
-PRE_2ET229 13550
+TRDSETL_TP 13498
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+IRGSETL_TP 13499
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+CRSSETL_TP 13500
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+DRKSETL_TP 13501
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+ODDSETL_TP 13502
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+BLKSETL_TP 13503
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+OFFSETL_TP 13504
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+CANSETL_TP 13505
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+INSSETL_TP 13506
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+PDSETL_TP  13507
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+TRDSEQ_TP  13508
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+IRGSEQ_TP  13509
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+CRSSEQ_TP  13510
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+DRKSEQ_TP  13511
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+ODDSEQ_TP  13512
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+BLKSEQ_TP  13513
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+OFFSEQ_TP  13514
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+CANSEQ_TP  13515
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+INSSEQ_TP  13516
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+PDSEQ_TP   13517
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+TRDCOND_1  13518
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+IRGCOND_1  13519
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+CRSCOND_1  13520
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+DRKCOND_1  13521
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+ODDCOND_1  13522
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+BLKCOND_1  13523
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+OFFCOND_1  13524
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+CANCOND_1  13525
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+INSCOND_1  13526
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+PDCOND_1   13527
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+TRDCOND_2  13528
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+IRGCOND_2  13529
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+CRSCOND_2  13530
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+DRKCOND_2  13531
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+ODDCOND_2  13532
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+BLKCOND_2  13533
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+OFFCOND_2  13534
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+CANCOND_2  13535
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+INSCOND_2  13536
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+PDCOND_2   13537
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+TRDCOND_3  13538
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+IRGCOND_3  13539
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+CRSCOND_3  13540
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+DRKCOND_3  13541
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+ODDCOND_3  13542
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+BLKCOND_3  13543
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+OFFCOND_3  13544
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+CANCOND_3  13545
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+INSCOND_3  13546
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+PDCOND_3   13547
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+QTECOND_1  13548
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "     NCQ"   NMS Conditional Quote
+!
+! ACRONYM    FID
+! -------    ---
+!
+SECURTN_TP 13549
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "GOOD_DEL"   For Good Delivery
+      2   "NT_GD_DL"   Not for Good Delivery
+      3   "AU_LS_LN"   Auto Lease Loans
+      4   "AU_FL_PL"   Auto Floor Plan/Wholesale Loans
+      5   "AU_IN_LN"   Auto Installment Loans
+      6   "RC_VH_LN"   Recreational Vehicle Loans
+      7   "MOTR_LS "   Motorcycle Lease
+      8   "SM_BU_AD"   Small Business Administration
+      9   "CRCD_REC"   Credit Card Receivables
+     10   "STUD_LN "   Student Loan
+     11   "MN_HO_LN"   Manufactured Housing Loan
+     12   "ARCFT_LS"   Aircraft Lease
+     13   "MARIN_LN"   Marine Loans
+     14   "ABS_BS_L"   ABS Business Loans
+     15   "CONSM_LN"   Consumer Loans
+     16   "EQ_BA_LN"   Equipment Backed Loan
+     17   "EX_IM_BK"   Export/Import Bank Loan
+     18   "NT_IN_MR"   Net Interest Margin securities
+     19   "AS_BK_TR"   Asset Backed Tranches
+     20   "REV_MORT"   Reversed Mortgages
+     21   "UT_ST_SZ"   Utility Standard Cost Securitizations
+     22   "CATA_ABS"   Catastrophe ABS
+     23   "LOTT_ABS"   Lottery ticket ABS
+     24   "PENSN_SZ"   Pension Securitization
+     25   "PERS_ABS"   Personal Loan ABS
+     26   "RENT_ABS"   Rent ABS
+     27   "REIN_ABS"   Reinsurance ABS
+     28   "TMSH_ABS"   Timeshare ABS
+     29   "CL_BD_OB"   Collateralized Bond Obligation
+     30   "CL_DT_OB"   Collateralized Debt Obligation
+     31   "CL_FD_OB"   Collateralized Fund Obligation
+     32   "CL_LN_OB"   Collateralized Loan Obligation
+     33   "COMM_MBS"   Commercial Mortgage Backed Security
+!
+! ACRONYM    FID
+! -------    ---
+!
+PRPTY_CD   13550
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "COOP    "   Coop
+      2   "PROJECT "   Project
+      3   "MULT_FLY"   Multi-Family
+      4   "MANU_PRF"   Manuf/Prefab
+      5   "SING_FLY"   Single Family
+      6   "UNKNOWN "   Unknown
+      7   "PL_UB_DV"   Planned Urban Development (PUD)
+      8   "LEASEHLD"   Leasehold
+      9   "CONDOMNM"   Condominium
+     10   "STUDENT "   Student
+     11   "SENIOR  "   Senior
+     12   "AF_HUSNG"   Affordable Housing
+     13   "HM_IM_LN"   Home Improvement Loans
+     14   "SBA_UNKN"   SBA: unknown
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_2ET230 13551
 PRE_2ET231 13552
 PRE_2ET232 13553

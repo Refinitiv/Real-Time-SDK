@@ -33,17 +33,21 @@ public :
 
 	Data::DataCode getCode() const;
 
-	void setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* );
+	bool setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* );
 
-	void setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDictionary* , void* );
+	bool setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDictionary* , void* );
 
-	void setRsslData( RsslDecodeIterator* , RsslBuffer* );
+	bool setRsslData( RsslDecodeIterator* , RsslBuffer* );
 
 	const EmaString& toString( UInt64 indent ) const;
 
 	const EmaBuffer& getAsHex() const;
 
 	const EmaString& toString() const;
+
+	const RsslBuffer& getRsslBuffer() const;
+
+	OmmError::ErrorCode getErrorCode() const;
 
 private :
 
@@ -59,9 +63,13 @@ private :
 
 	UInt64					_space[ MAX_NODATA ];
 
+	OmmError::ErrorCode		_errorCode;
+
 	Decoder& getDecoder();
+	bool hasDecoder() const;
 
 	const Encoder& getEncoder() const;
+	bool hasEncoder() const;
 
 	NoDataImpl( const NoDataImpl& );
 	NoDataImpl& operator=( const NoDataImpl& );

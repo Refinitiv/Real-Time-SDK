@@ -16,7 +16,8 @@ OmmFloatDecoder::OmmFloatDecoder() :
  _rsslFloat( 0 ),
  _toString(),
  _hexBuffer(),
- _dataCode( Data::BlankEnum )
+ _dataCode( Data::BlankEnum ),
+ _errorCode( OmmError::NoErrorEnum )
 {
 }
 
@@ -29,24 +30,39 @@ Data::DataCode OmmFloatDecoder::getCode() const
 	return _dataCode;
 }
 
-void OmmFloatDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
+bool OmmFloatDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
 {
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
 }
 
-void OmmFloatDecoder::setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDictionary* , void* )
+bool OmmFloatDecoder::setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDictionary* , void* )
 {
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
 }
 
-void OmmFloatDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* pRsslBuffer )
+bool OmmFloatDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* pRsslBuffer )
 {
 	_pRsslBuffer = pRsslBuffer;
 
-	if ( rsslDecodeFloat( dIter, &_rsslFloat ) == RSSL_RET_SUCCESS )
-		_dataCode = Data::NoCodeEnum;
-	else
+	switch ( rsslDecodeFloat( dIter, &_rsslFloat ) )
 	{
-		_dataCode = Data::BlankEnum;
+	case RSSL_RET_SUCCESS :
+		_dataCode = Data::NoCodeEnum;
+		_errorCode = OmmError::NoErrorEnum;
+		return true;
+	case RSSL_RET_BLANK_DATA :
 		_rsslFloat = 0;
+		_dataCode = Data::BlankEnum;
+		_errorCode = OmmError::NoErrorEnum;
+		return true;
+	case RSSL_RET_INCOMPLETE_DATA :
+		_errorCode = OmmError::IncompleteDataEnum;
+		return false;
+	default :
+		_errorCode = OmmError::UnknownErrorEnum;
+		return false;
 	}
 }
 
@@ -88,4 +104,14 @@ const EmaBuffer& OmmFloatDecoder::getHexBuffer()
 	_hexBuffer.setFromInt( _pRsslBuffer->data, _pRsslBuffer->length );
 
 	return _hexBuffer.toBuffer();
+}
+
+const RsslBuffer& OmmFloatDecoder::getRsslBuffer() const
+{
+	return *_pRsslBuffer;
+}
+
+OmmError::ErrorCode OmmFloatDecoder::getErrorCode() const
+{
+	return _errorCode;
 }

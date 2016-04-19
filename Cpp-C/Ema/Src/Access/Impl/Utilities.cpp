@@ -31,15 +31,10 @@
 #include "Dbghelp.h"
 	#pragma comment(lib, "Dbghelp.lib")		
 	#pragma comment(lib, "DELAYIMP.LIB")
-
-#define SNPRINTF _snprintf
 #define	EMA_ARRAY_LEN( X )	(sizeof( X )/sizeof(*( X )))
 #define EMA_STR_BUFF_SIZE 512
 
 static bool	_DbgHelpIntialized = false;
-
-#else
-#define SNPRINTF snprintf
 #endif
 
 
@@ -169,7 +164,7 @@ const char* ptrToStringAsHex( void* ptr )
 {
     static char tmp[ 32 ];
     tmp[ 0 ] = 0;
-    sprintf( tmp, "0x%p", ptr );
+    snprintf( tmp, 32, "0x%p", ptr );
     return tmp;
 }
 
@@ -285,7 +280,7 @@ int emaExceptionFilter( LPEXCEPTION_POINTERS pExcetionPointers,
 	}
 
 	char message[EMA_STR_BUFF_SIZE];
-	int  msgLen = SNPRINTF( message, sizeof(message),"Exception \"%s\" (0x%lX) occured at 0x%p", 
+	int  msgLen = snprintf( message, sizeof(message),"Exception \"%s\" (0x%lX) occured at 0x%p", 
 						   getExceptionCodeString(pEXCEPTION_RECORD->ExceptionCode),
 						   pEXCEPTION_RECORD->ExceptionCode,
 						   pEXCEPTION_RECORD->ExceptionAddress );
@@ -293,8 +288,8 @@ int emaExceptionFilter( LPEXCEPTION_POINTERS pExcetionPointers,
 
 	if ( pEXCEPTION_RECORD->ExceptionCode == EXCEPTION_ACCESS_VIOLATION  && 
 		pEXCEPTION_RECORD->NumberParameters )
-		SNPRINTF( message + msgLen, sizeof(message) - msgLen,": memory at 0x%p cannot be %s",
-					pEXCEPTION_RECORD->ExceptionInformation[1],
+		snprintf( message + msgLen, sizeof(message) - msgLen,": memory at 0x%p cannot be %s",
+					(void*)pEXCEPTION_RECORD->ExceptionInformation[1],
 					pEXCEPTION_RECORD->ExceptionInformation[0] ? "read" : "written" );
 
 
@@ -458,22 +453,22 @@ void  GenerateStackTrace( void* pContext, char* reportBuffer, int reportBufferLe
 			BOOL bSymInfoRetVal = SymGetSymFromAddr( hCurrProcess, addresses[i], &dwSymDispl, pSymbolInfo );
 			BOOL bLineInfoRetVal = SymGetLineFromAddr( hCurrProcess, addresses[i], &dwLineDispl, &lineInfo );
 			
-			int tmpBufferPos = SNPRINTF( tmpBuffer, sizeof(tmpBuffer),"\n0x%p ", addresses[i] );
+			int tmpBufferPos = snprintf( tmpBuffer, sizeof(tmpBuffer),"\n0x%p ", (void*)addresses[i] );
 			
-			tmpBufferPos += SNPRINTF( tmpBuffer + tmpBufferPos,sizeof(tmpBuffer)-tmpBufferPos, " %s", 
+			tmpBufferPos += snprintf( tmpBuffer + tmpBufferPos,sizeof(tmpBuffer)-tmpBufferPos, " %s", 
 					bModInfoRetVal != FALSE ?
 					moduleInfo.ImageName :
 					"<unknown module>" );
 		
 			if ( bSymInfoRetVal != FALSE )
 			{
-				tmpBufferPos += SNPRINTF( tmpBuffer + tmpBufferPos,sizeof(tmpBuffer)-tmpBufferPos, ": %s()", pSymbolInfo->Name );
+				tmpBufferPos += snprintf( tmpBuffer + tmpBufferPos,sizeof(tmpBuffer)-tmpBufferPos, ": %s()", pSymbolInfo->Name );
 				if( dwSymDispl )
-					tmpBufferPos += SNPRINTF( tmpBuffer + tmpBufferPos, sizeof(tmpBuffer)-tmpBufferPos," + %ld bytes", dwSymDispl );
+					tmpBufferPos += snprintf( tmpBuffer + tmpBufferPos, sizeof(tmpBuffer)-tmpBufferPos," + %lld bytes", dwSymDispl );
 			}
 
 			if ( bLineInfoRetVal != FALSE &&  lineInfo.LineNumber &&  lineInfo.FileName )
-				tmpBufferPos += SNPRINTF( tmpBuffer + tmpBufferPos, sizeof(tmpBuffer)-tmpBufferPos, "\n           %s, line %ld", lineInfo.FileName, lineInfo.LineNumber );
+				tmpBufferPos += snprintf( tmpBuffer + tmpBufferPos, sizeof(tmpBuffer)-tmpBufferPos, "\n           %s, line %ld", lineInfo.FileName, lineInfo.LineNumber );
 
 			int bufLen = static_cast< int > ( strlen( reportBuffer ) );
 
@@ -496,7 +491,7 @@ int emaProblemReport( void* pContext, const char* sourceFile, unsigned int line,
 	char lineBuff[20];
 
 	if ( line )
-		SNPRINTF( lineBuff, sizeof( lineBuff ), "%d", line );
+		snprintf( lineBuff, sizeof( lineBuff ), "%d", line );
 	else
 		*lineBuff = 0;
 
@@ -525,7 +520,7 @@ int emaProblemReport( void* pContext, const char* sourceFile, unsigned int line,
 	char* appNameStr  = (char *) "EMA Application";
 #endif 
 
-	SNPRINTF( reportBuffer, reportBufferLen,  "%s" 
+	snprintf( reportBuffer, reportBufferLen,  "%s" 
 						    "\n\nApplication: %s"
 							"\nProcess Id: 0x%X"
 #ifdef WIN32
@@ -572,14 +567,25 @@ const char* timeString()
 #endif
 	strftime( timeString, sizeof timeString, "%H:%M:%S", tm );
 #ifdef WIN32
-	sprintf( timeString + strlen( timeString ), ".%03d ", tv.millitm );
+	snprintf( timeString + strlen( timeString ), sizeof ( timeString )- strlen( timeString ), ".%03d ", tv.millitm );
 #else
-	sprintf( timeString + strlen(timeString), ".%06d ", tv.tv_usec);
+	snprintf( timeString + strlen(timeString), sizeof ( timeString )- strlen( timeString ), ".%06d ", tv.tv_usec);
 #endif
 
 	return timeString;
 }
 
+void clearRsslErrorInfo( RsslErrorInfo* pRsslErrorInfo )
+{
+	if ( !pRsslErrorInfo ) return;
+
+	pRsslErrorInfo->errorLocation[0] = 0x00;
+	pRsslErrorInfo->rsslErrorInfoCode = RSSL_EIC_SUCCESS;
+	pRsslErrorInfo->rsslError.channel = 0;
+	pRsslErrorInfo->rsslError.rsslErrorId = 0;
+	pRsslErrorInfo->rsslError.sysError = 0;
+	pRsslErrorInfo->rsslError.text[0] = 0x00;
+}
 
 #define UnknownDT (DataType::DataTypeEnum)(-1)
 

@@ -41,28 +41,33 @@ public :
 
 	UInt8 getRsslHint() const;
 
-	void setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* );
+	bool setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* );
 
-	void setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDictionary* , void* );
+	bool setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDictionary* , void* );
 
-	void setRsslData( RsslDecodeIterator* , RsslBuffer* );
+	bool setRsslData( RsslDecodeIterator* , RsslBuffer* );
 
 	const EmaBuffer& getHexBuffer();
 
+	const RsslBuffer& getRsslBuffer() const;
+
+	OmmError::ErrorCode getErrorCode() const;
 
 private :
 
-	RsslBuffer*		_pRsslBuffer;
+	RsslBuffer*				_pRsslBuffer;
 
-	RsslReal		_rsslReal;
+	RsslReal				_rsslReal;
 
-	double			_toDouble;
+	double					_toDouble;
 
-	EmaString		_toString;
+	EmaString				_toString;
 
-	EmaBufferInt	_hexBuffer;
+	EmaBufferInt			_hexBuffer;
 
-	bool			_toDoubleSet;
+	bool					_toDoubleSet;
+
+	OmmError::ErrorCode		_errorCode;
 };
 
 }

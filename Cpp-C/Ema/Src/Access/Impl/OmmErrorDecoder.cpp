@@ -27,19 +27,25 @@ OmmError::ErrorCode OmmErrorDecoder::getErrorCode() const
 	return _errorCode;
 }
 
-void OmmErrorDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
+bool OmmErrorDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
 {
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
 }
 
-void OmmErrorDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* pRsslBuffer, const RsslDataDictionary* error , void* )
+bool OmmErrorDecoder::setRsslData( UInt8 , UInt8 , RsslBuffer* pRsslBuffer, const RsslDataDictionary* error , void* )
 {
 	_pRsslBuffer = pRsslBuffer;
 
 	_errorCode = (OmmError::ErrorCode)(UInt64)error;
+
+	return true;
 }
 
-void OmmErrorDecoder::setRsslData( RsslDecodeIterator* , RsslBuffer* )
+bool OmmErrorDecoder::setRsslData( RsslDecodeIterator* , RsslBuffer* )
 {
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
 }
 
 const EmaBuffer& OmmErrorDecoder::getAsHex()
@@ -47,4 +53,9 @@ const EmaBuffer& OmmErrorDecoder::getAsHex()
 	_toHex.setFromInt( _pRsslBuffer->data, _pRsslBuffer->length );
 
 	return _toHex.toBuffer();
+}
+
+const RsslBuffer& OmmErrorDecoder::getRsslBuffer() const
+{
+	return *_pRsslBuffer;
 }

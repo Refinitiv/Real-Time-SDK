@@ -251,7 +251,17 @@ Decoder& OmmState::getDecoder()
 	return *_pDecoder;
 }
 
+bool OmmState::hasDecoder() const
+{
+	return true;
+}
+
 const Encoder& OmmState::getEncoder() const
 {
 	return *static_cast<const Encoder*>( 0 );
+}
+
+bool OmmState::hasEncoder() const
+{
+	return false;
 }

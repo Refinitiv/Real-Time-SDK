@@ -14,7 +14,7 @@ var searchData=
   ['datetimeenum',['DateTimeEnum',['../a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0af11075863bd67000a073970f2a541376',1,'thomsonreuters::ema::access::DataType']]],
   ['deleteenum',['DeleteEnum',['../a00026.html#aed8b40ab1ed01424b963661b1ba99287a852abf783c9365ea72a1d27df45163ec',1,'thomsonreuters::ema::access::MapEntry::DeleteEnum()'],['../a00064.html#aeab54f8da496d89eeb9f6b3930bfa1f7aa870ff42b24d09c219e6dd88a0c0afaa',1,'thomsonreuters::ema::access::PostMsg::DeleteEnum()'],['../a00076.html#a640186581823af3a0d476a58c5e400ada525aaf0ae64c7bc71a62e833b63adc1e',1,'thomsonreuters::ema::access::VectorEntry::DeleteEnum()']]],
   ['deniedbysourceenum',['DeniedBySourceEnum',['../a00002.html#a8ee36cc23e95d69d8b865146e876c4fba699cf19d4c314150ed25bf5b1715c66b',1,'thomsonreuters::ema::access::AckMsg']]],
-  ['dispatch',['dispatch',['../a00033.html#ae84b832017679b8517c817e7d4441d7e',1,'thomsonreuters::ema::access::OmmConsumer']]],
+  ['dispatch',['dispatch',['../a00033.html#a4aa7a061b8db3a6d36be85be271b44d0',1,'thomsonreuters::ema::access::OmmConsumer']]],
   ['dispatchedenum',['DispatchedEnum',['../a00033.html#ae21cbb8e092e154f7267a553908f3ec4aa69d4a205866ff3e5657b08efbf08d7f',1,'thomsonreuters::ema::access::OmmConsumer']]],
   ['dispatchreturn',['DispatchReturn',['../a00033.html#ae21cbb8e092e154f7267a553908f3ec4',1,'thomsonreuters::ema::access::OmmConsumer']]],
   ['dispatchtimeout',['DispatchTimeout',['../a00033.html#ae4a48010d029c775ada3768a26be022d',1,'thomsonreuters::ema::access::OmmConsumer']]],

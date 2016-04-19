@@ -1,187 +1,187 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer100", "100_Series_Examples\100__MarketPrice__Streaming\Consumer100_VS110.vcxproj", "{FBCB64B8-DAD2-49FE-BFE4-58DC77DCD9A6}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer100", "Consumer\100_Series_Examples\100__MarketPrice__Streaming\Consumer100_VS110.vcxproj", "{FBCB64B8-DAD2-49FE-BFE4-58DC77DCD9A6}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer101", "100_Series_Examples\101__MarketPrice__QosPriority\Consumer101_VS110.vcxproj", "{0B66462E-7AF8-4C4B-804D-313B6812A90C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer101", "Consumer\100_Series_Examples\101__MarketPrice__QosPriority\Consumer101_VS110.vcxproj", "{0B66462E-7AF8-4C4B-804D-313B6812A90C}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer102", "100_Series_Examples\102__MarketPrice__Snapshot\Consumer102_VS110.vcxproj", "{B0ECFB54-FCBD-4543-9C7B-2FA41DF702D7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer102", "Consumer\100_Series_Examples\102__MarketPrice__Snapshot\Consumer102_VS110.vcxproj", "{B0ECFB54-FCBD-4543-9C7B-2FA41DF702D7}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer110", "100_Series_Examples\110__MarketPrice__FileConfig\Consumer110_VS110.vcxproj", "{83F73DC7-7528-4839-8FFE-40E51503C16B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer110", "Consumer\100_Series_Examples\110__MarketPrice__FileConfig\Consumer110_VS110.vcxproj", "{83F73DC7-7528-4839-8FFE-40E51503C16B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer120", "100_Series_Examples\120__MarketPrice__FieldListWalk\Consumer120_VS110.vcxproj", "{6F572B01-E36A-4896-B757-00D894EDB520}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer120", "Consumer\100_Series_Examples\120__MarketPrice__FieldListWalk\Consumer120_VS110.vcxproj", "{6F572B01-E36A-4896-B757-00D894EDB520}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer121", "100_Series_Examples\121__MarketPrice__FieldListSearchByName\Consumer121_VS110.vcxproj", "{27871FF2-F033-4C05-9414-E6AEEF83E9A0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer121", "Consumer\100_Series_Examples\121__MarketPrice__FieldListSearchByName\Consumer121_VS110.vcxproj", "{27871FF2-F033-4C05-9414-E6AEEF83E9A0}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer130", "100_Series_Examples\130__MarketPrice__UserDisp\Consumer130_VS110.vcxproj", "{A1C72AB2-7CA7-4182-B957-6333F0A00BE9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer130", "Consumer\100_Series_Examples\130__MarketPrice__UserDisp\Consumer130_VS110.vcxproj", "{A1C72AB2-7CA7-4182-B957-6333F0A00BE9}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer140", "100_Series_Examples\140__MarketByOrder__Streaming\Consumer140_VS110.vcxproj", "{EAA329BE-38BD-45EB-B223-3DAF56B9C7B7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer140", "Consumer\100_Series_Examples\140__MarketByOrder__Streaming\Consumer140_VS110.vcxproj", "{EAA329BE-38BD-45EB-B223-3DAF56B9C7B7}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer200", "200_Series_Examples\200__MarketPrice__Streaming\Consumer200_VS110.vcxproj", "{821A1A2E-C7AD-41C3-9B0C-0E4C1FA66B57}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer200", "Consumer\200_Series_Examples\200__MarketPrice__Streaming\Consumer200_VS110.vcxproj", "{821A1A2E-C7AD-41C3-9B0C-0E4C1FA66B57}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer210", "200_Series_Examples\210__MarketByOrder__Streaming\Consumer210_VS110.vcxproj", "{25CE244D-8334-4147-8189-1DF27C9EF54C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer210", "Consumer\200_Series_Examples\210__MarketByOrder__Streaming\Consumer210_VS110.vcxproj", "{25CE244D-8334-4147-8189-1DF27C9EF54C}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer220", "200_Series_Examples\220__MarketByPrice__PrivateStream\Consumer220_VS110.vcxproj", "{375EC868-B395-4E89-96FB-11EC7AFF8C4D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer220", "Consumer\200_Series_Examples\220__MarketByPrice__PrivateStream\Consumer220_VS110.vcxproj", "{375EC868-B395-4E89-96FB-11EC7AFF8C4D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer230", "200_Series_Examples\230__MarketByOrder__SwitchEntryAction\Consumer230_VS110.vcxproj", "{447CDC99-0BA3-440C-8288-0D964A515F2B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer230", "Consumer\200_Series_Examples\230__MarketByOrder__SwitchEntryAction\Consumer230_VS110.vcxproj", "{447CDC99-0BA3-440C-8288-0D964A515F2B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer240", "200_Series_Examples\240__MarketPrice__RippleFields\Consumer240_VS110.vcxproj", "{1A552B2B-AB37-48E5-909F-5C191DD73E22}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer240", "Consumer\200_Series_Examples\240__MarketPrice__RippleFields\Consumer240_VS110.vcxproj", "{1A552B2B-AB37-48E5-909F-5C191DD73E22}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer250", "200_Series_Examples\250__Custom__Opaque\Consumer250_VS110.vcxproj", "{A45F4F7A-D04C-4B00-A4D5-82EB3675D0D4}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer250", "Consumer\200_Series_Examples\250__Custom__Opaque\Consumer250_VS110.vcxproj", "{A45F4F7A-D04C-4B00-A4D5-82EB3675D0D4}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer260", "200_Series_Examples\260__MarketPrice__FieldListSearchByList\Consumer260_VS110.vcxproj", "{C9F65FC3-9C16-4406-9AA7-F5A9AC96176D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer260", "Consumer\200_Series_Examples\260__MarketPrice__FieldListSearchByList\Consumer260_VS110.vcxproj", "{C9F65FC3-9C16-4406-9AA7-F5A9AC96176D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer270", "200_Series_Examples\270__SymbolList\Consumer270_VS110.vcxproj", "{E9595794-C579-4404-9520-5E8852ACF716}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer270", "Consumer\200_Series_Examples\270__SymbolList\Consumer270_VS110.vcxproj", "{E9595794-C579-4404-9520-5E8852ACF716}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer280", "200_Series_Examples\280__MarketPrice__Performance\Consumer280_VS110.vcxproj", "{0AE0A6C5-C584-45F2-B88A-54889965EEA9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer280", "Consumer\200_Series_Examples\280__MarketPrice__Performance\Consumer280_VS110.vcxproj", "{0AE0A6C5-C584-45F2-B88A-54889965EEA9}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer290", "200_Series_Examples\290__Custom__Decode\Consumer290_VS110.vcxproj", "{C82F0BA7-FF65-4319-9FBC-4DB74C678988}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer290", "Consumer\200_Series_Examples\290__Custom__Decode\Consumer290_VS110.vcxproj", "{C82F0BA7-FF65-4319-9FBC-4DB74C678988}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer291", "200_Series_Examples\291__Custom__DownCast\Consumer291_VS110.vcxproj", "{49A70813-ED40-462B-A3B9-4F04E197E7BE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer291", "Consumer\200_Series_Examples\291__Custom__DownCast\Consumer291_VS110.vcxproj", "{49A70813-ED40-462B-A3B9-4F04E197E7BE}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer300", "300_Series_Examples\300__MarketPrice__Close\Consumer300_VS110.vcxproj", "{EA0D11FE-D61E-4E6E-A3F3-C8CFACC10C1D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer300", "Consumer\300_Series_Examples\300__MarketPrice__Close\Consumer300_VS110.vcxproj", "{EA0D11FE-D61E-4E6E-A3F3-C8CFACC10C1D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer301", "300_Series_Examples\301__MarketPrice__PriorityChange\Consumer301_VS110.vcxproj", "{F23D538A-0938-4757-86A5-038F3721C307}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer301", "Consumer\300_Series_Examples\301__MarketPrice__PriorityChange\Consumer301_VS110.vcxproj", "{F23D538A-0938-4757-86A5-038F3721C307}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer310", "300_Series_Examples\310__MarketPrice__Rmtes\Consumer310_VS110.vcxproj", "{7A985D4D-03AD-4766-A503-90795F3E6399}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer310", "Consumer\300_Series_Examples\310__MarketPrice__Rmtes\Consumer310_VS110.vcxproj", "{7A985D4D-03AD-4766-A503-90795F3E6399}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer320", "300_Series_Examples\320__Custom__GenericMsg\Consumer320_VS110.vcxproj", "{B932D674-0A38-454E-9E86-26D9CBD2A788}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer320", "Consumer\300_Series_Examples\320__Custom__GenericMsg\Consumer320_VS110.vcxproj", "{B932D674-0A38-454E-9E86-26D9CBD2A788}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer330", "300_Series_Examples\330__Login__Streaming\Consumer330_VS110.vcxproj", "{13485EDD-3EF8-4739-B704-E94633B34BB7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer330", "Consumer\300_Series_Examples\330__Login__Streaming\Consumer330_VS110.vcxproj", "{13485EDD-3EF8-4739-B704-E94633B34BB7}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer331", "300_Series_Examples\331__Directory__Streaming\Consumer331_VS110.vcxproj", "{B82818EF-2A45-47F7-9F22-406DC0F7B59E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer331", "Consumer\300_Series_Examples\331__Directory__Streaming\Consumer331_VS110.vcxproj", "{B82818EF-2A45-47F7-9F22-406DC0F7B59E}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer332", "300_Series_Examples\332__Dictionary__Streaming\Consumer332_VS110.vcxproj", "{6580C67D-6F3B-4BA8-892A-0CAEE3DB2ACB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer332", "Consumer\300_Series_Examples\332__Dictionary__Streaming\Consumer332_VS110.vcxproj", "{6580C67D-6F3B-4BA8-892A-0CAEE3DB2ACB}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer340", "300_Series_Examples\340__MarketPrice__OnStreamPost\Consumer340_VS110.vcxproj", "{C8FCC68E-321B-4F87-B408-7D26E19BC11D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer340", "Consumer\300_Series_Examples\340__MarketPrice__OnStreamPost\Consumer340_VS110.vcxproj", "{C8FCC68E-321B-4F87-B408-7D26E19BC11D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer341", "300_Series_Examples\341__MarketPrice__OffStreamPost\Consumer341_VS110.vcxproj", "{4988D318-791B-4526-82AC-9172DB0D0E00}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer341", "Consumer\300_Series_Examples\341__MarketPrice__OffStreamPost\Consumer341_VS110.vcxproj", "{4988D318-791B-4526-82AC-9172DB0D0E00}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer350", "300_Series_Examples\350__MarketPrice__PauseAll\Consumer350_VS110.vcxproj", "{AECD93DC-F149-4487-BC20-A13665B11D8E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer350", "Consumer\300_Series_Examples\350__MarketPrice__PauseAll\Consumer350_VS110.vcxproj", "{AECD93DC-F149-4487-BC20-A13665B11D8E}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer360", "300_Series_Examples\360__MarketPrice__View\Consumer360_VS110.vcxproj", "{423B51A6-B7C8-4BAF-BB79-66B621283382}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer360", "Consumer\300_Series_Examples\360__MarketPrice__View\Consumer360_VS110.vcxproj", "{423B51A6-B7C8-4BAF-BB79-66B621283382}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer370", "300_Series_Examples\370__MarketPrice__Batch\Consumer370_VS110.vcxproj", "{4F06E326-FB94-427F-AB6D-731FD0CA2413}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer370", "Consumer\300_Series_Examples\370__MarketPrice__Batch\Consumer370_VS110.vcxproj", "{4F06E326-FB94-427F-AB6D-731FD0CA2413}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer400", "400_Series_Examples\400__Custom__NestedMessaging\Consumer400_VS110.vcxproj", "{7DFFBA92-A669-4D6F-9A2E-9BFD05B5DB8D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer400", "Consumer\400_Series_Examples\400__Custom__NestedMessaging\Consumer400_VS110.vcxproj", "{7DFFBA92-A669-4D6F-9A2E-9BFD05B5DB8D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer410", "400_Series_Examples\410__MarketPrice__HorizontalScaling\Consumer410_VS110.vcxproj", "{9C68E489-ABCA-4B86-9CA2-81D8C9D65851}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer410", "Consumer\400_Series_Examples\410__MarketPrice__HorizontalScaling\Consumer410_VS110.vcxproj", "{9C68E489-ABCA-4B86-9CA2-81D8C9D65851}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer420", "400_Series_Examples\420__MarketPrice__AdminDomainConfig\Consumer420_VS110.vcxproj", "{18023691-DA0D-4628-AA7D-74CC42528EF3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer420", "Consumer\400_Series_Examples\420__MarketPrice__AdminDomainConfig\Consumer420_VS110.vcxproj", "{18023691-DA0D-4628-AA7D-74CC42528EF3}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer421", "400_Series_Examples\421__MarketPrice__ProgrammaticConfig\Consumer421_VS110.vcxproj", "{B6994C9C-BFD4-40A6-A4BD-C3E619B5C774}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer421", "Consumer\400_Series_Examples\421__MarketPrice__ProgrammaticConfig\Consumer421_VS110.vcxproj", "{B6994C9C-BFD4-40A6-A4BD-C3E619B5C774}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer422", "400_Series_Examples\422__MarketPrice__ErrorClient\Consumer422_VS110.vcxproj", "{F75E1792-58B3-4BB3-A7D6-C1D1B41FA0D5}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer422", "Consumer\400_Series_Examples\422__MarketPrice__ErrorClient\Consumer422_VS110.vcxproj", "{F75E1792-58B3-4BB3-A7D6-C1D1B41FA0D5}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer440", "400_Series_Examples\440__System__TunnelStream\Consumer440_VS110.vcxproj", "{ADCC4999-458B-4384-AA20-E4263F71372A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer440", "Consumer\400_Series_Examples\440__System__TunnelStream\Consumer440_VS110.vcxproj", "{ADCC4999-458B-4384-AA20-E4263F71372A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
@@ -193,8 +193,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ema", "..\..\Src\Access\Ema
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Libxml2_VS110", "..\..\..\Eta\Utils\Libxml2\Libxml2_VS110.vcxproj", "{423221D5-6DFB-4EEC-AF52-711E1B0DC44D}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Libxml2_shared_VS110", "..\..\..\Eta\Utils\Libxml2\Libxml2_shared_VS110.vcxproj", "{DCC3B367-8031-4261-BF87-9BD745CE29E9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

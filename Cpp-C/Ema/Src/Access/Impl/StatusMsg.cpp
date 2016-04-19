@@ -66,7 +66,10 @@ const EmaString& StatusMsg::toString( UInt64 indent ) const
 	addIndent( _toString, indent, true ).append( "domain=\"" ).append( rdmDomainToString( getDomainType() ) ).append( "\"" );			
 	
 	if ( pTempDecoder->getPrivateStream() )
-		addIndent( _toString, indent, true ).append( "privateStream" );
+		addIndent( _toString, indent, true ).append( "PrivateStream" );
+
+	if ( pTempDecoder->getClearCache() )
+		addIndent( _toString, indent, true ).append( "ClearCache" );
 
 	if ( pTempDecoder->hasState() )
 		addIndent( _toString, indent, true ).append( "state=\"" ).append( pTempDecoder->getState().toString() ).append( "\"" );
@@ -83,6 +86,12 @@ const EmaString& StatusMsg::toString( UInt64 indent ) const
 		EmaString temp;
 		hexToString( temp, pTempDecoder->getPermissionData() );
 		addIndent( _toString, indent, true ).append( "permissionData=\"" ).append( temp ).append( "\"" );
+	}
+
+	if ( pTempDecoder->hasPublisherId() )
+	{
+		addIndent( _toString, indent, true ).append( "publisher user address=\"" ).append( pTempDecoder->getPublisherIdUserAddress() ).append( "\"" );			
+		addIndent( _toString, indent, true ).append( "publisher user id=\"" ).append( pTempDecoder->getPublisherIdUserId() ).append( "\"" );			
 	}
 
 	indent--;

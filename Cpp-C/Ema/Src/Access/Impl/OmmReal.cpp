@@ -182,6 +182,11 @@ Decoder& OmmReal::getDecoder()
 	return *_pDecoder;
 }
 
+bool OmmReal::hasDecoder() const
+{
+	return true;
+}
+
 double OmmReal::getAsDouble() const
 {
 	return _pDecoder->toDouble();
@@ -190,4 +195,9 @@ double OmmReal::getAsDouble() const
 const Encoder& OmmReal::getEncoder() const
 {
 	return *static_cast<const Encoder*>( 0 );
+}
+
+bool OmmReal::hasEncoder() const
+{
+	return false;
 }

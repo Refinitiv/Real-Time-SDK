@@ -7,7 +7,6 @@
  */
 
 #include "Encoder.h"
-#include "EmaString.h"
 #include "GlobalPool.h"
 
 using namespace thomsonreuters::ema::access;
@@ -86,12 +85,12 @@ bool Encoder::isComplete() const
 	return _containerComplete;
 }
 
-bool Encoder::hasEncIterator()
+bool Encoder::hasEncIterator() const
 {
 	return _pEncodeIter != 0 ? true : false;
 }
 
-UInt8 Encoder::convertDataType( DataType::DataTypeEnum dType )
+UInt8 Encoder::convertDataType( DataType::DataTypeEnum dType ) const
 {
 	switch ( dType )
 	{

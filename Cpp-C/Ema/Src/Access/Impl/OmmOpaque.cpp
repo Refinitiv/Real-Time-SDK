@@ -79,6 +79,11 @@ Decoder& OmmOpaque::getDecoder()
 	return *_pDecoder;
 }
 
+bool OmmOpaque::hasDecoder() const
+{
+	return true;
+}
+
 OmmOpaque& OmmOpaque::set( const EmaBuffer& value )
 {
 	if ( !_pEncoder )
@@ -107,4 +112,9 @@ const EmaString& OmmOpaque::getString() const
 const Encoder& OmmOpaque::getEncoder() const
 {
 	return *static_cast<const Encoder*>( _pEncoder );
+}
+
+bool OmmOpaque::hasEncoder() const
+{
+	return _pEncoder ? true : false;
 }

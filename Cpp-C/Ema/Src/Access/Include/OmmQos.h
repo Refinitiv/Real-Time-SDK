@@ -107,10 +107,12 @@ private :
 	friend class ReqMsgDecoder;
 
 	Decoder& getDecoder();
+	bool hasDecoder() const;
 
 	const EmaString& toString( UInt64 indent ) const;
 
 	const Encoder& getEncoder() const;
+	bool hasEncoder() const;
 
 	OmmQos();
 	virtual ~OmmQos();

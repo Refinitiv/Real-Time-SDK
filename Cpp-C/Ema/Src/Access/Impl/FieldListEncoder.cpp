@@ -83,6 +83,13 @@ void FieldListEncoder::initEncode()
 void FieldListEncoder::addPrimitiveEntry( Int16 fieldId, RsslDataType rsslDataType,
 										 const char* methodName, void* value )
 {
+	if ( _containerComplete )
+	{
+		EmaString temp( "Attempt to add an entry after complete() was called." );
+		throwIueException( temp );
+		return;
+	}
+
 	_rsslFieldEntry.encData.data = 0;
 	_rsslFieldEntry.encData.length = 0;
 
@@ -107,8 +114,15 @@ void FieldListEncoder::addPrimitiveEntry( Int16 fieldId, RsslDataType rsslDataTy
 	}
 }
 
-void FieldListEncoder::addEncodedEntry( Int16 fieldId, RsslDataType rsslDataType, const char* methodName, RsslBuffer& rsslBuffer )
+void FieldListEncoder::addEncodedEntry( Int16 fieldId, RsslDataType rsslDataType, const char* methodName, const RsslBuffer& rsslBuffer )
 {
+	if ( _containerComplete )
+	{
+		EmaString temp( "Attempt to add an entry after complete() was called." );
+		throwIueException( temp );
+		return;
+	}
+
 	_rsslFieldEntry.encData = rsslBuffer;
 
 	_rsslFieldEntry.dataType = rsslDataType;
@@ -134,6 +148,13 @@ void FieldListEncoder::addEncodedEntry( Int16 fieldId, RsslDataType rsslDataType
 
 void FieldListEncoder::startEncodingEntry( Int16 fieldId, RsslDataType rsslDataType, const char* methodName )
 {
+	if ( _containerComplete )
+	{
+		EmaString temp( "Attempt to add an entry after complete() was called." );
+		throwIueException( temp );
+		return;
+	}
+
 	_rsslFieldEntry.encData.data = 0;
 	_rsslFieldEntry.encData.length = 0;
 
@@ -165,7 +186,7 @@ void FieldListEncoder::endEncodingEntry() const
 	{
 		_pEncodeIter->reallocate();
 
-		retCode = rsslEncodeElementEntryComplete( &_pEncodeIter->_rsslEncIter, RSSL_TRUE );
+		retCode = rsslEncodeFieldEntryComplete( &_pEncodeIter->_rsslEncIter, RSSL_TRUE );
 	}
 
 	if ( retCode < RSSL_RET_SUCCESS )
@@ -524,15 +545,26 @@ void FieldListEncoder::addArray( Int16 fieldId, const OmmArray& array )
 		initEncode();
 	}
 
-	if ( static_cast<const Data&>(array).getEncoder().ownsIterator() )
+	const Encoder& enc = static_cast<const Data&>(array).getEncoder();
+
+	if ( enc.ownsIterator() )
 	{
-		// todo ... check if complete was called
-		addEncodedEntry( fieldId, RSSL_DT_ARRAY, "addArray()", static_cast<const Data&>(array).getEncoder().getRsslBuffer() );
+		if ( enc.isComplete() )
+			addEncodedEntry( fieldId, RSSL_DT_ARRAY, "addArray()", enc.getRsslBuffer() );
+		else
+		{
+			EmaString temp( "Attempt to addArray() while OmmArray::complete() was not called." );
+			throwIueException( temp );
+			return;
+		}
+	}
+	else if ( static_cast<const Data&>(array).hasDecoder() )
+	{
+		addEncodedEntry( fieldId, RSSL_DT_ARRAY, "addArray()", static_cast<Data&>( const_cast<OmmArray&>(array)).getDecoder().getRsslBuffer() );
 	}
 	else
 	{
-		// todo ... check if clear was called
-		passEncIterator( const_cast<Encoder&>( static_cast<const Data&>(array).getEncoder() ) );
+		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( fieldId, RSSL_DT_ARRAY, "addArray()" );
 	}
 }
@@ -548,15 +580,26 @@ void FieldListEncoder::addElementList( Int16 fieldId, const ElementList& element
 		initEncode();
 	}
 
-	if ( static_cast<const Data&>(elementList).getEncoder().ownsIterator() )
+	const Encoder& enc = static_cast<const Data&>(elementList).getEncoder();
+
+	if ( enc.ownsIterator() )
 	{
-		// todo ... check if complete was called
-		addEncodedEntry( fieldId, RSSL_DT_ELEMENT_LIST, "addElementList()", static_cast<const Data&>(elementList).getEncoder().getRsslBuffer() );
+		if ( enc.isComplete() )
+			addEncodedEntry( fieldId, RSSL_DT_ELEMENT_LIST, "addElementList()", enc.getRsslBuffer() );
+		else
+		{
+			EmaString temp( "Attempt to addElementList() while ElementList::complete() was not called." );
+			throwIueException( temp );
+			return;
+		}
+	}
+	else if ( static_cast<const Data&>(elementList).hasDecoder() )
+	{
+		addEncodedEntry( fieldId, RSSL_DT_ELEMENT_LIST, "addElementList()", static_cast<Data&>( const_cast<ElementList&>(elementList)).getDecoder().getRsslBuffer() );
 	}
 	else
 	{
-		// todo ... check if clear was called
-		passEncIterator( const_cast<Encoder&>( static_cast<const Data&>(elementList).getEncoder() ) );
+		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( fieldId, RSSL_DT_ELEMENT_LIST, "addElementList()" );
 	}
 }
@@ -572,15 +615,26 @@ void FieldListEncoder::addFieldList( Int16 fieldId, const FieldList& fieldList )
 		initEncode();
 	}
 
-	if ( static_cast<const Data&>(fieldList).getEncoder().ownsIterator() )
+	const Encoder& enc = static_cast<const Data&>(fieldList).getEncoder();
+
+	if ( enc.ownsIterator() )
 	{
-		// todo ... check if complete was called		
-		addEncodedEntry( fieldId, RSSL_DT_FIELD_LIST, "addFieldList()", static_cast<const Data&>(fieldList).getEncoder().getRsslBuffer() );
+		if ( enc.isComplete() )
+			addEncodedEntry( fieldId, RSSL_DT_FIELD_LIST, "addFieldList()", enc.getRsslBuffer() );
+		else
+		{
+			EmaString temp( "Attempt to addFieldList() while FieldList::complete() was not called." );
+			throwIueException( temp );
+			return;
+		}
+	}
+	else if ( static_cast<const Data&>(fieldList).hasDecoder() )
+	{
+		addEncodedEntry( fieldId, RSSL_DT_FIELD_LIST, "addFieldList()", static_cast<Data&>( const_cast<FieldList&>(fieldList)).getDecoder().getRsslBuffer() );
 	}
 	else
 	{
-		// todo ... check if clear was called
-		passEncIterator( const_cast<Encoder&>( static_cast<const Data&>(fieldList).getEncoder() ) );
+		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( fieldId, RSSL_DT_FIELD_LIST, "addFieldList()" );
 	}
 }
@@ -596,13 +650,18 @@ void FieldListEncoder::addReqMsg( Int16 fieldId, const ReqMsg& reqMsg )
 		initEncode();
 	}
 
-	if ( static_cast<const Data&>(reqMsg).getEncoder().ownsIterator() )
+	if ( static_cast<const Data&>(reqMsg).hasEncoder() && static_cast<const Data&>(reqMsg).getEncoder().ownsIterator() )
 	{
 		addEncodedEntry( fieldId, RSSL_DT_MSG, "addReqMsg()", static_cast<const Data&>(reqMsg).getEncoder().getRsslBuffer() );
 	}
+	else if ( static_cast<const Data&>(reqMsg).hasDecoder() )
+	{
+		addEncodedEntry( fieldId, RSSL_DT_MSG, "addReqMsg()", static_cast<Data&>( const_cast<ReqMsg&>(reqMsg)).getDecoder().getRsslBuffer() );
+	}
 	else
 	{
-		// todo ... exception?
+		EmaString temp( "Attempt to pass an empty message to addReqMsg() while it is not supported." );
+		throwIueException( temp );
 	}
 }
 
@@ -617,13 +676,18 @@ void FieldListEncoder::addRefreshMsg( Int16 fieldId, const RefreshMsg& refreshMs
 		initEncode();
 	}
 
-	if ( static_cast<const Data&>(refreshMsg).getEncoder().ownsIterator() )
+	if ( static_cast<const Data&>(refreshMsg).hasEncoder() && static_cast<const Data&>(refreshMsg).getEncoder().ownsIterator() )
 	{
 		addEncodedEntry( fieldId, RSSL_DT_MSG, "addRefreshMsg()", static_cast<const Data&>(refreshMsg).getEncoder().getRsslBuffer() );
 	}
+	else if ( static_cast<const Data&>(refreshMsg).hasDecoder() )
+	{
+		addEncodedEntry( fieldId, RSSL_DT_MSG, "addRefreshMsg()", static_cast<Data&>( const_cast<RefreshMsg&>(refreshMsg)).getDecoder().getRsslBuffer() );
+	}
 	else
 	{
-		// todo ... exception?
+		EmaString temp( "Attempt to pass an empty message to addRefreshMsg() while it is not supported." );
+		throwIueException( temp );
 	}
 }
 
@@ -638,13 +702,18 @@ void FieldListEncoder::addStatusMsg( Int16 fieldId, const StatusMsg& statusMsg )
 		initEncode();
 	}
 
-	if ( static_cast<const Data&>(statusMsg).getEncoder().ownsIterator() )
+	if ( static_cast<const Data&>(statusMsg).hasEncoder() && static_cast<const Data&>(statusMsg).getEncoder().ownsIterator() )
 	{
 		addEncodedEntry( fieldId, RSSL_DT_MSG, "addStatusMsg()", static_cast<const Data&>(statusMsg).getEncoder().getRsslBuffer() );
 	}
+	else if ( static_cast<const Data&>(statusMsg).hasDecoder() )
+	{
+		addEncodedEntry( fieldId, RSSL_DT_MSG, "addStatusMsg()", static_cast<Data&>( const_cast<StatusMsg&>(statusMsg)).getDecoder().getRsslBuffer() );
+	}
 	else
 	{
-		// todo ... exception?
+		EmaString temp( "Attempt to pass an empty message to addStatusMsg() while it is not supported." );
+		throwIueException( temp );
 	}
 }
 
@@ -659,13 +728,18 @@ void FieldListEncoder::addUpdateMsg( Int16 fieldId, const UpdateMsg& updateMsg )
 		initEncode();
 	}
 
-	if ( static_cast<const Data&>(updateMsg).getEncoder().ownsIterator() )
+	if ( static_cast<const Data&>(updateMsg).hasEncoder() && static_cast<const Data&>(updateMsg).getEncoder().ownsIterator() )
 	{
 		addEncodedEntry( fieldId, RSSL_DT_MSG, "addUpdateMsg()", static_cast<const Data&>(updateMsg).getEncoder().getRsslBuffer() );
 	}
+	else if ( static_cast<const Data&>(updateMsg).hasDecoder() )
+	{
+		addEncodedEntry( fieldId, RSSL_DT_MSG, "addUpdateMsg()", static_cast<Data&>( const_cast<UpdateMsg&>(updateMsg)).getDecoder().getRsslBuffer() );
+	}
 	else
 	{
-		// todo ... exception?
+		EmaString temp( "Attempt to pass an empty message to addUpdateMsg() while it is not supported." );
+		throwIueException( temp );
 	}
 }
 
@@ -680,13 +754,18 @@ void FieldListEncoder::addPostMsg( Int16 fieldId, const PostMsg& postMsg )
 		initEncode();
 	}
 
-	if ( static_cast<const Data&>(postMsg).getEncoder().ownsIterator() )
+	if ( static_cast<const Data&>(postMsg).hasEncoder() && static_cast<const Data&>(postMsg).getEncoder().ownsIterator() )
 	{
 		addEncodedEntry( fieldId, RSSL_DT_MSG, "addPostMsg()", static_cast<const Data&>(postMsg).getEncoder().getRsslBuffer() );
 	}
+	else if ( static_cast<const Data&>(postMsg).hasDecoder() )
+	{
+		addEncodedEntry( fieldId, RSSL_DT_MSG, "addPostMsg()", static_cast<Data&>( const_cast<PostMsg&>(postMsg)).getDecoder().getRsslBuffer() );
+	}
 	else
 	{
-		// todo ... exception?
+		EmaString temp( "Attempt to pass an empty message to addPostMsg() while it is not supported." );
+		throwIueException( temp );
 	}
 }
 
@@ -701,13 +780,18 @@ void FieldListEncoder::addAckMsg( Int16 fieldId, const AckMsg& ackMsg )
 		initEncode();
 	}
 
-	if ( static_cast<const Data&>(ackMsg).getEncoder().ownsIterator() )
+	if ( static_cast<const Data&>(ackMsg).hasEncoder() && static_cast<const Data&>(ackMsg).getEncoder().ownsIterator() )
 	{
 		addEncodedEntry( fieldId, RSSL_DT_MSG, "addAckMsg()", static_cast<const Data&>(ackMsg).getEncoder().getRsslBuffer() );
 	}
+	else if ( static_cast<const Data&>(ackMsg).hasDecoder() )
+	{
+		addEncodedEntry( fieldId, RSSL_DT_MSG, "addAckMsg()", static_cast<Data&>( const_cast<AckMsg&>(ackMsg)).getDecoder().getRsslBuffer() );
+	}
 	else
 	{
-		// todo ... exception?
+		EmaString temp( "Attempt to pass an empty message to addAckMsg() while it is not supported." );
+		throwIueException( temp );
 	}
 }
 
@@ -722,13 +806,18 @@ void FieldListEncoder::addGenericMsg( Int16 fieldId, const GenericMsg& genMsg )
 		initEncode();
 	}
 
-	if ( static_cast<const Data&>(genMsg).getEncoder().ownsIterator() )
+	if ( static_cast<const Data&>(genMsg).hasEncoder() && static_cast<const Data&>(genMsg).getEncoder().ownsIterator() )
 	{
 		addEncodedEntry( fieldId, RSSL_DT_MSG, "addGenericMsg()", static_cast<const Data&>(genMsg).getEncoder().getRsslBuffer() );
 	}
+	else if ( static_cast<const Data&>(genMsg).hasDecoder() )
+	{
+		addEncodedEntry( fieldId, RSSL_DT_MSG, "addGenericMsg()", static_cast<Data&>( const_cast<GenericMsg&>(genMsg)).getDecoder().getRsslBuffer() );
+	}
 	else
 	{
-		// todo ... exception?
+		EmaString temp( "Attempt to pass an empty message to addGenericMsg() while it is not supported." );
+		throwIueException( temp );
 	}
 }
 
@@ -743,15 +832,26 @@ void FieldListEncoder::addMap( Int16 fieldId, const Map& map )
 		initEncode();
 	}
 
-	if ( static_cast<const Data&>(map).getEncoder().ownsIterator() )
+	const Encoder& enc = static_cast<const Data&>(map).getEncoder();
+
+	if ( enc.ownsIterator() )
 	{
-		// todo ... check if complete was called
-		addEncodedEntry( fieldId, RSSL_DT_MAP, "addMap()", static_cast<const Data&>(map).getEncoder().getRsslBuffer() );
+		if ( enc.isComplete() )
+			addEncodedEntry( fieldId, RSSL_DT_MAP, "addMap()", enc.getRsslBuffer() );
+		else
+		{
+			EmaString temp( "Attempt to addMap() while Map::complete() was not called." );
+			throwIueException( temp );
+			return;
+		}
+	}
+	else if ( static_cast<const Data&>(map).hasDecoder() )
+	{
+		addEncodedEntry( fieldId, RSSL_DT_MAP, "addMap()", static_cast<Data&>( const_cast<Map&>(map)).getDecoder().getRsslBuffer() );
 	}
 	else
 	{
-		// todo ... check if clear was called
-		passEncIterator( const_cast<Encoder&>( static_cast<const Data&>(map).getEncoder() ) );
+		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( fieldId, RSSL_DT_MAP, "addMap()" );
 	}
 }
@@ -767,15 +867,26 @@ void FieldListEncoder::addVector( Int16 fieldId, const Vector& vector )
 		initEncode();
 	}
 
-	if ( static_cast<const Data&>(vector).getEncoder().ownsIterator() )
+	const Encoder& enc = static_cast<const Data&>(vector).getEncoder();
+
+	if ( enc.ownsIterator() )
 	{
-		// todo ... check if complete was called
-		addEncodedEntry( fieldId, RSSL_DT_VECTOR, "addVector()", static_cast<const Data&>(vector).getEncoder().getRsslBuffer() );
+		if ( enc.isComplete() )
+			addEncodedEntry( fieldId, RSSL_DT_VECTOR, "addVector()", enc.getRsslBuffer() );
+		else
+		{
+			EmaString temp( "Attempt to addVector() while Vector::complete() was not called." );
+			throwIueException( temp );
+			return;
+		}
+	}
+	else if ( static_cast<const Data&>(vector).hasDecoder() )
+	{
+		addEncodedEntry( fieldId, RSSL_DT_VECTOR, "addVector()", static_cast<Data&>( const_cast<Vector&>(vector)).getDecoder().getRsslBuffer() );
 	}
 	else
 	{
-		// todo ... check if clear was called
-		passEncIterator( const_cast<Encoder&>( static_cast<const Data&>(vector).getEncoder() ) );
+		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( fieldId, RSSL_DT_VECTOR, "addVector()" );
 	}
 }
@@ -791,15 +902,26 @@ void FieldListEncoder::addSeries( Int16 fieldId, const Series& series )
 		initEncode();
 	}
 
-	if ( static_cast<const Data&>(series).getEncoder().ownsIterator() )
+	const Encoder& enc = static_cast<const Data&>(series).getEncoder();
+
+	if ( enc.ownsIterator() )
 	{
-		// todo ... check if complete was called
-		addEncodedEntry( fieldId, RSSL_DT_SERIES, "addSeries()", static_cast<const Data&>(series).getEncoder().getRsslBuffer() );
+		if ( enc.isComplete() )
+			addEncodedEntry( fieldId, RSSL_DT_SERIES, "addSeries()", enc.getRsslBuffer() );
+		else
+		{
+			EmaString temp( "Attempt to addSeries() while Series::complete() was not called." );
+			throwIueException( temp );
+			return;
+		}
+	}
+	else if ( static_cast<const Data&>(series).hasDecoder() )
+	{
+		addEncodedEntry( fieldId, RSSL_DT_SERIES, "addSeries()", static_cast<Data&>( const_cast<Series&>(series)).getDecoder().getRsslBuffer() );
 	}
 	else
 	{
-		// todo ... check if clear was called
-		passEncIterator( const_cast<Encoder&>( static_cast<const Data&>(series).getEncoder() ) );
+		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( fieldId, RSSL_DT_SERIES, "addSeries()" );
 	}
 }
@@ -815,15 +937,26 @@ void FieldListEncoder::addFilterList( Int16 fieldId, const FilterList& filterLis
 		initEncode();
 	}
 
-	if ( static_cast<const Data&>(filterList).getEncoder().ownsIterator() )
+	const Encoder& enc = static_cast<const Data&>(filterList).getEncoder();
+
+	if ( enc.ownsIterator() )
 	{
-		// todo ... check if complete was called
-		addEncodedEntry( fieldId, RSSL_DT_FILTER_LIST, "addFilterList()", static_cast<const Data&>(filterList).getEncoder().getRsslBuffer() );
+		if ( enc.isComplete() )
+			addEncodedEntry( fieldId, RSSL_DT_FILTER_LIST, "addFilterList()", enc.getRsslBuffer() );
+		else
+		{
+			EmaString temp( "Attempt to addFilterList() while FilterList::complete() was not called." );
+			throwIueException( temp );
+			return;
+		}
+	}
+	else if ( static_cast<const Data&>(filterList).hasDecoder() )
+	{
+		addEncodedEntry( fieldId, RSSL_DT_FILTER_LIST, "addFilterList()", static_cast<Data&>( const_cast<FilterList&>(filterList)).getDecoder().getRsslBuffer() );
 	}
 	else
 	{
-		// todo ... check if clear was called
-		passEncIterator( const_cast<Encoder&>( static_cast<const Data&>(filterList).getEncoder() ) );
+		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( fieldId, RSSL_DT_FILTER_LIST, "addFilterList()" );
 	}
 }
@@ -839,10 +972,20 @@ void FieldListEncoder::addOpaque( Int16 fieldId, const OmmOpaque& ommOpaque )
 		initEncode();
 	}
 
-	if ( static_cast<const Data&>(ommOpaque).getEncoder().ownsIterator() )
+	const Encoder& enc = static_cast<const Data&>(ommOpaque).getEncoder();
+
+	if ( enc.ownsIterator() )
 	{
-		// todo ... check if complete was called
-		addEncodedEntry( fieldId, RSSL_DT_OPAQUE, "addOpaque()", static_cast<const Data&>(ommOpaque).getEncoder().getRsslBuffer() );
+		addEncodedEntry( fieldId, RSSL_DT_OPAQUE, "addOpaque()", enc.getRsslBuffer() );
+	}
+	else if ( static_cast<const Data&>(ommOpaque).hasDecoder() )
+	{
+		addEncodedEntry( fieldId, RSSL_DT_OPAQUE, "addOpaque()", static_cast<Data&>( const_cast<OmmOpaque&>(ommOpaque)).getDecoder().getRsslBuffer() );
+	}
+	else
+	{
+		EmaString temp( "Attempt to pass an empty OmmOpaque to addOpaque() while it is not supported." );
+		throwIueException( temp );
 	}
 }
 
@@ -857,10 +1000,20 @@ void FieldListEncoder::addXml( Int16 fieldId, const OmmXml& ommXml )
 		initEncode();
 	}
 
-	if ( static_cast<const Data&>(ommXml).getEncoder().ownsIterator() )
+	const Encoder& enc = static_cast<const Data&>(ommXml).getEncoder();
+
+	if ( enc.ownsIterator() )
 	{
-		// todo ... check if complete was called
-		addEncodedEntry( fieldId, RSSL_DT_XML, "addXml()", static_cast<const Data&>(ommXml).getEncoder().getRsslBuffer() );
+		addEncodedEntry( fieldId, RSSL_DT_XML, "addXml()", enc.getRsslBuffer() );
+	}
+	else if ( static_cast<const Data&>(ommXml).hasDecoder() )
+	{
+		addEncodedEntry( fieldId, RSSL_DT_XML, "addXml()", static_cast<Data&>( const_cast<OmmXml&>(ommXml)).getDecoder().getRsslBuffer() );
+	}
+	else
+	{
+		EmaString temp( "Attempt to pass an empty OmmXml to addXml() while it is not supported." );
+		throwIueException( temp );
 	}
 }
 
@@ -875,10 +1028,20 @@ void FieldListEncoder::addAnsiPage( Int16 fieldId, const OmmAnsiPage& ommAnsiPag
 		initEncode();
 	}
 
-	if ( static_cast<const Data&>(ommAnsiPage).getEncoder().ownsIterator() )
+	const Encoder& enc = static_cast<const Data&>(ommAnsiPage).getEncoder();
+
+	if ( enc.ownsIterator() )
 	{
-		// todo ... check if complete was called
-		addEncodedEntry( fieldId, RSSL_DT_ANSI_PAGE, "addAnsiPage()", static_cast<const Data&>(ommAnsiPage).getEncoder().getRsslBuffer() );
+		addEncodedEntry( fieldId, RSSL_DT_ANSI_PAGE, "addAnsiPage()", enc.getRsslBuffer() );
+	}
+	else if ( static_cast<const Data&>(ommAnsiPage).hasDecoder() )
+	{
+		addEncodedEntry( fieldId, RSSL_DT_ANSI_PAGE, "addAnsiPage()", static_cast<Data&>( const_cast<OmmAnsiPage&>(ommAnsiPage)).getDecoder().getRsslBuffer() );
+	}
+	else
+	{
+		EmaString temp( "Attempt to pass an empty OmmAnsiPage to addAnsiPage() while it is not supported." );
+		throwIueException( temp );
 	}
 }
 
@@ -1094,16 +1257,13 @@ void FieldListEncoder::addCodeRmtes( Int16 fieldId )
 
 void FieldListEncoder::complete()
 {
-	if ( !hasEncIterator() )
-	{
-		EmaString temp( "Cannot complete an empty FieldList" );
-		throwIueException( temp );
-		return;
-	}
+	if ( _containerComplete ) return;
 
 	if ( rsslFieldListCheckHasStandardData( &_rsslFieldList ) == RSSL_FALSE )
 	{
-		// todo ... empty element list?
+		acquireEncIterator();
+
+		initEncode();
 	}
 
 	RsslRet retCode = rsslEncodeFieldListComplete( &(_pEncodeIter->_rsslEncIter), RSSL_TRUE );

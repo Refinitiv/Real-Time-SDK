@@ -156,7 +156,7 @@ void OmmArrayDecoder::clone( const OmmArrayDecoder& other )
 	}
 }
 
-void OmmArrayDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* rsslBuffer )
+bool OmmArrayDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* rsslBuffer )
 {
 	_decodingStarted = false;
 
@@ -174,7 +174,7 @@ void OmmArrayDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* rsslBu
 		_atEnd = false;
 		_dataCode = _rsslArrayBuffer.length ? Data::NoCodeEnum : Data::BlankEnum;
 		_errorCode = OmmError::IteratorSetFailureEnum;
-		return;
+		return false;
 	}
 
 	retCode = rsslSetDecodeIteratorRWFVersion( &_decodeIter, _rsslMajVer, _rsslMinVer );
@@ -183,7 +183,7 @@ void OmmArrayDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* rsslBu
 		_atEnd = false;
 		_dataCode = _rsslArrayBuffer.length ? Data::NoCodeEnum : Data::BlankEnum;
 		_errorCode = OmmError::IteratorSetFailureEnum;
-		return;
+		return false;
 	}
 
 	retCode = rsslDecodeArray( &_decodeIter, &_rsslArray );
@@ -194,35 +194,38 @@ void OmmArrayDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* rsslBu
 		_atEnd = true;
 		_dataCode = Data::BlankEnum;
 		_errorCode = OmmError::NoErrorEnum;
-		break;
+		return true;
 	case RSSL_RET_SUCCESS :
 		_atEnd = false;
 		_dataCode = Data::NoCodeEnum;
 		_errorCode = OmmError::NoErrorEnum;
-		break;
+		return true;
 	case RSSL_RET_ITERATOR_OVERRUN :
 		_atEnd = false;
 		_dataCode = _rsslArrayBuffer.length ? Data::NoCodeEnum : Data::BlankEnum;
 		_errorCode = OmmError::IteratorOverrunEnum;
-		break;
+		return false;
 	case RSSL_RET_INCOMPLETE_DATA :
 		_atEnd = false;
 		_dataCode = _rsslArrayBuffer.length ? Data::NoCodeEnum : Data::BlankEnum;
 		_errorCode = OmmError::IncompleteDataEnum;
-		break;
+		return false;
 	default :
 		_atEnd = false;
 		_dataCode = _rsslArrayBuffer.length ? Data::NoCodeEnum : Data::BlankEnum;
 		_errorCode = OmmError::UnknownErrorEnum;
-		break;
+		return false;
 	}
 }
 
-void OmmArrayDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
+bool OmmArrayDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
 {
+	_dataCode = Data::BlankEnum;
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
 }
 
-void OmmArrayDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuffer, const RsslDataDictionary* , void* )
+bool OmmArrayDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuffer, const RsslDataDictionary* , void* )
 {
 	_decodingStarted = false;
 
@@ -240,7 +243,7 @@ void OmmArrayDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslB
 		_atEnd = false;
 		_dataCode = _rsslArrayBuffer.length ? Data::NoCodeEnum : Data::BlankEnum;
 		_errorCode = OmmError::IteratorSetFailureEnum;
-		return;
+		return false;
 	}
 
 	retCode = rsslSetDecodeIteratorRWFVersion( &_decodeIter, _rsslMajVer, _rsslMinVer );
@@ -249,7 +252,7 @@ void OmmArrayDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslB
 		_atEnd = false;
 		_dataCode = _rsslArrayBuffer.length ? Data::NoCodeEnum : Data::BlankEnum;
 		_errorCode = OmmError::IteratorSetFailureEnum;
-		return;
+		return false;
 	}
 
 	retCode = rsslDecodeArray( &_decodeIter, &_rsslArray );
@@ -260,27 +263,27 @@ void OmmArrayDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslB
 		_atEnd = true;
 		_dataCode = Data::BlankEnum;
 		_errorCode = OmmError::NoErrorEnum;
-		break;
+		return true;
 	case RSSL_RET_SUCCESS :
 		_atEnd = false;
 		_dataCode = Data::NoCodeEnum;
 		_errorCode = OmmError::NoErrorEnum;
-		break;
+		return true;
 	case RSSL_RET_ITERATOR_OVERRUN :
 		_atEnd = false;
 		_dataCode = _rsslArrayBuffer.length ? Data::NoCodeEnum : Data::BlankEnum;
 		_errorCode = OmmError::IteratorOverrunEnum;
-		break;
+		return false;
 	case RSSL_RET_INCOMPLETE_DATA :
 		_atEnd = false;
 		_dataCode = _rsslArrayBuffer.length ? Data::NoCodeEnum : Data::BlankEnum;
 		_errorCode = OmmError::IncompleteDataEnum;
-		break;
+		return false;
 	default :
 		_atEnd = false;
 		_dataCode = _rsslArrayBuffer.length ? Data::NoCodeEnum : Data::BlankEnum;
 		_errorCode = OmmError::UnknownErrorEnum;
-		break;
+		return false;
 	}
 }
 
@@ -302,14 +305,6 @@ RsslPrimitiveType OmmArrayDecoder::getRsslDataType() const
 bool OmmArrayDecoder::getNextData()
 {
 	if ( _atEnd ) return true;
-
-	if ( !_decodingStarted && _errorCode != OmmError::NoErrorEnum )
-	{
-		_atEnd = true;
-		_decodingStarted = true;
-		Decoder::setRsslData( &_load, _errorCode, &_decodeIter, &_rsslArrayBuffer ); 
-		return false;
-	}
 
 	_decodingStarted = true;
 
@@ -359,4 +354,14 @@ const EmaBuffer& OmmArrayDecoder::getHexBuffer()
 	_hexBuffer.setFromInt( _rsslArrayBuffer.data, _rsslArrayBuffer.length );
 
 	return _hexBuffer.toBuffer();
+}
+
+const RsslBuffer& OmmArrayDecoder::getRsslBuffer() const
+{
+	return _rsslArrayBuffer;
+}
+
+OmmError::ErrorCode OmmArrayDecoder::getErrorCode() const
+{
+	return _errorCode;
 }

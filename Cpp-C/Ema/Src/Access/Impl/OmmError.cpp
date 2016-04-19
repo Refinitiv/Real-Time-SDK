@@ -106,7 +106,17 @@ Decoder& OmmError::getDecoder()
 	return *_pDecoder;
 }
 
+bool OmmError::hasDecoder() const
+{
+	return true;
+}
+
 const Encoder& OmmError::getEncoder() const
 {
 	return *static_cast<const Encoder*>( 0 );
+}
+
+bool OmmError::hasEncoder() const
+{
+	return false;
 }

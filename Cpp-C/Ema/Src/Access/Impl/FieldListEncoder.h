@@ -159,7 +159,7 @@ private :
 
 	void addPrimitiveEntry( Int16 , RsslDataType , const char* , void* );
 
-	void addEncodedEntry( Int16 , RsslDataType , const char* , RsslBuffer& );
+	void addEncodedEntry( Int16 , RsslDataType , const char* , const RsslBuffer& );
 
 	void startEncodingEntry( Int16 , RsslDataType , const char* );
 

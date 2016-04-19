@@ -460,6 +460,7 @@ void Login::sendLoginClose()
 	submitMsgOpts.minorVersion = _pChannel->getRsslChannel()->minorVersion;
 
 	RsslErrorInfo rsslErrorInfo;
+	clearRsslErrorInfo( &rsslErrorInfo );
 	RsslRet ret = rsslReactorSubmitMsg( _pChannel->getRsslReactor(),
 										_pChannel->getRsslChannel(),
 										&submitMsgOpts, &rsslErrorInfo );
@@ -715,7 +716,7 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback(  RsslReactor* pRssl
 				.append( "Error Id " ).append( pError->rsslError.rsslErrorId ).append( CR )
 				.append( "Internal sysError " ).append( pError->rsslError.sysError ).append( CR )
 				.append( "Error Location " ).append( pError->errorLocation ).append( CR )
-				.append( "Error Text " ).append( pError->rsslError.text );
+				.append( "Error Text " ).append( pError->rsslError.rsslErrorId ? pError->rsslError.text : "" );
 			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
 		return RSSL_RC_CRET_SUCCESS;
@@ -1075,6 +1076,7 @@ bool LoginCallbackClient::convertRdmLoginToRsslBuffer( RsslReactorChannel* pRssl
 	}
 
 	RsslErrorInfo rsslErrorInfo;
+	clearRsslErrorInfo( &rsslErrorInfo );
 	retCode = rsslEncodeRDMLoginMsg( &eIter, pEvent->pRDMLoginMsg, &pRsslMsgBuffer->length, &rsslErrorInfo );
 
 	while ( retCode == RSSL_RET_BUFFER_TOO_SMALL )
@@ -1227,6 +1229,7 @@ bool LoginItem::submit( RsslRequestMsg* pRsslRequestMsg )
 		submitMsgOpts.minorVersion = _loginList->operator[]( idx )->getChannel()->getRsslChannel()->minorVersion;
 
 		RsslErrorInfo rsslErrorInfo;
+		clearRsslErrorInfo( &rsslErrorInfo );
 		RsslRet ret;
 		if ( ( ret = rsslReactorSubmitMsg( _loginList->operator[]( idx )->getChannel()->getRsslReactor(),
 											_loginList->operator[]( idx )->getChannel()->getRsslChannel(),
@@ -1277,6 +1280,7 @@ bool LoginItem::submit( RsslGenericMsg* pRsslGenericMsg )
 		submitMsgOpts.minorVersion = _loginList->operator[]( idx )->getChannel()->getRsslChannel()->minorVersion;
 
 		RsslErrorInfo rsslErrorInfo;
+		clearRsslErrorInfo( &rsslErrorInfo );
 		RsslRet ret;
 		if ( ( ret = rsslReactorSubmitMsg( _loginList->operator[]( idx )->getChannel()->getRsslReactor(),
 											_loginList->operator[]( idx )->getChannel()->getRsslChannel(),
@@ -1328,6 +1332,7 @@ bool LoginItem::submit( RsslPostMsg* pRsslPostMsg )
 		submitMsgOpts.minorVersion = _loginList->operator[]( idx )->getChannel()->getRsslChannel()->minorVersion;
 
 		RsslErrorInfo rsslErrorInfo;
+		clearRsslErrorInfo( &rsslErrorInfo );
 		RsslRet ret;
 		if ( ( ret = rsslReactorSubmitMsg( _loginList->operator[]( idx )->getChannel()->getRsslReactor(),
 											_loginList->operator[]( idx )->getChannel()->getRsslChannel(),

@@ -108,7 +108,17 @@ Decoder& OmmXml::getDecoder()
 	return *_pDecoder;
 }
 
+bool OmmXml::hasDecoder() const
+{
+	return true;
+}
+
 const Encoder& OmmXml::getEncoder() const
 {
 	return *static_cast<const Encoder*>( _pEncoder );
+}
+
+bool OmmXml::hasEncoder() const
+{
+	return _pEncoder ? true : false;
 }

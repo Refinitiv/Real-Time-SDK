@@ -9,8 +9,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ema", "Ema_VS110.vcxproj", 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Libxml2_VS110", "..\..\..\Eta\Utils\Libxml2\Libxml2_VS110.vcxproj", "{423221D5-6DFB-4EEC-AF52-711E1B0DC44D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Libxml2_shared_VS110", "..\..\..\Eta\Utils\Libxml2\Libxml2_shared_VS110.vcxproj", "{DCC3B367-8031-4261-BF87-9BD745CE29E9}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug MDd|x64 = Debug MDd|x64

@@ -231,8 +231,10 @@ public :
 private :
 
 	Decoder& getDecoder();
+	bool hasDecoder() const;
 
 	const Encoder& getEncoder() const;
+	bool hasEncoder() const;
 
 	const EmaString& toString( UInt64 ) const;
 

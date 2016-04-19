@@ -30,7 +30,7 @@ public :
 	// RsslMsg -> RsslMsg containing rssl decoded message
 	// RsslDataDictionary -> dictionary used for FieldList decoding
 	// todo ... make sure that the RsslDataDictionary is able to pass dictionary family
-	virtual void setRsslData( UInt8 majVer, UInt8 minVer, RsslMsg* , const RsslDataDictionary* ) = 0;
+	virtual bool setRsslData( UInt8 majVer, UInt8 minVer, RsslMsg* , const RsslDataDictionary* ) = 0;
 
 	// this method is used by iter-able containers only (e.g. FieldList, Map, etc)
 	//
@@ -40,16 +40,20 @@ public :
 	// RsslDataDictionary -> dictionary used for FieldList decoding
 	// void -> local set defined data
 	// todo ... make sure that the RsslDataDictionary is able to pass dictionary family
-	virtual void setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* , const RsslDataDictionary* , void* ) = 0;
+	virtual bool setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* , const RsslDataDictionary* , void* ) = 0;
 
 	// this method is used by primitive data type (not iter-able data types) plus Array
 	// RsslDecodeIterator -> current decode iterator in which this primitive is contained
 	// RsslBuffer -> buffer containing actual wire data
-	virtual void setRsslData( RsslDecodeIterator* , RsslBuffer* ) = 0;
+	virtual bool setRsslData( RsslDecodeIterator* , RsslBuffer* ) = 0;
 
 	virtual void setServiceName( const char* , UInt32 , bool nullTerm = true ) {}
 
 	virtual const Data* getSummaryData() const { return 0; }
+
+	virtual const RsslBuffer& getRsslBuffer() const = 0;
+
+	virtual OmmError::ErrorCode getErrorCode() const = 0;
 
 protected :
 
@@ -61,7 +65,7 @@ protected :
 	// RsslDataDictionary -> dictionary used for decoding of passed in FieldList
 	// void -> local set defined data
 	// todo ... make sure that the RsslDataDictionary is able to pass dictionary family
-	void setRsslData( Data* , RsslDataType rsslType, RsslDecodeIterator* , RsslBuffer* , const RsslDataDictionary* , void* localDb ) const;
+	bool setRsslData( Data* , RsslDataType rsslType, RsslDecodeIterator* , RsslBuffer* , const RsslDataDictionary* , void* localDb ) const;
 
 	// Data* -> points to Data class object being morphed
 	// OmmError::ErrorCode -> error code

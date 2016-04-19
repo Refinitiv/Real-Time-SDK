@@ -8,6 +8,7 @@
 
 #include "AckMsgEncoder.h"
 #include "ComplexType.h"
+#include "Decoder.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -163,13 +164,36 @@ void AckMsgEncoder::attrib( const ComplexType& attrib )
 	_rsslAckMsg.msgBase.msgKey.attribContainerType = convertDataType( attrib.getDataType() );
 
 #ifdef __EMA_COPY_ON_SET__
-	RsslBuffer& rsslBuf = static_cast<const Data&>(attrib).getEncoder().getRsslBuffer();
-	_attrib.setFrom( rsslBuf.data, rsslBuf.length );
+	if ( attrib.hasEncoder() && attrib.getEncoder().ownsIterator() )
+	{
+		const RsslBuffer& rsslBuf = attrib.getEncoder().getRsslBuffer();
+		_attrib.setFrom( rsslBuf.data, rsslBuf.length );
+	}
+	else if ( attrib.hasDecoder() )
+	{
+		const RsslBuffer& rsslBuf = const_cast<ComplexType&>( attrib ).getDecoder().getRsslBuffer();
+		_attrib.setFrom( rsslBuf.data, rsslBuf.length );
+	}
+	else
+	{
+		EmaString temp( "Attempt to pass in an empty ComplexType while it is not supported." );
+		throwIueException( temp );
+		return;
+	}
 
 	_rsslAckMsg.msgBase.msgKey.encAttrib.data = (char*)_attrib.c_buf();
 	_rsslAckMsg.msgBase.msgKey.encAttrib.length = _attrib.length();
 #else
-	_rsslAckMsg.msgBase.msgKey.encAttrib = static_cast<const Data&>(attrib).getEncoder().getRsslBuffer();
+	if ( attrib.hasEncoder() && attrib.getEncoder().ownsIterator() )
+		_rsslAckMsg.msgBase.msgKey.encAttrib = attrib.getEncoder().getRsslBuffer();
+	else if ( attrib.hasDecoder() )
+		_rsslAckMsg.msgBase.msgKey.encAttrib = const_cast<ComplexType&>( attrib ).getDecoder().getRsslBuffer();
+	else
+	{
+		EmaString temp( "Attempt to pass in an empty ComplexType while it is not supported." );
+		throwIueException( temp );
+		return;
+	}
 #endif
 
 	_rsslAckMsg.msgBase.msgKey.flags |= RSSL_MKF_HAS_ATTRIB;
@@ -219,13 +243,36 @@ void AckMsgEncoder::payload( const ComplexType& load )
 	_rsslAckMsg.msgBase.containerType = convertDataType( load.getDataType() );
 
 #ifdef __EMA_COPY_ON_SET__
-	RsslBuffer& rsslBuf = static_cast<const Data&>(load).getEncoder().getRsslBuffer();
-	_payload.setFrom( rsslBuf.data, rsslBuf.length );
+	if ( load.hasEncoder() && load.getEncoder().ownsIterator() )
+	{
+		const RsslBuffer& rsslBuf = load.getEncoder().getRsslBuffer();
+		_payload.setFrom( rsslBuf.data, rsslBuf.length );
+	}
+	else if ( load.hasDecoder() )
+	{
+		const RsslBuffer& rsslBuf = const_cast<ComplexType&>( load ).getDecoder().getRsslBuffer();
+		_payload.setFrom( rsslBuf.data, rsslBuf.length );
+	}
+	else
+	{
+		EmaString temp( "Attempt to pass in an empty ComplexType while it is not supported." );
+		throwIueException( temp );
+		return;
+	}
 
 	_rsslAckMsg.msgBase.encDataBody.data = (char*)_payload.c_buf();
 	_rsslAckMsg.msgBase.encDataBody.length = _payload.length();
 #else
-	_rsslAckMsg.msgBase.encDataBody = static_cast<const Data&>(load).getEncoder().getRsslBuffer();
+	if ( loadhasEncoder() && load.getEncoder().ownsIterator() )
+		_rsslAckMsg.msgBase.encDataBody = load.getEncoder().getRsslBuffer();
+	else if ( load.hasDecoder() )
+		_rsslAckMsg.msgBase.encDataBody = const_cast<ComplexType&>( load ).getDecoder().getRsslBuffer();
+	else
+	{
+		EmaString temp( "Attempt to pass in an empty ComplexType while it is not supported." );
+		throwIueException( temp );
+		return;
+	}
 #endif
 }
 

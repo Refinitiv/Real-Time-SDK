@@ -186,10 +186,12 @@ private :
 	friend class StatusMsgDecoder;
 
 	Decoder& getDecoder();
+	bool hasDecoder() const;
 
 	const EmaString& toString( UInt64 ) const;
 
 	const Encoder& getEncoder() const;
+	bool hasEncoder() const;
 
 	OmmState();
 	virtual ~OmmState();

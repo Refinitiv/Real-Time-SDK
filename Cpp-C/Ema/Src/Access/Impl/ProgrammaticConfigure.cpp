@@ -1,3 +1,11 @@
+/*|-----------------------------------------------------------------------------
+ *|            This source code is provided under the Apache 2.0 license      --
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+ *|                See the project's LICENSE.md for details.                  --
+ *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|-----------------------------------------------------------------------------
+ */
+
 
 #include "OmmConsumerActiveConfig.h"
 #include "OmmInvalidConfigurationException.h"
@@ -513,7 +521,7 @@ void ProgrammaticConfigure::retrieveChannelInfo(const MapEntry& mapEntry, const 
 	thomsonreuters::ema::access::UInt16 channelType, compressionType;
 	thomsonreuters::ema::access::Int64 reconnectAttemptLimit, reconnectMinDelay, reconnectMaxDelay, xmlTraceMaxFileSize;
 	thomsonreuters::ema::access::UInt64 guaranteedOutputBuffers, compressionThreshold, connectionPingTimeout, numInputBuffers, sysSendBufSize, sysRecvBufSize,
-		tcpNodelay, xmlTraceToFile, xmlTraceToStdout, xmlTraceToMultipleFiles, xmlTraceWrite, xmlTraceRead, msgKeyInUpdates;
+	  tcpNodelay, xmlTraceToFile, xmlTraceToStdout, xmlTraceToMultipleFiles, xmlTraceWrite, xmlTraceRead, xmlTracePing, xmlTraceHex, msgKeyInUpdates;
 
 	thomsonreuters::ema::access::UInt64 flags = 0;
 	thomsonreuters::ema::access::UInt32 maxUInt32 = 0xFFFFFFFF;
@@ -694,6 +702,16 @@ void ProgrammaticConfigure::retrieveChannelInfo(const MapEntry& mapEntry, const 
 			{
 				xmlTraceRead = channelEntry.getUInt();
 				flags |= 0x2000;
+			}
+			else if ( channelEntry.getName() == "XmlTracePing" )
+			{
+			    xmlTracePing = channelEntry.getUInt();
+			    flags |= 0x2000000;
+			}
+			else if ( channelEntry.getName() == "XmlTraceHex" )
+			{
+			    xmlTraceHex = channelEntry.getUInt();
+			    flags |= 0x4000000;
 			}
 			else if ( channelEntry.getName() == "MsgKeyInUpdates" )
 			{
@@ -1021,6 +1039,16 @@ void ProgrammaticConfigure::retrieveChannelInfo(const MapEntry& mapEntry, const 
 			pCurrentChannelConfig->xmlTraceRead = xmlTraceRead ? true : false;
 		else if( useFileCfg )
 			pCurrentChannelConfig->xmlTraceRead = fileCfg->xmlTraceRead;
+
+		if ( flags & 0x2000000 )
+			pCurrentChannelConfig->xmlTracePing = xmlTracePing ? true : false;
+		else if( useFileCfg )
+			pCurrentChannelConfig->xmlTracePing = fileCfg->xmlTracePing;
+
+		if ( flags & 0x4000000 )
+			pCurrentChannelConfig->xmlTraceHex = xmlTraceHex ? true : false;
+		else if( useFileCfg )
+			pCurrentChannelConfig->xmlTraceHex = fileCfg->xmlTraceHex;
 
 		if ( flags & 0x4000 )
 			pCurrentChannelConfig->msgKeyInUpdates = msgKeyInUpdates ? true : false;

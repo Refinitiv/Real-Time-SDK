@@ -71,7 +71,7 @@
     <Document title="3.4.2 Dictionary Entry Parameters" href="Chap_ConfigGroups.3.19.html" />
     <Document title="4.1 Default Configuration" href="Chap_ConfigProcessing.4.01.html" />
     <Document title="4.2 Processing EmaConfig.xml" href="Chap_ConfigProcessing.4.02.html" />
-    <Document title="4.2.1 Use of the Correct Order in the XML Scema" href="Chap_ConfigProcessing.4.03.html" />
+    <Document title="4.2.1 Use of the Correct Order in the XML Schema" href="Chap_ConfigProcessing.4.03.html" />
     <Document title="4.2.2 Processing the Consumer “Name”" href="Chap_ConfigProcessing.4.04.html" />
     <Document title="4.3 Configuring EMA Using Function Calls" href="Chap_ConfigProcessing.4.05.html" />
     <Document title="4.3.1 EMA Function Calls" href="Chap_ConfigProcessing.4.06.html" />

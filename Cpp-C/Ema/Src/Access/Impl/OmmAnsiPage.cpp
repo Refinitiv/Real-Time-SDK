@@ -103,7 +103,17 @@ Decoder& OmmAnsiPage::getDecoder()
 	return *_pDecoder;
 }
 
+bool OmmAnsiPage::hasDecoder() const
+{
+	return _pDecoder ? true : false;
+}
+
 const Encoder& OmmAnsiPage::getEncoder() const
 {
 	return *static_cast<const Encoder*>( _pEncoder );
+}
+
+bool OmmAnsiPage::hasEncoder() const
+{
+	return _pEncoder ? true : false;
 }

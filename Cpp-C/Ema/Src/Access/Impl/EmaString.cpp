@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "Utilities.h"
+
 using namespace thomsonreuters::ema::access;
 
 EmaString::EmaString() :
@@ -23,18 +25,47 @@ EmaString::EmaString() :
 {
 }
 
+//		length		0						0 < x < npos			npos
+//
+//	str
+//
+//	null			_capacity = 0			_capacity = x + 1		_capacity = 0
+//					_length = 0				_length = 0				_length = 0
+//
+//	not null		_capacity = 0			_capacity = x + 1		_capacity = actual string length + 1
+//					_length = 0				_length = x				_length = actual string length
+//																	IUE if actual string length >= EmaString::npos
+//											copy content			copy content
+//
 EmaString::EmaString ( const char* str, UInt32 length ) :
     _pString ( 0 ),
     _length ( str ? length : 0 ),
-    _capacity ( length + 1 )
+    _capacity ( 0 )
 {
-    if ( length == EmaString::npos )
-    {
-        _length = str ? static_cast<UInt32> ( strlen( str ) ) : 0;
-        _capacity = _length + 1;
-    }
+	if ( length == EmaString::npos )
+	{
+		if ( str )
+		{
+			size_t tempLength = strlen( str );
 
-    if ( length )
+			if ( tempLength >= EmaString::npos )
+			{
+				const char* temp = "The length of the passed in string is larger than MAX_UINT32. EmaString( const char* , UInt32 ).";
+				throwIueException( temp );
+				return;
+			}
+
+			_length = static_cast<UInt32>( tempLength );
+			
+			_capacity = _length + 1;
+		}
+	}
+	else if ( length )
+	{
+		_capacity = length + 1;
+	}
+
+    if ( _capacity )
     {
         _pString = ( char* )malloc( _capacity );
 
@@ -47,10 +78,6 @@ EmaString::EmaString ( const char* str, UInt32 length ) :
 
         memcpy( _pString, str, _length );
         *( _pString + _length ) = 0x00;
-    }
-    else
-    {
-        _capacity = 0;
     }
 }
 
@@ -154,14 +181,77 @@ EmaString& EmaString::operator= ( const EmaString& other )
     return *this;
 }
 
+//		length		0						0 < x < npos						npos
+//
+//	str
+//
+//	null			_capacity = existing	_capacity = x + 1 or existing		_capacity = existing
+//					_length = 0				_length = 0							_length = 0
+//
+//	not null		_capacity = existing	_capacity = x + 1 or existing		_capacity = actual string length + 1 or existing
+//					_length = 0				_length = x							_length = actual string length
+//																				IUE if actual string length >= EmaString::npos
+//											copy content						copy content
+//
 EmaString& EmaString::set ( const char* str, UInt32 length )
 {
-    if ( length == EmaString::npos )
-        _length = str ? static_cast<UInt32> ( strlen( str ) ) : 0;
-    else
-        _length = str ? length : 0;
+	if ( str )
+	{
+		if ( length == EmaString::npos )
+		{
+			size_t tempLength = strlen( str );
 
-    if ( length )
+			if ( tempLength >= EmaString::npos )
+			{
+				const char* temp = "The length of the passed in string is larger than MAX_UINT32. EmaString::set( const char* , UInt32 ).";
+				throwIueException( temp );
+				return *this;
+			}
+
+			_length = static_cast<UInt32>( tempLength );
+		}
+		else
+		{
+			_length = length;
+		}
+	}
+	else
+	{
+		if ( length == EmaString::npos || !length )
+		{
+			clear();
+		}
+		else
+		{
+			if ( _capacity <= length )
+			{
+	            _capacity = length + 1;
+				_length = 0;
+
+				if ( _pString )
+				{
+					free( _pString );
+					_pString = 0;
+				}
+
+				_pString = ( char* )malloc( _capacity );
+				if ( !_pString )
+				{
+					const char* temp = "Failed to allocate memory in EmaString::set( const char* , UInt32 ).";
+					throwMeeException( temp );
+					return *this;
+				}
+				
+				*_pString = 0x00;
+			}
+			else
+				clear();
+		}
+
+		return *this;
+	}
+
+    if ( _length )
     {
         if ( _capacity <= _length )
         {
@@ -185,7 +275,6 @@ EmaString& EmaString::set ( const char* str, UInt32 length )
         memcpy( _pString, str, _length );
         *( _pString + _length ) = 0x00;
     }
-
     else
     {
         clear();
@@ -214,13 +303,13 @@ EmaString& EmaString::append ( Int64 i )
             free ( _pString );
         }
 
-        _length += sprintf ( pNewString + _length, "%lld", i );
+		_length += snprintf ( pNewString + _length,  22, "%lld", i );
 
         _pString = pNewString;
     }
     else
     {
-        _length += sprintf ( _pString + _length, "%lld", i );
+        _length += snprintf ( _pString + _length, 22,  "%lld", i );
     }
 
     return *this;
@@ -249,7 +338,7 @@ EmaString& EmaString::append ( UInt64 i )
         _pString = pNewString;
     }
 
-    _length += sprintf ( _pString + _length, "%llu", i );
+    _length += snprintf ( _pString + _length, 22, "%llu", i );
 
     return *this;
 }
@@ -274,13 +363,13 @@ EmaString& EmaString::append ( Int32 i )
             free ( _pString );
         }
 
-        _length += sprintf ( pNewString + _length, "%i", i );
+        _length += snprintf ( pNewString + _length, 13, "%i", i );
 
         _pString = pNewString;
     }
     else
     {
-        _length += sprintf ( _pString + _length, "%i", i );
+        _length += snprintf ( _pString + _length, 13, "%i", i );
     }
 
     return *this;
@@ -306,13 +395,13 @@ EmaString& EmaString::append ( UInt32 i )
             free ( _pString );
         }
 
-        _length += sprintf ( pNewString + _length, "%u", i );
+        _length += snprintf ( pNewString + _length, 13, "%u", i );
 
         _pString = pNewString;
     }
     else
     {
-        _length += sprintf ( _pString + _length, "%u", i );
+        _length += snprintf ( _pString + _length, 13, "%u", i );
     }
 
     return *this;
@@ -338,13 +427,13 @@ EmaString& EmaString::append ( float f )
             free ( _pString );
         }
 
-        _length += sprintf ( pNewString + _length, "%g", f );
+        _length += snprintf ( pNewString + _length, 33, "%g", f );
 
         _pString = pNewString;
     }
     else
     {
-        _length += sprintf ( _pString + _length, "%g", f );
+        _length += snprintf ( _pString + _length, 33, "%g", f );
     }
 
     return *this;
@@ -370,13 +459,13 @@ EmaString& EmaString::append ( double d )
             free ( _pString );
         }
 
-        _length += sprintf ( pNewString + _length, "%lg", d );
+        _length += snprintf ( pNewString + _length, 33, "%lg", d );
 
         _pString = pNewString;
     }
     else
     {
-        _length += sprintf ( _pString + _length, "%lg", d );
+        _length += snprintf ( _pString + _length, 33, "%lg", d );
     }
 
     return *this;

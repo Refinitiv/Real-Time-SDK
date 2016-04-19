@@ -14,8 +14,15 @@
 #include <Windows.h>
 #endif
 
+#if defined (_WIN32) || defined(WIN32)
+#if _MSC_VER < 1900
+#define snprintf _snprintf
+#endif
+#endif
+
 #include "DataType.h"
 #include "rtr/rsslState.h"
+#include "rtr/rsslErrorInfo.h"
 
 namespace thomsonreuters {
 	namespace ema {
@@ -43,6 +50,7 @@ const char* timeString();
 
 thomsonreuters::ema::access::EmaString& addIndent( thomsonreuters::ema::access::EmaString& temp, thomsonreuters::ema::access::UInt64 indent, bool addLine = false );
 
+void clearRsslErrorInfo( RsslErrorInfo* pRsslErrorInfo );
 
 #ifdef WIN32
 static __forceinline

@@ -239,10 +239,12 @@ public :
 private :
 
 	Decoder& getDecoder();
+	bool hasDecoder() const;
 
 	const EmaString& toString( UInt64 indent ) const;
 
 	const Encoder& getEncoder() const;
+	bool hasEncoder() const;
 
 	mutable EmaString			_toString;
 	FilterEntry					_entry;

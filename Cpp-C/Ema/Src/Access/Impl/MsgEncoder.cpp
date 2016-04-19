@@ -39,7 +39,7 @@ MsgEncoder::~MsgEncoder()
 
 void MsgEncoder::clear()
 {
-	Encoder::clear();
+	Encoder::releaseEncIterator();
 
 #ifdef __EMA_COPY_ON_SET__
 	_nameSet = false;
@@ -131,4 +131,9 @@ RsslBuffer& MsgEncoder::getRsslBuffer() const
 
 void MsgEncoder::endEncodingEntry() const
 {
+}
+
+bool MsgEncoder::isComplete() const
+{
+	return true;
 }

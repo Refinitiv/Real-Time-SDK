@@ -56,9 +56,9 @@ public :
 
 private :
 
-	void initEncode( UInt8 dataType );
+	void initEncode( UInt8 rsslDataType, DataType::DataTypeEnum emaDataType );
 
-	void addEncodedEntry( const char* , RsslBuffer& );
+	void addEncodedEntry( const char* , const RsslBuffer& );
 
 	void startEncodingEntry( const char* );
 
@@ -67,6 +67,8 @@ private :
 	RsslSeries				_rsslSeries;
 
 	RsslSeriesEntry			_rsslSeriesEntry;
+
+	DataType::DataTypeEnum	_emaDataType;
 
 	bool					_containerInitialized;
 };

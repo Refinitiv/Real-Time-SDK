@@ -214,7 +214,7 @@ public :
 	bool submit( const GenericMsg& );
 	bool close();
 
-	bool addBatchItems( const EmaVector<EmaString>& );
+	bool addBatchItems( UInt32 batchSize );
 
 	const EmaVector<SingleItem*>& getSingleItemList();
 

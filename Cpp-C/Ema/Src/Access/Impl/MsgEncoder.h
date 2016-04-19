@@ -64,6 +64,8 @@ public :
 
 	virtual bool hasName() const;
 
+	bool isComplete() const;
+
 protected :
 
 	virtual RsslMsg* getRsslMsg() const = 0;

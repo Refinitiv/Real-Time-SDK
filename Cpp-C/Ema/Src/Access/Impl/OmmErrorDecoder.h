@@ -27,15 +27,17 @@ public :
 
 	virtual ~OmmErrorDecoder();
 
-	void setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* );
+	bool setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* );
 
-	void setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDictionary* , void* );
+	bool setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDictionary* , void* );
 
-	void setRsslData( RsslDecodeIterator* , RsslBuffer* );
+	bool setRsslData( RsslDecodeIterator* , RsslBuffer* );
 
 	OmmError::ErrorCode getErrorCode() const;
 
 	const EmaBuffer& getAsHex();
+
+	const RsslBuffer& getRsslBuffer() const;
 
 private :
 

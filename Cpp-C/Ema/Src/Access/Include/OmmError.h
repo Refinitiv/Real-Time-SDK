@@ -126,10 +126,12 @@ private:
 	friend class StaticDecoder;
 
 	Decoder& getDecoder();
+	bool hasDecoder() const;
 
 	const EmaString& toString( UInt64 ) const;
 
 	const Encoder& getEncoder() const;
+	bool hasEncoder() const;
 
 	OmmError();
 	virtual ~OmmError();

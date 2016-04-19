@@ -51,8 +51,9 @@ STATIC_LIBS=	 $(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/librsslRDM.a		\
 		$(ROOTNODE)/Eta/Utils/Libxml2/$(IDENT)/Static/libxml2.a
 SHARED_LIBS=    -L$(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/Shared/		\
 		-L$(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/Shared/	\
-		-L$(ROOTNODE)/Eta/Utils/Libxml2/$(IDENT)/Shared/		\
-		-lrssl -lrsslVA -lxml2
+		-L$(ROOTNODE)/Eta/Utils/Libxml2/$(IDENT)/Static/ \
+		-lrssl -lrsslVA \
+		-Wl,--whole-archive -lxml2 -Wl,--no-whole-archive
 
 EMA_LIB_SRC=	$(shell ls Impl/*.cpp)
 EMA_LIB_OBJ=	$(addprefix $(OUTPUT_DIR)/obj/Access/, $(EMA_LIB_SRC:%.cpp=%.o))

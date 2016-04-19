@@ -59,7 +59,17 @@ Decoder& OmmFloat::getDecoder()
 	return *_pDecoder;
 }
 
+bool OmmFloat::hasDecoder() const
+{
+	return true;
+}
+
 const Encoder& OmmFloat::getEncoder() const
 {
 	return *static_cast<const Encoder*>( 0 );
+}
+
+bool OmmFloat::hasEncoder() const
+{
+	return false;
 }

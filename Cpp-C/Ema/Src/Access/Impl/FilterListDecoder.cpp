@@ -93,8 +93,10 @@ void FilterListDecoder::clone( const FilterListDecoder& other )
 	}
 }
 
-void FilterListDecoder::setRsslData( RsslDecodeIterator* , RsslBuffer* )
+bool FilterListDecoder::setRsslData( RsslDecodeIterator* , RsslBuffer* )
 {
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
 }
 
 void FilterListDecoder::reset()
@@ -150,11 +152,13 @@ void FilterListDecoder::reset()
 	}
 }
 
-void FilterListDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
+bool FilterListDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
 {
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
 }
 
-void FilterListDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuffer, const RsslDataDictionary* rsslDictionary, void* localFlSetDefDb )
+bool FilterListDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuffer, const RsslDataDictionary* rsslDictionary, void* )
 {
 	_decodingStarted = false;
 
@@ -173,7 +177,7 @@ void FilterListDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rss
 	{
 		_atEnd = false;
 		_errorCode = OmmError::IteratorSetFailureEnum;
-		return;
+		return false;
 	}
 
 	retCode = rsslSetDecodeIteratorRWFVersion( &_decodeIter, _rsslMajVer, _rsslMinVer );
@@ -181,7 +185,7 @@ void FilterListDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rss
 	{
 		_atEnd = false;
 		_errorCode = OmmError::IteratorSetFailureEnum;
-		return;
+		return false;
 	}
 
 	retCode = rsslDecodeFilterList( &_decodeIter, &_rsslFilterList );
@@ -191,41 +195,33 @@ void FilterListDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rss
 	case RSSL_RET_NO_DATA :
 		_atEnd = true;
 		_errorCode = OmmError::NoErrorEnum;
-		break;
+		return true;
 	case RSSL_RET_SUCCESS :
 		_atEnd = false;
 		_errorCode = OmmError::NoErrorEnum;
-		break;
+		return true;
 	case RSSL_RET_ITERATOR_OVERRUN :
 		_atEnd = false;
 		_errorCode = OmmError::IteratorOverrunEnum;
-		break;
+		return false;
 	case RSSL_RET_INCOMPLETE_DATA :
 		_atEnd = false;
 		_errorCode = OmmError::IncompleteDataEnum;
-		break;
+		return false;
 	case RSSL_RET_SET_SKIPPED :
 		_atEnd = false;
 		_errorCode = OmmError::NoSetDefinitionEnum;
-		break;
+		return false;
 	default :
 		_atEnd = false;
 		_errorCode = OmmError::UnknownErrorEnum;
-		break;
+		return false;
 	}
 }
 
 bool FilterListDecoder::getNextData()
 {
 	if ( _atEnd ) return true;
-
-	if ( !_decodingStarted && _errorCode != OmmError::NoErrorEnum )
-	{
-		_atEnd = true;
-		_decodingStarted = true;
-		Decoder::setRsslData( &_load, _errorCode, &_decodeIter, &_rsslFilterListBuffer ); 
-		return false;
-	}
 
 	_decodingStarted = true;
 
@@ -237,8 +233,8 @@ bool FilterListDecoder::getNextData()
 		_atEnd = true;
 		return true;
 	case RSSL_RET_SUCCESS :
-		Decoder::setRsslData( &_load, ( ( _rsslFilterEntry.flags & RSSL_FTEF_HAS_CONTAINER_TYPE ) ?
-								_rsslFilterEntry.containerType : _rsslFilterList.containerType ),
+		Decoder::setRsslData( &_load, ( _rsslFilterEntry.action == RSSL_FTEA_CLEAR_ENTRY ? RSSL_DT_NO_DATA : ( ( _rsslFilterEntry.flags & RSSL_FTEF_HAS_CONTAINER_TYPE ) ?
+								_rsslFilterEntry.containerType : _rsslFilterList.containerType ) ),
 								&_decodeIter, &_rsslFilterEntry.encData, _pRsslDictionary, 0 ); 
 		return false;
 	case RSSL_RET_INCOMPLETE_DATA :
@@ -260,14 +256,6 @@ bool FilterListDecoder::getNextData( UInt8 id )
 	do {
 		if ( _atEnd ) return true;
 
-		if ( !_decodingStarted && _errorCode != OmmError::NoErrorEnum )
-		{
-			_atEnd = true;
-			_decodingStarted = true;
-			Decoder::setRsslData( &_load, _errorCode, &_decodeIter, &_rsslFilterListBuffer ); 
-			return false;
-		}
-
 		_decodingStarted = true;
 
 		retCode = rsslDecodeFilterEntry( &_decodeIter, &_rsslFilterEntry );
@@ -284,8 +272,8 @@ bool FilterListDecoder::getNextData( UInt8 id )
 	switch ( retCode )
 	{
 	case RSSL_RET_SUCCESS :
-		Decoder::setRsslData( &_load, ( ( _rsslFilterEntry.flags & RSSL_FTEF_HAS_CONTAINER_TYPE ) ?
-								_rsslFilterEntry.containerType : _rsslFilterList.containerType ),
+		Decoder::setRsslData( &_load, ( _rsslFilterEntry.action == RSSL_FTEA_CLEAR_ENTRY ? RSSL_DT_NO_DATA : ( ( _rsslFilterEntry.flags & RSSL_FTEF_HAS_CONTAINER_TYPE ) ?
+								_rsslFilterEntry.containerType : _rsslFilterList.containerType ) ),
 								&_decodeIter, &_rsslFilterEntry.encData, _pRsslDictionary, 0 ); 
 		return false;
 	case RSSL_RET_INCOMPLETE_DATA :
@@ -362,4 +350,14 @@ const EmaBuffer& FilterListDecoder::getHexBuffer()
 	_hexBuffer.setFromInt( _rsslFilterListBuffer.data, _rsslFilterListBuffer.length );
 
 	return _hexBuffer.toBuffer();
+}
+
+const RsslBuffer& FilterListDecoder::getRsslBuffer() const
+{
+	return _rsslFilterListBuffer;
+}
+
+OmmError::ErrorCode FilterListDecoder::getErrorCode() const
+{
+	return _errorCode;
 }

@@ -59,7 +59,17 @@ Decoder& OmmEnum::getDecoder()
 	return *_pDecoder;
 }
 
+bool OmmEnum::hasDecoder() const
+{
+	return true;
+}
+
 const Encoder& OmmEnum::getEncoder() const
 {
 	return *static_cast<const Encoder*>( 0 );
+}
+
+bool OmmEnum::hasEncoder() const
+{
+	return false;
 }

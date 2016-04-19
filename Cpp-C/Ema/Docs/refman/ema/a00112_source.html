@@ -118,70 +118,71 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00011"></a>00011 <span class="preprocessor"></span>
 <a name="l00030"></a>00030 <span class="preprocessor">#define MAX_SIZE 2048</span>
 <a name="l00031"></a>00031 <span class="preprocessor"></span><span class="preprocessor">#define PADDING 256</span>
-<a name="l00032"></a>00032 <span class="preprocessor"></span>
-<a name="l00033"></a>00033 <span class="preprocessor">#include &quot;<a class="code" href="a00079.html" title="Common.h file provides definitions of common variable types used in EMA.">Access/Include/Common.h</a>&quot;</span>
-<a name="l00034"></a>00034 
-<a name="l00035"></a>00035 <span class="keyword">namespace </span>thomsonreuters {
-<a name="l00036"></a>00036 
-<a name="l00037"></a>00037 <span class="keyword">namespace </span>ema {
-<a name="l00038"></a>00038 
-<a name="l00039"></a>00039 <span class="keyword">namespace </span>access {
-<a name="l00040"></a>00040 
-<a name="l00041"></a>00041 <span class="keyword">class </span>EmaString;
-<a name="l00042"></a>00042 
-<a name="l00043"></a><a class="code" href="a00043.html">00043</a> <span class="keyword">class </span>EMA_ACCESS_API <a class="code" href="a00043.html" title="OmmException is a parent class for all exception types thrown by EMA.">OmmException</a>
-<a name="l00044"></a>00044 {
-<a name="l00045"></a>00045 <span class="keyword">public</span> :
-<a name="l00046"></a>00046 
-<a name="l00050"></a><a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4b">00050</a>     <span class="keyword">enum</span> <a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4b">ExceptionType</a>
-<a name="l00051"></a>00051     {
-<a name="l00052"></a><a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4ba9abe249721c1bed4cb4d8e40f45d3760">00052</a>         <a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4ba9abe249721c1bed4cb4d8e40f45d3760">OmmInvalidUsageExceptionEnum</a>,               
-<a name="l00054"></a><a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4bac3212ae50f579ef39e27ee1ce5132ad2">00054</a>         <a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4bac3212ae50f579ef39e27ee1ce5132ad2">OmmInvalidConfigurationExceptionEnum</a>,       
-<a name="l00056"></a><a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4baa7e9958ef632aa587ab70b3ea607d062">00056</a>         <a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4baa7e9958ef632aa587ab70b3ea607d062">OmmSystemExceptionEnum</a>,                     
-<a name="l00058"></a><a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4ba203b70c66f2b54cac910f8bc4c38d6df">00058</a>         <a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4ba203b70c66f2b54cac910f8bc4c38d6df">OmmOutOfRangeExceptionEnum</a>,                 
-<a name="l00060"></a><a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4ba0eda083bd9463e0bc1cd8d462531ebef">00060</a>         <a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4ba0eda083bd9463e0bc1cd8d462531ebef">OmmInvalidHandleExceptionEnum</a>,              
-<a name="l00062"></a><a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4ba3c690e0942478601443cdbbcd289de36">00062</a>         <a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4ba3c690e0942478601443cdbbcd289de36">OmmMemoryExhaustionExceptionEnum</a>,           
-<a name="l00064"></a><a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4ba26e7444dbeeee65278b9a7e71f3a3956">00064</a>         <a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4ba26e7444dbeeee65278b9a7e71f3a3956">OmmInaccessibleLogFileExceptionEnum</a>,        
-<a name="l00066"></a><a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4ba87939a65ad8f60eca2004f56944ceac3">00066</a>         OmmUnsupportedDomainTypeExceptionEnum       
-<a name="l00067"></a>00067     };
-<a name="l00068"></a>00068 
-<a name="l00070"></a>00070 
+<a name="l00032"></a>00032 <span class="preprocessor"></span><span class="preprocessor">#define MAX_SIZE_PLUS_PADDING  MAX_SIZE + PADDING  </span>
+<a name="l00033"></a>00033 <span class="preprocessor"></span>
+<a name="l00034"></a>00034 <span class="preprocessor">#include &quot;<a class="code" href="a00079.html" title="Common.h file provides definitions of common variable types used in EMA.">Access/Include/Common.h</a>&quot;</span>
+<a name="l00035"></a>00035 
+<a name="l00036"></a>00036 <span class="keyword">namespace </span>thomsonreuters {
+<a name="l00037"></a>00037 
+<a name="l00038"></a>00038 <span class="keyword">namespace </span>ema {
+<a name="l00039"></a>00039 
+<a name="l00040"></a>00040 <span class="keyword">namespace </span>access {
+<a name="l00041"></a>00041 
+<a name="l00042"></a>00042 <span class="keyword">class </span>EmaString;
+<a name="l00043"></a>00043 
+<a name="l00044"></a><a class="code" href="a00043.html">00044</a> <span class="keyword">class </span>EMA_ACCESS_API <a class="code" href="a00043.html" title="OmmException is a parent class for all exception types thrown by EMA.">OmmException</a>
+<a name="l00045"></a>00045 {
+<a name="l00046"></a>00046 <span class="keyword">public</span> :
+<a name="l00047"></a>00047 
+<a name="l00051"></a><a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4b">00051</a>     <span class="keyword">enum</span> <a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4b">ExceptionType</a>
+<a name="l00052"></a>00052     {
+<a name="l00053"></a><a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4ba9abe249721c1bed4cb4d8e40f45d3760">00053</a>         <a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4ba9abe249721c1bed4cb4d8e40f45d3760">OmmInvalidUsageExceptionEnum</a>,               
+<a name="l00055"></a><a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4bac3212ae50f579ef39e27ee1ce5132ad2">00055</a>         <a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4bac3212ae50f579ef39e27ee1ce5132ad2">OmmInvalidConfigurationExceptionEnum</a>,       
+<a name="l00057"></a><a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4baa7e9958ef632aa587ab70b3ea607d062">00057</a>         <a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4baa7e9958ef632aa587ab70b3ea607d062">OmmSystemExceptionEnum</a>,                     
+<a name="l00059"></a><a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4ba203b70c66f2b54cac910f8bc4c38d6df">00059</a>         <a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4ba203b70c66f2b54cac910f8bc4c38d6df">OmmOutOfRangeExceptionEnum</a>,                 
+<a name="l00061"></a><a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4ba0eda083bd9463e0bc1cd8d462531ebef">00061</a>         <a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4ba0eda083bd9463e0bc1cd8d462531ebef">OmmInvalidHandleExceptionEnum</a>,              
+<a name="l00063"></a><a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4ba3c690e0942478601443cdbbcd289de36">00063</a>         <a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4ba3c690e0942478601443cdbbcd289de36">OmmMemoryExhaustionExceptionEnum</a>,           
+<a name="l00065"></a><a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4ba26e7444dbeeee65278b9a7e71f3a3956">00065</a>         <a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4ba26e7444dbeeee65278b9a7e71f3a3956">OmmInaccessibleLogFileExceptionEnum</a>,        
+<a name="l00067"></a><a class="code" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4ba87939a65ad8f60eca2004f56944ceac3">00067</a>         OmmUnsupportedDomainTypeExceptionEnum       
+<a name="l00068"></a>00068     };
+<a name="l00069"></a>00069 
 <a name="l00071"></a>00071 
-<a name="l00074"></a>00074     <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; getExceptionTypeAsString() <span class="keyword">const</span>;
-<a name="l00075"></a>00075 
-<a name="l00079"></a>00079     <span class="keyword">virtual</span> ExceptionType getExceptionType() <span class="keyword">const</span> = 0;
-<a name="l00080"></a>00080 
-<a name="l00084"></a>00084     <span class="keyword">virtual</span> <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; getText() <span class="keyword">const</span> = 0;
-<a name="l00085"></a>00085 
-<a name="l00089"></a>00089     <span class="keyword">virtual</span> <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; toString() <span class="keyword">const</span> = 0;
-<a name="l00090"></a>00090 
-<a name="l00095"></a>00095     operator const char*() <span class="keyword">const</span>;
-<a name="l00097"></a>00097 
-<a name="l00098"></a>00098 <span class="keyword">protected</span> :
-<a name="l00099"></a>00099 
-<a name="l00100"></a>00100     <a class="code" href="a00043.html" title="OmmException is a parent class for all exception types thrown by EMA.">OmmException</a>();
-<a name="l00101"></a>00101     <span class="keyword">virtual</span> ~<a class="code" href="a00043.html" title="OmmException is a parent class for all exception types thrown by EMA.">OmmException</a>();
-<a name="l00102"></a>00102 
-<a name="l00103"></a>00103     <a class="code" href="a00043.html" title="OmmException is a parent class for all exception types thrown by EMA.">OmmException</a>&amp; statusText( <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; statusText );
-<a name="l00104"></a>00104     <a class="code" href="a00043.html" title="OmmException is a parent class for all exception types thrown by EMA.">OmmException</a>&amp; statusText( <span class="keyword">const</span> <span class="keywordtype">char</span>* statusText );
-<a name="l00105"></a>00105 
-<a name="l00106"></a>00106     <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; toStringInt() <span class="keyword">const</span>;
-<a name="l00107"></a>00107 
-<a name="l00108"></a>00108     UInt32                      _errorTextLength;
-<a name="l00109"></a>00109     <span class="keyword">mutable</span> <span class="keywordtype">char</span>                _errorText[MAX_SIZE];
-<a name="l00110"></a>00110     <span class="keyword">mutable</span> <span class="keywordtype">char</span>                _space[MAX_SIZE + PADDING];
-<a name="l00111"></a>00111 
-<a name="l00112"></a>00112     <a class="code" href="a00043.html" title="OmmException is a parent class for all exception types thrown by EMA.">OmmException</a>( <span class="keyword">const</span> <a class="code" href="a00043.html" title="OmmException is a parent class for all exception types thrown by EMA.">OmmException</a>&amp; );
-<a name="l00113"></a>00113     <a class="code" href="a00043.html" title="OmmException is a parent class for all exception types thrown by EMA.">OmmException</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00043.html" title="OmmException is a parent class for all exception types thrown by EMA.">OmmException</a>&amp; );
-<a name="l00114"></a>00114 };
-<a name="l00115"></a>00115 
-<a name="l00116"></a>00116 }
-<a name="l00117"></a>00117 
-<a name="l00118"></a>00118 }
-<a name="l00119"></a>00119 
-<a name="l00120"></a>00120 }
-<a name="l00121"></a>00121 
-<a name="l00122"></a>00122 <span class="preprocessor">#endif // __thomsonreuters_ema_access_OmmException_h</span>
+<a name="l00072"></a>00072 
+<a name="l00075"></a>00075     <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; getExceptionTypeAsString() <span class="keyword">const</span>;
+<a name="l00076"></a>00076 
+<a name="l00080"></a>00080     <span class="keyword">virtual</span> ExceptionType getExceptionType() <span class="keyword">const</span> = 0;
+<a name="l00081"></a>00081 
+<a name="l00085"></a>00085     <span class="keyword">virtual</span> <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; getText() <span class="keyword">const</span> = 0;
+<a name="l00086"></a>00086 
+<a name="l00090"></a>00090     <span class="keyword">virtual</span> <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; toString() <span class="keyword">const</span> = 0;
+<a name="l00091"></a>00091 
+<a name="l00096"></a>00096     operator const char*() <span class="keyword">const</span>;
+<a name="l00098"></a>00098 
+<a name="l00099"></a>00099 <span class="keyword">protected</span> :
+<a name="l00100"></a>00100 
+<a name="l00101"></a>00101     <a class="code" href="a00043.html" title="OmmException is a parent class for all exception types thrown by EMA.">OmmException</a>();
+<a name="l00102"></a>00102     <span class="keyword">virtual</span> ~<a class="code" href="a00043.html" title="OmmException is a parent class for all exception types thrown by EMA.">OmmException</a>();
+<a name="l00103"></a>00103 
+<a name="l00104"></a>00104     <a class="code" href="a00043.html" title="OmmException is a parent class for all exception types thrown by EMA.">OmmException</a>&amp; statusText( <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; statusText );
+<a name="l00105"></a>00105     <a class="code" href="a00043.html" title="OmmException is a parent class for all exception types thrown by EMA.">OmmException</a>&amp; statusText( <span class="keyword">const</span> <span class="keywordtype">char</span>* statusText );
+<a name="l00106"></a>00106 
+<a name="l00107"></a>00107     <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; toStringInt() <span class="keyword">const</span>;
+<a name="l00108"></a>00108 
+<a name="l00109"></a>00109     UInt32                      _errorTextLength;
+<a name="l00110"></a>00110     <span class="keyword">mutable</span> <span class="keywordtype">char</span>                _errorText[MAX_SIZE];
+<a name="l00111"></a>00111     <span class="keyword">mutable</span> <span class="keywordtype">char</span>                _space[MAX_SIZE_PLUS_PADDING];
+<a name="l00112"></a>00112 
+<a name="l00113"></a>00113     <a class="code" href="a00043.html" title="OmmException is a parent class for all exception types thrown by EMA.">OmmException</a>( <span class="keyword">const</span> <a class="code" href="a00043.html" title="OmmException is a parent class for all exception types thrown by EMA.">OmmException</a>&amp; );
+<a name="l00114"></a>00114     <a class="code" href="a00043.html" title="OmmException is a parent class for all exception types thrown by EMA.">OmmException</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00043.html" title="OmmException is a parent class for all exception types thrown by EMA.">OmmException</a>&amp; );
+<a name="l00115"></a>00115 };
+<a name="l00116"></a>00116 
+<a name="l00117"></a>00117 }
+<a name="l00118"></a>00118 
+<a name="l00119"></a>00119 }
+<a name="l00120"></a>00120 
+<a name="l00121"></a>00121 }
+<a name="l00122"></a>00122 
+<a name="l00123"></a>00123 <span class="preprocessor">#endif // __thomsonreuters_ema_access_OmmException_h</span>
 </pre></div></div><!-- contents -->
 
 <hr class="footer"/><address class="footer"><small>
@@ -199,7 +200,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Thu Nov 12 2015</td>
+			<td><p class="smallfont">Tue Apr 19 2016</td>
           </tr>
         </table>
         </td>

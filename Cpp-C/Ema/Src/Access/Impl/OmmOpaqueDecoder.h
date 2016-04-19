@@ -27,11 +27,11 @@ public :
 
 	virtual ~OmmOpaqueDecoder();
 
-	void setRsslData( UInt8 majVer, UInt8 minVer, RsslMsg* , const RsslDataDictionary* );
+	bool setRsslData( UInt8 majVer, UInt8 minVer, RsslMsg* , const RsslDataDictionary* );
 
-	void setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* , const RsslDataDictionary* , void* );
+	bool setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* , const RsslDataDictionary* , void* );
 
-	void setRsslData( RsslDecodeIterator* , RsslBuffer* );
+	bool setRsslData( RsslDecodeIterator* , RsslBuffer* );
 
 	Data::DataCode getCode() const;
 
@@ -40,6 +40,10 @@ public :
 	const EmaString& getString();
 
 	const EmaBuffer& getBuffer();
+
+	const RsslBuffer& getRsslBuffer() const;
+
+	OmmError::ErrorCode getErrorCode() const;
 
 private :
 
@@ -52,6 +56,8 @@ private :
 	EmaBufferInt			_getBuffer;
 
 	Data::DataCode			_dataCode;
+
+	OmmError::ErrorCode		_errorCode;
 };
 
 }
