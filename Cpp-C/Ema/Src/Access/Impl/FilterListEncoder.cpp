@@ -9,14 +9,15 @@
 #include "FilterListEncoder.h"
 #include "ExceptionTranslator.h"
 #include "StaticDecoder.h"
+#include "Decoder.h"
 #include "FilterList.h"
 
 using namespace thomsonreuters::ema::access;
 
 FilterListEncoder::FilterListEncoder() :
- _containerInitialized( false ),
  _rsslFilterList(),
- _rsslFilterEntry()
+ _rsslFilterEntry(),
+ _containerInitialized( false )
 {
 }
 
@@ -60,7 +61,7 @@ void FilterListEncoder::initEncode( UInt8 dataType )
 }
 
 void FilterListEncoder::addEncodedEntry( UInt8 id, UInt8 action, UInt8 dataType, const EmaBuffer& permission, 
-	const char* methodName, RsslBuffer& rsslBuffer )
+	const char* methodName, const RsslBuffer& rsslBuffer )
 {
 	_rsslFilterEntry.flags = RSSL_FTEF_NONE;
 
@@ -152,35 +153,68 @@ void FilterListEncoder::endEncodingEntry() const
 
 void FilterListEncoder::add( UInt8 filterId, FilterEntry::FilterAction action, const ComplexType& complexType, const EmaBuffer& permission )
 {
-	UInt8 dataType = const_cast<Encoder&>( static_cast<const ComplexType&>(complexType).getEncoder() ).convertDataType( complexType.getDataType() );
+	if ( _containerComplete )
+	{
+		EmaString temp( "Attempt to add an entry after complete() was called." );
+		throwIueException( temp );
+		return;
+	}
+
+	const Encoder& enc = complexType.getEncoder();
+	 
+	UInt8 rsslDataType = enc.convertDataType( complexType.getDataType() );
 
 	if ( !hasEncIterator() )
 	{
 		acquireEncIterator();
 
-		initEncode( dataType );
+		initEncode( rsslDataType );
 	}
 
-	if ( static_cast<const ComplexType&>(complexType).getEncoder().ownsIterator() )
+	if ( action == FilterEntry::ClearEnum )
 	{
-		// todo ... check if complete was called		
-		addEncodedEntry( filterId, action, dataType, permission, "add()", static_cast<const ComplexType&>(complexType).getEncoder().getRsslBuffer() );
+		RsslBuffer rsslBuffer;
+		rsslClearBuffer( &rsslBuffer );
+		addEncodedEntry( filterId, action, rsslDataType, permission, "add()", rsslBuffer );
+	}
+	else if ( complexType.hasEncoder() && enc.ownsIterator() )
+	{
+		if ( enc.isComplete() )
+			addEncodedEntry( filterId, action, rsslDataType, permission, "add()", enc.getRsslBuffer() );
+		else
+		{
+			EmaString temp( "Attempt to add() a ComplexType while complete() was not called on this ComplexType." );
+			throwIueException( temp );
+			return;
+		}
+	}
+	else if ( complexType.hasDecoder() )
+	{
+		addEncodedEntry( filterId, action, rsslDataType, permission, "add()", const_cast<ComplexType&>( complexType ).getDecoder().getRsslBuffer() );
 	}
 	else
 	{
-		// todo ... check if clear was called
-		passEncIterator( const_cast<Encoder&>( static_cast<const ComplexType&>(complexType).getEncoder() ) );
-		startEncodingEntry( filterId, action, dataType, permission, "add()" );
+		if ( rsslDataType == RSSL_DT_MSG )
+		{
+			EmaString temp( "Attempt to pass in an empty message while it is not supported." );
+			throwIueException( temp );
+			return;
+		}
+
+		passEncIterator( const_cast<Encoder&>( enc ) );
+		startEncodingEntry( filterId, action, rsslDataType, permission, "add()" );
 	}
 }
 
 void FilterListEncoder::complete()
 {
+	if ( _containerComplete ) return;
+
 	if ( !hasEncIterator() )
 	{
-		EmaString temp( "Cannot complete an empty FilterList" );
-		throwIueException( temp );
-		return;
+		acquireEncIterator();
+
+		initEncode( RSSL_DT_NO_DATA );
 	}
 
 	RsslRet retCode = rsslEncodeFilterListComplete( &(_pEncodeIter->_rsslEncIter), RSSL_TRUE );
@@ -197,6 +231,8 @@ void FilterListEncoder::complete()
 
 	if ( !ownsIterator() && _iteratorOwner )
 		_iteratorOwner->endEncodingEntry();
+
+	_containerComplete = true;
 }
 
 void FilterListEncoder::totalCountHint( UInt32 totalCountHint )

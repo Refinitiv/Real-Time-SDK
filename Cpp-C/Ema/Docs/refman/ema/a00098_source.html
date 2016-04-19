@@ -242,27 +242,29 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00405"></a>00405 <span class="keyword">private</span> :
 <a name="l00406"></a>00406 
 <a name="l00407"></a>00407     Decoder&amp; getDecoder();
-<a name="l00408"></a>00408 
-<a name="l00409"></a>00409     <span class="keyword">const</span> Encoder&amp; getEncoder() <span class="keyword">const</span>;
-<a name="l00410"></a>00410 
-<a name="l00411"></a>00411     <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; toString( UInt64 indent ) <span class="keyword">const</span>;
+<a name="l00408"></a>00408     <span class="keywordtype">bool</span> hasDecoder() <span class="keyword">const</span>;
+<a name="l00409"></a>00409 
+<a name="l00410"></a>00410     <span class="keyword">const</span> Encoder&amp; getEncoder() <span class="keyword">const</span>;
+<a name="l00411"></a>00411     <span class="keywordtype">bool</span> hasEncoder() <span class="keyword">const</span>;
 <a name="l00412"></a>00412 
-<a name="l00413"></a>00413     <span class="keyword">mutable</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>           _toString;
-<a name="l00414"></a>00414     <a class="code" href="a00030.html" title="OmmArrayEntry represents an entry of OmmArray.">OmmArrayEntry</a>               _entry;
-<a name="l00415"></a>00415     OmmArrayDecoder*            _pDecoder;
-<a name="l00416"></a>00416     <span class="keyword">mutable</span> OmmArrayEncoder*    _pEncoder;
-<a name="l00417"></a>00417 
-<a name="l00418"></a>00418     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>( <span class="keyword">const</span> <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; );
-<a name="l00419"></a>00419     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; );
-<a name="l00420"></a>00420 };
-<a name="l00421"></a>00421 
-<a name="l00422"></a>00422 }
+<a name="l00413"></a>00413     <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; toString( UInt64 indent ) <span class="keyword">const</span>;
+<a name="l00414"></a>00414 
+<a name="l00415"></a>00415     <span class="keyword">mutable</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>           _toString;
+<a name="l00416"></a>00416     <a class="code" href="a00030.html" title="OmmArrayEntry represents an entry of OmmArray.">OmmArrayEntry</a>               _entry;
+<a name="l00417"></a>00417     OmmArrayDecoder*            _pDecoder;
+<a name="l00418"></a>00418     <span class="keyword">mutable</span> OmmArrayEncoder*    _pEncoder;
+<a name="l00419"></a>00419 
+<a name="l00420"></a>00420     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>( <span class="keyword">const</span> <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; );
+<a name="l00421"></a>00421     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; );
+<a name="l00422"></a>00422 };
 <a name="l00423"></a>00423 
 <a name="l00424"></a>00424 }
 <a name="l00425"></a>00425 
 <a name="l00426"></a>00426 }
 <a name="l00427"></a>00427 
-<a name="l00428"></a>00428 <span class="preprocessor">#endif // __thomsonreuters_ema_access_OmmArray_h</span>
+<a name="l00428"></a>00428 }
+<a name="l00429"></a>00429 
+<a name="l00430"></a>00430 <span class="preprocessor">#endif // __thomsonreuters_ema_access_OmmArray_h</span>
 </pre></div></div><!-- contents -->
 
 <hr class="footer"/><address class="footer"><small>
@@ -280,7 +282,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Thu Nov 12 2015</td>
+			<td><p class="smallfont">Tue Apr 19 2016</td>
           </tr>
         </table>
         </td>

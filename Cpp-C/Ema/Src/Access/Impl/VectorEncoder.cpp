@@ -9,14 +9,16 @@
 #include "VectorEncoder.h"
 #include "ExceptionTranslator.h"
 #include "StaticDecoder.h"
+#include "Decoder.h"
 #include "Vector.h"
 
 using namespace thomsonreuters::ema::access;
 
 VectorEncoder::VectorEncoder() :
-  _containerInitialized( false ),
-  _rsslVector(),
- _rsslVectorEntry()
+ _rsslVector(),
+ _rsslVectorEntry(),
+ _emaDataType( DataType::NoDataEnum ),
+ _containerInitialized( false )
 {
 }
 
@@ -31,12 +33,27 @@ void VectorEncoder::clear()
 	rsslClearVector( &_rsslVector );
 	rsslClearVectorEntry( &_rsslVectorEntry );
 
+	_emaDataType = DataType::NoDataEnum;
+
 	_containerInitialized = false;
 }
 
-void VectorEncoder::initEncode( UInt8 dataType )
+void VectorEncoder::initEncode( UInt8 rsslDataType, DataType::DataTypeEnum emaDataType )
 {
-	_rsslVector.containerType = dataType;
+	if ( !_rsslVector.containerType )
+	{
+		_rsslVector.containerType = rsslDataType;
+		_emaDataType = emaDataType;
+	}
+	else if ( _rsslVector.containerType != rsslDataType )
+	{
+		EmaString temp( "Attempt to add an entry with a DataType different than summaryData's DataType. Passed in ComplexType has DataType of " );
+		temp += DataType( emaDataType ).toString();
+		temp += EmaString( " while the expected DataType is " );
+		temp += DataType( _emaDataType );
+		throwIueException( temp );
+		return;
+	}
 
 	RsslRet retCode = rsslEncodeVectorInit( &(_pEncodeIter->_rsslEncIter), &_rsslVector, 0, 0 );
 
@@ -57,8 +74,7 @@ void VectorEncoder::initEncode( UInt8 dataType )
 	}
 }
 
-void VectorEncoder::addEncodedEntry( UInt32 position, UInt8 action, const EmaBuffer& permission, 
-	const char* methodName, RsslBuffer& rsslBuffer )
+void VectorEncoder::addEncodedEntry( UInt32 position, UInt8 action, const EmaBuffer& permission, const char* methodName, const RsslBuffer& rsslBuffer )
 {
 	_rsslVectorEntry.flags = RSSL_VTEF_NONE;
 
@@ -90,8 +106,7 @@ void VectorEncoder::addEncodedEntry( UInt32 position, UInt8 action, const EmaBuf
 	}
 }
 
-void VectorEncoder::startEncodingEntry( UInt32 position, UInt8 action, const EmaBuffer& permission, 
-	const char* methodName )
+void VectorEncoder::startEncodingEntry( UInt32 position, UInt8 action, const EmaBuffer& permission, const char* methodName )
 {
 	_rsslVectorEntry.encData.data = 0;
 	_rsslVectorEntry.encData.length = 0;
@@ -144,35 +159,86 @@ void VectorEncoder::endEncodingEntry() const
 
 void VectorEncoder::add( UInt32 position, VectorEntry::VectorAction action, const ComplexType& complexType, const EmaBuffer& permission )
 {
-	UInt8 dataType = const_cast<Encoder&>( static_cast<const ComplexType&>(complexType).getEncoder() ).convertDataType( complexType.getDataType() );
+	if ( _containerComplete )
+	{
+		EmaString temp( "Attempt to add an entry after complete() was called." );
+		throwIueException( temp );
+		return;
+	}
+
+	const Encoder& enc = complexType.getEncoder();
+
+	UInt8 rsslDataType = enc.convertDataType( complexType.getDataType() );
 
 	if ( !hasEncIterator() )
 	{
 		acquireEncIterator();
 
-		initEncode( dataType );
+		initEncode( rsslDataType, complexType.getDataType() );
+	}
+	else if ( _rsslVector.containerType != rsslDataType )
+	{
+		EmaString temp( "Attempt to add an entry with a different DataType. Passed in ComplexType has DataType of " );
+		temp += DataType( complexType.getDataType() ).toString();
+		temp += EmaString( " while the expected DataType is " );
+		temp += DataType( _emaDataType );
+		throwIueException( temp );
+		return;
 	}
 
-	if ( static_cast<const ComplexType&>(complexType).getEncoder().ownsIterator() )
+	if ( action == VectorEntry::DeleteEnum || action == VectorEntry::ClearEnum )
 	{
-		// todo ... check if complete was called		
-		addEncodedEntry( position, action, permission, "add()", static_cast<const ComplexType&>(complexType).getEncoder().getRsslBuffer() );
+		RsslBuffer rsslBuffer;
+		rsslClearBuffer( &rsslBuffer );
+		addEncodedEntry( position, action, permission, "add()", rsslBuffer );
+	}
+	else if ( complexType.hasEncoder() && enc.ownsIterator() )
+	{
+		if ( enc.isComplete() )
+			addEncodedEntry( position, action, permission, "add()", enc.getRsslBuffer() );
+		else
+		{
+			EmaString temp( "Attempt to add() a ComplexType while complete() was not called on this ComplexType." );
+			throwIueException( temp );
+			return;
+		}
+	}
+	else if ( complexType.hasDecoder() )
+	{
+		addEncodedEntry( position, action, permission, "add()", const_cast<ComplexType&>( complexType ).getDecoder().getRsslBuffer() );
 	}
 	else
 	{
-		// todo ... check if clear was called
-		passEncIterator( const_cast<Encoder&>( static_cast<const ComplexType&>(complexType).getEncoder() ) );
+		if ( rsslDataType == RSSL_DT_MSG )
+		{
+			EmaString temp( "Attempt to pass in an empty message while it is not supported." );
+			throwIueException( temp );
+			return;
+		}
+
+		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( position, action, permission, "add()" );
 	}
 }
 
 void VectorEncoder::complete()
 {
+	if ( _containerComplete ) return;
+
 	if ( !hasEncIterator() )
 	{
-		EmaString temp( "Cannot complete an empty Vector" );
-		throwIueException( temp );
-		return;
+		if ( _rsslVector.containerType )
+		{
+			acquireEncIterator();
+
+			initEncode( _rsslVector.containerType, _emaDataType );
+		}
+		else
+		{
+			EmaString temp( "Attempt to complete() while no Vector::add() or Vector::summaryData() were called yet." );
+			throwIueException( temp );
+			return;
+		}
 	}
 
 	RsslRet retCode = rsslEncodeVectorComplete( &(_pEncodeIter->_rsslEncIter), RSSL_TRUE );
@@ -211,16 +277,36 @@ void VectorEncoder::summaryData( const ComplexType& data )
 {
 	if ( !_containerInitialized )
 	{
-		if ( static_cast<const ComplexType&>(data).getEncoder().isComplete() )
+		const Encoder& enc = data.getEncoder();
+
+		if ( data.hasEncoder() && enc.ownsIterator() )
+		{
+			if ( enc.isComplete() )
+			{
+				rsslVectorApplyHasSummaryData( &_rsslVector );
+				_rsslVector.encSummaryData = enc.getRsslBuffer();
+			}
+			else
+			{
+				EmaString temp( "Attempt to set summaryData() with a ComplexType while complete() was not called on this ComplexType." );
+				throwIueException( temp );
+				return;
+			}
+		}
+		else if ( data.hasDecoder() )
 		{
 			rsslVectorApplyHasSummaryData( &_rsslVector );
-			_rsslVector.encSummaryData = static_cast<const ComplexType&>(data).getEncoder().getRsslBuffer();
+			_rsslVector.encSummaryData = const_cast<ComplexType&>(data).getDecoder().getRsslBuffer();
 		}
 		else
 		{
-			EmaString temp( "Invalid attempt to pass not completed container to summaryData()." );
+			EmaString temp( "Attempt to pass an empty ComplexType to summaryData() while it is not supported." );
 			throwIueException( temp );
+			return;
 		}
+
+		_emaDataType = data.getDataType();
+		_rsslVector.containerType = enc.convertDataType( _emaDataType );
 	}
 	else
 	{

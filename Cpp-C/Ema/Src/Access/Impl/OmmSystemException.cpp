@@ -10,6 +10,7 @@
 #include "EmaStringInt.h"
 
 #include <stdio.h>
+#include "Utilities.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -57,7 +58,7 @@ void* OmmSystemException::getSystemExceptionAddress() const
 
 const EmaString& OmmSystemException::toString() const
 {
-	int length = sprintf( _space + EMASTRING_SIZE, "Exception Type='%s', Text='%s', exceptionCode='%llu', exceptionAddress='0x%p'",
+	int length = snprintf( _space + EMASTRING_SIZE, MAX_SIZE_PLUS_PADDING - EMASTRING_SIZE, "Exception Type='%s', Text='%s', exceptionCode='%llu', exceptionAddress='0x%p'",
 		getExceptionTypeAsString().c_str(),
 		_errorText + EMASTRING_SIZE,
 		_exceptionCode,

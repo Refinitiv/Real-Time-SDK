@@ -161,7 +161,7 @@ private :
 
 	void addPrimitiveEntry( const EmaString& , RsslDataType , const char* , void* );
 
-	void addEncodedEntry( const EmaString& , RsslDataType , const char* , RsslBuffer& );
+	void addEncodedEntry( const EmaString& , RsslDataType , const char* , const RsslBuffer& );
 
 	void startEncodingEntry( const EmaString& , RsslDataType , const char* );
 

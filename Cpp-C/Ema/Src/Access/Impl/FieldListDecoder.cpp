@@ -139,8 +139,10 @@ void FieldListDecoder::clone( const FieldListDecoder& other )
 	}
 }
 
-void FieldListDecoder::setRsslData( RsslDecodeIterator* , RsslBuffer* )
+bool FieldListDecoder::setRsslData( RsslDecodeIterator* , RsslBuffer* )
 {
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
 }
 
 void FieldListDecoder::reset()
@@ -205,11 +207,13 @@ void FieldListDecoder::reset()
 	}
 }
 
-void FieldListDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
+bool FieldListDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
 {
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
 }
 
-void FieldListDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuffer, const RsslDataDictionary* rsslDictionary, void* localFlSetDefDb )
+bool FieldListDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuffer, const RsslDataDictionary* rsslDictionary, void* localFlSetDefDb )
 {
 	_decodingStarted = false;
 
@@ -227,7 +231,7 @@ void FieldListDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rssl
 	{
 		_atEnd = false;
 		_errorCode = OmmError::NoDictionaryEnum;
-		return;
+		return false;
 	}
 
 	rsslClearDecodeIterator( &_decodeIter );
@@ -237,7 +241,7 @@ void FieldListDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rssl
 	{
 		_atEnd = false;
 		_errorCode = OmmError::IteratorSetFailureEnum;
-		return;
+		return false;
 	}
 
 	retCode = rsslSetDecodeIteratorRWFVersion( &_decodeIter, _rsslMajVer, _rsslMinVer );
@@ -245,7 +249,7 @@ void FieldListDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rssl
 	{
 		_atEnd = false;
 		_errorCode = OmmError::IteratorSetFailureEnum;
-		return;
+		return false;
 	}
 
 	retCode = rsslDecodeFieldList( &_decodeIter, &_rsslFieldList, _rsslLocalFLSetDefDb );
@@ -255,41 +259,33 @@ void FieldListDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rssl
 	case RSSL_RET_NO_DATA :
 		_atEnd = true;
 		_errorCode = OmmError::NoErrorEnum;
-		break;
+		return true;
 	case RSSL_RET_SUCCESS :
 		_atEnd = false;
 		_errorCode = OmmError::NoErrorEnum;
-		break;
+		return true;
 	case RSSL_RET_ITERATOR_OVERRUN :
 		_atEnd = false;
 		_errorCode = OmmError::IteratorOverrunEnum;
-		break;
+		return false;
 	case RSSL_RET_INCOMPLETE_DATA :
 		_atEnd = false;
 		_errorCode = OmmError::IncompleteDataEnum;
-		break;
+		return false;
 	case RSSL_RET_SET_SKIPPED :
 		_atEnd = false;
 		_errorCode = OmmError::NoSetDefinitionEnum;
-		break;
+		return false;
 	default :
 		_atEnd = false;
 		_errorCode = OmmError::UnknownErrorEnum;
-		break;
+		return false;
 	}
 }
 
 bool FieldListDecoder::getNextData()
 {
 	if ( _atEnd ) return true;
-
-	if ( !_decodingStarted && _errorCode != OmmError::NoErrorEnum )
-	{
-		_atEnd = true;
-		_decodingStarted = true;
-		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], _errorCode, &_decodeIter, &_rsslFieldListBuffer );
-		return false;
-	}
 
 	_decodingStarted = true;
 
@@ -331,14 +327,6 @@ bool FieldListDecoder::getNextData( Int16 fieldId )
 
 	do {
 		if ( _atEnd ) return true;
-
-		if ( !_decodingStarted && _errorCode != OmmError::NoErrorEnum )
-		{
-			_atEnd = true;
-			_decodingStarted = true;
-			_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], _errorCode, &_decodeIter, &_rsslFieldListBuffer ); 
-			return false;
-		}
 
 		_decodingStarted = true;
 
@@ -390,14 +378,6 @@ bool FieldListDecoder::getNextData( const EmaString& name )
 
 	do {
 		if ( _atEnd ) return true;
-
-		if ( !_decodingStarted && _errorCode != OmmError::NoErrorEnum )
-		{
-			_atEnd = true;
-			_decodingStarted = true;
-			_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], _errorCode, &_decodeIter, &_rsslFieldListBuffer );
-			return false;
-		}
 
 		_decodingStarted = true;
 
@@ -774,4 +754,14 @@ const EmaBuffer& FieldListDecoder::getHexBuffer()
 	_hexBuffer.setFromInt( _rsslFieldListBuffer.data, _rsslFieldListBuffer.length );
 
 	return _hexBuffer.toBuffer();
+}
+
+const RsslBuffer& FieldListDecoder::getRsslBuffer() const
+{
+	return _rsslFieldListBuffer;
+}
+
+OmmError::ErrorCode FieldListDecoder::getErrorCode() const
+{
+	return _errorCode;
 }

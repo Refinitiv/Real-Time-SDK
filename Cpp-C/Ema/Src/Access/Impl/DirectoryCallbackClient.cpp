@@ -745,7 +745,7 @@ RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor* pR
 				.append( "Error Id " ).append( pError->rsslError.rsslErrorId ).append( CR )
 				.append( "Internal sysError " ).append( pError->rsslError.sysError ).append( CR )
 				.append( "Error Location " ).append( pError->errorLocation ).append( CR )
-				.append( "Error Text " ).append( pError->rsslError.text );
+				.append( "Error Text " ).append( pError->rsslError.rsslErrorId ? pError->rsslError.text : "" );
 
 			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
 		}
@@ -1258,6 +1258,7 @@ RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor* pR
 	}
 
 	RsslErrorInfo rsslErrorInfo;
+	clearRsslErrorInfo( &rsslErrorInfo );
 	retCode = rsslEncodeRDMDirectoryMsg( &eIter, pEvent->pRDMDirectoryMsg, &rsslMsgBuffer.length, &rsslErrorInfo );
 
 	while ( retCode == RSSL_RET_BUFFER_TOO_SMALL )
@@ -1531,6 +1532,7 @@ bool DirectoryItem::submit( RsslGenericMsg* pRsslGenericMsg )
 	submitMsgOpts.pRsslMsg->msgBase.domainType = _domainType;
 
 	RsslErrorInfo rsslErrorInfo;
+	clearRsslErrorInfo( &rsslErrorInfo );
 	RsslRet ret;
 	if ( ( ret = rsslReactorSubmitMsg( _channel->getRsslReactor(),
 										_channel->getRsslChannel(),
@@ -1617,6 +1619,7 @@ bool DirectoryItem::submit( RsslRequestMsg* pRsslRequestMsg )
 		submitMsgOpts.pRsslMsg->msgBase.domainType = _domainType;
 
 	RsslErrorInfo rsslErrorInfo;
+	clearRsslErrorInfo( &rsslErrorInfo );
 	RsslRet ret = rsslReactorSubmitMsg( _channel->getRsslReactor(), _channel->getRsslChannel(), &submitMsgOpts, &rsslErrorInfo );
 	if ( ret != RSSL_RET_SUCCESS )
 	{
@@ -1667,6 +1670,7 @@ bool DirectoryItem::submit( RsslCloseMsg* pRsslCloseMsg )
 		submitMsgOpts.pRsslMsg->msgBase.streamId = _streamId;
 
 	RsslErrorInfo rsslErrorInfo;
+	clearRsslErrorInfo( &rsslErrorInfo );
 	RsslRet ret;
 	if ( ( ret = rsslReactorSubmitMsg( _channel->getRsslReactor(), _channel->getRsslChannel(),
 									   &submitMsgOpts, &rsslErrorInfo ) ) != RSSL_RET_SUCCESS )

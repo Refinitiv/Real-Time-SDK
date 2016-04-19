@@ -12,11 +12,12 @@
 using namespace thomsonreuters::ema::access;
 
 OmmAnsiPageDecoder::OmmAnsiPageDecoder() :
-_rsslBuffer(),
-_toString(),
-_getString(),
-_getBuffer(),
-_dataCode( Data::BlankEnum )
+ _rsslBuffer(),
+ _toString(),
+ _getString(),
+ _getBuffer(),
+ _dataCode( Data::BlankEnum ),
+ _errorCode( OmmError::NoErrorEnum )
 {
 }
 
@@ -29,42 +30,70 @@ Data::DataCode OmmAnsiPageDecoder::getCode() const
 	return _dataCode;
 }
 
-void OmmAnsiPageDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* )
+bool OmmAnsiPageDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* )
 {
-	if ( rsslDecodeBuffer( dIter, &_rsslBuffer ) == RSSL_RET_SUCCESS )
+	switch ( rsslDecodeBuffer( dIter, &_rsslBuffer ) )
+	{
+	case RSSL_RET_SUCCESS :
 		_dataCode = Data::NoCodeEnum;
-	else
+		_errorCode = OmmError::NoErrorEnum;
+		return true;
+	case RSSL_RET_BLANK_DATA :
 		_dataCode = Data::BlankEnum;
+		_errorCode = OmmError::NoErrorEnum;
+		return true;
+	case RSSL_RET_INCOMPLETE_DATA :
+		_errorCode = OmmError::IncompleteDataEnum;
+		return false;
+	default :
+		_errorCode = OmmError::UnknownErrorEnum;
+		return false;
+	}
 }
 
-void OmmAnsiPageDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
+bool OmmAnsiPageDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
 {
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
 }
 
-void OmmAnsiPageDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuffer,
-								const RsslDataDictionary* rsslDictionary , void* )
+bool OmmAnsiPageDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* pRsslBuffer,
+								const RsslDataDictionary* , void* )
 {
 	RsslDecodeIterator decodeIterator;
 	rsslClearDecodeIterator( &decodeIterator );
 
-	RsslRet retCode = rsslSetDecodeIteratorBuffer( &decodeIterator, rsslBuffer );
+	RsslRet retCode = rsslSetDecodeIteratorBuffer( &decodeIterator, pRsslBuffer );
 	if ( RSSL_RET_SUCCESS != retCode )
 	{
-		_dataCode = Data::BlankEnum;
-		return;
+		_errorCode = OmmError::IteratorSetFailureEnum;
+		return false;
 	}
 
 	retCode = rsslSetDecodeIteratorRWFVersion( &decodeIterator, majVer, minVer );
 	if ( RSSL_RET_SUCCESS != retCode )
 	{
-		_dataCode = Data::BlankEnum;
-		return;
+		_errorCode = OmmError::IteratorSetFailureEnum;
+		return false;
 	}
 
-	if ( rsslDecodeBuffer( &decodeIterator, &_rsslBuffer ) == RSSL_RET_SUCCESS )
-		_dataCode = Data::NoCodeEnum;
-	else
+	switch ( rsslDecodeBuffer( &decodeIterator, &_rsslBuffer ) )
+	{
+	case RSSL_RET_BLANK_DATA :
 		_dataCode = Data::BlankEnum;
+		_errorCode = OmmError::NoErrorEnum;
+		return true;
+	case RSSL_RET_SUCCESS :
+		_dataCode = Data::NoCodeEnum;
+		_errorCode = OmmError::NoErrorEnum;
+		return true;
+	case RSSL_RET_INCOMPLETE_DATA :
+		_errorCode = OmmError::IncompleteDataEnum;
+		return false;
+	default :
+		_errorCode = OmmError::UnknownErrorEnum;
+		return false;
+	}
 }
 
 const EmaString& OmmAnsiPageDecoder::toString()
@@ -92,4 +121,14 @@ const EmaBuffer& OmmAnsiPageDecoder::getBuffer()
 	_getBuffer.setFromInt( _rsslBuffer.data, _rsslBuffer.length );
 	
 	return _getBuffer.toBuffer();
+}
+
+const RsslBuffer& OmmAnsiPageDecoder::getRsslBuffer() const
+{
+	return _rsslBuffer;
+}
+
+OmmError::ErrorCode OmmAnsiPageDecoder::getErrorCode() const
+{
+	return _errorCode;
 }

@@ -37,7 +37,7 @@ StatusMsgDecoder::~StatusMsgDecoder()
 {
 }
 
-void StatusMsgDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslMsg* rsslMsg, const RsslDataDictionary* rsslDictionary )
+bool StatusMsgDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslMsg* rsslMsg, const RsslDataDictionary* rsslDictionary )
 {
 	_serviceNameSet = false;
 
@@ -55,9 +55,13 @@ void StatusMsgDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslMsg* rsslMsg
 		hasAttrib() ? _pRsslMsg->msgBase.msgKey.attribContainerType : RSSL_DT_NO_DATA, majVer, minVer, _pRsslDictionary );
 
 	StaticDecoder::setRsslData( &_payload, &_pRsslMsg->msgBase.encDataBody, _pRsslMsg->msgBase.containerType, majVer, minVer, _pRsslDictionary );
+
+	_errorCode = OmmError::NoErrorEnum;
+
+	return true;
 }
 
-void StatusMsgDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuffer, const RsslDataDictionary* rsslDictionary, void* )
+bool StatusMsgDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuffer, const RsslDataDictionary* rsslDictionary, void* )
 {
 	_serviceNameSet = false;
 
@@ -81,14 +85,14 @@ void StatusMsgDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rssl
 	if ( RSSL_RET_SUCCESS != retCode )
 	{
 		_errorCode = OmmError::IteratorSetFailureEnum;
-		return;
+		return false;
 	}
 
 	retCode = rsslSetDecodeIteratorRWFVersion( &decodeIter, _rsslMajVer, _rsslMinVer );
 	if ( RSSL_RET_SUCCESS != retCode )
 	{
 		_errorCode = OmmError::IteratorSetFailureEnum;
-		return;
+		return false;
 	}
 
 	retCode = rsslDecodeMsg( &decodeIter, _pRsslMsg );
@@ -100,27 +104,23 @@ void StatusMsgDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rssl
 		StaticDecoder::setRsslData( &_attrib, &_pRsslMsg->msgBase.msgKey.encAttrib,
 									hasAttrib() ? _pRsslMsg->msgBase.msgKey.attribContainerType : RSSL_DT_NO_DATA, majVer, minVer, _pRsslDictionary );
 		StaticDecoder::setRsslData( &_payload, &_pRsslMsg->msgBase.encDataBody, _pRsslMsg->msgBase.containerType, majVer, minVer, _pRsslDictionary );
-		return;
+		return true;
 	case RSSL_RET_ITERATOR_OVERRUN :
 		_errorCode = OmmError::IteratorOverrunEnum;
-		Decoder::setRsslData( &_attrib, _errorCode, &decodeIter, rsslBuffer );
-		Decoder::setRsslData( &_payload, _errorCode, &decodeIter, rsslBuffer );
-		return;
+		return false;
 	case RSSL_RET_INCOMPLETE_DATA :
 		_errorCode = OmmError::IncompleteDataEnum;
-		Decoder::setRsslData( &_attrib, _errorCode, &decodeIter, rsslBuffer );
-		Decoder::setRsslData( &_payload, _errorCode, &decodeIter, rsslBuffer );
-		return;
+		return false;
 	default :
 		_errorCode = OmmError::UnknownErrorEnum;
-		Decoder::setRsslData( &_attrib, _errorCode, &decodeIter, rsslBuffer );
-		Decoder::setRsslData( &_payload, _errorCode, &decodeIter, rsslBuffer );
-		return;
+		return false;
 	}
 }  
 
-void StatusMsgDecoder::setRsslData( RsslDecodeIterator* , RsslBuffer* )
+bool StatusMsgDecoder::setRsslData( RsslDecodeIterator* , RsslBuffer* )
 {
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
 }
 
 bool StatusMsgDecoder::hasMsgKey() const
@@ -394,4 +394,14 @@ const EmaBuffer& StatusMsgDecoder::getHexBuffer() const
 	_hexBuffer.setFromInt( _pRsslMsg->msgBase.encMsgBuffer.data, _pRsslMsg->msgBase.encMsgBuffer.length );
 
 	return _hexBuffer.toBuffer();
+}
+
+const RsslBuffer& StatusMsgDecoder::getRsslBuffer() const
+{
+	return _pRsslMsg->msgBase.encMsgBuffer;
+}
+
+OmmError::ErrorCode StatusMsgDecoder::getErrorCode() const
+{
+	return _errorCode;
 }

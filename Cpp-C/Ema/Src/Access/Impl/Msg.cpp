@@ -125,3 +125,13 @@ void Msg::setDecoder( MsgDecoder* pDecoder )
 	_payload._pPayload = &pDecoder->getPayloadData();
 	_attrib._pAttrib = &pDecoder->getAttribData();
 }
+
+bool Msg::hasDecoder() const
+{
+	return _pDecoder ? true : false;
+}
+
+bool Msg::hasEncoder() const
+{
+	return _pEncoder ? true : false;
+}

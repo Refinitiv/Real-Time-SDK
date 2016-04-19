@@ -61,7 +61,7 @@ public :
 		\remark npos is often used as a length parameter in EmaString methods to mean "until the end of the string"
 		\remark When used as a return value, npos indicates that the element was "not found"
 	*/
-	static const unsigned int npos = -1;
+	static const UInt32 npos = -1;
 
 	///@name Constructor
 	//@{
@@ -74,6 +74,7 @@ public :
 		\remark If length parameter is set to 0 (zero), then the actual length is determined 
 			looking up for a null character (e.g. strlen()).
 		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmInvalidUsageException if passed in string is longer than MAX_UINT32
 		@param[in] str pointer to the memory containing copied in character string
 		@param[in] length specifies number of characters to copy
 	*/
@@ -102,6 +103,7 @@ public :
 	/** Set method. This method copies "length" number of characters from the "str" pointer.
 		\remark Preallocates empty memory of passed in length if used as follows EmaString::set( 0, 1000 );
 		@throw OmmMemoryExhaustionException if app runs out of memory
+		@throw OmmInvalidUsageException if passed in string is longer than MAX_UINT32
 		@param[in] str pointer to the memory containing copied in character string
 		@param[in] length specifies number of characters to copy
 		@return reference to this object

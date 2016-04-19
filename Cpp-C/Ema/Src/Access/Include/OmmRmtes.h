@@ -88,8 +88,10 @@ private :
 	const EmaString& toString( UInt64 ) const;
 
 	Decoder& getDecoder();
+	bool hasDecoder() const;
 	Decoder& setDecoder( Decoder& );
 	const Encoder& getEncoder() const;
+	bool hasEncoder() const;
 
 	OmmRmtes();
 	virtual ~OmmRmtes();

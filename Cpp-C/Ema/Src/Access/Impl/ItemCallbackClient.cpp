@@ -329,6 +329,7 @@ bool SingleItem::submit( RsslRequestMsg* pRsslRequestMsg )
 		submitMsgOpts.pRsslMsg->msgBase.domainType = _domainType;
 
 	RsslErrorInfo rsslErrorInfo;
+	clearRsslErrorInfo( &rsslErrorInfo );
 	RsslRet ret;
 	if ( ( ret = rsslReactorSubmitMsg( _pDirectory->getChannel()->getRsslReactor(),
 										_pDirectory->getChannel()->getRsslChannel(),
@@ -374,6 +375,7 @@ bool SingleItem::submit( RsslCloseMsg* pRsslCloseMsg )
 	submitMsgOpts.pRsslMsg->msgBase.streamId = _streamId;
 
 	RsslErrorInfo rsslErrorInfo;
+	clearRsslErrorInfo( &rsslErrorInfo );
 	RsslRet ret;
 	if ( ( ret = rsslReactorSubmitMsg( _pDirectory->getChannel()->getRsslReactor(),
 										_pDirectory->getChannel()->getRsslChannel(),
@@ -420,6 +422,7 @@ bool SingleItem::submit( RsslGenericMsg* pRsslGenericMsg )
 	submitMsgOpts.pRsslMsg->msgBase.domainType = _domainType;
 
 	RsslErrorInfo rsslErrorInfo;
+	clearRsslErrorInfo( &rsslErrorInfo );
 	RsslRet ret;
 	if ( ( ret = rsslReactorSubmitMsg( _pDirectory->getChannel()->getRsslReactor(),
 										_pDirectory->getChannel()->getRsslChannel(),
@@ -467,6 +470,7 @@ bool SingleItem::submit( RsslPostMsg* pRsslPostMsg )
 	submitMsgOpts.pRsslMsg->msgBase.domainType = _domainType;
 
 	RsslErrorInfo rsslErrorInfo;
+	clearRsslErrorInfo( &rsslErrorInfo );
 	RsslRet ret;
 	if ( ( ret = rsslReactorSubmitMsg( _pDirectory->getChannel()->getRsslReactor(),
 										_pDirectory->getChannel()->getRsslChannel(),
@@ -748,11 +752,11 @@ bool BatchItem::submit( const GenericMsg& )
 	return false;
 }
 
-bool BatchItem::addBatchItems( const EmaVector<EmaString>& batchItemList )
+bool BatchItem::addBatchItems( UInt32 batchSize )
 {
 	SingleItem* item = 0;
 
-	for( UInt32 i = 0 ; i < batchItemList.size() ; i++ )
+	for( UInt32 i = 0 ; i < batchSize ; i++ )
 	{
 		item = SingleItem::create( _ommConsImpl, _ommConsClient, 0, this );
 
@@ -1133,6 +1137,7 @@ bool TunnelItem::submit( const TunnelStreamRequest& tunnelStreamRequest )
 	rsslClearRDMLoginMsg( &rsslRdmLoginMsg );
 
 	RsslErrorInfo rsslErrorInfo;
+	clearRsslErrorInfo( &rsslErrorInfo );
 
 	if ( tunnelStreamRequest.hasLoginReqMsg() )
 	{
@@ -1274,6 +1279,7 @@ bool TunnelItem::close()
 	rsslClearTunnelStreamCloseOptions( &tunnelStreamCloseOptions );
 
 	RsslErrorInfo rsslErrorInfo;
+	clearRsslErrorInfo( &rsslErrorInfo );
 	RsslRet ret;
 	if ( ( ret = rsslReactorCloseTunnelStream( _pRsslTunnelStream, &tunnelStreamCloseOptions, &rsslErrorInfo ) ) != RSSL_RET_SUCCESS )
 	{
@@ -1324,6 +1330,7 @@ bool TunnelItem::submitSubItemMsg( RsslMsg* pRsslMsg )
 	rsslGetBufferOpts.size = 256;
 
 	RsslErrorInfo rsslErrorInfo;
+	clearRsslErrorInfo( &rsslErrorInfo );
 	RsslBuffer* pRsslBuffer = rsslTunnelStreamGetBuffer( _pRsslTunnelStream, &rsslGetBufferOpts, &rsslErrorInfo );
 
 	if ( !pRsslBuffer )
@@ -1870,7 +1877,7 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslTunnelStream* pR
 				.append( "Error Id " ).append( pTunnelStreamMsgEvent->pErrorInfo->rsslError.rsslErrorId ).append( CR )
 				.append( "Internal sysError " ).append( pTunnelStreamMsgEvent->pErrorInfo->rsslError.sysError ).append( CR )
 				.append( "Error Location " ).append( pTunnelStreamMsgEvent->pErrorInfo->errorLocation ).append( CR )
-				.append( "Error Text " ).append( pTunnelStreamMsgEvent->pErrorInfo->rsslError.text );
+				.append( "Error Text " ).append( pTunnelStreamMsgEvent->pErrorInfo->rsslError.rsslErrorId ? pTunnelStreamMsgEvent->pErrorInfo->rsslError.text : "" );
 			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
 
@@ -1993,7 +2000,7 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslTunnelStream* pR
 				.append( "Error Id " ).append( pTunnelStreamQueueMsgEvent->base.pErrorInfo->rsslError.rsslErrorId ).append( CR )
 				.append( "Internal sysError " ).append( pTunnelStreamQueueMsgEvent->base.pErrorInfo->rsslError.sysError ).append( CR )
 				.append( "Error Location " ).append( pTunnelStreamQueueMsgEvent->base.pErrorInfo->errorLocation ).append( CR )
-				.append( "Error Text " ).append( pTunnelStreamQueueMsgEvent->base.pErrorInfo->rsslError.text );
+				.append( "Error Text " ).append( pTunnelStreamQueueMsgEvent->base.pErrorInfo->rsslError.rsslErrorId ? pTunnelStreamQueueMsgEvent->base.pErrorInfo->rsslError.text : "" );
 			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
 
@@ -2102,7 +2109,7 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslReactor* pRsslRe
 				.append( "Error Id " ).append( pError->rsslError.rsslErrorId ).append( CR )
 				.append( "Internal sysError " ).append( pError->rsslError.sysError ).append( CR )
 				.append( "Error Location " ).append( pError->errorLocation ).append( CR )
-				.append( "Error Text " ).append( pError->rsslError.text );
+				.append( "Error Text " ).append( pError->rsslError.rsslErrorId ? pError->rsslError.text : "" );
 			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
 
@@ -2402,7 +2409,7 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 			}
 		default :
 			{
-				SingleItem* pItem  = 0;
+				SingleItem* pItem = 0;
 
 				if ( reqMsgEncoder.getRsslRequestMsg()->flags & RSSL_RQMF_HAS_BATCH )
 				{
@@ -2412,7 +2419,7 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 					{
 						try {
 							pItem = pBatchItem;
-							pBatchItem->addBatchItems( reqMsgEncoder.getBatchItemList() );
+							pBatchItem->addBatchItems( reqMsgEncoder.getBatchItemListSize() );
 
 							if ( !pBatchItem->open( reqMsg ) )
 							{

@@ -132,9 +132,9 @@ public :
 
 	/** Returns a ripple FieldId if the current entry has a ripple field. A subsequent call using
 	    the former non-zero return value as a formal parameter, returns the next ripple field in
-		a ripple sequence. Returns zero if no ripple field or the final ripple field of a ripple sequence.
+		a ripple sequence.
 		@param[in] fieldId 
-		@return field id
+		@return ripple field id; zero if no ripple field or the final ripple field of a ripple sequence.
 	*/
 	Int16 getRippleTo( Int16 fieldId = 0 ) const;
 

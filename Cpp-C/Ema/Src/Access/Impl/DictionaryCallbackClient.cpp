@@ -268,7 +268,7 @@ RsslReactorCallbackRet ChannelDictionary::processCallback( RsslReactor* ,
 				.append( "Error Id " ).append( pError->rsslError.rsslErrorId ).append( CR )
 				.append( "Internal sysError " ).append( pError->rsslError.sysError ).append( CR )
 				.append( "Error Location " ).append( pError->errorLocation ).append( CR )
-				.append( "Error Text " ).append( pError->rsslError.text );
+				.append( "Error Text " ).append( pError->rsslError.rsslErrorId ? pError->rsslError.text : "" );
 			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
 
@@ -916,6 +916,7 @@ bool DictionaryCallbackClient::downloadDictionary( const Directory& directory )
 	RsslReactorSubmitMsgOptions submitMsgOpts;
 	RsslRet ret;
 	RsslErrorInfo rsslErrorInfo;
+	clearRsslErrorInfo( &rsslErrorInfo );
 
 	rsslClearRequestMsg( &requestMsg );
 	requestMsg.msgBase.domainType = RSSL_DMT_DICTIONARY;
@@ -1002,6 +1003,7 @@ bool DictionaryCallbackClient::downloadDictionaryFromService( const Directory& d
 	RsslReactorSubmitMsgOptions submitMsgOpts;
 	RsslRet ret;
 	RsslErrorInfo rsslErrorInfo;
+	clearRsslErrorInfo( &rsslErrorInfo );
 
 	rsslClearRequestMsg( &requestMsg );
 	requestMsg.msgBase.domainType = RSSL_DMT_DICTIONARY;
@@ -1203,6 +1205,7 @@ RsslReactorCallbackRet DictionaryCallbackClient::processCallback( RsslReactor* p
 	}
 
 	RsslErrorInfo rsslErrorInfo;
+	clearRsslErrorInfo( &rsslErrorInfo );
 	char errorBuf[255];
 	RsslBuffer errorText = { 255, errorBuf };
 	RsslRet ret = RSSL_RET_SUCCESS;

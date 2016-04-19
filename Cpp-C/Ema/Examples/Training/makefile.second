@@ -1,5 +1,5 @@
-include ../../../../makefile.common
-include ../../makefile.examples.common
+include ../../../../../makefile.common
+include ../../../makefile.examples.common
 
 EXAMPLE_NUMBER=$(shell basename $$(pwd) | sed 's/__.*//')
 EXAMPLE_NAME = Consumer$(EXAMPLE_NUMBER)
@@ -18,7 +18,7 @@ $(OUTPUT_DIR)/$(EXAMPLE_NAME):		$(OBJ)
 		then $(LNCMD) $(ROOTNODE)/Ema/Examples/EmaConfig.xml $(EXE_DIR);fi
 
 createLinks:
-	@../../../../Libs/createSharedLibraryLinks.sh
+	@../../../../../Libs/createSharedLibraryLinks.sh
 
 optimizedStatic:	$(TARGETS)
 optimizedAssertStatic:	$(TARGETS)

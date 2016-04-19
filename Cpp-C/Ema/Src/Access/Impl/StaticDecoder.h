@@ -10,6 +10,7 @@
 #define __thomsonreuters_ema_access_StaticDecoder_h
 
 #include "Data.h"
+#include "OmmError.h"
 #include "rtr/rsslMsg.h"
 #include "rtr/rsslDataDictionary.h"
 
@@ -45,6 +46,13 @@ public :
 	// majVer / minVer	-> wire format version number
 	// RsslDataDictionary* -> field dictionary used to decode FieldList
 	static void setRsslData( Data* , RsslBuffer* , RsslDataType , UInt8 majVer, UInt8 minVer, const RsslDataDictionary* );
+
+	// Data* -> points to Data class object being morphed
+	// OmmError::ErrorCode -> error code
+	// UInt8 -> major rwf version
+	// UInt8 -> minor rwf version
+	// Rsslbuffer -> buffer containing actual wire format data
+	static void setRsslData( Data* , OmmError::ErrorCode , UInt8 majVer, UInt8 minVer, RsslBuffer* );
 
 	// helper method to convert decoded RsslQos struct into Qos object
 	static void setRsslData( OmmQos* , RsslQos* );

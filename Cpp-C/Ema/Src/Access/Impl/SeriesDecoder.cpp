@@ -143,8 +143,10 @@ void SeriesDecoder::clone( const SeriesDecoder& other )
 	}
 }
 
-void SeriesDecoder::setRsslData( RsslDecodeIterator* , RsslBuffer* )
+bool SeriesDecoder::setRsslData( RsslDecodeIterator* , RsslBuffer* )
 {
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
 }
 
 void SeriesDecoder::reset()
@@ -200,11 +202,13 @@ void SeriesDecoder::reset()
 		&_decodeIter, &_rsslSeries.encSummaryData, _pRsslDictionary, _localSetDefDb );
 }
 
-void SeriesDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
+bool SeriesDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
 {
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
 }
 
-void SeriesDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuffer,
+bool SeriesDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuffer,
 								const RsslDataDictionary* rsslDictionary , void* )
 {
 	_decodingStarted = false;
@@ -224,7 +228,7 @@ void SeriesDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuf
 	{
 		_atEnd = false;
 		_errorCode = OmmError::IteratorSetFailureEnum;
-		return;
+		return false;
 	}
 
 	retCode = rsslSetDecodeIteratorRWFVersion( &_decodeIter, _rsslMajVer, _rsslMinVer );
@@ -232,7 +236,7 @@ void SeriesDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuf
 	{
 		_atEnd = false;
 		_errorCode = OmmError::IteratorSetFailureEnum;
-		return;
+		return false;
 	}
 
 	retCode = rsslDecodeSeries( &_decodeIter, &_rsslSeries );
@@ -250,59 +254,50 @@ void SeriesDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuf
 	case RSSL_RET_ITERATOR_OVERRUN :
 		_atEnd = false;
 		_errorCode = OmmError::IteratorOverrunEnum;
-		break;
+		return false;
 	case RSSL_RET_INCOMPLETE_DATA :
 		_atEnd = false;
 		_errorCode = OmmError::IncompleteDataEnum;
-		break;
+		return false;
 	default :
 		_atEnd = false;
 		_errorCode = OmmError::UnknownErrorEnum;
-		break;
+		return false;
 	}
 
-	if ( _errorCode == OmmError::NoErrorEnum )
+	if ( _rsslSeries.flags & RSSL_SRF_HAS_SET_DEFS )
 	{
-		if ( _rsslSeries.flags & RSSL_SRF_HAS_SET_DEFS )
+		switch ( _rsslSeries.containerType )
 		{
-			switch ( _rsslSeries.containerType )
-			{
-			case RSSL_DT_FIELD_LIST :
-				_fieldListSetDef = g_pool._fieldListSetDefPool.getItem();
-				rsslDecodeLocalFieldSetDefDb( &_decodeIter, _fieldListSetDef->getSetDefDb() );
-				_localSetDefDb = _fieldListSetDef->getSetDefDb();
-				break;
-			case RSSL_DT_ELEMENT_LIST :
-				_elementListSetDef = g_pool._elementListSetDefPool.getItem();
-				rsslDecodeLocalElementSetDefDb( &_decodeIter, _elementListSetDef->getSetDefDb() );
-				_localSetDefDb = _elementListSetDef->getSetDefDb();
-				break;
-			default :
-				_localSetDefDb = 0;
-				_errorCode = OmmError::UnsupportedDataTypeEnum;
-				return;
-			}
-		}
-		else
+		case RSSL_DT_FIELD_LIST :
+			_fieldListSetDef = g_pool._fieldListSetDefPool.getItem();
+			rsslDecodeLocalFieldSetDefDb( &_decodeIter, _fieldListSetDef->getSetDefDb() );
+			_localSetDefDb = _fieldListSetDef->getSetDefDb();
+			break;
+		case RSSL_DT_ELEMENT_LIST :
+			_elementListSetDef = g_pool._elementListSetDefPool.getItem();
+			rsslDecodeLocalElementSetDefDb( &_decodeIter, _elementListSetDef->getSetDefDb() );
+			_localSetDefDb = _elementListSetDef->getSetDefDb();
+			break;
+		default :
 			_localSetDefDb = 0;
-
-		Decoder::setRsslData( &_summary,
-			( _rsslSeries.flags & RSSL_SRF_HAS_SUMMARY_DATA ) ? _rsslSeries.containerType : RSSL_DT_NO_DATA,
-			&_decodeIter, &_rsslSeries.encSummaryData, _pRsslDictionary, _localSetDefDb );
+			_errorCode = OmmError::UnsupportedDataTypeEnum;
+			return false;
+		}
 	}
+	else
+		_localSetDefDb = 0;
+
+	Decoder::setRsslData( &_summary,
+		( _rsslSeries.flags & RSSL_SRF_HAS_SUMMARY_DATA ) ? _rsslSeries.containerType : RSSL_DT_NO_DATA,
+		&_decodeIter, &_rsslSeries.encSummaryData, _pRsslDictionary, _localSetDefDb );
+	
+	return true;
 }
 
 bool SeriesDecoder::getNextData()
 {
 	if ( _atEnd ) return true;
-
-	if ( !_decodingStarted && _errorCode != OmmError::NoErrorEnum )
-	{
-		_atEnd = true;
-		_decodingStarted = true;
-		Decoder::setRsslData( &_load, _errorCode, &_decodeIter, &_rsslSeriesBuffer ); 
-		return false;
-	}
 
 	_decodingStarted = true;
 
@@ -375,4 +370,14 @@ const EmaBuffer& SeriesDecoder::getHexBuffer()
 	_hexBuffer.setFromInt( _rsslSeriesBuffer.data, _rsslSeriesBuffer.length );
 
 	return _hexBuffer.toBuffer();
+}
+
+const RsslBuffer& SeriesDecoder::getRsslBuffer() const
+{
+	return _rsslSeriesBuffer;
+}
+
+OmmError::ErrorCode SeriesDecoder::getErrorCode() const
+{
+	return _errorCode;
 }

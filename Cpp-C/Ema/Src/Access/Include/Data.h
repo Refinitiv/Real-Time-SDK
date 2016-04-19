@@ -143,8 +143,10 @@ private :
 	friend class SeriesEntry;
 
 	virtual Decoder& getDecoder() = 0;
+	virtual bool hasDecoder() const = 0;
 	virtual const EmaString& toString( UInt64 indent ) const = 0;
 	virtual const Encoder& getEncoder() const = 0;
+	virtual bool hasEncoder() const = 0;
 
 	Data( const Data& );
 	Data& operator=( const Data& );

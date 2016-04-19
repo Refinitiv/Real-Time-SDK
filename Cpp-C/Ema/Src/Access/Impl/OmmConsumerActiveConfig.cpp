@@ -275,6 +275,8 @@ ChannelConfig::ChannelConfig( RsslConnectionTypes type ) :
  xmlTraceToMultipleFiles( DEFAULT_XML_TRACE_TO_MULTIPLE_FILE ),
  xmlTraceWrite( DEFAULT_XML_TRACE_WRITE ),
  xmlTraceRead( DEFAULT_XML_TRACE_READ ),
+ xmlTracePing( DEFAULT_XML_TRACE_PING ),
+ xmlTraceHex( DEFAULT_XML_TRACE_HEX ),
  msgKeyInUpdates( DEFAULT_MSGKEYINUPDATES ),
  pChannel(0)
 {
@@ -301,6 +303,8 @@ void ChannelConfig::clear()
 	xmlTraceToMultipleFiles = DEFAULT_XML_TRACE_TO_MULTIPLE_FILE;
 	xmlTraceWrite = DEFAULT_XML_TRACE_WRITE;
 	xmlTraceRead = DEFAULT_XML_TRACE_READ;
+	xmlTracePing = DEFAULT_XML_TRACE_PING;
+	xmlTraceHex = DEFAULT_XML_TRACE_HEX;
 	msgKeyInUpdates = DEFAULT_MSGKEYINUPDATES;
 	pChannel = 0;
 }

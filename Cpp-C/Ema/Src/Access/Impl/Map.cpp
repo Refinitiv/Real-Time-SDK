@@ -152,6 +152,11 @@ Decoder& Map::getDecoder()
 	return *_pDecoder;
 }
 
+bool Map::hasDecoder() const
+{
+	return _pDecoder ? true : false;
+}
+
 const Encoder& Map::getEncoder() const
 {
 	if ( !_pEncoder )
@@ -421,4 +426,9 @@ const Map& Map::complete()
 	_pEncoder->complete();
 
 	return *this;
+}
+
+bool Map::hasEncoder() const
+{
+	return _pEncoder ? true : false;
 }

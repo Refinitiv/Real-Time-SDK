@@ -33,7 +33,7 @@ P.fA("3.4.1 Generic XML Schema for DictionaryGroup","Chap_ConfigGroups.3.18.html
 P.fA("3.4.2 Dictionary Entry Parameters","Chap_ConfigGroups.3.19.html");
 P.fA("4.1 Default Configuration","Chap_ConfigProcessing.4.01.html");
 P.fA("4.2 Processing EmaConfig.xml","Chap_ConfigProcessing.4.02.html");
-P.fA("4.2.1 Use of the Correct Order in the XML Scema","Chap_ConfigProcessing.4.03.html");
+P.fA("4.2.1 Use of the Correct Order in the XML Schema","Chap_ConfigProcessing.4.03.html");
 P.fA("4.2.2 Processing the Consumer \u201cName\u201d","Chap_ConfigProcessing.4.04.html");
 P.fA("4.3 Configuring EMA Using Function Calls","Chap_ConfigProcessing.4.05.html");
 P.fA("4.3.1 EMA Function Calls","Chap_ConfigProcessing.4.06.html");

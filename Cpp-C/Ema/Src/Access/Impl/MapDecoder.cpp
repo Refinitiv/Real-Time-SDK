@@ -145,8 +145,10 @@ void MapDecoder::clone( const MapDecoder& other )
 	}
 }
 
-void MapDecoder::setRsslData( RsslDecodeIterator* , RsslBuffer* )
+bool MapDecoder::setRsslData( RsslDecodeIterator* , RsslBuffer* )
 {
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
 }
 
 void MapDecoder::reset()
@@ -202,11 +204,13 @@ void MapDecoder::reset()
 		&_decodeIter, &_rsslMap.encSummaryData, _pRsslDictionary, _localSetDefDb );
 }
 
-void MapDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
+bool MapDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
 {
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
 }
 
-void MapDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuffer, const RsslDataDictionary* rsslDictionary, void* )
+bool MapDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuffer, const RsslDataDictionary* rsslDictionary, void* )
 {
 	_decodingStarted = false;
 
@@ -225,7 +229,7 @@ void MapDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuffer
 	{
 		_atEnd = false;
 		_errorCode = OmmError::IteratorSetFailureEnum;
-		return;
+		return false;
 	}
 
 	retCode = rsslSetDecodeIteratorRWFVersion( &_decodeIter, _rsslMajVer, _rsslMinVer );
@@ -233,7 +237,7 @@ void MapDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuffer
 	{
 		_atEnd = false;
 		_errorCode = OmmError::IteratorSetFailureEnum;
-		return;
+		return false;
 	}
 
 	retCode = rsslDecodeMap( &_decodeIter, &_rsslMap );
@@ -251,59 +255,50 @@ void MapDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuffer
 	case RSSL_RET_ITERATOR_OVERRUN :
 		_atEnd = false;
 		_errorCode = OmmError::IteratorOverrunEnum;
-		break;
+		return false;
 	case RSSL_RET_INCOMPLETE_DATA :
 		_atEnd = false;
 		_errorCode = OmmError::IncompleteDataEnum;
-		break;
+		return false;
 	default :
 		_atEnd = false;
 		_errorCode = OmmError::UnknownErrorEnum;
-		break;
+		return false;
 	}
 
-	if ( _errorCode == OmmError::NoErrorEnum )
+	if ( rsslMapCheckHasSetDefs( &_rsslMap ) )
 	{
-		if ( rsslMapCheckHasSetDefs( &_rsslMap ) )
+		switch ( _rsslMap.containerType )
 		{
-			switch ( _rsslMap.containerType )
-			{
-			case RSSL_DT_FIELD_LIST :
-				_fieldListSetDef = g_pool._fieldListSetDefPool.getItem();
-				rsslDecodeLocalFieldSetDefDb( &_decodeIter, _fieldListSetDef->getSetDefDb() );
-				_localSetDefDb = _fieldListSetDef->getSetDefDb();
-				break;
-			case RSSL_DT_ELEMENT_LIST :
-				_elementListSetDef = g_pool._elementListSetDefPool.getItem();
-				rsslDecodeLocalElementSetDefDb( &_decodeIter, _elementListSetDef->getSetDefDb() );
-				_localSetDefDb = _elementListSetDef->getSetDefDb();
-				break;
-			default :
-				_localSetDefDb = 0;
-				_errorCode = OmmError::UnsupportedDataTypeEnum;
-				return;
-			}
-		}
-		else
+		case RSSL_DT_FIELD_LIST :
+			_fieldListSetDef = g_pool._fieldListSetDefPool.getItem();
+			rsslDecodeLocalFieldSetDefDb( &_decodeIter, _fieldListSetDef->getSetDefDb() );
+			_localSetDefDb = _fieldListSetDef->getSetDefDb();
+			break;
+		case RSSL_DT_ELEMENT_LIST :
+			_elementListSetDef = g_pool._elementListSetDefPool.getItem();
+			rsslDecodeLocalElementSetDefDb( &_decodeIter, _elementListSetDef->getSetDefDb() );
+			_localSetDefDb = _elementListSetDef->getSetDefDb();
+			break;
+		default :
 			_localSetDefDb = 0;
-
-		Decoder::setRsslData( &_summary,
-			( _rsslMap.flags & RSSL_MPF_HAS_SUMMARY_DATA ) ? _rsslMap.containerType : RSSL_DT_NO_DATA,
-			&_decodeIter, &_rsslMap.encSummaryData, _pRsslDictionary, _localSetDefDb );
+			_errorCode = OmmError::UnsupportedDataTypeEnum;
+			return false;
+		}
 	}
+	else
+		_localSetDefDb = 0;
+
+	Decoder::setRsslData( &_summary,
+		( _rsslMap.flags & RSSL_MPF_HAS_SUMMARY_DATA ) ? _rsslMap.containerType : RSSL_DT_NO_DATA,
+		&_decodeIter, &_rsslMap.encSummaryData, _pRsslDictionary, _localSetDefDb );
+
+	return true;
 }
 
 bool MapDecoder::getNextData()
 {
 	if ( _atEnd ) return true;
-
-	if ( !_decodingStarted && _errorCode != OmmError::NoErrorEnum )
-	{
-		_atEnd = true;
-		_decodingStarted = true;
-		Decoder::setRsslData( &_load, _errorCode, &_decodeIter, &_rsslMapBuffer ); 
-		return false;
-	}
 
 	_decodingStarted = true;
 
@@ -446,4 +441,14 @@ const EmaBuffer& MapDecoder::getHexBuffer()
 	_hexBuffer.setFromInt( _rsslMapBuffer.data, _rsslMapBuffer.length );
 
 	return _hexBuffer.toBuffer();
+}
+
+const RsslBuffer& MapDecoder::getRsslBuffer() const
+{
+	return _rsslMapBuffer;
+}
+
+OmmError::ErrorCode MapDecoder::getErrorCode() const
+{
+	return _errorCode;
 }

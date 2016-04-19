@@ -57,6 +57,11 @@ Decoder& OmmRmtes::getDecoder()
 	return *_pDecoder;
 }
 
+bool OmmRmtes::hasDecoder() const
+{
+	return true;
+}
+
 Decoder& OmmRmtes::setDecoder( Decoder& decoder )
 {
 	_pDecoder = static_cast<OmmRmtesDecoder*>( &decoder );
@@ -66,4 +71,9 @@ Decoder& OmmRmtes::setDecoder( Decoder& decoder )
 const Encoder& OmmRmtes::getEncoder() const
 {
 	return *static_cast<const Encoder*>( 0 );
+}
+
+bool OmmRmtes::hasEncoder() const
+{
+	return false;
 }

@@ -16,7 +16,8 @@ OmmDateTimeDecoder::OmmDateTimeDecoder() :
  _rsslDateTime(),
  _toString(),
  _hexBuffer(),
- _dataCode( Data::BlankEnum )
+ _dataCode( Data::BlankEnum ),
+ _errorCode( OmmError::NoErrorEnum )
 {
 }
 
@@ -29,24 +30,39 @@ Data::DataCode OmmDateTimeDecoder::getCode() const
 	return _dataCode;
 }
 
-void OmmDateTimeDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
+bool OmmDateTimeDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
 {
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
 }
 
-void OmmDateTimeDecoder::setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDictionary* , void* )
+bool OmmDateTimeDecoder::setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDictionary* , void* )
 {
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
 }
 
-void OmmDateTimeDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* pRsslBuffer )
+bool OmmDateTimeDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* pRsslBuffer )
 {
 	_pRsslBuffer = pRsslBuffer;
 
-	if ( rsslDecodeDateTime( dIter, &_rsslDateTime ) == RSSL_RET_SUCCESS )
-		_dataCode = Data::NoCodeEnum;
-	else
+	switch ( rsslDecodeDateTime( dIter, &_rsslDateTime ) )
 	{
-		_dataCode = Data::BlankEnum;
+	case RSSL_RET_SUCCESS :
+		_dataCode = Data::NoCodeEnum;
+		_errorCode = OmmError::NoErrorEnum;
+		return true;
+	case RSSL_RET_BLANK_DATA :
 		rsslClearDateTime( &_rsslDateTime );
+		_dataCode = Data::BlankEnum;
+		_errorCode = OmmError::NoErrorEnum;
+		return true;
+	case RSSL_RET_INCOMPLETE_DATA :
+		_errorCode = OmmError::IncompleteDataEnum;
+		return false;
+	default :
+		_errorCode = OmmError::UnknownErrorEnum;
+		return false;
 	}
 }
 
@@ -128,4 +144,14 @@ const EmaBuffer& OmmDateTimeDecoder::getHexBuffer()
 	_hexBuffer.setFromInt( _pRsslBuffer->data, _pRsslBuffer->length );
 
 	return _hexBuffer.toBuffer();
+}
+
+const RsslBuffer& OmmDateTimeDecoder::getRsslBuffer() const
+{
+	return *_pRsslBuffer;
+}
+
+OmmError::ErrorCode OmmDateTimeDecoder::getErrorCode() const
+{
+	return _errorCode;
 }

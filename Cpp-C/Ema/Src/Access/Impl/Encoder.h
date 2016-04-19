@@ -39,9 +39,9 @@ public :
 
 	virtual void endEncodingEntry() const = 0;
 
-	UInt8 convertDataType( DataType::DataTypeEnum );
+	UInt8 convertDataType( DataType::DataTypeEnum ) const;
 
-	bool isComplete() const;
+	virtual bool isComplete() const;
 
 protected :
 
@@ -53,7 +53,7 @@ protected :
 
 	void releaseEncIterator();
 
-	bool hasEncIterator();
+	bool hasEncIterator() const;
 
 	EncodeIterator*		_pEncodeIter;
 

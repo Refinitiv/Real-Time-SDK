@@ -59,7 +59,17 @@ Decoder& OmmAscii::getDecoder()
 	return *_pDecoder;
 }
 
+bool OmmAscii::hasDecoder() const
+{
+	return true;
+}
+
 const Encoder& OmmAscii::getEncoder() const
 {
 	return *static_cast<const Encoder*>( 0 );
+}
+
+bool OmmAscii::hasEncoder() const
+{
+	return false;
 }

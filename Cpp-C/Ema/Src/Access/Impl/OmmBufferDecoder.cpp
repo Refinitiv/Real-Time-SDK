@@ -16,7 +16,8 @@ OmmBufferDecoder::OmmBufferDecoder() :
  _rsslBuffer(),
  _toString(),
  _hexBuffer(),
- _dataCode( Data::BlankEnum )
+ _dataCode( Data::BlankEnum ),
+ _errorCode( OmmError::NoErrorEnum )
 {
 }
 
@@ -29,20 +30,37 @@ Data::DataCode OmmBufferDecoder::getCode() const
 	return _dataCode;
 }
 
-void OmmBufferDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
+bool OmmBufferDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
 {
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
 }
 
-void OmmBufferDecoder::setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDictionary* , void* )
+bool OmmBufferDecoder::setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDictionary* , void* )
 {
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
 }
 
-void OmmBufferDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* )
+bool OmmBufferDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* )
 {
-	if ( rsslDecodeBuffer( dIter, &_rsslBuffer ) == RSSL_RET_SUCCESS )
+	switch ( rsslDecodeBuffer( dIter, &_rsslBuffer ) )
+	{
+	case RSSL_RET_SUCCESS :
 		_dataCode = Data::NoCodeEnum;
-	else
+		_errorCode = OmmError::NoErrorEnum;
+		return true;
+	case RSSL_RET_BLANK_DATA :
 		_dataCode = Data::BlankEnum;
+		_errorCode = OmmError::NoErrorEnum;
+		return true;
+	case RSSL_RET_INCOMPLETE_DATA :
+		_errorCode = OmmError::IncompleteDataEnum;
+		return false;
+	default :
+		_errorCode = OmmError::UnknownErrorEnum;
+		return false;
+	}
 }
 
 const EmaString& OmmBufferDecoder::toString()
@@ -54,7 +72,7 @@ const EmaString& OmmBufferDecoder::toString()
 	}
 
 	const char* tempStr = getBuffer().operator const char *();
-	UInt32 length = strlen( tempStr );
+	UInt32 length = (UInt32)strlen( tempStr );
 	_toString.setInt( tempStr, length, true );
 	return _toString.toString();
 }
@@ -64,4 +82,14 @@ const EmaBuffer& OmmBufferDecoder::getBuffer()
 	_hexBuffer.setFromInt( _rsslBuffer.data, _rsslBuffer.length );
 	
 	return _hexBuffer.toBuffer();
+}
+
+const RsslBuffer& OmmBufferDecoder::getRsslBuffer() const
+{
+	return _rsslBuffer;
+}
+
+OmmError::ErrorCode OmmBufferDecoder::getErrorCode() const
+{
+	return _errorCode;
 }

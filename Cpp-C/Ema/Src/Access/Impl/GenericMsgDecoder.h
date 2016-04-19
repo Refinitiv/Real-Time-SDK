@@ -28,11 +28,11 @@ public :
 
 	~GenericMsgDecoder();
 
-	void setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* );
+	bool setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* );
 
-	void setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDictionary* , void* );
+	bool setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDictionary* , void* );
 
-	void setRsslData( RsslDecodeIterator* , RsslBuffer* );
+	bool setRsslData( RsslDecodeIterator* , RsslBuffer* );
 
 	bool hasMsgKey() const;
 
@@ -88,6 +88,10 @@ public :
 
 	const EmaBuffer& getHexBuffer() const;
 
+	const RsslBuffer& getRsslBuffer() const;
+
+	OmmError::ErrorCode getErrorCode() const;
+
 private :
 
 	RsslMsg					_rsslMsg;
@@ -106,7 +110,7 @@ private :
 
 	UInt8					_rsslMinVer;
 
-	mutable OmmError::ErrorCode	_errorCode;
+	OmmError::ErrorCode		_errorCode;
 };
 
 class GenericMsgDecoderPool : public DecoderPool< GenericMsgDecoder >

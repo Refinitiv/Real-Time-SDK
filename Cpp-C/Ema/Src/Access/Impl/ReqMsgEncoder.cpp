@@ -9,6 +9,7 @@
 #include "ReqMsgEncoder.h"
 #include "ReqMsg.h"
 #include "ComplexType.h"
+#include "Decoder.h"
 #include "rtr/rsslArray.h"
 #include "rtr/rsslElementList.h"
 #include "rtr/rsslIterators.h"
@@ -17,8 +18,7 @@
 using namespace thomsonreuters::ema::access;
 
 ReqMsgEncoder::ReqMsgEncoder() :
- MsgEncoder(),
- _pBatchItemList( 0 )
+ MsgEncoder()
 {
 	rsslClearRequestMsg( &_rsslRequestMsg );
 	_rsslRequestMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
@@ -28,11 +28,6 @@ ReqMsgEncoder::ReqMsgEncoder() :
 
 ReqMsgEncoder::~ReqMsgEncoder()
 {
-	if ( _pBatchItemList )
-	{
-		delete _pBatchItemList;
-		_pBatchItemList = 0;
-	}
 }
 
 void ReqMsgEncoder::clear()
@@ -43,9 +38,6 @@ void ReqMsgEncoder::clear()
 	_rsslRequestMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
 	_rsslRequestMsg.flags = RSSL_RQMF_STREAMING;
 	_rsslRequestMsg.msgBase.containerType = RSSL_DT_NO_DATA;
-
-	if ( _pBatchItemList )
-		_pBatchItemList->clear();
 }
 
 void ReqMsgEncoder::priority( UInt8 priorityClass, UInt16 priorityCount )
@@ -262,13 +254,36 @@ void ReqMsgEncoder::attrib( const ComplexType& attrib )
 	_rsslRequestMsg.msgBase.msgKey.attribContainerType = convertDataType( attrib.getDataType() );
 
 #ifdef __EMA_COPY_ON_SET__
-	RsslBuffer& rsslBuf = static_cast<const Data&>(attrib).getEncoder().getRsslBuffer();
-	_attrib.setFrom( rsslBuf.data, rsslBuf.length );
+	if ( attrib.hasEncoder() && attrib.getEncoder().ownsIterator() )
+	{
+		const RsslBuffer& rsslBuf = attrib.getEncoder().getRsslBuffer();
+		_attrib.setFrom( rsslBuf.data, rsslBuf.length );
+	}
+	else if ( attrib.hasDecoder() )
+	{
+		const RsslBuffer& rsslBuf = const_cast<ComplexType&>( attrib ).getDecoder().getRsslBuffer();
+		_attrib.setFrom( rsslBuf.data, rsslBuf.length );
+	}
+	else
+	{
+		EmaString temp( "Attempt to pass in an empty ComplexType while it is not supported." );
+		throwIueException( temp );
+		return;
+	}
 
 	_rsslRequestMsg.msgBase.msgKey.encAttrib.data = (char*)_attrib.c_buf();
 	_rsslRequestMsg.msgBase.msgKey.encAttrib.length = _attrib.length();
 #else
-	_rsslRequestMsg.msgBase.msgKey.encAttrib = static_cast<const Data&>(attrib).getEncoder().getRsslBuffer();
+	if ( attrib.hasEncoder() && attrib.getEncoder().ownsIterator() )
+		_rsslRequestMsg.msgBase.msgKey.encAttrib = attrib.getEncoder().getRsslBuffer();
+	else if ( attrib.hasDecoder() )
+		_rsslRequestMsg.msgBase.msgKey.encAttrib = const_cast<ComplexType&>( attrib ).getDecoder().getRsslBuffer();
+	else
+	{
+		EmaString temp( "Attempt to pass in an empty ComplexType while it is not supported." );
+		throwIueException( temp );
+		return;
+	}
 #endif
 
 	_rsslRequestMsg.msgBase.msgKey.flags |= RSSL_MKF_HAS_ATTRIB;
@@ -315,13 +330,36 @@ void ReqMsgEncoder::payload( const ComplexType& load )
 	_rsslRequestMsg.msgBase.containerType = convertDataType( load.getDataType() );
 
 #ifdef __EMA_COPY_ON_SET__
-	RsslBuffer& rsslBuf = static_cast<const Data&>(load).getEncoder().getRsslBuffer();
-	_payload.setFrom( rsslBuf.data, rsslBuf.length );
+	if ( load.hasEncoder() && load.getEncoder().ownsIterator() )
+	{
+		const RsslBuffer& rsslBuf = load.getEncoder().getRsslBuffer();
+		_payload.setFrom( rsslBuf.data, rsslBuf.length );
+	}
+	else if ( load.hasDecoder() )
+	{
+		const RsslBuffer& rsslBuf = const_cast<ComplexType&>( load ).getDecoder().getRsslBuffer();
+		_payload.setFrom( rsslBuf.data, rsslBuf.length );
+	}
+	else
+	{
+		EmaString temp( "Attempt to pass in an empty ComplexType while it is not supported." );
+		throwIueException( temp );
+		return;
+	}
 
 	_rsslRequestMsg.msgBase.encDataBody.data = (char*)_payload.c_buf();
 	_rsslRequestMsg.msgBase.encDataBody.length = _payload.length();
 #else
-	_rsslRequestMsg.msgBase.encDataBody = static_cast<const Data&>(load).getEncoder().getRsslBuffer();
+	if ( load.hasEncoder() && load.getEncoder().ownsIterator() )
+		_rsslRequestMsg.msgBase.encDataBody = load.getEncoder().getRsslBuffer();
+	else if ( load.hasDecoder() )
+		_rsslRequestMsg.msgBase.encDataBody = const_cast<ComplexType&>( load ).getDecoder().getRsslBuffer();
+	else
+	{
+		EmaString temp( "Attempt to pass in an empty ComplexType while it is not supported." );
+		throwIueException( temp );
+		return;
+	}
 #endif
 
 	if ( _rsslRequestMsg.msgBase.containerType == RSSL_DT_ELEMENT_LIST )
@@ -338,12 +376,10 @@ void ReqMsgEncoder::checkBatchView( RsslBuffer* pRsslBuffer )
 	RsslElementList	rsslElementList;
 	RsslElementEntry rsslElementEntry;
 	RsslDecodeIterator decodeIter;
-	RsslBuffer rsslBuffer;
 
 	rsslClearDecodeIterator( &decodeIter );
 	rsslClearElementEntry( &rsslElementEntry );
 	rsslClearElementList( &rsslElementList );
-	rsslClearBuffer( &rsslBuffer );
 
 	RsslRet retCode = rsslSetDecodeIteratorBuffer( &decodeIter, pRsslBuffer );
 	if ( RSSL_RET_SUCCESS != retCode )
@@ -380,80 +416,32 @@ void ReqMsgEncoder::checkBatchView( RsslBuffer* pRsslBuffer )
 		switch ( retCode )
 		{
 		case RSSL_RET_END_OF_CONTAINER :
-			{
-				if ( rsslBuffer.length != 0 )
-				{
-					memcpy(pRsslBuffer->data, rsslBuffer.data, rsslBuffer.length );
-					pRsslBuffer->length = rsslBuffer.length;
-					delete [] rsslBuffer.data;
-				}
-
 				return;
-			}
+
 		case RSSL_RET_SUCCESS :
-			if ( rsslElementEntry.name.length == 9 &&
-				0 == memcmp( rsslElementEntry.name.data, ":ViewData", 9 ) )
-			{
+
+			if ( rsslBufferIsEqual( &rsslElementEntry.name, &RSSL_ENAME_VIEW_DATA ) && rsslElementEntry.dataType == RSSL_DT_ARRAY )
 				_rsslRequestMsg.flags |= RSSL_RQMF_HAS_VIEW;
-			}
-			else if ( rsslElementEntry.name.length == 9 &&
-				0 == memcmp( rsslElementEntry.name.data, ":ItemList", 9 ) )
+
+			else if ( rsslBufferIsEqual( &rsslElementEntry.name, &RSSL_ENAME_BATCH_ITEM_LIST ) && rsslElementEntry.dataType == RSSL_DT_ARRAY )
 			{
-				if ( !_pBatchItemList )
-					_pBatchItemList = new EmaVector<EmaString>( 10 );
-				else
-					_pBatchItemList->clear();
+				RsslArray rsslArray;
+				rsslClearArray( &rsslArray );
+				rsslArray.encData = rsslElementEntry.encData;
 
-				if ( rsslElementEntry.dataType == RSSL_DT_ARRAY )
+				if ( rsslDecodeArray( &decodeIter, &rsslArray ) >= RSSL_RET_SUCCESS )
 				{
-					RsslArray rsslArray;
-					rsslClearArray( &rsslArray );
-					rsslArray.encData = rsslElementEntry.encData;
-
-					UInt32 numOfItems = 0;
-
-					if ( rsslDecodeArray( &decodeIter, &rsslArray ) >= RSSL_RET_SUCCESS )
+					if ( rsslArray.primitiveType == RSSL_DT_ASCII_STRING )
 					{
-						if ( rsslArray.primitiveType == RSSL_DT_ASCII_STRING )
-						{
-							RsslBuffer rsslBuffer;
+						RsslBuffer rsslBuffer;
 
-							while ( rsslDecodeArrayEntry( &decodeIter, &rsslBuffer ) != RSSL_RET_END_OF_CONTAINER )
-							{
-								if ( rsslDecodeBuffer( &decodeIter, &rsslBuffer ) == RSSL_RET_SUCCESS )
-								{
-									numOfItems++;
-									addBatchItemList( rsslBuffer );
-								}
-							}
-						}
-					}
-
-					if ( getBatchItemList().size() > 0 )
-					{
-						_rsslRequestMsg.flags |= RSSL_RQMF_HAS_BATCH;
-
-						if ( numOfItems > getBatchItemList().size() )
-						{
-							char * buffer = new char[pRsslBuffer->length];
-							rsslBuffer.data = buffer;
-							rsslBuffer.length = pRsslBuffer->length;
-							retCode = reEncodeItemList( pRsslBuffer, getBatchItemList(), &rsslBuffer );
-
-							if ( retCode != RSSL_RET_SUCCESS )
-							{
-								delete [] rsslBuffer.data;
-								rsslClearBuffer( &rsslBuffer );
-								EmaString temp( "ReqMsgEncoder::checkBatchView(): Failed to re-encode ElementList in ReqMsg::payload(). Internal error " );
-								temp.append( rsslRetCodeToString( retCode ) );
-								throwIueException( temp );
-								return;
-							}
-						}
+						while ( rsslDecodeArrayEntry( &decodeIter, &rsslBuffer ) != RSSL_RET_END_OF_CONTAINER )
+							_rsslRequestMsg.flags |= RSSL_RQMF_HAS_BATCH;
 					}
 				}
 			}
 			break;
+
 		case RSSL_RET_INCOMPLETE_DATA :
 		case RSSL_RET_UNSUPPORTED_DATA_TYPE :
 		default :
@@ -462,142 +450,98 @@ void ReqMsgEncoder::checkBatchView( RsslBuffer* pRsslBuffer )
 				temp.append( rsslRetCodeToString( retCode ) );
 				throwIueException( temp );
 			}
-			break;
+			return;
 		}
 	}
 }
 
-void ReqMsgEncoder::addBatchItemList( const RsslBuffer & itemName )
+UInt32 ReqMsgEncoder::getBatchItemListSize() const
 {
-	EmaString name(itemName.data,itemName.length);
+	if ( !( _rsslRequestMsg.flags & RSSL_RQMF_HAS_BATCH ) ) return 0;
 
-	if ( 0 > _pBatchItemList->getPositionOf( name ) )
-		_pBatchItemList->push_back( name);
-}
-
-const EmaVector<EmaString>& ReqMsgEncoder::getBatchItemList() const
-{
-	return *_pBatchItemList;
-}
-
-RsslRet ReqMsgEncoder::reEncodeItemList( RsslBuffer* rsslBuffer, const EmaVector<EmaString>& batchItemList, RsslBuffer* reEncodedBuffer )
-{
-	RsslDecIterator decodeIter;
-	RsslEncodeIterator encodeIter;
-	RsslElementList elementList, encodeElementList;
-	RsslElementEntry elementEntry, encodeElementEntry;
-
-	rsslClearElementList(&elementList);
-	rsslClearElementList(&encodeElementList);
-
-	rsslElementListApplyHasStandardData(&encodeElementList);
+	RsslElementList	rsslElementList;
+	RsslElementEntry rsslElementEntry;
+	RsslDecodeIterator decodeIter;
 
 	rsslClearDecodeIterator( &decodeIter );
-	rsslClearEncodeIterator( &encodeIter );
+	rsslClearElementEntry( &rsslElementEntry );
+	rsslClearElementList( &rsslElementList );
 
-	RsslRet retCode = rsslSetDecodeIteratorBuffer( &decodeIter, rsslBuffer );
-	if ( RSSL_RET_SUCCESS != retCode )
-		return retCode;
+	RsslBuffer tempRsslBuffer = _rsslRequestMsg.msgBase.encDataBody;
 
-	retCode = rsslSetEncodeIteratorBuffer( &encodeIter, reEncodedBuffer );
+	RsslRet retCode = rsslSetDecodeIteratorBuffer( &decodeIter, &tempRsslBuffer );
 	if ( RSSL_RET_SUCCESS != retCode )
-		return retCode;
+	{
+		EmaString temp( "ReqMsgEncoder::checkBatchView(): Failed to set iterator buffer in ReqMsg::payload(). Internal error " );
+		temp.append( rsslRetCodeToString( retCode ) );
+		throwIueException( temp );
+		return 0;
+	}
 
 	retCode = rsslSetDecodeIteratorRWFVersion( &decodeIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION );
 	if ( RSSL_RET_SUCCESS != retCode )
-		return retCode;
+	{
+		EmaString temp( "ReqMsgEncoder::checkBatchView(): Failed to set iterator version in ReqMsg::payload(). Internal error " );
+		temp.append( rsslRetCodeToString( retCode ) );
+		throwIueException( temp );
+		return 0;
+	}
 
-	retCode = rsslSetEncodeIteratorRWFVersion( &encodeIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION );
-	if ( RSSL_RET_SUCCESS != retCode )
-		return retCode;
+	retCode = rsslDecodeElementList( &decodeIter, &rsslElementList, 0 );
 
-	retCode = rsslDecodeElementList( &decodeIter, &elementList, 0 );
 	if ( retCode != RSSL_RET_SUCCESS )
-		return retCode;
-
-	retCode = rsslEncodeElementListInit( &encodeIter, &encodeElementList, 0, 0 );
-	if ( retCode != RSSL_RET_SUCCESS )
-		return retCode;
+	{
+		EmaString temp( "ReqMsgEncoder::checkBatchView(): Failed to decode ElementList in ReqMsg::payload(). Internal error " );
+		temp.append( rsslRetCodeToString( retCode ) );
+		throwIueException( temp );
+		return 0;
+	}
 
 	while ( true )
 	{
-		retCode = rsslDecodeElementEntry( &decodeIter, &elementEntry );
+		retCode = rsslDecodeElementEntry( &decodeIter, &rsslElementEntry );
 
 		switch ( retCode )
 		{
-		case RSSL_RET_END_OF_CONTAINER:
-			break;
-		case RSSL_RET_SUCCESS:
+		case RSSL_RET_END_OF_CONTAINER :
+			return 0;
 
-			rsslClearElementEntry( &encodeElementEntry );
-
-			if ( elementEntry.name.length == 9 &&
-				0 == memcmp( elementEntry.name.data, ":ItemList", 9 ) )
+		case RSSL_RET_SUCCESS :
 			{
-				RsslArray rsslArray;
-				RsslBuffer rsslBuffer;
+				UInt32 batchListSize = 0;
 
-				encodeElementEntry.dataType = RSSL_DT_ARRAY;
-				encodeElementEntry.name.data = elementEntry.name.data;
-				encodeElementEntry.name.length = elementEntry.name.length;
-
-				retCode = rsslEncodeElementEntryInit( &encodeIter, &encodeElementEntry, 0 );
-				if ( retCode != RSSL_RET_SUCCESS)
-					break;
-
-				rsslClearArray( &rsslArray );
-				rsslArray.primitiveType = RSSL_DT_ASCII_STRING;
-
-				retCode = rsslEncodeArrayInit( &encodeIter, &rsslArray );
-				if ( retCode != RSSL_RET_SUCCESS )
-					break;
-
-				for( UInt32 i = 0 ; i < batchItemList.size(); i++ )
+				if ( rsslBufferIsEqual( &rsslElementEntry.name, &RSSL_ENAME_BATCH_ITEM_LIST ) && rsslElementEntry.dataType == RSSL_DT_ARRAY )
 				{
-					rsslBuffer.data = (char *)batchItemList[i].c_str();
-					rsslBuffer.length = batchItemList[i].length();
+					RsslArray rsslArray;
+					rsslClearArray( &rsslArray );
+					rsslArray.encData = rsslElementEntry.encData;
 
-					retCode = rsslEncodeArrayEntry( &encodeIter, 0, &rsslBuffer );
-					if ( retCode != RSSL_RET_SUCCESS)
-						break;
+					if ( rsslDecodeArray( &decodeIter, &rsslArray ) >= RSSL_RET_SUCCESS )
+					{
+						if ( rsslArray.primitiveType == RSSL_DT_ASCII_STRING )
+						{
+							RsslBuffer rsslBuffer;
+							while ( rsslDecodeArrayEntry( &decodeIter, &rsslBuffer ) != RSSL_RET_END_OF_CONTAINER )
+								batchListSize++;
+						}
+					}
+
+					return batchListSize;
 				}
-
-				retCode = rsslEncodeArrayComplete( &encodeIter, RSSL_TRUE );
-				if ( retCode != RSSL_RET_SUCCESS)
-					break;
-
-				retCode = rsslEncodeElementEntryComplete( &encodeIter, RSSL_TRUE );
-				if ( retCode != RSSL_RET_SUCCESS )
-					break;
 			}
-			else
-			{
-				encodeElementEntry.name = elementEntry.name;
-				encodeElementEntry.dataType = elementEntry.dataType;
-				encodeElementEntry.encData = elementEntry.encData;
-
-				retCode = rsslEncodeElementEntry( &encodeIter, &encodeElementEntry, 0 );
-				if ( retCode != RSSL_RET_SUCCESS )
-					break;
-			}
-
 			break;
+
 		case RSSL_RET_INCOMPLETE_DATA :
 		case RSSL_RET_UNSUPPORTED_DATA_TYPE :
 		default :
-			return retCode;
-			break;
+			{
+				EmaString temp( "ReqMsgEncoder::checkBatchView(): Failed to decode ElementEntry. Internal error " );
+				temp.append( rsslRetCodeToString( retCode ) );
+				throwIueException( temp );
+			}
+			return 0;
 		}
-
-		if ( retCode != RSSL_RET_SUCCESS )
-			break;
 	}
 
-	if ( retCode == RSSL_RET_END_OF_CONTAINER )
-	{
-		retCode = rsslEncodeElementListComplete( &encodeIter, RSSL_TRUE );
-		reEncodedBuffer->length = rsslGetEncodedBufferLength( &encodeIter );
-	}
-
-	return retCode;
+	return 0;
 }

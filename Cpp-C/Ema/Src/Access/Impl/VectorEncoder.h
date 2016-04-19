@@ -58,9 +58,9 @@ public :
 
 private :
 
-	void initEncode( UInt8 dataType );
+	void initEncode( UInt8 rsslDataType, DataType::DataTypeEnum );
 
-	void addEncodedEntry( UInt32 position, UInt8 action, const EmaBuffer& permission, const char* , RsslBuffer& );
+	void addEncodedEntry( UInt32 position, UInt8 action, const EmaBuffer& permission, const char* , const RsslBuffer& );
 
 	void startEncodingEntry( UInt32 position, UInt8 action, const EmaBuffer& permission, const char* );
 
@@ -69,6 +69,8 @@ private :
 	RsslVector				_rsslVector;
 
 	RsslVectorEntry			_rsslVectorEntry;
+
+	DataType::DataTypeEnum	_emaDataType;
 
 	bool					_containerInitialized;
 };

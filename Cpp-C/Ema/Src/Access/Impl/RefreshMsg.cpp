@@ -67,13 +67,19 @@ const EmaString& RefreshMsg::toString( UInt64 indent ) const
 	addIndent( _toString, indent, true ).append( "domain=\"" ).append( rdmDomainToString( getDomainType() ) ).append( "\"" );			
 
 	if ( pTempDecoder->getSolicited() )
-		addIndent( _toString, indent, true ).append( "solicited" );
+		addIndent( _toString, indent, true ).append( "Solicited" );
 
 	if ( pTempDecoder->getComplete() )
 		addIndent( _toString, indent, true ).append( "RefreshComplete" );
 
 	if ( pTempDecoder->getPrivateStream() )
-		addIndent( _toString, indent, true ).append( "privateStream" );
+		addIndent( _toString, indent, true ).append( "PrivateStream" );
+
+	if ( pTempDecoder->getDoNotCache() )
+		addIndent( _toString, indent, true ).append( "DoNotCache" );
+
+	if ( pTempDecoder->getClearCache() )
+		addIndent( _toString, indent, true ).append( "ClearCache" );
 
 	addIndent( _toString, indent, true ).append( "state=\"" ).append( pTempDecoder->getState().toString() ).append( "\"" );
 
@@ -86,6 +92,21 @@ const EmaString& RefreshMsg::toString( UInt64 indent ) const
 		EmaString temp;
 		hexToString( temp, pTempDecoder->getPermissionData() );
 		addIndent( _toString, indent, true ).append( "permissionData=\"" ).append( temp ).append( "\"" );
+	}
+
+	if ( pTempDecoder->hasQos() )
+		addIndent( _toString, indent, true ).append( "qos=\"" ).append( pTempDecoder->getQos().toString() ).append( "\"" );
+
+	if ( pTempDecoder->hasPartNum() )
+		addIndent( _toString, indent, true ).append( "partNum=\"" ).append( pTempDecoder->getPartNum() ).append( "\"" );			
+
+	if ( pTempDecoder->hasSeqNum() )
+		addIndent( _toString, indent, true ).append( "seqNum=\"" ).append( pTempDecoder->getSeqNum() ).append( "\"" );			
+
+	if ( pTempDecoder->hasPublisherId() )
+	{
+		addIndent( _toString, indent, true ).append( "publisher user address=\"" ).append( pTempDecoder->getPublisherIdUserAddress() ).append( "\"" );			
+		addIndent( _toString, indent, true ).append( "publisher user id=\"" ).append( pTempDecoder->getPublisherIdUserId() ).append( "\"" );			
 	}
 
 	indent--;

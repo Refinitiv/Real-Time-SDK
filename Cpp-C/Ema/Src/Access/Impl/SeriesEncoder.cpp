@@ -9,14 +9,16 @@
 #include "SeriesEncoder.h"
 #include "ExceptionTranslator.h"
 #include "StaticDecoder.h"
+#include "Decoder.h"
 #include "Series.h"
 
 using namespace thomsonreuters::ema::access;
 
 SeriesEncoder::SeriesEncoder() :
- _containerInitialized( false ),
  _rsslSeries(),
- _rsslSeriesEntry()
+ _rsslSeriesEntry(),
+ _emaDataType( DataType::NoDataEnum ),
+ _containerInitialized( false )
 {
 }
 
@@ -31,12 +33,27 @@ void SeriesEncoder::clear()
 	rsslClearSeries( &_rsslSeries );
 	rsslClearSeriesEntry( &_rsslSeriesEntry );
 
+	_emaDataType = DataType::NoDataEnum;
+
 	_containerInitialized = false;
 }
 
-void SeriesEncoder::initEncode( UInt8 dataType )
+void SeriesEncoder::initEncode( UInt8 rsslDataType, DataType::DataTypeEnum emaDataType )
 {
-	_rsslSeries.containerType = dataType;
+	if ( !_rsslSeries.containerType )
+	{
+		_rsslSeries.containerType = rsslDataType;
+		_emaDataType = emaDataType;
+	}
+	else if ( _rsslSeries.containerType != rsslDataType )
+	{
+		EmaString temp( "Attempt to add an entry with a DataType different than summaryData's DataType. Passed in ComplexType has DataType of " );
+		temp += DataType( emaDataType ).toString();
+		temp += EmaString( " while the expected DataType is " );
+		temp += DataType( _emaDataType );
+		throwIueException( temp );
+		return;
+	}
 
 	RsslRet retCode = rsslEncodeSeriesInit( &(_pEncodeIter->_rsslEncIter), &_rsslSeries, 0, 0 );
 
@@ -57,7 +74,7 @@ void SeriesEncoder::initEncode( UInt8 dataType )
 	}
 }
 
-void SeriesEncoder::addEncodedEntry( const char* methodName, RsslBuffer& rsslBuffer )
+void SeriesEncoder::addEncodedEntry( const char* methodName, const RsslBuffer& rsslBuffer )
 {
 	_rsslSeriesEntry.encData = rsslBuffer;
 
@@ -120,35 +137,80 @@ void SeriesEncoder::endEncodingEntry() const
 
 void SeriesEncoder::add( const ComplexType& complexType )
 {
-	UInt8 dataType = const_cast<Encoder&>( static_cast<const ComplexType&>(complexType).getEncoder() ).convertDataType( complexType.getDataType() );
+	if ( _containerComplete )
+	{
+		EmaString temp( "Attempt to add an entry after complete() was called." );
+		throwIueException( temp );
+		return;
+	}
+
+	const Encoder& enc = complexType.getEncoder();
+
+	UInt8 rsslDataType = enc.convertDataType( complexType.getDataType() );
 
 	if ( !hasEncIterator() )
 	{
 		acquireEncIterator();
 
-		initEncode( dataType );
+		initEncode( rsslDataType, complexType.getDataType() );
+	}
+	else if ( _rsslSeries.containerType != rsslDataType )
+	{
+		EmaString temp( "Attempt to add an entry with a different DataType. Passed in ComplexType has DataType of " );
+		temp += DataType( complexType.getDataType() ).toString();
+		temp += EmaString( " while the expected DataType is " );
+		temp += DataType( _emaDataType );
+		throwIueException( temp );
+		return;
 	}
 
-	if ( static_cast<const ComplexType&>(complexType).getEncoder().ownsIterator() )
+	if ( complexType.hasEncoder() && enc.ownsIterator() )
 	{
-		// todo ... check if complete was called		
-		addEncodedEntry( "add()", static_cast<const ComplexType&>(complexType).getEncoder().getRsslBuffer() );
+		if ( enc.isComplete() )
+			addEncodedEntry( "add()", enc.getRsslBuffer() );
+		else
+		{
+			EmaString temp( "Attempt to add() a ComplexType while complete() was not called on this ComplexType." );
+			throwIueException( temp );
+			return;
+		}
+	}
+	else if ( complexType.hasDecoder() )
+	{
+		addEncodedEntry( "add()", const_cast<ComplexType&>( complexType ).getDecoder().getRsslBuffer() );
 	}
 	else
 	{
-		// todo ... check if clear was called
-		passEncIterator( const_cast<Encoder&>( static_cast<const ComplexType&>(complexType).getEncoder() ) );
+		if ( rsslDataType == RSSL_DT_MSG )
+		{
+			EmaString temp( "Attempt to pass in an empty message while it is not supported." );
+			throwIueException( temp );
+			return;
+		}
+
+		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( "add()" );
 	}
 }
 
 void SeriesEncoder::complete()
 {
+	if ( _containerComplete ) return;
+
 	if ( !hasEncIterator() )
 	{
-		EmaString temp( "Cannot complete an empty Series" );
-		throwIueException( temp );
-		return;
+		if ( _rsslSeries.containerType )
+		{
+			acquireEncIterator();
+
+			initEncode( _rsslSeries.containerType, _emaDataType );
+		}
+		else
+		{
+			EmaString temp( "Attempt to complete() while no Series::add() or Series::summaryData() were called yet." );
+			throwIueException( temp );
+			return;
+		}
 	}
 
 	RsslRet retCode = rsslEncodeSeriesComplete( &(_pEncodeIter->_rsslEncIter), RSSL_TRUE );
@@ -187,16 +249,35 @@ void SeriesEncoder::summaryData( const ComplexType& data )
 {
 	if ( !_containerInitialized )
 	{
-		if ( static_cast<const ComplexType&>(data).getEncoder().isComplete() )
+		const Encoder& enc = data.getEncoder();
+
+		if ( data.hasEncoder() && enc.ownsIterator() )
+		{
+			if ( enc.isComplete() )
+			{
+				rsslSeriesApplyHasSummaryData( &_rsslSeries );
+				_rsslSeries.encSummaryData = enc.getRsslBuffer();
+			}
+			else
+			{
+				EmaString temp( "Attempt to set summaryData() with a ComplexType while complete() was not called on this ComplexType." );
+				throwIueException( temp );
+			}
+		}
+		else if ( data.hasDecoder() )
 		{
 			rsslSeriesApplyHasSummaryData( &_rsslSeries );
-			_rsslSeries.encSummaryData = static_cast<const ComplexType&>(data).getEncoder().getRsslBuffer();
+			_rsslSeries.encSummaryData = const_cast<ComplexType&>(data).getDecoder().getRsslBuffer();
 		}
 		else
 		{
-			EmaString temp( "Invalid attempt to pass not completed container to summaryData()." );
+			EmaString temp( "Attempt to pass an empty ComplexType to summaryData() while it is not supported." );
 			throwIueException( temp );
+			return;
 		}
+
+		_emaDataType = data.getDataType();
+		_rsslSeries.containerType = enc.convertDataType( _emaDataType );
 	}
 	else
 	{

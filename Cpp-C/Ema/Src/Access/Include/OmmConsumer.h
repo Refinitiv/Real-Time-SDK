@@ -248,12 +248,12 @@ public :
 
 	/** Relinquish application thread of control to receive callbacks via OmmConsumerClient descendant.
 		\remark Requires OperationalModel to be set to UserDispatchEnum.
-		@param[in] time-out specifies time in microseconds to wait in dispatch() for a message to dispatch
-		@return TimeoutEnum if nothing was dispatched; DispatchedEnum otherwise
+		@param[in] dispatchTimeout specifies time in microseconds to wait in dispatch() for a message to dispatch (DispatchTimeout enumerations provide predefined values)
+		@return DispatchReturn::TimeoutEnum if nothing was dispatched; DispatchReturn::DispatchedEnum otherwise
 		@throw OmmInvalidUsageException if OperationalModel is not set to UserDispatchEnum
 		\remark This method is \ref ObjectLevelSafe
 	*/
-	Int64 dispatch( Int64 timeOut = NoWaitEnum );
+	Int64 dispatch( Int64 dispatchTimeout = NoWaitEnum );
 
 	/** Relinquishes interest in an open item stream.
 		@param[in] handle identifies item to close

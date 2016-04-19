@@ -99,7 +99,17 @@ Decoder& OmmDateTime::getDecoder()
 	return *_pDecoder;
 }
 
+bool OmmDateTime::hasDecoder() const
+{
+	return true;
+}
+
 const Encoder& OmmDateTime::getEncoder() const
 {
 	return *static_cast<const Encoder*>( 0 );
+}
+
+bool OmmDateTime::hasEncoder() const
+{
+	return false;
 }

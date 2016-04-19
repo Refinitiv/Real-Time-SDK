@@ -45,7 +45,7 @@
   <i t="Chapter 4 EMA Configuration Processing">
     <i t="4.1 Default Configuration" l="31" />
     <i t="4.2 Processing EmaConfig.xml" l="32">
-      <i t="4.2.1 Use of the Correct Order in the XML Scema" l="33" />
+      <i t="4.2.1 Use of the Correct Order in the XML Schema" l="33" />
       <i t="4.2.2 Processing the Consumer “Name”" l="34" />
     </i>
     <i t="4.3 Configuring EMA Using Function Calls" l="35">

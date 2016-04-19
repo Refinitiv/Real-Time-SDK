@@ -66,11 +66,35 @@ const EmaString& UpdateMsg::toString( UInt64 indent ) const
 	addIndent( _toString, indent, true ).append( "domain=\"" ).append( rdmDomainToString( getDomainType() ) ).append( "\"" );			
 	addIndent( _toString, indent, true ).append( "updateTypeNum=\"" ).append( pTempDecoder->getUpdateTypeNum() ).append( "\"" );
 
+	if ( pTempDecoder->getDoNotCache() )
+		addIndent( _toString, indent, true ).append( "DoNotCache" );
+
+	if ( pTempDecoder->getDoNotConflate() )
+		addIndent( _toString, indent, true ).append( "DoNotConflate" );
+
+	if ( pTempDecoder->getDoNotRipple() )
+		addIndent( _toString, indent, true ).append( "DoNotRipple" );
+
 	if ( pTempDecoder->hasPermissionData() )
 	{
 		EmaString temp;
 		hexToString( temp, pTempDecoder->getPermissionData() );
 		addIndent( _toString, indent, true ).append( "permissionData=\"" ).append( temp ).append( "\"" );
+	}
+
+	if ( pTempDecoder->hasConflated() )
+	{
+		addIndent( _toString, indent, true ).append( "conflatedCount=\"" ).append( pTempDecoder->getConflatedCount() ).append( "\"" );
+		addIndent( _toString, indent, true ).append( "conflatedTime=\"" ).append( pTempDecoder->getConflatedTime() ).append( "\"" );
+	}
+
+	if ( pTempDecoder->hasSeqNum() )
+		addIndent( _toString, indent, true ).append( "seqNum=\"" ).append( pTempDecoder->getSeqNum() ).append( "\"" );			
+
+	if ( pTempDecoder->hasPublisherId() )
+	{
+		addIndent( _toString, indent, true ).append( "publisher user address=\"" ).append( pTempDecoder->getPublisherIdUserAddress() ).append( "\"" );			
+		addIndent( _toString, indent, true ).append( "publisher user id=\"" ).append( pTempDecoder->getPublisherIdUserId() ).append( "\"" );			
 	}
 
 	indent--;

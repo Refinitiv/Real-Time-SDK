@@ -73,6 +73,8 @@ OmmConsumerConfigImpl::~OmmConsumerConfigImpl()
 		_pProgrammaticConfigure = 0;
 	}
 	delete _pEmaConfig;
+	
+	xmlCleanupParser();
 }
 
 void OmmConsumerConfigImpl::clear()

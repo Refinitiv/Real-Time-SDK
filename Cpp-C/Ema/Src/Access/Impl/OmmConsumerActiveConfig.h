@@ -68,6 +68,8 @@
 #define DEFAULT_USER_DISPATCH						OmmConsumerConfig::ApiDispatchEnum
 #define DEFAULT_XML_TRACE_FILE_NAME					EmaString( "EmaTrace" )
 #define DEFAULT_XML_TRACE_MAX_FILE_SIZE				100000000
+#define DEFAULT_XML_TRACE_PING						false
+#define DEFAULT_XML_TRACE_HEX						false
 #define DEFAULT_XML_TRACE_READ						true
 #define DEFAULT_XML_TRACE_TO_FILE					false
 #define DEFAULT_XML_TRACE_TO_MULTIPLE_FILE			false
@@ -126,6 +128,8 @@ public :
 	bool					xmlTraceToMultipleFiles;
 	bool					xmlTraceWrite;
 	bool					xmlTraceRead;
+	bool					xmlTracePing;
+	bool					xmlTraceHex;
 	bool					msgKeyInUpdates;
 	Channel*				pChannel;
 private : 

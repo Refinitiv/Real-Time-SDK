@@ -17,7 +17,8 @@ NoDataImpl::NoDataImpl() :
  _hexBuffer(),
  _majVer( RSSL_RWF_MAJOR_VERSION ),
  _minVer( RSSL_RWF_MINOR_VERSION ),
- _toString()
+ _toString(),
+ _errorCode( OmmError::NoErrorEnum )
 {
 }
 
@@ -61,24 +62,50 @@ Decoder& NoDataImpl::getDecoder()
 	return *this;
 }
 
-void NoDataImpl::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
+bool NoDataImpl::hasDecoder() const
 {
+	return true;
 }
 
-void NoDataImpl::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuffer, const RsslDataDictionary* , void* )
+bool NoDataImpl::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
+{
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
+}
+
+bool NoDataImpl::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuffer, const RsslDataDictionary* , void* )
 {
 	_majVer = majVer;
 
 	_minVer = minVer;
 	
 	_rsslBuffer = *rsslBuffer;
+
+	return true;
 }
 
-void NoDataImpl::setRsslData( RsslDecodeIterator* , RsslBuffer* )
+bool NoDataImpl::setRsslData( RsslDecodeIterator* , RsslBuffer* )
 {
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
 }
 
 const Encoder& NoDataImpl::getEncoder() const
 {
 	return *static_cast<const Encoder*>( 0 );
+}
+
+const RsslBuffer& NoDataImpl::getRsslBuffer() const
+{
+	return _rsslBuffer;
+}
+
+bool NoDataImpl::hasEncoder() const
+{
+	return false;
+}
+
+OmmError::ErrorCode NoDataImpl::getErrorCode() const
+{
+	return _errorCode;
 }

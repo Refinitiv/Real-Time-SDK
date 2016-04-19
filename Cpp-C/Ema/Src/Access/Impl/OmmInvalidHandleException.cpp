@@ -8,6 +8,7 @@
 
 #include "OmmInvalidHandleException.h"
 #include "EmaStringInt.h"
+#include "Utilities.h"
 
 #include <stdio.h>
 
@@ -50,7 +51,7 @@ OmmInvalidHandleException& OmmInvalidHandleException::operator=( const OmmInvali
 
 const EmaString& OmmInvalidHandleException::toString() const
 {
-	int length = sprintf( _space + EMASTRING_SIZE, "Exception Type='%s', Text='%s', Handle='%llu'",
+	int length = snprintf( _space + EMASTRING_SIZE, MAX_SIZE_PLUS_PADDING - EMASTRING_SIZE, "Exception Type='%s', Text='%s', Handle='%llu'",
 		getExceptionTypeAsString().c_str(),
 		_errorText + EMASTRING_SIZE,
 		_handle );
