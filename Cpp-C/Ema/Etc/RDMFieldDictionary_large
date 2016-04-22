@@ -4,14 +4,14 @@
 ! Thomson Reuters. Thomson Reuters may update or remove this
 ! document at any time without notice.
 !
-!   Version	 4.20.23_TREP_16.21		03/08/2016
-!	* Modified 03/08/2016 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.23.
+!   Version	 4.20.24_TREP_16.31		04/06/2016
+!	* Modified 04/06/2016 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.24.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.23_TREP
+!   Version: 4.20.24_TREP
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -29,9 +29,10 @@
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.23
+!tag Version   4.20.24
 !tag Build     002
-!tag Date      11-Nov-2015
+!tag Date      08-Mar-2016
+!tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
 !-------    -----------          ---  ----------  ----------     ------  --------   -------
@@ -501,7 +502,7 @@ NASDSTATUS "NASD STATUS"          119  NULL        ENUMERATED    2 ( 1 )  ENUM  
 !
 NAVALUE    "NAV:NT ASSET VL"      120  NULL        PRICE              17  REAL64           9
 !
-! Net asset value for US over the counter mutual funds.
+! Net asset value
 !
 NAV_NETCHN "NAV NET CHANGE"       121  NULL        PRICE              17  REAL64           9
 !
@@ -634,7 +635,7 @@ SPLTDIV_1  "SPLIT/DIVIDEND"       153  NULL        PRICE              17  REAL64
 !
 NAVALUE_1  "NAV PREV DAY"         154  NULL        PRICE              17  REAL64           9
 !
-! Previous day net asset value of mutual fund.
+! Previous day net asset value
 !
 NAVDAT_1   "NAV PREV DATE"        155  NULL        DATE               11  DATE             4
 !
@@ -2594,7 +2595,7 @@ NRG_SIZE   "NRG SIZE"             865  NULL        ALPHANUMERIC        5  RMTES_
 ! quote is good.
 !
 FIXING_1   "FIXING 1"             866  FIXING_2    PRICE              17  REAL64           9
-FIXING_2   "FIXING 2"             867  NULL        PRICE              17  REAL64           9
+FIXING_2   "FIXING 2"             867  FIXING_3    PRICE              17  REAL64           9
 !
 ! Fixing Price
 !
@@ -8842,7 +8843,7 @@ EXR_FRN_HM "EXR FRN HM"          3616  NULL        ALPHANUMERIC        4  RMTES_
 !
 FIX_DATE   "FIXING DATE"         3617  NULL        DATE               11  DATE             4
 !
-! Date on which trade fixes against a reference rate
+! The date fixing value is valid for
 !
 FNL_TN_PRC "FINAL TONE PRC"      3618  NULL        PRICE              17  REAL64           9
 !
@@ -17841,8 +17842,8 @@ ASK_DATE1  "ASK DATE"            6540  NULL        DATE               11  DATE  
 !
 INT_PR_RNK "INTRA PRICE RANK"    6541  NULL        INTEGER             3  UINT32           4
 !
-! An integer value used to determine how an aggregated MBP row should be ranked 
-! relative to other aggregated MBP rows with the same price
+! An integer value used to determine how an aggregated MBP/MBO row should be ranked 
+! relative to other aggregated MBP/MBO rows with the same price
 !
 LEG_L2_RUL "LEGACY LEVEL 2 RUL"  6542  NULL        ENUMERATED    3 ( 3 )  ENUM             1
 !
@@ -19632,14 +19633,38 @@ POOL_MAT   "ORIG POOL MATURITY"  7083  NULL        INTEGER            15   INT64
 !
 ! Original pool maturity in years
 !
-PRE_INT205 "PRED INTEGER 205"    7084  NULL        INTEGER            15   INT64           8
-PRE_INT206 "PRED INTEGER 206"    7085  NULL        INTEGER            15   INT64           8
-PRE_INT207 "PRED INTEGER 207"    7086  NULL        INTEGER            15   INT64           8
-PRE_INT208 "PRED INTEGER 208"    7087  NULL        INTEGER            15   INT64           8
-PRE_INT209 "PRED INTEGER 209"    7088  NULL        INTEGER            15   INT64           8
-PRE_INT210 "PRED INTEGER 210"    7089  NULL        INTEGER            15   INT64           8
-PRE_INT211 "PRED INTEGER 211"    7090  NULL        INTEGER            15   INT64           8
-PRE_INT212 "PRED INTEGER 212"    7091  NULL        INTEGER            15   INT64           8
+STRGY_VOL  "STRGY TRD VOL"       7084  NULL        INTEGER            15   INT64           8
+!
+! Volume of last strategy trade
+!
+STRGY_NMOV "STRGY NUM MOVES"     7085  NULL        INTEGER            15   INT64           8
+!
+! Number of strategy trades
+!
+DAYS_COUP  "DAYS COUPON"         7086  NULL        INTEGER            15   INT64           8
+!
+! The number of days to the next coupon payment ("countdown") for a bond instrument.
+!
+SRC_SEQNM  "SRC MSG SEQNO"       7087  NULL        INTEGER            15   INT64           8
+!
+! Native Msg Seq No
+!
+DATBLK_CNT "DATABLK COUNT"       7088  NULL        INTEGER            15   INT64           8
+!
+! No of blocks created by input and associated with the header
+!
+EVENT_RANK "EVENT RANK"          7089  NULL        INTEGER            15   INT64           8
+!
+! Ranking/level in book
+!
+BUY_MOV    "BUY NUM MOVES"       7090  NULL        INTEGER            15   INT64           8
+!
+! Number of buy trades
+!
+SELL_MOV   "SELL NUM MOVES"      7091  NULL        INTEGER            15   INT64           8
+!
+! Number of sell trades
+!
 PRE_INT213 "PRED INTEGER 213"    7092  NULL        INTEGER            15   INT64           8
 PRE_INT214 "PRED INTEGER 214"    7093  NULL        INTEGER            15   INT64           8
 PRE_INT215 "PRED INTEGER 215"    7094  NULL        INTEGER            15   INT64           8
@@ -23532,7 +23557,10 @@ INST_RIC   "INSTRUMENT RIC"      8329  NULL        ALPHANUMERIC       32  ASCII_
 !
 ! Instrument RIC
 !
-PRE_AN031  "PRED ALPH NM 031"    8330  NULL        ALPHANUMERIC       32  ASCII_STRING    32
+CONT_RIC   "CONTINUATION RIC"    8330  NULL        ALPHANUMERIC       32  ASCII_STRING    32
+!
+! Continuation RIC, e.g. TYc1
+!
 PRE_AN032  "PRED ALPH NM 032"    8331  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 PRE_AN033  "PRED ALPH NM 033"    8332  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 PRE_AN034  "PRED ALPH NM 034"    8333  NULL        ALPHANUMERIC       32  ASCII_STRING    32
@@ -24241,7 +24269,10 @@ MRN_TYPE   "MRN TYPE"            8593  NULL        ALPHANUMERIC       16  RMTES_
 !
 ! Type of the data or data model contained in FRAGMENT
 !
-PRE_16T027 "PRED 16 TXT 027"     8594  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+CO_RPT_STN "NATIVE CO PRT STA"   8594  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+!
+! Native company reporting status for the venue traded
+!
 PRE_16T028 "PRED 16 TXT 028"     8595  NULL        ALPHANUMERIC       16  RMTES_STRING    16
 PRE_16T029 "PRED 16 TXT 029"     8596  NULL        ALPHANUMERIC       16  RMTES_STRING    16
 PRE_16T030 "PRED 16 TXT 030"     8597  NULL        ALPHANUMERIC       16  RMTES_STRING    16
@@ -24286,7 +24317,7 @@ DEALER_ID2 "DEALER ID 2"         8632  NULL        ALPHANUMERIC       24  RMTES_
 !
 ! 24 characters long Dealer ID field
 !
-PRE_24T002 "PRED 24 TXT 002"     8633  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+QUOTE_ID   "QUOTE ID"            8633  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 !
 ! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
 !
@@ -24296,7 +24327,7 @@ INST_CLA_N "NATIVE INST CLASS"   8634  NULL        ALPHANUMERIC       24  RMTES_
 !
 RCS_AS_CL2 "RCS ASSET CLASS 2"   8635  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 !
-! Alphabetical identifier for an RCS Asset Classification. Replaces RCS_AS_CLA(#4238)
+! Thomson Reuters asset classification code
 !
 NA_MSG_TYP "NATIVE MSG TYPE"     8636  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 !
@@ -24442,15 +24473,39 @@ EVENT_ID   "EVENT ID"            8671  NULL        ALPHANUMERIC       24  RMTES_
 !
 ! Identifier code/number of an event
 !
-PRE_24T041 "PRED 24 TXT 041"     8672  NULL        ALPHANUMERIC       24  RMTES_STRING    24
-PRE_24T042 "PRED 24 TXT 042"     8673  NULL        ALPHANUMERIC       24  RMTES_STRING    24
-PRE_24T043 "PRED 24 TXT 043"     8674  NULL        ALPHANUMERIC       24  RMTES_STRING    24
-PRE_24T044 "PRED 24 TXT 044"     8675  NULL        ALPHANUMERIC       24  RMTES_STRING    24
-PRE_24T045 "PRED 24 TXT 045"     8676  NULL        ALPHANUMERIC       24  RMTES_STRING    24
-PRE_24T046 "PRED 24 TXT 046"     8677  NULL        ALPHANUMERIC       24  RMTES_STRING    24
-PRE_24T047 "PRED 24 TXT 047"     8678  NULL        ALPHANUMERIC       24  RMTES_STRING    24
-PRE_24T048 "PRED 24 TXT 048"     8679  NULL        ALPHANUMERIC       24  RMTES_STRING    24
-PRE_24T049 "PRED 24 TXT 049"     8680  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+STRGY_TRID "STRGY TRD ID"        8672  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Strategy trade ID
+!
+REG_PILOT  "REGU PILOT SCHE"     8673  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Identification for instrument participating in a regulatory pilot scheme
+!
+EVENT_G_PH "EVENT GRP PHASE"     8674  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Native Group Phase
+!
+EVENT_G_ST "EVENT GRP STATUS"    8675  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Native Group Status
+!
+EVENT_I_PH "EVENT INST PHASE"    8676  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Native Instrument Phase
+!
+EVENT_I_ST "EVENT INST STATUS"   8677  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Native Instrument Status
+!
+EVENT_MPD1 "EVENT MP ID1"        8678  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+EVENT_MPD2 "EVENT MP ID2"        8679  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Attributed/Named order or MMID
+!
+EVENT_ID2  "EVENT ID 2"          8680  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Identifier code/number of an event if more than one
+!
 PRE_24T050 "PRED 24 TXT 050"     8681  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 PRE_24T051 "PRED 24 TXT 051"     8682  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 PRE_24T052 "PRED 24 TXT 052"     8683  NULL        ALPHANUMERIC       24  RMTES_STRING    24
@@ -25975,15 +26030,42 @@ ASY_VA_DT  "ASYN VAL ADD DATE"   9257  NULL        DATE               11  DATE  
 !
 ! Asynchronous analytics update date
 !
-PRE_DT147  "PRED DATE 147"       9258  NULL        DATE               11  DATE             4
-PRE_DT148  "PRED DATE 148"       9259  NULL        DATE               11  DATE             4
-PRE_DT149  "PRED DATE 149"       9260  NULL        DATE               11  DATE             4
-PRE_DT150  "PRED DATE 150"       9261  NULL        DATE               11  DATE             4
-PRE_DT151  "PRED DATE 151"       9262  NULL        DATE               11  DATE             4
-PRE_DT152  "PRED DATE 152"       9263  NULL        DATE               11  DATE             4
-PRE_DT153  "PRED DATE 153"       9264  NULL        DATE               11  DATE             4
-PRE_DT154  "PRED DATE 154"       9265  NULL        DATE               11  DATE             4
-PRE_DT155  "PRED DATE 155"       9266  NULL        DATE               11  DATE             4
+STRGYTR_DT "STRGY TRD DT"        9258  NULL        DATE               11  DATE             4
+!
+! Date of the last strategy trade
+!
+52WK_BHDAT "52WK BID HIGH DT"    9259  NULL        DATE               11  DATE             4
+!
+! 52 wk bid high date
+!
+52WK_AHDAT "52WK ASK HIGH DT"    9260  NULL        DATE               11  DATE             4
+!
+! 52 wk ask high date
+!
+52WK_BLDAT "52WK BID LOW DT"     9261  NULL        DATE               11  DATE             4
+!
+! 52 wk bid low date
+!
+52WK_ALDAT "52WK ASK LOW DT"     9262  NULL        DATE               11  DATE             4
+!
+! 52 wk ask low date
+!
+LMT_PRC_DT "LMT PRC DATE"        9263  NULL        DATE               11  DATE             4
+!
+! The date upper/low price limit is valid for
+!
+INDNAV_DT  "IND NAV DATE"        9264  NULL        DATE               11  DATE             4
+!
+! Indicative NAV Date
+!
+SREF_DATE  "SDM REF DATE"        9265  NULL        DATE               11  DATE             4
+!
+! Reference Date for use in SDM
+!
+SRCDATE    "SRC MSG DATE"        9266  NULL        DATE               11  DATE             4
+!
+! Inbound msg date (GMT) if supplied
+!
 PRE_DT156  "PRED DATE 156"       9267  NULL        DATE               11  DATE             4
 PRE_DT157  "PRED DATE 157"       9268  NULL        DATE               11  DATE             4
 PRE_DT158  "PRED DATE 158"       9269  NULL        DATE               11  DATE             4
@@ -26933,8 +27015,7 @@ YLD_30DAY  "YIELD 30D"           9936  NULL        PRICE              17  REAL64
 !
 PCT_TNOV   "PCT TURNOVER"        9937  NULL        PRICE              17  REAL64           9
 !
-! To display segment (or group of instruments) total turnover vs. total volume for all 
-! instruments in percentage
+! Segment turnover versus an aggregated total turnover value expressed in percentage.  
 !
 ADJUST_CL2 "ADJUSTED CLOSE 2"    9938  NULL        PRICE              17  REAL64           9
 !
@@ -27135,22 +27216,77 @@ BUYBCK_PRC "BUYBACK PRICE"       9990  NULL        PRICE              17  REAL64
 !
 ! Buy back price
 !
-PRERL1000  "PRED REAL 1000"      9991  NULL        PRICE              17  REAL64           9
-PRERL1001  "PRED REAL 1001"      9992  NULL        PRICE              17  REAL64           9
-PRERL1002  "PRED REAL 1002"      9993  NULL        PRICE              17  REAL64           9
-PRERL1003  "PRED REAL 1003"      9994  NULL        PRICE              17  REAL64           9
-PRERL1004  "PRED REAL 1004"      9995  NULL        PRICE              17  REAL64           9
-PRERL1005  "PRED REAL 1005"      9996  NULL        PRICE              17  REAL64           9
-PRERL1006  "PRED REAL 1006"      9997  NULL        PRICE              17  REAL64           9
-PRERL1007  "PRED REAL 1007"      9998  NULL        PRICE              17  REAL64           9
-PRERL1008  "PRED REAL 1008"      9999  NULL        PRICE              17  REAL64           9
-PRERL1009  "PRED REAL 1009"     10000  NULL        PRICE              17  REAL64           9
-PRERL1010  "PRED REAL 1010"     10001  NULL        PRICE              17  REAL64           9
-PRERL1011  "PRED REAL 1011"     10002  NULL        PRICE              17  REAL64           9
-PRERL1012  "PRED REAL 1012"     10003  NULL        PRICE              17  REAL64           9
-PRERL1013  "PRED REAL 1013"     10004  NULL        PRICE              17  REAL64           9
-PRERL1014  "PRED REAL 1014"     10005  NULL        PRICE              17  REAL64           9
-PRERL1015  "PRED REAL 1015"     10006  NULL        PRICE              17  REAL64           9
+ETR_REFPRC "ETR REF PRC"         9991  NULL        PRICE              17  REAL64           9
+!
+! Extreme Trade Range Reference Price.  A price range which is far away from the 
+! current market price level and potentially deemed to be unreasonable for trade 
+! execution. 
+!
+ETR_UPLMT  "ETR UPPER LMT"       9992  NULL        PRICE              17  REAL64           9
+!
+! Extreme Trade Range Upper Boundary.  A price range which is far away from the 
+! current market price level and potentially deemed to be unreasonable for trade 
+! execution. 
+!
+ETR_LOLMT  "ETR LOWER LMT"       9993  NULL        PRICE              17  REAL64           9
+!
+! Extreme Trade Range Lower Boundary.  A price range which is far away from the 
+! current market price level and potentially deemed to be unreasonable for trade 
+! execution. 
+!
+STRGY_PRC  "STRGY TRD PRC"       9994  NULL        PRICE              17  REAL64           9
+!
+! Strategy trade price
+!
+SETL_PCHNG "SETL PCT CHG"        9995  NULL        PRICE              17  REAL64           9
+!
+! Settle percentage change.  Difference between the current day settlement from 
+! SETTLE(#70) and the previous day's settlement.
+!
+YTD_TRTN_X "YTD TTL RTN FM SRC"  9996  NULL        PRICE              17  REAL64           9
+!
+! YTD Total Return as provided by the source
+!
+MTD_TRTN_X "MTD TTL RTN FM SRC"  9997  NULL        PRICE              17  REAL64           9
+!
+! MTD Total Return as provided by the source
+!
+YR_TRTN_X  "1Y TTL RTN FM SRC"   9998  NULL        PRICE              17  REAL64           9
+!
+! 1 Year Total Return as provided by the source
+!
+VWAP_ALT   "ALT VWAP"            9999  NULL        PRICE              17  REAL64           9
+!
+! Alternative Volume Weighted Average Price
+!
+DIRTY_ASK  "DIRTY ASK PRC"      10000  NULL        PRICE              17  REAL64           9
+!
+! Ask price including accrued interest
+!
+DIRTY_BID  "DIRTY BID PRC"      10001  NULL        PRICE              17  REAL64           9
+!
+! Bid price including accrued interest
+!
+HIGH_BYLD  "HIGH BID YIELD"     10002  NULL        PRICE              17  REAL64           9
+!
+! The highest bid yield of the day
+!
+LOW_BYLD   "LOW BID YIELD"      10003  NULL        PRICE              17  REAL64           9
+!
+! The lowest bid yield of the day
+!
+OPEN_BYLD  "OPEN BID YIELD"     10004  NULL        PRICE              17  REAL64           9
+!
+! The opening bid yield of the day
+!
+FIXING_3   "FIXING 3"           10005  NULL        PRICE              17  REAL64           9
+!
+! Fixing Price
+!
+OFBK_LOTSZ "OFFBK LOT SIZE"     10006  NULL        PRICE              17  REAL64           9
+!
+! Minimum tradable lot size for an off book trade
+!
 PRERL1016  "PRED REAL 1016"     10007  NULL        PRICE              17  REAL64           9
 PRERL1017  "PRED REAL 1017"     10008  NULL        PRICE              17  REAL64           9
 PRERL1018  "PRED REAL 1018"     10009  NULL        PRICE              17  REAL64           9
@@ -29127,8 +29263,14 @@ MPANT_CD2  "SEC MKT PART CODE"  11808  NULL        ALPHANUMERIC       10  RMTES_
 !
 ! The secondary market participant ID associated with an order
 !
-PRE_10T084 "PRED 10 TXT 084"    11809  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T085 "PRED 10 TXT 085"    11810  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+STRGY_CD_N "NATIVE STRGY CD"    11809  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Native sale condition code for strategy trades
+!
+EVENT_SIDE "EVENT SIDE"         11810  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Order Side - 1 'B', 2 'A'
+!
 PRE_10T086 "PRED 10 TXT 086"    11811  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 PRE_10T087 "PRED 10 TXT 087"    11812  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 PRE_10T088 "PRED 10 TXT 088"    11813  NULL        ALPHANUMERIC       10  RMTES_STRING    10
@@ -29409,8 +29551,14 @@ RQT_ITM_NM "REQUEST ITEM NAME"  12060  NULL        ALPHANUMERIC       32  RMTES_
 !
 ! Request Item Name
 !
-PRE_32T010 "PRED 32 TXT 010"    12061  NULL        ALPHANUMERIC       32  RMTES_STRING    32
-PRE_32T011 "PRED 32 TXT 011"    12062  NULL        ALPHANUMERIC       32  RMTES_STRING    32
+CD_HEADEND "CD_HEADEND"         12061  NULL        ALPHANUMERIC       32  RMTES_STRING    32
+!
+! Identifier of contribution headend system (information only).
+!
+SRCMSG_TYP "SRC MSG TYPE"       12062  NULL        ALPHANUMERIC       32  RMTES_STRING    32
+!
+! Native Message Type ID
+!
 PRE_32T012 "PRED 32 TXT 012"    12063  NULL        ALPHANUMERIC       32  RMTES_STRING    32
 PRE_32T013 "PRED 32 TXT 013"    12064  NULL        ALPHANUMERIC       32  RMTES_STRING    32
 PRE_32T014 "PRED 32 TXT 014"    12065  NULL        ALPHANUMERIC       32  RMTES_STRING    32
@@ -29729,9 +29877,18 @@ MET_TP_DES "METRIC TYPE DESC"   12332  NULL        ALPHANUMERIC       80  RMTES_
 !
 ! Metric Type Description.
 !
-PRE_80T034 "PRED 80 TXT 034"    12333  NULL        ALPHANUMERIC       80  RMTES_STRING    80
-PRE_80T035 "PRED 80 TXT 035"    12334  NULL        ALPHANUMERIC       80  RMTES_STRING    80
-PRE_80T036 "PRED 80 TXT 036"    12335  NULL        ALPHANUMERIC       80  RMTES_STRING    80
+SREF_DESC  "SDM REF DESC"       12333  NULL        ALPHANUMERIC       80  RMTES_STRING    80
+!
+! Native Value Desc for use in SDM
+!
+SRCMSG_SYM "SRC MESSAGE SYM"    12334  NULL        ALPHANUMERIC       80  RMTES_STRING    80
+!
+! Native instrument feed ID
+!
+SREF_TXT   "SDM REF TEXT"       12335  NULL        ALPHANUMERIC       80  RMTES_STRING    80
+!
+! Reference Other for use in SDM
+!
 PRE_80T037 "PRED 80 TXT 037"    12336  NULL        ALPHANUMERIC       80  RMTES_STRING    80
 PRE_80T038 "PRED 80 TXT 038"    12337  NULL        ALPHANUMERIC       80  RMTES_STRING    80
 PRE_80T039 "PRED 80 TXT 039"    12338  NULL        ALPHANUMERIC       80  RMTES_STRING    80
@@ -30768,11 +30925,27 @@ AMR_TP_CD  "AMORT TYPE CODE"    12936  NULL        ENUMERATED    3 ( 8 )  ENUM  
 ! Amortization type code.  Code representing the scheduled mortgage principal 
 ! amortization method
 !
-PRE_1ET236 "PRED 1 ET 236"      12937  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET237 "PRED 1 ET 237"      12938  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET238 "PRED 1 ET 238"      12939  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET239 "PRED 1 ET 239"      12940  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET240 "PRED 1 ET 240"      12941  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+BBO_ELGBLE "BBO ELIGIBILITY"    12937  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! Whether an order or a quote update event is qualified for BBO
+!
+OB_CP_IND  "ORD BK CTRPTY IND"  12938  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Order book counterparty indicator.  This shows whether an instrument is trading 
+! anonymously or not
+!
+DATBLK_TYP "DATABLK TYPE"       12939  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Normalised classification of the update type for a given block
+!
+AUCPHA_IND "AUC PHASE IND"      12940  NULL        ENUMERATED    3 ( 5 )  ENUM             1
+!
+! Indicates whether or not an instrument is in an auction
+!
+ORDER_SETL "ORDER SETL TYPE"    12941  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Condition codes related to the settlement period of the order
+!
 PRE_1ET241 "PRED 1 ET 241"      12942  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET242 "PRED 1 ET 242"      12943  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET243 "PRED 1 ET 243"      12944  NULL        ENUMERATED    3 ( 8 )  ENUM             1
@@ -31787,18 +31960,54 @@ PRPTY_CD   "PROPERTY TYPE CODE" 13550  NULL        ENUMERATED    5 ( 8 )  ENUM  
 !
 ! Property type code.  Code representing the property type
 !
-PRE_2ET230 "PRED 2 ET 230"      13551  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET231 "PRED 2 ET 231"      13552  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET232 "PRED 2 ET 232"      13553  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET233 "PRED 2 ET 233"      13554  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET234 "PRED 2 ET 234"      13555  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET235 "PRED 2 ET 235"      13556  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET236 "PRED 2 ET 236"      13557  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET237 "PRED 2 ET 237"      13558  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET238 "PRED 2 ET 238"      13559  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET239 "PRED 2 ET 239"      13560  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET240 "PRED 2 ET 240"      13561  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET241 "PRED 2 ET 241"      13562  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+CRS_EXID   "CRS TRD EXCH ID"    13551  NULL        ENUMERATED    5 ( 3 )  ENUM             2
+!
+! Exchange identifier of Cross Trade
+!
+BLK_EXID   "BLK TRD EXCH ID"    13552  NULL        ENUMERATED    5 ( 3 )  ENUM             2
+!
+! Exchange identifier of Block Trade
+!
+MET_TYP11  "METRIC TYPE 11"     13553  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Metric Type 11
+!
+MET_TYP12  "METRIC TYPE 12"     13554  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Metric Type 12
+!
+MET_TYP13  "METRIC TYPE 13"     13555  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Metric Type 13
+!
+MET_TYP14  "METRIC TYPE 14"     13556  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Metric Type 14
+!
+MET_TYP15  "METRIC TYPE 15"     13557  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Metric Type 15
+!
+MET_TYP16  "METRIC TYPE 16"     13558  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Metric Type 16
+!
+MET_TYP17  "METRIC TYPE 17"     13559  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Metric Type 17
+!
+MET_TYP18  "METRIC TYPE 18"     13560  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Metric Type 18
+!
+MET_TYP19  "METRIC TYPE 19"     13561  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Metric Type 19
+!
+MET_TYP20  "METRIC TYPE 20"     13562  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Metric Type 20
+!
 PRE_2ET242 "PRED 2 ET 242"      13563  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET243 "PRED 2 ET 243"      13564  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET244 "PRED 2 ET 244"      13565  NULL        ENUMERATED    5 ( 8 )  ENUM             2
@@ -32823,7 +33032,10 @@ TNOVTM_MS  "TNOV TIME MS"       14259  NULL        INTEGER            15  TIME  
 !
 ! The time when turnover value was last updated
 !
-PRE_128_MS "PRED TIME MS2 128"  14260  NULL        INTEGER            15  TIME             8
+STRGYTM_MS "STRGY TRD TIME MS"  14260  NULL        INTEGER            15  TIME             8
+!
+! Time of last strategy trade
+!
 PRE_129_MS "PRED TIME MS2 129"  14261  NULL        INTEGER            15  TIME             8
 PRE_130_MS "PRED TIME MS2 130"  14262  NULL        INTEGER            15  TIME             8
 !
@@ -32988,16 +33200,46 @@ HST_CLS_NS "HST CLS TIM NS"     14302  NULL        INTEGER            15  TIME  
 !
 ! The time when HST_CLOSE field was last updated
 !
-PRE_023_NS "PRED TIME NS 023"   14303  NULL        INTEGER            15  TIME             8
-PRE_024_NS "PRED TIME NS 024"   14304  NULL        INTEGER            15  TIME             8
-PRE_025_NS "PRED TIME NS 025"   14305  NULL        INTEGER            15  TIME             8
-PRE_026_NS "PRED TIME NS 026"   14306  NULL        INTEGER            15  TIME             8
-PRE_027_NS "PRED TIME NS 027"   14307  NULL        INTEGER            15  TIME             8
-PRE_028_NS "PRED TIME NS 028"   14308  NULL        INTEGER            15  TIME             8
-PRE_029_NS "PRED TIME NS 029"   14309  NULL        INTEGER            15  TIME             8
-PRE_030_NS "PRED TIME NS 030"   14310  NULL        INTEGER            15  TIME             8
-PRE_031_NS "PRED TIME NS 031"   14311  NULL        INTEGER            15  TIME             8
-PRE_032_NS "PRED TIME NS 032"   14312  NULL        INTEGER            15  TIME             8
+STRGYTM_NS "STRGYTIM NS"        14303  NULL        INTEGER            15  TIME             8
+!
+! Time of last strategy trade
+!
+FIX_TM_NS  "FIXING TM NS"       14304  NULL        INTEGER            15  TIME             8
+!
+! The time fixing value is valid for
+!
+EVENT_T_NS "EVENT TM NS"        14305  NULL        INTEGER            15  TIME             8
+!
+! Native time (GMT)
+!
+LST_TRD_NS "LST TR.TM CNTRCT"   14306  NULL        INTEGER            15  TIME             8
+!
+! Last trading time for contract.  To be used with LSTTRDDATE
+!
+HIGH_T_NS  "HIGH TIME NS"       14307  NULL        INTEGER            15  TIME             8
+!
+! Time in nanoseconds at which the high value held in the fields HIGH_1
+!
+LOW_T_NS   "LOW TIME NS"        14308  NULL        INTEGER            15  TIME             8
+!
+! Time in nanoseconds at which the low value held in the field LOW_1
+!
+OPEN_T_NS  "OPEN TIME NS"       14309  NULL        INTEGER            15  TIME             8
+!
+! Time in nanoseconds at which the opening value held in the field OPEN_PRC
+!
+SREF_TM_NS "SDM REF TM NS"      14310  NULL        INTEGER            15  TIME             8
+!
+! Reference Time for use in SDM
+!
+SRC_TIM_NS "SRC MSG TM NS"      14311  NULL        INTEGER            15  TIME             8
+!
+! Inbound msg time (GMT) if supplied
+!
+SRC_ES_NS  "SRC EGRESS TM NS"   14312  NULL        INTEGER            15  TIME             8
+!
+! Egress time of the update from source
+!
 PRE_033_NS "PRED TIME NS 033"   14313  NULL        INTEGER            15  TIME             8
 PRE_034_NS "PRED TIME NS 034"   14314  NULL        INTEGER            15  TIME             8
 PRE_035_NS "PRED TIME NS 035"   14315  NULL        INTEGER            15  TIME             8
@@ -33575,6 +33817,110 @@ THEIREMAIL "THEIR EMAIL"        15341  NULL        ALPHANUMERIC      256  RMTES_
 !
 ! Their Email Address
 !
+EXEC_ID    "EXECUTION ID"       15400  NULL        ALPHANUMERIC       80  RMTES_STRING    80
+!
+! The unique identifier of the trade as assigned by the publisher
+!
+TRAD_IFACE "TRADING INTERFACE"  15401  NULL        ALPHANUMERIC       80  RMTES_STRING    80
+!
+! The trading interface used by the client to create this trade
+!
+PUB_CODE   "PUBLISHER CODE"     15402  NULL        ALPHANUMERIC       20  RMTES_STRING    20
+!
+! The ID/code of the Post Trade publisher of this deal
+!
+PUB_NAME   "PUBLISHER NAME"     15403  NULL        ALPHANUMERIC       56  RMTES_STRING    56
+!
+! The name of the Post Trade publisher of this deal
+!
+UD_TITLE4  "USER DEF TITLE 4"   15404  NULL        ALPHANUMERIC       20  RMTES_STRING    20
+!
+! Title of user defined field 4
+!
+UD_DATA4   "USER DEF DATA 4"    15405  NULL        ALPHANUMERIC       40  RMTES_STRING    40
+!
+! Value of user defined field 4
+!
+UD_TITLE5  "USER DEF TITLE 5"   15406  NULL        ALPHANUMERIC       20  RMTES_STRING    20
+!
+! Title of user defined field 5
+!
+UD_DATA5   "USER DEF DATA 5"    15407  NULL        ALPHANUMERIC       40  RMTES_STRING    40
+!
+! Value of user defined field 5
+!
+UD_TITLE6  "USER DEF TITLE 6"   15408  NULL        ALPHANUMERIC       20  RMTES_STRING    20
+!
+! Title of user defined field 6
+!
+UD_DATA6   "USER DEF DATA 6"    15409  NULL        ALPHANUMERIC       40  RMTES_STRING    40
+!
+! Value of user defined field 6
+!
+UD_TITLE7  "USER DEF TITLE 7"   15410  NULL        ALPHANUMERIC       20  RMTES_STRING    20
+!
+! Title of user defined field 7
+!
+UD_DATA7   "USER DEF DATA 7"    15411  NULL        ALPHANUMERIC       40  RMTES_STRING    40
+!
+! Value of user defined field 7
+!
+UD_TITLE8  "USER DEF TITLE 8"   15412  NULL        ALPHANUMERIC       20  RMTES_STRING    20
+!
+! Title of user defined field 8
+!
+UD_DATA8   "USER DEF DATA 8"    15413  NULL        ALPHANUMERIC       40  RMTES_STRING    40
+!
+! Value of user defined field 8
+!
+BMFIXTYPE1 "BMARK FIX TYPE 1"   15414  NULL        ALPHANUMERIC       20  RMTES_STRING    20
+!
+! The type of benchmark fixing instruction on leg 1
+!
+BMFIXDATE1 "BMARK FIX DATE 1"   15415  NULL        DATE               11  DATE             4
+!
+! The date when the benchmark fixing takes place on leg 1
+!
+BMFIXTIME1 "BMARK FIXTIME 1"    15416  NULL        TIME_SECONDS        8  TIME             8
+!
+! The time when the benchmark fixing takes place on leg 1
+!
+BMFIXRATE1 "BMARK FIX RATE 1"   15417  NULL        PRICE              17  REAL64           9
+!
+! Agreed rate for benchmark fixing on leg 1
+!
+BMFIXTYPE2 "BMARK FIX TYPE 2"   15418  NULL        ALPHANUMERIC       20  RMTES_STRING    20
+!
+! The type of benchmark fixing instruction on leg 2
+!
+BMFIXDATE2 "BMARK FIX DATE 2"   15419  NULL        DATE               11  DATE             4
+!
+! The date when the benchmark fixing takes place on leg 2
+!
+BMFIXTIME2 "BMARK FIXTIME 2"    15420  NULL        TIME_SECONDS        8  TIME             8
+!
+! The time when the benchmark fixing takes place on leg 2
+!
+BMFIXRATE2 "BMARK FIX RATE 2"   15421  NULL        PRICE              17  REAL64           9
+!
+! Agreed rate for benchmark fixing on leg 2
+!
+FIXSETCUR1 "FIX SETTLE CURR 1"  15422  NULL        ALPHANUMERIC        3  RMTES_STRING     3
+!
+! Currency which the fixing is settled in for leg 1
+!
+FIXSETCUR2 "FIX SETTLE CURR 2"  15423  NULL        ALPHANUMERIC        3  RMTES_STRING     3
+!
+! Currency which the fixing is settled in for leg 2
+!
+FIX_CENTER "FIXING CENTER"      15424  NULL        ALPHANUMERIC       40  RMTES_STRING    40
+!
+! The financial centre where NDF or NDS fixing takes place
+!
+FIX_TM     "FIXING TIME"        15425  NULL        TIME_SECONDS        8  TIME             8
+!
+! The time when the fixing takes place for NDF or NDS deals
+!
 STORY_TEXT "STORY TEXT"         30000  NULL        ALPHANUMERIC     5100  BUFFER        5100
 !
 ! Story take. Story take is either all or part of a news story. 
@@ -33682,6 +34028,14 @@ PROV_DUPID "PROVIDER DUP ID"    30025  NULL        ALPHANUMERIC       48  RMTES_
 !
 ! Content provider duplicate group id
 !
+TRNA_ANS   "NEWS ANALYTICS"     30026  NULL        NONE                0  SERIES           0
+!
+! List of news analytics data entities saved in the Advanced News System (ANS)
+!
+TOPNEWSCDE "TOPNEWS CODE"       30027  NULL        ALPHANUMERIC      255  RMTES_STRING   255
+!
+! Topnews code saved in the Advanced News System (ANS)
+!
 META_ELIG  "METADATA ELIGIBLE"  30060  NULL        INTEGER            15  UINT64           8
 META_RESP  "METADATA RESPONSE"  30061  NULL        ALPHANUMERIC     5100  RMTES_STRING  5100
 META_SUCC  "METADATA SUCCESS"   30062  NULL        INTEGER            15  UINT64           8
@@ -33741,6 +34095,311 @@ TESENDMS   "TE SEND TIME"       30089  NULL        INTEGER            15  UINT64
 URNFIELD   "URN_FIELD"          30090  NULL        ALPHANUMERIC      512  RMTES_STRING   512
 !
 ! Eikon News metadata FIDs
+!
+CRV_ID     "CURVE ID"           30100  NULL        NONE                0  INT64            6
+!
+! Curve identifier.
+!
+CRV_NAME   "CURVE NAME"         30101  NULL        NONE                0  RMTES_STRING    30
+!
+! Curve name.
+!
+CCY_CODE   "CURRENCY CODE"      30102  NULL        NONE                0  RMTES_STRING    30
+!
+! Currency code, per ISO 4217.
+!
+CRV_TYPE   "CURVE TYPE"         30103  NULL        NONE                0  RMTES_STRING    64
+!
+! Broad classification of curve (e.g.,TREASURY, LIBOR/SWAP, BOND, SPREAD, ZERO_COUPON, 
+! BASIS_SWAP).
+!
+CRV_STYPE  "CURVE SUB TYPE"     30104  NULL        NONE                0  RMTES_STRING    64
+!
+! Curve sub-type. (e.g., STANDARD, CALENDAR).
+!
+CRV_DATE   "CURVE DATE"         30105  NULL        NONE                0  DATE             4
+!
+! Date the curve was defined. Partners FID 30128
+!
+CITIES     "CITIES"             30106  NULL        NONE                0  RMTES_STRING   128
+!
+! List of space separated cities (e.g, NYC, LON). Provides input for holiday calendar.
+!
+VAL_DATE   "VALUATION DATE"     30107  NULL        NONE                0  DATE             4
+!
+! Valuation date of the curve.
+!
+SETTL_DATE "SETTLEMENT DATA"    30108  NULL        NONE                0  DATE             4
+!
+! Settlement date of the curve.
+!
+CRV_ALGTHM "CURVE ALGORITHM"    30109  NULL        NONE                0  RMTES_STRING    64
+!
+! Free-form string describing how the curve was constructed (e.g., 
+! REUTERS-USD-ADFIN-DEPOSIT-FUTURES-SWAP).
+!
+INTER_MTHD "INTERPOLATION MTHD" 30110  NULL        NONE                0  RMTES_STRING    64
+!
+! Interpolation/Build method (e.g., LINEAR, LOG_LINEAR, EXPONENTIAL, QUAD_FORWARD, 
+! CONST_FORWARD).
+!
+EXTRP_MTHD "EXTRAPOLATION MTHD" 30111  NULL        NONE                0  RMTES_STRING    64
+!
+! Extrapolation method (e.g., LINEAR, LOG_LINEAR, EXPONENTIAL, QUAD_FORWARD, 
+! CONST_FORWARD).
+!
+CC_METHOD  "CURV CALC METHOD"   30112  NULL        NONE                0  RMTES_STRING    64
+!
+! Curve calculation methodology (e.g., NEWTON_RAPHSON, BOOTSTRAP).
+!
+ROLL_CONV  "DT ROLL CONVENTION" 30113  NULL        NONE                0  RMTES_STRING    64
+!
+! Date roll convetion (e.g., NONE, FOLLOWING, MOD_FOLLOWING, PRECEDING, MOD_PRECEDING, 
+! END_OF_MONTH).
+!
+ZC_BASIS   "ZERO COUPON BASIS"  30114  NULL        NONE                0  RMTES_STRING    30
+!
+! Day count-basis for calculating zero coupon (e.g,. ACT/365.25, ACT/ACT, ACT/365).
+!
+SPOT_LAG   "SPOT LAG"           30115  NULL        NONE                0  INT64            6
+!
+! Spot lag  (e.g., 0, 1, 2).
+!
+DSCT_FACT  "DISCOUNT FACTOR"    30116  NULL        NONE                0  RMTES_STRING    30
+!
+! Discount factor (e.g., COMP_INTEREST, EXPONENTIAL, SIMPLE). 
+!
+DSCT_BASIS "DISCOUNT BASIS"     30117  NULL        NONE                0  RMTES_STRING    30
+!
+! Day count-basis for calculating discount factor.
+!
+CURVE_STS  "CURVE STATUS"       30118  NULL        NONE                0  RMTES_STRING    30
+!
+! Curve status (e.g., CREATED, BUILDING).
+!
+USER_ID    "USER ID"            30119  NULL        NONE                0  RMTES_STRING    64
+!
+! User who created the curve (e.g,. xxx.xxx@derivatives.desk).
+!
+MOD_USERID "MODIFY USER ID"     30120  NULL        NONE                0  RMTES_STRING    64
+!
+! User who modified the curve. (e.g., yyy.yyy@derivatives.desk).
+!
+CRT_DATE   "CREATION DATE"      30121  NULL        NONE                0  DATE             4
+!
+! Date of creation. Partners FID 30129
+!
+MOD_DATE   "MODIFICATION DATE"  30122  NULL        NONE                0  DATE             4
+!
+! Date of modification. Partners FID 30130.
+!
+COMMENT    "COMMENT"            30123  NULL        NONE                0  RMTES_STRING    64
+!
+! Additional comments about the curve.
+!
+FWD_BASIS  "FORWARD BASIS"      30124  NULL        NONE                0  RMTES_STRING    30
+!
+! Day count-basis for calculating forward rates (e.g., ACT/365.25, ACT/ACT, ACT/365).
+!
+FWD_PERIOD "FORWARD PERIOD"     30125  NULL        NONE                0  ARRAY            0
+!
+! List of forward periods (e.g., 3M, 6M, 1Y). Array type is ASCII_STRING.
+!
+TENORS     "TENORS"             30126  NULL        NONE                0  ARRAY            0
+!
+! List of tenors (3M 6M 1Y, 1Y3M2W). Each tenor identifies a row. Index associates to 
+! the (zero-base) vector entry position of inputs and outputs. Resides in vector 
+! summary data of inputs and outputs in refresh messages. Array type is ASCII_STRING.
+!
+EX_MET_DAT "EX_META_DATA"       30127  NULL        NONE                0  ELEMENT_LIST     0
+!
+! Model specific meta data.
+!
+CRV_TIME   "CURVE TIME"         30128  NULL        NONE                0  TIME             5
+!
+! Time the curve was defined. Partners FID 30105
+!
+CRT_TIME   "CREATION TIME"      30129  NULL        NONE                0  TIME             5
+!
+! Time of creation. Partners FID 30121
+!
+MOD_TIME   "MODIFICATION TIME"  30130  NULL        NONE                0  TIME             5
+!
+! Time of modification. Partners FID 30122
+!
+CASH_BASIS "CASH BASIS"         30140  NULL        NONE                0  ASCII_STRING    30
+!
+! Cash day count-basis across cash (e.g., ACT/365.25, ACT/ACT, ACT/365).
+!
+CASH_RATES "CASH RATES"         30141  NULL        NONE                0  VECTOR           0
+!
+! Cash rate list. Vector entries house cash input attributes.
+!
+CASH_SDATE "CASH SETTL DATE"    30142  NULL        NONE                0  DATE             4
+!
+! Cash rate settlement date.
+!
+CASH_MDATE "CASH MATURITY DATE" 30143  NULL        NONE                0  DATE             4
+!
+! Cash rate maturity date.
+!
+CASH_RATE  "CASH RATE"          30144  NULL        NONE                0  REAL64           7
+!
+! Cash rate (e.g,. 0.051). 
+!
+CASH_SRC   "CASH SOURCE"        30145  NULL        NONE                0  ASCII_STRING    28
+!
+! Cash rate source of cash information (e.g., USD0MFSR=).
+!
+CS_INT_MTH "CASH INTER METHOD"  30146  NULL        NONE                0  RMTES_STRING    64
+!
+! Interpolation/Build method across cash (e.g., LINEAR, LOG_LINEAR, EXPONENTIAL, 
+! QUAD_FORWARD, CONST_FORWARD).
+!
+FUTR_BASIS "FUTURE BASIS"       30150  NULL        NONE                0  RMTES_STRING    30
+!
+! Futures basis across future (e.g., ACT/365.25, ACT/ACT, ACT/365).
+!
+FUTR_PRCS  "FUTURE PRICES"      30151  NULL        NONE                0  VECTOR           0
+!
+! Fututes price list. Vector entries house futures input attributes.
+!
+FUTR_SDATE "FUTURE SETTL DATE"  30152  NULL        NONE                0  DATE             4
+!
+! Futures price settlement date.
+!
+FUTR_MDATE "FUTURE MATURITY DT" 30153  NULL        NONE                0  DATE             4
+!
+! Futures price maturity date.
+!
+FUTR_FREQ  "FUTURE FREQUENCY"   30154  NULL        NONE                0  RMTES_STRING    30
+!
+! Futures frequency across futures (e.g., Q(Quartery), S(Semi-annually), M(Monthly)).
+!
+FUTR_PRICE "FUTURE PRICE"       30155  NULL        NONE                0  REAL64           7
+!
+! Futures price (e.g,. 94.625).
+!
+FUTR_SRC   "FUTURE SOURCE"      30156  NULL        NONE                0  ASCII_STRING    28
+!
+! Futures price source of futures information (e.g, EDc2).
+!
+FT_INT_MTH "FUTURE INT METHOD"  30157  NULL        NONE                0  RMTES_STRING    64
+!
+! Interpolation/Build method across futures (e.g., LINEAR, LOG_LINEAR, EXPONENTIAL, 
+! QUAD_FORWARD, CONST_FORWARD).
+!
+SWAP_IM_ST "SWAP INT METHOD ST" 30158  NULL        NONE                0  RMTES_STRING    64
+!
+! Interpolation/Build method short term across swaps (e.g., LINEAR, LOG_LINEAR, 
+! EXPONENTIAL, QUAD_FORWARD, CONST_FORWARD).
+!
+SWAP_IM_LT "SWAP INT METHOD LT" 30159  NULL        NONE                0  RMTES_STRING    64
+!
+! Interpolation/Build method long term across swaps (e.g., LINEAR, LOG_LINEAR, 
+! EXPONENTIAL, QUAD_FORWARD, CONST_FORWARD).
+!
+SWAP_BA_ST "SWAP BASIS ST"      30160  NULL        NONE                0  RMTES_STRING    30
+!
+! Swaps basis short term across swaps (e.g., ACT/365.25, ACT/ACT, ACT/365).
+!
+SWAP_RATES "SWAP RATES"         30161  NULL        NONE                0  VECTOR           0
+!
+! Swaps rate list. Vector entries house swap input attributes.
+!
+SWAP_SDATE "SWAP SETTL DATE"    30162  NULL        NONE                0  DATE             4
+!
+! Swaps rate settlement date.
+!
+SWAP_RDATE "SWAP ROLL DATE"     30163  NULL        NONE                0  DATE             4
+!
+! Swaps rate roll date.
+!
+SWAP_MDATE "SWAP MATURITY DATE" 30164  NULL        NONE                0  DATE             4
+!
+! Swaps rate maturity date.
+!
+SWAP_FR_ST "SWAP FREQUENCY ST"  30165  NULL        NONE                0  RMTES_STRING    30
+!
+! Swaps frequency short term across swaps (e.g., Q(Quartery), S(Semi-annually)).
+!
+SWAP_RT_VA "SWAP RATE VALUE"    30166  NULL        NONE                0  REAL64           7
+!
+! Swaps rate (e.g., 4.045).
+!
+SWAP_SRC   "SWAP SOURCE"        30167  NULL        NONE                0  ASCII_STRING    28
+!
+! Swaps rate source of information (e.g., USDAM3L2Y=).
+!
+SWAP_BA_LT "SWAP BASIS LT"      30168  NULL        NONE                0  RMTES_STRING    30
+!
+! Swaps basis long term across swaps (e.g., ACT/365.25, ACT/ACT, ACT/365).
+!
+SWAP_FR_LT "SWAP FREQUENCY LT"  30169  NULL        NONE                0  RMTES_STRING    30
+!
+! Swaps frequency long term across swaps (e.g., Q(Quartery), S(Semi-annually)).
+!
+SPRD_BASIS "SPREAD BASIS"       30170  NULL        NONE                0  RMTES_STRING    30
+!
+! Spreads basis across spreads (e.g., ACT/365.25, ACT/ACT, ACT/365).
+!
+SPRD_RATES "SPREAD RATES"       30171  NULL        NONE                0  VECTOR           0
+!
+! Spreads rate list. Vector entries house rate input attributes.
+!
+SPRD_SDATE "SPREAD SETTL DATE"  30172  NULL        NONE                0  DATE             4
+!
+! Spreads rate settlement date.
+!
+SPRD_RDATE "SPEAD ROLL DATE"    30173  NULL        NONE                0  DATE             4
+!
+! Spreads rate roll date.
+!
+SPRD_MDATE "SPREAD MATURITY DT" 30174  NULL        NONE                0  DATE             4
+!
+! Spreads rate maturity date.
+!
+SPRD_FREQ  "SPREAD FREQUENCY"   30175  NULL        NONE                0  RMTES_STRING    30
+!
+! Spreads frequency across spreads (e.g., Q(Quartery), S(Semi-annually)).
+!
+SPRD_RATE  "SPREAD RATE"        30176  NULL        NONE                0  REAL64           7
+!
+! Spreads rate (e.g., 94.625).
+!
+SPRD_SRC   "SPREAD SOURCE"      30177  NULL        NONE                0  ASCII_STRING    28
+!
+! Spreads rate source of information (e.g., USDAM3L2Y=).
+!
+YLD_CURVE  "YIELD CURVE"        30200  NULL        NONE                0  VECTOR           0
+!
+! Yield curve. Vector entries house yield curve output attributes.
+!
+YCT_DATE   "YC TENOR DATE"      30201  NULL        NONE                0  DATE             4
+!
+! Yield curve tenor date.
+!
+YCT_ZRATE  "YC TENOR ZERO RATE" 30202  NULL        NONE                0  REAL64           7
+!
+! Yield curve tenor zero rate.
+!
+YCT_DISFAC "YC TENOR DISC FACT" 30203  NULL        NONE                0  REAL64           7
+!
+! Yield curve tenor discount factor.
+!
+YCT_YTM    "YC TENOR YTM"       30204  NULL        NONE                0  REAL64           7
+!
+! Yield curve tenor yield to maturity.
+!
+YCT_FWDATE "YC TENOR FW DATE"   30205  NULL        NONE                0  ARRAY            0
+!
+! Yield curve tenor forward date. If FWD_PERIOD (FID 30125) is set, then an array of 
+! forward dates. Array type is DATE.
+!
+YCT_FWRATE "YC TENOR FW RATE"   30206  NULL        NONE                0  ARRAY            0
+!
+! Yield curve tenor forward rate. Array of forward rates (one for each period defined 
+! in FWD_PERIOD (FID 30125)). Array type is REAL64.
 !
 PRE_LRL081 "PRED LRG REAL 081"  32229  NULL        PRICE              17  REAL64           9
 PRE_LRL082 "PRED LRG REAL 082"  32230  NULL        PRICE              17  REAL64           9
@@ -34034,7 +34693,10 @@ VEHICLEID  "VEHICLE PERM ID"    32488  NULL        INTEGER            15  UINT64
 !
 ! Vehicle Perm ID
 !
-PR_UINT011 "PRED UNS INT 011"   32489  NULL        INTEGER            15  UINT64           8
+STRGY_ACVL "STRGY TRD ACVOL"    32489  NULL        INTEGER            15  UINT64           8
+!
+! Accumulated trade volume for strategy trades
+!
 PR_UINT012 "PRED UNS INT 012"   32490  NULL        INTEGER            15  UINT64           8
 PR_UINT013 "PRED UNS INT 013"   32491  NULL        INTEGER            15  UINT64           8
 PR_UINT014 "PRED UNS INT 014"   32492  NULL        INTEGER            15  UINT64           8
@@ -34200,10 +34862,22 @@ REMPRN_BAL "REM PRINCIPAL BAL"  32581  NULL        PRICE              17  REAL64
 !
 ! Remaining principal balance
 !
-PRE_LRL024 "PRED LRG REAL 024"  32582  NULL        PRICE              17  REAL64           9
-PRE_LRL025 "PRED LRG REAL 025"  32583  NULL        PRICE              17  REAL64           9
-PRE_LRL026 "PRED LRG REAL 026"  32584  NULL        PRICE              17  REAL64           9
-PRE_LRL027 "PRED LRG REAL 027"  32585  NULL        PRICE              17  REAL64           9
+ODDTRN_UNS "ODD TRD TNOV UNS"   32582  NULL        PRICE              17  REAL64           9
+!
+! Odd lot turnover, unscaled
+!
+SREF_QTY   "SDM REF QUANTITY"   32583  NULL        PRICE              17  REAL64           9
+!
+! Reference quantity for use in SDM
+!
+SREF_VAL   "SDM REF VALUE"      32584  NULL        PRICE              17  REAL64           9
+!
+! Reference price for use in SDM
+!
+EVENT_QTY1 "EVENT QUANTITY"     32585  NULL        PRICE              17  REAL64           9
+!
+! Quantity associated with an Event
+!
 PRE_LRL028 "PRED LRG REAL 028"  32586  NULL        PRICE              17  REAL64           9
 PRE_LRL029 "PRED LRG REAL 029"  32587  NULL        PRICE              17  REAL64           9
 PRE_LRL030 "PRED LRG REAL 030"  32588  NULL        PRICE              17  REAL64           9
