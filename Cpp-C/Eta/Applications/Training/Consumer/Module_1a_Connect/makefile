@@ -44,7 +44,7 @@ else
 				OUTPUT_DIR=./RHEL5_64_GCC412/$(LIBTYPE)/$(LINKTYPE)
 			endif
 		else
-			ifeq ($(findstring CentOS,$(DIST)),CentOS),CentOS)
+			ifeq ($(findstring CentOS,$(DIST)),CentOS)
 				# assume Oracle 7 (or greater)
 				LIB_DIR=$(ROOTPLAT)/Libs/OL7_64_GCC482/$(LIBTYPE)/$(LINKTYPE)
 				OUTPUT_DIR=./CENTOS7_64_GCC482/$(LIBTYPE)/$(LINKTYPE)
