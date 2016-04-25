@@ -173,6 +173,17 @@ RsslRet wlBaseInit(WlBase *pBase, WlBaseInitOptions *pOpts, RsslErrorInfo *pErro
 		wlBaseCleanup(pBase);
 		return ret;
 	}
+
+	if ((ret = wlPostTableInit(&pBase->postTable, pOpts->maxOutstandingPosts, 
+					pOpts->postAckTimeout, pErrorInfo))
+			!= RSSL_RET_SUCCESS)
+	{
+		wlBaseCleanup(pBase);
+		return ret;
+	}
+
+	pBase->maxOutstandingPosts = pOpts->maxOutstandingPosts;
+	pBase->postAckTimeout = pOpts->postAckTimeout;
 	
 	return RSSL_RET_SUCCESS;
 }
@@ -189,6 +200,7 @@ void wlBaseCleanup(WlBase *pBase)
 	rsslHashTableCleanup(&pBase->requestedSvcById);
 	rsslMemoryPoolCleanup(&pBase->requestPool);
 	rsslMemoryPoolCleanup(&pBase->streamPool);
+	wlPostTableCleanup(&pBase->postTable);
 }
 
 void wlAddRequest(WlBase *pBase, WlRequestBase *pRequestBase)
@@ -200,6 +212,14 @@ void wlAddRequest(WlBase *pBase, WlRequestBase *pRequestBase)
 
 void wlRemoveRequest(WlBase *pBase, WlRequestBase *pRequestBase)
 {
+	RsslQueueLink *pLink;
+
+	while (pLink = rsslQueueRemoveFirstLink(&pRequestBase->openPosts))
+	{
+		WlPostRecord *pPostRecord = RSSL_QUEUE_LINK_TO_OBJECT(WlPostRecord, qlUser, pLink);
+		wlPostTableRemoveRecord(&pBase->postTable, pPostRecord);
+	}
+
 	rsslHashTableRemoveLink(&pBase->requestsByStreamId, &pRequestBase->hlStreamId);
 	if (pRequestBase->pStateQueue)
 		rsslQueueRemoveLink(pRequestBase->pStateQueue, &pRequestBase->qlStateQueue);

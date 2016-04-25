@@ -16,6 +16,7 @@
 #include "rtr/rsslReactorUtils.h"
 #include "rtr/rsslQueue.h"
 #include "rtr/rsslTypes.h"
+#include "rtr/wlPostIdTable.h"
 #include <assert.h>
 
 static const RsslInt64 WL_TIME_UNSET = 0x7fffffffffffffffLL;
@@ -63,6 +64,7 @@ typedef struct
 	RsslUInt8			domainType;
 	void				*pUserSpec;
 	WlStreamBase		*pStream;
+	RsslQueue			openPosts;
 } WlRequestBase;
 
 /* Initializes a WlRequestBase. */
@@ -73,6 +75,7 @@ RTR_C_INLINE void wlRequestBaseInit(WlRequestBase *pBase, RsslInt32 streamId, Rs
 	pBase->streamId = streamId;
 	pBase->domainType = domainType;
 	pBase->pUserSpec = pUserSpec;
+	rsslInitQueue(&pBase->openPosts);
 }
 
 typedef enum
@@ -130,7 +133,7 @@ typedef enum
 
 /* Watchlist base structure.
  * Contains elements commonly operated on by the different domain handlers. */
-typedef struct
+typedef struct WlBase
 {
 	RsslWatchlist		watchlist;				/* Watchlist reference used by the reactor. */
 	WlConfig			config;					/* Configuration options. */
@@ -161,6 +164,9 @@ typedef struct
 	RsslInt32			nextStreamId;			/* Next ID to use when opening a stream. */
 	RsslInt32			nextProviderStreamId;	/* Next ID to use when opening a stream. */
 	RsslInt64			ticksPerMsec;			/* Ticks per millisecond. Used when getting current time (windows only) */
+	WlPostTable			postTable;				/* Table of posts waiting for acknowledgement. */
+	RsslUInt32 			maxOutstandingPosts;	/* Acknowledgement pool limit. */
+	RsslUInt32 			postAckTimeout;			/* Timeout for acks of posts. */
 } WlBase;
 
 /* Options for initializing the base structure. */
@@ -175,6 +181,8 @@ typedef struct
 	RsslBool						obeyOpenWindow;			/* Whether the watchlist should obey a service's OpenWinow. */
 	RsslUInt32						requestTimeout;			/* Time a stream will wait for a response, in milliseconds. */
 	RsslInt64						ticksPerMsec;			/* Ticks per millisecond. Used when getting current time (windows only) */
+	RsslUInt32						maxOutstandingPosts;	/* Acknowledgement pool limit. */
+	RsslUInt32						postAckTimeout;			/* Timeout for acks of onstream posts. */
 } WlBaseInitOptions;
 
 /* Initializes a WlBase structure. */

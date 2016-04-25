@@ -148,6 +148,7 @@ librsslReactor_src = \
 	Reactor/TunnelStream/tunnelStreamImpl.c \
 	Reactor/TunnelStream/tunnelSubstream.c \
 	Reactor/Watchlist/rsslWatchlistImpl.c \
+	Reactor/Watchlist/wlPostIdTable.c \
 	Reactor/Watchlist/wlView.c \
 	Reactor/Watchlist/wlBase.c \
 	Reactor/Watchlist/wlService.c \

@@ -42,7 +42,7 @@ WlLoginRequest *wlLoginRequestCreate(RsslRDMLoginRequest *pLoginReqMsg, void *pU
 		RsslErrorInfo *pErrorInfo);
 
 /* Destroys a login request. */
-void wlLoginRequestDestroy(WlLoginRequest *pLoginRequest);
+void wlLoginRequestDestroy(WlBase *pBase, WlLoginRequest *pLoginRequest);
 
 /* Flags associated with the login stream. */
 typedef enum

@@ -66,7 +66,7 @@ WlLoginRequest *wlLoginRequestCreate(RsslRDMLoginRequest *pLoginReqMsg, void *pU
 	return pLoginRequest;
 }
 
-void wlLoginRequestDestroy(WlLoginRequest *pLoginRequest)
+void wlLoginRequestDestroy(WlBase *pBase, WlLoginRequest *pLoginRequest)
 {
 	RsslQueueLink *pLink;
 
@@ -79,6 +79,12 @@ void wlLoginRequestDestroy(WlLoginRequest *pLoginRequest)
 		WlUserToken *pUserToken = RSSL_QUEUE_LINK_TO_OBJECT(WlUserToken, 
 				qlTokensPendingRefresh, pLink);
 		free(pUserToken);
+	}
+
+	while (pLink = rsslQueueRemoveFirstLink(&pLoginRequest->base.openPosts))
+	{
+		WlPostRecord *pPostRecord = RSSL_QUEUE_LINK_TO_OBJECT(WlPostRecord, qlUser, pLink);
+		wlPostTableRemoveRecord(&pBase->postTable, pPostRecord);
 	}
 
 	free(pLoginRequest);
@@ -696,7 +702,7 @@ RsslRet wlLoginChannelDown(WlLogin *pLogin, WlBase *pBase, RsslErrorInfo *pError
 
 		loginMsg.rdmMsgBase.streamId = pLogin->pRequest->base.streamId;
 		wlMsgEventClear(&msgEvent);
-		msgEvent.pRsslMsg = &statusMsg;
+		msgEvent.pRsslMsg = (RsslMsg*)&statusMsg;
 		msgEvent.pRdmMsg = (RsslRDMMsg*)&loginMsg;
 		if ((ret = (*pBase->config.msgCallback)
 					((RsslWatchlist*)&pBase->watchlist, &msgEvent, pErrorInfo)) 

@@ -107,8 +107,8 @@ typedef struct
 	RsslReactorChannelEventCallback	*channelOpenCallback;	/*!< Callback function that is provided when a channel is first opened by rsslReactorConnect. This is only allowed when a watchlist is enabled and is optional. */
 	RsslUInt32						itemCountHint;			/*!< Set to the number of items the application expects to request. */
 	RsslBool						obeyOpenWindow;			/*!< Controls whether item requests obey the OpenWindow provided by a service. */
-	RsslUInt32						maxOutstandingPosts;	/*!< Sets the maximum number of on-stream post acknowledgements that may be oustanding for the channel. */
-	RsslUInt32						postAckTimeout;			/*!< Time a stream will wait for acknowledgement of an on-stream post, in milliseconds. */
+	RsslUInt32						maxOutstandingPosts;	/*!< Sets the maximum number of post acknowledgements that may be oustanding for the channel. */
+	RsslUInt32						postAckTimeout;			/*!< Time a stream will wait for acknowledgement of a post message, in milliseconds. */
 	RsslUInt32						requestTimeout;			/*!< Time a requested stream will wait for a response from the provider, in milliseconds. */
 } RsslConsumerWatchlistOptions;
 

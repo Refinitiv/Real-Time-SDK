@@ -18,7 +18,6 @@ RsslWatchlist *rsslWatchlistCreate(RsslWatchlistCreateOptions *pCreateOptions,
 {
 	RsslWatchlistImpl				*pWatchlistImpl;
 	WlBaseInitOptions				baseInitOpts;
-	WlItemsInitOptions				itemsInitOpts;
 	RsslRet							ret;
 
 	if (!pCreateOptions->msgCallback) {
@@ -43,6 +42,8 @@ RsslWatchlist *rsslWatchlistCreate(RsslWatchlistCreateOptions *pCreateOptions,
 	baseInitOpts.obeyOpenWindow = pCreateOptions->obeyOpenWindow;
 	baseInitOpts.requestTimeout = pCreateOptions->requestTimeout;
 	baseInitOpts.ticksPerMsec = pCreateOptions->ticksPerMsec;
+	baseInitOpts.maxOutstandingPosts = pCreateOptions->maxOutstandingPosts;
+	baseInitOpts.postAckTimeout = pCreateOptions->postAckTimeout;
 
 	if ((ret = wlBaseInit(&pWatchlistImpl->base, &baseInitOpts, pErrorInfo)) != RSSL_RET_SUCCESS)
 	{
@@ -50,10 +51,7 @@ RsslWatchlist *rsslWatchlistCreate(RsslWatchlistCreateOptions *pCreateOptions,
 		return NULL;
 	}
 
-	wlClearItemsInitOptions(&itemsInitOpts);
-	itemsInitOpts.maxOutstandingPosts = pCreateOptions->maxOutstandingPosts;
-	itemsInitOpts.postAckTimeout = pCreateOptions->postAckTimeout;
-	if (wlItemsInit(&pWatchlistImpl->items, &itemsInitOpts, pErrorInfo) != RSSL_RET_SUCCESS)
+	if (wlItemsInit(&pWatchlistImpl->items, pErrorInfo) != RSSL_RET_SUCCESS)
 	{
 		rsslWatchlistDestroy((RsslWatchlist*)pWatchlistImpl);
 		return NULL;
@@ -123,7 +121,7 @@ void rsslWatchlistDestroy(RsslWatchlist *pWatchlist)
 	RsslUInt32 i;
 
 	if (pWatchlistImpl->login.pRequest)
-		wlLoginRequestDestroy(pWatchlistImpl->login.pRequest);
+		wlLoginRequestDestroy(&pWatchlistImpl->base, pWatchlistImpl->login.pRequest);
 
 	if (pWatchlistImpl->login.pStream)
 		wlLoginStreamDestroy(pWatchlistImpl->login.pStream);
@@ -480,7 +478,7 @@ RsslInt64 rsslWatchlistGetNextTimeout(RsslWatchlist *pWatchlist)
 		if (pGroup->expireTime < time) time = pGroup->expireTime;
 	}
 
-	if ((pLink = rsslQueuePeekFront(&pWatchlistImpl->items.postTable.timeoutQueue)))
+	if ((pLink = rsslQueuePeekFront(&pWatchlistImpl->base.postTable.timeoutQueue)))
 	{
 		WlPostRecord *pRecord = RSSL_QUEUE_LINK_TO_OBJECT(WlPostRecord, qlTimeout, pLink);
 		if (pRecord->expireTime < time) time = pRecord->expireTime;
@@ -504,7 +502,7 @@ RsslRet rsslWatchlistProcessTimer(RsslWatchlist *pWatchlist, RsslInt64 currentTi
 	if (!rsslQueueGetElementCount(&pWatchlistImpl->base.streamsPendingResponse)
 			&& !rsslQueueGetElementCount(&pWatchlistImpl->items.ftGroupTimerQueue)
 			&& !rsslQueueGetElementCount(&pWatchlistImpl->items.gapStreamQueue)
-			&& !rsslQueueGetElementCount(&pWatchlistImpl->items.postTable.timeoutQueue)
+			&& !rsslQueueGetElementCount(&pWatchlistImpl->base.postTable.timeoutQueue)
 			)
 		return RSSL_RET_SUCCESS;
 
@@ -749,10 +747,10 @@ RsslRet rsslWatchlistProcessTimer(RsslWatchlist *pWatchlist, RsslInt64 currentTi
 	ackMsg.nakCode = RSSL_NAKC_NO_RESPONSE;
 	rssl_set_buffer_to_string(ackMsg.text, "Acknowledgement timed out.");
 
-	while ((pLink = rsslQueuePeekFront(&pWatchlistImpl->items.postTable.timeoutQueue)))
+	while ((pLink = rsslQueuePeekFront(&pWatchlistImpl->base.postTable.timeoutQueue)))
 	{
 		WlPostRecord *pRecord = RSSL_QUEUE_LINK_TO_OBJECT(WlPostRecord, qlTimeout, pLink);
-		WlItemRequest *pItemRequest;
+		WlRequest *pRequest;
 
 		if (pRecord->expireTime > currentTime) 
 		{
@@ -760,10 +758,13 @@ RsslRet rsslWatchlistProcessTimer(RsslWatchlist *pWatchlist, RsslInt64 currentTi
 			break;
 		}
 
-		pItemRequest = (WlItemRequest*)pRecord->pUserSpec;
-		ackMsg.msgBase.domainType = pItemRequest->base.domainType;
+		pRequest = (WlRequest*)pRecord->pUserSpec;
+
+		ackMsg.msgBase.domainType = pRequest->base.domainType;
 		ackMsg.flags = RSSL_AKMF_HAS_TEXT | RSSL_AKMF_HAS_NAK_CODE;
 		ackMsg.ackId = pRecord->postId;
+		ackMsg.msgBase.streamId = pRequest->base.streamId;
+		ackMsg.msgBase.domainType = pRecord->domainType;
 
 		if (pRecord->flags & RSSL_PSMF_HAS_SEQ_NUM)
 		{
@@ -771,12 +772,29 @@ RsslRet rsslWatchlistProcessTimer(RsslWatchlist *pWatchlist, RsslInt64 currentTi
 			ackMsg.seqNum = pRecord->seqNum;
 		}
 
-		rsslQueueRemoveLink(&pItemRequest->openPosts, &pRecord->qlUser);
-		wlPostTableRemoveRecord(&pWatchlistImpl->items.postTable, pRecord);
+		rsslQueueRemoveLink(&pRequest->base.openPosts, &pRecord->qlUser);
+		wlPostTableRemoveRecord(&pWatchlistImpl->base.postTable, pRecord);
 
-		if ((ret = wlSendMsgEventToItemRequest(pWatchlistImpl, &msgEvent, pItemRequest, pErrorInfo))
+		if (pRequest->base.domainType == RSSL_DMT_LOGIN)
+		{
+			/* Off-stream post */
+			RsslWatchlistStreamInfo streamInfo;
+			wlStreamInfoClear(&streamInfo);
+			streamInfo.pUserSpec = pRequest->base.pUserSpec;
+			msgEvent.pStreamInfo = &streamInfo;
+
+			if ((ret = (*pWatchlistImpl->base.config.msgCallback)
+						((RsslWatchlist*)&pWatchlistImpl->base.watchlist, &msgEvent, pErrorInfo)) 
+					!= RSSL_RET_SUCCESS)
+				return ret;
+		}
+		else
+		{
+			/* Onstream post */
+			if ((ret = wlSendMsgEventToItemRequest(pWatchlistImpl, &msgEvent, (WlItemRequest*)pRequest, pErrorInfo))
 				!= RSSL_RET_SUCCESS)
-			return ret;
+				return ret;
+		}
 
 	}
 
@@ -1219,10 +1237,22 @@ RsslRet rsslWatchlistReadMsg(RsslWatchlist *pWatchlist,
 				switch(msgEvent.pRsslMsg->msgBase.msgClass)
 				{
 					case RSSL_MC_ACK:
-						msgEvent.pRsslMsg->msgBase.streamId = pLoginRequest->base.streamId;
+					{
+						WlPostRecord *pRecord;
+						if ((pRecord = wlPostTableFindRecord(&pWatchlistImpl->base.postTable, 
+										&msgEvent.pRsslMsg->ackMsg)))
+						{
+							rsslQueueRemoveLink(&pLoginRequest->base.openPosts, &pRecord->qlUser);
+							wlPostTableRemoveRecord(&pWatchlistImpl->base.postTable, pRecord);
 
-						return (*pWatchlistImpl->base.config.msgCallback)((RsslWatchlist*)&pWatchlistImpl->base.watchlist, 
-								&msgEvent, pErrorInfo);
+							msgEvent.pRsslMsg->msgBase.streamId = pLoginRequest->base.streamId;
+
+							return (*pWatchlistImpl->base.config.msgCallback)((RsslWatchlist*)&pWatchlistImpl->base.watchlist, 
+									&msgEvent, pErrorInfo);
+						}
+						return RSSL_RET_SUCCESS;
+					}
+
 					default:
 						rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
 								"Received unsupported off-stream message on login stream with domain type %u and RsslMsg class %u.",
@@ -1336,7 +1366,7 @@ RsslRet rsslWatchlistReadMsg(RsslWatchlist *pWatchlist,
 
 					/* Destroy login stream. */
 					wlLoginStreamDestroy(pLoginStream);
-					wlLoginRequestDestroy(pLoginRequest);
+					wlLoginRequestDestroy(&pWatchlistImpl->base, pLoginRequest);
 
 					/* Close directory stream, if present. */
 					pDirectoryStream = pWatchlistImpl->directory.pStream;
@@ -2512,16 +2542,17 @@ static RsslRet wlFanoutItemMsgEvent(RsslWatchlistImpl *pWatchlistImpl, WlItemStr
 		{
 			WlPostRecord *pRecord;
 
-			if ((pRecord = wlPostTableFindRecord(&pWatchlistImpl->items.postTable, 
+			if ((pRecord = wlPostTableFindRecord(&pWatchlistImpl->base.postTable, 
 						&pRsslMsg->ackMsg)))
 			{
 				WlItemRequest *pItemRequest = (WlItemRequest*)pRecord->pUserSpec;
+
+				rsslQueueRemoveLink(&pItemRequest->base.openPosts, &pRecord->qlUser);
+				wlPostTableRemoveRecord(&pWatchlistImpl->base.postTable, pRecord);
+
 				if ((ret = wlSendMsgEventToItemRequest(pWatchlistImpl, pEvent, pItemRequest, pErrorInfo))
 							!= RSSL_RET_SUCCESS)
 						return ret;
-
-				rsslQueueRemoveLink(&pItemRequest->openPosts, &pRecord->qlUser);
-				wlPostTableRemoveRecord(&pWatchlistImpl->items.postTable, pRecord);
 			}
 			/* Otherwise ignore it. */
 
@@ -2584,10 +2615,10 @@ static RsslRet wlFanoutItemMsgEvent(RsslWatchlistImpl *pWatchlistImpl, WlItemStr
 		if (pItemRequest->pView) pItemRequest->pView->pParentQueue = NULL;
 
 		/* Clean up any posts awaiting acknowledgement. */
-		while (pLink = rsslQueueRemoveFirstLink(&pItemRequest->openPosts))
+		while (pLink = rsslQueueRemoveFirstLink(&pItemRequest->base.openPosts))
 		{
 			WlPostRecord *pPostRecord = RSSL_QUEUE_LINK_TO_OBJECT(WlPostRecord, qlUser, pLink);
-			wlPostTableRemoveRecord(&pWatchlistImpl->items.postTable, pPostRecord);
+			wlPostTableRemoveRecord(&pWatchlistImpl->base.postTable, pPostRecord);
 		}
 
 		if ( 
@@ -2995,120 +3026,100 @@ RsslRet rsslWatchlistSubmitMsg(RsslWatchlist *pWatchlist,
 
 					case RSSL_MC_POST:
 					{
+						RsslInt32 streamId; 
+						RsslPostMsg postMsg = pOptions->pRsslMsg->postMsg;
+
 						if (pRequest)
 						{
 							/* On-stream post. */
-							RsslPostMsg postMsg = pOptions->pRsslMsg->postMsg;
 							WlItemRequest *pItemRequest = (WlItemRequest*)pRequest;
 							WlItemStream *pItemStream = (WlItemStream*)pItemRequest->base.pStream;
 
-							/* Add service name, if it was specified instead of service ID on the key. */
-							if (pOptions->pServiceName)
-							{
-								if (!(postMsg.flags & RSSL_PSMF_HAS_MSG_KEY))
-								{
-									rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, __FILE__, __LINE__, 
-											"Post message submitted with service name but no message key.");
-									return RSSL_RET_INVALID_DATA;
-								}
-
-								if ((ret = wlChangeServiceNameToID(pWatchlistImpl,
-												&postMsg.msgBase.msgKey, pOptions->pServiceName, 
-												pErrorInfo)) != RSSL_RET_SUCCESS)
-									return ret;
-							}
-
-
-							if ( pItemRequest->flags & WL_IRQF_REFRESHED &&
-									pItemStream && pItemStream->flags & WL_IOSF_ESTABLISHED)
-							{
-								postMsg.msgBase.streamId = pItemStream->base.streamId;
-
-								if (postMsg.flags & RSSL_PSMF_ACK)
-								{
-									WlPostRecord *pPostRecord;
-
-									if (!(pPostRecord = wlPostTableAddRecord(&pWatchlistImpl->base, 
-													&pWatchlistImpl->items.postTable, &postMsg, 
-													pErrorInfo)))
-										return pErrorInfo->rsslError.rsslErrorId;
-
-									pPostRecord->pUserSpec = (void*)pItemRequest;
-
-									if ((ret = wlEncodeAndSubmitMsg(pWatchlistImpl, (RsslMsg*)&postMsg,
-													NULL, RSSL_FALSE, NULL, pErrorInfo)) < RSSL_RET_SUCCESS)
-									{
-										wlPostTableRemoveRecord(&pWatchlistImpl->items.postTable, pPostRecord);
-										return ret;
-									}
-
-									rsslQueueAddLinkToBack(&pItemRequest->openPosts,
-											&pPostRecord->qlUser);
-
-									break;
-								}
-								else
-								{
-									if ((ret = wlEncodeAndSubmitMsg(pWatchlistImpl, (RsslMsg*)&postMsg,
-											NULL, RSSL_FALSE, NULL, pErrorInfo)) != RSSL_RET_SUCCESS)
-										return ret;
-									break;
-								}
-							}
-							else
+							if ( !(pItemRequest->flags & WL_IRQF_REFRESHED) ||
+									!(pItemStream && pItemStream->flags & WL_IOSF_ESTABLISHED))
 							{
 								rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, __FILE__, __LINE__, 
 										"Post message submitted to stream that is not established.");
 								return RSSL_RET_INVALID_DATA;
 							}
+
+							streamId = pItemStream->base.streamId;
 						}
 						else if (pWatchlistImpl->login.pRequest
 								&& pOptions->pRsslMsg->msgBase.streamId 
 								== pWatchlistImpl->login.pRequest->base.streamId)
 						{
-							RsslPostMsg postMsg = pOptions->pRsslMsg->postMsg;
-
-							/* Add service name, if it was specified instead of service ID on the key. */
-							if (pOptions->pServiceName)
-							{
-								if (!(postMsg.flags & RSSL_PSMF_HAS_MSG_KEY))
-								{
-									rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, __FILE__, __LINE__, 
-											"Post message submitted with service name but no message key.");
-									return RSSL_RET_INVALID_DATA;
-								}
-
-								if ((ret = wlChangeServiceNameToID(pWatchlistImpl,
-												&postMsg.msgBase.msgKey, pOptions->pServiceName, 
-												pErrorInfo)) != RSSL_RET_SUCCESS)
-									return ret;
-							}
+							pRequest = (WlRequest*)pWatchlistImpl->login.pRequest;
 
 							/* Off-stream post */
-							if (pWatchlistImpl->login.pStream 
-									&& pWatchlistImpl->login.pStream->flags & WL_LSF_ESTABLISHED)
-							{
-								postMsg.msgBase.streamId = pWatchlistImpl->login.pStream->base.streamId;
-								if ((ret = wlEncodeAndSubmitMsg(pWatchlistImpl, (RsslMsg*)&postMsg,
-										NULL, RSSL_FALSE, NULL, pErrorInfo)) != RSSL_RET_SUCCESS)
-									return ret;
-								break;
-							}
-							else
+							if (!pWatchlistImpl->login.pStream 
+									|| !(pWatchlistImpl->login.pStream->flags & WL_LSF_ESTABLISHED))
 							{
 								rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, __FILE__, __LINE__, 
 										"Off-stream post message submitted to login stream that is not established.");
 								return RSSL_RET_INVALID_DATA;
 							}
+
+							streamId = pWatchlistImpl->login.pStream->base.streamId; 
 						}
 						else
 						{
 							rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, __FILE__, __LINE__, 
-									"Post message submitted for unknown stream %d.", streamId);
+									"Post message submitted for unknown stream %d.", postMsg.msgBase.streamId);
 							return RSSL_RET_INVALID_DATA;
 						}
 
-						/* Otherwise nowhere to send it -- drop the message. */
+						postMsg.msgBase.streamId = streamId;
+
+						/* Add service name, if it was specified instead of service ID on the key. */
+						if (pOptions->pServiceName)
+						{
+							if (!(postMsg.flags & RSSL_PSMF_HAS_MSG_KEY))
+							{
+								rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, __FILE__, __LINE__, 
+										"Post message submitted with service name but no message key.");
+								return RSSL_RET_INVALID_DATA;
+							}
+
+							if ((ret = wlChangeServiceNameToID(pWatchlistImpl,
+											&postMsg.msgBase.msgKey, pOptions->pServiceName, 
+											pErrorInfo)) != RSSL_RET_SUCCESS)
+								return ret;
+						}
+
+						if (postMsg.flags & RSSL_PSMF_ACK)
+						{
+							WlPostRecord *pPostRecord;
+
+							/* Save post for routing acknowledgements or so it can
+							 * be timed out if not acknowledged. */
+
+							if (!(pPostRecord = wlPostTableAddRecord(&pWatchlistImpl->base, 
+											&pWatchlistImpl->base.postTable, &postMsg, 
+											pErrorInfo)))
+								return pErrorInfo->rsslError.rsslErrorId;
+
+							pPostRecord->pUserSpec = (void*)pRequest;
+
+							if ((ret = wlEncodeAndSubmitMsg(pWatchlistImpl, (RsslMsg*)&postMsg,
+											NULL, RSSL_FALSE, NULL, pErrorInfo)) < RSSL_RET_SUCCESS)
+							{
+								wlPostTableRemoveRecord(&pWatchlistImpl->base.postTable, pPostRecord);
+								return ret;
+							}
+
+							rsslQueueAddLinkToBack(&pRequest->base.openPosts,
+									&pPostRecord->qlUser);
+
+							break;
+						}
+						else
+						{
+							if ((ret = wlEncodeAndSubmitMsg(pWatchlistImpl, (RsslMsg*)&postMsg,
+											NULL, RSSL_FALSE, NULL, pErrorInfo)) != RSSL_RET_SUCCESS)
+								return ret;
+							break;
+						}
 
 						break;
 					}
