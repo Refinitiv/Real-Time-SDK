@@ -191,6 +191,7 @@
     	<ClCompile Include="rsslReactorWorker.c"/>
 	<ClCompile Include="rsslReactor.c"/>
 	<ClCompile Include="Watchlist\rsslWatchlistImpl.c"/>
+	<ClCompile Include="Watchlist\wlPostIdTable.c"/>
 	<ClCompile Include="Watchlist\wlBase.c"/>
 	<ClCompile Include="Watchlist\wlDirectory.c"/>
 	<ClCompile Include="Watchlist\wlItem.c"/>

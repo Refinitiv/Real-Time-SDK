@@ -79,7 +79,7 @@ RsslBool wlProviderRequestHashCompare(void *pKey1, void *pKey2)
 }
 
 
-RsslRet wlItemsInit(WlItems *pItems, WlItemsInitOptions *pOpts, RsslErrorInfo *pErrorInfo)
+RsslRet wlItemsInit(WlItems *pItems, RsslErrorInfo *pErrorInfo)
 {
 	RsslRet ret;
 
@@ -88,14 +88,6 @@ RsslRet wlItemsInit(WlItems *pItems, WlItemsInitOptions *pOpts, RsslErrorInfo *p
 			!= RSSL_RET_SUCCESS)
 		return ret;
 
-	if ((ret = wlPostTableInit(&pItems->postTable, pOpts->maxOutstandingPosts, 
-					pOpts->postAckTimeout, pErrorInfo))
-			!= RSSL_RET_SUCCESS)
-	{
-		wlItemsCleanup(pItems);
-		return ret;
-	}
-	
 	memset(pItems->ftGroupTable, 0, sizeof(pItems->ftGroupTable));
 
 	
@@ -110,7 +102,6 @@ RsslRet wlItemsInit(WlItems *pItems, WlItemsInitOptions *pOpts, RsslErrorInfo *p
 void wlItemsCleanup(WlItems *pItems)
 {
 	rsslHashTableCleanup(&pItems->providerRequestsByAttrib);
-	wlPostTableCleanup(&pItems->postTable);
 }
 
 RsslRet wlItemCopyKey(RsslMsgKey *pNewMsgKey, RsslMsgKey *pOldMsgKey, char **pMemoryBuffer,
@@ -163,7 +154,7 @@ RsslRet wlItemRequestInit(WlItemRequest *pItemRequest, WlBase *pBase, WlItems *p
 
 	memset(pItemRequest, 0, sizeof(WlItemRequest));
 
-	rsslInitQueue(&pItemRequest->openPosts);
+	rsslInitQueue(&pItemRequest->base.openPosts);
 
 	pItemRequest->requestMsgFlags = pRequestMsg->flags;
 
@@ -978,10 +969,10 @@ void wlItemRequestClose(WlBase *pBase, WlItems *pItems, WlItemRequest *pItemRequ
 		wlItemStreamSetMsgPending(pBase, pItemStream, RSSL_FALSE);
 	}
 
-	while (pLink = rsslQueueRemoveFirstLink(&pItemRequest->openPosts))
+	while (pLink = rsslQueueRemoveFirstLink(&pItemRequest->base.openPosts))
 	{
 		WlPostRecord *pPostRecord = RSSL_QUEUE_LINK_TO_OBJECT(WlPostRecord, qlUser, pLink);
-		wlPostTableRemoveRecord(&pItems->postTable, pPostRecord);
+		wlPostTableRemoveRecord(&pBase->postTable, pPostRecord);
 	}
 
 

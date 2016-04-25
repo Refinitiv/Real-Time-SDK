@@ -236,6 +236,7 @@
 	<ClCompile Include="Reactor\TunnelStream\tunnelStreamImpl.c"/>
 	<ClCompile Include="Reactor\TunnelStream\tunnelSubstream.c"/>
 	<ClCompile Include="Reactor\Watchlist\rsslWatchlistImpl.c"/>
+	<ClCompile Include="Reactor\Watchlist\wlPostIdTable.c"/>
 	<ClCompile Include="Reactor\Watchlist\wlBase.c"/>
 	<ClCompile Include="Reactor\Watchlist\wlDirectory.c"/>
 	<ClCompile Include="Reactor\Watchlist\wlItem.c"/>

@@ -2,15 +2,15 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{2B25407C-7D23-40F1-A2A4-FC519D795BA6}</UniqueIdentifier>
+      <UniqueIdentifier>{6DEF5509-002E-4CF5-AE69-23D61A197479}</UniqueIdentifier>
       <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{9B568846-F080-49C0-A695-2DC301C0D148}</UniqueIdentifier>
+      <UniqueIdentifier>{18D801E0-1C48-4889-A7EB-110936A32709}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
     <Filter Include="Resource Files">
-      <UniqueIdentifier>{2810B453-C0FB-4F29-A098-31A963F2DC04}</UniqueIdentifier>
+      <UniqueIdentifier>{DFD501DE-0324-42CF-B507-AFAA3708622F}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
     </Filter>
   </ItemGroup>
@@ -22,6 +22,9 @@
 			<Filter>Source Files</Filter>
 		</ClCompile>
 		<ClCompile Include="Watchlist\rsslWatchlistImpl.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="Watchlist\wlPostIdTable.c">
 			<Filter>Source Files</Filter>
 		</ClCompile>
 		<ClCompile Include="Watchlist\wlBase.c">

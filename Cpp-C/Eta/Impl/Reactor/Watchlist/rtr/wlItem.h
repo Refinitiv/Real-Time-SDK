@@ -9,7 +9,6 @@
 #define WL_ITEM_H
 
 #include "rtr/wlBase.h"
-#include "rtr/wlPostIdTable.h"
 #include "rtr/wlView.h" 
 #include "rtr/rsslRequestMsg.h"
 #include "rtr/wlService.h"
@@ -147,7 +146,6 @@ struct WlItemRequest
 	RsslQos					staticQos;				/* Static QoS, if established. */
 	char					*msgKeyMemoryBuffer;	/* MsgKey memory. */
 	WlView					*pView;					/* View set by this request. */
-	RsslQueue				openPosts;				/* Set of Posts waiting for acknowledgement on this request. */
 	RsslBuffer				encDataBody;			/* Encoded dataBody. */
 	RsslBuffer				extendedHeader;			/* Extended header, if any. */
 };
@@ -238,7 +236,6 @@ void wlFTGroupRemove(WlItems *pItems, WlFTGroup *pGroup);
 struct WlItems
 {
 	RsslHashTable	providerRequestsByAttrib;	/* Provider-driven streams. */
-	WlPostTable		postTable;					/* Pool of posts awaiting acknowledgements. */
 	WlFTGroup*		ftGroupTable[WL_FTGROUP_TABLE_SIZE];
 												/* FTGroup table. */
 	RsslQueue		ftGroupTimerQueue;			/* FTGroup list. Should be ordered
@@ -252,21 +249,8 @@ struct WlItems
 	WlFTGroup		*pCurrentFanoutFTGroup;
 };
 
-/* Options for wlItemsInit. */
-typedef struct
-{
-	RsslUInt32 maxOutstandingPosts;	/* Acknowledgement pool limit. */
-	RsslUInt32 postAckTimeout;		/* Timeout for acks of onstream posts. */
-} WlItemsInitOptions;
-
-RTR_C_INLINE void wlClearItemsInitOptions(WlItemsInitOptions *pOpts)
-{
-	pOpts->maxOutstandingPosts = 100000;
-	pOpts->postAckTimeout = 15000;
-}
-
 /* Initializes the WlItems structure. */
-RsslRet wlItemsInit(WlItems *pItems, WlItemsInitOptions *pOpts, RsslErrorInfo *pErrorInfo);
+RsslRet wlItemsInit(WlItems *pItems, RsslErrorInfo *pErrorInfo);
 
 /* Cleans up the WlItems structure. */
 void wlItemsCleanup(WlItems *pItems);
