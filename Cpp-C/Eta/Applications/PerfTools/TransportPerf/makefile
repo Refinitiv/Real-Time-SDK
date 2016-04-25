@@ -48,7 +48,7 @@ else
 				CFLAGS += -DLinux -DLINUX -Dx86_Linux_4X -Dx86_Linux_5X -DLinuxVersion=5 
 			endif
 		else
-			ifeq ($(findstring CentOS,$(DIST)),CentOS),CentOS)
+			ifeq ($(findstring CentOS,$(DIST)),CentOS)
 				# assume Oracle 7 (or greater)
 				LIB_DIR=$(ROOTPLAT)/Libs/OL7_64_GCC482/$(LIBTYPE)/$(LINKTYPE)
 				OUTPUT_DIR=./CENTOS7_64_GCC482/$(LIBTYPE)/$(LINKTYPE)
