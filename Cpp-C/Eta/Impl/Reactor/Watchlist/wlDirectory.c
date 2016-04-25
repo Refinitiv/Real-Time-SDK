@@ -91,7 +91,7 @@ void wlDirectoryStreamDestroy(WlDirectoryStream *pDirectoryStream)
 }
 
 RsslRet wlSendDirectoryMsgToRequest(WlBase *pBase, WlDirectoryRequest *pDirectoryRequest,
-		RsslRDMDirectoryMsg *pDirectoryMsg, RsslErrorInfo *pErrorInfo)
+		RsslRDMDirectoryMsg *pDirectoryMsg, RsslMsg *pRsslMsg, RsslErrorInfo *pErrorInfo)
 {
 	RsslWatchlistMsgEvent msgEvent;
 	RsslWatchlistStreamInfo streamInfo;
@@ -99,11 +99,17 @@ RsslRet wlSendDirectoryMsgToRequest(WlBase *pBase, WlDirectoryRequest *pDirector
 	wlMsgEventClear(&msgEvent);
 	wlStreamInfoClear(&streamInfo);
 	msgEvent.pRdmMsg = (RsslRDMMsg*)pDirectoryMsg;
+	msgEvent.pRsslMsg = (RsslMsg*)pRsslMsg;
 	msgEvent.pStreamInfo = &streamInfo;
 
 	streamInfo.pUserSpec = pDirectoryRequest->base.pUserSpec;
 
-	pDirectoryMsg->rdmMsgBase.streamId = pDirectoryRequest->base.streamId;
+	if (pDirectoryMsg)
+		pDirectoryMsg->rdmMsgBase.streamId = pDirectoryRequest->base.streamId;
+
+	if (pRsslMsg)
+		pRsslMsg->msgBase.streamId = pDirectoryRequest->base.streamId;
+
 
 	if (pDirectoryRequest->pRequestedService)
 	{
@@ -172,7 +178,7 @@ RsslRet wlSendServiceListToRequest(WlBase *pBase, WlDirectory *pDirectory,
 		pDirectoryRequest->state = WL_DR_REQUEST_OK;
 
 	if ((ret = wlSendDirectoryMsgToRequest(pBase, pDirectoryRequest, &rdmMsg.directoryMsg,
-			pErrorInfo)) != RSSL_RET_SUCCESS)
+			NULL, pErrorInfo)) != RSSL_RET_SUCCESS)
 		return ret;
 
 	if (!(pDirectoryRequest->flags & WL_DRQF_IS_STREAMING))
@@ -192,6 +198,24 @@ RsslRet wlDirectoryProcessProviderMsgEvent(WlBase *pBase, WlDirectory *pDirector
 	/* Stop timer. */
 	if (pBase->pRsslChannel)
 		wlUnsetStreamPendingResponse(pBase, &pDirectory->pStream->base);
+
+	if (pMsgEvent->pRsslMsg->msgBase.msgClass == RSSL_MC_GENERIC)
+	{
+		RsslQueueLink *pLink;
+
+		/* Fanout generic message to all requests. */
+		RSSL_QUEUE_FOR_EACH_LINK(&pDirectory->openDirectoryRequests, pLink)
+		{
+			WlDirectoryRequest *pDirectoryRequest = RSSL_QUEUE_LINK_TO_OBJECT(WlDirectoryRequest, base.qlStateQueue, 
+					pLink);
+
+			if ((ret = wlSendDirectoryMsgToRequest(pBase, pDirectoryRequest,
+				NULL, pMsgEvent->pRsslMsg, pErrorInfo)) != RSSL_RET_SUCCESS)
+				return ret;
+		}
+
+		return RSSL_RET_SUCCESS;
+	}
 
 	/* Decode directory message and cache it. */
 	do
@@ -278,7 +302,7 @@ RsslRet wlDirectoryProcessProviderMsgEvent(WlBase *pBase, WlDirectory *pDirector
 					pLink);
 
 			wlSendDirectoryMsgToRequest(pBase, pDirectoryRequest, 
-					&directoryMsg, pErrorInfo);
+					&directoryMsg, NULL, pErrorInfo);
 		}
 
 		RSSL_QUEUE_FOR_EACH_LINK(&pBase->requestedServices, pLink)
@@ -294,7 +318,7 @@ RsslRet wlDirectoryProcessProviderMsgEvent(WlBase *pBase, WlDirectory *pDirector
 						base.qlStateQueue, pRequestLink);
 
 				wlSendDirectoryMsgToRequest(pBase, pDirectoryRequest, 
-						&directoryMsg, pErrorInfo);
+						&directoryMsg, NULL, pErrorInfo);
 			}
 		}
 	}

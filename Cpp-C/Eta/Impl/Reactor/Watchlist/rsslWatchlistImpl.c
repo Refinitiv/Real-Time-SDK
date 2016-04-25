@@ -1230,6 +1230,13 @@ RsslRet rsslWatchlistReadMsg(RsslWatchlist *pWatchlist,
 						return RSSL_RET_FAILURE;
 				}
 			}
+			else if (msgEvent.pRsslMsg->msgBase.msgClass == RSSL_MC_GENERIC)
+			{
+				/* Let generic message through. */
+				msgEvent.pRsslMsg->msgBase.streamId = pLoginRequest->base.streamId;
+				return (*pWatchlistImpl->base.config.msgCallback)((RsslWatchlist*)&pWatchlistImpl->base.watchlist, 
+						&msgEvent, pErrorInfo);
+			}
 
 			if ((ret = wlLoginProcessProviderMsg(&pWatchlistImpl->login, &pWatchlistImpl->base, 
 					pOptions->pDecodeIterator, msgEvent.pRsslMsg, &loginMsg, &loginAction, pErrorInfo))
@@ -3130,9 +3137,9 @@ RsslRet rsslWatchlistSubmitMsg(RsslWatchlist *pWatchlist,
 				RsslRDMLoginMsg *pLoginMsg = (RsslRDMLoginMsg*)pRdmMsg;
 				WlLoginConsumerAction loginAction;
 
-				if ((ret = wlLoginProcessConsumerMsg(&pWatchlistImpl->login, &pWatchlistImpl->base, 
-								(RsslRDMLoginMsg*)pRdmMsg, pOptions->pUserSpec, &loginAction, pErrorInfo)) != RSSL_RET_SUCCESS)
-					return ret;
+					if ((ret = wlLoginProcessConsumerMsg(&pWatchlistImpl->login, &pWatchlistImpl->base,
+						(RsslRDMLoginMsg*)pRdmMsg, pOptions->pUserSpec, &loginAction, pErrorInfo)) != RSSL_RET_SUCCESS)
+						return ret;
 
 				switch(loginAction)
 				{
