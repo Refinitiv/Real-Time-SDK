@@ -79,13 +79,17 @@ RsslRet rsslWatchlistSetChannel(RsslWatchlist *pWatchlist, RsslChannel *pChannel
 
 	if (!pChannel)
 	{
+		int ret;
 		pWatchlistImpl->base.channelState = WL_CHS_START;
 		pWatchlistImpl->base.watchlist.state = 0;
-		if (pWatchlistImpl->login.pStream)
-			pWatchlistImpl->login.pStream->flags &= ~WL_LSF_ESTABLISHED;
 		pWatchlistImpl->items.pCurrentFanoutStream = NULL;
 		pWatchlistImpl->items.pCurrentFanoutGroup = NULL;
 		pWatchlistImpl->items.pCurrentFanoutFTGroup = NULL;
+
+		if ((ret = wlLoginChannelDown(&pWatchlistImpl->login, &pWatchlistImpl->base, pErrorInfo))
+				!= RSSL_RET_SUCCESS)
+			return ret;
+
 		return wlRecoverAllItems(pWatchlistImpl, pErrorInfo);
 	}
 

@@ -187,8 +187,13 @@ RsslRet wlLoginProcessProviderMsg(WlLogin *pLogin, WlBase *pBase,
 			RsslBuffer memBuffer = pBase->tempDecodeBuffer;
 
 			rsslClearDecodeIterator(pIter);
-			rsslSetDecodeIteratorRWFVersion(pIter, pBase->pRsslChannel->majorVersion,
-					pBase->pRsslChannel->minorVersion);
+			if (pBase->pRsslChannel)
+				rsslSetDecodeIteratorRWFVersion(pIter, pBase->pRsslChannel->majorVersion,
+						pBase->pRsslChannel->minorVersion);
+			else
+				rsslSetDecodeIteratorRWFVersion(pIter, RSSL_RWF_MAJOR_VERSION,
+						RSSL_RWF_MINOR_VERSION);
+
 			rsslSetDecodeIteratorBuffer(pIter, &iRsslMsg->msgBase.encDataBody);
 			if ((ret = rsslDecodeRDMLoginMsg(pIter, iRsslMsg, oLoginMsg, &memBuffer, pErrorInfo)) 
 					== RSSL_RET_SUCCESS)
@@ -219,16 +224,20 @@ RsslRet wlLoginProcessProviderMsg(WlLogin *pLogin, WlBase *pBase,
 				pState = &oLoginMsg->refresh.state;
 				if (pState->streamState == RSSL_STREAM_OPEN)
 				{
-					if (pState->streamState == RSSL_DATA_OK
-							&& pBase->channelState < WL_CHS_LOGGED_IN)
+					if (pState->streamState == RSSL_DATA_OK)
 					{
-						/* Logged in. */
-						pBase->channelState = WL_CHS_LOGGED_IN;
-						pLogin->pStream->flags |= WL_LSF_ESTABLISHED;
+						if (pBase->channelState < WL_CHS_LOGGED_IN)
+						{
+							/* Logged in. */
+							pBase->channelState = WL_CHS_LOGGED_IN;
+							pLogin->pStream->flags |= WL_LSF_ESTABLISHED;
 
-						/* Let reactor know we've got a login stream open. */
-						pBase->watchlist.state |= RSSLWL_STF_RESET_CONN_DELAY;
+							/* Let reactor know we've got a login stream open. */
+							pBase->watchlist.state |= RSSLWL_STF_RESET_CONN_DELAY;
+						}
 					}
+					else
+						pLogin->pStream->flags &= ~WL_LSF_ESTABLISHED;
 				}
 				else
 				{
@@ -301,6 +310,8 @@ RsslRet wlLoginProcessProviderMsg(WlLogin *pLogin, WlBase *pBase,
 					}
 					else if (pState->dataState == RSSL_DATA_OK)
 						pLogin->pStream->flags |= WL_LSF_ESTABLISHED;
+					else
+						pLogin->pStream->flags &= ~WL_LSF_ESTABLISHED;
 				}
 				break;
 			default:
@@ -657,3 +668,42 @@ RsslRet wlLoginProcessConsumerMsg(WlLogin *pLogin, WlBase *pBase,
 
 	}
 }
+
+RsslRet wlLoginChannelDown(WlLogin *pLogin, WlBase *pBase, RsslErrorInfo *pErrorInfo)
+{
+	if (pLogin->pStream && (pLogin->pStream->flags & WL_LSF_ESTABLISHED))
+	{
+		RsslStatusMsg statusMsg;
+		RsslRDMLoginMsg loginMsg;
+		RsslRet ret;
+		RsslDecodeIterator dIter;
+		WlLoginProviderAction loginAction;
+		RsslWatchlistMsgEvent msgEvent;
+
+		rsslClearStatusMsg(&statusMsg);
+		statusMsg.flags |= RSSL_STMF_HAS_STATE;
+		statusMsg.state.streamState = RSSL_STREAM_OPEN;
+		statusMsg.state.dataState = RSSL_DATA_SUSPECT;
+		statusMsg.msgBase.containerType = RSSL_DT_NO_DATA;
+		rssl_set_buffer_to_string(statusMsg.state.text, "Channel is down.");
+
+		if ((ret = wlLoginProcessProviderMsg(pLogin, pBase, &dIter, (RsslMsg*)&statusMsg, &loginMsg,
+						&loginAction, pErrorInfo)) != RSSL_RET_SUCCESS)
+			return ret;
+
+		/* No action. */
+		assert(loginAction == WL_LGPA_NONE);
+
+		loginMsg.rdmMsgBase.streamId = pLogin->pRequest->base.streamId;
+		wlMsgEventClear(&msgEvent);
+		msgEvent.pRsslMsg = &statusMsg;
+		msgEvent.pRdmMsg = (RsslRDMMsg*)&loginMsg;
+		if ((ret = (*pBase->config.msgCallback)
+					((RsslWatchlist*)&pBase->watchlist, &msgEvent, pErrorInfo)) 
+				!= RSSL_RET_SUCCESS)
+			return ret;
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
