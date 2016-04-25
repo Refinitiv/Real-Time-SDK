@@ -915,10 +915,12 @@ static RsslRet sendToLeastLoadedThread(RsslChannel *chnl)
 
 static RsslChannel* startConnection()
 {
-	RsslConnectOptions copts = RSSL_INIT_CONNECT_OPTS;
+	RsslConnectOptions copts;
 	RsslInProgInfo inProg = RSSL_INIT_IN_PROG_INFO;
 	RsslChannel* chnl;
 	RsslError error;
+	
+	rsslClearConnectOpts(&copts);
 	
 	if (transportPerfConfig.sAddr || transportPerfConfig.rAddr)
 	{

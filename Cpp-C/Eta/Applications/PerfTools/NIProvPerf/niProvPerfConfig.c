@@ -18,9 +18,6 @@
 static RsslInt32 defaultThreadCount = 1;
 static RsslInt32 defaultThreadBindList[] = { -1 };
 
-/* Contains the global application configuration */
-NIProvPerfConfig niProvPerfConfig;
-
 static void clearNIProvPerfConfig()
 {
 	/* Prepare defaults. */
@@ -287,6 +284,10 @@ void initNIProvPerfConfig(int argc, char **argv)
 			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
 			sscanf(argv[iargs], "%d", &niProvPerfConfig.highWaterMark);
 		}
+		else if (0 == strcmp("-reactor", argv[iargs]))
+		{
+			niProvPerfConfig.useReactor = RSSL_TRUE;
+		}
 		else
 		{
 			printf("Config Error: Unrecognized option: %s\n", argv[iargs]);
@@ -438,9 +439,14 @@ void printNIProvPerfConfig(FILE *file)
 
 	fprintf(file,
 			"            Service ID: %llu\n"
-			"          Service Name: %s\n\n",
+			"          Service Name: %s\n",
 			directoryConfig.serviceId,
 			directoryConfig.serviceName
+		  );
+
+	fprintf(file,
+			"           Use Reactor: %s\n\n",
+			(niProvPerfConfig.useReactor ? "Yes" : "No")
 		  );
 
 
@@ -494,6 +500,8 @@ void exitWithUsage()
 
 			"  -threads <thread list>           List of threads, by their bound CPU. Comma-separated list. -1 means do not bind.\n"
 			"                                     (e.g. \"-threads 0,1 \" creates two threads bound to CPU's 0 and 1)\n"
+
+			"  -reactor                         Use the VA Reactor instead of the UPA Channel for sending and receiving.\n"
 
 			"\n"
 			);

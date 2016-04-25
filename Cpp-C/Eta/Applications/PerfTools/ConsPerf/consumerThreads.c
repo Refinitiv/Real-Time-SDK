@@ -52,6 +52,12 @@ RsslPostUserInfo postUserInfo;
 
 RsslBool shutdownThreads = RSSL_FALSE;
 
+RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorChannelEvent *pConnEvent);
+RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslRDMLoginMsgEvent *pLoginMsgEvent);
+RsslReactorCallbackRet directoryMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslRDMDirectoryMsgEvent *pDirectoryMsgEvent);
+RsslReactorCallbackRet dictionaryMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslRDMDictionaryMsgEvent *pDictionaryMsgEvent);
+RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslMsgEvent* pMsgEvent);
+
 RsslRet RTR_C_INLINE decodePayload(RsslDecodeIterator* dIter, RsslMsg *msg, ConsumerThread* pConsumerThread)
 {
 	RsslRet ret;
@@ -84,30 +90,61 @@ RsslRet RTR_C_INLINE decodePayload(RsslDecodeIterator* dIter, RsslMsg *msg, Cons
 
 RsslRet sendMessage(ConsumerThread *pConsumerThread, RsslBuffer *msgBuf)
 {
-	RsslUInt32 bytesWritten, uncompBytesWritten;
-	RsslRet ret;
-
-	ret = rsslWrite(pConsumerThread->pChannel, msgBuf, RSSL_HIGH_PRIORITY, 0, &bytesWritten, &uncompBytesWritten, &pConsumerThread->threadRsslError);
-
-	/* call flush and write again */
-	while (rtrUnlikely(ret == RSSL_RET_WRITE_CALL_AGAIN))
+	if (consPerfConfig.useReactor == RSSL_FALSE && consPerfConfig.useWatchlist == RSSL_FALSE)
 	{
-		if (rtrUnlikely((ret = rsslFlush(pConsumerThread->pChannel, &pConsumerThread->threadRsslError)) < RSSL_RET_SUCCESS))
+		RsslUInt32 bytesWritten, uncompBytesWritten;
+		RsslRet ret;
+
+		ret = rsslWrite(pConsumerThread->pChannel, msgBuf, RSSL_HIGH_PRIORITY, 0, &bytesWritten, &uncompBytesWritten, &pConsumerThread->threadRsslError);
+
+		/* call flush and write again */
+		while (rtrUnlikely(ret == RSSL_RET_WRITE_CALL_AGAIN))
+		{
+			if (rtrUnlikely((ret = rsslFlush(pConsumerThread->pChannel, &pConsumerThread->threadRsslError)) < RSSL_RET_SUCCESS))
+			{
+				rsslSetErrorInfoLocation(&pConsumerThread->threadErrorInfo, __FILE__, __LINE__);
+				return ret;
+			}
+			ret = rsslWrite(pConsumerThread->pChannel, msgBuf, RSSL_HIGH_PRIORITY, 0, &bytesWritten, &uncompBytesWritten, &pConsumerThread->threadRsslError);
+		}
+
+		if (ret > RSSL_RET_SUCCESS || ret == RSSL_RET_WRITE_FLUSH_FAILED && pConsumerThread->pChannel->state == RSSL_CH_STATE_ACTIVE)
+		{
+			FD_SET(pConsumerThread->pChannel->socketId, &pConsumerThread->wrtfds);
+		}
+		else if (ret < RSSL_RET_SUCCESS)
 		{
 			rsslSetErrorInfoLocation(&pConsumerThread->threadErrorInfo, __FILE__, __LINE__);
 			return ret;
 		}
-		ret = rsslWrite(pConsumerThread->pChannel, msgBuf, RSSL_HIGH_PRIORITY, 0, &bytesWritten, &uncompBytesWritten, &pConsumerThread->threadRsslError);
 	}
+	else
+	{
+		RsslErrorInfo rsslErrorInfo;
+		RsslRet	retval = 0;
+		RsslUInt32 outBytes = 0;
+		RsslUInt32 uncompOutBytes = 0;
+		RsslUInt8 writeFlags = RSSL_WRITE_NO_FLAGS;
+		RsslReactorSubmitOptions submitOpts;
 
-	if (ret > RSSL_RET_SUCCESS || ret == RSSL_RET_WRITE_FLUSH_FAILED && pConsumerThread->pChannel->state == RSSL_CH_STATE_ACTIVE)
-	{
-		FD_SET(pConsumerThread->pChannel->socketId, &pConsumerThread->wrtfds);
-	}
-	else if (ret < RSSL_RET_SUCCESS)
-	{
-		rsslSetErrorInfoLocation(&pConsumerThread->threadErrorInfo, __FILE__, __LINE__);
-		return ret;
+		rsslClearReactorSubmitOptions(&submitOpts);
+
+		/* send the request */
+		if ((retval = rsslReactorSubmit(pConsumerThread->pReactor, pConsumerThread->pReactorChannel, msgBuf, &submitOpts, &rsslErrorInfo)) < RSSL_RET_SUCCESS)
+		{
+			while (retval == RSSL_RET_WRITE_CALL_AGAIN)
+				retval = rsslReactorSubmit(pConsumerThread->pReactor, pConsumerThread->pReactorChannel, msgBuf, &submitOpts, &rsslErrorInfo);
+
+			if (retval < RSSL_RET_SUCCESS)	/* Connection should be closed, return failure */
+			{
+				/* rsslWrite failed, release buffer */
+				printf("rsslReactorSubmit() failed with return code %d - <%s>\n", retval, rsslErrorInfo.rsslError.text);
+				if (retval = rsslReactorReleaseBuffer(pConsumerThread->pReactorChannel, msgBuf, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+					printf("rsslReactorReleaseBuffer() failed with return code %d - <%s>\n", retval, rsslErrorInfo.rsslError.text);
+
+				return RSSL_RET_FAILURE;
+			}
+		}
 	}
 
 	return RSSL_RET_SUCCESS;
@@ -265,21 +302,19 @@ RsslRet sendDictionaryRequests(ConsumerThread *pConsumerThread, RsslUInt16 servi
 	return RSSL_RET_SUCCESS;
 }
 
-RsslRet sendItemRequestBurst(ConsumerThread *pConsumerThread, RsslRDMService *pService, RsslQueue *pRequestQueue, RsslUInt32 itemBurstCount, RsslQueue *pWaitingForRefreshQueue)
+RsslRet sendItemRequestBurst(ConsumerThread *pConsumerThread, RsslUInt32 itemBurstCount)
 {
 	RsslRet ret;
-	RsslBuffer *msgBuf;
-	RsslEncodeIterator eIter;
 	RsslRequestMsg requestMsg;
 	RsslUInt32 i;
 	RsslQos *pQos;
 
-	assert(pService);
+	assert(pConsumerThread->pDesiredService);
 	assert(itemBurstCount);
 
 	/* Use a QoS from the service, if one is given. */
-	if ((pService->flags & RDM_SVCF_HAS_INFO) && (pService->info.flags & RDM_SVC_IFF_HAS_QOS ) && (pService->info.qosCount > 0))
-		pQos = &pService->info.qosList[0];
+	if ((pConsumerThread->pDesiredService->flags & RDM_SVCF_HAS_INFO) && (pConsumerThread->pDesiredService->info.flags & RDM_SVC_IFF_HAS_QOS ) && (pConsumerThread->pDesiredService->info.qosCount > 0))
+		pQos = &pConsumerThread->pDesiredService->info.qosList[0];
 	else
 		pQos = NULL;
 
@@ -288,39 +323,16 @@ RsslRet sendItemRequestBurst(ConsumerThread *pConsumerThread, RsslRDMService *pS
 		RsslQueueLink *pLink;
 		ItemRequest *pItemRequest;
 
-	   	pLink = rsslQueuePeekFront(pRequestQueue);
+	   	pLink = rsslQueuePeekFront(&pConsumerThread->requestQueue);
 		if (!pLink) return RSSL_RET_SUCCESS;
 
 		pItemRequest = RSSL_QUEUE_LINK_TO_OBJECT(ItemRequest, link, pLink);
 		assert(pItemRequest->requestState == ITEM_NOT_REQUESTED);
-		if (!(msgBuf = rsslGetBuffer(pConsumerThread->pChannel, 512, RSSL_FALSE, &pConsumerThread->threadRsslError)))
-		{
-			if (pConsumerThread->threadRsslError.rsslErrorId == RSSL_RET_BUFFER_NO_BUFFERS)
-			{
-				pConsumerThread->threadRsslError.rsslErrorId = RSSL_RET_SUCCESS;
-				return RSSL_RET_SUCCESS;
-			}
-			else
-			{
-				rsslSetErrorInfoLocation(&pConsumerThread->threadErrorInfo, __FILE__, __LINE__);
-				return pConsumerThread->threadRsslError.rsslErrorId;
-			}
-		}
 
 		/* Desired service has been found, so add it to the msgKey. */
 		pItemRequest->msgKey.flags |= RSSL_MKF_HAS_SERVICE_ID;
-		pItemRequest->msgKey.serviceId = (RsslUInt16)pService->serviceId;
+		pItemRequest->msgKey.serviceId = (RsslUInt16)pConsumerThread->pDesiredService->serviceId;
 
-		rsslClearEncodeIterator(&eIter);
-		rsslSetEncodeIteratorRWFVersion(&eIter, pConsumerThread->pChannel->majorVersion, pConsumerThread->pChannel->minorVersion);
-		if ( (ret = rsslSetEncodeIteratorBuffer(&eIter, msgBuf)) != RSSL_RET_SUCCESS)
-		{
-			rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
-					(char*)"rsslSetEncodeIteratorBuffer() failed: %d(%s)", ret, pConsumerThread->threadErrorInfo.rsslError.text);
-			return ret;
-		}
-
-		/* Encode request msg. */
 		rsslClearRequestMsg(&requestMsg);
 		if (!consPerfConfig.requestSnapshots && pItemRequest->itemInfo.itemFlags & ITEM_IS_STREAMING_REQ)
 			requestMsg.flags |= RSSL_RQMF_STREAMING;
@@ -340,24 +352,68 @@ RsslRet sendItemRequestBurst(ConsumerThread *pConsumerThread, RsslRDMService *pS
 
 		requestMsg.msgBase.msgKey = pItemRequest->msgKey;
 
-		if ((ret = rsslEncodeMsg(&eIter, (RsslMsg*)&requestMsg)) != RSSL_RET_SUCCESS)
+		if (consPerfConfig.useWatchlist == RSSL_FALSE) // VA Reactor Watchlist not enabled
 		{
-			rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
-					(char*)"rsslEncodeMsg() failed: %d.", ret);
-			return ret;
-		}
+			RsslBuffer *msgBuf;
+			RsslEncodeIterator eIter;
 
-		msgBuf->length = rsslGetEncodedBufferLength(&eIter);
+			if (!(msgBuf = rsslGetBuffer(pConsumerThread->pChannel, 512, RSSL_FALSE, &pConsumerThread->threadRsslError)))
+			{
+				if (pConsumerThread->threadRsslError.rsslErrorId == RSSL_RET_BUFFER_NO_BUFFERS)
+				{
+					pConsumerThread->threadRsslError.rsslErrorId = RSSL_RET_SUCCESS;
+					return RSSL_RET_SUCCESS;
+				}
+				else
+				{
+					rsslSetErrorInfoLocation(&pConsumerThread->threadErrorInfo, __FILE__, __LINE__);
+					return pConsumerThread->threadRsslError.rsslErrorId;
+				}
+			}
+
+			rsslClearEncodeIterator(&eIter);
+			rsslSetEncodeIteratorRWFVersion(&eIter, pConsumerThread->pChannel->majorVersion, pConsumerThread->pChannel->minorVersion);
+			if ( (ret = rsslSetEncodeIteratorBuffer(&eIter, msgBuf)) != RSSL_RET_SUCCESS)
+			{
+				rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+						(char*)"rsslSetEncodeIteratorBuffer() failed: %d(%s)", ret, pConsumerThread->threadErrorInfo.rsslError.text);
+				return ret;
+			}
+
+			/* Encode request msg. */
+			if ((ret = rsslEncodeMsg(&eIter, (RsslMsg*)&requestMsg)) != RSSL_RET_SUCCESS)
+			{
+				rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+						(char*)"rsslEncodeMsg() failed: %d.", ret);
+				return ret;
+			}
+
+			msgBuf->length = rsslGetEncodedBufferLength(&eIter);
 		
 
-		if ( sendMessage(pConsumerThread, msgBuf) != RSSL_RET_SUCCESS)
-			return ret;
+			if ( sendMessage(pConsumerThread, msgBuf) != RSSL_RET_SUCCESS)
+				return ret;
+		}
+		else // VA Reactor Watchlist is enabled, submit message instead of buffer
+		{
+			RsslReactorSubmitMsgOptions submitMsgOpts;
+			RsslErrorInfo rsslErrorInfo;
+
+			rsslClearReactorSubmitMsgOptions(&submitMsgOpts);
+
+			// submit message to VA Reactor Watchlist
+			submitMsgOpts.pRsslMsg = (RsslMsg *)&requestMsg;
+			if ((ret = rsslReactorSubmitMsg(pConsumerThread->pReactor, pConsumerThread->pReactorChannel, &submitMsgOpts, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
+			{
+				printf("rsslReactorSubmitMsg() failed: %d(%s)\n", ret, rsslErrorInfo.rsslError.text);
+				return ret;
+			}
+		}
 
 		/* Requests has been made, move the link. */
 		pItemRequest->requestState = ITEM_WAITING_FOR_REFRESH;
-	   	rsslQueueRemoveFirstLink(pRequestQueue);
-		rsslQueueAddLinkToBack(pWaitingForRefreshQueue, pLink);
-
+	   	rsslQueueRemoveFirstLink(&pConsumerThread->requestQueue);
+		rsslQueueAddLinkToBack(&pConsumerThread->waitingForRefreshQueue, pLink);
 
 		countStatIncr(&pConsumerThread->stats.requestCount);
 	}
@@ -365,28 +421,27 @@ RsslRet sendItemRequestBurst(ConsumerThread *pConsumerThread, RsslRDMService *pS
 	return RSSL_RET_SUCCESS;
 }
 
-RsslRet sendPostBurst(ConsumerThread *pConsumerThread, RsslRDMService *pService, RotatingQueue *pPostItemQueue, LatencyRandomArray *pRandomArray, RsslUInt32 itemBurstCount)
+RsslRet sendPostBurst(ConsumerThread *pConsumerThread, LatencyRandomArray *pRandomArray, RsslUInt32 itemBurstCount)
 {
 	RsslRet ret;
-	RsslBuffer *msgBuf;
 	RsslUInt32 i;
 	RsslUInt encodeStartTime;
 	RsslInt32 latencyUpdateNumber;
 
-	assert(pService);
+	assert(pConsumerThread->pDesiredService);
 	assert(itemBurstCount);
 
-	if (!rotatingQueueGetCount(pPostItemQueue))
+	if (!rotatingQueueGetCount(&pConsumerThread->postItemQueue))
 		return RSSL_RET_SUCCESS;
 
-	latencyUpdateNumber = (consPerfConfig.latencyPostsPerSec > 0 && rotatingQueueGetCount(pPostItemQueue)) ?
+	latencyUpdateNumber = (consPerfConfig.latencyPostsPerSec > 0 && rotatingQueueGetCount(&pConsumerThread->postItemQueue)) ?
 		latencyRandomArrayGetNext(pRandomArray, &pConsumerThread->randArrayIter) : -1; 
 
 
 	for(i = 0; i < itemBurstCount; ++i)
 	{
 		ItemRequest *pPostItem;
-		RsslQueueLink *pLink = rotatingQueueNext(pPostItemQueue);
+		RsslQueueLink *pLink = rotatingQueueNext(&pConsumerThread->postItemQueue);
 
 		pPostItem = RSSL_QUEUE_LINK_TO_OBJECT(ItemRequest, postQueueLink, pLink);
 
@@ -397,35 +452,66 @@ RsslRet sendPostBurst(ConsumerThread *pConsumerThread, RsslRDMService *pService,
 		else
 			encodeStartTime = 0;
 
-
-		if (!(msgBuf = rsslGetBuffer(pConsumerThread->pChannel, 
-						estimateItemPostBufferLength(&pPostItem->itemInfo), RSSL_FALSE, 
-						&pConsumerThread->threadRsslError)))
+		if (consPerfConfig.useWatchlist == RSSL_FALSE) // VA Reactor Watchlist not enabled
 		{
-			if (pConsumerThread->threadRsslError.rsslErrorId == RSSL_RET_BUFFER_NO_BUFFERS)
+			RsslBuffer *msgBuf;
+
+			if (!(msgBuf = rsslGetBuffer(pConsumerThread->pChannel, 
+							estimateItemPostBufferLength(&pPostItem->itemInfo), RSSL_FALSE, 
+							&pConsumerThread->threadRsslError)))
 			{
-				countStatAdd(&pConsumerThread->stats.postOutOfBuffersCount, itemBurstCount - i);
-				pConsumerThread->threadRsslError.rsslErrorId = RSSL_RET_SUCCESS;
-				return RSSL_RET_SUCCESS;
+				if (pConsumerThread->threadRsslError.rsslErrorId == RSSL_RET_BUFFER_NO_BUFFERS)
+				{
+					countStatAdd(&pConsumerThread->stats.postOutOfBuffersCount, itemBurstCount - i);
+					pConsumerThread->threadRsslError.rsslErrorId = RSSL_RET_SUCCESS;
+					return RSSL_RET_SUCCESS;
+				}
+				else
+				{
+					rsslSetErrorInfoLocation(&pConsumerThread->threadErrorInfo, __FILE__, __LINE__);
+					return pConsumerThread->threadRsslError.rsslErrorId;
+				}
 			}
-			else
-			{
-				rsslSetErrorInfoLocation(&pConsumerThread->threadErrorInfo, __FILE__, __LINE__);
-				return pConsumerThread->threadRsslError.rsslErrorId;
-			}
-		}
 
 
-		if ((ret = encodeItemPost(pConsumerThread->pChannel, &pPostItem->itemInfo, msgBuf,
-							&postUserInfo, encodeStartTime)) != RSSL_RET_SUCCESS)
-		{
-				rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
-						(char*)"encodeItemPost() failed: %d(%s)", ret, rsslRetCodeToString(ret));
+			if ((ret = encodeItemPost(pConsumerThread->pChannel, &pPostItem->itemInfo, msgBuf,
+								&postUserInfo, encodeStartTime)) != RSSL_RET_SUCCESS)
+			{
+					rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+							(char*)"encodeItemPost() failed: %d(%s)", ret, rsslRetCodeToString(ret));
+					return ret;
+			}
+
+			if ( sendMessage(pConsumerThread, msgBuf) != RSSL_RET_SUCCESS)
 				return ret;
 		}
+		else // VA Reactor Watchlist is enabled, submit message instead of buffer
+		{
+			RsslPostMsg postMsg;
+			RsslReactorSubmitMsgOptions submitMsgOpts;
+			RsslErrorInfo rsslErrorInfo;
+			char bufferMemory[512];
+			RsslBuffer postBuffer = {512, (char*)bufferMemory};
 
-		if ( sendMessage(pConsumerThread, msgBuf) != RSSL_RET_SUCCESS)
-			return ret;
+			rsslClearReactorSubmitMsgOptions(&submitMsgOpts);
+
+			// create properly encoded post message
+			if ((ret = createItemPost(pConsumerThread->pChannel, &pPostItem->itemInfo, &postMsg, &postBuffer,
+								&postUserInfo, encodeStartTime)) != RSSL_RET_SUCCESS)
+			{
+					rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+							(char*)"createItemPost() failed: %d(%s)", ret, rsslRetCodeToString(ret));
+					return ret;
+			}
+
+			// submit message to VA Reactor Watchlist
+			submitMsgOpts.pRsslMsg = (RsslMsg *)&postMsg;
+			if ((ret = rsslReactorSubmitMsg(pConsumerThread->pReactor, pConsumerThread->pReactorChannel, &submitMsgOpts, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
+			{
+				printf("rsslReactorSubmitMsg() failed: %d(%s)\n", ret, rsslErrorInfo.rsslError.text);
+				return ret;
+			}
+		}
 
 		countStatIncr(&pConsumerThread->stats.postSentCount);
 
@@ -434,28 +520,27 @@ RsslRet sendPostBurst(ConsumerThread *pConsumerThread, RsslRDMService *pService,
 	return RSSL_RET_SUCCESS;
 }
 
-RsslRet sendGenMsgBurst(ConsumerThread *pConsumerThread, RsslRDMService *pService, RotatingQueue *pGenMsgItemQueue, LatencyRandomArray *pRandomArray, RsslUInt32 itemBurstCount)
+RsslRet sendGenMsgBurst(ConsumerThread *pConsumerThread, LatencyRandomArray *pRandomArray, RsslUInt32 itemBurstCount)
 {
 	RsslRet ret;
-	RsslBuffer *msgBuf;
 	RsslUInt32 i;
 	RsslUInt encodeStartTime;
 	RsslInt32 latencyGenMsgNumber;
 
-	assert(pService);
+	assert(pConsumerThread->pDesiredService);
 	assert(itemBurstCount);
 
-	if (!rotatingQueueGetCount(pGenMsgItemQueue))
+	if (!rotatingQueueGetCount(&pConsumerThread->genMsgItemQueue))
 		return RSSL_RET_SUCCESS;
 
-	latencyGenMsgNumber = (consPerfConfig.latencyGenMsgsPerSec > 0 && rotatingQueueGetCount(pGenMsgItemQueue)) ?
+	latencyGenMsgNumber = (consPerfConfig.latencyGenMsgsPerSec > 0 && rotatingQueueGetCount(&pConsumerThread->genMsgItemQueue)) ?
 		latencyRandomArrayGetNext(pRandomArray, &pConsumerThread->randArrayIter) : -1; 
 
 
 	for(i = 0; i < itemBurstCount; ++i)
 	{
 		ItemRequest *pGenMsgItem;
-		RsslQueueLink *pLink = rotatingQueueNext(pGenMsgItemQueue);
+		RsslQueueLink *pLink = rotatingQueueNext(&pConsumerThread->genMsgItemQueue);
 
 		pGenMsgItem = RSSL_QUEUE_LINK_TO_OBJECT(ItemRequest, genMsgQueueLink, pLink);
 
@@ -469,34 +554,63 @@ RsslRet sendGenMsgBurst(ConsumerThread *pConsumerThread, RsslRDMService *pServic
 		else
 			encodeStartTime = 0;
 
-
-		if (!(msgBuf = rsslGetBuffer(pConsumerThread->pChannel, 
-						estimateItemGenMsgBufferLength(&pGenMsgItem->itemInfo), RSSL_FALSE, 
-						&pConsumerThread->threadRsslError)))
+		if (consPerfConfig.useWatchlist == RSSL_FALSE) // VA Reactor Watchlist not enabled
 		{
-			if (pConsumerThread->threadRsslError.rsslErrorId == RSSL_RET_BUFFER_NO_BUFFERS)
+			RsslBuffer *msgBuf;
+			if (!(msgBuf = rsslGetBuffer(pConsumerThread->pChannel, 
+							estimateItemGenMsgBufferLength(&pGenMsgItem->itemInfo), RSSL_FALSE, 
+							&pConsumerThread->threadRsslError)))
 			{
-				countStatAdd(&pConsumerThread->stats.genMsgOutOfBuffersCount, itemBurstCount - i);
-				pConsumerThread->threadRsslError.rsslErrorId = RSSL_RET_SUCCESS;
-				return RSSL_RET_SUCCESS;
+				if (pConsumerThread->threadRsslError.rsslErrorId == RSSL_RET_BUFFER_NO_BUFFERS)
+				{
+					countStatAdd(&pConsumerThread->stats.genMsgOutOfBuffersCount, itemBurstCount - i);
+					pConsumerThread->threadRsslError.rsslErrorId = RSSL_RET_SUCCESS;
+					return RSSL_RET_SUCCESS;
+				}
+				else
+				{
+					rsslSetErrorInfoLocation(&pConsumerThread->threadErrorInfo, __FILE__, __LINE__);
+					return pConsumerThread->threadRsslError.rsslErrorId;
+				}
 			}
-			else
-			{
-				rsslSetErrorInfoLocation(&pConsumerThread->threadErrorInfo, __FILE__, __LINE__);
-				return pConsumerThread->threadRsslError.rsslErrorId;
-			}
-		}
 
 
-		if ((ret = encodeItemGenMsg(pConsumerThread->pChannel, &pGenMsgItem->itemInfo, msgBuf, encodeStartTime)) != RSSL_RET_SUCCESS)
-		{
-				rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
-						(char*)"encodeItemPost() failed: %d(%s)", ret, rsslRetCodeToString(ret));
+			if ((ret = encodeItemGenMsg(pConsumerThread->pChannel, &pGenMsgItem->itemInfo, msgBuf, encodeStartTime)) != RSSL_RET_SUCCESS)
+			{
+					rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+							(char*)"encodeItemPost() failed: %d(%s)", ret, rsslRetCodeToString(ret));
+					return ret;
+			}
+
+			if ( sendMessage(pConsumerThread, msgBuf) != RSSL_RET_SUCCESS)
 				return ret;
 		}
+		else // VA Reactor Watchlist is enabled, submit message instead of buffer
+		{
+			RsslGenericMsg genericMsg;
+			RsslReactorSubmitMsgOptions submitMsgOpts;
+			RsslErrorInfo rsslErrorInfo;
+			char bufferMemory[512];
+			RsslBuffer genericBuffer = {512, (char*)bufferMemory};
 
-		if ( sendMessage(pConsumerThread, msgBuf) != RSSL_RET_SUCCESS)
-			return ret;
+			rsslClearReactorSubmitMsgOptions(&submitMsgOpts);
+
+			// create properly encoded generic message
+			if ((ret = createItemGenMsg(pConsumerThread->pChannel, &pGenMsgItem->itemInfo, &genericMsg, &genericBuffer, encodeStartTime)) != RSSL_RET_SUCCESS)
+			{
+					rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+							(char*)"createItemGenMsg() failed: %d(%s)", ret, rsslRetCodeToString(ret));
+					return ret;
+			}
+
+			// submit message to VA Reactor Watchlist
+			submitMsgOpts.pRsslMsg = (RsslMsg *)&genericMsg;
+			if ((ret = rsslReactorSubmitMsg(pConsumerThread->pReactor, pConsumerThread->pReactorChannel, &submitMsgOpts, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
+			{
+				printf("rsslReactorSubmitMsg() failed: %d(%s)\n", ret, rsslErrorInfo.rsslError.text);
+				return ret;
+			}
+		}
 
 		countStatIncr(&pConsumerThread->stats.genMsgSentCount);
 		if (!pConsumerThread->stats.firstGenMsgSentTime)
@@ -719,32 +833,227 @@ static RsslRet printEstimatedGenMsgSizes(ConsumerThread *pConsumerThread)
 	return RSSL_RET_SUCCESS;
 }
 
-RSSL_THREAD_DECLARE(runConsumerConnection, threadStruct) 
+static RsslRet connectChannel(ConsumerThread* pConsumerThread)
 {
-	fd_set useRead;
-	fd_set useExcept;
-	fd_set useWrt;
-
-	RsslBuffer *msgBuf=0;
-	RsslRet	readret;
-
-	RsslMsg msg = RSSL_INIT_MSG;
-	RsslDecodeIterator dIter;
-
-	ConsumerThread* pConsumerThread = (ConsumerThread*)threadStruct;
-	
-	RsslConnectOptions copts = RSSL_INIT_CONNECT_OPTS;
+	RsslConnectOptions copts;
 	RsslInProgInfo inProg = RSSL_INIT_IN_PROG_INFO;
+	RsslRet ret = 0;
+	RsslError closeError;
+
+	FD_ZERO(&(pConsumerThread->readfds));
+	FD_ZERO(&(pConsumerThread->exceptfds));
+	FD_ZERO(&(pConsumerThread->wrtfds));
+
+	rsslClearConnectOpts(&copts);
+	
+	/* Connect to RSSL server */
+	if(strlen(consPerfConfig.interfaceName)) copts.connectionInfo.unified.interfaceName = consPerfConfig.interfaceName;
+
+	copts.guaranteedOutputBuffers = consPerfConfig.guaranteedOutputBuffers;
+	copts.numInputBuffers = consPerfConfig.numInputBuffers;
+	copts.sysSendBufSize = consPerfConfig.sendBufSize;
+	copts.sysRecvBufSize = consPerfConfig.recvBufSize;
+	copts.connectionInfo.unified.address = consPerfConfig.hostName;
+	copts.connectionInfo.unified.serviceName = consPerfConfig.portNo;
+	copts.majorVersion = RSSL_RWF_MAJOR_VERSION;
+	copts.minorVersion = RSSL_RWF_MINOR_VERSION;
+	copts.protocolType = RSSL_RWF_PROTOCOL_TYPE;
+	copts.connectionType = consPerfConfig.connectionType;
+
+	if(consPerfConfig.connectionType == RSSL_CONN_TYPE_SOCKET)
+	{
+		copts.tcpOpts.tcp_nodelay = consPerfConfig.tcpNoDelay;
+	}
+
+		copts.connectionInfo.unified.address = consPerfConfig.hostName;
+		copts.connectionInfo.unified.serviceName = consPerfConfig.portNo;
+
+	do
+	{
+		RsslError error;
+		RsslChannel *pChannel;
+
+		if (shutdownThreads)
+			return RSSL_RET_FAILURE;
+
+			printf("\nAttempting to connect to server %s:%s...\n", consPerfConfig.hostName, consPerfConfig.portNo);
+
+		if (!CHECK_RSSLERROR((pChannel = rsslConnect(&copts,&error)), error))
+		{
+			SLEEP(1);
+			continue;
+		}
+
+		FD_SET(pChannel->socketId,&(pConsumerThread->readfds));
+		FD_SET(pChannel->socketId,&(pConsumerThread->exceptfds));
+
+		assert(pChannel->state == RSSL_CH_STATE_INITIALIZING || pChannel->state == RSSL_CH_STATE_ACTIVE);
+
+		/* Wait for channel to become active.  This finalizes the three-way handshake. */
+		while(pChannel->state == RSSL_CH_STATE_INITIALIZING)
+		{
+			if (shutdownThreads)
+				return RSSL_RET_FAILURE;
+
+			ret = rsslInitChannel(pChannel, &inProg, &error);
+
+			switch (ret)
+			{
+				case RSSL_RET_CHAN_INIT_IN_PROGRESS:
+					if (inProg.flags & RSSL_IP_FD_CHANGE)
+					{
+						FD_CLR(inProg.oldSocket,&pConsumerThread->readfds);
+						FD_CLR(inProg.oldSocket,&pConsumerThread->exceptfds);
+						FD_SET(pChannel->socketId,&pConsumerThread->readfds);
+						FD_SET(pChannel->socketId,&pConsumerThread->exceptfds);
+					}
+					break;
+				case RSSL_RET_SUCCESS:
+					/* Channel is now active. */
+					assert(pChannel->state == RSSL_CH_STATE_ACTIVE);
+					break;
+				default:
+					printf("rsslInitChannel() failed: %s(%s)\n", rsslRetCodeToString(ret),
+							error.text);
+					FD_CLR(pChannel->socketId,&pConsumerThread->readfds);
+					FD_CLR(pChannel->socketId,&pConsumerThread->exceptfds);
+					break;
+			}
+
+			if (ret < RSSL_RET_SUCCESS)
+				break;
+		}
+
+		if (pChannel->state != RSSL_CH_STATE_ACTIVE)
+		{
+			/* Channel failed. Close and retry. */
+			rsslCloseChannel(pChannel, &closeError);
+			SLEEP(1);
+			continue;
+		}
+
+		pConsumerThread->pChannel = pChannel;
+
+	} while (!pConsumerThread->pChannel);
+
+	if (consPerfConfig.highWaterMark > 0)
+	{
+		if (rsslIoctl(pConsumerThread->pChannel, RSSL_HIGH_WATER_MARK, &consPerfConfig.highWaterMark, &pConsumerThread->threadRsslError) != RSSL_RET_SUCCESS)
+		{
+			rsslSetErrorInfoLocation(&pConsumerThread->threadErrorInfo, __FILE__, __LINE__);
+			rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+			shutdownThreads = RSSL_TRUE;
+			return RSSL_RET_FAILURE;
+		}
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
+static RsslRet connectReactor(ConsumerThread* pConsumerThread)
+{
+	RsslCreateReactorOptions reactorOpts;
+	RsslReactorConnectOptions cOpts;
+	RsslReactorConnectInfo cInfo;
+	RsslErrorInfo rsslErrorInfo;
+	RsslRet ret = 0;
+
+	rsslClearCreateReactorOptions(&reactorOpts);
+	rsslClearReactorConnectOptions(&cOpts);
+	rsslClearReactorConnectInfo(&cInfo);
+
+	/* Create an RsslReactor which will manage our channels. */
+	if (!(pConsumerThread->pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
+	{
+		printf("Error: %s", rsslErrorInfo.rsslError.text);
+		return RSSL_RET_FAILURE;
+	}
+
+	/* Set the reactor's event file descriptor on our descriptor set. This, along with the file descriptors 
+	 * of RsslReactorChannels, will notify us when we should call rsslReactorDispatch(). */
+	FD_SET(pConsumerThread->pReactor->eventFd, &(pConsumerThread->readfds));
+	
+	/* Connect to RSSL server */
+	if(strlen(consPerfConfig.interfaceName)) cInfo.rsslConnectOptions.connectionInfo.unified.interfaceName = consPerfConfig.interfaceName;
+
+	cInfo.rsslConnectOptions.guaranteedOutputBuffers = consPerfConfig.guaranteedOutputBuffers;
+	cInfo.rsslConnectOptions.numInputBuffers = consPerfConfig.numInputBuffers;
+	cInfo.rsslConnectOptions.sysSendBufSize = consPerfConfig.sendBufSize;
+	cInfo.rsslConnectOptions.sysRecvBufSize = consPerfConfig.recvBufSize;
+	cInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
+	cInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+	cInfo.rsslConnectOptions.protocolType = RSSL_RWF_PROTOCOL_TYPE;
+	cInfo.rsslConnectOptions.connectionType = consPerfConfig.connectionType;
+
+	if(consPerfConfig.connectionType == RSSL_CONN_TYPE_SOCKET)
+	{
+		cInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = consPerfConfig.tcpNoDelay;
+	}
+
+		cInfo.rsslConnectOptions.connectionInfo.unified.address = consPerfConfig.hostName;
+		cInfo.rsslConnectOptions.connectionInfo.unified.serviceName = consPerfConfig.portNo;
+
+	// set consumer role information
+	rsslClearOMMConsumerRole(&pConsumerThread->consumerRole);
+	pConsumerThread->consumerRole.base.channelEventCallback = channelEventCallback;
+	pConsumerThread->consumerRole.base.defaultMsgCallback = defaultMsgCallback;
+	pConsumerThread->consumerRole.loginMsgCallback = loginMsgCallback;
+	pConsumerThread->consumerRole.directoryMsgCallback = directoryMsgCallback;
+	pConsumerThread->consumerRole.dictionaryMsgCallback = dictionaryMsgCallback;
+	if (!pConsumerThread->dictionaryStateFlags)
+	{
+		pConsumerThread->consumerRole.dictionaryDownloadMode = RSSL_RC_DICTIONARY_DOWNLOAD_FIRST_AVAILABLE;
+	}
+	/* Initialize the default login request(Use 1 as the Login Stream ID). */
+	if (rsslInitDefaultRDMLoginRequest(&pConsumerThread->loginRequest, 1) != RSSL_RET_SUCCESS)
+	{
+		printf("rsslInitDefaultRDMLoginRequest() failed\n");
+		return RSSL_RET_FAILURE;
+	}
+	/* If a username was specified, change username on login request. */
+	if (strlen(consPerfConfig.username) > 0)
+	{
+		pConsumerThread->loginRequest.userName.data = consPerfConfig.username;
+		pConsumerThread->loginRequest.userName.length = (rtrUInt32)strlen(consPerfConfig.username);
+	}
+	pConsumerThread->consumerRole.pLoginRequest = &pConsumerThread->loginRequest;
+	/* Initialize the default directory request(Use 2 as the Directory Stream Id) */
+	if (rsslInitDefaultRDMDirectoryRequest(&pConsumerThread->dirRequest, 2) != RSSL_RET_SUCCESS)
+	{
+		printf("rsslInitDefaultRDMDirectoryRequest() failed\n");
+		return RSSL_RET_FAILURE;
+	}
+	pConsumerThread->consumerRole.pDirectoryRequest = &pConsumerThread->dirRequest;
+
+	// if watchlist is configured by user, set enableWatchlist on consumer role to TRUE
+	if (consPerfConfig.useWatchlist == RSSL_TRUE)
+	{
+		pConsumerThread->consumerRole.watchlistOptions.enableWatchlist = RSSL_TRUE;
+	}
+		
+	// connect via Reactor
+	cOpts.reconnectAttemptLimit = -1;
+	cOpts.reconnectMaxDelay = 5000;
+	cOpts.reconnectMinDelay = 1000;
+	cInfo.rsslConnectOptions.userSpecPtr = pConsumerThread;
+	cOpts.reactorConnectionList = &cInfo;
+	cOpts.connectionCount = 1;
+
+    if ((ret = rsslReactorConnect(pConsumerThread->pReactor, &cOpts, (RsslReactorChannelRole *)&pConsumerThread->consumerRole, &rsslErrorInfo)) < RSSL_RET_SUCCESS)
+    {
+		printf("rsslReactorConnect failed with return code: %d error = %s", ret,  rsslErrorInfo.rsslError.text);
+		return RSSL_RET_FAILURE;
+    }		
+
+	return RSSL_RET_SUCCESS;
+}
+
+static RsslRet initialize(ConsumerThread* pConsumerThread, LatencyRandomArray* postLatencyRandomArray, LatencyRandomArray* genMsgLatencyRandomArray)
+{
 	RsslChannelInfo channelInfo;
 
-	int selRet;
 	RsslInt32 i;
 	RsslUInt32 count;
-
-	RsslQueue requestQueue, waitingForRefreshQueue, refreshCompleteQueue;
-	RotatingQueue postItemQueue, genMsgItemQueue;
-	
-	struct timeval time_interval;
 	
 	char errTxt[256];
 	RsslBuffer errorText = {255, (char*)errTxt};
@@ -752,24 +1061,11 @@ RSSL_THREAD_DECLARE(runConsumerConnection, threadStruct)
 	RsslRet ret = 0;
 	RsslError closeError;
 
-	/* Store information about the desired service once we find it. */
-	RsslRDMService *pDesiredService = NULL;
-	RsslBuffer serviceName;
-	RsslBool loggedIn = RSSL_FALSE;
-
 	RsslBool haveMarketPricePostItems = RSSL_FALSE, haveMarketByOrderPostItems = RSSL_FALSE;
 	RsslBool haveMarketPriceGenMsgItems = RSSL_FALSE, haveMarketByOrderGenMsgItems = RSSL_FALSE;
 
 	RsslInt32 postItemCount = 0;
 	RsslInt32 genMsgItemCount = 0;
-
-	RsslInt64 nsecPerTick;
-	TimeValue currentTime, nextTickTime;
-
-	RsslInt32 postsPerTick, postsPerTickRemainder;
-	RsslInt32 genMsgsPerTick, genMsgsPerTickRemainder;
-	RsslInt32 currentTicks = 0;
-	LatencyRandomArray postLatencyRandomArray, genMsgLatencyRandomArray;
 
 	XmlItemInfoList *pXmlItemInfoList;
 	RsslInt32 xmlItemListIndex;
@@ -779,12 +1075,6 @@ RSSL_THREAD_DECLARE(runConsumerConnection, threadStruct)
 	RsslTraceOptions traceOptions;
 #endif
 	
-	nsecPerTick = 1000000000 / consPerfConfig.ticksPerSec;
-	postsPerTick = consPerfConfig.postsPerSec / consPerfConfig.ticksPerSec;
-	postsPerTickRemainder = consPerfConfig.postsPerSec % consPerfConfig.ticksPerSec;
-	genMsgsPerTick = consPerfConfig.genMsgsPerSec / consPerfConfig.ticksPerSec;
-	genMsgsPerTickRemainder = consPerfConfig.genMsgsPerSec % consPerfConfig.ticksPerSec;
-
 	if (consPerfConfig.latencyPostsPerSec)
 	{
 		LatencyRandomArrayOptions randomArrayOpts;
@@ -794,7 +1084,7 @@ RSSL_THREAD_DECLARE(runConsumerConnection, threadStruct)
 		randomArrayOpts.ticksPerSec = consPerfConfig.ticksPerSec;
 		randomArrayOpts.arrayCount = LATENCY_RANDOM_ARRAY_SET_COUNT;
 
-		createLatencyRandomArray(&postLatencyRandomArray, &randomArrayOpts);
+		createLatencyRandomArray(postLatencyRandomArray, &randomArrayOpts);
 	}
 
 	if (consPerfConfig.genMsgsPerSec)
@@ -806,7 +1096,7 @@ RSSL_THREAD_DECLARE(runConsumerConnection, threadStruct)
 		randomArrayOpts.ticksPerSec = consPerfConfig.ticksPerSec;
 		randomArrayOpts.arrayCount = LATENCY_RANDOM_ARRAY_SET_COUNT;
 
-		createLatencyRandomArray(&genMsgLatencyRandomArray, &randomArrayOpts);
+		createLatencyRandomArray(genMsgLatencyRandomArray, &randomArrayOpts);
 	}
 	
 	if (pConsumerThread->cpuId >= 0)
@@ -817,15 +1107,6 @@ RSSL_THREAD_DECLARE(runConsumerConnection, threadStruct)
 			exit(-1);
 		}
 	}
-
-	serviceName.data = consPerfConfig.serviceName;
-	serviceName.length = (RsslUInt32)strlen(serviceName.data);
-
-	rsslInitQueue(&requestQueue);
-	rsslInitQueue(&waitingForRefreshQueue);
-	rsslInitQueue(&refreshCompleteQueue);
-	initRotatingQueue(&postItemQueue);
-	initRotatingQueue(&genMsgItemQueue);
 
 	/* Get names of other items from file. */
 	if (!(pXmlItemInfoList = createXmlItemList(consPerfConfig.itemFilename, consPerfConfig.itemRequestCount)))
@@ -888,7 +1169,7 @@ RSSL_THREAD_DECLARE(runConsumerConnection, threadStruct)
 		pConsumerThread->itemRequestList[streamId].msgKey.name.data = pConsumerThread->itemRequestList[streamId].itemNameChar;
 		pConsumerThread->itemRequestList[streamId].itemInfo.attributes.pMsgKey = &pConsumerThread->itemRequestList[streamId].msgKey;
 
-		rsslQueueAddLinkToBack(&requestQueue, &pConsumerThread->itemRequestList[streamId].link);
+		rsslQueueAddLinkToBack(&pConsumerThread->requestQueue, &pConsumerThread->itemRequestList[streamId].link);
 
 		if (!pXmlItemInfoList->itemInfoList[xmlItemListIndex].isSnapshot)
 		{
@@ -927,14 +1208,14 @@ RSSL_THREAD_DECLARE(runConsumerConnection, threadStruct)
 				rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
 						(char*)"Error: No MarketPrice posting data in file: %s", consPerfConfig.msgFilename);
 				shutdownThreads = RSSL_TRUE;
-				return RSSL_THREAD_RETURN();
+				return RSSL_RET_FAILURE;
 			}
 			else if (haveMarketByOrderPostItems && (!xmlMsgDataHasMarketByOrder || xmlMarketByOrderMsgs.postMsgCount == 0))
 			{
 				rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
 						(char*)"Error: No MarketByOrder posting data in file: %s", consPerfConfig.msgFilename);
 				shutdownThreads = RSSL_TRUE;
-				return RSSL_THREAD_RETURN();
+				return RSSL_RET_FAILURE;
 			}
 		}
 
@@ -970,14 +1251,14 @@ RSSL_THREAD_DECLARE(runConsumerConnection, threadStruct)
 				rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
 						(char*)"Error: No MarketPrice generic message data in file: %s", consPerfConfig.msgFilename);
 				shutdownThreads = RSSL_TRUE;
-				return RSSL_THREAD_RETURN();
+				return RSSL_RET_FAILURE;
 			}
 			else if (haveMarketByOrderGenMsgItems && (!xmlMsgDataHasMarketByOrder || xmlMarketByOrderMsgs.genMsgCount == 0))
 			{
 				rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
 						(char*)"Error: No MarketByOrder generic message data in file: %s", consPerfConfig.msgFilename);
 				shutdownThreads = RSSL_TRUE;
-				return RSSL_THREAD_RETURN();
+				return RSSL_RET_FAILURE;
 			}
 		}
 
@@ -1014,104 +1295,74 @@ RSSL_THREAD_DECLARE(runConsumerConnection, threadStruct)
 			(DictionaryStateFlags)(DICTIONARY_STATE_HAVE_FIELD_DICT | DICTIONARY_STATE_HAVE_ENUM_DICT);
 	}
 	
-	FD_ZERO(&(pConsumerThread->readfds));
-	FD_ZERO(&(pConsumerThread->exceptfds));
-	FD_ZERO(&(pConsumerThread->wrtfds));
-	
-	/* Connect to RSSL server */
-	if(strlen(consPerfConfig.interfaceName)) copts.connectionInfo.unified.interfaceName = consPerfConfig.interfaceName;
-
-	copts.guaranteedOutputBuffers = consPerfConfig.guaranteedOutputBuffers;
-	copts.numInputBuffers = consPerfConfig.numInputBuffers;
-	copts.sysSendBufSize = consPerfConfig.sendBufSize;
-	copts.sysRecvBufSize = consPerfConfig.recvBufSize;
-	copts.connectionInfo.unified.address = consPerfConfig.hostName;
-	copts.connectionInfo.unified.serviceName = consPerfConfig.portNo;
-	copts.majorVersion = RSSL_RWF_MAJOR_VERSION;
-	copts.minorVersion = RSSL_RWF_MINOR_VERSION;
-	copts.protocolType = RSSL_RWF_PROTOCOL_TYPE;
-	copts.connectionType = consPerfConfig.connectionType;
-
-	if(consPerfConfig.connectionType == RSSL_CONN_TYPE_SOCKET)
+	if (consPerfConfig.useReactor == RSSL_FALSE && consPerfConfig.useWatchlist == RSSL_FALSE)
 	{
-		copts.tcpOpts.tcp_nodelay = consPerfConfig.tcpNoDelay;
-	}
-
-		copts.connectionInfo.unified.address = consPerfConfig.hostName;
-		copts.connectionInfo.unified.serviceName = consPerfConfig.portNo;
-
-	do
-	{
-		RsslError error;
-		RsslChannel *pChannel;
-
-		if (shutdownThreads)
-			return 0;
-
-			printf("\nAttempting to connect to server %s:%s...\n", consPerfConfig.hostName, consPerfConfig.portNo);
-
-		if (!CHECK_RSSLERROR((pChannel = rsslConnect(&copts,&error)), error))
+		if ((ret = connectChannel(pConsumerThread)) < RSSL_RET_SUCCESS)
 		{
-			SLEEP(1);
-			continue;
+			return ret;
 		}
-
-		FD_SET(pChannel->socketId,&(pConsumerThread->readfds));
-		FD_SET(pChannel->socketId,&(pConsumerThread->exceptfds));
-
-		assert(pChannel->state == RSSL_CH_STATE_INITIALIZING || pChannel->state == RSSL_CH_STATE_ACTIVE);
-
-		/* Wait for channel to become active.  This finalizes the three-way handshake. */
-		while(pChannel->state == RSSL_CH_STATE_INITIALIZING)
+		if ((ret = rsslGetChannelInfo(pConsumerThread->pChannel, &channelInfo, &pConsumerThread->threadRsslError)) != RSSL_RET_SUCCESS)
 		{
-			if (shutdownThreads)
-				return 0;
+			rsslSetErrorInfoLocation(&pConsumerThread->threadErrorInfo, __FILE__, __LINE__);
+			rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+			shutdownThreads = RSSL_TRUE;
+			return ret;
+		} 
 
-			ret = rsslInitChannel(pChannel, &inProg, &error);
+		printf( "Channel %d active. Channel Info:\n"
+				"  maxFragmentSize: %u\n"
+				"  maxOutputBuffers: %u\n"
+				"  guaranteedOutputBuffers: %u\n"
+				"  numInputBuffers: %u\n"
+				"  pingTimeout: %u\n"
+				"  clientToServerPings: %s\n"
+				"  serverToClientPings: %s\n"
+				"  sysSendBufSize: %u\n"
+				"  sysSendBufSize: %u\n"			
+				"  compressionType: %s\n"
+				"  compressionThreshold: %u\n"			
+				"  ComponentInfo: ", 
+				pConsumerThread->pChannel->socketId,
+				channelInfo.maxFragmentSize,
+				channelInfo.maxOutputBuffers, channelInfo.guaranteedOutputBuffers,
+				channelInfo.numInputBuffers,
+				channelInfo.pingTimeout,
+				channelInfo.clientToServerPings == RSSL_TRUE ? "true" : "false",
+				channelInfo.serverToClientPings == RSSL_TRUE ? "true" : "false",
+				channelInfo.sysSendBufSize, channelInfo.sysRecvBufSize,			
+				channelInfo.compressionType == RSSL_COMP_ZLIB ? "zlib" : "none",
+				channelInfo.compressionThreshold			
+				);
 
-			switch (ret)
+		if (channelInfo.componentInfoCount == 0)
+			printf("(No component info)");
+		else
+			for(count = 0; count < channelInfo.componentInfoCount; ++count)
 			{
-				case RSSL_RET_CHAN_INIT_IN_PROGRESS:
-					if (inProg.flags & RSSL_IP_FD_CHANGE)
-					{
-						FD_CLR(inProg.oldSocket,&pConsumerThread->readfds);
-						FD_CLR(inProg.oldSocket,&pConsumerThread->exceptfds);
-						FD_SET(pChannel->socketId,&pConsumerThread->readfds);
-						FD_SET(pChannel->socketId,&pConsumerThread->exceptfds);
-					}
-					break;
-				case RSSL_RET_SUCCESS:
-					/* Channel is now active. */
-					assert(pChannel->state == RSSL_CH_STATE_ACTIVE);
-					break;
-				default:
-					printf("rsslInitChannel() failed: %s(%s)\n", rsslRetCodeToString(ret),
-							error.text);
-					FD_CLR(pChannel->socketId,&pConsumerThread->readfds);
-					FD_CLR(pChannel->socketId,&pConsumerThread->exceptfds);
-					break;
+				printf("%.*s", 
+						channelInfo.componentInfo[count]->componentVersion.length,
+						channelInfo.componentInfo[count]->componentVersion.data);
+				if (count < channelInfo.componentInfoCount - 1)
+					printf(", ");
 			}
+		printf ("\n\n");
 
-			if (ret < RSSL_RET_SUCCESS)
-				break;
-		}
+		consumerThreadInitPings(pConsumerThread);
 
-		if (pChannel->state != RSSL_CH_STATE_ACTIVE)
+		if ( (ret = sendLoginRequest(pConsumerThread, LOGIN_STREAM_ID)) != RSSL_RET_SUCCESS)
 		{
-			/* Channel failed. Close and retry. */
-			rsslCloseChannel(pChannel, &closeError);
-			SLEEP(1);
-			continue;
+			rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+			shutdownThreads = RSSL_TRUE;
+			return RSSL_RET_FAILURE;
 		}
-
-		pConsumerThread->pChannel = pChannel;
-
-	} while (!pConsumerThread->pChannel);
-
-	consumerThreadInitPings(pConsumerThread);
-
-	printEstimatedPostMsgSizes(pConsumerThread);
-	printEstimatedGenMsgSizes(pConsumerThread);
+	}
+	else
+	{
+		if ((ret = connectReactor(pConsumerThread)) < RSSL_RET_SUCCESS)
+		{
+			return ret;
+		}
+	}
 
 #ifdef ENABLE_XML_TRACE
 	rsslClearTraceOptions(&traceOptions);
@@ -1121,69 +1372,450 @@ RSSL_THREAD_DECLARE(runConsumerConnection, threadStruct)
 	rsslIoctl(pConsumerThread->pChannel, (RsslIoctlCodes)RSSL_TRACE, (void *)&traceOptions, &error);
 #endif
 
-	if (consPerfConfig.highWaterMark > 0)
+	return RSSL_RET_SUCCESS;
+}
+
+static RsslRet processLoginResp(ConsumerThread* pConsumerThread, RsslRDMLoginMsg *pLoginMsg)
+{
+	RsslError closeError;
+
+	switch(pLoginMsg->rdmMsgBase.rdmMsgType)
 	{
-		if (rsslIoctl(pConsumerThread->pChannel, RSSL_HIGH_WATER_MARK, &consPerfConfig.highWaterMark, &pConsumerThread->threadRsslError) != RSSL_RET_SUCCESS)
-		{
-			rsslSetErrorInfoLocation(&pConsumerThread->threadErrorInfo, __FILE__, __LINE__);
+		case RDM_LG_MT_REFRESH:
+
+			printf(	"Received login refresh.\n");
+			if (pLoginMsg->refresh.flags &
+					RDM_LG_RFF_HAS_APPLICATION_NAME)
+				printf( "  ApplicationName: %.*s\n",
+					pLoginMsg->refresh.applicationName.length,
+					pLoginMsg->refresh.applicationName.data);
+			printf("\n");
+
+			if(pLoginMsg->refresh.state.streamState != RSSL_STREAM_OPEN)
+			{
+				printf("Error: StreamState: %s, Login failed: %.*s\n", rsslStreamStateToString(pLoginMsg->refresh.state.streamState), 
+					pLoginMsg->refresh.state.text.length, pLoginMsg->refresh.state.text.data);
+				rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+				shutdownThreads = RSSL_TRUE;
+				return RSSL_RET_FAILURE;
+			}
+			if (consPerfConfig.postsPerSec &&
+					(!(pLoginMsg->refresh.flags & RDM_LG_RFF_HAS_SUPPORT_POST)
+						|| !pLoginMsg->refresh.supportOMMPost))
+			{
+				rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+						(char*)"Provider for this connection does not support posting.");
+				rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+				shutdownThreads = RSSL_TRUE;
+				return RSSL_RET_FAILURE;
+			}
+			break;
+		case RDM_LG_MT_STATUS:
+			break;
+		default:
+			rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+					(char*)"Received unhandled RDMLoginMsgType %d", pLoginMsg->rdmMsgBase.rdmMsgType);
 			rsslCloseChannel(pConsumerThread->pChannel, &closeError);
 			shutdownThreads = RSSL_TRUE;
-			return RSSL_THREAD_RETURN();
-		}
+			return RSSL_RET_FAILURE;
 	}
 
-	if ((ret = rsslGetChannelInfo(pConsumerThread->pChannel, &channelInfo, &pConsumerThread->threadRsslError)) != RSSL_RET_SUCCESS)
+	return RSSL_RET_SUCCESS;
+}
+
+static RsslRet processSourceDirectoryResp(ConsumerThread* pConsumerThread, RsslRDMDirectoryMsg *pDirectoryMsg)
+{
+	RsslRet ret;
+	RsslError closeError;
+	RsslBuffer serviceName;
+	RsslRDMService *pMsgServiceList;
+	RsslUInt32 msgServiceCount, iMsgServiceList;
+	RsslBool foundServiceName = RSSL_FALSE;
+
+	serviceName.data = consPerfConfig.serviceName;
+	serviceName.length = (RsslUInt32)strlen(serviceName.data);
+
+	/* Copy the directory message.  If our desired service is present inside, we will want to keep it. */
+	if ((ret = rsslCopyRDMDirectoryMsg(&pConsumerThread->directoryMsgCopy, pDirectoryMsg, &pConsumerThread->directoryMsgCopyMemory)) != RSSL_RET_SUCCESS)
 	{
-		rsslSetErrorInfoLocation(&pConsumerThread->threadErrorInfo, __FILE__, __LINE__);
+		rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+				(char*)"rsslCopyRDMDirectoryMsg failed: %d(%s)", ret, rsslRetCodeToString(ret));
 		rsslCloseChannel(pConsumerThread->pChannel, &closeError);
 		shutdownThreads = RSSL_TRUE;
-		return RSSL_THREAD_RETURN();
-	} 
+		return RSSL_RET_FAILURE;
+	}
 
-	printf( "Channel %d active. Channel Info:\n"
-			"  maxFragmentSize: %u\n"
-			"  maxOutputBuffers: %u\n"
-			"  guaranteedOutputBuffers: %u\n"
-			"  numInputBuffers: %u\n"
-			"  pingTimeout: %u\n"
-			"  clientToServerPings: %s\n"
-			"  serverToClientPings: %s\n"
-			"  sysSendBufSize: %u\n"
-			"  sysSendBufSize: %u\n"			
-			"  compressionType: %s\n"
-			"  compressionThreshold: %u\n"			
-			"  ComponentInfo: ", 
-			pConsumerThread->pChannel->socketId,
-			channelInfo.maxFragmentSize,
-			channelInfo.maxOutputBuffers, channelInfo.guaranteedOutputBuffers,
-			channelInfo.numInputBuffers,
-			channelInfo.pingTimeout,
-			channelInfo.clientToServerPings == RSSL_TRUE ? "true" : "false",
-			channelInfo.serverToClientPings == RSSL_TRUE ? "true" : "false",
-			channelInfo.sysSendBufSize, channelInfo.sysRecvBufSize,			
-			channelInfo.compressionType == RSSL_COMP_ZLIB ? "zlib" : "none",
-			channelInfo.compressionThreshold			
-			);
+	switch(pConsumerThread->directoryMsgCopy.rdmMsgBase.rdmMsgType)
+	{
+		case RDM_DR_MT_REFRESH:
+			pMsgServiceList = pConsumerThread->directoryMsgCopy.refresh.serviceList;
+			msgServiceCount = pConsumerThread->directoryMsgCopy.refresh.serviceCount;
+			break;
+		case RDM_DR_MT_UPDATE:
+			pMsgServiceList = pConsumerThread->directoryMsgCopy.update.serviceList;
+			msgServiceCount = pConsumerThread->directoryMsgCopy.update.serviceCount;
+			break;
+		case RDM_DR_MT_STATUS:
+			break;
+		default:
+			rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+					(char*)"Error: Received unhandled directory message type %d.", pDirectoryMsg->rdmMsgBase.rdmMsgType);
+			rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+			shutdownThreads = RSSL_TRUE;
+			return RSSL_RET_FAILURE;
 
-	if (channelInfo.componentInfoCount == 0)
-		printf("(No component info)");
-	else
-		for(count = 0; count < channelInfo.componentInfoCount; ++count)
+	}
+
+	/* Search service list for our desired service. */
+	for(iMsgServiceList = 0; iMsgServiceList < msgServiceCount; ++iMsgServiceList)
+	{
+		RsslRDMService *pService = &pMsgServiceList[iMsgServiceList];
+
+		if ( /* Check for matching service name. */
+				pService->flags & RDM_SVCF_HAS_INFO
+				&& rsslBufferIsEqual(&serviceName, &pService->info.serviceName))
 		{
-			printf("%.*s", 
-					channelInfo.componentInfo[count]->componentVersion.length,
-					channelInfo.componentInfo[count]->componentVersion.data);
-			if (count < channelInfo.componentInfoCount - 1)
-				printf(", ");
-		}
-	printf ("\n\n");
+			foundServiceName = RSSL_TRUE;
 
-	if ( (ret = sendLoginRequest(pConsumerThread, LOGIN_STREAM_ID)) != RSSL_RET_SUCCESS)
+			if ( /* Wait for service to come up at least once before we begin using it. */
+					pService->flags & RDM_SVCF_HAS_STATE
+					&& pService->state.serviceState
+					&& (!(pService->state.flags & RDM_SVC_STF_HAS_ACCEPTING_REQS) || pService->state.acceptingRequests))
+			{
+				pConsumerThread->pDesiredService = pService;
+
+				/* send dictionary requests if not using VA Reactor */
+				if (consPerfConfig.useReactor == RSSL_FALSE && consPerfConfig.useWatchlist == RSSL_FALSE)
+				{
+					if (pConsumerThread->dictionaryStateFlags != (DICTIONARY_STATE_HAVE_FIELD_DICT | DICTIONARY_STATE_HAVE_ENUM_DICT))
+						if ( (ret = sendDictionaryRequests(pConsumerThread, (RsslUInt16)pConsumerThread->pDesiredService->serviceId,
+										FIELD_DICTIONARY_STREAM_ID, ENUM_TYPE_DICTIONARY_STREAM_ID)) != RSSL_RET_SUCCESS)
+						{
+							rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+							shutdownThreads = RSSL_TRUE;
+							return RSSL_RET_FAILURE;
+						}
+				}
+
+				break;
+			}
+		}
+		else if (pConsumerThread->pDesiredService &&
+				 pService->serviceId == pConsumerThread->pDesiredService->serviceId &&
+			     pService->action == RSSL_MPEA_DELETE_ENTRY)
+		{
+			pConsumerThread->pDesiredService = NULL;
+			foundServiceName = RSSL_TRUE;
+		}
+	}
+
+	if (!pConsumerThread->pDesiredService)
 	{
-		rsslCloseChannel(pConsumerThread->pChannel, &closeError);
-		shutdownThreads = RSSL_TRUE;
+		if (foundServiceName)
+			printf("Service %.*s is currently down.\n\n", serviceName.length, serviceName.data);
+		else
+			printf("Service %.*s not found in message.\n\n", serviceName.length, serviceName.data);
+	}
+	else
+		printf("Service %.*s is up.\n\n", serviceName.length, serviceName.data);
+
+	return RSSL_RET_SUCCESS;
+}
+
+static RsslRet processDictionaryResp(ConsumerThread* pConsumerThread, RsslRDMDictionaryMsg *pDictionaryMsg, RsslDecodeIterator *pDIter)
+{
+	RsslRet ret;
+	RsslError closeError;
+	char errTxt[256];
+	RsslBuffer errorText = {255, (char*)errTxt};
+
+	switch(pDictionaryMsg->rdmMsgBase.rdmMsgType)
+	{
+		case RDM_DC_MT_REFRESH:
+			if (pDictionaryMsg->rdmMsgBase.streamId == FIELD_DICTIONARY_STREAM_ID)
+			{
+				if ((ret = rsslDecodeFieldDictionary(pDIter, pConsumerThread->pDictionary, RDM_DICTIONARY_NORMAL, &errorText)) != RSSL_RET_SUCCESS)
+				{
+					rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+							(char*)"rsslDecodeFieldDictionary() failed: %.*s", errorText.length, errorText.data);
+					rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+					shutdownThreads = RSSL_TRUE;
+					return RSSL_RET_FAILURE;
+				}
+
+				if (pDictionaryMsg->refresh.flags & RDM_DC_RFF_IS_COMPLETE)
+				{
+					printf("Field dictionary downloaded.\n\n");
+					pConsumerThread->dictionaryStateFlags = (DictionaryStateFlags)(pConsumerThread->dictionaryStateFlags | DICTIONARY_STATE_HAVE_FIELD_DICT);
+				}
+
+			}
+			else if (pDictionaryMsg->rdmMsgBase.streamId == ENUM_TYPE_DICTIONARY_STREAM_ID)
+			{
+				if ((ret = rsslDecodeEnumTypeDictionary(pDIter, pConsumerThread->pDictionary, RDM_DICTIONARY_NORMAL, &errorText)) != RSSL_RET_SUCCESS)
+				{
+					rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+							(char*)"rsslDecodeEnumTypeDictionary() failed: %.*s", errorText.length, errorText.data);
+					rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+					shutdownThreads = RSSL_TRUE;
+					return RSSL_RET_FAILURE;
+				}
+
+				if (pDictionaryMsg->refresh.flags & RDM_DC_RFF_IS_COMPLETE)
+				{
+					printf("Enumerated Types downloaded.\n\n");
+					pConsumerThread->dictionaryStateFlags = (DictionaryStateFlags)(pConsumerThread->dictionaryStateFlags | DICTIONARY_STATE_HAVE_ENUM_DICT);
+				}
+
+			}
+
+			if (pConsumerThread->dictionaryStateFlags == (DICTIONARY_STATE_HAVE_FIELD_DICT | DICTIONARY_STATE_HAVE_ENUM_DICT))
+				printf("Dictionary download complete.\n");
+													
+			break;
+		case RDM_DC_MT_STATUS:
+			break;
+		default:
+			ret = RSSL_RET_FAILURE;
+			rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+					(char*)"Received unhandled dictionary message type %d.", pDictionaryMsg->rdmMsgBase.rdmMsgType);
+			shutdownThreads = RSSL_TRUE;
+			return RSSL_RET_FAILURE;
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
+static RsslRet processDefaultMsgResp(ConsumerThread* pConsumerThread, RsslMsg *pMsg, RsslDecodeIterator *pDIter)
+{
+	RsslRet ret = 0;
+	RsslError closeError;
+
+	ItemInfo *pItemInfo;
+	{
+		if (pMsg->msgBase.streamId < ITEM_STREAM_ID_START || pMsg->msgBase.streamId 
+				>= ITEM_STREAM_ID_START + consPerfConfig.commonItemCount + pConsumerThread->itemListCount)
+		{
+			rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+					(char*)"Error: Received message with unexpected Stream ID: %d  Class: %s(%u) Domain: %s(%u)",
+					pMsg->msgBase.streamId,
+					rsslMsgClassToString(pMsg->msgBase.msgClass), pMsg->msgBase.msgClass,
+					rsslDomainTypeToString(pMsg->msgBase.domainType), pMsg->msgBase.domainType);
+			shutdownThreads = RSSL_TRUE;
+			return RSSL_RET_FAILURE;
+		}
+
+		pItemInfo = &pConsumerThread->itemRequestList[pMsg->msgBase.streamId].itemInfo;
+
+		if (pItemInfo->attributes.domainType != pMsg->msgBase.domainType)
+		{
+			rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+					(char*)"Error: Received message with domain type %u vs. expected type %u",
+					pMsg->msgBase.domainType, pItemInfo->attributes.domainType);
+			rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+			shutdownThreads = RSSL_TRUE;
+			return RSSL_RET_FAILURE;
+		}
+	}
+
+	switch(pMsg->msgBase.msgClass)
+	{
+		case RSSL_MC_UPDATE:
+		{
+
+			countStatIncr(pConsumerThread->stats.imageRetrievalEndTime ?
+					&pConsumerThread->stats.steadyStateUpdateCount :
+					&pConsumerThread->stats.startupUpdateCount);
+
+
+			if (!pConsumerThread->stats.firstUpdateTime)
+				pConsumerThread->stats.firstUpdateTime = getTimeNano();
+
+			if((ret = decodePayload(pDIter, pMsg, pConsumerThread)) 
+					!= RSSL_RET_SUCCESS)
+			{
+				rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+				shutdownThreads = RSSL_TRUE;
+				return RSSL_RET_FAILURE;
+			}
+			break;
+		}
+
+		case RSSL_MC_REFRESH:
+		{
+			RsslInt32 streamId = pMsg->msgBase.streamId;
+
+			countStatIncr(&pConsumerThread->stats.refreshCount);
+
+			if((ret = decodePayload(pDIter, pMsg, pConsumerThread)) 
+					!= RSSL_RET_SUCCESS)
+			{
+				rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+				shutdownThreads = RSSL_TRUE;
+				return RSSL_RET_FAILURE;
+			}
+
+			if(!pConsumerThread->stats.imageRetrievalEndTime && rsslQueueGetElementCount(&pConsumerThread->waitingForRefreshQueue))
+			{
+				if (rsslIsFinalState(&pMsg->refreshMsg.state))
+				{
+					if (pItemInfo)
+					{
+						RsslBuffer *pName = &pItemInfo->attributes.pMsgKey->name;
+						rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+								(char*)"Received unexpected final state %s in refresh for item: %.*s", rsslStreamStateToString(pMsg->refreshMsg.state.streamState),
+								pName->length, pName->data);
+					}
+					else
+					{
+						if (pMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_NAME)
+							rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+									(char*)"Received unexpected final state %s in refresh for item: %.*s", rsslStreamStateToString(pMsg->refreshMsg.state.streamState),
+									pMsg->msgBase.msgKey.name.length, pMsg->msgBase.msgKey.name.data);
+						else
+							rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+									(char*)"Received unexpected final state %s in refresh for unknown item", rsslStreamStateToString(pMsg->refreshMsg.state.streamState));
+					}
+					rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+					shutdownThreads = RSSL_TRUE;
+					return RSSL_RET_FAILURE;
+				}
+
+				if (pMsg->refreshMsg.flags & RSSL_RFMF_REFRESH_COMPLETE
+						&& pMsg->refreshMsg.state.dataState == RSSL_DATA_OK)
+				{
+					{
+						/* Received a complete refresh. */
+						if ( pConsumerThread->itemRequestList[streamId].requestState == ITEM_WAITING_FOR_REFRESH)
+						{
+							pConsumerThread->itemRequestList[streamId].requestState = ITEM_HAS_REFRESH;
+							rsslQueueRemoveLink(&pConsumerThread->waitingForRefreshQueue, &pConsumerThread->itemRequestList[streamId].link);
+							rsslQueueAddLinkToBack(&pConsumerThread->refreshCompleteQueue, &pConsumerThread->itemRequestList[streamId].link);
+
+							if (pConsumerThread->itemRequestList[streamId].itemInfo.itemFlags & ITEM_IS_STREAMING_REQ)
+							{
+								if (pConsumerThread->itemRequestList[streamId].itemInfo.itemFlags & ITEM_IS_POST && consPerfConfig.postsPerSec)
+								{
+									pConsumerThread->itemRequestList[streamId].itemInfo.myQueue = &pConsumerThread->postItemQueue;
+									rotatingQueueInsert(&pConsumerThread->postItemQueue, &pConsumerThread->itemRequestList[streamId].postQueueLink);
+								}
+								if (pConsumerThread->itemRequestList[streamId].itemInfo.itemFlags & ITEM_IS_GEN_MSG && consPerfConfig.genMsgsPerSec)
+								{
+									pConsumerThread->itemRequestList[streamId].itemInfo.myQueue = &pConsumerThread->genMsgItemQueue;
+									rotatingQueueInsert(&pConsumerThread->genMsgItemQueue, &pConsumerThread->itemRequestList[streamId].genMsgQueueLink);
+								}
+							}
+
+							if (rsslQueueGetElementCount(&pConsumerThread->refreshCompleteQueue) == pConsumerThread->itemListCount)
+							{
+								pConsumerThread->stats.imageRetrievalEndTime = getTimeNano();
+							}
+						}
+					}
+				}
+			}
+										
+			break;
+		}
+
+		case RSSL_MC_STATUS:
+			countStatIncr(&pConsumerThread->stats.statusCount);
+
+			/* Stop if an item is unexpectedly closed. */
+			if ((pMsg->statusMsg.flags & RSSL_STMF_HAS_STATE)
+					&& rsslIsFinalState(&pMsg->statusMsg.state))
+			{
+				if (pItemInfo)
+				{
+					RsslBuffer *pName = &pItemInfo->attributes.pMsgKey->name;
+					rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+							(char*)"Received unexpected final state %s for item: %.*s", rsslStreamStateToString(pMsg->statusMsg.state.streamState),
+							pName->length, pName->data);
+				}
+				else
+				{
+					if (pMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_NAME)
+						rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+								(char*)"Received unexpected final state %s for item: %.*s", rsslStreamStateToString(pMsg->statusMsg.state.streamState),
+								pMsg->msgBase.msgKey.name.length, pMsg->msgBase.msgKey.name.data);
+					else
+						rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+								(char*)"Received unexpected final state %s for unknown item", rsslStreamStateToString(pMsg->statusMsg.state.streamState));
+				}
+				rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+				shutdownThreads = RSSL_TRUE;
+				return RSSL_RET_FAILURE;
+			}
+
+			break;
+		case RSSL_MC_GENERIC:
+			countStatIncr(&pConsumerThread->stats.genMsgRecvCount);
+			if (!pConsumerThread->stats.firstGenMsgRecvTime)
+				pConsumerThread->stats.firstGenMsgRecvTime = getTimeNano();
+			if((ret = decodePayload(pDIter, pMsg, pConsumerThread)) 
+					!= RSSL_RET_SUCCESS)
+			{
+				rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+				shutdownThreads = RSSL_TRUE;
+				return RSSL_RET_FAILURE;
+			}
+			break;
+		default:
+			rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+					(char*)"Received unhandled msg class %u on stream ID %d.", pMsg->msgBase.msgClass, pMsg->msgBase.streamId);
+			rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+			return RSSL_RET_FAILURE;
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
+RSSL_THREAD_DECLARE(runConsumerChannelConnection, threadStruct) 
+{
+	ConsumerThread* pConsumerThread = (ConsumerThread*)threadStruct;
+	RsslInt64 nsecPerTick;
+	TimeValue currentTime, nextTickTime;
+	struct timeval time_interval;
+	fd_set useRead;
+	fd_set useExcept;
+	fd_set useWrt;
+	int selRet;
+	RsslRet ret = 0;
+	RsslError closeError;
+	RsslBuffer *msgBuf=0;
+	RsslRet	readret;
+	RsslMsg msg = RSSL_INIT_MSG;
+	RsslDecodeIterator dIter;
+	char errTxt[256];
+	RsslBuffer errorText = {255, (char*)errTxt};
+
+	RsslBool loggedIn = RSSL_FALSE;
+
+	RsslInt32 postsPerTick, postsPerTickRemainder;
+	RsslInt32 genMsgsPerTick, genMsgsPerTickRemainder;
+	RsslInt32 currentTicks = 0;
+	LatencyRandomArray postLatencyRandomArray, genMsgLatencyRandomArray;
+
+	nsecPerTick = 1000000000 / consPerfConfig.ticksPerSec;
+
+	postsPerTick = consPerfConfig.postsPerSec / consPerfConfig.ticksPerSec;
+	postsPerTickRemainder = consPerfConfig.postsPerSec % consPerfConfig.ticksPerSec;
+	genMsgsPerTick = consPerfConfig.genMsgsPerSec / consPerfConfig.ticksPerSec;
+	genMsgsPerTickRemainder = consPerfConfig.genMsgsPerSec % consPerfConfig.ticksPerSec;
+
+	rsslInitQueue(&pConsumerThread->requestQueue);
+	rsslInitQueue(&pConsumerThread->waitingForRefreshQueue);
+	rsslInitQueue(&pConsumerThread->refreshCompleteQueue);
+	initRotatingQueue(&pConsumerThread->postItemQueue);
+	initRotatingQueue(&pConsumerThread->genMsgItemQueue);
+
+	if (initialize(pConsumerThread, &postLatencyRandomArray, &genMsgLatencyRandomArray) < RSSL_RET_SUCCESS)
+	{
 		return RSSL_THREAD_RETURN();
 	}
+
+	printEstimatedPostMsgSizes(pConsumerThread);
+	printEstimatedGenMsgSizes(pConsumerThread);
 
 	currentTime = getTimeNano();
 	nextTickTime = currentTime + nsecPerTick;
@@ -1191,7 +1823,6 @@ RSSL_THREAD_DECLARE(runConsumerConnection, threadStruct)
 
 	while(1)
 	{
-
 		if(shutdownThreads == RSSL_TRUE)
 		{
 			rsslCloseChannel(pConsumerThread->pChannel, &closeError);
@@ -1250,43 +1881,9 @@ RSSL_THREAD_DECLARE(runConsumerConnection, threadStruct)
 									return RSSL_THREAD_RETURN();
 								} 
 
-								switch(loginMsg.rdmMsgBase.rdmMsgType)
+								if (processLoginResp(pConsumerThread, &loginMsg) < RSSL_RET_SUCCESS)
 								{
-									case RDM_LG_MT_REFRESH:
-
-										printf(	"Received login refresh.\n");
-										if (loginMsg.refresh.flags &
-												RDM_LG_RFF_HAS_APPLICATION_NAME)
-											printf( "  ApplicationName: %.*s\n",
-												loginMsg.refresh.applicationName.length,
-												loginMsg.refresh.applicationName.data);
-										printf("\n");
-
-										if(loginMsg.refresh.state.streamState != RSSL_STREAM_OPEN)
-										{
-											printf("Error: StreamState: %s, Login failed: %.*s\n", rsslStreamStateToString(loginMsg.refresh.state.streamState), 
-												loginMsg.refresh.state.text.length, loginMsg.refresh.state.text.data);
-											rsslCloseChannel(pConsumerThread->pChannel, &closeError);
-											shutdownThreads = RSSL_TRUE;
-											return RSSL_THREAD_RETURN();
-										}
-										if (consPerfConfig.postsPerSec &&
-												(!(loginMsg.refresh.flags & RDM_LG_RFF_HAS_SUPPORT_POST)
-												 || !loginMsg.refresh.supportOMMPost))
-										{
-											rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-													(char*)"Provider for this connection does not support posting.");
-											rsslCloseChannel(pConsumerThread->pChannel, &closeError);
-											shutdownThreads = RSSL_TRUE;
-											return RSSL_THREAD_RETURN();
-										}
-										break;
-									default:
-										rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-												(char*)"Received unhandled RDMLoginMsgType %d", loginMsg.rdmMsgBase.rdmMsgType);
-										rsslCloseChannel(pConsumerThread->pChannel, &closeError);
-										shutdownThreads = RSSL_TRUE;
-										return RSSL_THREAD_RETURN();
+									return RSSL_THREAD_RETURN();
 								}
 
 								if (!loggedIn)
@@ -1308,14 +1905,11 @@ RSSL_THREAD_DECLARE(runConsumerConnection, threadStruct)
 								char memoryChar[16384];
 								RsslBuffer memoryBuffer = { 16384, memoryChar };
 								RsslRDMDirectoryMsg directoryMsg;
-								RsslRDMService *pMsgServiceList;
-								RsslUInt32 msgServiceCount, iMsgServiceList;
-								RsslBool foundServiceName = RSSL_FALSE;
 
 								printf("Received source directory response.\n\n");
 
 								/* Found our service already, ignore the message. */
-								if (pDesiredService)
+								if (pConsumerThread->pDesiredService)
 									break;
 
 								if ((ret = rsslDecodeRDMDirectoryMsg(&dIter, &msg, &directoryMsg, &memoryBuffer, &pConsumerThread->threadErrorInfo)) != RSSL_RET_SUCCESS)
@@ -1325,77 +1919,10 @@ RSSL_THREAD_DECLARE(runConsumerConnection, threadStruct)
 									return RSSL_THREAD_RETURN();
 								}
 
-								/* Copy the directory message.  If our desired service is present inside, we will want to keep it. */
-								if ((ret = rsslCopyRDMDirectoryMsg(&pConsumerThread->directoryMsgCopy, &directoryMsg, &pConsumerThread->directoryMsgCopyMemory)) != RSSL_RET_SUCCESS)
+								if (processSourceDirectoryResp(pConsumerThread, &directoryMsg) < RSSL_RET_SUCCESS)
 								{
-									rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
-											(char*)"rsslCopyRDMDirectoryMsg failed: %d(%s)", ret, rsslRetCodeToString(ret));
-									rsslCloseChannel(pConsumerThread->pChannel, &closeError);
-									shutdownThreads = RSSL_TRUE;
 									return RSSL_THREAD_RETURN();
 								}
-
-								switch(pConsumerThread->directoryMsgCopy.rdmMsgBase.rdmMsgType)
-								{
-									case RDM_DR_MT_REFRESH:
-										pMsgServiceList = pConsumerThread->directoryMsgCopy.refresh.serviceList;
-										msgServiceCount = pConsumerThread->directoryMsgCopy.refresh.serviceCount;
-										break;
-									case RDM_DR_MT_UPDATE:
-										pMsgServiceList = pConsumerThread->directoryMsgCopy.update.serviceList;
-										msgServiceCount = pConsumerThread->directoryMsgCopy.update.serviceCount;
-										break;
-									default:
-										rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-												(char*)"Error: Received unhandled directory message type %d.", directoryMsg.rdmMsgBase.rdmMsgType);
-										rsslCloseChannel(pConsumerThread->pChannel, &closeError);
-										shutdownThreads = RSSL_TRUE;
-										return RSSL_THREAD_RETURN();
-
-								}
-
-								/* Search service list for our desired service. */
-								for(iMsgServiceList = 0; iMsgServiceList < msgServiceCount; ++iMsgServiceList)
-								{
-									RsslRDMService *pService = &pMsgServiceList[iMsgServiceList];
-
-									if ( /* Check for matching service name. */
-											pService->flags & RDM_SVCF_HAS_INFO
-											&& rsslBufferIsEqual(&serviceName, &pService->info.serviceName) )
-									{
-										foundServiceName = RSSL_TRUE;
-
-										if ( /* Wait for service to come up at least once before we begin using it. */
-												pService->flags & RDM_SVCF_HAS_STATE
-												&& pService->state.serviceState
-												&& (!(pService->state.flags & RDM_SVC_STF_HAS_ACCEPTING_REQS) || pService->state.acceptingRequests))
-										{
-											pDesiredService = pService;
-
-											if (pConsumerThread->dictionaryStateFlags != (DICTIONARY_STATE_HAVE_FIELD_DICT | DICTIONARY_STATE_HAVE_ENUM_DICT))
-												if ( (ret = sendDictionaryRequests(pConsumerThread, (RsslUInt16)pDesiredService->serviceId,
-																FIELD_DICTIONARY_STREAM_ID, ENUM_TYPE_DICTIONARY_STREAM_ID)) != RSSL_RET_SUCCESS)
-												{
-													rsslCloseChannel(pConsumerThread->pChannel, &closeError);
-													shutdownThreads = RSSL_TRUE;
-													return RSSL_THREAD_RETURN();
-												}
-
-											break;
-										}
-									}
-
-								}
-
-								if (!pDesiredService)
-								{
-									if (foundServiceName)
-										printf("Service %.*s is currently down.\n\n", serviceName.length, serviceName.data);
-									else
-										printf("Service %.*s not found in message.\n\n", serviceName.length, serviceName.data);
-								}
-								else
-									printf("Service %.*s is up.\n\n", serviceName.length, serviceName.data);
 
 								break;
 							}
@@ -1414,240 +1941,24 @@ RSSL_THREAD_DECLARE(runConsumerConnection, threadStruct)
 									return RSSL_THREAD_RETURN();
 								}
 								
-								switch(dictionaryMsg.rdmMsgBase.rdmMsgType)
+								if (processDictionaryResp(pConsumerThread, &dictionaryMsg, &dIter) < RSSL_RET_SUCCESS)
 								{
-									case RDM_DC_MT_REFRESH:
-										if (dictionaryMsg.rdmMsgBase.streamId == FIELD_DICTIONARY_STREAM_ID)
-										{
-											if ((ret = rsslDecodeFieldDictionary(&dIter, pConsumerThread->pDictionary, RDM_DICTIONARY_NORMAL, &errorText)) != RSSL_RET_SUCCESS)
-											{
-												rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
-														(char*)"rsslDecodeFieldDictionary() failed: %.*s", errorText.length, errorText.data);
-												rsslCloseChannel(pConsumerThread->pChannel, &closeError);
-												shutdownThreads = RSSL_TRUE;
-												return RSSL_THREAD_RETURN();
-											}
-
-											if (dictionaryMsg.refresh.flags & RDM_DC_RFF_IS_COMPLETE)
-											{
-												printf("Field dictionary downloaded.\n\n");
-												pConsumerThread->dictionaryStateFlags = (DictionaryStateFlags)(pConsumerThread->dictionaryStateFlags | DICTIONARY_STATE_HAVE_FIELD_DICT);
-											}
-
-										}
-										else if (dictionaryMsg.rdmMsgBase.streamId == ENUM_TYPE_DICTIONARY_STREAM_ID)
-										{
-											if ((ret = rsslDecodeEnumTypeDictionary(&dIter, pConsumerThread->pDictionary, RDM_DICTIONARY_NORMAL, &errorText)) != RSSL_RET_SUCCESS)
-											{
-												rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
-														(char*)"rsslDecodeEnumTypeDictionary() failed: %.*s", errorText.length, errorText.data);
-												rsslCloseChannel(pConsumerThread->pChannel, &closeError);
-												shutdownThreads = RSSL_TRUE;
-												return RSSL_THREAD_RETURN();
-											}
-
-											if (dictionaryMsg.refresh.flags & RDM_DC_RFF_IS_COMPLETE)
-											{
-												printf("Enumerated Types downloaded.\n\n");
-												pConsumerThread->dictionaryStateFlags = (DictionaryStateFlags)(pConsumerThread->dictionaryStateFlags | DICTIONARY_STATE_HAVE_ENUM_DICT);
-											}
-
-										}
-
-										if (pConsumerThread->dictionaryStateFlags == (DICTIONARY_STATE_HAVE_FIELD_DICT | DICTIONARY_STATE_HAVE_ENUM_DICT))
-											printf("Dictionary download complete.\n");
-													
-										break;
-									default:
-										rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
-												(char*)"Received unhandled dictionary message type %d.", dictionaryMsg.rdmMsgBase.rdmMsgType);
-										shutdownThreads = RSSL_TRUE;
-										return RSSL_THREAD_RETURN();
+									return RSSL_THREAD_RETURN();
 								}
+
 								break;
 							}
 
 							default:
 							{
-								ItemInfo *pItemInfo;
+								if (processDefaultMsgResp(pConsumerThread, &msg, &dIter) < RSSL_RET_SUCCESS)
 								{
-									if (msg.msgBase.streamId < ITEM_STREAM_ID_START || msg.msgBase.streamId 
-											>= ITEM_STREAM_ID_START + consPerfConfig.commonItemCount + pConsumerThread->itemListCount)
-									{
-										rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
-												(char*)"Error: Received message with unexpected Stream ID: %d  Class: %s(%u) Domain: %s(%u)",
-												msg.msgBase.streamId,
-												rsslMsgClassToString(msg.msgBase.msgClass), msg.msgBase.msgClass,
-												rsslDomainTypeToString(msg.msgBase.domainType), msg.msgBase.domainType);
-										shutdownThreads = RSSL_TRUE;
-										return RSSL_THREAD_RETURN();
-									}
-
-									pItemInfo = &pConsumerThread->itemRequestList[msg.msgBase.streamId].itemInfo;
-
-									if (pItemInfo->attributes.domainType != msg.msgBase.domainType)
-									{
-										rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
-												(char*)"Error: Received message with domain type %u vs. expected type %u",
-												msg.msgBase.domainType, pItemInfo->attributes.domainType);
-										rsslCloseChannel(pConsumerThread->pChannel, &closeError);
-										shutdownThreads = RSSL_TRUE;
-										return RSSL_THREAD_RETURN();
-									}
+									return RSSL_THREAD_RETURN();
 								}
 
-								switch(msg.msgBase.msgClass)
-								{
-									case RSSL_MC_UPDATE:
-									{
-
-										countStatIncr(pConsumerThread->stats.imageRetrievalEndTime ?
-												&pConsumerThread->stats.steadyStateUpdateCount :
-												&pConsumerThread->stats.startupUpdateCount);
-
-
-										if (!pConsumerThread->stats.firstUpdateTime)
-											pConsumerThread->stats.firstUpdateTime = getTimeNano();
-
-										if((ret = decodePayload(&dIter, &msg, pConsumerThread)) 
-												!= RSSL_RET_SUCCESS)
-										{
-											rsslCloseChannel(pConsumerThread->pChannel, &closeError);
-											shutdownThreads = RSSL_TRUE;
-											return RSSL_THREAD_RETURN();
-										}
-										break;
-									}
-
-									case RSSL_MC_REFRESH:
-									{
-										RsslInt32 streamId = msg.msgBase.streamId;
-
-										countStatIncr(&pConsumerThread->stats.refreshCount);
-
-										if((ret = decodePayload(&dIter, &msg, pConsumerThread)) 
-												!= RSSL_RET_SUCCESS)
-										{
-											rsslCloseChannel(pConsumerThread->pChannel, &closeError);
-											shutdownThreads = RSSL_TRUE;
-											return RSSL_THREAD_RETURN();
-										}
-
-										if(!pConsumerThread->stats.imageRetrievalEndTime && rsslQueueGetElementCount(&waitingForRefreshQueue))
-										{
-											if (rsslIsFinalState(&msg.refreshMsg.state))
-											{
-												if (pItemInfo)
-												{
-													RsslBuffer *pName = &pItemInfo->attributes.pMsgKey->name;
-													rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-															(char*)"Received unexpected final state %s in refresh for item: %.*s", rsslStreamStateToString(msg.refreshMsg.state.streamState),
-															pName->length, pName->data);
-												}
-												else
-												{
-													if (msg.msgBase.msgKey.flags & RSSL_MKF_HAS_NAME)
-														rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-																(char*)"Received unexpected final state %s in refresh for item: %.*s", rsslStreamStateToString(msg.refreshMsg.state.streamState),
-																msg.msgBase.msgKey.name.length, msg.msgBase.msgKey.name.data);
-													else
-														rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-																(char*)"Received unexpected final state %s in refresh for unknown item", rsslStreamStateToString(msg.refreshMsg.state.streamState));
-												}
-												rsslCloseChannel(pConsumerThread->pChannel, &closeError);
-												shutdownThreads = RSSL_TRUE;
-												return RSSL_THREAD_RETURN();
-											}
-
-											if (msg.refreshMsg.flags & RSSL_RFMF_REFRESH_COMPLETE
-													&& msg.refreshMsg.state.dataState == RSSL_DATA_OK)
-											{
-												{
-													/* Received a complete refresh. */
-													if ( pConsumerThread->itemRequestList[streamId].requestState == ITEM_WAITING_FOR_REFRESH)
-													{
-														pConsumerThread->itemRequestList[streamId].requestState = ITEM_HAS_REFRESH;
-														rsslQueueRemoveLink(&waitingForRefreshQueue, &pConsumerThread->itemRequestList[streamId].link);
-														rsslQueueAddLinkToBack(&refreshCompleteQueue, &pConsumerThread->itemRequestList[streamId].link);
-
-														if (pConsumerThread->itemRequestList[streamId].itemInfo.itemFlags & ITEM_IS_STREAMING_REQ)
-														{
-															if (pConsumerThread->itemRequestList[streamId].itemInfo.itemFlags & ITEM_IS_POST && consPerfConfig.postsPerSec)
-															{
-																pConsumerThread->itemRequestList[streamId].itemInfo.myQueue = &postItemQueue;
-																rotatingQueueInsert(&postItemQueue, &pConsumerThread->itemRequestList[streamId].postQueueLink);
-															}
-															if (pConsumerThread->itemRequestList[streamId].itemInfo.itemFlags & ITEM_IS_GEN_MSG && consPerfConfig.genMsgsPerSec)
-															{
-																pConsumerThread->itemRequestList[streamId].itemInfo.myQueue = &genMsgItemQueue;
-																rotatingQueueInsert(&genMsgItemQueue, &pConsumerThread->itemRequestList[streamId].genMsgQueueLink);
-															}
-														}
-
-														if (rsslQueueGetElementCount(&refreshCompleteQueue) == pConsumerThread->itemListCount)
-														{
-															pConsumerThread->stats.imageRetrievalEndTime = getTimeNano();
-														}
-													}
-												}
-											}
-										}
-										
-										break;
-									}
-
-									case RSSL_MC_STATUS:
-										countStatIncr(&pConsumerThread->stats.statusCount);
-
-										/* Stop if an item is unexpectedly closed. */
-										if ((msg.statusMsg.flags & RSSL_STMF_HAS_STATE)
-												&& rsslIsFinalState(&msg.statusMsg.state))
-										{
-											if (pItemInfo)
-											{
-												RsslBuffer *pName = &pItemInfo->attributes.pMsgKey->name;
-												rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-														(char*)"Received unexpected final state %s for item: %.*s", rsslStreamStateToString(msg.statusMsg.state.streamState),
-														pName->length, pName->data);
-											}
-											else
-											{
-												if (msg.msgBase.msgKey.flags & RSSL_MKF_HAS_NAME)
-													rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-															(char*)"Received unexpected final state %s for item: %.*s", rsslStreamStateToString(msg.statusMsg.state.streamState),
-															msg.msgBase.msgKey.name.length, msg.msgBase.msgKey.name.data);
-												else
-													rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-															(char*)"Received unexpected final state %s for unknown item", rsslStreamStateToString(msg.statusMsg.state.streamState));
-											}
-											rsslCloseChannel(pConsumerThread->pChannel, &closeError);
-											shutdownThreads = RSSL_TRUE;
-											return RSSL_THREAD_RETURN();
-										}
-
-										break;
-									case RSSL_MC_GENERIC:
-										countStatIncr(&pConsumerThread->stats.genMsgRecvCount);
-										if (!pConsumerThread->stats.firstGenMsgRecvTime)
-											pConsumerThread->stats.firstGenMsgRecvTime = getTimeNano();
-										if((ret = decodePayload(&dIter, &msg, pConsumerThread)) 
-												!= RSSL_RET_SUCCESS)
-										{
-											rsslCloseChannel(pConsumerThread->pChannel, &closeError);
-											shutdownThreads = RSSL_TRUE;
-											return RSSL_THREAD_RETURN();
-										}
-										break;
-									default:
-										rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-												(char*)"Received unhandled msg class %u on stream ID %d.", msg.msgBase.msgClass, msg.msgBase.streamId);
-										rsslCloseChannel(pConsumerThread->pChannel, &closeError);
-										return RSSL_THREAD_RETURN();
-								}
 								break;
 							}
 						}
-
 					}
 					else
 					{
@@ -1712,10 +2023,10 @@ RSSL_THREAD_DECLARE(runConsumerConnection, threadStruct)
 			currentTime = getTimeNano();
 			nextTickTime += nsecPerTick;
 			
-			if (pDesiredService)
+			if (pConsumerThread->pDesiredService)
 			{
 				/* Send some item requests(assuming dictionaries are ready). */
-				if (rsslQueueGetElementCount(&requestQueue)
+				if (rsslQueueGetElementCount(&pConsumerThread->requestQueue)
 						&& pConsumerThread->dictionaryStateFlags == 
 						(DICTIONARY_STATE_HAVE_FIELD_DICT | DICTIONARY_STATE_HAVE_ENUM_DICT))
 				{
@@ -1728,7 +2039,7 @@ RSSL_THREAD_DECLARE(runConsumerConnection, threadStruct)
 					if (!pConsumerThread->stats.imageRetrievalStartTime)
 						pConsumerThread->stats.imageRetrievalStartTime = getTimeNano();
 
-					if (sendItemRequestBurst(pConsumerThread, pDesiredService, &requestQueue, requestBurstCount, &waitingForRefreshQueue) < RSSL_RET_SUCCESS)
+					if (sendItemRequestBurst(pConsumerThread, requestBurstCount) < RSSL_RET_SUCCESS)
 					{
 						rsslCloseChannel(pConsumerThread->pChannel, &closeError);
 						shutdownThreads = RSSL_TRUE;
@@ -1738,9 +2049,9 @@ RSSL_THREAD_DECLARE(runConsumerConnection, threadStruct)
 
 				if (pConsumerThread->stats.imageRetrievalEndTime)
 				{
-					if (rotatingQueueGetCount(&postItemQueue))
+					if (rotatingQueueGetCount(&pConsumerThread->postItemQueue))
 					{
-						if (sendPostBurst(pConsumerThread, pDesiredService, &postItemQueue, &postLatencyRandomArray,
+						if (sendPostBurst(pConsumerThread, &postLatencyRandomArray,
 									postsPerTick + ((currentTicks < postsPerTickRemainder ) ? 1 : 0))
 								< RSSL_RET_SUCCESS)
 						{
@@ -1749,9 +2060,9 @@ RSSL_THREAD_DECLARE(runConsumerConnection, threadStruct)
 							return RSSL_THREAD_RETURN();
 						}
 					}
-					if (rotatingQueueGetCount(&genMsgItemQueue))
+					if (rotatingQueueGetCount(&pConsumerThread->genMsgItemQueue))
 					{
-						if (sendGenMsgBurst(pConsumerThread, pDesiredService, &genMsgItemQueue, &genMsgLatencyRandomArray,
+						if (sendGenMsgBurst(pConsumerThread, &genMsgLatencyRandomArray,
 									genMsgsPerTick + ((currentTicks < genMsgsPerTickRemainder ) ? 1 : 0))
 								< RSSL_RET_SUCCESS)
 						{
@@ -1765,7 +2076,6 @@ RSSL_THREAD_DECLARE(runConsumerConnection, threadStruct)
 
 			if (++currentTicks == consPerfConfig.ticksPerSec)
 				currentTicks = 0;
-
 		}
 		else
 		{
@@ -1782,8 +2092,175 @@ RSSL_THREAD_DECLARE(runConsumerConnection, threadStruct)
 			perror("select");
 			exit(-1);
 		}
+	}
+}
 
+RSSL_THREAD_DECLARE(runConsumerReactorConnection, threadStruct) 
+{
+	ConsumerThread* pConsumerThread = (ConsumerThread*)threadStruct;
+	RsslInt64 nsecPerTick;
+	TimeValue currentTime, nextTickTime;
+	struct timeval time_interval;
+	fd_set useRead;
+	fd_set useExcept;
+	fd_set useWrt;
+	int selRet;
+	RsslRet ret = 0;
+	RsslErrorInfo reactorErrorInfo;
+	RsslBuffer *msgBuf=0;
+	RsslRet	readret;
+	RsslMsg msg = RSSL_INIT_MSG;
+	char errTxt[256];
+	RsslBuffer errorText = {255, (char*)errTxt};
 
+	RsslBool loggedIn = RSSL_FALSE;
+
+	RsslInt32 postsPerTick, postsPerTickRemainder;
+	RsslInt32 genMsgsPerTick, genMsgsPerTickRemainder;
+	RsslInt32 currentTicks = 0;
+	LatencyRandomArray postLatencyRandomArray, genMsgLatencyRandomArray;
+
+	RsslReactorDispatchOptions dispatchOptions;
+
+	rsslClearReactorDispatchOptions(&dispatchOptions);
+
+	nsecPerTick = 1000000000 / consPerfConfig.ticksPerSec;
+
+	postsPerTick = consPerfConfig.postsPerSec / consPerfConfig.ticksPerSec;
+	postsPerTickRemainder = consPerfConfig.postsPerSec % consPerfConfig.ticksPerSec;
+	genMsgsPerTick = consPerfConfig.genMsgsPerSec / consPerfConfig.ticksPerSec;
+	genMsgsPerTickRemainder = consPerfConfig.genMsgsPerSec % consPerfConfig.ticksPerSec;
+
+	rsslInitQueue(&pConsumerThread->requestQueue);
+	rsslInitQueue(&pConsumerThread->waitingForRefreshQueue);
+	rsslInitQueue(&pConsumerThread->refreshCompleteQueue);
+	initRotatingQueue(&pConsumerThread->postItemQueue);
+	initRotatingQueue(&pConsumerThread->genMsgItemQueue);
+
+	if (initialize(pConsumerThread, &postLatencyRandomArray, &genMsgLatencyRandomArray) < RSSL_RET_SUCCESS)
+	{
+		return RSSL_THREAD_RETURN();
+	}
+
+	currentTime = getTimeNano();
+	nextTickTime = currentTime + nsecPerTick;
+	time_interval.tv_sec = 0;
+
+	while(1)
+	{
+		if(shutdownThreads == RSSL_TRUE)
+		{
+			rsslReactorCloseChannel(pConsumerThread->pReactor, pConsumerThread->pReactorChannel, &reactorErrorInfo);
+			rsslDestroyReactor(pConsumerThread->pReactor, &reactorErrorInfo);
+			return RSSL_THREAD_RETURN();
+		}
+				
+		useRead = pConsumerThread->readfds;
+		useExcept = pConsumerThread->exceptfds;
+		useWrt = pConsumerThread->wrtfds;
+
+		currentTime = getTimeNano();
+		time_interval.tv_usec = (long)((currentTime > nextTickTime) ? 0 : ((nextTickTime - currentTime)/1000));
+
+		selRet = select(FD_SETSIZE,&useRead,&useWrt,&useExcept,&time_interval);
+
+		if (selRet > 0)
+		{
+			while (shutdownThreads == RSSL_FALSE &&
+				   (readret = rsslReactorDispatch(pConsumerThread->pReactor, &dispatchOptions, &reactorErrorInfo)) > RSSL_RET_SUCCESS) {}
+			if (readret < RSSL_RET_SUCCESS)
+			{
+				rsslSetErrorInfoLocation(&pConsumerThread->threadErrorInfo, __FILE__, __LINE__);
+				rsslReactorCloseChannel(pConsumerThread->pReactor, pConsumerThread->pReactorChannel, &reactorErrorInfo);
+				rsslDestroyReactor(pConsumerThread->pReactor, &reactorErrorInfo);
+				shutdownThreads = RSSL_TRUE;
+				return RSSL_THREAD_RETURN();
+			}
+
+			if (shutdownThreads)
+			{
+				rsslReactorCloseChannel(pConsumerThread->pReactor, pConsumerThread->pReactorChannel, &reactorErrorInfo);
+				rsslDestroyReactor(pConsumerThread->pReactor, &reactorErrorInfo);
+				return RSSL_THREAD_RETURN();
+			}
+		}
+		else if (selRet == 0)
+		{
+			currentTime = getTimeNano();
+			nextTickTime += nsecPerTick;
+			
+			if (pConsumerThread->pDesiredService)
+			{
+				/* Send some item requests(assuming dictionaries are ready). */
+				if (rsslQueueGetElementCount(&pConsumerThread->requestQueue)
+						&& pConsumerThread->dictionaryStateFlags == 
+						(DICTIONARY_STATE_HAVE_FIELD_DICT | DICTIONARY_STATE_HAVE_ENUM_DICT))
+				{
+					RsslInt32 requestBurstCount;
+
+					requestBurstCount = consPerfConfig._requestsPerTick;
+					if (currentTicks > consPerfConfig._requestsPerTickRemainder)
+						++requestBurstCount;
+
+					if (!pConsumerThread->stats.imageRetrievalStartTime)
+						pConsumerThread->stats.imageRetrievalStartTime = getTimeNano();
+
+					if (sendItemRequestBurst(pConsumerThread, requestBurstCount) < RSSL_RET_SUCCESS)
+					{
+						rsslReactorCloseChannel(pConsumerThread->pReactor, pConsumerThread->pReactorChannel, &reactorErrorInfo);
+						rsslDestroyReactor(pConsumerThread->pReactor, &reactorErrorInfo);
+						shutdownThreads = RSSL_TRUE;
+						return RSSL_THREAD_RETURN();
+					}
+				}
+
+				if (pConsumerThread->stats.imageRetrievalEndTime)
+				{
+					if (rotatingQueueGetCount(&pConsumerThread->postItemQueue))
+					{
+						if (sendPostBurst(pConsumerThread, &postLatencyRandomArray,
+									postsPerTick + ((currentTicks < postsPerTickRemainder ) ? 1 : 0))
+								< RSSL_RET_SUCCESS)
+						{
+							rsslReactorCloseChannel(pConsumerThread->pReactor, pConsumerThread->pReactorChannel, &reactorErrorInfo);
+							rsslDestroyReactor(pConsumerThread->pReactor, &reactorErrorInfo);
+							shutdownThreads = RSSL_TRUE;
+							return RSSL_THREAD_RETURN();
+						}
+					}
+					if (rotatingQueueGetCount(&pConsumerThread->genMsgItemQueue))
+					{
+						if (sendGenMsgBurst(pConsumerThread, &genMsgLatencyRandomArray,
+									genMsgsPerTick + ((currentTicks < genMsgsPerTickRemainder ) ? 1 : 0))
+								< RSSL_RET_SUCCESS)
+						{
+							rsslReactorCloseChannel(pConsumerThread->pReactor, pConsumerThread->pReactorChannel, &reactorErrorInfo);
+							rsslDestroyReactor(pConsumerThread->pReactor, &reactorErrorInfo);
+							shutdownThreads = RSSL_TRUE;
+							return RSSL_THREAD_RETURN();
+						}
+					}
+				}
+			}
+
+			if (++currentTicks == consPerfConfig.ticksPerSec)
+				currentTicks = 0;
+		}
+		else
+		{
+#ifdef _WIN32
+			if (WSAGetLastError() == WSAEINTR)
+				continue;
+#else
+			if (errno == EINTR)
+			{
+				continue;
+			}
+#endif
+
+			perror("select");
+			exit(-1);
+		}
 	}
 }
 
@@ -1913,6 +2390,10 @@ void consumerThreadInit(ConsumerThread *pConsumerThread, RsslInt32 consThreadId)
 	pConsumerThread->directoryMsgCopyMemoryOrig = pConsumerThread->directoryMsgCopyMemory;
 	pConsumerThread->pDictionary = (RsslDataDictionary*)malloc(sizeof(RsslDataDictionary));
 	rsslClearDataDictionary(pConsumerThread->pDictionary);
+
+	pConsumerThread->pReactor = NULL;
+	pConsumerThread->pReactorChannel = NULL;
+	pConsumerThread->pDesiredService = NULL;
 }
 
 void consumerThreadCleanup(ConsumerThread *pConsumerThread)
@@ -1938,3 +2419,306 @@ void consumerThreadCleanup(ConsumerThread *pConsumerThread)
 		free(pConsumerThread->itemRequestList);
 	}
 }
+
+/* 
+ * Processes events about the state of an RsslReactorChannel.
+ */
+RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorChannelEvent *pConnEvent)
+{
+	ConsumerThread *pConsumerThread = (ConsumerThread *)pReactorChannel->userSpecPtr;
+	RsslErrorInfo rsslErrorInfo;
+	RsslReactorChannelInfo reactorChannelInfo;
+	RsslUInt32 count;
+
+	switch(pConnEvent->channelEventType)
+	{
+		case RSSL_RC_CET_CHANNEL_UP:
+		{
+			/* A channel that we have requested via rsslReactorConnect() has come up.  Set our
+			 * file descriptor sets so we can be notified to start calling rsslReactorDispatch() for
+			 * this channel. This will drive the process of setting up the connection
+			 * by exchanging the Login, Directory, and (if not already loaded)Dictionary messages. 
+			 * The application will receive the response messages in the appropriate callback
+			 * function we specified. */
+
+            pConsumerThread->pReactorChannel = pReactorChannel;
+			pConsumerThread->pChannel = pReactorChannel->pRsslChannel;
+            printf("Connected ");
+
+            // set the high water mark if configured
+            if (consPerfConfig.highWaterMark > 0)
+            {
+                if (rsslReactorChannelIoctl(pReactorChannel, RSSL_HIGH_WATER_MARK, &consPerfConfig.highWaterMark, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+                {
+					shutdownThreads = RSSL_TRUE;
+                    return RSSL_RC_CRET_FAILURE;
+                }
+            }
+
+			/* Set file descriptor. */
+			FD_SET(pReactorChannel->socketId, &(pConsumerThread->readfds));
+			FD_SET(pReactorChannel->socketId, &(pConsumerThread->exceptfds));
+
+			if (rsslReactorGetChannelInfo(pReactorChannel, &reactorChannelInfo, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+			{
+				rsslSetErrorInfoLocation(&rsslErrorInfo, __FILE__, __LINE__);
+				shutdownThreads = RSSL_TRUE;
+				return RSSL_RC_CRET_FAILURE;
+			} 
+
+			printf( "Channel %d active. Channel Info:\n"
+					"  maxFragmentSize: %u\n"
+					"  maxOutputBuffers: %u\n"
+					"  guaranteedOutputBuffers: %u\n"
+					"  numInputBuffers: %u\n"
+					"  pingTimeout: %u\n"
+					"  clientToServerPings: %s\n"
+					"  serverToClientPings: %s\n"
+					"  sysSendBufSize: %u\n"
+					"  sysSendBufSize: %u\n"			
+					"  compressionType: %s\n"
+					"  compressionThreshold: %u\n"			
+					"  ComponentInfo: ", 
+					pConsumerThread->pChannel->socketId,
+					reactorChannelInfo.rsslChannelInfo.maxFragmentSize,
+					reactorChannelInfo.rsslChannelInfo.maxOutputBuffers, reactorChannelInfo.rsslChannelInfo.guaranteedOutputBuffers,
+					reactorChannelInfo.rsslChannelInfo.numInputBuffers,
+					reactorChannelInfo.rsslChannelInfo.pingTimeout,
+					reactorChannelInfo.rsslChannelInfo.clientToServerPings == RSSL_TRUE ? "true" : "false",
+					reactorChannelInfo.rsslChannelInfo.serverToClientPings == RSSL_TRUE ? "true" : "false",
+					reactorChannelInfo.rsslChannelInfo.sysSendBufSize, reactorChannelInfo.rsslChannelInfo.sysRecvBufSize,			
+					reactorChannelInfo.rsslChannelInfo.compressionType == RSSL_COMP_ZLIB ? "zlib" : "none",
+					reactorChannelInfo.rsslChannelInfo.compressionThreshold			
+					);
+
+			if (reactorChannelInfo.rsslChannelInfo.componentInfoCount == 0)
+				printf("(No component info)");
+			else
+				for(count = 0; count < reactorChannelInfo.rsslChannelInfo.componentInfoCount; ++count)
+				{
+					printf("%.*s", 
+							reactorChannelInfo.rsslChannelInfo.componentInfo[count]->componentVersion.length,
+							reactorChannelInfo.rsslChannelInfo.componentInfo[count]->componentVersion.data);
+					if (count < reactorChannelInfo.rsslChannelInfo.componentInfoCount - 1)
+						printf(", ");
+				}
+			printf ("\n\n");
+
+			return RSSL_RC_CRET_SUCCESS;
+		}
+		case RSSL_RC_CET_CHANNEL_READY:
+		{
+			printEstimatedPostMsgSizes(pConsumerThread);
+			printEstimatedGenMsgSizes(pConsumerThread);
+
+			if (!pConsumerThread->pDesiredService)
+            {
+                printf("Requested service '%s' not up. Waiting for service to be up...", consPerfConfig.serviceName);
+            }
+			return RSSL_RC_CRET_SUCCESS;
+		}
+		case RSSL_RC_CET_FD_CHANGE:
+		{
+			/* The file descriptor representing the RsslReactorChannel has been changed.
+			 * Update our file descriptor sets. */
+			printf("Fd change: %d to %d\n", pReactorChannel->oldSocketId, pReactorChannel->socketId);
+			FD_CLR(pReactorChannel->oldSocketId, &(pConsumerThread->readfds));
+			FD_CLR(pReactorChannel->oldSocketId, &(pConsumerThread->exceptfds));
+			FD_SET(pReactorChannel->socketId, &(pConsumerThread->readfds));
+			FD_SET(pReactorChannel->socketId, &(pConsumerThread->exceptfds));
+			return RSSL_RC_CRET_SUCCESS;
+		}
+		case RSSL_RC_CET_CHANNEL_DOWN:
+		{
+			/* The channel has failed and has gone down.  Print the error, close the channel, and reconnect later. */
+
+			printf("Connection down: Channel fd=%d.\n", pReactorChannel->socketId);
+
+			if (pConnEvent->pError)
+				printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
+
+			shutdownThreads = RSSL_TRUE;
+			return RSSL_RC_CRET_SUCCESS;
+		}
+		case RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING:
+		{
+			printf("Connection down, reconnecting.  Channel fd=%d\n", pReactorChannel->socketId);
+
+			if (pConnEvent->pError)
+				printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
+
+			if (pReactorChannel->socketId != REACTOR_INVALID_SOCKET)
+			{
+				FD_CLR(pReactorChannel->socketId, &(pConsumerThread->readfds));
+				FD_CLR(pReactorChannel->socketId, &(pConsumerThread->exceptfds));
+			}
+
+			// only allow one connect
+			if (pConsumerThread->pDesiredService)
+            {
+                shutdownThreads = RSSL_TRUE;
+            }
+
+			return RSSL_RC_CRET_SUCCESS;
+		}
+		case RSSL_RC_CET_WARNING:
+		{
+			/* We have received a warning event for this channel. Print the information and continue. */
+			printf("Received warning for Channel fd=%d.\n", pReactorChannel->socketId);
+			printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
+			return RSSL_RC_CRET_SUCCESS;
+		}
+		default:
+		{
+			printf("Unknown connection event!\n");
+			shutdownThreads = RSSL_TRUE;
+			RSSL_RC_CRET_FAILURE;
+		}
+	}
+
+	return RSSL_RC_CRET_SUCCESS;
+}
+
+/*
+ * Processes the information contained in Login responses.
+ * Copies the refresh so we can use it to know what features are
+ * supported(for example, whether posting is supported
+ * by the provider).
+ */
+RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslRDMLoginMsgEvent *pLoginMsgEvent)
+{
+	RsslState *pState = 0;
+	RsslBuffer tempBuffer = { 1024, (char*)alloca(1024) };
+	ConsumerThread *pConsumerThread = (ConsumerThread *)pReactorChannel->userSpecPtr;
+	RsslRDMLoginMsg *pLoginMsg = pLoginMsgEvent->pRDMLoginMsg;
+
+	if (!pLoginMsg)
+	{
+		RsslErrorInfo *pError = pLoginMsgEvent->baseMsgEvent.pErrorInfo;
+		printf("loginMsgCallback: %s(%s)\n", pError->rsslError.text, pError->errorLocation);
+		shutdownThreads = RSSL_TRUE;
+		return RSSL_RC_CRET_FAILURE;
+	}
+
+	if (processLoginResp(pConsumerThread, pLoginMsg) < RSSL_RET_SUCCESS)
+	{
+		shutdownThreads = RSSL_TRUE;
+        return RSSL_RC_CRET_FAILURE;
+	}
+
+	return RSSL_RC_CRET_SUCCESS;
+}
+
+/*
+ * Processes information contained in Directory responses.
+ * Searches the refresh for the service the application
+ * wants to use for this connection and stores the information
+ * so we can request items from that service.
+ */
+RsslReactorCallbackRet directoryMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslRDMDirectoryMsgEvent *pDirectoryMsgEvent)
+{
+	char tempData[1024];
+	RsslBuffer tempBuffer;
+	RsslInt8 groupIdIndex = -1;
+	ConsumerThread *pConsumerThread = (ConsumerThread *)pReactorChannel->userSpecPtr;
+	RsslRDMDirectoryMsg *pDirectoryMsg = pDirectoryMsgEvent->pRDMDirectoryMsg;
+
+	tempBuffer.data = tempData;
+	tempBuffer.length = 1024;
+
+	if (!pDirectoryMsg)
+	{
+		RsslErrorInfo *pError = pDirectoryMsgEvent->baseMsgEvent.pErrorInfo;
+		printf("processDirectoryResponse: %s(%s)\n", pError->rsslError.text, pError->errorLocation);
+		shutdownThreads = RSSL_TRUE;
+		return RSSL_RC_CRET_FAILURE;
+	}
+
+	if (processSourceDirectoryResp(pConsumerThread, pDirectoryMsg) < RSSL_RET_SUCCESS)
+	{
+		shutdownThreads = RSSL_TRUE;
+        return RSSL_RC_CRET_FAILURE;
+	}
+
+	return RSSL_RC_CRET_SUCCESS;
+}
+
+/*
+ * Processes information contained in Dictionary responses.
+ * Takes the payload of the messages and caches them
+ * using the RSSL utilities for decoding dictionary info.
+ */
+RsslReactorCallbackRet dictionaryMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslRDMDictionaryMsgEvent *pDictionaryMsgEvent)
+{
+	char	errTxt[256];
+	RsslBuffer errorText = {255, (char*)errTxt};
+	RsslDecodeIterator dIter;
+	ConsumerThread *pConsumerThread = (ConsumerThread *)pReactorChannel->userSpecPtr;
+	RsslRDMDictionaryMsg *pDictionaryMsg = pDictionaryMsgEvent->pRDMDictionaryMsg;
+	RsslMsg *pMsg = pDictionaryMsgEvent->baseMsgEvent.pRsslMsg;
+
+	if (!pDictionaryMsg || !pMsg)
+	{
+		RsslErrorInfo *pError = pDictionaryMsgEvent->baseMsgEvent.pErrorInfo;
+		printf("dictionaryResponseCallback: %s(%s)\n", pError->rsslError.text, pError->errorLocation);
+		shutdownThreads = RSSL_TRUE;
+		return RSSL_RC_CRET_FAILURE;
+	}
+
+	/* clear decode iterator */
+	rsslClearDecodeIterator(&dIter);
+		
+	/* set version info */
+	rsslSetDecodeIteratorRWFVersion(&dIter, pConsumerThread->pChannel->majorVersion, pConsumerThread->pChannel->minorVersion);
+	rsslSetDecodeIteratorBuffer(&dIter, &pMsg->msgBase.encDataBody);
+
+	if (processDictionaryResp(pConsumerThread, pDictionaryMsg, &dIter) < RSSL_RET_SUCCESS)
+	{
+		shutdownThreads = RSSL_TRUE;
+        return RSSL_RC_CRET_FAILURE;
+	}
+
+	return RSSL_RC_CRET_SUCCESS;
+}
+
+/*
+ * Processes all RSSL messages that aren't processed by 
+ * any domain-specific callback functions.  Responses for
+ * items requested by the function are handled here. 
+ */
+RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslMsgEvent* pMsgEvent)
+{
+	RsslRet ret = 0;
+	RsslDecodeIterator dIter;
+	ConsumerThread *pConsumerThread = (ConsumerThread *)pReactorChannel->userSpecPtr;
+	RsslMsg *pMsg = pMsgEvent->pRsslMsg;
+
+	if (!pMsg)
+	{
+		/* The message is not present because an error occurred while decoding it.  Print 
+		 * the error and close the channel. If desired, the un-decoded message buffer 
+		 * is available in pMsgEvent->pRsslMsgBuffer. */
+
+		RsslErrorInfo *pError = pMsgEvent->pErrorInfo;
+		printf("defaultMsgCallback: %s(%s)\n", pError->rsslError.text, pError->errorLocation);
+		shutdownThreads = RSSL_TRUE;
+		return RSSL_RC_CRET_FAILURE;
+	}
+
+	/* clear decode iterator */
+	rsslClearDecodeIterator(&dIter);
+		
+	/* set version info */
+	rsslSetDecodeIteratorRWFVersion(&dIter, pReactorChannel->majorVersion, pReactorChannel->minorVersion);
+	rsslSetDecodeIteratorBuffer(&dIter, &pMsg->msgBase.encDataBody);
+
+	if (processDefaultMsgResp(pConsumerThread, pMsg, &dIter) < RSSL_RET_SUCCESS)
+	{
+		shutdownThreads = RSSL_TRUE;
+        return RSSL_RC_CRET_FAILURE;
+	}
+
+	return RSSL_RC_CRET_SUCCESS;
+}
+
+

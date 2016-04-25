@@ -15,6 +15,7 @@
 #include "rtr/rsslTransport.h"
 #include "rtr/rsslMessagePackage.h"
 #include "rtr/rsslRDMDictionaryMsg.h"
+#include "rtr/rsslReactor.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,6 +40,15 @@ static RsslRet sendDictionaryResponse(ChannelHandler *pChannelHandler, ChannelIn
 /* Reject a dictionary request. */
 static RsslRet sendDictionaryRequestReject(ChannelHandler *pChannelHandler, ChannelInfo *pChannelInfo, 
 		RsslInt32 streamId, DictionaryRejectReason reason);
+
+/* Process a request for a dictionary using the UPA VA Reactor. */
+RsslRet processDictionaryRequestReactor(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslRDMDictionaryMsg *pDictionaryMsg);
+
+/* Send the appropriate dictionary using the UPA VA Reactor. */
+static RsslRet sendDictionaryResponseReactor(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslRDMDictionaryRequest *pDictionaryRequest, RDMDictionaryTypes type);
+
+/* Reject a dictionary request using the UPA VA Reactor. */
+static RsslRet sendDictionaryRequestRejectReactor(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslInt32 streamId, DictionaryRejectReason reason);
 
 #ifdef __cplusplus
 };

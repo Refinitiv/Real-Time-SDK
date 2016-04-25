@@ -18,9 +18,6 @@
 #define snprintf _snprintf
 #endif
 
-/* Contains the global application configuration */
-ProvPerfConfig provPerfConfig;
-
 static RsslBuffer applicationName = { 12, (char*)"upacProvPerf" };
 static RsslBuffer applicationId = { 3, (char*)"256" };
 
@@ -238,6 +235,10 @@ void initProvPerfConfig(int argc, char **argv)
 		{
 			providerThreadConfig.writeFlags |= RSSL_WRITE_DIRECT_SOCKET_WRITE;
 		}
+		else if (0 == strcmp("-reactor", argv[iargs]))
+		{
+			provPerfConfig.useReactor = RSSL_TRUE;
+		}
 		else
 		{
 			printf("Config Error: Unrecognized option: %s\n", argv[iargs]);
@@ -349,13 +350,17 @@ void printProvPerfConfig(FILE *file)
 	fprintf(file, 
 			"              Service ID: %llu\n"
 			"            Service Name: %s\n"
-			"               OpenLimit: %llu\n\n",
+			"               OpenLimit: %llu\n",
 			directoryConfig.serviceId,
 			directoryConfig.serviceName,
 			directoryConfig.openLimit
 		  );
 
 
+	fprintf(file,
+			"             Use Reactor: %s\n\n",
+			(provPerfConfig.useReactor ? "Yes" : "No")
+		  );
 }
 
 void exitWithUsage()
@@ -397,6 +402,7 @@ void exitWithUsage()
 			"  -runTime <sec>                       Runtime of the application, in seconds\n"
 			"  -threads <thread list>               List of threads, by their bound CPU. Comma-separated list. -1 means do not bind.\n"
 			"                                        (e.g. \"-threads 0,1 \" creates two threads bound to CPU's 0 and 1)\n"
+			"  -reactor                             Use the VA Reactor instead of the UPA Channel for sending and receiving.\n"
 			"\n"
 			);
 #ifdef _WIN32

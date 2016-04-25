@@ -66,9 +66,11 @@ typedef struct
 	RsslInt32			genMsgsPerSec;				/* Number of generic messages to send per second. See -genMsgRate. */
 	RsslInt32			latencyGenMsgsPerSec;		/* Number of latency generic messages to send per second. See -latGenMsgRate. */
 
+	RsslBool			useReactor;					/* Use the VA Reactor instead of the UPA Channel for sending and receiving. */
+	RsslBool			useWatchlist;				/* Use the VA Reactor watchlist instead of the UPA Channel for sending and receiving. */
+
 	RsslInt32 _requestsPerTick;
 	RsslInt32 _requestsPerTickRemainder;
-
 } ConsPerfConfig;
 
 /* Contains the global application configuration */

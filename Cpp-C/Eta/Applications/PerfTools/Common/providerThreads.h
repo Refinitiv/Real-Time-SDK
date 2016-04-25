@@ -20,6 +20,10 @@
 #include "rtr/rsslQueue.h"
 #include "hashTable.h"
 
+#include "rtr/rsslErrorInfo.h"
+#include "rtr/rsslReactorChannel.h"
+#include "rtr/rsslReactor.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -68,20 +72,6 @@ typedef struct
 
 /* Contains the global ProviderThread configuration. */
 extern ProviderThreadConfig providerThreadConfig;
-
-/* Represents one channel's session.  Stores information about items requested. */
-typedef struct {
-	RotatingQueue	refreshItemList;		/* list of items to send refreshes for */
-	RotatingQueue	updateItemList;			/* list of items to send updates for */
-	HashTable		itemAttributesTable;	/* Open items indexed by attributes */
-	HashTable		itemStreamIdTable;		/* Open items indexed by StreamID */
-	RsslInt32		openItemsCount;			/* Count of items currently open */
-	ChannelInfo		*pChannelInfo;
-	RsslBuffer		*pWritingBuffer;		/* Current buffer in use by this channel. */
-	RsslInt32		packedBufferCount;		/* Total number of buffers currently packed in pWritingBuffer */
-	TimeValue		timeActivated;			/* Time at which this channel was fully setup. */
-	RsslRet			lastWriteRet;			/* Last return from an rsslWrite call. */
-} ProviderSession;
 
 /* Keeps track of which dictionaries the consumer has. */
 typedef enum
@@ -150,7 +140,31 @@ typedef struct
 	RsslLocalFieldSetDefDb	fListSetDef;			/* Set definition, if needed. */
 	char					setDefMemory[3825];		/* Memory for set definitions.  */
 	TimeRecordQueue			genMsgLatencyRecords;	/* Queue of timestamp information(for gen msgs), collected periodically by the main thread. */
+	RsslReactor				*pReactor;				/* Used for when application uses VA Reactor instead of UPA Channel. */
+	RsslReactorOMMNIProviderRole niProviderRole;	/* Used for when application uses VA Reactor instead of UPA Channel. */
+	RsslRDMLoginRequest		loginRequest;			/* Used for when application uses VA Reactor instead of UPA Channel. */
+	RsslRDMDirectoryRefresh directoryRefresh;		/* Used for when application uses VA Reactor instead of UPA Channel. */
+	RsslRDMService			service;				/* Used for when application uses VA Reactor instead of UPA Channel. */
+	fd_set					readfds;				/* Read file descriptor set. Used for when application uses VA Reactor instead of UPA Channel. */
+	fd_set					exceptfds;				/* Exception file descriptor set. Used for when application uses VA Reactor instead of UPA Channel. */
+	fd_set					wrtfds;					/* Write file descriptor set. Used for when application uses VA Reactor instead of UPA Channel. */
+
 } ProviderThread;
+
+/* Represents one channel's session.  Stores information about items requested. */
+typedef struct {
+	RotatingQueue	refreshItemList;		/* list of items to send refreshes for */
+	RotatingQueue	updateItemList;			/* list of items to send updates for */
+	HashTable		itemAttributesTable;	/* Open items indexed by attributes */
+	HashTable		itemStreamIdTable;		/* Open items indexed by StreamID */
+	RsslInt32		openItemsCount;			/* Count of items currently open */
+	ChannelInfo		*pChannelInfo;
+	ProviderThread	*pProviderThread;
+	RsslBuffer		*pWritingBuffer;		/* Current buffer in use by this channel. */
+	RsslInt32		packedBufferCount;		/* Total number of buffers currently packed in pWritingBuffer */
+	TimeValue		timeActivated;			/* Time at which this channel was fully setup. */
+	RsslRet			lastWriteRet;			/* Last return from an rsslWrite call. */
+} ProviderSession;
 
 /* Clears providerThreadConfig to defaults. */
 void clearProviderThreadConfig();
@@ -233,8 +247,8 @@ RsslRet sendItemMsgBuffer(ProviderThread *pProvThread, ProviderSession *pSession
 
 /* Used to pass new channels to ProviderThreads. */
 typedef struct {
-	RsslQueueLink	queueLink;
-	RsslChannel		*pChannel;
+	RsslQueueLink		queueLink;
+	RsslChannel			*pChannel;
 } NewChannel;
 
 /* Clears a NewChannel. */

@@ -137,7 +137,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\..\..\Include\Transport;..\..\..\Include\Util;..\..\..\Include\Codec;..\Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Include\Transport;..\..\..\Include\Util;..\..\..\Include\Codec;..\..\..\Include\Reactor;..\..\..\Include\RDM;..\Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;WIN32_LEAN_AND_MEAN;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -156,7 +156,7 @@
 	<CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>msvcprt.lib;msvcrt.lib; librssl.lib;  ws2_32.lib;  wininet.lib;  psapi.lib; %(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>msvcprt.lib;msvcrt.lib; librssl.lib;  librsslRDM.lib;  librsslReactor.lib;  librsslVAUtil.lib;  ws2_32.lib;  wininet.lib;  psapi.lib; %(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)TransportPerf.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>../../Libs/WIN_64_VS100/Release_MD;../../../Libs/WIN_64_VS100/Release_MD;../../ValueAdd/Libs/WIN_64_VS100/Release_MD;/WIN_64_VS100/Release_MD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -185,7 +185,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\..\..\Include\Transport;..\..\..\Include\Util;..\..\..\Include\Codec;..\Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Include\Transport;..\..\..\Include\Util;..\..\..\Include\Codec;..\..\..\Include\Reactor;..\..\..\Include\RDM;..\Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;WIN32_LEAN_AND_MEAN;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;RSSL_IMPORTS;RSSL_VA_IMPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -204,7 +204,7 @@
 	<CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>msvcprt.lib;msvcrt.lib; librssl.lib;  ws2_32.lib;  wininet.lib;  psapi.lib; %(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>msvcprt.lib;msvcrt.lib; librsslVA.lib;  librssl.lib;  ws2_32.lib;  wininet.lib;  psapi.lib; %(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)TransportPerf.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>../../Libs/WIN_64_VS100/Release_MD/Shared;../../../Libs/WIN_64_VS100/Release_MD/Shared;../../ValueAdd/Libs/WIN_64_VS100/Release_MD/Shared;../../Libs/WIN_64_VS100/Release_MD;../../../Libs/WIN_64_VS100/Release_MD;../../ValueAdd/Libs/WIN_64_VS100/Release_MD;/WIN_64_VS100/Release_MD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -233,7 +233,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\..\..\Include\Transport;..\..\..\Include\Util;..\..\..\Include\Codec;..\Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Include\Transport;..\..\..\Include\Util;..\..\..\Include\Codec;..\..\..\Include\Reactor;..\..\..\Include\RDM;..\Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;WIN32_LEAN_AND_MEAN;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -252,7 +252,7 @@
 	<CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>msvcprt.lib;msvcrt.lib; librssl.lib;  ws2_32.lib;  wininet.lib;  psapi.lib; %(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>msvcprt.lib;msvcrt.lib; librssl.lib;  librsslRDM.lib;  librsslReactor.lib;  librsslVAUtil.lib;  ws2_32.lib;  wininet.lib;  psapi.lib; %(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)TransportPerf.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>../../Libs/WIN_64_VS100/Release_MD_Assert;../../../Libs/WIN_64_VS100/Release_MD_Assert;../../ValueAdd/Libs/WIN_64_VS100/Release_MD_Assert;/WIN_64_VS100/Release_MD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -281,7 +281,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\..\..\Include\Transport;..\..\..\Include\Util;..\..\..\Include\Codec;..\Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Include\Transport;..\..\..\Include\Util;..\..\..\Include\Codec;..\..\..\Include\Reactor;..\..\..\Include\RDM;..\Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;WIN32_LEAN_AND_MEAN;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;RSSL_IMPORTS;RSSL_VA_IMPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -300,7 +300,7 @@
 	<CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>msvcprt.lib;msvcrt.lib; librssl.lib;  ws2_32.lib;  wininet.lib;  psapi.lib; %(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>msvcprt.lib;msvcrt.lib; librsslVA.lib;  librssl.lib;  ws2_32.lib;  wininet.lib;  psapi.lib; %(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)TransportPerf.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>../../Libs/WIN_64_VS100/Release_MD_Assert/Shared;../../../Libs/WIN_64_VS100/Release_MD_Assert/Shared;../../ValueAdd/Libs/WIN_64_VS100/Release_MD_Assert/Shared;../../Libs/WIN_64_VS100/Release_MD_Assert;../../../Libs/WIN_64_VS100/Release_MD_Assert;../../ValueAdd/Libs/WIN_64_VS100/Release_MD_Assert;/WIN_64_VS100/Release_MD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -329,7 +329,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\..\..\Include\Transport;..\..\..\Include\Util;..\..\..\Include\Codec;..\Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Include\Transport;..\..\..\Include\Util;..\..\..\Include\Codec;..\..\..\Include\Reactor;..\..\..\Include\RDM;..\Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;WIN32_LEAN_AND_MEAN;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -348,7 +348,7 @@
 	<CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>msvcprtd.lib;msvcrtd.lib; librssl.lib;  ws2_32.lib;  wininet.lib;  psapi.lib; %(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>msvcprtd.lib;msvcrtd.lib; librssl.lib;  librsslRDM.lib;  librsslReactor.lib;  librsslVAUtil.lib;  ws2_32.lib;  wininet.lib;  psapi.lib; %(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)TransportPerf.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>../../Libs/WIN_64_VS100/Debug_MDd;../../../Libs/WIN_64_VS100/Debug_MDd;../../ValueAdd/Libs/WIN_64_VS100/Debug_MDd;/WIN_64_VS100/Debug_MDd;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -377,7 +377,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\..\..\Include\Transport;..\..\..\Include\Util;..\..\..\Include\Codec;..\Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Include\Transport;..\..\..\Include\Util;..\..\..\Include\Codec;..\..\..\Include\Reactor;..\..\..\Include\RDM;..\Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;WIN32_LEAN_AND_MEAN;_CONSOLE;_CRT_SECURE_NO_WARNINGS;RSSL_IMPORTS;RSSL_VA_IMPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -396,7 +396,7 @@
 	<CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>msvcprtd.lib;msvcrtd.lib; librssl.lib;  ws2_32.lib;  wininet.lib;  psapi.lib; %(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>msvcprtd.lib;msvcrtd.lib; librsslVA.lib;  librssl.lib;  ws2_32.lib;  wininet.lib;  psapi.lib; %(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)TransportPerf.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>../../Libs/WIN_64_VS100/Debug_MDd/Shared;../../../Libs/WIN_64_VS100/Debug_MDd/Shared;../../ValueAdd/Libs/WIN_64_VS100/Debug_MDd/Shared;../../Libs/WIN_64_VS100/Debug_MDd;../../../Libs/WIN_64_VS100/Debug_MDd;../../ValueAdd/Libs/WIN_64_VS100/Debug_MDd;/WIN_64_VS100/Debug_MDd;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

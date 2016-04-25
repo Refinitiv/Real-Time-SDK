@@ -143,7 +143,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\..\..\Include\Codec;..\..\..\Include\Transport;..\..\..\Include\RDM;..\..\..\Include\Util;..\Common;..\..\..\Utils\Libxml2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Include\Codec;..\..\..\Include\Transport;..\..\..\Include\RDM;..\..\..\Include\Reactor;..\..\..\Include\Util;..\Common;..\..\..\Utils\Libxml2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;WIN32_LEAN_AND_MEAN;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -162,7 +162,7 @@
 	<CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>msvcprt.lib;msvcrt.lib; librssl.lib;  librsslRDM.lib;  librsslVAUtil.lib;  libxml2.lib;  ws2_32.lib;  wininet.lib;  psapi.lib; %(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>msvcprt.lib;msvcrt.lib; librssl.lib;  librsslRDM.lib;  librsslReactor.lib;  librsslVAUtil.lib;  libxml2.lib;  ws2_32.lib;  wininet.lib;  psapi.lib; %(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)ConsPerf.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>../../Libs/WIN_64_VS120/Release_MD;../../../Libs/WIN_64_VS120/Release_MD;../../ValueAdd/Libs/WIN_64_VS120/Release_MD;..\..\..\Utils\Libxml2/WIN_64_VS120/Release_MD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -192,7 +192,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\..\..\Include\Codec;..\..\..\Include\Transport;..\..\..\Include\RDM;..\..\..\Include\Util;..\Common;..\..\..\Utils\Libxml2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Include\Codec;..\..\..\Include\Transport;..\..\..\Include\RDM;..\..\..\Include\Reactor;..\..\..\Include\Util;..\Common;..\..\..\Utils\Libxml2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;WIN32_LEAN_AND_MEAN;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;RSSL_IMPORTS;RSSL_VA_IMPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -241,7 +241,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\..\..\Include\Codec;..\..\..\Include\Transport;..\..\..\Include\RDM;..\..\..\Include\Util;..\Common;..\..\..\Utils\Libxml2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Include\Codec;..\..\..\Include\Transport;..\..\..\Include\RDM;..\..\..\Include\Reactor;..\..\..\Include\Util;..\Common;..\..\..\Utils\Libxml2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;WIN32_LEAN_AND_MEAN;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -260,7 +260,7 @@
 	<CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>msvcprt.lib;msvcrt.lib; librssl.lib;  librsslRDM.lib;  librsslVAUtil.lib;  libxml2.lib;  ws2_32.lib;  wininet.lib;  psapi.lib; %(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>msvcprt.lib;msvcrt.lib; librssl.lib;  librsslRDM.lib;  librsslReactor.lib;  librsslVAUtil.lib;  libxml2.lib;  ws2_32.lib;  wininet.lib;  psapi.lib; %(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)ConsPerf.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>../../Libs/WIN_64_VS120/Release_MD_Assert;../../../Libs/WIN_64_VS120/Release_MD_Assert;../../ValueAdd/Libs/WIN_64_VS120/Release_MD_Assert;..\..\..\Utils\Libxml2/WIN_64_VS120/Release_MD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -290,7 +290,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\..\..\Include\Codec;..\..\..\Include\Transport;..\..\..\Include\RDM;..\..\..\Include\Util;..\Common;..\..\..\Utils\Libxml2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Include\Codec;..\..\..\Include\Transport;..\..\..\Include\RDM;..\..\..\Include\Reactor;..\..\..\Include\Util;..\Common;..\..\..\Utils\Libxml2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;WIN32_LEAN_AND_MEAN;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;RSSL_IMPORTS;RSSL_VA_IMPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -339,7 +339,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\..\..\Include\Codec;..\..\..\Include\Transport;..\..\..\Include\RDM;..\..\..\Include\Util;..\Common;..\..\..\Utils\Libxml2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Include\Codec;..\..\..\Include\Transport;..\..\..\Include\RDM;..\..\..\Include\Reactor;..\..\..\Include\Util;..\Common;..\..\..\Utils\Libxml2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;WIN32_LEAN_AND_MEAN;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -358,7 +358,7 @@
 	<CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>msvcprtd.lib;msvcrtd.lib; librssl.lib;  librsslRDM.lib;  librsslVAUtil.lib;  libxml2.lib;  ws2_32.lib;  wininet.lib;  psapi.lib; %(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>msvcprtd.lib;msvcrtd.lib; librssl.lib;  librsslRDM.lib;  librsslReactor.lib;  librsslVAUtil.lib;  libxml2.lib;  ws2_32.lib;  wininet.lib;  psapi.lib; %(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)ConsPerf.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>../../Libs/WIN_64_VS120/Debug_MDd;../../../Libs/WIN_64_VS120/Debug_MDd;../../ValueAdd/Libs/WIN_64_VS120/Debug_MDd;..\..\..\Utils\Libxml2/WIN_64_VS120/Debug_MDd;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -388,7 +388,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\..\..\Include\Codec;..\..\..\Include\Transport;..\..\..\Include\RDM;..\..\..\Include\Util;..\Common;..\..\..\Utils\Libxml2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Include\Codec;..\..\..\Include\Transport;..\..\..\Include\RDM;..\..\..\Include\Reactor;..\..\..\Include\Util;..\Common;..\..\..\Utils\Libxml2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;WIN32_LEAN_AND_MEAN;_CONSOLE;_CRT_SECURE_NO_WARNINGS;RSSL_IMPORTS;RSSL_VA_IMPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>

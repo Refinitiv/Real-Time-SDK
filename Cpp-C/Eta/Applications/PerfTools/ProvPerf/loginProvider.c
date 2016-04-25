@@ -145,3 +145,92 @@ RsslRet processLoginRequest(ChannelHandler *pChannelHandler, ChannelInfo* pChann
     	return RSSL_RET_FAILURE;
 	}
 }
+
+RsslRet processLoginRequestReactor(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslRDMLoginMsg *pLoginMsg)
+{
+	RsslErrorInfo errorInfo;
+
+	switch(pLoginMsg->rdmMsgBase.rdmMsgType)
+	{
+	case RDM_LG_MT_REQUEST:
+	{
+		RsslError error;
+		RsslBuffer* msgBuf = 0;
+		RsslRet ret;
+		RsslEncodeIterator eIter;
+		RsslRDMLoginRefresh loginRefresh;
+		RsslReactorSubmitOptions submitOpts;
+
+		printf(	"Received login request.\n"
+				"  Username: %.*s\n",
+				pLoginMsg->request.userName.length, pLoginMsg->request.userName.data);
+		if (pLoginMsg->request.flags & RDM_LG_RQF_HAS_APPLICATION_NAME)
+			printf("  ApplicationName: %.*s\n",
+					pLoginMsg->request.applicationName.length, pLoginMsg->request.applicationName.data);
+		printf("\n");
+
+		if (pLoginMsg->request.flags & RDM_LG_RQF_HAS_ROLE && pLoginMsg->request.role != RDM_LOGIN_ROLE_CONS)
+			printf("Warning: Connected client did not identify itself as a consumer.\n");
+
+		/* get a buffer for the login response */
+		if ((msgBuf = rsslReactorGetBuffer(pReactorChannel, 512, RSSL_FALSE, &errorInfo)) == NULL)
+		{
+			printf("sendLoginResponse(): rsslReactorGetBuffer() failed: %d(%s)",
+					error.rsslErrorId, error.text);
+			return error.rsslErrorId;
+		}
+
+		rsslClearRDMLoginRefresh(&loginRefresh);
+
+		/* provide login response information */
+		/* StreamId */
+		loginRefresh.rdmMsgBase.streamId = pLoginMsg->rdmMsgBase.streamId;
+
+		/* Username */
+		loginRefresh.userName = pLoginMsg->request.userName;
+		loginRefresh.flags |= RDM_LG_RFF_HAS_USERNAME;
+
+		/* ApplicationId */
+		loginRefresh.applicationId = loginConfig.applicationId;
+		loginRefresh.flags |= RDM_LG_RFF_HAS_APPLICATION_ID;
+
+		/* ApplicationName */
+		loginRefresh.applicationName = loginConfig.applicationName;
+		loginRefresh.flags |= RDM_LG_RFF_HAS_APPLICATION_NAME;
+
+		/* Position */
+		loginRefresh.position = loginConfig.position;
+		loginRefresh.flags |= RDM_LG_RFF_HAS_POSITION;
+
+		loginRefresh.singleOpen = 0; /* this provider does not support SingleOpen behavior */
+		loginRefresh.flags |= RDM_LG_RFF_HAS_SINGLE_OPEN;
+
+		loginRefresh.supportOMMPost = 1;
+		loginRefresh.flags |= RDM_LG_RFF_HAS_SUPPORT_POST;
+
+		loginRefresh.flags |= RDM_LG_RFF_SOLICITED;
+
+		rsslClearEncodeIterator(&eIter);
+		rsslSetEncodeIteratorRWFVersion(&eIter, pReactorChannel->majorVersion, pReactorChannel->minorVersion);
+		rsslSetEncodeIteratorBuffer(&eIter, msgBuf);
+
+		if ((ret = rsslEncodeRDMLoginMsg(&eIter, (RsslRDMLoginMsg*)&loginRefresh, &msgBuf->length, &errorInfo)) != RSSL_RET_SUCCESS)
+		{
+			printf("rsslEncodeRDMLoginMsg() failed: %d(%s)", ret, errorInfo.rsslError.text);
+			return ret;
+		}
+
+		/* send login response */
+		rsslClearReactorSubmitOptions(&submitOpts);
+ 		return rsslReactorSubmit(pReactor, pReactorChannel, msgBuf, &submitOpts, &errorInfo);
+	}
+
+	case RDM_LG_MT_CLOSE:
+		printf("\nReceived Login Close for StreamId %d\n", pLoginMsg->rdmMsgBase.streamId);
+		return RSSL_RET_SUCCESS;
+
+	default:
+		printf("\nReceived Unhandled Login Msg Type: %d\n", pLoginMsg->rdmMsgBase.rdmMsgType);
+    	return RSSL_RET_FAILURE;
+	}
+}
