@@ -1012,7 +1012,7 @@ RSSL_API RsslRet rsslCloseChannel(RsslChannel *chnl,
  * @see rsslReadEx
  */
 typedef enum {
-	RSSL_READ_IN_NO_FLAGS		= 0x00,	/*!< (0x00) No read flags*/
+	RSSL_READ_IN_NO_FLAGS		= 0x00	/*!< (0x00) No read flags*/
 } RsslReadFlagsIn;
 
 
@@ -1271,7 +1271,7 @@ typedef struct {
  * @see rsslWriteEx
  */
 typedef enum {
-	RSSL_WRITE_OUT_NO_FLAGS			= 0x00,	/*!< (0x00) No Write Flags */
+	RSSL_WRITE_OUT_NO_FLAGS			= 0x00	/*!< (0x00) No Write Flags */
 } RsslWriteOutFlags;
 
 /**
