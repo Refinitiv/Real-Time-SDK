@@ -14,6 +14,7 @@
 
 #include "channelHandler.h"
 #include "rtr/rsslRDMLoginMsg.h"
+#include "rtr/rsslReactor.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,6 +38,9 @@ void setLoginConfigPosition();
 
 /* Decodes a login request and sends an appropriate response. */
 RsslRet processLoginRequest(ChannelHandler *pChannelHandler, ChannelInfo* pChannelInfo, RsslMsg* msg, RsslDecodeIterator* dIter);
+
+/* Decodes a login request and sends an appropriate response using the UPA VA Reactor. */
+RsslRet processLoginRequestReactor(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslRDMLoginMsg *pLoginMsg);
 
 #ifdef __cplusplus
 };

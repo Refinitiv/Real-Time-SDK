@@ -271,6 +271,14 @@ void initConsPerfConfig(int argc, char **argv)
 			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
 			consPerfConfig.highWaterMark = atoi(argv[iargs++]);
 		}
+		else if(strcmp("-reactor", argv[iargs]) == 0)
+		{
+			++iargs; consPerfConfig.useReactor = RSSL_TRUE;
+		}
+		else if(strcmp("-watchlist", argv[iargs]) == 0)
+		{
+			++iargs; consPerfConfig.useWatchlist = RSSL_TRUE;
+		}
 		else
 		{
 			printf("Config Error: Unrecognized option: %s\n", argv[iargs]);
@@ -391,6 +399,20 @@ void printConsPerfConfig(FILE *file)
 	int i;
 	int tmpStringPos = 0;
 	char tmpString[128];
+	char reactorWatchlistUsageString[32];
+
+	if (consPerfConfig.useWatchlist)
+	{
+		strcpy(reactorWatchlistUsageString, "Reactor and Watchlist");
+	}
+	else if (consPerfConfig.useReactor)
+	{
+		strcpy(reactorWatchlistUsageString, "Reactor");
+	}
+	else
+	{
+		strcpy(reactorWatchlistUsageString, "None");
+	}
 
 	/* Build thread list */
 	tmpStringPos += snprintf(tmpString, 128, "%d", consPerfConfig.threadBindList[0]);
@@ -431,7 +453,8 @@ void printConsPerfConfig(FILE *file)
 		"            Summary File: %s\n"
 		"              Stats File: %s\n"
 		"        Latency Log File: %s\n"
-		"               Tick Rate: %u\n\n",
+		"               Tick Rate: %u\n"
+		" Reactor/Watchlist Usage: %s\n\n",
 		consPerfConfig.hostName,
 		consPerfConfig.portNo,
 		consPerfConfig.serviceName,
@@ -457,7 +480,8 @@ void printConsPerfConfig(FILE *file)
 		consPerfConfig.summaryFilename,
 		consPerfConfig.statsFilename,
 		consPerfConfig.logLatencyToFile ? consPerfConfig.latencyLogFilename : "(none)",
-		consPerfConfig.ticksPerSec
+		consPerfConfig.ticksPerSec,
+		reactorWatchlistUsageString
 	  );
 
 
@@ -506,7 +530,8 @@ void exitWithUsage()
 			"  -threads <thread list>               list of threads(which create 1 connection each),\n"
 			"                                         by their bound CPU. Comma-separated list. -1 means do not bind.\n"
 			"                                         (e.g. \"-threads 0,1 \" creates two threads bound to CPU's 0 and 1)\n"
-
+			"  -reactor                             Use the VA Reactor instead of the UPA Channel for sending and receiving.\n"
+			"  -watchlist                           Use the VA Reactor watchlist instead of the UPA Channel for sending and receiving.\n"
 
 			"\n"
 			);

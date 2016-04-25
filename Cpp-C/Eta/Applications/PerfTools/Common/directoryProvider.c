@@ -13,7 +13,7 @@
 DirectoryConfig directoryConfig;
 
 /* Will be populated at initialization. */
-static RsslRDMService service;
+RsslRDMService service;
 
 static RsslUInt serviceCapabilities[3];
 static RsslUInt32 serviceCapabilitiesCount;
@@ -192,6 +192,82 @@ RsslRet processDirectoryRequest(ChannelHandler *pChannelHandler, ChannelInfo *pC
 
 	default:
 		printf("\nReceived Unhandled Source Directory Msg Class: %d\n", msg->msgBase.msgClass);
+		return RSSL_RET_FAILURE;
+	}
+}
+
+RsslRet processDirectoryRequestReactor(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslRDMDirectoryMsg *pDirectoryMsg)
+{
+	RsslRet ret;
+	RsslState *pState = 0;
+	RsslErrorInfo errorInfo;
+	RsslReactorSubmitOptions submitOpts;
+
+	switch(pDirectoryMsg->rdmMsgBase.rdmMsgType)
+	{
+	case RDM_DR_MT_REQUEST:
+	{
+		RsslError error;
+		RsslBuffer* msgBuf = 0;
+		RsslEncodeIterator eIter;
+		RsslRDMDirectoryRefresh directoryRefresh;
+
+		printf("Received Directory Request.\n\n");
+
+		if ((msgBuf = rsslReactorGetBuffer(pReactorChannel, 512, RSSL_FALSE, &errorInfo)) == NULL)
+		{
+			printf("processDirectoryRequest(): rsslReactorGetBuffer() failed: %d(%s)\n",
+					error.rsslErrorId, error.text);
+			return error.rsslErrorId;
+		}
+
+		rsslClearRDMDirectoryRefresh(&directoryRefresh);
+
+		directoryRefresh.flags = RDM_DR_RFF_SOLICITED | RDM_DR_RFF_CLEAR_CACHE;
+		directoryRefresh.filter = pDirectoryMsg->request.filter;
+
+		/* StreamId */
+		directoryRefresh.rdmMsgBase.streamId = pDirectoryMsg->request.rdmMsgBase.streamId;
+
+		/* ServiceId */
+		if (pDirectoryMsg->request.flags & RDM_DR_RQF_HAS_SERVICE_ID)
+		{
+			/* Match the ServiceID if requested */
+			directoryRefresh.flags |= RDM_DR_RFF_HAS_SERVICE_ID;
+			directoryRefresh.serviceId = pDirectoryMsg->request.serviceId;
+
+			if (pDirectoryMsg->request.serviceId == service.serviceId)
+			{
+				directoryRefresh.serviceList = &service;
+				directoryRefresh.serviceCount = 1;
+			}
+		}
+		else
+		{
+			directoryRefresh.serviceList = &service;
+			directoryRefresh.serviceCount = 1;
+		}
+
+		rsslClearEncodeIterator(&eIter);
+		rsslSetEncodeIteratorRWFVersion(&eIter, pReactorChannel->majorVersion, pReactorChannel->minorVersion);
+		rsslSetEncodeIteratorBuffer(&eIter, msgBuf);
+
+		if ((ret = rsslEncodeRDMDirectoryMsg(&eIter, (RsslRDMDirectoryMsg*)&directoryRefresh, &msgBuf->length, &errorInfo)) != RSSL_RET_SUCCESS)
+		{
+			printf("rsslEncodeRDMDirectoryMsg() failed: %d(%s)", ret, errorInfo.rsslError.text);
+			return ret;
+		}
+
+		rsslClearReactorSubmitOptions(&submitOpts);
+ 		return rsslReactorSubmit(pReactor, pReactorChannel, msgBuf, &submitOpts, &errorInfo);
+	}
+
+	case RDM_DR_MT_CLOSE:
+		printf("\nReceived Source Directory Close for StreamId %d\n", pDirectoryMsg->rdmMsgBase.streamId);
+		return RSSL_RET_SUCCESS;
+
+	default:
+		printf("\nReceived Unhandled Source Directory Msg Type: %d\n", pDirectoryMsg->rdmMsgBase.rdmMsgType);
 		return RSSL_RET_FAILURE;
 	}
 }

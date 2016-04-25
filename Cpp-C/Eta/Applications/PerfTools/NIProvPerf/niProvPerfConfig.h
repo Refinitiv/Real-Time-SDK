@@ -48,6 +48,8 @@ typedef struct
 
 	RsslInt32			itemPublishCount;			/* Number of items to publish noninteractively(-itemCount).*/
 	RsslInt32			commonItemCount;			/* Number of items common to all providers, if using multiple connections. */
+
+	RsslBool			useReactor;					/* Use the VA Reactor instead of the UPA Channel for sending and receiving. */
 } NIProvPerfConfig;
 
 /* Contains the global application configuration */

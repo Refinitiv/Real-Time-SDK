@@ -286,6 +286,74 @@ RsslRet encodeItemPost(RsslChannel* chnl,
 	return RSSL_RET_SUCCESS;
 }
 
+RsslRet createItemPost(RsslChannel* chnl, ItemInfo* itemInfo, RsslPostMsg* pPostMsg, RsslBuffer* msgBuf,
+					   RsslPostUserInfo *pPostUserInfo, RsslUInt encodeStartTime)
+{
+	RsslRet ret;
+	RsslUpdateMsg updateMsg;
+	RsslEncodeIterator encodeIter;
+
+	assert(pPostUserInfo);
+
+	rsslClearEncodeIterator(&encodeIter);
+	rsslSetEncodeIteratorRWFVersion(&encodeIter, chnl->majorVersion, chnl->minorVersion);
+	if ((ret = rsslSetEncodeIteratorBuffer(&encodeIter, msgBuf)) != RSSL_RET_SUCCESS)
+			return ret;
+
+	/* Prepare post message. */
+	rsslClearPostMsg(pPostMsg);
+	pPostMsg->msgBase.streamId = itemInfo->StreamId;
+	pPostMsg->flags = RSSL_PSMF_POST_COMPLETE;
+	pPostMsg->postUserInfo = *pPostUserInfo;
+	pPostMsg->msgBase.domainType = itemInfo->attributes.domainType;
+	pPostMsg->msgBase.containerType = RSSL_DT_MSG;
+
+	/* Prepare update message. */
+	rsslClearUpdateMsg(&updateMsg);
+	updateMsg.flags |= RSSL_UPMF_HAS_POST_USER_INFO;
+	updateMsg.postUserInfo = *pPostUserInfo;
+	updateMsg.msgBase.domainType = itemInfo->attributes.domainType;
+
+	/* Encode update. */
+	switch(itemInfo->attributes.domainType)
+	{
+		case RSSL_DMT_MARKET_PRICE:
+			updateMsg.msgBase.containerType = RSSL_DT_FIELD_LIST;
+			if ((ret = rsslEncodeMsgInit(&encodeIter, (RsslMsg*)&updateMsg, 0)) < RSSL_RET_SUCCESS)
+				return ret;
+
+			if ((ret = encodeMarketPriceDataBody(&encodeIter, 
+							getNextMarketPricePost((MarketPriceItem*)itemInfo->itemData),
+							RSSL_MC_POST, encodeStartTime)) < RSSL_RET_SUCCESS)
+				return ret;
+			break;
+		case RSSL_DMT_MARKET_BY_ORDER:
+			updateMsg.msgBase.containerType = RSSL_DT_MAP;
+			if ((ret = rsslEncodeMsgInit(&encodeIter, (RsslMsg*)&updateMsg, 0)) < RSSL_RET_SUCCESS)
+				return ret;
+
+			if ((ret = encodeMarketByOrderDataBody(&encodeIter, 
+							getNextMarketByOrderPost((MarketByOrderItem*)itemInfo->itemData),
+							RSSL_MC_POST, encodeStartTime)) < RSSL_RET_SUCCESS)
+				return ret;
+			break;
+		default:
+			assert(0);
+			break;
+	}
+
+	if ((ret = rsslEncodeMsgComplete(&encodeIter, RSSL_TRUE)) < RSSL_RET_SUCCESS)
+		return ret;
+
+	msgBuf->length = rsslGetEncodedBufferLength(&encodeIter);
+
+	// set encodedDataBody on PostMsg
+	pPostMsg->msgBase.encDataBody.data = msgBuf->data;
+	pPostMsg->msgBase.encDataBody.length = msgBuf->length;
+
+	return RSSL_RET_SUCCESS;
+}
+
 RsslUInt32 estimateItemGenMsgBufferLength(ItemInfo *itemInfo)
 {
 	RsslUInt32 bufferSize = 64;
@@ -356,6 +424,53 @@ RsslRet encodeItemGenMsg(RsslChannel* chnl, ItemInfo* itemInfo, RsslBuffer* msgB
 		return ret;
 
 	msgBuf->length = rsslGetEncodedBufferLength(&encodeIter);
+
+	return RSSL_RET_SUCCESS;
+}
+
+RsslRet createItemGenMsg(RsslChannel* chnl, ItemInfo* itemInfo, RsslGenericMsg* pGenericMsg,
+						 RsslBuffer* msgBuf, RsslUInt encodeStartTime)
+{
+	RsslRet ret;
+	RsslEncodeIterator encodeIter;
+
+	rsslClearEncodeIterator(&encodeIter);
+	rsslSetEncodeIteratorRWFVersion(&encodeIter, chnl->majorVersion, chnl->minorVersion);
+	if ((ret = rsslSetEncodeIteratorBuffer(&encodeIter, msgBuf)) != RSSL_RET_SUCCESS)
+			return ret;
+
+	/* Prepare generic message. */
+	rsslClearGenericMsg(pGenericMsg);
+	pGenericMsg->msgBase.streamId = itemInfo->StreamId;
+	pGenericMsg->msgBase.domainType = itemInfo->attributes.domainType;
+
+	/* Encode generic message. */
+	switch(itemInfo->attributes.domainType)
+	{
+		case RSSL_DMT_MARKET_PRICE:
+			pGenericMsg->msgBase.containerType = RSSL_DT_FIELD_LIST;
+			if ((ret = encodeMarketPriceDataBody(&encodeIter, 
+							getNextMarketPriceGenMsg((MarketPriceItem*)itemInfo->itemData),
+							RSSL_MC_GENERIC, encodeStartTime)) < RSSL_RET_SUCCESS)
+				return ret;
+			break;
+		case RSSL_DMT_MARKET_BY_ORDER:
+			pGenericMsg->msgBase.containerType = RSSL_DT_MAP;
+			if ((ret = encodeMarketByOrderDataBody(&encodeIter, 
+							getNextMarketByOrderGenMsg((MarketByOrderItem*)itemInfo->itemData),
+							RSSL_MC_GENERIC, encodeStartTime)) < RSSL_RET_SUCCESS)
+				return ret;
+			break;
+		default:
+			assert(0);
+			break;
+	}
+
+	msgBuf->length = rsslGetEncodedBufferLength(&encodeIter);
+
+	// set encodedDataBody on GenericMsg
+	pGenericMsg->msgBase.encDataBody.data = msgBuf->data;
+	pGenericMsg->msgBase.encDataBody.length = msgBuf->length;
 
 	return RSSL_RET_SUCCESS;
 }

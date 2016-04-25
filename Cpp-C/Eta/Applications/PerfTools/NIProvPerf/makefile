@@ -95,14 +95,14 @@ endif
 CFLAGS += -D_SVID_SOURCE=1 -DCOMPILE_64BITS 
 CLIBS = $(LIB_DIR)
 LIB_PATH = -L$(LIB_DIR) -L$(XML_LIB_DIR)
-HEADER_INC = -I../Common -I$(ROOTPLAT)/Include/Codec/ -I$(ROOTPLAT)/Include/Transport/ -I$(ROOTPLAT)/Include/RDM/ -I$(ROOTPLAT)/Include/Util/ -I$(ROOTPLAT)/Utils/Libxml2/include
+HEADER_INC = -I. -I../Common -I../ProvPerf -I$(ROOTPLAT)/Include/Codec/ -I$(ROOTPLAT)/Include/Transport/ -I$(ROOTPLAT)/Include/RDM/ -I$(ROOTPLAT)/Include/Util/ -I$(ROOTPLAT)/Include/Reactor/ -I$(ROOTPLAT)/Utils/Libxml2/include
 
 ifeq ($(LINKTYPE),Shared)
 	LN_HOMEPATH=../../..
     RSSL_LIB = -lrsslVA -lrssl $(XML_LIB_DIR)/libxml2.a
 else
 	LN_HOMEPATH=../..
-	RSSL_LIB = $(LIB_DIR)/librsslRDM.a $(LIB_DIR)/librssl.a $(XML_LIB_DIR)/libxml2.a $(LIB_DIR)/librsslVAUtil.a
+	RSSL_LIB = $(LIB_DIR)/librsslReactor.a $(LIB_DIR)/librsslRDM.a $(LIB_DIR)/librssl.a $(XML_LIB_DIR)/libxml2.a $(LIB_DIR)/librsslVAUtil.a
 endif
 
 EXE_DIR=$(OUTPUT_DIR)

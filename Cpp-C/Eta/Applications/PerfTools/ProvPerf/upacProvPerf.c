@@ -11,6 +11,7 @@
 #include "dictionaryProvider.h"
 #include "getTime.h"
 #include "testUtils.h"
+#include "rtr/rsslReactor.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -53,7 +54,7 @@ static void signal_handler(int sig)
 
 extern void startProviderThreads(Provider *pProvider, RSSL_THREAD_DECLARE(threadFunction,pArg));
 
-RSSL_THREAD_DECLARE(runConnectionHandler, pArg)
+RSSL_THREAD_DECLARE(runChannelConnectionHandler, pArg)
 {
 
 	ProviderThread *pProvThread = (ProviderThread*)pArg;
@@ -94,6 +95,394 @@ RSSL_THREAD_DECLARE(runConnectionHandler, pArg)
 	return RSSL_THREAD_RETURN();
 }
 
+RSSL_THREAD_DECLARE(runReactorConnectionHandler, pArg)
+{
+	ProviderThread *pProvThread = (ProviderThread*)pArg;
+
+	TimeValue nextTickTime;
+	RsslInt32 currentTicks = 0;
+	TimeValue currentTime;
+	RsslRet ret;
+	int selRet;
+	struct timeval time_interval;
+	fd_set useRead;
+	fd_set useExcept;
+	fd_set useWrt;
+	RsslErrorInfo rsslErrorInfo;
+	RsslReactorDispatchOptions dispatchOptions;
+	RsslCreateReactorOptions reactorOpts;
+
+	rsslClearReactorDispatchOptions(&dispatchOptions);
+
+	if (pProvThread->cpuId >= 0)
+	{
+		if (bindThread(pProvThread->cpuId) != RSSL_RET_SUCCESS)
+		{
+			printf("Error: Failed to bind thread to core %d.\n", pProvThread->cpuId);
+			exit(-1);
+		}
+	}
+
+	// create reactor
+	rsslClearCreateReactorOptions(&reactorOpts);
+
+	if (!(pProvThread->pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
+	{
+		printf("Reactor creation failed: %s\n", rsslErrorInfo.rsslError.text);
+		cleanUpAndExit();
+	}
+
+	FD_ZERO(&pProvThread->readfds);
+	FD_ZERO(&pProvThread->wrtfds);
+	FD_ZERO(&pProvThread->exceptfds);
+
+	/* Set the reactor's event file descriptor on our descriptor set. This, along with the file descriptors
+	 * of RsslReactorChannels, will notify us when we should call rsslReactorDispatch(). */
+	FD_SET(pProvThread->pReactor->eventFd, &pProvThread->readfds);
+
+	nextTickTime = getTimeNano() + nsecPerTick;
+
+	/* this is the main loop */
+	while(rtrLikely(!signal_shutdown))
+	{
+		/* Loop on select(), looking for channels with available data, until stopTimeNsec is reached. */
+		do
+		{
+#ifdef WIN32
+			/* Windows does not allow select() to be called with empty file descriptor sets. */
+			if (pProvThread->readfds.fd_count == 0)
+			{
+				currentTime = getTimeNano();
+				selRet = 0;
+				Sleep((DWORD)((currentTime < nextTickTime) ? (nextTickTime - currentTime)/1000000 : 0));
+			}
+			else
+#endif
+			{
+				useRead = pProvThread->readfds;
+				useWrt = pProvThread->wrtfds;
+				useExcept = pProvThread->exceptfds;
+
+				currentTime = getTimeNano();
+				time_interval.tv_usec = (long)((currentTime < nextTickTime) ? (nextTickTime - currentTime)/1000 : 0);
+				time_interval.tv_sec = 0;
+
+				selRet = select(FD_SETSIZE, &useRead, &useWrt, &useExcept, &time_interval);
+			}
+
+			if (selRet == 0)
+			{
+				break;
+			}
+			else if (selRet > 0)
+			{	
+				while ((ret = rsslReactorDispatch(pProvThread->pReactor, &dispatchOptions, &rsslErrorInfo)) > RSSL_RET_SUCCESS) {}
+				if (ret < RSSL_RET_SUCCESS)
+				{
+					printf("rsslReactorDispatch failed with return code: %d error = %s\n", ret,  rsslErrorInfo.rsslError.text);
+					exit(-1);
+				}
+			}
+#ifdef WIN32
+			else if (WSAGetLastError() != WSAEINTR)
+#else 
+			else if (errno != EINTR)
+#endif
+			{
+				perror("select");
+				exit(-1);
+			}
+		} while (currentTime < nextTickTime);
+
+		nextTickTime += nsecPerTick;
+
+		providerThreadSendMsgBurst(pProvThread, nextTickTime);
+	}
+
+	return RSSL_THREAD_RETURN();
+}
+
+RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorChannelEvent *pChannelEvent)
+{
+	ProviderSession *pProvSession = (ProviderSession *)pReactorChannel->userSpecPtr;
+	ProviderThread *pProviderThread = pProvSession->pProviderThread;
+	RsslErrorInfo rsslErrorInfo;
+	RsslReactorChannelInfo reactorChannelInfo;
+	RsslUInt32 count;
+	RsslRet ret;
+
+	switch(pChannelEvent->channelEventType)
+	{
+		case RSSL_RC_CET_CHANNEL_UP:
+		{
+			/* A channel that we have requested via rsslReactorAccept() has come up.  Set our
+			 * file descriptor sets so we can be notified to start calling rsslReactorDispatch() for
+			 * this channel. */
+			FD_SET(pReactorChannel->socketId, &pProviderThread->readfds);
+			FD_SET(pReactorChannel->socketId, &pProviderThread->exceptfds);
+
+#ifdef ENABLE_XML_TRACE
+			RsslTraceOptions traceOptions;
+			rsslClearTraceOptions(&traceOptions);
+			traceOptions.traceMsgFileName = "upacProvPerf";
+			traceOptions.traceMsgMaxFileSize = 1000000000;
+			traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_WRITE | RSSL_TRACE_READ;
+			rsslIoctl(pChannelInfo->pChannel, (RsslIoctlCodes)RSSL_TRACE, (void *)&traceOptions, &error);
+#endif
+
+			if (provPerfConfig.highWaterMark > 0)
+			{
+				if (rsslReactorChannelIoctl(pReactorChannel, RSSL_HIGH_WATER_MARK, &provPerfConfig.highWaterMark, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+                {
+					printf("rsslReactorChannelIoctl() of RSSL_HIGH_WATER_MARK failed <%s>\n", rsslErrorInfo.rsslError.text);
+					exit(-1);
+                }
+			}
+
+			if ((ret = rsslReactorGetChannelInfo(pReactorChannel, &reactorChannelInfo, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
+			{
+				printf("rsslReactorGetChannelInfo() failed: %d\n", ret);
+				return RSSL_RC_CRET_SUCCESS;
+			} 
+
+			printf( "Channel %d active. Channel Info:\n"
+					"  maxFragmentSize: %u\n"
+					"  maxOutputBuffers: %u\n"
+					"  guaranteedOutputBuffers: %u\n"
+					"  numInputBuffers: %u\n"
+					"  pingTimeout: %u\n"
+					"  clientToServerPings: %s\n"
+					"  serverToClientPings: %s\n"
+					"  sysSendBufSize: %u\n"
+					"  sysSendBufSize: %u\n"			
+					"  compressionType: %s\n"
+					"  compressionThreshold: %u\n"			
+					"  ComponentInfo: ", 
+					pReactorChannel->socketId,
+					reactorChannelInfo.rsslChannelInfo.maxFragmentSize,
+					reactorChannelInfo.rsslChannelInfo.maxOutputBuffers, reactorChannelInfo.rsslChannelInfo.guaranteedOutputBuffers,
+					reactorChannelInfo.rsslChannelInfo.numInputBuffers,
+					reactorChannelInfo.rsslChannelInfo.pingTimeout,
+					reactorChannelInfo.rsslChannelInfo.clientToServerPings == RSSL_TRUE ? "true" : "false",
+					reactorChannelInfo.rsslChannelInfo.serverToClientPings == RSSL_TRUE ? "true" : "false",
+					reactorChannelInfo.rsslChannelInfo.sysSendBufSize, reactorChannelInfo.rsslChannelInfo.sysRecvBufSize,			
+					reactorChannelInfo.rsslChannelInfo.compressionType == RSSL_COMP_ZLIB ? "zlib" : "none",
+					reactorChannelInfo.rsslChannelInfo.compressionThreshold			
+					);
+
+			if (reactorChannelInfo.rsslChannelInfo.componentInfoCount == 0)
+				printf("(No component info)");
+			else
+				for(count = 0; count < reactorChannelInfo.rsslChannelInfo.componentInfoCount; ++count)
+				{
+					printf("%.*s", 
+							reactorChannelInfo.rsslChannelInfo.componentInfo[count]->componentVersion.length,
+							reactorChannelInfo.rsslChannelInfo.componentInfo[count]->componentVersion.data);
+					if (count < reactorChannelInfo.rsslChannelInfo.componentInfoCount - 1)
+						printf(", ");
+				}
+			printf ("\n\n");
+
+			/* Check that we can successfully pack, if packing messages. */
+			if (providerThreadConfig.totalBuffersPerPack > 1
+					&& providerThreadConfig.packingBufferLength > reactorChannelInfo.rsslChannelInfo.maxFragmentSize)
+			{
+				printf("Error(Channel %d): MaxFragmentSize %u is too small for packing buffer size %u\n",
+						pReactorChannel->socketId, reactorChannelInfo.rsslChannelInfo.maxFragmentSize, 
+						providerThreadConfig.packingBufferLength);
+				exit(-1);
+			}
+
+
+			pProvSession->pChannelInfo->pChannel = pReactorChannel->pRsslChannel;
+			pProvSession->pChannelInfo->pReactorChannel = pReactorChannel;
+			pProvSession->pChannelInfo->pReactor = pReactor;
+			rsslQueueAddLinkToBack(&pProviderThread->channelHandler.activeChannelList, &pProvSession->pChannelInfo->queueLink);
+			pProvSession->timeActivated = getTimeNano();
+
+			return RSSL_RC_CRET_SUCCESS;
+		}
+		case RSSL_RC_CET_CHANNEL_READY:
+		{
+			if (ret = (printEstimatedMsgSizes(pProviderThread, pProvSession)) != RSSL_RET_SUCCESS)
+			{
+				printf("printEstimatedMsgSizes() failed: %d\n", ret);
+				return RSSL_RC_CRET_SUCCESS;
+			}
+
+			return RSSL_RC_CRET_SUCCESS;
+		}
+		case RSSL_RC_CET_FD_CHANGE:
+		{
+			/* The file descriptor representing the RsslReactorChannel has been changed.
+			 * Update our file descriptor sets. */
+			printf("Fd change: %d to %d\n", pReactorChannel->oldSocketId, pReactorChannel->socketId);
+			FD_CLR(pReactorChannel->oldSocketId, &pProviderThread->readfds);
+			FD_CLR(pReactorChannel->oldSocketId, &pProviderThread->exceptfds);
+			FD_SET(pReactorChannel->socketId, &pProviderThread->readfds);
+			FD_SET(pReactorChannel->socketId, &pProviderThread->exceptfds);
+
+			return RSSL_RC_CRET_SUCCESS;
+		}
+		case RSSL_RC_CET_WARNING:
+		{
+			/* We have received a warning event for this channel. Print the information and continue. */
+			printf("Received warning for Channel fd=%d.\n", pReactorChannel->socketId);
+			printf("	Error text: %s\n", pChannelEvent->pError->rsslError.text);
+
+			return RSSL_RC_CRET_SUCCESS;
+		}
+		case RSSL_RC_CET_CHANNEL_DOWN:
+		{
+			pProviderThread->stats.inactiveTime = getTimeNano();
+
+			printf("Channel Closed.\n");
+
+			FD_CLR(pReactorChannel->socketId, &pProviderThread->readfds);
+			FD_CLR(pReactorChannel->socketId, &pProviderThread->exceptfds);
+
+			--pProviderThread->clientSessionsCount;
+			if (pProvSession->pChannelInfo->pReactorChannel && rsslQueueGetElementCount(&pProviderThread->channelHandler.activeChannelList) > 0)
+			{
+				rsslQueueRemoveLink(&pProviderThread->channelHandler.activeChannelList, &pProvSession->pChannelInfo->queueLink);
+			}
+	
+			if (pProvSession)
+			{
+				free(pProvSession->pChannelInfo);
+				providerSessionDestroy(pProviderThread, pProvSession);
+			}
+
+			if (rsslReactorCloseChannel(pReactor, pReactorChannel, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+			{
+				printf("rsslReactorCloseChannel() failed: %s\n", rsslErrorInfo.rsslError.text);
+				cleanUpAndExit();
+			}
+
+			return RSSL_RC_CRET_SUCCESS;
+		}
+		default:
+			printf("Unknown channel event!\n");
+			cleanUpAndExit();
+	}
+
+	return RSSL_RC_CRET_SUCCESS;
+}
+
+RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslRDMLoginMsgEvent *pLoginMsgEvent)
+{
+	processLoginRequestReactor(pReactor, pReactorChannel, pLoginMsgEvent->pRDMLoginMsg);
+
+	return RSSL_RC_CRET_SUCCESS;
+}
+
+RsslReactorCallbackRet directoryMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslRDMDirectoryMsgEvent *pDirectoryMsgEvent)
+{
+	processDirectoryRequestReactor(pReactor, pReactorChannel, pDirectoryMsgEvent->pRDMDirectoryMsg);
+
+	return RSSL_RC_CRET_SUCCESS;
+}
+
+RsslReactorCallbackRet dictionaryMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslRDMDictionaryMsgEvent *pDictionaryMsgEvent)
+{
+	processDictionaryRequestReactor(pReactor, pReactorChannel, pDictionaryMsgEvent->pRDMDictionaryMsg);
+
+	return RSSL_RC_CRET_SUCCESS;
+}
+
+RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslMsgEvent* pMsgEvent)
+{
+	ProviderSession *pProvSession = (ProviderSession *)pReactorChannel->userSpecPtr;
+	ProviderThread *pProvThread = pProvSession->pProviderThread;
+	RsslMsg *pMsg = pMsgEvent->pRsslMsg;
+	RsslDecodeIterator dIter;
+
+	/* clear decode iterator */
+	rsslClearDecodeIterator(&dIter);
+	
+	/* set version info */
+	rsslSetDecodeIteratorRWFVersion(&dIter, pReactorChannel->majorVersion, pReactorChannel->minorVersion);
+
+	rsslSetDecodeIteratorBuffer(&dIter, &pMsg->msgBase.encDataBody);
+
+	switch (pMsg->msgBase.domainType)
+	{
+		case RSSL_DMT_MARKET_PRICE:
+			if (xmlMsgDataHasMarketPrice)
+				processItemRequest(pProvThread, pProvSession, pMsg, &dIter);
+			else
+				sendItemRequestReject(pProvThread, pProvSession, 
+						pMsg->msgBase.streamId, pMsg->msgBase.domainType, DOMAIN_NOT_SUPPORTED);
+			break;
+		case RSSL_DMT_MARKET_BY_ORDER:
+			if (xmlMsgDataHasMarketByOrder)
+				processItemRequest(pProvThread, pProvSession, pMsg, &dIter);
+			else
+				sendItemRequestReject(pProvThread, pProvSession, 
+						pMsg->msgBase.streamId, pMsg->msgBase.domainType, DOMAIN_NOT_SUPPORTED);
+			break;
+		default:
+			sendItemRequestReject(pProvThread, pProvSession, 
+					pMsg->msgBase.streamId, pMsg->msgBase.domainType, DOMAIN_NOT_SUPPORTED);
+			break;
+	}
+
+	return RSSL_RC_CRET_SUCCESS;
+}
+
+static RsslRet acceptReactorConnection(RsslServer *pRsslSrvr, RsslErrorInfo *pRsslErrorInfo)
+{
+	RsslReactorAcceptOptions aopts;
+	RsslErrorInfo rsslErrorInfo;
+	RsslReactorOMMProviderRole providerRole;
+
+	ProviderThread *pProvThread;
+	ProviderSession *pProvSession;
+	RsslInt32 i, minProviderConnCount, connHandlerIndex;
+
+	// find least loaded reactor thread
+	minProviderConnCount = 0x7fffffff;
+	for(i = 0; i < providerThreadConfig.threadCount; ++i)
+	{
+		ProviderThread *pTmpProvThread = &provider.providerThreadList[i];
+		RsslInt32 connCount = providerThreadGetConnectionCount(pTmpProvThread);
+		if (connCount < minProviderConnCount)
+		{
+			minProviderConnCount = connCount;
+			pProvThread = pTmpProvThread;
+			connHandlerIndex = i;
+		}
+	}
+
+	// create provider session here and link to provider thread
+	if (!(pProvSession = providerSessionCreate(pProvThread, NULL)))
+	{
+		printf("providerSessionInit() failed\n");
+		exit(-1);
+	}
+	pProvSession->pProviderThread = pProvThread;
+	++pProvThread->clientSessionsCount;
+
+	// initialize provider role
+	rsslClearOMMProviderRole(&providerRole);
+
+	providerRole.base.channelEventCallback = channelEventCallback;
+	providerRole.base.defaultMsgCallback = defaultMsgCallback;
+	providerRole.loginMsgCallback = loginMsgCallback;
+	providerRole.directoryMsgCallback = directoryMsgCallback;
+	providerRole.dictionaryMsgCallback = dictionaryMsgCallback;
+
+	// waiting until provider thread initializes
+	while (pProvThread->pReactor == NULL) {}
+
+	printf("Accepting new Reactor connection...\n");
+
+	rsslClearReactorAcceptOptions(&aopts);
+	aopts.rsslAcceptOptions.userSpecPtr = pProvSession;
+
+	return rsslReactorAccept(pProvThread->pReactor, pRsslSrvr, &aopts, (RsslReactorChannelRole*)&providerRole, &rsslErrorInfo);
+}
+
 int main(int argc, char **argv)
 {
 	struct timeval time_interval;
@@ -103,6 +492,7 @@ int main(int argc, char **argv)
 	int selRet;
 	RsslRet	ret = 0;
 	RsslBindOptions sopts;
+	RsslErrorInfo rsslErrorInfo;
 
 	TimeValue nextTickTime;
 	RsslInt32 currentTicks;
@@ -133,11 +523,26 @@ int main(int argc, char **argv)
 
 	xmlInitParser();
 
+	FD_ZERO(&readfds);
+	FD_ZERO(&exceptfds);
+
 	/* Initialize RSSL */
-	if (rsslInitialize(providerThreadConfig.threadCount > 1 ? RSSL_LOCK_GLOBAL : RSSL_LOCK_NONE, &error) != RSSL_RET_SUCCESS)
+	if (provPerfConfig.useReactor == RSSL_FALSE) // use UPA Channel
 	{
-		printf("RsslInitialize failed: %s\n", error.text);
-		exit(-1);
+		if (rsslInitialize(providerThreadConfig.threadCount > 1 ? RSSL_LOCK_GLOBAL : RSSL_LOCK_NONE, &error) != RSSL_RET_SUCCESS)
+		{
+			printf("RsslInitialize failed: %s\n", error.text);
+			exit(-1);
+		}
+	}
+	else // use UPA VA Reactor
+	{
+		/* The locking mode RSSL_LOCK_GLOBAL_AND_CHANNEL is required to use the RsslReactor. */
+		if (rsslInitialize(RSSL_LOCK_GLOBAL_AND_CHANNEL, &error) != RSSL_RET_SUCCESS)
+		{
+			printf("RsslInitialize failed: %s\n", error.text);
+			exit(-1);
+		}
 	}
 
 	/* Initialize run-time */
@@ -148,10 +553,14 @@ int main(int argc, char **argv)
 			processInactiveChannel,
 			processMsg);
 
-	startProviderThreads(&provider, runConnectionHandler);
-
-	FD_ZERO(&readfds);
-	FD_ZERO(&exceptfds);
+	if (provPerfConfig.useReactor == RSSL_FALSE) // use UPA Channel
+	{
+		startProviderThreads(&provider, runChannelConnectionHandler);
+	}
+	else // use UPA VA Reactor
+	{
+		startProviderThreads(&provider, runReactorConnectionHandler);
+	}
 
 
 	rsslClearBindOpts(&sopts);
@@ -219,18 +628,28 @@ int main(int argc, char **argv)
 		{
 			if ((rsslSrvr != NULL) && (rsslSrvr->socketId != -1) && (FD_ISSET(rsslSrvr->socketId,&useRead)))
 			{
-				RsslChannel *pChannel;
-				RsslError	error;
-				RsslAcceptOptions acceptOpts = RSSL_INIT_ACCEPT_OPTS;
+				if (provPerfConfig.useReactor == RSSL_FALSE) // use UPA Channel
+				{
+					RsslChannel *pChannel;
+					RsslError	error;
+					RsslAcceptOptions acceptOpts = RSSL_INIT_ACCEPT_OPTS;
 
-				if ((pChannel = rsslAccept(rsslSrvr, &acceptOpts, &error)) == 0)
-				{
-					printf("rsslAccept: failed <%s>\n",error.text);
+					if ((pChannel = rsslAccept(rsslSrvr, &acceptOpts, &error)) == 0)
+					{
+						printf("rsslAccept: failed <%s>\n",error.text);
+					}
+					else
+					{
+						printf("Server %d accepting channel %d.\n\n", rsslSrvr->socketId, pChannel->socketId);
+						sendToLeastLoadedThread(pChannel);
+					}
 				}
-				else
+				else // use UPA VA Reactor
 				{
-					printf("Server %d accepting channel %d.\n\n", rsslSrvr->socketId, pChannel->socketId);
-					sendToLeastLoadedThread(pChannel);
+					if (acceptReactorConnection(rsslSrvr, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+					{
+						printf("acceptReactorConnection: failed <%s>\n", rsslErrorInfo.rsslError.text);
+					}
 				}
 			}
 		}
@@ -261,8 +680,6 @@ int main(int argc, char **argv)
 		}
 	}
 }
-
-
 
 /* Gives a channel to a provider thread that has the fewest open channels. */
 static RsslRet sendToLeastLoadedThread(RsslChannel *pChannel)

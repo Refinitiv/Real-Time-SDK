@@ -83,13 +83,12 @@ endif
 CFLAGS += -D_SVID_SOURCE=1 -DCOMPILE_64BITS 
 CLIBS = $(LIB_DIR)
 LIB_PATH = -L$(LIB_DIR)
-HEADER_INC = -I../Common -I$(ROOTPLAT)/Include/Codec/ -I$(ROOTPLAT)/Include/Transport/ -I$(ROOTPLAT)/Include/RDM/ -I$(ROOTPLAT)/Include/Util/
-
+HEADER_INC = -I. -I../Common -I$(ROOTPLAT)/Include/Codec/ -I$(ROOTPLAT)/Include/Transport/ -I$(ROOTPLAT)/Include/RDM/ -I$(ROOTPLAT)/Include/Util/ -I$(ROOTPLAT)/Include/Reactor/ 
 
 ifeq ($(LINKTYPE),Shared)
-    RSSL_LIB = -lrssl
+    RSSL_LIB = -lrsslVA -lrssl
 else
-	RSSL_LIB = $(LIB_DIR)/librssl.a
+	RSSL_LIB = $(LIB_DIR)/librsslReactor.a $(LIB_DIR)/librsslRDM.a $(LIB_DIR)/librssl.a $(LIB_DIR)/librsslVAUtil.a
 endif
 
 EXE_DIR=$(OUTPUT_DIR)

@@ -101,9 +101,19 @@ ChannelInfo *channelHandlerAddChannel(ChannelHandler *pHandler, RsslChannel *pCh
 
 void channelHandlerCloseChannel(ChannelHandler *pHandler, ChannelInfo *pChannelInfo, RsslError *pError)
 {
-	pHandler->channelInactiveCallback(pHandler, pChannelInfo, pError);
-	rsslQueueRemoveLink(pChannelInfo->parentQueue, &pChannelInfo->queueLink);
-	rsslCloseChannel(pChannelInfo->pChannel, pError);
+	if (pChannelInfo->pReactorChannel == NULL) // use UPA Channel
+	{
+		pHandler->channelInactiveCallback(pHandler, pChannelInfo, pError);
+		rsslQueueRemoveLink(pChannelInfo->parentQueue, &pChannelInfo->queueLink);
+		rsslCloseChannel(pChannelInfo->pChannel, pError);
+	}
+	else // use UPA VA Reactor
+	{
+		RsslErrorInfo errorInfo;
+
+		rsslReactorCloseChannel(pChannelInfo->pReactor, pChannelInfo->pReactorChannel, &errorInfo);
+		printf("Channel Closed.\n");
+	}
 	free(pChannelInfo);
 }
 

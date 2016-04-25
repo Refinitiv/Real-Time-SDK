@@ -14,6 +14,7 @@
 
 #include "rtr/rsslRDMDirectoryMsg.h"
 #include "channelHandler.h"
+#include "rtr/rsslReactor.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,6 +38,9 @@ RTR_C_INLINE void clearDirectoryConfig(DirectoryConfig *pConfig)
 /* Contains the global DirectoryHandler configuration. */
 extern DirectoryConfig directoryConfig;
 
+/* The preconfigured directory service. */
+extern RsslRDMService service;
+
 /* Initialize the Global Directory Handler Configuration, based on the configuration options set by the application. */
 void initDirectoryConfig();
 
@@ -45,6 +49,9 @@ void directoryServiceInit();
 
 /* Decodes a directory request and sends an appropriate response. */
 RsslRet processDirectoryRequest(ChannelHandler *pChannelHandler, ChannelInfo *pChannelInfo, RsslMsg* msg, RsslDecodeIterator* dIter);
+
+/* Decodes a directory request and sends an appropriate response using the UPA VA Reactor. */
+RsslRet processDirectoryRequestReactor(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslRDMDirectoryMsg *pDirectoryMsg);
 
 /* Used by Non-Interactive Provider to send out a directory refresh. */
 RsslRet publishDirectoryRefresh(ChannelHandler *pChannelHandler, ChannelInfo *pChannelInfo, RsslInt32 streamId);

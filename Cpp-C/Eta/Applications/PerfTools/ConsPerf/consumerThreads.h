@@ -26,6 +26,7 @@ extern "C" {
 #include "rtr/rsslDataPackage.h"
 #include "rtr/rsslQueue.h"
 #include "rtr/rsslErrorInfo.h"
+#include "rtr/rsslReactor.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -179,6 +180,17 @@ typedef struct {
 	RsslBuffer				directoryMsgCopyMemory;		/* Memory buffer for directoryMsgCopy. */
 	RsslBuffer				directoryMsgCopyMemoryOrig;	/* Copy of memory buffer(used to cleanup) */
 	ItemRequest				*itemRequestList;			/* List of items to request. */
+	RsslReactor				*pReactor;					/* Used for when application uses VA Reactor instead of UPA Channel. */
+	RsslReactorChannel		*pReactorChannel;			/* Used for when application uses VA Reactor instead of UPA Channel. */
+	RsslReactorOMMConsumerRole consumerRole;			/* Used for when application uses VA Reactor instead of UPA Channel. */
+	RsslRDMLoginRequest		loginRequest;				/* Used for when application uses VA Reactor instead of UPA Channel. */
+	RsslRDMDirectoryRequest	dirRequest;					/* Used for when application uses VA Reactor instead of UPA Channel. */
+	RsslRDMService          *pDesiredService;           /* Store information about the desired service once we find it. */
+	RsslQueue				requestQueue;				/* Request queue. */
+	RsslQueue				waitingForRefreshQueue;		/* Waiting for refresh queue. */
+	RsslQueue				refreshCompleteQueue;		/* Refresh complete queue. */
+	RotatingQueue           postItemQueue;              /* Post item queue. */
+	RotatingQueue           genMsgItemQueue;            /* Generic message item queue. */
 } ConsumerThread;
 
 /* Shorthand for consumerThread's RsslError struct. */
@@ -206,8 +218,11 @@ void consumerThreadInitPings(ConsumerThread* pConsumerThread);
 /* Check ping times on a consumer thread's connection, sending a ping if needed. */
 RsslBool consumerThreadCheckPings(ConsumerThread* pConsumerThread);
 
-/* ConsumerThread function. */
-RSSL_THREAD_DECLARE(runConsumerConnection, threadStruct);
+/* ConsumerThread function for use with UPA Channel. */
+RSSL_THREAD_DECLARE(runConsumerChannelConnection, threadStruct);
+
+/* ConsumerThread function for use with VA Reactor. */
+RSSL_THREAD_DECLARE(runConsumerReactorConnection, threadStruct);
 
 #ifdef __cplusplus
 };

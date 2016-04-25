@@ -92,12 +92,20 @@ RsslRet encodeItemPost(RsslChannel* chnl,
 		ItemInfo* itemInfo, RsslBuffer* msgBuf, RsslPostUserInfo *pPostUserInfo, 
 		RsslUInt encodeStartTime);
 
+/* Create a post message for the item. Used when VA Reactor Watchlist is enabled. */
+RsslRet createItemPost(RsslChannel* chnl, ItemInfo* itemInfo, RsslPostMsg* pPostMsg, RsslBuffer* msgBuf,
+					   RsslPostUserInfo *pPostUserInfo, RsslUInt encodeStartTime);
+
 /* Estimate an appropriate buffer size for the next generic message. */
 RsslUInt32 estimateItemGenMsgBufferLength(ItemInfo *itemInfo);
 
 /* Encode a generic message for the item. */
 RsslRet encodeItemGenMsg(RsslChannel* chnl, 
 		ItemInfo* itemInfo, RsslBuffer* msgBuf, RsslUInt encodeStartTime);
+
+/* Create a generic message for the item. Used when VA Reactor Watchlist is enabled. */
+RsslRet createItemGenMsg(RsslChannel* chnl,
+						 ItemInfo* itemInfo, RsslGenericMsg* pGenericMsg, RsslBuffer* msgBuf, RsslUInt encodeStartTime);
 
 /* Encode a close status for the item. */
 RsslRet encodeItemCloseStatus(RsslChannel* chnl, ItemInfo* itemInfo, RsslBuffer* msgBuf, RsslInt32 streamId);

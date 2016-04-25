@@ -137,15 +137,18 @@ int main(int argc, char **argv)
 		consumerThreads[i].cpuId = consPerfConfig.threadBindList[i];
 
 	/* Initialize RSSL */
-	if (rsslInitialize(consPerfConfig.threadCount > 1 ? RSSL_LOCK_GLOBAL : RSSL_LOCK_NONE, &error) != RSSL_RET_SUCCESS)
+	if (consPerfConfig.useReactor == RSSL_FALSE && consPerfConfig.useWatchlist == RSSL_FALSE) // use UPA Channel
 	{
-		printf("rsslInitialize(): failed <%s>\n", error.text);
-		/* WINDOWS: wait for user to enter something before exiting  */
-#ifdef _WIN32
-		printf("\nPress Enter or Return key to exit application:");
-		getchar();
-#endif
-		exit(RSSL_RET_FAILURE);
+		if (rsslInitialize(consPerfConfig.threadCount > 1 ? RSSL_LOCK_GLOBAL : RSSL_LOCK_NONE, &error) != RSSL_RET_SUCCESS)
+		{
+			printf("rsslInitialize(): failed <%s>\n", error.text);
+			/* WINDOWS: wait for user to enter something before exiting  */
+	#ifdef _WIN32
+			printf("\nPress Enter or Return key to exit application:");
+			getchar();
+	#endif
+			exit(RSSL_RET_FAILURE);
+		}
 	}
 
 	if (consPerfConfig.postsPerSec)
@@ -173,8 +176,16 @@ int main(int argc, char **argv)
 	/* Spawn consumer threads */
 	for(i = 0; i < consPerfConfig.threadCount; ++i)
 	{
-		if (!CHECK(RSSL_THREAD_START(&consumerThreads[i].threadId, runConsumerConnection, &consumerThreads[i]) >= 0))
-			exit(RSSL_RET_FAILURE);
+		if (consPerfConfig.useReactor == RSSL_FALSE && consPerfConfig.useWatchlist == RSSL_FALSE) // use UPA Channel
+		{
+			if (!CHECK(RSSL_THREAD_START(&consumerThreads[i].threadId, runConsumerChannelConnection, &consumerThreads[i]) >= 0))
+				exit(RSSL_RET_FAILURE);
+		}
+		else // use VA Reactor
+		{
+			if (!CHECK(RSSL_THREAD_START(&consumerThreads[i].threadId, runConsumerReactorConnection, &consumerThreads[i]) >= 0))
+				exit(RSSL_RET_FAILURE);
+		}
 	}
 
 	endTime = getTimeNano() + consPerfConfig.steadyStateTime * 1000000000ULL;
@@ -247,7 +258,10 @@ int main(int argc, char **argv)
 
 	consumerCleanupThreads();
 	fclose(summaryFile);
-	rsslUninitialize();
+	if (consPerfConfig.useReactor == RSSL_FALSE) // use UPA Channel
+	{
+		rsslUninitialize();
+	}
 	xmlCleanupParser();
 	return 0;
 }

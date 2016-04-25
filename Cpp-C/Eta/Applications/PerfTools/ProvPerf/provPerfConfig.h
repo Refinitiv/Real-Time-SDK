@@ -32,6 +32,7 @@ typedef struct
 	char				summaryFilename[128];		/* Name of the summary log file. See -summaryFile */
 	RsslUInt32			writeStatsInterval;			/* Controls how often statistics are written. */
 	RsslBool			displayStats;				/* Controls whether stats appear on the screen. */
+	RsslBool			useReactor;					/* Use the VA Reactor instead of the UPA Channel for sending and receiving. */
 } ProvPerfConfig;
 
 /* Contains the global application configuration */
