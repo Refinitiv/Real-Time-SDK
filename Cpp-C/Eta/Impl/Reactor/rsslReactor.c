@@ -2206,12 +2206,27 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 						loginEvent.baseMsgEvent.pFTGroupId = pOpts->pFTGroupId;
 						loginEvent.baseMsgEvent.pSeqNum = pOpts->pSeqNum;
 
-						if (ret == RSSL_RET_SUCCESS) loginEvent.pRDMLoginMsg = pLoginResponse;
-						else loginEvent.baseMsgEvent.pErrorInfo = pError;
 
-						_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
-						*pCret = (*pConsumerRole->loginMsgCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &loginEvent);
-						_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
+						if (ret == RSSL_RET_SUCCESS)
+						{
+							loginEvent.pRDMLoginMsg = pLoginResponse;
+							_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
+							*pCret = (*pConsumerRole->loginMsgCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &loginEvent);
+							_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
+						}
+						else if (pMsg->msgBase.msgClass == RSSL_MC_GENERIC)
+						{
+							/* Let unrecognized generic messages through to the default callback. */
+							ret = RSSL_RET_SUCCESS;
+							*pCret = RSSL_RC_CRET_RAISE;
+						}
+						else
+						{
+							loginEvent.baseMsgEvent.pErrorInfo = pError;
+							_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
+							*pCret = (*pConsumerRole->loginMsgCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &loginEvent);
+							_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
+						}
 					} 
 					else
 					{
@@ -2333,12 +2348,27 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 						directoryEvent.baseMsgEvent.pStreamInfo = (RsslStreamInfo*)pStreamInfo;
 						directoryEvent.baseMsgEvent.pFTGroupId = pOpts->pFTGroupId;
 						directoryEvent.baseMsgEvent.pSeqNum = pOpts->pSeqNum;
-						if (ret == RSSL_RET_SUCCESS) directoryEvent.pRDMDirectoryMsg = pDirectoryResponse;
-						else directoryEvent.baseMsgEvent.pErrorInfo = pError;
 
-						_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
-						*pCret = (*pConsumerRole->directoryMsgCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &directoryEvent);
-						_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
+						if (ret == RSSL_RET_SUCCESS)
+						{
+							directoryEvent.pRDMDirectoryMsg = pDirectoryResponse;
+							_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
+							*pCret = (*pConsumerRole->directoryMsgCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &directoryEvent);
+							_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
+						}
+						else if (pMsg->msgBase.msgClass == RSSL_MC_GENERIC)
+						{
+							/* Let unrecognized generic messages through to the default callback. */
+							ret = RSSL_RET_SUCCESS;
+							*pCret = RSSL_RC_CRET_RAISE;
+						}
+						else
+						{
+							directoryEvent.baseMsgEvent.pErrorInfo = pError;
+							_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
+							*pCret = (*pConsumerRole->directoryMsgCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &directoryEvent);
+							_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
+						}
 					}
 					else
 					{
@@ -2747,10 +2777,10 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 						if (ret == RSSL_RET_SUCCESS) loginEvent.pRDMLoginMsg = &loginResponse;
 						else loginEvent.baseMsgEvent.pErrorInfo = pError;
 
-						_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
-						*pCret = (*pProviderRole->loginMsgCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &loginEvent);
-						_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
-					}
+							_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
+							*pCret = (*pProviderRole->loginMsgCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &loginEvent);
+							_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
+						}
 					else
 					{
 						ret = RSSL_RET_SUCCESS;
@@ -2784,9 +2814,9 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 						if (ret == RSSL_RET_SUCCESS) directoryEvent.pRDMDirectoryMsg = &directoryResponse;
 						else directoryEvent.baseMsgEvent.pErrorInfo = pError;
 
-						_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
-						*pCret = (*pProviderRole->directoryMsgCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &directoryEvent);
-						_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
+							_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
+							*pCret = (*pProviderRole->directoryMsgCallback)((RsslReactor*)pReactorImpl, (RsslReactorChannel*)pReactorChannel, &directoryEvent);
+							_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
 					}
 					else
 					{

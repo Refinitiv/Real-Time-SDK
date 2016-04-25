@@ -78,7 +78,7 @@ void wlDirectoryStreamDestroy(WlDirectoryStream *pDirectoryStream);
 
 /* Sends a directory message to a request. */
 RsslRet wlSendDirectoryMsgToRequest(WlBase *pBase, WlDirectoryRequest *pDirectoryRequest,
-		RsslRDMDirectoryMsg *pDirectoryMsg, RsslErrorInfo *pErrorInfo);
+	RsslRDMDirectoryMsg *pDirectoryMsg, RsslMsg *pRsslMsg, RsslErrorInfo *pErrorInfo);
 
 /* Prepares a directory message from the given list of services, and sends it to a request. */
 RsslRet wlSendServiceListToRequest(WlBase *pBase, WlDirectory *pDirectory, 
