@@ -211,8 +211,8 @@ RTR_C_INLINE void rsslResetReactorChannel(RsslReactorImpl *pReactorImpl, RsslRea
 	pReactorChannel->connectionListCount = 0;
 	pReactorChannel->connectionListIter = 0;
 	pReactorChannel->connectionOptList = NULL;
-	pReactorChannel->reactorChannel.socketId = REACTOR_INVALID_SOCKET;
-	pReactorChannel->reactorChannel.oldSocketId = REACTOR_INVALID_SOCKET;
+	pReactorChannel->reactorChannel.socketId = (RsslSocket)REACTOR_INVALID_SOCKET;
+	pReactorChannel->reactorChannel.oldSocketId = (RsslSocket)REACTOR_INVALID_SOCKET;
 
 	rsslResetReactorChannelState(pReactorImpl, pReactorChannel);
 }
