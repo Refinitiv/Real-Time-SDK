@@ -107,6 +107,9 @@ RsslRet wlLoginProcessConsumerMsg(WlLogin *pLogin, WlBase *pBase,
 /* Updates the login request to the next user token, if the AAA API is in use. */
 void wlLoginSetNextUserToken(WlLogin *pLogin, WlBase *pBase);
 
+/* Handle channel-down for login stream (send status if appropriate). */
+RsslRet wlLoginChannelDown(WlLogin *pLogin, WlBase *pBase, RsslErrorInfo *pErrorInfo);
+
 #ifdef __cplusplus
 }
 #endif
