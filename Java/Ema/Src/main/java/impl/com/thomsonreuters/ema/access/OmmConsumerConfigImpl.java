@@ -26,6 +26,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgFacto
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginAttrib;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginAttribFlags;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
@@ -91,10 +92,13 @@ class OmmConsumerConfigImpl implements OmmConsumerConfig
 			.append( "'. ")
 			.create(Severity.ERROR);
 		}
-		_rsslLoginReq.initDefaultRequest(1);
 		
 		_rsslLoginReq.rdmMsgType(LoginMsgType.REQUEST);
 		_rsslLoginReq.initDefaultRequest(1);
+		
+		int attribFlag = _rsslLoginReq.attrib().flags();
+		attribFlag &= ~LoginAttribFlags.HAS_APPLICATION_NAME;
+		_rsslLoginReq.attrib().flags(attribFlag);
 
 		if ( _rsslDirectoryReq != null)
 			_rsslDirectoryReq.clear();
@@ -219,7 +223,7 @@ class OmmConsumerConfigImpl implements OmmConsumerConfig
 			configStrBuilder().append( "OmmConsumerConfigImpl::consumerName parameter [" )
 									.append( consumerName )
 									.append( "] is an non-existent consumer name" );
-			oommICExcept().message(  _configStrBuilder.toString());
+			throw (oommICExcept().message(  _configStrBuilder.toString()));
 		}
  		else //if ( name != null ) 
 		{
@@ -325,7 +329,7 @@ class OmmConsumerConfigImpl implements OmmConsumerConfig
 	        
 	   if ( msgKey.checkHasNameType())
 	   {
-		  _rsslLoginReq.applyHasUserNameType();
+	      flags |= LoginRequestFlags.HAS_USERNAME_TYPE;
 		  _rsslLoginReq.userNameType(rsslRequestMsg.msgKey().nameType());
 	   }
 		
@@ -406,6 +410,7 @@ class OmmConsumerConfigImpl implements OmmConsumerConfig
 	                    return CodecReturnCodes.FAILURE;
 	                Buffer instanceId = elementEntry.encodedData();
 	                flags |= LoginRequestFlags.HAS_ATTRIB;
+	                flags |= LoginRequestFlags.HAS_INSTANCE_ID;
 	                _rsslLoginReq.instanceId().data(instanceId.data(), instanceId.position(), instanceId.length());
 	            }
 	            else if (elementEntry.name().equals(ElementNames.DOWNLOAD_CON_CONFIG))

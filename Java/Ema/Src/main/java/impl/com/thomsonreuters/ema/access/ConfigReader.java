@@ -322,12 +322,19 @@ class ConfigReader
 			}
 			else if ( enumType.equals("DictionaryType"))
 			{
-				int localDictonary = 1;
+				int localDictonary = 0;
 
 				if(enumValue.equals("FileDictionary"))
 					localDictonary = 1;
 				else if(enumValue.equals("ChannelDictionary"))
 					localDictonary = 0;
+				else
+				{
+					errorTracker().append( "no implementation in convertEnum for enumType [" )
+					.append( enumValue )
+					.append( "]")
+					.create(Severity.ERROR);
+				}
 
 				return ConfigManager.acquire().new IntConfigElement( parent, ConfigElement.Type.Enum,localDictonary);
 			}
@@ -343,7 +350,14 @@ class ConfigReader
 					channelType = ConnectionTypes.ENCRYPTED;
 				else if(enumValue.equals("RSSL_RELIABLE_MCAST"))
 					channelType = ConnectionTypes.RELIABLE_MCAST;
-
+				else
+				{
+					errorTracker().append( "no implementation in convertEnum for enumType [" )
+					.append( enumValue )
+					.append( "]")
+					.create(Severity.ERROR);
+				}
+				
 				if( channelType != -1 )
 					return ConfigManager.acquire().new IntConfigElement( parent, ConfigElement.Type.Enum,channelType);
 			}
@@ -357,6 +371,13 @@ class ConfigReader
 					compressionType = CompressionTypes.ZLIB;
 				else if(enumValue.equals("LZ4"))
 					compressionType = CompressionTypes.LZ4;
+				else
+				{
+					errorTracker().append( "no implementation in convertEnum for enumType [" )
+					.append( enumValue )
+					.append( "]")
+					.create(Severity.ERROR);
+				}
 
 				if( compressionType != -1 )
 					return ConfigManager.acquire().new IntConfigElement( parent, ConfigElement.Type.Enum,compressionType);
@@ -419,10 +440,14 @@ class ConfigReader
 				break;
 			}
 
-			e._name = name;
-			e._tagId = tagId;
-			e._valueStr = value;
-			e._type = elementType;
+			if (e != null)
+			{
+				e._name = name;
+				e._tagId = tagId;
+				e._valueStr = value;
+				e._type = elementType;
+			}
+			
 			return e;
 		}
 

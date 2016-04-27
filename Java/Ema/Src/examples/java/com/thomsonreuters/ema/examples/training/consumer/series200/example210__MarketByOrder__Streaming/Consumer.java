@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      	--
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  					--
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            		--
+// *|           Copyright Thomson Reuters 2016. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.examples.training.consumer.series200.example210__MarketByOrder__Streaming;
@@ -147,7 +147,7 @@ public class Consumer
 			consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig().host("localhost:14002").username("user"));
 			
 			consumer.registerClient(EmaFactory.createReqMsg().domainType(EmaRdm.MMT_MARKET_BY_ORDER)
-																										 .serviceName("DIRECT_FEED").name("AAO.V"), appClient);
+															.serviceName("DIRECT_FEED").name("AAO.V"), appClient);
 			
 			Thread.sleep(60000);			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
 		}

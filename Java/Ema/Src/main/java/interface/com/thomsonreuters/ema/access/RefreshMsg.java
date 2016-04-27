@@ -12,19 +12,25 @@ import java.nio.ByteBuffer;
 /**
  * RefreshMsg conveys item image, state, permission and group information.
  * 
- * <p>RefreshMsg is sent when item data needs to be synchronized.
+ * <p>RefreshMsg is sent when item data needs to be synchronized.<br>
  * This happens as a response to received ReqMsg or when upstream source requires it.</p>
- * <p>RefreshMsg sent as a response to ReqMsg is called a solicited refresh,
+ * 
+ * <p>RefreshMsg sent as a response to ReqMsg is called a solicited refresh,<br>
  * while an unsolicited refresh is sent when upstream source requires
  * synchronization of downstream consumers.</p>
  * 
+ * Objects of this class are intended to be short lived or rather transitional.<br>
+ * This class is designed to efficiently perform setting and getting of information from RefreshMsg.<br>
+ * Objects of this class are not cache-able.<br>
+ * Decoding of just encoded RefreshMsg in the same application is not supported.
+ *
  * @see Data
  * @see Msg
  */
 public interface RefreshMsg extends Msg
 {
 	/**
-	 * Indicates presence of Qos.
+	 * Indicates presence of Qos.<br>
 	 * Qos is an optional member of RefreshMsg.
 	 * 
 	 * @return true if Qos is set; false otherwise
@@ -32,7 +38,7 @@ public interface RefreshMsg extends Msg
 	public boolean hasQos();
 
 	/**
-	 * Indicates presence of SeqNum.
+	 * Indicates presence of SeqNum.<br>
 	 * Sequence number (SeqNum) is an optional member of RefreshMsg.
 	 * 
 	 * @return true if sequence number is set; false otherwise
@@ -40,7 +46,7 @@ public interface RefreshMsg extends Msg
 	public boolean hasSeqNum();
 
 	/**
-	 * Indicates presence of PartNum.
+	 * Indicates presence of PartNum.<br>
 	 * Part number is an optional member of RefreshMsg.
 	 * 
 	 * @return true if part number is set; false otherwise
@@ -48,7 +54,7 @@ public interface RefreshMsg extends Msg
 	public boolean hasPartNum();
 
 	/**
-	 * Indicates presence of PermissionData.
+	 * Indicates presence of PermissionData.<br>
 	 * Permission data is optional member of RefreshMsg.
 	 * 
 	 * @return true if permission data is set; false otherwise
@@ -56,7 +62,7 @@ public interface RefreshMsg extends Msg
 	public boolean hasPermissionData();
 
 	/**
-	 * Indicates presence of PublisherId.
+	 * Indicates presence of PublisherId.<br>
 	 * Publisher id is an optional member of RefreshMsg.
 	 * 
 	 * @return true if publisher id is set; false otherwise
@@ -64,7 +70,7 @@ public interface RefreshMsg extends Msg
 	public boolean hasPublisherId();
 
 	/**
-	 * Indicates presence of the ServiceName within the MsgKey.
+	 * Indicates presence of the ServiceName within the MsgKey.<br>
 	 * Service name is an optional member of RefreshMsg.
 	 * 
 	 * @return true if service name is set; false otherwise
@@ -79,8 +85,8 @@ public interface RefreshMsg extends Msg
 	public OmmState state();
 
 	/**
-	 * Returns Qos ({@link com.thomsonreuters.ema.access.OmmQos}).
-	 * <br>Calling this method must be preceded by a call to {@link #hasQos()}.
+	 * Returns Qos ({@link com.thomsonreuters.ema.access.OmmQos}).<br>
+	 * Calling this method must be preceded by a call to {@link #hasQos()}.
 	 * 
 	 * @throws OmmInvalidUsageException if {@link #hasQos()} returns false
 	 * 
@@ -89,8 +95,8 @@ public interface RefreshMsg extends Msg
 	public OmmQos qos();
 
 	/**
-	 * Returns SeqNum.
-	 * <br>Calling this method must be preceded by a call to {@link #hasSeqNum()}.
+	 * Returns SeqNum.<br>
+	 * Calling this method must be preceded by a call to {@link #hasSeqNum()}.
 	 * 
 	 * @throws OmmInvalidUsageException if {@link #hasSeqNum()} returns false
 	 * 
@@ -99,8 +105,8 @@ public interface RefreshMsg extends Msg
 	public long seqNum();
 
 	/**
-	 * Returns PartNum.
-	 * <br>Calling this method must be preceded by a call to {@link #hasPartNum()}
+	 * Returns PartNum.<br>
+	 * Calling this method must be preceded by a call to {@link #hasPartNum()}
 	 * 
 	 * @throws OmmInvalidUsageException if {@link #hasPartNum()} returns false
 	 * 
@@ -116,8 +122,8 @@ public interface RefreshMsg extends Msg
 	public ByteBuffer itemGroup();
 
 	/**
-	 * Returns PermissionData.
- 	 * <br>Calling this method must be preceded by a call to {@link #hasPermissionData()}
+	 * Returns PermissionData.<br>
+ 	 * Calling this method must be preceded by a call to {@link #hasPermissionData()}
 	 * 
 	 * @throws OmmInvalidUsageException if {@link #hasPermissionData()} returns false
 	 * 
@@ -135,8 +141,8 @@ public interface RefreshMsg extends Msg
 	public long publisherIdUserId();
 
 	/**
-	 * Returns PublisherIdUserAddress.
-  	 * <br>Calling this method must be preceded by a call to {@link #hasPublisherId()}
+	 * Returns PublisherIdUserAddress.<br>
+  	 * Calling this method must be preceded by a call to {@link #hasPublisherId()}
 	 * 
 	 * @throws OmmInvalidUsageException if {@link #hasPublisherId()} returns false
 	 * 
@@ -181,8 +187,8 @@ public interface RefreshMsg extends Msg
 	public boolean privateStream();
 
 	/**
-	 * Returns the ServiceName within the MsgKey.
-	 * <br>Calling this method must be preceded by a call to {@link #hasServiceName()}
+	 * Returns the ServiceName within the MsgKey.<br>
+	 * Calling this method must be preceded by a call to {@link #hasServiceName()}
 	 * 
 	 * @throws OmmInvalidUsageException if {@link #hasServiceName()} returns false
 	 * 
@@ -201,6 +207,8 @@ public interface RefreshMsg extends Msg
 	/**
 	 * Specifies StreamId.
 	 * 
+	 * @throws OmmOutOfRangeException if streamId is {@literal < -2147483648 or > 2147483647}
+	 * 
 	 * @param streamId stream id
 	 * @return reference to this object
 	 */
@@ -209,16 +217,17 @@ public interface RefreshMsg extends Msg
 	/**
 	 * Specifies Domain Type.
 	 * 
-	 * @throws OmmUnsupportedDomainTypeException if domainType is greater than 255
+	 * @throws OmmUnsupportedDomainTypeException if domainType is is {@literal < 0 or > 255}
 	 * 
 	 * @param domainType specifies RDM Message Model Type
-	 *        (default value is {@link com.thomsonreuters.ema.rdm.EmaRdm#MMT_MARKET_PRICE})
 	 * @return reference to this object
 	 */
 	public RefreshMsg domainType(int domainType);
 
 	/**
 	 * Specifies Name.
+	 * 
+	 * @throws OmmInvalidUsageException if name is null
 	 * 
 	 * @param name an String object containing item name
 	 * @return reference to this object
@@ -228,8 +237,9 @@ public interface RefreshMsg extends Msg
 	/**
 	 * Specifies NameType.
 	 * 
+	 * @throws OmmOutOfRangeException if nameType is {@literal < 0 or > 255}
+	 * 
 	 * @param nameType specifies RDM Instrument NameType 
-	 *        (default value is {@link com.thomsonreuters.ema.rdm.EmaRdm#INSTRUMENT_NAME_RIC})
 	 * @return reference to this object
 	 */
 	public RefreshMsg nameType(int nameType);
@@ -237,7 +247,7 @@ public interface RefreshMsg extends Msg
 	/**
 	 * Specifies ServiceName.
 	 * 
-	 * @throws OmmInvalidUsageException if service id is already set
+	 * @throws OmmInvalidUsageException if service id is already set or if name is null
 	 * 
 	 * @param serviceName an String object containing service name
 	 * @return reference to this object
@@ -248,6 +258,7 @@ public interface RefreshMsg extends Msg
 	 * Specifies ServiceId.
 	 * 
 	 * @throws OmmInvalidUsageException if service name is already set
+	 *                               or if serviceId is {@literal < 0 or > 65535}
 	 * 
 	 * @param serviceId service identifier
 	 * @return reference to this object
@@ -257,6 +268,8 @@ public interface RefreshMsg extends Msg
 	/**
 	 * Specifies Id.
 	 * 
+	 * @throws OmmOutOfRangeException if id is {@literal < -2147483648 or > 2147483647}
+	 * 
 	 * @param id specifies Id
 	 * @return reference to this object
 	 */
@@ -264,6 +277,8 @@ public interface RefreshMsg extends Msg
 
 	/**
 	 * Specifies Filter.
+	 * 
+	 * @throws OmmOutOfRangeException if filter is {@literal < 0 or > 4294967295L}
 	 * 
 	 * @param filter specifies Filter
 	 * @return reference to this object
@@ -274,33 +289,31 @@ public interface RefreshMsg extends Msg
 	 * Specifies Qos.
 	 * 
 	 * @param timeliness specifies Qos Timeliness
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmQos.Timeliness#REALTIME})
 	 * @param rate specifies Qos rate
-	 *        (default value is	{@link com.thomsonreuters.ema.access.OmmQos.Rate#TICK_BY_TICK})
+	 * 
 	 * @return reference to this object
 	 */
 	public RefreshMsg qos(int timeliness, int rate);
 
 	/**
-	 * Specifies State.
+	 * Specifies State.<br>
+	 * Defaults: statusCode=OmmState.StatusCode.NONE, statusText=DataImpl.EMPTY_STRING
 	 * 
 	 * @param streamState conveys item stream state value
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmState.StreamState#OPEN})
 	 * @param dataState conveys item data state value
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmState.DataState#SUSPECT})
+	 * 
 	 * @return reference to this object
 	 */
 	public RefreshMsg state(int streamState, int dataState);
 	
 	/**
-	 * Specifies State.
+	 * Specifies State.<br>
+	 * Default: statusText=DataImpl.EMPTY_STRING
 	 * 
 	 * @param streamState conveys item stream state value
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmState.StreamState#OPEN})
 	 * @param dataState conveys item data state value
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmState.DataState#SUSPECT})
 	 * @param statusCode conveys specific item state code
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmState.StatusCode#NONE})
+	 * 
 	 * @return reference to this object
 	 */
 	public RefreshMsg state(int streamState, int dataState, int statusCode);
@@ -309,18 +322,18 @@ public interface RefreshMsg extends Msg
 	 * Specifies State.
 	 * 
 	 * @param streamState conveys item stream state value
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmState.StreamState#OPEN})
 	 * @param dataState conveys item data state value
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmState.DataState#SUSPECT})
 	 * @param statusCode conveys specific item state code
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmState.StatusCode#NONE})
-	 * @param statusText conveys item status explanation (default value is 'empty string')
+	 * @param statusText conveys item status explanation
+	 * 
 	 * @return reference to this object
 	 */
 	public RefreshMsg state(int streamState, int dataState, int statusCode,	String statusText);
 
 	/**
 	 * Specifies SeqNum.
+	 * 
+	 * @throws OmmOutOfRangeException if seqNum is {@literal < 0 or > 4294967295L}
 	 * 
 	 * @param seqNum specifies sequence number
 	 * @return reference to this object
@@ -330,6 +343,8 @@ public interface RefreshMsg extends Msg
 	/**
 	 * Specifies PartNum.
 	 * 
+	 * @throws OmmOutOfRangeException if partNum is {@literal < 0 or > 32767}
+	 * 
 	 * @param partNum specifies part number
 	 * @return reference to this object
 	 */
@@ -337,6 +352,8 @@ public interface RefreshMsg extends Msg
 
 	/**
 	 * Specifies ItemGroup.
+	 *
+	 * @throws OmmInvalidUsageException if itemGroup is null
 	 * 
 	 * @param itemGroup a ByteBuffer object with item group information
 	 * @return reference to this object
@@ -345,6 +362,8 @@ public interface RefreshMsg extends Msg
 
 	/**
 	 * Specifies PermissionData.
+	 *
+	 * @throws OmmInvalidUsageException if permissionData is null
 	 * 
 	 * @param permissionData a ByteBuffer object with permission data information
 	 * @return reference to this object
@@ -354,14 +373,20 @@ public interface RefreshMsg extends Msg
 	/**
 	 * Specifies PublisherId.
 	 * 
+	 * @throws OmmOutOfRangeException if userId is {@literal < 0 or > 4294967295L}
+	 *                             or if userAddress is {@literal < 0 or > 4294967295L}
+	 *                             
 	 * @param userId specifies publisher's user id
 	 * @param userAddress specifies publisher's user address
+	 * 
 	 * @return reference to this object
 	 */
 	public RefreshMsg publisherId(long userId, long userAddress);
 
 	/**
 	 * Specifies Attrib.
+	 * 
+	 * @throws OmmInvalidUsageException if data is null
 	 * 
 	 * @param data an object of ComplexType
 	 * @return reference to this object
@@ -371,6 +396,8 @@ public interface RefreshMsg extends Msg
 	/**
 	 * Specifies Payload.
 	 * 
+	 * @throws OmmInvalidUsageException if data is null
+	 * 
 	 * @param data an object of ComplexType
 	 * @return reference to this object
 	 */
@@ -378,6 +405,8 @@ public interface RefreshMsg extends Msg
 
 	/**
 	 * Specifies ExtendedHeader.
+	 * 
+	 * @throws OmmInvalidUsageException if buffer is null
 	 * 
 	 * @param buffer a ByteBuffer containing extendedHeader information
 	 * @return reference to this object
@@ -388,7 +417,6 @@ public interface RefreshMsg extends Msg
 	 * Specifies Solicited.
 	 * 
 	 * @param solicited true if this refresh is solicited; false otherwise
-	 *            (default value is true)
 	 * @return reference to this object
 	 */
 	public RefreshMsg solicited(boolean solicited);
@@ -397,7 +425,6 @@ public interface RefreshMsg extends Msg
 	 * Specifies DoNotCache.
 	 * 
 	 * @param doNotCache true if this refresh must not be cached; false otherwise
-	 *        (default value is false)
 	 * @return reference to this object
 	 */
 	public RefreshMsg doNotCache(boolean doNotCache);
@@ -406,7 +433,6 @@ public interface RefreshMsg extends Msg
 	 * Specifies ClearCache.
 	 * 
 	 * @param clearCache true if cache needs to be cleared; false otherwise
-	 *            (default value is false)
 	 * @return reference to this object
 	 */
 	public RefreshMsg clearCache(boolean clearCache);
@@ -415,7 +441,7 @@ public interface RefreshMsg extends Msg
 	 * Specifies RefreshComplete.
 	 * 
 	 * @param complete true if this is the last part of multi part refresh
-	 *            or single part refresh; false otherwise (default value is true)
+	 *            or single part refresh; false otherwise
 	 * @return reference to this object
 	 */
 	public RefreshMsg complete(boolean complete);
@@ -424,7 +450,6 @@ public interface RefreshMsg extends Msg
 	 * Specifies PrivateStream.
 	 * 
 	 * @param privateStream true if private stream; false otherwise
-	 *        (default value is false)
 	 * @return reference to this object
 	 */
 	public RefreshMsg privateStream(boolean privateStream);

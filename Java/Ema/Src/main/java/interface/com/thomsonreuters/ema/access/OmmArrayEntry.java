@@ -13,6 +13,54 @@ import java.nio.ByteBuffer;
 /**
  * OmmArrayEntry represents an entry of OmmArray.
  * <p>OmmArrayEntry associates entry's data and its data type.</p>
+ * 
+ *  * Code snippet:
+ * <pre>
+ * void decode(OmmArray array)
+ * {
+ *     for(OmmArrayEntry arrayEntry : array)
+ *     {
+ *        System.out.print(" DataType: " + DataType.asString(arrayEntry.load().dataType()) + " Value: ");
+ *
+ *        if(Data.DataCode.BLANK == arrayEntry.code())
+ *          System.out.println(" blank");
+ *        else
+ *            switch (arrayEntry.loadType())
+ *            {
+ *            case DataTypes.REAL:
+ *                System.out.println(arrayEntry.real().asDouble());
+ *                break;
+ *            case DataTypes.DATE:
+ *                System.out.println(arrayEntry.date().day() + " / " + arrayEntry.date().month() + " / "
+ *                                   + arrayEntry.date().year());
+ *                break;
+ *            case DataTypes.TIME:
+ *                System.out.println(arrayEntry.time().hour() + ":" + arrayEntry.time().minute() + ":"
+ *                                   + arrayEntry.time().second() + ":" + arrayEntry.time().millisecond());
+ *                break;
+ *            case DataTypes.INT:
+ *                System.out.println(arrayEntry.intValue());
+ *                break;
+ *
+ *            ...
+ *            }
+ *     }
+ * }
+ * </pre>
+ * 
+ * Objects of this class are intended to be short lived or rather transitional.<br>
+ * This class is designed to efficiently perform extracting of data from entry.<br>
+ * Objects of this class are not cache-able.
+ *
+ * @see Data
+ * @see OmmArray
+ * @see OmmReal
+ * @see OmmDate
+ * @see OmmTime
+ * @see OmmDateTime
+ * @see OmmQos
+ * @see OmmState
+ * @see OmmError
  */
 public interface OmmArrayEntry
 {
@@ -289,6 +337,7 @@ public interface OmmArrayEntry
 	 * 
 	 * @param mantissa added OmmReal mantissa
 	 * @param magnitudeType added OmmReal magnitudeType
+	 * 
 	 * @return reference to this object
 	 */
 	public OmmArrayEntry real(long mantissa, int magnitudeType);
@@ -310,7 +359,7 @@ public interface OmmArrayEntry
 	 * 
 	 * @param value added double to be converted to OmmReal
 	 * @param magnitudeType OmmReal magnitudeType used for the conversion
-	 *            (default value is {@link com.thomsonreuters.ema.access.OmmReal.MagnitudeType#EXPONENT_0})
+	 * 
 	 * @return reference to this object
 	 */
 	public OmmArrayEntry realFromDouble(double value, int magnitudeType);
@@ -344,24 +393,28 @@ public interface OmmArrayEntry
 	 * @param year added OmmDate year (0 - 4095 where 0 indicates blank)
 	 * @param month added OmmDate month (0 - 12 where 0 indicates blank)
 	 * @param day added OmmDate day (0 - 31 where 0 indicates blank)
+	 * 
 	 * @return reference to this object
 	 */
 	public OmmArrayEntry date(int year, int month, int day);
 
 	/**
 	 * Adds a specific simple type of OMM data to the OmmArrayEntry.
-	 * 
+	 * Defaults: second=0, millisecond=0, microsecond=0, nanosecond=0
+	 *
 	 * @throws OmmInvalidUsageException if first addition was of different data type
 	 * @throws OmmOutOfRangeException if passed in OmmTime is invalid
 	 * 
 	 * @param hour added OmmTime hour (0 - 23 where 255 indicates blank)
 	 * @param minute added OmmTime minute (0 - 59 where 255 indicates blank)
+	 * 
 	 * @return reference to this object
 	 */
 	public OmmArrayEntry time(int hour, int minute);
 	
 	/**
 	 * Adds a specific simple type of OMM data to the OmmArrayEntry.
+	 * Defaults: millisecond=0, microsecond=0, nanosecond=0
 	 * 
 	 * @throws OmmInvalidUsageException if first addition was of different data type
 	 * @throws OmmOutOfRangeException if passed in OmmTime is invalid
@@ -369,12 +422,14 @@ public interface OmmArrayEntry
 	 * @param hour added OmmTime hour (0 - 23 where 255 indicates blank)
 	 * @param minute added OmmTime minute (0 - 59 where 255 indicates blank)
 	 * @param second added OmmTime second (0 - 60 where 255 indicates blank)
+	 * 
 	 * @return reference to this object
 	 */
 	public OmmArrayEntry time(int hour, int minute, int second);
 	
 	/**
 	 * Adds a specific simple type of OMM data to the OmmArrayEntry.
+	 * Defaults: microsecond=0, nanosecond=0
 	 * 
 	 * @throws OmmInvalidUsageException if first addition was of different data type
 	 * @throws OmmOutOfRangeException if passed in OmmTime is invalid
@@ -383,12 +438,14 @@ public interface OmmArrayEntry
 	 * @param minute added OmmTime minute (0 - 59 where 255 indicates blank)
 	 * @param second added OmmTime second (0 - 60 where 255 indicates blank)
 	 * @param millisecond added OmmTime millisecond (0 - 999 where 65535 indicates blank)
+	 * 
 	 * @return reference to this object
 	 */
 	public OmmArrayEntry time(int hour, int minute, int second, int millisecond);
 	
 	/**
 	 * Adds a specific simple type of OMM data to the OmmArrayEntry.
+	 * Default: nanosecond=0
 	 * 
 	 * @throws OmmInvalidUsageException if first addition was of different data type
 	 * @throws OmmOutOfRangeException if passed in OmmTime is invalid
@@ -398,6 +455,7 @@ public interface OmmArrayEntry
 	 * @param second added OmmTime second (0 - 60 where 255 indicates blank)
 	 * @param millisecond added OmmTime millisecond (0 - 999 where 65535 indicates blank)
 	 * @param microsecond added OmmTime microsecond (0 - 999 where 2047 indicates blank)
+	 * 
 	 * @return reference to this object
 	 */
 	public OmmArrayEntry time(int hour, int minute, int second, int millisecond, int microsecond);
@@ -414,12 +472,14 @@ public interface OmmArrayEntry
 	 * @param millisecond added OmmTime millisecond (0 - 999 where 65535 indicates blank)
 	 * @param microsecond added OmmTime microsecond (0 - 999 where 2047 indicates blank)
 	 * @param nanosecond added OmmTime nanosecond (0 - 999 where 2047 indicates blank)
+	 * 
 	 * @return reference to this object
 	 */
 	public OmmArrayEntry time(int hour, int minute, int second, int millisecond, int microsecond, int nanosecond);
 	
 	/**
 	 * Adds a specific simple type of OMM data to the OmmArrayEntry.
+	 * Defaults: hour=0, minute=0, second=0, millisecond=0, microsecond=0, nanosecond=0
 	 * 
 	 * @throws OmmInvalidUsageException if first addition was of different data type
 	 * @throws OmmOutOfRangeException if passed in OmmDateTime is invalid
@@ -427,12 +487,14 @@ public interface OmmArrayEntry
 	 * @param year added OmmDateTime year (0 - 4095 where 0 indicates blank)
 	 * @param month added OmmDateTime month (0 - 12 where 0 indicates blank)
 	 * @param day added OmmDateTime day (0 - 31 where 0 indicates blank)
+	 * 
 	 * @return reference to this object
 	 */
 	public OmmArrayEntry dateTime(int year, int month, int day);
 	
 	/**
 	 * Adds a specific simple type of OMM data to the OmmArrayEntry.
+	 * Defaults:  minute=0, second=0, millisecond=0, microsecond=0, nanosecond=0
 	 * 
 	 * @throws OmmInvalidUsageException if first addition was of different data type
 	 * @throws OmmOutOfRangeException if passed in OmmDateTime is invalid
@@ -441,12 +503,14 @@ public interface OmmArrayEntry
 	 * @param month added OmmDateTime month (0 - 12 where 0 indicates blank)
 	 * @param day added OmmDateTime day (0 - 31 where 0 indicates blank)
 	 * @param hour added OmmDateTime hour (0 - 59 where 255 indicates blank)
+	 * 
 	 * @return reference to this object
 	 */
 	public OmmArrayEntry dateTime(int year, int month, int day, int hour);
 	
 	/**
 	 * Adds a specific simple type of OMM data to the OmmArrayEntry.
+	 * Defaults: second=0, millisecond=0, microsecond=0, nanosecond=0
 	 * 
 	 * @throws OmmInvalidUsageException if first addition was of different data type
 	 * @throws OmmOutOfRangeException if passed in OmmDateTime is invalid
@@ -456,12 +520,14 @@ public interface OmmArrayEntry
 	 * @param day added OmmDateTime day (0 - 31 where 0 indicates blank)
 	 * @param hour added OmmDateTime hour (0 - 59 where 255 indicates blank)
 	 * @param minute added OmmDateTime minute (0 - 59 where 255 indicates blank)
+	 * 
 	 * @return reference to this object
 	 */
 	public OmmArrayEntry dateTime(int year, int month, int day, int hour, int minute);
 	
 	/**
 	 * Adds a specific simple type of OMM data to the OmmArrayEntry.
+	 * Defaults: millisecond=0, microsecond=0, nanosecond=0
 	 * 
 	 * @throws OmmInvalidUsageException if first addition was of different data type
 	 * @throws OmmOutOfRangeException if passed in OmmDateTime is invalid
@@ -472,12 +538,14 @@ public interface OmmArrayEntry
 	 * @param hour added OmmDateTime hour (0 - 59 where 255 indicates blank)
 	 * @param minute added OmmDateTime minute (0 - 59 where 255 indicates blank)
 	 * @param second added OmmDateTime second (0 - 60 where 255 indicates blank)
+	 * 
 	 * @return reference to this object
 	 */
 	public OmmArrayEntry dateTime(int year, int month, int day, int hour, int minute, int second);
 	
 	/**
 	 * Adds a specific simple type of OMM data to the OmmArrayEntry.
+	 * Defaults: microsecond=0, nanosecond=0
 	 * 
 	 * @throws OmmInvalidUsageException if first addition was of different data type
 	 * @throws OmmOutOfRangeException if passed in OmmDateTime is invalid
@@ -489,12 +557,14 @@ public interface OmmArrayEntry
 	 * @param minute added OmmDateTime minute (0 - 59 where 255 indicates blank)
 	 * @param second added OmmDateTime second (0 - 60 where 255 indicates blank)
 	 * @param millisecond added OmmDateTime millisecond (0 - 999 where 65535 indicates blank)
+	 * 
 	 * @return reference to this object
 	 */
-	public OmmArrayEntry dateTime(int year, int month, int day, int hour, int minute,	int second, int millisecond);
+	public OmmArrayEntry dateTime(int year, int month, int day, int hour, int minute, int second, int millisecond);
 	
 	/**
 	 * Adds a specific simple type of OMM data to the OmmArrayEntry.
+	 * Default: nanosecond=0
 	 * 
 	 * @throws OmmInvalidUsageException if first addition was of different data type
 	 * @throws OmmOutOfRangeException if passed in OmmDateTime is invalid
@@ -507,6 +577,7 @@ public interface OmmArrayEntry
 	 * @param second added OmmDateTime second (0 - 60 where 255 indicates blank)
 	 * @param millisecond added OmmDateTime millisecond (0 - 999 where 65535 indicates blank)
 	 * @param microsecond added OmmDateTime microsecond (0 - 999 where 2047 indicates blank)
+	 * 
 	 * @return reference to this object
 	 */
 	public OmmArrayEntry dateTime(int year, int month, int day, int hour, int minute, 
@@ -527,6 +598,7 @@ public interface OmmArrayEntry
 	 * @param millisecond added OmmDateTime millisecond (0 - 999 where 65535 indicates blank)
 	 * @param microsecond added OmmDateTime microsecond (0 - 999 where 2047 indicates blank)
 	 * @param nanosecond added OmmDateTime nanosecond (0 - 999 where 2047 indicates blank)
+	 * 
 	 * @return reference to this object
 	 */
 	public OmmArrayEntry dateTime(int year, int month, int day, int hour, int minute,
@@ -534,11 +606,11 @@ public interface OmmArrayEntry
 
 	/**
 	 * Adds a specific simple type of OMM data to the OmmArrayEntry.
+	 * Default rate is {@link com.thomsonreuters.ema.access.OmmQos.Rate#TICK_BY_TICK}
 	 * 
 	 * @throws OmmInvalidUsageException if first addition was of different data type
 	 * 
 	 * @param timeliness added OmmQos timeliness
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmQos.Timeliness#REALTIME})
 	 * @return reference to this object
 	 */
 	public OmmArrayEntry qos(int timeliness);
@@ -549,48 +621,49 @@ public interface OmmArrayEntry
 	 * @throws OmmInvalidUsageException if first addition was of different data type
 	 * 
 	 * @param timeliness added OmmQos timeliness
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmQos.Timeliness#REALTIME})
 	 * @param rate added OmmQos rate
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmQos.Rate#TICK_BY_TICK})
+	 * 
 	 * @return reference to this object
 	 */
 	public OmmArrayEntry qos(int timeliness, int rate);
 
 	/**
 	 * Adds a specific simple type of OMM data to the OmmArrayEntry.
+	 * Default dataState is {@link com.thomsonreuters.ema.access.OmmState.DataState#OK}
+	 * Default statusCode is {@link com.thomsonreuters.ema.access.OmmState.StatusCode#NONE}
+	 * Default statusText is an empty String
 	 * 
 	 * @throws OmmInvalidUsageException if first addition was of different data type
 	 * 
 	 * @param streamState added {@link com.thomsonreuters.ema.access.OmmState.StreamState}
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmState.StreamState#OPEN})
 	 * @return reference to this object
 	 */
 	public OmmArrayEntry state(int streamState);
 	
 	/**
 	 * Adds a specific simple type of OMM data to the OmmArrayEntry.
+	 * Default statusCode is {@link com.thomsonreuters.ema.access.OmmState.StatusCode#NONE}
+	 * Default statusText is an empty String
 	 * 
 	 * @throws OmmInvalidUsageException if first addition was of different data type
 	 * 
 	 * @param streamState added {@link com.thomsonreuters.ema.access.OmmState.StreamState}
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmState.StreamState#OPEN})
 	 * @param dataState added {@link com.thomsonreuters.ema.access.OmmState.DataState}
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmState.DataState#OK})
+	 * 
 	 * @return reference to this object
 	 */
 	public OmmArrayEntry state(int streamState, int dataState);
 	
 	/**
 	 * Adds a specific simple type of OMM data to the OmmArrayEntry.
+	 * Default statusText is an empty String
 	 * 
 	 * @throws OmmInvalidUsageException if first addition was of different data type
 	 * 
 	 * @param streamState added {@link com.thomsonreuters.ema.access.OmmState.StreamState}
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmState.StreamState#OPEN})
 	 * @param dataState added {@link com.thomsonreuters.ema.access.OmmState.DataState}
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmState.DataState#OK})
 	 * @param statusCode added {@link com.thomsonreuters.ema.access.OmmState.StatusCode}
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmState.StatusCode#NONE})
+	 * 
 	 * @return reference to this object
 	 */
 	public OmmArrayEntry state(int streamState, int dataState, int statusCode);
@@ -601,12 +674,10 @@ public interface OmmArrayEntry
 	 * @throws OmmInvalidUsageException if first addition was of different data type
 	 * 
 	 * @param streamState added {@link com.thomsonreuters.ema.access.OmmState.StreamState}
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmState.StreamState#OPEN})
 	 * @param dataState added {@link com.thomsonreuters.ema.access.OmmState.DataState}
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmState.DataState#OK})
 	 * @param statusCode added {@link com.thomsonreuters.ema.access.OmmState.StatusCode}
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmState.StatusCode#NONE})
-	 * @param statusText added {@link OmmState#statusText()} (default value is 'empty string')
+	 * @param statusText added {@link OmmState#statusText()}
+	 * 
 	 * @return reference to this object
 	 */
 	public OmmArrayEntry state(int streamState, int dataState, int statusCode, String statusText);

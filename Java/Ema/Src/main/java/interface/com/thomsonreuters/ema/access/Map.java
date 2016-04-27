@@ -11,38 +11,99 @@ import java.util.Collection;
 
 /**
  * Map is a homogeneous container of complex data type entries.
- * 
  * <p>
  * Map is a collection which provides iterator over the elements in this
- * collection.
- * </p>
- * 
+ * collection.</p>
  * <p>
- * Map entries are identified by a map key. All entries must have key of the
- * same primitive data type. All entries must have same complex data type
- * (except for delete action).
- * </p>
+ * Map entries are identified by a map key.<br> All entries must have key of the
+ * same primitive data type.<br> All entries must have same complex data type
+ * (except for delete action).</p>
  * 
- * <p>
- * Map supports two methods of adding containers; they are: <br>
- * - adding of already populated containers, (e.g. complete() was called) and
- * <br>
- * - adding of clear containers (e.g. clear() was called) which would be
- * populated after that.
- * </p>
+ * The following code snippet shows addition of containers to Map.
+ * <pre>
+ * Map map = EmaFactory.createMap();
+ * FieldList fl = EmaFactory.createFieldList();
+ * fl.add(EmaFactory.createFieldEntry().real(22, 34, OmmReal.MagnitudeType.EXPONENT_POS_1));
+ * map.summaryData(fl);
+ * ByteBuffer permission = (ByteBuffer)ByteBuffer.wrap("PERMISSION DATA".getBytes());
+ * ByteBuffer orderBuf =(ByteBuffer)ByteBuffer.wrap("ABCD".getBytes());
+ * map.add(EmaFactory.createMapEntry().keyBuffer(orderBuf, MapEntry.MapAction.ADD, fl, permission));
+ * </pre>
  * 
- * <p>
- * The first method of adding of already populated containers allows for easy
- * data manipulation but incurs additional memory copy. This method is useful in
- * applications extracting data containers from some messages or containers and
- * then setting them on other containers.
- * </p>
- * 
- * <p>
- * The second method allows for fast container population since it avoids
- * additional memory copy incurred by the first method. This method is useful in
- * source applications setting OMM data from native data formats.
- * </p>
+ * The following code snippet shows extracting data from Map.
+ * <pre>
+ * void decode(Map map)
+ * {
+ *    switch(map.summaryData().dataType())
+ *    {
+ *    case DataTypes.FIELD_LIST :
+ *        decode(map.summaryData().fieldList());
+ *        break;
+ *    case DataTypes.MAP :
+ *        decode(map.summaryData().map());
+ *        break;
+ *    case DataTypes.REFRESH_MSG :
+ *        decode(map.summaryData().refreshMsg());
+ *        break;
+ *    case DataTypes.UPDATE_MSG :
+ *        decode(map.summaryData().updateMsg());
+ *        break;
+ *    }
+ *
+ *    for(MapEntry mapEntry : map)
+ *    {
+ *       switch(mapEntry.key().dataType())
+ *       {
+ *       case DataTypes.ASCII :
+ *           System.out.println("Action = " + mapEntry.mapActionAsString() + ", key = " + mapEntry.key().ascii());
+ *           break;
+ *       case DataTypes.BUFFER :
+ *           System.out.println("Action = " + mapEntry.mapActionAsString() + ", key = " + mapEntry.key().buffer());
+ *           break;
+ *       }
+ *
+ *       switch(mapEntry.loadType())
+ *       {
+ *          case DataTypes.FIELD_LIST :
+ *              decode(mapEntry.fieldList());
+ *              break;
+ *          case DataTypes.MAP :
+ *              decode(mapEntry.map());
+ *              break;
+ *          case DataTypes.REFRESH_MSG :
+ *              decode(mapEntry.refreshMsg());
+ *              break;
+ *          case DataTypes.UPDATE_MSG :
+ *              decode(mapEntry.updateMsg());
+ *              break;
+ *       }
+ *    }
+ * }
+ * </pre>
+ *
+ * Objects of this class are intended to be short lived or rather transitional.
+ * This class is designed to efficiently perform setting and extracting of Map and its content.
+ * Objects of this class are not cache-able.
+ *
+ * @see Data
+ * @see ComplexType
+ * @see ReqMsg
+ * @see RefreshMsg
+ * @see UpdateMsg
+ * @see StatusMsg
+ * @see GenericMsg
+ * @see PostMsg
+ * @see AckMsg
+ * @see FieldList
+ * @see ElementList
+ * @see Map
+ * @see Vector
+ * @see Series
+ * @see FilterList
+ * @see OmmOpaque
+ * @see OmmXml
+ * @see OmmAnsiPage
+ * @see OmmError
  */
 public interface Map extends ComplexType, Collection<MapEntry>
 {

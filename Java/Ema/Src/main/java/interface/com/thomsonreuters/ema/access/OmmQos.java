@@ -9,6 +9,11 @@ package com.thomsonreuters.ema.access;
 
 /**
  * OmmQos represents Quality Of Service information in Omm.
+ * 
+ * OmmQos is a read only class.<br>
+ * This class is used for extraction of OmmQos only.
+ *
+ * @see Data
  */
 public interface OmmQos extends Data
 {
@@ -66,7 +71,8 @@ public interface OmmQos extends Data
 	public int timeliness();
 
 	/** Returns Rate.
-		@return value of OmmQos Rate
+	 * 
+	 * @return value of OmmQos Rate
 	*/
 	public int rate();
 }

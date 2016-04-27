@@ -622,7 +622,7 @@ class ChannelCallbackClient implements ReactorChannelEventCallback
 						.append("reconnectMinDelay ").append(_rsslReactorConnOptions.reconnectMinDelay()).append(" msec").append(OmmLoggerClient.CR)
 						.append("reconnectMaxDelay ").append(_rsslReactorConnOptions.reconnectMaxDelay()).append(" msec").append(OmmLoggerClient.CR)
 						.append("CompressionType ").append(com.thomsonreuters.upa.transport.CompressionTypes.toString(connectOptions.compressionType())).append(OmmLoggerClient.CR)
-						.append("connectionPingTimeout ").append(connectOptions.pingTimeout()).append(" msec").append(OmmLoggerClient.CR)
+						.append("connectionPingTimeout ").append(connectOptions.pingTimeout()).append(" sec").append(OmmLoggerClient.CR)
 						.append("tcpNodelay ").append((connectOptions.tcpOpts().tcpNoDelay() ? "true" : "false"));
 					
 						if(connectionType == com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED || connectionType == com.thomsonreuters.upa.transport.ConnectionTypes.HTTP)

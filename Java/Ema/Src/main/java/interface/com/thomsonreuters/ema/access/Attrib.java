@@ -7,9 +7,43 @@
 
 package com.thomsonreuters.ema.access;
 
+
 /**
  * Attrib is read only and is used for decoding only.
  * 
+ * <p>The following code snippet shows extracting of Attrib and its content while processing RefreshMsg.</p>
+ * <pre>
+ * class AppClient implements OmmConsumerClient
+ * {
+ *     ...
+ *
+ *     public void onRefreshMsg( RefreshMsg refreshMsg, OmmConsumerEvent Event )
+ *     {
+ *         Attrib attrib = refreshMsg.attrib();
+ *			
+ *         switch( attrib.dataType() )
+ *         {
+ *         case DataTypes.FIELD_LIST :
+ *            decode( attrib.fieldList() );
+ *            break;
+ *         case DataTypes.MAP :
+ *            decode( attrib.map() );
+ *            break;
+ *         case DataTypes.NO_DATA :
+ *            break;
+ *         }
+ *     }
+ *     
+ *     ...
+ *
+ * };
+ * </pre>
+ * 
+ * This class is designed to efficiently perform extracting of Attrib and its content.<br>
+ * Objects of this class are intended to be short lived or rather transitional.<br>
+ * Objects of this class are not cache-able.
+ *
+ *
  * @see ComplexType
  * @see ReqMsg
  * @see RefreshMsg
@@ -28,12 +62,13 @@ package com.thomsonreuters.ema.access;
  * @see OmmXml
  * @see OmmAnsiPage
  * @see OmmError
+ * 
  */
 public interface Attrib
 {
 	/**
-	 * Returns the DataType of the contained data. 
-	 * Return of {@link com.thomsonreuters.ema.access.DataType.DataTypes#NO_DATA} signifies no data present in Attrib.
+	 * Returns the DataType of the contained data.<br>
+	 * Return of {@link com.thomsonreuters.ema.access.DataType.DataTypes#NO_DATA} signifies no data present in Attrib.<br>
 	 * Return of {@link com.thomsonreuters.ema.access.DataType.DataTypes#ERROR} signifies error while extracting content of Attrib.
 	 * 
 	 * @return data type of the contained object

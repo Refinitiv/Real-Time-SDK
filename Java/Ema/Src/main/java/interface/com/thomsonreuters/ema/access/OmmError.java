@@ -13,6 +13,9 @@ package com.thomsonreuters.ema.access;
  * received data.
  * <br>These objects are used for debugging purposes only.
  *
+ * OmmError is a read only class.
+ * 
+ * @see Data
  */
 public interface OmmError extends Data
 {

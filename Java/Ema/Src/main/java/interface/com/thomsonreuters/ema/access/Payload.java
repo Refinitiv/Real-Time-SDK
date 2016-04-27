@@ -10,13 +10,36 @@ package com.thomsonreuters.ema.access;
 /**
  * Payload conveys the data part of item image.
  * <br>Payload contains objects of complex type.
+ * 
+ * Objects of this class are intended to be short lived or rather transitional.<br>
+ * This class is designed to efficiently perform extracting of Payload and its content.<br>
+ * Objects of this class are not cache-able.
+ *
+ * @see ComplexType
+ * @see ReqMsg
+ * @see RefreshMsg
+ * @see UpdateMsg
+ * @see StatusMsg
+ * @see GenericMsg
+ * @see PostMsg
+ * @see AckMsg
+ * @see FieldList
+ * @see ElementList
+ * @see Map
+ * @see Vector
+ * @see Series
+ * @see FilterList
+ * @see OmmOpaque
+ * @see OmmXml
+ * @see OmmAnsiPage
+ * @see OmmError
  */
 public interface Payload
 {
 	/**
-	 * Returns the DataType of the contained data.
+	 * Returns the DataType of the contained data.<br>
 	 * Return of {@link com.thomsonreuters.ema.access.DataType.DataTypes#NO_DATA}
-	 * signifies no data present in Payload.
+	 * signifies no data present in Payload.<br>
 	 * Return {@link com.thomsonreuters.ema.access.DataType.DataTypes#ERROR}
 	 * signifies error while extracting content of Payload.
 	 * 

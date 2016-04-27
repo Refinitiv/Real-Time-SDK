@@ -12,11 +12,24 @@ import java.nio.ByteBuffer;
 /**
  * StatusMsg conveys item state information.
  * <p>StatusMsg is used to convey item state information, permission change or item group id change.</p>
+ * 
+ * <p>
+ * Calling an accessor method on an optional member of StatusMsg must be<br>
+ * preceded by a call to respective has***() method.<br>
+ * example: calling {@link #serviceName()} must be preceded by a call to {@link #hasServiceName()}</p>
+ *
+ * Objects of this class are intended to be short lived or rather transitional.<br>
+ * This class is designed to efficiently perform setting and getting of information from RefreshMsg.<br>
+ * Objects of this class are not cache-able.<br>
+ * Decoding of just encoded StatusMsg in the same application is not supported.
+ *
+ * @see Data
+ * @see Msg
  */
 public interface StatusMsg extends Msg
 {
 	/**
-	 * Indicates presence of ItemGroup.
+	 * Indicates presence of ItemGroup.<br>
 	 * Item Group is an optional member of StatusMsg.
 	 * 
 	 * @return true if Item Group information is set; false otherwise
@@ -24,7 +37,7 @@ public interface StatusMsg extends Msg
 	public boolean hasItemGroup();
 	
 	/**
-	 * Indicates presence of State.
+	 * Indicates presence of State.<br>
 	 * Item State is an optional member of StatusMsg.
 	 * 
 	 * @return true if state information is set; false otherwise
@@ -32,15 +45,15 @@ public interface StatusMsg extends Msg
 	public boolean hasState();
 	
 	/**
-	 * Indicates presence of PermissionData.
-	 * Permission data is optional member of StatusMsg.
+	 * Indicates presence of PermissionData.<br>
+	 * Permission data is an optional member of StatusMsg.
 	 * 
 	 * @return true if permission data is set; false otherwise
 	 */
 	public boolean hasPermissionData();
 	
 	/**
-	 * Indicates presence of PublisherId.
+	 * Indicates presence of PublisherId.<br>
 	 * Publisher id is an optional member of StatusMsg.
 	 * 
 	 * @return true if publisher id is set; false otherwise
@@ -48,7 +61,7 @@ public interface StatusMsg extends Msg
 	public boolean hasPublisherId();
 	
 	/**
-	 * Indicates presence of the ServiceName within the MsgKey.
+	 * Indicates presence of the ServiceName within the MsgKey.<br>
 	 * Service name is an optional member of StatusMsg.
 	 * 
 	 * @return true if service name is set; false otherwise
@@ -56,8 +69,8 @@ public interface StatusMsg extends Msg
 	public boolean hasServiceName();
 	
 	/**
-	 * Returns State.
-	 * <br>Calling this method must be preceded by a call to {@link #hasState()}
+	 * Returns State.<br>
+	 * Calling this method must be preceded by a call to {@link #hasState()}
 	 * 
 	 * @throws OmmInvalidUsageException if {@link #hasState()} returns false
 	 * 
@@ -66,8 +79,8 @@ public interface StatusMsg extends Msg
 	public OmmState state();
 	
 	/**
-	 * Returns ItemGroup.
-	 * <br>Calling this method must be preceded by a call to {@link #hasItemGroup()}
+	 * Returns ItemGroup.<br>
+	 * Calling this method must be preceded by a call to {@link #hasItemGroup()}
 	 * 
 	 * @throws OmmInvalidUsageException if {@link #hasItemGroup()} returns false
 	 * 
@@ -76,8 +89,8 @@ public interface StatusMsg extends Msg
 	public ByteBuffer itemGroup();
 	
 	/**
-	 * Returns PermissionData.
-	 * <br>Calling this method must be preceded by a call to {@link #hasPermissionData()}
+	 * Returns PermissionData.<br>
+	 * Calling this method must be preceded by a call to {@link #hasPermissionData()}
 	 * 
 	 * @throws OmmInvalidUsageException if {@link #hasPermissionData()} returns false
 	 * 
@@ -86,8 +99,8 @@ public interface StatusMsg extends Msg
 	public ByteBuffer permissionData();
 	
 	/**
-	 * Returns PublisherIdUserId.
-	 * <br>Calling this method must be preceded by a call to {@link #hasPublisherId()}
+	 * Returns PublisherIdUserId.<br>
+	 * Calling this method must be preceded by a call to {@link #hasPublisherId()}
 	 * 
 	 * @throws OmmInvalidUsageException if {@link #hasPublisherId()} returns false
 	 * 
@@ -96,8 +109,8 @@ public interface StatusMsg extends Msg
 	public  long publisherIdUserId();
 	
 	/**
-	 * Returns PublisherIdUserAddress.
-	 * <br>Calling this method must be preceded by a call to {@link #hasPublisherId()}
+	 * Returns PublisherIdUserAddress.<br>
+	 * Calling this method must be preceded by a call to {@link #hasPublisherId()}
 	 *
 	 * @throws OmmInvalidUsageException if {@link #hasPublisherId()} returns false
 	 * 
@@ -120,15 +133,15 @@ public interface StatusMsg extends Msg
 	public boolean privateStream();
 	
 	/**
-	 * Returns the ServiceName within the MsgKey.
-	 * <br>Calling this method must be preceded by a call to {@link #hasPermissionData()}
+	 * Returns the ServiceName within the MsgKey.<br>
+	 * Calling this method must be preceded by a call to {@link #hasServiceName()}
 	 * 
 	 * @return String containing service name
 	 */
 	public String serviceName();
 	
 	/**
-	 * Clears the StatusMsg.
+	 * Clears the StatusMsg.<br>
 	 * Invoking clear() method clears all the values and resets all the defaults
 	 * 
 	 * @return reference to this object
@@ -138,6 +151,8 @@ public interface StatusMsg extends Msg
 	/**
 	 * Specifies StreamId.
 	 * 
+	 * @throws OmmOutOfRangeException if streamId is {@literal < -2147483648 or > 2147483647}
+	 * 
 	 * @param streamId specifies stream id
 	 * @return reference to this object
 	 */
@@ -146,16 +161,17 @@ public interface StatusMsg extends Msg
 	/**
 	 * Specifies DomainType.
 	 * 
-	 * @throws OmmUnsupportedDomainTypeException if domainType is greater than 255
+	 * @throws OmmUnsupportedDomainTypeException if domainType is is {@literal < 0 or > 255}
 	 * 
-	 * @param domainType specifies RDM Message Model Type (default value is {@link com.thomsonreuters.ema.rdm.EmaRdm#MMT_MARKET_PRICE})
-	 * 
+	 * @param domainType specifies RDM Message Model Type
 	 * @return reference to this object
 	 */
 	public StatusMsg domainType(int domainType);
 	
 	/**
 	 * Specifies Name.
+	 * 
+	 * @throws OmmInvalidUsageException if name is null
 	 * 
 	 * @param name specifies item name
 	 * @return reference to this object
@@ -165,8 +181,9 @@ public interface StatusMsg extends Msg
 	/**
 	 * Specifies NameType.
 	 * 
+	 * @throws OmmOutOfRangeException if nameType is {@literal < 0 or > 255}
+	 * 
 	 * @param nameType specifies RDM Instrument NameType
-	 *        (default value is {@link com.thomsonreuters.ema.rdm.EmaRdm#INSTRUMENT_NAME_RIC})
 	 * @return reference to this object
 	 */
 	public StatusMsg nameType(int nameType);
@@ -174,8 +191,8 @@ public interface StatusMsg extends Msg
 	/**
 	 * Specifies ServiceName.
 	 * 
-	 * @throws OmmInvalidUsageException if service id is already set
-	 * 
+	 * @throws OmmInvalidUsageException if service id is already set or if name is null
+	 *  
 	 * @param serviceName specifies service name
 	 * @return reference to this object
 	 */
@@ -185,6 +202,7 @@ public interface StatusMsg extends Msg
 	 * Specifies ServiceId.
 	 * 
 	 * @throws OmmInvalidUsageException if service name is already set
+	 *                               or if serviceId is {@literal < 0 or > 65535}
 	 * 
 	 * @param serviceId specifies service id
 	 * @return reference to this object
@@ -194,6 +212,8 @@ public interface StatusMsg extends Msg
 	/**
 	 * Specifies Id.
 	 * 
+	 * @throws OmmOutOfRangeException if id is {@literal < -2147483648 or > 2147483647}
+	 * 
 	 * @param id specifies Id
 	 * @return reference to this object
 	 */
@@ -202,31 +222,32 @@ public interface StatusMsg extends Msg
 	/**
 	 * Specifies Filter.
 	 * 
+	 * @throws OmmOutOfRangeException if filter is {@literal < 0 or > 4294967295L}
+	 * 
 	 * @param filter specifies filter
 	 * @return reference to this object
 	 */
 	public StatusMsg filter(long filter);
 	
 	/**
-	 * Specifies State.
+	 * Specifies State.<br>
+	 * Defaults: statusCode=OmmState.StatusCode.NONE, statusText=DataImpl.EMPTY_STRING
 	 * 
 	 * @param streamState conveys item stream state value
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmState.StreamState#OPEN})
 	 * @param dataState conveys item data state value
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmState.DataState#SUSPECT})
+	 * 
 	 * @return reference to this object
 	 */
 	public StatusMsg state(int streamState, int dataState);
 	
 	/**
-	 * Specifies State.
+	 * Specifies State.<br>
+	 * Default: statusText=DataImpl.EMPTY_STRING
 	 * 
 	 * @param streamState conveys item stream state value
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmState.StreamState#OPEN})
 	 * @param dataState conveys item data state value
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmState.DataState#SUSPECT})
 	 * @param statusCode conveys specific item state code
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmState.StatusCode#NONE})
+	 * 
 	 * @return reference to this object
 	 */
 	public StatusMsg state(int streamState, int dataState, int statusCode);
@@ -235,18 +256,18 @@ public interface StatusMsg extends Msg
 	 * Specifies State.
 	 * 
 	 * @param streamState conveys item stream state value
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmState.StreamState#OPEN})
 	 * @param dataState conveys item data state value
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmState.DataState#SUSPECT})
 	 * @param statusCode conveys specific item state code
-	 *        (default value is {@link com.thomsonreuters.ema.access.OmmState.StatusCode#NONE})
-	 * @param statusText conveys item status explanation (default value is 'empty string')
+	 * @param statusText conveys item status explanation
+	 * 
 	 * @return reference to this object
 	 */
 	public StatusMsg state(int streamState, int dataState,	int statusCode, String statusText);
 	
 	/**
 	 * Specifies ItemGroup.
+	 *
+	 * @throws OmmInvalidUsageException if itemGroup is null
 	 * 
 	 * @param itemGroup a ByteBuffer object with item group information
 	 * @return reference to this object
@@ -255,6 +276,8 @@ public interface StatusMsg extends Msg
 	
 	/**
 	 * Specifies PermissionData.
+	 *
+	 * @throws OmmInvalidUsageException if permissionData is null
 	 * 
 	 * @param permissionData a ByteBuffer object with permission data information
 	 * @return reference to this object
@@ -264,14 +287,20 @@ public interface StatusMsg extends Msg
 	/**
 	 * Specifies PublisherId.
 	 * 
+	 * @throws OmmOutOfRangeException if userId is {@literal < 0 or > 4294967295L}
+	 *                             or if userAddress is {@literal < 0 or > 4294967295L}
+	 *                             
 	 * @param userId specifies publisher's user id
 	 * @param userAddress specifies publisher's user address
+	 * 
 	 * @return reference to this object
 	 */
 	public StatusMsg publisherId(long userId, long userAddress);
 	
 	/**
 	 * Specifies Attrib.
+	 * 
+	 * @throws OmmInvalidUsageException if data is null
 	 * 
 	 * @param data an object of ComplexType
 	 * @return reference to this object
@@ -281,6 +310,8 @@ public interface StatusMsg extends Msg
 	/**
 	 * Specifies Payload.
 	 * 
+	 * @throws OmmInvalidUsageException if data is null
+	 * 
 	 * @param data an object of ComplexType
 	 * @return reference to this object
 	 */
@@ -288,6 +319,8 @@ public interface StatusMsg extends Msg
 	
 	/**
 	 * Specifies ExtendedHeader.
+	 * 
+	 * @throws OmmInvalidUsageException if buffer is null
 	 * 
 	 * @param buffer a ByteBuffer containing extendedHeader information
 	 * @return reference to this object
@@ -297,14 +330,15 @@ public interface StatusMsg extends Msg
 	/**
 	 * Specifies ClearCache.
 	 * 
-	 * @param clearCache true if cache needs to be cleared; false otherwise (default value is false)
+	 * @param clearCache true if cache needs to be cleared; false otherwise
 	 * @return reference to this object
 	 */
 	public StatusMsg clearCache(boolean clearCache);
 	
 	/**
 	 * Specifies PrivateStream.
-	 * @param privateStream true if private stream; false otherwise (default value is false)
+	 * 
+	 * @param privateStream true if private stream; false otherwise
 	 * @return reference to this object
 	 */
 	public StatusMsg privateStream(boolean privateStream);

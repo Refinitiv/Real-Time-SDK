@@ -10,19 +10,80 @@ package com.thomsonreuters.ema.access;
 /**
  * OmmConsumer class encapsulates functionality of an Omm consuming type application.
  * 
- * <p>OmmConsumer provides interfaces to open, modify and close items. It establishes and maintains
- * connection to server, maintains open item watch list, performs connection and item recovery, etc.</p>
+ * <p>OmmConsumer provides interfaces to open, modify and close items.<br>
+ * It establishes and maintains connection to server, maintains open item watch list,
+ * performs connection and item recovery, etc.</p>
  * 
- * <p>OmmConsumer provides a default behaviour / functionality. This may be tuned / modified by
- * application when using OmmConsumerConfig.</p>
+ * <p>OmmConsumer provides a default behaviour / functionality.<br>
+ * This may be tuned / modified by application when using OmmConsumerConfig.</p>
  * 
- * <p>Application interacts with server through the OmmConsumer interface methods. The results of
- * these interactions are communicated back to application through OmmConsumerClient and
- * OmmConsumerErrorClient.</p>
+ * <p>Application interacts with server through the OmmConsumer interface methods.<br>
+ * The results of these interactions are communicated back to application through
+ * OmmConsumerClient and OmmConsumerErrorClient.</p>
  * 
- * <p>An OmmConsumer is created from EmaFactory
+ * <p>An OmmConsumer is created from EmaFactory<br>
  * (see {@link com.thomsonreuters.ema.access.EmaFactory#createOmmConsumer(OmmConsumerConfig)}
  *  or {@link com.thomsonreuters.ema.access.EmaFactory#createOmmConsumer(OmmConsumerConfig, OmmConsumerErrorClient)}).</p>
+ * 
+ * 
+ * The following consumer example shows basic usage of OmmConsumer class in a simple consumer type app.<br>
+ * This application opens a regular streaming item named RTR from a service RDF from the 1.1.1.1 server
+ * on port 14002.
+ *
+ * <pre>
+ * // create an implementation for OmmConsumerClient to process received item messages
+ * class AppClient implements OmmConsumerClient
+ * {
+ *    public void onRefreshMsg(RefreshMsg refreshMsg, OmmConsumerEvent event)
+ *    {
+ *       System.out.println(refreshMsg);
+ *    }
+ * 	
+ *    public void onUpdateMsg(UpdateMsg updateMsg, OmmConsumerEvent event) 
+ *    {
+ *       System.out.println(updateMsg);
+ *    }
+ * 
+ *    public void onStatusMsg(StatusMsg statusMsg, OmmConsumerEvent event) 
+ *    {
+ *       System.out.println(statusMsg);
+ *    }
+ * 
+ *    public void onGenericMsg(GenericMsg genericMsg, OmmConsumerEvent consumerEvent){}
+ *    public void onAckMsg(AckMsg ackMsg, OmmConsumerEvent consumerEvent){}
+ *    public void onAllMsg(Msg msg, OmmConsumerEvent consumerEvent){}
+ * }
+ * 
+ * public class Consumer 
+ * {
+ *    public static void main(String[] args)
+ *    {
+ *       OmmConsumer consumer = null;
+ *       try
+ *       {
+ *          AppClient appClient = new AppClient();			
+ *          OmmConsumerConfig config = EmaFactory.createOmmConsumerConfig();
+ * 			
+ *          // instantiate OmmConsumer object and connect it to a server
+ *          consumer  = EmaFactory.createOmmConsumer(config.host("1.1.1.1:14002"));
+ *
+ *          // open an item of interest
+ *          ReqMsg reqMsg = EmaFactory.createReqMsg();
+ *          consumer.registerClient(reqMsg.serviceName("RDF").name("RTR"), appClient);
+ * 			
+ *          Thread.sleep(60000);    // API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
+ *       } 
+ *       catch (InterruptedException | OmmException excp)
+ *       {
+ *          System.out.println(excp.getMessage());
+ *       }
+ *       finally 
+ *       {
+ *          if (consumer != null) consumer.uninitialize();
+ *       }
+ *    }
+ * }
+ * </pre>
  * 
  * @see OmmConsumerConfig
  * @see OmmConsumerClient

@@ -8,8 +8,15 @@
 package com.thomsonreuters.ema.access;
 
 /**
- * DataType class provides represents Omm data types.
+ * DataType class provides represents Omm data types.<br>
  * DataType class is used to convert the numeric representation into string representation.
+ * 
+ * Code snippet:
+ * <pre>
+ * Payload payload = refreshMsg.payload();
+ * System.out.println( "Received payload is " + payload.dataType() );
+ * </pre>
+ *
  */
 public class DataType
 {
@@ -60,50 +67,50 @@ public class DataType
 	public static class DataTypes
 	{
 		/**
-		 * A message to specify item interest.
+		 * A message to specify item interest.<br>
 		 * A consumer sends this message.
 		 */
 		public final static int REQ_MSG = 0;
 
 		/**
-		 * A message to open and change an item.
+		 * A message to open and change an item.<br>
 		 * A provider sends this message.
 		 */
 		public final static int REFRESH_MSG = 1;
 
 		/**
-		 * A message to change an item.
+		 * A message to change an item.<br>
 		 * A provider sends this message.
 		 */
 		public final static int UPDATE_MSG = 2;
 
 		/**
-		 * A message to indicate the state of an item.
+		 * A message to indicate the state of an item.<br>
 		 * A provider sends this message.
 		 */
 		public final static int STATUS_MSG = 3;
 
 		/**
-		 * A message to solicit alteration of an item.
+		 * A message to solicit alteration of an item.<br>
 		 * A consumer sends this message.
 		 */
 		public final static int POST_MSG = 4;
 
 		/**
-		 * A message to acknowledge the alteration of an item.
+		 * A message to acknowledge the alteration of an item.<br>
 		 * A provider sends this message.
 		 */
 		public final static int ACK_MSG = 5;
 
 		/**
-		 * A message that has no implicit market information semantics.
+		 * A message that has no implicit market information semantics.<br>
 		 * A consumer or provider may send this message.
 		 */
 		public final static int GENERIC_MSG = 6;
 
 		/**
 		 * A container of efficient, associative-referenced field identifier,
-		 * simple or complex value pairs.
+		 * simple or complex value pairs.<br>
 		 * The field identifier references attributes
 		 * such as name and type in a field definition dictionary.
 		 */
@@ -171,22 +178,22 @@ public class DataType
 
 		/**
 		 * An 8-byte precision (19-20 decimal places) fixed-placed
-		 * representation of a numeric with either a fractional or exponential part.
-		 * The range of a fractional part is 1/2 through 1/256.
+		 * representation of a numeric with either a fractional or exponential part.<br>
+		 * The range of a fractional part is 1/2 through 1/256.<br>
 		 * The range of an exponential part is 10-14 through 10+7.
 		 */
 		public final static int REAL = 19;
 		
 		/**
 		 * A 4-byte value that has a range of -3.4e38 to +3.4e38
-		 * with an accuracy of 6 to 7 decimal digits.
+		 * with an accuracy of 6 to 7 decimal digits.<br>
 		 * This value is compliant with the IEEE-754 standard.
 		 */
 		public final static int FLOAT = 20;
 
 		/**
 		 * An 8-byte value that has a range of -1.7e308 to +1.7e308
-		 * with an accuracy of 14 to 15 digits.
+		 * with an accuracy of 14 to 15 digits.<br>
 		 * This value is compliant with the IEEE-754 standard.
 		 */
 		public final static int DOUBLE = 21;
@@ -227,7 +234,7 @@ public class DataType
 		public final static int BUFFER = 28; /** A general purpose buffer. */
 
 		/**
-		 * An 8-bit characters encoding using the Reuters Basic Character Set (RBCS).
+		 * An 8-bit characters encoding using the Reuters Basic Character Set (RBCS).<br>
 		 * The first 128 characters are equivalent to the ASCII character set (ANSI X3.4-1968).
 		 */
 		public final static int ASCII = 29;
@@ -239,12 +246,12 @@ public class DataType
 		public final static int UTF8 = 30;
 
 		/**
-		 * An encoding with the Reuters Multilingual Text Encoding Standard.
-		 * RMTES uses ISO 2022 escape sequences to select the character sets used.
-		 * RMTES provides support for the Reuters Basic Character Set, UTF-8,
+		 * An encoding with the Reuters Multilingual Text Encoding Standard.<br>
+		 * RMTES uses ISO 2022 escape sequences to select the character sets used.<br>
+		 * RMTES provides support for the Reuters Basic Character Set, UTF-8,<br>
 		 * Japanese Latin and Katakana (JIS C 6220 - 1969),
-		 * Japanese Kanji (JIS X 0208 - 1990), 
-		 * and Chinese National Standard (CNS 11643-1986).
+		 * Japanese Kanji (JIS X 0208 - 1990),<br>
+		 * and Chinese National Standard (CNS 11643-1986).<br>
 		 * StringRMTES also supports RREP sequences for
 		 * character repetition and RHPA sequences for partial updates.
 		 */

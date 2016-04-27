@@ -13,6 +13,10 @@ import java.nio.ByteBuffer;
  * OmmUtf8 represents Utf8 string value in Omm.
  * 
  * <p>Method {@link #string()} can have performance decrease, since it will trigger garbage collection.</p>
+ * 
+ * OmmUtf8 is a read only class.
+ *
+ * @see Data
  */
 public interface OmmUtf8 extends Data
 {

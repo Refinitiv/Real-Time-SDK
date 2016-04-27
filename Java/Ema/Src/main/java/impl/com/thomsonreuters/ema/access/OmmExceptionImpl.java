@@ -100,7 +100,7 @@ class OmmInvalidHandleExceptionImpl extends OmmInvalidHandleException
 	}
 	
 	/** Returns the invalid handle.
-	@return UInt64 value of handle causing exception
+	@return long value of handle causing exception
 	 */
 	public long handle()
 	{

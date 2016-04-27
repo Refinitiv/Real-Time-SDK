@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      	--
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  					--
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            		--
+// *|           Copyright Thomson Reuters 2016. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.examples.training.consumer.series400.example410__MarketPrice__HorizontalScaling;
@@ -144,7 +144,7 @@ class ConsumerInstance implements Runnable
 	{
 		try
 		{
-			Thread.sleep(60000);			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
+			Thread.sleep(60000);
 
 			_executor.shutdown();
 			_consumer.uninitialize();
@@ -169,7 +169,7 @@ public class Consumer
 			consumer1.openItem("IBM.N", "DIRECT_FEED");
 			consumer2.openItem("TRI.N",  "DIRECT_FEED");
 			
-			Thread.sleep(65000);
+			Thread.sleep(60000);
 		}
 		catch (InterruptedException | OmmException excp)
 		{

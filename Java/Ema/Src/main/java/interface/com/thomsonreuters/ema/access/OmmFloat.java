@@ -9,6 +9,10 @@ package com.thomsonreuters.ema.access;
 
 /**
  * OmmFloat represents float value in Omm.
+ * 
+ * OmmFloat is a read only class.
+ * 
+ * @see Data
  */
 public interface OmmFloat extends Data
 {

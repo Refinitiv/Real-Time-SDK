@@ -25,13 +25,13 @@ public interface Data
 	public static class DataCode
 	{
 		/**
-		 * Indicates no special code.
+		 * Indicates no special code.<br>
 		 * An application typically processes a valid DataType value.
 		 */
 		public final static int NO_CODE = 0;
 		
 	 	/**
-		 * Indicates the value is unspecified.
+		 * Indicates the value is unspecified.<br>
 		 * An application typically sets the blank code
 		 * when needing to initialize or clear a field.
 		 */
@@ -50,7 +50,6 @@ public interface Data
 	 * 
 	 * @return {@link com.thomsonreuters.ema.access.DataType.DataTypes} integer of this object.
 	 */
-
 	public int dataType();
 
 	/**

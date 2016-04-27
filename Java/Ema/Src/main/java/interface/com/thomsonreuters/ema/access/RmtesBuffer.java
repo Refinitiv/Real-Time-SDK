@@ -11,7 +11,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 
 /**
- * RmtesBuffer represents RMTES data.
+ * RmtesBuffer represents RMTES data.<br>
  * RmtesBuffer stores and applies RMTES data.
  * <p>Methods {@link #asUTF8()} and {@link #asUTF16()} will trigger garbage collection.</p>
  * 
@@ -53,17 +53,17 @@ public interface RmtesBuffer
 	public RmtesBuffer clear();
 
 	/**
-	 * Apply passed in RMTES data
+	 * Apply passed in RMTES data.
 	 * 
 	 * @throws OmmInvalidUsageException if fails to apply
 	 * 
-	 * @param data buf specifies RmtesBuffer to be applied to this object
+	 * @param data specifies RmtesBuffer to be applied to this object
 	 * @return reference to this object
 	 */
 	public RmtesBuffer apply(RmtesBuffer data);
 
 	/**
-	 * Apply passed in RMTES data
+	 * Apply passed in RMTES data.
 	 * 
 	 * 	@throws OmmInvalidUsageException if fails to apply
 	 * 

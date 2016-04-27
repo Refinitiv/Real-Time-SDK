@@ -20,6 +20,7 @@ public abstract class OmmInvalidHandleException extends OmmException
 
 	/**
 	 * Returns the invalid handle.
+	 * 
 	 * @return long value of handle causing exception
 	 */
 	public abstract long handle();

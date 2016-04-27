@@ -9,6 +9,10 @@ package com.thomsonreuters.ema.access;
 
 /**
  * OmmEnum represents int value in Omm. The enumeration is the meaning of the int value.
+ *
+ * OmmEnum is a read only class.
+ * 
+ * @see Data
  */
 public interface OmmEnum extends Data
 {

@@ -13,10 +13,11 @@ import java.nio.ByteBuffer;
  * OmmXml represents XML data format in Omm.
  * 
  * <p>Method {@link #string()} can have performance decrease, since it will trigger garbage collection.</p>
- * <p>Objects of this class are intended to be short lived or rather transitional.
- * <br>This class is designed to efficiently perform setting and extracting of XML and its content.
+ * <p>Objects of this class are intended to be short lived or rather transitional.<br>
+ * <br>This class is designed to efficiently perform setting and extracting of XML and its content.<br>
  * <br>Objects of this class are not cache-able.</p>
  * 
+ * @see Data
  */
 public interface OmmXml extends ComplexType
 {

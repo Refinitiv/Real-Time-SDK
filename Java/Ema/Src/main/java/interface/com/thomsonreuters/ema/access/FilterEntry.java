@@ -9,9 +9,56 @@ package com.thomsonreuters.ema.access;
 
 import java.nio.ByteBuffer;
 
+
 /**
  * FilterEntry represents an entry of FilterList.
  * <p>FilterEntry associates entry's id, action, permission info, data and its data type.</p>
+ * 
+ * <p>Code snippet:</p>
+ * <pre>
+ * void decode(FilterList filterList)
+ * {
+ *    for(FilterEntry filterEntry : filterList)
+ *    {
+ *       System.out.println("ID: " + filterEntry.filterId()
+ *                                 + " Action = " + filterEntry.filterActionAsString() 
+ *                                 + " DataType: " + DataType.asString(filterEntry.loadType()) + " Value: ");
+ *       switch(filterEntry.loadType())
+ *       {
+ *       case DataTypes.ELEMENT_LIST :
+ *           decode(filterEntry.elementList());
+ *           break;
+ *       case DataTypes.MAP :
+ *           decode(filterEntry.map());
+ *           break;
+ *       ...
+ *       }
+ *    }
+ * }
+ * </pre>
+ * 
+ * Objects of this class are intended to be short lived or rather transitional.<br>
+ * Objects of this class are not cache-able.
+ *
+ * @see Data
+ * @see ComplexType
+ * @see ReqMsg
+ * @see RefreshMsg
+ * @see UpdateMsg
+ * @see StatusMsg
+ * @see GenericMsg
+ * @see PostMsg
+ * @see AckMsg
+ * @see FieldList
+ * @see ElementList
+ * @see Map
+ * @see Vector
+ * @see Series
+ * @see FilterList
+ * @see OmmOpaque
+ * @see OmmXml
+ * @see OmmAnsiPage
+ * @see OmmError
  */
 public interface FilterEntry
 {
@@ -44,9 +91,9 @@ public interface FilterEntry
 	public String filterActionAsString();
 		
 	/**
-	 * Returns the DataType of the entry's load.
-	 * <br>Return of {@link com.thomsonreuters.ema.access.DataType.DataTypes#NO_DATA} signifies no data present in load.
-	 * <br>Return of {@link com.thomsonreuters.ema.access.DataType.DataTypes#ERROR} signifies error while extracting content of load.
+	 * Returns the DataType of the entry's load.<br>
+	 * Return of {@link com.thomsonreuters.ema.access.DataType.DataTypes#NO_DATA} signifies no data present in load.<br>
+	 * Return of {@link com.thomsonreuters.ema.access.DataType.DataTypes#ERROR} signifies error while extracting content of load.
 	 * 
 	 * @return data type of the contained object
 	 */
@@ -255,6 +302,7 @@ public interface FilterEntry
 	 * @param filterId specifies filter id for the added FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load of for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry reqMsg(int filterId, int action, ReqMsg value);
@@ -267,6 +315,7 @@ public interface FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
 	 * @param permissionData specifies permissions for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry reqMsg(int filterId, int action, ReqMsg value, ByteBuffer permissionData);
@@ -278,6 +327,7 @@ public interface FilterEntry
 	 * @param filterId specifies filter id for the added FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry refreshMsg(int filterId, int action, RefreshMsg value);
@@ -290,6 +340,7 @@ public interface FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
 	 * @param permissionData specifies permissions for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry refreshMsg(int filterId, int action, RefreshMsg value, ByteBuffer permissionData);
@@ -301,6 +352,7 @@ public interface FilterEntry
 	 * @param filterId specifies filter id for the added FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry statusMsg(int filterId, int action, StatusMsg value);
@@ -313,6 +365,7 @@ public interface FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
 	 * @param permissionData specifies permissions for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry statusMsg(int filterId, int action, StatusMsg value, ByteBuffer permissionData);
@@ -324,6 +377,7 @@ public interface FilterEntry
 	 * @param filterId specifies filter id for the added FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry updateMsg(int filterId, int action, UpdateMsg value);
@@ -336,6 +390,7 @@ public interface FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
 	 * @param permissionData specifies permissions for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry updateMsg(int filterId, int action, UpdateMsg value, ByteBuffer permissionData);
@@ -347,6 +402,7 @@ public interface FilterEntry
 	 * @param filterId specifies filter id for the added FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry postMsg(int filterId, int action, PostMsg value);
@@ -359,6 +415,7 @@ public interface FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
 	 * @param permissionData specifies permissions for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry postMsg(int filterId, int action, PostMsg value, ByteBuffer permissionData);
@@ -370,6 +427,7 @@ public interface FilterEntry
 	 * @param filterId specifies filter id for the added FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry ackMsg(int filterId, int action, AckMsg value);
@@ -382,6 +440,7 @@ public interface FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
 	 * @param permissionData specifies permissions for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry ackMsg(int filterId, int action, AckMsg value, ByteBuffer permissionData);
@@ -393,6 +452,7 @@ public interface FilterEntry
 	 * @param filterId specifies filter id for the added FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry genericMsg(int filterId, int action, GenericMsg value);
@@ -405,6 +465,7 @@ public interface FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
 	 * @param permissionData specifies permissions for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry genericMsg(int filterId, int action, GenericMsg value, ByteBuffer permissionData);
@@ -416,6 +477,7 @@ public interface FilterEntry
 	 * @param filterId specifies filter id for the added FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry fieldList(int filterId, int action, FieldList value);
@@ -428,6 +490,7 @@ public interface FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
 	 * @param permissionData specifies permissions for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry fieldList(int filterId, int action, FieldList value, ByteBuffer permissionData);
@@ -439,6 +502,7 @@ public interface FilterEntry
 	 * @param filterId specifies filter id for the added FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry elementList(int filterId, int action, ElementList value);
@@ -451,6 +515,7 @@ public interface FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
 	 * @param permissionData specifies permissions for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry elementList(int filterId, int action, ElementList value, ByteBuffer permissionData);
@@ -462,6 +527,7 @@ public interface FilterEntry
 	 * @param filterId specifies filter id for the added FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry map(int filterId, int action, Map value);
@@ -474,6 +540,7 @@ public interface FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
 	 * @param permissionData specifies permissions for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry map(int filterId, int action, Map value, ByteBuffer permissionData);
@@ -485,6 +552,7 @@ public interface FilterEntry
 	 * @param filterId specifies filter id for the added FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry vector(int filterId, int action, Vector value);
@@ -497,6 +565,7 @@ public interface FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
 	 * @param permissionData specifies permissions for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry vector(int filterId, int action, Vector value, ByteBuffer permissionData);
@@ -508,6 +577,7 @@ public interface FilterEntry
 	 * @param filterId specifies filter id for the added FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry series(int filterId, int action, Series value);
@@ -520,6 +590,7 @@ public interface FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
 	 * @param permissionData specifies permissions for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry series(int filterId, int action, Series value, ByteBuffer permissionData);
@@ -531,6 +602,7 @@ public interface FilterEntry
 	 * @param filterId specifies filter id for the added FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry filterList(int filterId, int action, FilterList value);
@@ -543,6 +615,7 @@ public interface FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
 	 * @param permissionData specifies permissions for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry filterList(int filterId, int action, FilterList value, ByteBuffer permissionData);
@@ -554,6 +627,7 @@ public interface FilterEntry
 	 * @param filterId specifies filter id for the added FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry opaque(int filterId, int action, OmmOpaque value);
@@ -566,6 +640,7 @@ public interface FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
 	 * @param permissionData specifies permissions for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry opaque(int filterId, int action, OmmOpaque value, ByteBuffer permissionData);
@@ -577,6 +652,7 @@ public interface FilterEntry
 	 * @param filterId specifies filter id for the added FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry xml(int filterId, int action, OmmXml value);
@@ -589,6 +665,7 @@ public interface FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
 	 * @param permissionData specifies permissions for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry xml(int filterId, int action, OmmXml value, ByteBuffer permissionData);
@@ -600,6 +677,7 @@ public interface FilterEntry
 	 * @param filterId specifies filter id for the added FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry ansiPage(int filterId, int action, OmmAnsiPage value);
@@ -612,6 +690,7 @@ public interface FilterEntry
 	 * @param action specifies action for the added FilterEntry
 	 * @param value specifies load for the added FilterEntry
 	 * @param permissionData specifies permissions for the added FilterEntry
+	 * 
 	 * @return reference to this object
 	 */
 	public FilterEntry ansiPage(int filterId, int action, OmmAnsiPage value, ByteBuffer permissionData);

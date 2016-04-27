@@ -9,6 +9,8 @@ package com.thomsonreuters.ema.access;
 
 /**
  * OmmUnsupportedDomainTypeException is thrown when a domain type value is greater than 255.
+ *
+ * @see OmmException
  */
 public abstract class OmmUnsupportedDomainTypeException extends OmmException
 {

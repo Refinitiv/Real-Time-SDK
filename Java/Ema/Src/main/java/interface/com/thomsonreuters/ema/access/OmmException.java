@@ -9,6 +9,13 @@ package com.thomsonreuters.ema.access;
 
 /**
  * OmmException is a parent class for all exception types thrown by EMA.
+ * 
+ * @see OmmInvalidHandleException
+ * @see OmmInvalidUsageException
+ * @see OmmOutOfRangeException
+ * @see OmmUnsupportedDomainTypeException
+ * @see OmmInvalidConfigurationException
+ * @see OmmConsumerErrorClient
  */
 public abstract class OmmException extends RuntimeException
 {
@@ -67,7 +74,6 @@ public abstract class OmmException extends RuntimeException
 	 * 
 	 * @return String with exception text information
 	 */
-
 	@Override
 	public String getMessage()
 	{

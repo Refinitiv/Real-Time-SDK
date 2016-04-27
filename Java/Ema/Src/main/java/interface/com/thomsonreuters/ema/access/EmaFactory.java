@@ -163,6 +163,7 @@ public final class EmaFactory
 	 * 
 	 * @param config OmmConsumerConfig providing configuration
 	 * @param client OmmConsumerClient that provides callback interfaces to be used for item processing
+	 * 
 	 * @return {@link com.thomsonreuters.ema.access.OmmConsumer}
 	 */
 	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config, OmmConsumerErrorClient client)
@@ -188,51 +189,91 @@ public final class EmaFactory
 		return new RmtesBufferImpl();
 	}
 	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.FieldEntry}.
+	 * @return {@link com.thomsonreuters.ema.access.FieldEntry}
+	 */
 	public static FieldEntry createFieldEntry()
 	{
 		return new FieldEntryImpl();
 	}
 	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.ElementEntry}.
+	 * @return {@link com.thomsonreuters.ema.access.ElementEntry}
+	 */
 	public static ElementEntry createElementEntry()
 	{
 		return new ElementEntryImpl();
 	}
-	
+
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.FilterEntry}.
+	 * @return {@link com.thomsonreuters.ema.access.FilterEntry}
+	 */
 	public static FilterEntry createFilterEntry()
 	{
 		return new FilterEntryImpl();
 	}
 	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.OmmArrayEntry}.
+	 * @return {@link com.thomsonreuters.ema.access.OmmArrayEntry}
+	 */
 	public static OmmArrayEntry createOmmArrayEntry()
 	{
 		return new OmmArrayEntryImpl();
 	}
 	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.VectorEntry}.
+	 * @return {@link com.thomsonreuters.ema.access.VectorEntry}
+	 */
 	public static VectorEntry createVectorEntry()
 	{
 		return new VectorEntryImpl();
 	}
 	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.SeriesEntry}.
+	 * @return {@link com.thomsonreuters.ema.access.SeriesEntry}
+	 */
 	public static SeriesEntry createSeriesEntry()
 	{
 		return new SeriesEntryImpl();
 	}
 	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.MapEntry}.
+	 * @return {@link com.thomsonreuters.ema.access.MapEntry}
+	 */
 	public static MapEntry createMapEntry()
 	{
 		return new MapEntryImpl();
 	}
 	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.OmmAnsiPage}.
+	 * @return {@link com.thomsonreuters.ema.access.OmmAnsiPage}
+	 */
 	public static OmmAnsiPage createOmmAnsiPage()
 	{
 		return new OmmAnsiPageImpl();
 	}
 	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.OmmOpaque}.
+	 * @return {@link com.thomsonreuters.ema.access.OmmOpaque}
+	 */
 	public static OmmOpaque createOmmOpaque()
 	{
 		return new OmmOpaqueImpl();
 	}
 	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.OmmXml}.
+	 * @return {@link com.thomsonreuters.ema.access.OmmXml}
+	 */
 	public static OmmXml createOmmXml()
 	{
 		return new OmmXmlImpl();

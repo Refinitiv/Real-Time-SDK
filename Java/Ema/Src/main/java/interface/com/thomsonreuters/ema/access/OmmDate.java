@@ -10,21 +10,28 @@ package com.thomsonreuters.ema.access;
 /**
  * OmmDate represents Date info in Omm.
  * <br>OmmDate encapsulates year, month and day information.
+ * 
+ * OmmDate is a read only class.
+ * 
+ * @see Data
  */
 public interface OmmDate extends Data
 {
-	/** Returns Year.
-	@return value of year
+	/**
+	 * Returns Year.
+	 * @return value of year
 	*/
 	public int year();
 	
-	/** Returns Month.
-		@return value of month
+	/**
+	 * Returns Month.
+	 * @return value of month
 	*/
 	public int month();
 	
-	/** Returns Day.
-		@return value of day
+	/**
+	 * Returns Day.
+	 * @return value of day
 	*/
 	public int day();
 }

@@ -8,8 +8,13 @@
 package com.thomsonreuters.ema.access;
 
 /**
- * OmmTime represents Time info in Omm.
- * <br>OmmTime encapsulates hour, minute, second, millisecond, microsecond and nanosecond information.
+ * OmmTime represents Time info in Omm.<br>
+ * OmmTime encapsulates hour, minute, second, millisecond, microsecond and nanosecond information.
+ * 
+ * OmmTime is a read only class.<br>
+ * This class is used for extraction of Time info only.
+ *
+ * @see Data
  */
 public interface OmmTime extends Data
 {
