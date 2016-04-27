@@ -71,7 +71,6 @@ class OmmConsumerActiveConfig
 	final static int DEFAULT_USER_QLIMIT						= 65535;
 	final static int DEFAULT_USER_DISPATCH						= OperationModel.API_DISPATCH;
 	final static boolean DEFAULT_XML_TRACE_ENABLE				= false;
-	final static String DEFAULT_APPLICATION_NAME				= "EMA";
 	
 	String		consumerName;
 	OmmConsumerImpl consumer;
@@ -88,7 +87,6 @@ class OmmConsumerActiveConfig
 	int			loginRequestTimeOut;
 	int			directoryRequestTimeOut;
 	int			dictionaryRequestTimeOut;
-	boolean     catchUnhandledException;
 	int		    userDispatch;
 	ChannelConfig			channelConfig;
 	DictionaryConfig		dictionaryConfig;
@@ -115,7 +113,6 @@ class OmmConsumerActiveConfig
 		 directoryRequestTimeOut = DEFAULT_DIRECTORY_REQUEST_TIMEOUT;
 		 dictionaryRequestTimeOut = DEFAULT_DICTIONARY_REQUEST_TIMEOUT;
 		 userDispatch = DEFAULT_USER_DISPATCH;
-		 catchUnhandledException = DEFAULT_HANDLE_EXCEPTION;
 	}
 
 	void clear()
@@ -132,7 +129,6 @@ class OmmConsumerActiveConfig
 		postAckTimeout = DEFAULT_POST_ACK_TIMEOUT;
 		maxOutstandingPosts = DEFAULT_MAX_OUTSTANDING_POSTS;
 		userDispatch = DEFAULT_USER_DISPATCH;
-		catchUnhandledException = DEFAULT_HANDLE_EXCEPTION;
 		
 		dictionaryConfig.clear();
 
@@ -148,9 +144,6 @@ class OmmConsumerActiveConfig
 		rsslRDMLoginRequest.role(Login.RoleTypes.CONS);
 		rsslRDMLoginRequest.streamId(1);
 		
-		if (rsslRDMLoginRequest.checkHasAttrib() && rsslRDMLoginRequest.attrib().checkHasApplicationName())
-			rsslRDMLoginRequest.attrib().applicationName().data(OmmConsumerActiveConfig.DEFAULT_APPLICATION_NAME);
-	
 		if (consumer.loggerClient().isTraceEnabled())
 		{
 			StringBuilder temp = consumer.consumerStrBuilder();

@@ -89,14 +89,8 @@ class RmtesBufferImpl implements RmtesBuffer
 	public RmtesBuffer clear()
 	{
 		_rsslBuffer.clear();
-		
-		if (_rsslRmtesCacheBuffer.byteData() != null)
-			_rsslRmtesCacheBuffer.byteData().clear();
-		_rsslRmtesCacheBuffer.length(0);
-		
-		if (_rsslRmtesBuffer.byteData() != null)
-			_rsslRmtesBuffer.byteData().clear();
-		_rsslRmtesBuffer.length(0);
+		_rsslRmtesCacheBuffer.clear();
+		_rsslRmtesBuffer.clear();
 		
 		_decodedUTF16BufferSet = false;
 		_decodedUTF8BufferSet = false;

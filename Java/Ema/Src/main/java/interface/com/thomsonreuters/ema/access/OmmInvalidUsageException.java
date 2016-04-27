@@ -12,7 +12,6 @@ package com.thomsonreuters.ema.access;
  * OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.
  * 
  * @see OmmException
- *
  */
 public abstract class OmmInvalidUsageException extends OmmException
 {

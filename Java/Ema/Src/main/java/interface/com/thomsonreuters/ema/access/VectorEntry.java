@@ -11,7 +11,52 @@ import java.nio.ByteBuffer;
 
 /**
  * VectorEntry represents an entry of Vector.
- * <br>VectorEntry associates entry's position, action, permission information, data and its data type.
+ * <p>VectorEntry associates entry's position, action, permission information, data and its data type.</p>
+ * 
+ * Code snippet:
+ * <pre>
+ * void decode(Vector vector)
+ * {
+ *    for(VectorEntry vectorEntry : vector)
+ *    {
+ *       System.out.println(" DataType: " + DataType.asString(vectorEntry.loadType()) + " Value: ");
+ *
+ *       switch(vectorEntry.loadType())
+ *       {
+ *       case DataTypes.FIELD_LIST:
+ *           decode(vectorEntry.fieldList());     
+ *           break;
+ *           
+ *       ...
+ *       
+ *       }
+ *    }
+ * }
+ * </pre>
+ * 
+ * Objects of this class are intended to be short lived or rather transitional.
+ * This class is designed to efficiently perform setting and extracting of Map and its content.
+ * Objects of this class are not cache-able.
+ *
+ * @see Data
+ * @see ComplexType
+ * @see ReqMsg
+ * @see RefreshMsg
+ * @see UpdateMsg
+ * @see StatusMsg
+ * @see GenericMsg
+ * @see PostMsg
+ * @see AckMsg
+ * @see FieldList
+ * @see ElementList
+ * @see Map
+ * @see Vector
+ * @see Series
+ * @see FilterList
+ * @see OmmOpaque
+ * @see OmmXml
+ * @see OmmAnsiPage
+ * @see OmmError
  */
 public interface VectorEntry
 {
@@ -38,7 +83,7 @@ public interface VectorEntry
 		/**
 		 * Indicates to place the entry in between other entries.
 		 * <br>Increases any higher-ordered position by one.
-		 * <br>May leave gaps if previous lower-ordered position is unpopulated. 
+		 * <br>May leave gaps if previous lower-ordered position is not populated. 
 		 */
 		public final static int INSERT	= 4;
 	
@@ -271,6 +316,7 @@ public interface VectorEntry
 	* @param position specifies position of this entry in Vector
 	* @param action specifies action to be performed on this entry
 	* @param value complex type contained in this entry
+	* 
 	* @return reference to this object
 	*/
 	public VectorEntry reqMsg(long position, int action, ReqMsg value);
@@ -280,10 +326,11 @@ public interface VectorEntry
 	 *  
 	 * @throws OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
 	 * 
-	* @param position specifies position of this entry in Vector
+	 * @param position specifies position of this entry in Vector
 	 * @param action specifies action for the added VectorEntry
 	 * @param value complex type contained in this entry
 	 * @param permissionData specifies permission data for this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry reqMsg(long position, int action, ReqMsg value, ByteBuffer permissionData);
@@ -296,6 +343,7 @@ public interface VectorEntry
 	 * @param position specifies position of this entry in Vector
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry refreshMsg(long position, int action, RefreshMsg value);
@@ -309,6 +357,7 @@ public interface VectorEntry
 	* @param action specifies action to be performed on this entry
 	* @param value complex type contained in this entry
 	* @param permissionData specifies permission data for this entry
+	* 
 	* @return reference to this object
 	*/
 	public VectorEntry refreshMsg(long position, int action, RefreshMsg value, ByteBuffer permissionData);
@@ -321,6 +370,7 @@ public interface VectorEntry
 	 * @param position specifies position of this entry in Vector
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry statusMsg(long position, int action, StatusMsg value);
@@ -334,6 +384,7 @@ public interface VectorEntry
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
 	 * @param permissionData specifies permission data for this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry statusMsg(long position, int action, StatusMsg value, ByteBuffer permissionData);
@@ -346,6 +397,7 @@ public interface VectorEntry
 	 * @param position specifies position of this entry in Vector
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry updateMsg(long position, int action, UpdateMsg value);
@@ -359,6 +411,7 @@ public interface VectorEntry
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
 	 * @param permissionData specifies permission data for this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry updateMsg(long position, int action, UpdateMsg value, ByteBuffer permissionData);
@@ -371,6 +424,7 @@ public interface VectorEntry
 	 * @param position specifies position of this entry in Vector
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry postMsg(long position, int action, PostMsg value);
@@ -384,6 +438,7 @@ public interface VectorEntry
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
 	 * @param permissionData specifies permission data for this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry postMsg(long position, int action, PostMsg value, ByteBuffer permissionData);
@@ -396,6 +451,7 @@ public interface VectorEntry
 	 * @param position specifies position of this entry in Vector
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry ackMsg(long position, int action, AckMsg value);
@@ -409,6 +465,7 @@ public interface VectorEntry
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
 	 * @param permissionData specifies permission data for this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry ackMsg(long position, int action, AckMsg value, ByteBuffer permissionData);
@@ -421,6 +478,7 @@ public interface VectorEntry
 	 * @param position specifies position of this entry in Vector
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry genericMsg(long position, int action, GenericMsg value);
@@ -434,6 +492,7 @@ public interface VectorEntry
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
 	 * @param permissionData specifies permission data for this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry genericMsg(long position, int action, GenericMsg value, ByteBuffer permissionData);
@@ -446,6 +505,7 @@ public interface VectorEntry
 	 * @param position specifies position of this entry in Vector
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry fieldList(long position, int action, FieldList value);
@@ -459,6 +519,7 @@ public interface VectorEntry
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
 	 * @param permissionData specifies permission data for this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry fieldList(long position, int action, FieldList value, ByteBuffer permissionData);
@@ -471,6 +532,7 @@ public interface VectorEntry
 	 * @param position specifies position of this entry in Vector
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry elementList(long position, int action, ElementList value);
@@ -484,6 +546,7 @@ public interface VectorEntry
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
 	 * @param permissionData specifies permission data for this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry elementList(long position, int action, ElementList value, ByteBuffer permissionData);
@@ -496,6 +559,7 @@ public interface VectorEntry
 	 * @param position specifies position of this entry in Vector
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry map(long position, int action, Map value);
@@ -509,6 +573,7 @@ public interface VectorEntry
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
 	 * @param permissionData specifies permission data for this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry map(long position, int action, Map value, ByteBuffer permissionData);
@@ -521,6 +586,7 @@ public interface VectorEntry
 	 * @param position specifies position of this entry in Vector
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry vector(long position, int action, Vector value);
@@ -534,6 +600,7 @@ public interface VectorEntry
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
 	 * @param permissionData specifies permission data for this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry vector(long position, int action, Vector value, ByteBuffer permissionData);
@@ -546,6 +613,7 @@ public interface VectorEntry
 	 * @param position specifies position of this entry in Vector
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry series(long position, int action, Series value);
@@ -559,6 +627,7 @@ public interface VectorEntry
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
 	 * @param permissionData specifies permission data for this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry series(long position, int action, Series value, ByteBuffer permissionData);
@@ -571,6 +640,7 @@ public interface VectorEntry
 	 * @param position specifies position of this entry in Vector
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry filterList(long position, int action, FilterList value);
@@ -584,6 +654,7 @@ public interface VectorEntry
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
 	 * @param permissionData specifies permission data for this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry filterList(long position, int action, FilterList value, ByteBuffer permissionData);
@@ -596,6 +667,7 @@ public interface VectorEntry
 	 * @param position specifies position of this entry in Vector
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry opaque(long position, int action, OmmOpaque value);
@@ -609,6 +681,7 @@ public interface VectorEntry
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
 	 * @param permissionData specifies permission data for this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry opaque(long position, int action, OmmOpaque value, ByteBuffer permissionData);
@@ -621,6 +694,7 @@ public interface VectorEntry
 	 * @param position specifies position of this entry in Vector
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry xml(long position, int action, OmmXml value);
@@ -634,6 +708,7 @@ public interface VectorEntry
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
 	 * @param permissionData specifies permission data for this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry xml(long position, int action, OmmXml value, ByteBuffer permissionData);
@@ -646,6 +721,7 @@ public interface VectorEntry
 	 * @param position specifies position of this entry in Vector
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry ansiPage(long position, int action, OmmAnsiPage value);
@@ -659,6 +735,7 @@ public interface VectorEntry
 	 * @param action specifies action to be performed on this entry
 	 * @param value complex type contained in this entry
 	 * @param permissionData specifies permission data for this entry
+	 * 
 	 * @return reference to this object
 	 */
 	public VectorEntry ansiPage(long position, int action, OmmAnsiPage value, ByteBuffer permissionData);

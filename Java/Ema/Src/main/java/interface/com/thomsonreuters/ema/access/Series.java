@@ -10,51 +10,78 @@ package com.thomsonreuters.ema.access;
 import java.util.Collection;
 
 /**
- * Series is a homogeneous container of complex data type entries.
- * 
- * <p>
+ * Series is a homogeneous container of complex data type entries.<br>
  * Series is a collection which provides iterator over the elements in this
  * collection.
- * </p>
  * 
  * <p>
  * Series entries have no explicit identification. They are implicitly indexed
- * inside Series.
- * </p>
+ * inside Series.</p>
  * 
- * <p>
- * Series supports two methods of adding containers; they are: <br>
- * - adding of already populated containers, (e.g. {@link #complete()} was
- * called) and <br>
- * - adding of clear containers (e.g. {@link #clear()} was called) which would
- * be populated after that.
- * </p>
- * 
- * <p>
- * The first method of adding of already populated containers allows for easy
- * data manipulation but incurs additional memory copy. This method is useful in
- * applications extracting data containers from some messages or containers and
- * then setting them on other containers.
- * </p>
- * 
- * <p>
- * The second method allows for fast container population since it avoids
- * additional memory copy incurred by the first method. This method is useful in
- * source applications setting OMM data from native data formats.
- * </p>
- * 
- * <p>
- * These two methods apply to containers only, e.g. ElementList, FieldList,
- * FilterList, Map, Series, and Vector.
- * </p>
- * 
- * <p>
+ * The following code snippet shows addition of entry and summaryData to Series.
+ * <pre>
+ * Series series = EmaFactory.createSeries();
+ * FieldList fl = EmaFactory.createFieldList();
+ * fl.add(EmaFactory.createFieldEntry().real(22, 34, OmmReal.MagnitudeType.EXPONENT_POS_1));
+ * series.summaryData(fl);
+ * fl.clear();
+ * fl.add(EmaFactory.createFieldEntry().real(22, 34, OmmReal.MagnitudeType.EXPONENT_POS_1));
+ * series.add(EmaFactory.createSeriesEntry().fieldList(fl));
+ * </pre>
+ *
+ * The following code snippet shows extracting data from Series and its content.
+ * <pre>
+ * void decode(Series series)
+ * {
+ *    switch(series.summaryData().dataType())
+ *    {
+ *    case DataTypes.FIELD_LIST:
+ *         decode(series.summaryData().fieldList());
+ *         break;
+ *    case DataTypes.NO_DATA:
+ *         break;
+ *    }
+ *
+ *    for(SeriesEntry seriesEntry : series)
+ *    {
+ *       System.out.println(" DataType: " + DataType.asString(seriesEntry.loadType()) + " Value: ");
+ *
+ *       switch(seriesEntry.loadType())
+ *       {
+ *       case DataTypes.FIELD_LIST:
+ *           decode(seriesEntry.fieldList());
+ *           break;
+ *       case DataTypes.NO_DATA:
+ *           break;
+ *       }
+ *    }
+ * }
+ * </pre>
+ *
  * Objects of this class are intended to be short lived or rather transitional.
- * <br>
- * This class is designed to efficiently perform setting and extracting of
- * Series and its content. <br>
+ * This class is designed to efficiently perform setting and extracting of Map and its content.
  * Objects of this class are not cache-able.
- * </p>
+ *
+ * @see Data
+ * @see SeriesEntry
+ * @see SummaryData
+ * @see ReqMsg
+ * @see RefreshMsg
+ * @see UpdateMsg
+ * @see StatusMsg
+ * @see GenericMsg
+ * @see PostMsg
+ * @see AckMsg
+ * @see FieldList
+ * @see ElementList
+ * @see Map
+ * @see Vector
+ * @see Series
+ * @see FilterList
+ * @see OmmOpaque
+ * @see OmmXml
+ * @see OmmAnsiPage
+ * @see OmmError
  */
 public interface Series extends ComplexType, Collection<SeriesEntry>
 {
@@ -100,8 +127,7 @@ public interface Series extends ComplexType, Collection<SeriesEntry>
 	public Series totalCountHint(int totalCountHint);
 
 	/**
-	 * Specifies the SummaryData OMM Data. Call to {@link #summaryData()} must
-	 * happen prior to calling the {@link #add(ComplexType)} method
+	 * Specifies the SummaryData OMM Data.
 	 * 
 	 * @param data
 	 *            specifies complex type as summaryData

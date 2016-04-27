@@ -570,6 +570,23 @@ class LoginCallbackClient extends ConsumerCallbackClient implements RDMLoginMsgC
 		
 		return ReactorCallbackReturnCodes.SUCCESS;
 	}
+	
+	int processGenericMsg(Msg rsslMsg ,  ChannelInfo channelInfo)
+	{
+		if (_genericMsg == null)
+			_genericMsg = new GenericMsgImpl(true);
+		
+		_genericMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
+	
+		for (Item loginItem : _loginItemList)
+		{
+			_event._item = loginItem;
+			_event._item.client().onAllMsg(_genericMsg, _event);
+			_event._item.client().onGenericMsg(_genericMsg, _event);
+		}
+		
+		return ReactorCallbackReturnCodes.SUCCESS;
+	}
 }
 
 class LoginItem extends SingleItem implements TimeoutClient

@@ -23,6 +23,7 @@ import com.thomsonreuters.upa.codec.MsgKeyFlags;
 import com.thomsonreuters.upa.codec.QosRates;
 import com.thomsonreuters.upa.codec.QosTimeliness;
 import com.thomsonreuters.upa.codec.RequestMsg;
+import com.thomsonreuters.upa.codec.StatusMsg;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRefresh;
@@ -47,6 +48,7 @@ class DirectoryCallbackClient extends ConsumerCallbackClient implements RDMDirec
 	private Map<Integer, Directory>					_serviceById;
 	private Map<String, Directory>					_serviceByName;
 	private com.thomsonreuters.upa.codec.CloseMsg	_rsslCloseMsg;
+	private com.thomsonreuters.upa.codec.StatusMsg _rsslStatusMsg;
 
 	DirectoryCallbackClient(OmmConsumerImpl consumer)
 	{
@@ -530,6 +532,16 @@ class DirectoryCallbackClient extends ConsumerCallbackClient implements RDMDirec
 	Directory directory(int serviceId)
 	{
 		return _serviceById.get(serviceId);
+	}
+	
+	com.thomsonreuters.upa.codec.StatusMsg rsslStatusMsg()
+	{
+		if (_rsslStatusMsg == null)
+			_rsslStatusMsg = (StatusMsg)CodecFactory.createMsg();
+		else
+			_rsslStatusMsg.clear();
+		
+		return _rsslStatusMsg;
 	}
 	
 	com.thomsonreuters.upa.codec.CloseMsg rsslCloseMsg()

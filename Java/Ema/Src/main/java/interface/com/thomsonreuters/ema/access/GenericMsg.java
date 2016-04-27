@@ -11,51 +11,51 @@ import java.nio.ByteBuffer;
 
 /**
  * GenericMsg allows applications to bidirectionally send messages without any implied
- * message semantics.
- * <br>GenericMsg may be sent on any item stream using {@link OmmConsumer#submit(GenericMsg, long)}.
+ * message semantics.<br>
+ * GenericMsg may be sent on any item stream using {@link OmmConsumer#submit(GenericMsg, long)}.<br><br>
  * 
- * <p>Objects of this class are intended to be short lived or rather transitional.
- * <br>This class is designed to efficiently perform setting and getting of information from GenericMsg.
- * <br>Objects of this class are not cache-able.
- * <br>Decoding of just encoded GenericMsg in the same application is not supported.
+ * Objects of this class are intended to be short lived or rather transitional.<br>
+ * This class is designed to efficiently perform setting and getting of information from GenericMsg.<br>
+ * Objects of this class are not cache-able.<br>
+ * Decoding of just encoded GenericMsg in the same application is not supported.
  */
 public interface GenericMsg extends Msg
 {
 	/**
-	 * Indicates presence of SeqNum.
-	 * <br>Sequence number is an optional member of GenericMsg.
+	 * Indicates presence of SeqNum.<br>
+	 * Sequence number is an optional member of GenericMsg.
 	 * 
 	 * @return true if sequence number is set; false otherwise
 	 */
 	public boolean hasSeqNum();
 	
 	/** 
-	 * Indicates presence of SecondarySeqNum.
-	 * <br>Secondary sequence number is an optional member of GenericMsg.
+	 * Indicates presence of SecondarySeqNum.<br>
+	 * Secondary sequence number is an optional member of GenericMsg.
 	 * 
 	 * @return true if secondary sequence number is set; false otherwise
 	 */
 	public boolean hasSecondarySeqNum();
 	
 	/**
-	 * Indicates presence of PartNum.
-	 * <br>Part number is an optional member of GenericMsg.
+	 * Indicates presence of PartNum.<br>
+	 * Part number is an optional member of GenericMsg.
 	 * 
 	 * @return true if part number is set; false otherwise
 	 */
 	public boolean hasPartNum();
 	
 	/**
-	 * Indicates presence of PermissionData.
-	 * <br>Permission data is optional on GenericMsg.
+	 * Indicates presence of PermissionData.<br>
+	 * Permission data is optional on GenericMsg.
 	 * 
 	 * @return true if permission data is set; false otherwise
 	 */
 	public boolean hasPermissionData();
 	
 	/**
-	 * Returns SeqNum.
-	 * <br>Calling this method must be preceded by a call to {@link #hasSeqNum()}.
+	 * Returns SeqNum.<br>
+	 * Calling this method must be preceded by a call to {@link #hasSeqNum()}.
 	 * 
 	 * @throws OmmInvalidUsageException if {@link #hasSeqNum()} returns false
 	 * 
@@ -64,8 +64,8 @@ public interface GenericMsg extends Msg
 	public long seqNum();
 	
 	/**
-	 * Returns SecondarySeqNum.
-	 * <br>Calling this method must be preceded by a call to {@link #hasSecondarySeqNum()}.
+	 * Returns SecondarySeqNum.<br>
+	 * Calling this method must be preceded by a call to {@link #hasSecondarySeqNum()}.
 	 * 
 	 * @throws OmmInvalidUsageException if {@link #hasSecondarySeqNum()} returns false
 	 * 
@@ -84,8 +84,8 @@ public interface GenericMsg extends Msg
 	public int partNum();
 	
 	/**
-	 * Returns PermissionData.
-	 * <br>Calling this method must be preceded by a call to {@link #hasPermissionData()}.
+	 * Returns PermissionData.<br>
+	 * Calling this method must be preceded by a call to {@link #hasPermissionData()}.
 	 * 
 	 * @throws OmmInvalidUsageException if {@link #hasPermissionData()} returns false
 	 * 
@@ -101,8 +101,8 @@ public interface GenericMsg extends Msg
 	public boolean complete();
 
 	/**
-	 * Clears the GenericMsg.
-	 * <br>Invoking clear() method clears all the values and resets all the defaults.
+	 * Clears the GenericMsg.<br>
+	 * Invoking clear() method clears all the values and resets all the defaults.
 	 * 
 	 * @return reference to this object
 	 */
@@ -110,6 +110,8 @@ public interface GenericMsg extends Msg
 	
 	/**
 	 * Specifies StreamId.
+	 * 
+	 * @throws OmmOutOfRangeException if streamId is {@literal < -2147483648 or > 2147483647}
 	 * 
 	 * @param streamId specifies stream id
 	 * @return reference to this object
@@ -119,10 +121,9 @@ public interface GenericMsg extends Msg
 	/**
 	 * Specifies DomainType.
 	 * 
-	 * @throws OmmUnsupportedDomainTypeException if domainType is greater than 255
+	 * @throws OmmUnsupportedDomainTypeException if domainType is is {@literal < 0 or > 255}
 	 * 
 	 * @param domainType specifies RDM Message Model Type
-	 *        (default value is {@link com.thomsonreuters.ema.rdm.EmaRdm#MMT_MARKET_PRICE})
 	 * 
 	 * @return reference to this object
 	 */
@@ -130,6 +131,8 @@ public interface GenericMsg extends Msg
 	
 	/**
 	 * Specifies Name.
+	 * 
+	 * @throws OmmInvalidUsageException if name is null
 	 * 
 	 * @param name specifies item name
 	 * @return reference to this object
@@ -139,8 +142,9 @@ public interface GenericMsg extends Msg
 	/**
 	 * Specifies NameType.
 	 * 
+	 * @throws OmmOutOfRangeException if nameType is {@literal < 0 or > 255}
+	 * 
 	 * @param nameType specifies RDM Instrument NameType
-	 *        (default value is {@link com.thomsonreuters.ema.rdm.EmaRdm#INSTRUMENT_NAME_RIC})
 	 *        
 	 * @return reference to this object
 	 */
@@ -149,6 +153,8 @@ public interface GenericMsg extends Msg
 	/**
 	 * Specifies ServiceId.
 	 * 
+	 * @throws OmmOutOfRangeException if serviceId is {@literal < 0 or > 65535}
+	 * 
 	 * @param serviceId specifies service id
 	 * @return reference to this object
 	 */
@@ -156,6 +162,8 @@ public interface GenericMsg extends Msg
 	
 	/**
 	 * Specifies Id.
+	 *
+	 * @throws OmmOutOfRangeException if id is {@literal < -2147483648 or > 2147483647}
 	 * 
 	 * @param id specifies Id
 	 * @return reference to this object
@@ -165,6 +173,8 @@ public interface GenericMsg extends Msg
 	/**
 	 * Specifies Filter.
 	 * 
+	 * @throws OmmOutOfRangeException if filter is {@literal < 0 or > 4294967295L}
+	 * 
 	 * @param filter specifies filter
 	 * @return reference to this object
 	 */
@@ -172,6 +182,8 @@ public interface GenericMsg extends Msg
 	
 	/**
 	 * Specifies SeqNum.
+	 *
+	 * @throws OmmOutOfRangeException if filter is {@literal < 0 or > 4294967295L}
 	 * 
 	 * @param seqNum specifies sequence number
 	 * @return reference to this object
@@ -181,6 +193,8 @@ public interface GenericMsg extends Msg
 	/**
 	 * Specifies SecondarySeqNum.
 	 * 
+	 * @throws OmmOutOfRangeException if secondarySeqNum is {@literal < 0 or > 4294967295L}
+	 * 
 	 * @param secondarySeqNum specifies secondary sequence number
 	 * @return reference to this object
 	 */
@@ -188,6 +202,8 @@ public interface GenericMsg extends Msg
 	
 	/**
 	 * Specifies PartNum.
+	 * 
+	 * @throws OmmOutOfRangeException if partNum is {@literal < 0 or > 4294967295L}
 	 * 
 	 * @param partNum specifies part number
 	 * @return reference to this object
@@ -197,6 +213,8 @@ public interface GenericMsg extends Msg
 	/**
 	 * Specifies PermissionData.
 	 * 
+	 * @throws OmmInvalidUsageException if permissionData is null
+	 * 
 	 * @param permissionData a ByteBuffer object with permission data information
 	 * @return reference to this object
 	 */
@@ -205,6 +223,8 @@ public interface GenericMsg extends Msg
 	/**
 	 * Specifies Attrib.
 	 * 
+	 * @throws OmmInvalidUsageException if data is null
+	 * 
 	 * @param data an object of ComplexType
 	 * @return reference to this object
 	 */
@@ -212,6 +232,8 @@ public interface GenericMsg extends Msg
 	
 	/**
 	 * Specifies Payload.
+	 *
+	 * @throws OmmInvalidUsageException if data is null
 	 * 
 	 * @param data an object of ComplexType
 	 * @return reference to this object
@@ -221,14 +243,16 @@ public interface GenericMsg extends Msg
 	/**
 	 * Specifies ExtendedHeader.
 	 * 
+	 * @throws OmmInvalidUsageException if buffer is null
+	 * 
 	 * @param buffer ByteBuffer containing extendedHeader information
 	 * @return reference to this object
 	 */
 	public GenericMsg extendedHeader(ByteBuffer buffer);
 	
 	/**
-	 * Specifies Complete.
-	 * <br>Must be set to true for one part generic message.
+	 * Specifies Complete.<br>
+	 * Must be set to true for one part generic message.
 	 * 
 	 * @param complete specifies if this is the last part of the multi part generic message
 	 * @return reference to this object

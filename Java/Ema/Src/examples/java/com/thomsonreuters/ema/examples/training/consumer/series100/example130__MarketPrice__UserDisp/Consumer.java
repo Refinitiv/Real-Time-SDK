@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      	--
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  					--
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            		--
+// *|           Copyright Thomson Reuters 2016. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.examples.training.consumer.series100.example130__MarketPrice__UserDisp;
@@ -84,8 +84,8 @@ public class Consumer
 			AppClient appClient = new AppClient();
 			
 			consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig()
-																								.operationModel(OperationModel.USER_DISPATCH)
-																								.host("localhost:14002").username("user"));
+													.operationModel(OperationModel.USER_DISPATCH)
+													.host("localhost:14002").username("user"));
 			
 			consumer.registerClient(EmaFactory.createReqMsg().serviceName("DIRECT_FEED").name("IBM.N"), appClient, 0);
 			

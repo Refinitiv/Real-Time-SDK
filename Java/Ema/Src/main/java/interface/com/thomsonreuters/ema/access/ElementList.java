@@ -9,40 +9,47 @@ package com.thomsonreuters.ema.access;
 
 import java.util.Collection;
 
+
 /**
- * ElementList is a heterogeneous container of complex and primitive data type
- * entries. ElementList entries are identified by name.
+ * ElementList is a heterogeneous container of complex and primitive data type entries.<br>
+ * ElementList entries are identified by name.<br><br>
  * 
- * <p>
- * ElementList is a collection which provides iterator over the elements in this
- * collection.
- * </p>
+ * The following code snippet shows addition of containers to ElementList.
+ * <pre>
+ * ElementList elementList = EmaFactory.createElementList();
+ * elementList.add(EmaFactory.createElementEntry().ascii(EmaRdm.ENAME_APP_ID, "127"));
+ * elementList.add(EmaFactory.createElementEntry().intValue("value", 23));
+ * </pre>
  * 
- * <p>
- * ElementList supports two methods of adding containers; they are: <br>
- * - adding of already populated containers, and <br>
- * - adding of clear containers which would be populated after that.
- * </p>
+ * The following code snippet shows extracting data from ElementList.
+ * <pre>
+ * for(MapEntry mEntry : map)
+ * {
+ *    if(mEntry.loadType() == DataTypes.ELEMENT_LIST)
+ *    {
+ *       ElementList elementList = mEntry.elementList();
+ *       for(ElementEntry elementEntry : elementList)
+ *       {
+ *          switch(elementEntry.loadType())
+ *          {
+ *             case DataTypes.INT :
+ *                long value = elementEntry.intValue();
+ *                break;
+ *             case DataTypes.REAL :
+ *                double d = elementEntry.real().asDouble();
+ *                break;
+ *
+ *             ...
+ *          }
+ *       }
+ *    }
+ * }
+ * </pre>
  * 
- * <p>
- * Note that these two methods apply to containers only: OmmArray, ElementList,
- * FieldList, FilterList, Map, Series, and Vector.
- * </p>
- * 
- * <p>
- * The first method of adding of already populated containers allows for easy
- * data manipulation but incurs additional memory copy. This method is useful in
- * applications extracting data containers from some other messages or
- * containers and then setting them on other containers without full decoding of
- * the extracted containers.
- * </p>
- * 
- * <p>
- * The second method allows for fast container population since it avoids
- * additional memory copy incurred in the first method. This method is useful in
- * source applications encoding OMM data from native data formats.
- * </p>
- * 
+ * Objects of this class are intended to be short lived or rather transitional.<br>
+ * This class is designed to efficiently perform setting and extracting of ElementList and its content.<br>
+ * Objects of this class are not cache-able.
+ *
  * @see Data
  * @see ElementEntry
  * @see ReqMsg
@@ -75,21 +82,21 @@ public interface ElementList extends ComplexType, Collection<ElementEntry>
 	 * Returns InfoElementListNum.
 	 * 
 	 * @throws OmmInvalidUsageException
-	 *             if hasInfo() returns false
+	 *             if {@link #hasInfo()} returns false
 	 * 
 	 * @return ElementList Number
 	 */
 	public int infoElementListNum();
 
 	/**
-	 * Clears the ElementList. Note: allows re-use of ElementList instance
-	 * during encoding.
+	 * Clears the ElementList.<br>
+	 * Note: allows re-use of ElementList instance during encoding.
 	 */
 	public void clear();
 
 	/**
-	 * Specifies Info. The ElementList Info is optional. If used, it must be
-	 * specified before adding anything to ElementList.
+	 * Specifies Info.<br>
+	 * The ElementList Info is optional. If used, it must be specified before adding anything to ElementList.
 	 * 
 	 * @param elementListNum
 	 *            FieldList template number

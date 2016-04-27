@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      	--
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  					--
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            		--
+// *|           Copyright Thomson Reuters 2016. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.examples.training.consumer.series400.example400__Custom__NestedMessaging;
@@ -287,7 +287,8 @@ public class Consumer
 			appClient.setOmmConsumer(consumer);
 			
 			long handle = consumer.registerClient(EmaFactory.createReqMsg().domainType(200).serviceName("DIRECT_FEED")
-																																   .name("IBM.XYZ").privateStream(true), appClient, (Integer)1);
+																			.name("IBM.XYZ")
+																			.privateStream(true), appClient, (Integer)1);
 
 			Thread.sleep(60000);			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
 		}

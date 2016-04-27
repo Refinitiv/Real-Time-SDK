@@ -83,30 +83,123 @@ class DictionaryCallbackClient extends ConsumerCallbackClient implements RDMDict
 	@Override
 	public int rdmDictionaryMsgCallback(RDMDictionaryMsgEvent event)
 	{
-		boolean found = false;
-		ChannelDictionary one = null;
-
-		for (ChannelDictionary entry : _channelDictList)
+		if (_channelDictList != null)
 		{
-			if (entry ==  event.streamInfo().userSpecObject())
+			for (ChannelDictionary entry : _channelDictList)
 			{
-				found = true;
-				one = entry;
+				if (entry ==  event.streamInfo().userSpecObject())
+				{
+					return entry.processCallback(event);
+				}
+			}
+		}
+			
+		return processCallback(event,(DictionaryItem) (event.streamInfo().userSpecObject()));
+	}
+	
+	int processCallback(RDMDictionaryMsgEvent event, DictionaryItem item)
+	{
+		Msg msg = event.msg();
+		ReactorChannel rsslChannel = event.reactorChannel();
+		
+		if (msg == null)
+		{
+        	if (_consumer.loggerClient().isErrorEnabled())
+        	{
+	        	_consumer.loggerClient().error(_consumer.formatLogMessage(DictionaryCallbackClient.CLIENT_NAME,
+	        			"Internal error. Received RsslRDMDictionaryMsgEvent with no RsslRDMDictionaryMsg in DictionaryCallbackClient.processCallback()", Severity.ERROR));
+			}
+			
+			return ReactorCallbackReturnCodes.SUCCESS;
+		}
+		
+		switch (msg.msgClass())
+		{
+			case MsgClasses.REFRESH:
+			{
+				com.thomsonreuters.upa.codec.RefreshMsg rsslMsg = (com.thomsonreuters.upa.codec.RefreshMsg)msg;
+				DataDictionary rsslDictionary = CodecFactory.createDataDictionary();
+				
+				DecodeIterator dIter = _consumer.rsslDecIter();
+				dIter.clear();
+				if (CodecReturnCodes.SUCCESS != dIter.setBufferAndRWFVersion(rsslMsg.encodedDataBody(), rsslChannel.majorVersion(), rsslChannel.minorVersion()))
+				{
+					if (_consumer.loggerClient().isErrorEnabled())
+		        	{
+						StringBuilder temp = _consumer.consumerStrBuilder();
+			        	temp.append("Internal error: failed to set buffer while decoding dictionary").append(OmmLoggerClient.CR)
+			        		.append("Trying to set ").append(rsslChannel.majorVersion())
+			        		.append(".").append(rsslChannel.minorVersion());;
+		        	
+			        	_consumer.loggerClient().error(_consumer.formatLogMessage(DictionaryCallbackClient.CLIENT_NAME,
+			        									temp.toString(), Severity.ERROR));
+		        	}
+					return ReactorCallbackReturnCodes.SUCCESS;
+				}
+	
+				com.thomsonreuters.upa.transport.Error rsslError = _consumer.dictionaryCallbackClient().rsslError();
+				int ret = CodecReturnCodes.FAILURE;
+				if (item.name().equalsIgnoreCase(DICTIONARY_RWFFID))
+				{
+		    		if ((ret = rsslDictionary.decodeFieldDictionary(dIter, item.rsslFilters(), rsslError)) == CodecReturnCodes.SUCCESS)
+					{
+		    			if (item.currentFid() == 0)
+		    				item.handleDictionaryRefreshMsg(rsslDictionary, true);
+		    			else
+		    				item.handleDictionaryRefreshMsg(rsslDictionary, false);
+					}
+				}
+				else if (item.name().equalsIgnoreCase(DICTIONARY_RWFENUM))
+				{
+					rsslError.clear();
+		    		if ((ret = rsslDictionary.decodeEnumTypeDictionary(dIter, item.rsslFilters(), rsslError)) == CodecReturnCodes.SUCCESS)
+					{
+		    			item.handleDictionaryRefreshMsg(rsslDictionary, true);
+					}
+				}
+	
+				if (ret != CodecReturnCodes.SUCCESS) 
+				{
+					if (_consumer.loggerClient().isErrorEnabled())
+		        	{
+						StringBuilder temp = _consumer.consumerStrBuilder();
+			        	temp.append("RDMDictionary refresh message received is invalid on streamId").append(OmmLoggerClient.CR)
+			        		.append(rsslMsg.streamId());
+		        	
+			        	_consumer.loggerClient().error(_consumer.formatLogMessage(DictionaryCallbackClient.CLIENT_NAME,
+			        									temp.toString(), Severity.ERROR));
+		        	}
+				}
+	
+				return ReactorCallbackReturnCodes.SUCCESS;
+			}
+			case MsgClasses.STATUS:
+			{
+				com.thomsonreuters.upa.codec.StatusMsg rsslMsg = (com.thomsonreuters.upa.codec.StatusMsg)msg;
+				State state =((com.thomsonreuters.upa.codec.StatusMsg)rsslMsg).state();
+	
+				item.handleDictionaryStatusMsg(state);
+				
+				return ReactorCallbackReturnCodes.SUCCESS;
+			}
+			default:
+			{
+				if (_consumer.loggerClient().isErrorEnabled())
+	        	{
+					
+					StringBuilder temp = _consumer.consumerStrBuilder();
+		        	temp.append("Received unknown RDMDictionary message type").append(OmmLoggerClient.CR)
+		        		.append("message type ").append(msg.msgClass()).append(OmmLoggerClient.CR)
+		        		.append("streamId ").append(msg.streamId()).append(OmmLoggerClient.CR);
+	        	
+		        	_consumer.loggerClient().error(_consumer.formatLogMessage(DictionaryCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	}
 				break;
 			}
 		}
 
-		if (found)
-			return one.processCallback(event);
-		else
-		{
-			if (_consumer.loggerClient().isErrorEnabled())
-				_consumer.loggerClient().error(_consumer.formatLogMessage(CLIENT_NAME, "Received dictionary which is not what has been requested",
-																			Severity.ERROR).toString());
-			
-			return ReactorCallbackReturnCodes.SUCCESS;
-		}
-	}
+		return ReactorCallbackReturnCodes.SUCCESS;
+}
 	
 	void loadDictionaryFromFile()
 	{
@@ -1115,12 +1208,11 @@ class DictionaryItem extends SingleItem implements TimeoutClient
 {
 	private static final String 	CLIENT_NAME = "DictionaryItem";
 	
-	private int						_rsslFilter;
-	private int 					_currentFid;
-	private boolean					_needRemoved;
-	private boolean					_removed;
-	private String	 				_name;
-	
+	private int	_rsslFilter;
+	private int 	_currentFid;
+	private boolean	_needRemoved;
+	private boolean	_removed;
+	private String _name;
 	
 	DictionaryItem(OmmConsumerImpl consumer, OmmConsumerClient consumerClient, Object closure)
 	{
@@ -1151,43 +1243,48 @@ class DictionaryItem extends SingleItem implements TimeoutClient
 		if (rsslReqMsg.msgKey().checkHasFilter())
 			_rsslFilter = (int)rsslReqMsg.msgKey().filter();
 
-		if (_name.equals(DictionaryCallbackClient.DICTIONARY_RWFFID))
-		{
-			_currentFid = dictCBClient.defaultRsslDictionary().minFid();
-			_streamId = dictCBClient.fldStreamId();
-		}
-		else if (_name.equals(DictionaryCallbackClient.DICTIONARY_RWFENUM))
-		{
-			_currentFid = 0;
-			_streamId = dictCBClient.enumStreamId();
-		}
-
-		DataDictionary rsslDictionary = dictCBClient.defaultRsslDictionary();
-
-		if (rsslDictionary != null)
-		{
-			if (!dictCBClient.isLocalDictionary())
-			{
-				ChannelDictionary channelDict = dictCBClient.channelDictionaryList().get(0);
-			
-				channelDict.channelDictionaryLock().lock();
-
-				channelDict.addListener(this);
-
-				channelDict.channelDictionaryLock().unlock();
-			}
-
-			_consumer.addTimeoutEvent(500, this);
-			
-			return true;
-		}
+		if ( reqMsg.hasServiceName() || rsslReqMsg.msgKey().checkHasServiceId() )
+			return super.open( reqMsg );
 		else
 		{
-			if (_consumer.loggerClient().isErrorEnabled())
-	        	_consumer.loggerClient().error(_consumer.formatLogMessage(DictionaryItem.CLIENT_NAME,
-	        										"Consumer must have to receive a dictionary before open a dictionary request",
-	        										Severity.ERROR));
-			return false;
+			if (_name.equals(DictionaryCallbackClient.DICTIONARY_RWFFID))
+			{
+				_currentFid = dictCBClient.defaultRsslDictionary().minFid();
+				_streamId = dictCBClient.fldStreamId();
+			}
+			else if (_name.equals(DictionaryCallbackClient.DICTIONARY_RWFENUM))
+			{
+				_currentFid = 0;
+				_streamId = dictCBClient.enumStreamId();
+			}
+	
+			DataDictionary rsslDictionary = dictCBClient.defaultRsslDictionary();
+	
+			if (rsslDictionary != null)
+			{
+				if (!dictCBClient.isLocalDictionary())
+				{
+					ChannelDictionary channelDict = dictCBClient.channelDictionaryList().get(0);
+				
+					channelDict.channelDictionaryLock().lock();
+	
+					channelDict.addListener(this);
+	
+					channelDict.channelDictionaryLock().unlock();
+				}
+	
+				_consumer.addTimeoutEvent(500, this);
+				
+				return true;
+			}
+			else
+			{
+				if (_consumer.loggerClient().isErrorEnabled())
+		        	_consumer.loggerClient().error(_consumer.formatLogMessage(DictionaryItem.CLIENT_NAME,
+		        										"Consumer must have to receive a dictionary before open a dictionary request",
+		        										Severity.ERROR));
+				return false;
+			}
 		}
 	}
 	
@@ -1312,7 +1409,7 @@ class DictionaryItem extends SingleItem implements TimeoutClient
 		
 		Buffer rsslDictEncBuffer = _consumer.dictionaryCallbackClient().rsslDictEncBuffer();
 
-		if (rsslDictionary != null && rsslDictionary.enumTableCount() > 0 && rsslDictionary.numberOfEntries() > 0)
+		if (rsslDictionary != null && (rsslDictionary.enumTableCount() > 0 || rsslDictionary.numberOfEntries() > 0))
 		{
 			if (_name.equals(DictionaryCallbackClient.DICTIONARY_RWFFID))
 			{
@@ -1430,6 +1527,141 @@ class DictionaryItem extends SingleItem implements TimeoutClient
 												rsslChannel.minorVersion(),	this);
 			return;
 		}
+	}
+	
+	void handleDictionaryRefreshMsg(DataDictionary rsslDictionary, boolean firstPart)
+	{
+		DictionaryCallbackClient dictCallbackClient = _consumer.dictionaryCallbackClient();
+		ReactorChannel rsslChannel = _consumer.rsslReactorChannel();
+		int ret = CodecReturnCodes.FAILURE;
+		
+		Buffer rsslDictEncBuffer = _consumer.dictionaryCallbackClient().rsslDictEncBuffer();
+
+		ret = encodeDataDictionaryResp(	firstPart, rsslDictionary, rsslDictEncBuffer);
+		if ((ret == CodecReturnCodes.SUCCESS) || (ret == CodecReturnCodes.DICT_PART_ENCODED))
+		{
+			dictCallbackClient.processRefreshMsg(rsslDictEncBuffer,
+													rsslChannel.majorVersion(),
+													rsslChannel.minorVersion(),
+													this);
+		}
+
+		if (ret == CodecReturnCodes.DICT_PART_ENCODED)
+		{
+			_consumer.addTimeoutEvent(500,  this);
+			return;
+		}
+		
+		if (ret != CodecReturnCodes.SUCCESS)
+		{
+			EncodeIterator rsslEncIter = _consumer.rsslEncIter();
+			StatusMsg rsslStatusMsg = dictCallbackClient.rsslStatusMsg();
+			
+		    rsslStatusMsg.msgClass(MsgClasses.STATUS);
+	        rsslStatusMsg.streamId(_streamId);
+	        rsslStatusMsg.domainType(DomainTypes.DICTIONARY);
+	        rsslStatusMsg.containerType(DataTypes.NO_DATA);
+	        rsslStatusMsg.applyHasState();
+		    rsslStatusMsg.state().streamState(StreamStates.CLOSED);
+		    rsslStatusMsg.state().dataState(DataStates.SUSPECT);
+		    rsslStatusMsg.state().code(StateCodes.NONE);
+		    rsslStatusMsg.state().text().data("Failed to provide data dictionary: Internal error.");
+		       
+			rsslEncIter.clear();
+			int retCode = rsslEncIter.setBufferAndRWFVersion(rsslDictEncBuffer, rsslChannel.majorVersion(), rsslChannel.minorVersion());
+			if (retCode != CodecReturnCodes.SUCCESS)
+			{
+				if (_consumer.loggerClient().isErrorEnabled())
+	        	{
+		        	_consumer.loggerClient().error(_consumer.formatLogMessage(DictionaryItem.CLIENT_NAME, 
+		        			"Internal error. Failed to set encode iterator RWF version in DictionatyItem.handleDictionaryRefreshMsg()",
+		        									Severity.ERROR));
+	        	}
+				return;
+			}
+			
+		    if ((retCode = rsslStatusMsg.encode(rsslEncIter)) != CodecReturnCodes.SUCCESS)
+		    {
+		    	if (_consumer.loggerClient().isErrorEnabled())
+	        	{
+		        	_consumer.loggerClient().error(_consumer.formatLogMessage(DictionaryItem.CLIENT_NAME, 
+		        			"Internal error. Failed to encode msg in DictionatyItem.handleDictionaryRefreshMsg()",
+		        									Severity.ERROR));
+	        	}
+		    	return;
+		    }
+		    	
+			dictCallbackClient.processStatusMsg(rsslDictEncBuffer,	rsslChannel.majorVersion(),
+												rsslChannel.minorVersion(),	this);
+		}
+			
+		return;
+	}
+	
+	void handleDictionaryStatusMsg(State rsslState)
+	{
+		DictionaryCallbackClient dictCallbackClient = _consumer.dictionaryCallbackClient();
+		ReactorChannel rsslChannel = _consumer.rsslReactorChannel();
+		
+		Buffer rsslDictEncBuffer = _consumer.dictionaryCallbackClient().rsslDictEncBuffer();
+
+	
+		EncodeIterator rsslEncIter = _consumer.rsslEncIter();
+		StatusMsg rsslStatusMsg = dictCallbackClient.rsslStatusMsg();
+					
+		rsslStatusMsg.msgClass(MsgClasses.STATUS);
+			        rsslStatusMsg.streamId(_streamId);
+			        rsslStatusMsg.domainType(DomainTypes.DICTIONARY);
+			        rsslStatusMsg.containerType(DataTypes.NO_DATA);
+			        rsslStatusMsg.applyHasState();
+				    rsslStatusMsg.state().streamState(rsslState.streamState());
+				    rsslStatusMsg.state().dataState(rsslState.dataState());
+				    rsslStatusMsg.state().code(rsslState.code());
+				    rsslStatusMsg.state().text().data(rsslState.text().data());
+				       
+		rsslEncIter.clear();
+		int retCode = rsslEncIter.setBufferAndRWFVersion(rsslDictEncBuffer, rsslChannel.majorVersion(), rsslChannel.minorVersion());
+		if (retCode != CodecReturnCodes.SUCCESS)
+		{
+			if (_consumer.loggerClient().isErrorEnabled())
+        	{
+	        	_consumer.loggerClient().error(_consumer.formatLogMessage(DictionaryItem.CLIENT_NAME, 
+	        			"Internal error. Failed to set encode iterator RWF version in DictionatyItem.handleDictionaryStatusMsg()",
+	        									Severity.ERROR));
+        	}
+			return;
+		}
+		
+	    if ((retCode = rsslStatusMsg.encode(rsslEncIter)) != CodecReturnCodes.SUCCESS)
+	    {
+	    	if (_consumer.loggerClient().isErrorEnabled())
+        	{
+	        	_consumer.loggerClient().error(_consumer.formatLogMessage(DictionaryItem.CLIENT_NAME, 
+	        			"Internal error. Failed to encode msg in DictionatyItem.handleDictionaryStatusMsg()",
+	        									Severity.ERROR));
+        	}
+	    	return;
+	    }
+	    	
+		dictCallbackClient.processStatusMsg(rsslDictEncBuffer,	rsslChannel.majorVersion(),
+											rsslChannel.minorVersion(),	this);
+		
+		return;
+	}
+	
+	int currentFid()
+	{
+		return _currentFid;
+	}
+	
+	String name()
+	{
+		return _name;
+	}
+	
+	int rsslFilters()
+	{
+		return _rsslFilter;
 	}
 	
 	int encodeDataDictionaryResp(boolean firstMultiRefresh, DataDictionary rsslDataDictionary, Buffer rsslDictEncBuffer)

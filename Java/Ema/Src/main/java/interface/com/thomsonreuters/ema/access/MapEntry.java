@@ -13,6 +13,79 @@ import java.nio.ByteBuffer;
 /**
  * MapEntry represents an entry of Map.
  * <p>MapEntry associates entry's key, permission information, action, data and its data type.</p>
+ * 
+ * Code snippet:
+ * <pre>
+ * void decode(Map map)
+ * {
+ *    switch(map.summaryData().dataType())
+ *    {
+ *    case DataTypes.FIELD_LIST :
+ *        decode(map.summaryData().fieldList());
+ *        break;
+ *    case DataTypes.MAP :
+ *        decode(map.summaryData().map());
+ *        break;
+ *    case DataTypes.REFRESH_MSG :
+ *        decode(map.summaryData().refreshMsg());
+ *        break;
+ *    case DataTypes.UPDATE_MSG :
+ *        decode(map.summaryData().updateMsg());
+ *        break;
+ *    }
+ *
+ *    for(MapEntry mapEntry : map)
+ *    {
+ *       switch(mapEntry.key().dataType())
+ *       {
+ *       case DataTypes.ASCII :
+ *           System.out.println("Action = " + mapEntry.mapActionAsString() + ", key = " + mapEntry.key().ascii());
+ *           break;
+ *       case DataTypes.BUFFER :
+ *           System.out.println("Action = " + mapEntry.mapActionAsString() + ", key = " + mapEntry.key().buffer());
+ *           break;
+ *       }
+ *
+ *       switch(mapEntry.loadType())
+ *       {
+ *          case DataTypes.FIELD_LIST :
+ *              decode(mapEntry.fieldList());
+ *              break;
+ *          case DataTypes.MAP :
+ *              decode(mapEntry.map());
+ *              break;
+ *          case DataTypes.REFRESH_MSG :
+ *              decode(mapEntry.refreshMsg());
+ *              break;
+ *          case DataTypes.UPDATE_MSG :
+ *              decode(mapEntry.updateMsg());
+ *              break;
+ *			}
+ *		}
+ *	}
+ * </pre>
+ * Objects of this class are intended to be short lived or rather transitional.<br>
+ * Objects of this class are not cache-able.
+ *
+ * @see Data
+ * @see ComplexType
+ * @see ReqMsg
+ * @see RefreshMsg
+ * @see UpdateMsg
+ * @see StatusMsg
+ * @see GenericMsg
+ * @see PostMsg
+ * @see AckMsg
+ * @see FieldList
+ * @see ElementList
+ * @see Map
+ * @see Vector
+ * @see Series
+ * @see FilterList
+ * @see OmmOpaque
+ * @see OmmXml
+ * @see OmmAnsiPage
+ * @see OmmError
  */
 public interface MapEntry
 {
@@ -261,6 +334,7 @@ public interface MapEntry
 		 * @param key containing long key information
 		 * @param action specifies action to be applied to the entry
 		 * @param value specifies complex type associated with this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyInt(long key, int action, ComplexType value);
@@ -275,6 +349,7 @@ public interface MapEntry
 		 * @param action specifies action to be applied to the entry
 		 * @param value specifies complex type associated with this entry
 		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyInt(long key, int action, ComplexType value, ByteBuffer permissionData);
@@ -288,6 +363,7 @@ public interface MapEntry
 		 * @param key containing UInt key information
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyUInt(long key, int action, ComplexType value);		
@@ -302,6 +378,7 @@ public interface MapEntry
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
 		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyUInt(long key, int action, ComplexType value, ByteBuffer permissionData);
@@ -315,6 +392,7 @@ public interface MapEntry
 		 * @param key containing UInt key information
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyUInt(BigInteger key, int action, ComplexType value);
@@ -329,6 +407,7 @@ public interface MapEntry
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
 		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyUInt(BigInteger key, int action, ComplexType value, ByteBuffer permissionData);									
@@ -343,6 +422,7 @@ public interface MapEntry
 		 * @param magnitudeType specifies OmmReal magnitudeType part of key information
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyReal(long mantissa, int magnitudeType, int action, ComplexType value);
@@ -358,12 +438,14 @@ public interface MapEntry
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
 		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyReal(long mantissa, int magnitudeType, int action, ComplexType value, ByteBuffer permissionData);
 
 		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
+		 * Default magnitudeType is {@link com.thomsonreuters.ema.access.OmmReal.MagnitudeType#EXPONENT_0}
 		 * 
 		 * @throws OmmInvalidUsageException if an error is detected (exception will
 		 *        specify the cause of the error)
@@ -371,12 +453,14 @@ public interface MapEntry
 		 * @param key specifies double to be converted to {@link com.thomsonreuters.ema.access.OmmReal}
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyReal(double key, int action, ComplexType value);
 
 		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
+		 * Default magnitudeType is {@link com.thomsonreuters.ema.access.OmmReal.MagnitudeType#EXPONENT_0}
 		 * 
 		 * @throws OmmInvalidUsageException if an error is detected (exception will
 		 *        specify the cause of the error)
@@ -385,9 +469,10 @@ public interface MapEntry
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
 		 * @param permissionData ByteBuffer containing permission data related to  this entry
+		 * 
 		 * @return reference to this object
 		 */
-		public MapEntry keyReal(double key,  int action, ComplexType value, ByteBuffer permissionData);
+		public MapEntry keyReal(double key, int action, ComplexType value, ByteBuffer permissionData);
 
 		
 		/**
@@ -398,12 +483,12 @@ public interface MapEntry
 		 *        
 		 * @param key specifies double to be converted to {@link com.thomsonreuters.ema.access.OmmReal}
 		 * @param magnitudeType OmmReal magnitudeType used for the conversion
-		 *        (default value is {@link com.thomsonreuters.ema.access.OmmReal.MagnitudeType#EXPONENT_0})
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
+		 * 
 		 * @return reference to this object
 		 */
-		public MapEntry keyReal(double key,  int magnitudeType, int action, ComplexType value);
+		public MapEntry keyReal(double key, int magnitudeType, int action, ComplexType value);
 		
 		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
@@ -413,10 +498,10 @@ public interface MapEntry
 		 *        
 		 * @param key specifies double to be converted to {@link com.thomsonreuters.ema.access.OmmReal}
 		 * @param magnitudeType OmmReal magnitudeType used for the conversion
-		 *            (default value is {@link com.thomsonreuters.ema.access.OmmReal.MagnitudeType#EXPONENT_0})
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
 		 * @param permissionData ByteBuffer containing permission data related to  this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyReal(double key,  int magnitudeType, int action, ComplexType value, ByteBuffer permissionData);
@@ -430,6 +515,7 @@ public interface MapEntry
 		 * @param key containing float key information
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyFloat(float key, int action, ComplexType value);
@@ -444,6 +530,7 @@ public interface MapEntry
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
 		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyFloat(float key, int action, ComplexType value, ByteBuffer permissionData);
@@ -456,6 +543,7 @@ public interface MapEntry
 		 * @param key containing double key information
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyDouble(double key, int action, ComplexType value);
@@ -470,6 +558,7 @@ public interface MapEntry
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
 		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyDouble(double key, int action, ComplexType value, ByteBuffer permissionData);
@@ -486,6 +575,7 @@ public interface MapEntry
 		 * @param day specifies OmmDate day part of key information (0 - 31)
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyDate(int year, int month, int day, int action, ComplexType value);
@@ -503,6 +593,7 @@ public interface MapEntry
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
 		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyDate(int year, int month, int day, int action, ComplexType value, ByteBuffer permissionData);
@@ -522,6 +613,7 @@ public interface MapEntry
 		 * @param nanosecond specifies OmmTime nanosecond part of key information (0 - 999)
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyTime(int hour, int minute, int second, int millisecond, int microsecond, int nanosecond, int action, ComplexType value);
@@ -542,6 +634,7 @@ public interface MapEntry
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
 		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyTime(int hour, int minute, int second, int millisecond, int microsecond, int nanosecond, int action, ComplexType value, ByteBuffer permissionData);
@@ -564,6 +657,7 @@ public interface MapEntry
 		 * @param nanosecond specifies OmmDateTime nanosecond part of key information (0 - 999)
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, int microsecond, int nanosecond, int action, ComplexType value);
@@ -587,6 +681,7 @@ public interface MapEntry
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
 		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, int microsecond, int nanosecond, int action, ComplexType value, ByteBuffer permissionData);
@@ -601,6 +696,7 @@ public interface MapEntry
 		 * @param rate specifies {@link com.thomsonreuters.ema.access.OmmQos.Rate} part of key information
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyQos(int timeliness, int rate, int action, ComplexType value);
@@ -616,6 +712,7 @@ public interface MapEntry
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
 		 * @param permissionData ByteBuffer containing permission data related to  this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyQos(int timeliness, int rate, int action, ComplexType value, ByteBuffer permissionData);
@@ -632,6 +729,7 @@ public interface MapEntry
 		 * @param statusText specifies OmmState text part of key information
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyState(int streamState, int dataState, int statusCode, String statusText, int action, ComplexType value);
@@ -649,6 +747,7 @@ public interface MapEntry
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
 		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyState(int streamState, int dataState, int statusCode, String statusText, int action, ComplexType value, ByteBuffer permissionData);
@@ -662,6 +761,7 @@ public interface MapEntry
 		 * @param key int containing Enum key information
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyEnum(int key, int action, ComplexType value);
@@ -676,6 +776,7 @@ public interface MapEntry
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
 		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyEnum(int key, int action, ComplexType value, ByteBuffer permissionData);
@@ -689,6 +790,7 @@ public interface MapEntry
 		 * @param key ByteBuffer containing Buffer key information
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyBuffer(ByteBuffer key, int action, ComplexType value);
@@ -703,6 +805,7 @@ public interface MapEntry
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
 		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyBuffer(ByteBuffer key, int action, ComplexType value, ByteBuffer permissionData);
@@ -716,6 +819,7 @@ public interface MapEntry
 		 * @param key String containing Ascii key information
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyAscii(String key, int action, ComplexType value);
@@ -730,6 +834,7 @@ public interface MapEntry
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
 		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyAscii(String key, int action, ComplexType value, ByteBuffer permissionData);
@@ -743,6 +848,7 @@ public interface MapEntry
 		 * @param key ByteBuffer containing Utf8 key information
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyUtf8(ByteBuffer key, int action, ComplexType value);
@@ -757,6 +863,7 @@ public interface MapEntry
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
 		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyUtf8(ByteBuffer key, int action, ComplexType value, ByteBuffer permissionData);
@@ -770,6 +877,7 @@ public interface MapEntry
 		 * @param key ByteBuffer containing Rmtes key information
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyRmtes(ByteBuffer key, int action, ComplexType value);
@@ -784,6 +892,7 @@ public interface MapEntry
 		 * @param action specifies action to apply to the entry
 		 * @param value complex type contained in this entry
 		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
 		 * @return reference to this object
 		 */
 		public MapEntry keyRmtes(ByteBuffer key, int action, ComplexType value, ByteBuffer permissionData);

@@ -13,6 +13,11 @@ package com.thomsonreuters.ema.access;
  * <p>By default OmmConsumer class throws exceptions if a usage error occurs.
  * <br>Specifying OmmConsumerErrorClient on the constructor of OmmConsumer overwrites this behaviour.
  * <br>Instead of throwing exceptions, respective callback method on OmmConsumerErrorClient will be invoked.</p>
+ * 
+ * @see OmmConsumer
+ * @see OmmException
+ * @see OmmInvalidUsageException
+ * @see OmmInvalidHandleException
  */
 public interface OmmConsumerErrorClient
 {

@@ -9,6 +9,10 @@ package com.thomsonreuters.ema.access;
 
 /**
  * OmmDouble represents double in Omm.
+ * 
+ * OmmDouble is a read only class.
+ * 
+ * @see Data
  */
 public interface OmmDouble extends Data
 {

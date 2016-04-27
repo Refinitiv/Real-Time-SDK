@@ -15,6 +15,8 @@ package com.thomsonreuters.ema.access;
  * any methods from OmmConsumerConfg.</p>
  * 
  * <p>OmmConsumerconfig methods override or append the existing configuration.</p>
+ * 
+ * @see OmmConsumer
  */
 public interface OmmConsumerConfig
 {
@@ -41,8 +43,8 @@ public interface OmmConsumerConfig
 	public OmmConsumerConfig clear();
 
 	/**
-	 * Specifies the username. Overrides a value specified in Login domain via
-	 * the addReqMsg(..) method.
+	 * Specifies the username.
+	 * Overrides username that was used when sending the login lequest.
 	 * 
 	 * @param username specifies name used on login request
 	 * @return reference to this object
@@ -50,8 +52,8 @@ public interface OmmConsumerConfig
 	public OmmConsumerConfig username(String username);
 
 	/**
-	 * Specifies the password. Overrides a value specified in Login domain via
-	 * the addReqMsg(..) method.
+	 * Specifies the password.
+	 * Overrides password that was used when sending the login lequest.
 	 * 
 	 * @param password specifies respective login request attribute
 	 * @return reference to this object
@@ -59,8 +61,8 @@ public interface OmmConsumerConfig
 	public OmmConsumerConfig password(String password);
 
 	/**
-	 * Specifies the position. Overrides a value specified in Login domain via
-	 * the addReqMsg(..) method.
+	 * Specifies the position.
+	 * Overrides position that was used when sending the login lequest.
 	 * 
 	 * @param position specifies respective login request attribute
 	 * @return reference to this object
@@ -79,7 +81,7 @@ public interface OmmConsumerConfig
 
 	/**
 	 * Specifies a hostname and port. Overrides prior value.
-	 * Implies usage of TCP IP channel or RSSL_CONN_TYPE_SOCKET.
+	 * Implies usage of TCP IP channel or RSSL connection type socket.
 	 *       
 	 * @param host specifies server and port to which OmmConsumer will connect.
 	 * <br>If host set to "&lt;hostname&gt;:&lt;port&gt;", then hostname:port is assumed.
@@ -94,9 +96,9 @@ public interface OmmConsumerConfig
 	public OmmConsumerConfig host(String host);
 
 	/**
-	 * Specifies the operation model, overriding the default. The operation
-	 * model specifies whether to dispatch messages in the user or application
-	 * thread of control.
+	 * Specifies the operation model, overriding the default.<br>
+	 * The operation model specifies whether to dispatch messages
+	 * in the user or application thread of control.
 	 * 
 	 * @param operationModel specifies threading and dispatching model used by application
 	 * @return reference to this object
@@ -104,9 +106,9 @@ public interface OmmConsumerConfig
 	public OmmConsumerConfig operationModel(int operationModel);
 
 	/**
-	 * Create an OmmConsumer with consumer name.
+	 * Create an OmmConsumer with consumer name.<br>
 	 * The OmmConsumer enables functionality that includes
-     * subscribing, posting and distributing generic messages.
+     * subscribing, posting and distributing generic messages.<br>
      * This name identifies configuration section to be used by OmmConsumer instance.
      * 
 	 * @param consumerName specifies name of OmmConsumer instance
@@ -123,8 +125,8 @@ public interface OmmConsumerConfig
 	public OmmConsumerConfig config(Data config);
 
 	/**
-	 * Specifies an administrative request message to override the default administrative request.
-	 * Application may call multiple times prior to initialization.
+	 * Specifies an administrative request message to override the default administrative request.<br>
+	 * Application may call multiple times prior to initialization.<br>
 	 * Supported domains include Login, Directory, and Dictionary.
 	 * 
 	 * @param reqMsg specifies administrative domain request message

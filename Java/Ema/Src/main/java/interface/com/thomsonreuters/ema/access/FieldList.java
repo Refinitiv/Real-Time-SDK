@@ -12,61 +12,61 @@ import java.util.Collection;
 /**
  * FieldList is a heterogeneous container of complex and primitive data type
  * entries.
- * 
- * <p>
- * FieldList is a collection which provides iterator over the elements in this
- * collection.
- * </p>
- * 
- * <p>
- * FieldList entries are identified by Field Id. The meaning of the Field Id is
- * conveyed by the RDMFieldDictionary.
- * </p>
- *
- * <p>
- * FieldList supports two methods of adding containers; they are: <br>
- * - adding of already populated containers, (e.g. {@link #complete()} was
- * called) and <br>
- * - adding of clear containers (e.g. {@link #clear()} was called) which would
- * be populated after that.
- * </p>
- * 
- * <p>
- * The first method of adding of already populated containers allows for easy
- * data manipulation but incurs additional memory copy. This method is useful in
- * applications extracting data containers from some messages or containers and
- * then setting them on other containers.
- * </p>
- * 
- * <p>
- * The second method allows for fast container population since it avoids
- * additional memory copy incurred by the first method. This method is useful in
- * source applications setting OMM data from native data formats.
- * </p>
- * 
- * The following code snippet shows getting data from FieldList.
- * 
+ * <br><br>
+ * The following code snippet shows addition of containers to FieldList.
  * <pre>
- * MapEntry mEntry = map.entry();
- * if(DataTypes.FIELD_LIST == mapEntry.loadType())
+ * FieldList fieldList = EmaFactory.createFieldList();
+ * fieldList.add(EmaFactory.createFieldEntry().real(22, 34, OmmReal.MagnitudeType.EXPONENT_POS_1));
+ * fieldList.add(EmaFactory.createFieldEntry().time(18, 11, 29, 30));
+ * </pre>
+ * 
+ * The following code snippet shows extracting data from FieldList.
+ * <pre>
+ * for(MapEntry mEntry : map)
  * {
- *   FieldList fList = map.fieldList();
- *   while(fList.forth())
- *   {
- *     FieldEntry fEntry = fList.entry();
- *     switch(fEntry.loadType())
- *     {
- *       case DataTypes.UINT :
- *       	long value = fEntry.uintValue();
- *       	break;
- *       case DataTypes.REAL :
- *       	double value = fEntry.real().asDouble();
- *       	break;
- *       ...
- *     }
- *   }
+ *    if(mEntry.loadType() == DataTypes.FIELD_LIST)
+ *    {
+ *       FieldList fieldList = mEntry.fieldList();
+ *       for(FieldEntry fieldEntry : fieldList)
+ *       {
+ *          switch(fieldEntry.loadType())
+ *          {
+ *             case DataTypes.INT :
+ *                long value = fieldEntry.intValue();
+ *                break;
+ *             case DataTypes.REAL :
+ *                double d = fieldEntry.real().asDouble();
+ *                break;
+ *
+ *             ...
+ *          }
+ *       }
+ *    }
  * }
  * </pre>
+ * 
+ * Objects of this class are intended to be short lived or rather transitional.<br>
+ * This class is designed to efficiently perform setting and extracting of FieldList and its content.<br>
+ * Objects of this class are not cache-able.
+ * 
+ * @see Data
+ * @see FieldEntry
+ * @see ReqMsg
+ * @see RefreshMsg
+ * @see UpdateMsg
+ * @see StatusMsg
+ * @see GenericMsg
+ * @see PostMsg
+ * @see AckMsg
+ * @see ElementList
+ * @see Map
+ * @see Vector
+ * @see Series
+ * @see FilterList
+ * @see OmmOpaque
+ * @see OmmXml
+ * @see OmmAnsiPage
+ * @see OmmError
  */
 public interface FieldList extends ComplexType, Collection<FieldEntry>
 {
@@ -98,14 +98,14 @@ public interface FieldList extends ComplexType, Collection<FieldEntry>
 	public int infoDictionaryId();
 
 	/**
-	 * Clears the FieldList. Invoking clear() method clears all the values and
-	 * resets all the defaults
+	 * Clears the FieldList.<br>
+	 * Invoking clear() method clears all the values and resets all the defaults
 	 */
 	public void clear();
 
 	/**
-	 * Specifies Info. The FieldList Info is optional. If used, it must be set
-	 * prior to adding anything to FieldList.
+	 * Specifies Info.<br>
+	 * The FieldList Info is optional. If used, it must be set prior to adding anything to FieldList.
 	 * 
 	 * @param dictionaryId
 	 *            dictionary id of the RdmFieldDictioanry associated with this

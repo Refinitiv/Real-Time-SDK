@@ -14,8 +14,19 @@ import java.nio.ByteBuffer;
  * 
  * <p>Among other attributes, ReqMsg conveys item's name, service, domain type, and
  * desired quality of service.</p>
- * <p>ReqMsg may also be used to: specify application interest	in a dynamic view,
- * open a batch of items, or request a symbol list item with its data.</p>
+ * 
+ * <p>ReqMsg may also be used to:<br>
+ * specify application interest	in a dynamic view,<br>
+ * open a batch of items,<br>
+ * or request a symbol list item with its data.</p>
+ * 
+ * Objects of this class are intended to be short lived or rather transitional.<br>
+ * This class is designed to efficiently perform setting and getting of information from ReqMsg.<br>
+ * Objects of this class are not cache-able.<br>
+ * Decoding of just encoded ReqMsg in the same application is not supported.
+ *
+ * @see Data
+ * @see Msg
  */
 public interface ReqMsg extends Msg
 {
@@ -30,8 +41,7 @@ public interface ReqMsg extends Msg
 		public final static int TICK_BY_TICK = 0;
 
 		/**
-		 * Rate is Just In Time Conflated,
-		 * indicates extreme bursts of data that may be conflated
+		 * Rate is Just In Time Conflated, indicates extreme bursts of data that may be conflated.
 		 */
 		public final static int JIT_CONFLATED = 0xFFFFFF00;
 
@@ -83,7 +93,7 @@ public interface ReqMsg extends Msg
 	public String timelinessAsString();
 
 	/**
-	 * Indicates presence of Priority.
+	 * Indicates presence of Priority.<br>
 	 * Priority is an optional member of ReqMsg
 	 * 
 	 * @return true if priority is set; false otherwise
@@ -91,7 +101,7 @@ public interface ReqMsg extends Msg
 	public boolean hasPriority();
 
 	/**
-	 * Indicates presence of Qos.
+	 * Indicates presence of Qos.<br>
 	 * Qos is an optional member of ReqMsg
 	 * 
 	 * @return true if Qos is set; false otherwise
@@ -99,7 +109,7 @@ public interface ReqMsg extends Msg
 	public boolean hasQos();
 
 	/**
-	 * Indicates presence of View.
+	 * Indicates presence of View.<br>
 	 * View specification is an optional member of ReqMsg
 	 * 
 	 * @return true if View is set; false otherwise
@@ -107,7 +117,7 @@ public interface ReqMsg extends Msg
 	public boolean hasView();
 
 	/**
-	 * Indicates presence of Batch.
+	 * Indicates presence of Batch.<br>
 	 * Batch specification is an optional member of ReqMsg
 	 * 
 	 * @return true if Batch specification is set; false otherwise
@@ -115,7 +125,7 @@ public interface ReqMsg extends Msg
 	public boolean hasBatch();
 
 	/**
-	 * Indicates presence of the ServiceName within the MsgKey.
+	 * Indicates presence of the ServiceName within the MsgKey.<br>
 	 * ServiceName is an optional member of ReqMsg.
 	 * 
 	 * @return true if service name is set; false otherwise
@@ -123,8 +133,8 @@ public interface ReqMsg extends Msg
 	public boolean hasServiceName();
 
 	/**
-	 * Returns PriorityClass.
-	 * <br>Calling this method must be preceded by a call to {@link #hasPriority()}.
+	 * Returns PriorityClass.<br>
+	 * Calling this method must be preceded by a call to {@link #hasPriority()}.
 	 * 
 	 * @throws OmmInvalidUsageException if {@link #hasPriority()} returns false
 	 * 
@@ -133,8 +143,8 @@ public interface ReqMsg extends Msg
 	public int priorityClass();
 
 	/**
-	 * Returns PriorityCount.
-	 * <br>Calling this method must be preceded by a call to {@link #hasPriority()}.
+	 * Returns PriorityCount.<br>
+	 * Calling this method must be preceded by a call to {@link #hasPriority()}.
 	 * 
 	 * @throws OmmInvalidUsageException if {@link #hasPriority()} returns false
 	 * 
@@ -143,8 +153,8 @@ public interface ReqMsg extends Msg
 	public int priorityCount();
 
 	/**
-	 * Returns QosTimeliness.
-	 * <br>Calling this method must be preceded by a call to {@link #hasQos()}.
+	 * Returns QosTimeliness.<br>
+	 * Calling this method must be preceded by a call to {@link #hasQos()}.
 	 * 
 	 * @throws OmmInvalidUsageException if {@link #hasQos()} returns false
 	 * 
@@ -153,8 +163,8 @@ public interface ReqMsg extends Msg
 	public int qosTimeliness();
 
 	/**
-	 * Returns QosRate.
-	 * <br>Calling this method must be preceded by a call to {@link #hasQos()}.
+	 * Returns QosRate.<br>
+	 * Calling this method must be preceded by a call to {@link #hasQos()}.
 	 * 
 	 * @throws OmmInvalidUsageException if if {@link #hasQos()} returns false
 	 * 
@@ -198,8 +208,8 @@ public interface ReqMsg extends Msg
 	public boolean privateStream();
 
 	/**
-	 * Returns the ServiceName within the MsgKey.
-	 * <br>Calling this method must be preceded by a call to {@link #hasServiceName()}.
+	 * Returns the ServiceName within the MsgKey.<br>
+	 * Calling this method must be preceded by a call to {@link #hasServiceName()}.
 	 * 
 	 * @throws OmmInvalidUsageException if {@link #hasServiceName()} returns false
 	 * 
@@ -208,7 +218,7 @@ public interface ReqMsg extends Msg
 	public String serviceName();
 
 	/**
-	 * Clears the ReqMsg.
+	 * Clears the ReqMsg.<br>
 	 * Invoking clear() method clears all the values and resets all the defaults
 	 * 
 	 * @return reference to this object
@@ -218,6 +228,8 @@ public interface ReqMsg extends Msg
 	/**
 	 * Specifies StreamId.
 	 * 
+	 * @throws OmmOutOfRangeException if streamId is {@literal < -2147483648 or > 2147483647}
+	 * 
 	 * @param streamId specifies stream id
 	 * @return reference to this object
 	 */
@@ -226,16 +238,18 @@ public interface ReqMsg extends Msg
 	/**
 	 * Specifies DomainType.
 	 * 
-	 * @throws OmmUnsupportedDomainTypeException if domainType is greater than 255
+	 * @throws OmmUnsupportedDomainTypeException if domainType is is {@literal < 0 or > 255}
 	 * 
 	 * @param domainType specifies RDM Message Model Type
-	 *        (default value is {@link com.thomsonreuters.ema.rdm.EmaRdm#MMT_MARKET_PRICE})
+	 *        (e.g. {@link com.thomsonreuters.ema.rdm.EmaRdm#MMT_MARKET_PRICE})
 	 * @return reference to this object
 	 */
 	public ReqMsg domainType(int domainType);
 
 	/**
 	 * Specifies Name.
+	 * 
+	 * @throws OmmInvalidUsageException if name is null
 	 * 
 	 * @param name specifies item name
 	 * @return reference to this object
@@ -245,28 +259,31 @@ public interface ReqMsg extends Msg
 	/**
 	 * Specifies NameType.
 	 * 
+	 * @throws OmmOutOfRangeException if nameType is {@literal < 0 or > 255}
+	 * 
 	 * @param nameType specifies RDM Instrument NameType
-	 *        (default value is {@link com.thomsonreuters.ema.rdm.EmaRdm#INSTRUMENT_NAME_RIC})
+	 *        (e.g. {@link com.thomsonreuters.ema.rdm.EmaRdm#INSTRUMENT_NAME_RIC})
 	 * @return reference to this object
 	 */
 	public ReqMsg nameType(int nameType);
 
 	/**
-	 * Specifies ServiceName.
+	 * Specifies ServiceName.<br>
 	 * One service identification must be set, either id or name.
 	 * 
-	 * @throws OmmInvalidUsageException if service id is already set
-	 * 
+	 * @throws OmmInvalidUsageException if service id is already set or if name is null
+	 *  
 	 * @param serviceName specifies service name
 	 * @return reference to this object
 	 */
 	public ReqMsg serviceName(String serviceName);
 
 	/**
-	 * Specifies ServiceId.
+	 * Specifies ServiceId.<br>
 	 * One service identification must be set, either id or name.
 	 * 
 	 * @throws OmmInvalidUsageException if service name is already set
+	 *                               or if serviceId is {@literal < 0 or > 65535}
 	 * 
 	 * @param serviceId specifies service id
 	 * @return reference to this object
@@ -276,6 +293,8 @@ public interface ReqMsg extends Msg
 	/**
 	 * Specifies Id.
 	 * 
+	 * @throws OmmOutOfRangeException if id is {@literal < -2147483648 or > 2147483647}
+	 * 
 	 * @param id specifies Id
 	 * @return reference to this object
 	 */
@@ -283,6 +302,8 @@ public interface ReqMsg extends Msg
 
 	/**
 	 * Specifies Filter.
+	 * 
+	 * @throws OmmOutOfRangeException if filter is {@literal < 0 or > 4294967295L}
 	 * 
 	 * @param filter specifies filter
 	 * @return reference to this object
@@ -292,8 +313,12 @@ public interface ReqMsg extends Msg
 	/**
 	 * Specifies Priority.
 	 * 
+	 * @throws OmmOutOfRangeException if priorityClass is {@literal < 0 or > 255}
+	 * @throws OmmOutOfRangeException if priorityCount is {@literal < 0 or > 65535}
+	 * 
 	 * @param priorityClass specifies priority class
 	 * @param priorityCount specifies priority count within priority class
+	 * 
 	 * @return reference to this object
 	 */
 	public ReqMsg priority(int priorityClass, int priorityCount);
@@ -301,14 +326,17 @@ public interface ReqMsg extends Msg
 	/**
 	 * Specifies Qos as timeliness and rate.
 	 * 
-	 * @param timeliness specifies Qos Timeliness (default value is {@link Timeliness#BEST_TIMELINESS})
-	 * @param rate specifies Qos rate  (default value is {@link Rate#BEST_RATE})
+	 * @param timeliness specifies Qos Timeliness (e.g. {@link Timeliness#BEST_TIMELINESS})
+	 * @param rate specifies Qos rate (e.g. {@link Rate#BEST_RATE})
+	 * 
 	 * @return reference to this object
 	 */
 	public ReqMsg qos(int timeliness, int rate);
 
 	/**
 	 * Specifies Attrib.
+	 * 
+	 * @throws OmmInvalidUsageException if data is null
 	 * 
 	 * @param data an object of ComplexType
 	 * @return reference to this object
@@ -318,6 +346,8 @@ public interface ReqMsg extends Msg
 	/**
 	 * Specifies Payload.
 	 * 
+	 * @throws OmmInvalidUsageException if data is null
+	 * 
 	 * @param data an object of ComplexType
 	 * @return reference to this object
 	 */
@@ -325,6 +355,8 @@ public interface ReqMsg extends Msg
 
 	/**
 	 * Specifies ExtendedHeader.
+	 * 
+	 * @throws OmmInvalidUsageException if buffer is null
 	 * 
 	 * @param buffer a ByteBuffer containing extendedHeader information
 	 * @return reference to this object
@@ -335,7 +367,6 @@ public interface ReqMsg extends Msg
 	 * Specifies InitialImage.
 	 * 
 	 * @param initialImage specifies if initial image / refresh is requested
-	 *        (default value is true)
 	 * @return reference to this object
 	 */
 	public ReqMsg initialImage(boolean initialImage);
@@ -343,8 +374,7 @@ public interface ReqMsg extends Msg
 	/**
 	 * Specifies InterestAfterRefresh.
 	 * 
-	 * @param interestAfterRefresh specifies if streaming or snapshot item
-	 *            is requested default value is true / streaming item)
+	 * @param interestAfterRefresh specifies if streaming or snapshot item is requested
 	 * @return reference to this object
 	 */
 	public ReqMsg interestAfterRefresh(boolean interestAfterRefresh);
@@ -352,7 +382,7 @@ public interface ReqMsg extends Msg
 	/**
 	 * Specifies Pause.
 	 * 
-	 * @param pause specifies if pause is requested (default value is false)
+	 * @param pause specifies if pause is requested
 	 * @return reference to this object
 	 */
 	public ReqMsg pause(boolean pause);
@@ -361,7 +391,6 @@ public interface ReqMsg extends Msg
 	 * Specifies ConflatedInUpdates.
 	 * 
 	 * @param conflatedInUpdates specifies if conflated update is requested
-	 *        (default value is false)
 	 * @return reference to this object
 	 */
 	public ReqMsg conflatedInUpdates(boolean conflatedInUpdates);
@@ -370,7 +399,6 @@ public interface ReqMsg extends Msg
 	 * Specifies PrivateStream.
 	 * 
 	 * @param privateStream specifies if private stream is requested
-	 *        (default value is false)
 	 * @return reference to this object
 	 */
 	public ReqMsg privateStream(boolean privateStream);

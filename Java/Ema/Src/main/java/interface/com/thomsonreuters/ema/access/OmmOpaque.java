@@ -11,6 +11,12 @@ import java.nio.ByteBuffer;
 
 /**
  * OmmOpaque represents Opaque data format in Omm.
+ * 
+ * Objects of this class are intended to be short lived or rather transitional.<br>
+ * This class is designed to efficiently perform setting and extracting of Opaque and its content.<br>
+ * Objects of this class are not cache-able.
+ *
+ * @see Data
  */
 public interface OmmOpaque extends ComplexType
 {
@@ -27,7 +33,7 @@ public interface OmmOpaque extends ComplexType
 	public ByteBuffer buffer();
 
 	/**
-	 * Clears the OmmOpaque.
+	 * Clears the OmmOpaque.<br>
 	 * Invoking clear() method clears all the values and resets all the defaults.
 	 * @return reference to this object
 	 */

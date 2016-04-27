@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      	--
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  					--
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            		--
+// *|           Copyright Thomson Reuters 2016. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.examples.training.consumer.series400.example420__MarketPrice__AdminDomainConfig;
@@ -143,7 +143,7 @@ public class Consumer
 			consumer.registerClient(reqMsg.clear().serviceName("DIRECT_FEED").name("IBM.N"), appClient, null);
 			
 			long startTime = System.currentTimeMillis();
-			while (startTime + 600000 > System.currentTimeMillis())
+			while (startTime + 60000 > System.currentTimeMillis())
 				consumer.dispatch(10);		// calls to onRefreshMsg(), onUpdateMsg(), or onStatusMsg() execute on this thread
 		}
 		catch (OmmException excp)

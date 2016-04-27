@@ -8,8 +8,31 @@
 package com.thomsonreuters.ema.access;
 
 /**
- * SummaryData is used to convey Omm SummaryData information optionally present on Map, Series and Vector.
- * <br>SummaryData contains objects of complex type.
+ * SummaryData is used to convey Omm SummaryData information optionally present on Map, Series and Vector.<br>
+ * SummaryData contains objects of complex type.
+ * 
+ * Objects of this class are intended to be short lived or rather transitional.
+ * This class is designed to efficiently perform extracting of SummaryData and its content.
+ * Objects of this class are not cache-able.
+ *
+ * @see ComplexType
+ * @see ReqMsg
+ * @see RefreshMsg
+ * @see UpdateMsg
+ * @see StatusMsg
+ * @see GenericMsg
+ * @see PostMsg
+ * @see AckMsg
+ * @see FieldList
+ * @see ElementList
+ * @see Map
+ * @see Vector
+ * @see Series
+ * @see FilterList
+ * @see OmmOpaque
+ * @see OmmXml
+ * @see OmmAnsiPage
+ * @see OmmError
  */
 public interface SummaryData
 {

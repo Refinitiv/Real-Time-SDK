@@ -10,8 +10,11 @@ package com.thomsonreuters.ema.access;
 import java.math.BigInteger;
 
 /**
- * OmmUInt represents long value or BigInteger value in Omm.
- * <p>OmmUInt is a read only class.</p>
+ * OmmUInt represents long value or BigInteger value in Omm.<br>
+ * 
+ * OmmUInt is a read only class.<br>
+ * 
+ * @see Data
  */
 public interface OmmUInt extends Data
 {

@@ -11,6 +11,10 @@ package com.thomsonreuters.ema.access;
  * OmmDateTime represents DateTime info in Omm.
  * <br>OmmDateTime encapsulates year, month, day, hour, minute, second, millisecond,
  * microsecond and nanosecond information.
+ * 
+ * OmmDateTime is a read only class.
+ * 
+ * @see Data
  */
 public interface OmmDateTime extends Data
 {

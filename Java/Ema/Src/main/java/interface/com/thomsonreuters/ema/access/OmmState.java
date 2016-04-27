@@ -8,12 +8,14 @@
 package com.thomsonreuters.ema.access;
 
 /**
- * OmmState represents State information in Omm.
- * <p>OmmState is used to represent state of item, item group and service.</p>
+ * OmmState represents State information in Omm.<br>
+ * OmmState is used to represent state of item, item group and service.
  * <p>OmmState encapsulates stream state, data state, status code and status text information.</p>
  * 
- * <p>OmmState is a read only class.
- * <br>OmmState is used for extraction of OmmState info only.</p>
+ * OmmState is a read only class.<br>
+ * OmmState is used for extraction of OmmState info only.
+ * 
+ * @see Data
  */
 public interface OmmState extends Data
 {
@@ -34,7 +36,7 @@ public interface OmmState extends Data
 	
 		/**
 		 * Indicates the stream is closed, typically unobtainable or 
-		 * identity indeterminable due to a comms outage.
+		 * identity indeterminable due to a comms outage.<br>
 		 * The item may be available in the future.
 		 */
 		public final static int	CLOSED_RECOVER	 = 3;
@@ -45,9 +47,9 @@ public interface OmmState extends Data
 		public final static int CLOSED			 = 4;
 	
 		/**
-		 * Indicates the stream is closed and has been renamed.
-		 * The stream is available with another name.
-		 * This stream state is only valid for refresh messages.
+		 * Indicates the stream is closed and has been renamed.<br>
+		 * The stream is available with another name.<br>
+		 * This stream state is only valid for refresh messages.<br>
 		 * The new item name is in the Name get accessor methods.
 		 */
 		public final static int CLOSED_REDIRECTED = 5;

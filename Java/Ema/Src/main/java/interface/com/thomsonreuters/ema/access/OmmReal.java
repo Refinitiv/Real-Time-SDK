@@ -10,6 +10,11 @@ package com.thomsonreuters.ema.access;
 /**
  * OmmReal represents Real number in Omm.
  * <p>OmmReal encapsulates magnitude type and mantissa information.</p>
+ * 
+ * OmmReal is a read only class.<br>
+ * This class is used for extraction of Real only.
+ *
+ * @see Data
  */
 public interface OmmReal extends Data
 {

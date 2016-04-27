@@ -10,12 +10,57 @@ package com.thomsonreuters.ema.access;
 
 /**
  * SeriesEntry represents an entry of Series.
- * <br>SeriesEntry associates entry's data and its data type.
+ * <p>SeriesEntry associates entry's data and its data type.</p>
+ * 
+ * Code snippet:
+ * <pre>
+ * void decode(Series series)
+ * {
+ *    for(SeriesEntry seriesEntry : series)
+ *    {
+ *       System.out.println(" DataType: " + DataType.asString(seriesEntry.loadType()) + " Value: ");
+ *
+ *       switch(seriesEntry.loadType())
+ *       {
+ *       case DataTypes.FIELD_LIST:
+ *           decode(seriesEntry.fieldList());     
+ *           break;
+ *           
+ *       ...
+ *       
+ *       }
+ *    }
+ * }
+ * </pre>
+ * 
+ * Objects of this class are intended to be short lived or rather transitional.
+ * This class is designed to efficiently perform setting and extracting of Map and its content.
+ * Objects of this class are not cache-able.
+ *
+ * @see Data
+ * @see ComplexType
+ * @see ReqMsg
+ * @see RefreshMsg
+ * @see UpdateMsg
+ * @see StatusMsg
+ * @see GenericMsg
+ * @see PostMsg
+ * @see AckMsg
+ * @see FieldList
+ * @see ElementList
+ * @see Map
+ * @see Vector
+ * @see Series
+ * @see FilterList
+ * @see OmmOpaque
+ * @see OmmXml
+ * @see OmmAnsiPage
+ * @see OmmError
  */
 public interface SeriesEntry
 {
 	/**
-	 * Returns the DataType of the entry's load. 
+	 * Returns the DataType of the entry's load.
 	 * <br>Return of {@link com.thomsonreuters.ema.access.DataType.DataTypes#ERROR}
 	 * signifies error while extracting content of load.
 	 * 

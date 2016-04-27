@@ -8,8 +8,11 @@
 package com.thomsonreuters.ema.access;
 
 /**
- * OmmRmtes represents Rmtes string value in Omm.
- * <p>OmmRmtes is a read only class.</p>
+ * OmmRmtes represents Rmtes string value in Omm.<br>
+ * 
+ * OmmRmes is a read only class.
+ *
+ * @see Data
  */
 public interface OmmRmtes extends Data
 {

@@ -640,9 +640,6 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerDispatchTimeoutApiThread)) != null)
 				_activeConfig.dispatchTimeoutApiThread = ce.intValue();
 
-			if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerCatchUnhandledException)) != null)
-				_activeConfig.catchUnhandledException = ce.intLongValue() > 0 ? true : false;
-
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerMaxDispatchCountApiThread)) != null)
 				_activeConfig.maxDispatchCountApiThread = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
 
@@ -667,28 +664,24 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 				configImpl.errorTracker().append("no configuration exists for consumer dictionary [")
 						.append(ConfigManager.DICTIONARY_LIST.toString()).create(Severity.ERROR);
 			}
-
-			if (attributes != null && ((ce = attributes.getPrimitiveValue(ConfigManager.DictionaryType)) == null))
-				_activeConfig.dictionaryConfig.isLocalDictionary = false;
-
-			if (ce.booleanValue() == true)
-			{
-				_activeConfig.dictionaryConfig.isLocalDictionary = true;
-				
-				if (attributes != null
-						&& ((ce = attributes.getPrimitiveValue(ConfigManager.DictionaryRDMFieldDictFileName)) == null))
-					_activeConfig.dictionaryConfig.rdmfieldDictionaryFileName = "./RDMFieldDictionary";
-				else
-					_activeConfig.dictionaryConfig.rdmfieldDictionaryFileName = ce.asciiValue();
-
-				if (attributes != null
-						&& ((ce = attributes.getPrimitiveValue(ConfigManager.DictionaryEnumTypeDefFileName)) == null))
-					_activeConfig.dictionaryConfig.enumtypeDefFileName = "./enumtype.def";
-				else
-					_activeConfig.dictionaryConfig.enumtypeDefFileName = ce.asciiValue();
-			}
 			else
-				_activeConfig.dictionaryConfig.isLocalDictionary = false;
+			{
+				ce = attributes.getPrimitiveValue(ConfigManager.DictionaryType);
+				if ( ce != null && ce.booleanValue() == true)
+				{
+					_activeConfig.dictionaryConfig.isLocalDictionary = true;
+					
+					if ((ce = attributes.getPrimitiveValue(ConfigManager.DictionaryRDMFieldDictFileName)) == null)
+						_activeConfig.dictionaryConfig.rdmfieldDictionaryFileName = "./RDMFieldDictionary";
+					else
+						_activeConfig.dictionaryConfig.rdmfieldDictionaryFileName = ce.asciiValue();
+	
+					if ((ce = attributes.getPrimitiveValue(ConfigManager.DictionaryEnumTypeDefFileName)) == null)
+						_activeConfig.dictionaryConfig.enumtypeDefFileName = "./enumtype.def";
+					else
+						_activeConfig.dictionaryConfig.enumtypeDefFileName = ce.asciiValue();
+				}
+			}
 		}
 		//
 		// dictionary
@@ -773,9 +766,10 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 		_activeConfig.userDispatch = configImpl.operationModel();
 		_activeConfig.rsslRDMLoginRequest = configImpl.loginReq();
 		_activeConfig.rsslDirectoryRequest = configImpl.directoryReq();
-		_activeConfig.rsslEnumDictRequest = configImpl.enumDefDictionaryReq();
 		_activeConfig.rsslFldDictRequest = configImpl.rdmFldDictionaryReq();
-		;
+		_activeConfig.rsslEnumDictRequest = configImpl.enumDefDictionaryReq();
+		_activeConfig.fldDictReqServiceName = configImpl.fidDictReqServiceName();
+		_activeConfig.enumDictReqServiceName = configImpl.enumDictReqServiceName();
 	}
 
 	void readChannelConfig(OmmConsumerConfigImpl configImpl, String channelName)
@@ -1131,12 +1125,13 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 					_consumerStrBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
 							.append(")");
 				}
+				
+				String excepText = _consumerStrBuilder.toString();
 	
 				if (_loggerClient.isErrorEnabled())
-					_loggerClient.error(
-							formatLogMessage(_activeConfig.instanceName, _consumerStrBuilder.toString(), Severity.ERROR));
+					_loggerClient.error(formatLogMessage(_activeConfig.instanceName, excepText, Severity.ERROR));
 	
-				throw ommIUExcept().message(_consumerStrBuilder.toString());
+				throw ommIUExcept().message(excepText);
 			} else
 				timeoutEvent.cancel();
 		}
@@ -1164,11 +1159,13 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 					_consumerStrBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
 							.append(")");
 				}
+				
+				String excepText = _consumerStrBuilder.toString();
+				
 				if (_loggerClient.isErrorEnabled())
-					_loggerClient.error(
-							formatLogMessage(_activeConfig.instanceName, _consumerStrBuilder.toString(), Severity.ERROR));
+					_loggerClient.error(formatLogMessage(_activeConfig.instanceName, excepText, Severity.ERROR));
 	
-				throw ommIUExcept().message(_consumerStrBuilder.toString());
+				throw ommIUExcept().message(excepText);
 			} else
 				timeoutEvent.cancel();
 		}
@@ -1197,11 +1194,12 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 							.append(")");
 				}
 	
+				String excepText = _consumerStrBuilder.toString();
+				
 				if (_loggerClient.isErrorEnabled())
-					_loggerClient.error(
-							formatLogMessage(_activeConfig.instanceName, _consumerStrBuilder.toString(), Severity.ERROR));
+					_loggerClient.error(formatLogMessage(_activeConfig.instanceName, excepText, Severity.ERROR));
 	
-				throw ommIUExcept().message(_consumerStrBuilder.toString());
+				throw ommIUExcept().message(excepText);
 			} else
 				timeoutEvent.cancel();
 		}

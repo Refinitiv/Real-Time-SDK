@@ -7,6 +7,8 @@
 
 package com.thomsonreuters.ema.access;
 
+import com.thomsonreuters.ema.access.DataType.DataTypes;
+
 /**
  * Key conveys MapEntry key information.
  * <p>Key contains objects of primitive type (e.g. they are not complex type).</p>
@@ -15,6 +17,7 @@ public interface Key
 {
 	/**
 	 * Returns the DataType of the contained data.
+	 * <br>
 	 * Return of {@link com.thomsonreuters.ema.access.DataType.DataTypes#ERROR}
 	 * signifies error while extracting content of Key.
 	 * 
@@ -32,7 +35,7 @@ public interface Key
 	/**
 	 * Returns the current OMM data represented as a specific simple type.
 	 * 
-	 * @throws OmmInvalidUsageException if contained object is not {@link com.thomsonreuters.ema.access.OmmInt}
+	 * @throws OmmInvalidUsageException if contained object is not {@link DataType.DataTypes#INT}
 	 * 
 	 * @return long
 	 */
@@ -41,7 +44,7 @@ public interface Key
 	/**
 	 * Returns the current OMM data represented as a specific simple type.
 	 * 
-	 * @throws OmmInvalidUsageException if contained object is not {@link com.thomsonreuters.ema.access.OmmInt}
+	 * @throws OmmInvalidUsageException if contained object is not {@link DataType.DataTypes#INT}
 	 * 
 	 * @return {@link com.thomsonreuters.ema.access.OmmInt}
 	 */
@@ -50,7 +53,7 @@ public interface Key
 	/**
 	 * Returns the current OMM data represented as a specific simple type.
 	 * 
-	 * @throws OmmInvalidUsageException if contained object is not {@link com.thomsonreuters.ema.access.OmmUInt}
+	 * @throws OmmInvalidUsageException if contained object is not {@link DataType.DataTypes#UINT}
 	 * 
 	 * @return long
 	 */
@@ -59,7 +62,7 @@ public interface Key
 	/**
 	 * Returns the current OMM data represented as a specific simple type.
 	 * 
-	 * @throws OmmInvalidUsageException if contained object is not {@link com.thomsonreuters.ema.access.OmmUInt}
+	 * @throws OmmInvalidUsageException if contained object is not {@link DataType.DataTypes#UINT}
 	 * 
 	 * @return {@link com.thomsonreuters.ema.access.OmmUInt}
 	 */
@@ -68,7 +71,7 @@ public interface Key
 	/**
 	 * Returns the current OMM data represented as a specific simple type.
 	 * 
-	 * @throws OmmInvalidUsageException if contained object is not {@link com.thomsonreuters.ema.access.OmmReal}
+	 * @throws OmmInvalidUsageException if contained object is not {@link DataType.DataTypes#REAL}
 	 * 
 	 * @return {@link com.thomsonreuters.ema.access.OmmReal} class reference to the contained object
 	 */
@@ -86,7 +89,7 @@ public interface Key
 	/**
 	 * Returns the current OMM data represented as a specific simple type.
 	 * 
-	 * @throws OmmInvalidUsageException if contained object is not {@link com.thomsonreuters.ema.access.OmmFloat}
+	 * @throws OmmInvalidUsageException if contained object is not {@link DataType.DataTypes#FLOAT}
 	 * 
 	 * @return {@link com.thomsonreuters.ema.access.OmmFloat}
 	 */
@@ -95,7 +98,7 @@ public interface Key
 	/**
 	 * Returns the current OMM data represented as a specific simple type.
 	 * 
-	 * @throws OmmInvalidUsageException if contained object is not {@link com.thomsonreuters.ema.access.OmmDouble}
+	 * @throws OmmInvalidUsageException if contained object is not {@link DataType.DataTypes#DOUBLE}
 	 * 
 	 * @return double
 	 */
@@ -113,7 +116,7 @@ public interface Key
 	/**
 	 * Returns the current OMM data represented as a specific simple type.
 	 * 
-	 * @throws OmmInvalidUsageException if contained object is not {@link com.thomsonreuters.ema.access.OmmDate}
+	 * @throws OmmInvalidUsageException if contained object is not {@link DataType.DataTypes#DOUBLE}
 	 * 
 	 * @return {@link com.thomsonreuters.ema.access.OmmDate} class reference to the contained object
 	 */
@@ -122,7 +125,7 @@ public interface Key
 	/**
 	 * Returns the current OMM data represented as a specific simple type.
 	 * 
-	 * @throws OmmInvalidUsageException if contained object is not {@link com.thomsonreuters.ema.access.OmmTime}
+	 * @throws OmmInvalidUsageException if contained object is not {@link DataType.DataTypes#TIME}
 	 * 
 	 * @return {@link com.thomsonreuters.ema.access.OmmTime} class reference to the contained object
 	 */
@@ -131,7 +134,7 @@ public interface Key
 	/**
 	 * Returns the current OMM data represented as a specific simple type.
 	 * 
-	 * @throws OmmInvalidUsageException if contained object is not {@link com.thomsonreuters.ema.access.OmmDateTime}
+	 * @throws OmmInvalidUsageException if contained object is not {@link DataType.DataTypes#DATETIME}
 	 * 
 	 * @return {@link com.thomsonreuters.ema.access.OmmDateTime} class reference to the contained object
 	 */
@@ -140,7 +143,7 @@ public interface Key
 	/**
 	 * Returns the current OMM data represented as a specific simple type.
 	 * 
-	 * @throws OmmInvalidUsageException if contained object is not {@link com.thomsonreuters.ema.access.OmmQos}
+	 * @throws OmmInvalidUsageException if contained object is not {@link DataType.DataTypes#QOS}
 	 * 
 	 * @return {@link com.thomsonreuters.ema.access.OmmQos} class reference to the contained object
 	 */
@@ -149,7 +152,7 @@ public interface Key
 	/**
 	 * Returns the current OMM data represented as a specific simple type.
 	 * 
-	 * @throws OmmInvalidUsageException if contained object is not {@link com.thomsonreuters.ema.access.OmmState}
+	 * @throws OmmInvalidUsageException if contained object is not {@link DataType.DataTypes#STATE}
 	 * 
 	 * @return {@link com.thomsonreuters.ema.access.OmmState} class reference to the contained object
 	 */
@@ -158,7 +161,7 @@ public interface Key
 	/**
 	 * Returns the current OMM data represented as a specific simple type.
 	 * 
-	 * @throws OmmInvalidUsageException if contained object is not {@link com.thomsonreuters.ema.access.OmmEnum}
+	 * @throws OmmInvalidUsageException if contained object is not {@link DataType.DataTypes#ENUM}
 	 * 
 	 * @return int
 	 */
@@ -167,7 +170,7 @@ public interface Key
 	/**
 	 * Returns the current OMM data represented as a specific simple type.
 	 * 
-	 * @throws OmmInvalidUsageException if contained object is not {@link com.thomsonreuters.ema.access.OmmEnum}
+	 * @throws OmmInvalidUsageException if contained object is not {@link DataType.DataTypes#ENUM}
 	 * 
 	 * @return {@link com.thomsonreuters.ema.access.OmmEnum}
 	 */
@@ -176,7 +179,7 @@ public interface Key
 	/**
 	 * Returns the current OMM data represented as a specific simple type.
 	 * 
-	 * @throws OmmInvalidUsageException if contained object is not {@link com.thomsonreuters.ema.access.OmmBuffer}
+	 * @throws OmmInvalidUsageException if contained object is not {@link DataType.DataTypes#BUFFER}
 	 * 
 	 * @return {@link com.thomsonreuters.ema.access.OmmBuffer} class reference to the contained object
 	 */
@@ -185,7 +188,7 @@ public interface Key
 	/**
 	 * Returns the current OMM data represented as a specific simple type.
 	 * 
-	 * @throws OmmInvalidUsageException if contained object is not {@link com.thomsonreuters.ema.access.OmmAscii}
+	 * @throws OmmInvalidUsageException if contained object is not {@link DataType.DataTypes#ASCII}
 	 * 
 	 * @return {@link com.thomsonreuters.ema.access.OmmAscii} class reference to the contained object
 	 */
@@ -194,7 +197,7 @@ public interface Key
 	/**
 	 * Returns the current OMM data represented as a specific simple type.
 	 * 
-	 * @throws OmmInvalidUsageException if contained object is not {@link com.thomsonreuters.ema.access.OmmUtf8}
+	 * @throws OmmInvalidUsageException if contained object is not {@link DataType.DataTypes#UTF8}
 	 * 
 	 * @return {@link com.thomsonreuters.ema.access.OmmUtf8} class reference to the contained object
 	 */
@@ -203,7 +206,7 @@ public interface Key
 	/**
 	 * Returns the current OMM data represented as a specific simple type.
 	 * 
-	 * @throws OmmInvalidUsageException if contained object is not {@link com.thomsonreuters.ema.access.OmmRmtes}
+	 * @throws OmmInvalidUsageException if contained object is not {@link DataType.DataTypes#RMTES}
 	 * 
 	 * @return {@link com.thomsonreuters.ema.access.OmmRmtes} class reference to the contained object
 	 */
@@ -212,7 +215,7 @@ public interface Key
 	/**
 	 * Returns Error.
 	 * 
-	 * @throws OmmInvalidUsageException if contained object is not {@link com.thomsonreuters.ema.access.OmmError}
+	 * @throws OmmInvalidUsageException if contained object is not {@link DataType.DataTypes#ERROR}
 	 * 
 	 * @return {@link com.thomsonreuters.ema.access.OmmError} class reference to contained object
 	 */

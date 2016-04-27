@@ -10,14 +10,54 @@ package com.thomsonreuters.ema.access;
 /**
  * OmmConsumerClient class provides callback interfaces to pass received messages.
  * 
- * <p>Application needs to implement an application client class inheriting from OmmConsumerClient.
-	In its own class, application needs to override callback methods it desires to use for item processing.</p>
-
-	<p>Application may chose to implement specific callbacks (e.g. {@link #onUpdateMsg(UpdateMsg, OmmConsumerEvent)})
-	 or a general callback (e.g. {@link #onAllMsg(Msg, OmmConsumerEvent)}).</p>
-
-	<p>Thread safety of all OmmConsumerClient methods depends on the user's implementation.</p>
+ * <p>Application needs to implement an application client class inheriting from OmmConsumerClient.<br>
+ * In its own class, application needs to override callback methods it desires to use for item processing.</p>
  *
+ * <p>Application may chose to implement specific callbacks (e.g. {@link #onUpdateMsg(UpdateMsg, OmmConsumerEvent)})<br>
+ * or a general callback (e.g. {@link #onAllMsg(Msg, OmmConsumerEvent)}).</p>
+ * 
+ * <p>Thread safety of all OmmConsumerClient methods depends on the user's implementation.</p>
+ *
+ *
+ * The following code snippet shows basic usage of OmmConsumerClient class to print<br>
+ * received refresh, update, and status messages to screen.
+ * 
+ * <pre>
+ * class AppClient implements OmmConsumerClient
+ * {
+ *    public void onRefreshMsg(RefreshMsg refreshMsg, OmmConsumerEvent event)
+ *    {
+ *       System.out.println("Handle: " + event.handle() + " Closure: " + event.closure());
+ *       System.out.println(refreshMsg);
+ *    }
+ * 	
+ *    public void onUpdateMsg(UpdateMsg updateMsg, OmmConsumerEvent event) 
+ *    {
+ *       System.out.println("Handle: " + event.handle() + " Closure: " + event.closure());
+ *       System.out.println(updateMsg);
+ *    }
+ * 
+ *    public void onStatusMsg(StatusMsg statusMsg, OmmConsumerEvent event) 
+ *    {
+ *       System.out.println("Handle: " + event.handle() + " Closure: " + event.closure());
+ *       System.out.println(statusMsg);
+ *    }
+ * 
+ *    public void onGenericMsg(GenericMsg genericMsg, OmmConsumerEvent consumerEvent){}
+ *    public void onAckMsg(AckMsg ackMsg, OmmConsumerEvent consumerEvent){}
+ *    public void onAllMsg(Msg msg, OmmConsumerEvent consumerEvent){}
+ * }
+ * </pre>
+ * 
+ * 
+ * @see OmmConsumer
+ * @see Msg
+ * @see AckMsg
+ * @see GenericMsg
+ * @see PostMsg
+ * @see RefreshMsg
+ * @see StatusMsg
+ * @see UpdateMsg
  */
 public interface OmmConsumerClient
 {

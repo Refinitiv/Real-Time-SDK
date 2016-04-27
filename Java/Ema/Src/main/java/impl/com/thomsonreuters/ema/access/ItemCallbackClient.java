@@ -84,8 +84,7 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 	{
 		super(consumer, CLIENT_NAME);
 		
-		int initialHashSize =  (int)((_consumer.activeConfig().itemCountHint/ 0.75) + 1);
-		_itemMap = new HashMap<Long, Item>(initialHashSize);
+		_itemMap = new HashMap<Long, Item>(_consumer.activeConfig().itemCountHint == 0 ? 1024 : _consumer.activeConfig().itemCountHint);
 		
 		_updateMsg = new UpdateMsgImpl(true);
 	}
@@ -155,7 +154,10 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 	    		else
 	    			return _consumer.itemCallbackClient().processAckMsg(msg, channelInfo);
 	    	case MsgClasses.GENERIC :
-	    		return _consumer.itemCallbackClient().processGenericMsg(msg, channelInfo);
+	    		if (msg.streamId() == 1)
+	    			return _consumer.loginCallbackClient().processGenericMsg(msg, channelInfo);
+	    		else
+	    			return _consumer.itemCallbackClient().processGenericMsg(msg, channelInfo);
 	    	case MsgClasses.REFRESH :
 	    		return _consumer.itemCallbackClient().processRefreshMsg(msg, channelInfo);
 	    	case MsgClasses.STATUS :
@@ -598,6 +600,16 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 	{
 		item.itemId(itemId);
 		_itemMap.put(itemId, item);
+		
+		if (_consumer.loggerClient().isTraceEnabled())
+		{
+			StringBuilder temp = _consumer.consumerStrBuilder();
+			temp.append("Added Item ").append(itemId).append(" to item map" ).append( OmmLoggerClient.CR )
+			.append( "OmmConsumer name " ).append( _consumer .consumerName() );
+			
+			_consumer.loggerClient().trace(_consumer.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
+		}
+		
 		return itemId;
 	}
 	
@@ -608,6 +620,15 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 	
 	void removeFromMap(Item item)
 	{
+		if (_consumer.loggerClient().isTraceEnabled())
+		{
+			StringBuilder temp = _consumer.consumerStrBuilder();
+			temp.append("Removed Item ").append(item._itemId).append(" from item map" ).append( OmmLoggerClient.CR )
+			.append( "OmmConsumer name " ).append( _consumer .consumerName() );
+			
+			_consumer.loggerClient().trace(_consumer.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
+		}
+		
 		_itemMap.remove(item.itemId());
 	}
 	
@@ -762,7 +783,7 @@ class SingleItem extends Item
 											this, ((ReqMsgImpl)reqMsg).rsslMsg(), 
 											temp.toString(), reqMsg.serviceName());
 	        	
-	        	return false;
+	        	return true;
 			}
 		}
 		else
@@ -776,7 +797,7 @@ class SingleItem extends Item
 						"Passed in request message does not identify any service.",
 						null);
 	        	
-				return false;
+				return true;
 			}
 
 			if (directory == null)
@@ -791,7 +812,7 @@ class SingleItem extends Item
 						this, ((ReqMsgImpl)reqMsg).rsslMsg(), 
 						temp.toString(), null);
 	        	
-	        	return false;
+	        	return true;
 			}
 		}
 

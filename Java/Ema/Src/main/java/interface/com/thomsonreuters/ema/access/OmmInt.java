@@ -9,6 +9,10 @@ package com.thomsonreuters.ema.access;
 
 /**
  * OmmInt represents 64-bit value in Omm.
+ * 
+ * OmmInt is a read only class.
+ * 
+ * @see Data
  */
 public interface OmmInt extends Data
 {
