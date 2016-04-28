@@ -1,0 +1,136 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+   <meta name="GENERATOR" content="Mozilla/4.79 [en] (Windows NT 5.0; U) [Netscape]" />
+   <meta name="Microsoft Theme" content="none">
+   <meta name="Microsoft Border" content="none" />
+   <title>Select Help System</title>
+<link href="includes/styles.css" type="text/css" rel="stylesheet" />
+
+<script type="text/javascript">
+    function bookmarkDoc(title, url) 
+    {
+        // for Mozilla Firefox Support
+        if (window.sidebar)
+            window.sidebar.addPanel(title, url, "");
+        else if (window.opera && window.print)
+        {
+            // for Opera Support
+            var elem = document.createElement('a');
+            elem.setAttribute('href', url);
+            elem.setAttribute('title', title);
+            elem.setAttribute('rel', 'sidebar');
+            elem.click();
+        }
+        else if (document.all)
+        {
+            // for Microsoft I.E. (Internet Explorer)
+            window.external.AddFavorite(url, title);
+        }
+    }
+
+    function detectBrowser() 
+    {
+         var browser = "unknown";
+         var userAgent = navigator.userAgent.toLowerCase();
+         if (userAgent.indexOf("opera") > -1)
+             browser = "Opera";
+         else if (userAgent.indexOf("konqueror") > -1)
+             browser = "Konqueror";
+         else if (userAgent.indexOf("firefox") > -1)
+             browser = "Firefox";
+         else if (userAgent.indexOf("netscape") > -1)
+             browser = "Netscape";
+         else if (userAgent.indexOf("msie") > -1)
+             browser = "Internet Explorer";
+         else if (userAgent.indexOf("chrome") > -1)
+             browser = "Chrome";
+         else if (userAgent.indexOf("safari") > -1)
+             browser = "Safari";
+
+         var brSupportDiv = document.getElementById("browserSupport");
+
+         //var webDocLink = document.getElementById("webDoc");
+         //var webDocStaticText = document.getElementById("webDocText");
+
+         if (browser != "Chrome") 
+         {
+             brSupportDiv.innerHTML = "Your browser is detected as \"<b>" + browser + "</b>\". The new <b> Web Documentation is supported and recommended with this browser</b>.";
+             //webDocStaticText.style.display = 'none';
+         }
+         else {
+             brSupportDiv.innerHTML = "<font color=\"red\"><b>*Warning* </b></font> Your browser is detected as \"<b>" + browser + "</b>\". If you are accessing this help system directly from file(s), please make sure to use the Chrome parameter <font color=\"red\">--allow-file-access-from-files</font>  (eg. \“<*path*>/chrome.exe\" --allow-file-access-from-files) .  If this parameter is not used, please use <b> Classic Documentation</b> or use a different browser.";
+             //webDocLink.style.display = 'none';
+         }
+     }
+
+     window.onload = detectBrowser;
+  </script>
+
+</head>
+<body bgcolor="#FFFFFF">
+<table border="0" cellspacing="0" cellpadding="7" >
+<tr>
+<td>
+
+<a name="Select Help System" class="tr_new_H1">ETA Java Edition (ETAJ) - Integrated Web Documentation</a>
+
+<center><! -- END PAGE TITLE --><! -- START FOURTH LEVEL NAVIGATION --></center>
+
+
+<p>This web documentation is a new integrated single entry point web-based help system containing all of the ETA Java API product's informational content. </p>
+
+<p>This help system supports only select browsers. See product readme for qualified/supported browsers.  If you run into a problem with your browser, please use the 'classic style' documentation. </p>
+
+<p>This deployment continues to ship the 'classic style' documentation for users of browsers that don't support the new web based documentation. </p>
+
+    <div id="browserSupport"></div>
+
+<ul>
+    <li><! -- label id="webDocText" --><! -- UPA J Web Documentation --><! -- /label -->
+        <a id="webDoc" href="../WebDocs/index.html" target="_top">ETA Java Online Documentation Library</a>       (Recommended)
+    </li>
+
+    <div class="web_doc_launch_page"><a name="9000034">Launch page: </a><span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Docs/WebDocs/index.html</span></div>
+
+    <br />
+
+    <li><a id="classicDoc" href="UPAJ_LegacyPortal.html" target="_top">ETA Java Classic Documentation</a>
+    </li>
+
+    <div class="classic_doc_launch_page"><a name="9000034">Launch page: </a><span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Docs/portal/UPAJ_LegacyPortal.html</span></div>
+
+</ul>
+
+<br>
+
+
+<br>
+<br>
+
+<p>Copyright &copy; 2014 Thomson Reuters. All Rights Reserved. </p>
+
+<p><!-- BOTTOM BAR --> </p>
+<br>&nbsp;
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<tr>
+<td BGCOLOR="#CCCCCC"><img SRC="images/invis.gif" height=3 width=1></td>
+</tr>
+</table>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<tr>
+<td><img SRC="images/invis.gif" height=1 width=11></td>
+
+<td ALIGN=LEFT VALIGN=TOP WIDTH="100%"><! -- START OF FOOTER --></td>
+
+<td ALIGN=RIGHT VALIGN=TOP WIDTH="141"><a href="http://www.thomsonreuters.com/" target="display"><img SRC="tr_hrz_lrg_rgb_pos.jpg" ALT="The Business of Information" BORDER=0 height=28 width=120></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+
+</body>
+</html>
