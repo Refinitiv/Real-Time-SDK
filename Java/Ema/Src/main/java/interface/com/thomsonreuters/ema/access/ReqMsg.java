@@ -33,7 +33,7 @@ public interface ReqMsg extends Msg
 	/**
 	 * Rate represents the Qos Rate.
 	 */
-	public final class Rate
+	public class Rate
 	{
 		/**
 		 * Rate is Tick By Tick, indicates every change to information is conveyed
