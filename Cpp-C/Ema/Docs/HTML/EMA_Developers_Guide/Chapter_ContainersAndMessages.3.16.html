@@ -26,7 +26,23 @@
     <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
   </head>
   <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
-    <br />
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
     <hr align="left" />
     <blockquote>
       <div class="H3_outer" style="margin-left: 0pt">
@@ -43,58 +59,58 @@
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1022391">The following example illustrates how to populate a </a><span class="CodeOrCommand">GenericMsg</span> with a payload consisting of an <span class="CodeOrCommand">ElementList</span>.</div>
-      <div class="Blank_Line"><a name="1019069">&nbsp;</a></div>
-      <table class="Commands" style="text-align: left; width: 554.95152pt" cellspacing="0" summary="">
+      <div class="Body"><a name="1033618">The following example illustrates how to populate a </a><span class="CodeOrCommand">GenericMsg</span> with a payload consisting of an <span class="CodeOrCommand">ElementList</span>.</div>
+      <div class="Blank_Line"><a name="1033640">&nbsp;</a></div>
+      <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command"><a name="1022406">&nbsp;</a></div>
+            <div class="command"><a name="1033621">&nbsp;</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1022408">try {</a></div>
+            <div class="command"><a name="1033623">try {</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1022410">	</a><span class="Color_003aLight_Blue">GenericMsg</span> genMsg;</div>
+            <div class="command"><a name="1033625">	</a><span class="Color_003aLight_Blue">GenericMsg</span> genMsg;</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1022412">&nbsp;</a></div>
+            <div class="command"><a name="1033627">&nbsp;</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1022414">	genMsg.domainType( 200 ).name( "TR.N" ).serviceId( 234 ).payload( </a><span class="Color_003aLight_Blue">ElementList</span>().addAscii( </div>
+            <div class="command"><a name="1033629">	genMsg.domainType( 200 ).name( "TR.N" ).serviceId( 234 ).payload( </a><span class="Color_003aLight_Blue">ElementList</span>().addAscii( </div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1022416">			</a><span class="Color_003aRed">"entry_1"</span>, <span class="Color_003aRed">"value_1"</span> ).complete() );</div>
+            <div class="command"><a name="1033631">			</a><span class="Color_003aRed">"entry_1"</span>, <span class="Color_003aRed">"value_1"</span> ).complete() );</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1022418">} catch ( const </a><span class="Color_003aLight_Blue">OmmException</span>&amp; excp  ) {</div>
+            <div class="command"><a name="1033633">} catch ( const </a><span class="Color_003aLight_Blue">OmmException</span>&amp; excp  ) {</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1024197">	cout &lt;&lt; excp &lt;&lt; endl;</a></div>
+            <div class="command"><a name="1033635">	cout &lt;&lt; excp &lt;&lt; endl;</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1024228">}</a></div>
+            <div class="command"><a name="1033637">}</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1024199">&nbsp;</a></div>
+            <div class="command"><a name="1033639">&nbsp;</a></div>
           </td>
         </tr>
       </table>
@@ -108,6 +124,9 @@
         // -->
       </script>
     </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	OMM Containers and Messages : <a class="WebWorks_Breadcrumb_Link" href="Chapter_ContainersAndMessages.3.15.html">3.4	Working with OMM Messages</a> : 3.4.1	Example: Populating the GenericMsg with an ElementList Payload</div>
+    <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--
         document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());

@@ -10,10 +10,10 @@
   </i>
   <i t="Chapter 2 Product Overview">
     <i t="2.1 EMA Product Description" l="6" />
-    <i t="2.2 Supported Features" l="7" />
-    <i t="2.3 Product Architecture" l="8" />
-    <i t="2.4 Tunnel Streams" l="9" />
-    <i t="2.5 Learning EMA" l="10" />
+    <i t="2.2 Product Documentation and Learning EMA" l="7" />
+    <i t="2.3 Supported Features" l="8" />
+    <i t="2.4 Product Architecture" l="9" />
+    <i t="2.5 Tunnel Streams" l="10" />
   </i>
   <i t="Chapter 3 OMM Containers and Messages">
     <i t="3.1 Overview" l="11" />
@@ -31,11 +31,11 @@
       <i t="3.3.3 Example: Populating a Map Class Relying on the Map Class Buffer" l="21" />
       <i t="3.3.4 Example: Extracting Information from a FieldList Class" l="22" />
       <i t="3.3.5 Example: Application Filtering on the FieldList Class" l="23" />
-      <i t="3.3.6 Example: Extracting FieldList information using a Downcast operation" l="24" />
+      <i t="3.3.6 Example: Extracting FieldList information using a Downcast Operation" l="24" />
     </i>
     <i t="3.4 Working with OMM Messages" l="25">
       <i t="3.4.1 Example: Populating the GenericMsg with an ElementList Payload" l="26" />
-      <i t="3.4.2 Example: Extracting Information from the GenericMsg class" l="27" />
+      <i t="3.4.2 Example: Extracting Information from the GenericMsg Class" l="27" />
       <i t="3.4.3 Example: Working with the TunnelStreamRequest Class" l="28" />
     </i>
   </i>

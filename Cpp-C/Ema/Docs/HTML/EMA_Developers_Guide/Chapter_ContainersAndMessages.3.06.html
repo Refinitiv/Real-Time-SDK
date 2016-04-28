@@ -26,7 +26,23 @@
     <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
   </head>
   <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
-    <br />
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
     <hr align="left" />
     <blockquote>
       <div class="H3_outer" style="margin-left: 0pt">
@@ -43,124 +59,124 @@
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1019802">The </a><span class="CodeOrCommand">OmmError</span> class is a special purpose class. It is a read only class implemented in the EMA to notify applications about errors detected while processing received data. This class enables applications to learn what error condition was detected. Additionally it provides the <span class="CodeOrCommand">getAsHex()</span> method to obtain binary data associated with the detected error condition. The sole purpose of this class is to aid in debugging efforts.</div>
-      <div class="Body"><a name="1021400">The following code snippet presents usage of the </a><span class="CodeOrCommand">OmmError</span> class while processing <span class="CodeOrCommand">ElementList</span>.</div>
-      <div class="Blank_Line"><a name="1027200">&nbsp;</a></div>
-      <table class="Commands" style="text-align: left; width: 554.95152pt" cellspacing="0" summary="">
+      <div class="Body"><a name="1032933">The </a><span class="CodeOrCommand">OmmError</span> class is a special purpose class. It is a read only class implemented in the EMA to notify applications about errors detected while processing received data. This class enables applications to learn what error condition was detected. Additionally it provides the <span class="CodeOrCommand">getAsHex()</span> method to obtain binary data associated with the detected error condition. The sole purpose of this class is to aid in debugging efforts.</div>
+      <div class="Body"><a name="1032937">The following code snippet presents usage of the </a><span class="CodeOrCommand">OmmError</span> class while processing <span class="CodeOrCommand">ElementList</span>.</div>
+      <div class="Blank_Line"><a name="1032985">&nbsp;</a></div>
+      <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command"><a name="1021046">&nbsp;</a></div>
+            <div class="command"><a name="1032940">&nbsp;</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><span class="Color_003aBlue"><a name="1021048">void</a></span> decode( <span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">ElementList</span>&amp; elementList )</div>
+            <div class="command"><span class="Color_003aBlue"><a name="1032942">void</a></span> decode( <span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">ElementList</span>&amp; elementList )</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021092">{</a></div>
+            <div class="command"><a name="1032944">{</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021094">	</a><span class="Color_003aBlue">while</span> ( elementList.forth() )</div>
+            <div class="command"><a name="1032946">	</a><span class="Color_003aBlue">while</span> ( elementList.forth() )</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021096">	{</a></div>
+            <div class="command"><a name="1032948">	{</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021098">		</a><span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">ElementEntry</span>&amp; elementEntry = elementList.getEntry();</div>
+            <div class="command"><a name="1032950">		</a><span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">ElementEntry</span>&amp; elementEntry = elementList.getEntry();</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021100">&nbsp;</a></div>
+            <div class="command"><a name="1032952">&nbsp;</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021102">		</a><span class="Color_003aBlue">if</span> ( elementEntry.getCode() == <span class="Color_003aLight_Blue">Data</span>::BlankEnum )</div>
+            <div class="command"><a name="1032954">		</a><span class="Color_003aBlue">if</span> ( elementEntry.getCode() == <span class="Color_003aLight_Blue">Data</span>::BlankEnum )</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021104">			</a><span class="Color_003aBlue">continue</span>;</div>
+            <div class="command"><a name="1032956">			</a><span class="Color_003aBlue">continue</span>;</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021106">		</a><span class="Color_003aBlue">else</span></div>
+            <div class="command"><a name="1032958">		</a><span class="Color_003aBlue">else</span></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021108">			</a><span class="Color_003aBlue">switch</span> ( elementEntry.getLoadType() )</div>
+            <div class="command"><a name="1032960">			</a><span class="Color_003aBlue">switch</span> ( elementEntry.getLoadType() )</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021110">			{</a></div>
+            <div class="command"><a name="1032962">			{</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021112">			</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::RealEnum:</div>
+            <div class="command"><a name="1032964">			</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::RealEnum:</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021114">				cout &lt;&lt; elementEntry.getReal().getAsDouble() &lt;&lt; endl;</a></div>
+            <div class="command"><a name="1032966">				cout &lt;&lt; elementEntry.getReal().getAsDouble() &lt;&lt; endl;</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021116">				</a><span class="Color_003aBlue">break</span>;</div>
+            <div class="command"><a name="1032968">				</a><span class="Color_003aBlue">break</span>;</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021118">			</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::ErrorEnum:</div>
+            <div class="command"><a name="1032970">			</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::ErrorEnum:</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021120">				cout &lt;&lt; elementEntry.getError().getErrorCode() &lt;&lt; </a><span class="Color_003aRed">"( "</span> &lt;&lt; </div>
+            <div class="command"><a name="1032972">				cout &lt;&lt; elementEntry.getError().getErrorCode() &lt;&lt; </a><span class="Color_003aRed">"( "</span> &lt;&lt; </div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021362">						elementEntry.getError().getErrorCodeAsString() &lt;&lt; </a><span class="Color_003aRed">" )"</span> &lt;&lt; endl;</div>
+            <div class="command"><a name="1032974">						elementEntry.getError().getErrorCodeAsString() &lt;&lt; </a><span class="Color_003aRed">" )"</span> &lt;&lt; endl;</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021122">				</a><span class="Color_003aBlue">break</span>;</div>
+            <div class="command"><a name="1032976">				</a><span class="Color_003aBlue">break</span>;</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021124">		}</a></div>
+            <div class="command"><a name="1032978">		}</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021126">	}</a></div>
+            <div class="command"><a name="1032980">	}</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021128">}</a></div>
+            <div class="command"><a name="1032982">}</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021050">&nbsp;</a></div>
+            <div class="command"><a name="1032984">&nbsp;</a></div>
           </td>
         </tr>
       </table>
@@ -174,6 +190,9 @@
         // -->
       </script>
     </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	OMM Containers and Messages : <a class="WebWorks_Breadcrumb_Link" href="Chapter_ContainersAndMessages.3.02.html">3.2	Classes</a> : 3.2.5	OmmError Class</div>
+    <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--
         document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());

@@ -1927,6 +1927,7 @@ table.Warning_Ident_25
   padding-right: 0pt;
   padding-top: 6pt;
   text-align: left;
+  vertical-align: top;
 }
 
 table.Format_B
@@ -1940,7 +1941,8 @@ table.Format_B
   padding-left: 6pt;
   padding-right: 6pt;
   padding-top: 6pt;
-  text-align: center;
+  text-align: left;
+  vertical-align: top;
 }
 
 table.Format_A
@@ -1955,6 +1957,7 @@ table.Format_A
   padding-right: 6pt;
   padding-top: 6pt;
   text-align: left;
+  vertical-align: top;
 }
 
 table.Note_Indent_25
@@ -1969,6 +1972,7 @@ table.Note_Indent_25
   padding-right: 0pt;
   padding-top: 6pt;
   text-align: left;
+  vertical-align: top;
 }
 
 table.Note_Indent_5
@@ -1983,6 +1987,7 @@ table.Note_Indent_5
   padding-right: 0pt;
   padding-top: 6pt;
   text-align: left;
+  vertical-align: top;
 }
 
 table.Warning_Indent_5
@@ -1997,6 +2002,7 @@ table.Warning_Indent_5
   padding-right: 0pt;
   padding-top: 6pt;
   text-align: left;
+  vertical-align: top;
 }
 
 table.Tip_Indent_25
@@ -2011,6 +2017,7 @@ table.Tip_Indent_25
   padding-right: 0pt;
   padding-top: 6pt;
   text-align: left;
+  vertical-align: top;
 }
 
 table.Note_Indent_75
@@ -2025,6 +2032,7 @@ table.Note_Indent_75
   padding-right: 0pt;
   padding-top: 6pt;
   text-align: left;
+  vertical-align: top;
 }
 
 table.Note
@@ -2039,6 +2047,7 @@ table.Note
   padding-right: 0pt;
   padding-top: 6pt;
   text-align: left;
+  vertical-align: top;
 }
 
 table.Commands
@@ -2053,6 +2062,7 @@ table.Commands
   padding-right: 6pt;
   padding-top: 2pt;
   text-align: left;
+  vertical-align: top;
 }
 
 table.Commands__75
@@ -2067,6 +2077,7 @@ table.Commands__75
   padding-right: 2pt;
   padding-top: 2pt;
   text-align: left;
+  vertical-align: top;
 }
 
 table.Commands__5
@@ -2081,6 +2092,7 @@ table.Commands__5
   padding-right: 2pt;
   padding-top: 2pt;
   text-align: left;
+  vertical-align: top;
 }
 
 table.Commands__25
@@ -2095,11 +2107,13 @@ table.Commands__25
   padding-right: 2pt;
   padding-top: 2pt;
   text-align: left;
+  vertical-align: top;
 }
 
 table.Two_Column
 {
   border-collapse: collapse;
+  caption-side: bottom;
   margin-bottom: 12.0pt;
   margin-left: 0pt;
   margin-right: 0pt;
@@ -2109,6 +2123,7 @@ table.Two_Column
   padding-right: 6pt;
   padding-top: 6pt;
   text-align: left;
+  vertical-align: top;
 }
 
 table.Tip
@@ -2123,6 +2138,7 @@ table.Tip
   padding-right: 0pt;
   padding-top: 6pt;
   text-align: left;
+  vertical-align: top;
 }
 
 table.Warning
@@ -2137,5 +2153,6 @@ table.Warning
   padding-right: 0pt;
   padding-top: 6pt;
   text-align: left;
+  vertical-align: top;
 }
 

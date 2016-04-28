@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>Reuters Domain Models VS User Defined Model</title>
+    <link rel="StyleSheet" href="css/EMAC_RDMUsageGuide.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="Heading_2_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Heading_2_inner" style="width: 54pt; white-space: nowrap">
+                <span style="color: #666666; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">2.2	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Heading_2_inner"><a name="9000098">Reuters Domain Models VS User Defined Model </a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Heading_3_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Heading_3_inner" style="width: 54pt; white-space: nowrap">
+                <span style="color: #FF9100; font-family: Arial; font-size: 13pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">2.2.1	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Heading_3_inner"><a name="9000099">Reuters Domain Models (RDMs)</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Normal"><a name="9000100">An </a><span class="Char_Concept" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">RDM</span> is a domain message model typically provided or consumed by a Thomson Reuters product, such as the Enterprise Platform Real-Time, Data Feed Direct, or Elektron. Some currently defined RDMs allow for authenticating to a provider (e.g. Login), exchanging field or enumeration dictionaries (e.g. Dictionary), and providing or consuming various types of market data (e.g. MarketPrice, MarketByOrder, MarketByPrice). Thomson Reuters’s defined models have a domain value of less than 128.</div>
+      <div class="Normal"><a name="9000101">The following table provides a high-level overview of the currently available RDMs. The following chapters provide more detailed descriptions for each of these.</a></div>
+      <table class="Table_Normal" style="width: 534.45pt" cellspacing="0" summary="">
+        <tr style="vertical-align: top">
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-style: solid; border-left-width: 1pt; border-right-style: none; border-right-width: 0pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 93.55pt">
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9000102">DOMAIN</a></div>
+          </td>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-style: none; border-left-width: 0pt; border-right-color: #FF9100; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 440.9pt">
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9000103">PURPOSE</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000105">Login</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000106">Used to authenticate users and advertise/request features that are not specific to a particular domain.</a></div>
+            <div class="Table_Text"><a name="9000107">Use and support of this domain is required for all OMM applications.</a></div>
+            <div class="Table_Text"><a name="9000108">This is considered an administrative domain. Content is required and expected by many Thomson Reuters components, and following the domain model definition is expected.</a></div>
+            <div class="Table_Text"><a name="9000109">See </a><a href="javascript:WWHClickedPopup('EMA_RDM_Usage_Guide', 'EMAC_RDMUsageGuide.1.025.html', '');" title="Chapter 3 Login Domain">Chapter 3</a> for detailed information.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000111">Source Directory</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000112">Used to advertise information about available services and their state, quality of service (QoS), and capabilities. This domain is also used to convey any group status and group merge information.</a></div>
+            <div class="Table_Text"><a name="9000113">Interactive and Non-Interactive OMM Provider applications require support for this domain. Thomson Reuters strongly recommends that OMM Consumers request this domain.</a></div>
+            <div class="Table_Text"><a name="9000114">This is considered an administrative domain. Content is required and expected by many Thomson Reuters components, and following the domain model definition is expected.</a></div>
+            <div class="Table_Text"><a name="9000115">See </a><a href="javascript:WWHClickedPopup('EMA_RDM_Usage_Guide', 'EMAC_RDMUsageGuide.1.048.html', '');" title="Chapter 4 Source Directory Domain">Chapter 4</a> for detailed information.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000117">Dictionary</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000118">Used to provide dictionaries that may be necessary to decode data.</a></div>
+            <div class="Table_Text"><a name="9000119">Dictionary domain use is optional. It is recommended for Provider applications to support this.</a></div>
+            <div class="Table_Text"><a name="9000120">This is considered an administrative domain. Content is required and expected by many Thomson Reuters components, and following the domain model definition is expected.</a></div>
+            <div class="Table_Text"><a name="9000121">See </a><a href="javascript:WWHClickedPopup('EMA_RDM_Usage_Guide', 'EMAC_RDMUsageGuide.1.065.html', '');" title="Chapter 5 Dictionary Domain">Chapter 5</a> for detailed information.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000123">MarketPrice</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000124">Provides access to Level I market information such as trades, indicative quotes, and top of book quotes. Content includes information such as volume, bid, ask, net change, last price, high, and low.</a></div>
+            <div class="Table_Text"><a name="9000125">See </a><a href="javascript:WWHClickedPopup('EMA_RDM_Usage_Guide', 'EMAC_RDMUsageGuide.1.091.html', '');" title="Chapter 6 MarketPrice Domain">Chapter 6</a> for detailed information.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000127">MarketByOrder</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000128">Provides access to Level II full order books. Contains a list of orders, keyed by the order Ids along with the information related to that order, such as price, whether it is a bid/ask order, size, quote time, or market maker identifier.</a></div>
+            <div class="Table_Text"><a name="9000129">See </a><a href="javascript:WWHClickedPopup('EMA_RDM_Usage_Guide', 'EMAC_RDMUsageGuide.1.104.html', '');" title="Chapter 7 MarketByOrder Domain">Chapter 7</a> for detailed information.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000131">MarketByPrice</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000132">Provides access to Level II market depth information. Contains a list of price points (using that price and bid/ask side as its key) along with the information related to that price point.</a></div>
+            <div class="Table_Text"><a name="9000133">See </a><a href="javascript:WWHClickedPopup('EMA_RDM_Usage_Guide', 'EMAC_RDMUsageGuide.1.116.html', '');" title="Chapter 8 MarketByPrice Domain">Chapter 8</a> for detailed information.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000135">MarketMaker</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000136">Provides access to market maker quotes and trade information. Contains a list of market makers (using that market maker’s Id as its key) along with the information such as that market maker’s bid and asking prices, quote time, and market source.</a></div>
+            <div class="Table_Text"><a name="9000137">See </a><a href="javascript:WWHClickedPopup('EMA_RDM_Usage_Guide', 'EMAC_RDMUsageGuide.1.128.html', '');" title="Chapter 9 MarketMaker Domain">Chapter 9</a> for detailed information.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000139">YieldCurve</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000140">This section defines a yield curve model as is currently supported by the ATS.  The YieldCurve domain shows the relation between the interest rate and the term, or time to maturity, associated with the debt of a borrower. <br />See </a><a href="javascript:WWHClickedPopup('EMA_RDM_Usage_Guide', 'EMAC_RDMUsageGuide.1.140.html', '');" title="Chapter 10 YieldCurve Domain">Chapter 10</a> for detailed information.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000142">SymbolList</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000143">Provides access to a set of symbol names, typically from an index, service, or cache. Minimally contains symbol names and can optionally contain additional cross-reference information such as permission information, name type, or other venue specific content.</a></div>
+            <div class="Table_Text"><a name="9000144">See </a><a href="javascript:WWHClickedPopup('EMA_RDM_Usage_Guide', 'EMAC_RDMUsageGuide.1.151.html', '');" title="Chapter 11 SymbolList Domain">Chapter 11</a> for detailed information.</div>
+          </td>
+        </tr>
+      </table>
+      <div class="Caption"><a name="9000146">Table 2: Reuters Domain Model Overview </a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_RDMUsageGuide.1.010.html">Chapter 2	Domain Model Overview</a> : Reuters Domain Models VS User Defined Model </div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>200__MarketPrice__Streaming</title>
+    <link rel="StyleSheet" href="css/EMAC_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H2_NoNum"><a name="1019284">200__MarketPrice__Streaming</a></div>
+      <div class="Body"><a name="1027187">Summary</a></div>
+      <div class="Body"><a name="1027188">=======</a></div>
+      <div class="Body"><a name="1027189">&nbsp;</a></div>
+      <div class="Body"><a name="1027190">The 200__MarketPrice__Streaming application is provided as an example of</a></div>
+      <div class="Body"><a name="1027191">OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1027192">&nbsp;</a></div>
+      <div class="Body"><a name="1027193">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1027194">and parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1027195">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1027196">Distribution Server.</a></div>
+      <div class="Body"><a name="1027197">&nbsp;</a></div>
+      <div class="Body"><a name="1027198">The 200__MarketPrice__Streaming showcases native or RWF decoding of received</a></div>
+      <div class="Body"><a name="1027199">FieldList. This application iterates through the received FieldList and calls</a></div>
+      <div class="Body"><a name="1027200">respective (based on the data type) get***() methods to extract data in native</a></div>
+      <div class="Body"><a name="1027201">format.</a></div>
+      <div class="Body"><a name="1027202">&nbsp;</a></div>
+      <div class="Body"><a name="1027203">&nbsp;</a></div>
+      <div class="Body"><a name="1027204">Detailed Description</a></div>
+      <div class="Body"><a name="1027205">====================</a></div>
+      <div class="Body"><a name="1027206">&nbsp;</a></div>
+      <div class="Body"><a name="1027207">The 200__MarketPrice__Streaming implements the following high level steps:</a></div>
+      <div class="Body"><a name="1027208">&nbsp;</a></div>
+      <div class="Body"><a name="1027209">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1027210">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1027211">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1027212">    - the decode( const FieldList&amp; ) iterates through the received FieldList,</a></div>
+      <div class="Body"><a name="1027213">	  extracts each FieldEntry reference from the current position on the</a></div>
+      <div class="Body"><a name="1027214">	  FieldList, and extracts field id, name and load of the FieldEntry.</a></div>
+      <div class="Body"><a name="1027215">	  The load extraction is done using native or RWF data formats</a></div>
+      <div class="Body"><a name="1027216">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1027217">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1027218">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1027219">  - sets host name on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1027220">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1027221">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1027222">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1027223">+ Opens a streaming item interest</a></div>
+      <div class="Body"><a name="1027224">  - MarketPrice IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1027225">+ Processes data received with user dispatch loop for 60 seconds</a></div>
+      <div class="Body"><a name="1027226">  - all received messages are processed on main application thread of control</a></div>
+      <div class="Body"><a name="1027227">+ Exits</a></div>
+      <div class="Body"><a name="1027228">&nbsp;</a></div>
+      <div class="Body"><a name="1027229">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1027230">      environment.</a></div>
+      <div class="Body"><a name="1027231">	  </a></div>
+      <div class="Body"><a name="1027232">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1027233">      standard configuration.</a></div>
+      <div class="Body"><a name="1025376">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_Readmes.1.10.html">200 Series Examples</a> : 200__MarketPrice__Streaming</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

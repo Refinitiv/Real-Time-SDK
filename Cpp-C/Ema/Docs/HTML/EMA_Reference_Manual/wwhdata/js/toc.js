@@ -1,4 +1,4 @@
 function  WWHBookData_AddTOCEntries(P)
 {
-var A=P.fN("EMA C++ Reference Manual","0");
+var A=P.fN("Chapter 1 EMA C++ Reference Manual","");
 }

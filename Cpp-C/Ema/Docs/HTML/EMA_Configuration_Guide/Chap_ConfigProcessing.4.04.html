@@ -26,7 +26,23 @@
     <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
   </head>
   <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
-    <br />
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
     <hr align="left" />
     <blockquote>
       <div class="H3_outer" style="margin-left: 0pt">
@@ -43,7 +59,7 @@
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1048283">The EMA is hard-coded to use a default consumer of </a><span class="Parameter">EmaConsumer</span>. However, you can change this by using <span class="Parameter">EmaConfig.xml</span>. When you use the XML file, the default <span class="Parameter">Consumer Name</span> is either specified by the <span class="Parameter">DefaultConsumer</span> element, or if this parameter is not set, then the EMA application will default to the name of the first Consumer component.</div>
+      <div class="Body"><a name="1058241">The EMA is hard-coded to use a default consumer of </a><span class="Parameter">EmaConsumer</span>. However, you can change this by using <span class="Parameter">EmaConfig.xml</span>. When you use the XML file, the default <span class="Parameter">Consumer Name</span> is either specified by the <span class="Parameter">DefaultConsumer</span> element, or if this parameter is not set, then the EMA application will default to the name of the first Consumer component.</div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -53,7 +69,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1052629">If </a><span class="Parameter">DefaultConsumer</span> uses an invalid name (i.e., no <span class="Parameter">Consumer</span> components in the XML file use that name), the EMA throws an exception indicating that <span class="Parameter">DefaultConsumer</span> is invalid.</div>
+              <div class="Bullet_inner"><a name="1058242">If </a><span class="Parameter">DefaultConsumer</span> uses an invalid name (i.e., no <span class="Parameter">Consumer</span> components in the XML file use that name), the EMA throws an exception indicating that <span class="Parameter">DefaultConsumer</span> is invalid.</div>
             </td>
           </tr>
         </table>
@@ -67,7 +83,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1048372">If the </a><span class="FileOrDirectory">EmaConfig.xml</span> has no <span class="Parameter">Consumer</span> components, the EMA application uses <span class="Parameter">EmaConsumer</span>.</div>
+              <div class="Bullet_inner"><a name="1058243">If the </a><span class="FileOrDirectory">EmaConfig.xml</span> has no <span class="Parameter">Consumer</span> components, the EMA application uses <span class="Parameter">EmaConsumer</span>.</div>
             </td>
           </tr>
         </table>
@@ -82,6 +98,9 @@
         // -->
       </script>
     </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 4	EMA Configuration Processing : <a class="WebWorks_Breadcrumb_Link" href="Chap_ConfigProcessing.4.02.html">4.2	Processing EmaConfig.xml</a> : 4.2.2	Processing the Consumer “Name”</div>
+    <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--
         document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());

@@ -1,0 +1,20 @@
+function FileData_Pairs(x)
+{
+x.t("rdm","usage");
+x.t("apis","configuration");
+x.t("apis","-specific");
+x.t("api","edition");
+x.t("api","concepts");
+x.t("guide","api");
+x.t("guide","elektron");
+x.t("references","elektron");
+x.t("1.5","references");
+x.t("message","api");
+x.t("configuration","guide");
+x.t("usage","guide");
+x.t("elektron","apis");
+x.t("elektron","message");
+x.t("edition","1.5");
+x.t("-specific","rdm");
+x.t("concepts","guide");
+}

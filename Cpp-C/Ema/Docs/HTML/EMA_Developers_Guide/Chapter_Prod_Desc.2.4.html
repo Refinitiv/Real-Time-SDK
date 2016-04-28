@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>2.4 Tunnel Streams</title>
+    <title>2.4 Product Architecture</title>
     <link rel="StyleSheet" href="css/Chapter_Prod_Desc.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -26,7 +26,23 @@
     <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
   </head>
   <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
-    <br />
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
     <hr align="left" />
     <blockquote>
       <div class="H2_outer" style="margin-left: 0pt">
@@ -38,27 +54,29 @@
               </div>
             </td>
             <td width="100%">
-              <div class="H2_inner"><a name="1022730">Tunnel Streams</a></div>
+              <div class="H2_inner"><a name="1019047">Product Architecture</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1022789">By leveraging the Transport API Value Added Reactor, the EMA allows users to create and use special tunnel streams. A tunnel stream is a private stream that has additional behaviors associated with it, such as end-to-end line of sight for authentication and guaranteed delivery. Because tunnel streams are founded on the private streams concept, these are established between consumer and provider endpoints and then pass through intermediate components, such as TREP or EED.</a></div>
-      <div class="Body"><a name="1022791">The user creating the tunnel stream sets any additional behaviors to enforce, which EMA sends to the provider application end point. The provider end point acknowledges creation of the stream as well as the behaviors that it will also enforce on the stream. Once this is accomplished, the negotiated behaviors will be enforced on the content exchanged via the tunnel stream.</a></div>
-      <div class="Body"><a name="1022793">The tunnel stream allows for multiple substreams to exist, where substreams flow and coexist within the confines of a specific tunnel stream. In the following diagram, imagine the tunnel stream as the orange cylinder that connects the Consumer application and the Provider application. Notice that this passes directly through any intermediate components. The tunnel stream has end-to-end line of sight so the Provider and Consumer are effectively talking to each other directly, although they are traversing multiple devices in the system. Each of the black lines flowing through the cylinder represent a different substream, where each substream is its own independent stream of information. Each of these could be for different market content, for example one could be a Time Series request while another could be a request for Market Price content.</a></div>
-      <div class="Body"><a name="1022937"><img class="Default" src="images/Tunnels.jpg" width="87" height="289" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></div>
-      <div class="FigTitle_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="FigTitle_inner" style="width: 36pt; white-space: nowrap">Figure 1.  </div>
-            </td>
-            <td width="100%">
-              <div class="FigTitle_inner"><a name="1020868">Tunnel Stream</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
+      <div class="Body"><a name="1025158">The EMA incorporates the ValueAdded Reactor component (called the Transport API VA Reactor) from the Transport API, which provides the watchlist and transport-level functionality. The EMA wraps up the reactor component in its own class of </a><span class="CodeOrCommand">OmmConsumer</span>. <span class="CodeOrCommand">OmmConsumer</span> provides interfaces to open, modify, and close market items or instruments, as well as submit Post and Generic messages. To complete the set of consumer application functionalities, the <span class="CodeOrCommand">OmmConsumer</span> class provides the <span class="CodeOrCommand">dispatch()</span> method. Depending on its design and configuration, an application might need to call this method to dispatch received messages. The <span class="CodeOrCommand">OmmConsumerConfig</span> class configures the reactor and <span class="CodeOrCommand">OmmConsumer</span>.</div>
+      <div class="Body"><a name="1025159">The </a><span class="CodeOrCommand">OmmConsumerClient</span> class provides the callback mechanism for EMA to send incoming messages to the application. The application needs to implement a class inheriting from the <span class="CodeOrCommand">OmmConsumerClient</span> class to receive and process messages. By default, <span class="CodeOrCommand">OmmConsumerClient</span> callback methods are executed in EMA's thread of control. However, you can use the <span class="CodeOrCommand">OmmConsumerConfig::operationModel()</span> interface to execute callback methods on the application. If you choose to execute callback methods in this manner, the application must also call the <span class="CodeOrCommand">OmmConsumer::dispatch()</span> method to dispatch received messages.</div>
+      <div class="Body"><a name="1025160">While the </a><span class="CodeOrCommand">OmmConsumer</span> class throws an <span class="CodeOrCommand">OmmException</span> to report error conditions, the <span class="CodeOrCommand">OmmConsumerErrorClient</span> class provides an alternate reporting mechanism via callbacks. To use the alternate error reporting, pass the <span class="CodeOrCommand">OmmConsumerErrorClient</span> on the constructor of the <span class="CodeOrCommand">OmmConsumer</span> class, which switches the error reporting from exception throwing to callbacks. In addition to its error reporting mechanisms, EMA provides a logger mechanism which is useful in monitoring EMA behavior and debugging any issues that might arise.</div>
+      <div class="Body"><a name="1025161">The EMA uses Elektron Transport API decoding and encoding functions for reading and populating OMM containers and messages. Each OMM container and message is represented by a respective EMA interface class, which provide relevant methods for setting information on, and accessing information from, these containers and messages. All classes representing OMM containers, messages, and primitives inherit from the common parent class of </a><span class="CodeOrCommand">Data</span>. Through such inheritance, classes provide the same basic, common, and easy to use functionality that applications might expect from them (e.g., printing contained data using <span class="CodeOrCommand">toString()</span>).</div>
+      <div class="Body"><a name="1025162">The EMA will always have at least one thread, which is implemented by the VA Reactor and runs the internal, VA Reactor logic. For details on this thread, refer to the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCVACG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API Value Added Component Developers Guide</a></span> specific to the programming language you use. Additionally, you can configure the EMA to create a second, internal thread to dispatch received messages. To create a second thread, set the <span class="CodeOrCommand">OmmConsumerConfig</span> operation model to <span class="CodeOrCommand">OmmConsumerConfig::ApiDispatchEnum</span>. The EMA will not run a second thread, if the <span class="CodeOrCommand">OmmConsumerConfig</span> operation model is set to the <span class="CodeOrCommand">OmmConsumerConfig::UserDispatch</span>. Without running a second thread, the application is responsible for calling the <span class="CodeOrCommand">Ommconsumer::dispatch()</span> method to dispatch all received messages.</div>
+      <div class="Blank_Line"><a name="1025179">&nbsp;</a></div>
+      <table class="Warning" style="width: 554.99976pt" cellspacing="0" summary="">
+        <caption></caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 30.74904pt">
+            <div class="Body" style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1025176"><img class="Default" src="images/Chapter_Prod_Desc.2.4.1.jpg" width="34" height="33" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></span></div>
+          </td>
+          <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 524.25072pt">
+            <div class="Warning">
+              <span class="Bold">Warning! </span><a name="1025178">If the application delays dispatching messages, it can result in slow consumer behavior.</a></div>
+          </td>
+        </tr>
+      </table>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -69,6 +87,9 @@
         // -->
       </script>
     </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 2	Product Overview : 2.4	Product Architecture</div>
+    <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--
         document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());

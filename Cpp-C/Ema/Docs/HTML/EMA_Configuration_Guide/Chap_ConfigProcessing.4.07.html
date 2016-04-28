@@ -26,7 +26,23 @@
     <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
   </head>
   <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
-    <br />
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
     <hr align="left" />
     <blockquote>
       <div class="H3_outer" style="margin-left: 0pt">
@@ -43,19 +59,19 @@
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1049035">Because the </a><span class="Parameter">Host</span> and <span class="Parameter">Port</span> parameters both have global default values (<span class="Parameter">localhost</span> and <span class="Parameter">14002</span> respectively), if an OmmConsumerConfig object exists, its <span class="Parameter">Host</span> and <span class="Parameter">Port</span> will always have values (either the default value or some value specified within <span class="FileOrDirectory">EmaConfig.xml</span>).</div>
-      <div class="Body"><a name="1049810">If you wish, you can have the application reset both host and port values by calling the </a><span class="CodeOrCommand">host( const EmaString&amp; )</span> method on the OmmConsumerConfig object using the syntax: <span class="VariableValue" style="font-weight: bold">HostValue</span><span class="Parameter" style="font-style: normal">:</span><span class="VariableValue" style="font-weight: bold">PortValue</span>.</div>
-      <div class="Blank_Line"><a name="1050004">&nbsp;</a></div>
-      <table class="Note" style="text-align: left; width: 555.75pt" cellspacing="0" summary="">
+      <div class="Body"><a name="1058335">Because the </a><span class="Parameter">Host</span> and <span class="Parameter">Port</span> parameters both have global default values (<span class="Parameter">localhost</span> and <span class="Parameter">14002</span> respectively), if an OmmConsumerConfig object exists, its <span class="Parameter">Host</span> and <span class="Parameter">Port</span> will always have values (either the default value or some value specified within <span class="FileOrDirectory">EmaConfig.xml</span>).</div>
+      <div class="Body"><a name="1058339">If you wish, you can have the application reset both host and port values by calling the </a><span class="CodeOrCommand">host( </span><span class="CodeOrCommand">const </span><span class="CodeOrCommand">EmaString</span><span class="CodeOrCommand">&amp;</span><span class="CodeOrCommand"> )</span> method on the <span class="CodeOrCommand">OmmConsumerConfig</span> object using the syntax: <span class="VariableValue" style="font-weight: bold">HostValue</span><span class="Parameter" style="font-style: normal">:</span><span class="VariableValue" style="font-weight: bold">PortValue</span>.</div>
+      <div class="Blank_Line"><a name="1058349">&nbsp;</a></div>
+      <table class="Note" style="width: 555.75pt" cellspacing="0" summary="">
         <caption></caption>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 555.75pt">
             <div class="Note">
-              <span class="Bold">Note: </span><a name="1050624">Calling the </a><span class="CodeOrCommand" style="font-size: 9.0pt">host()</span> function results in the <span class="Parameter">channelType</span> (refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.08.html', '');" title="3.2.2 Universal Channel Entry Parameters">Section 3.2.2</a>) being set to <span class="Parameter">RSSL_SOCKET</span>, regardless of any previous setting for that configuration element.</div>
+              <span class="Bold">Note: </span><a name="1058348">Calling the </a><span class="CodeOrCommand" style="font-size: 9.0pt">host()</span> function results in the <span class="Parameter">channelType</span> (refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.08.html', '');" title="3.2.2 Universal Channel Entry Parameters">Section 3.2.2</a>) being set to <span class="Parameter">RSSL_SOCKET</span>, regardless of any previous setting for that configuration element.</div>
           </td>
         </tr>
       </table>
-      <div class="Body"><span class="Parameter"><a name="1050038">Host</a></span> and <span class="Parameter">Port</span> values observe the following rules when updating due to the <span class="CodeOrCommand">host( const EmaString&amp; )</span> method:</div>
+      <div class="Body"><span class="Parameter"><a name="1058353">Host</a></span> and <span class="Parameter">Port</span> values observe the following rules when updating due to the <span class="CodeOrCommand">host( </span><span class="CodeOrCommand">const </span><span class="CodeOrCommand">EmaString</span><span class="CodeOrCommand">&amp;</span><span class="CodeOrCommand"> )</span> method:</div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -65,7 +81,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1049053">If the host parameter is missing or empty, then host and port reset to their global default values (</a><span class="Parameter">localhost:14002</span>)</div>
+              <div class="bullet_ind_inner"><a name="1058354">If the host parameter is missing or empty, then host and port reset to their global default values (</a><span class="Parameter">localhost:14002</span>)</div>
             </td>
           </tr>
         </table>
@@ -79,7 +95,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1050271">If the host parameter is set to the string </a><span class="Parameter">“:”</span>, then host and port reset to their global default values (<span class="Parameter">localhost:14002</span>)</div>
+              <div class="bullet_ind_inner"><a name="1058355">If the host parameter is set to the string </a><span class="Parameter">“:”</span>, then host and port reset to their global default values (<span class="Parameter">localhost:14002</span>)</div>
             </td>
           </tr>
         </table>
@@ -93,7 +109,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1049055">If the host parameter is a string (not containing a </a><span class="Parameter">:</span>), then host is set to that string and port resets to its default value (<span class="Parameter">14002</span>).</div>
+              <div class="bullet_ind_inner"><a name="1058356">If the host parameter is a string (not containing a </a><span class="Parameter">:</span>), then host is set to that string and port resets to its default value (<span class="Parameter">14002</span>).</div>
             </td>
           </tr>
         </table>
@@ -107,7 +123,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1049056">If the parameter begins with a </a><span class="Parameter">:</span> and is followed by some text, then host is set to its global default value (<span class="Parameter">localhost</span>) and port is set to that text.</div>
+              <div class="bullet_ind_inner"><a name="1058357">If the parameter begins with a </a><span class="Parameter">:</span> and is followed by some text, then host is set to its global default value (<span class="Parameter">localhost</span>) and port is set to that text.</div>
             </td>
           </tr>
         </table>
@@ -121,7 +137,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1049057">If the parameter is </a><span class="VariableValue" style="font-weight: bold">HostValue</span><span class="Parameter" style="font-style: normal">:</span><span class="VariableValue" style="font-weight: bold">PortValue</span>, where both <span class="VariableValue" style="font-weight: bold">HostValue</span> and <span class="VariableValue" style="font-weight: bold">PortValue</span> have values, then host is set to <span class="VariableValue" style="font-weight: bold">HostValue</span> and port is set to <span class="VariableValue" style="font-weight: bold">PortValue</span>.</div>
+              <div class="bullet_ind_inner"><a name="1058358">If the parameter is </a><span class="VariableValue" style="font-weight: bold">HostValue</span><span class="Parameter" style="font-style: normal">:</span><span class="VariableValue" style="font-weight: bold">PortValue</span>, where both <span class="VariableValue" style="font-weight: bold">HostValue</span> and <span class="VariableValue" style="font-weight: bold">PortValue</span> have values, then host is set to <span class="VariableValue" style="font-weight: bold">HostValue</span> and port is set to <span class="VariableValue" style="font-weight: bold">PortValue</span>.</div>
             </td>
           </tr>
         </table>
@@ -136,6 +152,9 @@
         // -->
       </script>
     </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 4	EMA Configuration Processing : <a class="WebWorks_Breadcrumb_Link" href="Chap_ConfigProcessing.4.05.html">4.3	Configuring EMA Using Function Calls</a> : 4.3.2	Using the host() Function: How “Host” and “Port” are Processed</div>
+    <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--
         document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());

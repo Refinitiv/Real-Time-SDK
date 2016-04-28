@@ -45,10 +45,10 @@
     <Document title="1.5 References" href="Chap_Intro.1.5.html" />
     <Document title="1.6 Document Conventions" href="Chap_Intro.1.6.html" />
     <Document title="2.1 EMA Product Description" href="Chapter_Prod_Desc.2.1.html" />
-    <Document title="2.2 Supported Features" href="Chapter_Prod_Desc.2.2.html" />
-    <Document title="2.3 Product Architecture" href="Chapter_Prod_Desc.2.3.html" />
-    <Document title="2.4 Tunnel Streams" href="Chapter_Prod_Desc.2.4.html" />
-    <Document title="2.5 Learning EMA" href="Chapter_Prod_Desc.2.5.html" />
+    <Document title="2.2 Product Documentation and Learning EMA" href="Chapter_Prod_Desc.2.2.html" />
+    <Document title="2.3 Supported Features" href="Chapter_Prod_Desc.2.3.html" />
+    <Document title="2.4 Product Architecture" href="Chapter_Prod_Desc.2.4.html" />
+    <Document title="2.5 Tunnel Streams" href="Chapter_Prod_Desc.2.5.html" />
     <Document title="3.1 Overview" href="Chapter_ContainersAndMessages.3.01.html" />
     <Document title="3.2 Classes" href="Chapter_ContainersAndMessages.3.02.html" />
     <Document title="3.2.2 DataCode Class" href="Chapter_ContainersAndMessages.3.03.html" />
@@ -62,10 +62,10 @@
     <Document title="3.3.3 Example: Populating a Map Class Relying on the Map Class Buffer" href="Chapter_ContainersAndMessages.3.11.html" />
     <Document title="3.3.4 Example: Extracting Information from a FieldList Class" href="Chapter_ContainersAndMessages.3.12.html" />
     <Document title="3.3.5 Example: Application Filtering on the FieldList Class" href="Chapter_ContainersAndMessages.3.13.html" />
-    <Document title="3.3.6 Example: Extracting FieldList information using a Downcast operation" href="Chapter_ContainersAndMessages.3.14.html" />
+    <Document title="3.3.6 Example: Extracting FieldList information using a Downcast Operation" href="Chapter_ContainersAndMessages.3.14.html" />
     <Document title="3.4 Working with OMM Messages" href="Chapter_ContainersAndMessages.3.15.html" />
     <Document title="3.4.1 Example: Populating the GenericMsg with an ElementList Payload" href="Chapter_ContainersAndMessages.3.16.html" />
-    <Document title="3.4.2 Example: Extracting Information from the GenericMsg class" href="Chapter_ContainersAndMessages.3.17.html" />
+    <Document title="3.4.2 Example: Extracting Information from the GenericMsg Class" href="Chapter_ContainersAndMessages.3.17.html" />
     <Document title="3.4.3 Example: Working with the TunnelStreamRequest Class" href="Chapter_ContainersAndMessages.3.18.html" />
     <Document title="4.1 OmmConsumer Class" href="Chapter_ConsumerClasses.4.01.html" />
     <Document title="4.1.1 Connecting to a Server and Opening Items" href="Chapter_ConsumerClasses.4.02.html" />

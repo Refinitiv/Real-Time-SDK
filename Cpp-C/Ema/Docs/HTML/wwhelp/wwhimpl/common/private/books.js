@@ -6,6 +6,7 @@ function  WWHBookGroups_Books(ParamTop)
 
 
   ParamTop.fAddDirectory("Documentation_Portal", null, null, null, null);
+  ParamTop.fAddDirectory("Concepts_Guide", null, null, null, null);
   ParamTop.fAddDirectory("EMA_Developers_Guide", null, null, null, null);
   ParamTop.fAddDirectory("EMA_RDM_Usage_Guide", null, null, null, null);
   ParamTop.fAddDirectory("EMA_Reference_Manual", null, null, null, null);

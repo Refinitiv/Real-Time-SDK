@@ -1,0 +1,23 @@
+function FileData_Pairs(x)
+{
+x.t("interfaces","listed");
+x.t("various","ema");
+x.t("source-level","documentation");
+x.t("packages","public");
+x.t("public","ema");
+x.t("includes","source-level");
+x.t("api","edition");
+x.t("manual","includes");
+x.t("manuals","elektron");
+x.t("manuals","ema");
+x.t("reference","manual");
+x.t("reference","manuals");
+x.t("message","api");
+x.t("documentation","various");
+x.t("elektron","message");
+x.t("classes","interfaces");
+x.t("edition","reference");
+x.t("ema","packages");
+x.t("ema","classes");
+x.t("ema","edition");
+}
