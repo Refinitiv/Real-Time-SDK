@@ -26,7 +26,23 @@
     <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
   </head>
   <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
-    <br />
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
     <hr align="left" />
     <blockquote>
       <div class="H3_outer" style="margin-left: 0pt">
@@ -45,11 +61,11 @@
       </div>
       <div class="Body"><a name="1068059">In addition to the universal parameters listed in </a><a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.08.html', '');" title="3.2.2 Universal Channel Entry Parameters">Section 3.2.2</a>, you can use the following parameters to configure a channel whose type is either <span class="Parameter">RSSL_HTTP</span> or <span class="Parameter">RSSL_ENCRYPTED</span>.</div>
       <div class="Blank_Line"><a name="1065296">&nbsp;</a></div>
-      <table class="Two_Column" style="text-align: left; width: 555.74712pt" cellspacing="0" summary="">
-        <caption>
+      <table class="Two_Column" style="width: 555.74712pt" cellspacing="0" summary="">
+        <caption style="caption-side: bottom">
           <div class="TableTitle">Table 8: <a name="1065289">Parameters for Channel Types: RSSL_HTTP or RSSL_ENCRYPTED &nbsp;</a></div>
         </caption>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: middle; width: 155.25pt">
             <div class="CellHeading"><a name="1065578">Parameter Name</a></div>
           </td>
@@ -63,7 +79,7 @@
             <div class="CellHeading"><a name="1065584">Notes</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
             <div class="CellBody"><a name="1066134">CompressionThreshold</a></div>
           </td>
@@ -77,7 +93,7 @@
             <div class="CellBody"><a name="1066140">Sets the message size threshold (in bytes, the allowed value is 30-UInt32 MAX), above which all messages are compressed (thus individual messages might not be compressed). Different compression types have different behaviors and compression efficiency can vary depending on message size.</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top" rowspan="2">
             <div class="CellBody"><a name="1066142">CompressionType</a></div>
           </td>
@@ -135,13 +151,13 @@
             </div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
             <div class="Note">
               <span class="Bold">Note: </span><a name="1066164">A server can be configured to force a particular compression type, regardless of client settings.</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
             <div class="CellBody"><a name="1066166">Host</a></div>
           </td>
@@ -155,7 +171,7 @@
             <div class="CellBody"><a name="1066172">Specifies the host name of the server to which the EMA connects. The parameter value can be a remote host name or IP address.</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
             <div class="CellBody"><a name="1066208">ObjectName</a></div>
           </td>
@@ -169,7 +185,7 @@
             <div class="CellBody"><a name="1066214">Specifies the object name to pass along with the underlying URL in HTTP connection messages.</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
             <div class="CellBody"><a name="1066174">Port</a></div>
           </td>
@@ -183,7 +199,7 @@
             <div class="CellBody"><a name="1066180">Specifies the port on the remote server to which the EMA connects.</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
             <div class="CellBody"><a name="1066182">TcpNodelay</a></div>
           </td>
@@ -236,6 +252,9 @@
         // -->
       </script>
     </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	Configuration Groups : <a class="WebWorks_Breadcrumb_Link" href="Chap_ConfigGroups.3.06.html">3.2	Channel Group</a> : 3.2.4	Parameters for Use with Channel Types: RSSL_HTTP or RSSL_ENCRYPTED</div>
+    <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--
         document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());

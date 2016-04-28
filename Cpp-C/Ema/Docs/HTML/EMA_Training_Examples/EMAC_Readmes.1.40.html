@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>421__MarketPrice__ProgrammaticConfig</title>
+    <link rel="StyleSheet" href="css/EMAC_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H2_NoNum"><a name="1017940">421__MarketPrice__ProgrammaticConfig</a></div>
+      <div class="Body"><a name="1028493">Summary</a></div>
+      <div class="Body"><a name="1028494">=======</a></div>
+      <div class="Body"><a name="1028495">&nbsp;</a></div>
+      <div class="Body"><a name="1028496">The 421__MarketPrice__ProgrammaticConfig application is provided as an example</a></div>
+      <div class="Body"><a name="1028497">of OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1028498">&nbsp;</a></div>
+      <div class="Body"><a name="1028499">This application demonstrates basic usage of the EMA library for accessing and</a></div>
+      <div class="Body"><a name="1028500">parsing of OMM MarketPrice Domain data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1028501">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1028502">Distribution Server.</a></div>
+      <div class="Body"><a name="1028503">&nbsp;</a></div>
+      <div class="Body"><a name="1028504">The 421__MarketPrice__ProgrammaticConfig showcases creation and usage of the </a></div>
+      <div class="Body"><a name="1028505">programmatic configuration feature of EMA. In addition to file configuration,</a></div>
+      <div class="Body"><a name="1028506">EMA allows users to grammatically configure Omm Consumer instances.</a></div>
+      <div class="Body"><a name="1028507">&nbsp;</a></div>
+      <div class="Body"><a name="1028508">&nbsp;</a></div>
+      <div class="Body"><a name="1028509">Detailed Description</a></div>
+      <div class="Body"><a name="1028510">====================</a></div>
+      <div class="Body"><a name="1028511">&nbsp;</a></div>
+      <div class="Body"><a name="1028512">The 421__MarketPrice__ProgrammaticConfig implements the following high level steps:</a></div>
+      <div class="Body"><a name="1028513">&nbsp;</a></div>
+      <div class="Body"><a name="1028514">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1028515">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1028516">  - provides own methods as needed</a></div>
+      <div class="Body"><a name="1028517">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1028518">+ Instantiates a Map (configMap object) and populates it with configuration info</a></div>
+      <div class="Body"><a name="1028519">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1028520">  - sets Omm Consumer configuration with data from the programmatic configuration</a></div>
+      <div class="Body"><a name="1028521">+ Instantiates OmmConsumer object which initializes connection and logins into</a></div>
+      <div class="Body"><a name="1028522">  the specified server</a></div>
+      <div class="Body"><a name="1028523">+ Opens a streaming item interest</a></div>
+      <div class="Body"><a name="1028524">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1028525">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1028526">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1028527">+ Exits</a></div>
+      <div class="Body"><a name="1028528">&nbsp;</a></div>
+      <div class="Body"><a name="1028529">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1028530">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1028531">	  </a></div>
+      <div class="Body"><a name="1028532">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1028533">      standard configuration.</a></div>
+      <div class="Body"><a name="1026671">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_Readmes.1.36.html">400 Series Examples</a> : 421__MarketPrice__ProgrammaticConfig</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

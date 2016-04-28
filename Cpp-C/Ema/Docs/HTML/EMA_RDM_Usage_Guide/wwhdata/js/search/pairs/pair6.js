@@ -1,14 +1,21 @@
 function FileData_Pairs(x)
 {
 x.t("refer","ema");
+x.t("introduction","references");
 x.t("3.0","developers");
+x.t("api","edition");
 x.t("guide","edition");
-x.t("references","1.6");
 x.t("references","additional");
+x.t("references","elektron");
 x.t("developers","guide");
+x.t("chapter","introduction");
 x.t("1.6","references");
+x.t("message","api");
 x.t("documentation","refer");
 x.t("additional","ema");
+x.t("elektron","message");
+x.t("edition","chapter");
+x.t("edition","1.6");
 x.t("ema","3.0");
 x.t("ema","documentation");
 }

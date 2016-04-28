@@ -1,9 +1,12 @@
 function FileData_Pairs(x)
 {
 x.t("administrators","understanding");
+x.t("introduction","1.2");
 x.t("developer\u2019s","guide");
 x.t("api","developer\u2019s");
 x.t("api","configuration");
+x.t("api","edition");
+x.t("guide","chapter");
 x.t("obtain","further");
 x.t("manual","provides");
 x.t("provides","information");
@@ -13,6 +16,7 @@ x.t("developers","local");
 x.t("local","site");
 x.t("1.2","audience");
 x.t("software","developers");
+x.t("chapter","introduction");
 x.t("aids","software");
 x.t("message","api");
 x.t("configuration","parameters");
@@ -20,7 +24,8 @@ x.t("elektron","message");
 x.t("site","administrators");
 x.t("information","aids");
 x.t("information","elektron");
+x.t("edition","1.2");
 x.t("audience","manual");
-x.t("audience","1.2");
+x.t("audience","elektron");
 x.t("understanding","elektron");
 }

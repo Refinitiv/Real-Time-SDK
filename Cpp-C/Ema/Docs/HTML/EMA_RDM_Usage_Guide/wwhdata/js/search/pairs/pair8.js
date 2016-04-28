@@ -1,14 +1,17 @@
 function FileData_Pairs(x)
 {
 x.t("passed","network");
+x.t("lists","chapter");
 x.t("required","provided");
 x.t("required","means");
 x.t("required","data");
 x.t("provided","required");
 x.t("provided","recommended");
 x.t("provided","applications");
+x.t("introduction","conventions");
 x.t("1.7.2","definitions");
 x.t("element","lists");
+x.t("api","edition");
 x.t("network","extensible");
 x.t("recommended","means");
 x.t("means","additional");
@@ -17,8 +20,11 @@ x.t("means","numeric");
 x.t("may","provided");
 x.t("may","values");
 x.t("extensible","means");
+x.t("chapter","introduction");
 x.t("added","element");
+x.t("message","api");
 x.t("additional","elements");
+x.t("elektron","message");
 x.t("data","passed");
 x.t("data","provided");
 x.t("data","may");
@@ -29,9 +35,11 @@ x.t("future","means");
 x.t("values","defined");
 x.t("applications","optional");
 x.t("numeric","ranges");
+x.t("edition","1.7.2");
 x.t("elements","added");
 x.t("definitions","required");
-x.t("definitions","1.7.2");
+x.t("definitions","elektron");
 x.t("ranges","may");
 x.t("strictly","required");
+x.t("conventions","definitions");
 }

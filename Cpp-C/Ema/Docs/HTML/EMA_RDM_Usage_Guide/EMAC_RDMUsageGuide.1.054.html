@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>Source Directory Generic Message</title>
+    <link rel="StyleSheet" href="css/EMAC_RDMUsageGuide.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="Heading_3_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Heading_3_inner" style="width: 54pt; white-space: nowrap">
+                <span style="color: #FF9100; font-family: Arial; font-size: 13pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">4.2.5	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Heading_3_inner"><a name="9001143">Source Directory Generic Message</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Normal"><a name="9001144">A Source Directory Generic message is encoded and sent by an ADH when using a ‘hot standby’ configuration. When running in hot standby mode, the ADH can leverage source mirroring and use a generic message to convey usage information to upstream providers. A generic message can inform providers whether the ADH is an active server without a standby (</a><span class="Char_Parameter" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">ActiveNoStandby</span>), an active server with a standby (<span class="Char_Parameter" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">ActiveWithStandby</span>) or a standby provider (<span class="Char_Parameter" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">Standby</span>). This message is mainly for informational purposes, and allows a provider to better understand their role in a hot standby environment. (The provider does not require a return action or acknowledgment.)</div>
+      <div class="Normal"><a name="9001145">A provider indicates each service’s ability to process this message via the </a><span class="Char_Parameter" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">AcceptingConsumerStatus</span> element in its Source Directory responses (see Section <a href="javascript:WWHClickedPopup('EMA_RDM_Usage_Guide', 'EMAC_RDMUsageGuide.1.055.html#9001242', '');" title="Data">4.3.1.1</a>).</div>
+      <table class="Table_Normal" style="width: 545.8pt" cellspacing="0" summary="">
+        <tr style="vertical-align: top">
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-style: solid; border-left-width: 1pt; border-right-style: none; border-right-width: 0pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 147.4pt">
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001146">COMPONENT</a></div>
+          </td>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-style: none; border-left-width: 0pt; border-right-color: #FF9100; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 398.4pt">
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001147">DESCRIPTION / VALUE</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001149">DomainType</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><span class="Char_BoldEmphasis" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="9001150">Required</a></span>.</div>
+            <div class="Table_Text" style="font-weight: bold"><span class="Char_Parameter" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="9001151">MMT_DIRECTORY = 4</a></span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001153">SeqNum</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9001154">Optional. A user-specified, item-level sequence number which can be used by the application for sequencing messages within this stream.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001156">Name</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><span class="Char_BoldEmphasis" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="9001157">Required</a></span>.</div>
+            <div class="Table_Text"><a name="9001158">As “ConsumerStatus”</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001160">Payload</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><span class="Char_BoldEmphasis" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="9001161">Required</a></span>.</div>
+            <div class="Table_Text"><a name="9001162">The payload is </a><span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Map</span> whose entries contain the SourceMirroring status for each service. For additional details, refer to section <a href="javascript:WWHClickedPopup('EMA_RDM_Usage_Guide', 'EMAC_RDMUsageGuide.1.055.html#9001166', '');" title="Data">4.3.1</a>.</div>
+          </td>
+        </tr>
+      </table>
+      <div class="Caption"><a name="9001164"> Table 19: Source Directory Generic Message</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_RDMUsageGuide.1.048.html">Chapter 4	Source Directory Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_RDMUsageGuide.1.050.html">Usage</a> : Source Directory Generic Message</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

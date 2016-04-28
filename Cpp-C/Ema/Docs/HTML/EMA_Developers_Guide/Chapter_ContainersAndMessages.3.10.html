@@ -26,7 +26,23 @@
     <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
   </head>
   <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
-    <br />
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
     <hr align="left" />
     <blockquote>
       <div class="H3_outer" style="margin-left: 0pt">
@@ -43,93 +59,93 @@
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1021974">The following code snippet illustrates how to populate a </a><span class="CodeOrCommand">Map</span> class with summary data and a single entry containing a <span class="CodeOrCommand">FieldList</span>. In this example, the <span class="CodeOrCommand">FieldList</span> class uses its own memory buffer to store content while it is populated. This buffer later gets copied to the buffer owned by the <span class="CodeOrCommand">Map</span> class. This container population model applies to all OMM containers that might contain other containers, primitives, or messages.</div>
-      <div class="Blank_Line"><a name="1022033">&nbsp;</a></div>
-      <table class="Commands" style="text-align: left; width: 554.95152pt" cellspacing="0" summary="">
+      <div class="Body"><a name="1033093">The following code snippet illustrates how to populate a </a><span class="CodeOrCommand">Map</span> class with summary data and a single entry containing a <span class="CodeOrCommand">FieldList</span>. In this example, the <span class="CodeOrCommand">FieldList</span> class uses its own memory buffer to store content while it is populated. This buffer later gets copied to the buffer owned by the <span class="CodeOrCommand">Map</span> class. This container population model applies to all OMM containers that might contain other containers, primitives, or messages.</div>
+      <div class="Blank_Line"><a name="1033129">&nbsp;</a></div>
+      <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command"><a name="1022006">&nbsp;</a></div>
+            <div class="command"><a name="1033096">&nbsp;</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1022008">try {</a></div>
+            <div class="command"><a name="1033098">try {</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1022010">	</a><span class="Color_003aLight_Blue">FieldList</span> fieldList;</div>
+            <div class="command"><a name="1033100">	</a><span class="Color_003aLight_Blue">FieldList</span> fieldList;</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1022012">&nbsp;</a></div>
+            <div class="command"><a name="1033102">&nbsp;</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1022014">	fieldList.addUInt( 1, 64 )</a></div>
+            <div class="command"><a name="1033104">	fieldList.addUInt( 1, 64 )</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1022016">		.addReal( 6, 11, </a><span class="Color_003aLight_Blue">OmmReal</span>::ExponentNeg2Enum )</div>
+            <div class="command"><a name="1033106">		.addReal( 6, 11, </a><span class="Color_003aLight_Blue">OmmReal</span>::ExponentNeg2Enum )</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1022018">		.addDate( 16, 1999, 11, 7 )</a></div>
+            <div class="command"><a name="1033108">		.addDate( 16, 1999, 11, 7 )</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1022020">		.addTime( 18, 02, 03, 04, 005 )</a></div>
+            <div class="command"><a name="1033110">		.addTime( 18, 02, 03, 04, 005 )</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1022022">		.complete();</a></div>
+            <div class="command"><a name="1033112">		.complete();</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1022024">&nbsp;</a></div>
+            <div class="command"><a name="1033114">&nbsp;</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1022026">	</a><span class="Color_003aLight_Blue">Map</span> map;</div>
+            <div class="command"><a name="1033116">	</a><span class="Color_003aLight_Blue">Map</span> map;</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1022028">	map .summary( fieldList ).addKeyAscii( </a><span class="Color_003aRed">"entry_1"</span>, <span class="Color_003aLight_Blue">MapEntry</span>::AddEnum, fieldList</div>
+            <div class="command"><a name="1033118">	map .summary( fieldList ).addKeyAscii( </a><span class="Color_003aRed">"entry_1"</span>, <span class="Color_003aLight_Blue">MapEntry</span>::AddEnum, fieldList</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1022670">			).complete();</a></div>
+            <div class="command"><a name="1033120">			).complete();</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1022030">} catch ( const </a><span class="Color_003aLight_Blue">OmmException</span>&amp; excp  ) {</div>
+            <div class="command"><a name="1033122">} catch ( const </a><span class="Color_003aLight_Blue">OmmException</span>&amp; excp  ) {</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1022032">	cout &lt;&lt; excp &lt;&lt; endl;</a></div>
+            <div class="command"><a name="1033124">	cout &lt;&lt; excp &lt;&lt; endl;</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1022640">}</a></div>
+            <div class="command"><a name="1033126">}</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1022642">&nbsp;</a></div>
+            <div class="command"><a name="1033128">&nbsp;</a></div>
           </td>
         </tr>
       </table>
@@ -143,6 +159,9 @@
         // -->
       </script>
     </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	OMM Containers and Messages : <a class="WebWorks_Breadcrumb_Link" href="Chapter_ContainersAndMessages.3.08.html">3.3	Working with OMM Containers</a> : 3.3.2	Example: Populating a Map Class Relying on the FieldList Memory Buffer</div>
+    <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--
         document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());

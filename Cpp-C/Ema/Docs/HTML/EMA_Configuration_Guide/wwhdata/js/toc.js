@@ -1,6 +1,6 @@
 function  WWHBookData_AddTOCEntries(P)
 {
-var A=P.fN("Chapter 1 API Concepts Guide","");
+var A=P.fN("Chapter 1 Introduction","");
 var B=A.fN("1.1 About this Manual","0");
 B=A.fN("1.2 Audience","1");
 B=A.fN("1.3 About Message API Configuration","2");

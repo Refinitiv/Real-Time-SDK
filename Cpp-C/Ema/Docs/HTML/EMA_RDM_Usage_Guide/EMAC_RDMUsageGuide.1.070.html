@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>Dictionary Refresh Message</title>
+    <link rel="StyleSheet" href="css/EMAC_RDMUsageGuide.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="Heading_3_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Heading_3_inner" style="width: 54pt; white-space: nowrap">
+                <span style="color: #FF9100; font-family: Arial; font-size: 13pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">5.3.2	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Heading_3_inner"><a name="9001699">Dictionary Refresh Message</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Normal"><a name="9001700">A Dictionary refresh message is encoded using </a><span class="Char_LucidaConsole" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">RefreshMsg</span> and sent by OMM Interactive and non-interactive provider applications and provides the consumer with the content of the requested dictionary.</div>
+      <div class="Normal"><a name="9001701">Since the Referesh messages for Dictionary data might be in multiple Response messages, the provider should only send </a><span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Name</span> and<span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"> ServiceName</span> in the first Refresh message. If <span class="Char_Parameter" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">MsgKeyInUpdates</span> is set to <span class="Char_Parameter" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">true</span>, <span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Name</span> and<span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"> ServiceName</span> must be provided for all Refresh and Status messages.</div>
+      <table class="Table_Normal" style="width: 545.75pt" cellspacing="0" summary="">
+        <tr style="vertical-align: top">
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-style: solid; border-left-width: 1pt; border-right-style: none; border-right-width: 0pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 118.1pt">
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001702">COMPONENT</a></div>
+          </td>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-style: none; border-left-width: 0pt; border-right-color: #FF9100; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 427.65pt">
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001703">DESCRIPTION / VALUE</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001705">DomainType</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><span class="Char_BoldEmphasis" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="9001706">Required</a></span>.</div>
+            <div class="Table_Text" style="font-weight: bold"><span class="Char_Parameter" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="9001707">MMT_DICTIONARY = 5</a></span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001709">State</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><span class="Char_BoldEmphasis" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="9001710">Required</a></span>.</div>
+            <div class="Table_Text"><a name="9001711">Contains stream and data state information for the dictionary stream.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><span class="Char_Code_Variable" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001713">Indications</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9001714">Optional: </a></div>
+            <div class="Bullet_table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_table_inner" style="width: 18pt; white-space: nowrap">
+                      <span style="color: #666666; font-size: 10pt">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_table_inner"><span class="Char_LucidaConsole" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001715">DoNotCache</a></span></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Table_Text_Indent"><span class="Char_Parameter" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="9001716">true</a></span>: Indicates the application should not cache</div>
+            <div class="Bullet_table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_table_inner" style="width: 18pt; white-space: nowrap">
+                      <span style="color: #666666; font-size: 10pt">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_table_inner"><span class="Char_LucidaConsole" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001717">ClearCache</a></span></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Table_Text_Indent"><span class="Char_Parameter" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="9001718">true</a></span>: Indicates the application should clear the cache</div>
+            <div class="Bullet_table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_table_inner" style="width: 18pt; white-space: nowrap">
+                      <span style="color: #666666; font-size: 10pt">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_table_inner"><span class="Char_LucidaConsole" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001719">Complete</a></span></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Table_Text_Indent"><span class="Char_Parameter" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="9001720">true</a></span>: Indicates a refresh complete</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001722">SeqNum</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9001723">Optional.</a></div>
+            <div class="Table_Text"><a name="9001724">A user-specified, item-level sequence number which can be used by the application for sequencing messages with this stream.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001726">PermissionData</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9001727">Optional.</a></div>
+            <div class="Table_Text"><a name="9001728">Used if provided dictionary requires permissioning.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001730">Filter</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><span class="Char_BoldEmphasis" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="9001731">Required</a></span>.</div>
+            <div class="Table_Text"><a name="9001732">Represents the desired verbosity of the dictionary.</a></div>
+            <div class="Bullet_table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_table_inner" style="width: 18pt; white-space: nowrap">
+                      <span style="color: #666666; font-size: 10pt">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_table_inner"><span class="Char_Parameter" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="9001733">DICTIONARY_INFO=0x0</a></span>: Version information only</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_table_inner" style="width: 18pt; white-space: nowrap">
+                      <span style="color: #666666; font-size: 10pt">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_table_inner"><span class="Char_Parameter" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="9001734">DICTIONARY_NORMAL=0x7</a></span>: Provides all information needed for decoding</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Table_Text"><a name="9001735">Optional:</a></div>
+            <div class="Bullet_table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_table_inner" style="width: 18pt; white-space: nowrap">
+                      <span style="color: #666666; font-size: 10pt">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_table_inner"><span class="Char_Parameter" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="9001736">DICTIONARY_MINIMAL=0x3</a></span>: Provides information needed for caching</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_table_inner" style="width: 18pt; white-space: nowrap">
+                      <span style="color: #666666; font-size: 10pt">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_table_inner"><span class="Char_Parameter" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="9001737">DICTIONARY_VERBOSE=0xF</a></span>: Provides all information(including comments)</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Table_Text"><a name="9001738">For details, refer to Section </a><a href="javascript:WWHClickedPopup('EMA_RDM_Usage_Guide', 'EMAC_RDMUsageGuide.1.072.html#9001787', '');" title="Data">5.4.1</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001740">Name</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><span class="Char_BoldEmphasis" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="9001741">Required</a></span>.</div>
+            <div class="Table_Text"><a name="9001742">Populate </a><span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Name</span> with the name of the desired dictionary as seen in the Source Directory response (refer to Section <a href="javascript:WWHClickedPopup('EMA_RDM_Usage_Guide', 'EMAC_RDMUsageGuide.1.055.html#9001166', '');" title="Data">4.3.1</a>).</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001744">ServiceName</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><span class="Char_BoldEmphasis" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="9001745">Required</a></span>.</div>
+            <div class="Table_Text"><a name="9001746">This will be the service name of a service which listed the Dictionary’s Name in the “DictionariesProvided” element of its SeviceInfo FilterEntry. </a></div>
+            <div class="Note_9pt_outer" style="margin-left: 0pt; border-bottom-color: #A0968C; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-width: 1pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Note_9pt_inner" style="width: 36pt; white-space: nowrap">
+                      <span style="color: #FF9100; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold">Note:	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Note_9pt_inner"><a name="9001747">The application should set either the </a><span class="Char_LucidaConsole" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ServiceName</span><span class="Char_Parameter" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"> </span>or <span class="Char_LucidaConsole" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ServiceId</span> of the service, but not both.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001749">ServiceId</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><span class="Char_BoldEmphasis" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="9001750">Required</a></span>.</div>
+            <div class="Table_Text"><a name="9001751">This will be the serviceID of a service which listed the Dictionary’s Name in the “DictionariesProvided” element of its SeviceInfo FilterEntry. </a></div>
+            <div class="Note_9pt_outer" style="margin-left: 0pt; border-bottom-color: #A0968C; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-width: 1pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Note_9pt_inner" style="width: 36pt; white-space: nowrap">
+                      <span style="color: #FF9100; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold">Note:	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Note_9pt_inner"><a name="9001752">The application should set either the </a><span class="Char_LucidaConsole" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ServiceName</span> or <span class="Char_LucidaConsole" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ServiceId</span> of the service, but not both.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001754">Payload</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><span class="Char_BoldEmphasis" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="9001755">Required</a></span>.</div>
+            <div class="Table_Text"><a name="9001756">The payload structure varies depending on the dictionary’s type. However, payload is typically a </a><span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Series</span> containing an <span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ElementList</span>, while the series summaryData indicates the specific dictionary type and version. The payload could also be XML. </div>
+          </td>
+        </tr>
+      </table>
+      <div class="Caption"><a name="9001758">Table 31: Dictionary Refresh Message</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_RDMUsageGuide.1.065.html">Chapter 5	Dictionary Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_RDMUsageGuide.1.068.html">Usage</a> : Dictionary Refresh Message</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

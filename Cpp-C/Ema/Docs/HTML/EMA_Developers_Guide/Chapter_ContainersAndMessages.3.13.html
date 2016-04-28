@@ -26,7 +26,23 @@
     <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
   </head>
   <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
-    <br />
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
     <hr align="left" />
     <blockquote>
       <div class="H3_outer" style="margin-left: 0pt">
@@ -45,114 +61,114 @@
       </div>
       <div class="Body"><a name="1022324">In the following code snippet application filters or extracts select information from FieldList class. The FieldList::forth( Int16 ) method is used to iterate over the FieldList class. In this case only entries with field id of 22 will be extracted; all the other ones will be skipped.</a></div>
       <div class="Blank_Line"><a name="1024449">&nbsp;</a></div>
-      <table class="Commands" style="text-align: left; width: 554.95152pt" cellspacing="0" summary="">
+      <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
             <div class="command"><a name="1022342">&nbsp;</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><span class="Color_003aBlue"><a name="1022344">void</a></span> decode( <span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">FieldList</span>&amp; fieldList )</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><a name="1022346">{</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><a name="1022348">	</a><span class="Color_003aBlue">while</span> ( fieldList.forth( 22 ) )</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><a name="1022350">	{</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><a name="1022352">		</a><span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">FieldEntry</span>&amp; fieldEntry = fieldList.getEntry();</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><a name="1022354">&nbsp;</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><a name="1022356">		</a><span class="Color_003aBlue">if</span> ( fieldEntry.getCode() == <span class="Color_003aLight_Blue">Data</span>::BlankEnum )</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><a name="1022358">			</a><span class="Color_003aBlue">continue</span>;</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><a name="1022360">&nbsp;</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><a name="1022362">		</a><span class="Color_003aBlue">switch</span> ( fieldEntry.getLoadType() )</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><a name="1022364">		{</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><a name="1022366">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::AsciiEnum :</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><a name="1022368">			</a><span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">EmaString</span>&amp; value = fieldEntry.getAscii();</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><a name="1023833">			</a><span class="Color_003aBlue">break</span>;</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><a name="1023835">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::IntEnum :</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><a name="1023837">			</a><span class="Color_003aLight_Blue">Int64</span> value = fieldEntry.getInt();</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><a name="1023839">			</a><span class="Color_003aBlue">break</span>;</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><a name="1023841">		}</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><a name="1023843">	}</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><a name="1023943">}</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><a name="1023945">&nbsp;</a></div>
           </td>
@@ -168,6 +184,9 @@
         // -->
       </script>
     </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	OMM Containers and Messages : <a class="WebWorks_Breadcrumb_Link" href="Chapter_ContainersAndMessages.3.08.html">3.3	Working with OMM Containers</a> : 3.3.5	Example: Application Filtering on the FieldList Class</div>
+    <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--
         document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());

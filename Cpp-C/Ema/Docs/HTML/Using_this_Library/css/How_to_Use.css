@@ -533,7 +533,8 @@ table.Format_B
   padding-left: 6pt;
   padding-right: 6pt;
   padding-top: 6pt;
-  text-align: center;
+  text-align: left;
+  vertical-align: top;
 }
 
 table.Format_A
@@ -548,5 +549,6 @@ table.Format_A
   padding-right: 6pt;
   padding-top: 6pt;
   text-align: left;
+  vertical-align: top;
 }
 

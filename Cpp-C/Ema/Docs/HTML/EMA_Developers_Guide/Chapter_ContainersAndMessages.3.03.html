@@ -26,7 +26,23 @@
     <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
   </head>
   <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
-    <br />
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
     <hr align="left" />
     <blockquote>
       <div class="H3_outer" style="margin-left: 0pt">
@@ -43,7 +59,7 @@
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1019804">The </a><span class="CodeOrCommand">DataCode</span> class provides two enumeration values that indicate the data’s state:</div>
+      <div class="Body"><a name="1032877">The </a><span class="CodeOrCommand">DataCode</span> class provides two enumeration values that indicate the data’s state:</div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -53,7 +69,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1020548">The </a><span class="CodeOrCommand">DataCode::NoCodeEnum</span> indicates that the received data is valid and application may use it.</div>
+              <div class="bullet_ind_inner"><a name="1032881">The </a><span class="CodeOrCommand">DataCode::NoCodeEnum</span> indicates that the received data is valid and application may use it.</div>
             </td>
           </tr>
         </table>
@@ -67,7 +83,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1020560">The </a><span class="CodeOrCommand">DataCode::BlankEnum</span> indicates that the data is not present and application needs to blank the respective data fields.</div>
+              <div class="bullet_ind_inner"><a name="1032885">The </a><span class="CodeOrCommand">DataCode::BlankEnum</span> indicates that the data is not present and application needs to blank the respective data fields.</div>
             </td>
           </tr>
         </table>
@@ -82,6 +98,9 @@
         // -->
       </script>
     </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	OMM Containers and Messages : <a class="WebWorks_Breadcrumb_Link" href="Chapter_ContainersAndMessages.3.02.html">3.2	Classes</a> : 3.2.2	DataCode Class</div>
+    <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--
         document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
