@@ -12,7 +12,7 @@ package com.thomsonreuters.ema.access;
  * EmaFactory is a factory class that creates Omm message objects and Omm container objects.
  * <p>EmaFactory can also create OmmConsumer and OmmConsumerConfig objects.</p>
  */
-public final class EmaFactory
+public class EmaFactory
 {
 	/**
 	 * This class is not instantiated

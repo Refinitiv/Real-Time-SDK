@@ -13,19 +13,14 @@
 			<!-- Channel is optional: defaulted to "RSSL_SOCKET + localhost + 14002" -->
 			<Channel value="Channel_1"/>
 
-			<!-- Logger is optional: defaulted to "File + Success" -->
-			<Logger value="Logger_1"/>
-
 			<!-- Dictionary is optional: defaulted to "ChannelDictionary" -->
 			<Dictionary value="Dictionary_1"/>
-			<ItemCountHint value="345"/>
 		</Consumer>
 		<Consumer>
 			<Name value="Consumer_2"/>
-			<Channel value="Channel_2"/>
-			<Logger value="Logger_2"/>
+			<!-- ChannelSet is optional: defaulted to "RSSL_SOCKET + localhost + 14002" -->
+			<ChannelSet value="Channel_1, Channel_2"/>
 			<Dictionary value="Dictionary_2"/>
-			<ItemCountHint value="345"/>
 		</Consumer>
 	</ConsumerList>
 </ConsumerGroup>
@@ -38,6 +33,7 @@
 			<!-- ChannelType::RSSL_SOCKET    - TCP IP connection type -->
 			<!-- ChannelType::RSSL_HTTP      - Http tunnel connection type -->
 			<!-- ChannelType::RSSL_ENCRYPTED - Https tunnel connection type -->
+			<!-- ChannelType::RSSL_RELIABLE_MCAST - Reliable multicast connection type -->
 			<ChannelType value="ChannelType::RSSL_SOCKET"/>
 
 			<!-- CompressionType is optional: defaulted to None -->
@@ -47,7 +43,6 @@
 
 			<!-- ConnectionPingTimeout is optional: defaulted to 30000 -->
 			<ConnectionPingTimeout value="30000"/>
-
 			<!-- TcpNodelay is optional: defaulted to 1 -->
 			<!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set) -->
 			<TcpNodelay value="1"/>
@@ -59,7 +54,7 @@
 			<ChannelType value="ChannelType::RSSL_SOCKET"/>
 			<CompressionType value="CompressionType::None"/>
 			<GuaranteedOutputBuffers value="5000"/>
-			<Host value="localhost"/>
+			<Host value="122.1.1.100"/>
 			<Port value="14002"/>
 		</Channel>
 		<Channel>
@@ -82,30 +77,18 @@
 			<!-- ObjectName is optional: defaulted to "" -->
 			<ObjectName value=""/>
 		</Channel>
+		<Channel>
+			<Name value="Channel_5"/>
+			<ChannelType value="ChannelType::RSSL_RELIABLE_MCAST"/>
+			<RecvAddress value="235.5.2.6"/>
+			<RecvPort value="15008"/>
+			<SendAddress value="235.5.2.2"/>
+			<SendPort value="15007"/>
+			<UnicastPort value="40102"/>
+			<InterfaceName value="localhost" />
+		</Channel>
 	</ChannelList>
 </ChannelGroup>
-<LoggerGroup>
-	<LoggerList>
-		<Logger>
-			<Name value="Logger_1"/>
-
-			<!-- LoggerType is optional:  defaulted to "File" -->
-			<!-- possible values: Stdout, File -->
-			<LoggerType value="LoggerType::Stdout"/>
-
-			<!-- LoggerSeverity is optional: defaulted to "Success" -->
-			<!-- possible values: Verbose, Success, Warning, Error, NoLogMsg -->
-			<LoggerSeverity value="LoggerSeverity::Success"/>
-		</Logger>
-		<Logger>
-			<Name value="Logger_2"/>
-			<LoggerType value="LoggerType::File"/>
-			<!-- FileName is optional: defaulted to "emaLog_<process id>.log" -->
-			<FileName value="emaLog"/>
-			<LoggerSeverity value="LoggerSeverity::Success"/>
-		</Logger>
-	</LoggerList>
-</LoggerGroup>
 <DictionaryGroup>
 	<DictionaryList>
 		<Dictionary>
