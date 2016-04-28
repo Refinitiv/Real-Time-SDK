@@ -59,7 +59,7 @@ public interface ReqMsg extends Msg
 	/**
 	 * Timeliness represents the Qos Timeliness.
 	 */
-	public final class Timeliness
+	public class Timeliness
 	{
 		/**
 		 * Timeliness is REALTIME,
