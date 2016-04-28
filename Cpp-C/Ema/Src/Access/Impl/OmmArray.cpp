@@ -157,6 +157,11 @@ Decoder& OmmArray::getDecoder()
 	return *_pDecoder;
 }
 
+bool OmmArray::hasDecoder() const
+{
+	return _pDecoder ? true : false;
+}
+
 const Encoder& OmmArray::getEncoder() const
 {
 	if ( !_pEncoder )
@@ -499,4 +504,9 @@ const OmmArray& OmmArray::complete()
 	_pEncoder->complete();
 
 	return *this;
+}
+
+bool OmmArray::hasEncoder() const
+{
+	return _pEncoder ? true : false;
 }

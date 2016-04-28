@@ -130,6 +130,11 @@ Decoder& FilterList::getDecoder()
 	return *_pDecoder;
 }
 
+bool FilterList::hasDecoder() const
+{
+	return _pDecoder ? true : false;
+}
+
 UInt32 FilterList::getTotalCountHint() const
 {
 	return _pDecoder->getTotalCountHint();
@@ -190,3 +195,8 @@ FilterList& FilterList::totalCountHint( UInt32 totalCountHint )
 
 	return *this;
 }
+bool FilterList::hasEncoder() const
+{
+	return _pEncoder ? true : false;
+}
+

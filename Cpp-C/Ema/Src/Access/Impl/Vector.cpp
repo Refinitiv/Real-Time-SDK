@@ -146,6 +146,11 @@ Decoder& Vector::getDecoder()
 	return *_pDecoder;
 }
 
+bool Vector::hasDecoder() const
+{
+	return _pDecoder ? true : false;
+}
+
 const Encoder& Vector::getEncoder() const
 {
 	if ( !_pEncoder )
@@ -220,4 +225,9 @@ Vector& Vector::summaryData( const ComplexType& data )
 	_pEncoder->summaryData( data );
 
 	return *this;
+}
+
+bool Vector::hasEncoder() const
+{
+	return _pEncoder ? true : false;
 }

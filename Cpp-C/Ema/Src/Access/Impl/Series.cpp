@@ -131,6 +131,11 @@ Decoder& Series::getDecoder()
 	return *_pDecoder;
 }
 
+bool Series::hasDecoder() const
+{
+	return _pDecoder ? true : false;
+}
+
 const Encoder& Series::getEncoder() const
 {
 	if ( !_pEncoder )
@@ -204,4 +209,9 @@ Series& Series::summaryData( const ComplexType& data )
 	_pEncoder->summaryData( data );
 
 	return *this;
+}
+
+bool Series::hasEncoder() const
+{
+	return _pEncoder ? true : false;
 }

@@ -27,17 +27,21 @@ public :
 
 	virtual ~OmmUtf8Decoder();
 
-	void setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* );
+	bool setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* );
 
-	void setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDictionary* , void* );
+	bool setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDictionary* , void* );
 
-	void setRsslData( RsslDecodeIterator* , RsslBuffer* );
+	bool setRsslData( RsslDecodeIterator* , RsslBuffer* );
 
 	Data::DataCode getCode() const;
 
 	const EmaString& toString();
 
 	const EmaBuffer& getUtf8();
+
+	const RsslBuffer& getRsslBuffer() const;
+
+	OmmError::ErrorCode getErrorCode() const;
 
 private :
 
@@ -48,6 +52,8 @@ private :
 	EmaBufferInt			_utf8Buffer;
 
 	Data::DataCode			_dataCode;
+
+	OmmError::ErrorCode		_errorCode;
 };
 
 }

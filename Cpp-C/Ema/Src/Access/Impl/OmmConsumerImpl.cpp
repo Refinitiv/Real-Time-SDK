@@ -95,6 +95,7 @@ OmmConsumerImpl::OmmConsumerImpl( const OmmConsumerConfig& config ) :
  _atExit( false ),
  _ommConsumerErrorClient( 0 )
 {
+	clearRsslErrorInfo( &_reactorDispatchErrorInfo );
 	initialize( config );
 }
 
@@ -118,6 +119,7 @@ OmmConsumerImpl::OmmConsumerImpl( const OmmConsumerConfig& config, OmmConsumerEr
  _atExit( false ),
  _ommConsumerErrorClient( &client )
 {
+	clearRsslErrorInfo( &_reactorDispatchErrorInfo );
 	initialize( config );
 }
 
@@ -617,6 +619,14 @@ ChannelConfig*  OmmConsumerImpl::readChannelConfig(OmmConsumerConfigImpl* pConfi
 	if ( tempUInt == 0 )
 		newChannelConfig->xmlTraceRead = false;
 
+	tempUInt = 0;
+	pConfigImpl->get<UInt64>( channelNodeName + "XmlTracePing", tempUInt );
+	newChannelConfig->xmlTracePing = tempUInt == 0 ? false : true;
+
+	tempUInt = 0;
+	pConfigImpl->get<UInt64>( channelNodeName + "XmlTraceHex", tempUInt );
+	newChannelConfig->xmlTraceHex = tempUInt == 0 ? false : true;
+
 	tempUInt = 1;
 	pConfigImpl->get<UInt64>( channelNodeName + "MsgKeyInUpdates", tempUInt );
 	if ( tempUInt == 0 )
@@ -768,6 +778,7 @@ void OmmConsumerImpl::initialize( const OmmConsumerConfig& config )
 
 		RsslCreateReactorOptions reactorOpts;
 		RsslErrorInfo rsslErrorInfo;
+		clearRsslErrorInfo( &rsslErrorInfo );
 
 		rsslClearCreateReactorOptions( &reactorOpts );
 
@@ -993,6 +1004,7 @@ void OmmConsumerImpl::uninitialize( bool caughtExcep )
 			_pChannelCallbackClient->closeChannels();
 
 		RsslErrorInfo rsslErrorInfo;
+		clearRsslErrorInfo( &rsslErrorInfo );
 		
 		if ( RSSL_RET_SUCCESS != rsslDestroyReactor( _pRsslReactor, &rsslErrorInfo ) ) 
 		{
@@ -1007,13 +1019,6 @@ void OmmConsumerImpl::uninitialize( bool caughtExcep )
 				_pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
 			}
 		}
-
-#ifdef USING_SELECT
-		FD_CLR( _pRsslReactor->eventFd, &_readFds );
-#else
-		removeFd( _pRsslReactor->eventFd );
-#endif
-		_pRsslReactor = 0;
 	}
 	
 	ItemCallbackClient::destroy( _pItemCallbackClient );
@@ -1146,6 +1151,8 @@ bool OmmConsumerImpl::rsslReactorDispatchLoop( Int64 timeOut, UInt32 count )
 			{
 				EmaString temp( "Call to rsslReactorDispatch() failed. Internal sysError='" );
 				temp.append( _reactorDispatchErrorInfo.rsslError.sysError )
+					.append( "' Error Id " ).append( _reactorDispatchErrorInfo.rsslError.rsslErrorId ).append( "' " )
+					.append( "' Error Location='" ).append( _reactorDispatchErrorInfo.errorLocation ).append( "' " )
 					.append( "' Error text='" ).append( _reactorDispatchErrorInfo.rsslError.text ).append( "'. " );
 
 				_consumerLock.lock();
@@ -1226,6 +1233,7 @@ void OmmConsumerImpl::closeChannel( RsslReactorChannel* pRsslReactorChannel )
 	if ( !pRsslReactorChannel ) return;
 
 	RsslErrorInfo rsslErrorInfo;
+	clearRsslErrorInfo( &rsslErrorInfo );
 
 	if ( pRsslReactorChannel->socketId != REACTOR_INVALID_SOCKET )
 		removeSocket( pRsslReactorChannel->socketId );

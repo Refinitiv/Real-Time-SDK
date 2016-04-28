@@ -58,7 +58,7 @@ private :
 
 	void initEncode( UInt8 dataType );
 
-	void addEncodedEntry( UInt8 filterId, UInt8 action, UInt8 dataType, const EmaBuffer& permission, const char* , RsslBuffer& );
+	void addEncodedEntry( UInt8 filterId, UInt8 action, UInt8 dataType, const EmaBuffer& permission, const char* , const RsslBuffer& );
 
 	void startEncodingEntry( UInt8 filterId, UInt8 action, UInt8 dataType, const EmaBuffer& permission, const char* );
 

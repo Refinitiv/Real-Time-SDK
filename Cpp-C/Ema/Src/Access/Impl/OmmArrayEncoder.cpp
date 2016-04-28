@@ -70,6 +70,13 @@ void OmmArrayEncoder::initEncode()
 
 void OmmArrayEncoder::addPrimitiveEntry( const char* methodName, void* value )
 {
+	if ( _containerComplete )
+	{
+		EmaString temp( "Attempt to add an entry after complete() was called." );
+		throwIueException( temp );
+		return;
+	}
+
 	RsslRet retCode = rsslEncodeArrayEntry( &_pEncodeIter->_rsslEncIter, 0, value );
 
 	while ( retCode == RSSL_RET_BUFFER_TOO_SMALL )
@@ -1197,6 +1204,8 @@ void OmmArrayEncoder::addCodeRmtes()
 
 void OmmArrayEncoder::complete()
 {
+	if ( _containerComplete ) return;
+
 	if ( !_rsslArray.primitiveType )
 	{
 		EmaString temp( "Attempt to complete() while no OmmArray::add***() were called yet." );
@@ -1218,6 +1227,8 @@ void OmmArrayEncoder::complete()
 
 	if ( !ownsIterator() && _iteratorOwner )
 		_iteratorOwner->endEncodingEntry();
+
+	_containerComplete = true;
 }
 
 void OmmArrayEncoder::endEncodingEntry() const

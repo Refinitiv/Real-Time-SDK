@@ -166,6 +166,11 @@ Decoder& FieldList::getDecoder()
 	return *_pDecoder;
 }
 
+bool FieldList::hasDecoder() const
+{
+	return _pDecoder ? true : false;
+}
+
 const FieldEntry& FieldList::getEntry() const
 {
 	if ( !_pDecoder || !_pDecoder->decodingStarted() )
@@ -695,4 +700,9 @@ const FieldList& FieldList::complete()
 	_pEncoder->complete();
 
 	return *this;
+}
+
+bool FieldList::hasEncoder() const
+{
+	return _pEncoder ? true : false;
 }

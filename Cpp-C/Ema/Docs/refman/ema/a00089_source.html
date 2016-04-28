@@ -304,27 +304,29 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00675"></a>00675     <span class="keywordtype">void</span> getInfoXmlStr( <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; ) <span class="keyword">const</span>;
 <a name="l00676"></a>00676 
 <a name="l00677"></a>00677     Decoder&amp; getDecoder();
-<a name="l00678"></a>00678 
-<a name="l00679"></a>00679     <span class="keyword">const</span> Encoder&amp; getEncoder() <span class="keyword">const</span>;
-<a name="l00680"></a>00680 
-<a name="l00681"></a>00681     <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; toString( UInt64 indent ) <span class="keyword">const</span>;
+<a name="l00678"></a>00678     <span class="keywordtype">bool</span> hasDecoder() <span class="keyword">const</span>;
+<a name="l00679"></a>00679 
+<a name="l00680"></a>00680     <span class="keyword">const</span> Encoder&amp; getEncoder() <span class="keyword">const</span>;
+<a name="l00681"></a>00681     <span class="keywordtype">bool</span> hasEncoder() <span class="keyword">const</span>;
 <a name="l00682"></a>00682 
-<a name="l00683"></a>00683     <span class="keyword">mutable</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>           _toString;
-<a name="l00684"></a>00684     <a class="code" href="a00018.html" title="FieldEntry represents an entry of FieldList.">FieldEntry</a>                  _entry;
-<a name="l00685"></a>00685     FieldListDecoder*           _pDecoder;
-<a name="l00686"></a>00686     <span class="keyword">mutable</span> FieldListEncoder*   _pEncoder;
-<a name="l00687"></a>00687 
-<a name="l00688"></a>00688     <a class="code" href="a00019.html" title="FieldList is a heterogeneous container of complex and primitive data type entries.">FieldList</a>( <span class="keyword">const</span> <a class="code" href="a00019.html" title="FieldList is a heterogeneous container of complex and primitive data type entries.">FieldList</a>&amp; );
-<a name="l00689"></a>00689     <a class="code" href="a00019.html" title="FieldList is a heterogeneous container of complex and primitive data type entries.">FieldList</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00019.html" title="FieldList is a heterogeneous container of complex and primitive data type entries.">FieldList</a>&amp;);
-<a name="l00690"></a>00690 };
-<a name="l00691"></a>00691 
-<a name="l00692"></a>00692 }
+<a name="l00683"></a>00683     <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; toString( UInt64 indent ) <span class="keyword">const</span>;
+<a name="l00684"></a>00684 
+<a name="l00685"></a>00685     <span class="keyword">mutable</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>           _toString;
+<a name="l00686"></a>00686     <a class="code" href="a00018.html" title="FieldEntry represents an entry of FieldList.">FieldEntry</a>                  _entry;
+<a name="l00687"></a>00687     FieldListDecoder*           _pDecoder;
+<a name="l00688"></a>00688     <span class="keyword">mutable</span> FieldListEncoder*   _pEncoder;
+<a name="l00689"></a>00689 
+<a name="l00690"></a>00690     <a class="code" href="a00019.html" title="FieldList is a heterogeneous container of complex and primitive data type entries.">FieldList</a>( <span class="keyword">const</span> <a class="code" href="a00019.html" title="FieldList is a heterogeneous container of complex and primitive data type entries.">FieldList</a>&amp; );
+<a name="l00691"></a>00691     <a class="code" href="a00019.html" title="FieldList is a heterogeneous container of complex and primitive data type entries.">FieldList</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00019.html" title="FieldList is a heterogeneous container of complex and primitive data type entries.">FieldList</a>&amp;);
+<a name="l00692"></a>00692 };
 <a name="l00693"></a>00693 
 <a name="l00694"></a>00694 }
 <a name="l00695"></a>00695 
 <a name="l00696"></a>00696 }
 <a name="l00697"></a>00697 
-<a name="l00698"></a>00698 <span class="preprocessor">#endif // __thomsonreuters_ema_access_FieldList_h</span>
+<a name="l00698"></a>00698 }
+<a name="l00699"></a>00699 
+<a name="l00700"></a>00700 <span class="preprocessor">#endif // __thomsonreuters_ema_access_FieldList_h</span>
 </pre></div></div><!-- contents -->
 
 <hr class="footer"/><address class="footer"><small>
@@ -342,7 +344,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Thu Nov 12 2015</td>
+			<td><p class="smallfont">Tue Apr 19 2016</td>
           </tr>
         </table>
         </td>

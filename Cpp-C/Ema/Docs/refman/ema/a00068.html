@@ -149,11 +149,14 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>OmmRmtesDecoder</b><
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p><a class="el" href="a00068.html" title="RmtesBuffer represents RMTES data.">RmtesBuffer</a> stores and applies RMTES data.</p>
-<dl class="section remark"><dt>Remarks:</dt><dd><a class="el" href="a00068.html" title="RmtesBuffer represents RMTES data.">RmtesBuffer</a> class contains a copy of the buffer passed on apply methods. </dd>
+<p>The following code snippet shows a simple decoding of <a class="el" href="a00068.html" title="RmtesBuffer represents RMTES data.">RmtesBuffer</a>.</p>
+<div class="fragment"><pre class="fragment">    rmtesBuffer.apply( fe.getRmtes() );
+    cout &lt;&lt; rmtesBuffer.toString() &lt;&lt; endl;
+</pre></div><dl class="section remark"><dt>Remarks:</dt><dd><a class="el" href="a00068.html" title="RmtesBuffer represents RMTES data.">RmtesBuffer</a> class contains a copy of the buffer passed on apply methods. </dd>
 <dd>
 All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free Method</a>. </dd></dl>
 
-<p>Definition at line <a class="el" href="a00136_source.html#l00037">37</a> of file <a class="el" href="a00136_source.html">RmtesBuffer.h</a>.</p>
+<p>Definition at line <a class="el" href="a00136_source.html#l00046">46</a> of file <a class="el" href="a00136_source.html">RmtesBuffer.h</a>.</p>
 </div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a730305e4bcca665e91f037305e7fad80"></a>
 <div class="memitem">
@@ -511,7 +514,7 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Thu Nov 12 2015</td>
+			<td><p class="smallfont">Tue Apr 19 2016</td>
           </tr>
         </table>
         </td>

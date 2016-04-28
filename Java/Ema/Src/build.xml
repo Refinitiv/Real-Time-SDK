@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="emaj">
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.7"/>
+    <property name="source" value="1.7"/>
+	
+	<property name="dist.dir" value="../"/>
+	<property name="etaj.dist.dir" value="../../Eta"/>
+	<property name="libs.dir" value="${dist.dir}/Libs"/>
+	<property name="bin.dir" value="${dist.dir}/Src/bin"/>	
+	<property name="emaj.src.dir" value="${dist.dir}/Src" />
+	
+	<path id="emaj.classpath">
+        <pathelement path="${etaj.dist.dir}/Libs/upa.jar"/>
+        <pathelement path="${etaj.dist.dir}/Libs/upaValueAdd.jar"/>
+        <pathelement path="${libs.dir}/apache/commons-lang-2.6.jar"/>
+        <pathelement path="${libs.dir}/apache/commons-configuration-1.10.jar"/>
+        <pathelement path="${libs.dir}/apache/commons-logging-1.2.jar"/>
+    	<pathelement path="${libs.dir}/apache/org.apache.commons.collections.jar"/>
+        <pathelement path="${libs.dir}/SLF4J/slf4j-1.7.12/slf4j-api-1.7.12.jar"/>
+    </path>
+
+	<target name="init">
+		<echo message="Creating a directory for the compiler output" />
+        <mkdir dir="${bin.dir}"/>
+    </target>
+
+	<target name="clean">
+		<echo message="Cleaning up old build output" />
+        <delete dir="${bin.dir}"/>
+    </target>
+
+	<target depends="init" name="build-stub-etajars"> 
+        <echo message="Building Eta stub upa.jar and upaValueAdd.jar" />
+ <!--       <ant antfile="build.xml" dir="${etaj.dist.dir}/Source" /> -->
+		<ant inheritAll="false" antfile="${etaj.dist.dir}/Source/build.xml" />
+	</target>
+	
+	<target depends="build-stub-etajars" name="build-emaj-source">
+		<echo message="Building emaj src code" />
+        <javac debug="false" debuglevel="${debuglevel}" destdir="${bin.dir}" source="${source}" target="${target}" includeantruntime="false">
+			<exclude name="com/thomsonreuters/upa/valueadd/cache/**" />
+        	<src path="${emaj.src.dir}/main/java/interface"/>
+        	<src path="${emaj.src.dir}/main/java/impl"/>
+            <classpath refid="emaj.classpath"/>
+        </javac>
+    </target>
+
+	<target depends="build-emaj-source" name="build-emajar">
+		<echo message="Building ema.jar" />
+		<jar jarfile="${libs.dir}/ema.jar">
+			<fileset dir="${bin.dir}">
+				<include name="com/thomsonreuters/ema/access/**/*.class"/>
+				<include name="com/thomsonreuters/ema/rdm/**/*.class"/>
+			</fileset>
+		</jar>
+	</target>
+
+
+	<target depends="clean,build-stub-etajars,build-emaj-source,build-emajar" name="build"/>
+	
+</project>

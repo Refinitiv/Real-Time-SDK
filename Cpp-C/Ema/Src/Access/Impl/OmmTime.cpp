@@ -84,7 +84,17 @@ Decoder& OmmTime::getDecoder()
 	return *_pDecoder;
 }
 
+bool OmmTime::hasDecoder() const
+{
+	return true;
+}
+
 const Encoder& OmmTime::getEncoder() const
 {
 	return *static_cast<const Encoder*>( 0 );
+}
+
+bool OmmTime::hasEncoder() const
+{
+	return false;
 }

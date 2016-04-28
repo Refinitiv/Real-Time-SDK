@@ -59,7 +59,17 @@ Decoder& OmmUInt::getDecoder()
 	return *_pDecoder;
 }
 
+bool OmmUInt::hasDecoder() const
+{
+	return true;
+}
+
 const Encoder& OmmUInt::getEncoder() const
 {
 	return *static_cast<const Encoder*>( 0 );
+}
+
+bool OmmUInt::hasEncoder() const
+{
+	return false;
 }

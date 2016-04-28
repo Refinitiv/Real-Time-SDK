@@ -114,6 +114,9 @@ const EmaString& AckMsg::toString(  UInt64 indent ) const
 	addIndent( _toString, indent, true ).append( "domain=\"" ).append( rdmDomainToString( getDomainType() ) ).append( "\"" );
 	addIndent( _toString, indent, true ).append( "ackId=\"" ).append( pTempDecoder->getAckId() ).append( "\"" );
 
+	if ( pTempDecoder->getPrivateStream() )
+		addIndent( _toString, indent, true ).append( "PrivateStream" );
+
 	if ( pTempDecoder->hasSeqNum() )
 		addIndent( _toString, indent, true ).append( "seqNum=\"" ).append( pTempDecoder->getSeqNum() ).append( "\"" );
 

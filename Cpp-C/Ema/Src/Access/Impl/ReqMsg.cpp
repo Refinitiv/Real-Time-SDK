@@ -108,7 +108,29 @@ const EmaString& ReqMsg::toString(  UInt64 indent ) const
 	addIndent( _toString, indent, true ).append( "domain=\"" ).append( rdmDomainToString( getDomainType() ) ).append( "\"" );
 
 	if ( pTempDecoder->getPrivateStream() )
-		addIndent( _toString, indent, true ).append( "privateStream" );
+		addIndent( _toString, indent, true ).append( "PrivateStream" );
+
+	if ( pTempDecoder->getInitialImage() )
+		addIndent( _toString, indent, true ).append( "InitialImage" );
+
+	if ( pTempDecoder->getInterestAfterRefresh() )
+		addIndent( _toString, indent, true ).append( "InterestAfterRefresh" );
+
+	if ( pTempDecoder->getPause() )
+		addIndent( _toString, indent, true ).append( "Pause" );
+
+	if ( pTempDecoder->getConflatedInUpdates() )
+		addIndent( _toString, indent, true ).append( "ConflatedInUpdates" );
+
+	if ( pTempDecoder->hasPriority() )
+		addIndent( _toString, indent, true )
+			.append( "priorityClass=\"" ).append( pTempDecoder->getPriorityClass() ).append( "\"" )
+			.append( " priorityCount=\"" ).append( pTempDecoder->getPriorityCount() ).append( "\"" );
+
+	if ( pTempDecoder->hasQos() )
+		addIndent( _toString, indent, true )
+			.append( "qosRate=\"" ).append( getRateAsString() ).append( "\"" )
+			.append( "qosTimeliness=\"" ).append( getTimelinessAsString() ).append( "\"" );
 
 	indent--;
 	if ( pTempDecoder->hasMsgKey() )

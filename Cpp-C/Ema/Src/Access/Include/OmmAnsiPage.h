@@ -146,9 +146,11 @@ private :
 	const EmaString& toString( UInt64 indent ) const;
 
 	Decoder& getDecoder();
+	bool hasDecoder() const;
 
 	const Encoder& getEncoder() const;
-	
+	bool hasEncoder() const;
+
 	OmmAnsiPage( const OmmAnsiPage& );
 	OmmAnsiPage& operator=( const OmmAnsiPage& );
 

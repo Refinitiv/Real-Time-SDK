@@ -98,7 +98,17 @@ Decoder& OmmQos::getDecoder()
 	return *_pDecoder;
 }
 
+bool OmmQos::hasDecoder() const
+{
+	return true;
+}
+
 const Encoder& OmmQos::getEncoder() const
 {
 	return *static_cast<const Encoder*>( 0 );
+}
+
+bool OmmQos::hasEncoder() const
+{
+	return false;
 }

@@ -67,7 +67,7 @@ public :
 
 	RsslRequestMsg* getRsslRequestMsg() const;
 
-	const EmaVector<EmaString>& getBatchItemList() const;
+	UInt32 getBatchItemListSize() const;
 
 	bool getPrivateStream() const;
 
@@ -75,15 +75,9 @@ private :
 
 	void checkBatchView( RsslBuffer* );
 
-	RsslRet reEncodeItemList( RsslBuffer* , const EmaVector<EmaString>& batchItemList, RsslBuffer* );
-
-	void addBatchItemList( const RsslBuffer& );
-
 	RsslMsg* getRsslMsg() const;
 
 	RsslRequestMsg			_rsslRequestMsg;
-
-	EmaVector<EmaString>*	_pBatchItemList;
 };
 
 class ReqMsgEncoderPool : public EncoderPool< ReqMsgEncoder >

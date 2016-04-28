@@ -15,7 +15,8 @@ using namespace thomsonreuters::ema::access;
 OmmRmtesDecoder::OmmRmtesDecoder() :
  _rmtesBuffer(),
  _hexBuffer(),
- _dataCode( Data::BlankEnum )
+ _dataCode( Data::BlankEnum ),
+ _errorCode( OmmError::NoErrorEnum )
 {
 }
 
@@ -28,23 +29,40 @@ Data::DataCode OmmRmtesDecoder::getCode() const
 	return _dataCode;
 }
 
-void OmmRmtesDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
+bool OmmRmtesDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
 {
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
 }
 
-void OmmRmtesDecoder::setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDictionary* , void* )
+bool OmmRmtesDecoder::setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDictionary* , void* )
 {
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
 }
 
-void OmmRmtesDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* )
+bool OmmRmtesDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* )
 {
 	if ( _rmtesBuffer._pImpl->_applyToCache )
 		_rmtesBuffer._pImpl->clear();
 
-	if ( rsslDecodeBuffer( dIter, &_rmtesBuffer._pImpl->_rsslBuffer ) == RSSL_RET_SUCCESS )
+	switch ( rsslDecodeBuffer( dIter, &_rmtesBuffer._pImpl->_rsslBuffer ) )
+	{
+	case RSSL_RET_SUCCESS :
 		_dataCode = Data::NoCodeEnum;
-	else
+		_errorCode = OmmError::NoErrorEnum;
+		return true;
+	case RSSL_RET_BLANK_DATA :
 		_dataCode = Data::BlankEnum;
+		_errorCode = OmmError::NoErrorEnum;
+		return true;
+	case RSSL_RET_INCOMPLETE_DATA :
+		_errorCode = OmmError::IncompleteDataEnum;
+		return false;
+	default :
+		_errorCode = OmmError::UnknownErrorEnum;
+		return false;
+	}
 }
 
 const EmaString& OmmRmtesDecoder::toString()
@@ -68,4 +86,14 @@ const EmaBuffer& OmmRmtesDecoder::getHexBuffer()
 const RmtesBuffer& OmmRmtesDecoder::getRmtes()
 {
 	return _rmtesBuffer;
+}
+
+const RsslBuffer& OmmRmtesDecoder::getRsslBuffer() const
+{
+	return _rmtesBuffer._pImpl->_rsslBuffer;
+}
+
+OmmError::ErrorCode OmmRmtesDecoder::getErrorCode() const
+{
+	return _errorCode;
 }

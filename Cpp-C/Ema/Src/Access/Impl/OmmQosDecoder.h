@@ -28,11 +28,11 @@ public :
 
 	virtual ~OmmQosDecoder();
 
-	void setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* );
+	bool setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* );
 
-	void setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDictionary* , void* );
+	bool setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDictionary* , void* );
 
-	void setRsslData( RsslDecodeIterator* , RsslBuffer* );
+	bool setRsslData( RsslDecodeIterator* , RsslBuffer* );
 
 	void setRsslData( RsslQos* );
 
@@ -46,6 +46,10 @@ public :
 
 	const EmaBuffer& getHexBuffer();
 
+	const RsslBuffer& getRsslBuffer() const;
+
+	OmmError::ErrorCode getErrorCode() const;
+
 private :
 
 	RsslBuffer*				_pRsslBuffer;
@@ -57,6 +61,8 @@ private :
 	EmaBufferInt			_hexBuffer;
 
 	Data::DataCode			_dataCode;
+
+	OmmError::ErrorCode		_errorCode;
 };
 
 }

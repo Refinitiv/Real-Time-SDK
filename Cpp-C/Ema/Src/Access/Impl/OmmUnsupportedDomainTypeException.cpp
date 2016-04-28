@@ -8,6 +8,7 @@
 
 #include "OmmUnsupportedDomainTypeException.h"
 #include "EmaStringInt.h"
+#include "Utilities.h"
 
 #include <stdio.h>
 
@@ -49,7 +50,7 @@ UInt16 OmmUnsupportedDomainTypeException::getDomainType() const
 
 const EmaString& OmmUnsupportedDomainTypeException::toString() const
 {
-	int length = sprintf( _space + EMASTRING_SIZE, "Exception Type='%s', Text='%s', DomainType='%u'",
+	int length = snprintf( _space + EMASTRING_SIZE, MAX_SIZE_PLUS_PADDING - EMASTRING_SIZE, "Exception Type='%s', Text='%s', DomainType='%u'",
 		getExceptionTypeAsString().c_str(),
 		_errorText + EMASTRING_SIZE,
 		_domainType );

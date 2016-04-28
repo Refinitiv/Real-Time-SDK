@@ -29,6 +29,7 @@
 
 #define MAX_SIZE 2048
 #define PADDING 256
+#define MAX_SIZE_PLUS_PADDING  MAX_SIZE + PADDING  
 
 #include "Access/Include/Common.h"
 
@@ -107,7 +108,7 @@ protected :
 
 	UInt32						_errorTextLength;
 	mutable char				_errorText[MAX_SIZE];
-	mutable char				_space[MAX_SIZE + PADDING];
+	mutable char				_space[MAX_SIZE_PLUS_PADDING];
 
 	OmmException( const OmmException& );
 	OmmException& operator=( const OmmException& );

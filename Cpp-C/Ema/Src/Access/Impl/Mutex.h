@@ -58,17 +58,20 @@ class MutexLocker
 {
 public:
 
-	MutexLocker( Mutex & m ) : theMutex( m )
+	MutexLocker( Mutex& m ) : theMutex( m )
 	{
 		theMutex.lock();
 	}
 
-	~MutexLocker()
+	virtual ~MutexLocker()
 	{
 		theMutex.unlock();
 	}
 
 private:
+
+	MutexLocker( const MutexLocker& );
+	MutexLocker& operator=( const MutexLocker& );
 
 	Mutex & theMutex;
 };

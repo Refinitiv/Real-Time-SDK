@@ -87,9 +87,11 @@ const EmaString& PostMsg::toString( UInt64 indent ) const
 	addIndent( _toString, indent, true ).append( "streamId=\"" ).append( pTempDecoder->getStreamId() ).append( "\"" );
 	addIndent( _toString, indent, true ).append( "domain=\"" ).append( rdmDomainToString( getDomainType() ) ).append( "\"" );
 
-	if ( pTempDecoder->getComplete() ) addIndent( _toString, indent, true ).append( "Complete" );
+	if ( pTempDecoder->getComplete() )
+		addIndent( _toString, indent, true ).append( "Complete" );
 
-	if ( pTempDecoder->getSolicitAck() ) addIndent( _toString, indent, true ).append( "Ack Requested" );
+	if ( pTempDecoder->getSolicitAck() )
+		addIndent( _toString, indent, true ).append( "Ack Requested" );
 
 	if ( pTempDecoder->hasSeqNum() )
 		addIndent( _toString, indent, true ).append( "seqNum=\"" ).append( pTempDecoder->getSeqNum() ).append( "\"" );

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="emaj">
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.7"/>
+    <property name="source" value="1.7"/>
+	
+	<property name="dist.dir" value="../../"/>
+	<property name="libs.dir" value="${dist.dir}/Libs"/>
+	<property name="emaj.examples.dir" value="${dist.dir}/Src/examples" />
+	
+	<path id="emaj.classpath">
+        <pathelement path="${libs.dir}/ema.jar"/>
+    </path>
+
+	<target name="clean">
+	<echo message="Cleaning up old build output" />
+	  <delete>
+	    <fileset dir="${emaj.examples.dir}/java" includes="**/*.class"/>
+	  </delete>
+    </target>
+
+	<target name="build-emaj-examples">
+		<echo message="Building emaj src code" />
+        <javac debug="true" debuglevel="${debuglevel}" source="${source}" target="${target}" includeantruntime="false">
+        	<src path="${emaj.examples.dir}/java"/>
+            <classpath refid="emaj.classpath"/>
+        </javac>
+    </target>
+	
+
+	<target depends="clean,build-emaj-examples" name="build"/>
+	
+</project>

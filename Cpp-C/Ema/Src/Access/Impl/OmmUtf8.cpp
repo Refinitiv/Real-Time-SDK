@@ -59,7 +59,17 @@ Decoder& OmmUtf8::getDecoder()
 	return *_pDecoder;
 }
 
+bool OmmUtf8::hasDecoder() const
+{
+	return true;
+}
+
 const Encoder& OmmUtf8::getEncoder() const
 {
 	return *static_cast<const Encoder*>( 0 );
+}
+
+bool OmmUtf8::hasEncoder() const
+{
+	return false;
 }

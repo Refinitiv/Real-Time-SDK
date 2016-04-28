@@ -6,19 +6,23 @@
 --------------------------------------------------------------------------*/
 #define Ema_Release_Major		3
 #define Ema_Release_Minor		0
-#define Ema_Product_Major		1
-#define Ema_Product_Minor		11
+#define Ema_Product_Major		2
+#define Ema_Product_Minor		13
 #define PRODNAME			"Elektron Message API EMA "
-#define PRODVERNAME			"3.0.1 "
+#define PRODVERNAME			"3.0.2 "
 #define COMPANYNAME			"Thomson Reuters, Oak Brook, IL"
-#define COPYRIGHTYEAR			"2015"
-#define DDATE				"Thu Nov 12 10:49:27 CST 2015"
-#define INTERNALVERSION			"(Internal Node: Ema 3.0.F11)"
+#define COPYRIGHTYEAR			"2016"
+#define DDATE				"Tue Apr 19 10:49:27 CST 2016"
+#define INTERNALVERSION			"(Internal Node: Ema 3.0.F13)"
 /*--------------------------------------------------------------------------
 	 CHANGE ABOVE HERE
 --------------------------------------------------------------------------*/
 
-
+#ifdef __EMA_STATIC_BUILD__
+	#define EMA_LINK_TYPE "Static"
+#else
+	#define EMA_LINK_TYPE "Shared Library"
+#endif
 #ifdef WIN32
 	#ifdef NDEBUG
 		#ifdef _EMA_BLDTYPE_ASSERT_
@@ -41,6 +45,18 @@
 	#endif
 #endif 
 
+#ifdef WIN32
+#define EMA_COMPONENT_VER_PLATFORM ".win "
+static char emaComponentBldtype[] = BLDTYPE;
+static char emaComponentLinkType[] = EMA_LINK_TYPE;
+#else
+#define EMA_COMPONENT_VER_PLATFORM ".linux "
+extern char emaComponentBldtype[];
+extern char emaComponentLinkType[]; 
+#endif
+
+#define COMPONENT_NAME "ema"
+#define COMPILE_BITS_STR "64-bit "
 
 #define STR_EXPAND(str) #str
 #define MKSTR(str) STR_EXPAND(str)

@@ -1,5 +1,5 @@
-include ../../../../makefile.common
-include ../../makefile.examples.common
+include ../../../../../makefile.common
+include ../../../makefile.examples.common
 
 # IDENT used for setting OUTPUT_DIR, which is passed to submakes
 ifeq ($(findstring RedHat,$(DIST)), RedHat)
@@ -36,16 +36,16 @@ optimizedAssertShared:	OUTPUT_DIR := $(IDENT)/Optimized_Assert/Shared
 optimizedAssertShared:	TARGET := optimizedAssertShared
 
 optimizedStatic: outputDir
-	$(MAKE) -f ../../makefile.second OUTPUT_DIR=$(OUTPUT_DIR) $(TARGET)
+	$(MAKE) -f ../../../makefile.second OUTPUT_DIR=$(OUTPUT_DIR) $(TARGET)
 
 optimizedShared: outputDir
-	$(MAKE) -f ../../makefile.second OUTPUT_DIR=$(OUTPUT_DIR) $(TARGET)
+	$(MAKE) -f ../../../makefile.second OUTPUT_DIR=$(OUTPUT_DIR) $(TARGET)
 
 optimizedAssertStatic: outputDir
-	$(MAKE) -f ../../makefile.second OUTPUT_DIR=$(OUTPUT_DIR) $(TARGET)
+	$(MAKE) -f ../../../makefile.second OUTPUT_DIR=$(OUTPUT_DIR) $(TARGET)
 
 optimizedAssertShared: outputDir
-	$(MAKE) -f ../../makefile.second OUTPUT_DIR=$(OUTPUT_DIR) $(TARGET)
+	$(MAKE) -f ../../../makefile.second OUTPUT_DIR=$(OUTPUT_DIR) $(TARGET)
 
 help:
 	@echo "allowed build targets: optimizedStatic optimizedShared optimizedAssertStatic optimizedAssertShared"

@@ -53,7 +53,7 @@
 
 using namespace thomsonreuters::ema::access;
 
-void Decoder::setRsslData( Data* pData,
+bool Decoder::setRsslData( Data* pData,
 						RsslDataType rsslType,
 						RsslDecodeIterator* pDecodeIter, RsslBuffer* pRsslBuffer,
 						const RsslDataDictionary* pRsslDictionary, void* localDb ) const
@@ -85,9 +85,17 @@ void Decoder::setRsslData( Data* pData,
 	}
 
 	if ( dType >= DataType::OpaqueEnum && dType < DataType::ErrorEnum )
-		pData->getDecoder().setRsslData( pDecodeIter, pRsslBuffer );
+	{
+		if ( !pData->getDecoder().setRsslData( pDecodeIter, pRsslBuffer ) )
+			setRsslData( pData, pData->getDecoder().getErrorCode(), pDecodeIter, pRsslBuffer );
+	}
 	else
-		pData->getDecoder().setRsslData( pDecodeIter->_majorVersion, pDecodeIter->_minorVersion, pRsslBuffer, pRsslDictionary, localDb );
+	{
+		if ( !pData->getDecoder().setRsslData( pDecodeIter->_majorVersion, pDecodeIter->_minorVersion, pRsslBuffer, pRsslDictionary, localDb ) )
+			setRsslData( pData, pData->getDecoder().getErrorCode(), pDecodeIter, pRsslBuffer );
+	}
+
+	return true;
 }
 
 Data* Decoder::setRsslData( Data** pLoadPool, RsslDataType rsslType, RsslDecodeIterator* pDecodeIter,
@@ -113,9 +121,21 @@ Data* Decoder::setRsslData( Data** pLoadPool, RsslDataType rsslType, RsslDecodeI
 		dType = dataType[rsslType];
 
 	if ( dType >= DataType::OpaqueEnum && dType < DataType::ErrorEnum )
-		pLoadPool[dType]->getDecoder().setRsslData( pDecodeIter, pRsslBuffer );
+	{
+		if ( !pLoadPool[dType]->getDecoder().setRsslData( pDecodeIter, pRsslBuffer ) )
+		{
+			setRsslData( pLoadPool[DataType::ErrorEnum], pLoadPool[dType]->getDecoder().getErrorCode(), pDecodeIter, pRsslBuffer );
+			dType = DataType::ErrorEnum;
+		}
+	}
 	else
-		pLoadPool[dType]->getDecoder().setRsslData( pDecodeIter->_majorVersion, pDecodeIter->_minorVersion, pRsslBuffer, pRsslDictionary, localDb );
+	{
+		if ( !pLoadPool[dType]->getDecoder().setRsslData( pDecodeIter->_majorVersion, pDecodeIter->_minorVersion, pRsslBuffer, pRsslDictionary, localDb ) )
+		{
+			setRsslData( pLoadPool[DataType::ErrorEnum], pLoadPool[dType]->getDecoder().getErrorCode(), pDecodeIter, pRsslBuffer );
+			dType = DataType::ErrorEnum;
+		}
+	}
 
 	return pLoadPool[dType];
 }

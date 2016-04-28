@@ -60,7 +60,17 @@ Decoder& OmmBuffer::getDecoder()
 	return *_pDecoder;
 }
 
+bool OmmBuffer::hasDecoder() const
+{
+	return true;
+}
+
 const Encoder& OmmBuffer::getEncoder() const
 {
 	return *static_cast<const Encoder*>( 0 );
+}
+
+bool OmmBuffer::hasEncoder() const
+{
+	return false;
 }

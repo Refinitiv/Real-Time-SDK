@@ -17,7 +17,8 @@ OmmRealDecoder::OmmRealDecoder() :
  _toDouble( 0 ),
  _toString(),
  _hexBuffer(),
- _toDoubleSet( false )
+ _toDoubleSet( false ),
+ _errorCode( OmmError::NoErrorEnum )
 {
 }
 
@@ -40,24 +41,44 @@ UInt8 OmmRealDecoder::getRsslHint() const
 	return _rsslReal.hint;
 }
 
-void OmmRealDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
+bool OmmRealDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
 {
+	rsslClearReal( &_rsslReal );
+	_rsslReal.isBlank = RSSL_TRUE;
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
 }
 
-void OmmRealDecoder::setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDictionary* , void* )
+bool OmmRealDecoder::setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDictionary* , void* )
 {
+	rsslClearReal( &_rsslReal );
+	_rsslReal.isBlank = RSSL_TRUE;
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
 }
 
-void OmmRealDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* pRsslBuffer )
+bool OmmRealDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* pRsslBuffer )
 {
 	_pRsslBuffer = pRsslBuffer;
 
 	_toDoubleSet = false;
 
-	if ( rsslDecodeReal( dIter, &_rsslReal ) != RSSL_RET_SUCCESS )
+	switch ( rsslDecodeReal( dIter, &_rsslReal ) )
 	{
+	case RSSL_RET_SUCCESS :
+		_errorCode = OmmError::NoErrorEnum;
+		return true;
+	case RSSL_RET_BLANK_DATA :
 		rsslClearReal( &_rsslReal );
 		_rsslReal.isBlank = RSSL_TRUE;
+		_errorCode = OmmError::NoErrorEnum;
+		return true;
+	case RSSL_RET_INCOMPLETE_DATA :
+		_errorCode = OmmError::IncompleteDataEnum;
+		return false;
+	default :
+		_errorCode = OmmError::UnknownErrorEnum;
+		return false;
 	}
 }
 
@@ -116,4 +137,14 @@ const EmaBuffer& OmmRealDecoder::getHexBuffer()
 	_hexBuffer.setFromInt( _pRsslBuffer->data, _pRsslBuffer->length );
 
 	return _hexBuffer.toBuffer();
+}
+
+const RsslBuffer& OmmRealDecoder::getRsslBuffer() const
+{
+	return *_pRsslBuffer;
+}
+
+OmmError::ErrorCode OmmRealDecoder::getErrorCode() const
+{
+	return _errorCode;
 }

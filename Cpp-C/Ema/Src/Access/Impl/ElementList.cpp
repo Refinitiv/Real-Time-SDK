@@ -97,7 +97,7 @@ const EmaString& ElementList::toString( UInt64 indent ) const
 	addIndent( _toString.clear(), indent ).append( "ElementList" );
 			
 	if ( tempDecoder.hasInfo() )
-		_toString.append( " ElementListNum=\"" ).append( tempDecoder.getInfoElementListNum() );
+		_toString.append( " ElementListNum=\"" ).append( tempDecoder.getInfoElementListNum() ).append( "\"" );
 
 	++indent;
 		
@@ -147,6 +147,11 @@ Decoder& ElementList::getDecoder()
 	}
 
 	return *_pDecoder;
+}
+
+bool ElementList::hasDecoder() const
+{
+	return _pDecoder ? true : false;
 }
 
 const ElementEntry& ElementList::getEntry() const
@@ -678,4 +683,9 @@ const ElementList& ElementList::complete()
 	_pEncoder->complete();
 
 	return *this;
+}
+
+bool ElementList::hasEncoder() const
+{
+	return _pEncoder ? true : false;
 }

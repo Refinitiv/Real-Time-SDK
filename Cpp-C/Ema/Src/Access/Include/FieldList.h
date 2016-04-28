@@ -675,8 +675,10 @@ private :
 	void getInfoXmlStr( EmaString& ) const;
 
 	Decoder& getDecoder();
+	bool hasDecoder() const;
 
 	const Encoder& getEncoder() const;
+	bool hasEncoder() const;
 
 	const EmaString& toString( UInt64 indent ) const;
 

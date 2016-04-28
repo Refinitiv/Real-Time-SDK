@@ -119,8 +119,10 @@ void ElementListDecoder::clone( const ElementListDecoder& other )
 	}
 }
 
-void ElementListDecoder::setRsslData( RsslDecodeIterator* , RsslBuffer* )
+bool ElementListDecoder::setRsslData( RsslDecodeIterator* , RsslBuffer* )
 {
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
 }
 
 void ElementListDecoder::reset()
@@ -176,11 +178,13 @@ void ElementListDecoder::reset()
 	}
 }
 
-void ElementListDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
+bool ElementListDecoder::setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* )
 {
+	_errorCode = OmmError::UnknownErrorEnum;
+	return false;
 }
 
-void ElementListDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuffer,
+bool ElementListDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuffer,
 									 const RsslDataDictionary* rsslDictionary, void* localElSeDefDb )
 {
 	_decodingStarted = false;
@@ -202,7 +206,7 @@ void ElementListDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rs
 	{
 		_atEnd = false;
 		_errorCode = OmmError::IteratorSetFailureEnum;
-		return;
+		return false;
 	}
 
 	retCode = rsslSetDecodeIteratorRWFVersion( &_decodeIter, _rsslMajVer, _rsslMinVer );
@@ -210,7 +214,7 @@ void ElementListDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rs
 	{
 		_atEnd = false;
 		_errorCode = OmmError::IteratorSetFailureEnum;
-		return;
+		return false;
 	}
 
 	retCode = rsslDecodeElementList( &_decodeIter, &_rsslElementList, _rsslLocalELSetDefDb );
@@ -220,41 +224,33 @@ void ElementListDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rs
 	case RSSL_RET_NO_DATA :
 		_atEnd = true;
 		_errorCode = OmmError::NoErrorEnum;
-		break;
+		return true;
 	case RSSL_RET_SUCCESS :
 		_atEnd = false;
 		_errorCode = OmmError::NoErrorEnum;
-		break;
+		return true;
 	case RSSL_RET_ITERATOR_OVERRUN :
 		_atEnd = false;
 		_errorCode = OmmError::IteratorOverrunEnum;
-		break;
+		return false;
 	case RSSL_RET_INCOMPLETE_DATA :
 		_atEnd = false;
 		_errorCode = OmmError::IncompleteDataEnum;
-		break;
+		return false;
 	case RSSL_RET_SET_SKIPPED :
 		_atEnd = false;
 		_errorCode = OmmError::NoSetDefinitionEnum;
-		break;
+		return false;
 	default :
 		_atEnd = false;
 		_errorCode = OmmError::UnknownErrorEnum;
-		break;
+		return false;
 	}
 }
 
 bool ElementListDecoder::getNextData()
 {
 	if ( _atEnd ) return true;
-
-	if ( !_decodingStarted && _errorCode != OmmError::NoErrorEnum )
-	{
-		_atEnd = true;
-		_decodingStarted = true;
-		_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], _errorCode, &_decodeIter, &_rsslElementListBuffer ); 
-		return false;
-	}
 
 	_decodingStarted = true;
 
@@ -289,14 +285,6 @@ bool ElementListDecoder::getNextData( const EmaString& name )
 
 	do {
 		if ( _atEnd ) return true;
-
-		if ( !_decodingStarted && _errorCode != OmmError::NoErrorEnum )
-		{
-			_atEnd = true;
-			_decodingStarted = true;
-			_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], _errorCode, &_decodeIter, &_rsslElementListBuffer ); 
-			return false;
-		}
 
 		_decodingStarted = true;
 
@@ -340,14 +328,6 @@ bool ElementListDecoder::getNextData( const EmaVector< EmaString >& stringList )
 
 	do {
 		if ( _atEnd ) return true;
-
-		if ( !_decodingStarted && _errorCode != OmmError::NoErrorEnum )
-		{
-			_atEnd = true;
-			_decodingStarted = true;
-			_pLoad = Decoder::setRsslData( _pLoadPool[DataType::ErrorEnum], _errorCode, &_decodeIter, &_rsslElementListBuffer );  
-			return false;
-		}
 
 		_decodingStarted = true;
 
@@ -520,4 +500,14 @@ const EmaBuffer& ElementListDecoder::getHexBuffer()
 	_hexBuffer.setFromInt( _rsslElementListBuffer.data, _rsslElementListBuffer.length );
 
 	return _hexBuffer.toBuffer();
+}
+
+const RsslBuffer& ElementListDecoder::getRsslBuffer() const
+{
+	return _rsslElementListBuffer;
+}
+
+OmmError::ErrorCode ElementListDecoder::getErrorCode() const
+{
+	return _errorCode;
 }

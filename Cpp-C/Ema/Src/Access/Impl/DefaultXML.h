@@ -92,6 +92,8 @@ thomsonreuters::ema::access::EmaString UInt64Values[] = {
 	"tpphold",
 	"userQLimit",
 	"HsmInterval",
+	"XmlTracePing",
+	"XmlTraceHex",
 	"XmlTraceRead",
 	"XmlTraceToFile",
 	"XmlTraceToMultipleFiles",

@@ -95,6 +95,7 @@ private :
 	Channel();
 	Channel( const Channel& );
 	Channel& operator=( const Channel& );
+
 };
 
 class ChannelList

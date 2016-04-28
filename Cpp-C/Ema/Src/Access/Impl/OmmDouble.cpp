@@ -59,7 +59,17 @@ Decoder& OmmDouble::getDecoder()
 	return *_pDecoder;
 }
 
+bool OmmDouble::hasDecoder() const
+{
+	return true;
+}
+
 const Encoder& OmmDouble::getEncoder() const
 {
 	return *static_cast<const Encoder*>( 0 );
+}
+
+bool OmmDouble::hasEncoder() const
+{
+	return false;
 }

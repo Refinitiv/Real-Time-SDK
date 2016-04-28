@@ -146,8 +146,10 @@ private :
 	const EmaString& toString( UInt64 ) const;
 
 	const Encoder& getEncoder() const;
+	bool hasEncoder() const;
 
 	Decoder& getDecoder();
+	bool hasDecoder() const;
 
 	OmmOpaque( const OmmOpaque& );
 	OmmOpaque& operator=( const OmmOpaque& );

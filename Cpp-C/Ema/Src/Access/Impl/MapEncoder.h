@@ -111,13 +111,18 @@ public :
 
 private :
 
-	void initEncode( RsslDataTypes rsslKeyDataType, UInt8 rsslContainerDataType );
+	void initEncode( RsslDataType rsslKeyDataType, UInt8 rsslContainerDataType, DataType::DataTypeEnum emaLoadType );
+
+	void addDeleteActionEntry( void* keyValue, const EmaBuffer& permission, const char* methodName );
 
 	void addEncodedEntry( void* keyValue, MapEntry::MapAction action, 
-							UInt8 rsslDataType, const ComplexType& value, const EmaBuffer& permission, const char* methodName );
+							const ComplexType& value, const EmaBuffer& permission, const char* methodName );
+
+	void addDecodedEntry( void* keyValue, MapEntry::MapAction action, 
+							const ComplexType& value, const EmaBuffer& permission, const char* methodName );
 
 	void startEncodingEntry( void* keyValue, MapEntry::MapAction action, 
-							UInt8 rsslDataType, const ComplexType& value, const EmaBuffer& permission, const char* methodName );
+							const EmaBuffer& permission, const char* methodName );
 
 	void endEncodingEntry() const;
 
@@ -126,6 +131,10 @@ private :
 	RsslMap					_rsslMap;
 
 	RsslMapEntry			_rsslMapEntry;
+
+	DataType::DataTypeEnum	_emaLoadType;
+
+	DataType::DataTypeEnum	_emaKeyType;
 
 	bool					_containerInitialized;
 };
