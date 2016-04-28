@@ -71,27 +71,21 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="customBuild.props"/>
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release Shared MD|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="customBuild.props"/>
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release MD Assert|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="customBuild.props"/>
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release Shared MD Assert|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="customBuild.props"/>
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug MDd|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="customBuild.props"/>
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug Shared MDd|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="customBuild.props"/>
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -166,12 +160,7 @@
       <AdditionalDependencies>msvcprt.lib;msvcrt.lib; libema.lib; ws2_32.lib; wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)Consumer422.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories Condition="'$(USE_CUSTOM_BUILD)'=='true'">
-      ..\..\..\..\..\Src\Access\Libs\WIN_64_VS120\Release_MD;%(AdditionalLibraryDirectories)
-      </AdditionalLibraryDirectories>
-      <AdditionalLibraryDirectories Condition="'$(USE_CUSTOM_BUILD)'!='true'">
-      ..\..\..\..\..\Libs\WIN_64_VS120\Release_MD;%(AdditionalLibraryDirectories)
-      </AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\..\Libs\WIN_64_VS120\Release_MD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
@@ -218,12 +207,7 @@
       <AdditionalDependencies>msvcprt.lib;msvcrt.lib; libema.lib; ws2_32.lib; wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)Consumer422.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories Condition="'$(USE_CUSTOM_BUILD)'=='true'">
-      ..\..\..\..\..\Src\Access\Libs\WIN_64_VS120\Release_MD\Shared;%(AdditionalLibraryDirectories)
-      </AdditionalLibraryDirectories>
-      <AdditionalLibraryDirectories Condition="'$(USE_CUSTOM_BUILD)'!='true'">
-      ..\..\..\..\..\Libs\WIN_64_VS120\Release_MD\Shared;%(AdditionalLibraryDirectories)
-      </AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\..\Libs\WIN_64_VS120\Release_MD\Shared;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
@@ -269,12 +253,7 @@
       <AdditionalDependencies>msvcprt.lib;msvcrt.lib; libema.lib; ws2_32.lib; wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)Consumer422.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories Condition="'$(USE_CUSTOM_BUILD)'=='true'">
-      ..\..\..\..\..\Src\Access\Libs\WIN_64_VS120\Release_MD_Assert;%(AdditionalLibraryDirectories)
-      </AdditionalLibraryDirectories>
-      <AdditionalLibraryDirectories Condition="'$(USE_CUSTOM_BUILD)'!='true'">
-      ..\..\..\..\..\Libs\WIN_64_VS120\Release_MD_Assert;%(AdditionalLibraryDirectories)
-      </AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\..\Libs\WIN_64_VS120\Release_MD_Assert;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
@@ -321,12 +300,7 @@
       <AdditionalDependencies>msvcprt.lib;msvcrt.lib; libema.lib; ws2_32.lib; wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)Consumer422.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories Condition="'$(USE_CUSTOM_BUILD)'=='true'">
-      ..\..\..\..\..\Src\Access\Libs\WIN_64_VS120\Release_MD_Assert\Shared;%(AdditionalLibraryDirectories)
-      </AdditionalLibraryDirectories>
-      <AdditionalLibraryDirectories Condition="'$(USE_CUSTOM_BUILD)'!='true'">
-      ..\..\..\..\..\Libs\WIN_64_VS120\Release_MD_Assert\Shared;%(AdditionalLibraryDirectories)
-      </AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\..\Libs\WIN_64_VS120\Release_MD_Assert\Shared;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
@@ -372,12 +346,7 @@
       <AdditionalDependencies>msvcprtd.lib;msvcrtd.lib; libema.lib; ws2_32.lib; wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)Consumer422.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories Condition="'$(USE_CUSTOM_BUILD)'=='true'">
-      ..\..\..\..\..\Src\Access\Libs\WIN_64_VS120\Debug_MDd;%(AdditionalLibraryDirectories)
-      </AdditionalLibraryDirectories>
-      <AdditionalLibraryDirectories Condition="'$(USE_CUSTOM_BUILD)'!='true'">
-      ..\..\..\..\..\Libs\WIN_64_VS120\Debug_MDd;%(AdditionalLibraryDirectories)
-      </AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\..\Libs\WIN_64_VS120\Debug_MDd;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
@@ -424,12 +393,7 @@
       <AdditionalDependencies>msvcprtd.lib;msvcrtd.lib; libema.lib; ws2_32.lib; wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)Consumer422.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories Condition="'$(USE_CUSTOM_BUILD)'=='true'">
-      ..\..\..\..\..\Src\Access\Libs\WIN_64_VS120\Debug_MDd\Shared;%(AdditionalLibraryDirectories)
-      </AdditionalLibraryDirectories>
-      <AdditionalLibraryDirectories Condition="'$(USE_CUSTOM_BUILD)'!='true'">
-      ..\..\..\..\..\Libs\WIN_64_VS120\Debug_MDd\Shared;%(AdditionalLibraryDirectories)
-      </AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\..\Libs\WIN_64_VS120\Debug_MDd\Shared;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
