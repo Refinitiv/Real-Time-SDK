@@ -38,7 +38,7 @@
     <h7 weight="2" />
   </ScoringPrefs>
   <DocumentInfo>
-    <Document title="EMA C++ Reference Manual" href="EMA_RefMan.html" />
+    <Document title="The EMA Reference Manual is included here as a link for your convenience. However, this manual is a separate system and lies outside of EMA C++ HTML documentation. As such it is not included in the EMA HTML documentation search. To search the EMA C++ Edition Reference Manual, you must use its own Search function." href="EMAC_RefMan.html" />
   </DocumentInfo>
   <TopicMap />
 </WebWorksHelpBook>

@@ -26,7 +26,23 @@
     <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
   </head>
   <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
-    <br />
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
     <hr align="left" />
     <blockquote>
       <div class="H2_outer" style="margin-left: 0pt">
@@ -43,9 +59,9 @@
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1045451">The EMA configuration is determined by hard-coded behaviors, any customized beahviors specified in </a><span class="FileOrDirectory">EmaConfig.xml</span>, programmatic changes, and other internal processing. All of these items affect the configuration used by application components. This chapter discusses how the application configuration is derived.</div>
-      <div class="Body"><a name="1045452">Each application must eventually instantiate an </a><span class="Concept">OmmConsumer</span> object. Constructors for OmmConsumer require a <span class="Concept">OmmConsumerConfig</span> object. The <span class="Concept">OmmConsumerConfig</span> constructor takes no arguments, but it does read and process an optional XML file (<span class="FileOrDirectory">EmaConfig.xml</span>), which applications can use to modify EMA’s default behavior.</div>
-      <div class="Body"><a name="1045856">EMA provides a hard-coded configuration for use whenever an </a><span class="Parameter">OmmConsumerConfig</span> object is instantiated without an <span class="FileOrDirectory">EmaConfig.xml</span> file in the run-time environment. The resulting EMA configuration is created by taking the defaults from the various configuration groups. For example, the default (hard-coded) behavior for a <span class="Parameter">Channel</span> adheres to the following configuration:</div>
+      <div class="Body"><a name="1058129">The EMA configuration is determined by hard-coded behaviors, any customized beahviors specified in </a><span class="FileOrDirectory">EmaConfig.xml</span>, programmatic changes, and other internal processing. All of these items affect the configuration used by application components. This chapter discusses how the application configuration is derived.</div>
+      <div class="Body"><a name="1058130">Each application must eventually instantiate an </a><span class="Concept">OmmConsumer</span> object. Constructors for OmmConsumer require a <span class="Concept">OmmConsumerConfig</span> object. The <span class="Concept">OmmConsumerConfig</span> constructor takes no arguments, but it does read and process an optional XML file (<span class="FileOrDirectory">EmaConfig.xml</span>), which applications can use to modify EMA’s default behavior.</div>
+      <div class="Body"><a name="1058131">EMA provides a hard-coded configuration for use whenever an </a><span class="Parameter">OmmConsumerConfig</span> object is instantiated without an <span class="FileOrDirectory">EmaConfig.xml</span> file in the run-time environment. The resulting EMA configuration is created by taking the defaults from the various configuration groups. For example, the default (hard-coded) behavior for a <span class="Parameter">Channel</span> adheres to the following configuration:</div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -55,7 +71,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><span class="Parameter"><a name="1046250">ChannelType</a></span> value=”RSSL_SOCKET”</div>
+              <div class="Bullet_inner"><span class="Parameter"><a name="1058132">ChannelType</a></span> value=”RSSL_SOCKET”</div>
             </td>
           </tr>
         </table>
@@ -69,7 +85,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><span class="Parameter"><a name="1046255">CompressionType</a></span> value=”None”</div>
+              <div class="Bullet_inner"><span class="Parameter"><a name="1058133">CompressionType</a></span> value=”None”</div>
             </td>
           </tr>
         </table>
@@ -83,7 +99,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><span class="Parameter"><a name="1046257">TcpNoDelay</a></span> value=”1”</div>
+              <div class="Bullet_inner"><span class="Parameter"><a name="1058134">TcpNoDelay</a></span> value=”1”</div>
             </td>
           </tr>
         </table>
@@ -97,7 +113,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><span class="Parameter"><a name="1046259">Host</a></span> value=”localhost”</div>
+              <div class="Bullet_inner"><span class="Parameter"><a name="1058135">Host</a></span> value=”localhost”</div>
             </td>
           </tr>
         </table>
@@ -111,7 +127,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><span class="Parameter"><a name="1046261">Port</a></span> value=”14002”</div>
+              <div class="Bullet_inner"><span class="Parameter"><a name="1058136">Port</a></span> value=”14002”</div>
             </td>
           </tr>
         </table>
@@ -125,13 +141,13 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><span class="Parameter"><a name="1046281">XmlTraceToFile</a></span> value=”0”</div>
+              <div class="Bullet_inner"><span class="Parameter"><a name="1058137">XmlTraceToFile</a></span> value=”0”</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1045857">Note that unlike EMA’s default behavior of choosing the first </a><span class="Parameter">Consumer</span> component in the <span class="Parameter">ConsumerList</span>, EMA applications will not choose the first <span class="Parameter">Logger</span>, <span class="Parameter">Channel</span>, or <span class="Parameter">Dictionary</span> in their respective lists. Instead, if an application wants to use a specific channel, logger, or dictionary configuration, the application must explicitly configure it in the appropriate <span class="Parameter">Consumer</span> section of the XML file.</div>
-      <div class="Body"><a name="1045803">For specifics on EMA’s default configuration, refer to </a><a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_GlobalConfigParameters.2.2.html', '');" title="2.2 Default Behaviors">Section 2.2</a>.</div>
+      <div class="Body"><a name="1058138">Note that unlike EMA’s default behavior of choosing the first </a><span class="Parameter">Consumer</span> component in the <span class="Parameter">ConsumerList</span>, EMA applications will not choose the first <span class="Parameter">Logger</span>, <span class="Parameter">Channel</span>, or <span class="Parameter">Dictionary</span> in their respective lists. Instead, if an application wants to use a specific channel, logger, or dictionary configuration, the application must explicitly configure it in the appropriate <span class="Parameter">Consumer</span> section of the XML file.</div>
+      <div class="Body"><a name="1058145">For specifics on EMA’s default configuration, refer to</a> <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_GlobalConfigParameters.2.2.html', '');" title="2.2 Default Behaviors">Section 2.2</a>.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -142,6 +158,9 @@
         // -->
       </script>
     </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 4	EMA Configuration Processing : 4.1	Default Configuration</div>
+    <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--
         document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());

@@ -12,8 +12,8 @@
 #define PRODVERNAME			"3.0.2 "
 #define COMPANYNAME			"Thomson Reuters, Oak Brook, IL"
 #define COPYRIGHTYEAR			"2016"
-#define DDATE				"Tue Apr 19 10:49:27 CST 2016"
-#define INTERNALVERSION			"(Internal Node: Ema 3.0.F13)"
+#define DDATE				"Tue Apr 28 10:49:27 CST 2016"
+#define INTERNALVERSION			"(Internal Node: Ema 3.0.2.13)"
 /*--------------------------------------------------------------------------
 	 CHANGE ABOVE HERE
 --------------------------------------------------------------------------*/

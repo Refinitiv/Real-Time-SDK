@@ -26,7 +26,23 @@
     <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
   </head>
   <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
-    <br />
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
     <hr align="left" />
     <blockquote>
       <div class="H3_outer" style="margin-left: 0pt">
@@ -45,54 +61,54 @@
       </div>
       <div class="Body"><a name="1019782">The following example illustrates the simplest application managing the OmmConsumer Class.</a></div>
       <div class="Blank_Line"><a name="1019881">&nbsp;</a></div>
-      <table class="Commands" style="text-align: left; width: 554.95152pt" cellspacing="0" summary="">
+      <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
             <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><a name="1019892">&nbsp;</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span class="Color_003aBlue"><a name="1019894">try</a></span> {</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1019914">	</a></span><span class="Color_003aLight_Blue">AppClient</span> client;</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1019916">	</a></span><span class="Color_003aLight_Blue">OmmConsumer</span> consumer( <span class="Color_003aLight_Blue">OmmConsumerConfig</span>().host( <span class="Color_003aRed">"localhost:14002"</span> ).username( <span class="Color_003aRed">"user"</span> ) );</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1019918">	consumer.registerClient( </a></span><span class="Color_003aLight_Blue">ReqMsg</span>().serviceName( <span class="Color_003aRed">"DIRECT_FEED"</span> ).name( <span class="Color_003aRed">"IBM.N"</span> ), client );</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1019927">	sleep( 60000 );</a></span></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1019977">} </a></span><span class="Color_003aBlue">catch</span> ( <span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">OmmException</span>&amp; excp ) {</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1019979">	cout &lt;&lt; excp &lt;&lt; endl;</a></span></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1020005">}</a></span></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><a name="1019896">&nbsp;</a></div>
           </td>
@@ -108,6 +124,9 @@
         // -->
       </script>
     </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 4	Consumer Classes : <a class="WebWorks_Breadcrumb_Link" href="Chapter_ConsumerClasses.4.01.html">4.1	OmmConsumer Class</a> : 4.1.4	Example: Working with the OmmConsumer Class</div>
+    <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--
         document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());

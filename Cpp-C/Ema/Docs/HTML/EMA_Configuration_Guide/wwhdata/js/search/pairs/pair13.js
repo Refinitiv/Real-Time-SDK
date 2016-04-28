@@ -1,5 +1,8 @@
 function FileData_Pairs(x)
 {
+x.t("api","edition");
+x.t("3.1","consumergroup");
+x.t("/consumergroup","chapter");
 x.t("defaultconsumer","value=");
 x.t("name","value=");
 x.t("follows","consumergroup");
@@ -8,14 +11,21 @@ x.t("3.1.1","generic");
 x.t("generic","xml");
 x.t("consumergroup","defaultconsumer");
 x.t("consumergroup","follows");
-x.t("consumergroup","3.1.1");
 x.t("consumergroup","generic");
+x.t("consumergroup","3.1.1");
+x.t("consumergroup","elektron");
+x.t("chapter","configuration");
 x.t("xml","schema");
 x.t("consumer","name");
+x.t("groups","3.1");
 x.t("schema","consumergroup");
+x.t("message","api");
+x.t("configuration","groups");
 x.t("value","/consumer");
 x.t("value","consumerlist");
+x.t("elektron","message");
 x.t("/consumer","/consumerlist");
+x.t("edition","3.1.1");
 x.t("consumerlist","consumer");
 x.t("value=","value");
 }

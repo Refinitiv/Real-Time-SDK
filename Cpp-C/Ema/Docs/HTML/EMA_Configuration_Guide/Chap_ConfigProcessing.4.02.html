@@ -26,7 +26,23 @@
     <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
   </head>
   <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
-    <br />
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
     <hr align="left" />
     <blockquote>
       <div class="H2_outer" style="margin-left: 0pt">
@@ -43,7 +59,7 @@
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1046763">Except for the parameter </a><span class="Parameter">DefaultConsumer</span>, all configuration elements defined in the<span class="FileOrDirectory">EmaConfig.xml</span> file must be wrapped within a component definition (i.e., <span class="Parameter">Consumer</span>, <span class="Parameter">Logger</span>, <span class="Parameter">Channel</span>, or <span class="Parameter">Dictionary</span>) or they will be ignored. This section includes some examples that illustrate this requirement. <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Appendix_XMLConfigFile.html', '');" title="Appendix A EmaConfig.xml Configuration File">Appendix A</a> illustrates the proper placement of <span class="Parameter">DefaultConsumer</span> within <span class="FileOrDirectory">EmaConfig.xml</span>.</div>
+      <div class="Body"><a name="1058149">Except for the parameter </a><span class="Parameter">DefaultConsumer</span>, all configuration elements defined in the<span class="FileOrDirectory">EmaConfig.xml</span> file must be wrapped within a component definition (i.e., <span class="Parameter">Consumer</span>, <span class="Parameter">Logger</span>, <span class="Parameter">Channel</span>, or <span class="Parameter">Dictionary</span>) or they will be ignored. This section includes some examples that illustrate this requirement. <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Appendix_XMLConfigFile.html', '');" title="Appendix A EmaConfig.xml Configuration File">Appendix A</a> illustrates the proper placement of <span class="Parameter">DefaultConsumer</span> within <span class="FileOrDirectory">EmaConfig.xml</span>.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -54,6 +70,9 @@
         // -->
       </script>
     </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 4	EMA Configuration Processing : 4.2	Processing EmaConfig.xml</div>
+    <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--
         document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());

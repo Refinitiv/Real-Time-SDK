@@ -26,7 +26,23 @@
     <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
   </head>
   <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
-    <br />
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
     <hr align="left" />
     <blockquote>
       <div class="H3_outer" style="margin-left: 0pt">
@@ -43,78 +59,78 @@
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1019141">The following example illustrates how to populate a </a><span class="CodeOrCommand">FieldList</span> class with fluid interfaces.</div>
-      <div class="Blank_Line"><a name="1021945">&nbsp;</a></div>
-      <table class="Commands" style="text-align: left; width: 554.95152pt" cellspacing="0" summary="">
+      <div class="Body"><a name="1033039">The following example illustrates how to populate a </a><span class="CodeOrCommand">FieldList</span> class with fluid interfaces.</div>
+      <div class="Blank_Line"><a name="1033069">&nbsp;</a></div>
+      <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command"><a name="1021585">&nbsp;</a></div>
+            <div class="command"><a name="1033042">&nbsp;</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021587">try {</a></div>
+            <div class="command"><a name="1033044">try {</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021589">	</a><span class="Color_003aLight_Blue">FieldList</span> fieldList;</div>
+            <div class="command"><a name="1033046">	</a><span class="Color_003aLight_Blue">FieldList</span> fieldList;</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021591">&nbsp;</a></div>
+            <div class="command"><a name="1033048">&nbsp;</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021593">	fieldList.info( 1, 1 )</a></div>
+            <div class="command"><a name="1033050">	fieldList.info( 1, 1 )</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021595">		.addUInt( 1, 64 )</a></div>
+            <div class="command"><a name="1033052">		.addUInt( 1, 64 )</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021597">		.addReal( 6, 11, </a><span class="Color_003aLight_Blue">OmmReal</span>::ExponentNeg2Enum )</div>
+            <div class="command"><a name="1033054">		.addReal( 6, 11, </a><span class="Color_003aLight_Blue">OmmReal</span>::ExponentNeg2Enum )</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021599">		.addDate( 16, 1999, 11, 7 )</a></div>
+            <div class="command"><a name="1033056">		.addDate( 16, 1999, 11, 7 )</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021601">		.addTime( 18, 02, 03, 04, 005 )</a></div>
+            <div class="command"><a name="1033058">		.addTime( 18, 02, 03, 04, 005 )</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021603">		.complete();</a></div>
+            <div class="command"><a name="1033060">		.complete();</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021605">} catch ( const </a><span class="Color_003aLight_Blue">OmmException</span> &amp; excp  ) {</div>
+            <div class="command"><a name="1033062">} catch ( const </a><span class="Color_003aLight_Blue">OmmException</span> &amp; excp  ) {</div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021607">	cout &lt;&lt; excp &lt;&lt; endl;</a></div>
+            <div class="command"><a name="1033064">	cout &lt;&lt; excp &lt;&lt; endl;</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021609">}</a></div>
+            <div class="command"><a name="1033066">}</a></div>
           </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021611">&nbsp;</a></div>
+            <div class="command"><a name="1033068">&nbsp;</a></div>
           </td>
         </tr>
       </table>
@@ -128,6 +144,9 @@
         // -->
       </script>
     </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	OMM Containers and Messages : <a class="WebWorks_Breadcrumb_Link" href="Chapter_ContainersAndMessages.3.08.html">3.3	Working with OMM Containers</a> : 3.3.1	Example: Populating a FieldList Class</div>
+    <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--
         document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());

@@ -1,7 +1,7 @@
 function  WWHBookData_AddTOCEntries(P)
 {
-var A=P.fN("Overview","0");
-var B=A.fN("Features","0#9000006");
-B=A.fN("Developers Guides","0#9000020");
-B=A.fN("Reference Manuals","0#9000027");
+var A=P.fN("1 Overview","0");
+A=P.fN("2 Features","1");
+A=P.fN("3 Developers Guides","2");
+A=P.fN("4 Reference Manuals","3");
 }

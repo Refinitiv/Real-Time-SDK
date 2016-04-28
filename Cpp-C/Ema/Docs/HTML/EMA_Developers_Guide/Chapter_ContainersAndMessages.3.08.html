@@ -26,7 +26,23 @@
     <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
   </head>
   <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
-    <br />
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
     <hr align="left" />
     <blockquote>
       <div class="H2_outer" style="margin-left: 0pt">
@@ -43,16 +59,16 @@
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1021404">EMA supports the following OMM containers: </a><span class="CodeOrCommand">ElementList</span>, <span class="CodeOrCommand">FieldList</span>, <span class="CodeOrCommand">FilterList</span>, <span class="CodeOrCommand">Map</span>, <span class="CodeOrCommand">Series</span>, and <span class="CodeOrCommand">Vector</span>.</div>
-      <div class="Body"><a name="1021491">Each of these classes provides set type interfaces for container header information (e.g., dictionary id, element list number, and the add-type interfaces for adding entries). You must set the container header and optional summary before adding the first entry.</a></div>
-      <div class="Body"><a name="1021405">Though it is treated as an OMM primitive, the </a><span class="CodeOrCommand">OmmArray</span> acts like a container and therefore provides add-type interfaces for adding primitive entries.</div>
-      <div class="Blank_Line"><a name="1021433">&nbsp;</a></div>
-      <table class="Note" style="text-align: left; width: 555.75pt" cellspacing="0" summary="">
+      <div class="Body"><a name="1033029">EMA supports the following OMM containers: </a><span class="CodeOrCommand">ElementList</span>, <span class="CodeOrCommand">FieldList</span>, <span class="CodeOrCommand">FilterList</span>, <span class="CodeOrCommand">Map</span>, <span class="CodeOrCommand">Series</span>, and <span class="CodeOrCommand">Vector</span>.</div>
+      <div class="Body"><a name="1033030">Each of these classes provides set type interfaces for container header information (e.g., dictionary id, element list number, and the add-type interfaces for adding entries). You must set the container header and optional summary before adding the first entry.</a></div>
+      <div class="Body"><a name="1033031">Though it is treated as an OMM primitive, the </a><span class="CodeOrCommand">OmmArray</span> acts like a container and therefore provides add-type interfaces for adding primitive entries.</div>
+      <div class="Blank_Line"><a name="1033035">&nbsp;</a></div>
+      <table class="Note" style="width: 555.75pt" cellspacing="0" summary="">
         <caption></caption>
-        <tr>
+        <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 555.75pt">
             <div class="Note">
-              <span class="Bold">Note: </span><a name="1021439">OMM Container classes do perform some validation of their usage. If a usage error is detected, an appropriate </a><span class="CodeOrCommand">OmmException</span> will be thrown.</div>
+              <span class="Bold">Note: </span><a name="1033034">OMM Container classes do perform some validation of their usage. If a usage error is detected, an appropriate </a><span class="CodeOrCommand">OmmException</span> will be thrown.</div>
           </td>
         </tr>
       </table>
@@ -66,6 +82,9 @@
         // -->
       </script>
     </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	OMM Containers and Messages : 3.3	Working with OMM Containers</div>
+    <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--
         document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
