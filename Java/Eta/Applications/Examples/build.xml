@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="examples">
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.7"/>
+    <property name="source" value="1.7"/>
+
+	<property name="bin.dir" value="bin"/>
+	<property name="libs.dir" value="../../Libs"/>	
+	
+	<path id="examples.classpath">
+		<pathelement location="${libs.dir}/upa.jar"/>
+		<pathelement location="${libs.dir}/jdacsUpalib.jar"/>
+		<pathelement location="${libs.dir}/ansipage.jar"/>
+		<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+		<pathelement location="${libs.dir}/upaValueAddCache.jar"/>
+    </path>
+
+	<target name="init">
+		<echo message="Creating a directory for the compiler output" />
+        <mkdir dir="${bin.dir}"/>
+    </target>
+
+	<target name="clean">
+		<echo message="Cleaning up old build output" />
+        <delete dir="${bin.dir}"/>
+    </target>
+    
+	<target depends="clean" name="cleanall"/>
+
+	<!-- Don't build AnsiPageExample unless Ansi library is present. -->
+	<condition property="ansi.present">
+		<available file="${libs.dir}/ansipage.jar"/>
+	</condition>
+	<target name="ansi-lib-check" unless="ansi.present">
+		<echo message="Warning: Ansi library not found; not building AnsiPageExample." />
+	</target>
+
+	<!-- Don't build AuthLockExample unless Dacs library is present. -->
+	<condition property="dacs.present">
+		<available file="${libs.dir}/jdacsUpalib.jar"/>
+	</condition>
+	<target name="dacs-lib-check" unless="dacs.present">
+		<echo message="Warning: Dacs library not found; not building AuthLockExample." />
+	</target>
+
+	<target depends="clean,ansi-lib-check,dacs-lib-check,build-examples" name="build"/>
+    
+	<target depends="init" name="build-examples">
+		<echo message="Building the examples" />
+        <javac debug="false" debuglevel="${debuglevel}" destdir="${bin.dir}" source="${source}" target="${target}" includeantruntime="false">
+        	<src path="."/>
+            <classpath refid="examples.classpath"/>
+			<exclude name="**/ansipage/*.java" unless="ansi.present" />
+			<exclude name="**/authlock/*.java" unless="dacs.present" />
+        </javac>
+    </target>
+	
+	<!-- this target runs the provider example -->
+	<target name="run-provider">
+		<java classname="com.thomsonreuters.upa.examples.provider.Provider"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+
+	<!-- this target runs the consumer example -->
+	<target name="run-consumer">
+		<java classname="com.thomsonreuters.upa.examples.consumer.Consumer"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+	<!-- this target runs the Non-interactive provider example -->
+	<target name="run-niprovider">
+		<java classname="com.thomsonreuters.upa.examples.niprovider.NIProvider"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+	<!-- this target runs the Value Add Reactor Provider example -->
+	<target name="run-vaprovider">
+		<java classname="com.thomsonreuters.upa.valueadd.examples.provider.Provider"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+	<!-- this target runs the Value Add Reactor consumer example -->
+	<target name="run-vaconsumer">
+		<java classname="com.thomsonreuters.upa.valueadd.examples.consumer.Consumer"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+
+	<!-- this target runs the Value Add Reactor Non-interactive provider example -->
+	<target name="run-vaniprovider">
+		<java classname="com.thomsonreuters.upa.valueadd.examples.niprovider.NIProvider"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+</project>

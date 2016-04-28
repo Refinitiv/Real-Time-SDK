@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="perfTools">
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.7"/>
+    <property name="source" value="1.7"/>
+
+	<property name="bin.dir"           value="bin"/>
+	<property name="libs.dir"          value="../../Libs"/>	
+	
+	<path id="perfTools.classpath">
+		<pathelement location="${libs.dir}/upa.jar"/>
+		<pathelement location="./xpp3-1.1.3_8.jar"/>
+		<pathelement location="./xpp3_min-1.1.3_8.jar"/>
+		<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+    </path>
+
+	<target name="init">
+		<echo message="Creating a directory for the compiler output" />
+        <mkdir dir="${bin.dir}"/>
+    </target>
+
+	<target name="clean">
+		<echo message="Cleaning up old build output" />
+        <delete dir="${bin.dir}"/>
+    </target>
+    
+	<target depends="clean" name="cleanall"/>
+
+	<target depends="clean,build-perfTools" name="build"/>
+    
+	<target depends="init" name="build-perfTools">
+		<echo message="Building the PerfTools" />
+        <javac debug="false" debuglevel="${debuglevel}" destdir="${bin.dir}" source="${source}" target="${target}" includeantruntime="false">
+        	<src path="."/>
+            <classpath refid="perfTools.classpath"/>
+        </javac>
+    </target>
+	
+	
+    <!-- this target runs the provider PerfTools example -->
+	<target name="run-provider">
+		<java classname="com.thomsonreuters.upa.perftools.upajprovperf.upajProvPerf"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+
+	<!-- this target runs the consumer PerfTools example -->
+	<target name="run-consumer">
+		<java classname="com.thomsonreuters.upa.perftools.upajconsperf.upajConsPerf"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+
+</project>
+

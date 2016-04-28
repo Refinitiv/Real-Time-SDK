@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="etaj">
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.7"/>
+    <property name="source" value="1.7"/>
+	
+	<property name="dist.dir" value="../"/>
+	<property name="libs.dir" value="${dist.dir}/Libs"/>
+	<property name="bin.dir" value="${dist.dir}/Source/bin"/>	
+	<property name="valueadd.src.dir" value="${dist.dir}/Source" />
+	
+	<path id="valueadd.classpath">
+        <pathelement location="${libs.dir}/upa.jar"/>
+    </path>
+
+	<target name="init">
+		<echo message="Creating a directory for the compiler output" />
+        <mkdir dir="${bin.dir}"/>
+    </target>
+
+	<target name="clean">
+		<echo message="Cleaning up old build output" />
+        <delete dir="${bin.dir}"/>
+    </target>
+
+	<target depends="init" name="build-valueadd">
+		<echo message="Building the valueadd" />
+        <javac debug="false" debuglevel="${debuglevel}" destdir="${bin.dir}" source="${source}" target="${target}" includeantruntime="false">
+			<exclude name="com/thomsonreuters/upa/valueadd/cache/**" />
+        	<src path="${valueadd.src.dir}"/>
+            <classpath refid="valueadd.classpath"/>
+        </javac>
+		<jar destfile="${libs.dir}/upaValueAdd.jar" basedir="${bin.dir}" includes="**/upa/valueadd/common/**/*.class,**/upa/valueadd/domainrep/**/*.class,**/upa/valueadd/reactor/**/*.class">
+			<manifest>
+				<attribute name="Sealed" value="true" />
+				<attribute name="Specification-Title" value="Elektron Transport API (ETA) Java Edition ValueAdd Classes" />
+				<attribute name="Specification-Version" value="${package}" />
+				<attribute name="Specification-Vendor" value="Thomson Reuters" />
+				<attribute name="Implementation-Title" value="com.thomsonreuters.upa.valueadd" />
+				<attribute name="Implementation-Version" value="${version}" />
+				<attribute name="Implementation-Vendor" value="${date} Thomson Reuters" />
+			</manifest>
+		</jar>
+    </target>
+	
+	<target depends="init" name="build-stubs">
+		<echo message="Building the ETAJ Stubs" />		
+		<echo message="${ant.project.name}: ${ant.file}" />
+		<echo message="Compiling the project" />
+        <javac debug="false" debuglevel="${debuglevel}" destdir="${bin.dir}" source="${source}" target="${target}" includeantruntime="false">
+			<compilerarg value="-Werror" />
+			<compilerarg value="-Xlint:-options" />
+			<!-- treat warnings as errors -->
+			<exclude name="com/thomsonreuters/upa/valueadd/common/**" />
+			<exclude name="com/thomsonreuters/upa/valueadd/domainrep/**" />
+			<exclude name="com/thomsonreuters/upa/valueadd/reactor/**" />
+			<src path="${valueadd.src.dir}" />
+			<src path="${valueadd.src.dir}/Stubs/internal" />
+			<src path="${valueadd.src.dir}/Stubs/external" />
+        </javac>
+		<echo message="Creating the ETAJ Stubs jar file"/>
+		<jar destfile="${libs.dir}/upa.jar" basedir="${bin.dir}" includes="**/upa/codec/**/*.class,**/upa/rdm/**/*.class,**/transport/**/*.class">
+			<manifest>
+				<attribute name="Sealed" value="true" />
+				<attribute name="Specification-Title" value="Elektron Transport API (ETA) Java Edition" />
+				<attribute name="Specification-Version" value="${package}" />
+				<attribute name="Specification-Vendor" value="Thomson Reuters" />
+				<attribute name="Implementation-Title" value="com.thomsonreuters.upa" />
+				<attribute name="Implementation-Version" value="${version}" />
+				<attribute name="Implementation-Vendor" value="${date} Thomson Reuters" />
+			</manifest>
+		</jar>
+		<jar destfile="${libs.dir}/upaValueAddCache.jar" basedir="${bin.dir}" includes="**/upa/valueadd/cache/**/*.class">
+			<manifest>
+				<attribute name="Sealed" value="true" />
+				<attribute name="Specification-Title" value="Elektron Transport API (ETA) Java Edition ValueAdd Cache Classes" />
+				<attribute name="Specification-Version" value="${package}" />
+				<attribute name="Specification-Vendor" value="Thomson Reuters" />
+				<attribute name="Implementation-Title" value="com.thomsonreuters.upa.valueadd.cache" />
+				<attribute name="Implementation-Version" value="${version}" />
+				<attribute name="Implementation-Vendor" value="${date} Thomson Reuters" />
+			</manifest>
+		</jar>
+    </target>
+	
+	<target depends="clean,build-stubs,build-valueadd" name="build"/>
+	
+</project>
