@@ -13,7 +13,7 @@ Transport and OMM encoder/decoder API.  It is used by the Thomson Reuters Enterp
 The Elektron-SDK will support multiple languages across different combinations of `Linux`, `Windows` and `Solaris` and their corresponding compilers. Navigate to the language and API of your choice to see the individual API README.md files for further details on building and running the API and examples. You can click on the below links to take you to the language of your choice.
 
 - [C++](Cpp-C)
-- [Java (Preview Only)](https://github.com/thomsonreuters/Elektron-SDK/tree/Preview/Java)
+- [Java](Java)
 - [JavaScript (Preview Only)](https://github.com/thomsonreuters/Elektron-SDK/tree/Preview/Js)
 - [C# (Preview Only)](https://github.com/thomsonreuters/Elektron-SDK/tree/Preview/Cs)
 
