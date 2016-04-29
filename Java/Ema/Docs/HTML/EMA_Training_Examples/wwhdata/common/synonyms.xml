@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<!--
+ Sometimes, a word may include punctuation or other characters such that
+ users might not find the word during a normal search.  Synonyms allow
+ help authors to associate a word with other possible spellings or
+ formats such that searching for these alternate words will return the
+ same result as searching for the first word.
+
+ For example:
+
+  <WebWorksSynonyms>
+   <Word value="green">
+    <Synonym value="greenery" />
+    <Synonym value="grass" />
+   </Word>
+  </WebWorksSynonyms>
+
+ Searching for "greenery" or "grass" will return same results that searching
+ for "green" would return, even though "greenery" and "grass" may not exist
+ in the generated output.
+-->
+
+<WebWorksSynonyms>
+</WebWorksSynonyms>

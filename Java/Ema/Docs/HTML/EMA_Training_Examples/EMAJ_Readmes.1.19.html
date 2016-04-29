@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>291__Custom__DownCast</title>
+    <link rel="StyleSheet" href="css/EMAJ_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H2_NoNum"><a name="1019514">291__Custom__DownCast</a></div>
+      <div class="Body"><a name="1027589">Summary</a></div>
+      <div class="Body"><a name="1027590">=======</a></div>
+      <div class="Body"><a name="1027591">&nbsp;</a></div>
+      <div class="Body"><a name="1027592">The example291__Custom__DownCast application provides a custom down casting</a></div>
+      <div class="Body"><a name="1027593">example of OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1027594">&nbsp;</a></div>
+      <div class="Body"><a name="1027595">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1027596">and parsing of OMM Custom data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1027597">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1027598">Distribution Server.</a></div>
+      <div class="Body"><a name="1027599">&nbsp;</a></div>
+      <div class="Body"><a name="1027600">example291__Custom__DownCast showcases usage of the so called downcast decoding</a></div>
+      <div class="Body"><a name="1027601">method. In this method, application extracts a reference to a Data class object</a></div>
+      <div class="Body"><a name="1027602">and casts it down to the appropriate data class type based on its data type.</a></div>
+      <div class="Body"><a name="1027603">&nbsp;</a></div>
+      <div class="Body"><a name="1027604">&nbsp;</a></div>
+      <div class="Body"><a name="1027605">&nbsp;</a></div>
+      <div class="Body"><a name="1027606">Detailed Description</a></div>
+      <div class="Body"><a name="1027607">====================s</a></div>
+      <div class="Body"><a name="1027608">&nbsp;</a></div>
+      <div class="Body"><a name="1027609">example291__Custom__DownCast implements the following high level steps:</a></div>
+      <div class="Body"><a name="1027610">&nbsp;</a></div>
+      <div class="Body"><a name="1027611">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1027612">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1027613">  - provides own methods as needed, e.g. decode( FieldList )</a></div>
+      <div class="Body"><a name="1027614">  - each of the methods provided in this example use the ease of use</a></div>
+      <div class="Body"><a name="1027615">	data extraction methods that are data type specific</a></div>
+      <div class="Body"><a name="1027616">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1027617">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1027618">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1027619">  - sets host name on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1027620">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1027621">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1027622">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1027623">+ Opens a streaming item interest</a></div>
+      <div class="Body"><a name="1027624">  - Custom Domain (133) IBM.XYZ item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1027625">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1027626">  - all received messages are processed on main application thread of control</a></div>
+      <div class="Body"><a name="1027627">+ Exits</a></div>
+      <div class="Body"><a name="1027628">&nbsp;</a></div>
+      <div class="Body"><a name="1027629">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1027630">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1027631">&nbsp;</a></div>
+      <div class="Body"><a name="1027632">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1027633">      standard configuration.</a></div>
+      <div class="Body"><a name="1025797">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Readmes.1.09.html">200 Series Examples</a> : 291__Custom__DownCast</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

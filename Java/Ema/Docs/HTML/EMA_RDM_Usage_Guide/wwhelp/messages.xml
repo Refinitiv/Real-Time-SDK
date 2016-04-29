@@ -1,0 +1,675 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<WebWorksHelpMessages version="4.0.0" default="en">
+  <Resources locale="de">
+    <StaticString key="ContentsTabLabel" value="Inhalt" />
+    <StaticString key="IndexTabLabel" value="Index" />
+    <StaticString key="IndexDisplayButtonLabel" value="Anzeigen" />
+    <StaticString key="SearchTabLabel" value="Suchen" />
+    <StaticString key="SearchQueryLabel" value="Geben Sie das Wort bzw. die Worte ein, nach denen gesucht werden soll:" />
+    <StaticString key="SearchScopeLabel" value="Legen Sie den Umfang der Suche fest:" />
+    <StaticString key="FavoritesTabLabel" value="Favoriten" />
+    <StaticString key="FavoritesListLabel" value="Seiten:" />
+    <StaticString key="FavoritesRemoveButtonLabel" value="Entfernen" />
+    <StaticString key="FavoritesDisplayButtonLabel" value="Anzeigen" />
+    <StaticString key="FavoritesCurrentPageLabel" value="Aktuelle Seite:" />
+    <StaticString key="FavoritesAddButtonLabel" value="Hinzufügen" />
+    <StaticString key="IndexJumpDialogTitle" value="Es wurden mehrere Themen gefunden" />
+    <StaticString key="IndexJumpDialogCancelButtonLabel" value="Abbrechen" />
+    <StaticString key="SyncIconLabel" value="Im Inhalt anzeigen" />
+    <StaticString key="PrevIconLabel" value="Zurück" />
+    <StaticString key="NextIconLabel" value="Weiter" />
+    <StaticString key="RelatedTopicsIconLabel" value="Verwandte Themen" />
+    <StaticString key="EmailIconLabel" value="E-Mail" />
+    <StaticString key="PrintIconLabel" value="Drucken" />
+    <StaticString key="BookmarkIconLabel" value="Lesezeichen" />
+    <StaticString key="BookmarkLinkMessage" value="Klicken Sie mit der rechten Maustaste auf die Verknüpfung, und fügen Sie sie Ihren Lesezeichen hinzu." />
+    <StaticString key="PDFIconLabel" value="PDF" />
+    <StaticString key="TitleColumnLabel" value="Titel" />
+    <StaticString key="BookColumnLabel" value="Buch" />
+    <StaticString key="RankColumnLabel" value="Rang" />
+    <StaticString key="ContentsSyncErrorStatus" value="Die aktuelle Seite wurde nicht im Inhalt gefunden." />
+    <StaticString key="IndexMultipleEntriesMessage" value="Das von Ihnen gewählte Indexwort bzw. der gewählte Indexbegriff tritt in mehreren Dokumenten auf." />
+    <StaticString key="IndexMultipleEntriesPrompt" value="Wählen Sie ein Dokument aus." />
+    <StaticString key="SearchButtonLabel" value="Suchen" />
+    <StaticString key="SearchScopeAllLabel" value="Alle verfügbaren Bücher" />
+    <StaticString key="SearchNoResultsMessage" value="(keine Ergebnisse)" />
+    <StaticString key="UseAccessibleHTML" value="Brauchen Sie Unterstützung für zugreifbare HTML?" />
+    <StaticString key="BrowserNotSupported1" value="Ihr Webbrowser unterstützt die zum ordnungsgemäßen Anzeigen\ndieser Seite erforderlichen Funktionen nicht. Folgende Browser werden unterstützt:\n\n IE4 und höher für Windows und UNIX\n IE5 und höher für Mac\n Netscape 6.1 und höher für Windows, Mac und UNIX\n Netscape 4.x für Windows, Mac und UNIX" />
+    <StaticString key="BrowserNotSupported2" value="" />
+    <StaticString key="BrowserNotSupported3" value="" />
+    <StaticString key="ShowNavigationIconLabel" value="Navigation anzeigen" />
+    <StaticString key="Initializing" value="Daten werden geladen..." />
+    <StaticString key="SearchSearchingStatus" value="(Suchen)" />
+    <StaticString key="AccessibilityListSeparator" value="," />
+    <StaticString key="AccessibilityDocumentFrameName" value="Dokument" />
+    <StaticString key="AccessibilityDisabledNavigationButton" value="Deaktivierte Schaltfläche %s" />
+    <StaticString key="AccessibilityPopupClickThrough" value="Klicken Sie hier, um zum Quelldokument zu gelangen." />
+    <StaticString key="AccessibilityJavaScriptTabsFrameName" value="%s auswählen" />
+    <StaticString key="AccessibilityJavaScriptNavigationFrameName" value="%s-Navigation" />
+    <StaticString key="AccessibilityJavaScriptActiveTab" value="Registerkarte '%s' aktiv" />
+    <StaticString key="AccessibilityJavaScriptInactiveTab" value="Zu Registerkarte '%s' umschalten" />
+    <StaticString key="AccessibilityJavaScriptTOCBookExpanded" value="Buch '%s' erweitert" />
+    <StaticString key="AccessibilityJavaScriptTOCBookCollapsed" value="Buch '%s' zusammegezogen" />
+    <StaticString key="AccessibilityJavaScriptTOCTopic" value="Thema '%s'" />
+    <StaticString key="AccessibilityJavaScriptTOCOneOfTotal" value="%s von %s" />
+    <StaticString key="AccessibilityJavaScriptIndexEntry" value="Thema '%s', Buch '%s'" />
+    <StaticString key="AccessibilityJavaScriptIndexSecondEntry" value="Thema '%s', Buch '%s', Link '%s'" />
+    <StaticString key="SeeAlsoLabel" value="Siehe auch" />
+  </Resources>
+  <Resources locale="en">
+    <StaticString key="ContentsTabLabel" value="Contents" />
+    <StaticString key="IndexTabLabel" value="Index" />
+    <StaticString key="IndexDisplayButtonLabel" value="Display" />
+    <StaticString key="SearchTabLabel" value="Search" />
+    <StaticString key="SearchQueryLabel" value="Type in the word(s) to search for:" />
+    <StaticString key="SearchScopeLabel" value="Choose the scope of the search:" />
+    <StaticString key="FavoritesTabLabel" value="Favorites" />
+    <StaticString key="FavoritesListLabel" value="Pages:" />
+    <StaticString key="FavoritesRemoveButtonLabel" value="Remove" />
+    <StaticString key="FavoritesDisplayButtonLabel" value="Display" />
+    <StaticString key="FavoritesCurrentPageLabel" value="Current page:" />
+    <StaticString key="FavoritesAddButtonLabel" value="Add" />
+    <StaticString key="IndexJumpDialogTitle" value="Multiple Topics Found" />
+    <StaticString key="IndexJumpDialogCancelButtonLabel" value="Cancel" />
+    <StaticString key="SyncIconLabel" value="Show in Contents" />
+    <StaticString key="PrevIconLabel" value="Previous" />
+    <StaticString key="NextIconLabel" value="Next" />
+    <StaticString key="RelatedTopicsIconLabel" value="Related Topics" />
+    <StaticString key="EmailIconLabel" value="E-mail" />
+    <StaticString key="PrintIconLabel" value="Print" />
+    <StaticString key="BookmarkIconLabel" value="Bookmark" />
+    <StaticString key="BookmarkLinkMessage" value="Right-click link and add it to your bookmarks." />
+    <StaticString key="PDFIconLabel" value="PDF" />
+    <StaticString key="TitleColumnLabel" value="Title" />
+    <StaticString key="BookColumnLabel" value="Book" />
+    <StaticString key="RankColumnLabel" value="Rank" />
+    <StaticString key="ContentsSyncErrorStatus" value="The current page could not be found in the table of contents." />
+    <StaticString key="IndexMultipleEntriesMessage" value="The index word or phrase you chose occurs in multiple documents." />
+    <StaticString key="IndexMultipleEntriesPrompt" value="Please choose one." />
+    <StaticString key="SearchButtonLabel" value="Go!" />
+    <StaticString key="SearchScopeAllLabel" value="All Available Books" />
+    <StaticString key="SearchNoResultsMessage" value="(no results)" />
+    <StaticString key="UseAccessibleHTML" value="Do you require accessible HTML support?" />
+    <StaticString key="BrowserNotSupported1" value="Your web browser does not support the necessary features\nrequired to view this page properly.  Supported browsers are:\n\n  IE4 and later on Windows and UNIX\n  IE5 and later on Mac\n  Netscape 6.1 and later on Windows, Mac, and UNIX\n  Netscape 4.x on Windows, Mac, and UNIX" />
+    <StaticString key="BrowserNotSupported2" value="" />
+    <StaticString key="BrowserNotSupported3" value="" />
+    <StaticString key="ShowNavigationIconLabel" value="Show Navigation" />
+    <StaticString key="Initializing" value="Loading data..." />
+    <StaticString key="SearchSearchingStatus" value="(searching)" />
+    <StaticString key="AccessibilityListSeparator" value="," />
+    <StaticString key="AccessibilityDocumentFrameName" value="Document" />
+    <StaticString key="AccessibilityDisabledNavigationButton" value="Disabled button %s" />
+    <StaticString key="AccessibilityPopupClickThrough" value="Click here to go to the source document." />
+    <StaticString key="AccessibilityJavaScriptTabsFrameName" value="Select %s" />
+    <StaticString key="AccessibilityJavaScriptNavigationFrameName" value="%s navigation" />
+    <StaticString key="AccessibilityJavaScriptActiveTab" value="%s tab is active" />
+    <StaticString key="AccessibilityJavaScriptInactiveTab" value="Switch to %s tab" />
+    <StaticString key="AccessibilityJavaScriptTOCBookExpanded" value="Book %s expanded" />
+    <StaticString key="AccessibilityJavaScriptTOCBookCollapsed" value="Book %s collapsed" />
+    <StaticString key="AccessibilityJavaScriptTOCTopic" value="Topic %s" />
+    <StaticString key="AccessibilityJavaScriptTOCOneOfTotal" value="%s of %s" />
+    <StaticString key="AccessibilityJavaScriptIndexEntry" value="Topic %s of Book %s" />
+    <StaticString key="AccessibilityJavaScriptIndexSecondEntry" value="Topic %s of Book %s link %s" />
+    <StaticString key="SeeAlsoLabel" value="See Also" />
+  </Resources>
+  <Resources locale="es">
+    <StaticString key="ContentsTabLabel" value="Contenido" />
+    <StaticString key="IndexTabLabel" value="Índice" />
+    <StaticString key="IndexDisplayButtonLabel" value="Mostrar" />
+    <StaticString key="SearchTabLabel" value="Buscar" />
+    <StaticString key="SearchQueryLabel" value="Escriba las palabras que desee buscar:" />
+    <StaticString key="SearchScopeLabel" value="Elija el ámbito de la búsqueda:" />
+    <StaticString key="FavoritesTabLabel" value="Favoritos" />
+    <StaticString key="FavoritesListLabel" value="Páginas:" />
+    <StaticString key="FavoritesRemoveButtonLabel" value="Quitar" />
+    <StaticString key="FavoritesDisplayButtonLabel" value="Mostrar" />
+    <StaticString key="FavoritesCurrentPageLabel" value="Página actual:" />
+    <StaticString key="FavoritesAddButtonLabel" value="Agregar" />
+    <StaticString key="IndexJumpDialogTitle" value="Se encontró más de un tema" />
+    <StaticString key="IndexJumpDialogCancelButtonLabel" value="Cancelar" />
+    <StaticString key="SyncIconLabel" value="Mostrar en Contenido" />
+    <StaticString key="PrevIconLabel" value="Atrás" />
+    <StaticString key="NextIconLabel" value="Adelante" />
+    <StaticString key="RelatedTopicsIconLabel" value="Temas relacionados" />
+    <StaticString key="EmailIconLabel" value="E-mail" />
+    <StaticString key="PrintIconLabel" value="Imprimir" />
+    <StaticString key="BookmarkIconLabel" value="Marcador" />
+    <StaticString key="BookmarkLinkMessage" value="Haga clic con el botón derecho del mouse en el vínculo para agregarlo a la lista de favoritos." />
+    <StaticString key="PDFIconLabel" value="PDF" />
+    <StaticString key="TitleColumnLabel" value="Título" />
+    <StaticString key="BookColumnLabel" value="Libro" />
+    <StaticString key="RankColumnLabel" value="Clase" />
+    <StaticString key="ContentsSyncErrorStatus" value="Esta página no se encontró en el índice de contenidos." />
+    <StaticString key="IndexMultipleEntriesMessage" value="La frase o palabra del índice elegida aparece en varios documentos." />
+    <StaticString key="IndexMultipleEntriesPrompt" value="Elija uno." />
+    <StaticString key="SearchButtonLabel" value="Ir" />
+    <StaticString key="SearchScopeAllLabel" value="Todos los libros disponibles" />
+    <StaticString key="SearchNoResultsMessage" value="(ningún resultado)" />
+    <StaticString key="UseAccessibleHTML" value="¿requiere asistencia accesible a través de HTML?" />
+    <StaticString key="BrowserNotSupported1" value="Su explorador de Internet no es compatible con las funciones\nnecesarias para ver esta página correctamente. Los exploradores compatibles son:\n\n IE4 y posteriores para Windows y UNIX\n IE5 y posteriores para Mac\n Netscape 6.1 y posteriores para Windows, Mac y UNIX\n Netscape 4.x para Windows, Mac y UNIX" />
+    <StaticString key="BrowserNotSupported2" value="" />
+    <StaticString key="BrowserNotSupported3" value="" />
+    <StaticString key="ShowNavigationIconLabel" value="Mostrar barra de navegación" />
+    <StaticString key="Initializing" value="Cargando datos..." />
+    <StaticString key="SearchSearchingStatus" value="(buscando)" />
+    <StaticString key="AccessibilityListSeparator" value="," />
+    <StaticString key="AccessibilityDocumentFrameName" value="Documento" />
+    <StaticString key="AccessibilityDisabledNavigationButton" value="Botón desactivado %s" />
+    <StaticString key="AccessibilityPopupClickThrough" value="Haga clic aquí para ir al documento original." />
+    <StaticString key="AccessibilityJavaScriptTabsFrameName" value="Seleccione %s" />
+    <StaticString key="AccessibilityJavaScriptNavigationFrameName" value="Navegación %s" />
+    <StaticString key="AccessibilityJavaScriptActiveTab" value="La ficha %s está activa" />
+    <StaticString key="AccessibilityJavaScriptInactiveTab" value="Cambie a la ficha %s" />
+    <StaticString key="AccessibilityJavaScriptTOCBookExpanded" value="El libro %s está expandido" />
+    <StaticString key="AccessibilityJavaScriptTOCBookCollapsed" value="El libro %s está contraído" />
+    <StaticString key="AccessibilityJavaScriptTOCTopic" value="Tema %s" />
+    <StaticString key="AccessibilityJavaScriptTOCOneOfTotal" value="%s de %s" />
+    <StaticString key="AccessibilityJavaScriptIndexEntry" value="Tema %s del libro %s" />
+    <StaticString key="AccessibilityJavaScriptIndexSecondEntry" value="Tema %s del libro %s vínculo %s" />
+    <StaticString key="SeeAlsoLabel" value="Consulte también" />
+  </Resources>
+  <Resources locale="fr">
+    <StaticString key="ContentsTabLabel" value="Table des matières" />
+    <StaticString key="IndexTabLabel" value="Index" />
+    <StaticString key="IndexDisplayButtonLabel" value="Afficher" />
+    <StaticString key="SearchTabLabel" value="Rechercher" />
+    <StaticString key="SearchQueryLabel" value="Saisissez un ou plusieurs mots clés :" />
+    <StaticString key="SearchScopeLabel" value="Choisissez l'étendue de votre recherche :" />
+    <StaticString key="FavoritesTabLabel" value="Favoris" />
+    <StaticString key="FavoritesListLabel" value="Pages :" />
+    <StaticString key="FavoritesRemoveButtonLabel" value="Supprimer" />
+    <StaticString key="FavoritesDisplayButtonLabel" value="Afficher" />
+    <StaticString key="FavoritesCurrentPageLabel" value="Page courante :" />
+    <StaticString key="FavoritesAddButtonLabel" value="Ajouter" />
+    <StaticString key="IndexJumpDialogTitle" value="Plusieurs rubriques trouvées" />
+    <StaticString key="IndexJumpDialogCancelButtonLabel" value="Annuler" />
+    <StaticString key="SyncIconLabel" value="Afficher dans la table des matières" />
+    <StaticString key="PrevIconLabel" value="Précédent" />
+    <StaticString key="NextIconLabel" value="Suivant" />
+    <StaticString key="RelatedTopicsIconLabel" value="Rubriques associées" />
+    <StaticString key="EmailIconLabel" value="Courrier électronique" />
+    <StaticString key="PrintIconLabel" value="Imprimer" />
+    <StaticString key="BookmarkIconLabel" value="Ajouter aux Favoris" />
+    <StaticString key="BookmarkLinkMessage" value="Cliquez sur ce lien avec le bouton droit de la souris et ajoutez-le à vos Favoris." />
+    <StaticString key="PDFIconLabel" value="PDF" />
+    <StaticString key="TitleColumnLabel" value="Titre" />
+    <StaticString key="BookColumnLabel" value="Livre" />
+    <StaticString key="RankColumnLabel" value="Pertinence" />
+    <StaticString key="ContentsSyncErrorStatus" value="Page introuvable dans la table des matières." />
+    <StaticString key="IndexMultipleEntriesMessage" value="Le terme ou l'expression d'index que vous avez choisis apparaissent dans plusieurs documents." />
+    <StaticString key="IndexMultipleEntriesPrompt" value="Sélectionnez-en un." />
+    <StaticString key="SearchButtonLabel" value="Lancer" />
+    <StaticString key="SearchScopeAllLabel" value="Tous les livres disponibles" />
+    <StaticString key="SearchNoResultsMessage" value="(aucun résultat)" />
+    <StaticString key="UseAccessibleHTML" value="Avez-vous besoin de support pour le HTML accessible ?" />
+    <StaticString key="BrowserNotSupported1" value="Votre navigateur Web ne prend pas en charge les fonctions\nrequises pour visualiser cette page de manière correcte. Les navigateurs pris en charge sont :\n\n IE4 et version ultérieure sous Windows et UNIX\n IE5 et version ultérieure sur Mac\n Netscape 6.1 et version ultérieure sous Windows, Mac et UNIX\n Netscape 4.x sous Windows, Mac et UNIX" />
+    <StaticString key="BrowserNotSupported2" value="" />
+    <StaticString key="BrowserNotSupported3" value="" />
+    <StaticString key="ShowNavigationIconLabel" value="Navigation" />
+    <StaticString key="Initializing" value="Chargement des données..." />
+    <StaticString key="SearchSearchingStatus" value="(recherche en cours)" />
+    <StaticString key="AccessibilityListSeparator" value="," />
+    <StaticString key="AccessibilityDocumentFrameName" value="Document" />
+    <StaticString key="AccessibilityDisabledNavigationButton" value="Bouton désactivé %s" />
+    <StaticString key="AccessibilityPopupClickThrough" value="Cliquez ici pour atteindre le document source." />
+    <StaticString key="AccessibilityJavaScriptTabsFrameName" value="Sélectionner %s" />
+    <StaticString key="AccessibilityJavaScriptNavigationFrameName" value="Navigation %s" />
+    <StaticString key="AccessibilityJavaScriptActiveTab" value="L'onglet %s est actif" />
+    <StaticString key="AccessibilityJavaScriptInactiveTab" value="Placez-vous sous l'onglet %s" />
+    <StaticString key="AccessibilityJavaScriptTOCBookExpanded" value="Livre %s étendu" />
+    <StaticString key="AccessibilityJavaScriptTOCBookCollapsed" value="Livre %s réduit" />
+    <StaticString key="AccessibilityJavaScriptTOCTopic" value="Rubrique %s" />
+    <StaticString key="AccessibilityJavaScriptTOCOneOfTotal" value="%s/%s" />
+    <StaticString key="AccessibilityJavaScriptIndexEntry" value="Rubrique %s du livre %s" />
+    <StaticString key="AccessibilityJavaScriptIndexSecondEntry" value="Rubrique %s du lien %s du livre %s" />
+    <StaticString key="SeeAlsoLabel" value="Voir aussi" />
+  </Resources>
+  <Resources locale="it">
+    <StaticString key="ContentsTabLabel" value="Contenuto" />
+    <StaticString key="IndexTabLabel" value="Indice" />
+    <StaticString key="IndexDisplayButtonLabel" value="Visualizza" />
+    <StaticString key="SearchTabLabel" value="Cerca" />
+    <StaticString key="SearchQueryLabel" value="Digitare le parole da cercare:" />
+    <StaticString key="SearchScopeLabel" value="Selezionare l'ambito della ricerca:" />
+    <StaticString key="FavoritesTabLabel" value="Preferiti" />
+    <StaticString key="FavoritesListLabel" value="Pagine:" />
+    <StaticString key="FavoritesRemoveButtonLabel" value="Rimuovi" />
+    <StaticString key="FavoritesDisplayButtonLabel" value="Visualizza" />
+    <StaticString key="FavoritesCurrentPageLabel" value="Pagina corrente:" />
+    <StaticString key="FavoritesAddButtonLabel" value="Aggiungi" />
+    <StaticString key="IndexJumpDialogTitle" value="Sono stati trovati più argomenti" />
+    <StaticString key="IndexJumpDialogCancelButtonLabel" value="Annulla" />
+    <StaticString key="SyncIconLabel" value="Mostra in Contenuto" />
+    <StaticString key="PrevIconLabel" value="Precedente" />
+    <StaticString key="NextIconLabel" value="Avanti" />
+    <StaticString key="RelatedTopicsIconLabel" value="Argomenti correlati" />
+    <StaticString key="EmailIconLabel" value="E-mail" />
+    <StaticString key="PrintIconLabel" value="Stampa" />
+    <StaticString key="BookmarkIconLabel" value="Segnalibro" />
+    <StaticString key="BookmarkLinkMessage" value="Fare clic con il tasto destro del mouse per aggiungere ai Segnalibri." />
+    <StaticString key="PDFIconLabel" value="PDF" />
+    <StaticString key="TitleColumnLabel" value="Titolo" />
+    <StaticString key="BookColumnLabel" value="Libro" />
+    <StaticString key="RankColumnLabel" value="Classe" />
+    <StaticString key="ContentsSyncErrorStatus" value="La pagina corrente non è stata trovata nel Sommario." />
+    <StaticString key="IndexMultipleEntriesMessage" value="La parola o la frase cercata nell'indice è presente in più documenti." />
+    <StaticString key="IndexMultipleEntriesPrompt" value="Sceglierne uno." />
+    <StaticString key="SearchButtonLabel" value="Vai!" />
+    <StaticString key="SearchScopeAllLabel" value="Tutti i libri disponibili" />
+    <StaticString key="SearchNoResultsMessage" value="(nessun risultato)" />
+    <StaticString key="UseAccessibleHTML" value="È necessario supporto HTML accessibile?" />
+    <StaticString key="BrowserNotSupported1" value="Il browser Web in uso non supporta le funzioni necessarie\nper visualizzare correttamente questa pagina. I browser supportati sono:\n\n IE4 e versioni successive su Windows e UNIX\n IE5 e versioni successive su Mac\n Netscape 6.1 e versioni successive per Windows, Mac e UNIX\n Netscape 4.x su Windows, Mac e UNIX" />
+    <StaticString key="BrowserNotSupported2" value="" />
+    <StaticString key="BrowserNotSupported3" value="" />
+    <StaticString key="ShowNavigationIconLabel" value="Mostra navigazione" />
+    <StaticString key="Initializing" value="Caricamento dati in corso..." />
+    <StaticString key="SearchSearchingStatus" value="(ricerca in corso)" />
+    <StaticString key="AccessibilityListSeparator" value="," />
+    <StaticString key="AccessibilityDocumentFrameName" value="Documento" />
+    <StaticString key="AccessibilityDisabledNavigationButton" value="Pulsante disabilitato %s" />
+    <StaticString key="AccessibilityPopupClickThrough" value="Fare clic qui per andare al documento di origine." />
+    <StaticString key="AccessibilityJavaScriptTabsFrameName" value="Seleziona %s" />
+    <StaticString key="AccessibilityJavaScriptNavigationFrameName" value="Navigazione %s" />
+    <StaticString key="AccessibilityJavaScriptActiveTab" value="La scheda %s è attiva" />
+    <StaticString key="AccessibilityJavaScriptInactiveTab" value="Passa alla scheda %s" />
+    <StaticString key="AccessibilityJavaScriptTOCBookExpanded" value="Libro %s espanso" />
+    <StaticString key="AccessibilityJavaScriptTOCBookCollapsed" value="Libro %s compresso" />
+    <StaticString key="AccessibilityJavaScriptTOCTopic" value="Argomento %s" />
+    <StaticString key="AccessibilityJavaScriptTOCOneOfTotal" value="%s di %s" />
+    <StaticString key="AccessibilityJavaScriptIndexEntry" value="Argomento %s del libro %s" />
+    <StaticString key="AccessibilityJavaScriptIndexSecondEntry" value="Argomento %s del libro %s collegamento %s" />
+    <StaticString key="SeeAlsoLabel" value="Vedere anche" />
+  </Resources>
+  <Resources locale="ja">
+    <StaticString key="ContentsTabLabel" value="目次" />
+    <StaticString key="IndexTabLabel" value="索引" />
+    <StaticString key="IndexDisplayButtonLabel" value="表示" />
+    <StaticString key="SearchTabLabel" value="検索" />
+    <StaticString key="SearchQueryLabel" value="検索対象語:" />
+    <StaticString key="SearchScopeLabel" value="検索対象範囲:" />
+    <StaticString key="FavoritesTabLabel" value="お気に入り" />
+    <StaticString key="FavoritesListLabel" value="ページ:" />
+    <StaticString key="FavoritesRemoveButtonLabel" value="削除" />
+    <StaticString key="FavoritesDisplayButtonLabel" value="表示" />
+    <StaticString key="FavoritesCurrentPageLabel" value="現在のページ:" />
+    <StaticString key="FavoritesAddButtonLabel" value="追加" />
+    <StaticString key="IndexJumpDialogTitle" value="複数のトピックが見つかりました。" />
+    <StaticString key="IndexJumpDialogCancelButtonLabel" value="キャンセル" />
+    <StaticString key="SyncIconLabel" value="内容の表示" />
+    <StaticString key="PrevIconLabel" value="前へ" />
+    <StaticString key="NextIconLabel" value="次へ" />
+    <StaticString key="RelatedTopicsIconLabel" value="関連トピック" />
+    <StaticString key="EmailIconLabel" value="電子メール" />
+    <StaticString key="PrintIconLabel" value="印刷" />
+    <StaticString key="BookmarkIconLabel" value="ブックマーク" />
+    <StaticString key="BookmarkLinkMessage" value="リンクを右クリックして、ブックマークに追加します。" />
+    <StaticString key="PDFIconLabel" value="PDF" />
+    <StaticString key="TitleColumnLabel" value="タイトル" />
+    <StaticString key="BookColumnLabel" value="ブック" />
+    <StaticString key="RankColumnLabel" value="ランク" />
+    <StaticString key="ContentsSyncErrorStatus" value="現在のページは目次内で見つかりませんでした。" />
+    <StaticString key="IndexMultipleEntriesMessage" value="選択した索引の単語または句は、複数のドキュメント内で使用されています。" />
+    <StaticString key="IndexMultipleEntriesPrompt" value="1 つのドキュメントを選択してください。" />
+    <StaticString key="SearchButtonLabel" value="移動" />
+    <StaticString key="SearchScopeAllLabel" value="利用可能なすべてのブック" />
+    <StaticString key="SearchNoResultsMessage" value="(結果なし)" />
+    <StaticString key="UseAccessibleHTML" value="グラフィックを表示できない場合の HTML サポート機能が必要ですか?" />
+    <StaticString key="BrowserNotSupported1" value="使用中のブラウザは、このページを正しく表示するために\n必要な機能をサポートしていません。 サポートされているブラウザ: \n\nWindows および UNIX 上で実行される IE4 以降\nMac 上で実行される IE5 以降\nWindows、Mac、UNIX 上で実行される Netscape 6.1 以降\nWindows、Mac、UNIX 上で実行される Netscape 4.x" />
+    <StaticString key="BrowserNotSupported2" value="" />
+    <StaticString key="BrowserNotSupported3" value="" />
+    <StaticString key="ShowNavigationIconLabel" value="ナビゲーション バーの表示" />
+    <StaticString key="Initializing" value="データを読み込んでいます。" />
+    <StaticString key="SearchSearchingStatus" value="(検索中)" />
+    <StaticString key="AccessibilityListSeparator" value="," />
+    <StaticString key="AccessibilityDocumentFrameName" value="ドキュメント" />
+    <StaticString key="AccessibilityDisabledNavigationButton" value="ボタン %s は使用できません" />
+    <StaticString key="AccessibilityPopupClickThrough" value="ソース ドキュメントに移動するには、ここをクリックします。" />
+    <StaticString key="AccessibilityJavaScriptTabsFrameName" value="%s の選択" />
+    <StaticString key="AccessibilityJavaScriptNavigationFrameName" value="%s ナビゲーション" />
+    <StaticString key="AccessibilityJavaScriptActiveTab" value="%s タブが選択されています" />
+    <StaticString key="AccessibilityJavaScriptInactiveTab" value="%s タブへの切り替え" />
+    <StaticString key="AccessibilityJavaScriptTOCBookExpanded" value="JA ブック %s が展開表示されています" />
+    <StaticString key="AccessibilityJavaScriptTOCBookCollapsed" value="JA ブック %s が折りたたまれています" />
+    <StaticString key="AccessibilityJavaScriptTOCTopic" value="JA トピック %s" />
+    <StaticString key="AccessibilityJavaScriptTOCOneOfTotal" value="JA %s/%s" />
+    <StaticString key="AccessibilityJavaScriptIndexEntry" value="JA トピック %s/ブック %s" />
+    <StaticString key="AccessibilityJavaScriptIndexSecondEntry" value="JA トピック %s/ブック %s リンク %s" />
+    <StaticString key="SeeAlsoLabel" value="JA 関連項目" />
+  </Resources>
+  <Resources locale="ko">
+    <StaticString key="ContentsTabLabel" value="컨텐츠" />
+    <StaticString key="IndexTabLabel" value="색인" />
+    <StaticString key="IndexDisplayButtonLabel" value="표시" />
+    <StaticString key="SearchTabLabel" value="검색" />
+    <StaticString key="SearchQueryLabel" value="검색어를 입력하십시오." />
+    <StaticString key="SearchScopeLabel" value="검색 범위를 선택하십시오." />
+    <StaticString key="FavoritesTabLabel" value="관심 항목" />
+    <StaticString key="FavoritesListLabel" value="페이지:" />
+    <StaticString key="FavoritesRemoveButtonLabel" value="제거" />
+    <StaticString key="FavoritesDisplayButtonLabel" value="표시" />
+    <StaticString key="FavoritesCurrentPageLabel" value="현재 페이지:" />
+    <StaticString key="FavoritesAddButtonLabel" value="추가" />
+    <StaticString key="IndexJumpDialogTitle" value="다수 항목 검색됨" />
+    <StaticString key="IndexJumpDialogCancelButtonLabel" value="취소" />
+    <StaticString key="SyncIconLabel" value="컨텐츠에서 표시" />
+    <StaticString key="PrevIconLabel" value="이전" />
+    <StaticString key="NextIconLabel" value="다음" />
+    <StaticString key="RelatedTopicsIconLabel" value="관련 항목" />
+    <StaticString key="EmailIconLabel" value="메일" />
+    <StaticString key="PrintIconLabel" value="인쇄" />
+    <StaticString key="BookmarkIconLabel" value="북마크" />
+    <StaticString key="BookmarkLinkMessage" value="링크를 마우스 오른쪽 단추로 클릭하여 북마크에 추가합니다." />
+    <StaticString key="PDFIconLabel" value="PDF" />
+    <StaticString key="TitleColumnLabel" value="제목" />
+    <StaticString key="BookColumnLabel" value="책" />
+    <StaticString key="RankColumnLabel" value="등급" />
+    <StaticString key="ContentsSyncErrorStatus" value="목차에서 현재 페이지를 찾을 수 없습니다." />
+    <StaticString key="IndexMultipleEntriesMessage" value="선택한 색인 단어 또는 구문이 여러 문서에 존재합니다." />
+    <StaticString key="IndexMultipleEntriesPrompt" value="하나를 선택하십시오." />
+    <StaticString key="SearchButtonLabel" value="검색" />
+    <StaticString key="SearchScopeAllLabel" value="모든 책" />
+    <StaticString key="SearchNoResultsMessage" value="(결과 없음)" />
+    <StaticString key="UseAccessibleHTML" value="HTML 접근 지원이 필요합니까?" />
+    <StaticString key="BrowserNotSupported1" value="웹 브라우저가 이 페이지를 올바르게 표시하는 데 \n필요한 기능을 지원하지 않습니다. 지원되는 브라우저:\n\nInternet Explorer 4 이상(Windows, UNIX )\n Internet Explorer 5 이상(Mac)\n Netscape 6.1 이상(Windows, Mac, UNIX)\n Netscape 4.x(Windows, Mac, UNIX)" />
+    <StaticString key="BrowserNotSupported2" value="" />
+    <StaticString key="BrowserNotSupported3" value="" />
+    <StaticString key="ShowNavigationIconLabel" value="네비게이션 표시" />
+    <StaticString key="Initializing" value="데이터 로드 중..." />
+    <StaticString key="SearchSearchingStatus" value="(검색 중)" />
+    <StaticString key="AccessibilityListSeparator" value="KO ," />
+    <StaticString key="AccessibilityDocumentFrameName" value="문서" />
+    <StaticString key="AccessibilityDisabledNavigationButton" value="비활성화된 단추 %s" />
+    <StaticString key="AccessibilityPopupClickThrough" value="소스 문서로 이동하려면 여기를 클릭하십시오." />
+    <StaticString key="AccessibilityJavaScriptTabsFrameName" value="%s 선택" />
+    <StaticString key="AccessibilityJavaScriptNavigationFrameName" value="%s 네비게이션" />
+    <StaticString key="AccessibilityJavaScriptActiveTab" value="%s 탭 활성" />
+    <StaticString key="AccessibilityJavaScriptInactiveTab" value="%s 탭 전환" />
+    <StaticString key="AccessibilityJavaScriptTOCBookExpanded" value="%s 책 확장" />
+    <StaticString key="AccessibilityJavaScriptTOCBookCollapsed" value="%s 책 압축" />
+    <StaticString key="AccessibilityJavaScriptTOCTopic" value="%s 항목" />
+    <StaticString key="AccessibilityJavaScriptTOCOneOfTotal" value="%s의 %s" />
+    <StaticString key="AccessibilityJavaScriptIndexEntry" value="%s 책의 %s 항목" />
+    <StaticString key="AccessibilityJavaScriptIndexSecondEntry" value="%s 책 %s 링크의 %s 항목" />
+    <StaticString key="SeeAlsoLabel" value="참조" />
+  </Resources>
+  <Resources locale="pt">
+    <StaticString key="ContentsTabLabel" value="Conteúdo" />
+    <StaticString key="IndexTabLabel" value="Índice remissivo" />
+    <StaticString key="IndexDisplayButtonLabel" value="Mostrar" />
+    <StaticString key="SearchTabLabel" value="Procurar" />
+    <StaticString key="SearchQueryLabel" value="Digite a(s) palavra(s) a ser(em) procurada(s):" />
+    <StaticString key="SearchScopeLabel" value="Escolha o escopo da pesquisa:" />
+    <StaticString key="FavoritesTabLabel" value="Favoritos" />
+    <StaticString key="FavoritesListLabel" value="Páginas:" />
+    <StaticString key="FavoritesRemoveButtonLabel" value="Remover" />
+    <StaticString key="FavoritesDisplayButtonLabel" value="Mostrar" />
+    <StaticString key="FavoritesCurrentPageLabel" value="Página atual:" />
+    <StaticString key="FavoritesAddButtonLabel" value="Adicionar" />
+    <StaticString key="IndexJumpDialogTitle" value="Mais de um tópico encontrado" />
+    <StaticString key="IndexJumpDialogCancelButtonLabel" value="Cancelar" />
+    <StaticString key="SyncIconLabel" value="Mostrar em conteúdo" />
+    <StaticString key="PrevIconLabel" value="Voltar" />
+    <StaticString key="NextIconLabel" value="Avançar" />
+    <StaticString key="RelatedTopicsIconLabel" value="Tópicos relacionados" />
+    <StaticString key="EmailIconLabel" value="E-mail" />
+    <StaticString key="PrintIconLabel" value="Imprimir" />
+    <StaticString key="BookmarkIconLabel" value="Favoritos" />
+    <StaticString key="BookmarkLinkMessage" value="Clique com o botão direito no link para adicioná-lo aos seus Favoritos." />
+    <StaticString key="PDFIconLabel" value="PDF" />
+    <StaticString key="TitleColumnLabel" value="Título" />
+    <StaticString key="BookColumnLabel" value="Livro" />
+    <StaticString key="RankColumnLabel" value="Escopo" />
+    <StaticString key="ContentsSyncErrorStatus" value="A página atual não pôde ser encontrada no Sumário." />
+    <StaticString key="IndexMultipleEntriesMessage" value="A palavra ou frase escolhida no índice remissivo consta de mais de um documento." />
+    <StaticString key="IndexMultipleEntriesPrompt" value="Escolha um." />
+    <StaticString key="SearchButtonLabel" value="Prosseguir" />
+    <StaticString key="SearchScopeAllLabel" value="Todos os livros disponíveis" />
+    <StaticString key="SearchNoResultsMessage" value="(nenhum resultado)" />
+    <StaticString key="UseAccessibleHTML" value="Precisa de suporte HTML acessível?" />
+    <StaticString key="BrowserNotSupported1" value="Seu navegador da web não suporta os recursos\nnecessários à visualização desta página. Os navegadores suportados são:\n\n IE4 e versão posterior para Windows e UNIX\n IE5 e versão posterior para Mac\n Netscape 6.1 e versão posterior para Windows, Mac e UNIX\n Netscape 4.x para Windows, Mac e UNIX" />
+    <StaticString key="BrowserNotSupported2" value="" />
+    <StaticString key="BrowserNotSupported3" value="" />
+    <StaticString key="ShowNavigationIconLabel" value="Mostrar navegação" />
+    <StaticString key="Initializing" value="Carregando dados..." />
+    <StaticString key="SearchSearchingStatus" value="(procurando)" />
+    <StaticString key="AccessibilityListSeparator" value="," />
+    <StaticString key="AccessibilityDocumentFrameName" value="Documento" />
+    <StaticString key="AccessibilityDisabledNavigationButton" value="Botão %s desativado" />
+    <StaticString key="AccessibilityPopupClickThrough" value="Clique aqui para ver o documento de origem." />
+    <StaticString key="AccessibilityJavaScriptTabsFrameName" value="Selecione %s" />
+    <StaticString key="AccessibilityJavaScriptNavigationFrameName" value="navegação %s" />
+    <StaticString key="AccessibilityJavaScriptActiveTab" value="A guia %s está ativa" />
+    <StaticString key="AccessibilityJavaScriptInactiveTab" value="Alterne para a guia %s" />
+    <StaticString key="AccessibilityJavaScriptTOCBookExpanded" value="Livro %s expandido" />
+    <StaticString key="AccessibilityJavaScriptTOCBookCollapsed" value="Livro %s recolhido" />
+    <StaticString key="AccessibilityJavaScriptTOCTopic" value="Tópico %s" />
+    <StaticString key="AccessibilityJavaScriptTOCOneOfTotal" value="%s de %s" />
+    <StaticString key="AccessibilityJavaScriptIndexEntry" value="Tópico %s do livro %s" />
+    <StaticString key="AccessibilityJavaScriptIndexSecondEntry" value="Tópico %s do livro %s, link %s" />
+    <StaticString key="SeeAlsoLabel" value="Ver também" />
+  </Resources>
+  <Resources locale="sv">
+    <StaticString key="ContentsTabLabel" value="Innehåll" />
+    <StaticString key="IndexTabLabel" value="Index" />
+    <StaticString key="IndexDisplayButtonLabel" value="Visa" />
+    <StaticString key="SearchTabLabel" value="Sök" />
+    <StaticString key="SearchQueryLabel" value="Ange de ord du vill söka efter:" />
+    <StaticString key="SearchScopeLabel" value="Välj omfattning för sökningen:" />
+    <StaticString key="FavoritesTabLabel" value="Favoriter" />
+    <StaticString key="FavoritesListLabel" value="Sidor:" />
+    <StaticString key="FavoritesRemoveButtonLabel" value="Ta bort" />
+    <StaticString key="FavoritesDisplayButtonLabel" value="Visa" />
+    <StaticString key="FavoritesCurrentPageLabel" value="Aktuell sida:" />
+    <StaticString key="FavoritesAddButtonLabel" value="Lägg till" />
+    <StaticString key="IndexJumpDialogTitle" value="Flera avsnitt hittades" />
+    <StaticString key="IndexJumpDialogCancelButtonLabel" value="Avbryt" />
+    <StaticString key="SyncIconLabel" value="Visa i innehåll" />
+    <StaticString key="PrevIconLabel" value="Föregående" />
+    <StaticString key="NextIconLabel" value="Nästa" />
+    <StaticString key="RelatedTopicsIconLabel" value="Närliggande information" />
+    <StaticString key="EmailIconLabel" value="E-post" />
+    <StaticString key="PrintIconLabel" value="Skriv ut" />
+    <StaticString key="BookmarkIconLabel" value="Bokmärke" />
+    <StaticString key="BookmarkLinkMessage" value="Högerklicka på länken om du vill lägga till den till dina bokmärken." />
+    <StaticString key="PDFIconLabel" value="PDF" />
+    <StaticString key="TitleColumnLabel" value="Rubrik" />
+    <StaticString key="BookColumnLabel" value="Bok" />
+    <StaticString key="RankColumnLabel" value="Relevans" />
+    <StaticString key="ContentsSyncErrorStatus" value="Det gick inte att hitta den aktuella sidan i innehållsförteckningen." />
+    <StaticString key="IndexMultipleEntriesMessage" value="Det indexord eller den fras du valde förekommer i flera dokument." />
+    <StaticString key="IndexMultipleEntriesPrompt" value="Välj ett dokument." />
+    <StaticString key="SearchButtonLabel" value="Visa" />
+    <StaticString key="SearchScopeAllLabel" value="Alla tillgängliga böcker" />
+    <StaticString key="SearchNoResultsMessage" value="(inga resultat)" />
+    <StaticString key="UseAccessibleHTML" value="Behöver du funktioner för Accessible HTML?" />
+    <StaticString key="BrowserNotSupported1" value="Webbläsaren innehåller inte de funktioner som krävs för\natt visa sidan på rätt sätt. Webbläsare som kan användas är:\n\n Internet Explorer 4 eller senare i Windows och UNIX\n Internet Explorer 5 eller senare i Mac OS\n Netscape 6.1 eller senare i Windows, Mac OS och UNIX\n Netscape 4.x i Windows, Mac OS och UNIX" />
+    <StaticString key="BrowserNotSupported2" value="" />
+    <StaticString key="BrowserNotSupported3" value="" />
+    <StaticString key="ShowNavigationIconLabel" value="Visa navigering" />
+    <StaticString key="Initializing" value="Läser in data..." />
+    <StaticString key="SearchSearchingStatus" value="(söker)" />
+    <StaticString key="AccessibilityListSeparator" value="," />
+    <StaticString key="AccessibilityDocumentFrameName" value="Dokument" />
+    <StaticString key="AccessibilityDisabledNavigationButton" value="Avaktiverad knapp %s" />
+    <StaticString key="AccessibilityPopupClickThrough" value="Klicka här om du vill visa källdokumentet." />
+    <StaticString key="AccessibilityJavaScriptTabsFrameName" value="Välj %s" />
+    <StaticString key="AccessibilityJavaScriptNavigationFrameName" value="%s-navigering" />
+    <StaticString key="AccessibilityJavaScriptActiveTab" value="Fliken %s är aktiv" />
+    <StaticString key="AccessibilityJavaScriptInactiveTab" value="Växla till fliken %s" />
+    <StaticString key="AccessibilityJavaScriptTOCBookExpanded" value="Boken %s maximerades" />
+    <StaticString key="AccessibilityJavaScriptTOCBookCollapsed" value="Boken %s minimerades" />
+    <StaticString key="AccessibilityJavaScriptTOCTopic" value="Avsnitt %s" />
+    <StaticString key="AccessibilityJavaScriptTOCOneOfTotal" value="%s av %s" />
+    <StaticString key="AccessibilityJavaScriptIndexEntry" value="Avsnitt %s i boken %s" />
+    <StaticString key="AccessibilityJavaScriptIndexSecondEntry" value="Avsnitt %s i boken %s, länk %s" />
+    <StaticString key="SeeAlsoLabel" value="Se även" />
+  </Resources>
+  <Resources locale="zh">
+    <StaticString key="ContentsTabLabel" value="目录" />
+    <StaticString key="IndexTabLabel" value="索引" />
+    <StaticString key="IndexDisplayButtonLabel" value="显示" />
+    <StaticString key="SearchTabLabel" value="搜索" />
+    <StaticString key="SearchQueryLabel" value="键入要搜索的单词：" />
+    <StaticString key="SearchScopeLabel" value="选择搜索范围：" />
+    <StaticString key="FavoritesTabLabel" value="收藏夹" />
+    <StaticString key="FavoritesListLabel" value="页：" />
+    <StaticString key="FavoritesRemoveButtonLabel" value="删除" />
+    <StaticString key="FavoritesDisplayButtonLabel" value="显示" />
+    <StaticString key="FavoritesCurrentPageLabel" value="当前页：" />
+    <StaticString key="FavoritesAddButtonLabel" value="添加" />
+    <StaticString key="IndexJumpDialogTitle" value="找到多个主题" />
+    <StaticString key="IndexJumpDialogCancelButtonLabel" value="取消" />
+    <StaticString key="SyncIconLabel" value="在目录中显示" />
+    <StaticString key="PrevIconLabel" value="上一页" />
+    <StaticString key="NextIconLabel" value="下一页" />
+    <StaticString key="RelatedTopicsIconLabel" value="相关主题" />
+    <StaticString key="EmailIconLabel" value="电子邮件" />
+    <StaticString key="PrintIconLabel" value="打印" />
+    <StaticString key="BookmarkIconLabel" value="书签" />
+    <StaticString key="BookmarkLinkMessage" value="右键单击链接，将其添加到书签中。" />
+    <StaticString key="PDFIconLabel" value="PDF" />
+    <StaticString key="TitleColumnLabel" value="标题" />
+    <StaticString key="BookColumnLabel" value="书籍" />
+    <StaticString key="RankColumnLabel" value="级别" />
+    <StaticString key="ContentsSyncErrorStatus" value="目录中找不到当前页。" />
+    <StaticString key="IndexMultipleEntriesMessage" value="所选的索引字词出现在多个文档中。" />
+    <StaticString key="IndexMultipleEntriesPrompt" value="请选择一个。" />
+    <StaticString key="SearchButtonLabel" value="开始！" />
+    <StaticString key="SearchScopeAllLabel" value="所有书籍" />
+    <StaticString key="SearchNoResultsMessage" value="（无结果）" />
+    <StaticString key="UseAccessibleHTML" value="您是否需要可以获得的 HTML 支持？" />
+    <StaticString key="BrowserNotSupported1" value="您的 Web 浏览器不支持正确查看本页要求的\n必需功能。 支持的浏览器有：\n\nIE4 及更高版本（Windows 和 UNIX）\nIE5 及更高版本（Mac）\nNetscape 6.1 及更高版本（Windows、Mac 和 UNIX）\nNetscape 4.x（Windows、Mac 和 UNIX）" />
+    <StaticString key="BrowserNotSupported2" value="" />
+    <StaticString key="BrowserNotSupported3" value="" />
+    <StaticString key="ShowNavigationIconLabel" value="显示导航" />
+    <StaticString key="Initializing" value="正在加载数据..." />
+    <StaticString key="SearchSearchingStatus" value="（搜索）" />
+    <StaticString key="AccessibilityListSeparator" value="," />
+    <StaticString key="AccessibilityDocumentFrameName" value="文档" />
+    <StaticString key="AccessibilityDisabledNavigationButton" value="禁用按钮 %s" />
+    <StaticString key="AccessibilityPopupClickThrough" value="单击此处进入源文档。" />
+    <StaticString key="AccessibilityJavaScriptTabsFrameName" value="选择 %s" />
+    <StaticString key="AccessibilityJavaScriptNavigationFrameName" value="%s 导航" />
+    <StaticString key="AccessibilityJavaScriptActiveTab" value="%s 标签已激活" />
+    <StaticString key="AccessibilityJavaScriptInactiveTab" value="切换至 %s 标签" />
+    <StaticString key="AccessibilityJavaScriptTOCBookExpanded" value="已展开 %s 书" />
+    <StaticString key="AccessibilityJavaScriptTOCBookCollapsed" value="已折叠 %s 书" />
+    <StaticString key="AccessibilityJavaScriptTOCTopic" value="%s 主题" />
+    <StaticString key="AccessibilityJavaScriptTOCOneOfTotal" value="第 %s，共 %s" />
+    <StaticString key="AccessibilityJavaScriptIndexEntry" value="%s 书中的 %s 主题" />
+    <StaticString key="AccessibilityJavaScriptIndexSecondEntry" value="%s 书的 %s 链接中的 %s 主题" />
+    <StaticString key="SeeAlsoLabel" value="另请参阅" />
+  </Resources>
+  <Resources locale="zh_TW">
+    <StaticString key="ContentsTabLabel" value="目錄" />
+    <StaticString key="IndexTabLabel" value="索引" />
+    <StaticString key="IndexDisplayButtonLabel" value="顯示" />
+    <StaticString key="SearchTabLabel" value="搜尋" />
+    <StaticString key="SearchQueryLabel" value="輸入要搜尋文字：" />
+    <StaticString key="SearchScopeLabel" value="選擇搜尋範圍：" />
+    <StaticString key="FavoritesTabLabel" value="最愛" />
+    <StaticString key="FavoritesListLabel" value="網頁：" />
+    <StaticString key="FavoritesRemoveButtonLabel" value="移除" />
+    <StaticString key="FavoritesDisplayButtonLabel" value="顯示" />
+    <StaticString key="FavoritesCurrentPageLabel" value="目前網頁：" />
+    <StaticString key="FavoritesAddButtonLabel" value="新增" />
+    <StaticString key="IndexJumpDialogTitle" value="找到多個主題" />
+    <StaticString key="IndexJumpDialogCancelButtonLabel" value="取消" />
+    <StaticString key="SyncIconLabel" value="顯示在目錄中" />
+    <StaticString key="PrevIconLabel" value="上一頁" />
+    <StaticString key="NextIconLabel" value="下一頁" />
+    <StaticString key="RelatedTopicsIconLabel" value="相關主題" />
+    <StaticString key="EmailIconLabel" value="電子郵件" />
+    <StaticString key="PrintIconLabel" value="列印" />
+    <StaticString key="BookmarkIconLabel" value="書籤" />
+    <StaticString key="BookmarkLinkMessage" value="右鍵按一下連結，將它加入到書籤中。" />
+    <StaticString key="PDFIconLabel" value="PDF" />
+    <StaticString key="TitleColumnLabel" value="標題" />
+    <StaticString key="BookColumnLabel" value="書名" />
+    <StaticString key="RankColumnLabel" value="關聯性" />
+    <StaticString key="ContentsSyncErrorStatus" value="目錄中找不到目前網頁。" />
+    <StaticString key="IndexMultipleEntriesMessage" value="您選擇的文字或詞彙出現在多個文件中。" />
+    <StaticString key="IndexMultipleEntriesPrompt" value="請選擇其中一項。" />
+    <StaticString key="SearchButtonLabel" value="開始！" />
+    <StaticString key="SearchScopeAllLabel" value="所有可用書籍" />
+    <StaticString key="SearchNoResultsMessage" value="(沒有結果)" />
+    <StaticString key="UseAccessibleHTML" value="您是否需要 HTML 協助功能支援？" />
+    <StaticString key="BrowserNotSupported1" value="Web 瀏覽器不支援正確檢視本頁需要的功能。 支援的瀏覽器包括：\n\n Windows 與 UNIX 上支援 IE 4 或更新版本\n Mac 上支援 IE5 或更新版本\n Windows、Mac 與 UNIX 上支援 Netscape 6.1\n Windows、Mac 與 UNIX 上支援 Netscape 4.x" />
+    <StaticString key="BrowserNotSupported2" value="" />
+    <StaticString key="BrowserNotSupported3" value="" />
+    <StaticString key="ShowNavigationIconLabel" value="顯示導覽" />
+    <StaticString key="Initializing" value="載入資料..." />
+    <StaticString key="SearchSearchingStatus" value="(搜尋中)" />
+    <StaticString key="AccessibilityListSeparator" value="，" />
+    <StaticString key="AccessibilityDocumentFrameName" value="文件" />
+    <StaticString key="AccessibilityDisabledNavigationButton" value="停用的按鈕 %s" />
+    <StaticString key="AccessibilityPopupClickThrough" value="按一下這裡，跳至來源文件。" />
+    <StaticString key="AccessibilityJavaScriptTabsFrameName" value="選擇 %s" />
+    <StaticString key="AccessibilityJavaScriptNavigationFrameName" value="%s 瀏覽" />
+    <StaticString key="AccessibilityJavaScriptActiveTab" value="%s 標籤已啟用" />
+    <StaticString key="AccessibilityJavaScriptInactiveTab" value="切換到 %s 標籤" />
+    <StaticString key="AccessibilityJavaScriptTOCBookExpanded" value="書籍 %s 已展開" />
+    <StaticString key="AccessibilityJavaScriptTOCBookCollapsed" value="書籍 %s 已折疊" />
+    <StaticString key="AccessibilityJavaScriptTOCTopic" value="主題 %s" />
+    <StaticString key="AccessibilityJavaScriptTOCOneOfTotal" value="%s / %s" />
+    <StaticString key="AccessibilityJavaScriptIndexEntry" value="主題 %s，書籍 %s" />
+    <StaticString key="AccessibilityJavaScriptIndexSecondEntry" value="主題 %s，書籍 %s 連結 %s" />
+    <StaticString key="SeeAlsoLabel" value="另請參閱" />
+  </Resources>
+  <Resources locale="ru">
+    <StaticString key="ContentsTabLabel" value="Содержание" />
+    <StaticString key="IndexTabLabel" value="Указатель" />
+    <StaticString key="IndexDisplayButtonLabel" value="Показать" />
+    <StaticString key="SearchTabLabel" value="Поиск" />
+    <StaticString key="SearchQueryLabel" value="Введите слово (слова) для поиска:" />
+    <StaticString key="SearchScopeLabel" value="Выберите область поиска:" />
+    <StaticString key="FavoritesTabLabel" value="Избранное" />
+    <StaticString key="FavoritesListLabel" value="Страницы:" />
+    <StaticString key="FavoritesRemoveButtonLabel" value="Удалить" />
+    <StaticString key="FavoritesDisplayButtonLabel" value="Показать" />
+    <StaticString key="FavoritesCurrentPageLabel" value="Текущая страница:" />
+    <StaticString key="FavoritesAddButtonLabel" value="Добавить" />
+    <StaticString key="IndexJumpDialogTitle" value="Обнаружено несколько разделов" />
+    <StaticString key="IndexJumpDialogCancelButtonLabel" value="Отмена" />
+    <StaticString key="SyncIconLabel" value="Показать в содержании" />
+    <StaticString key="PrevIconLabel" value="Назад" />
+    <StaticString key="NextIconLabel" value="Далее" />
+    <StaticString key="RelatedTopicsIconLabel" value="Дополнительная информация" />
+    <StaticString key="EmailIconLabel" value="Электронная почта" />
+    <StaticString key="PrintIconLabel" value="Печать" />
+    <StaticString key="BookmarkIconLabel" value="Закладка" />
+    <StaticString key="BookmarkLinkMessage" value="Щелкните на ссылке правой кнопкой мыши и добавьте ее к закладкам." />
+    <StaticString key="PDFIconLabel" value="PDF" />
+    <StaticString key="TitleColumnLabel" value="Заголовок" />
+    <StaticString key="BookColumnLabel" value="Том" />
+    <StaticString key="RankColumnLabel" value="Ранг" />
+    <StaticString key="ContentsSyncErrorStatus" value="Невозможно найти в оглавлении текущую страницу." />
+    <StaticString key="IndexMultipleEntriesMessage" value="Выбранное слово (фраза) из указателя содержится в нескольких документах." />
+    <StaticString key="IndexMultipleEntriesPrompt" value="Выберите одни документ." />
+    <StaticString key="SearchButtonLabel" value="Начать" />
+    <StaticString key="SearchScopeAllLabel" value="Все доступные тома" />
+    <StaticString key="SearchNoResultsMessage" value="(нет результатов)" />
+    <StaticString key="UseAccessibleHTML" value="Требуется ли доступ к средству поддержки HTML?" />
+    <StaticString key="BrowserNotSupported1" value="Используемый web-браузер не поддерживает функции,\nнеобходимые для правильного просмотра этой страницы.  Эти функции поддерживаются следующими браузерами:\n\n  IE4 и более поздние версии для Windows и UNIX\n  IE5 и более поздние версии для Mac\n  Netscape 6.1 и более поздние версии для Windows, Mac и UNIX\n  Netscape 4.x для Windows, Mac и UNIX" />
+    <StaticString key="BrowserNotSupported2" value="" />
+    <StaticString key="BrowserNotSupported3" value="" />
+    <StaticString key="ShowNavigationIconLabel" value="Показать панель навигации" />
+    <StaticString key="Initializing" value="Выполняется загрузка данных..." />
+    <StaticString key="SearchSearchingStatus" value="(поиск)" />
+    <StaticString key="AccessibilityListSeparator" value="," />
+    <StaticString key="AccessibilityDocumentFrameName" value="Документ" />
+    <StaticString key="AccessibilityDisabledNavigationButton" value="Отключена кнопка %s" />
+    <StaticString key="AccessibilityPopupClickThrough" value="Щелкните здесь для перехода к исходному документу." />
+    <StaticString key="AccessibilityJavaScriptTabsFrameName" value="Выбрать %s" />
+    <StaticString key="AccessibilityJavaScriptNavigationFrameName" value="Навигация %s" />
+    <StaticString key="AccessibilityJavaScriptActiveTab" value="Вкладка %s активна" />
+    <StaticString key="AccessibilityJavaScriptInactiveTab" value="Перейти на вкладку %s" />
+    <StaticString key="AccessibilityJavaScriptTOCBookExpanded" value="Том %s развернут" />
+    <StaticString key="AccessibilityJavaScriptTOCBookCollapsed" value="Том %s свернут" />
+    <StaticString key="AccessibilityJavaScriptTOCTopic" value="Раздел %s" />
+    <StaticString key="AccessibilityJavaScriptTOCOneOfTotal" value="%s из %s" />
+    <StaticString key="AccessibilityJavaScriptIndexEntry" value="Раздел %s в томе %s" />
+    <StaticString key="AccessibilityJavaScriptIndexSecondEntry" value="Ссылкка %s на раздел %s в томе %" />
+    <StaticString key="SeeAlsoLabel" value="См. также" />
+  </Resources>
+</WebWorksHelpMessages>

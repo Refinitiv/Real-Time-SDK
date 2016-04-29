@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>420__MarketPrice__AdminDomainConfig</title>
+    <link rel="StyleSheet" href="css/EMAJ_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H2_NoNum"><a name="1019298">420__MarketPrice__AdminDomainConfig</a></div>
+      <div class="Body"><a name="1028232">Summary</a></div>
+      <div class="Body"><a name="1028233">=======</a></div>
+      <div class="Body"><a name="1028234">&nbsp;</a></div>
+      <div class="Body"><a name="1028235">The example420__MarketPrice__AdminDomainConfig application is provided as</a></div>
+      <div class="Body"><a name="1028236">an example of OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1028237">&nbsp;</a></div>
+      <div class="Body"><a name="1028238">This application demonstrates basic usage of the EMA library while specifying</a></div>
+      <div class="Body"><a name="1028239">Administrative domain messages to override default EMA behaviour, for accessing</a></div>
+      <div class="Body"><a name="1028240">and parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1028241">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1028242">Distribution Server.</a></div>
+      <div class="Body"><a name="1028243">&nbsp;</a></div>
+      <div class="Body"><a name="1028244">example420__MarketPrice__AdminDomainConfig showcases customization of the default EMA</a></div>
+      <div class="Body"><a name="1028245">behaviour with respect to the administrative domains. EMA defaults login request</a></div>
+      <div class="Body"><a name="1028246">as well as directory and dictionary request. Using the addAdminMsg() method, users</a></div>
+      <div class="Body"><a name="1028247">are able to modify the EMA to suite their needs and preferences.</a></div>
+      <div class="Body"><a name="1028248">&nbsp;</a></div>
+      <div class="Body"><a name="1028249">&nbsp;</a></div>
+      <div class="Body"><a name="1028250">Detailed Description</a></div>
+      <div class="Body"><a name="1028251">====================</a></div>
+      <div class="Body"><a name="1028252">&nbsp;</a></div>
+      <div class="Body"><a name="1028253">example420__MarketPrice__AdminDomainConfig implements the following high level steps:</a></div>
+      <div class="Body"><a name="1028254">&nbsp;</a></div>
+      <div class="Body"><a name="1028255">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1028256">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1028257">  - provides own methods as needed</a></div>
+      <div class="Body"><a name="1028258">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1028259">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1028260">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1028261">  - sets request message for Login domain to override default</a></div>
+      <div class="Body"><a name="1028262">  - sets request message for Directory domain to override default</a></div>
+      <div class="Body"><a name="1028263">  - sets request message for Dictionary domain to override default</a></div>
+      <div class="Body"><a name="1028264">  - sets operationModel to OperationModel.USER_DISPATCH</a></div>
+      <div class="Body"><a name="1028265">+ Instantiates OmmConsumer object which initializes connection and logins into</a></div>
+      <div class="Body"><a name="1028266">  the specified server</a></div>
+      <div class="Body"><a name="1028267">+ Opens a streaming item interest</a></div>
+      <div class="Body"><a name="1028268">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1028269">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1028270">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1028271">+ Exits</a></div>
+      <div class="Body"><a name="1028272">&nbsp;</a></div>
+      <div class="Body"><a name="1028273">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1028274">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1028275">	  </a></div>
+      <div class="Body"><a name="1028276">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1028277">      standard configuration.</a></div>
+      <div class="Body"><a name="1026469">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Readmes.1.32.html">400 Series Examples</a> : 420__MarketPrice__AdminDomainConfig</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

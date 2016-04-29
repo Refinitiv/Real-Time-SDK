@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>Specific Usage: RDF Direct and Response Message Payload</title>
+    <link rel="StyleSheet" href="css/EMAJ_RDMUsageGuide.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="Heading_2_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Heading_2_inner" style="width: 54pt; white-space: nowrap">
+                <span style="color: #666666; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">7.5	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Heading_2_inner"><a name="9003036">Specific Usage: RDF Direct and Response Message Payload</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Normal"><a name="9003037">RDF Direct uses MarketByOrder for several markets, including NASDAQ TotalView, Archipelago ECN order book, and Instinet ECN order book.</a></div>
+      <div class="Normal"><a name="9003038">The payload is a </a><span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Map</span>. Each Refresh for this <span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Map</span> includes SummaryData and a single <span class="Char_Code" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">MapEntry</span>. Updates are not sent for any map entry until after thea message is sent with <span class="Char_LucidaConsole" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">RefreshMsg.Complete</span> set to <span class="Char_Parameter" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">true</span>. Since each resposne message includes only one map entry, DataDefinitions are not used to reduce bandwidth. The <span class="Char_LucidaConsole" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Map.TotalCountHint</span> is not provided.</div>
+      <div class="Normal"><a name="9003039">The </a><span class="Char_LucidaConsole" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Map.SummaryData</span> is sent in every Refresh, even if it does not change. The fields used are from the RWFFld Field Dictionary:</div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #FF9100">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="9003040">PROD_PERM (1): Integer for permission information</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #FF9100">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="9003041">CURRENCY (15): Enumeration of currency for the orders</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #FF9100">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="9003042">TRD_UNITS (53): Enumeration of trade Units for the precision for which order prices are set</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #FF9100">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="9003043">MKT_ST_IND (133): Enumeration of market state</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #FF9100">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="9003044">RDN_EXCHD2 (1709): Enumeration of exchange on which the orders were placed</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #FF9100">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="9003045">PR_RNK_RUL (3423): Enumeration of price ranking rules</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #FF9100">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="9003046">OR_RNK_RUL (3425): Enumeration of order ranking rules</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #FF9100">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="9003047">STOCK_RIC (1026): RIC of the underlying equity</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Normal"><a name="9003048">The </a><span class="Char_LucidaConsole" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">MapEntry.Key</span> is a Buffer that contains the Order ID. The <span class="Char_LucidaConsole" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Map.KeyFieldId</span> is not set, but this may be changed in the future.</div>
+      <div class="Normal"><a name="9003049">The </a><span class="Char_LucidaConsole" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">MapEntry.Data</span> is a field list that contains some or all of the following information about the order:</div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #FF9100">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="9003050">ORDER_PRC (3427) &amp; ORDER_SIDE (3428): Real and Enumeration for the order price &amp; side (buy or sell/bid or ask)</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #FF9100">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="9003051">ORDER_SIZE (3429): Real for the order size</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #FF9100">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="9003052">ORDER_ID (3426): Same value as the </a><span class="Char_Parameter" style="font-weight: normal">MapEntry.KeyData</span>. This may be removed in the future by setting the <span class="Char_LucidaConsole" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Map.KeyFieldId</span> to ORDER_ID (3426).</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #FF9100">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="9003053">QUOTIM_MS (3855): Quote Time in millisecond since GMT of the current day in the GMT time zone</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Normal"><a name="9003054">The </a><span class="Char_Parameter" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">FieldList.DictId</span> is <span class="Char_Parameter" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">0</span>, so it should be ignored.</div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_RDMUsageGuide.1.103.html">Chapter 7	MarketByOrder Domain</a> : Specific Usage: RDF Direct and Response Message Payload</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>340__MarketPrice__OnStreamPost</title>
+    <link rel="StyleSheet" href="css/EMAJ_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H2_NoNum"><a name="1020352">340__MarketPrice__OnStreamPost</a></div>
+      <div class="Body"><a name="1027956">Summary</a></div>
+      <div class="Body"><a name="1027957">=======</a></div>
+      <div class="Body"><a name="1027958">&nbsp;</a></div>
+      <div class="Body"><a name="1027959">The example340__MarketPrice__OnStreamPost application is provided as an example of</a></div>
+      <div class="Body"><a name="1027960">OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1027961">&nbsp;</a></div>
+      <div class="Body"><a name="1027962">This application demonstrates basic usage of the EMA library for accessing,</a></div>
+      <div class="Body"><a name="1027963">posting and parsing of MarketPrice data directly directly from and to an OMM</a></div>
+      <div class="Body"><a name="1027964">Provider application, or to Thomson Reuters Advanced Distribution Server.</a></div>
+      <div class="Body"><a name="1027965">&nbsp;</a></div>
+      <div class="Body"><a name="1027966">example340__MarketPrice__OnStreamPost showcases the usage of on stream posting</a></div>
+      <div class="Body"><a name="1027967">feature in OMM Consumer. It submits OMM Data for the open item and processes</a></div>
+      <div class="Body"><a name="1027968">a requested AckMsg when received.</a></div>
+      <div class="Body"><a name="1027969">&nbsp;</a></div>
+      <div class="Body"><a name="1027970">&nbsp;</a></div>
+      <div class="Body"><a name="1027971">Detailed Description</a></div>
+      <div class="Body"><a name="1027972">====================</a></div>
+      <div class="Body"><a name="1027973">&nbsp;</a></div>
+      <div class="Body"><a name="1027974">example340__MarketPrice__OnStreamPost implements the following high level steps:</a></div>
+      <div class="Body"><a name="1027975">&nbsp;</a></div>
+      <div class="Body"><a name="1027976">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1027977">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1027978">  - provides own methods as needed, e.g. decode( FieldList )</a></div>
+      <div class="Body"><a name="1027979">  - each of the methods provided in this example use the ease of use</a></div>
+      <div class="Body"><a name="1027980">    data extraction methods that are data type specific</a></div>
+      <div class="Body"><a name="1027981">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1027982">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1027983">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1027984">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1027985">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1027986">+ Opens a streaming item interests</a></div>
+      <div class="Body"><a name="1027987">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1027988">+ Sends a PostMsg with FieldList as payload on this stream</a></div>
+      <div class="Body"><a name="1027989">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1027990">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1027991">  - application may receive RespMsg as well as AckMsg</a></div>
+      <div class="Body"><a name="1027992">+ Exits</a></div>
+      <div class="Body"><a name="1027993">&nbsp;</a></div>
+      <div class="Body"><a name="1027994">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1027995">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1027996">	  </a></div>
+      <div class="Body"><a name="1027997">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1027998">      standard configuration.</a></div>
+      <div class="Body"><a name="1026178">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Readmes.1.20.html">300 Series Examples</a> : 340__MarketPrice__OnStreamPost</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>
