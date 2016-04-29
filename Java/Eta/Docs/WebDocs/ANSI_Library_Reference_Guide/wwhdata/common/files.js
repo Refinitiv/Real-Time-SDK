@@ -1,0 +1,41 @@
+function  WWHBookData_Files(P)
+{
+P.fA("Chapter 1 ANSI Library Introduction","Anside_user1.1.1.html");
+P.fA("1.1 Overview","Anside_user1.1.2.html");
+P.fA("1.2 Audience","Anside_user1.1.3.html");
+P.fA("1.3 Organization of Manual","Anside_user1.1.4.html");
+P.fA("1.4 Additional References","Anside_user1.1.5.html");
+P.fA("1.5 Conventions","Anside_user1.1.6.html");
+P.fA("1.5.2 Programming","Anside_user1.1.7.html");
+P.fA("1.5.3 Diagrams","Anside_user1.1.8.html");
+P.fA("1.6 Glossary","Anside_user1.1.9.html");
+P.fA("Chapter 2 Architecture","Anside_user2.2.1.html");
+P.fA("2.1 Feature Overview","Anside_user2.2.2.html");
+P.fA("2.2 AnsiPage API Interfaces","Anside_user2.2.3.html");
+P.fA("2.3 Error Handling","Anside_user2.2.4.html");
+P.fA("2.3.2 Exceptions","Anside_user2.2.5.html");
+P.fA("2.4 Threading Support","Anside_user2.2.6.html");
+P.fA("2.5 Scrolling Support","Anside_user2.2.7.html");
+P.fA("2.6 Unsupported ANSI Features","Anside_user2.2.8.html");
+P.fA("Chapter 3 AnsiPage Data Formats","Anside_user3.3.01.html");
+P.fA("3.1 Overview","Anside_user3.3.02.html");
+P.fA("3.2 Introducer Sequence","Anside_user3.3.03.html");
+P.fA("3.3 Cursor Control Sequences","Anside_user3.3.04.html");
+P.fA("3.4 Scrolling Sequences","Anside_user3.3.05.html");
+P.fA("3.4.1 Margins","Anside_user3.3.06.html");
+P.fA("3.4.2 Movement","Anside_user3.3.07.html");
+P.fA("3.5 Mode Control Sequences","Anside_user3.3.08.html");
+P.fA("3.5.1 Mode Control Sequence Types","Anside_user3.3.09.html");
+P.fA("3.5.2 Mode Control Sequences","Anside_user3.3.10.html");
+P.fA("3.6 Display Editing Control Sequences","Anside_user3.3.11.html");
+P.fA("3.7 Graphic Selection Sequences","Anside_user3.3.12.html");
+P.fA("3.8 Character Attribute Sequences","Anside_user3.3.13.html");
+P.fA("3.9 Character and Line Sizing","Anside_user3.3.14.html");
+P.fA("3.9.1 DEC Private Sequences","Anside_user3.3.15.html");
+P.fA("3.9.2 Rich Private Sequences","Anside_user3.3.16.html");
+P.fA("3.10 Miscellaneous Sequences","Anside_user3.3.17.html");
+P.fA("3.10.1 Control Characters","Anside_user3.3.18.html");
+P.fA("3.10.2 Controls","Anside_user3.3.19.html");
+P.fA("Appendix A Programming Hints and Tips","Ansidec_AppA.html");
+P.fA("\u00a9 2016 Thomson Reuters. All rights reserved.","lastpg.html");
+}

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>2.2.2 ANSI Encode</title>
+    <link rel="StyleSheet" href="css/Anside_user2.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Transport API C Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Transport API C Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3"><a name="187408">ANSI Encode</a></div>
+      <div class="Body"><a name="187409">When the content of one or more regions of a page change, the application updates the page image directly, keeping track of the positions changed in the update list. The application then calls the </a><span class="CodeOrCommand">qa_encode()</span> function with the <span class="CodeOrCommand">PAGETYP</span> and <span class="CodeOrCommand">LISTTYP</span> data structures that reflect the current state of the page and the areas which were updated. <span class="CodeOrCommand">qa_encode()</span> generates a string containing the ANSI sequences required to communicate the changes to an TREP consumer application.</div>
+      <div class="Body"><a name="187410">The function permits multiple “passes” to manage updates that exceed the size of the update string buffer. It uses a field within the </a><span class="CodeOrCommand">PAGETYP</span> structure, <span class="Parameter">last_mod</span>, to save the state between passes. This field must be reset to the value <span class="Parameter">-1</span> before the function is called with a new update.</div>
+      <div class="Body"><a name="187673">The size of the </a><span class="CodeOrCommand">CHARTYP</span> buffer pointed to by the <span class="CodeOrCommand">PAGETYP</span> data structure (i.e. the page size that the ANSI Library function operates on) is communicated to the ANSI Library by the functions <span class="CodeOrCommand">qa_set_rows()</span><span style="font-weight: bold"> </span>and<span style="font-weight: bold"> </span><span class="CodeOrCommand">qa_set_columns()</span>. These functions define the user application’s page size in rows and columns. The <span class="CodeOrCommand">CHARTYP</span> buffer referenced by <span class="CodeOrCommand">qa_encode()</span><span style="font-weight: bold"> </span>(as well as <span class="CodeOrCommand">qa_decode()</span> and <span class="CodeOrCommand">qa_reset()</span>)<span style="font-weight: bold"> </span>must correspond to this page size. </div>
+      <div class="Body"><a name="187674">Page size is maintained statically by the ANSI library. Once the page size has been set, one need only call </a><span class="CodeOrCommand">qa_set_rows()</span><span style="font-weight: bold"> </span>and<span style="font-weight: bold"> </span><span class="CodeOrCommand">qa_set_columns()</span><span style="font-weight: bold"> </span>when the page size changes. The default page size is 25 rows by 80 columns. If a user’s page size is always 25 rows by 80 columns, the <span class="CodeOrCommand">qa_set_rows()</span><span style="font-weight: bold"> </span>and<span style="font-weight: bold"> </span><span class="CodeOrCommand">qa_set_columns()</span><span style="font-weight: bold"> </span>functions<span style="font-weight: bold"> </span>need not be called.</div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="Anside_user2.2.1.html">Chapter 2	Data Structures</a> : <a class="WebWorks_Breadcrumb_Link" href="Anside_user2.2.6.html">2.2	Using Data Structures</a> : 2.2.2	ANSI Encode</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>12.1.3.1 Stream Comparison</title>
+    <link rel="StyleSheet" href="css/Chap_MsgPackage_DetailedView.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Transport API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Transport API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H4"><a name="1002067">Stream Comparison</a></div>
+      <div class="Body"><a name="1156745">To most efficiently use a connection’s bandwidth, Thomson Reuters recommends that you combine like streams when possible. Two streams are identical when all identifying aspects match - that is the two streams have the same </a><span class="CodeOrCommand">domainType</span>, provided QoS, and all <span class="CodeOrCommand">msgKey</span> members. When these message members match, a new stream should not be established, rather the existing stream and <span class="CodeOrCommand">streamId</span> should be leveraged to consume or provide this content.</div>
+      <div class="Body"><a name="1156749">A consumer application can issue a subsequent </a><span class="CodeOrCommand">RequestMsg</span> using the existing <span class="CodeOrCommand">streamId</span>, referred to as a <span class="Concept">reissue</span>. This allows the consumer application to obtain an additional refresh, if desired, and to indicate a change in the priority of the stream. The additional solicited <span class="CodeOrCommand">RefreshMsg</span> can satisfy the additional request, and any <span class="CodeOrCommand">StatusMsg</span>, <span class="CodeOrCommand">UpdateMsg</span>, and <span class="CodeOrCommand">GenericMsg</span> content can be provided to both requestors, if different. This behavior is called fan-out and is the responsibility of the consumer application when combining multiple like-streams into a single stream.</div>
+      <div class="Body"><a name="1156762">A provider application can choose to allow multiple like-streams to be simultaneously established or, more commonly, it can reject any subsequent requests on a different </a><span class="CodeOrCommand">streamId</span> using an <span class="CodeOrCommand">StatusMsg</span>. In this case, the <span class="CodeOrCommand">StatusMsg</span> would contain a <span class="CodeOrCommand">streamState</span> of <span class="CodeOrCommand">StreamStates.CLOSED_RECOVER</span>, a <span class="CodeOrCommand">dataState</span> of <span class="CodeOrCommand">DataStates.SUSPECT</span>, and a state <span class="CodeOrCommand">code</span> of <span class="CodeOrCommand">StateCodes.ALREADY_OPEN</span>. This status message informs the consumer that they already have a stream open for this information and that they should use the existing <span class="CodeOrCommand">streamId</span> when re-requesting this content. For more details about the state information, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.016.html', '');" title="11.2.6 State">Section 11.2.6</a>.</div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_MsgPackage_DetailedView.12.01.html">Chapter 12	Message Package Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_MsgPackage_DetailedView.12.02.html">12.1	Concepts</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_MsgPackage_DetailedView.12.10.html">12.1.3	Stream Identification</a> : 12.1.3.1	Stream Comparison</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>12.1.3.3 Changeable Stream Attributes</title>
+    <link rel="StyleSheet" href="css/Chap_MsgPackage_DetailedView.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Transport API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Transport API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H4"><a name="1002096">Changeable Stream Attributes</a></div>
+      <div class="Body"><a name="1156799">A select number of attributes may change during the life of a stream. A consumer can change attributes via a subsequent </a><span class="CodeOrCommand">RequestMsg</span> that uses the same <span class="CodeOrCommand">streamId</span> as previous requests. An Interactive or NIP can change attributes via a subsequent solicited or unsolicited <span class="CodeOrCommand">RefreshMsg</span>.</div>
+      <div class="Body"><a name="1156806">The message key’s </a><span class="CodeOrCommand">filter</span> member, though not typical, can change between the consumer request and provider response. A change is likely due to a difference between the filter entries for which the consumer asks and the filter entries that the provider can provide. If this behavior is allowed within a domain, it is defined on a per-domain model basis. More information should be present as part of the specific domain model definition.</div>
+      <div class="Body"><a name="1156807">Contents of the message key’s </a><span class="CodeOrCommand">enc</span><span class="CodeOrCommand">oded</span><span class="CodeOrCommand">Attrib</span> may change. If this behavior is allowed within a domain, it is defined on a per-domain model basis. More information should be present as part of the specific domain model definition.</div>
+      <div class="Body"><a name="1156811">A consumer can change the </a><span class="CodeOrCommand">priorityClass</span> or <span class="CodeOrCommand">priorityCount</span> via a subsequent <span class="CodeOrCommand">RequestMsg</span> to indicate more or less interest in a stream. For more information, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MessagesAdvancedConcepts.13.03.html', '');" title="13.2 Stream Priority">Section 13.2</a>.</div>
+      <div class="Body"><a name="1156821">If a QoS range is requested, the provided </a><span class="CodeOrCommand">RefreshMsg</span> includes only the concrete QoS, which may be different from the best and worst specified. If a <span class="CodeOrCommand">dynamic</span> QoS is supported, QoS may occasionally change over the life of the stream, however this should stay within the range requested in <span class="CodeOrCommand">RequestMsg</span>.</div>
+      <div class="Body"><a name="1156825">An item’s identification might also change, which can result in changes to multiple </a><span class="CodeOrCommand">msgKey</span> members. Such a case can occur via a <span class="Concept">redirect</span>, a <span class="CodeOrCommand">RefreshMsg</span> or <span class="CodeOrCommand">StatusMsg</span> with a <span class="CodeOrCommand">streamState</span> of <span class="CodeOrCommand">StreamState.REDIRECTED</span> (for more information on the redirected state value, refer to see <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.018.html', '');" title="11.2.6.2 StreamStates Values">Section 11.2.6.2</a>). The user can determine the original item identification from the <span class="CodeOrCommand">msgKey</span> information previously associated with the <span class="CodeOrCommand">streamId</span> contained in the redirect message. The new item identification that should be requested is provided via the redirect’s <span class="CodeOrCommand">msgKey</span> member. When a redirect occurs, the stream closes. At this point, the user can open a new stream and continue the flow of data by issuing a new <span class="CodeOrCommand">RequestMsg</span>, containing the redirected <span class="CodeOrCommand">msgKey</span>.</div>
+      <div class="Body"><a name="1156844">Some </a><span class="CodeOrCommand">RequestMsg.flag</span> values are allowed to change over the life of a stream. These values include the <span class="CodeOrCommand">RequestMsgFlags.PAUSE</span> and <span class="CodeOrCommand">RequestMsgFlags.STREAMING</span> flags, used when pausing or resuming content flow on a stream. For more details, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MessagesAdvancedConcepts.13.11.html', '');" title="13.6 Pause and Resume">Section 13.6</a>. Additionally, the <span class="CodeOrCommand">RequestMsgFlags.NO_REFRESH</span> flag can be changed. This allows subsequent reissue requests to be performed where the user does not require a response - this can be useful for a reissue to change the priority of a stream.</div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_MsgPackage_DetailedView.12.01.html">Chapter 12	Message Package Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_MsgPackage_DetailedView.12.02.html">12.1	Concepts</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_MsgPackage_DetailedView.12.10.html">12.1.3	Stream Identification</a> : 12.1.3.3	Changeable Stream Attributes</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

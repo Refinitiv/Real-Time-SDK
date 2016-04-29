@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>6.6.8.3 Submitting Content on a Tunnel Stream Code Sample</title>
+    <link rel="StyleSheet" href="css/ETAJ_ValueAddDevGuide.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Transport API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Transport API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="Heading_4"><a name="9002013">Submitting Content on a Tunnel Stream Code Sample</a></div>
+      <div class="Normal"><a name="9002014">The following code sample illustrates writing opaque content to a tunnel stream. You can combine this example with the QueueData message samples in subsequent chapters to send content to a Queue Provider.</a></div>
+      <div class="Code"><a name="9002015">&nbsp;</a></div>
+      <div class="Code"><a name="9002016">int submitMessage()</a></div>
+      <div class="Code"><a name="9002017">{</a></div>
+      <div class="Code"><a name="9002018">	TunnelStreamSubmitOptions _submitOpts = ReactorFactory.createTunnelStreamSubmitOptions();	</a></div>
+      <div class="Code"><a name="9002019">&nbsp;</a></div>
+      <div class="Code"><a name="9002020">	// gets a buffer of 50 bytes to put content into.</a></div>
+      <div class="Code"><a name="9002021">	TransportBuffer _buffer = tunnelStream.getBuffer(50, _errorInfo);</a></div>
+      <div class="Code"><a name="9002022">&nbsp;</a></div>
+      <div class="Code"><a name="9002023">	// put generic content into the buffer</a></div>
+      <div class="Code"><a name="9002024">	_buffer.data().put(“Hello World!”);</a></div>
+      <div class="Code"><a name="9002025">	</a><span class="Char_Blue" style="color: navy; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">_submitOpts</span>.containerType(DataTypes.<span class="Char_Blue_Italics" style="color: navy; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">OPAQUE</span>);</div>
+      <div class="Code"><a name="9002026">&nbsp;</a></div>
+      <div class="Code"><a name="9002027">	if ((tunnelStream.submit(_buffer, _submitOpts, _errorInfo)) != ReactorReturnCodes.SUCCESS)</a></div>
+      <div class="Code"><a name="9002028">	{</a></div>
+      <div class="Code"><a name="9002029">		System.out.println(“Content submission failed!”);</a></div>
+      <div class="Code"><a name="9002030">		// Because submission failed, we need to return the buffer to the tunnel stream</a></div>
+      <div class="Code"><a name="9002031">		tunnelStream.releaseBuffer(_buffer, _errorInfo);</a></div>
+      <div class="Code"><a name="9002032">&nbsp;</a></div>
+      <div class="Code"><a name="9002033">		return ReactorReturnCodes.FAILURE;</a></div>
+      <div class="Code"><a name="9002034">	}</a></div>
+      <div class="Code"><a name="9002035">	</a></div>
+      <div class="Code"><a name="9002036">	System.out.println(“Content submission succeeded!”);</a></div>
+      <div class="Code"><a name="9002037">	// Thanks to successful submission, we do not need to release the buffer because the Reactor will.</a></div>
+      <div class="Code"><a name="9002038">	return ReactorReturnCodes.SUCCESS;</a></div>
+      <div class="Code"><a name="9002039">}</a></div>
+      <div class="Code"><a name="9002040">&nbsp;</a></div>
+      <div class="Caption"><a name="9002041">Code Example 14: Submitting Content on a Tunnel Stream</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="ETAJ_ValueAddDevGuide.1.049.html">Chapter 6	Reactor Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="ETAJ_ValueAddDevGuide.1.102.html">6.6	Creating and Using Tunnel Streams</a> : <a class="WebWorks_Breadcrumb_Link" href="ETAJ_ValueAddDevGuide.1.125.html">6.6.8	Sending Content on a TunnelStream</a> : 6.6.8.3	Submitting Content on a Tunnel Stream Code Sample</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

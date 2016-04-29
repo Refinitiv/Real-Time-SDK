@@ -1,0 +1,475 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WebWorksHelpTOC version="5.0" xmlns="urn:WebWorks-Help-TOC-Schema">
+  <i t="Chapter 1 Transport API Developers Guide Introduction" l="0">
+    <i t="1.1 About this Manual" l="1" />
+    <i t="1.2 Audience" l="2" />
+    <i t="1.3 Programming Language" l="3" />
+    <i t="1.4 Acronyms and Abbreviations" l="4" />
+    <i t="1.5 References" l="5" />
+    <i t="1.6 Document Conventions" l="6">
+      <i t="1.6.1 Typographic" l="7" />
+      <i t="1.6.2 Diagrams" l="8" />
+    </i>
+  </i>
+  <i t="Chapter 2 Product Description" l="9">
+    <i t="2.1 What is the Transport API?" l="10" />
+    <i t="2.2 Transport API Features" l="11">
+      <i t="2.2.1 General Capabilities" l="12" />
+      <i t="2.2.2 Consumer Applications" l="13" />
+      <i t="2.2.3 Provider Applications: Interactive" l="14" />
+      <i t="2.2.4 Provider Applications: Non-Interactive" l="15" />
+    </i>
+    <i t="2.3 Performance and Feature Comparison" l="16">
+      <i t="2.3.1 Java Garbage" l="17" />
+      <i t="2.3.2 Use of Assertions" l="18" />
+    </i>
+    <i t="2.4 Functionality: Which API to Choose?" l="19" />
+  </i>
+  <i t="Chapter 3 Consumers and Providers" l="20">
+    <i t="3.1 Overview" l="21" />
+    <i t="3.2 Consumers" l="22">
+      <i t="3.2.1 Subscriptions: Request/Response" l="23" />
+      <i t="3.2.2 Batches" l="24" />
+      <i t="3.2.3 Views" l="25" />
+      <i t="3.2.4 Pause and Resume" l="26">
+        <i t="3.2.4.1 Pause / Resume Use Case 1: Back-end Processing" l="27" />
+        <i t="3.2.4.2 Pause / Resume Use Case 2: Display Applications" l="28" />
+      </i>
+      <i t="3.2.5 Symbol Lists" l="29">
+        <i t="3.2.5.1 Requesting Symbol List Data Streams" l="30" />
+        <i t="3.2.5.2 Server Symbol Lists" l="31" />
+      </i>
+      <i t="3.2.6 Posting" l="32">
+        <i t="3.2.6.1 Local Publication" l="33" />
+        <i t="3.2.6.2 Contribution/Inserts" l="34" />
+      </i>
+      <i t="3.2.7 Generic Message" l="35" />
+      <i t="3.2.8 Private Streams" l="36" />
+    </i>
+    <i t="3.3 Providers" l="37">
+      <i t="3.3.1 Interactive Providers" l="38">
+        <i t="3.3.1.1 Request /Response" l="39" />
+        <i t="3.3.1.2 Posts" l="40" />
+        <i t="3.3.1.3 Generic Messages" l="41" />
+        <i t="3.3.1.4 Private Streams" l="42" />
+      </i>
+      <i t="3.3.2 Non-Interactive Providers" l="43" />
+    </i>
+  </i>
+  <i t="Chapter 4 System View" l="44">
+    <i t="4.1 System Architecture Overview" l="45" />
+    <i t="4.2 Advanced Distribution Server (ADS)" l="46" />
+    <i t="4.3 Advanced Data Hub (ADH)" l="47" />
+    <i t="4.4 Elektron" l="48" />
+    <i t="4.5 Data Feed Direct" l="49" />
+    <i t="4.6 Internet Connctivity via HTTP and HTTPS" l="50" />
+    <i t="4.7 Direct Connect" l="51" />
+  </i>
+  <i t="Chapter 5 Model and Package Overviews" l="52">
+    <i t="5.1 Transport API Models" l="53">
+      <i t="5.1.1 Open Message Model (OMM)" l="53#999038" />
+      <i t="5.1.2 Reuters Wire Format (RWF)" l="54" />
+      <i t="5.1.3 Domain Message Model" l="55">
+        <i t="5.1.3.1 Reuters Domain Model" l="56" />
+        <i t="5.1.3.2 User-Defined Domain Model" l="57" />
+      </i>
+    </i>
+    <i t="5.2 Packages" l="58">
+      <i t="5.2.1 Transport Package" l="59" />
+      <i t="5.2.2 Codec Package" l="60" />
+    </i>
+  </i>
+  <i t="Chapter 6 Building an OMM Consumer" l="61">
+    <i t="6.1 Overview" l="62" />
+    <i t="6.2 Establish Network Communication" l="63" />
+    <i t="6.3 Perform Login Process" l="64" />
+    <i t="6.4 Obtain Source Directory Information" l="65" />
+    <i t="6.5 Load or Download Necessary Dictionary Information" l="66" />
+    <i t="6.6 Issue Requests and/or Post Information" l="67" />
+    <i t="6.7 Log Out and Shut Down" l="68" />
+    <i t="6.8 Additional Consumer Details" l="69" />
+  </i>
+  <i t="Chapter 7 Building an OMM Interactive Provider" l="70">
+    <i t="7.1 Overview" l="71" />
+    <i t="7.2 Establish Network Communication" l="72" />
+    <i t="7.3 Perform Login Process" l="73" />
+    <i t="7.4 Provide Source Directory Information" l="74" />
+    <i t="7.5 Provide or Download Necessary Dictionaries" l="75" />
+    <i t="7.6 Handle Requests and Post Messages" l="76" />
+    <i t="7.7 Disconnect Consumers and Shut Down" l="77" />
+    <i t="7.8 Additional Interactive Provider Details" l="78" />
+  </i>
+  <i t="Chapter 8 Building an OMM NIP" l="79">
+    <i t="8.1 Overview" l="80" />
+    <i t="8.2 Establish Network Communication" l="81" />
+    <i t="8.3 Perform Login Process" l="82" />
+    <i t="8.4 Perform Dictionary Download" l="83" />
+    <i t="8.5 Provide Source Directory Information" l="84" />
+    <i t="8.6 Provide Content" l="85" />
+    <i t="8.7 Log Out and Shut Down" l="86" />
+    <i t="8.8 Additional NIP Details" l="87" />
+  </i>
+  <i t="Chapter 9 Transport Package Detailed View" l="88">
+    <i t="9.1 Concepts" l="89">
+      <i t="9.1.1 Transport Types" l="90">
+        <i t="9.1.1.1 Socket Transport" l="91" />
+        <i t="9.1.1.2 Reliable Multicast Transport" l="92" />
+        <i t="9.1.1.3 Sequenced Multicast Transport" l="93" />
+      </i>
+      <i t="9.1.2 Channel Object" l="94">
+        <i t="9.1.2.1 Channel State Values" l="95" />
+        <i t="9.1.2.2 ConnectionTypes Values" l="96" />
+      </i>
+      <i t="9.1.3 Server Object" l="97" />
+      <i t="9.1.4 Transport Error Handling" l="98" />
+      <i t="9.1.5 General Transport Return Codes" l="99" />
+      <i t="9.1.6 Application Lifecycle" l="100" />
+    </i>
+    <i t="9.2 Initializing and Uninitializing the Transport" l="101">
+      <i t="9.2.1 Initialization and Uninitialization Method" l="102" />
+      <i t="9.2.2 Initialization Reference Counting with Example" l="103" />
+      <i t="9.2.3 Transport Locking Models" l="104" />
+    </i>
+    <i t="9.3 Creating the Connection" l="105">
+      <i t="9.3.1 Network Topologies" l="106">
+        <i t="9.3.1.1 TCP-based Networks" l="107" />
+        <i t="9.3.1.2 Multicast-based Networks: Unified" l="108" />
+        <i t="9.3.1.3 Multicast-based Networks: Segmented" l="109" />
+      </i>
+      <i t="9.3.2 Creating the Outbound Connection: Transport.connect Method" l="110">
+        <i t="9.3.2.1 ConnectOptions Methods" l="111" />
+        <i t="9.3.2.2 UnifiedNetworkInfo Method Options" l="112" />
+        <i t="9.3.2.3 SegmentedNetworkInfo Method Options" l="113" />
+        <i t="9.3.2.4 TcpOpts Method Option" l="114" />
+        <i t="9.3.2.5 MCastOpts Method Options" l="115" />
+        <i t="9.3.2.6 ShmemOpts Method" l="116" />
+        <i t="9.3.2.7 SeqMCastOpts Method" l="117" />
+      </i>
+      <i t="9.3.3 Transport.connect Outbound Connection Creation Example" l="118" />
+      <i t="9.3.4 Tunneling Connection Keep Alive" l="119" />
+    </i>
+    <i t="9.4 Server Creation and Accepting Connections" l="120">
+      <i t="9.4.1 Creating a Listening Socket" l="120#1006013">
+        <i t="9.4.1.1 BindOptions Methods" l="121" />
+        <i t="9.4.1.2 Transport.bind Listening Socket Connection Creation Example" l="122" />
+      </i>
+      <i t="9.4.2 Accepting Connection Requests" l="123">
+        <i t="9.4.2.1 AcceptOptions Methods" l="124" />
+        <i t="9.4.2.2 Server.accept Accepting Connection Example" l="125" />
+      </i>
+      <i t="9.4.3 Compression Support" l="126" />
+    </i>
+    <i t="9.5 Channel Initialization" l="127">
+      <i t="9.5.1 Channel.init Method" l="128" />
+      <i t="9.5.2 InProgInfo Object" l="129" />
+      <i t="9.5.3 Calling Channel.init" l="130" />
+      <i t="9.5.4 Channel.init Return Codes" l="131" />
+      <i t="9.5.5 Channel.init Example" l="132" />
+    </i>
+    <i t="9.6 Reading Data" l="133">
+      <i t="9.6.1 Channel.read Method" l="134" />
+      <i t="9.6.2 ReadFlags Values" l="135" />
+      <i t="9.6.3 Channel.read Return Codes" l="136" />
+      <i t="9.6.4 Channel.read Example" l="137" />
+    </i>
+    <i t="9.7 Writing Data: Overview" l="138" />
+    <i t="9.8 Writing Data: Obtaining a Buffer" l="139">
+      <i t="9.8.1 Transport Buffer Management Channel Methods" l="140" />
+      <i t="9.8.2 Transport Buffer Management Server Method" l="141" />
+      <i t="9.8.3 Channel.getBuffer Return Values" l="142" />
+    </i>
+    <i t="9.9 Writing Data to a Buffer" l="143">
+      <i t="9.9.1 Channel.write Method" l="144" />
+      <i t="9.9.2 WriteFlags Values" l="145" />
+      <i t="9.9.3 Compression" l="146" />
+      <i t="9.9.4 Fragmentation" l="147" />
+      <i t="9.9.5 Channel.write Return Codes" l="148" />
+      <i t="9.9.6 Channel.getBuffer and Channel.write Example" l="149" />
+    </i>
+    <i t="9.10 Managing Outbound Queues" l="150">
+      <i t="9.10.1 Ordering Queued Data: WritePriorities" l="151">
+        <i t="9.10.1.1 Priority Ordering" l="152" />
+        <i t="9.10.1.2 WritePriorities Values" l="153" />
+      </i>
+      <i t="9.10.2 Channel.flush Method" l="154" />
+      <i t="9.10.3 Channel.flush Return Codes" l="155" />
+      <i t="9.10.4 Channel.flush Example" l="156" />
+    </i>
+    <i t="9.11 Packing Additional Data into a Buffer" l="157">
+      <i t="9.11.1 Channel.packBuffer Return Values" l="158" />
+      <i t="9.11.2 Example: Channel.getBuffer, Channel.packBuffer, and Channel.write" l="159" />
+    </i>
+    <i t="9.12 Ping Management" l="160">
+      <i t="9.12.1 Ping Timeout" l="161" />
+      <i t="9.12.2 Channel.ping Function" l="162" />
+      <i t="9.12.3 Channel.ping Return Values" l="163" />
+      <i t="9.12.4 Channel.ping Example" l="164" />
+    </i>
+    <i t="9.13 Closing Connections" l="165">
+      <i t="9.13.1 Functions for Closing Connections" l="165#1037673" />
+      <i t="9.13.2 Close Connections Example" l="166" />
+    </i>
+    <i t="9.14 Utility Methods" l="167">
+      <i t="9.14.1 General Transport Utility Methods" l="168" />
+      <i t="9.14.2 ChannelInfo Methods" l="169" />
+      <i t="9.14.3 multicastStats Methods" l="170" />
+      <i t="9.14.4 componentInfo Method" l="171" />
+      <i t="9.14.5 ServerInfo Methods" l="172" />
+      <i t="9.14.6 Channel.ioctl IoctlCodes" l="173" />
+      <i t="9.14.7 Server.ioctl IoctlCodes" l="174" />
+    </i>
+    <i t="9.15 Tunneling" l="175">
+      <i t="9.15.1 Configuration" l="176">
+        <i t="9.15.1.1 TunnelingInfo Methods" l="177" />
+        <i t="9.15.1.2 Configuration Example" l="178" />
+      </i>
+      <i t="9.15.2 Proxy Authentication" l="179">
+        <i t="9.15.2.1 The Proxy Authentication Process" l="180" />
+        <i t="9.15.2.2 Supplying the Transport API with Credentials for Proxy Authentication" l="181" />
+        <i t="9.15.2.3 CredentialsInfo Methods" l="182" />
+        <i t="9.15.2.4 Providing Credentials and Modifying the Consumer Example" l="183" />
+        <i t="9.15.2.5 Proxy Authentication using NTLM" l="184" />
+        <i t="9.15.2.6 Proxy Authentication using Negotiate/Kerberos" l="185" />
+      </i>
+    </i>
+  </i>
+  <i t="Chapter 10 Encoding and Decoding Conventions" l="186">
+    <i t="10.1 Concepts" l="187">
+      <i t="10.1.1 Data Types" l="188" />
+      <i t="10.1.2 Composite Pattern and Nesting" l="189" />
+    </i>
+    <i t="10.2 Encoding Semantics" l="190">
+      <i t="10.2.1 Init and Complete Suffixes" l="191" />
+      <i t="10.2.2 The Encode Iterator: EncodeIterator" l="192">
+        <i t="10.2.2.1 EncodeIterator Functions" l="193" />
+        <i t="10.2.2.2 EncodeIterator: Basic Use Example" l="194" />
+      </i>
+      <i t="10.2.3 Content Roll Back with Example" l="195" />
+    </i>
+    <i t="10.3 Decoding Semantics" l="196">
+      <i t="10.3.1 The Decode Iterator: DecodeIterator" l="197" />
+      <i t="10.3.2 Functions for use with DecodeIterator" l="198" />
+      <i t="10.3.3 DecodeIterator: Basic Use Example" l="199" />
+    </i>
+    <i t="10.4 Return Code Values" l="200">
+      <i t="10.4.1 CodecReturnCodes Methods" l="201" />
+    </i>
+    <i t="10.5 Versioning" l="202">
+      <i t="10.5.1 Protocol Versioning" l="203" />
+      <i t="10.5.2 Library Versioning" l="204" />
+    </i>
+  </i>
+  <i t="Chapter 11 Data Package Detailed View" l="205">
+    <i t="11.1 Concepts" l="206" />
+    <i t="11.2 Primitive Types" l="207">
+      <i t="11.2.1 Real" l="208">
+        <i t="11.2.1.1 Methods" l="209" />
+        <i t="11.2.1.2 hint Values" l="210" />
+        <i t="11.2.1.3 Hint Use Case: Converting an Real to a Float or a Double" l="211" />
+        <i t="11.2.1.4 Hint Use Case: Converting Double or Float to an Real" l="212" />
+      </i>
+      <i t="11.2.2 Date" l="213" />
+      <i t="11.2.3 Time" l="214" />
+      <i t="11.2.4 DateTime" l="215" />
+      <i t="11.2.5 Qos" l="216">
+        <i t="11.2.5.1 Methods" l="217" />
+        <i t="11.2.5.2 Qos Timeliness Values" l="218" />
+        <i t="11.2.5.3 QosRates Values" l="219" />
+      </i>
+      <i t="11.2.6 State" l="220">
+        <i t="11.2.6.1 Methods" l="221" />
+        <i t="11.2.6.2 StreamStates Values" l="222" />
+        <i t="11.2.6.3 StreamStates Methods" l="223" />
+        <i t="11.2.6.4 DataStates Values" l="224" />
+        <i t="11.2.6.5 DataStates Methods" l="225" />
+        <i t="11.2.6.6 StateCodes Values" l="226" />
+        <i t="11.2.6.7 StateCodes Methods" l="227" />
+      </i>
+      <i t="11.2.7 Array" l="228">
+        <i t="11.2.7.1 Array Methods" l="229" />
+        <i t="11.2.7.2 ArrayEntry Methods" l="230" />
+        <i t="11.2.7.3 Encoding: Example 1" l="231" />
+        <i t="11.2.7.4 Encoding: Example 2" l="232" />
+        <i t="11.2.7.5 Decoding: Example" l="233" />
+      </i>
+      <i t="11.2.8 Buffer" l="234">
+        <i t="11.2.8.1 Methods" l="235" />
+        <i t="11.2.8.2 Example" l="236" />
+      </i>
+      <i t="11.2.9 RMTES Decoding" l="237">
+        <i t="11.2.9.1 RmtesCacheBuffer: Structure" l="238" />
+        <i t="11.2.9.2 RmtesBuffer: Structure Members" l="239" />
+        <i t="11.2.9.3 RmtesDecoder" l="240" />
+        <i t="11.2.9.4 Example: Converting RMTES to UCS-2" l="241" />
+      </i>
+    </i>
+    <i t="11.3 Container Types" l="242">
+      <i t="11.3.1 FieldList" l="243">
+        <i t="11.3.1.1 Structure Members" l="244" />
+        <i t="11.3.1.2 FieldListFlag Values" l="245" />
+        <i t="11.3.1.3 FieldEntry Methods" l="246" />
+        <i t="11.3.1.4 Rippling" l="247" />
+        <i t="11.3.1.5 Encoding Example" l="248" />
+        <i t="11.3.1.6 Decoding Example" l="249" />
+      </i>
+      <i t="11.3.2 ElementList" l="250">
+        <i t="11.3.2.1 Structure Members" l="251" />
+        <i t="11.3.2.2 ElementListFlags Values" l="252" />
+        <i t="11.3.2.3 ElementEntry Methods" l="253" />
+        <i t="11.3.2.4 ElementList Encoding Example" l="254" />
+        <i t="11.3.2.5 ElementList Decoding Examples" l="255" />
+      </i>
+      <i t="11.3.3 Map" l="256">
+        <i t="11.3.3.1 Map Methods" l="257" />
+        <i t="11.3.3.2 MapFlags Values" l="258" />
+        <i t="11.3.3.3 MapEntry Methods" l="259" />
+        <i t="11.3.3.4 MapEntry Flag Enumeration Value" l="260" />
+        <i t="11.3.3.5 MapEntry Action Enumeration Values" l="261" />
+        <i t="11.3.3.6 MapEntry Encoding Example" l="262" />
+        <i t="11.3.3.7 MapEntry Decoding Example" l="263" />
+      </i>
+      <i t="11.3.4 Series" l="264">
+        <i t="11.3.4.1 Series Methods" l="265" />
+        <i t="11.3.4.2 SeriesFlags Values" l="266" />
+        <i t="11.3.4.3 SeriesEntry Methods" l="267" />
+        <i t="11.3.4.4 Series Encoding Example" l="268" />
+        <i t="11.3.4.5 Series Decoding Example" l="269" />
+      </i>
+      <i t="11.3.5 Vector" l="270">
+        <i t="11.3.5.1 Vector Structure Members" l="271" />
+        <i t="11.3.5.2 Vector Flag Enumeration Values" l="272" />
+        <i t="11.3.5.3 VectorEntry Structure Members" l="273" />
+        <i t="11.3.5.4 VectorEntry Flag Enumeration Value" l="274" />
+        <i t="11.3.5.5 VectorEntryActions Values" l="275" />
+        <i t="11.3.5.6 Vector Encoding Example" l="276" />
+        <i t="11.3.5.7 Vector Decoding Example" l="277" />
+      </i>
+      <i t="11.3.6 FilterList" l="278">
+        <i t="11.3.6.1 FilterList Methods" l="279" />
+        <i t="11.3.6.2 FilterList Flag Enumeration Values" l="280" />
+        <i t="11.3.6.3 FilterEntry Methods" l="281" />
+        <i t="11.3.6.4 FilterEntry Flag Enumeration Values" l="282" />
+        <i t="11.3.6.5 FilterEntryActions Values" l="283" />
+        <i t="11.3.6.6 FilterEntry Encoding Example" l="284" />
+        <i t="11.3.6.7 FilterEntry Decoding Example" l="285" />
+      </i>
+      <i t="11.3.7 Non-RWF Container Types" l="286">
+        <i t="11.3.7.1 Non-RWF Encode Functions" l="287" />
+        <i t="11.3.7.2 Non-RWF Encoding Example" l="288" />
+        <i t="11.3.7.3 Decoding Non-RWF Types" l="289" />
+      </i>
+    </i>
+    <i t="11.4 Permission Data" l="290" />
+    <i t="11.5 Summary Data" l="291" />
+    <i t="11.6 Set Definitions and Set-Defined Data" l="292">
+      <i t="11.6.1 Set-Defined Primitive Types" l="293" />
+      <i t="11.6.2 Set Definition Use" l="294">
+        <i t="11.6.2.1 FieldSetDef Methods" l="295" />
+        <i t="11.6.2.2 FieldSetDefEntry Structure Members" l="296" />
+        <i t="11.6.2.3 ElementSetDef Methods" l="297" />
+        <i t="11.6.2.4 ElementSetDefEntry Methods" l="298" />
+      </i>
+      <i t="11.6.3 Set Definition Database" l="299">
+        <i t="11.6.3.1 LocalFieldSetDefDb Methods" l="300" />
+        <i t="11.6.3.2 LocalElementSetDefDb Methods" l="301" />
+        <i t="11.6.3.3 Local Set Definition Database Encoding Interfaces" l="302" />
+        <i t="11.6.3.4 Local Set Definition Database Decoding Interfaces" l="303" />
+        <i t="11.6.3.5 Field Set Definition Database Encoding Example" l="304" />
+        <i t="11.6.3.6 Field Set Definition Database Decoding Example" l="305" />
+        <i t="11.6.3.7 Element Set Definition Database Encoding Example" l="306" />
+        <i t="11.6.3.8 Element Set Definition Database Decoding Example" l="307" />
+      </i>
+    </i>
+  </i>
+  <i t="Chapter 12 Message Package Detailed View" l="308">
+    <i t="12.1 Concepts" l="309">
+      <i t="12.1.1 Common Message Interface" l="310">
+        <i t="12.1.1.1 Msg Methods" l="311" />
+        <i t="12.1.1.2 MsgClasses Values" l="312" />
+        <i t="12.1.1.3 MsgClasses Methods" l="313" />
+      </i>
+      <i t="12.1.2 Message Key" l="314">
+        <i t="12.1.2.1 MsgKey Methods" l="315" />
+        <i t="12.1.2.2 Message Key Flag Enumeration Values" l="316" />
+      </i>
+      <i t="12.1.3 Stream Identification" l="317">
+        <i t="12.1.3.1 Stream Comparison" l="318" />
+        <i t="12.1.3.2 Private Streams" l="319" />
+        <i t="12.1.3.3 Changeable Stream Attributes" l="320" />
+      </i>
+    </i>
+    <i t="12.2 Messages" l="321">
+      <i t="12.2.1 Request Message Interface" l="321#1001278">
+        <i t="12.2.1.1 RequestMsg Methods" l="322" />
+        <i t="12.2.1.2 RequestMsgFlags Values" l="323" />
+      </i>
+      <i t="12.2.2 Refresh Message Interface" l="324">
+        <i t="12.2.2.1 RefreshMsg Methods" l="325" />
+        <i t="12.2.2.2 RefreshMsgFlags Values" l="326" />
+      </i>
+      <i t="12.2.3 Update Message Interface" l="327">
+        <i t="12.2.3.1 UpdateMsg Methods" l="328" />
+        <i t="12.2.3.2 UpdateMsgFlags Values" l="329" />
+      </i>
+      <i t="12.2.4 Status Message Interface" l="330">
+        <i t="12.2.4.1 StatusMsg Methods" l="331" />
+        <i t="12.2.4.2 StatusMsgFlags Values" l="332" />
+      </i>
+      <i t="12.2.5 Close Message Interface" l="333">
+        <i t="12.2.5.1 CloseMsg Methods" l="334" />
+        <i t="12.2.5.2 CloseMsgFlags Values" l="335" />
+      </i>
+      <i t="12.2.6 Generic Message Class" l="336">
+        <i t="12.2.6.1 GenericMsg Methods" l="337" />
+        <i t="12.2.6.2 GenericMsgFlags Values" l="338" />
+      </i>
+      <i t="12.2.7 Post Message Interface" l="339">
+        <i t="12.2.7.1 Post Msg Methods" l="340" />
+        <i t="12.2.7.2 PostMsgFlags Values" l="341" />
+        <i t="12.2.7.3 PostUserRights Values" l="342" />
+        <i t="12.2.7.4 PostUserInfo Methods" l="343" />
+      </i>
+      <i t="12.2.8 Acknowledgment Message Interface" l="344">
+        <i t="12.2.8.1 AckMsg Methods" l="345" />
+        <i t="12.2.8.2 AckMsgFlags Values" l="346" />
+        <i t="12.2.8.3 NakCodes Values" l="347" />
+      </i>
+      <i t="12.2.9 Msg Encoding and Decoding" l="348">
+        <i t="12.2.9.1 Msg Encoding Interfaces" l="349" />
+        <i t="12.2.9.2 Msg Encoding Example 1" l="350" />
+        <i t="12.2.9.3 Msg Encoding Example 2" l="351" />
+        <i t="12.2.9.4 Msg Decoding Interfaces" l="352" />
+        <i t="12.2.9.5 Msg Decoding Example" l="353" />
+        <i t="12.2.9.6 EncodeIterator Utility Methods" l="354" />
+        <i t="12.2.9.7 DecodeIterator Utility Methods" l="355" />
+      </i>
+    </i>
+  </i>
+  <i t="Chapter 13 Advanced Messaging Concepts" l="356">
+    <i t="13.1 Multi-Part Message Handling" l="357" />
+    <i t="13.2 Stream Priority" l="358" />
+    <i t="13.3 Stream Quality of Service" l="359" />
+    <i t="13.4 Item Group Use" l="360">
+      <i t="13.4.1 Item Group Buffer Contents" l="361" />
+      <i t="13.4.2 Item Group Utility Functions" l="362" />
+      <i t="13.4.3 Group Status Message Information" l="363" />
+      <i t="13.4.4 Group Status Responsibilities by Application Type" l="364" />
+    </i>
+    <i t="13.5 Single Open and Allow Suspect Data Behavior" l="365" />
+    <i t="13.6 Pause and Resume" l="366" />
+    <i t="13.7 Batch Requesting" l="367">
+      <i t="13.7.1 Batch Request Usage" l="368" />
+      <i t="13.7.2 Batch RequestMsg Encoding Example" l="369" />
+    </i>
+    <i t="13.8 Dynamic View Use" l="370">
+      <i t="13.8.1 RDM ViewTypes Names" l="371" />
+      <i t="13.8.2 Dynamic View RequestMsg Encoding Example" l="372" />
+    </i>
+    <i t="13.9 Posting" l="373">
+      <i t="13.9.1 Post Message Encoding Example" l="374" />
+      <i t="13.9.2 Post Acknowledgement Encoding Example" l="375" />
+    </i>
+    <i t="13.10 Private Streams" l="376" />
+  </i>
+  <i t="Appendix A Item and Group State Decision Table" l="377" />
+</WebWorksHelpTOC>

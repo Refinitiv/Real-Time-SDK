@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>7.5.8.3 Encoding a Dictionary Refresh</title>
+    <link rel="StyleSheet" href="css/ETAJ_ValueAddDevGuide.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Transport API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Transport API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="Heading_4"><a name="9004259">Encoding a Dictionary Refresh</a></div>
+      <div class="Code"><a name="9004260">&nbsp;</a></div>
+      <div class="Code"><a name="9004261">EncodeIterator encodeIter = CodecFactory.createEncodeIterator();</a></div>
+      <div class="Code"><a name="9004262">DictionaryRefresh dictionaryRefresh = (DictionaryRefresh)DictionaryMsgFactory.createMsg();</a></div>
+      <div class="Code"><a name="9004263">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004264">/* Clear the Dictionary Refresh object. */</a></span></div>
+      <div class="Code"><a name="9004265">dictionaryRefresh.clear();</a></div>
+      <div class="Code"><a name="9004266">dictionaryRefresh.rdmMsgType(DictionaryMsgType.REFRESH);</a></div>
+      <div class="Code"><a name="9004267">&nbsp;</a></div>
+      <div class="Code"><a name="9004268">DataDictionary dataDictionary = CodecFactory.createDataDictionary();</a></div>
+      <div class="Code"><a name="9004269">dataDictionary.clear();</a></div>
+      <div class="Code"><a name="9004270">&nbsp;</a></div>
+      <div class="Code"><a name="9004271">ret = dataDictionary.loadFieldDictionary("RDMFieldDictionary", errorText);</a></div>
+      <div class="Code"><a name="9004272">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004273">/* Clear the Dictionary Refresh object. */</a></span></div>
+      <div class="Code"><a name="9004274">dictionaryRefresh.clear();</a></div>
+      <div class="Code"><a name="9004275">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004276">/* Set dictionary message type – required as object created by DictionaryMsgFactory.createMsg() is generic Dictionary object. */</a></span></div>
+      <div class="Code"><a name="9004277">dictionaryRefresh.rdmMsgType(DictionaryMsgType.REFRESH);</a></div>
+      <div class="Code"><a name="9004278">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004279">/* Set stream id. */</a></span></div>
+      <div class="Code"><a name="9004280">dictionaryRefresh.streamId(streamId);</a></div>
+      <div class="Code"><a name="9004281">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004282">/* Set state fields to state object managed by dictionary refresh. */</a></span></div>
+      <div class="Code"><a name="9004283">dictionaryRefresh.state().streamState(StreamStates.OPEN);</a></div>
+      <div class="Code"><a name="9004284">dictionaryRefresh.state().dataState(DataStates.OK);</a></div>
+      <div class="Code"><a name="9004285">dictionaryRefresh.state().code(StateCodes.NONE);</a></div>
+      <div class="Code"><a name="9004286">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004287">/* Set flags. */</a></span></div>
+      <div class="Code"><a name="9004288">dictionaryRefresh.applySolicited();</a></div>
+      <div class="Code"><a name="9004289">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004290">/* Set dictionary name. */</a></span></div>
+      <div class="Code"><a name="9004291">dictionaryRefresh.dictionaryName().data("RWFFld");</a></div>
+      <div class="Code"><a name="9004292">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004293">/* Set dictionary type. */</a></span></div>
+      <div class="Code"><a name="9004294">dictionaryRefresh.dictionaryType(Dictionary.Types.FIELD_DEFINITIONS);</a></div>
+      <div class="Code"><a name="9004295">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004296">/* Set the dictionary. */</a></span></div>
+      <div class="Code"><a name="9004297">dictionaryRefresh.dictionary(dataDictionary);</a></div>
+      <div class="Code"><a name="9004298">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004299">/* Set serviceId. */</a></span></div>
+      <div class="Code"><a name="9004300">dictionaryRefresh.serviceId(273);</a></div>
+      <div class="Code"><a name="9004301">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004302">/* Set verbosity. */</a></span></div>
+      <div class="Code"><a name="9004303">dictionaryRefresh.verbosity(Dictionary.VerbosityValues.NORMAL);</a></div>
+      <div class="Code"><a name="9004304">&nbsp;</a></div>
+      <div class="Code"><a name="9004305">do</a></div>
+      <div class="Code"><a name="9004306">{</a></div>
+      <div class="Code"><a name="9004307">	</a><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">/* (Represents the application getting a new buffer to encode the message into.) */</span></div>
+      <div class="Code"><a name="9004308">	getNextEncodeBuffer(msgBuffer);</a></div>
+      <div class="Code"><a name="9004309">&nbsp;</a></div>
+      <div class="Code"><a name="9004310">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004311">	/* Clear the encode iterator, set its RWF Version, and set it to a buffer for encoding into. */</a></span></div>
+      <div class="Code"><a name="9004312">	encodeIter.clear();</a></div>
+      <div class="Code"><a name="9004313">	ret = encodeIter.setBufferAndRWFVersion(msgBuf,channelMajorVersion, channelMinorVersion);</a></div>
+      <div class="Code"><a name="9004314">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004315">	/* Encode the message. This will return CodecReturnCodes.DICT_PART_ENCODED if it only a part</a></span></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004316">	* was encoded. We must keep encoding the message until CodecReturnCodes.SUCCESS is returned. */</a></span></div>
+      <div class="Code"><a name="9004317">	ret = dictionaryRefresh.encode(encodeIter);</a></div>
+      <div class="Code"><a name="9004318">} while (ret == CodecReturnCodes.DICT_PART_ENCODED);</a></div>
+      <div class="Code"><a name="9004319">&nbsp;</a></div>
+      <div class="Caption"><a name="9004320">Code Example 26: Dictionary Refresh Encoding Example</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="ETAJ_ValueAddDevGuide.1.136.html">Chapter 7	Administration Domain Models Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="ETAJ_ValueAddDevGuide.1.235.html">7.5	RDM Dictionary Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="ETAJ_ValueAddDevGuide.1.249.html">7.5.8	Dictionary Encoding and Decoding</a> : 7.5.8.3	Encoding a Dictionary Refresh</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

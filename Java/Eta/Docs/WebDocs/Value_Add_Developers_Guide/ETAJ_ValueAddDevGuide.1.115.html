@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>6.6.5 Code Sample: Opening and Managing a Tunnel Stream</title>
+    <link rel="StyleSheet" href="css/ETAJ_ValueAddDevGuide.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Transport API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Transport API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="Heading_3"><a name="9001743">Code Sample: Opening and Managing a Tunnel Stream</a></div>
+      <div class="Normal"><a name="9001744">The following code sample is a basic example of opening a tunnel stream. The example assumes that a reactor and ReactorChannel are already open and properly established.</a></div>
+      <div class="Code"><a name="9001745">&nbsp;</a></div>
+      <div class="Code"><a name="9001746">// Basic sample for event handlers</a></div>
+      <div class="Code"><a name="9001747">class  Sample implements StatusEventCallback, TunnelStreamQueueMsgCallback, TunnelStreamDefaultMsgCallback</a></div>
+      <div class="Code"><a name="9001748">{</a></div>
+      <div class="Code"><a name="9001749">	ReactorErrorInfo _errorInfo;</a></div>
+      <div class="Code"><a name="9001750">	</a></div>
+      <div class="Code"><a name="9001751">	// StatusEventCallback</a></div>
+      <div class="Code"><a name="9001752">	public int statusEventCallback(TunnelStreamStatusEvent event)</a></div>
+      <div class="Code"><a name="9001753">	{</a></div>
+      <div class="Code"><a name="9001754">		System.out.println(“Status of Tunnel Stream (“ + event.tunnelStream().streamId() + “) is “ +</a></div>
+      <div class="Code"><a name="9001755">				event.state());</a></div>
+      <div class="Code"><a name="9001756">		Return ReactorCallbackReturnCodes.SUCCESS;</a></div>
+      <div class="Code"><a name="9001757">	}</a></div>
+      <div class="Code"><a name="9001758">&nbsp;</a></div>
+      <div class="Code"><a name="9001759">	// TunnelStreamDefaultMsgCallback</a></div>
+      <div class="Code"><a name="9001760">	public int TunnelStreamDefaultMsgCallback(TunnelStreamMsgEvent event)</a></div>
+      <div class="Code"><a name="9001761">	{</a></div>
+      <div class="Code"><a name="9001762">		System.out.println(“Received content on Tunnel Stream (“ + event.tunnelStream().streamId() +</a></div>
+      <div class="Code"><a name="9001763">				“)”);</a></div>
+      <div class="Code"><a name="9001764">		Return ReactorCallbackReturnCodes.SUCCESS;</a></div>
+      <div class="Code"><a name="9001765">	}</a></div>
+      <div class="Code"><a name="9001766">&nbsp;</a></div>
+      <div class="Code"><a name="9001767">	// TunnelStreamQueueMsgCallback</a></div>
+      <div class="Code"><a name="9001768">	public int tunnelStreamQueueMsgCallback(TunnelStreamQueueMsgEvent event)</a></div>
+      <div class="Code"><a name="9001769">	{</a></div>
+      <div class="Code"><a name="9001770">		System.out.println(“Received Queue Message on Tunnel Stream (“ + event.tunnelStream().streamId()</a></div>
+      <div class="Code"><a name="9001771">				+ “)”);</a></div>
+      <div class="Code"><a name="9001772">		Return ReactorCallbackReturnCodes.SUCCESS;</a></div>
+      <div class="Code"><a name="9001773">	}</a></div>
+      <div class="Code"><a name="9001774">}</a></div>
+      <div class="Code"><a name="9001775">&nbsp;</a></div>
+      <div class="Code"><a name="9001776">int openTunnelStream()</a></div>
+      <div class="Code"><a name="9001777">{</a></div>
+      <div class="Code"><a name="9001778">	TunnelStreamOpenOptions _openOptions = RectorFactory.createTunnelStreamOpenOptions();</a></div>
+      <div class="Code"><a name="9001779">&nbsp;</a></div>
+      <div class="Code"><a name="9001780">	// populate the options and enable guaranteed delivery for communication with a Queue Provider</a></div>
+      <div class="Code"><a name="9001781">	_openOptions.streamId(TUNNEL_STREAM_ID);</a></div>
+      <div class="Code"><a name="9001782">	_openOptions.domainType(DomainTypes.QUEUE_MESSAGING);</a></div>
+      <div class="Code"><a name="9001783">	_openOptions.serviceId(QUEUE_MESSAGING_SERVICE_ID);</a></div>
+      <div class="Code"><a name="9001784">	// specify the event handlers</a></div>
+      <div class="Code"><a name="9001785">	_openOptions.statusEventCallback(this);</a></div>
+      <div class="Code"><a name="9001786">	_openOptions.TunnelStreamDefaultMsgCallback(this);</a></div>
+      <div class="Code"><a name="9001787">	_openOptions.queueMsgCallback(this);</a></div>
+      <div class="Code"><a name="9001788">&nbsp;</a></div>
+      <div class="Code"><a name="9001789">	if ((reactorChannel.openTunnelStream(_openOptions, _errorInfo)) != ReactorReturnCodes.SUCCESS)</a></div>
+      <div class="Code"><a name="9001790">	{</a></div>
+      <div class="Code"><a name="9001791">		System.out.println(“openTunnelStream failed!”);</a></div>
+      <div class="Code"><a name="9001792">		return ReactorReturnCodes.FAILURE;</a></div>
+      <div class="Code"><a name="9001793">	}</a></div>
+      <div class="Code"><a name="9001794">	</a></div>
+      <div class="Code"><a name="9001795">	System.out.println(“openTunnelStream succeeded!”);</a></div>
+      <div class="Code"><a name="9001796">	return ReactorReturnCodes.SUCCESS;	</a></div>
+      <div class="Code"><a name="9001797">}</a></div>
+      <div class="Code"><a name="9001798">&nbsp;</a></div>
+      <div class="Caption"><a name="9001799">Code Example 13: Opening a Tunnel Stream</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="ETAJ_ValueAddDevGuide.1.049.html">Chapter 6	Reactor Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="ETAJ_ValueAddDevGuide.1.102.html">6.6	Creating and Using Tunnel Streams</a> : 6.6.5	Code Sample: Opening and Managing a Tunnel Stream</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

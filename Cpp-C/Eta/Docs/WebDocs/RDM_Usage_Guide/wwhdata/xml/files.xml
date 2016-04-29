@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WebWorksHelpBook version="5.0" name="RDM Usage Guide" context="RDM_Usage_Guide" locale="en" xmlns="urn:WebWorks-Help-Book-Files-Schema">
+  <CommonWordsToSkip minlen="3">
+    a about after all also am an and another any are as at
+    be because been before being between both but by
+    came can come copyright corp corporation could
+    did do does
+    each etc
+    for from
+    get goes got
+    had has have he her here him himself his how
+    if in inc into is it its
+    let like
+    make many me might more most much must my
+    never nor not now
+    of off on one only or other our out over own
+    reserved rights
+    said same see set shall she should since so some still such
+    take than that the their them then there these they this those though through to too
+    under us use
+    very
+    was way we well were what when where which while who why will with would
+    yes yet you your
+   </CommonWordsToSkip>
+  <ScoringPrefs>
+    <meta name="keywords" weight="100" />
+    <meta name="description" weight="50" />
+    <meta name="summary" weight="50" />
+    <title weight="20" />
+    <h1 weight="15" />
+    <h2 weight="10" />
+    <caption weight="10" />
+    <h3 weight="7" />
+    <th weight="5" />
+    <h4 weight="5" />
+    <h5 weight="4" />
+    <h6 weight="3" />
+    <h7 weight="2" />
+  </ScoringPrefs>
+  <DocumentInfo>
+    <Document title="Chapter 1 Introduction to the RDM Usage Guide" href="Chap_API_Intro.01.01.html" />
+    <Document title="1.1 Purpose" href="Chap_API_Intro.01.02.html" />
+    <Document title="1.2 Audience" href="Chap_API_Intro.01.03.html" />
+    <Document title="1.3 Open Message Model (OMM)" href="Chap_API_Intro.01.04.html" />
+    <Document title="1.4 References" href="Chap_API_Intro.01.05.html" />
+    <Document title="1.5 Documentation Feedback" href="Chap_API_Intro.01.06.html" />
+    <Document title="1.6 Conventions" href="Chap_API_Intro.01.07.html" />
+    <Document title="1.6.2 General Transport API Syntax" href="Chap_API_Intro.01.08.html" />
+    <Document title="1.6.3 Standard Behavior and Definitions" href="Chap_API_Intro.01.09.html" />
+    <Document title="1.7 Acronyms and Abbreviations" href="Chap_API_Intro.01.10.html" />
+    <Document title="1.8 What’s New In This Document" href="Chap_API_Intro.01.11.html" />
+    <Document title="Chapter 2 Domain Model Overview" href="Chap_Domain_Model_Overview.02.01.html" />
+    <Document title="2.1 What is a Domain Message Model?" href="Chap_Domain_Model_Overview.02.02.html" />
+    <Document title="2.2 Reuters Domain Models (RDMs)" href="Chap_Domain_Model_Overview.02.03.html" />
+    <Document title="2.3 User-Defined Domain Model" href="Chap_Domain_Model_Overview.02.04.html" />
+    <Document title="2.4 Domain Message Model Creation" href="Chap_Domain_Model_Overview.02.05.html" />
+    <Document title="2.5 OMM Consumer / OMM Interactive Provider Initial Interaction" href="Chap_Domain_Model_Overview.02.06.html" />
+    <Document title="2.6 OMM Non-Interactive Provider Initial Interaction" href="Chap_Domain_Model_Overview.02.07.html" />
+    <Document title="2.7 Sending and Receiving Content" href="Chap_Domain_Model_Overview.02.08.html" />
+    <Document title="2.8 General Transport API Concepts" href="Chap_Domain_Model_Overview.02.09.html" />
+    <Document title="2.8.1 Snapshot and Streaming Requests" href="Chap_Domain_Model_Overview.02.10.html" />
+    <Document title="2.8.2 Multi-Part Messages" href="Chap_Domain_Model_Overview.02.11.html" />
+    <Document title="2.8.3 Reissue Requests and Pause/Resume" href="Chap_Domain_Model_Overview.02.12.html" />
+    <Document title="2.8.4 Rippling Fields" href="Chap_Domain_Model_Overview.02.13.html" />
+    <Document title="2.8.5 Dynamic View" href="Chap_Domain_Model_Overview.02.14.html" />
+    <Document title="2.8.6 Batch Request" href="Chap_Domain_Model_Overview.02.15.html" />
+    <Document title="2.8.7 Posting" href="Chap_Domain_Model_Overview.02.16.html" />
+    <Document title="Chapter 3 Login Domain" href="Chap_Login_Domain.03.01.html" />
+    <Document title="3.1 Description" href="Chap_Login_Domain.03.02.html" />
+    <Document title="3.2 Usage" href="Chap_Login_Domain.03.03.html" />
+    <Document title="3.2.2 Login Request Elements" href="Chap_Login_Domain.03.04.html" />
+    <Document title="3.2.3 Login Refresh Message Use" href="Chap_Login_Domain.03.05.html" />
+    <Document title="3.2.4 Login Refresh Elements" href="Chap_Login_Domain.03.06.html" />
+    <Document title="3.2.5 Login Status Message Use" href="Chap_Login_Domain.03.07.html" />
+    <Document title="3.2.6 Login Update Message Use" href="Chap_Login_Domain.03.08.html" />
+    <Document title="3.2.7 Login Close Message Use" href="Chap_Login_Domain.03.09.html" />
+    <Document title="3.2.8 Login Generic Message Use" href="Chap_Login_Domain.03.10.html" />
+    <Document title="3.2.9 Login Post Message Use" href="Chap_Login_Domain.03.11.html" />
+    <Document title="3.2.10 Login Ack Message Use" href="Chap_Login_Domain.03.12.html" />
+    <Document title="3.3 Data" href="Chap_Login_Domain.03.13.html" />
+    <Document title="3.3.2 Login Generic Message Payload" href="Chap_Login_Domain.03.14.html" />
+    <Document title="3.4 Special Semantics" href="Chap_Login_Domain.03.15.html" />
+    <Document title="3.4.2 Negotiating MsgKey.Attrib Parameters" href="Chap_Login_Domain.03.16.html" />
+    <Document title="3.4.3 Group and Service Status" href="Chap_Login_Domain.03.17.html" />
+    <Document title="3.4.4 Single Open and Allow Suspect Data Behavior" href="Chap_Login_Domain.03.18.html" />
+    <Document title="3.5 Login Sample XML" href="Chap_Login_Domain.03.19.html" />
+    <Document title="3.5.2 Login Refresh Message Sample XML" href="Chap_Login_Domain.03.20.html" />
+    <Document title="Chapter 4 Source Directory Domain" href="Chap_SourceDirectory_Domain.04.01.html" />
+    <Document title="4.1 Description" href="Chap_SourceDirectory_Domain.04.02.html" />
+    <Document title="4.2 Usage" href="Chap_SourceDirectory_Domain.04.03.html" />
+    <Document title="4.2.2 Source Directory Refresh Message Use" href="Chap_SourceDirectory_Domain.04.04.html" />
+    <Document title="4.2.3 Source Directory Update Message Use" href="Chap_SourceDirectory_Domain.04.05.html" />
+    <Document title="4.2.4 Source Directory Status Message Use" href="Chap_SourceDirectory_Domain.04.06.html" />
+    <Document title="4.2.5 Source Directory Generic Message Use" href="Chap_SourceDirectory_Domain.04.07.html" />
+    <Document title="4.3 Data" href="Chap_SourceDirectory_Domain.04.08.html" />
+    <Document title="4.3.1.1 Source Directory Info Filter Entry" href="Chap_SourceDirectory_Domain.04.09.html" />
+    <Document title="4.3.1.2 Source Directory State Filter Entry" href="Chap_SourceDirectory_Domain.04.10.html" />
+    <Document title="4.3.1.3 Source Directory Group Filter Entry" href="Chap_SourceDirectory_Domain.04.11.html" />
+    <Document title="4.3.1.4 Source Directory Load Filter Entry" href="Chap_SourceDirectory_Domain.04.12.html" />
+    <Document title="4.3.1.5 Source Directory Data Filter Entry" href="Chap_SourceDirectory_Domain.04.13.html" />
+    <Document title="4.3.1.6 Source Directory Link Filter Entry" href="Chap_SourceDirectory_Domain.04.14.html" />
+    <Document title="4.3.1.7 Source Directory Sequenced Multicast Filter Entry" href="Chap_SourceDirectory_Domain.04.15.html" />
+    <Document title="4.3.2 Source Directory ConsumerStatus Generic Message Payload" href="Chap_SourceDirectory_Domain.04.16.html" />
+    <Document title="4.4 Special Semantics" href="Chap_SourceDirectory_Domain.04.17.html" />
+    <Document title="4.4.2 Removing a Service" href="Chap_SourceDirectory_Domain.04.18.html" />
+    <Document title="4.4.3 Non-existent Services" href="Chap_SourceDirectory_Domain.04.19.html" />
+    <Document title="4.5 Source Directory Sample XML" href="Chap_SourceDirectory_Domain.04.20.html" />
+    <Document title="4.5.2 Source Directory Refresh Message Sample XML" href="Chap_SourceDirectory_Domain.04.21.html" />
+    <Document title="Chapter 5 Dictionary Domain" href="Chap_Dictionary_Domain.05.01.html" />
+    <Document title="5.1 Description" href="Chap_Dictionary_Domain.05.02.html" />
+    <Document title="5.2 Decoding Field List Contents with Field and Enumerated Types Dictionaries" href="Chap_Dictionary_Domain.05.03.html" />
+    <Document title="5.3 Usage" href="Chap_Dictionary_Domain.05.04.html" />
+    <Document title="5.3.1 Dictionary Request Message Use" href="Chap_Dictionary_Domain.05.05.html" />
+    <Document title="5.3.2 Dictionary Refresh Message Use" href="Chap_Dictionary_Domain.05.06.html" />
+    <Document title="5.3.3 Dictionary Status Message Use" href="Chap_Dictionary_Domain.05.07.html" />
+    <Document title="5.4 Payload and Summary Data for the Refresh Message" href="Chap_Dictionary_Domain.05.08.html" />
+    <Document title="5.5 Field Dictionary" href="Chap_Dictionary_Domain.05.09.html" />
+    <Document title="5.5.2 Field Dictionary File Format" href="Chap_Dictionary_Domain.05.10.html" />
+    <Document title="5.5.2.1 Field Dictionary Tag Attributes" href="Chap_Dictionary_Domain.05.11.html" />
+    <Document title="5.5.2.2 Field Dictionary Columns" href="Chap_Dictionary_Domain.05.12.html" />
+    <Document title="5.5.2.3 RWF TYPE Keywords" href="Chap_Dictionary_Domain.05.13.html" />
+    <Document title="5.5.2.4 FIELD TYPE Keywords" href="Chap_Dictionary_Domain.05.14.html" />
+    <Document title="5.6 Enumerated Types Dictionary" href="Chap_Dictionary_Domain.05.15.html" />
+    <Document title="5.6.2 Enumerated Types Dictionary File Format" href="Chap_Dictionary_Domain.05.16.html" />
+    <Document title="5.6.2.1 Enumerated Types Dictionary File Example" href="Chap_Dictionary_Domain.05.17.html" />
+    <Document title="5.6.2.2 Tagged Attributes" href="Chap_Dictionary_Domain.05.18.html" />
+    <Document title="5.6.2.3 Reference Fields Section" href="Chap_Dictionary_Domain.05.19.html" />
+    <Document title="5.6.2.4 Values Table Section" href="Chap_Dictionary_Domain.05.20.html" />
+    <Document title="5.7 Global Field Set Definition Payload" href="Chap_Dictionary_Domain.05.21.html" />
+    <Document title="5.8 Global Element Set Definition Payload" href="Chap_Dictionary_Domain.05.22.html" />
+    <Document title="5.9 Special Semantics" href="Chap_Dictionary_Domain.05.23.html" />
+    <Document title="5.9.2 DictionariesProvided and DictionariesUsed" href="Chap_Dictionary_Domain.05.24.html" />
+    <Document title="5.9.3 Version Information" href="Chap_Dictionary_Domain.05.25.html" />
+    <Document title="5.9.3.1 Version Information Usage" href="Chap_Dictionary_Domain.05.26.html" />
+    <Document title="5.9.3.2 Handling Dictionary Version Changes" href="Chap_Dictionary_Domain.05.27.html" />
+    <Document title="5.10 Other Dictionary Types" href="Chap_Dictionary_Domain.05.28.html" />
+    <Document title="5.10.1 RecordTemplate DictionaryType" href="Chap_Dictionary_Domain.05.29.html" />
+    <Document title="5.10.2 DisplayTemplate DictionaryType" href="Chap_Dictionary_Domain.05.30.html" />
+    <Document title="5.10.3 Data Definitions DictionaryType" href="Chap_Dictionary_Domain.05.31.html" />
+    <Document title="5.10.4 StyleSheet DictionaryType" href="Chap_Dictionary_Domain.05.32.html" />
+    <Document title="5.10.5 Reference Dictionary Type" href="Chap_Dictionary_Domain.05.33.html" />
+    <Document title="5.11 Dictionary Sample XML" href="Chap_Dictionary_Domain.05.34.html" />
+    <Document title="5.11.2 Field Dictionary Refresh Message Sample XML" href="Chap_Dictionary_Domain.05.35.html" />
+    <Document title="5.11.3 Enumerated Types Dictionary Refresh Message Sample XML" href="Chap_Dictionary_Domain.05.36.html" />
+    <Document title="5.12 Dictionary Utility Functions" href="Chap_Dictionary_Domain.05.37.html" />
+    <Document title="5.12.1 Example: Basic Dictionary Use" href="Chap_Dictionary_Domain.05.38.html" />
+    <Document title="5.12.2 Example: Dictionary Lookup Using a FieldId" href="Chap_Dictionary_Domain.05.39.html" />
+    <Document title="Chapter 6 Market Price Domain" href="Chap_MarketPrice_Domain.06.01.html" />
+    <Document title="6.1 Description" href="Chap_MarketPrice_Domain.06.02.html" />
+    <Document title="6.2 Usage" href="Chap_MarketPrice_Domain.06.03.html" />
+    <Document title="6.2.2 Market Price Refresh Message Use" href="Chap_MarketPrice_Domain.06.04.html" />
+    <Document title="6.2.3 Market Price Update Message Use" href="Chap_MarketPrice_Domain.06.05.html" />
+    <Document title="6.2.4 Market Price Status Message Use" href="Chap_MarketPrice_Domain.06.06.html" />
+    <Document title="6.2.5 Market Price Domain Posting" href="Chap_MarketPrice_Domain.06.07.html" />
+    <Document title="6.3 Data: Market Price Refresh Message / Update Message Payload" href="Chap_MarketPrice_Domain.06.08.html" />
+    <Document title="6.4 Market Price Sample XML" href="Chap_MarketPrice_Domain.06.09.html" />
+    <Document title="6.4.2 Market Price Refresh Message Sample XML" href="Chap_MarketPrice_Domain.06.10.html" />
+    <Document title="Chapter 7 Market By Order Domain" href="Chap_MarketbyOrder_Domain.07.01.html" />
+    <Document title="7.1 Description" href="Chap_MarketbyOrder_Domain.07.02.html" />
+    <Document title="7.2 Usage" href="Chap_MarketbyOrder_Domain.07.03.html" />
+    <Document title="7.2.2 Market By Order Refresh Message Use" href="Chap_MarketbyOrder_Domain.07.04.html" />
+    <Document title="7.2.3 Market By Order Update Message Use" href="Chap_MarketbyOrder_Domain.07.05.html" />
+    <Document title="7.2.4 Market By Order Status Message Use" href="Chap_MarketbyOrder_Domain.07.06.html" />
+    <Document title="7.2.5 Market By Order Domain Posting" href="Chap_MarketbyOrder_Domain.07.07.html" />
+    <Document title="7.3 Data" href="Chap_MarketbyOrder_Domain.07.08.html" />
+    <Document title="7.3.2 Summary Data" href="Chap_MarketbyOrder_Domain.07.09.html" />
+    <Document title="7.3.3 RsslMapEntry Contents" href="Chap_MarketbyOrder_Domain.07.10.html" />
+    <Document title="7.4 Market By Order Sample XML" href="Chap_MarketbyOrder_Domain.07.11.html" />
+    <Document title="7.4.2 Market By Order Refresh Message Sample XML" href="Chap_MarketbyOrder_Domain.07.12.html" />
+    <Document title="Chapter 8 Market By Price Domain" href="Chap_MarketbyPrice_Domain.08.01.html" />
+    <Document title="8.1 Description" href="Chap_MarketbyPrice_Domain.08.02.html" />
+    <Document title="8.2 Usage" href="Chap_MarketbyPrice_Domain.08.03.html" />
+    <Document title="8.2.2 Market By Price Refresh Message Use" href="Chap_MarketbyPrice_Domain.08.04.html" />
+    <Document title="8.2.3 Market By Price Update Message Use" href="Chap_MarketbyPrice_Domain.08.05.html" />
+    <Document title="8.2.4 Market By Price Status Message Use" href="Chap_MarketbyPrice_Domain.08.06.html" />
+    <Document title="8.2.5 Market By Price Posting" href="Chap_MarketbyPrice_Domain.08.07.html" />
+    <Document title="8.3 Data" href="Chap_MarketbyPrice_Domain.08.08.html" />
+    <Document title="8.3.2 Summary Data" href="Chap_MarketbyPrice_Domain.08.09.html" />
+    <Document title="8.3.3 RsslMapEntry Contents" href="Chap_MarketbyPrice_Domain.08.10.html" />
+    <Document title="8.4 Market By Price Sample XML" href="Chap_MarketbyPrice_Domain.08.11.html" />
+    <Document title="8.4.2 Market By Price Refresh Message Sample XML" href="Chap_MarketbyPrice_Domain.08.12.html" />
+    <Document title="Chapter 9 Market Maker Domain" href="Chap_MarketMaker_Domain.09.01.html" />
+    <Document title="9.2 Usage" href="Chap_MarketMaker_Domain.09.02.html" />
+    <Document title="9.2.2 Market Maker Refresh Message Use" href="Chap_MarketMaker_Domain.09.03.html" />
+    <Document title="9.2.3 Market Maker Update Message Use" href="Chap_MarketMaker_Domain.09.04.html" />
+    <Document title="9.2.4 Market Maker Status Message Use" href="Chap_MarketMaker_Domain.09.05.html" />
+    <Document title="9.2.5 Market Maker Domain Posting" href="Chap_MarketMaker_Domain.09.06.html" />
+    <Document title="9.3 Data" href="Chap_MarketMaker_Domain.09.07.html" />
+    <Document title="9.3.2 Summary Data" href="Chap_MarketMaker_Domain.09.08.html" />
+    <Document title="9.3.3 RsslMapEntry Contents" href="Chap_MarketMaker_Domain.09.09.html" />
+    <Document title="9.4 Market Maker Sample XML" href="Chap_MarketMaker_Domain.09.10.html" />
+    <Document title="9.4.2 Market Maker Refresh Message Sample XML" href="Chap_MarketMaker_Domain.09.11.html" />
+    <Document title="Chapter 10 Yield Curve Domain" href="Chap_YieldCurve_Domain.10.01.html" />
+    <Document title="10.1 Description" href="Chap_YieldCurve_Domain.10.02.html" />
+    <Document title="10.2 Usage" href="Chap_YieldCurve_Domain.10.03.html" />
+    <Document title="10.2.2 Yield Curve Refresh Message Use" href="Chap_YieldCurve_Domain.10.04.html" />
+    <Document title="10.2.3 Yield Curve Update Message Use" href="Chap_YieldCurve_Domain.10.05.html" />
+    <Document title="10.2.4 Yield Curve Status Message Use" href="Chap_YieldCurve_Domain.10.06.html" />
+    <Document title="10.2.5 Yield Curve Domain Posting" href="Chap_YieldCurve_Domain.10.07.html" />
+    <Document title="10.3 Data" href="Chap_YieldCurve_Domain.10.08.html" />
+    <Document title="10.3.2 Summary Data" href="Chap_YieldCurve_Domain.10.09.html" />
+    <Document title="10.3.3 Yield Curve Input and Output Entries" href="Chap_YieldCurve_Domain.10.10.html" />
+    <Document title="10.3.4 Yield Curve Payload Example" href="Chap_YieldCurve_Domain.10.11.html" />
+    <Document title="10.4 Yield Curve Sample XML" href="Chap_YieldCurve_Domain.10.12.html" />
+    <Document title="10.4.2 Yield Curve Refresh Message Sample XML" href="Chap_YieldCurve_Domain.10.13.html" />
+    <Document title="Chapter 11 Symbol List Domain" href="Chap_SymbolList_Domain.11.01.html" />
+    <Document title="11.1 Description" href="Chap_SymbolList_Domain.11.02.html" />
+    <Document title="11.2 Usage" href="Chap_SymbolList_Domain.11.03.html" />
+    <Document title="11.2.2 Symbol List Refresh Message Use" href="Chap_SymbolList_Domain.11.04.html" />
+    <Document title="11.2.3 Symbol List Update Message Use" href="Chap_SymbolList_Domain.11.05.html" />
+    <Document title="11.2.4 Symbol List Status Message Use" href="Chap_SymbolList_Domain.11.06.html" />
+    <Document title="11.3 Data" href="Chap_SymbolList_Domain.11.07.html" />
+    <Document title="11.3.2 Symbol List Data Streams" href="Chap_SymbolList_Domain.11.08.html" />
+    <Document title="11.3.3 Symbol List Refresh/Update Payload" href="Chap_SymbolList_Domain.11.09.html" />
+    <Document title="11.4 Symbol List Sample XML" href="Chap_SymbolList_Domain.11.10.html" />
+    <Document title="11.4.2 Symbol List Refresh Message Sample XML" href="Chap_SymbolList_Domain.11.11.html" />
+    <Document title="Appendix A RDMUpdateEventTypes" href="Appendix_UpdateEvent_Types.html" />
+    <Document title="Appendix B Revision History" href="Appendix_Revision_History.html" />
+  </DocumentInfo>
+  <TopicMap />
+</WebWorksHelpBook>

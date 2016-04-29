@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WebWorksHelpTOC version="5.0" xmlns="urn:WebWorks-Help-TOC-Schema">
+  <i t="Chapter 1 API Concepts Guide" l="0">
+    <i t="1.1 About this Manual" l="1" />
+    <i t="1.2 Audience" l="2" />
+    <i t="1.3 Programming Languages" l="3" />
+    <i t="1.4 Acronyms and Abbreviations" l="4" />
+    <i t="1.5 References" l="5" />
+    <i t="1.6 Document Conventions" l="6">
+      <i t="1.6.1 Typographic" l="7" />
+      <i t="1.6.2 Diagrams" l="8" />
+    </i>
+  </i>
+  <i t="Chapter 2 Product Description" l="9">
+    <i t="2.1 What is an Elektron API?" l="10" />
+    <i t="2.2 API Features" l="11">
+      <i t="2.2.1 General Capabilities" l="12" />
+      <i t="2.2.2 Consumer Applications" l="13" />
+      <i t="2.2.3 Provider Applications: Interactive" l="14" />
+      <i t="2.2.4 Provider Applications: Non-Interactive" l="15" />
+    </i>
+    <i t="2.3 Performance and Feature Comparison" l="16" />
+    <i t="2.4 Functionality: Which API to Choose?" l="17" />
+    <i t="2.5 API Models" l="18">
+      <i t="2.5.1 Open Message Model (OMM)" l="18#1029456" />
+      <i t="2.5.2 Reuters Wire Format (RWF)" l="19" />
+      <i t="2.5.3 Domain Message Model" l="20">
+        <i t="2.5.3.1 Reuters Domain Model" l="21" />
+        <i t="2.5.3.2 User-Defined Domain Model" l="22" />
+      </i>
+    </i>
+  </i>
+  <i t="Chapter 3 Consumers and Providers" l="23">
+    <i t="3.1 Overview" l="24" />
+    <i t="3.2 Consumers" l="25">
+      <i t="3.2.1 Subscriptions: Request/Response" l="26" />
+      <i t="3.2.2 Batches" l="27" />
+      <i t="3.2.3 Views" l="28" />
+      <i t="3.2.4 Pause and Resume" l="29">
+        <i t="3.2.4.1 Pause / Resume Use Case 1: Back-end Processing" l="30" />
+        <i t="3.2.4.2 Pause / Resume Use Case 2: Display Applications" l="31" />
+      </i>
+      <i t="3.2.5 Symbol Lists" l="32" />
+      <i t="3.2.6 Posting" l="33">
+        <i t="3.2.6.1 Local Publication" l="34" />
+        <i t="3.2.6.2 Contribution/Inserts" l="35" />
+      </i>
+      <i t="3.2.7 Generic Message" l="36" />
+      <i t="3.2.8 Private Streams" l="37" />
+      <i t="3.2.9 Building an API Consumer" l="38" />
+    </i>
+    <i t="3.3 Providers" l="39">
+      <i t="3.3.1 Interactive Providers" l="40">
+        <i t="3.3.1.1 Request /Response" l="41" />
+        <i t="3.3.1.2 Posts" l="42" />
+        <i t="3.3.1.3 Generic Messages" l="43" />
+        <i t="3.3.1.4 Private Streams" l="44" />
+        <i t="3.3.1.5 Building an Interactive Provider" l="45" />
+      </i>
+      <i t="3.3.2 Non-Interactive Providers" l="46">
+        <i t="3.3.2.1 Overview" l="46#1015402" />
+        <i t="3.3.2.2 Building a Non-Interactive Provider" l="47" />
+      </i>
+    </i>
+  </i>
+  <i t="Chapter 4 System View" l="48">
+    <i t="4.1 System Architecture Overview" l="49" />
+    <i t="4.2 Advanced Distribution Server (ADS)" l="50" />
+    <i t="4.3 Advanced Data Hub (ADH)" l="51" />
+    <i t="4.4 Elektron" l="52" />
+    <i t="4.5 Data Feed Direct" l="53" />
+    <i t="4.6 EDF" l="54" />
+    <i t="4.7 Internet Connctivity via HTTP and HTTPS" l="55" />
+    <i t="4.8 Direct Connect" l="56" />
+  </i>
+  <i t="Chapter 5 Data Types and Messaging Concepts" l="57">
+    <i t="5.1 Overview of Data Types" l="58" />
+    <i t="5.2 Primitive Types" l="59" />
+    <i t="5.3 Container Types" l="60" />
+    <i t="5.4 Permission Data" l="61" />
+    <i t="5.5 Summary Data" l="62" />
+    <i t="5.6 Messaging Concepts" l="63" />
+    <i t="5.7 Message Class Information" l="64" />
+  </i>
+</WebWorksHelpTOC>

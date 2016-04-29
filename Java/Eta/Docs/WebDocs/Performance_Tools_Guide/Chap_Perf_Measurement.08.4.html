@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>8.3 Non-Interactive Provider to Consumer, Through TREP</title>
+    <link rel="StyleSheet" href="css/Chap_Perf_Measurement.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Transport API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Transport API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H2"><a name="1223201">Non-Interactive Provider to Consumer, Through TREP</a></div>
+      <div class="Body"><a name="1228235">You can measure non-interactive providers on TREP by connecting </a><span class="ToolOrUtility_Name">upajConsPerf</span> to an ADS, the ADS with an ADH,<sup><a name="wwfootnote_inline_68" href="#68">1</a></sup> and finally the <span class="ToolOrUtility_Name">upajNIProvPerf</span> to the ADH. The ADH must have caching enabled, because it acts as the cache of record in this scenario.</div>
+      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><a name="1228242"><img class="Default" src="images/Chap_Perf_Measurement.08.4.1.jpg" width="406" height="277" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></div>
+      <div class="FigTitle">Figure 20.  <a name="1228250">NIProv to Consumer on the TREP</a></div>
+      <div class="Body"><span class="ToolOrUtility_Name"><a name="1228257">upajConsPerf</a></span> may receive a Closed status if it requests an item not yet provided by <span class="ToolOrUtility_Name">upajNIProvPerf</span> to the ADH cache. To ensure the test completes successfully, you must do either one of the following:</div>
+      <div class="Step1_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Step1_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bold">1.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Step1_inner"><a name="1228261">Preload the ADH cache. </a><span class="ToolOrUtility_Name">upajNIProvPerf</span> must have provided refreshes for all of its items to the ADH before <span class="ToolOrUtility_Name">upajConsPerf</span> connects to the ADS.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Stepnext_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Stepnext_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bold">2.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Stepnext_inner"><a name="1228268">Configure the ADH to provide temporary refreshes in place of the uncached items. </a><span class="ToolOrUtility_Name">upajConsPerf</span> knows to allow these images, and does not count them towards the image retrieval time, due to their Suspect data state.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1228269">For more details on this configuration, refer to the </a><span class="DocumentTitle">ADH Software Installation Manual</span>.</div>
+      <div class="Body" style="color: #f2960c; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><span style="color: #f2960c; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="1228273"><img class="Default" src="images/Chap_Perf_Measurement.08.4.2.jpg" width="14" height="16" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /> To run a basic performance measurement:</a></span></div>
+      <div class="Body"><a name="1228280">To run a basic performance measurement using a setup like the one pictured in </a><a href="javascript:WWHClickedPopup('Performance_Tools_Guide', 'Chap_Perf_Measurement.08.4.html#1228250', '');" title="8.3 Non-Interactive Provider to Consumer, Through TREP">Figure 20</a>, run <span class="ToolOrUtility_Name">upajNIProvPerf</span> and <span class="ToolOrUtility_Name">upajConsPerf</span> with the following command-line options:<sup><a name="wwfootnote_inline_69" href="#69">2</a></sup></div>
+      <div class="Blank_Line"><a name="1228312">&nbsp;</a></div>
+      <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
+        <caption></caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
+            <div class="command"><a name="1228289">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1228296">java com.thomsonreuters.upa.perftools.upajniprovperf.upajNIProvPerf -h adhhost -p 14003 -serviceName </a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1228298">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TEST_FEED</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1228300">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1228307">java com.thomsonreuters.upa.perftools.upajconsperf.upajConsPerf -h adshost -p 14002 -serviceName</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1228309">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TEST_FEED</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1228311">&nbsp;</a></div>
+          </td>
+        </tr>
+      </table>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+      <hr />
+      <div style="font-size: smaller; float: left; padding-right: 10px;">
+        <a name="68" href="#wwfootnote_inline_68">1</a>
+      </div>
+      <div class="Footnote"><a name="1228234">Via the RRCP backbone.</a></div>
+      <br style="clear: both;" />
+      <div style="font-size: smaller; float: left; padding-right: 10px;">
+        <a name="69" href="#wwfootnote_inline_69">2</a>
+      </div>
+      <div class="Footnote"><a name="1228286">These options assume the provided service is TEST_FEED. Modify the example’s values as necessary.</a></div>
+      <br style="clear: both;" />
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Perf_Measurement.08.1.html">Chapter 8	Performance Measurement Scenarios</a> : 8.3	Non-Interactive Provider to Consumer, Through TREP</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

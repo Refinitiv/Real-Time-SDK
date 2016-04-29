@@ -1,0 +1,183 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <link href="styles.css" type="text/css" rel="stylesheet">
+  <title>Transport API - C Edition: Document Portal</title>
+</head>
+<body bgcolor="#ffffff">
+<table border="0" cellspacing="0" cellpadding="7">
+  <tbody>
+    <tr>
+    <td>
+    <h1><a name="Product Overview">Transport API C Edition - Documentation Portal</a><!-- -- END PAGE TITLE --></h1>
+    <table border="0" width="100%" cellspacing="0">
+		<tbody>
+			<tr>
+            <td bgcolor="#6a6a6a" width="67%"><font color="#ffffff"
+ face="sans-serif,Arial,Helvetica"><strong><a class="heading" name="Overview">Overview</a></strong></font></td>
+            <td bgcolor="#6a6a6a" width="33%">
+            <p align="right"><a target="_self" class = "header"
+ href="#Product%20Overview"><font
+ color="#ffffff" face="sans-serif,Arial,Helvetica">Return to Top</font></a></p>
+            </td>
+			</tr>
+        </tbody>
+    </table>
+		<p>The Transport API is a low-level API that provides the most flexible development environment 
+		 to the application developer. It is the foundation on which all Thomson Reuters Open Message Model(OMM)
+		 -based components are built. By utilizing an API at the Transport level, a client can write to the same 
+		 API as the ADS / ADH and achieve the same levels of performance provided by the Core Infrastructure.  
+		 The Transport API is thread safe and thread aware. It is capable of handling all OMM primitives and all Domain 
+		 Models - this includes Thomson Reuters defined models as well as user defined models.<p>
+		 
+	<table border="0" width="100%" cellspacing="0">
+        <tbody>
+        <tr>
+        <td bgcolor="#6a6a6a" width="67%"><font color="#ffffff"
+ face="sans-serif,Arial,Helvetica"><strong><a class="heading" name="Features">Product Features</a></strong></font></td>
+        <td bgcolor="#6a6a6a" width="33%">
+        <p align="right"><a target="_self" class = "header"
+			href="#Product%20Overview"><font
+			color="#ffffff" face="sans-serif,Arial,Helvetica">Return to Top</font></a></p>
+            </td>
+          </tr>
+        </tbody>
+    </table>
+	<p>The Transport API provides the following functionality to all applications:<p>
+	<ul>
+		<li>Ability to fragment and reassemble large messages.</li>
+		<li>Ability to pack multiple small messages into the same network buffer.</li>
+		<li>Ability to choose a thread locking model based on application needs.  This allows clients to develop single-threaded,
+			multi-threaded thread safe, and thread-aware solutions.</li>
+		<li>Full control of the number of available message buffers, as well as the ability to change that number during runtime.</li>
+		<li>No configuration, message file, or log file dependencies.  Everything is programmatic.</li>
+		<li>Allows users to send messages with different priority levels.</li>
+		<li>The following transport configurations are supported:</li>
+		<ul>
+			<li>TCP socket</li>
+			<li>Reliable UDP Multicast</li>
+			<li>HTTP</li>
+			<li>HTTPS</li>
+			<li>Unidirectional Shared Memory</li>
+		</ul>
+	</ul>
+    <p>Additionally, the Transport API provides the following application-specific capabilities:<p>
+	<ul>
+		<li>Consumer Applications:
+			<ul>
+				<li>Ability to make Streaming and Snapshot based subscription requests.</li>
+				<li>Ability to make OMM Batch, View, and Symbol List subscription requests to capable providers.</li>
+				<li>Support for Pause and Resume functionality on active data streams to capable providers.</li>
+				<li>Ability to send Post Messages used for Consumer-based Publishing and contributions to capable providers.</li>
+				<li>Ability to send and receive Generic Messages.</li>
+				<li>Ability to consume data with a tunneled HTTP connection to an ADS via WinINet(Windows platforms only).</li>
+			</ul>
+		</li>
+		<li>Interactive Provider Applications:
+			<ul>
+				<li>Ability to receive requests and respond to Streaming and Snapshot based subscription requests 
+					(Previously known as Managed or Sink-Driven Server applications).</li>
+				<li>Ability to receive and respond to requests for Batch, View, and Symbol List subscription requests.</li>
+				<li>Ability to receive Pause and Resume requests on active data streams.</li>
+				<li>Ability to receive acknowledge Post Messages used for Consumer-based Publishing and contributions.</li>
+				<li>Ability to send and receive Generic Messages.</li>
+				<li>Ability to write a server-based application that accepts multiple connections, or allows multiple consumers
+					to connect to a provider.</li>
+			</ul>
+		</li>
+		<li>Non-Interactive Provider Applications:
+			<ul>
+				<li>Ability to start up and publish data directly to ADH (Previously known as Source-Driven or Broadcast style 
+					server applications).</li>
+			</ul>
+		</li>
+	</ul>
+	<p>This release also includes the Transport API Value Added components.  These components are intended to simplify the Transport API usage, and reduce the amount 
+	   of code required to create OMM-based applications.  In addition to the previous Transport API features, these components provide the following additional features:<p>
+	<ul>
+		<li>The Transport API Reactor component is a connection management and event processing component.</li>
+		<li>The Administration Domain Model Representations reduce the code required to interact with the RDM administrative domains.</li>
+		<li>The Value Added Utilities are a collection of helper constructs mainly used by the Transport API Reactor.</li>
+	</ul>
+      <table border="0" width="100%" cellspacing="0">
+        <tbody>
+          <tr>
+            <td bgcolor="#6a6a6a" width="67%"><font color="#ffffff" 
+ face="sans-serif,Arial,Helvetica"><strong><a class="heading" name="Package Contents">Transport API Documentation</a></strong></font></td>
+            <td bgcolor="#6a6a6a" width="33%">
+            <p align="right"><a target="_self" class="header"
+ href="#Product%20Overview"><font
+ color="#ffffff" face="sans-serif,Arial,Helvetica">Return to Top</font></a></p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p>The following documents are included in this release.</p>
+      <p><font size="3"><strong><a class="topactive" target="main" href="../TransportAPI_C_DevGuide.pdf">Transport API Developers Guide</a></strong></font> </p>
+      <p>This document provides information and examples intended to aid in development with the Transport API product.  It provides detailed 
+	  descriptions for OMM Data and Message package concepts and use of the RSSL Reliable Transport.  </p>
+      <strong><font size="3"><a class="topactive" target="main" href="../TransportAPIC_RDMUsageGuide.pdf">Transport API-RDM Usage Guide</a></font></strong>
+      <p>This document describes the message layout and use for Thomson Reuters provided domain message models.  This content is available through 
+	  the Thomson Reuters Enterprise Platform, EleKtron, Reuters Data Feed Direct, and various other sources. </p>
+      <strong><font size="3"><a class="topactive" target="_top" href="../doxygen/ETA/modules.html">Transport API Reference Manual</a></font></strong>
+      <p>This is a doxygen generated reference manual, based on the comments and usage information provided in the Transport API header files.  This is intended 
+	  As a supplement to the Transport API Developers Guide.</p>
+	  <strong><font size="3"><a class="topactive" target="main" href="../TransportAPI_C_PerfToolsGuide.pdf">Transport API Performance Tools Guide</a></font></strong>
+	  <p>This document details the Transport API Open Source Performance Tool Suite, their usage, and their design and behaviour.</p>
+	  <strong><font size="3"><a class="topactive" target="_top" href="TransportAPI_ValueAdd_Portal.html">Transport API Value Added Components Portal</a></font></strong>
+      <p>This is the main documentation portal for the Transport API Value Added Components.</p>
+
+	  <table border="0" width="100%" cellspacing="0">
+        <tbody>
+          <tr>
+            <td bgcolor="#6a6a6a" width="67%"><font color="#ffffff" 
+ face="sans-serif,Arial,Helvetica"><strong><a class="heading" name="Additional Contents">Utilities Documentation</a></strong></font></td>
+            <td bgcolor="#6a6a6a" width="33%">
+            <p align="right"><a target="_self" class="header"
+ href="#Product%20Overview"><font
+ color="#ffffff" face="sans-serif,Arial,Helvetica">Return to Top</font></a></p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p>The following documents are included in this release.</p>
+      <strong><font size="3"><a class="topactive" target="main" href="../../Utils/Dacs/Docs/DacsLibraryFunctions.pdf">DACS Lock Reference Manual</a></font></strong>
+      <p>This document describes DACS Lock creation and manipulation of permission information.  The DACS Lock package is made available as a 
+	  supplement to the Transport API so applications can properly create any necessary permission data for content they provide.</p>
+      <p><font size="3"><strong><a class="topactive" target="main" href="../../Utils/Ansi/Docs/TransportAPI_AnsiRef.pdf">ANSI Reference Manual</a></strong></font> </p>
+      <p>This document describes ANSI Page encoding and decoding.  The ANSI package is made available as a supplement to the Transport API so, if needed, an 
+	  application can provide or consume ANSI Page based content.</p>
+      <p><!-- BOTTOM BAR --> </p>
+	  
+      <table cellspacing="0" cellpadding="0" width="100%" border="0">
+        <tbody>
+          <tr>
+            <td bgcolor="#cccccc"><img height="3" src="invis.gif"
+ width="1"></td>
+          </tr>
+        </tbody>
+      </table>
+	<hr class="footer"/><address class="footer"><small>
+    <table cellspacing="0" cellpadding="0" border="0" width="100%">
+      <tr>
+        <td><img src="invis.gif" width="11" height="1"></td>
+        <td align="left" valign="top" width="100%"><! -- START OF FOOTER --> <table cellSpacing="0" cellPadding="0" border="0">
+          <tr>
+            <td><p class="smallfont"><a href="copyright.htm">Copyright Notice</a></td>
+            <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
+            <td><p class="smallfont">Last modified on:&nbsp;</td>
+            <td><p class="smallfont"><!--webbot bot="Timestamp" S-Type="EDITED" S-Format="%d %B %Y" startspan -->15 March 2013<!--webbot bot="Timestamp" endspan i-checksum="32125" --> </td>
+          </tr>
+        </table>
+        <p class="smallfont">&nbsp;</td>		
+		<td valign="top" align="right" width="141"><a href="http://www.reuters.com/" target="display">
+		<img alt="The Business of Information" src="logo_colour_01.gif" border="0" width="120" height="28"></a></td>	
+      </tr>
+    </table>
+	</small></address>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>7.3.11.5 Decoding a Login Refresh</title>
+    <link rel="StyleSheet" href="css/ETAJ_ValueAddDevGuide.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Transport API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Transport API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="Heading_4"><a name="9002895">Decoding a Login Refresh</a></div>
+      <div class="Code"><a name="9002896">&nbsp;</a></div>
+      <div class="Code"><a name="9002897">DecodeIterator decodeIter = CodecFactory.createDecodeIterator();</a></div>
+      <div class="Code"><a name="9002898">LoginRefresh loginRefresh = (LoginRefresh)LoginMsgFactory.createMsg();</a></div>
+      <div class="Code"><a name="9002899">Msg msg = CodecFactory.createMsg();</a></div>
+      <div class="Code"><a name="9002900">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002901">/* Clear the decode iterator, set its RWF Version, and set it to the encoded buffer. */</a></span></div>
+      <div class="Code"><a name="9002902">decodeIter.clear();</a></div>
+      <div class="Code"><a name="9002903">ret = decodeIter.setBufferAndRWFVersion(msgBuf,channelMajorVersion, channelMinorVersion);</a></div>
+      <div class="Code"><a name="9002904">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002905">/* Decode the message to a Msg object. */</a></span></div>
+      <div class="Code"><a name="9002906">ret = msg.decode(decodeIter);</a></div>
+      <div class="Code"><a name="9002907">&nbsp;</a></div>
+      <div class="Code"><a name="9002908">if (ret == CodecReturnCodes.SUCCESS &amp;&amp;</a></div>
+      <div class="Code"><a name="9002909">	msg.domainType() == DomainTypes.LOGIN &amp;&amp; msg.msgClass() ==  MsgClasses.REFRESH)</a></div>
+      <div class="Code"><a name="9002910">{</a></div>
+      <div class="Code"><a name="9002911">	loginRefresh.clear();</a></div>
+      <div class="Code"><a name="9002912">	loginRefresh.rdmMsgType(LoginMsgType.REFRESH);</a></div>
+      <div class="Code"><a name="9002913">&nbsp;</a></div>
+      <div class="Code"><a name="9002914">	ret = loginRefresh.decode(decodeIter, msg);</a></div>
+      <div class="Code"><a name="9002915">&nbsp;</a></div>
+      <div class="Code"><a name="9002916">	if(ret == CodecReturnCodes.SUCCESS)</a></div>
+      <div class="Code"><a name="9002917">	{</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002918">		/* Print username. */</a></span></div>
+      <div class="Code"><a name="9002919">		if(loginRefresh.checkHasUserName())</a></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9002920">			printf("Username: " + loginRefresh.userName().toString());</a></div>
+      <div class="Code"><a name="9002921">&nbsp;</a></div>
+      <div class="Code"><a name="9002922">		if (loginRefresh.checkHasAttrib())</a></div>
+      <div class="Code"><a name="9002923">		{</a></div>
+      <div class="Code"><a name="9002924">			LoginAttrib attrib = loginRefresh.attrib();</a></div>
+      <div class="Code"><a name="9002925">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002926">			/* Print ApplicationName if present. */</a></span></div>
+      <div class="Code"><a name="9002927">			if(attrib.checkHasApplicationName())</a></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9002928">				System.out.println(“ApplicationName: " + attrib.applicationName().toString());</a></div>
+      <div class="Code"><a name="9002929">&nbsp;</a></div>
+      <div class="Code"><a name="9002930">			</a><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">/* Print ApplicationId if present. */</span></div>
+      <div class="Code"><a name="9002931">			if(attrib.checkHasApplicationId())</a></div>
+      <div class="Code"><a name="9002932">				System.out.println(“ApplicationId: " + attrib.applicationId().toString());</a></div>
+      <div class="Code"><a name="9002933">&nbsp;</a></div>
+      <div class="Code" style="text-indent: 0pt"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002934">			/* Print Position if present. */</a></span></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9002935">			if(attrib.checkHasPosition())</a></div>
+      <div class="Code"><a name="9002936">				System.out.println(“Position: " + attrib.position().toString());</a></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9002937">		}</a></div>
+      <div class="Code"><a name="9002938">	}</a></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9002939">}</a></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9002940">&nbsp;</a></div>
+      <div class="Caption"><a name="9002941">Code Example 19: Login Refresh Decoding Example</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="ETAJ_ValueAddDevGuide.1.136.html">Chapter 7	Administration Domain Models Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="ETAJ_ValueAddDevGuide.1.141.html">7.3	RDM Login Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="ETAJ_ValueAddDevGuide.1.173.html">7.3.11	Login Encoding and Decoding</a> : 7.3.11.5	Decoding a Login Refresh</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

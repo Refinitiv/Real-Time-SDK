@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>13.7.1 Batch Request Usage</title>
+    <link rel="StyleSheet" href="css/Chap_MessagesAdvancedConcepts.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Transport API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Transport API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3"><a name="999240">Batch Request Usage</a></div>
+      <div class="Body"><a name="1041799"><!--o--></a>Batch requesting can be leveraged across all non-administrative<sup><a name="wwfootnote_inline_53" href="#53">1</a></sup> domain model types, where specific usage and support should be indicated in the model definition. If an item requested as part of a batch is not available, the provider should send a <span class="CodeOrCommand">StatusMsg</span> on the stream (this is handled in the same manner as an individual item request).</div>
+      <div class="Body"><a name="1041812">A consumer application can issue a batch request by using a </a><span class="CodeOrCommand">RequestMsg</span> with the <span class="CodeOrCommand">RequestMsgFlags.HAS_BATCH</span> flag set and including a specifically formatted payload. The payload should contain an <span class="CodeOrCommand">ElementList</span> along with an <span class="CodeOrCommand">ElementEntry</span> named <span class="CodeOrCommand">:ItemList</span>. Because payload content can include customer-defined portions and Thomson Reuters-defined portions, the Transport API uses a name-spacing scheme. Any content in an element <span class="CodeOrCommand">name</span> prior to <span class="CodeOrCommand">:</span> is used as name space information (e.g., <span class="CodeOrCommand">Customer:Element</span>). Thomson Reuters reserves the empty name space (e.g., <span class="CodeOrCommand">:Element</span>). The <span class="CodeOrCommand">com.thomsonreuters.upa.rdm.ElementNames</span> defines batch request-related enumeration and element name buffer constant.</div>
+      <div class="Body"><a name="1041828">The </a><span class="CodeOrCommand">:ItemList</span> contains an <span class="CodeOrCommand">Array</span>, where the <span class="CodeOrCommand">Array.primitiveType</span> is <span class="CodeOrCommand">DataTypes.ASCII_STRING</span>. Each contained string (populated in a <span class="CodeOrCommand">Buffer</span>) corresponds to a requested name. The <span class="CodeOrCommand">msgKey</span> contents will be applied to all names in the list, and a <span class="CodeOrCommand">msgKey.name</span> (or <span class="CodeOrCommand">MsgKeyFlags.HAS_NAME_TYPE</span>) should not be present.</div>
+      <div class="Body"><a name="1041838">When a provider application receives a batch request, it should respond on the same stream with a </a><span class="CodeOrCommand">StatusMsg</span> that acknowledges receipt of the batch by indicating the <span class="CodeOrCommand">dataState</span> is <span class="CodeOrCommand">DataStates.OK</span> and <span class="CodeOrCommand">streamState</span> is <span class="CodeOrCommand">StreamStates.CLOSED</span>. The stream on which the batch request was sent (i.e., the ‘batch stream’) then closes, because all additional responses are provided on individual streams, and thus no reissuing is possible on a batch stream. The <span class="CodeOrCommand">:ItemList</span> should be traversed to obtain each requested name and the batch <span class="CodeOrCommand">RequestMsg.msgKey</span> content should be associated with each item. If any request cannot be fulfilled, the provider should send a <span class="CodeOrCommand">StatusMsg</span> to close the stream and indicate the reason, using the stream that corresponds to that particular item (for further details, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MsgPackage_DetailedView.12.23.html', '');" title="12.2.4 Status Message Interface">Section 12.2.4</a>).</div>
+      <div class="Body"><a name="1041860">Assignment of </a><span class="CodeOrCommand">streamId</span> values for all requested items is sequential, beginning with (<span class="Parameter">1</span> + <span class="CodeOrCommand">streamId</span>) of the batch <span class="CodeOrCommand">RequestMsg</span>. Because an OMM consumer requests the batch, positive <span class="CodeOrCommand">streamId</span> values should be assigned. For example, if the batch request uses <span class="CodeOrCommand">streamId</span> <span class="Parameter">20</span> and requests ten items, the <span class="CodeOrCommand">StatusMsg</span> response to the batch request would be delivered on <span class="CodeOrCommand">streamId</span> <span class="Parameter">20</span>, then the first item in the list receives a response with <span class="CodeOrCommand">streamId</span> <span class="Parameter">21</span>, the second item with <span class="CodeOrCommand">streamId</span> <span class="Parameter">22</span>, etc. By setting the initial <span class="CodeOrCommand">streamId</span>, the consumer application can control the resultant <span class="CodeOrCommand">streamId</span> range, ensuring enough available <span class="CodeOrCommand">streamId</span> values exist to allocate identifiers for all requested items.</div>
+      <div class="Body"><a name="1041882">Any view information (described in </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MessagesAdvancedConcepts.13.15.html', '');" title="13.8 Dynamic View Use">Section 13.8</a>) included in a batch request should be applied for each item in the request. If a consumer application wants to reissue any item that was requested as part of a batch, the application can issue a subsequent <span class="CodeOrCommand">RequestMsg</span> on that item’s <span class="CodeOrCommand">streamId</span>.</div>
+      <div class="Body"><a name="1041889">A provider application can indicate support for batch request handling by sending the </a><span class="CodeOrCommand">msgKey</span> attribute <span class="CodeOrCommand">supportBatchRequests</span> in the Login domain <span class="CodeOrCommand">RefreshMsg</span>.</div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1041899">For an example of encoding a batch request, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MessagesAdvancedConcepts.13.14.html', '');" title="13.7.2 Batch RequestMsg Encoding Example">Section 13.7.2</a>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1041908">For more information about </a><span class="CodeOrCommand">RequestMsg</span> and <span class="CodeOrCommand">RequestMsgFlags.HAS_BATCH</span> flag values, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MsgPackage_DetailedView.12.14.html#1001278', '');" title="12.2 Messages">Section 12.2.1</a>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1041922">For more information about </a><span class="CodeOrCommand">ElementList</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.046.html', '');" title="11.3.2 ElementList">Section 11.3.2</a>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1041926">For more details on the Login </a><span class="CodeOrCommand">domainType</span> (<span class="CodeOrCommand">DomainTypes.LOGIN</span>) and batch request use in general, see the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;RDM&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API Java Edition RDM Usage Guide</a></span>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+      <hr />
+      <div style="font-size: smaller; float: left; padding-right: 10px;">
+        <a name="53" href="#wwfootnote_inline_53">1</a>
+      </div>
+      <div class="Footnote"><a name="1041802">Administrative domain types are considered to be the Login, Directory, and Dictionary domain models. All other domains are considered non-administrative. </a></div>
+      <br style="clear: both;" />
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_MessagesAdvancedConcepts.13.01.html">Chapter 13	Advanced Messaging Concepts</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_MessagesAdvancedConcepts.13.12.html">13.7	Batch Requesting</a> : 13.7.1	Batch Request Usage</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

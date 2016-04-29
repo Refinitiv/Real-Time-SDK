@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WebWorksHelpTOC version="5.0" xmlns="urn:WebWorks-Help-TOC-Schema">
+  <i t="Chapter 1 Introduction to the DACS Lock API Developers Guide" l="0">
+    <i t="1.1 Product Description" l="1" />
+    <i t="1.2 IDN Versus Elektron" l="2" />
+    <i t="1.3 Audience" l="3" />
+    <i t="1.4 Organization of Manual" l="4" />
+    <i t="1.5 References" l="5" />
+    <i t="1.6 Conventions" l="6">
+      <i t="1.6.1 Typographic" l="6#1021612" />
+      <i t="1.6.2 Programming" l="7" />
+    </i>
+    <i t="1.7 Glossary" l="8" />
+  </i>
+  <i t="Chapter 2 DACS-Compliant Source Server Applications" l="9">
+    <i t="2.1 Overview" l="10" />
+    <i t="2.2 Establish Subservice Names" l="11" />
+    <i t="2.3 Define Entitlement Codes" l="12" />
+    <i t="2.4 Create and Write Locks" l="13" />
+    <i t="2.5 Publish the Map" l="14" />
+    <i t="2.6 Provide a Mechanism to Read the Map and Supply it to the DACS Station" l="15" />
+  </i>
+  <i t="Chapter 3 DACS Lock API" l="16">
+    <i t="3.1 DACS Lock Operation" l="17" />
+    <i t="3.2 Forming a DACS Lock" l="18" />
+    <i t="3.3 DACS Lock Contents" l="19" />
+    <i t="3.4 Compression of DACS Locks" l="20" />
+    <i t="3.5 Compounding DACS Locks" l="21" />
+    <i t="3.6 Transport of DACS Locks" l="22" />
+    <i t="3.7 Compound DACS Lock in Relation to Permissioning" l="23" />
+  </i>
+  <i t="Chapter 4 DACS Lock API Components" l="24">
+    <i t="4.1 JDACSLock Methods" l="25" />
+    <i t="4.2 Supporting Objects" l="26">
+      <i t="4.2.1 DacsLock Interface" l="27" />
+      <i t="4.2.2 DacsError Interface" l="28" />
+    </i>
+    <i t="4.3 Constant Definitions" l="29">
+      <i t="4.3.1 DacsReturnCodes Definitions" l="30" />
+      <i t="4.3.2 DacsOperations Interface" l="31" />
+    </i>
+  </i>
+  <i t="Appendix A Example Program" l="32" />
+</WebWorksHelpTOC>

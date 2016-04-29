@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>11.2.4 High-water Mark</title>
+    <link rel="StyleSheet" href="css/Chap_Perf_Best_Practices.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Transport API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Transport API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3"><a name="1223225">High-water Mark</a></div>
+      <div class="Body"><a name="1226420">Higher throughput is usually achieved by making a small number of large writes to the transport instead of doing a large number of small writes. For example, writing one 6000-byte buffer is generally more efficient than writing 1000 six-byte buffers. To achieve higher efficiencies, the Transport API employs the concept of a high-water mark. When the application calls </a><span class="CodeOrCommand">Channel.write()</span>, the Transport API does not always immediately pass the buffer to the transport; instead, the Transport API passes data to the transport after the size of its buffer reaches the high-water mark.<sup><a name="wwfootnote_inline_33" href="#33">1</a></sup> Note that the high-water mark applies to written data and not to the number of bytes requested in the call to <span class="CodeOrCommand">rsslGetBuffer</span>.</div>
+      <div class="Body"><a name="1226442">For example, assume a high-water mark of 6144 bytes. If an application gets a buffer, encodes 500 bytes of content, and passes this to </a><span class="CodeOrCommand">Channel.write()</span>, the high-water mark will be triggered after thirteen buffers. At that point, the Transport API’s output queue will contain thirteen buffers, each with approximately 500 bytes that it can pass to the underlying transport, instead of passing one at a time.</div>
+      <div class="Body"><a name="1226449">You can configure each individual connection’s high-water mark. The application can also invoke data being passed to the underlying transport by using the </a><span class="CodeOrCommand">Channel.flush()</span> routine or passing the <span class="Parameter">WriteFlags.DIRECT_SOCKET_WRITE</span> flag to <span class="CodeOrCommand">Channel.write()</span>.</div>
+      <div class="Body"><a name="1226462">Note the throughput and latency implications, and balance the use of the high-water mark and </a><span class="CodeOrCommand">Channel.flush()</span> accordingly:</div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1226463">In high-throughput situations, it is better to make large writes to achieve higher efficiencies (i.e., in this case use the high-water mark).</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1226467">In low-throughput situations, data might linger in Transport API queues for longer periods and thus incur latency (i.e., in this case, use </a><span class="CodeOrCommand">Channel.flush()</span>).</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+      <hr />
+      <div style="font-size: smaller; float: left; padding-right: 10px;">
+        <a name="33" href="#wwfootnote_inline_33">1</a>
+      </div>
+      <div class="Footnote"><a name="1226438">As previously noted, the application can invoke data being passed to the transport through the use of </a><span class="LucidaConsole">Channel.flush() </span>or the <br /><span class="Parameter">WriteFlags.DIRECT_SOCKET_WRITE</span> flag.</div>
+      <br style="clear: both;" />
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Perf_Best_Practices.11.01.html">Chapter 11	Performance Best Practices</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Perf_Best_Practices.11.03.html">11.2	Transport Best Practices</a> : 11.2.4	High-water Mark</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

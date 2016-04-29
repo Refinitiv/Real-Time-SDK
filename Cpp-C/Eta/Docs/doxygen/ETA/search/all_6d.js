@@ -1,0 +1,26 @@
+var searchData=
+[
+  ['majorversion',['majorVersion',['../structRsslChannel.html#a74683ccdfdca9a1e6afb8b93fe216b19',1,'RsslChannel::majorVersion()'],['../structRsslConnectOptions.html#a8fcb37e0d4a9fcdcb095150f1bd22f9c',1,'RsslConnectOptions::majorVersion()'],['../structRsslBindOptions.html#ad93d882ddb984054990a6b5ee5025190',1,'RsslBindOptions::majorVersion()']]],
+  ['maxfid',['maxFid',['../structRsslDataDictionary.html#ae622985300ba3ffc9280f52a318af6cd',1,'RsslDataDictionary']]],
+  ['maxfragmentsize',['maxFragmentSize',['../structRsslChannelInfo.html#a42b04ad7f4974a3dbbcdcdd3ec5e9ec4',1,'RsslChannelInfo::maxFragmentSize()'],['../structRsslBindOptions.html#a1c71c77a41b213c609192d7e49309737',1,'RsslBindOptions::maxFragmentSize()']]],
+  ['maxmsgsize',['maxMsgSize',['../structRsslSeqMCastOpts.html#a2b1085740433eefdbcf23e0cdf3907cd',1,'RsslSeqMCastOpts']]],
+  ['maxoutputbuffers',['maxOutputBuffers',['../structRsslChannelInfo.html#a7c2a8fd381620d42b9731d8cd42d5501',1,'RsslChannelInfo::maxOutputBuffers()'],['../structRsslBindOptions.html#a4478dd0e5b4f2f3f1c24ca43fdc73324',1,'RsslBindOptions::maxOutputBuffers()']]],
+  ['maxreaderlag',['maxReaderLag',['../structRsslShmemOpts.html#add5f68af6e9fcc39f5b4e53905d49c99',1,'RsslShmemOpts']]],
+  ['maxsetid',['maxSetId',['../structRsslFieldSetDefDb.html#af478bedd62630434be163919b314a428',1,'RsslFieldSetDefDb::maxSetId()'],['../structRsslElementSetDefDb.html#af94cfd272220bddeb9fb761d9339a4cc',1,'RsslElementSetDefDb::maxSetId()']]],
+  ['maxvalue',['maxValue',['../structRsslEnumTypeTable.html#a555c823c16c034efff40c493bc13edb1',1,'RsslEnumTypeTable']]],
+  ['mcastrcvd',['mcastRcvd',['../structRsslMCastStats.html#a1e7405f075cdc056dd62e0d456843240',1,'RsslMCastStats']]],
+  ['mcastsent',['mcastSent',['../structRsslMCastStats.html#a83b29ba417382c6340b6ba11871ded41',1,'RsslMCastStats']]],
+  ['meaning',['meaning',['../structRsslEnumType.html#a3cacf62ccb2beccaf453854e9e22685e',1,'RsslEnumType']]],
+  ['microsecond',['microsecond',['../structRsslTime.html#ae72059db992fcc747e40413a91fac5d6',1,'RsslTime']]],
+  ['millisecond',['millisecond',['../structRsslTime.html#a777ecae31ce7967b4d7689918fd7358f',1,'RsslTime']]],
+  ['minfid',['minFid',['../structRsslDataDictionary.html#ab5590a050fa9ed7f5756798bf5b96bf0',1,'RsslDataDictionary']]],
+  ['minorversion',['minorVersion',['../structRsslChannel.html#a2b46ac6f2248106ab40c403f59b53410',1,'RsslChannel::minorVersion()'],['../structRsslConnectOptions.html#aaff47ddc665f9205953eda9f4a79cefa',1,'RsslConnectOptions::minorVersion()'],['../structRsslBindOptions.html#af3c019e8f5a681ba8b412679f55d336c',1,'RsslBindOptions::minorVersion()']]],
+  ['minpingtimeout',['minPingTimeout',['../structRsslBindOptions.html#a7f14e674f76edf251040af2a64660652',1,'RsslBindOptions']]],
+  ['minute',['minute',['../structRsslTime.html#a559bc395071c67cb2299936ee80a04e9',1,'RsslTime']]],
+  ['month',['month',['../structRsslDate.html#aca74cc6b3fbe6d2c786122926142a5fe',1,'RsslDate']]],
+  ['msgbase',['msgBase',['../structRsslAckMsg.html#afc11fd60ac63630b48a00fbbf6a20fa7',1,'RsslAckMsg::msgBase()'],['../structRsslCloseMsg.html#adfdc3fc4e28c910154e3bb65708b258e',1,'RsslCloseMsg::msgBase()'],['../structRsslGenericMsg.html#ab1d97980979b99ccd43c5aa9a9cdce62',1,'RsslGenericMsg::msgBase()'],['../unionRsslMsg.html#ac94e598ec020545ae245a4f394d72fae',1,'RsslMsg::msgBase()'],['../structRsslPostMsg.html#a907e0cce832a4ca451fe91a10ac9a0c8',1,'RsslPostMsg::msgBase()'],['../structRsslRefreshMsg.html#a93d328f761a38ef894c6f00196f0518e',1,'RsslRefreshMsg::msgBase()'],['../structRsslRequestMsg.html#a39dc9116a1f0dc856bdde8f8f4e4aa7c',1,'RsslRequestMsg::msgBase()'],['../structRsslStatusMsg.html#a5acc5895f7440679d4ac0c876cf4e834',1,'RsslStatusMsg::msgBase()'],['../structRsslUpdateMsg.html#a36176c1085364d5eae33981f734ba3be',1,'RsslUpdateMsg::msgBase()']]],
+  ['msgclass',['msgClass',['../structRsslMsgBase.html#a6c2fbbb32035ba0ac96d8191179316f8',1,'RsslMsgBase']]],
+  ['msgkey',['msgKey',['../structRsslMsgBase.html#a900f9d2b712e1e67cd5803bc6a3e7549',1,'RsslMsgBase']]],
+  ['multicastopts',['multicastOpts',['../structRsslConnectOptions.html#ae54b2ea6171bcdc71bd968a5023acec7',1,'RsslConnectOptions']]],
+  ['multicaststats',['multicastStats',['../structRsslChannelInfo.html#ab5cff18ee185b924c1ee8122f2e7e476',1,'RsslChannelInfo']]]
+];

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>7.4.17.3 Decoding a Source Directory Request</title>
+    <link rel="StyleSheet" href="css/ETAJ_ValueAddDevGuide.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Transport API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Transport API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="Heading_4"><a name="9003770">Decoding a Source Directory Request</a></div>
+      <div class="Code"><a name="9003771">&nbsp;</a></div>
+      <div class="Code"><a name="9003772">DecodeIterator decodeIter = CodecFactory.createDecodeIterator();</a></div>
+      <div class="Code"><a name="9003773">DirectoryRequest directoryRequest = (DirectoryRequest)DirectoryMsgFactory.createMsg();</a></div>
+      <div class="Code"><a name="9003774">Msg msg = CodecFactory.createMsg();</a></div>
+      <div class="Code"><a name="9003775">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003776">/* Clear the decode iterator, set its RWF Version, and set it to the encoded buffer. */</a></span></div>
+      <div class="Code"><a name="9003777">decodeIter.clear();</a></div>
+      <div class="Code"><a name="9003778">&nbsp;</a></div>
+      <div class="Code"><a name="9003779">ret = decodeIter.setBufferAndRWFVersion(msgBuf,channelMajorVersion, channelMinorVersion);</a></div>
+      <div class="Code"><a name="9003780">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003781">/* Decode the message to a Msg object. */</a></span></div>
+      <div class="Code"><a name="9003782">ret = msg.decode(decodeIter);</a></div>
+      <div class="Code"><a name="9003783">&nbsp;</a></div>
+      <div class="Code"><a name="9003784">if (ret == CodecReturnCodes.SUCCESS &amp;&amp;</a></div>
+      <div class="Code"><a name="9003785">	msg.domainType() == DomainTypes.SOURCE &amp;&amp; msg.msgClass() ==  MsgClasses.REQUEST)</a></div>
+      <div class="Code"><a name="9003786">{</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003787">	</a></span>directoryRequest.clear();</div>
+      <div class="Code" style="text-indent: 0pt"><a name="9003788">	directoryRequest.rdmMsgType(DirectoryMsgType.REQUEST);</a></div>
+      <div class="Code"><a name="9003789">&nbsp;</a></div>
+      <div class="Code"><a name="9003790">	ret = directoryRequest.decode(decodeIter, msg);</a></div>
+      <div class="Code"><a name="9003791">&nbsp;</a></div>
+      <div class="Code"><a name="9003792">	if(ret == CodecReturnCodes.SUCCESS)</a></div>
+      <div class="Code"><a name="9003793">	{</a></div>
+      <div class="Code"><a name="9003794">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003795">		/* Print if Info filter was requested. */</a></span></div>
+      <div class="Code"><a name="9003796">		if ((directoryRequest.filter() &amp; Directory.ServiceFilterFlags.INFO) != 0)</a></div>
+      <div class="Code"><a name="9003797">			System.out.println("Info filter requested.");</a></div>
+      <div class="Code"><a name="9003798">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003799">		/* Print if State filter was requested. */</a></span></div>
+      <div class="Code"><a name="9003800">		if ((directoryRequest.filter() &amp; Directory.ServiceFilterFlags.STATE) != 0)</a></div>
+      <div class="Code"><a name="9003801">			System.out.println("State filter requested.");</a></div>
+      <div class="Code"><a name="9003802">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003803">		/* Print if Group filter was requested. */</a></span></div>
+      <div class="Code"><a name="9003804">		if ((directoryRequest.filter() &amp; Directory.ServiceFilterFlags.GROUP) != 0)</a></div>
+      <div class="Code"><a name="9003805">			System.out.println("Group filter requested.");</a></div>
+      <div class="Code"><a name="9003806">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003807">		/* Print service ID if present. */</a></span></div>
+      <div class="Code"><a name="9003808">		if (directoryRequest.checkHasServiceId())</a></div>
+      <div class="Code"><a name="9003809">			System.out.println("Service ID: “ + directoryRequest-&gt;serviceId);</a></div>
+      <div class="Code"><a name="9003810">	}</a></div>
+      <div class="Code"><a name="9003811">}</a></div>
+      <div class="Code"><a name="9003812">&nbsp;</a></div>
+      <div class="Caption"><a name="9003813">Code Example 21: Directory Request Decoding Example</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="ETAJ_ValueAddDevGuide.1.136.html">Chapter 7	Administration Domain Models Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="ETAJ_ValueAddDevGuide.1.178.html">7.4	RDM Source Directory Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="ETAJ_ValueAddDevGuide.1.230.html">7.4.17	Directory Encoding and Decoding</a> : 7.4.17.3	Decoding a Source Directory Request</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

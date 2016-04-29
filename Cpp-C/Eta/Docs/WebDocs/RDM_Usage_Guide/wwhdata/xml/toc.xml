@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WebWorksHelpTOC version="5.0" xmlns="urn:WebWorks-Help-TOC-Schema">
+  <i t="Chapter 1 Introduction to the RDM Usage Guide" l="0">
+    <i t="1.1 Purpose" l="1" />
+    <i t="1.2 Audience" l="2" />
+    <i t="1.3 Open Message Model (OMM)" l="3" />
+    <i t="1.4 References" l="4" />
+    <i t="1.5 Documentation Feedback" l="5" />
+    <i t="1.6 Conventions" l="6">
+      <i t="1.6.2 General Transport API Syntax" l="7" />
+      <i t="1.6.3 Standard Behavior and Definitions" l="8" />
+    </i>
+    <i t="1.7 Acronyms and Abbreviations" l="9" />
+    <i t="1.8 What’s New In This Document" l="10" />
+  </i>
+  <i t="Chapter 2 Domain Model Overview" l="11">
+    <i t="2.1 What is a Domain Message Model?" l="12" />
+    <i t="2.2 Reuters Domain Models (RDMs)" l="13" />
+    <i t="2.3 User-Defined Domain Model" l="14" />
+    <i t="2.4 Domain Message Model Creation" l="15" />
+    <i t="2.5 OMM Consumer / OMM Interactive Provider Initial Interaction" l="16" />
+    <i t="2.6 OMM Non-Interactive Provider Initial Interaction" l="17" />
+    <i t="2.7 Sending and Receiving Content" l="18" />
+    <i t="2.8 General Transport API Concepts" l="19">
+      <i t="2.8.1 Snapshot and Streaming Requests" l="20" />
+      <i t="2.8.2 Multi-Part Messages" l="21" />
+      <i t="2.8.3 Reissue Requests and Pause/Resume" l="22" />
+      <i t="2.8.4 Rippling Fields" l="23" />
+      <i t="2.8.5 Dynamic View" l="24" />
+      <i t="2.8.6 Batch Request" l="25" />
+      <i t="2.8.7 Posting" l="26" />
+    </i>
+  </i>
+  <i t="Chapter 3 Login Domain" l="27">
+    <i t="3.1 Description" l="28" />
+    <i t="3.2 Usage" l="29">
+      <i t="3.2.1 Login Request Message Use" l="29#999131" />
+      <i t="3.2.2 Login Request Elements" l="30" />
+      <i t="3.2.3 Login Refresh Message Use" l="31" />
+      <i t="3.2.4 Login Refresh Elements" l="32" />
+      <i t="3.2.5 Login Status Message Use" l="33" />
+      <i t="3.2.6 Login Update Message Use" l="34" />
+      <i t="3.2.7 Login Close Message Use" l="35" />
+      <i t="3.2.8 Login Generic Message Use" l="36" />
+      <i t="3.2.9 Login Post Message Use" l="37" />
+      <i t="3.2.10 Login Ack Message Use" l="38" />
+    </i>
+    <i t="3.3 Data" l="39">
+      <i t="3.3.1 Login Refresh Message Payload" l="39#999139" />
+      <i t="3.3.2 Login Generic Message Payload" l="40" />
+    </i>
+    <i t="3.4 Special Semantics" l="41">
+      <i t="3.4.1 Login Handling Summary" l="41#999201" />
+      <i t="3.4.2 Negotiating MsgKey.Attrib Parameters" l="42" />
+      <i t="3.4.3 Group and Service Status" l="43" />
+      <i t="3.4.4 Single Open and Allow Suspect Data Behavior" l="44" />
+    </i>
+    <i t="3.5 Login Sample XML" l="45">
+      <i t="3.5.1 Login Request Message Sample XML" l="45#999205" />
+      <i t="3.5.2 Login Refresh Message Sample XML" l="46" />
+    </i>
+  </i>
+  <i t="Chapter 4 Source Directory Domain" l="47">
+    <i t="4.1 Description" l="48" />
+    <i t="4.2 Usage" l="49">
+      <i t="4.2.1 Source Directory Request Message Use" l="49#999763" />
+      <i t="4.2.2 Source Directory Refresh Message Use" l="50" />
+      <i t="4.2.3 Source Directory Update Message Use" l="51" />
+      <i t="4.2.4 Source Directory Status Message Use" l="52" />
+      <i t="4.2.5 Source Directory Generic Message Use" l="53" />
+    </i>
+    <i t="4.3 Data" l="54">
+      <i t="4.3.1 Source Directory Refresh and Update Payload" l="54#999115">
+        <i t="4.3.1.1 Source Directory Info Filter Entry" l="55" />
+        <i t="4.3.1.2 Source Directory State Filter Entry" l="56" />
+        <i t="4.3.1.3 Source Directory Group Filter Entry" l="57" />
+        <i t="4.3.1.4 Source Directory Load Filter Entry" l="58" />
+        <i t="4.3.1.5 Source Directory Data Filter Entry" l="59" />
+        <i t="4.3.1.6 Source Directory Link Filter Entry" l="60" />
+        <i t="4.3.1.7 Source Directory Sequenced Multicast Filter Entry" l="61" />
+      </i>
+      <i t="4.3.2 Source Directory ConsumerStatus Generic Message Payload" l="62" />
+    </i>
+    <i t="4.4 Special Semantics" l="63">
+      <i t="4.4.1 ServiceState and AcceptingRequests" l="63#1000125" />
+      <i t="4.4.2 Removing a Service" l="64" />
+      <i t="4.4.3 Non-existent Services" l="65" />
+    </i>
+    <i t="4.5 Source Directory Sample XML" l="66">
+      <i t="4.5.1 Source Directory Request Message Sample XML" l="66#999487" />
+      <i t="4.5.2 Source Directory Refresh Message Sample XML" l="67" />
+    </i>
+  </i>
+  <i t="Chapter 5 Dictionary Domain" l="68">
+    <i t="5.1 Description" l="69" />
+    <i t="5.2 Decoding Field List Contents with Field and Enumerated Types Dictionaries" l="70" />
+    <i t="5.3 Usage" l="71">
+      <i t="5.3.1 Dictionary Request Message Use" l="72" />
+      <i t="5.3.2 Dictionary Refresh Message Use" l="73" />
+      <i t="5.3.3 Dictionary Status Message Use" l="74" />
+    </i>
+    <i t="5.4 Payload and Summary Data for the Refresh Message" l="75" />
+    <i t="5.5 Field Dictionary" l="76">
+      <i t="5.5.1 Field Dictionary Payload" l="76#999151" />
+      <i t="5.5.2 Field Dictionary File Format" l="77">
+        <i t="5.5.2.1 Field Dictionary Tag Attributes" l="78" />
+        <i t="5.5.2.2 Field Dictionary Columns" l="79" />
+        <i t="5.5.2.3 RWF TYPE Keywords" l="80" />
+        <i t="5.5.2.4 FIELD TYPE Keywords" l="81" />
+      </i>
+    </i>
+    <i t="5.6 Enumerated Types Dictionary" l="82">
+      <i t="5.6.1 Enumerated Types Dictionary Payload" l="82#1007827" />
+      <i t="5.6.2 Enumerated Types Dictionary File Format" l="83">
+        <i t="5.6.2.1 Enumerated Types Dictionary File Example" l="84" />
+        <i t="5.6.2.2 Tagged Attributes" l="85" />
+        <i t="5.6.2.3 Reference Fields Section" l="86" />
+        <i t="5.6.2.4 Values Table Section" l="87" />
+      </i>
+    </i>
+    <i t="5.7 Global Field Set Definition Payload" l="88" />
+    <i t="5.8 Global Element Set Definition Payload" l="89" />
+    <i t="5.9 Special Semantics" l="90">
+      <i t="5.9.1 DictionaryId" l="90#1002064" />
+      <i t="5.9.2 DictionariesProvided and DictionariesUsed" l="91" />
+      <i t="5.9.3 Version Information" l="92">
+        <i t="5.9.3.1 Version Information Usage" l="93" />
+        <i t="5.9.3.2 Handling Dictionary Version Changes" l="94" />
+      </i>
+    </i>
+    <i t="5.10 Other Dictionary Types" l="95">
+      <i t="5.10.1 RecordTemplate DictionaryType" l="96" />
+      <i t="5.10.2 DisplayTemplate DictionaryType" l="97" />
+      <i t="5.10.3 Data Definitions DictionaryType" l="98" />
+      <i t="5.10.4 StyleSheet DictionaryType" l="99" />
+      <i t="5.10.5 Reference Dictionary Type" l="100" />
+    </i>
+    <i t="5.11 Dictionary Sample XML" l="101">
+      <i t="5.11.1 Dictionary Request Message Sample XML" l="101#1011954" />
+      <i t="5.11.2 Field Dictionary Refresh Message Sample XML" l="102" />
+      <i t="5.11.3 Enumerated Types Dictionary Refresh Message Sample XML" l="103" />
+    </i>
+    <i t="5.12 Dictionary Utility Functions" l="104">
+      <i t="5.12.1 Example: Basic Dictionary Use" l="105" />
+      <i t="5.12.2 Example: Dictionary Lookup Using a FieldId" l="106" />
+    </i>
+  </i>
+  <i t="Chapter 6 Market Price Domain" l="107">
+    <i t="6.1 Description" l="108" />
+    <i t="6.2 Usage" l="109">
+      <i t="6.2.1 Market Price Request Message Use" l="109#999245" />
+      <i t="6.2.2 Market Price Refresh Message Use" l="110" />
+      <i t="6.2.3 Market Price Update Message Use" l="111" />
+      <i t="6.2.4 Market Price Status Message Use" l="112" />
+      <i t="6.2.5 Market Price Domain Posting" l="113" />
+    </i>
+    <i t="6.3 Data: Market Price Refresh Message / Update Message Payload" l="114" />
+    <i t="6.4 Market Price Sample XML" l="115">
+      <i t="6.4.1 Market Price Request Message Sample XML" l="115#1001972" />
+      <i t="6.4.2 Market Price Refresh Message Sample XML" l="116" />
+    </i>
+  </i>
+  <i t="Chapter 7 Market By Order Domain" l="117">
+    <i t="7.1 Description" l="118" />
+    <i t="7.2 Usage" l="119">
+      <i t="7.2.1 Market By Order Request Message Use" l="119#999276" />
+      <i t="7.2.2 Market By Order Refresh Message Use" l="120" />
+      <i t="7.2.3 Market By Order Update Message Use" l="121" />
+      <i t="7.2.4 Market By Order Status Message Use" l="122" />
+      <i t="7.2.5 Market By Order Domain Posting" l="123" />
+    </i>
+    <i t="7.3 Data" l="124">
+      <i t="7.3.1 Market By Order Refresh / Update Payload" l="124#1001997" />
+      <i t="7.3.2 Summary Data" l="125" />
+      <i t="7.3.3 RsslMapEntry Contents" l="126" />
+    </i>
+    <i t="7.4 Market By Order Sample XML" l="127">
+      <i t="7.4.1 Market By Order Request MessageSample XML" l="127#1001345" />
+      <i t="7.4.2 Market By Order Refresh Message Sample XML" l="128" />
+    </i>
+  </i>
+  <i t="Chapter 8 Market By Price Domain" l="129">
+    <i t="8.1 Description" l="130" />
+    <i t="8.2 Usage" l="131">
+      <i t="8.2.1 Market By Price Request Message Use" l="131#999263" />
+      <i t="8.2.2 Market By Price Refresh Message Use" l="132" />
+      <i t="8.2.3 Market By Price Update Message Use" l="133" />
+      <i t="8.2.4 Market By Price Status Message Use" l="134" />
+      <i t="8.2.5 Market By Price Posting" l="135" />
+    </i>
+    <i t="8.3 Data" l="136">
+      <i t="8.3.1 Market By Price Refresh/Update Payload" l="136#1000846" />
+      <i t="8.3.2 Summary Data" l="137" />
+      <i t="8.3.3 RsslMapEntry Contents" l="138" />
+    </i>
+    <i t="8.4 Market By Price Sample XML" l="139">
+      <i t="8.4.1 Market By Price Request Message Sample XML" l="139#1002578" />
+      <i t="8.4.2 Market By Price Refresh Message Sample XML" l="140" />
+    </i>
+  </i>
+  <i t="Chapter 9 Market Maker Domain" l="141">
+    <i t="9.2 Usage" l="142">
+      <i t="9.2.1 Market Maker Request Message Use" l="142#999321" />
+      <i t="9.2.2 Market Maker Refresh Message Use" l="143" />
+      <i t="9.2.3 Market Maker Update Message Use" l="144" />
+      <i t="9.2.4 Market Maker Status Message Use" l="145" />
+      <i t="9.2.5 Market Maker Domain Posting" l="146" />
+    </i>
+    <i t="9.3 Data" l="147">
+      <i t="9.3.1 Market Maker Refresh/Update Payload" l="147#1001963" />
+      <i t="9.3.2 Summary Data" l="148" />
+      <i t="9.3.3 RsslMapEntry Contents" l="149" />
+    </i>
+    <i t="9.4 Market Maker Sample XML" l="150">
+      <i t="9.4.1 Market Maker Request Message Sample XML" l="150#1000080" />
+      <i t="9.4.2 Market Maker Refresh Message Sample XML" l="151" />
+    </i>
+  </i>
+  <i t="Chapter 10 Yield Curve Domain" l="152">
+    <i t="10.1 Description" l="153" />
+    <i t="10.2 Usage" l="154">
+      <i t="10.2.1 Yield Curve Request Message Use" l="154#999059" />
+      <i t="10.2.2 Yield Curve Refresh Message Use" l="155" />
+      <i t="10.2.3 Yield Curve Update Message Use" l="156" />
+      <i t="10.2.4 Yield Curve Status Message Use" l="157" />
+      <i t="10.2.5 Yield Curve Domain Posting" l="158" />
+    </i>
+    <i t="10.3 Data" l="159">
+      <i t="10.3.1 Yield Curve Refresh/Update Payload" l="159#1002040" />
+      <i t="10.3.2 Summary Data" l="160" />
+      <i t="10.3.3 Yield Curve Input and Output Entries" l="161" />
+      <i t="10.3.4 Yield Curve Payload Example" l="162" />
+    </i>
+    <i t="10.4 Yield Curve Sample XML" l="163">
+      <i t="10.4.1 Yield Curve Request Message Sample XML" l="163#1002570" />
+      <i t="10.4.2 Yield Curve Refresh Message Sample XML" l="164" />
+    </i>
+  </i>
+  <i t="Chapter 11 Symbol List Domain" l="165">
+    <i t="11.1 Description" l="166" />
+    <i t="11.2 Usage" l="167">
+      <i t="11.2.1 Symbol List Request Message Use" l="167#999261" />
+      <i t="11.2.2 Symbol List Refresh Message Use" l="168" />
+      <i t="11.2.3 Symbol List Update Message Use" l="169" />
+      <i t="11.2.4 Symbol List Status Message Use" l="170" />
+    </i>
+    <i t="11.3 Data" l="171">
+      <i t="11.3.1 Symbol List Request Payload" l="171#999486" />
+      <i t="11.3.2 Symbol List Data Streams" l="172" />
+      <i t="11.3.3 Symbol List Refresh/Update Payload" l="173" />
+    </i>
+    <i t="11.4 Symbol List Sample XML" l="174">
+      <i t="11.4.1 Symbol List Request Message Sample XML" l="174#999582" />
+      <i t="11.4.2 Symbol List Refresh Message Sample XML" l="175" />
+    </i>
+  </i>
+  <i t="Appendix A RDMUpdateEventTypes" l="176" />
+  <i t="Appendix B Revision History" l="177" />
+</WebWorksHelpTOC>

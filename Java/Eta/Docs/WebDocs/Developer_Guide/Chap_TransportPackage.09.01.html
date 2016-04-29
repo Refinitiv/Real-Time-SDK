@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>Chapter 9 Transport Package Detailed View</title>
+    <link rel="StyleSheet" href="css/Chap_TransportPackage.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Transport API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Transport API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H1"><a name="998350">Transport Package Detailed View</a></div>
+      <div class="WebWorks_MiniTOC">
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.02.html">9.1	Concepts</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.03.html">9.1.1	Transport Types</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.04.html">9.1.1.1	Socket Transport</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.05.html">9.1.1.2	Reliable Multicast Transport</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.06.html">9.1.1.3	Sequenced Multicast Transport</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.07.html">9.1.2	Channel Object</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.08.html">9.1.2.1	Channel State Values</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.09.html">9.1.2.2	ConnectionTypes Values</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.10.html">9.1.3	Server Object</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.11.html">9.1.4	Transport Error Handling</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.12.html">9.1.5	General Transport Return Codes</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.13.html">9.1.6	Application Lifecycle</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.14.html">9.2	Initializing and Uninitializing the Transport</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.15.html">9.2.1	Initialization and Uninitialization Method</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.16.html">9.2.2	Initialization Reference Counting with Example</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.17.html">9.2.3	Transport Locking Models</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.18.html">9.3	Creating the Connection</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.19.html">9.3.1	Network Topologies</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.20.html">9.3.1.1	TCP-based Networks</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.21.html">9.3.1.2	Multicast-based Networks: Unified</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.22.html">9.3.1.3	Multicast-based Networks: Segmented</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.23.html">9.3.2	Creating the Outbound Connection: Transport.connect Method</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.24.html">9.3.2.1	ConnectOptions Methods</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.25.html">9.3.2.2	UnifiedNetworkInfo Method Options</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.26.html">9.3.2.3	SegmentedNetworkInfo Method Options</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.27.html">9.3.2.4	TcpOpts Method Option</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.28.html">9.3.2.5	MCastOpts Method Options</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.29.html">9.3.2.6	ShmemOpts Method</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.30.html">9.3.2.7	SeqMCastOpts Method</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.31.html">9.3.3	Transport.connect Outbound Connection Creation Example</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.32.html">9.3.4	Tunneling Connection Keep Alive</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.33.html">9.4	Server Creation and Accepting Connections</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.33.html#1006013">9.4.1	Creating a Listening Socket</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.34.html">9.4.1.1	BindOptions Methods</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.35.html">9.4.1.2	Transport.bind Listening Socket Connection Creation Example</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.36.html">9.4.2	Accepting Connection Requests</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.37.html">9.4.2.1	AcceptOptions Methods</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.38.html">9.4.2.2	Server.accept Accepting Connection Example</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.39.html">9.4.3	Compression Support</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.40.html">9.5	Channel Initialization</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.41.html">9.5.1	Channel.init Method</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.42.html">9.5.2	InProgInfo Object</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.43.html">9.5.3	Calling Channel.init</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.44.html">9.5.4	Channel.init Return Codes</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.45.html">9.5.5	Channel.init Example</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.46.html">9.6	Reading Data</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.47.html">9.6.1	Channel.read Method</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.48.html">9.6.2	ReadFlags Values</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.49.html">9.6.3	Channel.read Return Codes</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.50.html">9.6.4	Channel.read Example</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.51.html">9.7	Writing Data: Overview</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.52.html">9.8	Writing Data: Obtaining a Buffer</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.53.html">9.8.1	Transport Buffer Management Channel Methods</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.54.html">9.8.2	Transport Buffer Management Server Method</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.55.html">9.8.3	Channel.getBuffer Return Values</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.56.html">9.9	Writing Data to a Buffer</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.57.html">9.9.1	Channel.write Method</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.58.html">9.9.2	WriteFlags Values</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.59.html">9.9.3	Compression</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.60.html">9.9.4	Fragmentation</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.61.html">9.9.5	Channel.write Return Codes</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.62.html">9.9.6	Channel.getBuffer and Channel.write Example</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.63.html">9.10	Managing Outbound Queues</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.64.html">9.10.1	Ordering Queued Data: WritePriorities</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.65.html">9.10.1.1	Priority Ordering</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.66.html">9.10.1.2	WritePriorities Values</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.67.html">9.10.2	Channel.flush Method</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.68.html">9.10.3	Channel.flush Return Codes</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.69.html">9.10.4	Channel.flush Example</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.70.html">9.11	Packing Additional Data into a Buffer</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.71.html">9.11.1	Channel.packBuffer Return Values</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.72.html">9.11.2	Example: Channel.getBuffer, Channel.packBuffer, and Channel.write</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.73.html">9.12	Ping Management</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.74.html">9.12.1	Ping Timeout</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.75.html">9.12.2	Channel.ping Function</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.76.html">9.12.3	Channel.ping Return Values</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.77.html">9.12.4	Channel.ping Example</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.78.html">9.13	Closing Connections</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.78.html#1037673">9.13.1	Functions for Closing Connections</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.79.html">9.13.2	Close Connections Example</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.80.html">9.14	Utility Methods</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.81.html">9.14.1	General Transport Utility Methods</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.82.html">9.14.2	ChannelInfo Methods</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.83.html">9.14.3	multicastStats Methods</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.84.html">9.14.4	componentInfo Method</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.85.html">9.14.5	ServerInfo Methods</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.86.html">9.14.6	Channel.ioctl IoctlCodes</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.87.html">9.14.7	Server.ioctl IoctlCodes</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.88.html">9.15	Tunneling</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.89.html">9.15.1	Configuration</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.90.html">9.15.1.1	TunnelingInfo Methods</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.91.html">9.15.1.2	Configuration Example</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.92.html">9.15.2	Proxy Authentication</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.93.html">9.15.2.1	The Proxy Authentication Process</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.94.html">9.15.2.2	Supplying the Transport API with Credentials for Proxy Authentication</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.95.html">9.15.2.3	CredentialsInfo Methods</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.96.html">9.15.2.4	Providing Credentials and Modifying the Consumer Example</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.97.html">9.15.2.5	Proxy Authentication using NTLM</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_TransportPackage.09.98.html">9.15.2.6	Proxy Authentication using Negotiate/Kerberos</a>
+        </div>
+      </div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 9	Transport Package Detailed View</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

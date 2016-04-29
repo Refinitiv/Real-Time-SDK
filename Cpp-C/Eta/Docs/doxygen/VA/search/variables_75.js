@@ -1,0 +1,9 @@
+var searchData=
+[
+  ['undeliverablecode',['undeliverableCode',['../structRsslRDMQueueDataExpired.html#a4520c3e5e78467faea42b3e7b660b109',1,'RsslRDMQueueDataExpired']]],
+  ['update',['update',['../unionRsslRDMDirectoryMsg.html#ab975651496c998863bfa5884570dfe97',1,'RsslRDMDirectoryMsg']]],
+  ['updatebufferlimit',['updateBufferLimit',['../structRsslRDMLoginRefresh.html#aad8aca4503ee3f7593557b31cf3be294',1,'RsslRDMLoginRefresh']]],
+  ['username',['userName',['../structRsslRDMLoginRequest.html#a65bb7e1ec14f73f5ee7e91bfedd5b6d0',1,'RsslRDMLoginRequest::userName()'],['../structRsslRDMLoginRefresh.html#ad3871cb3ffd9c73a99150791e9497fde',1,'RsslRDMLoginRefresh::userName()'],['../structRsslRDMLoginStatus.html#ac7d8abf7035f97627d145effd6a9799e',1,'RsslRDMLoginStatus::userName()']]],
+  ['usernametype',['userNameType',['../structRsslRDMLoginRequest.html#a6a03668dcd7c5470490baf58e8601eaf',1,'RsslRDMLoginRequest::userNameType()'],['../structRsslRDMLoginRefresh.html#a149f420cbeff50d5ca28daf5f7209255',1,'RsslRDMLoginRefresh::userNameType()'],['../structRsslRDMLoginStatus.html#a3a3c610b7cd29dace4040a6e913dbe43',1,'RsslRDMLoginStatus::userNameType()']]],
+  ['userspecptr',['userSpecPtr',['../structRsslReactor.html#a3d4b7bc6c374f2a7f8ed98c3f2975206',1,'RsslReactor::userSpecPtr()'],['../structRsslCreateReactorOptions.html#aa40be1d9d42b0738dbcde35a4913a828',1,'RsslCreateReactorOptions::userSpecPtr()'],['../structRsslTunnelStreamOpenOptions.html#a95b06fb48f7522fefd20dbbc4f2a0f8c',1,'RsslTunnelStreamOpenOptions::userSpecPtr()'],['../structRsslReactorAcceptTunnelStreamOptions.html#ad8c5e5fcac80b84c39742077212c5089',1,'RsslReactorAcceptTunnelStreamOptions::userSpecPtr()'],['../structRsslReactorChannel.html#a0a597b9a9334c83f37541792956ca9bf',1,'RsslReactorChannel::userSpecPtr()'],['../structRsslTunnelStream.html#ae29be7588fb6fe314abd67a63a3fc7e9',1,'RsslTunnelStream::userSpecPtr()']]]
+];

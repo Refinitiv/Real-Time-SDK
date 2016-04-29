@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WebWorksHelpBook version="5.0" name="Value Add Developers Guide" context="Value_Add_Developers_Guide" locale="en" xmlns="urn:WebWorks-Help-Book-Files-Schema">
+  <CommonWordsToSkip minlen="3">
+    a about after all also am an and another any are as at
+    be because been before being between both but by
+    came can come copyright corp corporation could
+    did do does
+    each etc
+    for from
+    get goes got
+    had has have he her here him himself his how
+    if in inc into is it its
+    let like
+    make many me might more most much must my
+    never nor not now
+    of off on one only or other our out over own
+    reserved rights
+    said same see set shall she should since so some still such
+    take than that the their them then there these they this those though through to too
+    under us use
+    very
+    was way we well were what when where which while who why will with would
+    yes yet you your
+   </CommonWordsToSkip>
+  <ScoringPrefs>
+    <meta name="keywords" weight="100" />
+    <meta name="description" weight="50" />
+    <meta name="summary" weight="50" />
+    <title weight="20" />
+    <h1 weight="15" />
+    <h2 weight="10" />
+    <caption weight="10" />
+    <h3 weight="7" />
+    <th weight="5" />
+    <h4 weight="5" />
+    <h5 weight="4" />
+    <h6 weight="3" />
+    <h7 weight="2" />
+  </ScoringPrefs>
+  <DocumentInfo>
+    <Document title="Chapter 1 Value Added Components Developers Guide Introduction" href="Chap_API_Intro.1.1.html" />
+    <Document title="1.1 About this Manual" href="Chap_API_Intro.1.2.html" />
+    <Document title="1.2 Audience" href="Chap_API_Intro.1.3.html" />
+    <Document title="1.3 Programming Language" href="Chap_API_Intro.1.4.html" />
+    <Document title="1.4 Acronyms and Abbreviations" href="Chap_API_Intro.1.5.html" />
+    <Document title="1.5 References" href="Chap_API_Intro.1.6.html" />
+    <Document title="1.6 Document Conventions" href="Chap_API_Intro.1.7.html" />
+    <Document title="1.6.1 Typographic" href="Chap_API_Intro.1.8.html" />
+    <Document title="1.6.2 Document Structure" href="Chap_API_Intro.1.9.html" />
+    <Document title="Chapter 2 Product Description and Overview" href="Chap_ProdDescription.2.01.html" />
+    <Document title="2.1 What is the Transport API?" href="Chap_ProdDescription.2.02.html" />
+    <Document title="2.2 What are Transport API Value Added Components?" href="Chap_ProdDescription.2.03.html" />
+    <Document title="2.3 Transport API Reactor" href="Chap_ProdDescription.2.04.html" />
+    <Document title="2.4 OMM Consumer Watchlist" href="Chap_ProdDescription.2.05.html" />
+    <Document title="2.4.1 Data Stream Aggregation and Recovery" href="Chap_ProdDescription.2.06.html" />
+    <Document title="2.4.2 ADS Multicast Consumption" href="Chap_ProdDescription.2.07.html" />
+    <Document title="2.4.3 Additional Features" href="Chap_ProdDescription.2.08.html" />
+    <Document title="2.4.4 Usage Notes" href="Chap_ProdDescription.2.09.html" />
+    <Document title="2.4.5 Configuring Multicast Connections" href="Chap_ProdDescription.2.10.html" />
+    <Document title="2.5 Administration Domain Model Representations" href="Chap_ProdDescription.2.11.html" />
+    <Document title="2.6 Value Added Utilities" href="Chap_ProdDescription.2.12.html" />
+    <Document title="2.7 Value Added Cache" href="Chap_ProdDescription.2.13.html" />
+    <Document title="Chapter 3 Building an OMM Consumer" href="Chap_Building_OMM_Consumer.3.1.html" />
+    <Document title="3.1 Building an OMM Consumer Overview" href="Chap_Building_OMM_Consumer.3.2.html" />
+    <Document title="3.2 Leverage Existing or Create New RsslReactor" href="Chap_Building_OMM_Consumer.3.3.html" />
+    <Document title="3.3 Implement Callbacks and Populate Role" href="Chap_Building_OMM_Consumer.3.4.html" />
+    <Document title="3.4 Establish Connection using rsslReactorConnect" href="Chap_Building_OMM_Consumer.3.5.html" />
+    <Document title="3.5 Issue Requests and/or Post Information" href="Chap_Building_OMM_Consumer.3.6.html" />
+    <Document title="3.6 Log Out and Shut Down" href="Chap_Building_OMM_Consumer.3.7.html" />
+    <Document title="3.7 Additional Consumer Details" href="Chap_Building_OMM_Consumer.3.8.html" />
+    <Document title="Chapter 4 Building an OMM Interactive Provider" href="Chap_Building_OMM_InteractiveProvider.4.01.html" />
+    <Document title="4.1 Building an OMM Interactive Provider Overview" href="Chap_Building_OMM_InteractiveProvider.4.02.html" />
+    <Document title="4.2 Leverage Existing or Create New RsslReactor" href="Chap_Building_OMM_InteractiveProvider.4.03.html" />
+    <Document title="4.3 Create an RsslServer" href="Chap_Building_OMM_InteractiveProvider.4.04.html" />
+    <Document title="4.4 Implement Callbacks and Populate Role" href="Chap_Building_OMM_InteractiveProvider.4.05.html" />
+    <Document title="4.5 Associate Incoming Connections Using rsslReactorAccept" href="Chap_Building_OMM_InteractiveProvider.4.06.html" />
+    <Document title="4.6 Perform Login Process" href="Chap_Building_OMM_InteractiveProvider.4.07.html" />
+    <Document title="4.7 Provide Source Directory Information" href="Chap_Building_OMM_InteractiveProvider.4.08.html" />
+    <Document title="4.8 Provide or Dowload Necessary Dictionaries" href="Chap_Building_OMM_InteractiveProvider.4.09.html" />
+    <Document title="4.9 Handle Requests and Post Messages" href="Chap_Building_OMM_InteractiveProvider.4.10.html" />
+    <Document title="4.10 Disconnect Consumers and Shut Down" href="Chap_Building_OMM_InteractiveProvider.4.11.html" />
+    <Document title="4.11 Additional Interactive Provider Details" href="Chap_Building_OMM_InteractiveProvider.4.12.html" />
+    <Document title="Chapter 5 Building an OMM Non-Interactive Provider" href="Chap_Building_OMM_NonInteractiveProvider.5.1.html" />
+    <Document title="5.1 Building an OMM Non-Interactive Provider Overview" href="Chap_Building_OMM_NonInteractiveProvider.5.2.html" />
+    <Document title="5.2 Leverage Existing or Create New RsslReactor" href="Chap_Building_OMM_NonInteractiveProvider.5.3.html" />
+    <Document title="5.3 Implement Callbacks and Populate Role" href="Chap_Building_OMM_NonInteractiveProvider.5.4.html" />
+    <Document title="5.4 Establish Connection using rsslReactorConnect" href="Chap_Building_OMM_NonInteractiveProvider.5.5.html" />
+    <Document title="5.5 Perform Dictionary Download" href="Chap_Building_OMM_NonInteractiveProvider.5.6.html" />
+    <Document title="5.6 Provide Content" href="Chap_Building_OMM_NonInteractiveProvider.5.7.html" />
+    <Document title="5.7 Log Out and Shut Down" href="Chap_Building_OMM_NonInteractiveProvider.5.8.html" />
+    <Document title="5.8 Additional Non-Interactive Provider Details" href="Chap_Building_OMM_NonInteractiveProvider.5.9.html" />
+    <Document title="Chapter 6 Reactor Detailed View" href="Chap_Reactor_Detailed_View.6.001.html" />
+    <Document title="6.1 Concepts" href="Chap_Reactor_Detailed_View.6.002.html" />
+    <Document title="6.1.1 Functionality: Transport API Versus Transport API Reactor" href="Chap_Reactor_Detailed_View.6.003.html" />
+    <Document title="6.1.2 Reactor Error Handling" href="Chap_Reactor_Detailed_View.6.004.html" />
+    <Document title="6.1.3 Reactor Error Info Codes" href="Chap_Reactor_Detailed_View.6.005.html" />
+    <Document title="6.1.4 Transport API Reactor Application Lifecycle" href="Chap_Reactor_Detailed_View.6.006.html" />
+    <Document title="6.2 Reactor Use" href="Chap_Reactor_Detailed_View.6.007.html" />
+    <Document title="6.2.1 Creating a Reactor" href="Chap_Reactor_Detailed_View.6.008.html" />
+    <Document title="6.2.1.1 Reactor Creation" href="Chap_Reactor_Detailed_View.6.009.html" />
+    <Document title="6.2.1.2 RsslCreateReactorOptions Structure Members" href="Chap_Reactor_Detailed_View.6.010.html" />
+    <Document title="6.2.1.3 RsslCreateReactorOptions Utility Function" href="Chap_Reactor_Detailed_View.6.011.html" />
+    <Document title="6.2.2 Destroying a Reactor" href="Chap_Reactor_Detailed_View.6.012.html" />
+    <Document title="6.2.2.1 Reactor Destruction" href="Chap_Reactor_Detailed_View.6.013.html" />
+    <Document title="6.2.2.2 Reactor Creation and Destruction Example" href="Chap_Reactor_Detailed_View.6.014.html" />
+    <Document title="6.3 Reactor Channels" href="Chap_Reactor_Detailed_View.6.015.html" />
+    <Document title="6.3.1 Reactor Channel Roles" href="Chap_Reactor_Detailed_View.6.016.html" />
+    <Document title="6.3.1.1 RsslReactorChannelRoleBase Structure" href="Chap_Reactor_Detailed_View.6.017.html" />
+    <Document title="6.3.1.2 roleType Enumerations" href="Chap_Reactor_Detailed_View.6.018.html" />
+    <Document title="6.3.2 Reactor Channel Role: OMM Consumer" href="Chap_Reactor_Detailed_View.6.019.html" />
+    <Document title="6.3.2.1 OMM Consumer Role" href="Chap_Reactor_Detailed_View.6.020.html" />
+    <Document title="6.3.2.2 OMM Consumer Role Dictionary Download Modes" href="Chap_Reactor_Detailed_View.6.021.html" />
+    <Document title="6.3.2.3 OMM Consumer Role Watchlist Options" href="Chap_Reactor_Detailed_View.6.022.html" />
+    <Document title="6.3.2.4 OMM Consumer Role Utility Function" href="Chap_Reactor_Detailed_View.6.023.html" />
+    <Document title="6.3.3 Reactor Channel Role: OMM Provider" href="Chap_Reactor_Detailed_View.6.024.html" />
+    <Document title="6.3.3.1 OMM Provider Role Members" href="Chap_Reactor_Detailed_View.6.025.html" />
+    <Document title="6.3.3.2 OMM Provider Role Utility Function" href="Chap_Reactor_Detailed_View.6.026.html" />
+    <Document title="6.3.4 Reactor Channel Role: OMM Non-Interactive Provider" href="Chap_Reactor_Detailed_View.6.027.html" />
+    <Document title="6.3.4.1 OMM Non-Interactive Role Members" href="Chap_Reactor_Detailed_View.6.028.html" />
+    <Document title="6.3.4.2 OMM Non-Interactive Provider Role Utility Function" href="Chap_Reactor_Detailed_View.6.029.html" />
+    <Document title="6.3.5 Reactor Channel: Role Union" href="Chap_Reactor_Detailed_View.6.030.html" />
+    <Document title="6.3.5.1 Union Members" href="Chap_Reactor_Detailed_View.6.031.html" />
+    <Document title="6.3.5.2 Union Utility Function" href="Chap_Reactor_Detailed_View.6.032.html" />
+    <Document title="6.4 Managing Reactor Channels" href="Chap_Reactor_Detailed_View.6.033.html" />
+    <Document title="6.4.1.1 Reactor Connect" href="Chap_Reactor_Detailed_View.6.034.html" />
+    <Document title="6.4.1.2 RsslReactorConnectOptions Structure Members" href="Chap_Reactor_Detailed_View.6.035.html" />
+    <Document title="6.4.1.3 RsslReactorConnectOptions Utility Function" href="Chap_Reactor_Detailed_View.6.036.html" />
+    <Document title="6.4.1.4 rsslReactorConnect Example" href="Chap_Reactor_Detailed_View.6.037.html" />
+    <Document title="6.4.1.5 rsslReactorConnect Segmented Multicast Consumer Example" href="Chap_Reactor_Detailed_View.6.038.html" />
+    <Document title="6.4.1.6 Reactor Accept" href="Chap_Reactor_Detailed_View.6.039.html" />
+    <Document title="6.4.1.7 RsslReactorAcceptOptions Structure Members" href="Chap_Reactor_Detailed_View.6.040.html" />
+    <Document title="6.4.1.8 RsslReactorAcceptOptions Utility Function" href="Chap_Reactor_Detailed_View.6.041.html" />
+    <Document title="6.4.1.9 rsslReactorAccept Example" href="Chap_Reactor_Detailed_View.6.042.html" />
+    <Document title="6.4.2 Removing Reactor Channels" href="Chap_Reactor_Detailed_View.6.043.html" />
+    <Document title="6.4.2.2 rsslReactorClose Example" href="Chap_Reactor_Detailed_View.6.044.html" />
+    <Document title="6.5 Dispatching Data" href="Chap_Reactor_Detailed_View.6.045.html" />
+    <Document title="6.5.1 rsslReactorDispatch Function" href="Chap_Reactor_Detailed_View.6.046.html" />
+    <Document title="6.5.1.1 Reactor Dispatch Options" href="Chap_Reactor_Detailed_View.6.047.html" />
+    <Document title="6.5.1.2 RsslReactorDispatchOptions Utility Function" href="Chap_Reactor_Detailed_View.6.048.html" />
+    <Document title="6.5.1.3 rsslReactorDispatch Example" href="Chap_Reactor_Detailed_View.6.049.html" />
+    <Document title="6.5.2 Reactor Callback Functions" href="Chap_Reactor_Detailed_View.6.050.html" />
+    <Document title="6.5.3 Reactor Callback: Channel Event" href="Chap_Reactor_Detailed_View.6.051.html" />
+    <Document title="6.5.3.1 Reactor Channel Event" href="Chap_Reactor_Detailed_View.6.052.html" />
+    <Document title="6.5.3.2 Reactor Channel Event Type Enumeration Values" href="Chap_Reactor_Detailed_View.6.053.html" />
+    <Document title="6.5.3.3 Reactor Channel Event Utility Functions" href="Chap_Reactor_Detailed_View.6.054.html" />
+    <Document title="6.5.3.4 Reactor Channel Event Callback Example" href="Chap_Reactor_Detailed_View.6.055.html" />
+    <Document title="6.5.4 Reactor Callback: Default Message" href="Chap_Reactor_Detailed_View.6.056.html" />
+    <Document title="6.5.4.1 Reactor Message Event" href="Chap_Reactor_Detailed_View.6.057.html" />
+    <Document title="6.5.4.2 Reactor Message Event Utility Functions" href="Chap_Reactor_Detailed_View.6.058.html" />
+    <Document title="6.5.4.3 Reactor Message Event Callback Example" href="Chap_Reactor_Detailed_View.6.059.html" />
+    <Document title="6.5.5 Reactor Callback: RDM Login Message" href="Chap_Reactor_Detailed_View.6.060.html" />
+    <Document title="6.5.5.1 Reactor RDM Login Message Event" href="Chap_Reactor_Detailed_View.6.061.html" />
+    <Document title="6.5.5.2 Reactor RDM Login Message Event Utility Function" href="Chap_Reactor_Detailed_View.6.062.html" />
+    <Document title="6.5.5.3 Reactor RDM Login Message Event Callback Example" href="Chap_Reactor_Detailed_View.6.063.html" />
+    <Document title="6.5.6 Reactor Callback: RDM Directory Message" href="Chap_Reactor_Detailed_View.6.064.html" />
+    <Document title="6.5.6.1 Reactor RDM Directory Message Event" href="Chap_Reactor_Detailed_View.6.065.html" />
+    <Document title="6.5.6.2 Reactor RDM Directory Message Event Utility Function" href="Chap_Reactor_Detailed_View.6.066.html" />
+    <Document title="6.5.6.3 Reactor RDM Directory Message Event Callback Example" href="Chap_Reactor_Detailed_View.6.067.html" />
+    <Document title="6.5.7 Reactor Callback: RDM Dictionary Message" href="Chap_Reactor_Detailed_View.6.068.html" />
+    <Document title="6.5.7.1 Reactor RDM Dictionary Message Event" href="Chap_Reactor_Detailed_View.6.069.html" />
+    <Document title="6.5.7.2 Reactor RDM Dictionary Message Event Utility Function" href="Chap_Reactor_Detailed_View.6.070.html" />
+    <Document title="6.5.7.3 Reactor RDM Dictionary Message Event Callback Example" href="Chap_Reactor_Detailed_View.6.071.html" />
+    <Document title="6.6 Writing Data" href="Chap_Reactor_Detailed_View.6.072.html" />
+    <Document title="6.6.1 Writing Data using rsslReactorSubmitMsg()" href="Chap_Reactor_Detailed_View.6.073.html" />
+    <Document title="6.6.1.1 rsslReactorSubmitMsg Function" href="Chap_Reactor_Detailed_View.6.074.html" />
+    <Document title="6.6.1.2 Reactor Submit Message Options" href="Chap_Reactor_Detailed_View.6.075.html" />
+    <Document title="6.6.1.3 RsslReactorRequestMsgOptions" href="Chap_Reactor_Detailed_View.6.076.html" />
+    <Document title="6.6.1.4 RsslReactorSubmitMsgOptions Utility Function" href="Chap_Reactor_Detailed_View.6.077.html" />
+    <Document title="6.6.1.5 rsslReactorSubmitMsg Return Codes" href="Chap_Reactor_Detailed_View.6.078.html" />
+    <Document title="6.6.1.6 rsslReactorSubmitMsg Example" href="Chap_Reactor_Detailed_View.6.079.html" />
+    <Document title="6.6.2 Writing data using rsslReactorSubmit()" href="Chap_Reactor_Detailed_View.6.080.html" />
+    <Document title="6.6.2.1 Obtaining a Buffer: Overview" href="Chap_Reactor_Detailed_View.6.081.html" />
+    <Document title="6.6.2.2 Obtaining a Buffer: Buffer Management Functions" href="Chap_Reactor_Detailed_View.6.082.html" />
+    <Document title="6.6.2.3 Obtaining a Buffer: rsslReactorGetBuffer Return Values" href="Chap_Reactor_Detailed_View.6.083.html" />
+    <Document title="6.6.2.4 Writing Data: Overview" href="Chap_Reactor_Detailed_View.6.084.html" />
+    <Document title="6.6.2.5 Writing Data: rsslReactorSubmit Function" href="Chap_Reactor_Detailed_View.6.085.html" />
+    <Document title="6.6.2.6 Writing Data: Reactor Submit Options" href="Chap_Reactor_Detailed_View.6.086.html" />
+    <Document title="6.6.2.7 Writing Data: RsslReactorSubmitOptions Utility Function" href="Chap_Reactor_Detailed_View.6.087.html" />
+    <Document title="6.6.2.8 Writing Data: rsslReactorSubmit Return Codes" href="Chap_Reactor_Detailed_View.6.088.html" />
+    <Document title="6.6.2.9 Packing Additional Data into a Buffer" href="Chap_Reactor_Detailed_View.6.089.html" />
+    <Document title="6.6.2.10 rsslReactorPackBuffer Return Values" href="Chap_Reactor_Detailed_View.6.090.html" />
+    <Document title="6.6.2.11 Example: rsslReactorGetBuffer and rsslReactorSubmit Example" href="Chap_Reactor_Detailed_View.6.091.html" />
+    <Document title="6.6.2.12 Example: rsslReactorGetBuffer, rsslReactorPackBuffer, and rsslReactorSubmit" href="Chap_Reactor_Detailed_View.6.092.html" />
+    <Document title="6.7 Creating and Using Tunnel Streams" href="Chap_Reactor_Detailed_View.6.093.html" />
+    <Document title="6.7.1 Authenticating a Tunnel Stream" href="Chap_Reactor_Detailed_View.6.094.html" />
+    <Document title="6.7.2 Opening a Tunnel Stream" href="Chap_Reactor_Detailed_View.6.095.html" />
+    <Document title="6.7.2.1 rsslReactorOpenTunnelStream Method" href="Chap_Reactor_Detailed_View.6.096.html" />
+    <Document title="6.7.2.2 RsslTunnelStreamOpenOptions" href="Chap_Reactor_Detailed_View.6.097.html" />
+    <Document title="6.7.3 Negotiating Stream Behaviors: Class of Service" href="Chap_Reactor_Detailed_View.6.098.html" />
+    <Document title="6.7.3.1 ClassOfService Common Member" href="Chap_Reactor_Detailed_View.6.099.html" />
+    <Document title="6.7.3.2 ClassOfService Authentication Members" href="Chap_Reactor_Detailed_View.6.100.html" />
+    <Document title="6.7.3.3 ClassOfService Flow Control Members" href="Chap_Reactor_Detailed_View.6.101.html" />
+    <Document title="6.7.3.4 ClassOfService Data Integrity Member" href="Chap_Reactor_Detailed_View.6.102.html" />
+    <Document title="6.7.3.5 ClassOfService Guarantee Members" href="Chap_Reactor_Detailed_View.6.103.html" />
+    <Document title="6.7.4 Tunnel Stream Callback Functions and Event Types" href="Chap_Reactor_Detailed_View.6.104.html" />
+    <Document title="6.7.4.2 Tunnel Stream Callback Event Types" href="Chap_Reactor_Detailed_View.6.105.html" />
+    <Document title="6.7.5 Opening a Tunnel Stream Code Sample" href="Chap_Reactor_Detailed_View.6.106.html" />
+    <Document title="6.7.6 Accepting Tunnel Streams" href="Chap_Reactor_Detailed_View.6.107.html" />
+    <Document title="6.7.6.1 Reactor Tunnel Stream Listener Callback and Tunnel Stream Request Event" href="Chap_Reactor_Detailed_View.6.108.html" />
+    <Document title="6.7.6.2 rsslReactorAcceptTunnelStream Function" href="Chap_Reactor_Detailed_View.6.109.html" />
+    <Document title="6.7.6.3 RsslReactorAcceptTunnelStreamOptions" href="Chap_Reactor_Detailed_View.6.110.html" />
+    <Document title="6.7.6.4 rsslReactorRejectTunnelStream Function" href="Chap_Reactor_Detailed_View.6.111.html" />
+    <Document title="6.7.6.5 RsslReactorRejectTunnelStreamOptions" href="Chap_Reactor_Detailed_View.6.112.html" />
+    <Document title="6.7.6.6 Accepting a Tunnel Stream Code Sample" href="Chap_Reactor_Detailed_View.6.113.html" />
+    <Document title="6.7.6.7 Rejecting a Tunnel Stream Code Sample" href="Chap_Reactor_Detailed_View.6.114.html" />
+    <Document title="6.7.7 Receiving Content on a TunnelStream" href="Chap_Reactor_Detailed_View.6.115.html" />
+    <Document title="6.7.8 Sending Content on a TunnelStream" href="Chap_Reactor_Detailed_View.6.116.html" />
+    <Document title="6.7.8.1 Tunnel Stream Buffer Methods" href="Chap_Reactor_Detailed_View.6.117.html" />
+    <Document title="6.7.8.2 Tunnel Stream Submit" href="Chap_Reactor_Detailed_View.6.118.html" />
+    <Document title="6.7.8.3 RsslTunnelStreamSubmitOptions" href="Chap_Reactor_Detailed_View.6.119.html" />
+    <Document title="6.7.8.4 RsslTunnelStreamSubmitMsgOptions" href="Chap_Reactor_Detailed_View.6.120.html" />
+    <Document title="6.7.8.5 Submitting Content on a Tunnel Stream Code Sample" href="Chap_Reactor_Detailed_View.6.121.html" />
+    <Document title="6.7.8.6 Closing a Tunnel Stream" href="Chap_Reactor_Detailed_View.6.122.html" />
+    <Document title="6.7.8.7 RsslTunnelStreamCloseOptions" href="Chap_Reactor_Detailed_View.6.123.html" />
+    <Document title="6.7.8.8 Closing a Tunnel Stream Code Sample" href="Chap_Reactor_Detailed_View.6.124.html" />
+    <Document title="6.8 Reactor Utility Functions" href="Chap_Reactor_Detailed_View.6.125.html" />
+    <Document title="6.8.1 General Reactor Utility Functions" href="Chap_Reactor_Detailed_View.6.126.html" />
+    <Document title="6.8.2 RsslReactorChannelInfo Structure Members" href="Chap_Reactor_Detailed_View.6.127.html" />
+    <Document title="6.8.3 rsslReactorIoctl Option Values" href="Chap_Reactor_Detailed_View.6.128.html" />
+    <Document title="Chapter 7 Administration Domain Models Detailed View" href="Chap_AdminDomain_Models_Detailed_View.7.001.html" />
+    <Document title="7.1 Concepts" href="Chap_AdminDomain_Models_Detailed_View.7.002.html" />
+    <Document title="7.2 RDM Message Base" href="Chap_AdminDomain_Models_Detailed_View.7.003.html" />
+    <Document title="7.2.1 RSSL RDM Message Base Structure Members" href="Chap_AdminDomain_Models_Detailed_View.7.004.html" />
+    <Document title="7.2.2 RSSL RDM Message Types" href="Chap_AdminDomain_Models_Detailed_View.7.005.html" />
+    <Document title="7.2.3 RSSL RDM Encoding and Decoding Functions" href="Chap_AdminDomain_Models_Detailed_View.7.006.html" />
+    <Document title="7.3 RDM Login Domain" href="Chap_AdminDomain_Models_Detailed_View.7.007.html" />
+    <Document title="7.3.1 RSSL RDM Login Request" href="Chap_AdminDomain_Models_Detailed_View.7.008.html" />
+    <Document title="7.3.1.1 RSSL RDM Login Request Structure Members" href="Chap_AdminDomain_Models_Detailed_View.7.009.html" />
+    <Document title="7.3.1.2 RSSL RDM Login Request Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.010.html" />
+    <Document title="7.3.1.3 RSSL RDM Login Request Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.011.html" />
+    <Document title="7.3.2 RSSL RDM Login Refresh" href="Chap_AdminDomain_Models_Detailed_View.7.012.html" />
+    <Document title="7.3.2.1 RSSL RDM Login Refresh Structure Members" href="Chap_AdminDomain_Models_Detailed_View.7.013.html" />
+    <Document title="7.3.2.2 RSSL RDM Login Refresh Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.014.html" />
+    <Document title="7.3.2.3 RSSL RDM Login Refresh Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.015.html" />
+    <Document title="7.3.2.4 RSSL RDM Server Info Structure Members" href="Chap_AdminDomain_Models_Detailed_View.7.016.html" />
+    <Document title="7.3.2.5 RSSL RDM Server Info Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.017.html" />
+    <Document title="7.3.2.6 RSSL RDM Server Info Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.018.html" />
+    <Document title="7.3.3 RSSL RDM Login Status" href="Chap_AdminDomain_Models_Detailed_View.7.019.html" />
+    <Document title="7.3.3.1 RSSL RDM Login Status Structure Members" href="Chap_AdminDomain_Models_Detailed_View.7.020.html" />
+    <Document title="7.3.3.2 RSSL RDM Login Status Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.021.html" />
+    <Document title="7.3.3.3 RSSL RDM Login Status Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.022.html" />
+    <Document title="7.3.4 RSSL RDM Login Close" href="Chap_AdminDomain_Models_Detailed_View.7.023.html" />
+    <Document title="7.3.4.1 RSSL RDM Login Close Structure Members" href="Chap_AdminDomain_Models_Detailed_View.7.024.html" />
+    <Document title="7.3.4.2 RSSL RDM Login Close Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.025.html" />
+    <Document title="7.3.5 RSSL RDM Consumer Connection Status" href="Chap_AdminDomain_Models_Detailed_View.7.026.html" />
+    <Document title="7.3.5.1 RSSL RDM Login Consumer Connection Status Structure Members" href="Chap_AdminDomain_Models_Detailed_View.7.027.html" />
+    <Document title="7.3.5.2 RSSL RDM Login Consumer Connection Status Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.028.html" />
+    <Document title="7.3.5.3 RSSL RDM Login Warm Standby Info Structure Members" href="Chap_AdminDomain_Models_Detailed_View.7.029.html" />
+    <Document title="7.3.5.4 RSSL RDM Login Warm Standby Mode Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.030.html" />
+    <Document title="7.3.5.5 RSSL RDM Login Consumer Connection Status Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.031.html" />
+    <Document title="7.3.6 Login Post Message Use" href="Chap_AdminDomain_Models_Detailed_View.7.032.html" />
+    <Document title="7.3.7 Login Ack Message Use" href="Chap_AdminDomain_Models_Detailed_View.7.033.html" />
+    <Document title="7.3.8 RSSL RDM Login Message Union" href="Chap_AdminDomain_Models_Detailed_View.7.034.html" />
+    <Document title="7.3.8.1 RSSL RDM Login Union" href="Chap_AdminDomain_Models_Detailed_View.7.035.html" />
+    <Document title="7.3.8.2 RSSL RDM Login Message Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.036.html" />
+    <Document title="7.3.9 Login Encoding and Decoding" href="Chap_AdminDomain_Models_Detailed_View.7.037.html" />
+    <Document title="7.3.9.2 Encoding a Login Request" href="Chap_AdminDomain_Models_Detailed_View.7.038.html" />
+    <Document title="7.3.9.3 Decoding a Login Request" href="Chap_AdminDomain_Models_Detailed_View.7.039.html" />
+    <Document title="7.3.9.4 Encoding a Login Refresh" href="Chap_AdminDomain_Models_Detailed_View.7.040.html" />
+    <Document title="7.3.9.5 Decoding a Login Refresh" href="Chap_AdminDomain_Models_Detailed_View.7.041.html" />
+    <Document title="7.4 Source Directory Domain" href="Chap_AdminDomain_Models_Detailed_View.7.042.html" />
+    <Document title="7.4.1 RSSL RDM Directory Request" href="Chap_AdminDomain_Models_Detailed_View.7.043.html" />
+    <Document title="7.4.1.1 RSSL RDM Directory Request Structure Members" href="Chap_AdminDomain_Models_Detailed_View.7.044.html" />
+    <Document title="7.4.1.2 RSSL RDM Directory Request Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.045.html" />
+    <Document title="7.4.1.3 RSSL RDM Directory Request Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.046.html" />
+    <Document title="7.4.2 RSSL RDM Directory Refresh" href="Chap_AdminDomain_Models_Detailed_View.7.047.html" />
+    <Document title="7.4.2.1 RSSL RDM Directory Refresh Structure Members" href="Chap_AdminDomain_Models_Detailed_View.7.048.html" />
+    <Document title="7.4.2.2 RSSL RDM Directory Refresh Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.049.html" />
+    <Document title="7.4.2.3 RSSL RDM Directory Refresh Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.050.html" />
+    <Document title="7.4.3 RSSL RDM Directory Update" href="Chap_AdminDomain_Models_Detailed_View.7.051.html" />
+    <Document title="7.4.3.1 RSSL RDM Directory Update Structure Members" href="Chap_AdminDomain_Models_Detailed_View.7.052.html" />
+    <Document title="7.4.3.2 RSSL RDM Directory Update Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.053.html" />
+    <Document title="7.4.3.3 RSSL RDM Directory Update Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.054.html" />
+    <Document title="7.4.4 RSSL RDM Directory Status" href="Chap_AdminDomain_Models_Detailed_View.7.055.html" />
+    <Document title="7.4.4.1 RSSL RDM Directory Status Structure Members" href="Chap_AdminDomain_Models_Detailed_View.7.056.html" />
+    <Document title="7.4.4.2 RSSL RDM Directory Status Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.057.html" />
+    <Document title="7.4.4.3 RSSL RDM Directory Status Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.058.html" />
+    <Document title="7.4.5 RSSL RDM Directory Close" href="Chap_AdminDomain_Models_Detailed_View.7.059.html" />
+    <Document title="7.4.5.1 RSSL RDM Directory Close Structure Members" href="Chap_AdminDomain_Models_Detailed_View.7.060.html" />
+    <Document title="7.4.5.2 RSSL RDM Directory Close Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.061.html" />
+    <Document title="7.4.6 RSSL RDM Consumer Status" href="Chap_AdminDomain_Models_Detailed_View.7.062.html" />
+    <Document title="7.4.6.1 RSSL RDM Directory Consumer Status Structure Members" href="Chap_AdminDomain_Models_Detailed_View.7.063.html" />
+    <Document title="7.4.6.2 RSSL RDM Directory Consumer Status Service Structure Members" href="Chap_AdminDomain_Models_Detailed_View.7.064.html" />
+    <Document title="7.4.6.3 RSSL RDM Directory Consumer Status Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.065.html" />
+    <Document title="7.4.7 Source Directory RDM Service" href="Chap_AdminDomain_Models_Detailed_View.7.066.html" />
+    <Document title="7.4.7.1 RSSL RDM Service Structure Members" href="Chap_AdminDomain_Models_Detailed_View.7.067.html" />
+    <Document title="7.4.7.2 RSSL RDM Service Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.068.html" />
+    <Document title="7.4.7.3 RSSL RDM Service Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.069.html" />
+    <Document title="7.4.8 Source Directory RDM Service Info" href="Chap_AdminDomain_Models_Detailed_View.7.070.html" />
+    <Document title="7.4.8.1 RSSL RDM Service Info Members" href="Chap_AdminDomain_Models_Detailed_View.7.071.html" />
+    <Document title="7.4.8.2 RSSL RDM Service Info Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.072.html" />
+    <Document title="7.4.8.3 RSSL RDM Service Info Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.073.html" />
+    <Document title="7.4.9 Source Directory RDM Service State" href="Chap_AdminDomain_Models_Detailed_View.7.074.html" />
+    <Document title="7.4.9.1 RSSL RDM Service State Members" href="Chap_AdminDomain_Models_Detailed_View.7.075.html" />
+    <Document title="7.4.9.2 RSSL RDM Service State Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.076.html" />
+    <Document title="7.4.9.3 RSSL RDM Service State Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.077.html" />
+    <Document title="7.4.10 Source Directory RDM Service Group State" href="Chap_AdminDomain_Models_Detailed_View.7.078.html" />
+    <Document title="7.4.10.1 RSSL RDM Service Group State Members" href="Chap_AdminDomain_Models_Detailed_View.7.079.html" />
+    <Document title="7.4.10.2 RSSL RDM Service Group State Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.080.html" />
+    <Document title="7.4.10.3 RSSL RDM Service Group State Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.081.html" />
+    <Document title="7.4.11 Source Directory RDM Service Load" href="Chap_AdminDomain_Models_Detailed_View.7.082.html" />
+    <Document title="7.4.11.1 RSSL RDM Service Load Members" href="Chap_AdminDomain_Models_Detailed_View.7.083.html" />
+    <Document title="7.4.11.2 RSSL RDM Service Load Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.084.html" />
+    <Document title="7.4.11.3 RSSL RDM Service Load Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.085.html" />
+    <Document title="7.4.12 Source Directory RDM Service Data" href="Chap_AdminDomain_Models_Detailed_View.7.086.html" />
+    <Document title="7.4.12.1 RSSL RDM Service Data Members" href="Chap_AdminDomain_Models_Detailed_View.7.087.html" />
+    <Document title="7.4.12.2 RSSL RDM Service Load Data Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.088.html" />
+    <Document title="7.4.12.3 RSSL RDM Service Data Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.089.html" />
+    <Document title="7.4.13 Source Directory RDM Service Link Information" href="Chap_AdminDomain_Models_Detailed_View.7.090.html" />
+    <Document title="7.4.13.1 RSSL RDM Service Link Info Members" href="Chap_AdminDomain_Models_Detailed_View.7.091.html" />
+    <Document title="7.4.13.2 RSSL RDM Service Link Info Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.092.html" />
+    <Document title="7.4.14 Source Directory RDM Service Link" href="Chap_AdminDomain_Models_Detailed_View.7.093.html" />
+    <Document title="7.4.14.1 RSSL RDM Service Link Members" href="Chap_AdminDomain_Models_Detailed_View.7.094.html" />
+    <Document title="7.4.14.2 RSSL RDM Service Link Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.095.html" />
+    <Document title="7.4.14.3 RSSL RDM Service Link Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.096.html" />
+    <Document title="7.4.15 Source Directory RDM Sequenced Multicast Information" href="Chap_AdminDomain_Models_Detailed_View.7.097.html" />
+    <Document title="7.4.15.1 RSSL RDM Service Sequenced Multicast Information Structure" href="Chap_AdminDomain_Models_Detailed_View.7.098.html" />
+    <Document title="7.4.15.2 RSSL RDM Service Sequenced Multicast Info Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.099.html" />
+    <Document title="7.4.15.3 RSSL RDM Address/Port Information" href="Chap_AdminDomain_Models_Detailed_View.7.100.html" />
+    <Document title="7.4.15.4 RSSL RDM Sequenced Multicast Info Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.101.html" />
+    <Document title="7.4.16 RSSL RDM Directory Message Union" href="Chap_AdminDomain_Models_Detailed_View.7.102.html" />
+    <Document title="7.4.16.1 RSSL RDM Directory Union" href="Chap_AdminDomain_Models_Detailed_View.7.103.html" />
+    <Document title="7.4.16.2 RSSL RDM Directory Message Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.104.html" />
+    <Document title="7.4.17 Source Directory Encoding and Decoding" href="Chap_AdminDomain_Models_Detailed_View.7.105.html" />
+    <Document title="7.4.17.2 Encoding a Source Directory Request" href="Chap_AdminDomain_Models_Detailed_View.7.106.html" />
+    <Document title="7.4.17.3 Decoding a Source Directory Request" href="Chap_AdminDomain_Models_Detailed_View.7.107.html" />
+    <Document title="7.4.17.4 Encoding a Source Directory Refresh" href="Chap_AdminDomain_Models_Detailed_View.7.108.html" />
+    <Document title="7.4.17.5 Decoding a Source Directory Refresh" href="Chap_AdminDomain_Models_Detailed_View.7.109.html" />
+    <Document title="7.5 Dictionary Domain" href="Chap_AdminDomain_Models_Detailed_View.7.110.html" />
+    <Document title="7.5.1 RSSL RDM Dictionary Request" href="Chap_AdminDomain_Models_Detailed_View.7.111.html" />
+    <Document title="7.5.1.1 RSSL RDM Dictionary Request Structure Members" href="Chap_AdminDomain_Models_Detailed_View.7.112.html" />
+    <Document title="7.5.1.2 RSSL RDM Login Request Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.113.html" />
+    <Document title="7.5.1.3 RSSL RDM Dictionary Request Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.114.html" />
+    <Document title="7.5.2 RSSL RDM Dictionary Refresh" href="Chap_AdminDomain_Models_Detailed_View.7.115.html" />
+    <Document title="7.5.2.1 RSSL RDM Dictionary Refresh Structure Members" href="Chap_AdminDomain_Models_Detailed_View.7.116.html" />
+    <Document title="7.5.2.2 RSSL RDM Dictionary Refresh Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.117.html" />
+    <Document title="7.5.2.3 RSSL RDM Dictionary Refresh Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.118.html" />
+    <Document title="7.5.3 RSSL RDM Dictionary Status" href="Chap_AdminDomain_Models_Detailed_View.7.119.html" />
+    <Document title="7.5.3.1 RSSL RDM Dictionary Status Structure Members" href="Chap_AdminDomain_Models_Detailed_View.7.120.html" />
+    <Document title="7.5.3.2 RSSL RDM Dictionary Status Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.121.html" />
+    <Document title="7.5.3.3 RSSL RDM Dictionary Status Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.122.html" />
+    <Document title="7.5.4 RSSL RDM Dictionary Close" href="Chap_AdminDomain_Models_Detailed_View.7.123.html" />
+    <Document title="7.5.4.1 RSSL RDM Dictionary Close Structure Members" href="Chap_AdminDomain_Models_Detailed_View.7.124.html" />
+    <Document title="7.5.4.2 RSSL RDM Dictionary Close Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.125.html" />
+    <Document title="7.5.5 RSSL RDM Dictionary Message Union" href="Chap_AdminDomain_Models_Detailed_View.7.126.html" />
+    <Document title="7.5.5.1 RSSL RDM Dictionary Union" href="Chap_AdminDomain_Models_Detailed_View.7.127.html" />
+    <Document title="7.5.5.2 RSSL RDM Dictionary Message Utility Functions" href="Chap_AdminDomain_Models_Detailed_View.7.128.html" />
+    <Document title="7.5.6 Dictionary Encoding and Decoding" href="Chap_AdminDomain_Models_Detailed_View.7.129.html" />
+    <Document title="7.5.6.2 Encoding a Dictionary Request" href="Chap_AdminDomain_Models_Detailed_View.7.130.html" />
+    <Document title="7.5.6.3 Decoding a Dictionary Request" href="Chap_AdminDomain_Models_Detailed_View.7.131.html" />
+    <Document title="7.5.6.4 Encoding a Dictionary Refresh" href="Chap_AdminDomain_Models_Detailed_View.7.132.html" />
+    <Document title="7.5.6.5 Decoding a Dictionary Refresh" href="Chap_AdminDomain_Models_Detailed_View.7.133.html" />
+    <Document title="7.6 RDM Queue Messages" href="Chap_AdminDomain_Models_Detailed_View.7.134.html" />
+    <Document title="7.6.1 Queue Data Message Persistence" href="Chap_AdminDomain_Models_Detailed_View.7.135.html" />
+    <Document title="7.6.2 Queue Request" href="Chap_AdminDomain_Models_Detailed_View.7.136.html" />
+    <Document title="7.6.3 Queue Refresh" href="Chap_AdminDomain_Models_Detailed_View.7.137.html" />
+    <Document title="7.6.4 Queue Status" href="Chap_AdminDomain_Models_Detailed_View.7.138.html" />
+    <Document title="7.6.5 Queue Close" href="Chap_AdminDomain_Models_Detailed_View.7.139.html" />
+    <Document title="7.6.6 Queue Data" href="Chap_AdminDomain_Models_Detailed_View.7.140.html" />
+    <Document title="7.6.6.1 Queue Data Members" href="Chap_AdminDomain_Models_Detailed_View.7.141.html" />
+    <Document title="7.6.6.2 Queue Data Flags" href="Chap_AdminDomain_Models_Detailed_View.7.142.html" />
+    <Document title="7.6.6.3 Queue Message Timeout Codes" href="Chap_AdminDomain_Models_Detailed_View.7.143.html" />
+    <Document title="7.6.6.4 Queue Data Encoding" href="Chap_AdminDomain_Models_Detailed_View.7.144.html" />
+    <Document title="7.6.6.5 Queue Data Message Encoding Code Sample" href="Chap_AdminDomain_Models_Detailed_View.7.145.html" />
+    <Document title="7.6.7 QueueDataExpired" href="Chap_AdminDomain_Models_Detailed_View.7.146.html" />
+    <Document title="7.6.7.1 RsslRDMQueueDataExpired Structure Members" href="Chap_AdminDomain_Models_Detailed_View.7.147.html" />
+    <Document title="7.6.7.2 Queue Message Undeliverable Codes" href="Chap_AdminDomain_Models_Detailed_View.7.148.html" />
+    <Document title="7.6.8 Queue Ack" href="Chap_AdminDomain_Models_Detailed_View.7.149.html" />
+    <Document title="Chapter 8 Value Added Utilities" href="Chap_Value_Add_Utilities.8.1.html" />
+    <Document title="8.1 Utility Overview" href="Chap_Value_Add_Utilities.8.2.html" />
+    <Document title="8.2 Memory Buffer" href="Chap_Value_Add_Utilities.8.3.html" />
+    <Document title="8.3 Using the Memory Buffer" href="Chap_Value_Add_Utilities.8.4.html" />
+    <Document title="Chapter 9 Payload Cache Detailed View" href="Chap_Payload_Cache_Detailed_View.9.01.html" />
+    <Document title="9.1 Concepts" href="Chap_Payload_Cache_Detailed_View.9.02.html" />
+    <Document title="9.2 Payload Cache" href="Chap_Payload_Cache_Detailed_View.9.03.html" />
+    <Document title="9.2.1 Payload Cache Management" href="Chap_Payload_Cache_Detailed_View.9.04.html" />
+    <Document title="9.2.2 Cache Error Handling" href="Chap_Payload_Cache_Detailed_View.9.05.html" />
+    <Document title="9.2.2.1 Cache Error Structure Members" href="Chap_Payload_Cache_Detailed_View.9.06.html" />
+    <Document title="9.2.2.2 Clearing a Cache Error" href="Chap_Payload_Cache_Detailed_View.9.07.html" />
+    <Document title="9.2.3 Payload Cache Instances" href="Chap_Payload_Cache_Detailed_View.9.08.html" />
+    <Document title="9.2.3.1 Payload Cache Structure Member" href="Chap_Payload_Cache_Detailed_View.9.09.html" />
+    <Document title="9.2.3.2 Managing the Payload Cache" href="Chap_Payload_Cache_Detailed_View.9.10.html" />
+    <Document title="9.2.4 Managing RDM Field Dictionaries for Payload Cache" href="Chap_Payload_Cache_Detailed_View.9.11.html" />
+    <Document title="9.2.4.1 Setting Functions" href="Chap_Payload_Cache_Detailed_View.9.12.html" />
+    <Document title="9.2.4.2 Setting Example" href="Chap_Payload_Cache_Detailed_View.9.13.html" />
+    <Document title="9.2.4.3 Extending the Cache Field Dictionary" href="Chap_Payload_Cache_Detailed_View.9.14.html" />
+    <Document title="9.2.5 Payload Cache Utilities" href="Chap_Payload_Cache_Detailed_View.9.15.html" />
+    <Document title="9.3 Payload Cache Entries" href="Chap_Payload_Cache_Detailed_View.9.16.html" />
+    <Document title="9.3.1 Managing Payload Cache Entries" href="Chap_Payload_Cache_Detailed_View.9.17.html" />
+    <Document title="9.3.2 Applying Data" href="Chap_Payload_Cache_Detailed_View.9.18.html" />
+    <Document title="9.3.3 Retrieving Data" href="Chap_Payload_Cache_Detailed_View.9.19.html" />
+    <Document title="9.3.3.1 Multi-Part Retrieval" href="Chap_Payload_Cache_Detailed_View.9.20.html" />
+    <Document title="9.3.3.2 Buffer Management" href="Chap_Payload_Cache_Detailed_View.9.21.html" />
+    <Document title="9.3.3.3 Example: Cache Retrieval with Multi-Part Support" href="Chap_Payload_Cache_Detailed_View.9.22.html" />
+  </DocumentInfo>
+  <TopicMap />
+</WebWorksHelpBook>

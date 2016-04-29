@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>13.7.2 Batch Reissue</title>
+    <link rel="StyleSheet" href="css/Chap_MessagesAdvancedConcepts.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Transport API C Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Transport API C Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3"><a name="999278">Batch Reissue</a></div>
+      <div class="Body"><a name="1028035">Consumers may use a batch reissue message to change attributes of multiple open streams (such as changing priority, or to pause or resume them) using a single </a><span class="CodeOrCommand">RsslRequestMsg</span>. In a batch reissue message, the consumer specifies a list of <span class="CodeOrCommand">streamId</span>s in the message payload representing the streams it wishes to reissue. Batch reissues can be leveraged across all non-Login domain model types.</div>
+      <div class="Body"><a name="1028042">A consumer application can issue a batch reissue by using an </a><span class="CodeOrCommand">RsslRequestMsg</span> with the <span class="Parameter">RSSL_</span><span class="Parameter">RQMF_HAS_BATCH</span> flag set and including a specifically formatted payload. The payload should contain an <span class="CodeOrCommand">RsslElementList</span> along with an <span class="CodeOrCommand">RsslElementEntry</span> named <span class="CodeOrCommand">:StreamIdList</span>.</div>
+      <div class="Body"><a name="1028055">The </a><span class="CodeOrCommand">:StreamIdList</span> contains an <span class="CodeOrCommand">RsslArray</span>, where the <span class="CodeOrCommand">RsslArray.primitiveType</span> is <span class="Parameter">RSSL_</span><span class="Parameter">DT_INT</span>. Each contained <span class="CodeOrCommand">streamId</span> (populated in an <span class="CodeOrCommand">Rssl</span><span class="CodeOrCommand">Int</span>) corresponds to the <span class="CodeOrCommand">streamId</span> of an open stream. The stream attributes specified (e.g., specifying the <span class="Parameter">RSSL_</span><span class="Parameter">RQMF_PAUSE</span> flag, or changes to <span class="CodeOrCommand">priorityClass</span> and <span class="CodeOrCommand">priorityCount</span>) will be applied to each <span class="CodeOrCommand">streamId</span> in the list.</div>
+      <div class="Body"><a name="1028056">The consumer application may specify </a><span class="CodeOrCommand">streamId</span>s from from any non-Login domain in the <span class="CodeOrCommand">:StreamIdList</span> of a batch reissue message; only the <span class="CodeOrCommand">streamId</span> is needed to identify the stream. The <span class="CodeOrCommand">qos</span>, <span class="CodeOrCommand">worstQos</span>, <span class="CodeOrCommand">msgKey</span>, <span class="CodeOrCommand">domainType</span>, and <span class="CodeOrCommand">extendedHeader</span> of the <span class="CodeOrCommand">RsslRequestMsg</span> are not used (do not set the <span class="Parameter">RSSL_</span><span class="Parameter">RQMF_HAS_QOS</span>, <span class="Parameter">RSSL_</span><span class="Parameter">RQMF_HAS_WORST_QOS</span>, or <span class="Parameter">RSSL_</span><span class="Parameter">RQMF_HAS_EXTENDED_HEADER</span> flags. Set <span class="CodeOrCommand">msgKey.flags</span> to <span class="Parameter">RSSL_</span><span class="Parameter">MKF_NONE</span>. Thomson Reuters recommends setting the <span class="CodeOrCommand">domainType</span> to <span class="Parameter">RSSL_</span><span class="Parameter">DMT_MARKET_PRICE</span>).As with a batch request, a provider should respond on the same stream with an <span class="CodeOrCommand">RsslStatusMsg</span> that acknowledges receipt of the batch by indicating the <span class="CodeOrCommand">dataState</span> is <span class="Parameter">OK</span> and <span class="CodeOrCommand">streamState</span> is <span class="Parameter">CLOSED</span>, and the provider sends any additional responses on the individual streams. If any stream’s reissue cannot be fulfilled, the provider should send an <span class="CodeOrCommand">RsslStatusMsg</span> on that stream to indicate the reason (for further details, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MsgPackage_DetailedView.12.26.html', '');" title="12.2.4 RSSL Status Message Class">Section 12.2.4</a>). If the provider is unable to process the batch message itself, it should use a <span class="Parameter">SUSPECT</span> <span class="CodeOrCommand">dataState</span> in the response to the batch message.</div>
+      <div class="Body"><a name="1028069">Consider the following interaction example:</a></div>
+      <div class="Body"><a name="1028073"><img class="Default" src="images/BatchReissueInteractionEx.jpg" width="550" height="186" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></div>
+      <div class="FigTitle_outer" style="margin-left: 21.6pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="FigTitle_inner" style="width: 46.800000000000004pt; white-space: nowrap">Figure 40.  </div>
+            </td>
+            <td width="100%">
+              <div class="FigTitle_inner"><a name="1028077">Batch Reissue (Pause) Interaction Example</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1028078">In the above figure, the consumer currently has three items open on </a><span class="CodeOrCommand">streamId</span>s <span class="Parameter">5</span>, <span class="Parameter">6</span>, and <span class="Parameter">7</span> to a provider that supports pausing those streams. The consumer wishes to pause these three streams, so it sends an <span class="CodeOrCommand">Rssl</span><span class="CodeOrCommand">RequestMsg</span> using an unused <span class="CodeOrCommand">streamId</span>, 8. This message includes the <span class="Parameter">RSSL_</span><span class="Parameter">RQMF_PAUSE</span> flag, and encodes the <span class="CodeOrCommand">streamId</span>s <span class="Parameter">5</span>, <span class="Parameter">6</span>, and <span class="Parameter">7</span> in the <span class="CodeOrCommand">:StreamIdList</span> element. The provider then responds with an <span class="CodeOrCommand">RsslStatusMsg</span> on <span class="CodeOrCommand">streamId</span> <span class="Parameter">8</span> to acknowledge the reissue message, and considers streams <span class="Parameter">5</span>, <span class="Parameter">6</span>, and <span class="Parameter">7</span> to be paused.</div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1028085">For an example of encoding a batch reissue, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MessagesAdvancedConcepts.13.17.html', '');" title="13.7.5 Batch Reissue Encoding Example">Section 13.7.5</a>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1028092">For more information about </a><span class="CodeOrCommand">RsslRequestMsg</span> and <span class="Parameter">RSSL_RQMF_HAS_BATCH</span> flag values, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MsgPackage_DetailedView.12.14.html#1001278', '');" title="12.2 RSSL Messages">Section 12.2.1</a>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1028099">For more information about the </a><span class="CodeOrCommand">RsslElementList</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.060.html', '');" title="11.3.2 RsslElementList">Section 11.3.2</a>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_MessagesAdvancedConcepts.13.01.html">Chapter 13	Advanced Messaging Concepts</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_MessagesAdvancedConcepts.13.12.html">13.7	Batch Messages</a> : 13.7.2	Batch Reissue</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>13.7.1 Batch Request</title>
+    <link rel="StyleSheet" href="css/Chap_MessagesAdvancedConcepts.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Transport API C Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Transport API C Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3"><a name="999240">Batch Request</a></div>
+      <div class="Body"><a name="1027916">Consumers use a batch request to indicate interest in multiple like-item streams with a single </a><span class="CodeOrCommand">RsslRequestMsg</span>. In this message, the consumer specifies a list of names in the message payload representing the items that the consumer wishes to open. Batch requesting can be leveraged across all non-administrative<sup><a name="wwfootnote_inline_70" href="#70">1</a></sup> domain model types.</div>
+      <div class="Body"><a name="1027926">A consumer application can issue a batch request by using a</a>n <span class="CodeOrCommand">RsslRequestMsg</span> with the <span class="Parameter">RSSL_RQMF_HAS_BATCH</span> flag set and including a specifically formatted payload. The payload should contain an <span class="CodeOrCommand">RsslElementList</span> along with an <span class="CodeOrCommand">RsslElementEntry</span> named <span class="CodeOrCommand">:ItemList</span>. </div>
+      <div class="Body"><a name="1027939">The </a><span class="CodeOrCommand">:ItemList</span> contains an <span class="CodeOrCommand">RsslArray</span>, where the <span class="CodeOrCommand">RsslArray.primitiveType</span> is <span class="Parameter">RSSL_DT_ASCII_STRING</span>. Each contained string (populated in an <span class="CodeOrCommand">RsslBuffer</span>) corresponds to a requested name. The <span class="CodeOrCommand">msgKey</span> contents, <span class="CodeOrCommand">domainType</span>, and any specified <span class="CodeOrCommand">qos</span> will be applied to all names in the list, and a <span class="CodeOrCommand">msgKey.name</span> (or <span class="Parameter">RSSL_MKF_HAS_NAME</span>) should not be present.</div>
+      <div class="Body"><a name="1027946">When a provider application receives a batch request, it should respond on the same stream with a</a>n <span class="CodeOrCommand">RsslStatusMsg</span> that acknowledges receipt of the batch by indicating the <span class="CodeOrCommand">dataState</span> is <span class="Parameter">OK</span> and <span class="CodeOrCommand">streamState</span> is <span class="Parameter">CLOSED</span>. The batch stream closes because all additional responses are provided on individual streams. The <span class="CodeOrCommand">:ItemList</span> should be traversed to obtain each requested name and the batch <span class="CodeOrCommand">RsslRequestMsg.msgKey</span> content should be associated with each item. If any request cannot be fulfilled, the provider should send an <span class="CodeOrCommand">RsslStatusMsg</span> to close the stream and indicate the reason (for further details, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MsgPackage_DetailedView.12.26.html', '');" title="12.2.4 RSSL Status Message Class">Section 12.2.4</a>). If the provider is unable to process the batch request itself, it should use a <span class="Parameter">SUSPECT</span> <span class="CodeOrCommand">dataState</span> in its response to the batch message.</div>
+      <div class="Body"><a name="1027962">Assignment of </a><span class="CodeOrCommand">streamId</span> values for all requested items is sequential according to the order of the entries in the <span class="CodeOrCommand">RsslArray</span>, beginning with (<span class="Parameter">1</span> + <span class="CodeOrCommand">streamId</span>) of the batch <span class="CodeOrCommand">RsslRequestMsg</span>. Because an OMM consumer requests the batch, positive <span class="CodeOrCommand">streamId</span> values should be assigned. By setting the initial <span class="CodeOrCommand">streamId</span>, the consumer application can control the resultant <span class="CodeOrCommand">streamId</span> range, ensuring enough available <span class="CodeOrCommand">streamId</span> values exist to allocate identifiers for all requested items. Consider the following example:</div>
+      <div class="Body"><a name="1027972"><img class="Default" src="images/BatchReqInteractionExample.jpg" width="561" height="173" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></div>
+      <div class="FigTitle_outer" style="margin-left: 21.6pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="FigTitle_inner" style="width: 46.800000000000004pt; white-space: nowrap">Figure 39.  </div>
+            </td>
+            <td width="100%">
+              <div class="FigTitle_inner"><a name="1027973">Batch Request Interaction Example‘	‘</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1027974">In the above figure, the consumer uses </a><span class="CodeOrCommand">streamId</span> 4 to send a batch request for three items, having ensured that <span class="CodeOrCommand">streamId</span>s <span class="Parameter">5</span>, <span class="Parameter">6</span>, and <span class="Parameter">7</span> are available. The provider acknowledges the batch request by responding with an <span class="CodeOrCommand">RsslStatusMsg</span> on <span class="CodeOrCommand">streamId</span> <span class="Parameter">4</span>, and provides the response for each of the three items on <span class="CodeOrCommand">streamId</span>s <span class="Parameter">5</span>, <span class="Parameter">6</span>, and <span class="Parameter">7</span>, respectively.</div>
+      <div class="Body"><a name="1027984">Any view information (described in </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MessagesAdvancedConcepts.13.19.html', '');" title="13.8 Dynamic View Use">Section 13.8</a>) included in a batch request should be applied for each item in the request. If a consumer application wants to reissue any item that was requested as part of a batch, the application can either issue a subsequent <span class="CodeOrCommand">RsslRequestMsg</span> on that item’s <span class="CodeOrCommand">streamId</span>, or use a batch reissue to apply the reissue to multiple streams (described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MessagesAdvancedConcepts.13.14.html', '');" title="13.7.2 Batch Reissue">Section 13.7.2</a>).</div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1028001">For an example of encoding a batch request, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MessagesAdvancedConcepts.13.13.html', '');" title="13.7.1 Batch Request">Section 13.7.1</a>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1028005">For more information about </a><span class="CodeOrCommand">RsslRequestMsg</span> and <span class="Parameter">RSSL_RQMF_HAS_BATCH</span> flag values, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MsgPackage_DetailedView.12.14.html#1001278', '');" title="12.2 RSSL Messages">Section 12.2.1</a>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1028025">For more information about </a><span class="CodeOrCommand">RsslElementList</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.060.html', '');" title="11.3.2 RsslElementList">Section 11.3.2</a>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+      <hr />
+      <div style="font-size: smaller; float: left; padding-right: 10px;">
+        <a name="70" href="#wwfootnote_inline_70">1</a>
+      </div>
+      <div class="Footnote"><a name="1027919">Administrative domain types are considered to be the Login, Directory, and Dictionary domain models. All other domains are considered non-administrative. </a></div>
+      <br style="clear: both;" />
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_MessagesAdvancedConcepts.13.01.html">Chapter 13	Advanced Messaging Concepts</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_MessagesAdvancedConcepts.13.12.html">13.7	Batch Messages</a> : 13.7.1	Batch Request</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

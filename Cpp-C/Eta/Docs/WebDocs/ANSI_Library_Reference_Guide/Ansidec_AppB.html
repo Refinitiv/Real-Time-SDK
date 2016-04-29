@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>Appendix A ANSI Include File - q_ansi</title>
+    <link rel="StyleSheet" href="css/Ansidec_AppB.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Transport API C Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Transport API C Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="A1"><a name="745274">ANSI Include File - q_ansi</a></div>
+      <div class="code_rep"><a name="745351">/*------------------------------------------------------</a></div>
+      <div class="code_rep"><a name="745746"> *       Copyright (C) 1995 Reuters,                  --</a></div>
+      <div class="code_rep"><a name="745747"> *                                                    --</a></div>
+      <div class="code_rep"><a name="745355"> *   1400 Kensington Road, Oak Brook, IL. 60521       --</a></div>
+      <div class="code_rep"><a name="745356"> *                                                    --</a></div>
+      <div class="code_rep"><a name="745357"> * 	   All rights reserved. 		           --</a></div>
+      <div class="code_rep"><a name="746035"> *     Duplication or distribution prohibited         --</a></div>
+      <div class="code_rep"><a name="745358"> *------------------------------------------------------</a></div>
+      <div class="code_rep"><a name="745360"> */</a></div>
+      <div class="code_rep"><a name="745361">&nbsp;</a></div>
+      <div class="code_rep"><a name="745752">&nbsp;</a></div>
+      <div class="code_rep"><a name="745362">#ifndef Q_ANSI_H</a></div>
+      <div class="code_rep"><a name="745363">#define Q_ANSI_H</a></div>
+      <div class="code_rep"><a name="745364">&nbsp;</a></div>
+      <div class="code_rep"><a name="745758">/* define return values for qa_encode */ </a></div>
+      <div class="code_rep"><a name="746034">#define DONE		0</a></div>
+      <div class="code_rep"><a name="745760">#define NOT_DONE		1</a></div>
+      <div class="code_rep"><a name="745761">&nbsp;</a></div>
+      <div class="code_rep"><a name="745762">&nbsp;</a></div>
+      <div class="code_rep"><a name="745763">/* define ATTRIBUTES when monochrome, color, and fading</a></div>
+      <div class="code_rep"><a name="746029">   attributes are needed.  Leaving ATTRIBUTES undefined</a></div>
+      <div class="code_rep"><a name="746032">   saves space. </a></div>
+      <div class="code_rep"><a name="746033">*/</a></div>
+      <div class="code_rep"><a name="745765">#define ATTRIBUTES </a></div>
+      <div class="code_rep"><a name="745766">&nbsp;</a></div>
+      <div class="code_rep"><a name="745767">&nbsp;</a></div>
+      <div class="code_rep"><a name="745768">struct upd_type {/* structure for incoming updates  */</a></div>
+      <div class="code_rep"><a name="746028">&nbsp;</a></div>
+      <div class="code_rep"><a name="745769">short  row;      /* row on which the update appears */</a></div>
+      <div class="code_rep"><a name="745770">short  upd_beg;  /* beginning column of update      */</a></div>
+      <div class="code_rep"><a name="745771">short  upd_end;  /* ending column of update */</a></div>
+      <div class="code_rep"><a name="745772">};</a></div>
+      <div class="code_rep"><a name="745773">&nbsp;</a></div>
+      <div class="code_rep"><a name="745774">&nbsp;</a></div>
+      <div class="code_rep"><a name="745775">typedef struct list_type {</a></div>
+      <div class="code_rep"><a name="745776">&nbsp;</a></div>
+      <div class="code_rep"><a name="745977">short  max_updt;		    /* size of upd_list */</a></div>
+      <div class="code_rep"><a name="745777">short  index;		    /* num of upd_list entries */</a></div>
+      <div class="code_rep"><a name="745778">struct upd_type upd_list[1];  /* this structure is overlaid</a></div>
+      <div class="code_rep"><a name="746224">		       on the space the caller</a></div>
+      <div class="code_rep"><a name="746225">		       provides */</a></div>
+      <div class="code_rep"><a name="746226">} LISTTYP, *LISTPTR;</a></div>
+      <div class="code_rep"><a name="745781">&nbsp;</a></div>
+      <div class="code_rep"><a name="745955">&nbsp;</a></div>
+      <div class="code_rep"><a name="745782">typedef struct status {</a></div>
+      <div class="code_rep"><a name="745783">&nbsp;</a></div>
+      <div class="code_rep"><a name="745976">short  row;</a></div>
+      <div class="code_rep"><a name="745784">short  col;</a></div>
+      <div class="code_rep"><a name="745785">unsigned char cur_attr;		/* monochrome attribute */</a></div>
+      <div class="code_rep"><a name="745786">unsigned char c_attr;		/* color attribute */</a></div>
+      <div class="code_rep"><a name="745787">unsigned char c_fade_attr;/* color fading attr */</a></div>
+      <div class="code_rep"><a name="745788">unsigned char fading;		/* mono fading attr */</a></div>
+      <div class="code_rep"><a name="745789">unsigned char gr_set;		/* flag to select G0 or G1 */</a></div>
+      <div class="code_rep"><a name="745790">unsigned char G0_set;		/* G0 graphics set */</a></div>
+      <div class="code_rep"><a name="745791">unsigned char G1_set;		/* G1 graphics set */</a></div>
+      <div class="code_rep"><a name="745792">short wrap_on;		/* flag for line wrap */</a></div>
+      <div class="code_rep"><a name="745793">short vem;		/* flag for vert editing mode */</a></div>
+      <div class="code_rep"><a name="745794">short hem;		/* flag for horiz edit mode */</a></div>
+      <div class="code_rep"><a name="745795">} STATUSTYP, *STATUSPTR;</a></div>
+      <div class="code_rep"><a name="745796">&nbsp;</a></div>
+      <div class="code_rep"><a name="745797">&nbsp;</a></div>
+      <div class="code_rep"><a name="745798">typedef struct char_type {</a></div>
+      <div class="code_rep"><a name="745972">&nbsp;</a></div>
+      <div class="code_rep"><a name="745975">char ch;</a></div>
+      <div class="code_rep"><a name="745800">unsigned char gs;			/* graphic set */</a></div>
+      <div class="code_rep"><a name="745801">#ifdef ATTRIBUTES</a></div>
+      <div class="code_rep"><a name="745802">unsigned char attr;			/* mono attrib */</a></div>
+      <div class="code_rep"><a name="745803">unsigned char fade_attr;			/* mono fading */</a></div>
+      <div class="code_rep"><a name="745804">unsigned char c_attr;			/* color attrib */</a></div>
+      <div class="code_rep"><a name="745805">unsigned char c_fade_attr;			/* color fading */</a></div>
+      <div class="code_rep"><a name="745806">#endif</a></div>
+      <div class="code_rep"><a name="745807">} CHARTYP, *CHARPTR;</a></div>
+      <div class="code_rep"><a name="745808">&nbsp;</a></div>
+      <div class="code_rep"><a name="745809">&nbsp;</a></div>
+      <div class="code_rep"><a name="745810">typedef struct page_type {</a></div>
+      <div class="code_rep"><a name="745811">&nbsp;</a></div>
+      <div class="code_rep"><a name="745978">CHARTYP *page;        /* size of [PAGEROWS * PAGECOLS] */</a></div>
+      <div class="code_rep"><a name="745812">STATUSTYP status;</a></div>
+      <div class="code_rep"><a name="745813">STATUSTYP save;		/* for cursor save/restore */</a></div>
+      <div class="code_rep"><a name="745814">short scroll_top;		/* top of scrolling region */</a></div>
+      <div class="code_rep"><a name="745815">short scroll_bot;		/* bottom of scrolling reg */</a></div>
+      <div class="code_rep"><a name="745816">short last_mod;		/* qa_encode marks last entry</a></div>
+      <div class="code_rep"><a name="746016">		   in u_list it was able to</a></div>
+      <div class="code_rep"><a name="746017">		   encode */</a></div>
+      <div class="code_rep"><a name="745818">} PAGETYP, *PAGEPTR;</a></div>
+      <div class="code_rep"><a name="745819">&nbsp;</a></div>
+      <div class="code_rep"><a name="745820">&nbsp;</a></div>
+      <div class="code_rep"><a name="745821">#define PAGELENGTH 		sizeof(PAGETYP)</a></div>
+      <div class="code_rep"><a name="745822">#define CHARLENGTH		sizeof(CHARTYP)</a></div>
+      <div class="code_rep"><a name="745823">&nbsp;</a></div>
+      <div class="code_rep"><a name="745824">/* ATTRIBUTE BYTE definitions */</a></div>
+      <div class="code_rep"><a name="745825">#define _PLAIN		0x00</a></div>
+      <div class="code_rep"><a name="745826">#define _BLINK		0x01</a></div>
+      <div class="code_rep"><a name="745827">#define _REVVID		0x02</a></div>
+      <div class="code_rep"><a name="745828">#define _DIM		0x04</a></div>
+      <div class="code_rep"><a name="745829">#define _UNDLN		0x08</a></div>
+      <div class="code_rep"><a name="745830">#define _BRIGHT		0x10</a></div>
+      <div class="code_rep"><a name="745831">&nbsp;</a></div>
+      <div class="code_rep"><a name="745832">/* definitions for color */</a></div>
+      <div class="code_rep"><a name="745833">#define MONO		0xff	/* monochrome */</a></div>
+      <div class="code_rep"><a name="745834">#define F_BLACK		0x00</a></div>
+      <div class="code_rep"><a name="745835">#define F_RED		0x01</a></div>
+      <div class="code_rep"><a name="745836">#define F_GREEN		0x02</a></div>
+      <div class="code_rep"><a name="745837">#define F_YELLOW		0x03</a></div>
+      <div class="code_rep"><a name="745838">#define F_BLUE		0x04</a></div>
+      <div class="code_rep"><a name="745839">#define F_MAGENTA		0x05</a></div>
+      <div class="code_rep"><a name="745840">#define F_CYAN		0x06</a></div>
+      <div class="code_rep"><a name="745841">#define F_WHITE		0x07</a></div>
+      <div class="code_rep"><a name="745842">#define B_BLACK		0x00</a></div>
+      <div class="code_rep"><a name="745843">#define B_RED		0x10</a></div>
+      <div class="code_rep"><a name="745844">#define B_GREEN		0x20</a></div>
+      <div class="code_rep"><a name="745845">#define B_YELLOW		0x30</a></div>
+      <div class="code_rep"><a name="745846">#define B_BLUE		0x40</a></div>
+      <div class="code_rep"><a name="745847">#define B_MAGENTA		0x50</a></div>
+      <div class="code_rep"><a name="745848">#define B_CYAN		0x60</a></div>
+      <div class="code_rep"><a name="745849">#define B_WHITE		0x70</a></div>
+      <div class="code_rep"><a name="745850">&nbsp;</a></div>
+      <div class="code_rep"><a name="745851">/* definitions for character size */</a></div>
+      <div class="code_rep"><a name="745852">#define SHSW     0x00		/* single height single width */</a></div>
+      <div class="code_rep"><a name="745853">#define DHSW_TOP 0x01		/* double height single width top */</a></div>
+      <div class="code_rep"><a name="745979">#define DHSW_BOT 0x02		/* double height single width</a></div>
+      <div class="code_rep"><a name="745984">		   bottom */</a></div>
+      <div class="code_rep"><a name="745980">#define DHDW_TOP 0x03		/* double height double width top</a></div>
+      <div class="code_rep"><a name="745988">		 */</a></div>
+      <div class="code_rep"><a name="745856">#define DHDW_BOT 0x04		/* double height double width</a></div>
+      <div class="code_rep"><a name="745989">		   bottom */</a></div>
+      <div class="code_rep"><a name="745857">#define SHDW     0x05		/* single height double width */</a></div>
+      <div class="code_rep"><a name="745858">&nbsp;</a></div>
+      <div class="code_rep"><a name="745859">&nbsp;</a></div>
+      <div class="code_rep"><a name="745860">/* Modes for encoding ansi </a></div>
+      <div class="code_rep"><a name="745861">   UPDATE mode adds fading blink </a></div>
+      <div class="code_rep"><a name="745998">*/</a></div>
+      <div class="code_rep"><a name="745862">#define NO_FADE		0</a></div>
+      <div class="code_rep"><a name="745863">#define NORM  		1</a></div>
+      <div class="code_rep"><a name="745864">#define UPDATE  		2</a></div>
+      <div class="code_rep"><a name="745865">#define ISSUPDT  		3</a></div>
+      <div class="code_rep"><a name="745866">&nbsp;</a></div>
+      <div class="code_rep"><a name="745867">&nbsp;</a></div>
+      <div class="code_rep"><a name="745868">/* define character set selection parameters for use with</a></div>
+      <div class="code_rep"><a name="745990">   encode ansi routine.  These parameters are to be</a></div>
+      <div class="code_rep"><a name="745993">   used to indicate character set or sets being used to</a></div>
+      <div class="code_rep"><a name="745996">   create the page image. </a></div>
+      <div class="code_rep"><a name="745997">*/</a></div>
+      <div class="code_rep"><a name="745871">#define	US_ASCII	'B'</a></div>
+      <div class="code_rep"><a name="745872">#define	UK_ASCII	'A'</a></div>
+      <div class="code_rep"><a name="745873">#define	VT100_GS	'0'	/* vt100 graphics */</a></div>
+      <div class="code_rep"><a name="745874">#define	CHAP_SPC	':'	/* chapdelaine</a></div>
+      <div class="code_rep"><a name="745999">			   special ascii */</a></div>
+      <div class="code_rep"><a name="745875">#define	RMJ_SPEC	';'	/* rmj "       "   */</a></div>
+      <div class="code_rep"><a name="745876">#define	GARBAN_S	'&lt;'	/* garban	 "	 "   */</a></div>
+      <div class="code_rep"><a name="745877">#define	MABON_SP	'='	/* mabon	 "	 "   */</a></div>
+      <div class="code_rep"><a name="745878">#define	MOSAIC_G	'&gt;'	/* mosaic graph set*/</a></div>
+      <div class="code_rep"><a name="745879">#define	FBI_ASCI	'?'	/* fbi special</a></div>
+      <div class="code_rep"><a name="746000">			   ascii */</a></div>
+      <div class="code_rep"><a name="745880">#define	FBI_SPEC	'f'	/*  "     "</a></div>
+      <div class="code_rep"><a name="746001">			    graphics */</a></div>
+      <div class="code_rep"><a name="745881">#define	TOPIC_CS	't'	/* topic character</a></div>
+      <div class="code_rep"><a name="746002">			   set */</a></div>
+      <div class="code_rep"><a name="745882">#define	GENERL_G	'g'	/* general graphics*/</a></div>
+      <div class="code_rep"><a name="745883">#define	VIEW_MOS	'v'	/* viewdata mosaics*/</a></div>
+      <div class="code_rep"><a name="745884">&nbsp;</a></div>
+      <div class="code_rep"><a name="745885">&nbsp;</a></div>
+      <div class="code_rep"><a name="745886">&nbsp;</a></div>
+      <div class="code_rep"><a name="745887">/* escape sequnce number and out sequnce table offsets */</a></div>
+      <div class="code_rep"><a name="745888">#define DBH_TP		1  /*double high top*/</a></div>
+      <div class="code_rep"><a name="745889">#define DBH_BT		2  /*double high bottom*/</a></div>
+      <div class="code_rep"><a name="745890">#define DBHW_TP		3  /*double high/wide top*/</a></div>
+      <div class="code_rep"><a name="745891">#define DBHW_BT		4  /*double high/wide bottom*/</a></div>
+      <div class="code_rep"><a name="745892">#define DB_OFF		5  /*double off*/</a></div>
+      <div class="code_rep"><a name="745893">#define DBWD		6  /*double wide single high*/</a></div>
+      <div class="code_rep"><a name="745894">#define DB_MIN		1</a></div>
+      <div class="code_rep"><a name="745895">#define DB_MAX		6</a></div>
+      <div class="code_rep"><a name="745896">&nbsp;</a></div>
+      <div class="code_rep"><a name="745897">/* masks for bits in attribute sequence fddd aaaa </a></div>
+      <div class="code_rep"><a name="746007">	where f is 1 when double is active</a></div>
+      <div class="code_rep"><a name="745900">	where d is the double attribute info</a></div>
+      <div class="code_rep"><a name="745901">	where a is the normal attribute info</a></div>
+      <div class="code_rep"><a name="745902">*/</a></div>
+      <div class="code_rep"><a name="745903">#define DB_BITS		0xE0  /*mask out double flag</a></div>
+      <div class="code_rep"><a name="746008">		        bit */</a></div>
+      <div class="code_rep"><a name="745904">#define DB_SFT_BITS		0x07  /*mask out double flag</a></div>
+      <div class="code_rep"><a name="746009">		        bit after shifting</a></div>
+      <div class="code_rep"><a name="746010">		        DB_SHIFT*/</a></div>
+      <div class="code_rep"><a name="745905">#define DB_SHIFT		5     /*number shifted right to</a></div>
+      <div class="code_rep"><a name="746011">		        right justify double</a></div>
+      <div class="code_rep"><a name="746012">		        attribute bits*/</a></div>
+      <div class="code_rep"><a name="745907">#define DB_ATT_MASK   0x1f    /*normal attribute mask*/</a></div>
+      <div class="code_rep"><a name="745908">&nbsp;</a></div>
+      <div class="code_rep"><a name="745909">#define BACK_COL_MASK 0xf0</a></div>
+      <div class="code_rep"><a name="745910">#define FORG_COL_MASK 0x0f</a></div>
+      <div class="code_rep"><a name="745911">&nbsp;</a></div>
+      <div class="code_rep"><a name="745912">&nbsp;</a></div>
+      <div class="code_rep"><a name="745913">#ifdef __cplusplus</a></div>
+      <div class="code_rep"><a name="745914">extern "C"</a></div>
+      <div class="code_rep"><a name="745915">{</a></div>
+      <div class="code_rep"><a name="745916">#endif</a></div>
+      <div class="code_rep"><a name="745917">&nbsp;</a></div>
+      <div class="code_rep"><a name="745918">#if defined(__cplusplus) || defined(__STDC__)</a></div>
+      <div class="code_rep"><a name="745919">&nbsp;</a></div>
+      <div class="code_rep"><a name="745920">extern int qa_decode( PAGEPTR,char*,int,LISTPTR);</a></div>
+      <div class="code_rep"><a name="745921">extern int qa_encode( PAGEPTR,unsigned char*,long,long*,short,LISTPTR);</a></div>
+      <div class="code_rep"><a name="745922">extern short qa_page_rows();</a></div>
+      <div class="code_rep"><a name="745923">extern short qa_page_columns();</a></div>
+      <div class="code_rep"><a name="745924">extern void qa_set_rows( short );</a></div>
+      <div class="code_rep"><a name="745925">extern void qa_set_columns( short );</a></div>
+      <div class="code_rep"><a name="745926">extern short qa_reset(PAGEPTR,char*,LISTPTR);</a></div>
+      <div class="code_rep"><a name="745927">&nbsp;</a></div>
+      <div class="code_rep"><a name="745928">#else</a></div>
+      <div class="code_rep"><a name="745929">&nbsp;</a></div>
+      <div class="code_rep"><a name="745930">extern int qa_decode();</a></div>
+      <div class="code_rep"><a name="745931">extern int qa_encode();</a></div>
+      <div class="code_rep"><a name="745932">extern short qa_page_rows();</a></div>
+      <div class="code_rep"><a name="745933">extern short qa_page_columns();</a></div>
+      <div class="code_rep"><a name="745934">extern void qa_set_rows();</a></div>
+      <div class="code_rep"><a name="745935">extern void qa_set_columns();</a></div>
+      <div class="code_rep"><a name="745936">extern short qa_reset();</a></div>
+      <div class="code_rep"><a name="745937">&nbsp;</a></div>
+      <div class="code_rep"><a name="745938">#endif</a></div>
+      <div class="code_rep"><a name="745939">&nbsp;</a></div>
+      <div class="code_rep"><a name="745940">#ifdef __cplusplus</a></div>
+      <div class="code_rep"><a name="745941">}</a></div>
+      <div class="code_rep"><a name="745942">#endif</a></div>
+      <div class="code_rep"><a name="745943">&nbsp;</a></div>
+      <div class="code_rep"><a name="745945">#endif</a></div>
+      <div class="code_rep"><a name="745279">&nbsp;</a></div>
+      <div class="code_rep"><a name="745756">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Appendix A	ANSI Include File - q_ansi</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>3.2 Transport API Performance Tools</title>
+    <link rel="StyleSheet" href="css/UPAJ_Doc_Portal.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Transport API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Transport API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="Heading_2"><a name="9000131">Transport API Performance Tools</a></div>
+      <table class="Table_Normal" style="width: 543.05pt" cellspacing="0" summary="">
+        <tr style="vertical-align: top">
+          <td style="background-color: white; border-bottom-color: black; border-bottom-style: outset; border-bottom-width: 0.75pt; border-left-color: black; border-left-style: outset; border-left-width: 0.75pt; border-right-color: black; border-right-style: outset; border-right-width: 0.75pt; border-top-color: black; border-top-style: outset; border-top-width: 0.75pt; width: 169.55pt">
+            <div class="Table_Text"><a href=../../../PerfTools/com/thomsonreuters/upa/perftools/upajConsPerf target=_blank>upajConsPerf</a></div>
+          </td>
+          <td style="background-color: white; border-bottom-color: black; border-bottom-style: outset; border-bottom-width: 0.75pt; border-left-color: black; border-left-style: outset; border-left-width: 0.75pt; border-right-color: black; border-right-style: outset; border-right-width: 0.75pt; border-top-color: black; border-top-style: outset; border-top-width: 0.75pt; width: 373.5pt">
+            <div class="Table_Text"><a name="9000133">The purpose of this upajConsPerf application is to measure performance of the Transport API transport, encoders and decoders in consuming Level I Market Price content directly from an OMM provider or through the Thomson Reuters Enterprise Platform. </a></div>
+            <div class="Table_Text"><a name="9000134">To measure latency, a timestamp is randomly placed in each burst of updates by the provider. The consumer then decodes the timestamp from the update to determine the end-to-end latency.  upajConsPerf also supports measurement of posting latency. </a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: white; border-bottom-color: black; border-bottom-style: outset; border-bottom-width: 0.75pt; border-left-color: black; border-left-style: outset; border-left-width: 0.75pt; border-right-color: black; border-right-style: outset; border-right-width: 0.75pt; border-top-color: black; border-top-style: outset; border-top-width: 0.75pt">
+            <div class="Table_Text"><a href=../../../PerfTools/com/thomsonreuters/upa/perftools/upajNIProvPerf target=_blank>upajNIProvPerf</a></div>
+          </td>
+          <td style="background-color: white; border-bottom-color: black; border-bottom-style: outset; border-bottom-width: 0.75pt; border-left-color: black; border-left-style: outset; border-left-width: 0.75pt; border-right-color: black; border-right-style: outset; border-right-width: 0.75pt; border-top-color: black; border-top-style: outset; border-top-width: 0.75pt">
+            <div class="Table_Text"><a name="9000137">The purpose of this upajNIProvPerf application is to measure performance of the Transport API transport, encoders and decoders, in providing Level I Market Price content to the Thomson Reuters Enterprise Platform Advanced Data Hub (ADH). </a></div>
+            <div class="Table_Text"><a name="9000138">The provider creates two categories of threads:</a></div>
+            <div class="Bullet_table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_table_inner" style="width: 18pt; white-space: nowrap">
+                      <span style="color: #666666; font-size: 10pt">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_table_inner"><a name="9000139">A main thread, which collects and records statistical information.</a></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_table_inner" style="width: 18pt; white-space: nowrap">
+                      <span style="color: #666666; font-size: 10pt">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_table_inner"><a name="9000140">Provider threads, each of which connect to an ADH and provide market data.</a></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: white; border-bottom-color: black; border-bottom-style: outset; border-bottom-width: 0.75pt; border-left-color: black; border-left-style: outset; border-left-width: 0.75pt; border-right-color: black; border-right-style: outset; border-right-width: 0.75pt; border-top-color: black; border-top-style: outset; border-top-width: 0.75pt">
+            <div class="Table_Text"><a href=../../../PerfTools/com/thomsonreuters/upa/perftools/upajProvPerf target=_blank>upajProvPerf</a></div>
+          </td>
+          <td style="background-color: white; border-bottom-color: black; border-bottom-style: outset; border-bottom-width: 0.75pt; border-left-color: black; border-left-style: outset; border-left-width: 0.75pt; border-right-color: black; border-right-style: outset; border-right-width: 0.75pt; border-top-color: black; border-top-style: outset; border-top-width: 0.75pt">
+            <div class="Table_Text"><a name="9000143">The purpose of this upajProvPerf</a><span style="font-weight: bold"> </span>application is to measure performance of the Transport API transport, encoders and decoders in providing Level I Market Price content either directly to an OMM Consumer or to the Thomson Reuters Enterprise Platform. </div>
+            <div class="Table_Text"><a name="9000144">The provider may be configured to provide updates at various rates. To measure latency, a timestamp is randomly placed in each burst of updates. The consumer then decodes the timestamp from the update to determine the end-to-end latency.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: white; border-bottom-color: black; border-bottom-style: outset; border-bottom-width: 0.75pt; border-left-color: black; border-left-style: outset; border-left-width: 0.75pt; border-right-color: black; border-right-style: outset; border-right-width: 0.75pt; border-top-color: black; border-top-style: outset; border-top-width: 0.75pt">
+            <div class="Table_Text"><a href=../../../PerfTools/com/thomsonreuters/upa/perftools/upajTransportPerf target=_blank>upajTransportPerf</a></div>
+          </td>
+          <td style="background-color: white; border-bottom-color: black; border-bottom-style: outset; border-bottom-width: 0.75pt; border-left-color: black; border-left-style: outset; border-left-width: 0.75pt; border-right-color: black; border-right-style: outset; border-right-width: 0.75pt; border-top-color: black; border-top-style: outset; border-top-width: 0.75pt">
+            <div class="Table_Text"><a name="9000147">The purpose of this upajTransportPerf application is to measure performance of all Transport API transport types, using the different supported connection types with variable message sizes (including shared memory, reliable multicast, TCP/IP, and HTTP).</a></div>
+          </td>
+        </tr>
+      </table>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="UPAJ_Doc_Portal.1.22.html">Chapter 3	Performance Tool Suite</a> : 3.2	Transport API Performance Tools</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

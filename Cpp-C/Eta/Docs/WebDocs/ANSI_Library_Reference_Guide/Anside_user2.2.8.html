@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>2.2.1.2 Initialization</title>
+    <link rel="StyleSheet" href="css/Anside_user2.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Transport API C Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Transport API C Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H4"><a name="187396">Initialization</a></div>
+      <div class="Body"><a name="187397">Only one Update List data structure is required, since this is used only as a means of returning information from</a><span class="Parameter"> </span><span class="CodeOrCommand">qa_decode()</span>. One <span class="CodeOrCommand">PAGETYP</span> data structure is required for each page on display - it contains all of the static information for a page representation. These may be allocated dynamically or created statically.</div>
+      <div class="Body"><a name="187599">The size of the </a><span class="CodeOrCommand">CHARTYP</span> buffer pointed to by the <span class="CodeOrCommand">PAGETYP</span> data structure (i.e. the page size that the Triarch ANSI Library function operates on) is communicated to the ANSI Library by the functions <span class="CodeOrCommand">qa_set_rows()</span><span style="font-weight: bold"> </span>and<span style="font-weight: bold"> </span><span class="CodeOrCommand">qa_set_columns()</span>. These functions define the user application’s page size in rows and columns. The <span class="CodeOrCommand">CHARTYP</span> buffer referenced by <span class="CodeOrCommand">qa_decode()</span><span style="font-weight: bold"> </span>(as well as <span class="CodeOrCommand">qa_encode()</span> and <span class="CodeOrCommand">qa_reset()</span>)<span style="font-weight: bold"> </span>must correspond to this page size. </div>
+      <div class="Body"><a name="187651">Page size is maintained statically by the ANSI library. Once the page size has been set, one need only call </a><span class="CodeOrCommand">qa_set_rows()</span><span style="font-weight: bold"> </span>and<span style="font-weight: bold"> </span><span class="CodeOrCommand">qa_set_columns()</span><span style="font-weight: bold"> </span>when the page size changes. The default page size is 25 rows by 80 columns. If a user’s page size is always 25 rows by 80 columns, the <span class="CodeOrCommand">qa_set_rows()</span><span style="font-weight: bold"> </span>and<span style="font-weight: bold"> </span><span class="CodeOrCommand">qa_set_columns()</span><span style="font-weight: bold"> </span>functions<span style="font-weight: bold"> </span>need not be called.</div>
+      <div class="Body"><a name="187399">The update list must have the field </a><span class="Parameter">max_updt</span> initialized to the number of <span class="Parameter">upd_type</span> elements in the array.   Note that this field is not modified by <span class="CodeOrCommand">qa_decode()</span>.</div>
+      <div class="Body"><a name="187400">Each </a><span class="CodeOrCommand">PAGETYP</span> structure is best initialized by calling <span class="CodeOrCommand">qa_decode()</span> passing the ANSI initialize sequence (<span style="font-style: italic">ESC c</span>) which resets the entire data structure without reference to the original contents. In addition, if <span class="CodeOrCommand">qa_encode()</span> is to be used, the <span class="Parameter">last_mod</span> field must be set to the value (-1). Example initialization code follows:</div>
+      <div class="Blank_Line"><a name="188222">&nbsp;</a></div>
+      <table class="Commands" style="width: 555.75pt" cellspacing="0" summary="">
+        <caption></caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 555.75pt">
+            <div class="command_allTabs"><a name="188225">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command_allTabs"><a name="188239">void InitializePage( PAGEPTR page, LISTPTR u_list )</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command_allTabs"><a name="188234">{</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command_allTabs"><a name="188249">/* max_updt must be set and the array size &gt; 30 */</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command_allTabs"><a name="188251">	(void)qa_decode( page, “\033c”, 2, u_list );</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command_allTabs"><a name="188227">	page-&gt;last_mod = -1;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command_allTabs"><a name="188229">}</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command_allTabs"><a name="188257">&nbsp;</a></div>
+          </td>
+        </tr>
+      </table>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="Anside_user2.2.1.html">Chapter 2	Data Structures</a> : <a class="WebWorks_Breadcrumb_Link" href="Anside_user2.2.6.html">2.2	Using Data Structures</a> : <a class="WebWorks_Breadcrumb_Link" href="Anside_user2.2.6.html#187380">2.2.1	ANSI Decode</a> : 2.2.1.2	Initialization</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

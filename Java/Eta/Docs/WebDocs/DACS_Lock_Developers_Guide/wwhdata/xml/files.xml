@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WebWorksHelpBook version="5.0" name="DACS Lock Developers Guide" context="DACS_Lock_Developers_Guide" locale="en" xmlns="urn:WebWorks-Help-Book-Files-Schema">
+  <CommonWordsToSkip minlen="3">
+    a about after all also am an and another any are as at
+    be because been before being between both but by
+    came can come copyright corp corporation could
+    did do does
+    each etc
+    for from
+    get goes got
+    had has have he her here him himself his how
+    if in inc into is it its
+    let like
+    make many me might more most much must my
+    never nor not now
+    of off on one only or other our out over own
+    reserved rights
+    said same see set shall she should since so some still such
+    take than that the their them then there these they this those though through to too
+    under us use
+    very
+    was way we well were what when where which while who why will with would
+    yes yet you your
+   </CommonWordsToSkip>
+  <ScoringPrefs>
+    <meta name="keywords" weight="100" />
+    <meta name="description" weight="50" />
+    <meta name="summary" weight="50" />
+    <title weight="20" />
+    <h1 weight="15" />
+    <h2 weight="10" />
+    <caption weight="10" />
+    <h3 weight="7" />
+    <th weight="5" />
+    <h4 weight="5" />
+    <h5 weight="4" />
+    <h6 weight="3" />
+    <h7 weight="2" />
+  </ScoringPrefs>
+  <DocumentInfo>
+    <Document title="Chapter 1 Introduction to the DACS Lock API Developers Guide" href="Chap_Intro.1.1.html" />
+    <Document title="1.1 Product Description" href="Chap_Intro.1.2.html" />
+    <Document title="1.2 IDN Versus Elektron" href="Chap_Intro.1.3.html" />
+    <Document title="1.3 Audience" href="Chap_Intro.1.4.html" />
+    <Document title="1.4 Organization of Manual" href="Chap_Intro.1.5.html" />
+    <Document title="1.5 References" href="Chap_Intro.1.6.html" />
+    <Document title="1.6 Conventions" href="Chap_Intro.1.7.html" />
+    <Document title="1.6.2 Programming" href="Chap_Intro.1.8.html" />
+    <Document title="1.7 Glossary" href="Chap_Intro.1.9.html" />
+    <Document title="Chapter 2 DACS-Compliant Source Server Applications" href="Chap_DacsCompliantServerApps.2.1.html" />
+    <Document title="2.1 Overview" href="Chap_DacsCompliantServerApps.2.2.html" />
+    <Document title="2.2 Establish Subservice Names" href="Chap_DacsCompliantServerApps.2.3.html" />
+    <Document title="2.3 Define Entitlement Codes" href="Chap_DacsCompliantServerApps.2.4.html" />
+    <Document title="2.4 Create and Write Locks" href="Chap_DacsCompliantServerApps.2.5.html" />
+    <Document title="2.5 Publish the Map" href="Chap_DacsCompliantServerApps.2.6.html" />
+    <Document title="2.6 Provide a Mechanism to Read the Map and Supply it to the DACS Station" href="Chap_DacsCompliantServerApps.2.7.html" />
+    <Document title="Chapter 3 DACS Lock API" href="Chap_DACSLockAPI.3.1.html" />
+    <Document title="3.1 DACS Lock Operation" href="Chap_DACSLockAPI.3.2.html" />
+    <Document title="3.2 Forming a DACS Lock" href="Chap_DACSLockAPI.3.3.html" />
+    <Document title="3.3 DACS Lock Contents" href="Chap_DACSLockAPI.3.4.html" />
+    <Document title="3.4 Compression of DACS Locks" href="Chap_DACSLockAPI.3.5.html" />
+    <Document title="3.5 Compounding DACS Locks" href="Chap_DACSLockAPI.3.6.html" />
+    <Document title="3.6 Transport of DACS Locks" href="Chap_DACSLockAPI.3.7.html" />
+    <Document title="3.7 Compound DACS Lock in Relation to Permissioning" href="Chap_DACSLockAPI.3.8.html" />
+    <Document title="Chapter 4 DACS Lock API Components" href="Chap_DACSLockAPIComponents.4.1.html" />
+    <Document title="4.1 JDACSLock Methods" href="Chap_DACSLockAPIComponents.4.2.html" />
+    <Document title="4.2 Supporting Objects" href="Chap_DACSLockAPIComponents.4.3.html" />
+    <Document title="4.2.1 DacsLock Interface" href="Chap_DACSLockAPIComponents.4.4.html" />
+    <Document title="4.2.2 DacsError Interface" href="Chap_DACSLockAPIComponents.4.5.html" />
+    <Document title="4.3 Constant Definitions" href="Chap_DACSLockAPIComponents.4.6.html" />
+    <Document title="4.3.1 DacsReturnCodes Definitions" href="Chap_DACSLockAPIComponents.4.7.html" />
+    <Document title="4.3.2 DacsOperations Interface" href="Chap_DACSLockAPIComponents.4.8.html" />
+    <Document title="Appendix A Example Program" href="Appendix_Example.html" />
+    <Document title="© 2015, 2016 Thomson Reuters. All rights reserved." href="lastpage.html" />
+  </DocumentInfo>
+  <TopicMap />
+</WebWorksHelpBook>

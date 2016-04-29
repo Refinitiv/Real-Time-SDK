@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WebWorksHelpTOC version="5.0" xmlns="urn:WebWorks-Help-TOC-Schema">
+  <i t="Chapter 1 ANSI Library Introduction" l="0">
+    <i t="1.1 Overview" l="1" />
+    <i t="1.2 ANSI Attributes and Features" l="2">
+      <i t="1.2.1 About the ANSI Library" l="2#369899" />
+      <i t="1.2.2 Characters" l="3" />
+      <i t="1.2.3 Graphic Sets Attribute" l="4" />
+      <i t="1.2.4 Mono/Color Attrbitues" l="5" />
+      <i t="1.2.5 Fading Mono/Color Attributes" l="6" />
+      <i t="1.2.6 Undefined Color Default Value" l="7" />
+      <i t="1.2.7 Scrolling" l="8" />
+      <i t="1.2.8 Unsupported ANSI Features" l="9" />
+    </i>
+    <i t="1.3 Organization of Manual" l="10" />
+    <i t="1.4 Typographic Conventions" l="11" />
+    <i t="1.5 Glossary" l="12" />
+    <i t="1.6 Related Documents" l="13" />
+  </i>
+  <i t="Chapter 2 Data Structures" l="14">
+    <i t="2.1 Data Structures" l="15">
+      <i t="2.1.1 Character Data Structure" l="16" />
+      <i t="2.1.2 Page Data Structure" l="17" />
+      <i t="2.1.3 Update List Data Structure" l="18" />
+    </i>
+    <i t="2.2 Using Data Structures" l="19">
+      <i t="2.2.1 ANSI Decode" l="19#187380">
+        <i t="2.2.1.1 Interpreting the Update List" l="20" />
+        <i t="2.2.1.2 Initialization" l="21" />
+      </i>
+      <i t="2.2.2 ANSI Encode" l="22" />
+    </i>
+  </i>
+  <i t="Chapter 3 Function Descriptions" l="23">
+    <i t="3.1 Overview" l="24" />
+    <i t="3.2 qa_decode()" l="25">
+      <i t="3.2.1 Synopsis" l="25#310704" />
+      <i t="3.2.2 Description" l="26" />
+      <i t="3.2.3 Return Value" l="27" />
+    </i>
+    <i t="3.3 qa_encode()" l="28">
+      <i t="3.3.1 Synopsis" l="28#310718" />
+      <i t="3.3.2 Description" l="29" />
+      <i t="3.3.3 Return Value" l="30" />
+    </i>
+    <i t="3.4 qa_reset()" l="31">
+      <i t="3.4.1 Synopsis" l="31#310867" />
+      <i t="3.4.2 Description" l="32" />
+      <i t="3.4.3 Return Value" l="33" />
+    </i>
+    <i t="3.5 qa_set_rows()" l="34">
+      <i t="3.5.1 Synopsis" l="34#311153" />
+      <i t="3.5.2 Description" l="35" />
+      <i t="3.5.3 Return Value" l="36" />
+    </i>
+    <i t="3.6 qa_set_columns()" l="37">
+      <i t="3.6.1 Synopsis" l="37#311225" />
+      <i t="3.6.2 Description" l="38" />
+      <i t="3.6.3 Return Value" l="39" />
+    </i>
+    <i t="3.7 qa_page_rows()" l="40">
+      <i t="3.7.1 Synopsis" l="40#311271" />
+      <i t="3.7.2 Description" l="41" />
+      <i t="3.7.3 Return Value" l="42" />
+    </i>
+    <i t="3.8 qa_page_columns()" l="43">
+      <i t="3.8.1 Synopsis" l="43#311323" />
+      <i t="3.8.2 Description" l="44" />
+      <i t="3.8.3 Return Value" l="45" />
+    </i>
+  </i>
+  <i t="Chapter 4 Hints, Tips, and Examples" l="46">
+    <i t="4.1 Programming Hints and Tips" l="47" />
+    <i t="4.2 Examples" l="48" />
+  </i>
+  <i t="Appendix A ANSI Include File - q_ansi" l="49" />
+  <i t="Appendix B Installation Instructions" l="50">
+    <i t="B.1 Installing the Software" l="50#209564" />
+    <i t="B.2 Compiling" l="50#209585" />
+    <i t="B.3 Troubleshooting: Copying the Library" l="50#209593" />
+  </i>
+  <i t="Appendix C ANSI Page Data Formats" l="51">
+    <i t="C.1 Overview" l="51#998378" />
+    <i t="C.2 Introducer Sequence" l="51#998511" />
+    <i t="C.3 Cursor Control Sequences" l="51#998528" />
+    <i t="C.4 Scrolling Sequences" l="51#998533">
+      <i t="C.4.1 Margins" l="51#998857" />
+      <i t="C.4.2 Movement" l="51#998858" />
+    </i>
+    <i t="C.5 Mode Control Sequences" l="51#998958" />
+    <i t="C.6 Display Editing Control Sequences" l="51#999251" />
+    <i t="C.7 Graphic Selection Sequences" l="51#999403" />
+    <i t="C.8 Character Attribute Sequences" l="51#999852" />
+    <i t="C.9 Character and Line Sizing" l="51#1000638">
+      <i t="C.9.1 DEC Private Sequences" l="51#1000641" />
+      <i t="C.9.2 Rich Private Sequences" l="51#1000644" />
+    </i>
+    <i t="C.10 Miscellaneous Sequences" l="51#1000856">
+      <i t="C.10.1 Control Characters" l="51#1000859" />
+      <i t="C.10.2 Controls" l="51#1000862" />
+    </i>
+  </i>
+</WebWorksHelpTOC>
