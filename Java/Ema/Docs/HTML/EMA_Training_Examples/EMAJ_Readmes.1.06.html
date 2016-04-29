@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>120__MarketPrice__FieldListWalk</title>
+    <link rel="StyleSheet" href="css/EMAJ_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H2_NoNum"><a name="1017946">120__MarketPrice__FieldListWalk</a></div>
+      <div class="Body"><a name="1026999">Summary</a></div>
+      <div class="Body"><a name="1027000">=======</a></div>
+      <div class="Body"><a name="1027001">&nbsp;</a></div>
+      <div class="Body"><a name="1027002">example120__MarketPrice__FieldListWalk is an example of an OMM Consumer application </a></div>
+      <div class="Body"><a name="1027003">and demonstrates how to use the EMA library for accessing and parsing OMM </a></div>
+      <div class="Body"><a name="1027004">MarketPrice data from Reuters Data Feed Direct (RDF-D), directly from an OMM</a></div>
+      <div class="Body"><a name="1027005">Provider application, or from an Advanced Distribution Server.</a></div>
+      <div class="Body"><a name="1027006">&nbsp;</a></div>
+      <div class="Body"><a name="1027007">example120__MarketPrice__FieldListWalk illustrates how to extract OMM data from the</a></div>
+      <div class="Body"><a name="1027008">received FieldList. The Application “walks” or iterates over all field entries.</a></div>
+      <div class="Body"><a name="1027009">While iterating, this application extracts the content of each field entry</a></div>
+      <div class="Body"><a name="1027010">and prints it to the screen.</a></div>
+      <div class="Body"><a name="1027011">&nbsp;</a></div>
+      <div class="Body"><a name="1027012">&nbsp;</a></div>
+      <div class="Body"><a name="1027013">Detailed Description</a></div>
+      <div class="Body"><a name="1027014">====================</a></div>
+      <div class="Body"><a name="1027015">&nbsp;</a></div>
+      <div class="Body"><a name="1027016">example120__MarketPrice__FieldListWalk implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1027017">&nbsp;</a></div>
+      <div class="Body"><a name="1027018">+ Implements the OmmConsumerClient class in an AppClient</a></div>
+      <div class="Body"><a name="1027019">  - Overrides desired methods</a></div>
+      <div class="Body"><a name="1027020">  - Provides its own methods as needed (e.g.: decode( FieldList ) )</a></div>
+      <div class="Body"><a name="1027021">  - The method decode( FieldList ) iterates through the received FieldList,</a></div>
+      <div class="Body"><a name="1027022">	  extracts each FieldEntry reference from the current position on the</a></div>
+      <div class="Body"><a name="1027023">	  FieldList, and then extracts the field id, name, and value of the current</a></div>
+      <div class="Body"><a name="1027024">	  FieldEntry</a></div>
+      <div class="Body"><a name="1027025">+ Instantiates an AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1027026">+ Instantiates and modifies an OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1027027">  - Sets the username to “user”</a></div>
+      <div class="Body"><a name="1027028">  - Sets the hostname on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1027029">  - Sets the port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1027030">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1027031">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1027032">+ Opens a streaming item interest</a></div>
+      <div class="Body"><a name="1027033">  - MarketPrice IBM.N item from the DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1027034">+ Processes data received from the API for 60 seconds</a></div>
+      <div class="Body"><a name="1027035">  - All received messages are processed on the API’s thread of control</a></div>
+      <div class="Body"><a name="1027036">+ Exits</a></div>
+      <div class="Body"><a name="1027037">&nbsp;</a></div>
+      <div class="Body"><a name="1027038">Note: If needed, you can modify these and other details to fit your local</a></div>
+      <div class="Body"><a name="1027039">      environment. For details on standard configuration, refer to the EMA library </a></div>
+      <div class="Body"><a name="1027040">      ReadMe.txt file or EMA Configuration Guide.</a></div>
+      <div class="Body"><a name="1025180">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Readmes.1.01.html">100 Series Examples</a> : 120__MarketPrice__FieldListWalk</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

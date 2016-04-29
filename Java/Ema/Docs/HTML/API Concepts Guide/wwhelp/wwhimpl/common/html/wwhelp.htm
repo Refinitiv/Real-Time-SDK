@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <!-- Copyright (c) 2000-2014 Quadralay Corporation.  All rights reserved. -->
+
+ <head>
+  <meta http-equiv="content-type" content="text/html" />
+  <meta http-equiv="charset"      content="UTF-8" />
+  
+
+  <script type="text/javascript" language="JavaScript1.2" src="../private/title.js"></script>
+
+  <script type="text/javascript" language="JavaScript1.2" src="../private/popupf.js"></script>
+  <script type="text/javascript" language="JavaScript1.2" src="../private/options.js"></script>
+  <script type="text/javascript" language="JavaScript1.2" src="../private/locale.js"></script>
+  <script type="text/javascript" language="JavaScript1.2" src="../scripts/browser.js"></script>
+  <script type="text/javascript" language="JavaScript1.2" src="../scripts/popup.js"></script>
+  <script type="text/javascript" language="JavaScript1.2" src="../scripts/filelist.js"></script>
+  <script type="text/javascript" language="JavaScript1.2" src="../scripts/booklist.js"></script>
+  <script type="text/javascript" language="JavaScript1.2" src="../scripts/bookgrps.js"></script>
+  <script type="text/javascript" language="JavaScript1.2" src="../scripts/help.js"></script>
+  <script type="text/javascript" language="JavaScript1.2" src="../scripts/controls.js"></script>
+  <script type="text/javascript" language="JavaScript1.2" src="../scripts/related.js"></script>
+  <script type="text/javascript" language="JavaScript1.2" src="../scripts/strutils.js"></script>
+  <script type="text/javascript" language="JavaScript1.2" src="../scripts/switch.js"></script>
+
+  <script type="text/javascript" language="JavaScript1.2" src="../scripts/handler.js"></script>
+
+  <script type="text/javascript" language="JavaScript1.2">
+   <!--
+    // Set reference to top level help frame
+    //
+    var  WWHFrame = eval("window.self");
+    window.name = "WWHFrame";
+
+    // Create browser info object
+    //
+    var  WWHBrowser = new WWHBrowser_Object();
+
+    // Create switch object
+    //
+    var  WWHSwitch = new WWHSwitch_Object();
+
+    // Create new help object
+    //
+    var  WWHHelp = new WWHHelp_Object(location.href);
+
+    // Create controls object
+    //
+    var  WWHControls = new WWHControls_Object();
+
+    // Create related topics object
+    //
+    var  WWHRelatedTopics = new WWHRelatedTopics_Object();
+
+    // Create alinks object
+    //
+    var  WWHALinks = new WWHALinks_Object();
+
+    // Create new handler object
+    //
+    var  WWHHandler = new WWHHandler_Object();
+
+
+    // Netscape Resize Fix
+    //
+    function  WWHContentFrame_HandleResize()
+    {
+      if (WWHFrame.WWHBrowser.mBrowser == 1)  // Shorthand for Netscape
+      {
+        WWHFrame.WWHHelp.fReloadLocation("WWHDocumentFrame");
+      }
+    }
+
+    function  WWHContentFrame_HandleKeyDown(ParamEvent)
+    {
+      return WWHFrame.WWHHelp.fHandleKeyDown(ParamEvent);
+    }
+
+    function  WWHContentFrame_HandleKeyPress(ParamEvent)
+    {
+      return WWHFrame.WWHHelp.fHandleKeyPress(ParamEvent);
+    }
+
+    function  WWHContentFrame_HandleKeyUp(ParamEvent)
+    {
+      return WWHFrame.WWHHelp.fHandleKeyUp(ParamEvent);
+    }
+   // -->
+  </script>
+ </head>
+
+ <frameset rows="36,*" border="0" frameborder="0" framespacing="0" onload="WWHHelp.fInitStage(0);" onresize="WWHContentFrame_HandleResize();" onkeydown="WWHContentFrame_HandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHContentFrame_HandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHContentFrame_HandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+  <frame name="" src="pagenav.htm" scrolling="no" role="presentation" />
+  <frame name="" src="blank.htm" scrolling="auto" />
+
+  <noframes>
+   <body>
+    <p>This page uses frames, but your browser doesn't support them.</p>
+   </body>
+  </noframes>
+ </frameset>
+</html>
