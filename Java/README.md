@@ -1,4 +1,4 @@
-# Elektron SDK - C/C++ Edition
+# Elektron SDK - Java Edition
 This is the Elektron SDK. This SDK is an all encompassing package of all Elektron APIs. This currently includes the Elektron Message API (EMA) and the Elektron Transport API (ETA).
 
 The **Elektron Message API (EMA)** is an ease of use, open source, OMM API. EMA is designed to provide clients rapid development of applications, minimizing lines of code and providing a broad range of flexibility. It provides flexible configuration with default values to simplify use and deployment.  EMA is written on top of the Elektron Transport API (ETA) utilizing the Value Added Reactor and Watchlist. 
@@ -8,7 +8,7 @@ Transport and OMM encoder/decoder API.  It is used by the Thomson Reuters Enterp
 
 # Supported Platforms and Compilers
 
-The Elektron-SDK has support for Linux, Windows and Solaris.  Please see the individual API README.md files for further details on supported platforms and compilers.
+The Elektron-SDK has support for JDK 1.7 and JDK 1.8.  Please see the individual API README.md files for further details.
 
 # Building the APIs
 
@@ -23,50 +23,50 @@ Firstly, obtain the source from this repository. It will contain all of the requ
 #### ETA Special Instructions
 The ETA package contains transport, decoder, encoder, and cache components.  The transport, decoder and encoder components are closed source and is proprietary to Thomson Reuters and the source code is not included in this package. To facilitate the ability to build all APIs of this Elektron-SDK package a 'stub' library is provided for the closed portion of the ETA.   This 'stub' library will allow you to build and run, but will not provide implementation for connectivity or data handling. To get a fully functioning ETA library please see "Obtaining the ETA Binary Package" below.
 
-####1) Build the ETA 
+####1) Build the ETA API 
 
-**For Linux/Solaris**:
-Navigate to `Eta/Impl` 
--	Run `make all` to build Stub libraries and Reactor and its dependencies
--	Run `make stubs` to build only the Stub libraries
--	Run `make rsslVA` to build only Reactor and its dependencies
+**Using Apache Ant**:
 
-This will build both static and shared versions of the libraries.
+Ant can be downloaded from http://ant.apache.org
 
-**For Windows**:
-Navigate to `Eta/Impl` 
-Select the specific vcxproj for the specific library you want to build, or use the provided solution file to build in Visual Studio. When building via the solution, select the configuration combination you want (Static, Shared, Debug, Release, etc) and select `Build -> Build Solution` this will create both static and shared libraries for all targets. 
+Navigate to `Eta/Source` 
+-	Run `ant all` to build Stub libraries and Reactor and its dependencies
+-	Run `ant build-stubs` to build only the Stub libraries
+-	Run `ant build` or `ant build-valueadd` to build only Reactor and its dependencies.  This is the default build to avoid clobbering any binary pack libraries.
 
-NOTE: You must build the Stub libaries before building the ValueAdd libraries.
+**NOTE:** You must build the stub libraries prior to building the Reactor and its dependencies.
 
-If you have the corresponding ETA Binary Package you will not need to build the stubs. Please see "Obtaining the ETA Binary Package" below.
+####2) Build the ETA API Examples
 
-
-####2) Build the ETA Examples
-
-Navigate to `Eta/Applications`, locate the example, performance tool, or training suite you would like to build. Run the makefile or open and build the windows solution file (when applicable) or the vcxproj.
+Navigate to `Eta/Applications`, locate the example or performance tool you would like to build. 
+The Example applications are located in `Eta/Applications/Examples`
+The Performance Tools are located in `Eta/Applications/PerfTools`
+-	Run `ant` to build all examples/performance tools or select the target from inside the build.xml file to built a specific example or performance tool.
+-	Optionally, these can be built using the bat or ksh script files if preferred over ant.
 
 ####3) Run the ETA Examples
-If you have only built the 'stub' library from above, the examples will not do much.  In order to get full functioning behavior of ETA you will need to get the official binaries from the customer zone. Please see "Obtaining the ETA Binary Package" below.
 
+If you have only built the 'stub' library from above, the examples run but fail.  
+In order to get full functioning behaviour of ETA you will need to get the official binaries from the Thomson Reuters Customer Zone (http://customers.thomsonreuters.com). 
+Please see "Obtaining the ETA Binary Package" below.
 
 ## Building EMA
 
-EMA is built upon ETA.  Before you can build EMA you must build ETA as described above. Once you have the ETA libraries in place you can then build the EMA libraries and the examples.
-
-
-####1) Get or build the libxml2 library.
-If your system does not already have libxml2 available, you can build the version that is contained in this release. Just navigate to `Eta/Utils/libxml2` and run the makefile or build the windows project file. 
+Follow the steps below to build EMA library and examples.
 
 
 
-####2) Build the EMA library
+####1) Build the EMA library
 
-To build the EMA library, navigate to the `Ema/Src/Access` folder and run the makefile or build the windows project. Note that when building the shared object version of the EMA library, libxml2 is statically linked into it.  
+**Using Apache Ant**:
 
-####3) Build the EMA examples
+To build EMA library (`ema.jar`), navigate to `Src` and run the `ant` command. 
+The `ant` script first builds the underlying ETA libraries (`upa.jar` and `upaValueAdd.jar`) and then builds the EMA library.
 
-After that, you can build any of the EMA examples. Navigate to the example you wish to build and you will find both a makefile and windows project file.
+
+####2) Build the EMA examples
+To build EMA examples, navigate to `Src/examples` and run the `ant` command. The `ant` script will build all of the examples.
+
 
 ####4) Get access to a providing application. 
 
@@ -74,40 +74,45 @@ You will need a provider component to connect the EMA consumer applications to. 
 
 ####5) Run the EMA Examples
 
-Once the provider is running and accessible, you can run the EMA examples.  When running examples build using shared libraries you will need to make sure that the ETA libraries are local or in your path.
+Once the provider is running and accessible, you can run the EMA examples. 
+
+Set the `CLASSPATH` to include the required jars.
+
+See `.../Src/examples/example100__MarketPrice__Streaming.bat` for an example of setting the `CLASSPATH` and running an example
 
 That should do it!  
-
-### Windows Solution Files
-
-As an alternative, after you build ETA as described above, you can build using the windows solution files.  Solutions files can be found in the `.../Ema/Examples/Training` directory or the `.../Ema/Src/Access`.  
-
 
 
 
 # Obtaining the ETA Binary Package
 
-If you wish to have the full functionality of ETA, please get the official ETA libraries from the following.
+To get the full functionality of the Transport API, please get the official ETA libraries from the following.
 
-**NOTE: Access to this download requires TRDC membership.****Developer Community:**
+**Developer Community:**
 
 https://developers.thomsonreuters.com/
 
 Then select the following options:
 
 - **APIs by Product**: Elektron
-- **APIs in this Family**: Elektron SDK - C/C++ Edition
-- **Downloads**: ETA - C - BINARY PACKS
+- **APIs in this Family**: Elektron SDK - Java Edition
+- **Downloads**: ETA - Java - BINARY PACKS
 
-Customer Zone:
+**Customer Zone:**
+
 https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
 
 - **Category**: MDS - API
 - **Products**: Elektron SDK
 
-Then select the following release, where `<platform>` is linux, win, or solaris based on your preferred platform.
+Then select the following release
 
-Once you have downloaded these libraries, copy them to the corresponding directories under `.../Eta/Libs`. Next, for Windows, build the `ValueAdd_VSXXX.sln`. For Linux, build `make all`  .  Note that if you are using the static library you will need to rebuild your application.  For linux, if you are using the shared libraries, you may need to remove the library links and rerun the LinuxSoLink script before rebuilding.
+    etaj3.0.0.L1.all-binaries.lib
+	
+Once you have downloaded these libraries, copy them to the corresponding directories under `Eta/Libs`
+Additional information about the contents of the closed source ETA libraries are available in the README contained in that distribution package.
+
+Your example should now be functional.
 
 
 # Developing 
