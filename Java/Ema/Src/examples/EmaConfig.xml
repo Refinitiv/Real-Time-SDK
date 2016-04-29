@@ -18,8 +18,7 @@
 		</Consumer>
 		<Consumer>
 			<Name value="Consumer_2"/>
-			<!-- ChannelSet is optional: defaulted to "RSSL_SOCKET + localhost + 14002" -->
-			<ChannelSet value="Channel_1, Channel_2"/>
+			<Channel value="Channel_2"/>
 			<Dictionary value="Dictionary_2"/>
 		</Consumer>
 	</ConsumerList>
@@ -31,9 +30,6 @@
 
 			<!-- ChannelType possible values are: -->
 			<!-- ChannelType::RSSL_SOCKET    - TCP IP connection type -->
-			<!-- ChannelType::RSSL_HTTP      - Http tunnel connection type -->
-			<!-- ChannelType::RSSL_ENCRYPTED - Https tunnel connection type -->
-			<!-- ChannelType::RSSL_RELIABLE_MCAST - Reliable multicast connection type -->
 			<ChannelType value="ChannelType::RSSL_SOCKET"/>
 
 			<!-- CompressionType is optional: defaulted to None -->
@@ -56,36 +52,6 @@
 			<GuaranteedOutputBuffers value="5000"/>
 			<Host value="122.1.1.100"/>
 			<Port value="14002"/>
-		</Channel>
-		<Channel>
-			<Name value="Channel_3"/>
-			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
-			<CompressionType value="CompressionType::None"/>
-			<GuaranteedOutputBuffers value="5000"/>
-			<Host value="122.1.1.100"/>
-			<Port value="14002"/>
-			<!-- ObjectName is optional: defaulted to "" -->
-			<ObjectName value=""/>
-		</Channel>
-		<Channel>
-			<Name value="Channel_4"/>
-			<ChannelType value="ChannelType::RSSL_HTTP"/>
-			<CompressionType value="CompressionType::None"/>
-			<GuaranteedOutputBuffers value="5000"/>
-			<Host value="122.1.1.100"/>
-			<Port value="14002"/>
-			<!-- ObjectName is optional: defaulted to "" -->
-			<ObjectName value=""/>
-		</Channel>
-		<Channel>
-			<Name value="Channel_5"/>
-			<ChannelType value="ChannelType::RSSL_RELIABLE_MCAST"/>
-			<RecvAddress value="235.5.2.6"/>
-			<RecvPort value="15008"/>
-			<SendAddress value="235.5.2.2"/>
-			<SendPort value="15007"/>
-			<UnicastPort value="40102"/>
-			<InterfaceName value="localhost" />
 		</Channel>
 	</ChannelList>
 </ChannelGroup>
