@@ -56,6 +56,17 @@ Please see "Obtaining the ETA Binary Package" below.
 
 To get the full functionality of the Transport API, please get the official ETA libraries from the following.
 
+
+Developer Community:
+https://developers.thomsonreuters.com/
+Then select the following options:
+- **APIs by Product**: Elektron
+then, make the following selections:
+- **APIs in this Family**: Elektron SDK - C/C++ Edition
+finally, 
+- **Downloads**: ETA - C - BINARY PACKS
+
+Customer Zone:
 https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
 
 - **Category**: MDS - API
@@ -63,7 +74,7 @@ https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
 
 Then select the following release, where `<platform>` is linux, win, or solaris based on your preferred platform.
 
-    eta3.0.1.L1.<platform>-binaries.lib
+    eta3.0.2.L1.<platform>-binaries.lib
 	
 Once you have downloaded these libraries, copy them to the corresponding directories under `Eta/Libs`
 Additional information about the contents of the closed source ETA libraries are available in the README contained in that distribution package.
@@ -82,6 +93,7 @@ At the current time, the makefiles and project files support the following platf
 	- Visual Studio 10 (2010)
 	- Visual Studio 11 (2012)
 	- Visual Studio 12 (2013)
+	- Visual Studio 14 (2015)
 - Solaris 10 X86 64-bit (SunStudio12)
 - Solaris 11 X86 64-bit (SunStudio12)
 
@@ -101,14 +113,28 @@ If these are not present when building some of the applications, their build wil
 
 # Documentation
 
-Elektron Transport API Documentation is available online at https://customers.reuters.com/a/ODL/T_API_C/8.0/Docs/WebDocs/index.html 
+Elektron Transport API Documentation is available online at https://docs-developers.thomsonreuters.com/4721/Docs/WebDocs/index.html 
 
-These are also available as part of the full Elektron SDK package that can be downloaded from the customer zone from the following location. 
+These are also available as part of the full Elektron SDK package that can be downloaded from the the following locations. 
 
+Developer Community:
+https://developers.thomsonreuters.com/
+Then select the following options:
+- **APIs by Product**: Elektron
+then, make the following selections:
+- **APIs in this Family**: Elektron SDK - C/C++ Edition
+finally, 
+- **Downloads**: ELEKTRON SDK - C/C++ - LATEST VERSION
+
+Customer Zone:
 https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
 
 - **Category**: MDS - API
 - **Products**: Elektron SDK
+
+
+https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
+
 
 # Developing 
 
