@@ -83,6 +83,8 @@
 		</jar>
     </target>
 	
-	<target depends="clean,build-stubs,build-valueadd" name="build"/>
+	<target depends="clean,build-stubs,build-valueadd" name="all"/>
+
+	<target depends="clean,build-valueadd" name="build"/>
 	
 </project>
