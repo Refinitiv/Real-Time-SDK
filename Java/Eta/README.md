@@ -20,30 +20,24 @@ users understand how to develop to this API.
 
 ####1) Build the Transport API 
 
-**For Linux/Solaris**:
+**Using Apache Ant**:
 
-Navigate to `Eta/Impl` 
--	Run `make all` to build Stub libraries and Reactor and its dependencies
--	Run `make stubs` to build only the Stub libraries
--	Run `make rsslVA` to build only Reactor and its dependencies
+Ant can be downloaded from http://ant.apache.org
 
-This will build both static and shared versions of the libraries and will build Optimized libraries by default.  
-If Optimized_Assert libraries are preferred, this can be modified from within the makefiles.
-
-**For Windows**:
-
-Navigate to `Eta/Impl` 
-Select the `vcxproj` for the specific library you want to build, or use the provided solution (or `sln`) file to build in **Visual Studio**.  
-
-When building via the solution, select the configuration combination you want (Static, Shared, Debug, Release, etc) and select `Build -> Build Solution` this will create both static and shared libraries for all targets.  
-
-If you have the corresponding ETA Binary Package you will not need to build the stubs. Please see "Obtaining the ETA Binary Package" below.
+Navigate to `Eta/Source` 
+-	Run `ant all` to build Stub libraries and Reactor and its dependencies
+-	Run `ant build-stubs` to build only the Stub libraries
+-	Run `ant build` or `ant build-valueadd` to build only Reactor and its dependencies.  This is the default build to avoid clobbering any binary pack libraries.
 
 **NOTE:** You must build the stub libraries prior to building the Reactor and its dependencies.
 
 ####2) Build the Transport API Examples
 
-Navigate to `Eta/Applications`, locate the example, performance tool, or training suite you would like to build. Run the makefile or open and build the windows solution file (when applicable) or the vcxproj.
+Navigate to `Eta/Applications`, locate the example or performance tool you would like to build. 
+The Example applications are located in `Eta/Applications/Examples`
+The Performance Tools are located in `Eta/Applications/PerfTools`
+-	Run `ant` to build all examples/performance tools or select the target from inside the build.xml file to built a specific example or performance tool.
+-	Optionally, these can be built using the bat or ksh script files if preferred over ant.
 
 ####3) Run the ETA Examples
 
@@ -56,6 +50,7 @@ Please see "Obtaining the ETA Binary Package" below.
 
 To get the full functionality of the Transport API, please get the official ETA libraries from the following.
 
+
 **Developer Community:**
 
 https://developers.thomsonreuters.com/
@@ -63,32 +58,32 @@ https://developers.thomsonreuters.com/
 Then select the following options:
 
 - **APIs by Product**: Elektron
-- **APIs in this Family**: Elektron SDK - C/C++ Edition
-- **Downloads**: ETA - C - BINARY PACKS
+- **APIs in this Family**: Elektron SDK - Java Edition
+- **Downloads**: ETA - Java - BINARY PACKS
 
-Customer Zone:
+**Customer Zone:**
+
 https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
 
 - **Category**: MDS - API
 - **Products**: Elektron SDK
 
-Then select the following release, where `<platform>` is linux, win, or solaris based on your preferred platform.
+Then select the following release
 
-    eta3.0.2.L1.<platform>-binaries.lib
+    etaj3.0.0.L1.all-binaries.lib
 	
 Once you have downloaded these libraries, copy them to the corresponding directories under `Eta/Libs`
 Additional information about the contents of the closed source ETA libraries are available in the README contained in that distribution package.
 
-**NOTE:** If you are using shared libraries, you will need to run the LinuxSoLink or SolarisSoLink to properly soft link for versioned libraries.  
 
 ####Supported Platforms
-The makefiles and Windows project files provided facilitate building on a subset of platforms, generally overlapping with platforms supported or qualified by the ETA Binary Pack.
+ETA Java can be used with a J2SE7 or J2SE8 compilant JVM.  
+These can be downloaded from http://www.oracle.com 
 
-At the current time, the makefiles and project files support the following platform/compiler combinations:
+At the current time, the JNI libraries support the following platform/compiler combinations:
 - RedHat Advanced Server 6.X 64-bit (gcc4.4.4)
-- Oracle Linux Server 6.X 64-bit (gcc4.4.4)
 - Oracle Linux Server 7.X 64-bit (gcc4.8.2)
-- CentOS 7.X 64-bit (gcc4.8.2)
+- CentOS 7.X 64-bit (gcc4.8.2) using the Oracle Linux libraries
 - Windows 7 64-bit, Windows 8 64-bit, Windows 8.1 64-bit, Windows Server 2008 64-bit, Windows Server 2012 64-bit
 	- Visual Studio 10 (2010)
 	- Visual Studio 11 (2012)
@@ -97,7 +92,6 @@ At the current time, the makefiles and project files support the following platf
 - Solaris 10 X86 64-bit (SunStudio12)
 - Solaris 11 X86 64-bit (SunStudio12)
 
-Users are welcome to migrate open source code to the platforms they prefer, however support for the ETA Binary Pack is only provided on platforms captured in the README file provided with the Binary Pack.  Please see that package's README for more detailed platorm and compiler information.
 # Obtaining the Thomson Reuters Field Dictionaries
 
 The Thomson Reuters `RDMFieldDictionary` and `enumtype.def` files are present in the GitHub repo under `Eta/etc` and also distributed with the ETA Binary Package.  
@@ -117,6 +111,7 @@ Elektron Transport API Documentation is available online at https://docs-develop
 
 These are also available as part of the full Elektron SDK package that can be downloaded from the the following locations. 
 
+
 **Developer Community:**
 
 https://developers.thomsonreuters.com/
@@ -124,14 +119,16 @@ https://developers.thomsonreuters.com/
 Then select the following options:
 
 - **APIs by Product**: Elektron
-- **APIs in this Family**: Elektron SDK - C/C++ Edition
-- **Downloads**: ETA - C - LATEST VERSION
+- **APIs in this Family**: Elektron SDK - Java Edition
+- **Downloads**: ETA - Java - LATEST VERSION
 
-Customer Zone:
+**Customer Zone:**
+
 https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
 
 - **Category**: MDS - API
 - **Products**: Elektron SDK
+
 
 
 https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
@@ -157,8 +154,7 @@ Please email a signed and scanned copy to sdkagreement@thomsonreuters.com.  If y
 
 # Transport API Features and Functionality
 
-- 64-bit, C-based API
-- Shared and static library deployments
+- 64-bit, Java-based API
 - Thread safe and thread aware    
 - Can consume and provide:
     - Any and all OMM primitives supported on Elektron, Enterprise Platform, and Direct Exchange Feeds.
