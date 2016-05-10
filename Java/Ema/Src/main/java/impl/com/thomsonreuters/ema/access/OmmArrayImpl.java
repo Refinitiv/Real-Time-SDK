@@ -16,12 +16,14 @@ import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.OmmError.ErrorCode;
 import com.thomsonreuters.upa.codec.ArrayEntry;
 import com.thomsonreuters.upa.codec.Buffer;
+import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 
 class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 {
 	private com.thomsonreuters.upa.codec.Array	_rsslArray = com.thomsonreuters.upa.codec.CodecFactory.createArray();
 	private LinkedList<OmmArrayEntry> _ommArrayCollection = new LinkedList<OmmArrayEntry>(); 
+	private com.thomsonreuters.upa.codec.ArrayEntry	_rsslArrayEntry;
 
 	OmmArrayImpl() 
 	{
@@ -119,7 +121,9 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 		super.clear();
 		
 		_rsslArray.clear();
-		_ommArrayCollection.clear();
+		
+		if (_rsslEncodeIter != null)
+			_ommArrayCollection.clear();
 	}
 
 	@Override
@@ -244,6 +248,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 			return;
 		}
 		
+		_rsslArray.clear();
 		retCode = _rsslArray.decode(_rsslDecodeIter);
 		switch (retCode)
 		{
@@ -292,6 +297,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 			return;
 		}
 		
+		_rsslArray.clear();
 		retCode = _rsslArray.decode(_rsslDecodeIter);
 		switch (retCode)
 		{
@@ -299,7 +305,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 			_dataCode = DataCode.BLANK;
 			_errorCode = ErrorCode.NO_ERROR;
 			_fillCollection = false;
-			_ommArrayCollection.clear();
+			clearCollection();
 			break;
 		case com.thomsonreuters.upa.codec.CodecReturnCodes.SUCCESS :
 			_dataCode = DataCode.NO_CODE;
@@ -323,45 +329,57 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 	void fillCollection()
 	{
 		DataImpl load;
-		com.thomsonreuters.upa.codec.ArrayEntry rsslArrayEntry = com.thomsonreuters.upa.codec.CodecFactory.createArrayEntry();
-
-		_ommArrayCollection.clear();
+				
+		clearCollection();
+		
+		if (_rsslArrayEntry == null)
+			_rsslArrayEntry = CodecFactory.createArrayEntry() ;
+		else
+			_rsslArrayEntry.clear();
+		
+		OmmArrayEntryImpl arrayEntry = ommArrayEntryInstance();
 
 		if ( ErrorCode.NO_ERROR != _errorCode)
 		{
-			load =  dataInstance(DataTypes.ERROR);
+			load =  dataInstance(arrayEntry._load, DataTypes.ERROR);
 			load.decode(_rsslBuffer, _errorCode);
-			_ommArrayCollection.add(new OmmArrayEntryImpl(load));
+			arrayEntry._load = load;
+			_ommArrayCollection.add(arrayEntry);
 			_fillCollection = false;
 			return;
 		}
 		
 		int retCode;
-		while ((retCode  = rsslArrayEntry.decode(_rsslDecodeIter)) != com.thomsonreuters.upa.codec.CodecReturnCodes.END_OF_CONTAINER)
+		while ((retCode  = _rsslArrayEntry.decode(_rsslDecodeIter)) != com.thomsonreuters.upa.codec.CodecReturnCodes.END_OF_CONTAINER)
 		{
 			switch(retCode)
 			{
 			case com.thomsonreuters.upa.codec.CodecReturnCodes.SUCCESS :
-			load = dataInstance(Utilities.toEmaDataType[_rsslArray.primitiveType()]);
-			load.decode(rsslArrayEntry.encodedData(),_rsslDecodeIter);
+			load = dataInstance(arrayEntry._load, Utilities.toEmaDataType[_rsslArray.primitiveType()]);
+			load.decode(_rsslArrayEntry.encodedData(),_rsslDecodeIter);
 			break;
 			case com.thomsonreuters.upa.codec.CodecReturnCodes.INCOMPLETE_DATA :
-				load = dataInstance(DataTypes.ERROR);
-				load.decode(rsslArrayEntry.encodedData(),ErrorCode.INCOMPLETE_DATA);
+				load = dataInstance(arrayEntry._load, DataTypes.ERROR);
+				load.decode(_rsslArrayEntry.encodedData(),ErrorCode.INCOMPLETE_DATA);
 				break;
 			case com.thomsonreuters.upa.codec.CodecReturnCodes.UNSUPPORTED_DATA_TYPE :
-				load = dataInstance(DataTypes.ERROR);
-				load.decode(rsslArrayEntry.encodedData(),ErrorCode.UNSUPPORTED_DATA_TYPE);
+				load = dataInstance(arrayEntry._load, DataTypes.ERROR);
+				load.decode(_rsslArrayEntry.encodedData(),ErrorCode.UNSUPPORTED_DATA_TYPE);
 				break;
 			default :
-				load = dataInstance(DataTypes.ERROR);
-				load.decode(rsslArrayEntry.encodedData(),ErrorCode.UNKNOWN_ERROR);
+				load = dataInstance(arrayEntry._load, DataTypes.ERROR);
+				load.decode(_rsslArrayEntry.encodedData(),ErrorCode.UNKNOWN_ERROR);
 				break;
 			}
 			
-			_ommArrayCollection.add(new OmmArrayEntryImpl(load));
-			rsslArrayEntry.clear();
+			arrayEntry._load = load;
+			_ommArrayCollection.add(arrayEntry);
+			
+			arrayEntry = ommArrayEntryInstance();
+			_rsslArrayEntry.clear();
 		}
+		
+		arrayEntry.returnToPool();
 		
 		_fillCollection = false;
 	}
@@ -738,6 +756,30 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 				.append( com.thomsonreuters.upa.codec.DataTypes.toString(dataType) ).append( "'. " ).toString();
 				 throw ommIUExcept().message(errText);
 			}
+		}
+	}
+	
+	private OmmArrayEntryImpl ommArrayEntryInstance()
+	{
+		OmmArrayEntryImpl retData = (OmmArrayEntryImpl)GlobalPool._arrayEntryPool.poll();
+        if(retData == null)
+        {
+        	retData = new OmmArrayEntryImpl(noDataInstance());
+        	GlobalPool._arrayEntryPool.updatePool(retData);
+        }
+        
+        return retData;
+	}
+	
+	private void clearCollection()
+	{
+		if (_ommArrayCollection.size() > 0 )
+		{
+			Iterator<OmmArrayEntry> iter = _ommArrayCollection.iterator();
+			while ( iter.hasNext())
+				((OmmArrayEntryImpl)iter.next()).returnToPool();
+				
+			_ommArrayCollection.clear();
 		}
 	}
 }

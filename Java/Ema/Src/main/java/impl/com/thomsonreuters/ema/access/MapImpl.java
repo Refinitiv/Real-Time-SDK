@@ -187,7 +187,9 @@ class MapImpl extends CollectionDataImpl implements Map
 		super.clear();
 		
 		_rsslMap.clear();
-		_mapCollection.clear();
+		
+		if (_rsslEncodeIter != null)
+			_mapCollection.clear();
 	}
 
 	@Override
@@ -253,8 +255,9 @@ class MapImpl extends CollectionDataImpl implements Map
 		{
 		case com.thomsonreuters.upa.codec.CodecReturnCodes.NO_DATA :
 			_errorCode = ErrorCode.NO_ERROR;
+			_rsslMap.flags(0);
 			_fillCollection = false;
-			_mapCollection.clear();
+			clearCollection();
 			break;
 		case com.thomsonreuters.upa.codec.CodecReturnCodes.SUCCESS :
 			_errorCode = ErrorCode.NO_ERROR;
@@ -405,66 +408,75 @@ class MapImpl extends CollectionDataImpl implements Map
 	{
 		DataImpl load;
 		DataImpl mapEntryKey;
-		com.thomsonreuters.upa.codec.MapEntry rsslMapEntry = com.thomsonreuters.upa.codec.CodecFactory.createMapEntry();
 		
-		_mapCollection.clear();
+		clearCollection();
+		
+		MapEntryImpl mapEntry = mapEntryInstance();
 		
 		if ( ErrorCode.NO_ERROR != _errorCode)
 		{
-			load =  dataInstance(DataTypes.ERROR);
+			load =  dataInstance(mapEntry._load, DataTypes.ERROR);
 			load.decode(_rsslBuffer, _errorCode);
-			_mapCollection.add(new MapEntryImpl(rsslMapEntry,  dataInstance(DataTypes.NO_DATA), load));
+			
+			mapEntryKey = dataInstance(((DataImpl)mapEntry._keyDataDecoded.data()), DataTypes.NO_DATA);
+			
+			_mapCollection.add(mapEntry.entryValue( mapEntryKey, load));
 			_fillCollection = false;
 			return;
 		}
 
 		int retCode;
-		while ((retCode  = rsslMapEntry.decode(_rsslDecodeIter, null)) != com.thomsonreuters.upa.codec.CodecReturnCodes.END_OF_CONTAINER)
+		while ((retCode  = mapEntry._rsslMapEntry.decode(_rsslDecodeIter, null)) != com.thomsonreuters.upa.codec.CodecReturnCodes.END_OF_CONTAINER)
 		{
 			switch(retCode)
 			{
 				case com.thomsonreuters.upa.codec.CodecReturnCodes.SUCCESS :
 					_keyDecodeIter.clear();
-					retCode = _keyDecodeIter.setBufferAndRWFVersion(rsslMapEntry.encodedKey(), _rsslMajVer, _rsslMinVer);
+					retCode = _keyDecodeIter.setBufferAndRWFVersion( mapEntry._rsslMapEntry.encodedKey(), _rsslMajVer, _rsslMinVer);
 					if (com.thomsonreuters.upa.codec.CodecReturnCodes.SUCCESS != retCode)
 					{
 						_errorCode = OmmError.ErrorCode.ITERATOR_SET_FAILURE;
-						load =  dataInstance(DataTypes.ERROR);
+						load =  dataInstance(mapEntry._load, DataTypes.ERROR);
 						load.decode(_rsslBuffer, _errorCode);
-						_mapCollection.add(new MapEntryImpl(rsslMapEntry,  dataInstance(DataTypes.NO_DATA), load));
+						
+						mapEntryKey = dataInstance(((DataImpl)mapEntry._keyDataDecoded.data()), DataTypes.NO_DATA);
+						
+						_mapCollection.add(mapEntry.entryValue( mapEntryKey, load));
 						_fillCollection = false;
 						return;
 					}
 					
-					mapEntryKey = dataInstance(Utilities.toEmaDataType[_rsslMap.keyPrimitiveType()]);
-					mapEntryKey.decode(rsslMapEntry.encodedKey(), _keyDecodeIter);
+					mapEntryKey = dataInstance(((DataImpl)mapEntry._keyDataDecoded.data()), Utilities.toEmaDataType[_rsslMap.keyPrimitiveType()]);
+					mapEntryKey.decode(mapEntry._rsslMapEntry.encodedKey(), _keyDecodeIter);
 					
-					int rsslContainerType = (rsslMapEntry.action() != MapEntryActions.DELETE)? _rsslMap.containerType() : com.thomsonreuters.upa.codec.DataTypes.NO_DATA;
-					int dType = dataType(rsslContainerType, _rsslMajVer, _rsslMinVer, rsslMapEntry.encodedData());
+					int rsslContainerType = ( mapEntry._rsslMapEntry.action() != MapEntryActions.DELETE)? _rsslMap.containerType() : com.thomsonreuters.upa.codec.DataTypes.NO_DATA;
+					int dType = dataType(rsslContainerType, _rsslMajVer, _rsslMinVer,  mapEntry._rsslMapEntry.encodedData());
 					
-					load = dataInstance(dType);
-					load.decode(rsslMapEntry.encodedData(), _rsslMajVer, _rsslMinVer, _rsslDictionary, _rsslLocalSetDefDb);
+					load = dataInstance(mapEntry._load, dType);
+					load.decode( mapEntry._rsslMapEntry.encodedData(), _rsslMajVer, _rsslMinVer, _rsslDictionary, _rsslLocalSetDefDb);
 					break;
 				case com.thomsonreuters.upa.codec.CodecReturnCodes.INCOMPLETE_DATA :
-					mapEntryKey = dataInstance(DataTypes.NO_DATA);
-					load = dataInstance(DataTypes.ERROR);
-					load.decode(rsslMapEntry.encodedData(),ErrorCode.INCOMPLETE_DATA);
+					mapEntryKey = dataInstance(((DataImpl)mapEntry._keyDataDecoded.data()), DataTypes.NO_DATA);
+					load = dataInstance(mapEntry._load, DataTypes.ERROR);
+					load.decode( mapEntry._rsslMapEntry.encodedData(),ErrorCode.INCOMPLETE_DATA);
 					break;
 				case com.thomsonreuters.upa.codec.CodecReturnCodes.UNSUPPORTED_DATA_TYPE :
-					mapEntryKey = dataInstance(DataTypes.NO_DATA);
-					load = dataInstance(DataTypes.ERROR);
-					load.decode(rsslMapEntry.encodedData(),ErrorCode.UNSUPPORTED_DATA_TYPE);
+					mapEntryKey = dataInstance(((DataImpl)mapEntry._keyDataDecoded.data()), DataTypes.NO_DATA);
+					load = dataInstance(mapEntry._load, DataTypes.ERROR);
+					load.decode( mapEntry._rsslMapEntry.encodedData(),ErrorCode.UNSUPPORTED_DATA_TYPE);
 					break;
 				default :
-					mapEntryKey = dataInstance(DataTypes.NO_DATA);
-					load = dataInstance(DataTypes.ERROR);
-					load.decode(rsslMapEntry.encodedData(),ErrorCode.UNKNOWN_ERROR);
+					mapEntryKey = dataInstance(((DataImpl)mapEntry._keyDataDecoded.data()), DataTypes.NO_DATA);
+					load = dataInstance(mapEntry._load, DataTypes.ERROR);
+					load.decode( mapEntry._rsslMapEntry.encodedData(),ErrorCode.UNKNOWN_ERROR);
 					break;
 				}
 			
-				_mapCollection.add(new MapEntryImpl(rsslMapEntry, mapEntryKey, load));
-				rsslMapEntry = com.thomsonreuters.upa.codec.CodecFactory.createMapEntry();
+				_mapCollection.add(mapEntry.entryValue( mapEntryKey, load));
+				mapEntry = mapEntryInstance();
 			}
+		
+		mapEntry.returnToPool();
 		
 		_fillCollection = false;
 	}
@@ -675,6 +687,32 @@ class MapImpl extends CollectionDataImpl implements Map
 			 return ret;
 		 default:
 			return CodecReturnCodes.FAILURE;
+		}
+	}
+	
+	private MapEntryImpl mapEntryInstance()
+	{
+		MapEntryImpl retData = (MapEntryImpl)GlobalPool._mapEntryPool.poll();
+        if(retData == null)
+        {
+        	retData = new MapEntryImpl(com.thomsonreuters.upa.codec.CodecFactory.createMapEntry(), noDataInstance(), noDataInstance());
+        	GlobalPool._mapEntryPool.updatePool(retData);
+        }
+        else
+        	retData._rsslMapEntry.clear();
+        
+        return retData;
+	}
+	
+	private void clearCollection()
+	{
+		if (_mapCollection.size() > 0 )
+		{
+			Iterator<MapEntry> iter = _mapCollection.iterator();
+			while ( iter.hasNext())
+				((MapEntryImpl)iter.next()).returnToPool();
+				
+			_mapCollection.clear();
 		}
 	}
 }

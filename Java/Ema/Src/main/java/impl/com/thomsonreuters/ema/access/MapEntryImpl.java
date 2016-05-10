@@ -22,7 +22,7 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	private final static String DEFAULTACTION_STRING 	= "Unknown MapAction value ";
 	
 	private ByteBuffer _permData;
-	private KeyImpl _keyDataDecoded = new KeyImpl();
+	protected KeyImpl _keyDataDecoded = new KeyImpl();
 	protected com.thomsonreuters.upa.codec.MapEntry	_rsslMapEntry;
 	protected Object _keyData;
 	protected int _keyDataType;
@@ -497,5 +497,13 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 			Utilities.copy(permissionData, _rsslMapEntry.permData());
 			_rsslMapEntry.applyHasPermData();
 		}
+	}
+	
+	MapEntryImpl entryValue(DataImpl mapEntryKey, DataImpl load)
+	{
+		_load = load;
+		_keyDataDecoded.data(mapEntryKey);
+		
+		return this;
 	}
 }

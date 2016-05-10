@@ -26,13 +26,10 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 		_rsslFieldEntry = CodecFactory.createFieldEntry();
 	}
 	
-	FieldEntryImpl(FieldListImpl fieldList, com.thomsonreuters.upa.codec.FieldEntry rsslFieldEntry,
-				   com.thomsonreuters.upa.codec.DictionaryEntry rsslDictionaryEntry, DataImpl load)
+	FieldEntryImpl(com.thomsonreuters.upa.codec.FieldEntry rsslFieldEntry, DataImpl load)
 	{
 		super(load);
-		_fieldList = fieldList;
 		_rsslFieldEntry = rsslFieldEntry;
-		_rsslDictionaryEntry = rsslDictionaryEntry;
 	}
 	
 	@Override
@@ -611,6 +608,15 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 		_rsslFieldEntry.fieldId(fieldId);
 		_rsslFieldEntry.dataType(rsslDataType);
 
+		return this;
+	}
+	
+	FieldEntryImpl entryValue(FieldListImpl fieldList, com.thomsonreuters.upa.codec.DictionaryEntry rsslDictionaryEntry, DataImpl load)
+	{
+		_load = load;
+		_fieldList = fieldList;
+		_rsslDictionaryEntry = rsslDictionaryEntry;
+		
 		return this;
 	}
 }

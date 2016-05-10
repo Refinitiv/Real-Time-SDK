@@ -121,7 +121,9 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 		super.clear();
 		
 		_rsslFieldList.clear();
-		_fieldListCollection.clear();
+		
+		if (_rsslEncodeIter != null)
+			_fieldListCollection.clear();
 	}
 
 	@Override
@@ -274,8 +276,9 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 		{
 		case com.thomsonreuters.upa.codec.CodecReturnCodes.NO_DATA :
 			_errorCode = ErrorCode.NO_ERROR;
+			_rsslFieldList.flags(0);
 			_fillCollection = false;
-			_fieldListCollection.clear();
+			clearCollection();
 			break;
 		case com.thomsonreuters.upa.codec.CodecReturnCodes.SUCCESS :
 			_errorCode = ErrorCode.NO_ERROR;
@@ -294,63 +297,66 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 			break;
 		}
 	}
-
+	
 	private void fillCollection()
 	{
 		DataImpl load;
 		com.thomsonreuters.upa.codec.DictionaryEntry rsslDictionaryEntry = null;
-		com.thomsonreuters.upa.codec.FieldEntry rsslFieldEntry = com.thomsonreuters.upa.codec.CodecFactory.createFieldEntry();
 		
-		_fieldListCollection.clear();
+		clearCollection();
+		
+		FieldEntryImpl fieldEntry = fieldEntryInstance();
 		
 		if ( ErrorCode.NO_ERROR != _errorCode)
 		{
-			load =  dataInstance(DataTypes.ERROR);
+			load =  dataInstance(fieldEntry._load, DataTypes.ERROR);
 			load.decode(_rsslBuffer, _errorCode);
-			_fieldListCollection.add(new FieldEntryImpl(this, rsslFieldEntry, null, load));
+			_fieldListCollection.add(fieldEntry.entryValue(this, null, load));
 			_fillCollection = false;
 			return;
 		}
 
 		int retCode;
-		while ((retCode  = rsslFieldEntry.decode(_rsslDecodeIter)) != com.thomsonreuters.upa.codec.CodecReturnCodes.END_OF_CONTAINER)
+		while ((retCode  = fieldEntry._rsslFieldEntry.decode(_rsslDecodeIter)) != com.thomsonreuters.upa.codec.CodecReturnCodes.END_OF_CONTAINER)
 		{
 			switch(retCode)
 			{
 			case com.thomsonreuters.upa.codec.CodecReturnCodes.SUCCESS :
-				rsslDictionaryEntry = _rsslDictionary.entry(rsslFieldEntry.fieldId());
+				rsslDictionaryEntry = _rsslDictionary.entry(fieldEntry._rsslFieldEntry.fieldId());
 				if (rsslDictionaryEntry == null)
 				{
-					load = dataInstance(DataTypes.ERROR);
-					load.decode(rsslFieldEntry.encodedData(),ErrorCode.FIELD_ID_NOT_FOUND);
+					load = dataInstance(fieldEntry._load, DataTypes.ERROR);
+					load.decode(fieldEntry._rsslFieldEntry.encodedData(),ErrorCode.FIELD_ID_NOT_FOUND);
 				}
 				else			
 				{			
-					int dType = dataType(rsslDictionaryEntry.rwfType(), _rsslMajVer, _rsslMinVer, rsslFieldEntry.encodedData());
-					load = dataInstance(dType);
+					int dType = dataType(rsslDictionaryEntry.rwfType(), _rsslMajVer, _rsslMinVer, fieldEntry._rsslFieldEntry.encodedData());
+					load = dataInstance(fieldEntry._load, dType);
 					if (DataTypes.ERROR > dType && DataTypes.OPAQUE <= dType)
-						load.decode(rsslFieldEntry.encodedData(),_rsslDecodeIter);
+						load.decode(fieldEntry._rsslFieldEntry.encodedData(),_rsslDecodeIter);
 					else
-						load.decode(rsslFieldEntry.encodedData(), _rsslMajVer, _rsslMinVer, _rsslDictionary, _rsslLocalFLSetDefDb);
+						load.decode(fieldEntry._rsslFieldEntry.encodedData(), _rsslMajVer, _rsslMinVer, _rsslDictionary, _rsslLocalFLSetDefDb);
 				}
 				break;
 			case com.thomsonreuters.upa.codec.CodecReturnCodes.INCOMPLETE_DATA :
-				load = dataInstance(DataTypes.ERROR);
-				load.decode(rsslFieldEntry.encodedData(),ErrorCode.INCOMPLETE_DATA);
+				load = dataInstance(fieldEntry._load, DataTypes.ERROR);
+				load.decode(fieldEntry._rsslFieldEntry.encodedData(),ErrorCode.INCOMPLETE_DATA);
 				break;
 			case com.thomsonreuters.upa.codec.CodecReturnCodes.UNSUPPORTED_DATA_TYPE :
-				load = dataInstance(DataTypes.ERROR);
-				load.decode(rsslFieldEntry.encodedData(),ErrorCode.UNSUPPORTED_DATA_TYPE);
+				load = dataInstance(fieldEntry._load, DataTypes.ERROR);
+				load.decode(fieldEntry._rsslFieldEntry.encodedData(),ErrorCode.UNSUPPORTED_DATA_TYPE);
 				break;
 			default :
-				load = dataInstance(DataTypes.ERROR);
-				load.decode(rsslFieldEntry.encodedData(),ErrorCode.UNKNOWN_ERROR);
+				load = dataInstance(fieldEntry._load, DataTypes.ERROR);
+				load.decode(fieldEntry._rsslFieldEntry.encodedData(),ErrorCode.UNKNOWN_ERROR);
 				break;
 			}
 			
-			_fieldListCollection.add(new FieldEntryImpl(this, rsslFieldEntry, rsslDictionaryEntry, load));
-			rsslFieldEntry = com.thomsonreuters.upa.codec.CodecFactory.createFieldEntry();
+			_fieldListCollection.add(fieldEntry.entryValue(this, rsslDictionaryEntry, load));
+			fieldEntry =  fieldEntryInstance();
 		}
+		
+		fieldEntry.returnToPool();
 		
 		_fillCollection = false;
 	}
@@ -545,6 +551,32 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 			 return ret;
 		 default:
 			return CodecReturnCodes.FAILURE;
+		}
+	}
+	
+	private FieldEntryImpl fieldEntryInstance()
+	{
+		FieldEntryImpl retData = (FieldEntryImpl)GlobalPool._fieldEntryPool.poll();
+        if(retData == null)
+        {
+        	retData = new FieldEntryImpl(com.thomsonreuters.upa.codec.CodecFactory.createFieldEntry(), noDataInstance());
+        	GlobalPool._fieldEntryPool.updatePool(retData);
+        }
+        else
+        	retData._rsslFieldEntry.clear();
+        
+        return retData;
+	}
+	
+	private void clearCollection()
+	{
+		int collectionSize = _fieldListCollection.size();
+		if (collectionSize > 0)
+		{
+			for (int index = 0; index < collectionSize; ++index)
+				((FieldEntryImpl)_fieldListCollection.get(index)).returnToPool();
+	
+			_fieldListCollection.clear();
 		}
 	}
 }

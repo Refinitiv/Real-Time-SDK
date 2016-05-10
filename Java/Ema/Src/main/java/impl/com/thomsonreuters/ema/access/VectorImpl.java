@@ -86,7 +86,9 @@ class VectorImpl extends CollectionDataImpl implements Vector
 		super.clear();
 		
 		_rsslVector.clear();
-		_vectorCollection.clear();
+		
+		if (_rsslEncodeIter != null)
+			_vectorCollection.clear();
 	}
 
 	@Override
@@ -303,8 +305,9 @@ class VectorImpl extends CollectionDataImpl implements Vector
 		{
 			case com.thomsonreuters.upa.codec.CodecReturnCodes.NO_DATA :
 				_errorCode = ErrorCode.NO_ERROR;
+				_rsslVector.flags(0);
 				_fillCollection = false;
-				_vectorCollection.clear();
+				clearCollection();
 				break;
 			case com.thomsonreuters.upa.codec.CodecReturnCodes.SUCCESS :
 				_errorCode = ErrorCode.NO_ERROR;
@@ -377,48 +380,54 @@ class VectorImpl extends CollectionDataImpl implements Vector
 	void fillCollection()
 	{
 		DataImpl load;
-		com.thomsonreuters.upa.codec.VectorEntry rsslVectorEntry = com.thomsonreuters.upa.codec.CodecFactory.createVectorEntry();
 	
-		_vectorCollection.clear();
+		clearCollection();
+		
+		VectorEntryImpl vectorEntry = vectorEntryInstance();
 		
 		if ( ErrorCode.NO_ERROR != _errorCode)
 		{
-			load =  dataInstance(DataTypes.ERROR);
+			load =  dataInstance(vectorEntry._load, DataTypes.ERROR);
 			load.decode(_rsslBuffer, _errorCode);
-			_vectorCollection.add(new VectorEntryImpl(rsslVectorEntry, load));
+			vectorEntry._load = load;
+			_vectorCollection.add(vectorEntry);
 			_fillCollection = false;
 			return;
 		}
 
 		int retCode;
-		while ((retCode  = rsslVectorEntry.decode(_rsslDecodeIter)) != com.thomsonreuters.upa.codec.CodecReturnCodes.END_OF_CONTAINER)
+		while ((retCode  = vectorEntry._rsslVectorEntry.decode(_rsslDecodeIter)) != com.thomsonreuters.upa.codec.CodecReturnCodes.END_OF_CONTAINER)
 		{
 			switch(retCode)
 			{
 			case com.thomsonreuters.upa.codec.CodecReturnCodes.SUCCESS :
-				int rsslContainerType = (rsslVectorEntry.action() != VectorEntryActions.DELETE && rsslVectorEntry.action() != VectorEntryActions.CLEAR)?
+				int rsslContainerType = (vectorEntry._rsslVectorEntry.action() != VectorEntryActions.DELETE && vectorEntry._rsslVectorEntry.action() != VectorEntryActions.CLEAR)?
 														_rsslVector.containerType() : com.thomsonreuters.upa.codec.DataTypes.NO_DATA;
-				int dType = dataType(rsslContainerType, _rsslMajVer, _rsslMinVer, rsslVectorEntry.encodedData());
-				load = dataInstance(dType);
-				load.decode(rsslVectorEntry.encodedData(), _rsslMajVer, _rsslMinVer, _rsslDictionary, _rsslLocalSetDefDb);
+				int dType = dataType(rsslContainerType, _rsslMajVer, _rsslMinVer, vectorEntry._rsslVectorEntry.encodedData());
+				load = dataInstance(vectorEntry._load, dType);
+				load.decode(vectorEntry._rsslVectorEntry.encodedData(), _rsslMajVer, _rsslMinVer, _rsslDictionary, _rsslLocalSetDefDb);
 				break;
 			case com.thomsonreuters.upa.codec.CodecReturnCodes.INCOMPLETE_DATA :
-				load = dataInstance(DataTypes.ERROR);
-				load.decode(rsslVectorEntry.encodedData(),ErrorCode.INCOMPLETE_DATA);
+				load = dataInstance(vectorEntry._load, DataTypes.ERROR);
+				load.decode(vectorEntry._rsslVectorEntry.encodedData(),ErrorCode.INCOMPLETE_DATA);
 				break;
 			case com.thomsonreuters.upa.codec.CodecReturnCodes.UNSUPPORTED_DATA_TYPE :
-				load = dataInstance(DataTypes.ERROR);
-				load.decode(rsslVectorEntry.encodedData(),ErrorCode.UNSUPPORTED_DATA_TYPE);
+				load = dataInstance(vectorEntry._load, DataTypes.ERROR);
+				load.decode(vectorEntry._rsslVectorEntry.encodedData(),ErrorCode.UNSUPPORTED_DATA_TYPE);
 				break;
 			default :
-				load = dataInstance(DataTypes.ERROR);
-				load.decode(rsslVectorEntry.encodedData(),ErrorCode.UNKNOWN_ERROR);
+				load = dataInstance(vectorEntry._load, DataTypes.ERROR);
+				load.decode(vectorEntry._rsslVectorEntry.encodedData(),ErrorCode.UNKNOWN_ERROR);
 				break;
 			}
 			
-			_vectorCollection.add(new VectorEntryImpl(rsslVectorEntry, load));
-			rsslVectorEntry = com.thomsonreuters.upa.codec.CodecFactory.createVectorEntry();
+			vectorEntry._load = load;
+			_vectorCollection.add(vectorEntry);
+			
+			vectorEntry = vectorEntryInstance();
 		}
+		
+		vectorEntry.returnToPool();
 		
 		_fillCollection = false;
 	}
@@ -504,5 +513,31 @@ class VectorImpl extends CollectionDataImpl implements Vector
 	     
 	    _encodeComplete = true;
 	    return _rsslBuffer;
+	}
+	
+	private VectorEntryImpl vectorEntryInstance()
+	{
+		VectorEntryImpl retData = (VectorEntryImpl)GlobalPool._vectorEntryPool.poll();
+        if(retData == null)
+        {
+        	retData = new VectorEntryImpl(com.thomsonreuters.upa.codec.CodecFactory.createVectorEntry(), noDataInstance());
+        	GlobalPool._vectorEntryPool.updatePool(retData);
+        }
+        else
+        	retData._rsslVectorEntry.clear();
+        
+        return retData;
+	}
+	
+	private void clearCollection()
+	{
+		if (_vectorCollection.size() > 0 )
+		{
+			Iterator<VectorEntry> iter = _vectorCollection.iterator();
+			while ( iter.hasNext())
+				((VectorEntryImpl)iter.next()).returnToPool();
+				
+			_vectorCollection.clear();
+		}
 	}
 }

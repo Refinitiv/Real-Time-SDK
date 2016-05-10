@@ -113,9 +113,14 @@ class DataImpl extends VaNode implements Data
 	
 	DataImpl noDataInstance()
 	{
-	   		DataImpl retData = (DataImpl)new NoDataImpl();
-	   		GlobalPool._noDataPool .updatePool(retData);
-	   		return retData;
+   		DataImpl  retData = (DataImpl)GlobalPool._noDataPool.poll();
+        if(retData == null)
+        {
+        	retData = (DataImpl)new NoDataImpl();
+        	 GlobalPool._noDataPool .updatePool(retData);
+        }
+        
+   		return retData;
 	}
 	
 	DataImpl dataInstance(DataImpl data, int dType)

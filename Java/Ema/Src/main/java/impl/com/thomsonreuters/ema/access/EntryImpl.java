@@ -50,9 +50,10 @@ import com.thomsonreuters.ema.access.Vector;
 import com.thomsonreuters.upa.codec.Date;
 import com.thomsonreuters.upa.codec.DateTime;
 import com.thomsonreuters.upa.codec.Time;
+import com.thomsonreuters.upa.valueadd.common.VaNode;
 import com.thomsonreuters.upa.codec.State;
 
-abstract class EntryImpl
+abstract class EntryImpl extends VaNode
 {
 	private OmmInvalidUsageExceptionImpl 	_ommIUExcept; 
 	private OmmOutOfRangeExceptionImpl 	_ommOORExcept;

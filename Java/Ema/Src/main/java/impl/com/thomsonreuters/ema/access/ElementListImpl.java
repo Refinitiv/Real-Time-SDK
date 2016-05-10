@@ -60,7 +60,9 @@ class ElementListImpl extends CollectionDataImpl implements ElementList
 		super.clear();
 
 		_rsslElementList.clear();
-		_elementListCollection.clear();
+		
+		if (_rsslEncodeIter != null)
+			_elementListCollection.clear();
 	}
 
 	@Override
@@ -243,8 +245,9 @@ class ElementListImpl extends CollectionDataImpl implements ElementList
 		{
 		case com.thomsonreuters.upa.codec.CodecReturnCodes.NO_DATA:
 			_errorCode = ErrorCode.NO_ERROR;
+			_rsslElementList.flags(0);
 			_fillCollection = false;
-			_elementListCollection.clear();
+			clearCollection();
 			break;
 		case com.thomsonreuters.upa.codec.CodecReturnCodes.SUCCESS:
 			_errorCode = ErrorCode.NO_ERROR;
@@ -267,54 +270,59 @@ class ElementListImpl extends CollectionDataImpl implements ElementList
 	void fillCollection()
 	{
 		DataImpl load;
-		com.thomsonreuters.upa.codec.ElementEntry rsslElementEntry = com.thomsonreuters.upa.codec.CodecFactory
-				.createElementEntry();
 
-		_elementListCollection.clear();
+		clearCollection();
+		
+		ElementEntryImpl elementEntry = elementEntryInstance();
 
 		if (ErrorCode.NO_ERROR != _errorCode)
 		{
-			load = dataInstance(DataTypes.ERROR);
+			load = dataInstance(elementEntry._load, DataTypes.ERROR);
 			load.decode(_rsslBuffer, _errorCode);
-			_elementListCollection.add(new ElementEntryImpl(rsslElementEntry, load));
+			elementEntry._load = load;
+			_elementListCollection.add(elementEntry);
 			_fillCollection = false;
 			return;
 		}
 
 		int retCode;
-		while ((retCode = rsslElementEntry
+		while ((retCode = elementEntry._rsslElementEntry
 				.decode(_rsslDecodeIter)) != com.thomsonreuters.upa.codec.CodecReturnCodes.END_OF_CONTAINER)
 		{
 			switch (retCode)
 			{
 			case com.thomsonreuters.upa.codec.CodecReturnCodes.SUCCESS:
-				int dType = dataType(rsslElementEntry.dataType(), _rsslMajVer, _rsslMinVer,
-						rsslElementEntry.encodedData());
-				load = dataInstance(dType);
+				int dType = dataType(elementEntry._rsslElementEntry.dataType(), _rsslMajVer, _rsslMinVer,
+						elementEntry._rsslElementEntry.encodedData());
+				load = dataInstance(elementEntry._load, dType);
 
 				if (DataTypes.ERROR > dType && DataTypes.OPAQUE <= dType)
-					load.decode(rsslElementEntry.encodedData(), _rsslDecodeIter);
+					load.decode(elementEntry._rsslElementEntry.encodedData(), _rsslDecodeIter);
 				else
-					load.decode(rsslElementEntry.encodedData(), _rsslMajVer, _rsslMinVer, _rsslDictionary, null);
+					load.decode(elementEntry._rsslElementEntry.encodedData(), _rsslMajVer, _rsslMinVer, _rsslDictionary, null);
 				break;
 			case com.thomsonreuters.upa.codec.CodecReturnCodes.INCOMPLETE_DATA:
-				load = dataInstance(DataTypes.ERROR);
-				load.decode(rsslElementEntry.encodedData(), ErrorCode.INCOMPLETE_DATA);
+				load = dataInstance(elementEntry._load, DataTypes.ERROR);
+				load.decode(elementEntry._rsslElementEntry.encodedData(), ErrorCode.INCOMPLETE_DATA);
 				break;
 			case com.thomsonreuters.upa.codec.CodecReturnCodes.UNSUPPORTED_DATA_TYPE:
-				load = dataInstance(DataTypes.ERROR);
-				load.decode(rsslElementEntry.encodedData(), ErrorCode.UNSUPPORTED_DATA_TYPE);
+				load = dataInstance(elementEntry._load, DataTypes.ERROR);
+				load.decode(elementEntry._rsslElementEntry.encodedData(), ErrorCode.UNSUPPORTED_DATA_TYPE);
 				break;
 			default:
-				load = dataInstance(DataTypes.ERROR);
-				load.decode(rsslElementEntry.encodedData(), ErrorCode.UNKNOWN_ERROR);
+				load = dataInstance(elementEntry._load, DataTypes.ERROR);
+				load.decode(elementEntry._rsslElementEntry.encodedData(), ErrorCode.UNKNOWN_ERROR);
 				break;
 			}
 
-			_elementListCollection.add(new ElementEntryImpl(rsslElementEntry, load));
-			rsslElementEntry = com.thomsonreuters.upa.codec.CodecFactory.createElementEntry();
+			elementEntry._load = load;
+			_elementListCollection.add(elementEntry);
+			
+			elementEntry = elementEntryInstance();
 		}
 
+		elementEntry.returnToPool();
+		
 		_fillCollection = false;
 	}
 
@@ -509,6 +517,32 @@ class ElementListImpl extends CollectionDataImpl implements ElementList
 			return ret;
 		default:
 			return CodecReturnCodes.FAILURE;
+		}
+	}
+	
+	private ElementEntryImpl elementEntryInstance()
+	{
+		ElementEntryImpl retData = (ElementEntryImpl)GlobalPool._elementEntryPool.poll();
+        if(retData == null)
+        {
+        	retData = new ElementEntryImpl(com.thomsonreuters.upa.codec.CodecFactory.createElementEntry(), noDataInstance());
+        	GlobalPool._elementEntryPool.updatePool(retData);
+        }
+        else
+        	retData._rsslElementEntry.clear();
+        
+        return retData;
+	}
+	
+	private void clearCollection()
+	{
+		if (_elementListCollection.size() > 0 )
+		{
+			Iterator<ElementEntry> iter = _elementListCollection.iterator();
+			while ( iter.hasNext())
+				((ElementEntryImpl)iter.next()).returnToPool();
+				
+			_elementListCollection.clear();
 		}
 	}
 }

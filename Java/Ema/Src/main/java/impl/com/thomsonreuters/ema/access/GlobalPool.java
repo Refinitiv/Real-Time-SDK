@@ -18,7 +18,8 @@ import com.thomsonreuters.ema.access.FieldListImpl;
 import com.thomsonreuters.ema.access.SingleItem;
 import com.thomsonreuters.upa.valueadd.common.VaPool;
 
-class GlobalPool {
+class GlobalPool
+{
 	private final static int DATA_POOL_INITIAL_SIZE = 3;
 	private final static int DEFAULT_BYTE_BUFFER_SIZE = 25;
 	private final static int MAX_NUM_BYTE_BUFFER = 10;
@@ -62,39 +63,48 @@ class GlobalPool {
 	static VaPool _genericMsgPool = new VaPool(true);
 	static VaPool _noDataPool = new VaPool(true);
 	static VaPool _ommErrorPool = new VaPool(true);
-	
+
 	static VaPool _singleItemPool = new VaPool(true);
 	static VaPool _batchItemPool = new VaPool(true);
 	static VaPool _subItemPool = new VaPool(true);
 	static VaPool _dictionaryItemPool = new VaPool(true);
 	static VaPool _directoryItemPool = new VaPool(true);
 	static VaPool _loginItemPool = new VaPool(true);
-	
+
 	static VaPool _timeoutEventPool = new VaPool(true);
 
+	static VaPool _fieldEntryPool = new VaPool(true);
+	static VaPool _elementEntryPool = new VaPool(true);
+	static VaPool _arrayEntryPool = new VaPool(true);
+	static VaPool _filterEntryPool = new VaPool(true);
+	static VaPool _mapEntryPool = new VaPool(true);
+	static VaPool _seriesEntryPool = new VaPool(true);
+	static VaPool _vectorEntryPool = new VaPool(true);
+	
 	static List<com.thomsonreuters.upa.codec.LocalFieldSetDefDb> _rsslFieldListSetDefList;
 	static List<com.thomsonreuters.upa.codec.LocalElementSetDefDb> _rsslElementListSetDefList;
-	
+
 	private GlobalPool()
 	{
 		throw new AssertionError();
 	}
 
-	static void initialize() 
+	static void initialize()
 	{
 		_globalLock.lock();
-		
+
 		if (_intialized)
 		{
 			_globalLock.unlock();
 			return;
 		}
-		
+
 		_intialized = true;
+		NoDataImpl load;
 		
 		for (int index = 0; index < DATA_POOL_INITIAL_SIZE; ++index)
 		{
-			_ommIntPool.add(new OmmIntImpl());;
+			_ommIntPool.add(new OmmIntImpl());
 			_ommUIntPool.add(new OmmUIntImpl());
 			_ommFloatPool.add(new OmmFloatImpl());
 			_ommDoublePool.add(new OmmDoubleImpl());
@@ -128,18 +138,32 @@ class GlobalPool {
 			_genericMsgPool.add(new GenericMsgImpl(true));
 			_noDataPool.add(new NoDataImpl());
 			_ommErrorPool.add(new OmmErrorImpl());
-			
+
 			_singleItemPool.add(new SingleItem());
 			_batchItemPool.add(new BatchItem());
-			
+
 			_timeoutEventPool.add(new TimeoutEvent(0, null));
+			
+			load = new NoDataImpl();
+       	 	GlobalPool._noDataPool .updatePool(load);
+			_fieldEntryPool.add(new FieldEntryImpl(com.thomsonreuters.upa.codec.CodecFactory.createFieldEntry(), load));
+			
+			load = new NoDataImpl();
+       	 	GlobalPool._noDataPool .updatePool(load);
+			_elementEntryPool.add(new ElementEntryImpl(com.thomsonreuters.upa.codec.CodecFactory.createElementEntry(), load));
+			
+			load = new NoDataImpl();
+       	 	GlobalPool._noDataPool .updatePool(load);
+       	   NoDataImpl keyLoad = new NoDataImpl();
+    	 	GlobalPool._noDataPool .updatePool(keyLoad);
+			_mapEntryPool.add(new MapEntryImpl(com.thomsonreuters.upa.codec.CodecFactory.createMapEntry(), keyLoad, load));
 		}
 
 		initByteBufferList();	
 			
 		_rsslFieldListSetDefList = new ArrayList<com.thomsonreuters.upa.codec.LocalFieldSetDefDb>();
 		_rsslElementListSetDefList = new ArrayList<com.thomsonreuters.upa.codec.LocalElementSetDefDb>();
-		
+
 		_globalLock.unlock();
 	}
 
@@ -151,75 +175,74 @@ class GlobalPool {
 		{
 			_byteBufferList[pos] = new ArrayList<ByteBuffer>();
 		}
-		
+
 		for (int pos = 0; pos < MAX_NUM_BYTE_BUFFER; ++pos)
 		{
-			int allocatedSize = (pos+1) * DEFAULT_BYTE_BUFFER_SIZE;
+			int allocatedSize = (pos + 1) * DEFAULT_BYTE_BUFFER_SIZE;
 			_byteBufferList[pos].add(ByteBuffer.allocate(allocatedSize));
 			_byteBufferList[pos].add(ByteBuffer.allocate(allocatedSize));
 		}
-		
+
 		_byteBufferList[MAX_NUM_BYTE_BUFFER].add(ByteBuffer.allocate(MAX_BYTE_BUFFER_CAPABILITY));
 	}
-	
+
 	static ByteBuffer acquireByteBuffer(int length)
 	{
-    	int pos = length/DEFAULT_BYTE_BUFFER_SIZE;
-    	ByteBuffer retVal;
-    	
-    	if (pos <  MAX_NUM_BYTE_BUFFER)
-    	{
-    		_globalLock.lock();
-    		
-    		if (!_byteBufferList[pos].isEmpty())
-    		{
-    			retVal = (ByteBuffer)(_byteBufferList[pos].remove(_byteBufferList[pos].size()-1).clear());
-    			_globalLock.unlock();
-    			return retVal;
-    		}
-    		_globalLock.unlock();
-    		
-    		return ByteBuffer.allocate((pos+1) * DEFAULT_BYTE_BUFFER_SIZE);
-    	}
-    	else 
-    	{
-    		_globalLock.lock();
-    		
-    		if (!_byteBufferList[MAX_NUM_BYTE_BUFFER].isEmpty())
-    		{
-	    		int size = _byteBufferList[MAX_NUM_BYTE_BUFFER].size() -1;
-	    		for (int index = size; index >= 0; --index)
-	    		{
-	    			if (length < _byteBufferList[MAX_NUM_BYTE_BUFFER].get(index).capacity())
-	    			{
-	    				retVal = (ByteBuffer)(_byteBufferList[MAX_NUM_BYTE_BUFFER].remove(index).clear());
-	    				_globalLock.unlock();
-	    				return retVal;
-	    			}
-	    		}
-    		}
-    		
-    		_globalLock.unlock();
-    		
-    		return ByteBuffer.allocate(length);
-    	}
+		int pos = length / DEFAULT_BYTE_BUFFER_SIZE;
+		ByteBuffer retVal;
+
+		if (pos < MAX_NUM_BYTE_BUFFER)
+		{
+			_globalLock.lock();
+
+			if (!_byteBufferList[pos].isEmpty())
+			{
+				retVal = (ByteBuffer) (_byteBufferList[pos].remove(_byteBufferList[pos].size() - 1).clear());
+				_globalLock.unlock();
+				return retVal;
+			}
+			_globalLock.unlock();
+
+			return ByteBuffer.allocate((pos + 1) * DEFAULT_BYTE_BUFFER_SIZE);
+		} else
+		{
+			_globalLock.lock();
+
+			if (!_byteBufferList[MAX_NUM_BYTE_BUFFER].isEmpty())
+			{
+				int size = _byteBufferList[MAX_NUM_BYTE_BUFFER].size() - 1;
+				for (int index = size; index >= 0; --index)
+				{
+					if (length < _byteBufferList[MAX_NUM_BYTE_BUFFER].get(index).capacity())
+					{
+						retVal = (ByteBuffer) (_byteBufferList[MAX_NUM_BYTE_BUFFER].remove(index).clear());
+						_globalLock.unlock();
+						return retVal;
+					}
+				}
+			}
+
+			_globalLock.unlock();
+
+			return ByteBuffer.allocate(length);
+		}
 	}
-	
+
 	static void releaseByteBuffer(ByteBuffer buffer)
-    {
+	{
 		if (buffer == null)
 			return;
-		
-		int pos = buffer.capacity()/DEFAULT_BYTE_BUFFER_SIZE - 1;
-		
+
+		int pos = buffer.capacity() / DEFAULT_BYTE_BUFFER_SIZE - 1;
+
 		_globalLock.lock();
-		
-		if (pos <  MAX_NUM_BYTE_BUFFER)
+
+		if (pos < MAX_NUM_BYTE_BUFFER)
 			_byteBufferList[pos].add(buffer);
 		else
 			_byteBufferList[MAX_NUM_BYTE_BUFFER].add(buffer);
-		
+
 		_globalLock.unlock();
-    }
-	
+	}
+
 }
