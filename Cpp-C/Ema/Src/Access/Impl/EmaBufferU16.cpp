@@ -59,7 +59,7 @@ EmaBufferU16::EmaBufferU16( const EmaBufferU16& other ) :
 			return;
 		}
 
-		memcpy( (void*)_pBuffer, (void*)other._pBuffer, _length );
+		memcpy( (void*)_pBuffer, (void*)other._pBuffer, _length * sizeof( UInt16 ));
 	}
 }
 
