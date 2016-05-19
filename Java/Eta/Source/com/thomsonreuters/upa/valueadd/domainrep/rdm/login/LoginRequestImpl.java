@@ -608,13 +608,7 @@ class LoginRequestImpl extends MsgBaseImpl
             stringBuf.append(instanceId());
             stringBuf.append(eol);
         }
-        if (checkHasPassword())
-        {
-            stringBuf.append(tab);
-            stringBuf.append("password: ");
-            stringBuf.append(password());
-            stringBuf.append(eol);
-        }
+        
         if (checkHasRole())
         {
             stringBuf.append(tab);

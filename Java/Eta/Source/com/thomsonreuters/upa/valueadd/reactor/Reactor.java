@@ -2253,7 +2253,6 @@ public class Reactor
             return;
         }
 
-        System.out.println("\n" + loginRequest.toString());
         if (_reactorOptions.xmlTracing() == true)
         {
             _xmlIter.clear();
@@ -2408,7 +2407,6 @@ public class Reactor
             return;
         }
 
-        System.out.println(directoryRequest.toString());
         if (_reactorOptions.xmlTracing() == true)
         {
             _xmlIter.clear();
@@ -2498,7 +2496,6 @@ public class Reactor
             return;
         }
 
-        System.out.println(directoryRefresh.toString());
         if (_reactorOptions.xmlTracing() == true)
         {
             _xmlIter.clear();
@@ -2653,7 +2650,6 @@ public class Reactor
             return;
         }
 
-        System.out.println(dictionaryRequest.toString());
         if (_reactorOptions.xmlTracing() == true)
         {
             _xmlIter.clear();
@@ -2746,7 +2742,6 @@ public class Reactor
             return;
         }
 
-        System.out.println(dictionaryClose.toString());
         if (_reactorOptions.xmlTracing() == true)
         {
             _xmlIter.clear();
