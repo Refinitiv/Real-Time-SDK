@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import com.thomsonreuters.upa.codec.AckMsg;
+import com.thomsonreuters.upa.codec.AckMsgFlags;
 import com.thomsonreuters.upa.codec.Array;
 import com.thomsonreuters.upa.codec.ArrayEntry;
 import com.thomsonreuters.upa.codec.Buffer;
@@ -19,21 +20,26 @@ import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.ElementEntry;
 import com.thomsonreuters.upa.codec.ElementList;
 import com.thomsonreuters.upa.codec.GenericMsg;
+import com.thomsonreuters.upa.codec.GenericMsgFlags;
 import com.thomsonreuters.upa.codec.MapEntry;
 import com.thomsonreuters.upa.codec.MapEntryActions;
 import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.MsgClasses;
+import com.thomsonreuters.upa.codec.MsgKey;
 import com.thomsonreuters.upa.codec.PostMsg;
 import com.thomsonreuters.upa.codec.Qos;
 import com.thomsonreuters.upa.codec.QosRates;
 import com.thomsonreuters.upa.codec.QosTimeliness;
 import com.thomsonreuters.upa.codec.RefreshMsg;
+import com.thomsonreuters.upa.codec.RefreshMsgFlags;
 import com.thomsonreuters.upa.codec.RequestMsg;
 import com.thomsonreuters.upa.codec.RequestMsgFlags;
 import com.thomsonreuters.upa.codec.StatusMsg;
+import com.thomsonreuters.upa.codec.StatusMsgFlags;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.codec.UInt;
 import com.thomsonreuters.upa.codec.UpdateMsg;
+import com.thomsonreuters.upa.codec.UpdateMsgFlags;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.rdm.ElementNames;
 import com.thomsonreuters.upa.rdm.InstrumentNameTypes;
@@ -81,8 +87,6 @@ public class WlItemHandler implements WlHandler
     Qos _tempMatchedQos = CodecFactory.createQos();
     
     StatusMsg _statusMsg = (StatusMsg)CodecFactory.createMsg();
-
-    Msg _callbackMsg = CodecFactory.createMsg();
 
 	CloseMsg _closeMsg = (CloseMsg)CodecFactory.createMsg();
 
@@ -2328,22 +2332,35 @@ public class WlItemHandler implements WlHandler
     		handleCloseRecoverStatusMsg(_statusMsg);
     }
 
-    /* Copies a message key for use with forwarding to a request. Also applies a service ID if available. */
-    private void copyRequestKeyToMsg(WlRequest wlRequest, Msg destMsg)
+    /* Shallow-copies a message key for use with forwarding to a request. Also applies a service ID if available. */
+    private void copyRequestKeyReferencesToMsg(WlRequest wlRequest, Msg destMsg)
     {
-        wlRequest.requestMsg().msgKey().copy(destMsg.msgKey());
+        MsgKey destKey = destMsg.msgKey();
+        MsgKey srcKey = wlRequest.requestMsg().msgKey();
+
+        destKey.flags(srcKey.flags());
+        destKey.nameType(srcKey.nameType());
+        destKey.name(srcKey.name());
+        destKey.filter(srcKey.filter());
+        destKey.identifier(srcKey.identifier());
+        destKey.attribContainerType(srcKey.attribContainerType());
+        destKey.encodedAttrib(srcKey.encodedAttrib());
 
         if (wlRequest.hasServiceId())
         {
-            destMsg.msgKey().applyHasServiceId();
-            destMsg.msgKey().serviceId((int)wlRequest.serviceId());
+            /* Request may have requested its service by name but we know the ID, so set it */
+            destKey.applyHasServiceId();
+            destKey.serviceId((int)wlRequest.serviceId());
         }
+        else  /* Request may have requested its service by ID. */
+            destKey.serviceId(srcKey.serviceId());
     }
                
     @Override
     public int callbackUser(String location, Msg msg, MsgBase rdmMsg, ReactorErrorInfo errorInfo)
     {
         int ret = ReactorReturnCodes.SUCCESS;
+        int msgFlagsToReset = 0;
         
         _tempWlInteger.value(msg.streamId());
         WlRequest wlRequest = _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger);
@@ -2359,24 +2376,18 @@ public class WlItemHandler implements WlHandler
                 case MsgClasses.UPDATE:
                     if (!((UpdateMsg)msg).checkHasMsgKey())
                     {
-                        _callbackMsg.clear();
-                        _callbackMsg.msgClass(MsgClasses.UPDATE);
-                        msg.copy(_callbackMsg, CopyMsgFlags.ALL_FLAGS);
-                        ((UpdateMsg)_callbackMsg).applyHasMsgKey();
-                        copyRequestKeyToMsg(wlRequest, _callbackMsg);
-                        msg = _callbackMsg;
+                        ((UpdateMsg)msg).applyHasMsgKey();
+                        copyRequestKeyReferencesToMsg(wlRequest, msg);
+                        msgFlagsToReset = UpdateMsgFlags.HAS_MSG_KEY;
                     }
                     break;
 
                 case MsgClasses.REFRESH:
                     if (!((RefreshMsg)msg).checkHasMsgKey())
                     {
-                        _callbackMsg.clear();
-                        _callbackMsg.msgClass(MsgClasses.REFRESH);
-                        msg.copy(_callbackMsg, CopyMsgFlags.ALL_FLAGS);
-                        ((RefreshMsg)_callbackMsg).applyHasMsgKey();
-                        copyRequestKeyToMsg(wlRequest, _callbackMsg);
-                        msg = _callbackMsg;
+                        ((RefreshMsg)msg).applyHasMsgKey();
+                        copyRequestKeyReferencesToMsg(wlRequest, msg);
+                        msgFlagsToReset = RefreshMsgFlags.HAS_MSG_KEY;
                     }
                     
                     if (((RefreshMsg)msg).state().isFinal())
@@ -2386,12 +2397,9 @@ public class WlItemHandler implements WlHandler
                 case MsgClasses.STATUS:
                     if (!((StatusMsg)msg).checkHasMsgKey())
                     {
-                        _callbackMsg.clear();
-                        _callbackMsg.msgClass(MsgClasses.STATUS);
-                        msg.copy(_callbackMsg, CopyMsgFlags.ALL_FLAGS);
-                        ((StatusMsg)_callbackMsg).applyHasMsgKey();
-                        copyRequestKeyToMsg(wlRequest, _callbackMsg);
-                        msg = _callbackMsg;
+                        ((StatusMsg)msg).applyHasMsgKey();
+                        copyRequestKeyReferencesToMsg(wlRequest, msg);
+                        msgFlagsToReset = StatusMsgFlags.HAS_MSG_KEY;
                     }
 
                     if (((StatusMsg)msg).checkHasState() && ((StatusMsg)msg).state().isFinal())
@@ -2401,24 +2409,18 @@ public class WlItemHandler implements WlHandler
                 case MsgClasses.GENERIC:
                     if (!((GenericMsg)msg).checkHasMsgKey())
                     {
-                        _callbackMsg.clear();
-                        _callbackMsg.msgClass(MsgClasses.GENERIC);
-                        msg.copy(_callbackMsg, CopyMsgFlags.ALL_FLAGS);
-                        ((GenericMsg)_callbackMsg).applyHasMsgKey();
-                        copyRequestKeyToMsg(wlRequest, _callbackMsg);
-                        msg = _callbackMsg;
+                        ((GenericMsg)msg).applyHasMsgKey();
+                        copyRequestKeyReferencesToMsg(wlRequest, msg);
+                        msgFlagsToReset = GenericMsgFlags.HAS_MSG_KEY;
                     }
                     break;
 
                 case MsgClasses.ACK:
                     if (!((AckMsg)msg).checkHasMsgKey())
                     {
-                        _callbackMsg.clear();
-                        _callbackMsg.msgClass(MsgClasses.ACK);
-                        msg.copy(_callbackMsg, CopyMsgFlags.ALL_FLAGS);
-                        ((AckMsg)_callbackMsg).applyHasMsgKey();
-                        copyRequestKeyToMsg(wlRequest, _callbackMsg);
-                        msg = _callbackMsg;
+                        ((AckMsg)msg).applyHasMsgKey();
+                        copyRequestKeyReferencesToMsg(wlRequest, msg);
+                        msgFlagsToReset = AckMsgFlags.HAS_MSG_KEY;
                     }
                     break;
 
@@ -2463,6 +2465,10 @@ public class WlItemHandler implements WlHandler
                                                                            errorInfo);
             }
         }
+
+        /* If the watchlist added the MsgKey, remove it in case subsqeuent requests on this 
+           stream did not ask for MsgKeys in responses. */
+        msg.flags(msg.flags() & ~msgFlagsToReset);
 
         // close out user request here if necessary
         if (wlRequest != null && (wlRequest.requestMsg().checkPrivateStream() || !_watchlist.loginHandler().supportSingleOpen() || (wlRequest.requestMsg().checkHasBatch())))
