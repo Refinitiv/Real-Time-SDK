@@ -55,37 +55,37 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="Heading_4"><a name="9004921">Example: Cache Retrieval with Multi-Part Support</a></div>
-      <div class="Bullet"><a name="9004922">The following example illustrates data retrieval from a cache entry, which supports multi-part encoding of a container.</a></div>
-      <div class="Code"><a name="9004923">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004924">/*Code fragment showing use of retrieve for multi-part retrieval.*/</a></span></div>
-      <div class="Code"><a name="9004925">com.thomsonreuters.upa.transport.Error error = TransportFactory.createError();</a></div>
-      <div class="Code"><a name="9004926">TransportBuffer buffer = channel.getBuffer(DEFAULT_BUFFER_SIZE, false, error);</a></div>
-      <div class="Code"><a name="9004927">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Blue" style="color: navy; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004928">int</a></span> ret;</div>
-      <div class="Code"><a name="9004929">CacheError cacheError = CacheFactory.createCacheError();</a></div>
-      <div class="Code"><a name="9004930">PayloadCursor cursorInstance = CacheFactory.createPayloadCursor();</a></div>
-      <div class="Code"><a name="9004931">cursorInstance.clear();</a></div>
-      <div class="Code"><a name="9004932">EncodeIterator eIter = CodecFactory.createEncodeIterator();</a></div>
-      <div class="Code"><span class="Char_Blue" style="color: navy; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004933">while</a></span> (!cursorInstance.isComplete())</div>
-      <div class="Code"><a name="9004934">{</a></div>
-      <div class="Code"><a name="9004935">	eIter.clear();</a></div>
-      <div class="Code"><a name="9004936">	eIter.setBufferAndRWFVersion(buffer, channel.majorVersion(), channel.minorVersion());</a></div>
-      <div class="Code"><a name="9004937">&nbsp;</a></div>
-      <div class="Code"><a name="9004938">	/* entryInstance created outside the scope of this code fragment */</a></div>
-      <div class="Code"><a name="9004939">	ret = entryInstance.retrieve(eIter, cursorInstance, cacheError);</a></div>
-      <div class="Code"><a name="9004940">	</a><span class="Char_Purple" style="color: #7F0055; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">if</span> (ret == CodecReturnCodes.SUCCESS)</div>
-      <div class="Code"><a name="9004941">	</a><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">/* buffer is big enough to hold whole container data. Application can used encoded data, e.g. set the</span></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004942">			payload on Msg.encodedDataBody and encode a message to be transmitted. */</a></span></div>
-      <div class="Code"><a name="9004943">	else if (ret == CodecReturnCodes.BUFFER_TOO_SMALL)</a></div>
-      <div class="Code"><a name="9004944">		/* Increase buffer size and reallocate buffer. */</a></div>
-      <div class="Code"><a name="9004945">	else</a></div>
-      <div class="Code"><a name="9004946">		/* Handle terminal error condition. See cacheError.text() for additional information. */	</a></div>
-      <div class="Code"><a name="9004947">}</a></div>
-      <div class="Code"><a name="9004948">&nbsp;</a></div>
-      <div class="Code"><a name="9004949">cursorInstance.destroy();</a></div>
-      <div class="Code"><a name="9004950">&nbsp;</a></div>
-      <div class="Caption"><a name="9004951">Code Example 31: Cache Retrieval with Multi-Part Support</a></div>
+      <div class="Heading_4"><a name="9004976">Example: Cache Retrieval with Multi-Part Support</a></div>
+      <div class="Bullet"><a name="9004977">The following example illustrates data retrieval from a cache entry, which supports multi-part encoding of a container.</a></div>
+      <div class="Code"><a name="9004978">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004979">/*Code fragment showing use of retrieve for multi-part retrieval.*/</a></span></div>
+      <div class="Code"><a name="9004980">com.thomsonreuters.upa.transport.Error error = TransportFactory.createError();</a></div>
+      <div class="Code"><a name="9004981">TransportBuffer buffer = channel.getBuffer(DEFAULT_BUFFER_SIZE, false, error);</a></div>
+      <div class="Code"><a name="9004982">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Blue" style="color: navy; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004983">int</a></span> ret;</div>
+      <div class="Code"><a name="9004984">CacheError cacheError = CacheFactory.createCacheError();</a></div>
+      <div class="Code"><a name="9004985">PayloadCursor cursorInstance = CacheFactory.createPayloadCursor();</a></div>
+      <div class="Code"><a name="9004986">cursorInstance.clear();</a></div>
+      <div class="Code"><a name="9004987">EncodeIterator eIter = CodecFactory.createEncodeIterator();</a></div>
+      <div class="Code"><span class="Char_Blue" style="color: navy; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004988">while</a></span> (!cursorInstance.isComplete())</div>
+      <div class="Code"><a name="9004989">{</a></div>
+      <div class="Code"><a name="9004990">	eIter.clear();</a></div>
+      <div class="Code"><a name="9004991">	eIter.setBufferAndRWFVersion(buffer, channel.majorVersion(), channel.minorVersion());</a></div>
+      <div class="Code"><a name="9004992">&nbsp;</a></div>
+      <div class="Code"><a name="9004993">	/* entryInstance created outside the scope of this code fragment */</a></div>
+      <div class="Code"><a name="9004994">	ret = entryInstance.retrieve(eIter, cursorInstance, cacheError);</a></div>
+      <div class="Code"><a name="9004995">	</a><span class="Char_Purple" style="color: #7F0055; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">if</span> (ret == CodecReturnCodes.SUCCESS)</div>
+      <div class="Code"><a name="9004996">	</a><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">/* buffer is big enough to hold whole container data. Application can used encoded data, e.g. set the</span></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004997">			payload on Msg.encodedDataBody and encode a message to be transmitted. */</a></span></div>
+      <div class="Code"><a name="9004998">	else if (ret == CodecReturnCodes.BUFFER_TOO_SMALL)</a></div>
+      <div class="Code"><a name="9004999">		/* Increase buffer size and reallocate buffer. */</a></div>
+      <div class="Code"><a name="9005000">	else</a></div>
+      <div class="Code"><a name="9005001">		/* Handle terminal error condition. See cacheError.text() for additional information. */	</a></div>
+      <div class="Code"><a name="9005002">}</a></div>
+      <div class="Code"><a name="9005003">&nbsp;</a></div>
+      <div class="Code"><a name="9005004">cursorInstance.destroy();</a></div>
+      <div class="Code"><a name="9005005">&nbsp;</a></div>
+      <div class="Caption"><a name="9005006">Code Example 31: Cache Retrieval with Multi-Part Support</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

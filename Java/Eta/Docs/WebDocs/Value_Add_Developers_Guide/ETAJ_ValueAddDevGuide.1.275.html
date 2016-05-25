@@ -55,56 +55,56 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="Heading_3"><a name="9004683">Cache Error Handling</a></div>
-      <div class="Normal"><a name="9004684">Some of the methods on the payload cache interface use the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">CacheError</span> structure to return error information. This structure will be populated with additional information if an error occurred during the method call. The application should check the return value from methods. The application can optionally provide the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">CacheError</span> structure to obtain additional information.</div>
-      <div class="Normal"><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004685">CacheError</a></span> has the following class members.</div>
+      <div class="Heading_3"><a name="9004738">Cache Error Handling</a></div>
+      <div class="Normal"><a name="9004739">Some of the methods on the payload cache interface use the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">CacheError</span> structure to return error information. This structure will be populated with additional information if an error occurred during the method call. The application should check the return value from methods. The application can optionally provide the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">CacheError</span> structure to obtain additional information.</div>
+      <div class="Normal"><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004740">CacheError</a></span> has the following class members.</div>
       <table class="Table_Normal" style="width: 540pt" cellspacing="0" summary="">
         <tr style="vertical-align: top">
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-style: solid; border-left-width: 1pt; border-right-style: none; border-right-width: 0pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 114.15pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9004686">CLASS MEMBER</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9004741">CLASS MEMBER</a></div>
           </td>
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-style: none; border-left-width: 0pt; border-right-color: #FF9100; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 425.85pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9004687">DESCRIPTION</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9004742">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9004689">errorId</a></div>
+            <div class="Table_Text"><a name="9004744">errorId</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9004690">Range of values is defined by the set of UPA Codec return codes (from the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">CodecReturnCodes</span> enumeration). </div>
+            <div class="Table_Text"><a name="9004745">Range of values is defined by the set of UPA Codec return codes (from the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">CodecReturnCodes</span> enumeration). </div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9004692">text</a></div>
+            <div class="Table_Text"><a name="9004747">text</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9004693">This </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">String</span> will contain text with additional information when a method call returns a failed result.</div>
+            <div class="Table_Text"><a name="9004748">This </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">String</span> will contain text with additional information when a method call returns a failed result.</div>
           </td>
         </tr>
       </table>
-      <div class="Caption"><a name="9004695">Table 166: </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">CacheError</span> Class Members</div>
-      <div class="Normal"><a name="9004696">The following method handles the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">CacheError</span>.</div>
+      <div class="Caption"><a name="9004750">Table 168: </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">CacheError</span> Class Members</div>
+      <div class="Normal"><a name="9004751">The following method handles the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">CacheError</span>.</div>
       <table class="Table_Normal" style="width: 540pt" cellspacing="0" summary="">
         <tr style="vertical-align: top">
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-style: solid; border-left-width: 1pt; border-right-style: none; border-right-width: 0pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 114.15pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9004697">METHOD NAME</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9004752">METHOD NAME</a></div>
           </td>
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-style: none; border-left-width: 0pt; border-right-color: #FF9100; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 425.85pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9004698">DESCRIPTION</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9004753">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9004700">clear</a></div>
+            <div class="Table_Text"><a name="9004755">clear</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9004701">Clears the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">CacheError</span> structure. Use this method prior to passing the structure to a cache interface method. </div>
+            <div class="Table_Text"><a name="9004756">Clears the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">CacheError</span> structure. Use this method prior to passing the structure to a cache interface method. </div>
           </td>
         </tr>
       </table>
-      <div class="Caption"><a name="9004703">Table 167: </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">CacheError</span> Utility Method</div>
+      <div class="Caption"><a name="9004758">Table 169: </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">CacheError</span> Utility Method</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

@@ -55,46 +55,46 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="Heading_4"><a name="9002855">Encoding a Login Refresh</a></div>
-      <div class="Code"><a name="9002856">&nbsp;</a></div>
-      <div class="Code"><a name="9002857">EncodeIterator encodeIter = CodecFactory.createEncodeIterator();</a></div>
-      <div class="Code"><a name="9002858">LoginRefresh loginRefresh = (LoginRefresh)LoginMsgFactory.createMsg();</a></div>
-      <div class="Code" style="text-indent: 0pt"><a name="9002859">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002860">/* Clear the Login Refresh object. */</a></span></div>
-      <div class="Code"><a name="9002861">loginRefresh.clear();</a></div>
-      <div class="Code"><a name="9002862">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002863">/* Set login message type – required as object created by LoginMsgFactory.createMsg() is generic Login object.*/</a></span></div>
-      <div class="Code"><a name="9002864">encodeIter.rdmMsgType(LoginMsgType.REFRESH);</a></div>
-      <div class="Code"><a name="9002865">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002866">/* Set stream id. */</a></span></div>
-      <div class="Code"><a name="9002867">loginRefresh.streamId(streamId);</a></div>
-      <div class="Code"><a name="9002868">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002869">/* Set flags indicating presence of optional members. */</a></span></div>
-      <div class="Code"><a name="9002870">loginRefresh.applyHasAttrib();</a></div>
-      <div class="Code"><a name="9002871">loginRefresh.applyHasUserName();</a></div>
-      <div class="Code"><a name="9002872">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002873">/* Set UserName. */</a></span></div>
-      <div class="Code"><a name="9002874">loginRefresh.userName().data("username");</a></div>
-      <div class="Code"><a name="9002875">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002876">/* Set ApplicationName */</a></span></div>
-      <div class="Code"><a name="9002877">loginRefresh.attrib().applyHasApplicationName();</a></div>
-      <div class="Code"><a name="9002878">loginRefresh.attrib().applicationName().data("upa");</a></div>
-      <div class="Code"><a name="9002879">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002880">/* Set ApplicationId */</a></span></div>
-      <div class="Code"><a name="9002881">loginRefresh.attrib().applyHasApplicationId();</a></div>
-      <div class="Code"><a name="9002882">loginRefresh.attrib().applicationId().data("256");</a></div>
-      <div class="Code"><a name="9002883">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002884">/* Set Position */</a></span></div>
-      <div class="Code"><a name="9002885">loginRefresh.attrib().applyHasPosition();</a></div>
-      <div class="Code"><a name="9002886">loginRefresh.attrib().position().data(“127.0.0.1/net");</a></div>
-      <div class="Code"><a name="9002887">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002888">/* Clear the encode iterator, set its RWF Version, and set it to a buffer for encoding into. */</a></span></div>
-      <div class="Code"><a name="9002889">encodeIter.clear();</a></div>
-      <div class="Code"><a name="9002890">ret = encodeIter.setBufferAndRWFVersion(msgBuf,channelMajorVersion, channelMinorVersion);</a></div>
-      <div class="Code"><a name="9002891">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002892">/* Encode the message. */</a></span></div>
-      <div class="Code"><a name="9002893">ret = loginRefresh.encode(encodeIter);</a></div>
-      <div class="Caption"><a name="9002894">Code Example 18: Login Refresh Encoding Example	</a></div>
+      <div class="Heading_4"><a name="9002910">Encoding a Login Refresh</a></div>
+      <div class="Code"><a name="9002911">&nbsp;</a></div>
+      <div class="Code"><a name="9002912">EncodeIterator encodeIter = CodecFactory.createEncodeIterator();</a></div>
+      <div class="Code"><a name="9002913">LoginRefresh loginRefresh = (LoginRefresh)LoginMsgFactory.createMsg();</a></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9002914">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002915">/* Clear the Login Refresh object. */</a></span></div>
+      <div class="Code"><a name="9002916">loginRefresh.clear();</a></div>
+      <div class="Code"><a name="9002917">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002918">/* Set login message type – required as object created by LoginMsgFactory.createMsg() is generic Login object.*/</a></span></div>
+      <div class="Code"><a name="9002919">encodeIter.rdmMsgType(LoginMsgType.REFRESH);</a></div>
+      <div class="Code"><a name="9002920">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002921">/* Set stream id. */</a></span></div>
+      <div class="Code"><a name="9002922">loginRefresh.streamId(streamId);</a></div>
+      <div class="Code"><a name="9002923">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002924">/* Set flags indicating presence of optional members. */</a></span></div>
+      <div class="Code"><a name="9002925">loginRefresh.applyHasAttrib();</a></div>
+      <div class="Code"><a name="9002926">loginRefresh.applyHasUserName();</a></div>
+      <div class="Code"><a name="9002927">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002928">/* Set UserName. */</a></span></div>
+      <div class="Code"><a name="9002929">loginRefresh.userName().data("username");</a></div>
+      <div class="Code"><a name="9002930">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002931">/* Set ApplicationName */</a></span></div>
+      <div class="Code"><a name="9002932">loginRefresh.attrib().applyHasApplicationName();</a></div>
+      <div class="Code"><a name="9002933">loginRefresh.attrib().applicationName().data("upa");</a></div>
+      <div class="Code"><a name="9002934">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002935">/* Set ApplicationId */</a></span></div>
+      <div class="Code"><a name="9002936">loginRefresh.attrib().applyHasApplicationId();</a></div>
+      <div class="Code"><a name="9002937">loginRefresh.attrib().applicationId().data("256");</a></div>
+      <div class="Code"><a name="9002938">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002939">/* Set Position */</a></span></div>
+      <div class="Code"><a name="9002940">loginRefresh.attrib().applyHasPosition();</a></div>
+      <div class="Code"><a name="9002941">loginRefresh.attrib().position().data(“127.0.0.1/net");</a></div>
+      <div class="Code"><a name="9002942">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002943">/* Clear the encode iterator, set its RWF Version, and set it to a buffer for encoding into. */</a></span></div>
+      <div class="Code"><a name="9002944">encodeIter.clear();</a></div>
+      <div class="Code"><a name="9002945">ret = encodeIter.setBufferAndRWFVersion(msgBuf,channelMajorVersion, channelMinorVersion);</a></div>
+      <div class="Code"><a name="9002946">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002947">/* Encode the message. */</a></span></div>
+      <div class="Code"><a name="9002948">ret = loginRefresh.encode(encodeIter);</a></div>
+      <div class="Caption"><a name="9002949">Code Example 18: Login Refresh Encoding Example	</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

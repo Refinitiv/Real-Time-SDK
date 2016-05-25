@@ -55,50 +55,50 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="Heading_4"><a name="9003770">Decoding a Source Directory Request</a></div>
-      <div class="Code"><a name="9003771">&nbsp;</a></div>
-      <div class="Code"><a name="9003772">DecodeIterator decodeIter = CodecFactory.createDecodeIterator();</a></div>
-      <div class="Code"><a name="9003773">DirectoryRequest directoryRequest = (DirectoryRequest)DirectoryMsgFactory.createMsg();</a></div>
-      <div class="Code"><a name="9003774">Msg msg = CodecFactory.createMsg();</a></div>
-      <div class="Code"><a name="9003775">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003776">/* Clear the decode iterator, set its RWF Version, and set it to the encoded buffer. */</a></span></div>
-      <div class="Code"><a name="9003777">decodeIter.clear();</a></div>
-      <div class="Code"><a name="9003778">&nbsp;</a></div>
-      <div class="Code"><a name="9003779">ret = decodeIter.setBufferAndRWFVersion(msgBuf,channelMajorVersion, channelMinorVersion);</a></div>
-      <div class="Code"><a name="9003780">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003781">/* Decode the message to a Msg object. */</a></span></div>
-      <div class="Code"><a name="9003782">ret = msg.decode(decodeIter);</a></div>
-      <div class="Code"><a name="9003783">&nbsp;</a></div>
-      <div class="Code"><a name="9003784">if (ret == CodecReturnCodes.SUCCESS &amp;&amp;</a></div>
-      <div class="Code"><a name="9003785">	msg.domainType() == DomainTypes.SOURCE &amp;&amp; msg.msgClass() ==  MsgClasses.REQUEST)</a></div>
-      <div class="Code"><a name="9003786">{</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003787">	</a></span>directoryRequest.clear();</div>
-      <div class="Code" style="text-indent: 0pt"><a name="9003788">	directoryRequest.rdmMsgType(DirectoryMsgType.REQUEST);</a></div>
-      <div class="Code"><a name="9003789">&nbsp;</a></div>
-      <div class="Code"><a name="9003790">	ret = directoryRequest.decode(decodeIter, msg);</a></div>
-      <div class="Code"><a name="9003791">&nbsp;</a></div>
-      <div class="Code"><a name="9003792">	if(ret == CodecReturnCodes.SUCCESS)</a></div>
-      <div class="Code"><a name="9003793">	{</a></div>
-      <div class="Code"><a name="9003794">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003795">		/* Print if Info filter was requested. */</a></span></div>
-      <div class="Code"><a name="9003796">		if ((directoryRequest.filter() &amp; Directory.ServiceFilterFlags.INFO) != 0)</a></div>
-      <div class="Code"><a name="9003797">			System.out.println("Info filter requested.");</a></div>
-      <div class="Code"><a name="9003798">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003799">		/* Print if State filter was requested. */</a></span></div>
-      <div class="Code"><a name="9003800">		if ((directoryRequest.filter() &amp; Directory.ServiceFilterFlags.STATE) != 0)</a></div>
-      <div class="Code"><a name="9003801">			System.out.println("State filter requested.");</a></div>
-      <div class="Code"><a name="9003802">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003803">		/* Print if Group filter was requested. */</a></span></div>
-      <div class="Code"><a name="9003804">		if ((directoryRequest.filter() &amp; Directory.ServiceFilterFlags.GROUP) != 0)</a></div>
-      <div class="Code"><a name="9003805">			System.out.println("Group filter requested.");</a></div>
-      <div class="Code"><a name="9003806">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003807">		/* Print service ID if present. */</a></span></div>
-      <div class="Code"><a name="9003808">		if (directoryRequest.checkHasServiceId())</a></div>
-      <div class="Code"><a name="9003809">			System.out.println("Service ID: “ + directoryRequest-&gt;serviceId);</a></div>
-      <div class="Code"><a name="9003810">	}</a></div>
-      <div class="Code"><a name="9003811">}</a></div>
-      <div class="Code"><a name="9003812">&nbsp;</a></div>
-      <div class="Caption"><a name="9003813">Code Example 21: Directory Request Decoding Example</a></div>
+      <div class="Heading_4"><a name="9003825">Decoding a Source Directory Request</a></div>
+      <div class="Code"><a name="9003826">&nbsp;</a></div>
+      <div class="Code"><a name="9003827">DecodeIterator decodeIter = CodecFactory.createDecodeIterator();</a></div>
+      <div class="Code"><a name="9003828">DirectoryRequest directoryRequest = (DirectoryRequest)DirectoryMsgFactory.createMsg();</a></div>
+      <div class="Code"><a name="9003829">Msg msg = CodecFactory.createMsg();</a></div>
+      <div class="Code"><a name="9003830">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003831">/* Clear the decode iterator, set its RWF Version, and set it to the encoded buffer. */</a></span></div>
+      <div class="Code"><a name="9003832">decodeIter.clear();</a></div>
+      <div class="Code"><a name="9003833">&nbsp;</a></div>
+      <div class="Code"><a name="9003834">ret = decodeIter.setBufferAndRWFVersion(msgBuf,channelMajorVersion, channelMinorVersion);</a></div>
+      <div class="Code"><a name="9003835">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003836">/* Decode the message to a Msg object. */</a></span></div>
+      <div class="Code"><a name="9003837">ret = msg.decode(decodeIter);</a></div>
+      <div class="Code"><a name="9003838">&nbsp;</a></div>
+      <div class="Code"><a name="9003839">if (ret == CodecReturnCodes.SUCCESS &amp;&amp;</a></div>
+      <div class="Code"><a name="9003840">	msg.domainType() == DomainTypes.SOURCE &amp;&amp; msg.msgClass() ==  MsgClasses.REQUEST)</a></div>
+      <div class="Code"><a name="9003841">{</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003842">	</a></span>directoryRequest.clear();</div>
+      <div class="Code" style="text-indent: 0pt"><a name="9003843">	directoryRequest.rdmMsgType(DirectoryMsgType.REQUEST);</a></div>
+      <div class="Code"><a name="9003844">&nbsp;</a></div>
+      <div class="Code"><a name="9003845">	ret = directoryRequest.decode(decodeIter, msg);</a></div>
+      <div class="Code"><a name="9003846">&nbsp;</a></div>
+      <div class="Code"><a name="9003847">	if(ret == CodecReturnCodes.SUCCESS)</a></div>
+      <div class="Code"><a name="9003848">	{</a></div>
+      <div class="Code"><a name="9003849">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003850">		/* Print if Info filter was requested. */</a></span></div>
+      <div class="Code"><a name="9003851">		if ((directoryRequest.filter() &amp; Directory.ServiceFilterFlags.INFO) != 0)</a></div>
+      <div class="Code"><a name="9003852">			System.out.println("Info filter requested.");</a></div>
+      <div class="Code"><a name="9003853">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003854">		/* Print if State filter was requested. */</a></span></div>
+      <div class="Code"><a name="9003855">		if ((directoryRequest.filter() &amp; Directory.ServiceFilterFlags.STATE) != 0)</a></div>
+      <div class="Code"><a name="9003856">			System.out.println("State filter requested.");</a></div>
+      <div class="Code"><a name="9003857">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003858">		/* Print if Group filter was requested. */</a></span></div>
+      <div class="Code"><a name="9003859">		if ((directoryRequest.filter() &amp; Directory.ServiceFilterFlags.GROUP) != 0)</a></div>
+      <div class="Code"><a name="9003860">			System.out.println("Group filter requested.");</a></div>
+      <div class="Code"><a name="9003861">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003862">		/* Print service ID if present. */</a></span></div>
+      <div class="Code"><a name="9003863">		if (directoryRequest.checkHasServiceId())</a></div>
+      <div class="Code"><a name="9003864">			System.out.println("Service ID: “ + directoryRequest-&gt;serviceId);</a></div>
+      <div class="Code"><a name="9003865">	}</a></div>
+      <div class="Code"><a name="9003866">}</a></div>
+      <div class="Code"><a name="9003867">&nbsp;</a></div>
+      <div class="Caption"><a name="9003868">Code Example 21: Directory Request Decoding Example</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

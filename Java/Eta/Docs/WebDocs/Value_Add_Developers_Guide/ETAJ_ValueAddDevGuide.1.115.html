@@ -55,63 +55,63 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="Heading_3"><a name="9001743">Code Sample: Opening and Managing a Tunnel Stream</a></div>
-      <div class="Normal"><a name="9001744">The following code sample is a basic example of opening a tunnel stream. The example assumes that a reactor and ReactorChannel are already open and properly established.</a></div>
-      <div class="Code"><a name="9001745">&nbsp;</a></div>
-      <div class="Code"><a name="9001746">// Basic sample for event handlers</a></div>
-      <div class="Code"><a name="9001747">class  Sample implements StatusEventCallback, TunnelStreamQueueMsgCallback, TunnelStreamDefaultMsgCallback</a></div>
-      <div class="Code"><a name="9001748">{</a></div>
-      <div class="Code"><a name="9001749">	ReactorErrorInfo _errorInfo;</a></div>
-      <div class="Code"><a name="9001750">	</a></div>
-      <div class="Code"><a name="9001751">	// StatusEventCallback</a></div>
-      <div class="Code"><a name="9001752">	public int statusEventCallback(TunnelStreamStatusEvent event)</a></div>
-      <div class="Code"><a name="9001753">	{</a></div>
-      <div class="Code"><a name="9001754">		System.out.println(“Status of Tunnel Stream (“ + event.tunnelStream().streamId() + “) is “ +</a></div>
-      <div class="Code"><a name="9001755">				event.state());</a></div>
-      <div class="Code"><a name="9001756">		Return ReactorCallbackReturnCodes.SUCCESS;</a></div>
-      <div class="Code"><a name="9001757">	}</a></div>
-      <div class="Code"><a name="9001758">&nbsp;</a></div>
-      <div class="Code"><a name="9001759">	// TunnelStreamDefaultMsgCallback</a></div>
-      <div class="Code"><a name="9001760">	public int TunnelStreamDefaultMsgCallback(TunnelStreamMsgEvent event)</a></div>
-      <div class="Code"><a name="9001761">	{</a></div>
-      <div class="Code"><a name="9001762">		System.out.println(“Received content on Tunnel Stream (“ + event.tunnelStream().streamId() +</a></div>
-      <div class="Code"><a name="9001763">				“)”);</a></div>
-      <div class="Code"><a name="9001764">		Return ReactorCallbackReturnCodes.SUCCESS;</a></div>
-      <div class="Code"><a name="9001765">	}</a></div>
-      <div class="Code"><a name="9001766">&nbsp;</a></div>
-      <div class="Code"><a name="9001767">	// TunnelStreamQueueMsgCallback</a></div>
-      <div class="Code"><a name="9001768">	public int tunnelStreamQueueMsgCallback(TunnelStreamQueueMsgEvent event)</a></div>
-      <div class="Code"><a name="9001769">	{</a></div>
-      <div class="Code"><a name="9001770">		System.out.println(“Received Queue Message on Tunnel Stream (“ + event.tunnelStream().streamId()</a></div>
-      <div class="Code"><a name="9001771">				+ “)”);</a></div>
-      <div class="Code"><a name="9001772">		Return ReactorCallbackReturnCodes.SUCCESS;</a></div>
-      <div class="Code"><a name="9001773">	}</a></div>
-      <div class="Code"><a name="9001774">}</a></div>
-      <div class="Code"><a name="9001775">&nbsp;</a></div>
-      <div class="Code"><a name="9001776">int openTunnelStream()</a></div>
-      <div class="Code"><a name="9001777">{</a></div>
-      <div class="Code"><a name="9001778">	TunnelStreamOpenOptions _openOptions = RectorFactory.createTunnelStreamOpenOptions();</a></div>
-      <div class="Code"><a name="9001779">&nbsp;</a></div>
-      <div class="Code"><a name="9001780">	// populate the options and enable guaranteed delivery for communication with a Queue Provider</a></div>
-      <div class="Code"><a name="9001781">	_openOptions.streamId(TUNNEL_STREAM_ID);</a></div>
-      <div class="Code"><a name="9001782">	_openOptions.domainType(DomainTypes.QUEUE_MESSAGING);</a></div>
-      <div class="Code"><a name="9001783">	_openOptions.serviceId(QUEUE_MESSAGING_SERVICE_ID);</a></div>
-      <div class="Code"><a name="9001784">	// specify the event handlers</a></div>
-      <div class="Code"><a name="9001785">	_openOptions.statusEventCallback(this);</a></div>
-      <div class="Code"><a name="9001786">	_openOptions.TunnelStreamDefaultMsgCallback(this);</a></div>
-      <div class="Code"><a name="9001787">	_openOptions.queueMsgCallback(this);</a></div>
-      <div class="Code"><a name="9001788">&nbsp;</a></div>
-      <div class="Code"><a name="9001789">	if ((reactorChannel.openTunnelStream(_openOptions, _errorInfo)) != ReactorReturnCodes.SUCCESS)</a></div>
-      <div class="Code"><a name="9001790">	{</a></div>
-      <div class="Code"><a name="9001791">		System.out.println(“openTunnelStream failed!”);</a></div>
-      <div class="Code"><a name="9001792">		return ReactorReturnCodes.FAILURE;</a></div>
-      <div class="Code"><a name="9001793">	}</a></div>
-      <div class="Code"><a name="9001794">	</a></div>
-      <div class="Code"><a name="9001795">	System.out.println(“openTunnelStream succeeded!”);</a></div>
-      <div class="Code"><a name="9001796">	return ReactorReturnCodes.SUCCESS;	</a></div>
-      <div class="Code"><a name="9001797">}</a></div>
-      <div class="Code"><a name="9001798">&nbsp;</a></div>
-      <div class="Caption"><a name="9001799">Code Example 13: Opening a Tunnel Stream</a></div>
+      <div class="Heading_3"><a name="9001798">Code Sample: Opening and Managing a Tunnel Stream</a></div>
+      <div class="Normal"><a name="9001799">The following code sample is a basic example of opening a tunnel stream. The example assumes that a reactor and ReactorChannel are already open and properly established.</a></div>
+      <div class="Code"><a name="9001800">&nbsp;</a></div>
+      <div class="Code"><a name="9001801">// Basic sample for event handlers</a></div>
+      <div class="Code"><a name="9001802">class  Sample implements StatusEventCallback, TunnelStreamQueueMsgCallback, TunnelStreamDefaultMsgCallback</a></div>
+      <div class="Code"><a name="9001803">{</a></div>
+      <div class="Code"><a name="9001804">	ReactorErrorInfo _errorInfo;</a></div>
+      <div class="Code"><a name="9001805">	</a></div>
+      <div class="Code"><a name="9001806">	// StatusEventCallback</a></div>
+      <div class="Code"><a name="9001807">	public int statusEventCallback(TunnelStreamStatusEvent event)</a></div>
+      <div class="Code"><a name="9001808">	{</a></div>
+      <div class="Code"><a name="9001809">		System.out.println(“Status of Tunnel Stream (“ + event.tunnelStream().streamId() + “) is “ +</a></div>
+      <div class="Code"><a name="9001810">				event.state());</a></div>
+      <div class="Code"><a name="9001811">		Return ReactorCallbackReturnCodes.SUCCESS;</a></div>
+      <div class="Code"><a name="9001812">	}</a></div>
+      <div class="Code"><a name="9001813">&nbsp;</a></div>
+      <div class="Code"><a name="9001814">	// TunnelStreamDefaultMsgCallback</a></div>
+      <div class="Code"><a name="9001815">	public int TunnelStreamDefaultMsgCallback(TunnelStreamMsgEvent event)</a></div>
+      <div class="Code"><a name="9001816">	{</a></div>
+      <div class="Code"><a name="9001817">		System.out.println(“Received content on Tunnel Stream (“ + event.tunnelStream().streamId() +</a></div>
+      <div class="Code"><a name="9001818">				“)”);</a></div>
+      <div class="Code"><a name="9001819">		Return ReactorCallbackReturnCodes.SUCCESS;</a></div>
+      <div class="Code"><a name="9001820">	}</a></div>
+      <div class="Code"><a name="9001821">&nbsp;</a></div>
+      <div class="Code"><a name="9001822">	// TunnelStreamQueueMsgCallback</a></div>
+      <div class="Code"><a name="9001823">	public int tunnelStreamQueueMsgCallback(TunnelStreamQueueMsgEvent event)</a></div>
+      <div class="Code"><a name="9001824">	{</a></div>
+      <div class="Code"><a name="9001825">		System.out.println(“Received Queue Message on Tunnel Stream (“ + event.tunnelStream().streamId()</a></div>
+      <div class="Code"><a name="9001826">				+ “)”);</a></div>
+      <div class="Code"><a name="9001827">		Return ReactorCallbackReturnCodes.SUCCESS;</a></div>
+      <div class="Code"><a name="9001828">	}</a></div>
+      <div class="Code"><a name="9001829">}</a></div>
+      <div class="Code"><a name="9001830">&nbsp;</a></div>
+      <div class="Code"><a name="9001831">int openTunnelStream()</a></div>
+      <div class="Code"><a name="9001832">{</a></div>
+      <div class="Code"><a name="9001833">	TunnelStreamOpenOptions _openOptions = RectorFactory.createTunnelStreamOpenOptions();</a></div>
+      <div class="Code"><a name="9001834">&nbsp;</a></div>
+      <div class="Code"><a name="9001835">	// populate the options and enable guaranteed delivery for communication with a Queue Provider</a></div>
+      <div class="Code"><a name="9001836">	_openOptions.streamId(TUNNEL_STREAM_ID);</a></div>
+      <div class="Code"><a name="9001837">	_openOptions.domainType(DomainTypes.QUEUE_MESSAGING);</a></div>
+      <div class="Code"><a name="9001838">	_openOptions.serviceId(QUEUE_MESSAGING_SERVICE_ID);</a></div>
+      <div class="Code"><a name="9001839">	// specify the event handlers</a></div>
+      <div class="Code"><a name="9001840">	_openOptions.statusEventCallback(this);</a></div>
+      <div class="Code"><a name="9001841">	_openOptions.TunnelStreamDefaultMsgCallback(this);</a></div>
+      <div class="Code"><a name="9001842">	_openOptions.queueMsgCallback(this);</a></div>
+      <div class="Code"><a name="9001843">&nbsp;</a></div>
+      <div class="Code"><a name="9001844">	if ((reactorChannel.openTunnelStream(_openOptions, _errorInfo)) != ReactorReturnCodes.SUCCESS)</a></div>
+      <div class="Code"><a name="9001845">	{</a></div>
+      <div class="Code"><a name="9001846">		System.out.println(“openTunnelStream failed!”);</a></div>
+      <div class="Code"><a name="9001847">		return ReactorReturnCodes.FAILURE;</a></div>
+      <div class="Code"><a name="9001848">	}</a></div>
+      <div class="Code"><a name="9001849">	</a></div>
+      <div class="Code"><a name="9001850">	System.out.println(“openTunnelStream succeeded!”);</a></div>
+      <div class="Code"><a name="9001851">	return ReactorReturnCodes.SUCCESS;	</a></div>
+      <div class="Code"><a name="9001852">}</a></div>
+      <div class="Code"><a name="9001853">&nbsp;</a></div>
+      <div class="Caption"><a name="9001854">Code Example 13: Opening a Tunnel Stream</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

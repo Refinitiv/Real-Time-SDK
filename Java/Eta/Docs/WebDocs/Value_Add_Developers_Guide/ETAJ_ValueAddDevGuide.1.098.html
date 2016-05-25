@@ -55,50 +55,80 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="Heading_4"><a name="9001293">Writing Data using ReactorChannel.submit(TransportBuffer…)</a></div>
-      <div class="Normal"><a name="9001294">After a </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TransportBuffer</span> is obtained from <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">getBuffer</span> and populated with the user’s data, the buffer can be passed to the <span style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt">submit(TransportBuffer…) </span>method. This method manages queuing and flushing of user content. It will also perform any fragmentation or compression. If an unrecoverable error occurs, any <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TransportBuffer</span> that has not been successfully passed to <span style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt">submit(TransportBuffer…) </span>should be released to the pool using <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">releaseBuffer</span>. The following table describes the <span style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt">submit(TransportBuffer…) </span>method as well as some additional parameters associated with it.</div>
-      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9001295&quot;);"><a name="9001295">ReactorChannel.submit(TransportBuffer…) Method</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9001295", false);</script></div>
-      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9001295", false);</script>
+      <div class="Heading_4"><a name="9001332">Writing Data using ReactorChannel.submit(TransportBuffer…)</a></div>
+      <div class="Normal"><a name="9001333">After a </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TransportBuffer</span> is obtained from <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">getBuffer</span> and populated with the user’s data, the buffer can be passed to the <span style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt">submit(TransportBuffer…) </span>method. This method manages queuing and flushing of user content. It will also perform any fragmentation or compression. If an unrecoverable error occurs, any <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TransportBuffer</span> that has not been successfully passed to <span style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt">submit(TransportBuffer…) </span>should be released to the pool using <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">releaseBuffer</span>. The following table describes the <span style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt">submit(TransportBuffer…) </span>method as well as some additional parameters associated with it.</div>
+      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9001334&quot;);"><a name="9001334">ReactorChannel.submit(TransportBuffer…) Method</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9001334", false);</script></div>
+      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9001334", false);</script>
       <table class="Table_Normal" style="width: 522pt" cellspacing="0" summary="">
         <tr style="vertical-align: top">
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-style: solid; border-left-width: 1pt; border-right-style: none; border-right-width: 0pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 162.05pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001296">METHOD NAME</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001335">METHOD NAME</a></div>
           </td>
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-style: none; border-left-width: 0pt; border-right-color: #FF9100; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 359.95pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001297">DESCRIPTION</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001336">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9001299">submit</a></div>
+            <div class="Table_Text"><a name="9001338">submit</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9001300">Performs writing of data. This method expects the buffer to be properly populated. </a></div>
-            <div class="Table_Text"><a name="9001301">This method allows for several modifications and additional parameters to be specified via the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorSubmitOptions</span> object, defined in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'ETAJ_ValueAddDevGuide.1.098.html#9001305', '');" title="6.5.2.2 Writing Data using ReactorChannel.submit(TransportBuffer…)">6.5.2.2.2</a>.</div>
-            <div class="Table_Text"><a name="9001302">The return values are described in </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'ETAJ_ValueAddDevGuide.1.098.html#9001337', '');" title="6.5.2.2 Writing Data using ReactorChannel.submit(TransportBuffer…)">6.5.2.2.4</a>. This method calls the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Channel.write</span> method and will also trigger the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Channel.flush</span> method. These are described in the <span class="Doc_Link" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UJDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API Java Developers Guide</a></span>.</div>
+            <div class="Table_Text"><a name="9001339">Performs writing of data. This method expects the buffer to be properly populated. </a></div>
+            <div class="Table_Text"><a name="9001340">This method allows for several modifications and additional parameters to be specified via the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorSubmitOptions</span> object, defined in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'ETAJ_ValueAddDevGuide.1.098.html#9001344', '');" title="6.5.2.2 Writing Data using ReactorChannel.submit(TransportBuffer…)">6.5.2.2.2</a>.</div>
+            <div class="Table_Text"><a name="9001341">The return values are described in </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'ETAJ_ValueAddDevGuide.1.098.html#9001392', '');" title="6.5.2.2 Writing Data using ReactorChannel.submit(TransportBuffer…)">6.5.2.2.5</a>. This method calls the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Channel.write</span> method and will also trigger the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Channel.flush</span> method. These are described in the <span class="Doc_Link" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UJDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API Java Developers Guide</a></span>.</div>
           </td>
         </tr>
       </table>
-      <div class="Caption_Indent"><a name="9001304">Table 47: </a><span style="color: #FF9100; font-family: &quot;Lucida Console&quot;">ReactorChannel.submit(TransportBuffer…) </span>Method</div>
+      <div class="Caption_Indent"><a name="9001343">Table 48: </a><span style="color: #FF9100; font-family: &quot;Lucida Console&quot;">ReactorChannel.submit(TransportBuffer…) </span>Method</div>
       <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVClose();</script>
-      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9001305&quot;);"><a name="9001305">Reactor Submit Options</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9001305", false);</script></div>
-      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9001305", false);</script>
-      <div class="Normal_Indent"><a name="9001306">The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorSubmitOptions</span> allow the application control various aspects of the call to <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel.submit</span>.</div>
+      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9001344&quot;);"><a name="9001344">Reactor Submit Options</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9001344", false);</script></div>
+      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9001344", false);</script>
+      <div class="Normal_Indent"><a name="9001345">The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorSubmitOptions</span> allow the application control various aspects of the call to <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel.submit</span>.</div>
       <table class="Table_Normal" style="width: 522pt" cellspacing="0" summary="">
         <tr style="vertical-align: top">
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-style: solid; border-left-width: 1pt; border-right-style: none; border-right-width: 0pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 153pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001307">CLASS MEMBER</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001346">CLASS MEMBER</a></div>
           </td>
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-style: none; border-left-width: 0pt; border-right-color: #FF9100; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 369pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001308">DESCRIPTION</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001347">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9001310">writeArgs.priority</a></div>
+            <div class="Table_Text"><a name="9001349">requestMsgOptions</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9001311">Controls the priority at which the data will be written. Valid priorities are</a></div>
+            <div class="Table_Text"><a name="9001350">Provides additional functionality for use when using request messsages to send requests.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9001352">serviceName</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9001353">The application may use this in place of the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">serviceId</span> member specified on the <span class="Char_Parameter" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">MsgKey</span> of a <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Msg</span>. When used to open streams via request messages, the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Reactor</span> will recover using this service name. When used for other message types such as a post or generic message, the reactor converts the name to its corresponding ID before writing the message.</div>
+            <div class="Note_9pt_outer" style="margin-left: 0pt; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-width: 1pt; border-right-color: #A0968C; border-right-width: 1pt; border-top-width: 1pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Note_9pt_inner" style="width: 36pt; white-space: nowrap">
+                      <span style="color: #FF9100; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold">Note:	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Note_9pt_inner"><a name="9001354">This option is supported only when the consumer watchlist is enabled.</a></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9001356">writeArgs.priority</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9001357">Controls the priority at which the data will be written. Valid priorities are</a></div>
             <div class="Bullet_table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -108,7 +138,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_table_inner" style="font-weight: bold"><a name="9001312">WritePriorities.</a><span class="Char_Parameter" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">HIGH</span></div>
+                    <div class="Bullet_table_inner" style="font-weight: bold"><a name="9001358">WritePriorities.</a><span class="Char_Parameter" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">HIGH</span></div>
                   </td>
                 </tr>
               </table>
@@ -122,7 +152,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_table_inner" style="font-weight: bold"><a name="9001313">WritePriorities.</a><span class="Char_Parameter" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">MEDIUM</span></div>
+                    <div class="Bullet_table_inner" style="font-weight: bold"><a name="9001359">WritePriorities.</a><span class="Char_Parameter" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">MEDIUM</span></div>
                   </td>
                 </tr>
               </table>
@@ -136,141 +166,164 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_table_inner" style="font-weight: bold"><a name="9001314">WritePriorities.</a><span class="Char_Parameter" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">LOW</span></div>
+                    <div class="Bullet_table_inner" style="font-weight: bold"><a name="9001360">WritePriorities.</a><span class="Char_Parameter" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">LOW</span></div>
                   </td>
                 </tr>
               </table>
             </div>
-            <div class="Table_Text"><a name="9001315">More information about write priorities, including an example scenario, are available in the </a><span class="Doc_Link" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UJDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API Java Developers Guide</a></span><span style="font-style: italic">.</span></div>
+            <div class="Table_Text"><a name="9001361">More information about write priorities, including an example scenario, is available in the </a><span class="Doc_Link" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UJDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API Java Developers Guide</a></span><span style="font-style: italic">.</span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9001317">writeArgs.flags</a></div>
+            <div class="Table_Text"><a name="9001363">writeArgs.flags</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9001318">Flag values that allow the application to modify the behavior of this ReactorChannel.submit call. This includes options to bypass queuing or compression. </a></div>
-            <div class="Table_Text"><a name="9001319">More information about the specific flag values are available in the </a><span class="Doc_Link" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UJDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API Java Developers Guide</a></span><span style="font-style: italic">.</span></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9001321">writeArgs.bytesWritten</a></div>
-          </td>
-          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9001322">If specified, will return the number of bytes to be written, including any transport header overhead and taking into account any savings from compression.</a></div>
+            <div class="Table_Text"><a name="9001364">Flag values that allow the application to modify the behavior of this ReactorChannel.submit call. This includes options to bypass queuing or compression. </a></div>
+            <div class="Table_Text"><a name="9001365">More information about the specific flag values is available in the </a><span class="Doc_Link" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UJDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API Java Developers Guide</a></span><span style="font-style: italic">.</span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9001324">writeArgs.uncompressedBytesWritten</a></div>
+            <div class="Table_Text"><a name="9001367">writeArgs.bytesWritten</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9001325">If specified, will return the number of bytes to be written, including any transport header overhead but not taking into account any compression savings.</a></div>
+            <div class="Table_Text"><a name="9001368">If specified, will return the number of bytes to be written, including any transport header overhead and taking into account any savings from compression.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9001370">writeArgs.uncompressedBytesWritten</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9001371">If specified, will return the number of bytes to be written, including any transport header overhead but not taking into account any compression savings.</a></div>
           </td>
         </tr>
       </table>
-      <div class="Caption_Indent"><a name="9001327">Table 48: </a><span class="Char_Code" style="color: #666666">ReactorSubmitOptions</span> Class Members</div>
+      <div class="Caption_Indent"><a name="9001373">Table 49: </a><span class="Char_Code" style="color: #666666">ReactorSubmitOptions</span> Class Members</div>
       <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVClose();</script>
-      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9001328&quot;);"><a name="9001328">RsslReactorSubmitOptions Utility Method</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9001328", false);</script></div>
-      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9001328", false);</script>
-      <div class="Normal_Indent"><a name="9001329">The Transport API provides the following utility method for use with the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorSubmitOptions</span>.</div>
+      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9001374&quot;);"><a name="9001374">ReactorRequestMsgOptions</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9001374", false);</script></div>
+      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9001374", false);</script>
+      <div class="Normal_Indent"><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001375">ReactorRequestMsgOptions</a></span> provide additional functionality when requesting items. These options are available only when the consumer watchlist is enabled.</div>
+      <table class="Table_Normal" style="width: 522pt" cellspacing="0" summary="">
+        <tr style="vertical-align: top">
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-style: solid; border-left-width: 1pt; border-right-style: none; border-right-width: 0pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 153pt">
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001376">CLASS MEMBER</a></div>
+          </td>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-style: none; border-left-width: 0pt; border-right-color: #FF9100; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 369pt">
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001377">DESCRIPTION</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9001379">userSpecObj</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9001380">A user-defined object associated with the stream. This object will be provided in responses to this stream via the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">WatchlistStreamInfo</span> provided with each message event.</div>
+          </td>
+        </tr>
+      </table>
+      <div class="Caption_Indent"><a name="9001382">Table 50: </a><span class="Char_LucidaConsole" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorRequestMsgOptions</span><span class="Char_Code" style="color: #666666"> </span>Class Members</div>
+      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVClose();</script>
+      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9001383&quot;);"><a name="9001383">RsslReactorSubmitOptions Utility Method</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9001383", false);</script></div>
+      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9001383", false);</script>
+      <div class="Normal_Indent"><a name="9001384">The Transport API provides the following utility method for use with the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorSubmitOptions</span>.</div>
       <table class="Table_Normal" style="width: 522pt" cellspacing="0" summary="">
         <tr style="vertical-align: top">
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-style: solid; border-left-width: 1pt; border-right-style: none; border-right-width: 0pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 154.4pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001330">METHOD NAME</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001385">METHOD NAME</a></div>
           </td>
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-style: none; border-left-width: 0pt; border-right-color: #FF9100; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 367.6pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001331">DESCRIPTION</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001386">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9001333">Clear</a></div>
+            <div class="Table_Text"><a name="9001388">Clear</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9001334">Clears the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorSubmitOptions</span> object. Useful for object reuse.</div>
+            <div class="Table_Text"><a name="9001389">Clears the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorSubmitOptions</span> object. Useful for object reuse.</div>
           </td>
         </tr>
       </table>
-      <div class="Caption_Indent"><a name="9001336">Table 49: </a><span class="Char_LucidaConsole" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorSubmitOptions</span> Utility Method</div>
+      <div class="Caption_Indent"><a name="9001391">Table 51: </a><span class="Char_LucidaConsole" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorSubmitOptions</span> Utility Method</div>
       <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVClose();</script>
-      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9001337&quot;);"><a name="9001337">ReactorChannel.submit(TransportBuffer…) Return Codes</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9001337", false);</script></div>
-      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9001337", false);</script>
-      <div class="Normal_Indent"><a name="9001338">The following table defines the return codes that can occur when using </a><span style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt">ReactorChannel.submit(TransportBuffer…)</span>. </div>
+      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9001392&quot;);"><a name="9001392">ReactorChannel.submit(TransportBuffer…) Return Codes</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9001392", false);</script></div>
+      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9001392", false);</script>
+      <div class="Normal_Indent"><a name="9001393">The following table defines the return codes that can occur when using </a><span style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt">ReactorChannel.submit(TransportBuffer…)</span>. </div>
       <table class="Table_Normal" style="width: 522pt" cellspacing="0" summary="">
         <tr style="vertical-align: top">
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-style: solid; border-left-width: 1pt; border-right-style: none; border-right-width: 0pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 180pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001339">RETURN CODE</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001394">RETURN CODE</a></div>
           </td>
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-style: none; border-left-width: 0pt; border-right-color: #FF9100; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 342pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001340">DESCRIPTION</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001395">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9001342">ReactorReturnCodes.SUCCESS</a></div>
+            <div class="Table_Text"><a name="9001397">ReactorReturnCodes.SUCCESS</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9001343">Indicates that the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">submit</span><span style="color: #FF9100; font-family: &quot;Lucida Console&quot;">(TransportBuffer…)</span> method has succeeded. </div>
-            <div class="Table_Text"><a name="9001344">The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TransportBuffer</span> will be released by the Transport API Reactor.</div>
+            <div class="Table_Text"><a name="9001398">Indicates that the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">submit</span><span style="color: #FF9100; font-family: &quot;Lucida Console&quot;">(TransportBuffer…)</span> method has succeeded. </div>
+            <div class="Table_Text"><a name="9001399">The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TransportBuffer</span> will be released by the Transport API Reactor.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9001346">ReactorReturnCodes.WRITE_CALL_AGAIN</a></div>
+            <div class="Table_Text"><a name="9001401">ReactorReturnCodes.WRITE_CALL_AGAIN</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9001347">Indicates that a large buffer could not be fully written with this </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">submit</span><span style="color: #FF9100; font-family: &quot;Lucida Console&quot;">(TransportBuffer…) </span>call. This is typically due to all pool buffers becoming unavailable. The <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Reactor</span> will flush for the user in order to free up buffers. The application can optionally use <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel.ioctl</span> to increase the number of available pool buffers. After pool buffers become available again, the same buffer should be used to call <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">submit</span><span style="color: #FF9100; font-family: &quot;Lucida Console&quot;">(TransportBuffer…) </span>an additional time (the same priority level must be used to ensure proper ordering of each fragment). This will continue the fragmentation process from where it left off. </div>
-            <div class="Table_Text"><a name="9001348">If the application does not subsequently pass the buffer to </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">submit</span><span style="color: #FF9100; font-family: &quot;Lucida Console&quot;">(TransportBuffer…)</span>, the application should release it by calling <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel.releaseBuffer</span>.</div>
+            <div class="Table_Text"><a name="9001402">Indicates that a large buffer could not be fully written with this </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">submit</span><span style="color: #FF9100; font-family: &quot;Lucida Console&quot;">(TransportBuffer…) </span>call. This is typically due to all pool buffers becoming unavailable. The <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Reactor</span> will flush for the user in order to free up buffers. The application can optionally use <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel.ioctl</span> to increase the number of available pool buffers. After pool buffers become available again, the same buffer should be used to call <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">submit</span><span style="color: #FF9100; font-family: &quot;Lucida Console&quot;">(TransportBuffer…) </span>an additional time (the same priority level must be used to ensure proper ordering of each fragment). This will continue the fragmentation process from where it left off. </div>
+            <div class="Table_Text"><a name="9001403">If the application does not subsequently pass the buffer to </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">submit</span><span style="color: #FF9100; font-family: &quot;Lucida Console&quot;">(TransportBuffer…)</span>, the application should release it by calling <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel.releaseBuffer</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9001350">ReactorReturnCodes.FAILURE</a></div>
+            <div class="Table_Text"><a name="9001405">ReactorReturnCodes.FAILURE</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9001351">Indicates that a general write failure has occurred. The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel</span> should be closed. </div>
-            <div class="Table_Text"><a name="9001352">The application should release the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TransportBuffer</span> by calling <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel.releaseBuffer</span>.</div>
+            <div class="Table_Text"><a name="9001406">Indicates that a general write failure has occurred. The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel</span> should be closed. </div>
+            <div class="Table_Text"><a name="9001407">The application should release the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TransportBuffer</span> by calling <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel.releaseBuffer</span>.</div>
           </td>
         </tr>
       </table>
-      <div class="Caption_Indent"><a name="9001354">Table 50: </a><span style="color: #FF9100; font-family: &quot;Lucida Console&quot;">ReactorChannel.submit(TransportBuffer…) </span>Return Codes</div>
+      <div class="Caption_Indent"><a name="9001409">Table 52: </a><span style="color: #FF9100; font-family: &quot;Lucida Console&quot;">ReactorChannel.submit(TransportBuffer…) </span>Return Codes</div>
       <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVClose();</script>
-      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9001355&quot;);"><a name="9001355">ReactorChannel.getBuffer and ReactorChannel.submit(TransportBuffer…) Example</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9001355", false);</script></div>
-      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9001355", false);</script>
-      <div class="Normal_Indent"><a name="9001356">The following example shows typical use of </a><span style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt">ReactorChannel.getBuffer </span>and <span style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt">ReactorChannel.submit(TransportBuffer…)</span>. </div>
-      <div class="Code_Indent"><a name="9001357">&nbsp;</a></div>
-      <div class="Code_Indent"><a name="9001358">TransportBuffer msgBuffer = null;</a></div>
-      <div class="Code_Indent"><a name="9001359">EncodeIterator encodeIter = CodecFactory.createEncodeIterator();</a></div>
-      <div class="Code_Indent"><a name="9001360">ReactorSubmitOptions submitOpts = ReactorFactory.createReactorSubmitOptions();</a></div>
-      <div class="Code_Indent"><a name="9001361">&nbsp;</a></div>
-      <div class="Code_Indent"><a name="9001362">msgBuffer = reactorChannel.getBuffer(1024, false, errorInfo);</a></div>
-      <div class="Code_Indent"><a name="9001363">&nbsp;</a></div>
-      <div class="Code_Indent"><a name="9001364">encodeIter.clear();</a></div>
-      <div class="Code_Indent"><a name="9001365">encodeIter.setBufferAndRWFVersion(msgBuffer, reactorChannel.majorVersion(), reactorChannel.minorVersion());</a></div>
-      <div class="Code_Indent"><a name="9001366">encodeMsgIntoBuffer(encodeIter, msgBuffer);</a></div>
-      <div class="Code_Indent"><a name="9001367">&nbsp;</a></div>
-      <div class="Code_Indent"><a name="9001368">submitOpts.clear();</a></div>
-      <div class="Code_Indent"><a name="9001369">ret = reactorChannel.submit(msgBuffer, submitOpts, errorInfo);</a></div>
-      <div class="Code_Indent"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001370">// check return code</a></span></div>
-      <div class="Code_Indent"><a name="9001371">switch (ret)</a></div>
-      <div class="Code_Indent"><a name="9001372">{</a></div>
-      <div class="Code_Indent"><a name="9001373">	case ReactorReturnCodes.SUCCESS:</a></div>
-      <div class="Code_Indent"><a name="9001374">		</a><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">	// successful write, nothing left to do</span></div>
-      <div class="Code_Indent"><a name="9001375">			return ReactorReturnCodes.SUCCESS; </a></div>
-      <div class="Code_Indent"><a name="9001376">	break;</a></div>
-      <div class="Code_Indent"><a name="9001377">	case ReactorReturnCodes.FAILURE:</a></div>
-      <div class="Code_Indent"><a name="9001378">			</a><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">// an error occurred, need to release buffer</span></div>
-      <div class="Code_Indent"><a name="9001379">			reactorChannel.releaseBuffer(msgBuffer, errorInfo);</a></div>
-      <div class="Code_Indent"><a name="9001380">	break;</a></div>
-      <div class="Code_Indent"><a name="9001381">	case ReactorReturnCodes.WRITE_CALL_AGAIN:</a></div>
-      <div class="Code_Indent"><a name="9001382">		</a><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">	// large message couldn’t be fully written with one call, pass it to submit again</span></div>
-      <div class="Code_Indent"><a name="9001383">			ret = reactorChannel.submit(msgBuffer, submitOpts, errorInfo);</a></div>
-      <div class="Code_Indent"><a name="9001384">	break;</a></div>
-      <div class="Code_Indent"><a name="9001385">}</a></div>
-      <div class="Code_Indent"><a name="9001386">&nbsp;</a></div>
-      <div class="Caption_Indent"><a name="9001387">Code Example 11: Writing Data Using </a><span style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt">ReactorChannel.submit(TransportBuffer…)</span>, <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel.getBuffer</span>, and <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel.releaseBuffer</span></div>
+      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9001410&quot;);"><a name="9001410">ReactorChannel.getBuffer and ReactorChannel.submit(TransportBuffer…) Example</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9001410", false);</script></div>
+      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9001410", false);</script>
+      <div class="Normal_Indent"><a name="9001411">The following example shows typical use of </a><span style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt">ReactorChannel.getBuffer </span>and <span style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt">ReactorChannel.submit(TransportBuffer…)</span>. </div>
+      <div class="Code_Indent"><a name="9001412">&nbsp;</a></div>
+      <div class="Code_Indent"><a name="9001413">TransportBuffer msgBuffer = null;</a></div>
+      <div class="Code_Indent"><a name="9001414">EncodeIterator encodeIter = CodecFactory.createEncodeIterator();</a></div>
+      <div class="Code_Indent"><a name="9001415">ReactorSubmitOptions submitOpts = ReactorFactory.createReactorSubmitOptions();</a></div>
+      <div class="Code_Indent"><a name="9001416">&nbsp;</a></div>
+      <div class="Code_Indent"><a name="9001417">msgBuffer = reactorChannel.getBuffer(1024, false, errorInfo);</a></div>
+      <div class="Code_Indent"><a name="9001418">&nbsp;</a></div>
+      <div class="Code_Indent"><a name="9001419">encodeIter.clear();</a></div>
+      <div class="Code_Indent"><a name="9001420">encodeIter.setBufferAndRWFVersion(msgBuffer, reactorChannel.majorVersion(), reactorChannel.minorVersion());</a></div>
+      <div class="Code_Indent"><a name="9001421">encodeMsgIntoBuffer(encodeIter, msgBuffer);</a></div>
+      <div class="Code_Indent"><a name="9001422">&nbsp;</a></div>
+      <div class="Code_Indent"><a name="9001423">submitOpts.clear();</a></div>
+      <div class="Code_Indent"><a name="9001424">ret = reactorChannel.submit(msgBuffer, submitOpts, errorInfo);</a></div>
+      <div class="Code_Indent"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001425">// check return code</a></span></div>
+      <div class="Code_Indent"><a name="9001426">switch (ret)</a></div>
+      <div class="Code_Indent"><a name="9001427">{</a></div>
+      <div class="Code_Indent"><a name="9001428">	case ReactorReturnCodes.SUCCESS:</a></div>
+      <div class="Code_Indent"><a name="9001429">		</a><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">	// successful write, nothing left to do</span></div>
+      <div class="Code_Indent"><a name="9001430">			return ReactorReturnCodes.SUCCESS; </a></div>
+      <div class="Code_Indent"><a name="9001431">	break;</a></div>
+      <div class="Code_Indent"><a name="9001432">	case ReactorReturnCodes.FAILURE:</a></div>
+      <div class="Code_Indent"><a name="9001433">			</a><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">// an error occurred, need to release buffer</span></div>
+      <div class="Code_Indent"><a name="9001434">			reactorChannel.releaseBuffer(msgBuffer, errorInfo);</a></div>
+      <div class="Code_Indent"><a name="9001435">	break;</a></div>
+      <div class="Code_Indent"><a name="9001436">	case ReactorReturnCodes.WRITE_CALL_AGAIN:</a></div>
+      <div class="Code_Indent"><a name="9001437">		</a><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">	// large message couldn’t be fully written with one call, pass it to submit again</span></div>
+      <div class="Code_Indent"><a name="9001438">			ret = reactorChannel.submit(msgBuffer, submitOpts, errorInfo);</a></div>
+      <div class="Code_Indent"><a name="9001439">	break;</a></div>
+      <div class="Code_Indent"><a name="9001440">}</a></div>
+      <div class="Code_Indent"><a name="9001441">&nbsp;</a></div>
+      <div class="Caption_Indent"><a name="9001442">Code Example 11: Writing Data Using </a><span style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt">ReactorChannel.submit(TransportBuffer…)</span>, <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel.getBuffer</span>, and <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel.releaseBuffer</span></div>
       <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVClose();</script>
       <script type="text/javascript" language="JavaScript1.2">
         <!--

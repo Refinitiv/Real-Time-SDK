@@ -27,20 +27,17 @@
       <i t="2.2.3 Transport API Value Added Components Functionality" l="16" />
     </i>
     <i t="2.3 Value Added Components Product Features" l="17" />
-    <i t="Transport API Reactor Component" l="18" />
-    <i t="Administrative Domain Model Representations" l="19" />
-    <i t="Value Added Utilities" l="20" />
   </i>
-  <i t="Chapter 3 Performance Tool Suite" l="21">
-    <i t="3.1 About the Transport API Performance Tool Suite" l="22" />
-    <i t="3.2 Transport API Performance Tools" l="23" />
+  <i t="Chapter 3 Performance Tool Suite" l="18">
+    <i t="3.1 About the Transport API Performance Tool Suite" l="19" />
+    <i t="3.2 Transport API Performance Tools" l="20" />
   </i>
-  <i t="Chapter 4 Transport API Example Applications" l="24">
-    <i t="4.1 About Transport API Example Applications" l="25" />
-    <i t="4.2 Running Examples" l="26" />
-    <i t="4.3 Consumer and Provider Examples" l="27" />
-    <i t="4.4 Value Added Component Examples" l="28" />
-    <i t="4.5 Performance Tools" l="29" />
-    <i t="4.6 DACS Lock Example" l="30" />
+  <i t="Chapter 4 Transport API Example Applications" l="21">
+    <i t="4.1 About Transport API Example Applications" l="22" />
+    <i t="4.2 Running Examples" l="23" />
+    <i t="4.3 Consumer and Provider Examples" l="24" />
+    <i t="4.4 Value Added Component Examples" l="25" />
+    <i t="4.5 Performance Tools" l="26" />
+    <i t="4.6 DACS Lock Example" l="27" />
   </i>
 </WebWorksHelpTOC>

@@ -72,34 +72,18 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000538">rdmLoginRequest</a></div>
+            <div class="Table_Text"><a name="9000538">dictionaryDownloadMode</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000539">The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">LoginRequest</span>, defined in Section <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'ETAJ_ValueAddDevGuide.1.085.html', '');" title="6.4.6 Reactor Callback Methods">6.4.6</a>, to be sent during the connection establishment process. This can be populated with a user’s specific information or invoke the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">initDefaultRDMLoginRequest</span> method to populate with default information. If this parameter is left empty no login will be sent to the system; useful for systems that do not require a login.</div>
+            <div class="Table_Text"><a name="9000539">Informs the ReactorChannel on the method to use when requesting dictionaries. The allowable modes are defined in </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'ETAJ_ValueAddDevGuide.1.064.html#9000577', '');" title="6.3.1.1 Reactor Channel OMM Consumer Role">Table 12</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000541">rdmDirectoryRequest</a></div>
+            <div class="Table_Text"><a name="9000541">dictionaryMsgCallback</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000542">The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">DirectoryRequest</span>, defined in Section <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'ETAJ_ValueAddDevGuide.1.085.html', '');" title="6.4.6 Reactor Callback Methods">6.4.6</a>, to be sent during the connection establishment process. This can be populated with specific source directory request information or invoke the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">initDefaultRDMDirectoryRequest</span> method to populate with default information. If this parameter is specified, an <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">rdmLoginRequest</span> is required. If this parameter is left empty, no directory request will be sent to the system.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000544">dictionaryDownloadMode</a></div>
-          </td>
-          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000545">Informs the ReactorChannel on the method to use when requesting dictionaries. The allowable modes are defined in </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'ETAJ_ValueAddDevGuide.1.064.html#9000574', '');" title="6.3.1.1 Reactor Channel OMM Consumer Role">Table 12</a>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000547">loginMsgCallback</a></div>
-          </td>
-          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000548">This </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel</span>‘s user-defined callback method to handle login message content. If not specified, all received login messages will be passed to the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">defaultMsgCallback</span>.</div>
+            <div class="Table_Text"><a name="9000542">This </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel</span>‘s user-defined callback method to handle dictionary message content. If not specified, all received dictionary messages will be passed to the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">defaultMsgCallback</span>.</div>
             <div class="Bullet_table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -109,7 +93,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_table_inner"><a name="9000549">This callback is defined in more detail in Section </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'ETAJ_ValueAddDevGuide.1.085.html', '');" title="6.4.6 Reactor Callback Methods">6.4.6</a>.</div>
+                    <div class="Bullet_table_inner"><a name="9000543">This callback is defined in more detail in Section </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'ETAJ_ValueAddDevGuide.1.085.html', '');" title="6.4.6 Reactor Callback Methods">6.4.6</a>.</div>
                   </td>
                 </tr>
               </table>
@@ -123,7 +107,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_table_inner"><a name="9000550">The login messages are described in Section </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'ETAJ_ValueAddDevGuide.1.141.html', '');" title="7.3 RDM Login Domain">7.3</a>.</div>
+                    <div class="Bullet_table_inner"><a name="9000544">The dictionary messages are described in Section </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'ETAJ_ValueAddDevGuide.1.235.html', '');" title="7.5 RDM Dictionary Domain">7.5</a>.</div>
                   </td>
                 </tr>
               </table>
@@ -132,10 +116,10 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000552">directoryMsgCallback</a></div>
+            <div class="Table_Text"><a name="9000546">directoryMsgCallback</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000553">This </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel</span>‘s user-defined callback method to handle directory message content. If not specified, all received directory messages will be passed to the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">defaultMsgCallback</span>.</div>
+            <div class="Table_Text"><a name="9000547">This </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel</span>‘s user-defined callback method to handle directory message content. If not specified, all received directory messages will be passed to the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">defaultMsgCallback</span>.</div>
             <div class="Bullet_table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -145,7 +129,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_table_inner"><a name="9000554">This callback is defined in more detail in Section </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'ETAJ_ValueAddDevGuide.1.085.html', '');" title="6.4.6 Reactor Callback Methods">6.4.6</a>.</div>
+                    <div class="Bullet_table_inner"><a name="9000548">This callback is defined in more detail in Section </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'ETAJ_ValueAddDevGuide.1.085.html', '');" title="6.4.6 Reactor Callback Methods">6.4.6</a>.</div>
                   </td>
                 </tr>
               </table>
@@ -159,7 +143,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_table_inner"><a name="9000555">The directory messages are described in Section </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'ETAJ_ValueAddDevGuide.1.178.html', '');" title="7.4 RDM Source Directory Domain">7.4</a>.</div>
+                    <div class="Bullet_table_inner"><a name="9000549">The directory messages are described in Section </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'ETAJ_ValueAddDevGuide.1.178.html', '');" title="7.4 RDM Source Directory Domain">7.4</a>.</div>
                   </td>
                 </tr>
               </table>
@@ -168,10 +152,10 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000557">dictionaryMsgCallback</a></div>
+            <div class="Table_Text"><a name="9000551">loginMsgCallback</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000558">This </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel</span>‘s user-defined callback method to handle dictionary message content. If not specified, all received dictionary messages will be passed to the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">defaultMsgCallback</span>.</div>
+            <div class="Table_Text"><a name="9000552">This </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel</span>‘s user-defined callback method to handle login message content. If not specified, all received login messages will be passed to the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">defaultMsgCallback</span>.</div>
             <div class="Bullet_table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -181,7 +165,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_table_inner"><a name="9000559">This callback is defined in more detail in Section </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'ETAJ_ValueAddDevGuide.1.085.html', '');" title="6.4.6 Reactor Callback Methods">6.4.6</a>.</div>
+                    <div class="Bullet_table_inner"><a name="9000553">This callback is defined in more detail in Section </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'ETAJ_ValueAddDevGuide.1.085.html', '');" title="6.4.6 Reactor Callback Methods">6.4.6</a>.</div>
                   </td>
                 </tr>
               </table>
@@ -195,69 +179,156 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_table_inner"><a name="9000560">The dictionary messages are described in Section </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'ETAJ_ValueAddDevGuide.1.235.html', '');" title="7.5 RDM Dictionary Domain">7.5</a>.</div>
+                    <div class="Bullet_table_inner"><a name="9000554">The login messages are described in Section </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'ETAJ_ValueAddDevGuide.1.141.html', '');" title="7.3 RDM Login Domain">7.3</a>.</div>
                   </td>
                 </tr>
               </table>
             </div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000556">rdmLoginRequest</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000557">The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">LoginRequest</span>, defined in Section <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'ETAJ_ValueAddDevGuide.1.085.html', '');" title="6.4.6 Reactor Callback Methods">6.4.6</a>, to be sent during the connection establishment process. This can be populated with a user’s specific information or invoke the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">initDefaultRDMLoginRequest</span> method to populate with default information. If this parameter is left empty no login will be sent to the system; useful for systems that do not require a login.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000559">rdmDirectoryRequest</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000560">The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">DirectoryRequest</span>, defined in Section <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'ETAJ_ValueAddDevGuide.1.085.html', '');" title="6.4.6 Reactor Callback Methods">6.4.6</a>, to be sent during the connection establishment process. This can be populated with specific source directory request information or invoke the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">initDefaultRDMDirectoryRequest</span> method to populate with default information. If this parameter is specified, an <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">rdmLoginRequest</span> is required. If this parameter is left empty, no directory request will be sent to the system.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000562">watchlistOptions</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000563">Configurable options for the consumer watchlist. The options are described in more detail in Section </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'ETAJ_ValueAddDevGuide.1.064.html#9000578', '');" title="6.3.1.1 Reactor Channel OMM Consumer Role">6.3.1.1.3</a>.</div>
           </td>
         </tr>
       </table>
-      <div class="Caption_Indent"><a name="9000562">Table 11: </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ConsumerRole</span> Class Members</div>
+      <div class="Caption_Indent"><a name="9000565">Table 11: </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ConsumerRole</span> Class Members</div>
       <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVClose();</script>
-      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9000563&quot;);"><a name="9000563">OMM Consumer Role Dictionary Download Modes</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9000563", false);</script></div>
-      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9000563", false);</script>
-      <div class="Normal_Indent"><a name="9000564">There are several dictionary download options available to a </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel</span>. The application can determine which option is desired and specify via the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ConsumerRole.dictionaryDownloadMode</span> parameter.</div>
+      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9000566&quot;);"><a name="9000566">OMM Consumer Role Dictionary Download Modes</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9000566", false);</script></div>
+      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9000566", false);</script>
+      <div class="Normal_Indent"><a name="9000567">There are several dictionary download options available to a </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel</span>. The application can determine which option is desired and specify via the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ConsumerRole.dictionaryDownloadMode</span> parameter.</div>
       <table class="Table_Normal" style="width: 520.25pt" cellspacing="0" summary="">
         <tr style="vertical-align: top">
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-style: solid; border-left-width: 1pt; border-right-style: none; border-right-width: 0pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 114.35pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9000565">ENUMERATED NAME</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9000568">ENUMERATED NAME</a></div>
           </td>
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-style: none; border-left-width: 0pt; border-right-color: #FF9100; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 405.9pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9000566">DESCRIPTION</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9000569">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000568">NONE</a></div>
+            <div class="Table_Text"><a name="9000571">NONE</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000569">The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Reactor</span> will not request any dictionaries for this <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel</span>. This is typically used when the application has loaded a file based dictionary or has acquired the dictionary elsewhere.</div>
+            <div class="Table_Text"><a name="9000572">The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Reactor</span> will not request any dictionaries for this <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel</span>. This is typically used when the application has loaded a file based dictionary or has acquired the dictionary elsewhere.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000571">FIRST_AVAILABLE</a></div>
+            <div class="Table_Text"><a name="9000574">FIRST_AVAILABLE</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000572">The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Reactor</span> will search received directory messages for the RDMFieldDictionary (RWFFld) and the enumtype.def (RWFEnum) dictionaries. Once found, the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Reactor</span> will request these dictionaries for the application. After transmission is completed, the streams will be closed as this content does not update.</div>
+            <div class="Table_Text"><a name="9000575">The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Reactor</span> will search received directory messages for the RDMFieldDictionary (RWFFld) and the enumtype.def (RWFEnum) dictionaries. Once found, the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Reactor</span> will request these dictionaries for the application. After transmission is completed, the streams will be closed as this content does not update.</div>
           </td>
         </tr>
       </table>
-      <div class="Caption_Indent"><a name="9000574">Table 12: </a><span style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt">DictionaryDownloadModes </span>Enumerated Values</div>
+      <div class="Caption_Indent"><a name="9000577">Table 12: </a><span style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt">DictionaryDownloadModes </span>Enumerated Values</div>
       <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVClose();</script>
-      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9000575&quot;);"><a name="9000575">OMM Consumer Role Utility Method</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9000575", false);</script></div>
-      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9000575", false);</script>
-      <div class="Normal_Indent"><a name="9000576">The Transport API provides the following utility method for use with the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ConsumerRole</span>.</div>
+      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9000578&quot;);"><a name="9000578">OMM Consumer Role Watchlist Options</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9000578", false);</script></div>
+      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9000578", false);</script>
+      <div class="Normal_Indent"><a name="9000579">The consumer may enable an internal watchlist and configure behaviours. For more detail on the consumer watchlist feature, refer to Section </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'ETAJ_ValueAddDevGuide.1.016.html', '');" title="2.4 OMM Consumer Watchlist">2.4</a>.</div>
+      <table class="Table_Normal" style="width: 520.25pt" cellspacing="0" summary="">
+        <tr style="vertical-align: top">
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-style: solid; border-left-width: 1pt; border-right-style: none; border-right-width: 0pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 114.35pt">
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9000580">MEMBER NAME</a></div>
+          </td>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-style: none; border-left-width: 0pt; border-right-color: #FF9100; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 405.9pt">
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9000581">DESCRIPTION</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000583">enableWatchlist</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000584">Enables the watchlist.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000586">itemCountHint</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000587">Can improve performance when used with the watchlist. If possible, set this to the approximate number of item requests the application expects to open.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000589">maxOutstandingPosts</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000590">Sets whether the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Reactor</span> obeys the OpenWindow of services advertised in a provider’s Source Directory response.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000592">obeyOpenWindow</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000593">Sets the maximum allowable number of on-stream posts waiting for acknowledgement before the reactor disconnects.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000595">postAckTimeout</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000596">Sets the time (in milliseconds) a stream waits to receive an ACK for an outstanding post before forwarding a negative acknowledgement </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">AckMsg</span> to the application.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000598">requestTimeout</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9000599">Sets the time (in milliseconds) the watchlist waits for a response to a request.</a></div>
+          </td>
+        </tr>
+      </table>
+      <div class="Caption_Indent"><a name="9000601">Table 13: OMM Consumer Role Watchlist Options</a></div>
+      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVClose();</script>
+      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9000602&quot;);"><a name="9000602">OMM Consumer Role Utility Method</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9000602", false);</script></div>
+      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9000602", false);</script>
+      <div class="Normal_Indent"><a name="9000603">The Transport API provides the following utility method for use with the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ConsumerRole</span>.</div>
       <table class="Table_Normal" style="width: 520.25pt" cellspacing="0" summary="">
         <tr style="vertical-align: top">
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-style: solid; border-left-width: 1pt; border-right-style: none; border-right-width: 0pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 115.8pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9000577">METHOD NAME</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9000604">METHOD NAME</a></div>
           </td>
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-style: none; border-left-width: 0pt; border-right-color: #FF9100; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 404.45pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9000578">DESCRIPTION</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9000605">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000580">clear</a></div>
+            <div class="Table_Text"><a name="9000607">clear</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000581">Clears the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ConsumerRole</span> object. Useful for object reuse.</div>
+            <div class="Table_Text"><a name="9000608">Clears the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ConsumerRole</span> object. Useful for object reuse.</div>
           </td>
         </tr>
       </table>
-      <div class="Caption_Indent"><a name="9000583">Table 13: </a><span class="Char_LucidaConsole" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ConsumerRole</span> Utility Method</div>
+      <div class="Caption_Indent"><a name="9000610">Table 14: </a><span class="Char_LucidaConsole" style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ConsumerRole</span> Utility Method</div>
       <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVClose();</script>
       <script type="text/javascript" language="JavaScript1.2">
         <!--

@@ -55,41 +55,41 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="Heading_4"><a name="9001416">Example: ReactorChannel.getBuffer, ReactorChannel.packBuffer, and ReactorChannel.submit(TransportBuffer…)</a></div>
-      <div class="Normal"><a name="9001417">The following example shows typical use of </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel.getBuffer</span>, <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel.packBuffer</span>, and <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel.submit(TransportBuffer…)</span>.</div>
-      <div class="Code" style="text-indent: 0pt"><a name="9001418">&nbsp;</a></div>
-      <div class="Code" style="text-indent: 0pt"><a name="9001419">int remainingLength = 0;</a></div>
-      <div class="Code" style="text-indent: 0pt"><a name="9001420">TransportBuffer msgBuffer = null;</a></div>
-      <div class="Code"><a name="9001421">EncodeIterator encodeIter = CodecFactory.createEncodeIterator();</a></div>
-      <div class="Code"><a name="9001422">ReactorSubmitOptions submitOpts = ReactorFactory.createReactorSubmitOptions();</a></div>
-      <div class="Code"><a name="9001423">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001424">/* get a packable buffer */</a></span></div>
-      <div class="Code" style="text-indent: 0pt"><a name="9001425">msgBuffer = reactorChannel.getBuffer(1024, true, errorInfo);</a></div>
-      <div class="Code"><a name="9001426">&nbsp;</a></div>
-      <div class="Code"><a name="9001427">encodeIter.clear();</a></div>
-      <div class="Code"><a name="9001428">encodeIter.setBufferAndRWFVersion(msgBuffer, reactorChannel.majorVersion(), reactorChannel.minorVersion());</a></div>
-      <div class="Code"><a name="9001429">encodeMsgIntoBuffer(encodeIter, msgBuffer);</a></div>
-      <div class="Code"><a name="9001430">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001431">/* pack first encoded message into buffer */</a></span></div>
-      <div class="Code" style="text-indent: 0pt"><a name="9001432">remainingLength = reactorChannel.packBuffer(msgBuffer, errorInfo);</a></div>
-      <div class="Code"><a name="9001433">&nbsp;</a></div>
-      <div class="Code"><a name="9001434">encodeIter.clear();</a></div>
-      <div class="Code"><a name="9001435">encodeIter.setBufferAndRWFVersion(msgBuffer, reactorChannel.majorVersion(), reactorChannel.minorVersion());</a></div>
-      <div class="Code"><a name="9001436">encodeMsgIntoBuffer(encodeIter, msgBuffer);</a></div>
-      <div class="Code"><a name="9001437">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001438">/* pack second encoded message into buffer */</a></span></div>
-      <div class="Code"><a name="9001439">remainingLength = reactorChannel.packBuffer(msgBuffer, errorInfo);</a></div>
-      <div class="Code"><a name="9001440">&nbsp;</a></div>
-      <div class="Code"><a name="9001441">encodeIter.clear();</a></div>
-      <div class="Code"><a name="9001442">encodeIter.setBufferAndRWFVersion(msgBuffer, reactorChannel.majorVersion(), reactorChannel.minorVersion());</a></div>
-      <div class="Code"><a name="9001443">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001444">/* now write packed buffer by passing third buffer to submit */</a></span></div>
-      <div class="Code"><a name="9001445">encodeMsgIntoBuffer(encodeIter, msgBuffer);</a></div>
-      <div class="Code"><a name="9001446">&nbsp;</a></div>
-      <div class="Code"><a name="9001447">submitOpts.clear();</a></div>
-      <div class="Code"><a name="9001448">ret = reactorChannel.submit(msgBuffer, submitOpts, errorInfo);</a></div>
-      <div class="Code"><a name="9001449">&nbsp;</a></div>
-      <div class="Caption"><a name="9001450">Code Example 12: Message Packing using </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel.packBuffer</span></div>
+      <div class="Heading_4"><a name="9001471">Example: ReactorChannel.getBuffer, ReactorChannel.packBuffer, and ReactorChannel.submit(TransportBuffer…)</a></div>
+      <div class="Normal"><a name="9001472">The following example shows typical use of </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel.getBuffer</span>, <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel.packBuffer</span>, and <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel.submit(TransportBuffer…)</span>.</div>
+      <div class="Code" style="text-indent: 0pt"><a name="9001473">&nbsp;</a></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9001474">int remainingLength = 0;</a></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9001475">TransportBuffer msgBuffer = null;</a></div>
+      <div class="Code"><a name="9001476">EncodeIterator encodeIter = CodecFactory.createEncodeIterator();</a></div>
+      <div class="Code"><a name="9001477">ReactorSubmitOptions submitOpts = ReactorFactory.createReactorSubmitOptions();</a></div>
+      <div class="Code"><a name="9001478">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001479">/* get a packable buffer */</a></span></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9001480">msgBuffer = reactorChannel.getBuffer(1024, true, errorInfo);</a></div>
+      <div class="Code"><a name="9001481">&nbsp;</a></div>
+      <div class="Code"><a name="9001482">encodeIter.clear();</a></div>
+      <div class="Code"><a name="9001483">encodeIter.setBufferAndRWFVersion(msgBuffer, reactorChannel.majorVersion(), reactorChannel.minorVersion());</a></div>
+      <div class="Code"><a name="9001484">encodeMsgIntoBuffer(encodeIter, msgBuffer);</a></div>
+      <div class="Code"><a name="9001485">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001486">/* pack first encoded message into buffer */</a></span></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9001487">remainingLength = reactorChannel.packBuffer(msgBuffer, errorInfo);</a></div>
+      <div class="Code"><a name="9001488">&nbsp;</a></div>
+      <div class="Code"><a name="9001489">encodeIter.clear();</a></div>
+      <div class="Code"><a name="9001490">encodeIter.setBufferAndRWFVersion(msgBuffer, reactorChannel.majorVersion(), reactorChannel.minorVersion());</a></div>
+      <div class="Code"><a name="9001491">encodeMsgIntoBuffer(encodeIter, msgBuffer);</a></div>
+      <div class="Code"><a name="9001492">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001493">/* pack second encoded message into buffer */</a></span></div>
+      <div class="Code"><a name="9001494">remainingLength = reactorChannel.packBuffer(msgBuffer, errorInfo);</a></div>
+      <div class="Code"><a name="9001495">&nbsp;</a></div>
+      <div class="Code"><a name="9001496">encodeIter.clear();</a></div>
+      <div class="Code"><a name="9001497">encodeIter.setBufferAndRWFVersion(msgBuffer, reactorChannel.majorVersion(), reactorChannel.minorVersion());</a></div>
+      <div class="Code"><a name="9001498">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001499">/* now write packed buffer by passing third buffer to submit */</a></span></div>
+      <div class="Code"><a name="9001500">encodeMsgIntoBuffer(encodeIter, msgBuffer);</a></div>
+      <div class="Code"><a name="9001501">&nbsp;</a></div>
+      <div class="Code"><a name="9001502">submitOpts.clear();</a></div>
+      <div class="Code"><a name="9001503">ret = reactorChannel.submit(msgBuffer, submitOpts, errorInfo);</a></div>
+      <div class="Code"><a name="9001504">&nbsp;</a></div>
+      <div class="Caption"><a name="9001505">Code Example 12: Message Packing using </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel.packBuffer</span></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

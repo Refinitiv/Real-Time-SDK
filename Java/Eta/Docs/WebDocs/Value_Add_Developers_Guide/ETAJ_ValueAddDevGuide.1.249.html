@@ -55,40 +55,40 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="Heading_3"><a name="9004185">Dictionary Encoding and Decoding</a></div>
-      <div class="Heading_4"><a name="9004186">Encoding a Dictionary Request</a></div>
-      <div class="Code"><a name="9004187">&nbsp;</a></div>
-      <div class="Code"><a name="9004188">EncodeIterator encodeIter = CodecFactory.createEncodeIterator();</a></div>
-      <div class="Code"><a name="9004189">DictionaryRequest dictionaryRequest = (DictionaryRequest)DictionaryMsgFactory.createMsg();</a></div>
-      <div class="Code"><a name="9004190">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004191">/* Clear the Dictionary Request object. */</a></span></div>
-      <div class="Code"><a name="9004192">dictionaryRequest.clear();</a></div>
-      <div class="Code"><a name="9004193">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004194">/* Set dictionary message type – required as object created by DictionaryMsgFactory.createMsg() is generic Dictionary object. */</a></span></div>
-      <div class="Code"><a name="9004195">dictionaryRefresh.rdmMsgType(DictionaryMsgType.REQUEST);</a></div>
-      <div class="Code"><a name="9004196">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004197">/* Set stream id. */</a></span></div>
-      <div class="Code"><a name="9004198">dictionaryRefresh.streamId(streamId);</a></div>
-      <div class="Code"><a name="9004199">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004200">/* Set streaming flag. */ </a></span></div>
-      <div class="Code"><a name="9004201">dictionaryRequest.applyStreaming();</a></div>
-      <div class="Code"><a name="9004202">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004203">/* Set serviceId. */</a></span></div>
-      <div class="Code"><a name="9004204">dictionaryRequest.serviceId(273);</a></div>
-      <div class="Code"><a name="9004205">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004206">/* Set verbosity. */</a></span></div>
-      <div class="Code"><a name="9004207">dictionaryRequest.verbosity(Dictionary.VerbosityValues.NORMAL);</a></div>
-      <div class="Code"><a name="9004208">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004209">/* Set dictionary name. */</a></span></div>
-      <div class="Code"><a name="9004210">dictionaryRequest.dictionaryName().data("RWFFld");</a></div>
-      <div class="Code"><a name="9004211">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004212">/* Clear the encode iterator, set its RWF Version, and set it to a buffer for encoding into. */</a></span></div>
-      <div class="Code"><a name="9004213">encodeIter.clear();</a></div>
-      <div class="Code"><a name="9004214">ret = encodeIter.setBufferAndRWFVersion(msgBuf,channelMajorVersion, channelMinorVersion);</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004215">/* Encode the message. */</a></span></div>
-      <div class="Code"><a name="9004216">ret = dictionaryRequest.encode(encodeIter);</a></div>
-      <div class="Code"><a name="9004217">&nbsp;</a></div>
-      <div class="Caption"><a name="9004218">Code Example 24: Dictionary Request Encoding Example</a></div>
+      <div class="Heading_3"><a name="9004240">Dictionary Encoding and Decoding</a></div>
+      <div class="Heading_4"><a name="9004241">Encoding a Dictionary Request</a></div>
+      <div class="Code"><a name="9004242">&nbsp;</a></div>
+      <div class="Code"><a name="9004243">EncodeIterator encodeIter = CodecFactory.createEncodeIterator();</a></div>
+      <div class="Code"><a name="9004244">DictionaryRequest dictionaryRequest = (DictionaryRequest)DictionaryMsgFactory.createMsg();</a></div>
+      <div class="Code"><a name="9004245">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004246">/* Clear the Dictionary Request object. */</a></span></div>
+      <div class="Code"><a name="9004247">dictionaryRequest.clear();</a></div>
+      <div class="Code"><a name="9004248">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004249">/* Set dictionary message type – required as object created by DictionaryMsgFactory.createMsg() is generic Dictionary object. */</a></span></div>
+      <div class="Code"><a name="9004250">dictionaryRefresh.rdmMsgType(DictionaryMsgType.REQUEST);</a></div>
+      <div class="Code"><a name="9004251">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004252">/* Set stream id. */</a></span></div>
+      <div class="Code"><a name="9004253">dictionaryRefresh.streamId(streamId);</a></div>
+      <div class="Code"><a name="9004254">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004255">/* Set streaming flag. */ </a></span></div>
+      <div class="Code"><a name="9004256">dictionaryRequest.applyStreaming();</a></div>
+      <div class="Code"><a name="9004257">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004258">/* Set serviceId. */</a></span></div>
+      <div class="Code"><a name="9004259">dictionaryRequest.serviceId(273);</a></div>
+      <div class="Code"><a name="9004260">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004261">/* Set verbosity. */</a></span></div>
+      <div class="Code"><a name="9004262">dictionaryRequest.verbosity(Dictionary.VerbosityValues.NORMAL);</a></div>
+      <div class="Code"><a name="9004263">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004264">/* Set dictionary name. */</a></span></div>
+      <div class="Code"><a name="9004265">dictionaryRequest.dictionaryName().data("RWFFld");</a></div>
+      <div class="Code"><a name="9004266">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004267">/* Clear the encode iterator, set its RWF Version, and set it to a buffer for encoding into. */</a></span></div>
+      <div class="Code"><a name="9004268">encodeIter.clear();</a></div>
+      <div class="Code"><a name="9004269">ret = encodeIter.setBufferAndRWFVersion(msgBuf,channelMajorVersion, channelMinorVersion);</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004270">/* Encode the message. */</a></span></div>
+      <div class="Code"><a name="9004271">ret = dictionaryRequest.encode(encodeIter);</a></div>
+      <div class="Code"><a name="9004272">&nbsp;</a></div>
+      <div class="Caption"><a name="9004273">Code Example 24: Dictionary Request Encoding Example</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

@@ -38,37 +38,34 @@
     <h7 weight="2" />
   </ScoringPrefs>
   <DocumentInfo>
-    <Document title="Chapter 1 Getting Started" href="UPAJ_Doc_Portal.1.01.html" />
-    <Document title="1.1 Welcome" href="UPAJ_Doc_Portal.1.02.html" />
-    <Document title="1.2 Learning the Transport API for Java" href="UPAJ_Doc_Portal.1.03.html" />
-    <Document title="1.2.2 What is the Transport API Java Edition?" href="UPAJ_Doc_Portal.1.04.html" />
-    <Document title="1.2.3 New to OMM?" href="UPAJ_Doc_Portal.1.05.html" />
-    <Document title="1.2.4 Examples" href="UPAJ_Doc_Portal.1.06.html" />
-    <Document title="1.3 Learning Transport API Java Edition Value Added Components" href="UPAJ_Doc_Portal.1.07.html" />
-    <Document title="1.3.2 Developer’s Guide" href="UPAJ_Doc_Portal.1.08.html" />
-    <Document title="1.3.3 Examples" href="UPAJ_Doc_Portal.1.09.html" />
-    <Document title="1.4 Getting Support" href="UPAJ_Doc_Portal.1.10.html" />
-    <Document title="1.4.2 SSG" href="UPAJ_Doc_Portal.1.11.html" />
-    <Document title="1.5 PDFs and Reference Manuals" href="UPAJ_Doc_Portal.1.12.html" />
-    <Document title="Chapter 2 Product Overview" href="UPAJ_Doc_Portal.1.13.html" />
-    <Document title="2.1 Overview" href="UPAJ_Doc_Portal.1.14.html" />
-    <Document title="2.2 Product Features" href="UPAJ_Doc_Portal.1.15.html" />
-    <Document title="2.2.2 Application-Specific Functionality" href="UPAJ_Doc_Portal.1.16.html" />
-    <Document title="2.2.3 Transport API Value Added Components Functionality" href="UPAJ_Doc_Portal.1.17.html" />
-    <Document title="2.3 Value Added Components Product Features" href="UPAJ_Doc_Portal.1.18.html" />
-    <Document title="Transport API Reactor Component" href="UPAJ_Doc_Portal.1.19.html" />
-    <Document title="Administrative Domain Model Representations" href="UPAJ_Doc_Portal.1.20.html" />
-    <Document title="Value Added Utilities" href="UPAJ_Doc_Portal.1.21.html" />
-    <Document title="Chapter 3 Performance Tool Suite" href="UPAJ_Doc_Portal.1.22.html" />
-    <Document title="3.1 About the Transport API Performance Tool Suite" href="UPAJ_Doc_Portal.1.23.html" />
-    <Document title="3.2 Transport API Performance Tools" href="UPAJ_Doc_Portal.1.24.html" />
-    <Document title="Chapter 4 Transport API Example Applications" href="UPAJ_Doc_Portal.1.25.html" />
-    <Document title="4.1 About Transport API Example Applications" href="UPAJ_Doc_Portal.1.26.html" />
-    <Document title="4.2 Running Examples" href="UPAJ_Doc_Portal.1.27.html" />
-    <Document title="4.3 Consumer and Provider Examples" href="UPAJ_Doc_Portal.1.28.html" />
-    <Document title="4.4 Value Added Component Examples" href="UPAJ_Doc_Portal.1.29.html" />
-    <Document title="4.5 Performance Tools" href="UPAJ_Doc_Portal.1.30.html" />
-    <Document title="4.6 DACS Lock Example" href="UPAJ_Doc_Portal.1.31.html" />
+    <Document title="Chapter 1 Getting Started" href="ETADocPortal.1.01.html" />
+    <Document title="1.1 Welcome" href="ETADocPortal.1.02.html" />
+    <Document title="1.2 Learning the Transport API for Java" href="ETADocPortal.1.03.html" />
+    <Document title="1.2.2 What is the Transport API Java Edition?" href="ETADocPortal.1.04.html" />
+    <Document title="1.2.3 New to OMM?" href="ETADocPortal.1.05.html" />
+    <Document title="1.2.4 Examples" href="ETADocPortal.1.06.html" />
+    <Document title="1.3 Learning Transport API Java Edition Value Added Components" href="ETADocPortal.1.07.html" />
+    <Document title="1.3.2 Developer’s Guide" href="ETADocPortal.1.08.html" />
+    <Document title="1.3.3 Examples" href="ETADocPortal.1.09.html" />
+    <Document title="1.4 Getting Support" href="ETADocPortal.1.10.html" />
+    <Document title="1.4.2 SSG" href="ETADocPortal.1.11.html" />
+    <Document title="1.5 PDFs and Reference Manuals" href="ETADocPortal.1.12.html" />
+    <Document title="Chapter 2 Product Overview" href="ETADocPortal.1.13.html" />
+    <Document title="2.1 Overview" href="ETADocPortal.1.14.html" />
+    <Document title="2.2 Product Features" href="ETADocPortal.1.15.html" />
+    <Document title="2.2.2 Application-Specific Functionality" href="ETADocPortal.1.16.html" />
+    <Document title="2.2.3 Transport API Value Added Components Functionality" href="ETADocPortal.1.17.html" />
+    <Document title="2.3 Value Added Components Product Features" href="ETADocPortal.1.18.html" />
+    <Document title="Chapter 3 Performance Tool Suite" href="ETADocPortal.1.19.html" />
+    <Document title="3.1 About the Transport API Performance Tool Suite" href="ETADocPortal.1.20.html" />
+    <Document title="3.2 Transport API Performance Tools" href="ETADocPortal.1.21.html" />
+    <Document title="Chapter 4 Transport API Example Applications" href="ETADocPortal.1.22.html" />
+    <Document title="4.1 About Transport API Example Applications" href="ETADocPortal.1.23.html" />
+    <Document title="4.2 Running Examples" href="ETADocPortal.1.24.html" />
+    <Document title="4.3 Consumer and Provider Examples" href="ETADocPortal.1.25.html" />
+    <Document title="4.4 Value Added Component Examples" href="ETADocPortal.1.26.html" />
+    <Document title="4.5 Performance Tools" href="ETADocPortal.1.27.html" />
+    <Document title="4.6 DACS Lock Example" href="ETADocPortal.1.28.html" />
   </DocumentInfo>
   <TopicMap />
 </WebWorksHelpBook>

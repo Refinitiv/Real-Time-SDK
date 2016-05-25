@@ -55,8 +55,8 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="Heading_3"><a name="9001529">Negotiating Stream Behaviors: Class of Service</a></div>
-      <div class="Normal"><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001530">ClassOfService</a></span> is used to negotiate behaviors of a <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TunnelStream</span>. Negotiated behaviors are divided into five categories: common, authentication, flow control, data integrity, and guarantee.</div>
+      <div class="Heading_3"><a name="9001584">Negotiating Stream Behaviors: Class of Service</a></div>
+      <div class="Normal"><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001585">ClassOfService</a></span> is used to negotiate behaviors of a <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TunnelStream</span>. Negotiated behaviors are divided into five categories: common, authentication, flow control, data integrity, and guarantee.</div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -64,7 +64,7 @@
               <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">•	</div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="9001531">When an OMM consumer application calls </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel.openTunnelStream</span>, it sets the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TunnelStreamOpenOptions.classOfService</span> members to manage and control tunnel stream behaviors. The consumer passes these settings to the connected OMM Provider.</div>
+              <div class="bullet_ind_inner"><a name="9001586">When an OMM consumer application calls </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel.openTunnelStream</span>, it sets the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TunnelStreamOpenOptions.classOfService</span> members to manage and control tunnel stream behaviors. The consumer passes these settings to the connected OMM Provider.</div>
             </td>
           </tr>
         </table>
@@ -76,12 +76,12 @@
               <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">•	</div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="9001532">When the OMM provider application receives a </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TunnelStreamRequestEvent</span>, the provider calls <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TunnelStreamRequestEvent.classOfService</span> to retrieve the behaviors requested by the consumer.</div>
+              <div class="bullet_ind_inner"><a name="9001587">When the OMM provider application receives a </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TunnelStreamRequestEvent</span>, the provider calls <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TunnelStreamRequestEvent.classOfService</span> to retrieve the behaviors requested by the consumer.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Normal"><a name="9001533">After tunnel stream negotiation is complete, the provider and consumer each receives a </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TunnelStreamStatusEvent</span> where each can view negotiated behaviors on the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TunnelStream</span> structure.</div>
+      <div class="Normal"><a name="9001588">After tunnel stream negotiation is complete, the provider and consumer each receives a </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TunnelStreamStatusEvent</span> where each can view negotiated behaviors on the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TunnelStream</span> structure.</div>
       <div class="Note_outer" style="margin-left: 0pt; border-left-width: 0pt; border-right-width: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -91,12 +91,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Note_inner"><a name="9001534">Do not modify the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ClassOfService</span> member of the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TunnelStream</span>.</div>
+              <div class="Note_inner"><a name="9001589">Do not modify the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ClassOfService</span> member of the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TunnelStream</span>.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Normal"><a name="9001535">The enumerations given for members described in this section can be found in </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">com.thomsonreuters.upa.rdm.ClassesOfService</span>.</div>
+      <div class="Normal"><a name="9001590">The enumerations given for members described in this section can be found in </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">com.thomsonreuters.upa.rdm.ClassesOfService</span>.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

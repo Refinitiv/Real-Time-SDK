@@ -55,89 +55,89 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="Heading_4"><a name="9001074">Reactor RDM Directory Message Callback</a></div>
-      <div class="Normal"><a name="9001075">The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Reactor</span> RDM Directory Message callback is used to communicate all received RDM Directory messages. This interface has the following callback method:</div>
-      <div class="Normal" style="font-family: &quot;Lucida Console&quot;; font-size: 9pt"><a name="9001076">public int rdmDirectoryMsgCallback(RDMDirectoryMsgEvent event)</a></div>
-      <div class="Normal"><a name="9001077">When invoked, this will return the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">RDMDirectoryMsgEvent</span> object, containing more information about the event.</div>
-      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9001078&quot;);"><a name="9001078">Reactor RDM Directory Message Event</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9001078", false);</script></div>
-      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9001078", false);</script>
-      <div class="Normal_Indent"><a name="9001079">The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">RDMDirectoryMsgEvent </span>is returned to the application via the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">RDMDirectoryMsgCallback</span>.</div>
+      <div class="Heading_4"><a name="9001111">Reactor RDM Directory Message Callback</a></div>
+      <div class="Normal"><a name="9001112">The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Reactor</span> RDM Directory Message callback is used to communicate all received RDM Directory messages. This interface has the following callback method:</div>
+      <div class="Normal" style="font-family: &quot;Lucida Console&quot;; font-size: 9pt"><a name="9001113">public int rdmDirectoryMsgCallback(RDMDirectoryMsgEvent event)</a></div>
+      <div class="Normal"><a name="9001114">When invoked, this will return the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">RDMDirectoryMsgEvent</span> object, containing more information about the event.</div>
+      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9001115&quot;);"><a name="9001115">Reactor RDM Directory Message Event</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9001115", false);</script></div>
+      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9001115", false);</script>
+      <div class="Normal_Indent"><a name="9001116">The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">RDMDirectoryMsgEvent </span>is returned to the application via the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">RDMDirectoryMsgCallback</span>.</div>
       <table class="Table_Normal" style="width: 522pt" cellspacing="0" summary="">
         <tr style="vertical-align: top">
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-style: solid; border-left-width: 1pt; border-right-style: none; border-right-width: 0pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 113.25pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001080">CLASS MEMBER</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001117">CLASS MEMBER</a></div>
           </td>
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-style: none; border-left-width: 0pt; border-right-color: #FF9100; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 408.75pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001081">DESCRIPTION</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001118">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9001083">rdmDirectoryMsg</a></div>
+            <div class="Table_Text"><a name="9001120">rdmDirectoryMsg</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9001084">The RDM representation of the decoded Source Directory message. If not present, an error was encountered while processing the information.</a></div>
-            <div class="Table_Text"><a name="9001085">This message is presented as the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">DirectoryMsg</span>, described in Section <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'ETAJ_ValueAddDevGuide.1.178.html', '');" title="7.4 RDM Source Directory Domain">7.4</a>.</div>
+            <div class="Table_Text"><a name="9001121">The RDM representation of the decoded Source Directory message. If not present, an error was encountered while processing the information.</a></div>
+            <div class="Table_Text"><a name="9001122">This message is presented as the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">DirectoryMsg</span>, described in Section <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'ETAJ_ValueAddDevGuide.1.178.html', '');" title="7.4 RDM Source Directory Domain">7.4</a>.</div>
           </td>
         </tr>
       </table>
-      <div class="Caption_Indent"><a name="9001087">Table 39: </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">RDMDirectoryMsgEvent</span> Class Members</div>
+      <div class="Caption_Indent"><a name="9001124">Table 40: </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">RDMDirectoryMsgEvent</span> Class Members</div>
       <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVClose();</script>
-      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9001088&quot;);"><a name="9001088">Reactor RDM Directory Message Event Utility Methods</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9001088", false);</script></div>
-      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9001088", false);</script>
+      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9001125&quot;);"><a name="9001125">Reactor RDM Directory Message Event Utility Methods</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9001125", false);</script></div>
+      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9001125", false);</script>
       <table class="Table_Normal" style="width: 520.25pt" cellspacing="0" summary="">
         <tr style="vertical-align: top">
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-style: solid; border-left-width: 1pt; border-right-style: none; border-right-width: 0pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 171.9pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001089">METHOD NAME</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001126">METHOD NAME</a></div>
           </td>
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-style: none; border-left-width: 0pt; border-right-color: #FF9100; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 348.35pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001090">DESCRIPTION</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001127">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9001092">clear</a></div>
+            <div class="Table_Text"><a name="9001129">clear</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9001093">Clears an </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">RDMDirectoryMsgEvent</span> object.</div>
+            <div class="Table_Text"><a name="9001130">Clears an </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">RDMDirectoryMsgEvent</span> object.</div>
           </td>
         </tr>
       </table>
-      <div class="Caption_Indent"><a name="9001095">Table 40: </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">RDMDirectoryMsgEvent</span> Utility Methods</div>
+      <div class="Caption_Indent"><a name="9001132">Table 41: </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">RDMDirectoryMsgEvent</span> Utility Methods</div>
       <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVClose();</script>
-      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9001096&quot;);"><a name="9001096">Reactor RDM Directory Message Event Callback Example</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9001096", false);</script></div>
-      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9001096", false);</script>
-      <div class="Code_Indent"><a name="9001097">&nbsp;</a></div>
-      <div class="Code_Indent"><a name="9001098">public int rdmDirectoryMsgCallback(RDMDirectoryMsgEvent event)</a></div>
-      <div class="Code_Indent"><a name="9001099">{</a></div>
-      <div class="Code_Indent"><a name="9001100">	DirectoryMsg directoryMsg = event.rdmDirectoryMsg();</a></div>
-      <div class="Code_Indent"><a name="9001101">&nbsp;</a></div>
-      <div class="Code_Indent"><a name="9001102">	</a><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">/*</span> <span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Received an RDM DirectoryMsg --- or, if the decode failed, an error. */</span></div>
-      <div class="Code_Indent"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001103">	/* The directory message will already be fully decoded. */</a></span></div>
-      <div class="Code_Indent"><a name="9001104">	if (directoryMsg != null)</a></div>
-      <div class="Code_Indent"><a name="9001105">	{</a></div>
-      <div class="Code_Indent"><a name="9001106">		switch(directoryMsg.rdmMsgType())</a></div>
-      <div class="Code_Indent"><a name="9001107">		{</a></div>
-      <div class="Code_Indent"><a name="9001108">			case REFRESH:</a></div>
-      <div class="Code_Indent"><a name="9001109">				DirectoryRefresh refresh = (DirectoryRefresh)directoryMsg; </a></div>
-      <div class="Code_Indent"><a name="9001110">			break;</a></div>
-      <div class="Code_Indent"><a name="9001111">			case UPDATE:</a></div>
-      <div class="Code_Indent"><a name="9001112">				DirectoryUpdate update = (DirectoryUpdate)directoryMsg; </a></div>
-      <div class="Code_Indent"><a name="9001113">			break;</a></div>
-      <div class="Code_Indent"><a name="9001114">			case STATUS:</a></div>
-      <div class="Code_Indent"><a name="9001115">				DirectoryStatus status = (DirectoryStatus)directoryMsg; </a></div>
-      <div class="Code_Indent"><a name="9001116"> 			break;</a></div>
-      <div class="Code_Indent"><a name="9001117">			default:</a></div>
-      <div class="Code_Indent"><a name="9001118">				System.out.println("Received unhandled directory message.");</a></div>
-      <div class="Code_Indent"><a name="9001119">		}</a></div>
-      <div class="Code_Indent"><a name="9001120">	}</a></div>
-      <div class="Code_Indent"><a name="9001121">	else</a></div>
-      <div class="Code_Indent"><a name="9001122">		System.out.printf("rdmDirectoryMsgCallback Error: %s(%s)\n",</a></div>
-      <div class="Code_Indent"><a name="9001123">		                  event.errorInfo().error().text(),</a></div>
-      <div class="Code_Indent"><a name="9001124">		                  event.errorInfo().location());</a></div>
-      <div class="Code_Indent"><a name="9001125">}</a></div>
-      <div class="Code_Indent"><a name="9001126">&nbsp;</a></div>
-      <div class="Caption"><a name="9001127">Code Example 9: Reactor RDM Directory Message Event Callback Example</a></div>
+      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9001133&quot;);"><a name="9001133">Reactor RDM Directory Message Event Callback Example</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9001133", false);</script></div>
+      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9001133", false);</script>
+      <div class="Code_Indent"><a name="9001134">&nbsp;</a></div>
+      <div class="Code_Indent"><a name="9001135">public int rdmDirectoryMsgCallback(RDMDirectoryMsgEvent event)</a></div>
+      <div class="Code_Indent"><a name="9001136">{</a></div>
+      <div class="Code_Indent"><a name="9001137">	DirectoryMsg directoryMsg = event.rdmDirectoryMsg();</a></div>
+      <div class="Code_Indent"><a name="9001138">&nbsp;</a></div>
+      <div class="Code_Indent"><a name="9001139">	</a><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">/*</span> <span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Received an RDM DirectoryMsg --- or, if the decode failed, an error. */</span></div>
+      <div class="Code_Indent"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001140">	/* The directory message will already be fully decoded. */</a></span></div>
+      <div class="Code_Indent"><a name="9001141">	if (directoryMsg != null)</a></div>
+      <div class="Code_Indent"><a name="9001142">	{</a></div>
+      <div class="Code_Indent"><a name="9001143">		switch(directoryMsg.rdmMsgType())</a></div>
+      <div class="Code_Indent"><a name="9001144">		{</a></div>
+      <div class="Code_Indent"><a name="9001145">			case REFRESH:</a></div>
+      <div class="Code_Indent"><a name="9001146">				DirectoryRefresh refresh = (DirectoryRefresh)directoryMsg; </a></div>
+      <div class="Code_Indent"><a name="9001147">			break;</a></div>
+      <div class="Code_Indent"><a name="9001148">			case UPDATE:</a></div>
+      <div class="Code_Indent"><a name="9001149">				DirectoryUpdate update = (DirectoryUpdate)directoryMsg; </a></div>
+      <div class="Code_Indent"><a name="9001150">			break;</a></div>
+      <div class="Code_Indent"><a name="9001151">			case STATUS:</a></div>
+      <div class="Code_Indent"><a name="9001152">				DirectoryStatus status = (DirectoryStatus)directoryMsg; </a></div>
+      <div class="Code_Indent"><a name="9001153"> 			break;</a></div>
+      <div class="Code_Indent"><a name="9001154">			default:</a></div>
+      <div class="Code_Indent"><a name="9001155">				System.out.println("Received unhandled directory message.");</a></div>
+      <div class="Code_Indent"><a name="9001156">		}</a></div>
+      <div class="Code_Indent"><a name="9001157">	}</a></div>
+      <div class="Code_Indent"><a name="9001158">	else</a></div>
+      <div class="Code_Indent"><a name="9001159">		System.out.printf("rdmDirectoryMsgCallback Error: %s(%s)\n",</a></div>
+      <div class="Code_Indent"><a name="9001160">		                  event.errorInfo().error().text(),</a></div>
+      <div class="Code_Indent"><a name="9001161">		                  event.errorInfo().location());</a></div>
+      <div class="Code_Indent"><a name="9001162">}</a></div>
+      <div class="Code_Indent"><a name="9001163">&nbsp;</a></div>
+      <div class="Caption"><a name="9001164">Code Example 9: Reactor RDM Directory Message Event Callback Example</a></div>
       <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVClose();</script>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
