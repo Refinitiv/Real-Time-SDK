@@ -25,17 +25,19 @@ class MapImpl extends CollectionDataImpl implements Map
 	private com.thomsonreuters.upa.codec.Map _rsslMap = com.thomsonreuters.upa.codec.CodecFactory.createMap();
 	private com.thomsonreuters.upa.codec.DecodeIterator _keyDecodeIter = com.thomsonreuters.upa.codec.CodecFactory.createDecodeIterator();
 	private LinkedList<MapEntry> _mapCollection = new LinkedList<MapEntry>(); 
-	private DataImpl _summaryDecoded = noDataInstance();
+	private DataImpl _summaryDecoded;
 	private PayloadAttribSummaryImpl _summaryData;
 	
 	MapImpl() 
 	{
-		super(false);
+		super(null);
 	}
 	
-	MapImpl(boolean decoding)
+	MapImpl(EmaObjectManager objManager)
 	{
-		super(decoding);
+		super(objManager);
+		if (objManager != null)
+			_summaryDecoded = noDataInstance();
 	} 
 	
 	@Override
@@ -79,6 +81,9 @@ class MapImpl extends CollectionDataImpl implements Map
 	{
 		if (_summaryData == null)
 			_summaryData = new PayloadAttribSummaryImpl();
+		
+		if (_summaryDecoded == null)
+			_summaryDecoded = (DataImpl)new NoDataImpl();
 		
 		_summaryData.data(_summaryDecoded);
 		return (SummaryData)_summaryData;
@@ -184,12 +189,15 @@ class MapImpl extends CollectionDataImpl implements Map
 	@Override
 	public void clear()
 	{
-		super.clear();
-		
-		_rsslMap.clear();
-		
 		if (_rsslEncodeIter != null)
+		{
+			super.clear();
+		
+			_rsslMap.clear();
 			_mapCollection.clear();
+		}
+		else
+			clearCollection();
 	}
 
 	@Override
@@ -284,12 +292,7 @@ class MapImpl extends CollectionDataImpl implements Map
 						if (_rsslLocalFLSetDefDb != null)
 							_rsslLocalFLSetDefDb.clear();
 						else
-						{
-							if (GlobalPool._rsslFieldListSetDefList.size() > 0)
-								_rsslLocalFLSetDefDb = GlobalPool._rsslFieldListSetDefList.get(0);
-							else
-								_rsslLocalFLSetDefDb = CodecFactory.createLocalFieldSetDefDb();
-						}
+							_rsslLocalFLSetDefDb = CodecFactory.createLocalFieldSetDefDb();
 						
 						_rsslLocalFLSetDefDb.decode(_rsslDecodeIter);
 						_rsslLocalSetDefDb = _rsslLocalFLSetDefDb;
@@ -300,13 +303,8 @@ class MapImpl extends CollectionDataImpl implements Map
 						if (_rsslLocalELSetDefDb != null)
 							_rsslLocalELSetDefDb.clear();
 						else
-						{
-							if (GlobalPool._rsslElementListSetDefList.size() > 0)
-								_rsslLocalELSetDefDb = GlobalPool._rsslElementListSetDefList.get(0);
-							else
-								_rsslLocalELSetDefDb = CodecFactory.createLocalElementSetDefDb();
-						}
-						
+							_rsslLocalELSetDefDb = CodecFactory.createLocalElementSetDefDb();
+					
 						_rsslLocalELSetDefDb.decode(_rsslDecodeIter);
 						_rsslLocalSetDefDb = _rsslLocalELSetDefDb;
 						break;
@@ -692,11 +690,11 @@ class MapImpl extends CollectionDataImpl implements Map
 	
 	private MapEntryImpl mapEntryInstance()
 	{
-		MapEntryImpl retData = (MapEntryImpl)GlobalPool._mapEntryPool.poll();
+		MapEntryImpl retData = (MapEntryImpl)_objManager._mapEntryPool.poll();
         if(retData == null)
         {
-        	retData = new MapEntryImpl(com.thomsonreuters.upa.codec.CodecFactory.createMapEntry(), noDataInstance(), noDataInstance());
-        	GlobalPool._mapEntryPool.updatePool(retData);
+        	retData = new MapEntryImpl(com.thomsonreuters.upa.codec.CodecFactory.createMapEntry(), noDataInstance(), noDataInstance(), _objManager);
+        	_objManager._mapEntryPool.updatePool(retData);
         }
         else
         	retData._rsslMapEntry.clear();
@@ -706,12 +704,12 @@ class MapImpl extends CollectionDataImpl implements Map
 	
 	private void clearCollection()
 	{
-		if (_mapCollection.size() > 0 )
+		int collectionSize = _mapCollection.size();
+		if (collectionSize > 0)
 		{
-			Iterator<MapEntry> iter = _mapCollection.iterator();
-			while ( iter.hasNext())
-				((MapEntryImpl)iter.next()).returnToPool();
-				
+			for (int index = 0; index < collectionSize; ++index)
+				((MapEntryImpl)_mapCollection.get(index)).returnToPool();
+	
 			_mapCollection.clear();
 		}
 	}

@@ -24,17 +24,19 @@ class VectorImpl extends CollectionDataImpl implements Vector
 {
 	private com.thomsonreuters.upa.codec.Vector	_rsslVector = com.thomsonreuters.upa.codec.CodecFactory.createVector();
 	private LinkedList<VectorEntry> _vectorCollection = new LinkedList<VectorEntry>(); 
-	private DataImpl _summaryDecoded = noDataInstance();
+	private DataImpl _summaryDecoded;
 	private PayloadAttribSummaryImpl _summaryData;
 	
 	VectorImpl() 
 	{
-		super(false);
+		super(null);
 	}
 	
-	VectorImpl(boolean decoding)
+	VectorImpl(EmaObjectManager objManager)
 	{
-		super(decoding);
+		super(objManager);
+		if (objManager != null)
+			_summaryDecoded = noDataInstance();
 	} 
 
 	@Override
@@ -70,6 +72,9 @@ class VectorImpl extends CollectionDataImpl implements Vector
 		if (_summaryData == null)
 			_summaryData = new PayloadAttribSummaryImpl();
 		
+		if (_summaryDecoded == null)
+			_summaryDecoded = (DataImpl)new NoDataImpl();
+		
 		_summaryData.data(_summaryDecoded);
 		return (SummaryData)_summaryData;
 	}
@@ -83,12 +88,15 @@ class VectorImpl extends CollectionDataImpl implements Vector
 	@Override
 	public void clear()
 	{
-		super.clear();
-		
-		_rsslVector.clear();
-		
 		if (_rsslEncodeIter != null)
+		{
+			super.clear();
+			
+			_rsslVector.clear();
 			_vectorCollection.clear();
+		}
+		else
+			clearCollection();
 	}
 
 	@Override
@@ -334,12 +342,7 @@ class VectorImpl extends CollectionDataImpl implements Vector
 						if (_rsslLocalFLSetDefDb != null)
 							_rsslLocalFLSetDefDb.clear();
 						else
-						{
-							if (GlobalPool._rsslFieldListSetDefList.size() > 0)
-								_rsslLocalFLSetDefDb = GlobalPool._rsslFieldListSetDefList.get(0);
-							else
 								_rsslLocalFLSetDefDb = CodecFactory.createLocalFieldSetDefDb();
-						}
 						
 						_rsslLocalFLSetDefDb.decode(_rsslDecodeIter);
 						_rsslLocalSetDefDb = _rsslLocalFLSetDefDb;
@@ -350,12 +353,7 @@ class VectorImpl extends CollectionDataImpl implements Vector
 						if (_rsslLocalELSetDefDb != null)
 							_rsslLocalELSetDefDb.clear();
 						else
-						{
-							if (GlobalPool._rsslElementListSetDefList.size() > 0)
-								_rsslLocalELSetDefDb = GlobalPool._rsslElementListSetDefList.get(0);
-							else
 								_rsslLocalELSetDefDb = CodecFactory.createLocalElementSetDefDb();
-						}
 						
 						_rsslLocalELSetDefDb.decode(_rsslDecodeIter);
 						_rsslLocalSetDefDb = _rsslLocalELSetDefDb;
@@ -517,11 +515,11 @@ class VectorImpl extends CollectionDataImpl implements Vector
 	
 	private VectorEntryImpl vectorEntryInstance()
 	{
-		VectorEntryImpl retData = (VectorEntryImpl)GlobalPool._vectorEntryPool.poll();
+		VectorEntryImpl retData = (VectorEntryImpl)_objManager._vectorEntryPool.poll();
         if(retData == null)
         {
-        	retData = new VectorEntryImpl(com.thomsonreuters.upa.codec.CodecFactory.createVectorEntry(), noDataInstance());
-        	GlobalPool._vectorEntryPool.updatePool(retData);
+        	retData = new VectorEntryImpl(com.thomsonreuters.upa.codec.CodecFactory.createVectorEntry(), noDataInstance(), _objManager);
+        	_objManager._vectorEntryPool.updatePool(retData);
         }
         else
         	retData._rsslVectorEntry.clear();
@@ -531,12 +529,12 @@ class VectorImpl extends CollectionDataImpl implements Vector
 	
 	private void clearCollection()
 	{
-		if (_vectorCollection.size() > 0 )
+		int collectionSize = _vectorCollection.size();
+		if (collectionSize > 0)
 		{
-			Iterator<VectorEntry> iter = _vectorCollection.iterator();
-			while ( iter.hasNext())
-				((VectorEntryImpl)iter.next()).returnToPool();
-				
+			for (int index = 0; index < collectionSize; ++index)
+				((VectorEntryImpl)_vectorCollection.get(index)).returnToPool();
+	
 			_vectorCollection.clear();
 		}
 	}

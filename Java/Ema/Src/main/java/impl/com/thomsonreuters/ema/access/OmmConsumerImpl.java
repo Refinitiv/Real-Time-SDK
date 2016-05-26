@@ -85,6 +85,7 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 	private volatile boolean _threadRunning = false;
 	private boolean _eventTimeout;
 	protected VaIteratableQueue _timeoutEventQueue = new VaIteratableQueue();
+	protected EmaObjectManager _objManager = new EmaObjectManager(); 
 	
 	OmmConsumerImpl(OmmConsumerConfig config)
 	{
@@ -101,7 +102,7 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 	{
 		try
 		{
-			GlobalPool.initialize();
+			_objManager.initialize();
 
 			_consumerLock.lock();
 			
@@ -483,6 +484,9 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 			{
 				Iterator<SelectionKey> iter = _selector.selectedKeys().iterator();
 				int ret = ReactorReturnCodes.SUCCESS;
+				
+				_rsslDispatchOptions.maxMessages(count);
+				
 				while (iter.hasNext())
 				{
 					SelectionKey key = iter.next();
@@ -495,7 +499,6 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 						{
 							ReactorChannel reactorChnl = (ReactorChannel) key.attachment();
 
-							_rsslDispatchOptions.maxMessages(count);
 							_rsslErrorInfo.clear();
 
 							ret = reactorChnl.dispatch(_rsslDispatchOptions, _rsslErrorInfo);
@@ -1077,11 +1080,11 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 
 	TimeoutEvent addTimeoutEvent(long timeoutInMicroSec, TimeoutClient client)
 	{
-		TimeoutEvent timeoutEvent = (TimeoutEvent) GlobalPool._timeoutEventPool.poll();
+		TimeoutEvent timeoutEvent = (TimeoutEvent) _objManager._timeoutEventPool.poll();
 		if (timeoutEvent == null)
 		{
 			timeoutEvent = new TimeoutEvent(timeoutInMicroSec * 1000, client);
-			GlobalPool._timeoutEventPool.updatePool(timeoutEvent);
+			_objManager._timeoutEventPool.updatePool(timeoutEvent);
 		} else
 			timeoutEvent.timeoutInNanoSec(timeoutInMicroSec * 1000, client);
 

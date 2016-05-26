@@ -23,13 +23,13 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 	
 	RefreshMsgImpl()
 	{
-		super(DataTypes.REFRESH_MSG, false);
+		super(DataTypes.REFRESH_MSG, null);
 		initialEncoding();
 	}
 
-	RefreshMsgImpl(boolean decoding)
+	RefreshMsgImpl(EmaObjectManager objManager)
 	{
-		super(DataTypes.REFRESH_MSG, decoding);
+		super(DataTypes.REFRESH_MSG, objManager);
 	}
 	
 	@Override
@@ -119,7 +119,7 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 	@Override
 	public ByteBuffer itemGroup()
 	{
-		_itemGroup = Utilities.copyFromPool( ((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).groupId(), _itemGroup);
+		_itemGroup = Utilities.copyFromPool( ((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).groupId(), _itemGroup, _objManager);
 		return _itemGroup;
 	}
 
@@ -129,7 +129,7 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 		if (!hasPermissionData())
 			throw ommIUExcept().message("Attempt to permissionData() while it is NOT set.");
 
-		_permissionData = Utilities.copyFromPool( ((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).permData(), _permissionData);
+		_permissionData = Utilities.copyFromPool( ((com.thomsonreuters.upa.codec.RefreshMsg)_rsslMsg).permData(), _permissionData, _objManager);
 		return _permissionData;
 	}
 

@@ -20,12 +20,12 @@ class StatusMsgImpl extends MsgImpl implements StatusMsg
 	
 	StatusMsgImpl()
 	{
-		super(DataTypes.STATUS_MSG, false);
+		super(DataTypes.STATUS_MSG, null);
 	}
 
-	StatusMsgImpl(boolean decoding)
+	StatusMsgImpl(EmaObjectManager objManager)
 	{
-		super(DataTypes.STATUS_MSG, decoding);
+		super(DataTypes.STATUS_MSG, objManager);
 	}
 	
 	@Override
@@ -79,7 +79,7 @@ class StatusMsgImpl extends MsgImpl implements StatusMsg
 		if (!hasItemGroup())
 			throw ommIUExcept().message("Attempt to itemGroup() while it is NOT set.");
 		
-		_itemGroup = Utilities.copyFromPool( ((com.thomsonreuters.upa.codec.StatusMsg)_rsslMsg).groupId(), _itemGroup);
+		_itemGroup = Utilities.copyFromPool( ((com.thomsonreuters.upa.codec.StatusMsg)_rsslMsg).groupId(), _itemGroup, _objManager);
 		return _itemGroup;
 	}
 
@@ -89,7 +89,7 @@ class StatusMsgImpl extends MsgImpl implements StatusMsg
 		if (!hasPermissionData())
 			throw ommIUExcept().message("Attempt to permissionData() while it is NOT set.");
 
-		_permissionData = Utilities.copyFromPool( ((com.thomsonreuters.upa.codec.StatusMsg)_rsslMsg).permData(), _permissionData);
+		_permissionData = Utilities.copyFromPool( ((com.thomsonreuters.upa.codec.StatusMsg)_rsslMsg).permData(), _permissionData, _objManager);
 		return _permissionData;
 	}
 

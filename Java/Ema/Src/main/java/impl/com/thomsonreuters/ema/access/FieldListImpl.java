@@ -24,12 +24,12 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 	
 	FieldListImpl() 
 	{
-		super(false);
+		super(null);
 	}
 	
-	FieldListImpl(boolean decoding)
+	FieldListImpl(EmaObjectManager objManager)
 	{
-		super(decoding);
+		super(objManager);
 	} 
 			
 	@Override
@@ -118,12 +118,15 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 	@Override
 	public void clear()
 	{
-		super.clear();
-		
-		_rsslFieldList.clear();
-		
 		if (_rsslEncodeIter != null)
+		{
+			super.clear();
+		
+			_rsslFieldList.clear();
 			_fieldListCollection.clear();
+		}
+		else
+			clearCollection();
 	}
 
 	@Override
@@ -556,11 +559,11 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 	
 	private FieldEntryImpl fieldEntryInstance()
 	{
-		FieldEntryImpl retData = (FieldEntryImpl)GlobalPool._fieldEntryPool.poll();
+		FieldEntryImpl retData = (FieldEntryImpl)_objManager._fieldEntryPool.poll();
         if(retData == null)
         {
         	retData = new FieldEntryImpl(com.thomsonreuters.upa.codec.CodecFactory.createFieldEntry(), noDataInstance());
-        	GlobalPool._fieldEntryPool.updatePool(retData);
+        	_objManager._fieldEntryPool.updatePool(retData);
         }
         else
         	retData._rsslFieldEntry.clear();

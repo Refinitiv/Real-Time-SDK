@@ -35,8 +35,8 @@ class MsgImpl extends DataImpl implements Msg
 	protected ByteBuffer	_permissionData;
 	protected ByteBuffer	_itemGroup;
 	protected PayloadAttribSummaryImpl	_payloadAttrib = new PayloadAttribSummaryImpl();
-	protected DataImpl 	_attribDecoded = noDataInstance();
-	protected DataImpl 	_payloadDecoded =  noDataInstance();
+	protected DataImpl 	_attribDecoded;
+	protected DataImpl 	_payloadDecoded;
 	protected com.thomsonreuters.upa.codec.DataDictionary _rsslDictionary;
 	protected com.thomsonreuters.upa.codec.Msg _rsslMsg; 
 	protected com.thomsonreuters.upa.codec.Msg _rsslNestedMsg = CodecFactory.createMsg();
@@ -47,10 +47,10 @@ class MsgImpl extends DataImpl implements Msg
 	protected int  _errorCode = ErrorCode.NO_ERROR;
 	protected StringBuilder _errorString;
 	
-	MsgImpl(int dataType, boolean decoding)
+	MsgImpl(int dataType, EmaObjectManager objManager)
 	{
 		_dataType = dataType;
-		if (!decoding)
+		if (objManager == null)
 		{
 			_rsslMsg = CodecFactory.createMsg(); 
 			_rsslMsg.msgClass(Utilities.toRsslMsgClass[_dataType]);
@@ -61,6 +61,15 @@ class MsgImpl extends DataImpl implements Msg
 			_rsslEncodeIter = com.thomsonreuters.upa.codec.CodecFactory.createEncodeIterator() ;
 			_rsslBuffer = CodecFactory.createBuffer();
 			_rsslBuffer.data(ByteBuffer.allocate(CollectionDataImpl.ENCODE_RSSL_BUFFER_INIT_SIZE));
+		}
+		else
+		{
+			_objManager = objManager;
+			if (objManager != null)
+			{
+				_attribDecoded = noDataInstance();
+				_payloadDecoded =  noDataInstance();
+			}
 		}
 	}
 	
@@ -213,6 +222,9 @@ class MsgImpl extends DataImpl implements Msg
 	@Override
 	public Attrib attrib()
 	{
+		if (_attribDecoded == null)
+			_attribDecoded = (DataImpl)new NoDataImpl();
+		
 		_payloadAttrib.data(_attribDecoded);
 		return (Attrib) _payloadAttrib;
 	}
@@ -220,6 +232,9 @@ class MsgImpl extends DataImpl implements Msg
 	@Override
 	public Payload payload()
 	{
+		if (_payloadDecoded == null)
+			_payloadDecoded = (DataImpl)new NoDataImpl();
+		
 		_payloadAttrib.data(_payloadDecoded);
 		return (Payload) _payloadAttrib;
 	}

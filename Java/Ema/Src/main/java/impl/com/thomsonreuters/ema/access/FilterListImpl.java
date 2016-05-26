@@ -26,12 +26,12 @@ class FilterListImpl extends CollectionDataImpl implements FilterList
 	
 	FilterListImpl() 
 	{
-		super(false);
+		super(null);
 	}
 	
-	FilterListImpl(boolean decoding)
+	FilterListImpl(EmaObjectManager objManager)
 	{
-		super(decoding);
+		super(objManager);
 	} 
 	
 	@Override
@@ -64,12 +64,15 @@ class FilterListImpl extends CollectionDataImpl implements FilterList
 	@Override
 	public void clear()
 	{
-		super.clear();
-		
-		_rsslFilterList.clear();
-		
 		if (_rsslEncodeIter != null)
+		{
+			super.clear();
+			
+			_rsslFilterList.clear();
 			_filterListCollection.clear();
+		}
+		else
+			clearCollection();
 	}
 
 	@Override
@@ -404,11 +407,11 @@ class FilterListImpl extends CollectionDataImpl implements FilterList
 	
 	private FilterEntryImpl filterEntryInstance()
 	{
-		FilterEntryImpl retData = (FilterEntryImpl)GlobalPool._filterEntryPool.poll();
+		FilterEntryImpl retData = (FilterEntryImpl)_objManager._filterEntryPool.poll();
         if(retData == null)
         {
-        	retData = new FilterEntryImpl(com.thomsonreuters.upa.codec.CodecFactory.createFilterEntry(), noDataInstance());
-        	GlobalPool._filterEntryPool.updatePool(retData);
+        	retData = new FilterEntryImpl(com.thomsonreuters.upa.codec.CodecFactory.createFilterEntry(), noDataInstance(), _objManager);
+        	_objManager._filterEntryPool.updatePool(retData);
         }
         else
         	retData._rsslFilterEntry.clear();
@@ -418,12 +421,12 @@ class FilterListImpl extends CollectionDataImpl implements FilterList
 	
 	private void clearCollection()
 	{
-		if (_filterListCollection.size() > 0 )
+		int collectionSize = _filterListCollection.size();
+		if (collectionSize > 0)
 		{
-			Iterator<FilterEntry> iter = _filterListCollection.iterator();
-			while ( iter.hasNext())
-				((FilterEntryImpl)iter.next()).returnToPool();
-				
+			for (int index = 0; index < collectionSize; ++index)
+				((FilterEntryImpl)_filterListCollection.get(index)).returnToPool();
+	
 			_filterListCollection.clear();
 		}
 	}

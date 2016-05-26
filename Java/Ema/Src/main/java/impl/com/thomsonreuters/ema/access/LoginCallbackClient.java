@@ -290,7 +290,7 @@ class LoginCallbackClient extends ConsumerCallbackClient implements RDMLoginMsgC
 		if (rsslMsg != null)
 		{
 			if (_refreshMsg == null)
-				_refreshMsg = new RefreshMsgImpl(true);
+				_refreshMsg = new RefreshMsgImpl(_consumer._objManager);
 				
 			_refreshMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(), null);
 		}
@@ -333,7 +333,7 @@ class LoginCallbackClient extends ConsumerCallbackClient implements RDMLoginMsgC
 		if (rsslMsg != null)
 		{
 			if (_statusMsg == null)
-				_statusMsg = new StatusMsgImpl(true);
+				_statusMsg = new StatusMsgImpl(_consumer._objManager);
 				
 			_statusMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(), null);
 		}
@@ -536,10 +536,10 @@ class LoginCallbackClient extends ConsumerCallbackClient implements RDMLoginMsgC
 			_loginItemList = new ArrayList<LoginItem>();
 		
 		LoginItem item;
-		if ((item = (LoginItem)GlobalPool._loginItemPool.poll()) == null)
+		if ((item = (LoginItem)_consumer._objManager._loginItemPool.poll()) == null)
 		{
 			item = new LoginItem(_consumer, consumerClient, closure);
-			GlobalPool._loginItemPool.updatePool(item);
+			_consumer._objManager._loginItemPool.updatePool(item);
 		}
 		else
 		{
@@ -557,7 +557,7 @@ class LoginCallbackClient extends ConsumerCallbackClient implements RDMLoginMsgC
 	int processAckMsg(Msg rsslMsg ,  ChannelInfo channelInfo)
 	{
 		if (_ackMsg == null)
-			_ackMsg = new AckMsgImpl(true);
+			_ackMsg = new AckMsgImpl(_consumer._objManager);
 		
 		_ackMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
 	
@@ -574,7 +574,7 @@ class LoginCallbackClient extends ConsumerCallbackClient implements RDMLoginMsgC
 	int processGenericMsg(Msg rsslMsg ,  ChannelInfo channelInfo)
 	{
 		if (_genericMsg == null)
-			_genericMsg = new GenericMsgImpl(true);
+			_genericMsg = new GenericMsgImpl(_consumer._objManager);
 		
 		_genericMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
 	

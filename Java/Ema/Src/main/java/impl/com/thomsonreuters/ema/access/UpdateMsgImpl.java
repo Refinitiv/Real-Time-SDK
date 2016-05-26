@@ -17,12 +17,12 @@ class UpdateMsgImpl extends MsgImpl implements UpdateMsg
 {
 	UpdateMsgImpl()
 	{
-		super(DataTypes.UPDATE_MSG, false);
+		super(DataTypes.UPDATE_MSG, null);
 	}
 
-	UpdateMsgImpl(boolean decoding)
+	UpdateMsgImpl(EmaObjectManager objManager)
 	{
-		super(DataTypes.UPDATE_MSG, decoding);
+		super(DataTypes.UPDATE_MSG, objManager);
 	}
 	
 	@Override
@@ -77,7 +77,7 @@ class UpdateMsgImpl extends MsgImpl implements UpdateMsg
 		if (!hasPermissionData())
 			throw ommIUExcept().message("Attempt to permissionData() while it is NOT set.");
 
-		_permissionData = Utilities.copyFromPool( ((com.thomsonreuters.upa.codec.UpdateMsg)_rsslMsg).permData(), _permissionData);
+		_permissionData = Utilities.copyFromPool( ((com.thomsonreuters.upa.codec.UpdateMsg)_rsslMsg).permData(), _permissionData, _objManager);
 		return _permissionData;
 	}
 

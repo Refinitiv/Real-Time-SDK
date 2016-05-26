@@ -27,12 +27,12 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 
 	OmmArrayImpl() 
 	{
-		super(false);
+		super(null);
 	}
 	
-	OmmArrayImpl(boolean decoding)
+	OmmArrayImpl(EmaObjectManager objManager)
 	{
-		super(decoding);
+		super(objManager);
 	} 
 	
 	@Override
@@ -118,12 +118,15 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 	@Override
 	public void clear()
 	{
-		super.clear();
-		
-		_rsslArray.clear();
-		
 		if (_rsslEncodeIter != null)
+		{
+			super.clear();
+		
+			_rsslArray.clear();
 			_ommArrayCollection.clear();
+		}
+		else
+			clearCollection();
 	}
 
 	@Override
@@ -761,11 +764,11 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 	
 	private OmmArrayEntryImpl ommArrayEntryInstance()
 	{
-		OmmArrayEntryImpl retData = (OmmArrayEntryImpl)GlobalPool._arrayEntryPool.poll();
+		OmmArrayEntryImpl retData = (OmmArrayEntryImpl)_objManager._arrayEntryPool.poll();
         if(retData == null)
         {
         	retData = new OmmArrayEntryImpl(noDataInstance());
-        	GlobalPool._arrayEntryPool.updatePool(retData);
+        	_objManager._arrayEntryPool.updatePool(retData);
         }
         
         return retData;
@@ -773,12 +776,12 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 	
 	private void clearCollection()
 	{
-		if (_ommArrayCollection.size() > 0 )
+		int collectionSize = _ommArrayCollection.size();
+		if (collectionSize > 0)
 		{
-			Iterator<OmmArrayEntry> iter = _ommArrayCollection.iterator();
-			while ( iter.hasNext())
-				((OmmArrayEntryImpl)iter.next()).returnToPool();
-				
+			for (int index = 0; index < collectionSize; ++index)
+				((OmmArrayEntryImpl)_ommArrayCollection.get(index)).returnToPool();
+	
 			_ommArrayCollection.clear();
 		}
 	}

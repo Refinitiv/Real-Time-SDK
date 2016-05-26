@@ -20,6 +20,7 @@ class VectorEntryImpl extends EntryImpl implements VectorEntry
 	private final static String DEFAULTACTION_STRING 	= "Unknown VectorAction value ";
 	
 	private ByteBuffer _permData;
+	private EmaObjectManager _objManager;
 	protected com.thomsonreuters.upa.codec.VectorEntry	_rsslVectorEntry;
 	protected int _entryDataType;
 	
@@ -28,10 +29,11 @@ class VectorEntryImpl extends EntryImpl implements VectorEntry
 		_rsslVectorEntry = com.thomsonreuters.upa.codec.CodecFactory.createVectorEntry();
 	}
 	
-	VectorEntryImpl(com.thomsonreuters.upa.codec.VectorEntry rsslVectorEntry, DataImpl load)
+	VectorEntryImpl(com.thomsonreuters.upa.codec.VectorEntry rsslVectorEntry, DataImpl load, EmaObjectManager objManager)
 	{
 		super(load);
 		_rsslVectorEntry = rsslVectorEntry;
+		_objManager = objManager;
 	}
 	
 	@Override
@@ -72,7 +74,7 @@ class VectorEntryImpl extends EntryImpl implements VectorEntry
 		if (!hasPermissionData())
 			throw ommIUExcept().message("Attempt to permissionData() while it is NOT set.");
 		
-		_permData = Utilities.copyFromPool( _rsslVectorEntry.permData(), _permData);
+		_permData = Utilities.copyFromPool( _rsslVectorEntry.permData(), _permData, _objManager);
 		return _permData;
 	}
 
