@@ -58,7 +58,7 @@ public class ReactorChannel extends VaNode
 
     // tunnel stream support
     private TunnelStreamManager _tunnelStreamManager = new TunnelStreamManager();
-    private HashMap<Integer,TunnelStream> _streamIdtoTunnelStreamTable = new HashMap<Integer,TunnelStream>();
+    private HashMap<WlInteger,TunnelStream> _streamIdtoTunnelStreamTable = new HashMap<WlInteger,TunnelStream>();
     private Msg _tunnelStreamRespMsg = CodecFactory.createMsg();
     private ReactorSubmitOptions _reactorSubmitOptions = ReactorFactory.createReactorSubmitOptions();
     private ReactorChannelInfo _reactorChannelInfo = ReactorFactory.createReactorChannelInfo();
@@ -759,7 +759,10 @@ public class ReactorChannel extends VaNode
                 return ReactorReturnCodes.FAILURE;                
             }
             
-            if (_streamIdtoTunnelStreamTable.containsKey(options.streamId()))
+            
+            WlInteger wlInteger = ReactorFactory.createWlInteger();
+            wlInteger.value(options.streamId());
+            if (_streamIdtoTunnelStreamTable.containsKey(wlInteger))
             {
                 return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
                                                   "ReactorChannel.openTunnelStream",
@@ -775,7 +778,9 @@ public class ReactorChannel extends VaNode
             
             // open tunnel stream
             TunnelStream tunnelStream = _tunnelStreamManager.createTunnelStream(options);
-            _streamIdtoTunnelStreamTable.put(tunnelStream.streamId(), tunnelStream);
+            wlInteger.value(tunnelStream.streamId());
+            tunnelStream.tableKey(wlInteger);
+            _streamIdtoTunnelStreamTable.put(wlInteger, tunnelStream);
             if (tunnelStream.openStream(errorInfo.error()) < ReactorReturnCodes.SUCCESS)
             {
                 return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
@@ -936,7 +941,10 @@ public class ReactorChannel extends VaNode
             // open tunnel stream
             TunnelStream tunnelStream = _tunnelStreamManager.createTunnelStream(event, options);
             tunnelStream.channelStreamId(tunnelStream.streamId());
-            _streamIdtoTunnelStreamTable.put(tunnelStream.streamId(), tunnelStream);
+            WlInteger wlInteger = ReactorFactory.createWlInteger();
+            wlInteger.value(tunnelStream.streamId());
+            tunnelStream.tableKey(wlInteger);
+            _streamIdtoTunnelStreamTable.put(wlInteger, tunnelStream);
             if (tunnelStream.openStream(errorInfo.error()) < ReactorReturnCodes.SUCCESS)
             {
                 return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
@@ -1059,7 +1067,7 @@ public class ReactorChannel extends VaNode
         return ReactorReturnCodes.SUCCESS;
     }
 
-    HashMap<Integer,TunnelStream> streamIdtoTunnelStreamTable()
+    HashMap<WlInteger,TunnelStream> streamIdtoTunnelStreamTable()
     {
         return _streamIdtoTunnelStreamTable;
     }

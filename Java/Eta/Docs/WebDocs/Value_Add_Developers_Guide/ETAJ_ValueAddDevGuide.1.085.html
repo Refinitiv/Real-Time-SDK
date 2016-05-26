@@ -55,72 +55,72 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="Heading_3"><a name="9000859">Reactor Callback Methods</a></div>
-      <div class="Normal"><a name="9000860">Information about the state of the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel</span> connection as well as any messages for that channel are returned to the application via a series of callback methods. Each <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel</span> can define its own unique callback methods or specify callback methods that can be shared across several or all channels.</div>
-      <div class="Normal"><a name="9000861">There are several values that can be returned from a callback method implementation. These can trigger specific </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Reactor</span> behavior based on the outcome of the callback method. The callback return values are described in the following table.</div>
+      <div class="Heading_3"><a name="9000887">Reactor Callback Methods</a></div>
+      <div class="Normal"><a name="9000888">Information about the state of the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel</span> connection as well as any messages for that channel are returned to the application via a series of callback methods. Each <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel</span> can define its own unique callback methods or specify callback methods that can be shared across several or all channels.</div>
+      <div class="Normal"><a name="9000889">There are several values that can be returned from a callback method implementation. These can trigger specific </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Reactor</span> behavior based on the outcome of the callback method. The callback return values are described in the following table.</div>
       <table class="Table_Normal" style="width: 545.8pt" cellspacing="0" summary="">
         <tr style="vertical-align: top">
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-style: solid; border-left-width: 1pt; border-right-style: none; border-right-width: 0pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 117.8pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9000862">RETURN CODE</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9000890">RETURN CODE</a></div>
           </td>
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-style: none; border-left-width: 0pt; border-right-color: #FF9100; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 428pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9000863">DESCRIPTION</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9000891">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000865">SUCCESS</a></div>
+            <div class="Table_Text"><a name="9000893">SUCCESS</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000866">Indicates that the callback method was successful and the message or event has been handled.</a></div>
+            <div class="Table_Text"><a name="9000894">Indicates that the callback method was successful and the message or event has been handled.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000868">FAILURE</a></div>
+            <div class="Table_Text"><a name="9000896">FAILURE</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000869">Indicates that the message or event has failed to be handled. Returning this code from any callback method will cause the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Reactor</span> to shutdown.</div>
+            <div class="Table_Text"><a name="9000897">Indicates that the message or event has failed to be handled. Returning this code from any callback method will cause the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Reactor</span> to shutdown.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000871">RAISE</a></div>
+            <div class="Table_Text"><a name="9000899">RAISE</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000872">Can be returned from any domain-specific callback (e.g., </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">RDMLoginMsgCallback</span>). This will cause the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Reactor</span> to invoke the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">DefaultMsgCallback</span> for this message upon the domain-specific callbacks return.</div>
+            <div class="Table_Text"><a name="9000900">Can be returned from any domain-specific callback (e.g., </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">RDMLoginMsgCallback</span>). This will cause the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Reactor</span> to invoke the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">DefaultMsgCallback</span> for this message upon the domain-specific callbacks return.</div>
           </td>
         </tr>
       </table>
-      <div class="Caption"><a name="9000874">Table 30: ReactorCallbackReturnCodes Callback Return Codes</a></div>
-      <div class="Normal"><a name="9000875">All events communicated to callback methods have the same base class, the </a><span style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt">ReactorEvent</span>, which contains information common to all callback events.</div>
+      <div class="Caption"><a name="9000902">Table 31: ReactorCallbackReturnCodes Callback Return Codes</a></div>
+      <div class="Normal"><a name="9000903">All events communicated to callback methods have the same base class, the </a><span style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt">ReactorEvent</span>, which contains information common to all callback events.</div>
       <table class="Table_Normal" style="width: 545.05pt" cellspacing="0" summary="">
         <tr style="vertical-align: top">
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-style: solid; border-left-width: 1pt; border-right-style: none; border-right-width: 0pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 118.9pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9000876">CLASS MEMBER</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9000904">CLASS MEMBER</a></div>
           </td>
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-style: none; border-left-width: 0pt; border-right-color: #FF9100; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 426.15pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9000877">DESCRIPTION</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9000905">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000879">reactorChannel</a></div>
+            <div class="Table_Text"><a name="9000907">reactorChannel</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000880">The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel</span> on which the event occurred.</div>
+            <div class="Table_Text"><a name="9000908">The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel</span> on which the event occurred.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000882">errorInfo</a></div>
+            <div class="Table_Text"><a name="9000910">errorInfo</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000883">The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorErrorInfo</span> associated with this event.</div>
+            <div class="Table_Text"><a name="9000911">The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorErrorInfo</span> associated with this event.</div>
           </td>
         </tr>
       </table>
-      <div class="Caption"><a name="9000885">Table 31: </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorEvent</span> Class Members</div>
+      <div class="Caption"><a name="9000913">Table 32: </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorEvent</span> Class Members</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

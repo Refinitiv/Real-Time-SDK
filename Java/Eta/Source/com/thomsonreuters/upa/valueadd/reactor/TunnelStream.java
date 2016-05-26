@@ -82,6 +82,8 @@ public class TunnelStream
     int _guaranteedOutputBuffers;
 	Object _userSpecObject;
 	boolean _isProvider;
+    WlInteger _tempWlInteger = ReactorFactory.createWlInteger();
+    WlInteger _tableKey;
     ReactorSubmitOptions _reactorSubmitOptions = ReactorFactory.createReactorSubmitOptions();
 
     static final int DEFAULT_RECV_WINDOW = CosCommon.DEFAULT_MAX_MSG_SIZE * 2;
@@ -826,7 +828,8 @@ public class TunnelStream
         close(finalStatusEvent, errorInfo.error());
 
         // find and remove TunnelStream from table for this streamId
-        if (_reactorChannel.streamIdtoTunnelStreamTable().containsKey(_streamId))
+        _tempWlInteger.value(_streamId);
+        if (_reactorChannel.streamIdtoTunnelStreamTable().containsKey(_tempWlInteger))
         { 
             if (_reactorChannel.tunnelStreamManager().needsDispatchNow())
             {
@@ -3365,5 +3368,15 @@ public class TunnelStream
         error.sysError(errorInfo.error().sysError());
         if (errorInfo.error().text() != null)
             error.text(errorInfo.error().text());
+    }
+    
+    void tableKey(WlInteger tableKey)
+    {
+        _tableKey = tableKey;
+    }
+    
+    WlInteger tableKey()
+    {
+        return _tableKey;
     }
 }

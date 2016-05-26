@@ -55,26 +55,26 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="Heading_4"><a name="9000761">Reactor.accept Example</a></div>
-      <div class="Code"><a name="9000762">&nbsp;</a></div>
-      <div class="Code"><a name="9000763">RsslReactorAcceptOptions reactorAcceptOpts = ReactorFactory.createReactorAcceptOptions();</a></div>
-      <div class="Code"><a name="9000764">ProviderRole providerRole = ReactorFactory.createProviderRole();</a></div>
-      <div class="Code"><a name="9000765">		</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9000766">/* Configure accept options.*/</a></span></div>
-      <div class="Code"><a name="9000767">reactorAcceptOpts.clear();</a></div>
-      <div class="Code"><a name="9000768">reactorAcceptOpts.acceptOptions().userSpecObject(server);</a></div>
-      <div class="Code"><a name="9000769">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9000770">/* Configure a role for this connection as an OMM Provider. */</a></span></div>
-      <div class="Code"><a name="9000771">providerRole.clear();</a></div>
-      <div class="Code"><a name="9000772">providerRole.channelEventCallback(channelEventCallback);</a></div>
-      <div class="Code"><a name="9000773">providerRole.defaultMsgCallback(defaultMsgCallback);</a></div>
-      <div class="Code"><a name="9000774">providerRole.loginMsgCallback(loginMsgCallback);</a></div>
-      <div class="Code"><a name="9000775">providerRole.directoryMsgCallback(directoryMsgCallback);</a></div>
-      <div class="Code"><a name="9000776">providerRole.dictionaryMsgCallback(dictionaryMsgCallback);</a></div>
-      <div class="Code"><a name="9000777">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9000778">/* Add the connection to the Reactor </a></span>by accepting it from a Server<span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">. */</span></div>
-      <div class="Code"><a name="9000779">ret = reactor.accept(server, reactorAcceptOpts, providerRole, errorInfo)</a></div>
-      <div class="Caption"><a name="9000780">Code Example 3: Reactor.accept Example</a></div>
+      <div class="Heading_4"><a name="9000789">Reactor.accept Example</a></div>
+      <div class="Code"><a name="9000790">&nbsp;</a></div>
+      <div class="Code"><a name="9000791">RsslReactorAcceptOptions reactorAcceptOpts = ReactorFactory.createReactorAcceptOptions();</a></div>
+      <div class="Code"><a name="9000792">ProviderRole providerRole = ReactorFactory.createProviderRole();</a></div>
+      <div class="Code"><a name="9000793">		</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9000794">/* Configure accept options.*/</a></span></div>
+      <div class="Code"><a name="9000795">reactorAcceptOpts.clear();</a></div>
+      <div class="Code"><a name="9000796">reactorAcceptOpts.acceptOptions().userSpecObject(server);</a></div>
+      <div class="Code"><a name="9000797">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9000798">/* Configure a role for this connection as an OMM Provider. */</a></span></div>
+      <div class="Code"><a name="9000799">providerRole.clear();</a></div>
+      <div class="Code"><a name="9000800">providerRole.channelEventCallback(channelEventCallback);</a></div>
+      <div class="Code"><a name="9000801">providerRole.defaultMsgCallback(defaultMsgCallback);</a></div>
+      <div class="Code"><a name="9000802">providerRole.loginMsgCallback(loginMsgCallback);</a></div>
+      <div class="Code"><a name="9000803">providerRole.directoryMsgCallback(directoryMsgCallback);</a></div>
+      <div class="Code"><a name="9000804">providerRole.dictionaryMsgCallback(dictionaryMsgCallback);</a></div>
+      <div class="Code"><a name="9000805">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9000806">/* Add the connection to the Reactor </a></span>by accepting it from a Server<span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">. */</span></div>
+      <div class="Code"><a name="9000807">ret = reactor.accept(server, reactorAcceptOpts, providerRole, errorInfo)</a></div>
+      <div class="Caption"><a name="9000808">Code Example 3: Reactor.accept Example</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

@@ -55,102 +55,102 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="Heading_4"><a name="9003814">Encoding a Source Directory Refresh</a></div>
-      <div class="Code" style="text-indent: 0pt"><a name="9003815">&nbsp;</a></div>
-      <div class="Code" style="text-indent: 0pt"><a name="9003816">EncodeIterator encodeIter = CodecFactory.createEncodeIterator();</a></div>
-      <div class="Code"><a name="9003817">DirectoryRefresh directoryRefresh = (DirectoryRefresh)DirectoryMsgFactory.createMsg();</a></div>
-      <div class="Code"><a name="9003818">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003819">/* Clear the Directory Refresh object. */ </a></span></div>
-      <div class="Code"><a name="9003820">directoryRefresh.clear(); </a></div>
-      <div class="Code"><a name="9003821">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003822">/* Set directory message type – required as object created by DirectoryMsgFactory.createMsg() is generic Directory object. */</a></span></div>
-      <div class="Code"><a name="9003823">directoryRefresh.rdmMsgType(DirectoryMsgType.REFRESH);</a></div>
-      <div class="Code"><a name="9003824">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003825">/* Set stream id. */</a></span></div>
-      <div class="Code"><a name="9003826">directoryRefresh.streamId(streamId);</a></div>
-      <div class="Code"><a name="9003827">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003828">/* Set flags for optional members */</a></span></div>
-      <div class="Code"><a name="9003829">directoryRefresh.applySolicited();</a></div>
-      <div class="Code"><a name="9003830">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003831">/* Set state. */</a></span></div>
-      <div class="Code"><a name="9003832">directoryRefresh.state().streamState(StreamStates.OPEN);</a></div>
-      <div class="Code"><a name="9003833">directoryRefresh.state().dataState(DataStates.OK);</a></div>
-      <div class="Code"><a name="9003834">directoryRefresh.state().code(StateCodes.NONE);</a></div>
-      <div class="Code"><a name="9003835">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003836">/* Set filter to say the Info, State, and Group filters are supported. */</a></span></div>
-      <div class="Code"><a name="9003837">directoryRefresh.filter(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE |</a></div>
-      <div class="Code"><a name="9003838">Directory.ServiceFilterFlags.GROUP);</a></div>
-      <div class="Code"><a name="9003839">&nbsp;</a></div>
-      <div class="Code"><a name="9003840">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003841">/* List of services to be used.</a></span></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003842"> * This example will show encoding of one service. Additional services</a></span></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003843"> * can be set up using the same method shown below. */</a></span></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003844">/*** Create Service ***/</a></span></div>
-      <div class="Code"><a name="9003845">Service service = CodecFactory.createService();</a></div>
-      <div class="Code"><a name="9003846">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003847">/*** Build Service MY_SERVICE. ***/</a></span></div>
-      <div class="Code"><a name="9003848">service.clear();</a></div>
-      <div class="Code"><a name="9003849">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003850">/* Set flags to indicate Info and State filter are present. */</a></span></div>
-      <div class="Code"><a name="9003851">service.flags(ServiceFlags.HAS_INFO | ServiceFlags.HAS_STATE);</a></div>
-      <div class="Code"><a name="9003852">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003853">/* Set action to indicate adding a new service. */</a></span></div>
-      <div class="Code"><a name="9003854">service.info().action(MapEntryActions.ADD);</a></div>
-      <div class="Code"><a name="9003855">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003856">/* Set flags to indicate optional members. */</a></span></div>
-      <div class="Code"><a name="9003857">service.info().flags(ServiceInfoFlags.HAS_VENDOR | ServiceInfoFlags.HAS_DICTS_PROVIDED | ServiceInfoFlags. HAS_DICTS_USED |  ServiceInfoFlags.HAS_QOS);</a></div>
-      <div class="Code"><a name="9003858">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003859">/* Set service name. */</a></span></div>
-      <div class="Code"><a name="9003860">service.info().serviceName().data("MY_SERVICE");</a></div>
-      <div class="Code"><a name="9003861">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003862">/* Set vendor name. */</a></span></div>
-      <div class="Code"><a name="9003863">service.info().vendor().data("Thomson Reuters");</a></div>
-      <div class="Code"><a name="9003864">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003865">/* Set capabilities list. */</a></span></div>
-      <div class="Code"><a name="9003866">service.info().capabilitiesList().add(DomainTypes.DICTIONARY);</a></div>
-      <div class="Code"><a name="9003867">service.info().capabilitiesList().add(DomainTypes.MARKET_PRICE);</a></div>
-      <div class="Code"><a name="9003868">service.info().capabilitiesList().add(DomainTypes.MARKET_BY_ORDER);</a></div>
-      <div class="Code"><a name="9003869">&nbsp;</a></div>
-      <div class="Code"><a name="9003870">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003871">/* Set dictionaries provided. */</a></span></div>
-      <div class="Code"><a name="9003872">service.info().dictionariesProvidedList().add("RWFFld");</a></div>
-      <div class="Code"><a name="9003873">service.info().dictionariesProvidedList().add("RWFEnum");</a></div>
-      <div class="Code"><a name="9003874">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003875">/* Set dictionaries used. */</a></span></div>
-      <div class="Code"><a name="9003876">service.info().dictionariesUsedList ().add("RWFFld");</a></div>
-      <div class="Code"><a name="9003877">service.info().dictionariesUsedList ().add("RWFEnum");</a></div>
-      <div class="Code"><a name="9003878">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003879">/* Build QoS list. */</a></span></div>
-      <div class="Code"><a name="9003880">Qos qos1 = CodecFactory.createQos();</a></div>
-      <div class="Code"><a name="9003881">qos1.timeliness(QosTimeliness.REALTIME);</a></div>
-      <div class="Code"><a name="9003882">qos1.rate(QosRates.TICK_BY_TICK);</a></div>
-      <div class="Code"><a name="9003883">Qos qos2 = CodecFactory.createQos();</a></div>
-      <div class="Code"><a name="9003884">service.info().qosList().add(qos2);</a></div>
-      <div class="Code"><a name="9003885">qos2.timeliness(QosTimeliness.REALTIME);</a></div>
-      <div class="Code"><a name="9003886">qos2.rate(QosRates.JIT_CONFLATED);</a></div>
-      <div class="Code"><a name="9003887">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003888">/* Set QoS list. */</a></span></div>
-      <div class="Code"><a name="9003889">service.info().qosList().add(qos1);</a></div>
-      <div class="Code"><a name="9003890">service.info().qosList().add(qos2);</a></div>
-      <div class="Code"><a name="9003891">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003892">/*** Build Service State for MY_SERVICE ***/</a></span></div>
-      <div class="Code"><a name="9003893">service.state().flags(ServiceStateFlags.HAS_ACCEPTING_REQS);</a></div>
-      <div class="Code"><a name="9003894">service.state().serviceState(1);</a></div>
-      <div class="Code"><a name="9003895">service.state().acceptingRequests(1);</a></div>
-      <div class="Code"><a name="9003896">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003897">/*** Finish and encode. ***/</a></span></div>
-      <div class="Code"><a name="9003898">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003899">/* Set the list of services on the message.*/</a></span></div>
-      <div class="Code"><a name="9003900">directoryRefresh.serviceList().add(service);</a></div>
+      <div class="Heading_4"><a name="9003869">Encoding a Source Directory Refresh</a></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9003870">&nbsp;</a></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9003871">EncodeIterator encodeIter = CodecFactory.createEncodeIterator();</a></div>
+      <div class="Code"><a name="9003872">DirectoryRefresh directoryRefresh = (DirectoryRefresh)DirectoryMsgFactory.createMsg();</a></div>
+      <div class="Code"><a name="9003873">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003874">/* Clear the Directory Refresh object. */ </a></span></div>
+      <div class="Code"><a name="9003875">directoryRefresh.clear(); </a></div>
+      <div class="Code"><a name="9003876">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003877">/* Set directory message type – required as object created by DirectoryMsgFactory.createMsg() is generic Directory object. */</a></span></div>
+      <div class="Code"><a name="9003878">directoryRefresh.rdmMsgType(DirectoryMsgType.REFRESH);</a></div>
+      <div class="Code"><a name="9003879">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003880">/* Set stream id. */</a></span></div>
+      <div class="Code"><a name="9003881">directoryRefresh.streamId(streamId);</a></div>
+      <div class="Code"><a name="9003882">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003883">/* Set flags for optional members */</a></span></div>
+      <div class="Code"><a name="9003884">directoryRefresh.applySolicited();</a></div>
+      <div class="Code"><a name="9003885">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003886">/* Set state. */</a></span></div>
+      <div class="Code"><a name="9003887">directoryRefresh.state().streamState(StreamStates.OPEN);</a></div>
+      <div class="Code"><a name="9003888">directoryRefresh.state().dataState(DataStates.OK);</a></div>
+      <div class="Code"><a name="9003889">directoryRefresh.state().code(StateCodes.NONE);</a></div>
+      <div class="Code"><a name="9003890">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003891">/* Set filter to say the Info, State, and Group filters are supported. */</a></span></div>
+      <div class="Code"><a name="9003892">directoryRefresh.filter(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE |</a></div>
+      <div class="Code"><a name="9003893">Directory.ServiceFilterFlags.GROUP);</a></div>
+      <div class="Code"><a name="9003894">&nbsp;</a></div>
+      <div class="Code"><a name="9003895">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003896">/* List of services to be used.</a></span></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003897"> * This example will show encoding of one service. Additional services</a></span></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003898"> * can be set up using the same method shown below. */</a></span></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003899">/*** Create Service ***/</a></span></div>
+      <div class="Code"><a name="9003900">Service service = CodecFactory.createService();</a></div>
       <div class="Code"><a name="9003901">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003902">/* Clear the encode iterator, set its RWF Version, and set it to a buffer for encoding into. */</a></span></div>
-      <div class="Code"><a name="9003903">encodeIter.clear();</a></div>
-      <div class="Code"><a name="9003904">ret = encodeIter.setBufferAndRWFVersion(msgBuf,channelMajorVersion, channelMinorVersion);</a></div>
-      <div class="Code"><a name="9003905">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003906">/* Encode the message. */ </a></span></div>
-      <div class="Code"><a name="9003907">ret = directoryRefresh.encode(encodeIter);</a></div>
-      <div class="Code"><a name="9003908">&nbsp;</a></div>
-      <div class="Caption"><a name="9003909">Code Example 22: Directory Refresh Encoding Example</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003902">/*** Build Service MY_SERVICE. ***/</a></span></div>
+      <div class="Code"><a name="9003903">service.clear();</a></div>
+      <div class="Code"><a name="9003904">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003905">/* Set flags to indicate Info and State filter are present. */</a></span></div>
+      <div class="Code"><a name="9003906">service.flags(ServiceFlags.HAS_INFO | ServiceFlags.HAS_STATE);</a></div>
+      <div class="Code"><a name="9003907">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003908">/* Set action to indicate adding a new service. */</a></span></div>
+      <div class="Code"><a name="9003909">service.info().action(MapEntryActions.ADD);</a></div>
+      <div class="Code"><a name="9003910">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003911">/* Set flags to indicate optional members. */</a></span></div>
+      <div class="Code"><a name="9003912">service.info().flags(ServiceInfoFlags.HAS_VENDOR | ServiceInfoFlags.HAS_DICTS_PROVIDED | ServiceInfoFlags. HAS_DICTS_USED |  ServiceInfoFlags.HAS_QOS);</a></div>
+      <div class="Code"><a name="9003913">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003914">/* Set service name. */</a></span></div>
+      <div class="Code"><a name="9003915">service.info().serviceName().data("MY_SERVICE");</a></div>
+      <div class="Code"><a name="9003916">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003917">/* Set vendor name. */</a></span></div>
+      <div class="Code"><a name="9003918">service.info().vendor().data("Thomson Reuters");</a></div>
+      <div class="Code"><a name="9003919">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003920">/* Set capabilities list. */</a></span></div>
+      <div class="Code"><a name="9003921">service.info().capabilitiesList().add(DomainTypes.DICTIONARY);</a></div>
+      <div class="Code"><a name="9003922">service.info().capabilitiesList().add(DomainTypes.MARKET_PRICE);</a></div>
+      <div class="Code"><a name="9003923">service.info().capabilitiesList().add(DomainTypes.MARKET_BY_ORDER);</a></div>
+      <div class="Code"><a name="9003924">&nbsp;</a></div>
+      <div class="Code"><a name="9003925">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003926">/* Set dictionaries provided. */</a></span></div>
+      <div class="Code"><a name="9003927">service.info().dictionariesProvidedList().add("RWFFld");</a></div>
+      <div class="Code"><a name="9003928">service.info().dictionariesProvidedList().add("RWFEnum");</a></div>
+      <div class="Code"><a name="9003929">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003930">/* Set dictionaries used. */</a></span></div>
+      <div class="Code"><a name="9003931">service.info().dictionariesUsedList ().add("RWFFld");</a></div>
+      <div class="Code"><a name="9003932">service.info().dictionariesUsedList ().add("RWFEnum");</a></div>
+      <div class="Code"><a name="9003933">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003934">/* Build QoS list. */</a></span></div>
+      <div class="Code"><a name="9003935">Qos qos1 = CodecFactory.createQos();</a></div>
+      <div class="Code"><a name="9003936">qos1.timeliness(QosTimeliness.REALTIME);</a></div>
+      <div class="Code"><a name="9003937">qos1.rate(QosRates.TICK_BY_TICK);</a></div>
+      <div class="Code"><a name="9003938">Qos qos2 = CodecFactory.createQos();</a></div>
+      <div class="Code"><a name="9003939">service.info().qosList().add(qos2);</a></div>
+      <div class="Code"><a name="9003940">qos2.timeliness(QosTimeliness.REALTIME);</a></div>
+      <div class="Code"><a name="9003941">qos2.rate(QosRates.JIT_CONFLATED);</a></div>
+      <div class="Code"><a name="9003942">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003943">/* Set QoS list. */</a></span></div>
+      <div class="Code"><a name="9003944">service.info().qosList().add(qos1);</a></div>
+      <div class="Code"><a name="9003945">service.info().qosList().add(qos2);</a></div>
+      <div class="Code"><a name="9003946">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003947">/*** Build Service State for MY_SERVICE ***/</a></span></div>
+      <div class="Code"><a name="9003948">service.state().flags(ServiceStateFlags.HAS_ACCEPTING_REQS);</a></div>
+      <div class="Code"><a name="9003949">service.state().serviceState(1);</a></div>
+      <div class="Code"><a name="9003950">service.state().acceptingRequests(1);</a></div>
+      <div class="Code"><a name="9003951">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003952">/*** Finish and encode. ***/</a></span></div>
+      <div class="Code"><a name="9003953">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003954">/* Set the list of services on the message.*/</a></span></div>
+      <div class="Code"><a name="9003955">directoryRefresh.serviceList().add(service);</a></div>
+      <div class="Code"><a name="9003956">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003957">/* Clear the encode iterator, set its RWF Version, and set it to a buffer for encoding into. */</a></span></div>
+      <div class="Code"><a name="9003958">encodeIter.clear();</a></div>
+      <div class="Code"><a name="9003959">ret = encodeIter.setBufferAndRWFVersion(msgBuf,channelMajorVersion, channelMinorVersion);</a></div>
+      <div class="Code"><a name="9003960">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003961">/* Encode the message. */ </a></span></div>
+      <div class="Code"><a name="9003962">ret = directoryRefresh.encode(encodeIter);</a></div>
+      <div class="Code"><a name="9003963">&nbsp;</a></div>
+      <div class="Caption"><a name="9003964">Code Example 22: Directory Refresh Encoding Example</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

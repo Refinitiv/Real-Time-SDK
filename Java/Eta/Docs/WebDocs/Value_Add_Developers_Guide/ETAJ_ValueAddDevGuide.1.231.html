@@ -55,36 +55,36 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="Heading_4"><a name="9003740">Encoding a Source Directory Request</a></div>
-      <div class="Code"><a name="9003741">&nbsp;</a></div>
-      <div class="Code"><a name="9003742">EncodeIterator encodeIter = CodecFactory.createEncodeIterator();</a></div>
-      <div class="Code"><a name="9003743">DirectoryRequest directoryRequest = (DirectoryRequest)DirectoryMsgFactory.createMsg();</a></div>
-      <div class="Code"><a name="9003744">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003745">/* Clear the Directory Request object. */ </a></span></div>
-      <div class="Code"><a name="9003746">directoryRequest.clear(); </a></div>
-      <div class="Code"><a name="9003747">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003748">/* Set directory message type – required as object created by DirectoryMsgFactory.createMsg() is generic Directory object. */</a></span></div>
-      <div class="Code"><a name="9003749">directoryRequest.rdmMsgType(DirectoryMsgType.REQUEST);</a></div>
-      <div class="Code"><a name="9003750">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003751">/* Set stream id. */</a></span></div>
-      <div class="Code"><a name="9003752">directoryRequest.streamId(streamId);</a></div>
-      <div class="Code"><a name="9003753">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003754">/* Set flags indicating presence of optional members. */ </a></span></div>
-      <div class="Code"><a name="9003755">directoryRequest.flags(DirectoryRequestFlags.HAS_SERVICE_ID | STREAMING);</a></div>
-      <div class="Code"><a name="9003756">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003757">/* Set Service ID. */ </a></span></div>
-      <div class="Code"><a name="9003758">directoryRequest.serviceId(273); </a></div>
-      <div class="Code"><a name="9003759">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003760">/* Set service filter. */ </a></span></div>
-      <div class="Code"><a name="9003761">directoryRequest.filter(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP);</a></div>
-      <div class="Code"><a name="9003762">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003763">/* Clear the encode iterator, set its RWF Version, and set it to a buffer for encoding into. */</a></span></div>
-      <div class="Code"><a name="9003764">encodeIter.clear();</a></div>
-      <div class="Code"><a name="9003765">ret = encodeIter.setBufferAndRWFVersion(msgBuf,channelMajorVersion, channelMinorVersion);</a></div>
-      <div class="Code"><a name="9003766">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003767">/* Encode the message. */ </a></span></div>
-      <div class="Code"><a name="9003768">ret = directoryRequest.encode(encodeIter); </a></div>
-      <div class="Caption"><a name="9003769">Code Example 20: Directory Request Encoding Example</a></div>
+      <div class="Heading_4"><a name="9003795">Encoding a Source Directory Request</a></div>
+      <div class="Code"><a name="9003796">&nbsp;</a></div>
+      <div class="Code"><a name="9003797">EncodeIterator encodeIter = CodecFactory.createEncodeIterator();</a></div>
+      <div class="Code"><a name="9003798">DirectoryRequest directoryRequest = (DirectoryRequest)DirectoryMsgFactory.createMsg();</a></div>
+      <div class="Code"><a name="9003799">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003800">/* Clear the Directory Request object. */ </a></span></div>
+      <div class="Code"><a name="9003801">directoryRequest.clear(); </a></div>
+      <div class="Code"><a name="9003802">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003803">/* Set directory message type – required as object created by DirectoryMsgFactory.createMsg() is generic Directory object. */</a></span></div>
+      <div class="Code"><a name="9003804">directoryRequest.rdmMsgType(DirectoryMsgType.REQUEST);</a></div>
+      <div class="Code"><a name="9003805">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003806">/* Set stream id. */</a></span></div>
+      <div class="Code"><a name="9003807">directoryRequest.streamId(streamId);</a></div>
+      <div class="Code"><a name="9003808">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003809">/* Set flags indicating presence of optional members. */ </a></span></div>
+      <div class="Code"><a name="9003810">directoryRequest.flags(DirectoryRequestFlags.HAS_SERVICE_ID | STREAMING);</a></div>
+      <div class="Code"><a name="9003811">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003812">/* Set Service ID. */ </a></span></div>
+      <div class="Code"><a name="9003813">directoryRequest.serviceId(273); </a></div>
+      <div class="Code"><a name="9003814">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003815">/* Set service filter. */ </a></span></div>
+      <div class="Code"><a name="9003816">directoryRequest.filter(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP);</a></div>
+      <div class="Code"><a name="9003817">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003818">/* Clear the encode iterator, set its RWF Version, and set it to a buffer for encoding into. */</a></span></div>
+      <div class="Code"><a name="9003819">encodeIter.clear();</a></div>
+      <div class="Code"><a name="9003820">ret = encodeIter.setBufferAndRWFVersion(msgBuf,channelMajorVersion, channelMinorVersion);</a></div>
+      <div class="Code"><a name="9003821">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9003822">/* Encode the message. */ </a></span></div>
+      <div class="Code"><a name="9003823">ret = directoryRequest.encode(encodeIter); </a></div>
+      <div class="Caption"><a name="9003824">Code Example 20: Directory Request Encoding Example</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

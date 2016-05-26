@@ -55,36 +55,36 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="Heading_4"><a name="9000700">Reactor.connect Example</a></div>
-      <div class="Code"><a name="9000701">&nbsp;</a></div>
-      <div class="Code"><a name="9000702">ReactorConnectOptions connectOpts</a><span style="font-family: Consolas; font-size: 10pt"> = </span>ReactorFactory.createReactorConnectOptions();</div>
-      <div class="Code"><a name="9000703">ConsumerRole consumerRole = ReactorFactory.createConsumerRole();</a></div>
-      <div class="Code"><a name="9000704">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9000705">/* Configure connection options.*/</a></span></div>
-      <div class="Code"><a name="9000706">connectOpts.clear();</a></div>
-      <div class="Code"><a name="9000707">connectOpts.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().address("localhost");</a></div>
-      <div class="Code"><a name="9000708">connectOpts.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName("14002");</a></div>
-      <div class="Code"><a name="9000709">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9000710">/* Configure a role for this connection as an OMM Consumer. */</a></span></div>
-      <div class="Code"><a name="9000711">consumerRole.clear();</a></div>
-      <div class="Code"><a name="9000712">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9000713">/* Set the methods to which rsslDispatch will deliver events. */</a></span></div>
-      <div class="Code"><a name="9000714">consumerRole.channelEventCallback(channelEventCallback);</a></div>
-      <div class="Code"><a name="9000715">consumerRole.defaultMsgCallback(defaultMsgCallback);</a></div>
-      <div class="Code"><a name="9000716">consumerRole.loginMsgCallback(loginMsgCallback);</a></div>
-      <div class="Code"><a name="9000717">consumerRole.directoryMsgCallback(directoryMsgCallback);</a></div>
-      <div class="Code"><a name="9000718">consumerRole.dictionaryMsgCallback(dictionaryMsgCallback);</a></div>
-      <div class="Code"><a name="9000719">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9000720">/* Initialize a default login request. Once the channel is initialized this message will be sent. */</a></span></div>
-      <div class="Code"><a name="9000721">consumerRole.initDefaultRDMLoginRequest();</a></div>
-      <div class="Code"><a name="9000722">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9000723">/* Initialize a default directory request. Once the application has logged in, this message will be sent. */</a></span></div>
-      <div class="Code"><a name="9000724">consumerRole.initDefaultRDMDirectoryRequest();</a></div>
-      <div class="Code"><a name="9000725">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9000726">/* Add the connection to the Reactor. */</a></span></div>
-      <div class="Code"><a name="9000727">ret = reactor.connect(connectOpts, consumerRole, errorInfo);</a></div>
-      <div class="Code"><a name="9000728">&nbsp;</a></div>
-      <div class="Caption"><a name="9000729">Code Example 2: Reactor.connect Example</a></div>
+      <div class="Heading_4"><a name="9000728">Reactor.connect Example</a></div>
+      <div class="Code"><a name="9000729">&nbsp;</a></div>
+      <div class="Code"><a name="9000730">ReactorConnectOptions connectOpts</a><span style="font-family: Consolas; font-size: 10pt"> = </span>ReactorFactory.createReactorConnectOptions();</div>
+      <div class="Code"><a name="9000731">ConsumerRole consumerRole = ReactorFactory.createConsumerRole();</a></div>
+      <div class="Code"><a name="9000732">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9000733">/* Configure connection options.*/</a></span></div>
+      <div class="Code"><a name="9000734">connectOpts.clear();</a></div>
+      <div class="Code"><a name="9000735">connectOpts.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().address("localhost");</a></div>
+      <div class="Code"><a name="9000736">connectOpts.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName("14002");</a></div>
+      <div class="Code"><a name="9000737">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9000738">/* Configure a role for this connection as an OMM Consumer. */</a></span></div>
+      <div class="Code"><a name="9000739">consumerRole.clear();</a></div>
+      <div class="Code"><a name="9000740">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9000741">/* Set the methods to which rsslDispatch will deliver events. */</a></span></div>
+      <div class="Code"><a name="9000742">consumerRole.channelEventCallback(channelEventCallback);</a></div>
+      <div class="Code"><a name="9000743">consumerRole.defaultMsgCallback(defaultMsgCallback);</a></div>
+      <div class="Code"><a name="9000744">consumerRole.loginMsgCallback(loginMsgCallback);</a></div>
+      <div class="Code"><a name="9000745">consumerRole.directoryMsgCallback(directoryMsgCallback);</a></div>
+      <div class="Code"><a name="9000746">consumerRole.dictionaryMsgCallback(dictionaryMsgCallback);</a></div>
+      <div class="Code"><a name="9000747">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9000748">/* Initialize a default login request. Once the channel is initialized this message will be sent. */</a></span></div>
+      <div class="Code"><a name="9000749">consumerRole.initDefaultRDMLoginRequest();</a></div>
+      <div class="Code"><a name="9000750">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9000751">/* Initialize a default directory request. Once the application has logged in, this message will be sent. */</a></span></div>
+      <div class="Code"><a name="9000752">consumerRole.initDefaultRDMDirectoryRequest();</a></div>
+      <div class="Code"><a name="9000753">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9000754">/* Add the connection to the Reactor. */</a></span></div>
+      <div class="Code"><a name="9000755">ret = reactor.connect(connectOpts, consumerRole, errorInfo);</a></div>
+      <div class="Code"><a name="9000756">&nbsp;</a></div>
+      <div class="Caption"><a name="9000757">Code Example 2: Reactor.connect Example</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

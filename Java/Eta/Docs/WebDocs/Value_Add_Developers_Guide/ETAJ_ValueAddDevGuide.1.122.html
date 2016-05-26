@@ -55,44 +55,44 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="Heading_4"><a name="9001895">Accepting a Tunnel Stream Code Sample</a></div>
-      <div class="Normal"><a name="9001896">The following code illustrates how to accept a tunnel stream requested by a consumer. The example assumes that a Reactor and ReactorChannel are already open and properly established.</a></div>
-      <div class="Code"><a name="9001897">&nbsp;</a></div>
-      <div class="Code"><a name="9001898">public int listenerCallback(TunnelStreamRequestEvent event)</a></div>
-      <div class="Code"><a name="9001899">{</a></div>
-      <div class="Code"><a name="9001900">	int ret;</a></div>
-      <div class="Code"><a name="9001901">	TunnelStreamAcceptOptions acceptOpts = ReactorFactory.createTunnelStreamAcceptOptions();</a></div>
-      <div class="Code"><a name="9001902">&nbsp;</a></div>
-      <div class="Code"><a name="9001903">	if (isFilterValid(event.classOfServiceFilter()) &amp;&amp;</a></div>
-      <div class="Code"><a name="9001904">		isClassOfServiceValid(event.classOfService())</a></div>
-      <div class="Code"><a name="9001905">	{</a></div>
-      <div class="Code"><a name="9001906">		acceptOpts.clear();</a></div>
-      <div class="Code"><a name="9001907">&nbsp;</a></div>
-      <div class="Code"><a name="9001908">		// set class of service to what this provider supports</a></div>
-      <div class="Code"><a name="9001909">		acceptOpts.classOfService().dataIntegrity().type(ClassesOfService.DataIntegrityTypes.</a><span style="font-style: italic">RELIABLE</span>);</div>
-      <div class="Code"><a name="9001910">		acceptOpts.classOfService().flowControl().type((ClassesOfService.FlowControlTypes.</a><span style="font-style: italic">BIDIRECTIONAL</span>)</div>
-      <div class="Code"><a name="9001911">				);</a></div>
-      <div class="Code"><a name="9001912">&nbsp;</a></div>
-      <div class="Code"><a name="9001913">		// Set Authentication to match consumer. This provider will perform OMM Login authentication if</a></div>
-      <div class="Code"><a name="9001914">				requested.</a></div>
-      <div class="Code"><a name="9001915">		acceptOpts.classOfService().authentication().type(event.classOfService().authentication().type()</a></div>
-      <div class="Code"><a name="9001916">				);</a></div>
-      <div class="Code"><a name="9001917">&nbsp;</a></div>
-      <div class="Code"><a name="9001918">		acceptOpts.statusEventCallback(this);</a></div>
-      <div class="Code"><a name="9001919">		acceptOpts.defaultMsgCallback(this);</a></div>
-      <div class="Code"><a name="9001920">&nbsp;</a></div>
-      <div class="Code"><a name="9001921">		if ((ret = event.reactorChannel().acceptTunnelStream(event, acceptOpts, event.errorInfo())) </a></div>
-      <div class="Code"><a name="9001922">				&lt; ReactorReturnCodes.</a><span style="font-style: italic">SUCCESS</span>)</div>
-      <div class="Code"><a name="9001923">		{</a></div>
-      <div class="Code"><a name="9001924">		System.</a><span style="font-style: italic">out</span>.println("acceptTunnelStream() failed with return code: " + ret + " &lt;" +</div>
-      <div class="Code"><a name="9001925">				event.errorInfo().error().text() + "&gt;");</a></div>
-      <div class="Code"><a name="9001926">		}</a></div>
-      <div class="Code"><a name="9001927">	}</a></div>
-      <div class="Code"><a name="9001928">&nbsp;</a></div>
-      <div class="Code"><a name="9001929">	return ReactorCallbackReturnCodes.SUCCESS</a></div>
-      <div class="Code"><a name="9001930">}</a></div>
-      <div class="Code"><a name="9001931">&nbsp;</a></div>
-      <div class="Caption"><a name="9001932">Code Example 68: Accepting a Tunnel Stream Code Example</a></div>
+      <div class="Heading_4"><a name="9001950">Accepting a Tunnel Stream Code Sample</a></div>
+      <div class="Normal"><a name="9001951">The following code illustrates how to accept a tunnel stream requested by a consumer. The example assumes that a Reactor and ReactorChannel are already open and properly established.</a></div>
+      <div class="Code"><a name="9001952">&nbsp;</a></div>
+      <div class="Code"><a name="9001953">public int listenerCallback(TunnelStreamRequestEvent event)</a></div>
+      <div class="Code"><a name="9001954">{</a></div>
+      <div class="Code"><a name="9001955">	int ret;</a></div>
+      <div class="Code"><a name="9001956">	TunnelStreamAcceptOptions acceptOpts = ReactorFactory.createTunnelStreamAcceptOptions();</a></div>
+      <div class="Code"><a name="9001957">&nbsp;</a></div>
+      <div class="Code"><a name="9001958">	if (isFilterValid(event.classOfServiceFilter()) &amp;&amp;</a></div>
+      <div class="Code"><a name="9001959">		isClassOfServiceValid(event.classOfService())</a></div>
+      <div class="Code"><a name="9001960">	{</a></div>
+      <div class="Code"><a name="9001961">		acceptOpts.clear();</a></div>
+      <div class="Code"><a name="9001962">&nbsp;</a></div>
+      <div class="Code"><a name="9001963">		// set class of service to what this provider supports</a></div>
+      <div class="Code"><a name="9001964">		acceptOpts.classOfService().dataIntegrity().type(ClassesOfService.DataIntegrityTypes.</a><span style="font-style: italic">RELIABLE</span>);</div>
+      <div class="Code"><a name="9001965">		acceptOpts.classOfService().flowControl().type((ClassesOfService.FlowControlTypes.</a><span style="font-style: italic">BIDIRECTIONAL</span>)</div>
+      <div class="Code"><a name="9001966">				);</a></div>
+      <div class="Code"><a name="9001967">&nbsp;</a></div>
+      <div class="Code"><a name="9001968">		// Set Authentication to match consumer. This provider will perform OMM Login authentication if</a></div>
+      <div class="Code"><a name="9001969">				requested.</a></div>
+      <div class="Code"><a name="9001970">		acceptOpts.classOfService().authentication().type(event.classOfService().authentication().type()</a></div>
+      <div class="Code"><a name="9001971">				);</a></div>
+      <div class="Code"><a name="9001972">&nbsp;</a></div>
+      <div class="Code"><a name="9001973">		acceptOpts.statusEventCallback(this);</a></div>
+      <div class="Code"><a name="9001974">		acceptOpts.defaultMsgCallback(this);</a></div>
+      <div class="Code"><a name="9001975">&nbsp;</a></div>
+      <div class="Code"><a name="9001976">		if ((ret = event.reactorChannel().acceptTunnelStream(event, acceptOpts, event.errorInfo())) </a></div>
+      <div class="Code"><a name="9001977">				&lt; ReactorReturnCodes.</a><span style="font-style: italic">SUCCESS</span>)</div>
+      <div class="Code"><a name="9001978">		{</a></div>
+      <div class="Code"><a name="9001979">		System.</a><span style="font-style: italic">out</span>.println("acceptTunnelStream() failed with return code: " + ret + " &lt;" +</div>
+      <div class="Code"><a name="9001980">				event.errorInfo().error().text() + "&gt;");</a></div>
+      <div class="Code"><a name="9001981">		}</a></div>
+      <div class="Code"><a name="9001982">	}</a></div>
+      <div class="Code"><a name="9001983">&nbsp;</a></div>
+      <div class="Code"><a name="9001984">	return ReactorCallbackReturnCodes.SUCCESS</a></div>
+      <div class="Code"><a name="9001985">}</a></div>
+      <div class="Code"><a name="9001986">&nbsp;</a></div>
+      <div class="Caption"><a name="9001987">Code Example 70: Accepting a Tunnel Stream Code Example</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

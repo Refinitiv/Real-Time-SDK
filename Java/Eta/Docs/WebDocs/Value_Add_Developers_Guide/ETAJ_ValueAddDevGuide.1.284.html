@@ -55,9 +55,9 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="Heading_3"><a name="9004831">Applying Data</a></div>
-      <div class="Normal"><a name="9004832">Data is applied to a cache entry from the payload of an OMM message by using the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">apply</span> method. The decoded <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Msg</span> and a <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">DecodeIterator</span> are passed to the apply method. The iterator (positioned at the start of the encoded payload data <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Msg.encodeDataBody</span>) will be used to decode the OMM data so that the cache entry data can be set or updated. </div>
-      <div class="Normal"><a name="9004833">Some caching behaviours are controlled by flags in the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Msg</span>. When a <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">RefreshMsg</span> is applied to the cache entry, the following <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">RefreshMsgFlags</span> will be followed during the application:</div>
+      <div class="Heading_3"><a name="9004886">Applying Data</a></div>
+      <div class="Normal"><a name="9004887">Data is applied to a cache entry from the payload of an OMM message by using the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">apply</span> method. The decoded <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Msg</span> and a <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">DecodeIterator</span> are passed to the apply method. The iterator (positioned at the start of the encoded payload data <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Msg.encodeDataBody</span>) will be used to decode the OMM data so that the cache entry data can be set or updated. </div>
+      <div class="Normal"><a name="9004888">Some caching behaviours are controlled by flags in the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Msg</span>. When a <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">RefreshMsg</span> is applied to the cache entry, the following <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">RefreshMsgFlags</span> will be followed during the application:</div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -67,7 +67,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004834">CLEAR_CACHE</a></span>: The cache entry data will be cleared prior to applying this message. </div>
+              <div class="Bullet_inner"><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004889">CLEAR_CACHE</a></span>: The cache entry data will be cleared prior to applying this message. </div>
             </td>
           </tr>
         </table>
@@ -81,12 +81,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004835">DO_NOT_CACHE</a></span>: The payload will not be applied to the cache entry.</div>
+              <div class="Bullet_inner"><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004890">DO_NOT_CACHE</a></span>: The payload will not be applied to the cache entry.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Normal"><a name="9004836">When an </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">UpdateMsg</span> is applied to cache, the following <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">UpdateMsgFlags</span> will be followed:</div>
+      <div class="Normal"><a name="9004891">When an </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">UpdateMsg</span> is applied to cache, the following <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">UpdateMsgFlags</span> will be followed:</div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -96,7 +96,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004837">DO_NOT_CACHE</a></span>: The payload data will not be applied to the cache entry.</div>
+              <div class="Bullet_inner"><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004892">DO_NOT_CACHE</a></span>: The payload data will not be applied to the cache entry.</div>
             </td>
           </tr>
         </table>
@@ -110,52 +110,52 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004838">DO_NOT_RIPPLE</a></span>: When this data is applied, entry rippling is not performed .</div>
+              <div class="Bullet_inner"><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004893">DO_NOT_RIPPLE</a></span>: When this data is applied, entry rippling is not performed .</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Normal"><a name="9004839">The following example demonstrates how to create a payload entry in a cache instance and apply the payload of an </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Msg</span> to the cache entry.</div>
-      <div class="Code" style="text-indent: 0pt"><a name="9004840">&nbsp;</a></div>
-      <div class="Code" style="text-indent: 0pt"><a name="9004841">/* For simplicity in this code fragment, CHK is assumed to be a macro for</a></div>
-      <div class="Code"><a name="9004842">error handling (performing cleanup and returning from method). */</a></div>
-      <div class="Code"><a name="9004843">&nbsp;</a></div>
-      <div class="Code"><a name="9004844">CacheError cacheError = CacheFactory.</a><span class="Char_Variable" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">createCacheError()</span>;</div>
-      <div class="Code"><a name="9004845">PayloadEntry entryInstance = CacheFactory.</a><span class="Char_Variable" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">createPayloadEntry</span>(<span style="text-decoration: underline">cacheInstance</span>, cacheError);</div>
-      <div class="Code"><span class="Char_Purple" style="color: #7F0055; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="9004846">if</a></span> (entryInstance == <span class="Char_Purple" style="color: #7F0055; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">null</span>)</div>
-      <div class="Code"><a name="9004847">{</a></div>
-      <div class="Code"><a name="9004848">	System.</a><span class="Char_Blue" style="color: navy; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">out</span>.println(<span style="color: #2A00FF">"</span><span class="Char_Blue" style="color: #2A00FF">Error</span><span style="color: #2A00FF"> "</span> + cacheError.errorId() + <span style="color: #2A00FF">"</span><span class="Char_Blue" style="color: #2A00FF"> creating cache entry: </span><span style="color: #2A00FF">"</span> + cacheError.text());</div>
-      <div class="Code"><a name="9004849">	</a><span style="text-decoration: underline">CHK</span>(cacheError.errorId());</div>
-      <div class="Code"><a name="9004850">}</a></div>
-      <div class="Code"><a name="9004851">&nbsp;</a></div>
-      <div class="Code"><a name="9004852">/* Apply buffer containing an encoded Msg to cache entry */</a></div>
-      <div class="Code"><span class="Char_Purple" style="color: #7F0055; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="9004853">int</a></span> applyBufferToCache(Channel channel, TransportBuffer buffer, PayloadEntry entryInstance)</div>
-      <div class="Code"><a name="9004854">{</a></div>
-      <div class="Code"><span style="color: black"><a name="9004855">	</a></span>/* Perform message decoding. */</div>
-      <div class="Code"><a name="9004856">	DecodeIterator dIter = CodecFactory.</a><span class="Char_Variable" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">createDecodeIterator()</span>;</div>
-      <div class="Code"><a name="9004857">	dIter.clear();</a></div>
-      <div class="Code"><a name="9004858">	dIter.setBufferAndRWFVersion(buffer, channel.majorVersion(), channel.minorVersion());</a></div>
-      <div class="Code"><a name="9004859">	Msg msg = CodecFactory.</a><span class="Char_Variable" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">createMsg()</span>;</div>
-      <div class="Code"><a name="9004860">	</a><span class="Char_Purple" style="color: #7F0055; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">int</span> ret = msg.decode(dIter);</div>
-      <div class="Code"><a name="9004861">	</a><span class="Char_Purple" style="color: #7F0055; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">if</span> (ret &lt; CodecReturnCodes.<span class="Char_Blue_Italics" style="color: navy; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">SUCCESS</span>)</div>
-      <div class="Code"><a name="9004862">	{</a></div>
-      <div class="Code"><a name="9004863">		System.</a><span class="Char_Blue_Italics" style="color: navy; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">out</span>.println(<span style="color: #2A00FF">"</span><span class="Char_Blue" style="color: #2A00FF">Failure decoding message from buffer</span><span style="color: #2A00FF">"</span>);</div>
-      <div class="Code"><a name="9004864">		</a><span class="Char_Underline" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-decoration: underline; text-transform: none; vertical-align: baseline">CHK</span>(ret);</div>
-      <div class="Code"><a name="9004865">	}</a></div>
-      <div class="Code"><a name="9004866">&nbsp;</a></div>
-      <div class="Code"><a name="9004867">	/* Apply the decoded Msg to cache, with iterator positioned at the start of the </a><span class="Char_Underline" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-decoration: underline; text-transform: none; vertical-align: baseline">payload</span> */</div>
-      <div class="Code"><a name="9004868">	CacheError cacheError = CacheFactory.</a><span class="Char_Variable" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">createCacheError()</span>;</div>
-      <div class="Code"><a name="9004869">	ret = entryInstance.apply(dIter, msg, cacheError); </a></div>
-      <div class="Code"><a name="9004870">	</a><span class="Char_Purple" style="color: #7F0055; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">if</span> (ret &lt; CodecReturnCodes.<span class="Char_Blue_Italics" style="color: navy; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">SUCCESS</span>)</div>
-      <div class="Code"><a name="9004871">	{</a></div>
-      <div class="Code"><a name="9004872">		System.</a><span class="Char_Blue_Italics" style="color: navy; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">out</span>.println("<span class="Char_Blue" style="color: navy; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Error</span> " + cacheError.errorId() + " <span class="Char_Blue" style="color: navy; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">applying data to cache entry:</span> " + cacheError.text());</div>
-      <div class="Code"><a name="9004873">		</a><span class="Char_Underline" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-decoration: underline; text-transform: none; vertical-align: baseline">CHK</span>(ret);</div>
-      <div class="Code"><a name="9004874">	}</a></div>
-      <div class="Code"><a name="9004875">&nbsp;</a></div>
-      <div class="Code"><a name="9004876">	</a><span class="Char_Underline" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-decoration: underline; text-transform: none; vertical-align: baseline">CHK</span>(ret);</div>
-      <div class="Code"><a name="9004877">}</a></div>
-      <div class="Code"><a name="9004878">&nbsp;</a></div>
-      <div class="Caption"><a name="9004879">Code Example 30: Applying Data to a Payload Cache Entry</a></div>
+      <div class="Normal"><a name="9004894">The following example demonstrates how to create a payload entry in a cache instance and apply the payload of an </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Msg</span> to the cache entry.</div>
+      <div class="Code" style="text-indent: 0pt"><a name="9004895">&nbsp;</a></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9004896">/* For simplicity in this code fragment, CHK is assumed to be a macro for</a></div>
+      <div class="Code"><a name="9004897">error handling (performing cleanup and returning from method). */</a></div>
+      <div class="Code"><a name="9004898">&nbsp;</a></div>
+      <div class="Code"><a name="9004899">CacheError cacheError = CacheFactory.</a><span class="Char_Variable" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">createCacheError()</span>;</div>
+      <div class="Code"><a name="9004900">PayloadEntry entryInstance = CacheFactory.</a><span class="Char_Variable" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">createPayloadEntry</span>(<span style="text-decoration: underline">cacheInstance</span>, cacheError);</div>
+      <div class="Code"><span class="Char_Purple" style="color: #7F0055; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="9004901">if</a></span> (entryInstance == <span class="Char_Purple" style="color: #7F0055; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">null</span>)</div>
+      <div class="Code"><a name="9004902">{</a></div>
+      <div class="Code"><a name="9004903">	System.</a><span class="Char_Blue" style="color: navy; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">out</span>.println(<span style="color: #2A00FF">"</span><span class="Char_Blue" style="color: #2A00FF">Error</span><span style="color: #2A00FF"> "</span> + cacheError.errorId() + <span style="color: #2A00FF">"</span><span class="Char_Blue" style="color: #2A00FF"> creating cache entry: </span><span style="color: #2A00FF">"</span> + cacheError.text());</div>
+      <div class="Code"><a name="9004904">	</a><span style="text-decoration: underline">CHK</span>(cacheError.errorId());</div>
+      <div class="Code"><a name="9004905">}</a></div>
+      <div class="Code"><a name="9004906">&nbsp;</a></div>
+      <div class="Code"><a name="9004907">/* Apply buffer containing an encoded Msg to cache entry */</a></div>
+      <div class="Code"><span class="Char_Purple" style="color: #7F0055; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="9004908">int</a></span> applyBufferToCache(Channel channel, TransportBuffer buffer, PayloadEntry entryInstance)</div>
+      <div class="Code"><a name="9004909">{</a></div>
+      <div class="Code"><span style="color: black"><a name="9004910">	</a></span>/* Perform message decoding. */</div>
+      <div class="Code"><a name="9004911">	DecodeIterator dIter = CodecFactory.</a><span class="Char_Variable" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">createDecodeIterator()</span>;</div>
+      <div class="Code"><a name="9004912">	dIter.clear();</a></div>
+      <div class="Code"><a name="9004913">	dIter.setBufferAndRWFVersion(buffer, channel.majorVersion(), channel.minorVersion());</a></div>
+      <div class="Code"><a name="9004914">	Msg msg = CodecFactory.</a><span class="Char_Variable" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">createMsg()</span>;</div>
+      <div class="Code"><a name="9004915">	</a><span class="Char_Purple" style="color: #7F0055; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">int</span> ret = msg.decode(dIter);</div>
+      <div class="Code"><a name="9004916">	</a><span class="Char_Purple" style="color: #7F0055; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">if</span> (ret &lt; CodecReturnCodes.<span class="Char_Blue_Italics" style="color: navy; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">SUCCESS</span>)</div>
+      <div class="Code"><a name="9004917">	{</a></div>
+      <div class="Code"><a name="9004918">		System.</a><span class="Char_Blue_Italics" style="color: navy; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">out</span>.println(<span style="color: #2A00FF">"</span><span class="Char_Blue" style="color: #2A00FF">Failure decoding message from buffer</span><span style="color: #2A00FF">"</span>);</div>
+      <div class="Code"><a name="9004919">		</a><span class="Char_Underline" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-decoration: underline; text-transform: none; vertical-align: baseline">CHK</span>(ret);</div>
+      <div class="Code"><a name="9004920">	}</a></div>
+      <div class="Code"><a name="9004921">&nbsp;</a></div>
+      <div class="Code"><a name="9004922">	/* Apply the decoded Msg to cache, with iterator positioned at the start of the </a><span class="Char_Underline" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-decoration: underline; text-transform: none; vertical-align: baseline">payload</span> */</div>
+      <div class="Code"><a name="9004923">	CacheError cacheError = CacheFactory.</a><span class="Char_Variable" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">createCacheError()</span>;</div>
+      <div class="Code"><a name="9004924">	ret = entryInstance.apply(dIter, msg, cacheError); </a></div>
+      <div class="Code"><a name="9004925">	</a><span class="Char_Purple" style="color: #7F0055; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">if</span> (ret &lt; CodecReturnCodes.<span class="Char_Blue_Italics" style="color: navy; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">SUCCESS</span>)</div>
+      <div class="Code"><a name="9004926">	{</a></div>
+      <div class="Code"><a name="9004927">		System.</a><span class="Char_Blue_Italics" style="color: navy; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">out</span>.println("<span class="Char_Blue" style="color: navy; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Error</span> " + cacheError.errorId() + " <span class="Char_Blue" style="color: navy; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">applying data to cache entry:</span> " + cacheError.text());</div>
+      <div class="Code"><a name="9004928">		</a><span class="Char_Underline" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-decoration: underline; text-transform: none; vertical-align: baseline">CHK</span>(ret);</div>
+      <div class="Code"><a name="9004929">	}</a></div>
+      <div class="Code"><a name="9004930">&nbsp;</a></div>
+      <div class="Code"><a name="9004931">	</a><span class="Char_Underline" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-decoration: underline; text-transform: none; vertical-align: baseline">CHK</span>(ret);</div>
+      <div class="Code"><a name="9004932">}</a></div>
+      <div class="Code"><a name="9004933">&nbsp;</a></div>
+      <div class="Caption"><a name="9004934">Code Example 30: Applying Data to a Payload Cache Entry</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

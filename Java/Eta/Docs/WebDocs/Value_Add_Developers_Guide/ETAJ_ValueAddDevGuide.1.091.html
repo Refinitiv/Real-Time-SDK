@@ -55,16 +55,16 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="Heading_2"><a name="9001178">Writing Data</a></div>
-      <div class="Normal"><a name="9001179">The Transport API Reactor helps streamline the high performance writing of content. The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Reactor</span> flushes content to the network so the application does not need to. The <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Reactor</span> does so through the use of a separate worker thread that becomes active whenever there is queued content that needs to be passed to the connection.</div>
-      <div class="Normal"><a name="9001180">The Transport API Reactor offers two methods for writing content: </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel.submit(Msg…)</span> and <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel.submit(TransportBuffer…)</span>. When writing applications to the Reactor, consider which is most appropriate for your needs.</div>
+      <div class="Heading_2"><a name="9001215">Writing Data</a></div>
+      <div class="Normal"><a name="9001216">The Transport API Reactor helps streamline the high performance writing of content. The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Reactor</span> flushes content to the network so the application does not need to. The <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Reactor</span> does so through the use of a separate worker thread that becomes active whenever there is queued content that needs to be passed to the connection.</div>
+      <div class="Normal"><a name="9001217">The Transport API Reactor offers two methods for writing content: </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel.submit(Msg…)</span> and <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorChannel.submit(TransportBuffer…)</span>. When writing applications to the Reactor, consider which is most appropriate for your needs.</div>
       <table class="Table_Normal" style="width: 545.4pt" cellspacing="0" summary="">
         <tr style="vertical-align: top">
           <td style="width: 272.7pt">
-            <div class="Normal" style="font-weight: bold"><a name="9001181">ReactorChannel.submit(Msg…)</a></div>
+            <div class="Normal" style="font-weight: bold"><a name="9001218">ReactorChannel.submit(Msg…)</a></div>
           </td>
           <td style="width: 272.7pt">
-            <div class="Normal" style="font-weight: bold"><a name="9001182">ReactorChannel.submit(TransportBuffer…)</a></div>
+            <div class="Normal" style="font-weight: bold"><a name="9001219">ReactorChannel.submit(TransportBuffer…)</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -78,7 +78,21 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_table_inner"><a name="9001184">Takes a </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Msg</span> object as part of its options; does not require retrieval of a<span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"> TransportBuffer</span> from the channel.</div>
+                    <div class="Bullet_table_inner"><a name="9001221">Takes a </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Msg</span> object as part of its options; does not require retrieval of a<span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"> TransportBuffer</span> from the channel.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_table_inner" style="width: 18pt; white-space: nowrap">
+                      <span style="color: #666666; font-size: 10pt">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_table_inner"><a name="9001222">Must be used when the consumer watchlist is enabled.</a></div>
                   </td>
                 </tr>
               </table>
@@ -94,7 +108,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_table_inner"><a name="9001185">Takes a </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TransportBuffer</span> which the application retrieves from the channel.</div>
+                    <div class="Bullet_table_inner"><a name="9001223">Takes a </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TransportBuffer</span> which the application retrieves from the channel.</div>
                   </td>
                 </tr>
               </table>
@@ -108,7 +122,21 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_table_inner"><a name="9001186">More efficient: the application encodes directly into the buffer, and can use buffer packing.</a></div>
+                    <div class="Bullet_table_inner"><a name="9001224">More efficient: the application encodes directly into the buffer, and can use buffer packing.</a></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_table_inner" style="width: 18pt; white-space: nowrap">
+                      <span style="color: #666666; font-size: 10pt">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_table_inner"><a name="9001225">Cannot be used when the consumer watchlist is enabled.</a></div>
                   </td>
                 </tr>
               </table>

@@ -55,52 +55,52 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="Heading_3"><a name="9004421">Queue Refresh</a></div>
-      <div class="Normal"><a name="9004422">Queue Providers encode and send </a><span class="Char_BoldVariable" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">Queue Refresh messages to OMM applications to inform users about queue open</span> requests and give state information pertaining to specific <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">QueueRequest</span> attempts.</div>
+      <div class="Heading_3"><a name="9004476">Queue Refresh</a></div>
+      <div class="Normal"><a name="9004477">Queue Providers encode and send </a><span class="Char_BoldVariable" style="color: #666666; font-family: Arial; font-size: 10pt; font-style: italic; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline">Queue Refresh messages to OMM applications to inform users about queue open</span> requests and give state information pertaining to specific <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">QueueRequest</span> attempts.</div>
       <table class="Table_Normal" style="width: 540pt" cellspacing="0" summary="">
         <tr style="vertical-align: top">
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-style: solid; border-left-width: 1pt; border-right-style: none; border-right-width: 0pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 126pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9004423">MEMBER</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9004478">MEMBER</a></div>
           </td>
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-style: none; border-left-width: 0pt; border-right-color: #FF9100; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 414pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9004424">DESCRIPTION</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9004479">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9004426">rdmMsgType</a></div>
+            <div class="Table_Text"><a name="9004481">rdmMsgType</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><span style="font-weight: bold"><a name="9004427">Required</a></span>. Specifies the queue message type. For a queue refresh, use <span style="font-weight: bold">QueueMsgType.REFRESH</span></div>
+            <div class="Table_Text"><span style="font-weight: bold"><a name="9004482">Required</a></span>. Specifies the queue message type. For a queue refresh, use <span style="font-weight: bold">QueueMsgType.REFRESH</span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9004429">sourceName</a></div>
+            <div class="Table_Text"><a name="9004484">sourceName</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><span style="font-weight: bold"><a name="9004430">Required</a></span>. Indicates the name of the queue being opened. This should match the name specified in the corresponding <span style="color: #FF9200; font-family: &quot;Lucida Console&quot;">QueueRequest</span>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9004432">state</a></div>
-          </td>
-          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><span style="font-weight: bold"><a name="9004433">Required</a></span>. Indicates the state of the queue. States of Open and Ok indicate the queue was successfully opened. Other state combinations indicate that an issue has occurred; the resultant code and text should provide information about the issue.</div>
-            <div class="Table_Text"><a name="9004434">For more information on </a><span style="color: #FF9200; font-family: &quot;Lucida Console&quot;">State</span>, refer to the <span class="Char_Document_Title" style="color: #FF9200">Transport API Java Developers Guide</span>.</div>
+            <div class="Table_Text"><span style="font-weight: bold"><a name="9004485">Required</a></span>. Indicates the name of the queue being opened. This should match the name specified in the corresponding <span style="color: #FF9200; font-family: &quot;Lucida Console&quot;">QueueRequest</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9004436">queueDepth</a></div>
+            <div class="Table_Text"><a name="9004487">state</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9004437">Indicates the number of messages remaining in the queue for this stream.</a></div>
+            <div class="Table_Text"><span style="font-weight: bold"><a name="9004488">Required</a></span>. Indicates the state of the queue. States of Open and Ok indicate the queue was successfully opened. Other state combinations indicate that an issue has occurred; the resultant code and text should provide information about the issue.</div>
+            <div class="Table_Text"><a name="9004489">For more information on </a><span style="color: #FF9200; font-family: &quot;Lucida Console&quot;">State</span>, refer to the <span class="Char_Document_Title" style="color: #FF9200">Transport API Java Developers Guide</span>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9004491">queueDepth</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9004492">Indicates the number of messages remaining in the queue for this stream.</a></div>
           </td>
         </tr>
       </table>
-      <div class="Caption"><a name="9004439">Table 155: </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">QueueRefresh</span> Members</div>
+      <div class="Caption"><a name="9004494">Table 157: </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">QueueRefresh</span> Members</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

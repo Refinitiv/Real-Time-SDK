@@ -55,42 +55,42 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="Heading_4"><a name="9004551">Queue Data Message Encoding Code Sample</a></div>
-      <div class="Code"><a name="9004552">&nbsp;</a></div>
-      <div class="Code"><a name="9004553">EncodeIterator _msgEncIter = CodecFactory.createEncodeIterator();</a></div>
-      <div class="Code"><a name="9004554">QueueData _queueData = QueueMsgFactory.createQueueData();</a></div>
-      <div class="Code"><a name="9004555">&nbsp;</a></div>
-      <div class="Code"><a name="9004556">// initialize the QueueData encoding</a></div>
-      <div class="Code"><a name="9004557">_queueData.clear();</a></div>
-      <div class="Code"><a name="9004558">_queueData.streamId(QUEUE_MSG_STREAM_ID);</a></div>
-      <div class="Code"><a name="9004559">_queueData.identifier(124);</a></div>
-      <div class="Code"><a name="9004560">_queueData.sourceName().data(“MY_QUEUE”);</a></div>
-      <div class="Code"><a name="9004561">_queueData.destName().data(“DESTINATION_QUEUE”);</a></div>
-      <div class="Code"><a name="9004562">_queueData.timeout(QueueMsgTimeoutCodes.INFINITE);</a></div>
-      <div class="Code"><a name="9004563">_queueData.containerType(DataTypes.FIELD_LIST);</a></div>
-      <div class="Code"><a name="9004564">&nbsp;</a></div>
-      <div class="Code"><a name="9004565">_msgEncIter.clear();</a></div>
-      <div class="Code"><a name="9004566">_msgEncIter.setBufferAndRWFVersion(buffer, tunnelStream.classOfService().common().protocolMajorVersion(), tunnelStream.classOfService().common().protocolMinorVersion());</a></div>
-      <div class="Code"><a name="9004567">&nbsp;</a></div>
-      <div class="Code"><a name="9004568">// begin encoding content into QueueData message</a></div>
-      <div class="Code"><a name="9004569">if ((ret = _queueData.encodeInit(_msgEncIter)) &lt; ReactorReturnCodes.SUCCESS)</a></div>
-      <div class="Code"><a name="9004570">{</a></div>
-      <div class="Code"><a name="9004571">	System.out.println("QueueData.encodeInit() failed”);</a></div>
-      <div class="Code"><a name="9004572">	return;</a></div>
-      <div class="Code"><a name="9004573">}</a></div>
-      <div class="Code"><a name="9004574">&nbsp;</a></div>
-      <div class="Code"><a name="9004575">// Start Content Encoding – follow standard field list encoding</a></div>
-      <div class="Code"><a name="9004576">// as shown in the Transport API Java Developers Guide examples</a></div>
-      <div class="Code"><a name="9004577">//</a></div>
-      <div class="Code"><a name="9004578">&nbsp;</a></div>
-      <div class="Code"><a name="9004579">// when content encoding is done, complete the QueueData encoding</a></div>
-      <div class="Code"><a name="9004580">if ((ret = _queueData.encodeComplete(_msgEncIter)) &lt; ReactorReturnCodes.SUCCESS)</a></div>
-      <div class="Code"><a name="9004581">{</a></div>
-      <div class="Code"><a name="9004582">	System.out.println("QueueData.encodeComplete() failed”);</a></div>
-      <div class="Code"><a name="9004583">	return;</a></div>
-      <div class="Code"><a name="9004584">}</a></div>
-      <div class="Code"><a name="9004585">&nbsp;</a></div>
-      <div class="Caption"><a name="9004586">Code Example 28: Queue Data Message Encoding Code Sample</a></div>
+      <div class="Heading_4"><a name="9004606">Queue Data Message Encoding Code Sample</a></div>
+      <div class="Code"><a name="9004607">&nbsp;</a></div>
+      <div class="Code"><a name="9004608">EncodeIterator _msgEncIter = CodecFactory.createEncodeIterator();</a></div>
+      <div class="Code"><a name="9004609">QueueData _queueData = QueueMsgFactory.createQueueData();</a></div>
+      <div class="Code"><a name="9004610">&nbsp;</a></div>
+      <div class="Code"><a name="9004611">// initialize the QueueData encoding</a></div>
+      <div class="Code"><a name="9004612">_queueData.clear();</a></div>
+      <div class="Code"><a name="9004613">_queueData.streamId(QUEUE_MSG_STREAM_ID);</a></div>
+      <div class="Code"><a name="9004614">_queueData.identifier(124);</a></div>
+      <div class="Code"><a name="9004615">_queueData.sourceName().data(“MY_QUEUE”);</a></div>
+      <div class="Code"><a name="9004616">_queueData.destName().data(“DESTINATION_QUEUE”);</a></div>
+      <div class="Code"><a name="9004617">_queueData.timeout(QueueMsgTimeoutCodes.INFINITE);</a></div>
+      <div class="Code"><a name="9004618">_queueData.containerType(DataTypes.FIELD_LIST);</a></div>
+      <div class="Code"><a name="9004619">&nbsp;</a></div>
+      <div class="Code"><a name="9004620">_msgEncIter.clear();</a></div>
+      <div class="Code"><a name="9004621">_msgEncIter.setBufferAndRWFVersion(buffer, tunnelStream.classOfService().common().protocolMajorVersion(), tunnelStream.classOfService().common().protocolMinorVersion());</a></div>
+      <div class="Code"><a name="9004622">&nbsp;</a></div>
+      <div class="Code"><a name="9004623">// begin encoding content into QueueData message</a></div>
+      <div class="Code"><a name="9004624">if ((ret = _queueData.encodeInit(_msgEncIter)) &lt; ReactorReturnCodes.SUCCESS)</a></div>
+      <div class="Code"><a name="9004625">{</a></div>
+      <div class="Code"><a name="9004626">	System.out.println("QueueData.encodeInit() failed”);</a></div>
+      <div class="Code"><a name="9004627">	return;</a></div>
+      <div class="Code"><a name="9004628">}</a></div>
+      <div class="Code"><a name="9004629">&nbsp;</a></div>
+      <div class="Code"><a name="9004630">// Start Content Encoding – follow standard field list encoding</a></div>
+      <div class="Code"><a name="9004631">// as shown in the Transport API Java Developers Guide examples</a></div>
+      <div class="Code"><a name="9004632">//</a></div>
+      <div class="Code"><a name="9004633">&nbsp;</a></div>
+      <div class="Code"><a name="9004634">// when content encoding is done, complete the QueueData encoding</a></div>
+      <div class="Code"><a name="9004635">if ((ret = _queueData.encodeComplete(_msgEncIter)) &lt; ReactorReturnCodes.SUCCESS)</a></div>
+      <div class="Code"><a name="9004636">{</a></div>
+      <div class="Code"><a name="9004637">	System.out.println("QueueData.encodeComplete() failed”);</a></div>
+      <div class="Code"><a name="9004638">	return;</a></div>
+      <div class="Code"><a name="9004639">}</a></div>
+      <div class="Code"><a name="9004640">&nbsp;</a></div>
+      <div class="Caption"><a name="9004641">Code Example 28: Queue Data Message Encoding Code Sample</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

@@ -55,9 +55,9 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="Heading_4"><a name="9004915">Buffer Management</a></div>
-      <div class="Normal"><a name="9004916">In multi-part usage, the size of the buffer used in the calls to </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">retrieve</span> will affect how many fragments are required to retrieve the entire image of the cache entry. The retrieve method will continue to encode OMM entries from the cache container until it runs out of room in the buffer to encode the next entry. To progress during a multi-part retrieval, the buffer size must be at least large enough to encode a single OMM entry from the payload container. For example, if retrieving a map in multiple parts, the buffer must be large enough to encode at least one MapEntry on each retrieval.</div>
-      <div class="Normal"><a name="9004917">There are three general outcomes when using the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">retrieve</span> method:</div>
+      <div class="Heading_4"><a name="9004970">Buffer Management</a></div>
+      <div class="Normal"><a name="9004971">In multi-part usage, the size of the buffer used in the calls to </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">retrieve</span> will affect how many fragments are required to retrieve the entire image of the cache entry. The retrieve method will continue to encode OMM entries from the cache container until it runs out of room in the buffer to encode the next entry. To progress during a multi-part retrieval, the buffer size must be at least large enough to encode a single OMM entry from the payload container. For example, if retrieving a map in multiple parts, the buffer must be large enough to encode at least one MapEntry on each retrieval.</div>
+      <div class="Normal"><a name="9004972">There are three general outcomes when using the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">retrieve</span> method:</div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -67,7 +67,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="9004918">Full cache container is encoded into the buffer. This can occur with or without the use of the optional </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">PayloadCursor </span>instance. If used in this scenario, the cursor state would indicate the retrieval is complete. </div>
+              <div class="Bullet_inner"><a name="9004973">Full cache container is encoded into the buffer. This can occur with or without the use of the optional </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">PayloadCursor </span>instance. If used in this scenario, the cursor state would indicate the retrieval is complete. </div>
             </td>
           </tr>
         </table>
@@ -81,7 +81,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="9004919">Partial container encoded into the buffer. This is only possible when using the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">PayloadCursor</span> instance for container types that support fragmentation. The application must check the cursor to test if this is the final part.</div>
+              <div class="Bullet_inner"><a name="9004974">Partial container encoded into the buffer. This is only possible when using the </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">PayloadCursor</span> instance for container types that support fragmentation. The application must check the cursor to test if this is the final part.</div>
             </td>
           </tr>
         </table>
@@ -95,7 +95,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="9004920">No data encoded into container due to insufficient buffer size. This can occur with or without the use of the optional </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">PayloadCursor </span>instance. The application may retrieve again with a larger buffer. </div>
+              <div class="Bullet_inner"><a name="9004975">No data encoded into container due to insufficient buffer size. This can occur with or without the use of the optional </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">PayloadCursor </span>instance. The application may retrieve again with a larger buffer. </div>
             </td>
           </tr>
         </table>

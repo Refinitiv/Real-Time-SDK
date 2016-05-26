@@ -812,7 +812,8 @@ public class Reactor
     {
         TunnelStream tunnelStream;
 
-        if ((tunnelStream = reactorChannel.streamIdtoTunnelStreamTable().get(msg.streamId())) != null)
+        _tempWlInteger.value(msg.streamId());
+        if ((tunnelStream = reactorChannel.streamIdtoTunnelStreamTable().get(_tempWlInteger)) != null)
             return handleTunnelStreamMsg(reactorChannel, tunnelStream, transportBuffer, msg, errorInfo);
 
         int retval = sendDefaultMsgCallback(reactorChannel, transportBuffer, msg, streamInfo);
@@ -849,7 +850,8 @@ public class Reactor
     {
         TunnelStream tunnelStream;
 
-        if ((tunnelStream = reactorChannel.streamIdtoTunnelStreamTable().get(msg.streamId())) != null)
+        _tempWlInteger.value(msg.streamId());
+        if ((tunnelStream = reactorChannel.streamIdtoTunnelStreamTable().get(_tempWlInteger)) != null)
             return handleTunnelStreamMsg(reactorChannel, tunnelStream, transportBuffer, msg, errorInfo);
 
         int retval = sendDefaultMsgCallback(reactorChannel, transportBuffer, msg, null);
@@ -890,14 +892,16 @@ public class Reactor
         
         TunnelStreamStatusEvent tunnelStreamEvent = ReactorFactory.createTunnelStreamStatusEvent();
 
+        _tempWlInteger.value(tunnelStream.streamId());
 		if (state != null && state.streamState() != StreamStates.OPEN &&
-		    reactorChannel.streamIdtoTunnelStreamTable().containsKey(tunnelStream.streamId()))
+		    reactorChannel.streamIdtoTunnelStreamTable().containsKey(_tempWlInteger))
 		{
             /* Check for any untransmitted QueueData messages with immediate timeouts. */
             tunnelStream.expireImmediateMessages(errorInfo.error());
 
             // remove from table
-            reactorChannel.streamIdtoTunnelStreamTable().remove(tunnelStream.streamId());
+            TunnelStream tempTunnelStream = reactorChannel.streamIdtoTunnelStreamTable().remove(_tempWlInteger);
+            tempTunnelStream.tableKey().returnToPool();
             // close TunnelStreamHandler for this streamId
             if (state.streamState() != StreamStates.CLOSED && state.streamState() != StreamStates.CLOSED_RECOVER)
             	tunnelStream.close(_finalStatusEvent, errorInfo.error());
@@ -1901,7 +1905,8 @@ public class Reactor
         if (((ProviderRole)reactorChannel.role()).tunnelStreamListenerCallback() != null)
         {
             // reject if TunnelStream already exists
-            if (!reactorChannel.streamIdtoTunnelStreamTable().containsKey(msg.streamId()))
+        	_tempWlInteger.value(msg.streamId());
+            if (!reactorChannel.streamIdtoTunnelStreamTable().containsKey(_tempWlInteger))
             {
                 if (msg.containerType() == DataTypes.FILTER_LIST &&
                     msg.msgKey().checkHasFilter())
@@ -2248,7 +2253,6 @@ public class Reactor
             return;
         }
 
-        System.out.println("\n" + loginRequest.toString());
         if (_reactorOptions.xmlTracing() == true)
         {
             _xmlIter.clear();
@@ -2403,7 +2407,6 @@ public class Reactor
             return;
         }
 
-        System.out.println(directoryRequest.toString());
         if (_reactorOptions.xmlTracing() == true)
         {
             _xmlIter.clear();
@@ -2493,7 +2496,6 @@ public class Reactor
             return;
         }
 
-        System.out.println(directoryRefresh.toString());
         if (_reactorOptions.xmlTracing() == true)
         {
             _xmlIter.clear();
@@ -2648,7 +2650,6 @@ public class Reactor
             return;
         }
 
-        System.out.println(dictionaryRequest.toString());
         if (_reactorOptions.xmlTracing() == true)
         {
             _xmlIter.clear();
@@ -2741,7 +2742,6 @@ public class Reactor
             return;
         }
 
-        System.out.println(dictionaryClose.toString());
         if (_reactorOptions.xmlTracing() == true)
         {
             _xmlIter.clear();

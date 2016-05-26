@@ -55,84 +55,120 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="Heading_4"><a name="9000978">Reactor Default Message Callback</a></div>
-      <div class="Normal"><a name="9000979">The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Reactor</span> default message callback is used to communicate all received content that is not handled directly by a domain-specific callback method. This callback will also be invoked after any domain-specific callback that returns the <span style="font-weight: bold">ReactorCallbackReturnCodes.RAISE</span> value. This interface has the following callback method:</div>
-      <div class="Code"><a name="9000980">&nbsp;</a></div>
-      <div class="Code"><a name="9000981">public int defaultMsgCallback(ReactorMsgEvent event)</a></div>
-      <div class="Code"><a name="9000982">&nbsp;</a></div>
-      <div class="Normal"><a name="9000983">When invoked, this returns a </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorMsgEvent</span> object, containing more information about the event. </div>
-      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9000984&quot;);"><a name="9000984">Reactor Message Event</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9000984", false);</script></div>
-      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9000984", false);</script>
-      <div class="Normal_Indent"><a name="9000985">The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorMsgEvent</span> is returned to the application via the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">DefaultMsgCallback</span>. This is also the base class of the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">RDMDictionaryMsgEvent</span>, <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">RDMDirectoryMsgEvent</span>, and <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">RDMLoginMsgEvent</span> classes.</div>
+      <div class="Heading_4"><a name="9001010">Reactor Default Message Callback</a></div>
+      <div class="Normal"><a name="9001011">The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Reactor</span> default message callback is used to communicate all received content that is not handled directly by a domain-specific callback method. This callback will also be invoked after any domain-specific callback that returns the <span style="font-weight: bold">ReactorCallbackReturnCodes.RAISE</span> value. This interface has the following callback method:</div>
+      <div class="Code"><a name="9001012">&nbsp;</a></div>
+      <div class="Code"><a name="9001013">public int defaultMsgCallback(ReactorMsgEvent event)</a></div>
+      <div class="Code"><a name="9001014">&nbsp;</a></div>
+      <div class="Normal"><a name="9001015">When invoked, this returns a </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorMsgEvent</span> object, containing more information about the event. </div>
+      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9001016&quot;);"><a name="9001016">Reactor Message Event</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9001016", false);</script></div>
+      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9001016", false);</script>
+      <div class="Normal_Indent"><a name="9001017">The </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorMsgEvent</span> is returned to the application via the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">DefaultMsgCallback</span>. This is also the base class of the <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">RDMDictionaryMsgEvent</span>, <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">RDMDirectoryMsgEvent</span>, and <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">RDMLoginMsgEvent</span> classes.</div>
       <table class="Table_Normal" style="width: 520pt" cellspacing="0" summary="">
         <tr style="vertical-align: top">
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-style: solid; border-left-width: 1pt; border-right-style: none; border-right-width: 0pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 118.6pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9000986">CLASS MEMBER</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001018">CLASS MEMBER</a></div>
           </td>
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-style: none; border-left-width: 0pt; border-right-color: #FF9100; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 401.4pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9000987">DESCRIPTION</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001019">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000989">transportBuffer</a></div>
+            <div class="Table_Text"><a name="9001021">msg</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000990">A </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TransportBuffer</span> containing the raw, undecoded message that was read and processed by the callback.</div>
+            <div class="Table_Text"><a name="9001022">A </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Msg</span> object that has been populated with the message content by calling <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Msg.decode</span>. If not present, an error was encountered while processing the information.</div>
+            <div class="Note_9pt_outer" style="margin-left: 0pt; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-width: 1pt; border-right-color: #A0968C; border-right-width: 1pt; border-top-width: 1pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Note_9pt_inner" style="width: 36pt; white-space: nowrap">
+                      <span style="color: #FF9100; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold">Note:	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Note_9pt_inner"><a name="9001023">When the consumer watchlist is enabled, </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Msg</span> is not provided to callback functions that provide RDM messages.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000992">msg</a></div>
+            <div class="Table_Text"><a name="9001025">streamInfo</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9000993">A </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Msg</span> object that has been populated with the message content by calling <span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">Msg.decode</span>. If not present, an error was encountered while processing the information.</div>
+            <div class="Table_Text"><a name="9001026">Any information associated with a stream (only when consumer watchlist is enabled).</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9001028">transportBuffer</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt">
+            <div class="Table_Text"><a name="9001029">A </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TransportBuffer</span> containing the raw, undecoded message that was read and processed by the callback.</div>
+            <div class="Note_9pt_outer" style="margin-left: 0pt; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-width: 1pt; border-right-color: #A0968C; border-right-width: 1pt; border-top-width: 1pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Note_9pt_inner" style="width: 36pt; white-space: nowrap">
+                      <span style="color: #FF9100; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold">Note:	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Note_9pt_inner"><a name="9001030">When the consumer watchlist is enabled, a </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">TransportBuffer</span> is not provided, because the message might not match the buffer, or the message might be internally generated.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
           </td>
         </tr>
       </table>
-      <div class="Caption_Indent"><a name="9000995">Table 35: </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorMsgEvent</span> Class Members</div>
+      <div class="Caption_Indent"><a name="9001032">Table 36: </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorMsgEvent</span> Class Members</div>
       <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVClose();</script>
-      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9000996&quot;);"><a name="9000996">Reactor Message Event Utility Methods</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9000996", false);</script></div>
-      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9000996", false);</script>
+      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9001033&quot;);"><a name="9001033">Reactor Message Event Utility Methods</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9001033", false);</script></div>
+      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9001033", false);</script>
       <table class="Table_Normal" style="width: 515.25pt" cellspacing="0" summary="">
         <tr style="vertical-align: top">
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-style: solid; border-left-width: 1pt; border-right-style: none; border-right-width: 0pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 117.5pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9000997">METHOD NAME</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001034">METHOD NAME</a></div>
           </td>
           <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-style: solid; border-bottom-width: 1pt; border-left-style: none; border-left-width: 0pt; border-right-color: #FF9100; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt; width: 397.75pt">
-            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9000998">DESCRIPTION</a></div>
+            <div class="Column_Heading" style="font-weight: bold; text-transform: uppercase"><a name="9001035">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9001000">clear</a></div>
+            <div class="Table_Text"><a name="9001037">clear</a></div>
           </td>
           <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-style: solid; border-top-width: 1pt">
-            <div class="Table_Text"><a name="9001001">Clears a </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorMsgEvent</span> object.</div>
+            <div class="Table_Text"><a name="9001038">Clears a </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorMsgEvent</span> object.</div>
           </td>
         </tr>
       </table>
-      <div class="Caption_Indent"><a name="9001003">Table 36: </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorMsgEvent</span> Utility Methods</div>
+      <div class="Caption_Indent"><a name="9001040">Table 37: </a><span class="Char_Code" style="color: #FF9100; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">ReactorMsgEvent</span> Utility Methods</div>
       <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVClose();</script>
-      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9001004&quot;);"><a name="9001004">Reactor Message Event Callback Example</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9001004", false);</script></div>
-      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9001004", false);</script>
-      <div class="Code_Indent"><a name="9001005">&nbsp;</a></div>
-      <div class="Code_Indent"><a name="9001006">public int defaultMsgCallback(ReactorMsgEvent event)</a></div>
-      <div class="Code_Indent"><a name="9001007">{   </a></div>
-      <div class="Code_Indent"><a name="9001008">    Msg msg = event.msg();</a></div>
-      <div class="Code_Indent"><a name="9001009">&nbsp;</a></div>
-      <div class="Code_Indent"><a name="9001010">    </a><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">/* Received a Msg --- or, if the decode failed, an error. */</span></div>
-      <div class="Code_Indent"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001011">	/* The Msg will have already been passed through </a></span>Msg.decode<span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">.</span></div>
-      <div class="Code_Indent"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001012">       Only the payload requires additional decoding. */</a></span></div>
-      <div class="Code_Indent"><a name="9001013">    if (msg != null)</a></div>
-      <div class="Code_Indent"><a name="9001014">        processMsg(msg);</a></div>
-      <div class="Code_Indent"><a name="9001015">    else</a></div>
-      <div class="Code_Indent"><a name="9001016">        System.out.printf("defaultMsgCallback Error: %s(%s)\n",</a></div>
-      <div class="Code_Indent"><a name="9001017">                          event.errorInfo().error().text(),</a></div>
-      <div class="Code_Indent"><a name="9001018">                          event.errorInfo().location());</a></div>
-      <div class="Code_Indent"><a name="9001019">}</a></div>
-      <div class="Code_Indent"><a name="9001020">&nbsp;</a></div>
-      <div class="Caption_Indent"><a name="9001021">Code Example 7: Reactor Message Event Callback Example</a></div>
+      <div class="Heading_5" onclick="WebWorks_ToggleDIV(WebWorksRootPath, &quot;wwdd9001041&quot;);"><a name="9001041">Reactor Message Event Callback Example</a><script type="text/javascript" language="JavaScript1.2">WebWorks_WriteArrow(WebWorksRootPath, "wwdd9001041", false);</script></div>
+      <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVOpen("wwdd9001041", false);</script>
+      <div class="Code_Indent"><a name="9001042">&nbsp;</a></div>
+      <div class="Code_Indent"><a name="9001043">public int defaultMsgCallback(ReactorMsgEvent event)</a></div>
+      <div class="Code_Indent"><a name="9001044">{   </a></div>
+      <div class="Code_Indent"><a name="9001045">    Msg msg = event.msg();</a></div>
+      <div class="Code_Indent"><a name="9001046">&nbsp;</a></div>
+      <div class="Code_Indent"><a name="9001047">    </a><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">/* Received a Msg --- or, if the decode failed, an error. */</span></div>
+      <div class="Code_Indent"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001048">	/* The Msg will have already been passed through </a></span>Msg.decode<span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">.</span></div>
+      <div class="Code_Indent"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9001049">       Only the payload requires additional decoding. */</a></span></div>
+      <div class="Code_Indent"><a name="9001050">    if (msg != null)</a></div>
+      <div class="Code_Indent"><a name="9001051">        processMsg(msg);</a></div>
+      <div class="Code_Indent"><a name="9001052">    else</a></div>
+      <div class="Code_Indent"><a name="9001053">        System.out.printf("defaultMsgCallback Error: %s(%s)\n",</a></div>
+      <div class="Code_Indent"><a name="9001054">                          event.errorInfo().error().text(),</a></div>
+      <div class="Code_Indent"><a name="9001055">                          event.errorInfo().location());</a></div>
+      <div class="Code_Indent"><a name="9001056">}</a></div>
+      <div class="Code_Indent"><a name="9001057">&nbsp;</a></div>
+      <div class="Caption_Indent"><a name="9001058">Code Example 7: Reactor Message Event Callback Example</a></div>
       <script type="text/javascript" language="JavaScript1.2">WebWorks_WriteDIVClose();</script>
       <script type="text/javascript" language="JavaScript1.2">
         <!--

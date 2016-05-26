@@ -55,45 +55,45 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="Heading_4"><a name="9001933">Rejecting a Tunnel Stream Code Sample</a></div>
-      <div class="Normal"><a name="9001934">The following code illustrates how to reject a tunnel stream requested by a consumer. The example assumes that a Reactor and ReactorChannel are already open and properly established.</a></div>
-      <div class="Code"><a name="9001935">&nbsp;</a></div>
-      <div class="Code"><a name="9001936">public int listenerCallback(TunnelStreamRequestEvent event)</a></div>
-      <div class="Code"><a name="9001937">{</a></div>
-      <div class="Code"><a name="9001938">    int ret;</a></div>
-      <div class="Code"><a name="9001939">&nbsp;</a></div>
-      <div class="Code"><a name="9001940">    /* Now presuming that the application wishes to reject the tunnel stream</a></div>
-      <div class="Code"><a name="9001941">     * because the requested class of service is invalid. */</a></div>
-      <div class="Code"><a name="9001942">&nbsp;</a></div>
-      <div class="Code"><a name="9001943">    if (!isFilterValid(event.classOfServiceFilter()) ||</a></div>
-      <div class="Code"><a name="9001944">        !isClassOfServiceValid(event.classOfService())</a></div>
-      <div class="Code"><a name="9001945">    {</a></div>
-      <div class="Code"><a name="9001946">        /* Set what the class of service is expected to be. */</a></div>
-      <div class="Code"><a name="9001947">        ClassOfService expectedCos = ReactorFactory.createClassOfService();</a></div>
-      <div class="Code"><a name="9001948">        expectedCos.clear()</a></div>
-      <div class="Code"><a name="9001949">        expectedCos.authentication().type(ClassesOfService.AuthenticationTypes.OMM_LOGIN);</a></div>
-      <div class="Code"><a name="9001950">        expectedCos.flowControl().type(ClassesOfService.FlowControlTypes.BIDIRECTIONAL);</a></div>
-      <div class="Code"><a name="9001951">        expectedCos.dataIntegrity().type(ClassesOfService.DataIntegrityTypes.RELIABLE);</a></div>
-      <div class="Code"><a name="9001952">        /* ... (set additional members, based on what is desired by the provider) */</a></div>
-      <div class="Code"><a name="9001953">&nbsp;</a></div>
-      <div class="Code"><a name="9001954">        TunnelStreamRejectOptions rejectOpts = ReactorFactory.createTunnelStreamRejectOptions();</a></div>
-      <div class="Code"><a name="9001955">        rejectOpts.clear();</a></div>
-      <div class="Code"><a name="9001956">        rejectOpts.state().streamState(StreamStates.CLOSED);</a></div>
-      <div class="Code"><a name="9001957">        rejectOpts.state().dataState(DataStates.SUSPECT);</a></div>
-      <div class="Code"><a name="9001958">        rejectOpts.state().code(StateCodes.NONE);</a></div>
-      <div class="Code"><a name="9001959">        rejectOpts.state().text().data("Unsupported TunnelStream class of service");</a></div>
-      <div class="Code" style="text-indent: 0pt"><a name="9001960">        rejectOpts.expectedClassOfService(expectedCos);</a></div>
-      <div class="Code"><a name="9001961">&nbsp;</a></div>
-      <div class="Code"><a name="9001962">        if ((ret = event.reactorChannel().rejectTunnelStream(event, rejectOpts, event.errorInfo())) &lt; ReactorReturnCodes.</a><span style="font-style: italic">SUCCESS</span>)</div>
-      <div class="Code"><a name="9001963">        {</a></div>
-      <div class="Code"><a name="9001964">            System.</a><span style="font-style: italic">out</span>.println("rejectTunnelStream() failed with return code: " + ret + " &lt;" + event.errorInfo().error().text() + "&gt;");</div>
-      <div class="Code"><a name="9001965">        }</a></div>
-      <div class="Code"><a name="9001966">    }</a></div>
-      <div class="Code"><a name="9001967">&nbsp;</a></div>
-      <div class="Code"><a name="9001968">    return ReactorCallbackReturnCodes.SUCCESS</a></div>
-      <div class="Code"><a name="9001969">}</a></div>
-      <div class="Code"><a name="9001970">&nbsp;</a></div>
-      <div class="Caption"><a name="9001971">Code Example 69: Rejecting a Tunnel Stream Code Example</a></div>
+      <div class="Heading_4"><a name="9001988">Rejecting a Tunnel Stream Code Sample</a></div>
+      <div class="Normal"><a name="9001989">The following code illustrates how to reject a tunnel stream requested by a consumer. The example assumes that a Reactor and ReactorChannel are already open and properly established.</a></div>
+      <div class="Code"><a name="9001990">&nbsp;</a></div>
+      <div class="Code"><a name="9001991">public int listenerCallback(TunnelStreamRequestEvent event)</a></div>
+      <div class="Code"><a name="9001992">{</a></div>
+      <div class="Code"><a name="9001993">    int ret;</a></div>
+      <div class="Code"><a name="9001994">&nbsp;</a></div>
+      <div class="Code"><a name="9001995">    /* Now presuming that the application wishes to reject the tunnel stream</a></div>
+      <div class="Code"><a name="9001996">     * because the requested class of service is invalid. */</a></div>
+      <div class="Code"><a name="9001997">&nbsp;</a></div>
+      <div class="Code"><a name="9001998">    if (!isFilterValid(event.classOfServiceFilter()) ||</a></div>
+      <div class="Code"><a name="9001999">        !isClassOfServiceValid(event.classOfService())</a></div>
+      <div class="Code"><a name="9002000">    {</a></div>
+      <div class="Code"><a name="9002001">        /* Set what the class of service is expected to be. */</a></div>
+      <div class="Code"><a name="9002002">        ClassOfService expectedCos = ReactorFactory.createClassOfService();</a></div>
+      <div class="Code"><a name="9002003">        expectedCos.clear()</a></div>
+      <div class="Code"><a name="9002004">        expectedCos.authentication().type(ClassesOfService.AuthenticationTypes.OMM_LOGIN);</a></div>
+      <div class="Code"><a name="9002005">        expectedCos.flowControl().type(ClassesOfService.FlowControlTypes.BIDIRECTIONAL);</a></div>
+      <div class="Code"><a name="9002006">        expectedCos.dataIntegrity().type(ClassesOfService.DataIntegrityTypes.RELIABLE);</a></div>
+      <div class="Code"><a name="9002007">        /* ... (set additional members, based on what is desired by the provider) */</a></div>
+      <div class="Code"><a name="9002008">&nbsp;</a></div>
+      <div class="Code"><a name="9002009">        TunnelStreamRejectOptions rejectOpts = ReactorFactory.createTunnelStreamRejectOptions();</a></div>
+      <div class="Code"><a name="9002010">        rejectOpts.clear();</a></div>
+      <div class="Code"><a name="9002011">        rejectOpts.state().streamState(StreamStates.CLOSED);</a></div>
+      <div class="Code"><a name="9002012">        rejectOpts.state().dataState(DataStates.SUSPECT);</a></div>
+      <div class="Code"><a name="9002013">        rejectOpts.state().code(StateCodes.NONE);</a></div>
+      <div class="Code"><a name="9002014">        rejectOpts.state().text().data("Unsupported TunnelStream class of service");</a></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9002015">        rejectOpts.expectedClassOfService(expectedCos);</a></div>
+      <div class="Code"><a name="9002016">&nbsp;</a></div>
+      <div class="Code"><a name="9002017">        if ((ret = event.reactorChannel().rejectTunnelStream(event, rejectOpts, event.errorInfo())) &lt; ReactorReturnCodes.</a><span style="font-style: italic">SUCCESS</span>)</div>
+      <div class="Code"><a name="9002018">        {</a></div>
+      <div class="Code"><a name="9002019">            System.</a><span style="font-style: italic">out</span>.println("rejectTunnelStream() failed with return code: " + ret + " &lt;" + event.errorInfo().error().text() + "&gt;");</div>
+      <div class="Code"><a name="9002020">        }</a></div>
+      <div class="Code"><a name="9002021">    }</a></div>
+      <div class="Code"><a name="9002022">&nbsp;</a></div>
+      <div class="Code"><a name="9002023">    return ReactorCallbackReturnCodes.SUCCESS</a></div>
+      <div class="Code"><a name="9002024">}</a></div>
+      <div class="Code"><a name="9002025">&nbsp;</a></div>
+      <div class="Caption"><a name="9002026">Code Example 71: Rejecting a Tunnel Stream Code Example</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

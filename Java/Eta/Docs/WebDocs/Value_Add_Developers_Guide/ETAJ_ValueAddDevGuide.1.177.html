@@ -55,53 +55,53 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="Heading_4"><a name="9002895">Decoding a Login Refresh</a></div>
-      <div class="Code"><a name="9002896">&nbsp;</a></div>
-      <div class="Code"><a name="9002897">DecodeIterator decodeIter = CodecFactory.createDecodeIterator();</a></div>
-      <div class="Code"><a name="9002898">LoginRefresh loginRefresh = (LoginRefresh)LoginMsgFactory.createMsg();</a></div>
-      <div class="Code"><a name="9002899">Msg msg = CodecFactory.createMsg();</a></div>
-      <div class="Code"><a name="9002900">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002901">/* Clear the decode iterator, set its RWF Version, and set it to the encoded buffer. */</a></span></div>
-      <div class="Code"><a name="9002902">decodeIter.clear();</a></div>
-      <div class="Code"><a name="9002903">ret = decodeIter.setBufferAndRWFVersion(msgBuf,channelMajorVersion, channelMinorVersion);</a></div>
-      <div class="Code"><a name="9002904">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002905">/* Decode the message to a Msg object. */</a></span></div>
-      <div class="Code"><a name="9002906">ret = msg.decode(decodeIter);</a></div>
-      <div class="Code"><a name="9002907">&nbsp;</a></div>
-      <div class="Code"><a name="9002908">if (ret == CodecReturnCodes.SUCCESS &amp;&amp;</a></div>
-      <div class="Code"><a name="9002909">	msg.domainType() == DomainTypes.LOGIN &amp;&amp; msg.msgClass() ==  MsgClasses.REFRESH)</a></div>
-      <div class="Code"><a name="9002910">{</a></div>
-      <div class="Code"><a name="9002911">	loginRefresh.clear();</a></div>
-      <div class="Code"><a name="9002912">	loginRefresh.rdmMsgType(LoginMsgType.REFRESH);</a></div>
-      <div class="Code"><a name="9002913">&nbsp;</a></div>
-      <div class="Code"><a name="9002914">	ret = loginRefresh.decode(decodeIter, msg);</a></div>
-      <div class="Code"><a name="9002915">&nbsp;</a></div>
-      <div class="Code"><a name="9002916">	if(ret == CodecReturnCodes.SUCCESS)</a></div>
-      <div class="Code"><a name="9002917">	{</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002918">		/* Print username. */</a></span></div>
-      <div class="Code"><a name="9002919">		if(loginRefresh.checkHasUserName())</a></div>
-      <div class="Code" style="text-indent: 0pt"><a name="9002920">			printf("Username: " + loginRefresh.userName().toString());</a></div>
-      <div class="Code"><a name="9002921">&nbsp;</a></div>
-      <div class="Code"><a name="9002922">		if (loginRefresh.checkHasAttrib())</a></div>
-      <div class="Code"><a name="9002923">		{</a></div>
-      <div class="Code"><a name="9002924">			LoginAttrib attrib = loginRefresh.attrib();</a></div>
-      <div class="Code"><a name="9002925">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002926">			/* Print ApplicationName if present. */</a></span></div>
-      <div class="Code"><a name="9002927">			if(attrib.checkHasApplicationName())</a></div>
-      <div class="Code" style="text-indent: 0pt"><a name="9002928">				System.out.println(“ApplicationName: " + attrib.applicationName().toString());</a></div>
-      <div class="Code"><a name="9002929">&nbsp;</a></div>
-      <div class="Code"><a name="9002930">			</a><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">/* Print ApplicationId if present. */</span></div>
-      <div class="Code"><a name="9002931">			if(attrib.checkHasApplicationId())</a></div>
-      <div class="Code"><a name="9002932">				System.out.println(“ApplicationId: " + attrib.applicationId().toString());</a></div>
-      <div class="Code"><a name="9002933">&nbsp;</a></div>
-      <div class="Code" style="text-indent: 0pt"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002934">			/* Print Position if present. */</a></span></div>
-      <div class="Code" style="text-indent: 0pt"><a name="9002935">			if(attrib.checkHasPosition())</a></div>
-      <div class="Code"><a name="9002936">				System.out.println(“Position: " + attrib.position().toString());</a></div>
-      <div class="Code" style="text-indent: 0pt"><a name="9002937">		}</a></div>
-      <div class="Code"><a name="9002938">	}</a></div>
-      <div class="Code" style="text-indent: 0pt"><a name="9002939">}</a></div>
-      <div class="Code" style="text-indent: 0pt"><a name="9002940">&nbsp;</a></div>
-      <div class="Caption"><a name="9002941">Code Example 19: Login Refresh Decoding Example</a></div>
+      <div class="Heading_4"><a name="9002950">Decoding a Login Refresh</a></div>
+      <div class="Code"><a name="9002951">&nbsp;</a></div>
+      <div class="Code"><a name="9002952">DecodeIterator decodeIter = CodecFactory.createDecodeIterator();</a></div>
+      <div class="Code"><a name="9002953">LoginRefresh loginRefresh = (LoginRefresh)LoginMsgFactory.createMsg();</a></div>
+      <div class="Code"><a name="9002954">Msg msg = CodecFactory.createMsg();</a></div>
+      <div class="Code"><a name="9002955">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002956">/* Clear the decode iterator, set its RWF Version, and set it to the encoded buffer. */</a></span></div>
+      <div class="Code"><a name="9002957">decodeIter.clear();</a></div>
+      <div class="Code"><a name="9002958">ret = decodeIter.setBufferAndRWFVersion(msgBuf,channelMajorVersion, channelMinorVersion);</a></div>
+      <div class="Code"><a name="9002959">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002960">/* Decode the message to a Msg object. */</a></span></div>
+      <div class="Code"><a name="9002961">ret = msg.decode(decodeIter);</a></div>
+      <div class="Code"><a name="9002962">&nbsp;</a></div>
+      <div class="Code"><a name="9002963">if (ret == CodecReturnCodes.SUCCESS &amp;&amp;</a></div>
+      <div class="Code"><a name="9002964">	msg.domainType() == DomainTypes.LOGIN &amp;&amp; msg.msgClass() ==  MsgClasses.REFRESH)</a></div>
+      <div class="Code"><a name="9002965">{</a></div>
+      <div class="Code"><a name="9002966">	loginRefresh.clear();</a></div>
+      <div class="Code"><a name="9002967">	loginRefresh.rdmMsgType(LoginMsgType.REFRESH);</a></div>
+      <div class="Code"><a name="9002968">&nbsp;</a></div>
+      <div class="Code"><a name="9002969">	ret = loginRefresh.decode(decodeIter, msg);</a></div>
+      <div class="Code"><a name="9002970">&nbsp;</a></div>
+      <div class="Code"><a name="9002971">	if(ret == CodecReturnCodes.SUCCESS)</a></div>
+      <div class="Code"><a name="9002972">	{</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002973">		/* Print username. */</a></span></div>
+      <div class="Code"><a name="9002974">		if(loginRefresh.checkHasUserName())</a></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9002975">			printf("Username: " + loginRefresh.userName().toString());</a></div>
+      <div class="Code"><a name="9002976">&nbsp;</a></div>
+      <div class="Code"><a name="9002977">		if (loginRefresh.checkHasAttrib())</a></div>
+      <div class="Code"><a name="9002978">		{</a></div>
+      <div class="Code"><a name="9002979">			LoginAttrib attrib = loginRefresh.attrib();</a></div>
+      <div class="Code"><a name="9002980">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002981">			/* Print ApplicationName if present. */</a></span></div>
+      <div class="Code"><a name="9002982">			if(attrib.checkHasApplicationName())</a></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9002983">				System.out.println(“ApplicationName: " + attrib.applicationName().toString());</a></div>
+      <div class="Code"><a name="9002984">&nbsp;</a></div>
+      <div class="Code"><a name="9002985">			</a><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">/* Print ApplicationId if present. */</span></div>
+      <div class="Code"><a name="9002986">			if(attrib.checkHasApplicationId())</a></div>
+      <div class="Code"><a name="9002987">				System.out.println(“ApplicationId: " + attrib.applicationId().toString());</a></div>
+      <div class="Code"><a name="9002988">&nbsp;</a></div>
+      <div class="Code" style="text-indent: 0pt"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9002989">			/* Print Position if present. */</a></span></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9002990">			if(attrib.checkHasPosition())</a></div>
+      <div class="Code"><a name="9002991">				System.out.println(“Position: " + attrib.position().toString());</a></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9002992">		}</a></div>
+      <div class="Code"><a name="9002993">	}</a></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9002994">}</a></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9002995">&nbsp;</a></div>
+      <div class="Caption"><a name="9002996">Code Example 19: Login Refresh Decoding Example</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

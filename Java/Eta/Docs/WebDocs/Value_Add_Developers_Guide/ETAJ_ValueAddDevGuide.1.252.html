@@ -55,85 +55,85 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="Heading_4"><a name="9004321">Decoding a Dictionary Refresh</a></div>
-      <div class="Code"><a name="9004322">&nbsp;</a></div>
-      <div class="Code"><a name="9004323">DecodeIterator decodeIter = CodecFactory.createDecodeIterator();</a></div>
-      <div class="Code"><a name="9004324">DictionaryRefresh dictionaryRefresh = (DictionaryRefresh)DictionaryMsgFactory.createMsg();</a></div>
-      <div class="Code"><a name="9004325">Msg msg = CodecFactory.createMsg();</a></div>
-      <div class="Code"><a name="9004326">&nbsp;</a></div>
-      <div class="Code"><a name="9004327">DataDictionary dataDictionary = CodecFactory.createDataDictionary();</a></div>
-      <div class="Code"><a name="9004328">dataDictionary.clear();</a></div>
-      <div class="Code"><a name="9004329">&nbsp;</a></div>
-      <div class="Code"><a name="9004330">int dictionaryTypeForThisStreamId = 0;</a></div>
-      <div class="Code"><a name="9004331">&nbsp;</a></div>
-      <div class="Code"><a name="9004332">do</a></div>
-      <div class="Code"><a name="9004333">{</a></div>
-      <div class="Code"><a name="9004334">	</a><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">/* (Represents the application getting the next buffer to decode.) */</span></div>
-      <div class="Code"><a name="9004335">	getNextEncodeBuffer(msgBuf);</a></div>
-      <div class="Code"><a name="9004336">&nbsp;</a></div>
-      <div class="Code"><a name="9004337">	</a><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">/* Clear the decode iterator, set its RWF Version, and set it to the encoded buffer. */</span></div>
-      <div class="Code"><a name="9004338">	decodeIter.clear();</a></div>
-      <div class="Code"><a name="9004339">	ret = decodeIter.setBufferAndRWFVersion(msgBuf,channelMajorVersion, channelMinorVersion);</a></div>
-      <div class="Code"><a name="9004340">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004341">	/* Decode the message to a Msg object. */</a></span></div>
-      <div class="Code"><a name="9004342">	sret = msg.decode(decodeIter);</a></div>
-      <div class="Code"><a name="9004343">	if (ret == CodecReturnCodes.SUCCESS &amp;&amp;</a></div>
-      <div class="Code"><a name="9004344">		msg.domainType() == DomainTypes.DICTIONARY &amp;&amp; msg.msgClass() ==  MsgClasses.REFRESH)</a></div>
-      <div class="Code"><a name="9004345">	{</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004346">		</a></span>dictionaryRefresh.clear();</div>
-      <div class="Code"><a name="9004347">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004348">		/* Set dictionary message type – required as object created by DictionaryMsgFactory.createMsg() </a></span></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004349">			is generic Dictionary object. */</a></span></div>
-      <div class="Code"><a name="9004350">		dictionaryRefresh.rdmMsgType(DictionaryMsgType.REFRESH);</a></div>
-      <div class="Code"><a name="9004351">&nbsp;</a></div>
-      <div class="Code" style="text-indent: 0pt"><a name="9004352">		ret = dictionaryRefresh.decode(decodeIter, msg);</a></div>
-      <div class="Code" style="text-indent: 0pt"><a name="9004353">&nbsp;</a></div>
-      <div class="Code"><a name="9004354">		if(ret == CodecReturnCodes.SUCCESS)</a></div>
-      <div class="Code"><a name="9004355">		{</a></div>
-      <div class="Code"><a name="9004356">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004357">			/* Print if request is streaming. */</a></span></div>
-      <div class="Code"><a name="9004358">			if (dictionaryRefresh.checkSolicited())</a></div>
-      <div class="Code"><a name="9004359">				System.out.println("Refresh is solicited.");</a></div>
-      <div class="Code"><a name="9004360">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004361">			/* Print info if present. If the dictionary is split into parts, this is normally only </a></span></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004362">				present on the first part. */</a></span></div>
-      <div class="Code"><a name="9004363">			if (dictionaryRefresh.checkHasInfo())</a></div>
-      <div class="Code"><a name="9004364">			{</a></div>
-      <div class="Code"><a name="9004365">				</a><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">/* Remember the dictionary type for this stream since subsequent parts will not </span></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004366">					indicate it. */</a></span></div>
-      <div class="Code"><a name="9004367">				dictionaryTypeForThisStreamId = pDictionaryRefresh.dictionaryType();</a></div>
-      <div class="Code"><a name="9004368">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004369">				/* Print version. */</a></span></div>
-      <div class="Code"><a name="9004370">				System.out.println("Version: “ + dictionaryRefresh.version.toString());</a></div>
-      <div class="Code"><a name="9004371">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004372">				/* Print dictionary ID. */</a></span></div>
-      <div class="Code"><a name="9004373">				System.out.println("Dictionary ID: " + dictionaryRefresh.dictionaryId());</a></div>
-      <div class="Code"><a name="9004374">			}</a></div>
-      <div class="Code"><a name="9004375">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004376">			/* Print serviceId. */</a></span></div>
-      <div class="Code"><a name="9004377">			System.out.println("Service ID: " + dictionaryRefresh.serviceId());</a></div>
-      <div class="Code"><a name="9004378">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004379">			/* Print verbosity. */</a></span></div>
-      <div class="Code"><a name="9004380">			System.out.println("Verbosity: " + dictionaryRefresh.verbosity());</a></div>
+      <div class="Heading_4"><a name="9004376">Decoding a Dictionary Refresh</a></div>
+      <div class="Code"><a name="9004377">&nbsp;</a></div>
+      <div class="Code"><a name="9004378">DecodeIterator decodeIter = CodecFactory.createDecodeIterator();</a></div>
+      <div class="Code"><a name="9004379">DictionaryRefresh dictionaryRefresh = (DictionaryRefresh)DictionaryMsgFactory.createMsg();</a></div>
+      <div class="Code"><a name="9004380">Msg msg = CodecFactory.createMsg();</a></div>
       <div class="Code"><a name="9004381">&nbsp;</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004382">			/* Print dictionary name. */</a></span></div>
-      <div class="Code"><a name="9004383">			System.out.println("Dictionary Name: " + dictionaryRefresh.dictionaryName().toString());</a></div>
+      <div class="Code"><a name="9004382">DataDictionary dataDictionary = CodecFactory.createDataDictionary();</a></div>
+      <div class="Code"><a name="9004383">dataDictionary.clear();</a></div>
       <div class="Code"><a name="9004384">&nbsp;</a></div>
-      <div class="Code"><a name="9004385">			if (dictionaryTypeForThisStreamId ==  Dictionary.Types.FIELD_DEFINITIONS)</a></div>
-      <div class="Code"><a name="9004386">			{</a></div>
-      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004387">				/* Decode the dictionary content into the DataDictionary object. */</a></span></div>
-      <div class="Code" style="text-indent: 0pt"><a name="9004388">				decodeIter.clear();</a></div>
-      <div class="Code" style="text-indent: 0pt"><a name="9004389">				ret = decodeIter.setBufferAndRWFVersion(dictionaryRefresh.dataBody(),</a></div>
-      <div class="Code" style="text-indent: 0pt"><a name="9004390">					channelMajorVersion, channelMinorVersion);</a></div>
+      <div class="Code"><a name="9004385">int dictionaryTypeForThisStreamId = 0;</a></div>
+      <div class="Code"><a name="9004386">&nbsp;</a></div>
+      <div class="Code"><a name="9004387">do</a></div>
+      <div class="Code"><a name="9004388">{</a></div>
+      <div class="Code"><a name="9004389">	</a><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">/* (Represents the application getting the next buffer to decode.) */</span></div>
+      <div class="Code"><a name="9004390">	getNextEncodeBuffer(msgBuf);</a></div>
       <div class="Code"><a name="9004391">&nbsp;</a></div>
-      <div class="Code"><a name="9004392">				ret = dataDictionary.decodeFieldDictionary(decodeIter, </a></div>
-      <div class="Code"><a name="9004393">					Dictionary.VerbosityValues.NORMAL, errorText);</a></div>
-      <div class="Code"><a name="9004394">			}</a></div>
-      <div class="Code"><a name="9004395">		}</a></div>
-      <div class="Code"><a name="9004396">	}</a></div>
-      <div class="Code"><a name="9004397">} while(!(dictionarRefresh.checkRefreshComplete());</a></div>
-      <div class="Code" style="text-indent: 0pt"><a name="9004398">&nbsp;</a></div>
-      <div class="Caption"><a name="9004399">Code Example 27: Dictionary Refresh Decoding Example</a></div>
+      <div class="Code"><a name="9004392">	</a><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">/* Clear the decode iterator, set its RWF Version, and set it to the encoded buffer. */</span></div>
+      <div class="Code"><a name="9004393">	decodeIter.clear();</a></div>
+      <div class="Code"><a name="9004394">	ret = decodeIter.setBufferAndRWFVersion(msgBuf,channelMajorVersion, channelMinorVersion);</a></div>
+      <div class="Code"><a name="9004395">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004396">	/* Decode the message to a Msg object. */</a></span></div>
+      <div class="Code"><a name="9004397">	sret = msg.decode(decodeIter);</a></div>
+      <div class="Code"><a name="9004398">	if (ret == CodecReturnCodes.SUCCESS &amp;&amp;</a></div>
+      <div class="Code"><a name="9004399">		msg.domainType() == DomainTypes.DICTIONARY &amp;&amp; msg.msgClass() ==  MsgClasses.REFRESH)</a></div>
+      <div class="Code"><a name="9004400">	{</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004401">		</a></span>dictionaryRefresh.clear();</div>
+      <div class="Code"><a name="9004402">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004403">		/* Set dictionary message type – required as object created by DictionaryMsgFactory.createMsg() </a></span></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004404">			is generic Dictionary object. */</a></span></div>
+      <div class="Code"><a name="9004405">		dictionaryRefresh.rdmMsgType(DictionaryMsgType.REFRESH);</a></div>
+      <div class="Code"><a name="9004406">&nbsp;</a></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9004407">		ret = dictionaryRefresh.decode(decodeIter, msg);</a></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9004408">&nbsp;</a></div>
+      <div class="Code"><a name="9004409">		if(ret == CodecReturnCodes.SUCCESS)</a></div>
+      <div class="Code"><a name="9004410">		{</a></div>
+      <div class="Code"><a name="9004411">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004412">			/* Print if request is streaming. */</a></span></div>
+      <div class="Code"><a name="9004413">			if (dictionaryRefresh.checkSolicited())</a></div>
+      <div class="Code"><a name="9004414">				System.out.println("Refresh is solicited.");</a></div>
+      <div class="Code"><a name="9004415">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004416">			/* Print info if present. If the dictionary is split into parts, this is normally only </a></span></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004417">				present on the first part. */</a></span></div>
+      <div class="Code"><a name="9004418">			if (dictionaryRefresh.checkHasInfo())</a></div>
+      <div class="Code"><a name="9004419">			{</a></div>
+      <div class="Code"><a name="9004420">				</a><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline">/* Remember the dictionary type for this stream since subsequent parts will not </span></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004421">					indicate it. */</a></span></div>
+      <div class="Code"><a name="9004422">				dictionaryTypeForThisStreamId = pDictionaryRefresh.dictionaryType();</a></div>
+      <div class="Code"><a name="9004423">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004424">				/* Print version. */</a></span></div>
+      <div class="Code"><a name="9004425">				System.out.println("Version: “ + dictionaryRefresh.version.toString());</a></div>
+      <div class="Code"><a name="9004426">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004427">				/* Print dictionary ID. */</a></span></div>
+      <div class="Code"><a name="9004428">				System.out.println("Dictionary ID: " + dictionaryRefresh.dictionaryId());</a></div>
+      <div class="Code"><a name="9004429">			}</a></div>
+      <div class="Code"><a name="9004430">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004431">			/* Print serviceId. */</a></span></div>
+      <div class="Code"><a name="9004432">			System.out.println("Service ID: " + dictionaryRefresh.serviceId());</a></div>
+      <div class="Code"><a name="9004433">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004434">			/* Print verbosity. */</a></span></div>
+      <div class="Code"><a name="9004435">			System.out.println("Verbosity: " + dictionaryRefresh.verbosity());</a></div>
+      <div class="Code"><a name="9004436">&nbsp;</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004437">			/* Print dictionary name. */</a></span></div>
+      <div class="Code"><a name="9004438">			System.out.println("Dictionary Name: " + dictionaryRefresh.dictionaryName().toString());</a></div>
+      <div class="Code"><a name="9004439">&nbsp;</a></div>
+      <div class="Code"><a name="9004440">			if (dictionaryTypeForThisStreamId ==  Dictionary.Types.FIELD_DEFINITIONS)</a></div>
+      <div class="Code"><a name="9004441">			{</a></div>
+      <div class="Code"><span class="Char_Green" style="color: green; font-family: Arial; font-size: 10pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="9004442">				/* Decode the dictionary content into the DataDictionary object. */</a></span></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9004443">				decodeIter.clear();</a></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9004444">				ret = decodeIter.setBufferAndRWFVersion(dictionaryRefresh.dataBody(),</a></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9004445">					channelMajorVersion, channelMinorVersion);</a></div>
+      <div class="Code"><a name="9004446">&nbsp;</a></div>
+      <div class="Code"><a name="9004447">				ret = dataDictionary.decodeFieldDictionary(decodeIter, </a></div>
+      <div class="Code"><a name="9004448">					Dictionary.VerbosityValues.NORMAL, errorText);</a></div>
+      <div class="Code"><a name="9004449">			}</a></div>
+      <div class="Code"><a name="9004450">		}</a></div>
+      <div class="Code"><a name="9004451">	}</a></div>
+      <div class="Code"><a name="9004452">} while(!(dictionarRefresh.checkRefreshComplete());</a></div>
+      <div class="Code" style="text-indent: 0pt"><a name="9004453">&nbsp;</a></div>
+      <div class="Caption"><a name="9004454">Code Example 27: Dictionary Refresh Decoding Example</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

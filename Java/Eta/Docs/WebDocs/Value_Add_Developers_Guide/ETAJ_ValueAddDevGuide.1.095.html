@@ -55,30 +55,30 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="Heading_4"><a name="9001218">ReactorChannel.submit(Msg…) Example</a></div>
-      <div class="Normal"><a name="9001219">The following example shows typical use of </a><span style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt">ReactorChannel.submit(Msg…)</span>.</div>
-      <div class="Code"><a name="9001220">&nbsp;</a></div>
-      <div class="Code"><a name="9001221">RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();</a></div>
-      <div class="Code"><a name="9001222">ReactorSubmitOptions opts = ReactorFactory.createReactorSubmitOptions();</a></div>
-      <div class="Code"><a name="9001223">ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();</a></div>
-      <div class="Code"><a name="9001224">int ret;</a></div>
-      <div class="Code"><a name="9001225">&nbsp;</a></div>
-      <div class="Code"><a name="9001226">requestMsg.clear();</a></div>
-      <div class="Code"><a name="9001227">requestMsg.msgClass(MsgClasses.</a><span style="font-style: italic">REQUEST</span>);</div>
-      <div class="Code"><a name="9001228">requestMsg.streamId(2);</a></div>
-      <div class="Code"><a name="9001229">requestMsg.domainType(DomainTypes.MARKET_PRICE);</a></div>
-      <div class="Code"><a name="9001230">requestMsg.containerType(DataTypes.NO_DATA);</a></div>
-      <div class="Code"><a name="9001231">requestMsg.applyStreaming();</a></div>
-      <div class="Code"><a name="9001232">requestMsg.applyHasQos();</a></div>
-      <div class="Code"><a name="9001233">requestMsg.qos().timeliness(QosTimeliness.REALTIME);</a></div>
-      <div class="Code"><a name="9001234">requestMsg.qos().rate(QosRates.TICK_BY_TICK);</a></div>
-      <div class="Code"><a name="9001235">requestMsg.msgKey().applyHasName();</a></div>
-      <div class="Code"><a name="9001236">requestMsg.msgKey().applyHasServiceId();</a></div>
-      <div class="Code"><a name="9001237">requestMsg.msgKey().name().data(“TRI.N”);</a></div>
-      <div class="Code"><a name="9001238">requestMsg.msgKey().serviceId(1);</a></div>
-      <div class="Code"><a name="9001239">&nbsp;</a></div>
-      <div class="Code"><a name="9001240">ret = reactorChannel.submit(requestMsg, opts, errorInfo);</a></div>
-      <div class="Code"><a name="9001241">&nbsp;</a></div>
+      <div class="Heading_4"><a name="9001257">ReactorChannel.submit(Msg…) Example</a></div>
+      <div class="Normal"><a name="9001258">The following example shows typical use of </a><span style="color: #FF9100; font-family: &quot;Lucida Console&quot;; font-size: 9pt">ReactorChannel.submit(Msg…)</span>.</div>
+      <div class="Code"><a name="9001259">&nbsp;</a></div>
+      <div class="Code"><a name="9001260">RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();</a></div>
+      <div class="Code"><a name="9001261">ReactorSubmitOptions opts = ReactorFactory.createReactorSubmitOptions();</a></div>
+      <div class="Code"><a name="9001262">ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();</a></div>
+      <div class="Code"><a name="9001263">int ret;</a></div>
+      <div class="Code"><a name="9001264">&nbsp;</a></div>
+      <div class="Code"><a name="9001265">requestMsg.clear();</a></div>
+      <div class="Code"><a name="9001266">requestMsg.msgClass(MsgClasses.</a><span style="font-style: italic">REQUEST</span>);</div>
+      <div class="Code"><a name="9001267">requestMsg.streamId(2);</a></div>
+      <div class="Code"><a name="9001268">requestMsg.domainType(DomainTypes.MARKET_PRICE);</a></div>
+      <div class="Code"><a name="9001269">requestMsg.containerType(DataTypes.NO_DATA);</a></div>
+      <div class="Code"><a name="9001270">requestMsg.applyStreaming();</a></div>
+      <div class="Code"><a name="9001271">requestMsg.applyHasQos();</a></div>
+      <div class="Code"><a name="9001272">requestMsg.qos().timeliness(QosTimeliness.REALTIME);</a></div>
+      <div class="Code"><a name="9001273">requestMsg.qos().rate(QosRates.TICK_BY_TICK);</a></div>
+      <div class="Code"><a name="9001274">requestMsg.msgKey().applyHasName();</a></div>
+      <div class="Code"><a name="9001275">requestMsg.msgKey().applyHasServiceId();</a></div>
+      <div class="Code"><a name="9001276">requestMsg.msgKey().name().data(“TRI.N”);</a></div>
+      <div class="Code"><a name="9001277">requestMsg.msgKey().serviceId(1);</a></div>
+      <div class="Code"><a name="9001278">&nbsp;</a></div>
+      <div class="Code"><a name="9001279">ret = reactorChannel.submit(requestMsg, opts, errorInfo);</a></div>
+      <div class="Code"><a name="9001280">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

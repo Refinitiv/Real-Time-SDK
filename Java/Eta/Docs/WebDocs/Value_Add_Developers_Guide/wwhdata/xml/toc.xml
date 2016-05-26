@@ -92,7 +92,7 @@
         <i t="6.3.2.9 Reactor.accept Example" l="75" />
       </i>
       <i t="6.3.3 Removing Reactor Channels" l="76">
-        <i t="6.3.3.1 ReactorChannel.close Method" l="76#9000783" />
+        <i t="6.3.3.1 ReactorChannel.close Method" l="76#9000811" />
         <i t="6.3.3.2 ReactorChannel.close Example" l="77" />
       </i>
     </i>
@@ -138,7 +138,7 @@
         <i t="6.6.3.5 ClassOfService Guarantee Members" l="111" />
       </i>
       <i t="6.6.4 Stream Callback Methods and Event Types" l="112">
-        <i t="6.6.4.1 Tunnel Stream Callback Methods" l="112#9001679" />
+        <i t="6.6.4.1 Tunnel Stream Callback Methods" l="112#9001734" />
         <i t="6.6.4.2 Tunnel Stream Callback Event Types" l="113" />
       </i>
       <i t="6.6.5 Code Sample: Opening and Managing a Tunnel Stream" l="114" />
@@ -212,7 +212,7 @@
       <i t="7.3.9 Login Message" l="170" />
       <i t="7.3.10 Login Message Utility Methods" l="171" />
       <i t="7.3.11 Login Encoding and Decoding" l="172">
-        <i t="7.3.11.1 Login Encoding and Decoding Methods" l="172#9002757" />
+        <i t="7.3.11.1 Login Encoding and Decoding Methods" l="172#9002812" />
         <i t="7.3.11.2 Encoding a Login Request" l="173" />
         <i t="7.3.11.3 Decoding a Login Request" l="174" />
         <i t="7.3.11.4 Encoding a Login Refresh" l="175" />
@@ -285,7 +285,7 @@
       <i t="7.4.15 Directory Message" l="227" />
       <i t="7.4.16 Directory Message Utility Methods" l="228" />
       <i t="7.4.17 Directory Encoding and Decoding" l="229">
-        <i t="7.4.17.1 Directory Encoding and Decoding Methods" l="229#9003729" />
+        <i t="7.4.17.1 Directory Encoding and Decoding Methods" l="229#9003784" />
         <i t="7.4.17.2 Encoding a Source Directory Request" l="230" />
         <i t="7.4.17.3 Decoding a Source Directory Request" l="231" />
         <i t="7.4.17.4 Encoding a Source Directory Refresh" l="232" />
@@ -310,7 +310,7 @@
       <i t="7.5.6 Dictionary Message: Utility Methods" l="246" />
       <i t="7.5.7 Dictionary Encoding and Decoding" l="247" />
       <i t="7.5.8 Dictionary Encoding and Decoding" l="248">
-        <i t="7.5.8.1 Encoding a Dictionary Request" l="248#9004186" />
+        <i t="7.5.8.1 Encoding a Dictionary Request" l="248#9004241" />
         <i t="7.5.8.2 Decoding a Dictionary Request" l="249" />
         <i t="7.5.8.3 Encoding a Dictionary Refresh" l="250" />
         <i t="7.5.8.4 Decoding a Dictionary Refresh" l="251" />
