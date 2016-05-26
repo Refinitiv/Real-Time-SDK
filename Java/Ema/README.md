@@ -143,8 +143,8 @@ See the top level Elektron-SDK README.md for details.
 # Issues and Workarounds
 
     - EMA-9: Generic Message is not currently supported on login stream.
-	- EMA-414: Although VIEW interface is supported at the EMA level, view 
-	           requests do not go out on the wire.
+	- EMA-414: Although VIEW interface is supported at the EMA level, view
+               requests are sent without ‘view definition'.  Full views will be received.
     - EMA-375: EMAJ cannot send login request with the "User Token" nametype
     - EMA-401: Source directory reissue may internally request on invalid handle
 	- EMA-412: NumInputBuffers are not logged
