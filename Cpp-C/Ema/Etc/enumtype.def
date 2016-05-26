@@ -13,8 +13,9 @@
 !tag Desc        IDN Marketstream enumerated tables
 !tag RT_Version  4.20.24
 !tag Build_RDMD  4.20.24
-!tag DT_Version  16.31
-!tag Date        6-Apr-2016
+!tag DT_Version  16.41
+!tag Date        12-May-2016
+!tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
 ! systems, and for each type, the range of possible values
@@ -354,14 +355,14 @@ LEG2_CURR  13446
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0        "   "   Not allocated
-      4        "AFA"   Afghanistan afghani
+      4        "AFA"   Afghanistan afghani (from 1925 until 2003)
       8        "ALL"   Albanian lek
      12        "DZD"   Algerian dinar
      20        "ADP"   Andorran peseta
      24        "AON"   Angolan new kwanza
      32        "ARS"   Argentine peso
      36        "AUD"   Australian dollar
-     37        "AUc"   Australian cent
+     37        "AUc"   Australian cent (deprecated)
      40        "ATS"   Austrian schilling
      44        "BSD"   Bahamian dollar
      48        "BHD"   Bahraini dinar
@@ -420,7 +421,7 @@ LEG2_CURR  13446
     332        "HTG"   Haitian gourde
     340        "HNL"   Honduran lempira
     344        "HKD"   Hong Kong dollar
-    345        "HKc"   Hong Kong cent
+    345        "HKc"   Hong Kong cent (deprecated)
     348        "HUF"   Hungarian forint
     352        "ISK"   Iceland krona
     356        "INR"   Indian rupee
@@ -428,7 +429,7 @@ LEG2_CURR  13446
     364        "IRR"   Iranian rial
     368        "IQD"   Iraqi dinar
     372        "IEP"   Irish pound
-    373        "IEp"   Irish pence
+    373        "IEp"   Irish pence (deprecated)
     376        "ILS"   Israeli shekel
     380        "ITL"   Italian lira
     388        "JMD"   Jamaican dollar
@@ -452,7 +453,7 @@ LEG2_CURR  13446
     450        "450"   Not allocated (was Malagasy franc)
     454        "MWK"   Malawi kwacha
     458        "MYR"   Malaysian ringgit
-    459        "MYc"   Malaysian cent
+    459        "MYc"   Malaysian cent (deprecated)
     462        "MVR"   Maldivian rufiyaa
     466        "MLF"   Mali franc
     470        "MTL"   Maltese lira
@@ -521,10 +522,10 @@ LEG2_CURR  13446
     810        "RUB"   Russian ruble
     818        "EGP"   Egyptian pound
     826        "GBP"   UK pound sterling
-    827        "GBp"   UK pence sterling
+    827        "GBp"   UK pence sterling (deprecated)
     834        "TZS"   Tanzanian shilling
     840        "USD"   US dollar
-    841        "USc"   US cents
+    841        "USc"   US cents (deprecated)
     858        "UYU"   Peso Uruguayo
     860        "UZS"   Uzbekistan Sum
     862        "VEB"   Old Venezuelan bolivar
@@ -4047,6 +4048,7 @@ CAN_COND    6585
   21343        "BMR"   Benchmark Trade. Out of Sequence Retransmission. (OPRA).
   21345        "TTE"   Trade Trough Exempt. Out of Sequence. Not LAST (OPRA).
   21346        "TTR"   Trade Through Exempt. Out of sequence Retransmission. (OPRA).
+  32692        "NR "   Non-Resident
   32693        "CTO"   Contingent Trade - Extended Hours - Odd Lot
   32694        "COD"   Contingent Trade - Odd Lot
   32695        "CTT"   Contingent Trade - Extended Hours
@@ -8376,7 +8378,7 @@ BLK_EXID   13552
    1426        "KFO"   MINI KOSPI200 INDEX FUTURES AND OPTIONS
    1427        "IEQ"   NATIONAL STOCK EXCHANGE OF INDIA EQUITIES
    1428        "IDR"   NATIONAL STOCK EXCHANGE OF INDIA DERIVATIVES
-   1429        "429"   Not allocated (was NASDAQ BASIC FOR NYSE MKT LISTINGS)
+   1429        "PLO"   PointLogic Energy
    1430        "430"   Not allocated (was NASDAQ BASIC FOR NYSE LISTINGS)
    1431        "431"   Not allocated (was NASDAQ BASIC FOR NASDAQ LISTINGS)
    1432        "BDR"   BOAT Russian Segment
@@ -8388,6 +8390,7 @@ BLK_EXID   13552
    1438        "WDM"   WoodMackenzie
    1439        "ENT"   ENTSOE
    1440        "CUR"   CME Europe
+   1441        "VLM"   VALMER S.A
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -15781,6 +15784,7 @@ DATBLK_TYP 12939
      34   "FIX     "   Fixing Price
      35   "STS PHA "   The phase or status an instrument or market is in
      36   "REF     "   Static Reference update
+     37   "STAT    "   Economic rates
 !
 ! ACRONYM    FID
 ! -------    ---
