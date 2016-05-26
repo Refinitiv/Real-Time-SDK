@@ -18,6 +18,7 @@ class FilterEntryImpl extends EntryImpl implements FilterEntry
 	private final static String DEFAULTACTION_STRING 	= "Unknown FilterAction value ";
 	
 	private ByteBuffer _permData;
+	private EmaObjectManager _objManager;
 	protected com.thomsonreuters.upa.codec.FilterEntry _rsslFilterEntry;
 	
 	FilterEntryImpl()
@@ -25,10 +26,11 @@ class FilterEntryImpl extends EntryImpl implements FilterEntry
 		_rsslFilterEntry = com.thomsonreuters.upa.codec.CodecFactory.createFilterEntry();
 	}
 	
-	FilterEntryImpl(com.thomsonreuters.upa.codec.FilterEntry rsslFilterEntry, DataImpl load)
+	FilterEntryImpl(com.thomsonreuters.upa.codec.FilterEntry rsslFilterEntry, DataImpl load, EmaObjectManager objManager)
 	{
 		super(load);
 		_rsslFilterEntry = rsslFilterEntry;
+		_objManager = objManager;
 	}
 	
 	@Override
@@ -65,7 +67,7 @@ class FilterEntryImpl extends EntryImpl implements FilterEntry
 		if (!hasPermissionData())
 			throw ommIUExcept().message("Attempt to permissionData() while it is NOT set.");
 		
-		_permData = Utilities.copyFromPool( _rsslFilterEntry.permData(), _permData);
+		_permData = Utilities.copyFromPool( _rsslFilterEntry.permData(), _permData, _objManager);
 		return _permData;
 	}
 

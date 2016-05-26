@@ -278,7 +278,7 @@ class DictionaryCallbackClient extends ConsumerCallbackClient implements RDMDict
 	void processRefreshMsg(Buffer rsslBuffer, int majVer, int minVer, DictionaryItem dictItem)
 	{
 		if (_refreshMsg == null)
-			_refreshMsg = new RefreshMsgImpl(true);
+			_refreshMsg = new RefreshMsgImpl(_consumer._objManager);
 		
 		_refreshMsg.decode(rsslBuffer, majVer, minVer, null, null);
 
@@ -301,7 +301,7 @@ class DictionaryCallbackClient extends ConsumerCallbackClient implements RDMDict
 	void processStatusMsg(Buffer rsslBuffer, int majVer, int minVer, DictionaryItem dictItem)
 	{
 		if (_statusMsg == null)
-			_statusMsg = new StatusMsgImpl(true);
+			_statusMsg = new StatusMsgImpl(_consumer._objManager);
 		
 		_statusMsg.decode(rsslBuffer, majVer, minVer, null, null);
 
@@ -1395,6 +1395,7 @@ class DictionaryItem extends SingleItem implements TimeoutClient
 			if(!_removed) 
 			{
 				_consumer.itemCallbackClient().removeFromMap(this);
+				this.itemIdObj().returnToPool();
 				this.returnToPool();
 				_removed = true;
 			}

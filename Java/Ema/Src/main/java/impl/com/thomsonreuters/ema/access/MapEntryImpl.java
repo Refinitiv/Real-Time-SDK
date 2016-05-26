@@ -22,6 +22,7 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	private final static String DEFAULTACTION_STRING 	= "Unknown MapAction value ";
 	
 	private ByteBuffer _permData;
+	private EmaObjectManager _objManager;
 	protected KeyImpl _keyDataDecoded = new KeyImpl();
 	protected com.thomsonreuters.upa.codec.MapEntry	_rsslMapEntry;
 	protected Object _keyData;
@@ -33,11 +34,12 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 		_rsslMapEntry = CodecFactory.createMapEntry();
 	}
 	
-	MapEntryImpl(com.thomsonreuters.upa.codec.MapEntry rsslMapEntry, DataImpl mapEntryKey, DataImpl load)
+	MapEntryImpl(com.thomsonreuters.upa.codec.MapEntry rsslMapEntry, DataImpl mapEntryKey, DataImpl load, EmaObjectManager objManager)
 	{
 		super(load);
 		_rsslMapEntry = rsslMapEntry;
 		_keyDataDecoded.data(mapEntryKey);
+		_objManager = objManager;
 	}
 	
 	@Override
@@ -80,7 +82,7 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 		if (!hasPermissionData())
 			throw ommIUExcept().message("Attempt to permissionData() while it is NOT set.");
 		
-		_permData = Utilities.copyFromPool( _rsslMapEntry.permData(), _permData);
+		_permData = Utilities.copyFromPool( _rsslMapEntry.permData(), _permData, _objManager);
 		return _permData;
 	}
 	

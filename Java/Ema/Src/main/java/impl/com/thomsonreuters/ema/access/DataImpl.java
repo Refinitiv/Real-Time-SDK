@@ -28,7 +28,7 @@ class DataImpl extends VaNode implements Data
 	protected int 											_rsslMajVer = com.thomsonreuters.upa.codec.Codec.majorVersion();
 	protected int 											_rsslMinVer = com.thomsonreuters.upa.codec.Codec.minorVersion();
 	protected com.thomsonreuters.upa.codec.Buffer 			_rsslBuffer;
-	
+	protected EmaObjectManager _objManager;
 
 	@Override
 	public String codeAsString()
@@ -113,11 +113,11 @@ class DataImpl extends VaNode implements Data
 	
 	DataImpl noDataInstance()
 	{
-   		DataImpl  retData = (DataImpl)GlobalPool._noDataPool.poll();
+   		DataImpl  retData = (DataImpl)_objManager._noDataPool.poll();
         if(retData == null)
         {
         	retData = (DataImpl)new NoDataImpl();
-        	 GlobalPool._noDataPool .updatePool(retData);
+        	 _objManager._noDataPool .updatePool(retData);
         }
         
    		return retData;
@@ -140,276 +140,276 @@ class DataImpl extends VaNode implements Data
 		switch (dType)
 		{
 		case DataTypes.INT :
-			retData = (DataImpl)GlobalPool._ommIntPool.poll();
+			retData = (DataImpl)_objManager._ommIntPool.poll();
 	        if(retData == null)
 	        {
 	        	retData = (DataImpl)new OmmIntImpl();
-	        	GlobalPool._ommIntPool.updatePool(retData);
+	        	_objManager._ommIntPool.updatePool(retData);
 	        }
 	        break;
 		case DataTypes.UINT :
-			retData = (DataImpl)GlobalPool._ommUIntPool.poll();
+			retData = (DataImpl)_objManager._ommUIntPool.poll();
 	        if(retData == null)
 	        {
 	        	retData = (DataImpl)new OmmUIntImpl();
-	        	GlobalPool._ommUIntPool.updatePool(retData);
+	        	_objManager._ommUIntPool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.FLOAT :
-			retData = (DataImpl)GlobalPool._ommFloatPool.poll();
+			retData = (DataImpl)_objManager._ommFloatPool.poll();
 	        if(retData == null)
 	        {
 	        	retData = (DataImpl)new OmmFloatImpl();
-	        	GlobalPool._ommFloatPool.updatePool(retData);
+	        	_objManager._ommFloatPool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.DOUBLE :
-			retData = (DataImpl)GlobalPool._ommDoublePool.poll();
+			retData = (DataImpl)_objManager._ommDoublePool.poll();
 	        if(retData == null)
 	        {
 	        	retData = (DataImpl)new OmmDoubleImpl();
-	        	GlobalPool._ommDoublePool.updatePool(retData);
+	        	_objManager._ommDoublePool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.BUFFER :
-			retData = (DataImpl)GlobalPool._ommBufferPool.poll();
+			retData = (DataImpl)_objManager._ommBufferPool.poll();
 	        if(retData == null)
 	        {
 	        	retData = (DataImpl)new OmmBufferImpl();
-	        	GlobalPool._ommBufferPool.updatePool(retData);
+	        	_objManager._ommBufferPool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.ASCII :
-			retData = (DataImpl)GlobalPool._ommAsciiPool.poll();
+			retData = (DataImpl)_objManager._ommAsciiPool.poll();
 	        if(retData == null)
 	        {
 	        	retData = (DataImpl)new OmmAsciiImpl();
-	        	GlobalPool._ommAsciiPool.updatePool(retData);
+	        	_objManager._ommAsciiPool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.UTF8 :
-			retData = (DataImpl)GlobalPool._ommUtf8Pool.poll();
+			retData = (DataImpl)_objManager._ommUtf8Pool.poll();
 	        if(retData == null)
 	        {
 	        	retData = (DataImpl)new OmmUtf8Impl();
-	        	GlobalPool._ommUtf8Pool.updatePool(retData);
+	        	_objManager._ommUtf8Pool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.RMTES :
-			retData = (DataImpl)GlobalPool._ommRmtesPool.poll();
+			retData = (DataImpl)_objManager._ommRmtesPool.poll();
 	        if(retData == null)
 	        {
 	        	retData = (DataImpl)new OmmRmtesImpl();
-	        	GlobalPool._ommRmtesPool.updatePool(retData);
+	        	_objManager._ommRmtesPool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.REAL :
-			retData = (DataImpl)GlobalPool._ommRealPool.poll();
+			retData = (DataImpl)_objManager._ommRealPool.poll();
 	        if(retData == null)
 	        {
 	        	retData = (DataImpl)new OmmRealImpl();
-	        	GlobalPool._ommRealPool.updatePool(retData);
+	        	_objManager._ommRealPool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.DATE :
-			retData = (DataImpl)GlobalPool._ommDatePool.poll();
+			retData = (DataImpl)_objManager._ommDatePool.poll();
 	        if(retData == null)
 	        {
 	        	retData = (DataImpl)new OmmDateImpl();
-	        	GlobalPool._ommDatePool.updatePool(retData);
+	        	_objManager._ommDatePool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.TIME :
-			retData = (DataImpl)GlobalPool._ommTimePool.poll();
+			retData = (DataImpl)_objManager._ommTimePool.poll();
 	        if(retData == null)
 	        {
 	        	retData = (DataImpl)new OmmTimeImpl();
-	        	GlobalPool._ommTimePool.updatePool(retData);
+	        	_objManager._ommTimePool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.DATETIME :
-			retData = (DataImpl)GlobalPool._ommDateTimePool.poll();
+			retData = (DataImpl)_objManager._ommDateTimePool.poll();
 	        if(retData == null)
 	        {
 	        	retData = (DataImpl)new OmmDateTimeImpl();
-	        	GlobalPool._ommDateTimePool.updatePool(retData);
+	        	_objManager._ommDateTimePool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.QOS :
-			retData = (DataImpl)GlobalPool._ommQosPool.poll();
+			retData = (DataImpl)_objManager._ommQosPool.poll();
 	        if(retData == null)
 	        {
 	        	retData = (DataImpl)new OmmQosImpl();
-	        	GlobalPool._ommQosPool.updatePool(retData);
+	        	_objManager._ommQosPool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.STATE :
-			retData = (DataImpl)GlobalPool._ommStatePool.poll();
+			retData = (DataImpl)_objManager._ommStatePool.poll();
 	        if(retData == null)
 	        {
 	        	retData = (DataImpl)new OmmStateImpl();
-	        	GlobalPool._ommStatePool.updatePool(retData);
+	        	_objManager._ommStatePool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.ENUM :
-			retData = (DataImpl)GlobalPool._ommEnumPool.poll();
+			retData = (DataImpl)_objManager._ommEnumPool.poll();
 	        if(retData == null)
 	        {
 	        	retData = (DataImpl)new OmmEnumImpl();
-	        	GlobalPool._ommEnumPool.updatePool(retData);
+	        	_objManager._ommEnumPool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.ARRAY :
-			retData = (DataImpl)GlobalPool._ommArrayPool.poll();
+			retData = (DataImpl)_objManager._ommArrayPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new OmmArrayImpl(true);
-	        	GlobalPool._ommArrayPool.updatePool(retData);
+	        	retData = (DataImpl)new OmmArrayImpl(_objManager);
+	        	_objManager._ommArrayPool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.FIELD_LIST :
-			retData = (DataImpl)GlobalPool._fieldListPool.poll();
+			retData = (DataImpl)_objManager._fieldListPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new FieldListImpl(true);
-	        	GlobalPool._fieldListPool.updatePool(retData);
+	        	retData = (DataImpl)new FieldListImpl(_objManager);
+	        	_objManager._fieldListPool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.MAP :
-			retData = (DataImpl)GlobalPool._mapPool.poll();
+			retData = (DataImpl)_objManager._mapPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new MapImpl(true);
-	        	GlobalPool._mapPool.updatePool(retData);
+	        	retData = (DataImpl)new MapImpl(_objManager);
+	        	_objManager._mapPool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.ELEMENT_LIST :
-			retData = (DataImpl)GlobalPool._elementListPool.poll();
+			retData = (DataImpl)_objManager._elementListPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new ElementListImpl(true);
-	        	GlobalPool._elementListPool.updatePool(retData);
+	        	retData = (DataImpl)new ElementListImpl(_objManager);
+	        	_objManager._elementListPool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.FILTER_LIST :
-			retData = (DataImpl)GlobalPool._filterListPool.poll();
+			retData = (DataImpl)_objManager._filterListPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new FilterListImpl(true);
-	        	GlobalPool._filterListPool.updatePool(retData);
+	        	retData = (DataImpl)new FilterListImpl(_objManager);
+	        	_objManager._filterListPool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.VECTOR :
-			retData = (DataImpl)GlobalPool._vectorPool.poll();
+			retData = (DataImpl)_objManager._vectorPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new VectorImpl(true);
-	        	GlobalPool._vectorPool.updatePool(retData);
+	        	retData = (DataImpl)new VectorImpl(_objManager);
+	        	_objManager._vectorPool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.SERIES :
-			retData = (DataImpl)GlobalPool._seriesPool.poll();
+			retData = (DataImpl)_objManager._seriesPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new SeriesImpl(true);
-	        	GlobalPool._seriesPool.updatePool(retData);
+	        	retData = (DataImpl)new SeriesImpl(_objManager);
+	        	_objManager._seriesPool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.OPAQUE :
-			retData = (DataImpl)GlobalPool._opaquePool.poll();
+			retData = (DataImpl)_objManager._opaquePool.poll();
 	        if(retData == null)
 	        {
 	        	retData = (DataImpl)new OmmOpaqueImpl();
-	        	GlobalPool._opaquePool.updatePool(retData);
+	        	_objManager._opaquePool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.ANSI_PAGE :
-			retData = (DataImpl)GlobalPool._ansiPagePool.poll();
+			retData = (DataImpl)_objManager._ansiPagePool.poll();
 	        if(retData == null)
 	        {
 	        	retData = (DataImpl)new OmmAnsiPageImpl();
-	        	GlobalPool._ansiPagePool.updatePool(retData);
+	        	_objManager._ansiPagePool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.XML :
-			retData = (DataImpl)GlobalPool._xmlPool.poll();
+			retData = (DataImpl)_objManager._xmlPool.poll();
 	        if(retData == null)
 	        {
 	        	retData = (DataImpl)new OmmXmlImpl();
-	        	GlobalPool._xmlPool.updatePool(retData);
+	        	_objManager._xmlPool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.REQ_MSG :
-			retData = (DataImpl)GlobalPool._reqMsgPool.poll();
+			retData = (DataImpl)_objManager._reqMsgPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new ReqMsgImpl(true);
-	        	GlobalPool._reqMsgPool.updatePool(retData);
+	        	retData = (DataImpl)new ReqMsgImpl(_objManager);
+	        	_objManager._reqMsgPool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.REFRESH_MSG :
-			retData = (DataImpl)GlobalPool._refreshMsgPool.poll();
+			retData = (DataImpl)_objManager._refreshMsgPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new RefreshMsgImpl(true);
-	        	GlobalPool._refreshMsgPool.updatePool(retData);
+	        	retData = (DataImpl)new RefreshMsgImpl(_objManager);
+	        	_objManager._refreshMsgPool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.STATUS_MSG :
-			retData = (DataImpl)GlobalPool._statusMsgPool.poll();
+			retData = (DataImpl)_objManager._statusMsgPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new StatusMsgImpl(true);
-	        	GlobalPool._statusMsgPool.updatePool(retData);
+	        	retData = (DataImpl)new StatusMsgImpl(_objManager);
+	        	_objManager._statusMsgPool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.UPDATE_MSG :
-			retData = (DataImpl)GlobalPool._updateMsgPool.poll();
+			retData = (DataImpl)_objManager._updateMsgPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new UpdateMsgImpl(true);
-	        	GlobalPool._updateMsgPool.updatePool(retData);
+	        	retData = (DataImpl)new UpdateMsgImpl(_objManager);
+	        	_objManager._updateMsgPool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.ACK_MSG :
-			retData = (DataImpl)GlobalPool._ackMsgPool.poll();
+			retData = (DataImpl)_objManager._ackMsgPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new AckMsgImpl(true);
-	        	GlobalPool._ackMsgPool.updatePool(retData);
+	        	retData = (DataImpl)new AckMsgImpl(_objManager);
+	        	_objManager._ackMsgPool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.POST_MSG :
-			retData = (DataImpl)GlobalPool._postMsgPool.poll();
+			retData = (DataImpl)_objManager._postMsgPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new PostMsgImpl(true);
-	        	GlobalPool._postMsgPool.updatePool(retData);
+	        	retData = (DataImpl)new PostMsgImpl(_objManager);
+	        	_objManager._postMsgPool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.GENERIC_MSG :
-			retData = (DataImpl)GlobalPool._genericMsgPool.poll();
+			retData = (DataImpl)_objManager._genericMsgPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new GenericMsgImpl(true);
-	        	GlobalPool._genericMsgPool.updatePool(retData);
+	        	retData = (DataImpl)new GenericMsgImpl(_objManager);
+	        	_objManager._genericMsgPool.updatePool(retData);
 	        }
 			break;
 		case DataTypes.NO_DATA :
-			 retData = (DataImpl)GlobalPool._noDataPool.poll();
+			 retData = (DataImpl)_objManager._noDataPool.poll();
 	        if(retData == null)
 	        {
 	        	retData = (DataImpl)new NoDataImpl();
-	        	 GlobalPool._noDataPool .updatePool(retData);
+	        	 _objManager._noDataPool .updatePool(retData);
 	        }
 	        break;
 		case DataTypes.ERROR :
 		default:
-			retData = (DataImpl)GlobalPool._ommErrorPool.poll();
+			retData = (DataImpl)_objManager._ommErrorPool.poll();
 	        if(retData == null)
 	        {
 	        	retData = (DataImpl)new OmmErrorImpl();
-	        	 GlobalPool._ommErrorPool .updatePool(retData);
+	        	 _objManager._ommErrorPool .updatePool(retData);
 	        }
 	        break;
 		}

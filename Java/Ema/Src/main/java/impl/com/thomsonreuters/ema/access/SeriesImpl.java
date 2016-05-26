@@ -23,17 +23,19 @@ class SeriesImpl extends CollectionDataImpl implements Series
 {
 	private com.thomsonreuters.upa.codec.Series	_rsslSeries = com.thomsonreuters.upa.codec.CodecFactory.createSeries();
 	private LinkedList<SeriesEntry> _seriesCollection = new LinkedList<SeriesEntry>(); 
-	private DataImpl _summaryDecoded = noDataInstance();
+	private DataImpl _summaryDecoded;
 	private PayloadAttribSummaryImpl _summaryData;
 	
 	SeriesImpl() 
 	{
-		super(false);
+		super(null);
 	}
 	
-	SeriesImpl(boolean decoding)
+	SeriesImpl(EmaObjectManager objManager)
 	{
-		super(decoding);
+		super(objManager);
+		if (objManager != null)
+			_summaryDecoded = noDataInstance();
 	} 
 
 	@Override
@@ -63,6 +65,9 @@ class SeriesImpl extends CollectionDataImpl implements Series
 		if (_summaryData == null)
 			_summaryData = new PayloadAttribSummaryImpl();
 		
+		if (_summaryDecoded == null)
+			_summaryDecoded = (DataImpl)new NoDataImpl();
+		
 		_summaryData.data(_summaryDecoded);
 		return (SummaryData)_summaryData;
 	}
@@ -75,12 +80,15 @@ class SeriesImpl extends CollectionDataImpl implements Series
 	@Override
 	public void clear()
 	{
-		super.clear();
-		
-		_rsslSeries.clear();
-		
 		if (_rsslEncodeIter != null)
+		{
+			super.clear();
+		
+			_rsslSeries.clear();
 			_seriesCollection.clear();
+		}
+		else
+			clearCollection();
 	}
 
 	@Override
@@ -308,12 +316,7 @@ class SeriesImpl extends CollectionDataImpl implements Series
 						if (_rsslLocalFLSetDefDb != null)
 							_rsslLocalFLSetDefDb.clear();
 						else
-						{
-							if (GlobalPool._rsslFieldListSetDefList.size() > 0)
-								_rsslLocalFLSetDefDb = GlobalPool._rsslFieldListSetDefList.get(0);
-							else
 								_rsslLocalFLSetDefDb = CodecFactory.createLocalFieldSetDefDb();
-						}
 						
 						_rsslLocalFLSetDefDb.decode(_rsslDecodeIter);
 						_rsslLocalSetDefDb = _rsslLocalFLSetDefDb;
@@ -324,12 +327,7 @@ class SeriesImpl extends CollectionDataImpl implements Series
 						if (_rsslLocalELSetDefDb != null)
 							_rsslLocalELSetDefDb.clear();
 						else
-						{
-							if (GlobalPool._rsslElementListSetDefList.size() > 0)
-								_rsslLocalELSetDefDb = GlobalPool._rsslElementListSetDefList.get(0);
-							else
 								_rsslLocalELSetDefDb = CodecFactory.createLocalElementSetDefDb();
-						}
 						
 						_rsslLocalELSetDefDb.decode(_rsslDecodeIter);
 						_rsslLocalSetDefDb = _rsslLocalELSetDefDb;
@@ -488,11 +486,11 @@ class SeriesImpl extends CollectionDataImpl implements Series
 	
 	private SeriesEntryImpl seriesEntryInstance()
 	{
-		SeriesEntryImpl retData = (SeriesEntryImpl)GlobalPool._seriesEntryPool.poll();
+		SeriesEntryImpl retData = (SeriesEntryImpl)_objManager._seriesEntryPool.poll();
         if(retData == null)
         {
         	retData = new SeriesEntryImpl(com.thomsonreuters.upa.codec.CodecFactory.createSeriesEntry(), noDataInstance());
-        	GlobalPool._seriesEntryPool.updatePool(retData);
+        	_objManager._seriesEntryPool.updatePool(retData);
         }
         else
         	retData._rsslSeriesEntry.clear();
@@ -502,12 +500,12 @@ class SeriesImpl extends CollectionDataImpl implements Series
 	
 	private void clearCollection()
 	{
-		if (_seriesCollection.size() > 0 )
+		int collectionSize = _seriesCollection.size();
+		if (collectionSize > 0)
 		{
-			Iterator<SeriesEntry> iter = _seriesCollection.iterator();
-			while ( iter.hasNext())
-				((SeriesEntryImpl)iter.next()).returnToPool();
-				
+			for (int index = 0; index < collectionSize; ++index)
+				((SeriesEntryImpl)_seriesCollection.get(index)).returnToPool();
+	
 			_seriesCollection.clear();
 		}
 	}

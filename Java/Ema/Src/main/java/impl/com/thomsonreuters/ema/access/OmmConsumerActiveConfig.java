@@ -25,7 +25,7 @@ class OmmConsumerActiveConfig
 	final static int DEFAULT_COMPRESSION_THRESHOLD				= 30;
 	final static int DEFAULT_COMPRESSION_TYPE					= CompressionTypes.NONE;
 	final static int DEFAULT_CONNECTION_TYPE					= ConnectionTypes.SOCKET;
-	final static int DEFAULT_CONNECTION_PINGTIMEOUT				= 30000;
+	final static int DEFAULT_CONNECTION_PINGTIMEOUT				= 60000;
 	final static int DEFAULT_DICTIONARY_REQUEST_TIMEOUT			= 45000;
 	final static int DEFAULT_DIRECTORY_REQUEST_TIMEOUT			= 45000;
 	final static int DEFAULT_DISPATCH_TIMEOUT_API_THREAD		= 0;

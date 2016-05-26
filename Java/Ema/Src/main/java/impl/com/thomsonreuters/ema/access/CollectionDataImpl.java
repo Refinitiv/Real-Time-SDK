@@ -31,15 +31,17 @@ abstract class CollectionDataImpl extends DataImpl implements ComplexType
 	protected int _errorCode = ErrorCode.NO_ERROR;
 	protected StringBuilder _errorString;
 	
-	CollectionDataImpl(boolean decoding)
+	CollectionDataImpl(EmaObjectManager objManager)
 	{
-		if (!decoding)
+		if (objManager == null)
 		{
 			_encodeComplete = false;
 			_rsslEncodeIter = com.thomsonreuters.upa.codec.CodecFactory.createEncodeIterator() ;
 			_rsslBuffer = CodecFactory.createBuffer();
 			_rsslBuffer.data(ByteBuffer.allocate(ENCODE_RSSL_BUFFER_INIT_SIZE));
 		}
+		else
+			_objManager = objManager;
 	}
 	
 	void clear()

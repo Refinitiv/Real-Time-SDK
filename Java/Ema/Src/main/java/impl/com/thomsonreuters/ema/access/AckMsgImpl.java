@@ -33,12 +33,12 @@ class AckMsgImpl extends MsgImpl implements AckMsg
 	
 	AckMsgImpl()
 	{
-		super(DataTypes.ACK_MSG, false);
+		super(DataTypes.ACK_MSG,  null);
 	}
 
-	AckMsgImpl(boolean decoding)
+	AckMsgImpl(EmaObjectManager objManager)
 	{
-		super(DataTypes.ACK_MSG, decoding);
+		super(DataTypes.ACK_MSG, objManager);
 	}
 	
 	@Override

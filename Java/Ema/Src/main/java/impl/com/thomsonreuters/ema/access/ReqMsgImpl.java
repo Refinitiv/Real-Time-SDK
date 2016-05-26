@@ -44,13 +44,13 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 	
     ReqMsgImpl()
 	{
-		super(DataTypes.REQ_MSG, false);
+		super(DataTypes.REQ_MSG, null);
 		initialEncoding();
 	}
 
-    ReqMsgImpl(boolean decoding)
+    ReqMsgImpl(EmaObjectManager objManager)
 	{
-		super(DataTypes.REQ_MSG, decoding);
+		super(DataTypes.REQ_MSG, objManager);
 	}
 
     @Override

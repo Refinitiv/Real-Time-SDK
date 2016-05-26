@@ -21,12 +21,12 @@ class GenericMsgImpl extends MsgImpl implements GenericMsg
 {
 	GenericMsgImpl()
 	{
-		super(DataTypes.GENERIC_MSG, false);
+		super(DataTypes.GENERIC_MSG, null);
 	}
 
-	GenericMsgImpl(boolean decoding)
+	GenericMsgImpl(EmaObjectManager objManager)
 	{
-		super(DataTypes.GENERIC_MSG, decoding);
+		super(DataTypes.GENERIC_MSG, objManager);
 	}
 	
 	@Override
@@ -93,7 +93,7 @@ class GenericMsgImpl extends MsgImpl implements GenericMsg
 		if (!hasPermissionData())
 			throw ommIUExcept().message("Attempt to permissionData() while it is NOT set.");
 		
-		_permissionData = Utilities.copyFromPool( ((com.thomsonreuters.upa.codec.GenericMsg)_rsslMsg).permData(), _permissionData);
+		_permissionData = Utilities.copyFromPool( ((com.thomsonreuters.upa.codec.GenericMsg)_rsslMsg).permData(), _permissionData, _objManager);
 		return _permissionData;
 	}
 

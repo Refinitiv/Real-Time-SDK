@@ -268,15 +268,15 @@ class Utilities
 		return temp;
 	}
 
-	static ByteBuffer copyFromPool(Buffer srcBuffer, ByteBuffer destByteBuffer)
+	static ByteBuffer copyFromPool(Buffer srcBuffer, ByteBuffer destByteBuffer, EmaObjectManager objManager)
 	{
 		int srcBufferlength = srcBuffer.length();
 		if (destByteBuffer == null)
-			destByteBuffer =  GlobalPool.acquireByteBuffer(srcBufferlength);
+			destByteBuffer =  objManager.acquireByteBuffer(srcBufferlength);
 		else if (destByteBuffer != null && destByteBuffer.capacity() < srcBufferlength)
 		{
-				GlobalPool.releaseByteBuffer(destByteBuffer);
-				destByteBuffer =  GlobalPool.acquireByteBuffer(srcBufferlength);
+			objManager.releaseByteBuffer(destByteBuffer);
+			destByteBuffer =  objManager.acquireByteBuffer(srcBufferlength);
 		}
 		
 		destByteBuffer.clear();

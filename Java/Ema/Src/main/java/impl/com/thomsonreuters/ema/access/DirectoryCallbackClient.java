@@ -461,7 +461,7 @@ class DirectoryCallbackClient extends ConsumerCallbackClient implements RDMDirec
 			case UPDATE :
 				{
 					if (_updateMsg == null)
-						_updateMsg = new UpdateMsgImpl(true);
+						_updateMsg = new UpdateMsgImpl(_consumer._objManager);
 					
 					_updateMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(), 
 							((ChannelInfo)rsslReactorChannel.userSpecObj()).rsslDictionary());
@@ -474,7 +474,7 @@ class DirectoryCallbackClient extends ConsumerCallbackClient implements RDMDirec
 			case STATUS :
 				{
 					if (_statusMsg == null)
-						_statusMsg = new StatusMsgImpl(true);
+						_statusMsg = new StatusMsgImpl(_consumer._objManager);
 					
 					_statusMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(), null);
 	
@@ -769,6 +769,7 @@ class DirectoryItem extends SingleItem
 	void remove()
 	{
 		_consumer.itemCallbackClient().removeFromMap(this);
+		this.itemIdObj().returnToPool();
 		this.returnToPool();
 	}
 	

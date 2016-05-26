@@ -24,12 +24,12 @@ class PostMsgImpl extends MsgImpl implements PostMsg
 	
 	PostMsgImpl()
 	{
-		super(DataTypes.POST_MSG, false);
+		super(DataTypes.POST_MSG, null);
 	}
 
-	PostMsgImpl(boolean decoding)
+	PostMsgImpl(EmaObjectManager objManager)
 	{
-		super(DataTypes.POST_MSG, decoding);
+		super(DataTypes.POST_MSG, objManager);
 	}
 
 	@Override
@@ -127,7 +127,7 @@ class PostMsgImpl extends MsgImpl implements PostMsg
 		if (!hasPermissionData())
 			throw ommIUExcept().message("Attempt to permissionData() while it is NOT set.");
 		
-		_permissionData = Utilities.copyFromPool( ((com.thomsonreuters.upa.codec.PostMsg)_rsslMsg).permData(), _permissionData);
+		_permissionData = Utilities.copyFromPool( ((com.thomsonreuters.upa.codec.PostMsg)_rsslMsg).permData(), _permissionData, _objManager);
 		return _permissionData;
 	}
 

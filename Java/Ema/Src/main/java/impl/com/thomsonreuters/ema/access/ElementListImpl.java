@@ -25,12 +25,12 @@ class ElementListImpl extends CollectionDataImpl implements ElementList
 
 	ElementListImpl()
 	{
-		super(false);
+		super(null);
 	}
 
-	ElementListImpl(boolean decoding)
+	ElementListImpl(EmaObjectManager objManager)
 	{
-		super(decoding);
+		super(objManager);
 	}
 
 	@Override
@@ -57,12 +57,15 @@ class ElementListImpl extends CollectionDataImpl implements ElementList
 	@Override
 	public void clear()
 	{
-		super.clear();
-
-		_rsslElementList.clear();
-		
 		if (_rsslEncodeIter != null)
+		{
+			super.clear();
+
+			_rsslElementList.clear();
 			_elementListCollection.clear();
+		}
+		else
+			clearCollection();
 	}
 
 	@Override
@@ -522,11 +525,11 @@ class ElementListImpl extends CollectionDataImpl implements ElementList
 	
 	private ElementEntryImpl elementEntryInstance()
 	{
-		ElementEntryImpl retData = (ElementEntryImpl)GlobalPool._elementEntryPool.poll();
+		ElementEntryImpl retData = (ElementEntryImpl)_objManager._elementEntryPool.poll();
         if(retData == null)
         {
         	retData = new ElementEntryImpl(com.thomsonreuters.upa.codec.CodecFactory.createElementEntry(), noDataInstance());
-        	GlobalPool._elementEntryPool.updatePool(retData);
+        	_objManager._elementEntryPool.updatePool(retData);
         }
         else
         	retData._rsslElementEntry.clear();
@@ -536,12 +539,12 @@ class ElementListImpl extends CollectionDataImpl implements ElementList
 	
 	private void clearCollection()
 	{
-		if (_elementListCollection.size() > 0 )
+		int collectionSize = _elementListCollection.size();
+		if (collectionSize > 0)
 		{
-			Iterator<ElementEntry> iter = _elementListCollection.iterator();
-			while ( iter.hasNext())
-				((ElementEntryImpl)iter.next()).returnToPool();
-				
+			for (int index = 0; index < collectionSize; ++index)
+				((ElementEntryImpl)_elementListCollection.get(index)).returnToPool();
+	
 			_elementListCollection.clear();
 		}
 	}

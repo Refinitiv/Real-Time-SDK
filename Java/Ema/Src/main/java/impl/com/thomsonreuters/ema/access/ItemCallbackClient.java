@@ -58,7 +58,7 @@ class ConsumerCallbackClient
 	{
 		_consumer = consumer;
 		_event = new OmmConsumerEventImpl();
-		_refreshMsg = new RefreshMsgImpl(true);
+		_refreshMsg = new RefreshMsgImpl(_consumer._objManager);
 		_consumerClient = new OmmConsumerClientImpl();
 		
 		if (_consumer.loggerClient().isTraceEnabled())
@@ -76,17 +76,20 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 {
 	private static final String CLIENT_NAME = "ItemCallbackClient";
 	
-	private HashMap<Long, Item>						_itemMap;
-	private StatusMsg								_rsslStatusMsg;
+	private HashMap<LongObject, Item>	_itemMap;
+	private LongObject _longObjHolder;
+	private StatusMsg	_rsslStatusMsg;
 	private com.thomsonreuters.upa.codec.CloseMsg	_rsslCloseMsg;
 
 	ItemCallbackClient(OmmConsumerImpl consumer)
 	{
 		super(consumer, CLIENT_NAME);
 		
-		_itemMap = new HashMap<Long, Item>(_consumer.activeConfig().itemCountHint == 0 ? 1024 : _consumer.activeConfig().itemCountHint);
+		_itemMap = new HashMap<LongObject, Item>(_consumer.activeConfig().itemCountHint == 0 ? 1024 : _consumer.activeConfig().itemCountHint);
 		
-		_updateMsg = new UpdateMsgImpl(true);
+		_updateMsg = new UpdateMsgImpl(_consumer._objManager);
+		
+		_longObjHolder = new LongObject();
 	}
 
 	void initialize() {}
@@ -233,7 +236,7 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 	int processStatusMsg(Msg rsslMsg,  ChannelInfo channelInfo)
 	{
 		if (_statusMsg == null)
-			_statusMsg = new StatusMsgImpl(true);
+			_statusMsg = new StatusMsgImpl(_consumer._objManager);
 		
 		_statusMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
 		
@@ -255,7 +258,7 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 	int processGenericMsg(Msg rsslMsg,  ChannelInfo channelInfo)
 	{
 		if (_genericMsg == null)
-			_genericMsg = new GenericMsgImpl(true);
+			_genericMsg = new GenericMsgImpl(_consumer._objManager);
 
 		_genericMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
 		
@@ -271,7 +274,7 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 	int processAckMsg(Msg rsslMsg,  ChannelInfo channelInfo)
 	{
 		if (_ackMsg == null)
-			_ackMsg = new AckMsgImpl(true);
+			_ackMsg = new AckMsgImpl(_consumer._objManager);
 		
 		_ackMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
 
@@ -384,10 +387,10 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 					}
 
 					DictionaryItem item;
-					if ((item = (DictionaryItem)GlobalPool._dictionaryItemPool.poll()) == null)
+					if ((item = (DictionaryItem)_consumer._objManager._dictionaryItemPool.poll()) == null)
 					{
 						item = new DictionaryItem(_consumer, consumerClient, closure);
-						GlobalPool._dictionaryItemPool.updatePool(item);
+						_consumer._objManager._dictionaryItemPool.updatePool(item);
 					}
 					else
 						item.reset(_consumer, consumerClient, closure, null);
@@ -408,10 +411,10 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 					for(ChannelInfo eachChannel : channels)
 					{
 						DirectoryItem item;
-						if ((item = (DirectoryItem)GlobalPool._directoryItemPool.poll()) == null)
+						if ((item = (DirectoryItem)_consumer._objManager._directoryItemPool.poll()) == null)
 						{
 							item = new DirectoryItem(_consumer, consumerClient, closure);
-							GlobalPool._directoryItemPool.updatePool(item);
+							_consumer._objManager._directoryItemPool.updatePool(item);
 						}
 						else
 							item.reset(_consumer, consumerClient, closure, null);
@@ -436,10 +439,10 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 					if (requestMsg.checkHasBatch())
 					{
 						BatchItem batchItem;
-						if ((batchItem = (BatchItem)GlobalPool._batchItemPool.poll()) == null)
+						if ((batchItem = (BatchItem)_consumer._objManager._batchItemPool.poll()) == null)
 						{
 							batchItem = new BatchItem(_consumer, consumerClient, closure);
-							GlobalPool._batchItemPool.updatePool(batchItem);
+							_consumer._objManager._batchItemPool.updatePool(batchItem);
 						}
 						else
 							batchItem.reset(_consumer, consumerClient, closure, null);
@@ -464,10 +467,9 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 							}
 							else
 							{
-								batchItem.itemId(LongIdGenerator.nextLongId());
-								addToMap( batchItem );
+								addToMap(LongIdGenerator.nextLongId(), batchItem);
 
-								for ( int i = 1 ; i < numOfItem ; i++ )
+								for ( int i = 0; i < numOfItem ; i++ )
 									addToMap(LongIdGenerator.nextLongId(), items.get(i));
 								
 								return batchItem.itemId();
@@ -476,10 +478,10 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 					else
 					{
 						SingleItem item;
-						if ((item = (SingleItem)GlobalPool._singleItemPool.poll()) == null)
+						if ((item = (SingleItem)_consumer._objManager._singleItemPool.poll()) == null)
 						{
 							item = new SingleItem(_consumer, consumerClient, closure, null);
-							GlobalPool._singleItemPool.updatePool(item);
+							_consumer._objManager._singleItemPool.updatePool(item);
 						}
 						else
 							item.reset(_consumer, consumerClient, closure, null);
@@ -513,7 +515,7 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 	
 	void reissue(ReqMsg reqMsg, long handle)
 	{
-		Item item = _itemMap.get(handle);
+		Item item = _itemMap.get(_longObjHolder.value(handle));
 		if (item == null)
 		{
 			StringBuilder temp = _consumer.consumerStrBuilder();
@@ -537,14 +539,14 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 
 	void unregister(long handle)
 	{
-		Item item = _itemMap.get(handle);
+		Item item = _itemMap.get(_longObjHolder.value(handle));
 		if (item != null)
 			item.close();
 	}
 
 	void submit(PostMsg postMsg, long handle)
 	{
-		Item found = _itemMap.get((Long) handle);
+		Item found = _itemMap.get(_longObjHolder.value(handle));
 		if ( found == null )
 		{
 			StringBuilder temp = _consumer.consumerStrBuilder();
@@ -568,7 +570,7 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 
 	void submit(GenericMsg genericMsg, long handle)
 	{
-		Item found = _itemMap.get((Long) handle);
+		Item found = _itemMap.get(_longObjHolder.value(handle));
 		if ( found == null )
 		{
 			StringBuilder temp = _consumer.consumerStrBuilder();
@@ -598,8 +600,9 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 
 	long addToMap(long itemId, Item item)
 	{
-		item.itemId(itemId);
-		_itemMap.put(itemId, item);
+		LongObject itemIdObj = _consumer._objManager.createLongObject().value(itemId);
+		item.itemId(itemId, itemIdObj);
+		_itemMap.put(itemIdObj, item);
 		
 		if (_consumer.loggerClient().isTraceEnabled())
 		{
@@ -613,11 +616,6 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 		return itemId;
 	}
 	
-	void addToMap(Item item)
-	{
-		_itemMap.put(item.itemId(), item);
-	}
-	
 	void removeFromMap(Item item)
 	{
 		if (_consumer.loggerClient().isTraceEnabled())
@@ -629,7 +627,7 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 			_consumer.loggerClient().trace(_consumer.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
 		}
 		
-		_itemMap.remove(item.itemId());
+		_itemMap.remove(item.itemIdObj());
 	}
 	
 	com.thomsonreuters.upa.codec.CloseMsg rsslCloseMsg()
@@ -658,6 +656,7 @@ abstract class Item extends VaNode
 	OmmConsumerClient		_consumerClient;
 	OmmConsumerImpl			_consumer;
 	long 					_itemId;
+	LongObject _itemIdObj;
 
 	Item() {}
 	
@@ -691,14 +690,25 @@ abstract class Item extends VaNode
 		return _consumer;
 	}
 	
-	void itemId(long itemId)
+	void itemId(long itemId, LongObject itemIdObj)
 	{
 		_itemId = itemId;
+		_itemIdObj = itemIdObj;
+	}
+	
+	void itemIdObj(LongObject itemIdObj)
+	{
+		_itemIdObj = itemIdObj;
 	}
 	
 	long itemId()
 	{
 		return _itemId;
+	}
+	
+	LongObject itemIdObj()
+	{
+		return _itemIdObj;
 	}
 	
 	void reset(OmmConsumerImpl consumer, OmmConsumerClient consumerClient, Object closure, Item parent)
@@ -865,6 +875,7 @@ class SingleItem extends Item
 			}
 			
 			_consumer.itemCallbackClient().removeFromMap(this);
+			this.itemIdObj().returnToPool();
 			this.returnStreamId();
 			this.returnToPool();
 		}
@@ -1271,10 +1282,10 @@ class BatchItem extends SingleItem
 	SingleItem createSingleItem()
 	{
 		SingleItem item;
-		if ((item = (SingleItem)GlobalPool._singleItemPool.poll()) == null)
+		if ((item = (SingleItem)_consumer._objManager._singleItemPool.poll()) == null)
 		{
 			item = new SingleItem(_consumer, _consumerClient, 0, this);
-			GlobalPool._singleItemPool.updatePool(item);
+			_consumer._objManager._singleItemPool.updatePool(item);
 		}
 		else
 			item.reset(_consumer, _consumerClient, 0, this);
@@ -1287,10 +1298,10 @@ class BatchItem extends SingleItem
 		SingleItem item;
 		for( int i = 0 ; i < numOfItem ; i++ )
 		{
-			if ((item = (SingleItem)GlobalPool._singleItemPool.poll()) == null)
+			if ((item = (SingleItem)_consumer._objManager._singleItemPool.poll()) == null)
 			{
 				item = new SingleItem(_consumer, _consumerClient, _closure, this);
-				GlobalPool._singleItemPool.updatePool(item);
+				_consumer._objManager._singleItemPool.updatePool(item);
 			}
 			else
 				item.reset(_consumer, _consumerClient, _closure, this);
@@ -1396,7 +1407,7 @@ class ClosedStatusClient implements TimeoutClient
 			rsslStatusMsg.applyPrivateStream();
 
 		if (_client._statusMsg == null)
-			_client._statusMsg = new StatusMsgImpl(true);
+			_client._statusMsg = new StatusMsgImpl(_client._consumer._objManager);
 		
 		_client._statusMsg.decode(rsslStatusMsg, Codec.majorVersion(), Codec.majorVersion(), null);
 

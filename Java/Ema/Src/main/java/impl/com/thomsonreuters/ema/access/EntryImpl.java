@@ -9,7 +9,6 @@ package com.thomsonreuters.ema.access;
 
 
 import com.thomsonreuters.ema.access.AckMsg;
-import com.thomsonreuters.ema.access.Data;
 import com.thomsonreuters.ema.access.Data.DataCode;
 import com.thomsonreuters.ema.access.DataType;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
@@ -306,322 +305,302 @@ abstract class EntryImpl extends VaNode
 	
 	public long intValue()
 	{
-		Data load = load();
-		if (load.dataType() != DataTypes.INT)
+		if (_load.dataType() != DataTypes.INT)
 		{
 			StringBuilder error = errorString();
 			error.append("Attempt to intValue() while actual entry data type is ")
-				 .append(DataType.asString(load.dataType()));
+				 .append(DataType.asString(_load.dataType()));
 			throw ommIUExcept().message(error.toString());
 		}
-		else if (DataCode.BLANK == load.code())
+		else if (DataCode.BLANK == _load.code())
 			throw ommIUExcept().message("Attempt to intValue() while entry data is blank.");
 
-		return ((OmmInt)load).intValue();
+		return ((OmmInt)_load).intValue();
 	}
 	
 	public OmmInt ommIntValue()
 	{
-		Data load = load();
-		if (load.dataType() != DataTypes.INT)
+		if (_load.dataType() != DataTypes.INT)
 		{
 			StringBuilder error = errorString();
 			error.append("Attempt to ommIntValue() while actual entry data type is ")
-				 .append(DataType.asString(load.dataType()));
+				 .append(DataType.asString(_load.dataType()));
 			throw ommIUExcept().message(error.toString());
 		}
-		else if (DataCode.BLANK == load.code())
+		else if (DataCode.BLANK == _load.code())
 			throw ommIUExcept().message("Attempt to ommIntValue() while entry data is blank.");
 
-		return (OmmInt)load;
+		return (OmmInt)_load;
 	}
 	
 	public long uintValue()
 	{
-		Data load = load();
-		if (load.dataType() != DataTypes.UINT)
+		if (_load.dataType() != DataTypes.UINT)
 		{
 			StringBuilder error = errorString();
 			error.append("Attempt to uintValue() while actual entry data type is ")
-				 .append(DataType.asString(load.dataType()));
+				 .append(DataType.asString(_load.dataType()));
 			throw ommIUExcept().message(error.toString());
 		}
-		else if (DataCode.BLANK == load.code())
+		else if (DataCode.BLANK == _load.code())
 			throw ommIUExcept().message("Attempt to uintValue() while entry data is blank.");
 
-		return ((OmmUInt)load).longValue();
+		return ((OmmUInt)_load).longValue();
 	}
 	
 	public OmmUInt ommUIntValue()
 	{
-		Data load = load();
-		if (load.dataType() != DataTypes.UINT)
+		if (_load.dataType() != DataTypes.UINT)
 		{
 			StringBuilder error = errorString();
 			error.append("Attempt to ommUIntValue() while actual entry data type is ")
-				 .append(DataType.asString(load.dataType()));
+				 .append(DataType.asString(_load.dataType()));
 			throw ommIUExcept().message(error.toString());
 		}
-		else if (DataCode.BLANK == load.code())
+		else if (DataCode.BLANK == _load.code())
 			throw ommIUExcept().message("Attempt to ommUIntValue() while entry data is blank.");
 
-		return (OmmUInt)load;
+		return (OmmUInt)_load;
 	}
 	
 	public OmmReal real()
 	{
-		Data load = load();
-		if (load.dataType() != DataTypes.REAL)
+		if (_load.dataType() != DataTypes.REAL)
 		{
 			StringBuilder error = errorString();
 			error.append("Attempt to real() while actual entry data type is ")
-				 .append(DataType.asString(load.dataType()));
+				 .append(DataType.asString(_load.dataType()));
 			throw ommIUExcept().message(error.toString());
 		}
-		else if (DataCode.BLANK == load.code())
+		else if (DataCode.BLANK == _load.code())
 			throw ommIUExcept().message("Attempt to real() while entry data is blank.");
 
-		return (OmmReal)load;
+		return (OmmReal)_load;
 	}
 
 	public float floatValue()
 	{
-		Data load = load();
-		if (load.dataType() != DataTypes.FLOAT)
+		if (_load.dataType() != DataTypes.FLOAT)
 		{
 			StringBuilder error = errorString();
 			error.append("Attempt to floatValue() while actual entry data type is ")
-				 .append(DataType.asString(load.dataType()));
+				 .append(DataType.asString(_load.dataType()));
 			throw ommIUExcept().message(error.toString());
 		}
-		else if (DataCode.BLANK == load.code())
+		else if (DataCode.BLANK == _load.code())
 			throw ommIUExcept().message("Attempt to floatValue() while entry data is blank.");
 
-		return ((OmmFloat)load).floatValue();
+		return ((OmmFloat)_load).floatValue();
 	}
 	
 	public OmmFloat ommFloatValue()
 	{
-		Data load = load();
-		if (load.dataType() != DataTypes.FLOAT)
+		if (_load.dataType() != DataTypes.FLOAT)
 		{
 			StringBuilder error = errorString();
 			error.append("Attempt to ommFloatValue() while actual entry data type is ")
-				 .append(DataType.asString(load.dataType()));
+				 .append(DataType.asString(_load.dataType()));
 			throw ommIUExcept().message(error.toString());
 		}
-		else if (DataCode.BLANK == load.code())
+		else if (DataCode.BLANK == _load.code())
 			throw ommIUExcept().message("Attempt to ommFloatValue() while entry data is blank.");
 
-		return (OmmFloat)load;
+		return (OmmFloat)_load;
 	}
 	
 	public double doubleValue()
 	{
-		Data load = load();
-		if (load.dataType() != DataTypes.DOUBLE)
+		if (_load.dataType() != DataTypes.DOUBLE)
 		{
 			StringBuilder error = errorString();
 			error.append("Attempt to doubleValue() while actual entry data type is ")
-				 .append(DataType.asString(load.dataType()));
+				 .append(DataType.asString(_load.dataType()));
 			throw ommIUExcept().message(error.toString());
 		}
-		else if (DataCode.BLANK == load.code())
+		else if (DataCode.BLANK == _load.code())
 			throw ommIUExcept().message("Attempt to doubleValue() while entry data is blank.");
 
-		return ((OmmDouble)load).doubleValue();
+		return ((OmmDouble)_load).doubleValue();
 	}
 
 	public OmmDouble ommDoubleValue()
 	{
-		Data load = load();
-		if (load.dataType() != DataTypes.DOUBLE)
+		if (_load.dataType() != DataTypes.DOUBLE)
 		{
 			StringBuilder error = errorString();
 			error.append("Attempt to ommDoubleValue() while actual entry data type is ")
-				 .append(DataType.asString(load.dataType()));
+				 .append(DataType.asString(_load.dataType()));
 			throw ommIUExcept().message(error.toString());
 		}
-		else if (DataCode.BLANK == load.code())
+		else if (DataCode.BLANK == _load.code())
 			throw ommIUExcept().message("Attempt to ommDoubleValue() while entry data is blank.");
 
-		return (OmmDouble)load;
+		return (OmmDouble)_load;
 	}
 
 	public OmmDate date()
 	{
-		Data load = load();
-		if (load.dataType() != DataTypes.DATE)
+		if (_load.dataType() != DataTypes.DATE)
 		{
 			StringBuilder error = errorString();
 			error.append("Attempt to date() while actual entry data type is ")
-				 .append(DataType.asString(load.dataType()));
+				 .append(DataType.asString(_load.dataType()));
 			throw ommIUExcept().message(error.toString());
 		}
-		else if (DataCode.BLANK == load.code())
+		else if (DataCode.BLANK == _load.code())
 			throw ommIUExcept().message("Attempt to date() while entry data is blank.");
 
-		return (OmmDate)load;
+		return (OmmDate)_load;
 	}
 	
 	public OmmTime time()
 	{
-		Data load = load();
-		if (load.dataType() != DataTypes.TIME)
+		if (_load.dataType() != DataTypes.TIME)
 		{
 			StringBuilder error = errorString();
 			error.append("Attempt to time() while actual entry data type is ")
-				 .append(DataType.asString(load.dataType()));
+				 .append(DataType.asString(_load.dataType()));
 			throw ommIUExcept().message(error.toString());
 		}
-		else if (DataCode.BLANK == load.code())
+		else if (DataCode.BLANK == _load.code())
 			throw ommIUExcept().message("Attempt to time() while entry data is blank.");
 
-		return (OmmTime)load;
+		return (OmmTime)_load;
 	}
 	
 	public OmmDateTime dateTime()
 	{
-		Data load = load();
-		if (load.dataType() != DataTypes.DATETIME)
+		if (_load.dataType() != DataTypes.DATETIME)
 		{
 			StringBuilder error = errorString();
 			error.append("Attempt to dateTime() while actual entry data type is ")
-				 .append(DataType.asString(load.dataType()));
+				 .append(DataType.asString(_load.dataType()));
 			throw ommIUExcept().message(error.toString());
 		}
-		else if (DataCode.BLANK == load.code())
+		else if (DataCode.BLANK == _load.code())
 			throw ommIUExcept().message("Attempt to dateTime() while entry data is blank.");
 
-		return (OmmDateTime)load;
+		return (OmmDateTime)_load;
 	}
 
 	public OmmQos qos()
 	{
-		Data load = load();
-		if (load.dataType() != DataTypes.QOS)
+		if (_load.dataType() != DataTypes.QOS)
 		{
 			StringBuilder error = errorString();
 			error.append("Attempt to qos() while actual entry data type is ")
-				 .append(DataType.asString(load.dataType()));
+				 .append(DataType.asString(_load.dataType()));
 			throw ommIUExcept().message(error.toString());
 		}
-		else if (DataCode.BLANK == load.code())
+		else if (DataCode.BLANK == _load.code())
 			throw ommIUExcept().message("Attempt to qos() while entry data is blank.");
 
-		return (OmmQos)load;
+		return (OmmQos)_load;
 	}
 	
 	public OmmState state()
 	{
-		Data load = load();
-		if (load.dataType() != DataTypes.STATE)
+		if (_load.dataType() != DataTypes.STATE)
 		{
 			StringBuilder error = errorString();
 			error.append("Attempt to state() while actual entry data type is ")
-				 .append(DataType.asString(load.dataType()));
+				 .append(DataType.asString(_load.dataType()));
 			throw ommIUExcept().message(error.toString());
 		}
-		else if (DataCode.BLANK == load.code())
+		else if (DataCode.BLANK == _load.code())
 			throw ommIUExcept().message("Attempt to state() while entry data is blank.");
 
-		return (OmmState)load;
+		return (OmmState)_load;
 	}
 
 	public int enumValue()
 	{
-		Data load = load();
-		if (load.dataType() != DataTypes.ENUM)
+		if (_load.dataType() != DataTypes.ENUM)
 		{
 			StringBuilder error = errorString();
 			error.append("Attempt to enumValue() while actual entry data type is ")
-				 .append(DataType.asString(load.dataType()));
+				 .append(DataType.asString(_load.dataType()));
 			throw ommIUExcept().message(error.toString());
 		}
-		else if (DataCode.BLANK == load.code())
+		else if (DataCode.BLANK == _load.code())
 			throw ommIUExcept().message("Attempt to enumValue() while entry data is blank.");
 
-		return ((OmmEnum)load).enumValue();
+		return ((OmmEnum)_load).enumValue();
 	}
 	
 	public OmmEnum ommEnumValue()
 	{
-		Data load = load();
-		if (load.dataType() != DataTypes.ENUM)
+		if (_load.dataType() != DataTypes.ENUM)
 		{
 			StringBuilder error = errorString();
 			error.append("Attempt to ommEnumValue() while actual entry data type is ")
-				 .append(DataType.asString(load.dataType()));
+				 .append(DataType.asString(_load.dataType()));
 			throw ommIUExcept().message(error.toString());
 		}
-		else if (DataCode.BLANK == load.code())
+		else if (DataCode.BLANK == _load.code())
 			throw ommIUExcept().message("Attempt to ommEnumValue() while entry data is blank.");
 
-		return (OmmEnum)load;
+		return (OmmEnum)_load;
 	}
 	
 	public OmmBuffer buffer()
 	{
-		Data load = load();
-		if (load.dataType() != DataTypes.BUFFER)
+		if (_load.dataType() != DataTypes.BUFFER)
 		{
 			StringBuilder error = errorString();
 			error.append("Attempt to buffer() while actual entry data type is ")
-				 .append(DataType.asString(load.dataType()));
+				 .append(DataType.asString(_load.dataType()));
 			throw ommIUExcept().message(error.toString());
 		}
-		else if (DataCode.BLANK == load.code())
+		else if (DataCode.BLANK == _load.code())
 			throw ommIUExcept().message("Attempt to buffer() while entry data is blank.");
 
-		return (OmmBuffer)load;
+		return (OmmBuffer)_load;
 	}
 	
 	public OmmAscii ascii()
 	{
-		Data load = load();
-		if (load.dataType() != DataTypes.ASCII)
+		if (_load.dataType() != DataTypes.ASCII)
 		{
 			StringBuilder error = errorString();
 			error.append("Attempt to ascii() while actual entry data type is ")
-				 .append(DataType.asString(load.dataType()));
+				 .append(DataType.asString(_load.dataType()));
 			throw ommIUExcept().message(error.toString());
 		}
-		else if (DataCode.BLANK == load.code())
+		else if (DataCode.BLANK == _load.code())
 			throw ommIUExcept().message("Attempt to ascii() while entry data is blank.");
 
-		return (OmmAscii)load;
+		return (OmmAscii)_load;
 	}
 	
 	public OmmUtf8 utf8()
 	{
-		Data load = load();
-		if (load.dataType() != DataTypes.UTF8)
+		if (_load.dataType() != DataTypes.UTF8)
 		{
 			StringBuilder error = errorString();
 			error.append("Attempt to utf8() while actual entry data type is ")
-				 .append(DataType.asString(load.dataType()));
+				 .append(DataType.asString(_load.dataType()));
 			throw ommIUExcept().message(error.toString());
 		}
-		else if (DataCode.BLANK == load.code())
+		else if (DataCode.BLANK == _load.code())
 			throw ommIUExcept().message("Attempt to utf8() while entry data is blank.");
 
-		return (OmmUtf8)load;
+		return (OmmUtf8)_load;
 	}
 	
 	public OmmRmtes rmtes()
 	{
-		Data load = load();
-		if (load.dataType() != DataTypes.RMTES)
+		if (_load.dataType() != DataTypes.RMTES)
 		{
 			StringBuilder error = errorString();
 			error.append("Attempt to rmtes() while actual entry data type is ")
-				 .append(DataType.asString(load.dataType()));
+				 .append(DataType.asString(_load.dataType()));
 			throw ommIUExcept().message(error.toString());
 		}
-		else if (DataCode.BLANK == load.code())
+		else if (DataCode.BLANK == _load.code())
 			throw ommIUExcept().message("Attempt to rmtes() while entry data is blank.");
 
-		return (OmmRmtes)load;
+		return (OmmRmtes)_load;
 	}
 
 	public OmmError error()
