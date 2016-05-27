@@ -480,7 +480,7 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 		try
 		{
 			int selectCount = _selector.select(timeOut);
-			if (selectCount > 0 && _selector.selectedKeys() != null)//
+			if (selectCount > 0 || !_selector.selectedKeys().isEmpty())
 			{
 				Iterator<SelectionKey> iter = _selector.selectedKeys().iterator();
 				int ret = ReactorReturnCodes.SUCCESS;
