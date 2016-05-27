@@ -148,6 +148,7 @@ See the top level Elektron-SDK README.md for details.
     - EMA-375: EMAJ cannot send login request with the "User Token" nametype
     - EMA-401: Source directory reissue may internally request on invalid handle
 	- EMA-412: NumInputBuffers are not logged
+	- EMA-486: Consumer may utilize 100% on virtual machines
  
 
 # Obtaining the Thomson Reuters Field Dictionaries
