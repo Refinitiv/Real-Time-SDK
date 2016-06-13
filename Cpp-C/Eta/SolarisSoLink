@@ -1,0 +1,33 @@
+#!/bin/ksh
+echo "Shared Object Link Creation Start."
+
+
+if [ -d "./Libs/SOL10_X64_64_SS12" ]; then
+    echo " "
+    echo "Creating links for shared objects for Libs/SOL10_X64_64_SS12"
+    echo " "
+    cd Libs/SOL10_X64_64_SS12/Optimized/Shared;
+    ln -s librssl-eta3.0.2.L1.so librssl.so.6
+    ln -s librssl.so.6 librssl.so
+    cd ../../../..
+    cd Libs/SOL10_X64_64_SS12/Optimized_Assert/Shared;
+    ln -s librssl-eta3.0.2.L1.so librssl.so.6
+    ln -s librssl.so.6 librssl.so
+    cd ../../../..
+    cd Libs/SOL10_X64_64_SS12/Optimized/Shared;
+    ln -s librsslVA-eta3.0.2.L1.so librsslVA.so.7
+    ln -s librsslVA.so.7 librsslVA.so
+    ln -s librsslVACache-eta3.0.2.L1.so librsslVACache.so.2
+    ln -s librsslVACache.so.2 librsslVACache.so
+    cd ../../../..
+    cd Libs/SOL10_X64_64_SS12/Optimized_Assert/Shared;
+    ln -s librsslVA-eta3.0.2.L1.so librsslVA.so.7
+    ln -s librsslVA.so.7 librsslVA.so
+    ln -s librsslVACache-eta3.0.2.L1.so librsslVACache.so.2
+    ln -s librsslVACache.so.2 librsslVACache.so
+    cd ../../../..
+fi
+
+
+echo "Shared Object Link Creation Completed."
+echo " "

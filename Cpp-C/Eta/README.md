@@ -5,9 +5,8 @@ This is the **Elektron Transport API (ETA)**, the high performance, low latency,
 The Transport API is the re-branding of the Ultra Performance API (UPA), which is used by the Thomson Reuters Enterprise Platform for Real Time and Elektron for the optimal distribution of OMM/RWF data.  All interfaces in ETA are the same as their corresponding interfaces in UPA (same name, same parameter sets) and the transport and codec are fully wire compatible.  
 
 
-ETA contains both closed source and open source components.  The transport, decoder, encoder, and cache components are closed source and is proprietary to Thomson Reuters.  As a result, the the source code is not included on GitHub. Instead, source code for stub libraries are provided.  The stub libraries provide base implementation of the ETA closed source binaries, which are intended 
-to allow users to build the open source portions hosted in this repository.  This 'stub' library will allow you to build and run, but will not provide implementation for connectivity or data handling. 
-To get a fully functioning ETA library please see "Obtaining the Transort API Binary Package" below.
+ETA contains both closed source and open source components.  The transport, decoder, encoder, and cache components are closed source and is proprietary to Thomson Reuters.  As a result, the source code is not included on GitHub. 
+The `Libs` location in this package contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.
 
 
 # Building the Transport API
@@ -23,12 +22,14 @@ users understand how to develop to this API.
 **For Linux/Solaris**:
 
 Navigate to `Eta/Impl` 
--	Run `make all` to build Stub libraries and Reactor and its dependencies
--	Run `make stubs` to build only the Stub libraries
--	Run `make rsslVA` to build only Reactor and its dependencies
+-	Run `make all` to build Reactor and its dependencies.  This will link to the fully functional libraries provided in the `Libs` location.
+-	Run `make stubs` to build only the Stub libraries.  This will overwrite libraries in the `Libs` location with the compiled Stub libraries.
+-	Run `make rsslVA` to build only Reactor and its dependencies.  This will link to the fully functional libraries provided in the `Libs` location.  This is the same as the `make all` target.
 
 This will build both static and shared versions of the libraries and will build Optimized libraries by default.  
 If Optimized_Assert libraries are preferred, this can be modified from within the makefiles.
+
+**NOTE:** If you are using shared libraries, you will need to run the LinuxSoLink or SolarisSoLink to properly soft link for versioned libraries. 
 
 **For Windows**:
 
@@ -37,9 +38,6 @@ Select the `vcxproj` for the specific library you want to build, or use the prov
 
 When building via the solution, select the configuration combination you want (Static, Shared, Debug, Release, etc) and select `Build -> Build Solution` this will create both static and shared libraries for all targets.  
 
-If you have the corresponding ETA Binary Package you will not need to build the stubs. Please see "Obtaining the ETA Binary Package" below.
-
-**NOTE:** You must build the stub libraries prior to building the Reactor and its dependencies.
 
 ####2) Build the Transport API Examples
 
@@ -47,42 +45,11 @@ Navigate to `Eta/Applications`, locate the example, performance tool, or trainin
 
 ####3) Run the ETA Examples
 
-If you have only built the 'stub' library from above, the examples run but fail.  
-In order to get full functioning behaviour of ETA you will need to get the official binaries from the Thomson Reuters Customer Zone (http://customers.thomsonreuters.com). 
-Please see "Obtaining the ETA Binary Package" below.
+Run the application from the command line using the appropriate execution commands.  Most applications have a help menu that can be viewed with a -? option.
 
-
-# Obtaining the ETA Binary Package
-
-To get the full functionality of the Transport API, please get the official ETA libraries from the following.
-
-**Developer Community:**
-
-https://developers.thomsonreuters.com/
-
-Then select the following options:
-
-- **APIs by Product**: Elektron
-- **APIs in this Family**: Elektron SDK - C/C++ Edition
-- **Downloads**: ETA - C - BINARY PACKS
-
-Customer Zone:
-https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
-
-- **Category**: MDS - API
-- **Products**: Elektron SDK
-
-Then select the following release, where `<platform>` is linux, win, or solaris based on your preferred platform.
-
-    eta3.0.2.L1.<platform>-binaries.lib
-	
-Once you have downloaded these libraries, copy them to the corresponding directories under `Eta/Libs`
-Additional information about the contents of the closed source ETA libraries are available in the README contained in that distribution package.
-
-**NOTE:** If you are using shared libraries, you will need to run the LinuxSoLink or SolarisSoLink to properly soft link for versioned libraries.  
 
 ####Supported Platforms
-The makefiles and Windows project files provided facilitate building on a subset of platforms, generally overlapping with platforms supported or qualified by the ETA Binary Pack.
+The makefiles and Windows project files provided facilitate building on a subset of platforms, generally overlapping with platforms supported or qualified by the product.
 
 At the current time, the makefiles and project files support the following platform/compiler combinations:
 - RedHat Advanced Server 6.X 64-bit (gcc4.4.4)
@@ -97,10 +64,10 @@ At the current time, the makefiles and project files support the following platf
 - Solaris 10 X86 64-bit (SunStudio12)
 - Solaris 11 X86 64-bit (SunStudio12)
 
-Users are welcome to migrate open source code to the platforms they prefer, however support for the ETA Binary Pack is only provided on platforms captured in the README file provided with the Binary Pack.  Please see that package's README for more detailed platorm and compiler information.
+Users are welcome to migrate open source code to the platforms they prefer, however support for the included ETA libraries are only provided on platforms captured in the README file.
 # Obtaining the Thomson Reuters Field Dictionaries
 
-The Thomson Reuters `RDMFieldDictionary` and `enumtype.def` files are present in the GitHub repo under `Eta/etc` and also distributed with the ETA Binary Package.  
+The Thomson Reuters `RDMFieldDictionary` and `enumtype.def` files are present in the GitHub repo under `Eta/etc` and also distributed with the full Elektron SDK Package.  
 In addition, the most current version can be downloaded from the Customer Zone from the following location.
 
 https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
@@ -168,18 +135,15 @@ Please email a signed and scanned copy to sdkagreement@thomsonreuters.com.  If y
          sockets, reliable and unreliable UDP multicast, and Shared Memory.  
     - OMM Encoder and Decoders, allowing full use of all OMM constructs and messages.
 	
-	-*Transport and Encoder/Decoders are available in all Transport API distributions, with stub implementations available on GitHub.*
-- RMTES Support.
+	- RMTES Support.
       Several structures and functions can be used to process RMTES content 
       and convert to several Unicode formats for interpretation. 
 	  
-	  -*Available in all Transport API distributions as part of binary libraries.*
 - Open Source performance tools:
       Allow users to measure the performance through their system.  Customers 
       can modify the tools to suit their specific needs.  These are found
       in the Value Add portion of this package.
 	  
-	  -*Available in the full Transport API distribution and on GitHub*
 - Open Source value added helpers:
     - Reactor is a connection management and event processing
 		component that can significantly reduce the amount of code an 
@@ -211,13 +175,10 @@ Please email a signed and scanned copy to sdkagreement@thomsonreuters.com.  If y
 		Reactor, this component is embedded to manage and present
 		callbacks with a domain specific representation of content.
 		
-	-*Available in the full Transport API distribution and on GitHub*	   
 - DACS library for users to create custom locks for content publishing
 	
-	-*Available in the full Transport API distribution*
 - ANSI library for users to process ANSI Page based content
 	
-	-*Available in the full Transport API distribution*
 
 ####General Capabilities
 Transport API provides the following general capabilities independent of the type of application:

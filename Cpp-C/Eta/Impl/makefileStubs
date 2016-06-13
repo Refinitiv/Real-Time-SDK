@@ -10,7 +10,7 @@ ARCHTYPE=$(shell uname -m)
 ifeq ($(ARCHTYPE),i86pc)
 	LIB_DIR=Libs/SOL10_X64_64_SS12/$(LIBTYPE)
 	RSSL_LIB_DIR=$(ROOTPLAT)/Libs/SOL10_X64_64_SS12/$(LIBTYPE)
-	OUTPUT_DIR=$(ROOTPLAT)/Libs/SOL10_X64_64_SS12/$(LIBTYPE)
+	OUTPUT_DIR=$(ROOTPLAT)/Libs/SOL10_X64_64_SS12/$(LIBTYPE)/stubs
 	CFLAGS = -m64 -xtarget=opteron -xarch=sse2 -nofstore -xregs=frameptr -Di86pc -Di86pc_SunOS_510_64 -KPIC
 else
 	#
