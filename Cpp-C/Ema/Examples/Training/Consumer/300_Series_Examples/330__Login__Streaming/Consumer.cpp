@@ -191,17 +191,11 @@ void AppClient::decode( const Vector& vt )
 	}
 }
 
-void AppClient::setOmmConsumer( OmmConsumer& consumer )
-{
-	_pOmmConsumer = &consumer;
-}
-
 int main( int argc, char* argv[] )
 {
 	try {
 		AppClient client;
 		OmmConsumer consumer( OmmConsumerConfig().operationModel( OmmConsumerConfig::UserDispatchEnum ).username( "user" ));
-		client.setOmmConsumer( consumer );
 		void* closure = (void*)1;
 		
 		// open login stream and obtain its handle
