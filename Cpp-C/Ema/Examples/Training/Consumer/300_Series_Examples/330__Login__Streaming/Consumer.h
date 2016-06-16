@@ -48,8 +48,6 @@ public :
 
 	void decode( const thomsonreuters::ema::access::Vector& );			// print content of passed in Vector to screen
 
-	void setOmmConsumer( thomsonreuters::ema::access::OmmConsumer& );
-
 protected :
 
 	void onRefreshMsg( const thomsonreuters::ema::access::RefreshMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
@@ -57,8 +55,6 @@ protected :
 	void onUpdateMsg( const thomsonreuters::ema::access::UpdateMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
 
 	void onStatusMsg( const thomsonreuters::ema::access::StatusMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
-
-	thomsonreuters::ema::access::OmmConsumer* _pOmmConsumer;
 };
 
 #endif // __ema_consumer_h_

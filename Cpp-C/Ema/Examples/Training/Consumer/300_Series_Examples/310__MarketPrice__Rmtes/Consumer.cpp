@@ -59,14 +59,8 @@ void AppClient::decode( const FieldList& fl )
 }
 
 AppClient::AppClient() :
- hasFirstRefresh( false ),
- rmtesBuffer()
+	rmtesBuffer()
 {
-}
-
-void AppClient::setOmmConsumer( OmmConsumer & ommConsumer )
-{
-	_pOmmConsumer = &ommConsumer;
 }
 
 int main( int argc, char* argv[] )
@@ -74,7 +68,6 @@ int main( int argc, char* argv[] )
 	try { 
 		AppClient client;
 		OmmConsumer consumer( OmmConsumerConfig().operationModel( OmmConsumerConfig::UserDispatchEnum ).username( "user" ) );
-		client.setOmmConsumer( consumer );
 		void* closure = (void*)1;
 		UInt64 handle = consumer.registerClient( ReqMsg().serviceName( "DIRECT_FEED" ).name( "N2_UBMS" ), client, closure );
 		unsigned long long startTime = getCurrentTime();

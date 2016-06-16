@@ -43,8 +43,6 @@ public :
 
 	void decode( const thomsonreuters::ema::access::FieldList& );			// print content of passed in FieldList to screen
 
-	void setOmmConsumer( thomsonreuters::ema::access::OmmConsumer& );
-
 protected :
 
 	void onRefreshMsg( const thomsonreuters::ema::access::RefreshMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
@@ -53,11 +51,7 @@ protected :
 
 	void onStatusMsg( const thomsonreuters::ema::access::StatusMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
 	
-	thomsonreuters::ema::access::OmmConsumer* _pOmmConsumer;
-	
 	thomsonreuters::ema::access::RmtesBuffer rmtesBuffer;
-
-	bool hasFirstRefresh;
 };
 
 #endif // __ema_consumer_h_
