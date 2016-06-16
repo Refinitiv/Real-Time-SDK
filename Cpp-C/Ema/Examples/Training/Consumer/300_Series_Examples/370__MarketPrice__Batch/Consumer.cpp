@@ -8,6 +8,7 @@
 #include "Consumer.h"
 
 using namespace thomsonreuters::ema::access;
+using namespace thomsonreuters::ema::rdm;
 using namespace std;
 
 void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEvent& )
@@ -92,7 +93,7 @@ int main(int argc, char* argv[])
 		AppClient client;
 		OmmConsumer consumer( OmmConsumerConfig().username( "user" ) );
 		UInt64 handle = consumer.registerClient( ReqMsg().serviceName( "DIRECT_FEED" )
-			.payload( ElementList().addArray( ":ItemList", OmmArray().addAscii( "TRI.N" ).addAscii( "IBM.N" ).complete() ).complete() ), client );
+			.payload( ElementList().addArray( ENAME_BATCH_ITEM_LIST, OmmArray().addAscii( "TRI.N" ).addAscii( "IBM.N" ).complete() ).complete() ), client );
 		sleep( 60000 );				// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
 	}
 	catch ( const OmmException& excp ) {
