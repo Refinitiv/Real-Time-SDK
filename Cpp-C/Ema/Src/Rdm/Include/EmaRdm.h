@@ -150,6 +150,14 @@ static const thomsonreuters::ema::access::UInt32 SERVICE_YES = 1;	/*!< Service u
 static const thomsonreuters::ema::access::UInt32 SERVICE_NO	 = 0;	/*!< Service down, Service not accepting requests, or link down */
 //@}
 
+///@name Service Accepting Requests
+//@{
+/** Service accepting requests describes if a given service accepts item requests.
+*/
+static const thomsonreuters::ema::access::UInt32 SERVICE_UP		= 1;	/*!< Service up */
+static const thomsonreuters::ema::access::UInt32 SERVICE_DOWN	= 0;	/*!< Service down */
+//@}
+
 ///@name Service Link Types
 //@{
 /** Service link type describes type of a link from which a service is sourced.

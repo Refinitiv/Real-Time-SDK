@@ -10,7 +10,6 @@
 #include "OmmConsumerImpl.h"
 #include "ExceptionTranslator.h"
 #include "OmmException.h"
-#include "OmmConsumerActiveConfig.h"
 #include "time.h"
 #include "Utilities.h"
 #include <new>
@@ -22,18 +21,18 @@ using namespace thomsonreuters::ema::access;
 Mutex OmmLoggerClient::_printLock;
 struct LoggerClientFiles OmmLoggerClient::clientFiles = { 0, 0, 0 };
 
-OmmLoggerClient::OmmLoggerClient( OmmConsumerImpl& ommConsImpl ) :
-_pFile(0),
- _ommConsImpl( ommConsImpl ),
- _pOutput( 0 ),
- _logLine( 0, 2048 )
+OmmLoggerClient::OmmLoggerClient( LoggerType loggerType, bool includeDate, Severity severity, const EmaString& fileName ) :
+	_pFile( 0 ),
+	_pOutput( 0 ),
+	_logLine( 0, 2048 ),
+	_severity( severity )
 {
-	if ( _ommConsImpl.getActiveConfig().loggerConfig.loggerType == OmmLoggerClient::FileEnum )
-		openLogFile();
+	if ( loggerType == OmmLoggerClient::FileEnum )
+		openLogFile( fileName );
 	else
 		_pOutput = stdout;
 
-	_includeDateInLoggerOutput = _ommConsImpl.getActiveConfig().loggerConfig.includeDateInLoggerOutput;
+	_includeDateInLoggerOutput = includeDate;
 }
 
 OmmLoggerClient::~OmmLoggerClient()
@@ -41,12 +40,12 @@ OmmLoggerClient::~OmmLoggerClient()
 	closeLogFile();
 }
 
-OmmLoggerClient* OmmLoggerClient::create( OmmConsumerImpl& ommConsImpl )
+OmmLoggerClient* OmmLoggerClient::create( LoggerType loggerType, bool includeDate, Severity severity, const EmaString& fileName )
 {
 	OmmLoggerClient* pClient = 0;
 
 	try {
-		pClient = new OmmLoggerClient( ommConsImpl );
+		pClient = new OmmLoggerClient( loggerType, includeDate, severity, fileName );
 	}
 	catch ( std::bad_alloc ) {}
 
@@ -68,7 +67,7 @@ void OmmLoggerClient::destroy( OmmLoggerClient*& pClient )
 	}
 }
 
-void OmmLoggerClient::openLogFile()
+void OmmLoggerClient::openLogFile( const EmaString& inFileName )
 {
 	_printLock.lock();
 
@@ -76,7 +75,7 @@ void OmmLoggerClient::openLogFile()
         _pOutput = _pFile;
 	else
 	{
-	    EmaString fileName( _ommConsImpl.getActiveConfig().loggerConfig.loggerFileName );
+	    EmaString fileName( inFileName );
 	    fileName.append( "_" );
 
 #ifdef WIN32
@@ -88,7 +87,7 @@ void OmmLoggerClient::openLogFile()
 
         for ( int i = 0; i < clientFiles.fileCount; ++i )
         {
-			if (clientFiles.openFiles[i].fileName == fileName)
+			if ( clientFiles.openFiles[i].fileName == fileName )
 			{
 				_pFile = _pOutput = clientFiles.openFiles[i].ptr;
 				++clientFiles.openFiles[i].clientCount;
@@ -110,11 +109,11 @@ void OmmLoggerClient::openLogFile()
 		}
 
 		_pFile = _pOutput;
-		if ( OmmLoggerClient::VerboseEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		if ( OmmLoggerClient::VerboseEnum >= _severity )
 		{
-			EmaString text("opened ");
-			text.append(fileName).append(" at ").append(timeString(true));
-			log( "OmmLoggerClient", OmmLoggerClient::VerboseEnum, text);
+			EmaString text( "opened " );
+			text.append(fileName).append( " at " ).append( timeString( true ) );
+			log( "OmmLoggerClient", OmmLoggerClient::VerboseEnum, text );
 		}
 
         int record(-1);
@@ -127,15 +126,16 @@ void OmmLoggerClient::openLogFile()
 
         if ( record == -1 )
 		{
-			if (clientFiles.openFilesSize)
+			if ( clientFiles.openFilesSize )
 				clientFiles.openFilesSize *= 2;
 			else
 				clientFiles.openFilesSize = 4;
 			clientFiles.openFiles = static_cast<struct LoggerFile *>( realloc(static_cast<void *>( clientFiles.openFiles ), sizeof(struct LoggerFile) * clientFiles.openFilesSize ));
-			for (int i = clientFiles.fileCount; i < clientFiles.openFilesSize; ++i)
-				memset(static_cast<void *>(&clientFiles.openFiles[i]), 0, sizeof clientFiles.openFiles[i]);
+			for ( int i = clientFiles.fileCount; i < clientFiles.openFilesSize; ++i )
+				memset( static_cast<void *>(&clientFiles.openFiles[i]), 0, sizeof clientFiles.openFiles[i] );
 			record = clientFiles.fileCount;
 		}
+
 		clientFiles.openFiles[record].clientCount = 1;
 		clientFiles.openFiles[record].ptr = _pOutput;
 		clientFiles.openFiles[record].fileName = fileName;
@@ -156,10 +156,10 @@ void OmmLoggerClient::closeLogFile()
 			{
 				if ( ! --clientFiles.openFiles[i].clientCount )
 				{
-					if ( OmmLoggerClient::VerboseEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+					if ( OmmLoggerClient::VerboseEnum >= _severity )
 					{
-						EmaString text("closed ");
-						text.append(clientFiles.openFiles[i].fileName).append(" at ").append(timeString(true));
+						EmaString text( "closed " );
+						text.append( clientFiles.openFiles[i].fileName ).append( " at " ).append( timeString( true ) );
 						log( "OmmLoggerClient", OmmLoggerClient::VerboseEnum, text );
 					}
 					fclose( clientFiles.openFiles[i].ptr );
@@ -175,10 +175,10 @@ void OmmLoggerClient::closeLogFile()
 	_printLock.unlock();
 }
 
-char *
-OmmLoggerClient::timeString(bool includeDate)
+char* OmmLoggerClient::timeString( bool includeDate )
 {
 	static char timeString[32];
+
 #ifdef WIN32
 	SYSTEMTIME time;
 	GetLocalTime( &time );
@@ -196,6 +196,7 @@ OmmLoggerClient::timeString(bool includeDate)
 		next = strftime( timeString, sizeof timeString, "%H:%M:%S", localtime(&tp.tv_sec));
 	 snprintf(timeString + next, sizeof timeString - next, ".%03d", tp.tv_nsec/static_cast<long>(1E6));
 #endif
+
 	return timeString;
 }
 
@@ -206,13 +207,13 @@ void OmmLoggerClient::log( const EmaString& callbackClientName, Severity severit
 
 void OmmLoggerClient::log( const EmaString& callbackClientName, Severity severity , const char* text )
 {
-	EMA_ASSERT( severity >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity,
-		"OmmLoggerClient::log should not be called with severity less than minLoggerSeverity");
+	EMA_ASSERT( severity >= _severity,
+		"OmmLoggerClient::log should not be called with severity less than minLoggerSeverity" );
 
 	_printLock.lock();
 
 	_logLine.set( "loggerMsg\n" )
-		.append( "    TimeStamp: " ).append( timeString( _ommConsImpl.getActiveConfig().loggerConfig.includeDateInLoggerOutput ) ).append( "\n" )
+		.append( "    TimeStamp: " ).append( timeString( _includeDateInLoggerOutput ) ).append( "\n" )
 		.append( "    ClientName: " ).append( callbackClientName ).append( "\n" )
 		.append( "    Severity: " ).append( loggerSeverityString( severity ) ).append( "\n" )
 		.append( "    Text:    " ).append( text ).append( "\n" )

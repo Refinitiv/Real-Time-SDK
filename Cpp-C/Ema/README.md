@@ -7,16 +7,22 @@ The Elektron Message API: This is an easy-to-use, performant, open source messag
 
 EMA is written on top of the Elektron Transport API (ETA) utilizing    the Value Added Reactor and Watchlist.  
 
-(C) Copyright 2015 Thomson Reuters Limited. All rights reserved,
+(C) Copyright 2016 Thomson Reuters Limited. All rights reserved,
 Reuters Oak Brook, IL USA
   
 
 
 # Message API Features and Functionality
 
+
+
+##Consumer Features:
+
 - ADS Multicast: Applications can connect to the ADS Multicast 
 	  component by specifying the connection type RSSL_RELIABLE_MCAST.  
 	  
+- RSSL Encrypted and HTTP Connectivity
+
 - Connection Failover: EMA can be configured to specify a 
 	  list of failover servers via ChannelSet configuration.  In the event that the
 	  consumer's connection attempt fails, EMA will utilize the next channel in 
@@ -44,6 +50,25 @@ Reuters Oak Brook, IL USA
 	
 - Single Open: EMA supports application selected single open functionality
 	  
+	
+- Programmatic Config	Enables application to programmatically specify and 
+      overwrite EMA configuration
+	
+
+		
+		
+##Non-Interactive Provider Features:
+
+- Default Admin Domains: EMA uses default login and directory messages while connecting to server. This provides minimum configuration for applications to get up and running.
+ 
+- Configurable Admin Domains:  EMA provides means for modifying the default admin domain messages. 	
+
+
+
+##Common Features:
+
+- TCP/IP Connectivity
+
 - RMTES Decoder	EMA provides a built in RMTES decoder. IF desired, application
       may cache RmtesBuffer objects and apply all the received changes to them.
 	
@@ -52,14 +77,9 @@ Reuters Oak Brook, IL USA
 	
 - Data::getAsHex()	Applications may obtain binary representations of all OMM 
       containers, primitives and messages.
-	
-- Programmatic Config	Enables application to programmatically specify and 
-      overwrite EMA configuration
-	
-- File Config:	Enables applications to specify EMA configuration in an 
-      EmaConfig.xml file
-		
-		
+
+- File Config:	Enables applications to specify EMA configuration in an EmaConfig.xml file
+
 
 # Product Content
 
@@ -123,10 +143,10 @@ Elektron Message API Documentation is also available online at https://customers
       - ADH 2.4 or higher
 	  
        --------
-       EleKtron
+       Elektron
        --------
-      - EleKtron Deployed
-      - EleKtron Hosted
+      - Elektron Deployed
+      - Elektron Hosted
       
 # Installation and Use
 
@@ -136,13 +156,22 @@ See the top level Elektron-SDK README.md for details.
 	  
 # Issues and Workarounds
 
-- EMACPP-414: EMA Consumer needs to indicate channel disconnects with the login status message
-- EMACPP-273: RMTES decoding errors (eg. buffer too small are not passed correctly from underlying API)
-- EMACPP-354: Source directory reissue and genmsg on source directory is not currently supported.
-- EMACPP-100: Generic Message is not currently supported on login stream.
-- EMACPP-422: Tunnel Streams: If the provider messages exceeds the recvWindowSize no message are received.
-- EMACPP-407: Consumer does not exit on reaching reconnectAttemplLimit
-- EMACPP-412: Cannot pass decoded complex type objects into encoding methods of complex types.
+- EMA-9 (EMACPP-100): Generic Message is not currently supported on login stream.
+- EMA-42 logMsg has some extra characters in Error Location when configured for HTTP type connection on Linux. 
+- EMA-34 (EMACPP-354): Source directory reissue and genmsg on source directory is not currently supported.
+- EMA-43 (EMACPP-407): Consumer does not exit on reaching reconnectAttemplLimit
+- EMA-45 If CompressionType is set to "None", the CompressionThreshold range check still occurs
+- EMA-48 (EMACPP-422): Tunnel Streams: If the provider messages exceeds the recvWindowSize no message are received.
+- EMA-57 need infinite timeout support for PostAckTimeout and RequestTimeout in EMA
+- EMA-77 EMA is using the incorrect attribute info when sending Generic Messages
+- EMA-90 EMA InitializationTimeout per channel may not work correctly
+- EMA-417: Shared windows solution file doesn't build ema if the libxml2 library in eta doesn't already exist. 
+- EMA-491 XmlTracePing, XmlTraceHex default to true when XmlTraceRead , XmlTracePing, XmlTraceHex and XmlTraceWrite set to invalid value. 
+- EMA-532 XMLTrace may not flush all information to trace file 
+- EMA-533 ChannelSet with two multicast channels userQLimit set incorrectly 
+- EMA-560 tunnelStreamConsumer exit crash
+- EMA-575 NiProvider360 application uses 100% CPU when CTRL-C pressed while publishing data
+
  
 
 # Obtaining the Thomson Reuters Field Dictionaries

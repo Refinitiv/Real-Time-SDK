@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>4.6 EDF</title>
+    <title>4.6 Internet Connectivity via HTTP and HTTPS</title>
     <link rel="StyleSheet" href="css/Chap_SystemView.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -54,14 +54,69 @@
               </div>
             </td>
             <td width="100%">
-              <div class="H2_inner"><a name="1002124">EDF</a></div>
+              <div class="H2_inner"><a name="1000310">Internet Connectivity via HTTP and HTTPS</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1007253">Elektron Direct Feed (EDF) is a Thomson Reuters hybrid FPGA and CPU solution that publishes out to the wire level 2 normalized market data via the Reuters Wire Format (RWF) in standard Thomson Reuters data models utilizing OMM. Market data is published on UDP multicast channels with full recovery and resiliency capabilities built in. Client applications consume the EDF feed using the Transport API (EDF is not compatible with other APIs or consumers). Due to UDP unreliability, EDF supports the retransmission of dropped packets or complete snapshots upon requests from client applications.</a></div>
-      <div class="Body"><a name="1007254">The EDF is designed to be a feed handler for clients who require standardized views of market data from many different global trading venues with the lowest possible latency.</a></div>
-      <div class="Body"><a name="1007258"><img class="Default" src="images/EDF.jpg" width="304" height="319" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></div>
+      <div class="Body"><a name="1007456">OMM consumer and Provider applications can use the Elektron API to establish connections by tunneling through the Internet.</a></div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1007457">OMM consumer and NIP applications can establish connections via HTTP tunneling.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1007461">ADS and OMM Interactive Provider applications can accept incoming Elektron API connections tunneled via HTTP (such functionality is available across all supported platforms).</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1007462">Consumer applications can leverage HTTPS to establish an encrypted tunnel to certain Thomson Reuters Hosted Solutions, performing key and certificate exchange.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1007463">Consumer-side functionality leverages Microsoft WinINET. Users can configure certificate and proxy use via Internet Explorer. Because of its dependency on the Microsoft WinINET library, consumer HTTP and HTTPS tunneling are available only on supported Windows platforms.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1007467"><img class="Default" src="images/InternetConnectivity.jpg" width="543" height="437" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></div>
       <div class="FigTitle_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -69,7 +124,7 @@
               <div class="FigTitle_inner" style="width: 36pt; white-space: nowrap">Figure 23.  </div>
             </td>
             <td width="100%">
-              <div class="FigTitle_inner"><a name="1007259">EDF and the Transport API</a></div>
+              <div class="FigTitle_inner"><a name="1007474">Elektron API and Internet Connectivity</a></div>
             </td>
           </tr>
         </table>
@@ -85,7 +140,7 @@
       </script>
     </blockquote>
     <hr align="left" />
-    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 4	System View : 4.6	EDF</div>
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 4	System View : 4.6	Internet Connectivity via HTTP and HTTPS</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

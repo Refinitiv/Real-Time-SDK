@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>102__MarketPrice__Snapshot</title>
+    <link rel="StyleSheet" href="css/EMAC_Consumer_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3_NoNum"><a name="1018745">102__MarketPrice__Snapshot</a></div>
+      <div class="Body"><a name="1027327">Summary</a></div>
+      <div class="Body"><a name="1027328">=======</a></div>
+      <div class="Body"><a name="1027329">&nbsp;</a></div>
+      <div class="Body"><a name="1027330">102__MarketPrice__Snapshot is an example of an OMM Consumer application</a></div>
+      <div class="Body"><a name="1027331">written to the EMA library and demonstrates basic usage of the EMA library </a></div>
+      <div class="Body"><a name="1027332">in accessing and parsing OMM MarketPrice data either from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1027333">directly from an OMM Provider application, or from a Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1027334">Distribution Server.</a></div>
+      <div class="Body"><a name="1027335">&nbsp;</a></div>
+      <div class="Body"><a name="1027336">102__MarketPrice__Snapshot illustrates how to open a single snapshot OMM item.</a></div>
+      <div class="Body"><a name="1027337">While processing received messages, the application prints them to the screen.</a></div>
+      <div class="Body"><a name="1027338">&nbsp;</a></div>
+      <div class="Body"><a name="1027339">&nbsp;</a></div>
+      <div class="Body"><a name="1027340">Detailed Description</a></div>
+      <div class="Body"><a name="1027341">====================</a></div>
+      <div class="Body"><a name="1027342">&nbsp;</a></div>
+      <div class="Body"><a name="1027343">102__MarketPrice__Snapshot implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1027344">&nbsp;</a></div>
+      <div class="Body"><a name="1027345">+ Implements the OmmConsumerClient class in an AppClient</a></div>
+      <div class="Body"><a name="1027346">  - Overrides desired methods</a></div>
+      <div class="Body"><a name="1027347">+ Instantiates an AppClient object to receive and process item messages</a></div>
+      <div class="Body"><a name="1027348">+ Instantiates and modifies an OmmConsumerConfig object:</a></div>
+      <div class="Body"><a name="1027349">  - Sets the username to “user”</a></div>
+      <div class="Body"><a name="1027350">  - Sets the hostname on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1027351">  - Sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1027352">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1027353">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1027354">+ Opens snapshot item interest:</a></div>
+      <div class="Body"><a name="1027355">  - MarketPrice IBM.N item from the DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1027356">  - Uses interestAfterRefresh( false ) to make it a snapshot request</a></div>
+      <div class="Body"><a name="1027357">+ Processes data received from the API for 60 seconds</a></div>
+      <div class="Body"><a name="1027358">  - The API thread of control processes all received messages.</a></div>
+      <div class="Body"><a name="1027359">+ Exits</a></div>
+      <div class="Body"><a name="1027360">&nbsp;</a></div>
+      <div class="Body"><a name="1027361">Note: If needed, you can modify these and other details to fit your local</a></div>
+      <div class="Body"><a name="1027362">      environment. For details on standard configuration, refer to the</a></div>
+      <div class="Body"><a name="1027363">      EMA library ReadMe.txt file and the EMA Configuration Guide.</a></div>
+      <div class="Body"><a name="1025089">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.01.html">EMA C++ Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.02.html">100 Series Examples</a> : 102__MarketPrice__Snapshot</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

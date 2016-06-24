@@ -15,7 +15,7 @@
 
 	If requested, AckMsg is sent by provider acting on PostMsg received from consumer.
 	AckMsg indicates success or failure of caching / processing of received PostMsg.
-	AckMsg is optional. Consumer requests provider to send AckMsg by calling PostMsg::solicitAck( true ).	
+	AckMsg is optional. Consumer requests provider to send AckMsg by calling PostMsg::solicitAck( true ).
 
 	The following code snippet shows processing of received AckMsg.
 
@@ -59,7 +59,7 @@
 #include "Access/Include/Msg.h"
 
 namespace thomsonreuters {
-	
+
 namespace ema {
 
 namespace access {
@@ -116,7 +116,7 @@ public :
 		@return string representation of this object's NackCode
 	*/
 	const EmaString& getNackCodeAsString() const;
-		
+
 	/** Returns the DataType, which is the type of Omm data. Results in this class type.
 		@return DataType::AckMsgEnum
 	*/

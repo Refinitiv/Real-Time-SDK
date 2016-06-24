@@ -435,9 +435,12 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Rdm\Impl\RdmUtilities.cpp" />
+    <ClCompile Include="EmaVersion.c" />
     <ClCompile Include="Impl\AckMsg.cpp" />
     <ClCompile Include="Impl\AckMsgDecoder.cpp" />
     <ClCompile Include="Impl\AckMsgEncoder.cpp" />
+    <ClCompile Include="Impl\ActiveConfig.cpp" />
     <ClCompile Include="Impl\Attrib.cpp" />
     <ClCompile Include="Impl\ChannelCallbackClient.cpp" />
     <ClCompile Include="Impl\ComplexType.cpp" />
@@ -455,12 +458,14 @@
     <ClCompile Include="Impl\EmaBufferInt.cpp" />
     <ClCompile Include="Impl\EmaBufferU16.cpp" />
     <ClCompile Include="Impl\EmaBufferU16Int.cpp" />
+    <ClCompile Include="Impl\EmaConfigImpl.cpp" />
     <ClCompile Include="Impl\EmaPool.cpp" />
     <ClCompile Include="Impl\EmaString.cpp" />
     <ClCompile Include="Impl\EmaStringInt.cpp" />
     <ClCompile Include="Impl\EncodeIterator.cpp" />
     <ClCompile Include="Impl\Encoder.cpp" />
     <ClCompile Include="Impl\ExceptionTranslator.cpp" />
+    <ClCompile Include="Impl\ErrorClientHandler.cpp" />
     <ClCompile Include="Impl\FieldEntry.cpp" />
     <ClCompile Include="Impl\FieldList.cpp" />
     <ClCompile Include="Impl\FieldListDecoder.cpp" />
@@ -473,6 +478,7 @@
     <ClCompile Include="Impl\GenericMsg.cpp" />
     <ClCompile Include="Impl\GenericMsgDecoder.cpp" />
     <ClCompile Include="Impl\GenericMsgEncoder.cpp" />
+    <ClCompile Include="Impl\GetTime.cpp" />
     <ClCompile Include="Impl\HashTable.cpp" />
     <ClCompile Include="Impl\ItemCallbackClient.cpp" />
     <ClCompile Include="Impl\Key.cpp" />
@@ -495,6 +501,7 @@
     <ClCompile Include="Impl\OmmArrayEntry.cpp" />
     <ClCompile Include="Impl\OmmAscii.cpp" />
     <ClCompile Include="Impl\OmmAsciiDecoder.cpp" />
+    <ClCompile Include="Impl\OmmBaseImpl.cpp" />
     <ClCompile Include="Impl\OmmBuffer.cpp" />
     <ClCompile Include="Impl\OmmBufferDecoder.cpp" />
     <ClCompile Include="Impl\OmmConsumer.cpp" />
@@ -530,12 +537,21 @@
     <ClCompile Include="Impl\OmmLoggerClient.cpp" />
     <ClCompile Include="Impl\OmmMemoryExhaustionException.cpp" />
     <ClCompile Include="Impl\OmmMemoryExhaustionExceptionImpl.cpp" />
+    <ClCompile Include="Impl\OmmNiProviderActiveConfig.cpp" />
+    <ClCompile Include="Impl\OmmNiProviderConfig.cpp" />
+    <ClCompile Include="Impl\OmmNiProviderConfigImpl.cpp" />
+    <ClCompile Include="Impl\OmmNiProviderImpl.cpp" />
     <ClCompile Include="Impl\OmmNonRwfEncoder.cpp" />
     <ClCompile Include="Impl\OmmOpaque.cpp" />
     <ClCompile Include="Impl\OmmOpaqueDecoder.cpp" />
     <ClCompile Include="Impl\OmmOpaqueEncoder.cpp" />
     <ClCompile Include="Impl\OmmOutOfRangeException.cpp" />
     <ClCompile Include="Impl\OmmOutOfRangeExceptionImpl.cpp" />
+    <ClCompile Include="Impl\OmmProvider.cpp" />
+    <ClCompile Include="Impl\OmmProviderClient.cpp" />
+    <ClCompile Include="Impl\OmmProviderConfig.cpp" />
+    <ClCompile Include="Impl\OmmProviderEvent.cpp" />
+    <ClCompile Include="Impl\OmmProviderImpl.cpp" />
     <ClCompile Include="Impl\OmmQos.cpp" />
     <ClCompile Include="Impl\OmmQosDecoder.cpp" />
     <ClCompile Include="Impl\OmmReal.cpp" />
@@ -563,7 +579,6 @@
     <ClCompile Include="Impl\PostMsgDecoder.cpp" />
     <ClCompile Include="Impl\PostMsgEncoder.cpp" />
     <ClCompile Include="Impl\ProgrammaticConfigure.cpp" />
-    <ClCompile Include="..\Rdm\Impl\RdmUtilities.cpp" />
     <ClCompile Include="Impl\RefreshMsg.cpp" />
     <ClCompile Include="Impl\RefreshMsgDecoder.cpp" />
     <ClCompile Include="Impl\RefreshMsgEncoder.cpp" />
@@ -584,22 +599,25 @@
     <ClCompile Include="Impl\SummaryData.cpp" />
     <ClCompile Include="Impl\Thread.cpp" />
     <ClCompile Include="Impl\TimeOut.cpp" />
-    <ClCompile Include="Impl\TunnelStreamRequest.cpp" />
     <ClCompile Include="Impl\TunnelStreamLoginReqMsgImpl.cpp" />
+    <ClCompile Include="Impl\TunnelStreamRequest.cpp" />
     <ClCompile Include="Impl\UpdateMsg.cpp" />
     <ClCompile Include="Impl\UpdateMsgDecoder.cpp" />
     <ClCompile Include="Impl\UpdateMsgEncoder.cpp" />
     <ClCompile Include="Impl\Utilities.cpp" />
     <ClCompile Include="Impl\Vector.cpp" />
-    <ClCompile Include="Impl\VectorEncoder.cpp" />
     <ClCompile Include="Impl\VectorDecoder.cpp" />
+    <ClCompile Include="Impl\VectorEncoder.cpp" />
     <ClCompile Include="Impl\VectorEntry.cpp" />
-    <ClCompile Include="EmaVersion.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\Ema.h" />
+    <ClInclude Include="..\Rdm\Impl\RdmUtilities.h" />
+    <ClInclude Include="..\Rdm\Include\EmaRdm.h" />
+    <ClInclude Include="EmaVersion.h" />
     <ClInclude Include="Impl\AckMsgDecoder.h" />
     <ClInclude Include="Impl\AckMsgEncoder.h" />
+    <ClInclude Include="Impl\ActiveConfig.h" />
     <ClInclude Include="Impl\ChannelCallbackClient.h" />
     <ClInclude Include="Impl\ConfigErrorHandling.h" />
     <ClInclude Include="Impl\Decoder.h" />
@@ -611,12 +629,14 @@
     <ClInclude Include="Impl\ElementListSetDef.h" />
     <ClInclude Include="Impl\EmaBufferInt.h" />
     <ClInclude Include="Impl\EmaBufferU16Int.h" />
+    <ClInclude Include="Impl\EmaConfigImpl.h" />
     <ClInclude Include="Impl\EmaList.h" />
     <ClInclude Include="Impl\EmaPool.h" />
     <ClInclude Include="Impl\EmaStringInt.h" />
     <ClInclude Include="Impl\EmaVector.h" />
     <ClInclude Include="Impl\EncodeIterator.h" />
     <ClInclude Include="Impl\Encoder.h" />
+    <ClInclude Include="Impl\ErrorClientHandler.h" />
     <ClInclude Include="Impl\ExceptionTranslator.h" />
     <ClInclude Include="Impl\FieldListDecoder.h" />
     <ClInclude Include="Impl\FieldListEncoder.h" />
@@ -625,6 +645,7 @@
     <ClInclude Include="Impl\FilterListEncoder.h" />
     <ClInclude Include="Impl\GenericMsgDecoder.h" />
     <ClInclude Include="Impl\GenericMsgEncoder.h" />
+    <ClInclude Include="Impl\GetTime.h" />
     <ClInclude Include="Impl\GlobalPool.h" />
     <ClInclude Include="Impl\HashTable.h" />
     <ClInclude Include="Impl\ItemCallbackClient.h" />
@@ -640,6 +661,7 @@
     <ClInclude Include="Impl\OmmArrayDecoder.h" />
     <ClInclude Include="Impl\OmmArrayEncoder.h" />
     <ClInclude Include="Impl\OmmAsciiDecoder.h" />
+    <ClInclude Include="Impl\OmmBaseImpl.h" />
     <ClInclude Include="Impl\OmmBufferDecoder.h" />
     <ClInclude Include="Impl\OmmConsumerActiveConfig.h" />
     <ClInclude Include="Impl\OmmConsumerConfigImpl.h" />
@@ -657,10 +679,15 @@
     <ClInclude Include="Impl\OmmInvalidUsageExceptionImpl.h" />
     <ClInclude Include="Impl\OmmLoggerClient.h" />
     <ClInclude Include="Impl\OmmMemoryExhaustionExceptionImpl.h" />
+    <ClInclude Include="Impl\OmmNiProviderActiveConfig.h" />
+    <ClInclude Include="Impl\OmmNiProviderConfigImpl.h" />
+    <ClInclude Include="Impl\OmmNiProviderEvent.h" />
+    <ClInclude Include="Impl\OmmNiProviderImpl.h" />
     <ClInclude Include="Impl\OmmNonRwfEncoder.h" />
     <ClInclude Include="Impl\OmmOpaqueDecoder.h" />
     <ClInclude Include="Impl\OmmOpaqueEncoder.h" />
     <ClInclude Include="Impl\OmmOutOfRangeExceptionImpl.h" />
+    <ClInclude Include="Impl\OmmProviderImpl.h" />
     <ClInclude Include="Impl\OmmQosDecoder.h" />
     <ClInclude Include="Impl\OmmRealDecoder.h" />
     <ClInclude Include="Impl\OmmRmtesDecoder.h" />
@@ -692,6 +719,7 @@
     <ClInclude Include="Impl\TunnelStreamLoginReqMsgImpl.h" />
     <ClInclude Include="Impl\UpdateMsgDecoder.h" />
     <ClInclude Include="Impl\UpdateMsgEncoder.h" />
+    <ClInclude Include="Impl\UserErrorHandler.h" />
     <ClInclude Include="Impl\Utilities.h" />
     <ClInclude Include="Impl\VectorDecoder.h" />
     <ClInclude Include="Impl\VectorEncoder.h" />
@@ -738,8 +766,14 @@
     <ClInclude Include="Include\OmmInvalidHandleException.h" />
     <ClInclude Include="Include\OmmInvalidUsageException.h" />
     <ClInclude Include="Include\OmmMemoryExhaustionException.h" />
+    <ClInclude Include="Include\OmmNiProviderConfig.h" />
     <ClInclude Include="Include\OmmOpaque.h" />
     <ClInclude Include="Include\OmmOutOfRangeException.h" />
+    <ClInclude Include="Include\OmmProvider.h" />
+    <ClInclude Include="Include\OmmProviderClient.h" />
+    <ClInclude Include="Include\OmmProviderConfig.h" />
+    <ClInclude Include="Include\OmmProviderErrorClient.h" />
+    <ClInclude Include="Include\OmmProviderEvent.h" />
     <ClInclude Include="Include\OmmQos.h" />
     <ClInclude Include="Include\OmmReal.h" />
     <ClInclude Include="Include\OmmRmtes.h" />
@@ -763,9 +797,6 @@
     <ClInclude Include="Include\UpdateMsg.h" />
     <ClInclude Include="Include\Vector.h" />
     <ClInclude Include="Include\VectorEntry.h" />
-    <ClInclude Include="..\Rdm\Impl\RdmUtilities.h" />
-    <ClInclude Include="..\Rdm\Include\EmaRdm.h" />
-    <ClInclude Include="EmaVersion.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Ema.rc" />

@@ -152,10 +152,15 @@ public :
 protected :
 
 	friend class OmmConsumerConfigImpl;
+	friend class OmmNiProviderConfigImpl;
+	friend class EmaConfigImpl;
+	friend class OmmNiProviderImpl;
 	friend class ItemCallbackClient;
 	friend class DirectoryItem;
 	friend class LoginItem;
+	friend class NiProviderLoginItem;
 	friend class SingleItem;
+	friend class NiProviderSingleItem;
 	friend class DictionaryItem;
 	friend class TunnelItem;
 	friend class TunnelStreamLoginReqMsgImpl;

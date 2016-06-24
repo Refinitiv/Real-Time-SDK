@@ -6,44 +6,49 @@
  *|-----------------------------------------------------------------------------
  */
 
-
-#include "OmmConsumerActiveConfig.h"
-#include "OmmInvalidConfigurationException.h"
-#include "ElementList.h"
-#include "Access/Include/Common.h"
+#include "ActiveConfig.h"
+#include "EmaConfigImpl.h"
+#include "Common.h"
 #include "StaticDecoder.h"
 
 using namespace thomsonreuters::ema::access;
 
-
 ProgrammaticConfigure::ProgrammaticConfigure( const Map& map, EmaConfigErrorList& emaConfigErrList ) :
-_emaConfigErrList( emaConfigErrList ),
-_configList(),
-_nameflags( 0 ),
-_loadnames( false ),
-_overrideConsName( false ),
-_consumerName(),
-_channelName(),
-_channelSet(),
-_loggerName(),
-_dictionaryName()
+	_consumerName(),
+	_niProviderName(),
+	_channelName(),
+	_loggerName(),
+	_dictionaryName(),
+	_directoryName(),
+	_channelSet(),
+	_overrideConsName( false ),
+	_overrideNiProvName( false ),
+	_dependencyNamesLoaded( false ),
+	_nameflags( 0 ),
+	_emaConfigErrList( emaConfigErrList ),
+	_configList()
 {
 	addConfigure( map );
 }
 
 void ProgrammaticConfigure::clear()
 {
-	_nameflags = 0;
-	_loadnames = false;
+	_consumerName.clear();
+	_niProviderName.clear();
 	_channelName.clear();
 	_loggerName.clear();
 	_dictionaryName.clear();
+	_directoryName.clear();
+	_overrideConsName = false;
+	_overrideNiProvName = false;
+	_dependencyNamesLoaded = false;
+	_nameflags = 0;
 }
 
 void ProgrammaticConfigure::addConfigure( const Map& map )
 {
-	for( UInt32 i = 0; i < _configList.size() ; i ++ )
-	{ 
+	for ( UInt32 i = 0; i < _configList.size() ; ++i )
+	{
 		if ( _configList[i] == &map )
 			return;
 	}
@@ -65,7 +70,27 @@ bool ProgrammaticConfigure::getDefaultConsumer( EmaString& defaultConsumer )
 		clear();
 
 		for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
-			found = ProgrammaticConfigure::retrieveDefaultConsumer( *_configList[i], defaultConsumer );
+			found = retrieveDefaultConsumer( *_configList[i], defaultConsumer );
+	}
+
+	return found;
+}
+
+bool ProgrammaticConfigure::getDefaultNiProvider( EmaString& defaultNiProvider )
+{
+	bool found = false;
+
+	if ( _overrideNiProvName )
+	{
+		defaultNiProvider = _niProviderName;
+		found = true;
+	}
+	else
+	{
+		clear();
+
+		for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
+			found = retrieveDefaultNiProvider( *_configList[i], defaultNiProvider );
 	}
 
 	return found;
@@ -73,95 +98,120 @@ bool ProgrammaticConfigure::getDefaultConsumer( EmaString& defaultConsumer )
 
 bool ProgrammaticConfigure::specifyConsumerName( const EmaString& consumerName )
 {
-	bool found = false;
-
 	for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
 	{
-		found = ProgrammaticConfigure::validateConsumerName( *_configList[i], consumerName );
-
-		if ( found )
+		if ( validateConsumerName( *_configList[i], consumerName ) )
 		{
 			_overrideConsName = true;
 			_consumerName = consumerName;
-			break;
+			return true;
 		}
 	}
 
-	return found;
+	return false;
 }
 
-void ProgrammaticConfigure::retrieveDependencyNames( const Map& map, const EmaString& consumerName, UInt8& flags, EmaString& channelName, 
-													EmaString& loggerName, EmaString& dictionaryName, EmaString& channelSet )
+bool ProgrammaticConfigure::specifyNiProviderName( const EmaString& niProviderName )
+{
+	for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
+	{
+		if ( validateNiProviderName( *_configList[i], niProviderName ) )
+		{
+			_overrideNiProvName = true;
+			_niProviderName = niProviderName;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void ProgrammaticConfigure::retrieveDependencyNames( const Map& map, const EmaString& userName,
+    UInt8& flags, EmaString& channelName,
+    EmaString& loggerName, EmaString& dictionaryName,
+    EmaString& channelSet, EmaString& directoryName )
 {
 	unsigned int position = 0;
 	unsigned int channelPos = 0, channelSetPos = 0;
 
+	EmaString groupName;
+	EmaString listName;
+	retrieveGroupAndListName( map, groupName, listName );
+
+	if ( groupName.empty() )
+		return;
+
 	map.reset();
 	while ( map.forth() )
 	{
-		const MapEntry & mapEntry = map.getEntry();
+		const MapEntry& mapEntry = map.getEntry();
 
-		if ( mapEntry.getKey().getDataType() == DataType::AsciiEnum && mapEntry.getKey().getAscii() == "ConsumerGroup" )
+		if ( mapEntry.getKey().getDataType() == DataType::AsciiEnum && mapEntry.getKey().getAscii() == groupName )
 		{
 			if ( mapEntry.getLoadType() == DataType::ElementListEnum )
 			{
-				const ElementList & elementList = mapEntry.getElementList();
+				const ElementList& elementList = mapEntry.getElementList();
 
 				while ( elementList.forth() )
 				{
-					const ElementEntry & elementEntry = elementList.getEntry();
+					const ElementEntry& elementEntry = elementList.getEntry();
 
 					if ( elementEntry.getLoadType() == DataType::MapEnum )
 					{
-						if ( elementEntry.getName() == "ConsumerList" && ( elementEntry.getLoad().getDataType() == DataType::MapEnum ) )
+						if ( elementEntry.getName() == listName && ( elementEntry.getLoad().getDataType() == DataType::MapEnum ) )
 						{
 							const Map& map = elementEntry.getMap();
 
 							while ( map.forth() )
 							{
-								const MapEntry & mapEntry = map.getEntry();
+								const MapEntry& mapEntry = map.getEntry();
 
-								if ( ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == consumerName ) )
+								if ( ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == userName ) )
 								{
 									if ( mapEntry.getLoadType() == DataType::ElementListEnum )
 									{
-										const ElementList & elementListConsumer = mapEntry.getElementList();
+										const ElementList& elementList = mapEntry.getElementList();
 										position = 0;
-										while ( elementListConsumer.forth() )
+										while ( elementList.forth() )
 										{
-											const ElementEntry & consumerEntry = elementListConsumer.getEntry();
+											const ElementEntry& instanceEntry = elementList.getEntry();
 											position++;
-											switch ( consumerEntry.getLoadType() )
+											switch ( instanceEntry.getLoadType() )
 											{
-												case DataType::AsciiEnum:
-													if ( consumerEntry.getName() == "Channel" )
-													{
-														channelName = consumerEntry.getAscii();
-														flags |= 0x01;
-														channelPos = position;
-													}
-													else if ( consumerEntry.getName() == "Logger" )
-													{
-														loggerName = consumerEntry.getAscii();
-														flags |= 0x02;
-													}
-													else if ( consumerEntry.getName() == "Dictionary" )
-													{
-														dictionaryName = consumerEntry.getAscii();
-														flags |= 0x04;
-													}
-													else if ( consumerEntry.getName() == "ChannelSet" )
-													{
-														channelSet = consumerEntry.getAscii();
-														flags |= 0x08;
-														channelSetPos = position;
-													}
-													break;
+											case DataType::AsciiEnum:
+												if ( instanceEntry.getName() == "Channel" )
+												{
+													channelName = instanceEntry.getAscii();
+													flags |= 0x01;
+													channelPos = position;
+												}
+												else if ( instanceEntry.getName() == "Logger" )
+												{
+													loggerName = instanceEntry.getAscii();
+													flags |= 0x02;
+												}
+												else if ( instanceEntry.getName() == "Dictionary" )
+												{
+													dictionaryName = instanceEntry.getAscii();
+													flags |= 0x04;
+												}
+												else if ( instanceEntry.getName() == "ChannelSet" )
+												{
+													channelSet = instanceEntry.getAscii();
+													flags |= 0x08;
+													channelSetPos = position;
+												}
+												else if ( instanceEntry.getName() == "Directory" )
+												{
+													directoryName = instanceEntry.getAscii();
+													flags |= 0x10;
+												}
+												break;
 											}
 										}
-										if((flags & 0x01) && (flags & 0x08))
+										if ( ( flags & 0x01 ) && ( flags & 0x08 ) )
 										{
-											if(channelSetPos > channelPos)
+											if ( channelSetPos > channelPos )
 											{
 												flags &= ~0x01;
 												channelName.clear();
@@ -183,14 +233,14 @@ void ProgrammaticConfigure::retrieveDependencyNames( const Map& map, const EmaSt
 	}
 }
 
-bool ProgrammaticConfigure::getActiveChannelName( const EmaString& consumerName, EmaString& channelName )
+bool ProgrammaticConfigure::getActiveChannelName( const EmaString& instanceName, EmaString& channelName )
 {
-	if ( !_loadnames )
+	if ( !_dependencyNamesLoaded )
 	{
 		for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
-			retrieveDependencyNames( *_configList[i], consumerName, _nameflags,_channelName, _loggerName, _dictionaryName, _channelSet );
+			retrieveDependencyNames( *_configList[i], instanceName, _nameflags, _channelName, _loggerName, _dictionaryName, _channelSet, _directoryName );
 
-		_loadnames = true;
+		_dependencyNamesLoaded = true;
 	}
 
 	if ( _nameflags & 0x01 )
@@ -202,14 +252,14 @@ bool ProgrammaticConfigure::getActiveChannelName( const EmaString& consumerName,
 		return false;
 }
 
-bool ProgrammaticConfigure::getActiveChannelSet( const EmaString& consumerName, EmaString& channelSet)
+bool ProgrammaticConfigure::getActiveChannelSet( const EmaString& instanceName, EmaString& channelSet )
 {
-	if ( !_loadnames )
+	if ( !_dependencyNamesLoaded )
 	{
 		for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
-			retrieveDependencyNames( *_configList[i], consumerName, _nameflags,_channelName, _loggerName, _dictionaryName, _channelSet );
+			retrieveDependencyNames( *_configList[i], instanceName, _nameflags, _channelName, _loggerName, _dictionaryName, _channelSet, _directoryName );
 
-		_loadnames = true;
+		_dependencyNamesLoaded = true;
 	}
 
 	if ( _nameflags & 0x08 )
@@ -221,15 +271,14 @@ bool ProgrammaticConfigure::getActiveChannelSet( const EmaString& consumerName, 
 		return false;
 }
 
-
-bool ProgrammaticConfigure::getActiveLoggerName( const EmaString& consumerName, EmaString& loggerName )
+bool ProgrammaticConfigure::getActiveLoggerName( const EmaString& instanceName, EmaString& loggerName )
 {
-	if ( !_loadnames )
+	if ( !_dependencyNamesLoaded )
 	{
 		for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
-			retrieveDependencyNames( *_configList[i], consumerName, _nameflags,_channelName, _loggerName, _dictionaryName, _channelSet);
+			retrieveDependencyNames( *_configList[i], instanceName, _nameflags, _channelName, _loggerName, _dictionaryName, _channelSet, _directoryName );
 
-		_loadnames = true;
+		_dependencyNamesLoaded = true;
 	}
 
 	if ( _nameflags & 0x02 )
@@ -241,15 +290,14 @@ bool ProgrammaticConfigure::getActiveLoggerName( const EmaString& consumerName, 
 		return false;
 }
 
-
-bool ProgrammaticConfigure::getActiveDictionaryName( const EmaString& consumerName, EmaString& dictionaryName )
+bool ProgrammaticConfigure::getActiveDictionaryName( const EmaString& instanceName, EmaString& dictionaryName )
 {
-	if ( !_loadnames )
+	if ( !_dependencyNamesLoaded )
 	{
 		for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
-			retrieveDependencyNames( *_configList[i], consumerName, _nameflags,_channelName, _loggerName, _dictionaryName, _channelSet );
+			retrieveDependencyNames( *_configList[i], instanceName, _nameflags, _channelName, _loggerName, _dictionaryName, _channelSet, _directoryName );
 
-		_loadnames = true;
+		_dependencyNamesLoaded = true;
 	}
 
 	if ( _nameflags & 0x04 )
@@ -261,24 +309,43 @@ bool ProgrammaticConfigure::getActiveDictionaryName( const EmaString& consumerNa
 		return false;
 }
 
+bool ProgrammaticConfigure::getActiveDirectoryName( const EmaString& instanceName, EmaString& directoryName )
+{
+	if ( !_dependencyNamesLoaded )
+	{
+		for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
+			retrieveDependencyNames( *_configList[i], instanceName, _nameflags, _channelName, _loggerName, _dictionaryName, _channelSet, _directoryName );
+
+		_dependencyNamesLoaded = true;
+	}
+
+	if ( _nameflags & 0x10 )
+	{
+		directoryName = _directoryName;
+		return true;
+	}
+	else
+		return false;
+}
+
 bool ProgrammaticConfigure::retrieveDefaultConsumer( const Map& map, EmaString& defaultConsumer )
 {
 	bool foundDefaultConsumer = false;
 
-	StaticDecoder::setData( &const_cast<Map &>(map), 0);
+	StaticDecoder::setData( &const_cast<Map&>( map ), 0 );
 
 	while ( map.forth() )
 	{
-		const MapEntry & mapEntry = map.getEntry();
+		const MapEntry& mapEntry = map.getEntry();
 
-		if (  ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == "ConsumerGroup" ) 
-			&& ( mapEntry.getLoad().getDataType() == DataType::ElementListEnum ) )
+		if ( ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == "ConsumerGroup" )
+		     && ( mapEntry.getLoad().getDataType() == DataType::ElementListEnum ) )
 		{
-			const ElementList & elementList = mapEntry.getElementList();
+			const ElementList& elementList = mapEntry.getElementList();
 
 			while ( elementList.forth() )
 			{
-				const ElementEntry & elementEntry = elementList.getEntry();
+				const ElementEntry& elementEntry = elementList.getEntry();
 
 				if ( elementEntry.getLoadType() == DataType::AsciiEnum )
 				{
@@ -295,28 +362,62 @@ bool ProgrammaticConfigure::retrieveDefaultConsumer( const Map& map, EmaString& 
 	return foundDefaultConsumer;
 }
 
-bool ProgrammaticConfigure::validateConsumerName( const Map & map, const EmaString& consumerName )
+bool ProgrammaticConfigure::retrieveDefaultNiProvider( const Map& map, EmaString& defaultNiProvider )
 {
-	StaticDecoder::setData( &const_cast<Map &>(map), 0);
+	bool foundDefaultNiProvider = false;
+
+	StaticDecoder::setData( &const_cast<Map&>( map ), 0 );
 
 	while ( map.forth() )
 	{
-		const MapEntry & mapEntry = map.getEntry();
+		const MapEntry& mapEntry = map.getEntry();
 
-		if ( ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == "ConsumerGroup" ) 
-			&& ( mapEntry.getLoad().getDataType() == DataType::ElementListEnum ) )
+		if ( ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == "NiProviderGroup" )
+		     && ( mapEntry.getLoad().getDataType() == DataType::ElementListEnum ) )
 		{
-			const ElementList & elementList = mapEntry.getElementList();
+			const ElementList& elementList = mapEntry.getElementList();
 
 			while ( elementList.forth() )
 			{
-				const ElementEntry & elementEntry = elementList.getEntry();
+				const ElementEntry& elementEntry = elementList.getEntry();
+
+				if ( elementEntry.getLoadType() == DataType::AsciiEnum )
+				{
+					if ( elementEntry.getName() == "DefaultNiProvider" )
+					{
+						defaultNiProvider = elementEntry.getAscii();
+						foundDefaultNiProvider = true;
+					}
+				}
+			}
+		}
+	}
+
+	return foundDefaultNiProvider;
+}
+
+bool ProgrammaticConfigure::validateConsumerName( const Map& map, const EmaString& consumerName )
+{
+	StaticDecoder::setData( &const_cast<Map&>( map ), 0 );
+
+	while ( map.forth() )
+	{
+		const MapEntry& mapEntry = map.getEntry();
+
+		if ( ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == "ConsumerGroup" )
+		     && ( mapEntry.getLoad().getDataType() == DataType::ElementListEnum ) )
+		{
+			const ElementList& elementList = mapEntry.getElementList();
+
+			while ( elementList.forth() )
+			{
+				const ElementEntry& elementEntry = elementList.getEntry();
 
 				if ( ( elementEntry.getName() == "ConsumerList" ) && ( elementEntry.getLoad().getDataType() == DataType::MapEnum ) )
 				{
 					const Map& consumerMap = elementEntry.getMap();
 
-					while( consumerMap.forth() )
+					while ( consumerMap.forth() )
 					{
 						const MapEntry& consumerMapEntry = consumerMap.getEntry();
 
@@ -331,131 +432,309 @@ bool ProgrammaticConfigure::validateConsumerName( const Map & map, const EmaStri
 	return false;
 }
 
-void  ProgrammaticConfigure::retrieveConsumerConfig( const EmaString& consumerName, OmmConsumerActiveConfig& activeConfig )
+bool ProgrammaticConfigure::validateNiProviderName( const Map& map, const EmaString& niProviderName )
 {
-	for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
-		ProgrammaticConfigure::retrieveConsumer( *_configList[i], consumerName, _emaConfigErrList, activeConfig );
+	StaticDecoder::setData( &const_cast<Map&>( map ), 0 );
+
+	while ( map.forth() )
+	{
+		const MapEntry& mapEntry = map.getEntry();
+
+		if ( ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == "NiProviderGroup" )
+		     && ( mapEntry.getLoad().getDataType() == DataType::ElementListEnum ) )
+		{
+			const ElementList& elementList = mapEntry.getElementList();
+
+			while ( elementList.forth() )
+			{
+				const ElementEntry& elementEntry = elementList.getEntry();
+
+				if ( ( elementEntry.getName() == "NiProviderList" ) && ( elementEntry.getLoad().getDataType() == DataType::MapEnum ) )
+				{
+					const Map& niProviderMap = elementEntry.getMap();
+
+					while ( niProviderMap.forth() )
+					{
+						const MapEntry& niProviderMapEntry = niProviderMap.getEntry();
+
+						if ( ( niProviderMapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( niProviderMapEntry.getKey().getAscii() == niProviderName ) )
+							return true;
+					}
+				}
+			}
+		}
+	}
+
+	return false;
 }
 
-void  ProgrammaticConfigure::retrieveChannelConfig( const EmaString& channelName,  OmmConsumerActiveConfig& activeConfig, bool hostFnCalled, ChannelConfig *fileCfg )
+void  ProgrammaticConfigure::retrieveCommonConfig( const EmaString& instanceName, ActiveConfig& activeConfig )
 {
 	for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
-		ProgrammaticConfigure::retrieveChannel( *_configList[i], channelName, _emaConfigErrList, activeConfig, hostFnCalled, fileCfg );
+		retrieveInstanceCommonConfig( *_configList[i], instanceName, _emaConfigErrList, activeConfig );
 }
 
-void  ProgrammaticConfigure::retrieveLoggerConfig( const EmaString& loggerName, OmmConsumerActiveConfig& activeConfig )
+void  ProgrammaticConfigure::retrieveCustomConfig( const EmaString& instanceName, ActiveConfig& activeConfig )
+{
+	for ( UInt32 i = 0; i < _configList.size(); i++ )
+		retrieveInstanceCustomConfig( *_configList[i], instanceName, _emaConfigErrList, activeConfig );
+}
+
+void  ProgrammaticConfigure::retrieveChannelConfig( const EmaString& channelName,  ActiveConfig& activeConfig, bool hostFnCalled, ChannelConfig* fileCfg )
 {
 	for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
-		ProgrammaticConfigure::retrieveLogger( *_configList[i], loggerName, _emaConfigErrList, activeConfig );
+		retrieveChannel( *_configList[i], channelName, _emaConfigErrList, activeConfig, hostFnCalled, fileCfg );
 }
 
-void  ProgrammaticConfigure::retrieveDictionaryConfig( const EmaString& dictionaryName, OmmConsumerActiveConfig& activeConfig )
+void  ProgrammaticConfigure::retrieveLoggerConfig( const EmaString& loggerName, ActiveConfig& activeConfig )
 {
 	for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
-		ProgrammaticConfigure::retrieveDictionary( *_configList[i], dictionaryName, _emaConfigErrList, activeConfig );
+		retrieveLogger( *_configList[i], loggerName, _emaConfigErrList, activeConfig );
 }
 
-void ProgrammaticConfigure::retrieveConsumer( const Map& map, const EmaString& consumerName, EmaConfigErrorList& emaConfigErrList,
-												  OmmConsumerActiveConfig& ommConsumerActiveConfig )
+void  ProgrammaticConfigure::retrieveDictionaryConfig( const EmaString& dictionaryName, ActiveConfig& activeConfig )
 {
+	for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
+		retrieveDictionary( *_configList[i], dictionaryName, _emaConfigErrList, activeConfig );
+}
+
+void  ProgrammaticConfigure::retrieveDirectoryConfig( const EmaString& directoryName, ActiveConfig& activeConfig )
+{
+	for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
+		retrieveDirectory( *_configList[i], directoryName, _emaConfigErrList, activeConfig );
+}
+
+void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const EmaString& instanceName, EmaConfigErrorList& emaConfigErrList, ActiveConfig& activeConfig )
+{
+	EmaString groupName;
+	EmaString listName;
+	retrieveGroupAndListName( map, groupName, listName );
+
+	if ( groupName.empty() )
+		return;
+
 	map.reset();
 	while ( map.forth() )
 	{
-		const MapEntry & mapEntry = map.getEntry();
+		const MapEntry& mapEntry = map.getEntry();
+
+		if ( mapEntry.getKey().getDataType() == DataType::AsciiEnum && 
+			( ( mapEntry.getKey().getAscii() == "ConsumerGroup" ) ||
+			( mapEntry.getKey().getAscii() == "NiProviderGroup" ) ) )
+		{
+			if ( mapEntry.getLoadType() == DataType::ElementListEnum )
+			{
+				const ElementList& elementList = mapEntry.getElementList();
+
+				while ( elementList.forth() )
+				{
+					const ElementEntry& elementEntry = elementList.getEntry();
+
+					if ( elementEntry.getLoadType() == DataType::MapEnum )
+					{
+						if ( ( elementEntry.getName() == "ConsumerList" ) ||
+							( elementEntry.getName() == "NiProviderList" ) )
+						{
+							const Map& instanceMap = elementEntry.getMap();
+
+							while ( instanceMap.forth() )
+							{
+								const MapEntry& mapEntry = instanceMap.getEntry();
+
+								if ( ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == instanceName ) )
+								{
+									if ( mapEntry.getLoadType() == DataType::ElementListEnum )
+									{
+										const ElementList& elementListInstance = mapEntry.getElementList();
+
+										while ( elementListInstance.forth() )
+										{
+											const ElementEntry& eentry = elementListInstance.getEntry();
+
+											switch ( eentry.getLoadType() )
+											{
+											case DataType::AsciiEnum:
+												break;
+
+											case DataType::UIntEnum:
+												if ( eentry.getName() == "ItemCountHint" )
+												{
+													activeConfig.setItemCountHint( eentry.getUInt() );
+												}
+												else if ( eentry.getName() == "ServiceCountHint" )
+												{
+													activeConfig.setServiceCountHint( eentry.getUInt() );
+												}
+												else if ( eentry.getName() == "RequestTimeout" )
+												{
+													activeConfig.setRequestTimeout( eentry.getUInt() );
+												}
+												else if ( eentry.getName() == "CatchUnhandledException" )
+												{
+													activeConfig.setCatchUnhandledException( eentry.getUInt() );
+												}
+												else if ( eentry.getName() == "MaxDispatchCountApiThread" )
+												{
+													activeConfig.setMaxDispatchCountApiThread( eentry.getUInt() );
+												}
+												else if ( eentry.getName() == "MaxDispatchCountUserThread" )
+												{
+													activeConfig.setMaxDispatchCountUserThread( eentry.getUInt() );
+												}
+												else if ( eentry.getName() == "LoginRequestTimeOut" )
+												{
+													activeConfig.setLoginRequestTimeOut( eentry.getUInt() );
+												}
+												break;
+
+											case DataType::IntEnum:
+
+												if ( eentry.getName() == "DispatchTimeoutApiThread" )
+												{
+													activeConfig.dispatchTimeoutApiThread = eentry.getInt();
+												}
+												else if ( eentry.getName() == "PipePort" )
+												{
+													activeConfig.pipePort = eentry.getInt();
+												}
+												break;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+void ProgrammaticConfigure::retrieveInstanceCustomConfig( const Map& map, const EmaString& instanceName, EmaConfigErrorList& emaConfigErrList, ActiveConfig& activeConfig )
+{
+	EmaString groupName;
+	EmaString listName;
+	retrieveGroupAndListName( map, groupName, listName );
+
+	if ( groupName.empty() )
+		return;
+
+	map.reset();
+	while ( map.forth() )
+	{
+		const MapEntry& mapEntry = map.getEntry();
 
 		if ( mapEntry.getKey().getDataType() == DataType::AsciiEnum && mapEntry.getKey().getAscii() == "ConsumerGroup" )
 		{
 			if ( mapEntry.getLoadType() == DataType::ElementListEnum )
 			{
-				const ElementList & elementList = mapEntry.getElementList();
+				const ElementList& elementList = mapEntry.getElementList();
 
 				while ( elementList.forth() )
 				{
-					const ElementEntry & elementEntry = elementList.getEntry();
+					const ElementEntry& elementEntry = elementList.getEntry();
 
 					if ( elementEntry.getLoadType() == DataType::MapEnum )
 					{
 						if ( elementEntry.getName() == "ConsumerList" )
 						{
+							const Map& mapInstance = elementEntry.getMap();
+
+							while ( mapInstance.forth() )
+							{
+								const MapEntry& mapEntry = mapInstance.getEntry();
+
+								if ( ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == instanceName ) )
+								{
+									if ( mapEntry.getLoadType() == DataType::ElementListEnum )
+									{
+										const ElementList& elementListInstance = mapEntry.getElementList();
+
+										while ( elementListInstance.forth() )
+										{
+											const ElementEntry& eentry = elementListInstance.getEntry();
+
+											switch ( eentry.getLoadType() )
+											{
+											case DataType::AsciiEnum:
+												break;
+
+											case DataType::UIntEnum:
+												if ( eentry.getName() == "ObeyOpenWindow" )
+												{
+													activeConfig.setObeyOpenWindow( eentry.getUInt() );
+												}
+												else if ( eentry.getName() == "PostAckTimeout" )
+												{
+													activeConfig.setPostAckTimeout( eentry.getUInt() );
+												}
+												else if ( eentry.getName() == "MaxOutstandingPosts" )
+												{
+													activeConfig.setMaxOutstandingPosts( eentry.getUInt() );
+												}
+												else if ( eentry.getName() == "DirectoryRequestTimeOut" )
+												{
+													activeConfig.setDirectoryRequestTimeOut( eentry.getUInt() );
+												}
+												else if ( eentry.getName() == "DictionaryRequestTimeOut" )
+												{
+													activeConfig.setDictionaryRequestTimeOut( eentry.getUInt() );
+												}
+												break;
+
+											case DataType::IntEnum:
+												break;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		else if ( mapEntry.getKey().getDataType() == DataType::AsciiEnum && mapEntry.getKey().getAscii() == "NiProviderGroup" )
+		{
+			if ( mapEntry.getLoadType() == DataType::ElementListEnum )
+			{
+				const ElementList& elementList = mapEntry.getElementList();
+
+				while ( elementList.forth() )
+				{
+					const ElementEntry& elementEntry = elementList.getEntry();
+
+					if ( elementEntry.getLoadType() == DataType::MapEnum )
+					{
+						if ( elementEntry.getName() == "NiProviderList" )
+						{
 							const Map& map = elementEntry.getMap();
 
 							while ( map.forth() )
 							{
-								const MapEntry & mapEntry = map.getEntry();
+								const MapEntry& mapEntry = map.getEntry();
 
-								if ( ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == consumerName ) )
+								if ( ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == instanceName ) )
 								{
 									if ( mapEntry.getLoadType() == DataType::ElementListEnum )
 									{
-										const ElementList & elementListConsumer = mapEntry.getElementList();
+										const ElementList& elementListInstance = mapEntry.getElementList();
 
-										while ( elementListConsumer.forth() )
+										while ( elementListInstance.forth() )
 										{
-											const ElementEntry & consumerEntry = elementListConsumer.getEntry();
+											const ElementEntry& eentry = elementListInstance.getEntry();
 
-											switch ( consumerEntry.getLoadType() )
+											switch ( eentry.getLoadType() )
 											{
-												case DataType::AsciiEnum:
-													break;
+											case DataType::AsciiEnum:
+												break;
 
-												case DataType::UIntEnum:
-													if ( consumerEntry.getName() == "ItemCountHint" )
-													{
-														ommConsumerActiveConfig.setItemCountHint(consumerEntry.getUInt());
-													}
-													else if ( consumerEntry.getName() == "ServiceCountHint" )
-													{
-														ommConsumerActiveConfig.setServiceCountHint(consumerEntry.getUInt());
-													}
-													else if ( consumerEntry.getName() == "ObeyOpenWindow" )
-													{
-														ommConsumerActiveConfig.setObeyOpenWindow(consumerEntry.getUInt());
-													}
-													else if ( consumerEntry.getName() == "PostAckTimeout" )
-													{
-														ommConsumerActiveConfig.setPostAckTimeout(consumerEntry.getUInt());
-													}
-													else if ( consumerEntry.getName() == "RequestTimeout" )
-													{
-														ommConsumerActiveConfig.setRequestTimeout(consumerEntry.getUInt());
-													}
-													else if ( consumerEntry.getName() == "MaxOutstandingPosts" )
-													{
-														ommConsumerActiveConfig.setMaxOutstandingPosts(consumerEntry.getUInt());
-													}
-													else if ( consumerEntry.getName() == "CatchUnhandledException" )
-													{
-														ommConsumerActiveConfig.setCatchUnhandledException(consumerEntry.getUInt());
-													}
-													else if ( consumerEntry.getName() == "MaxDispatchCountApiThread" )
-													{
-														ommConsumerActiveConfig.setMaxDispatchCountApiThread(consumerEntry.getUInt());
-													}
-													else if ( consumerEntry.getName() == "MaxDispatchCountUserThread" )
-													{
-														ommConsumerActiveConfig.setMaxDispatchCountUserThread(consumerEntry.getUInt());
-													}
-													else if ( consumerEntry.getName() == "LoginRequestTimeout" )
-													{
-														ommConsumerActiveConfig.setLoginRequestTimeOut(consumerEntry.getUInt());
-													}
-													else if ( consumerEntry.getName() == "DirectoryRequestTimeout" )
-													{
-														ommConsumerActiveConfig.setDirectoryRequestTimeOut(consumerEntry.getUInt());
-													}
-													break;
-									
-												case DataType::IntEnum:
+											case DataType::UIntEnum:
+												break;
 
-													if ( consumerEntry.getName() == "DispatchTimeoutApiThread" )
-													{
-														ommConsumerActiveConfig.dispatchTimeoutApiThread = consumerEntry.getInt();
-													}
-													else if ( consumerEntry.getName() == "PipePort" )
-													{
-														ommConsumerActiveConfig.pipePort = consumerEntry.getInt();
-													}
-													break;
+											case DataType::IntEnum:
+												break;											
 											}
 										}
 									}
@@ -470,7 +749,7 @@ void ProgrammaticConfigure::retrieveConsumer( const Map& map, const EmaString& c
 }
 
 void ProgrammaticConfigure::retrieveChannel( const Map& map, const EmaString& channelName, EmaConfigErrorList& emaConfigErrList,
-											OmmConsumerActiveConfig& ommConsumerActiveConfig, bool hostFnCalled, ChannelConfig *fileCfg )
+    ActiveConfig& activeConfig, bool hostFnCalled, ChannelConfig* fileCfg )
 {
 	map.reset();
 	while ( map.forth() )
@@ -483,7 +762,7 @@ void ProgrammaticConfigure::retrieveChannel( const Map& map, const EmaString& ch
 			{
 				const ElementList& elementList = mapEntry.getElementList();
 
-				while ( elementList.forth())
+				while ( elementList.forth() )
 				{
 					const ElementEntry& elementEntry = elementList.getEntry();
 
@@ -500,7 +779,7 @@ void ProgrammaticConfigure::retrieveChannel( const Map& map, const EmaString& ch
 								if ( ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == channelName ) )
 								{
 									if ( mapEntry.getLoadType() == DataType::ElementListEnum )
-										retrieveChannelInfo(mapEntry, channelName, emaConfigErrList, ommConsumerActiveConfig, hostFnCalled, fileCfg);									
+										retrieveChannelInfo( mapEntry, channelName, emaConfigErrList, activeConfig, hostFnCalled, fileCfg );
 								}
 							}
 						}
@@ -509,28 +788,27 @@ void ProgrammaticConfigure::retrieveChannel( const Map& map, const EmaString& ch
 			}
 		}
 	}
-
 }
 
-void ProgrammaticConfigure::retrieveChannelInfo(const MapEntry& mapEntry, const EmaString& channelName, EmaConfigErrorList& emaConfigErrList,
-											OmmConsumerActiveConfig& ommConsumerActiveConfig, bool hostFnCalled, ChannelConfig *fileCfg )
+void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const EmaString& channelName, EmaConfigErrorList& emaConfigErrList,
+    ActiveConfig& activeConfig, bool hostFnCalled, ChannelConfig* fileCfg )
 {
 	const ElementList& elementListChannel = mapEntry.getElementList();
 
 	EmaString name, interfaceName, host, port, xmlTraceFileName, objectName;
-	thomsonreuters::ema::access::UInt16 channelType, compressionType;
-	thomsonreuters::ema::access::Int64 reconnectAttemptLimit, reconnectMinDelay, reconnectMaxDelay, xmlTraceMaxFileSize;
-	thomsonreuters::ema::access::UInt64 guaranteedOutputBuffers, compressionThreshold, connectionPingTimeout, numInputBuffers, sysSendBufSize, sysRecvBufSize,
-	  tcpNodelay, xmlTraceToFile, xmlTraceToStdout, xmlTraceToMultipleFiles, xmlTraceWrite, xmlTraceRead, xmlTracePing, xmlTraceHex, msgKeyInUpdates;
+	UInt16 channelType, compressionType;
+	Int64 reconnectAttemptLimit, reconnectMinDelay, reconnectMaxDelay, xmlTraceMaxFileSize;
+	UInt64 guaranteedOutputBuffers, compressionThreshold, connectionPingTimeout, numInputBuffers, sysSendBufSize, sysRecvBufSize, highWaterMark,
+	       tcpNodelay, xmlTraceToFile, xmlTraceToStdout, xmlTraceToMultipleFiles, xmlTraceWrite, xmlTraceRead, xmlTracePing, xmlTraceHex, msgKeyInUpdates;
 
-	thomsonreuters::ema::access::UInt64 flags = 0;
-	thomsonreuters::ema::access::UInt32 maxUInt32 = 0xFFFFFFFF;
-	thomsonreuters::ema::access::UInt64 mcastFlags = 0;
-
+	UInt64 flags = 0;
+	UInt32 maxUInt32 = 0xFFFFFFFF;
+	UInt64 mcastFlags = 0;
 	ReliableMcastChannelConfig tempRelMcastCfg;
+
 	while ( elementListChannel.forth() )
 	{
-		const ElementEntry & channelEntry = elementListChannel.getEntry();
+		const ElementEntry& channelEntry = elementListChannel.getEntry();
 
 		switch ( channelEntry.getLoadType() )
 		{
@@ -606,7 +884,7 @@ void ProgrammaticConfigure::retrieveChannelInfo(const MapEntry& mapEntry, const 
 				mcastFlags |= 0x400000;
 			}
 			break;
-												
+
 		case DataType::EnumEnum:
 			if ( channelEntry.getName() == "ChannelType" )
 			{
@@ -621,12 +899,12 @@ void ProgrammaticConfigure::retrieveChannelInfo(const MapEntry& mapEntry, const 
 					flags |= 0x10;
 					break;
 				default:
-					EmaString text( "Invalid ChannelType [");
+					EmaString text( "Invalid ChannelType [" );
 					text.append( channelType );
-					text.append("] in Programmatic Configuration. Use default ChannelType [");
+					text.append( "] in Programmatic Configuration. Use default ChannelType [" );
 					text.append( DEFAULT_CONNECTION_TYPE );
-					text.append( "]");
-					EmaConfigError * mce( new EmaConfigError( text, OmmLoggerClient::ErrorEnum ) );
+					text.append( "]" );
+					EmaConfigError* mce( new EmaConfigError( text, OmmLoggerClient::ErrorEnum ) );
 					emaConfigErrList.add( mce );
 					break;
 				}
@@ -637,12 +915,12 @@ void ProgrammaticConfigure::retrieveChannelInfo(const MapEntry& mapEntry, const 
 
 				if ( compressionType > 2 )
 				{
-					EmaString text( "Invalid CompressionType [");
+					EmaString text( "Invalid CompressionType [" );
 					text.append( compressionType );
-					text.append("] in Programmatic Configuration. Use default CompressionType [");
+					text.append( "] in Programmatic Configuration. Use default CompressionType [" );
 					text.append( DEFAULT_COMPRESSION_TYPE );
-					text.append( "] ");
-					EmaConfigError * mce( new EmaConfigError( text, OmmLoggerClient::ErrorEnum ) );
+					text.append( "] " );
+					EmaConfigError* mce( new EmaConfigError( text, OmmLoggerClient::ErrorEnum ) );
 					emaConfigErrList.add( mce );
 				}
 				else
@@ -672,6 +950,11 @@ void ProgrammaticConfigure::retrieveChannelInfo(const MapEntry& mapEntry, const 
 			{
 				sysSendBufSize = channelEntry.getUInt();
 				flags |= 0x400000;
+			}
+			if ( channelEntry.getName() == "HighWaterMark" )
+			{
+				highWaterMark = channelEntry.getUInt();
+				flags |= 0x8000000;
 			}
 			else if ( channelEntry.getName() == "TcpNodelay" )
 			{
@@ -705,13 +988,13 @@ void ProgrammaticConfigure::retrieveChannelInfo(const MapEntry& mapEntry, const 
 			}
 			else if ( channelEntry.getName() == "XmlTracePing" )
 			{
-			    xmlTracePing = channelEntry.getUInt();
-			    flags |= 0x2000000;
+				xmlTracePing = channelEntry.getUInt();
+				flags |= 0x2000000;
 			}
 			else if ( channelEntry.getName() == "XmlTraceHex" )
 			{
-			    xmlTraceHex = channelEntry.getUInt();
-			    flags |= 0x4000000;
+				xmlTraceHex = channelEntry.getUInt();
+				flags |= 0x4000000;
 			}
 			else if ( channelEntry.getName() == "MsgKeyInUpdates" )
 			{
@@ -730,7 +1013,7 @@ void ProgrammaticConfigure::retrieveChannelInfo(const MapEntry& mapEntry, const 
 			}
 			else if ( channelEntry.getName() == "PacketTTL" )
 			{
-				tempRelMcastCfg.setPacketTTL(channelEntry.getUInt());
+				tempRelMcastCfg.setPacketTTL( channelEntry.getUInt() );
 				mcastFlags |= 0x100;
 			}
 			else if ( channelEntry.getName() == "DisconnectOnGap" )
@@ -745,57 +1028,57 @@ void ProgrammaticConfigure::retrieveChannelInfo(const MapEntry& mapEntry, const 
 			}
 			else if ( channelEntry.getName() == "ndata" )
 			{
-				tempRelMcastCfg.setNdata(channelEntry.getUInt());
+				tempRelMcastCfg.setNdata( channelEntry.getUInt() );
 				mcastFlags |= 0x800;
 			}
 			else if ( channelEntry.getName() == "nmissing" )
 			{
-				tempRelMcastCfg.setNmissing(channelEntry.getUInt());
+				tempRelMcastCfg.setNmissing( channelEntry.getUInt() );
 				mcastFlags |= 0x1000;
 			}
 			else if ( channelEntry.getName() == "nrreq" )
 			{
-				tempRelMcastCfg.setNrreq(channelEntry.getUInt());
+				tempRelMcastCfg.setNrreq( channelEntry.getUInt() );
 				mcastFlags |= 0x2000;
 			}
 			else if ( channelEntry.getName() == "tdata" )
 			{
-				tempRelMcastCfg.setTdata(channelEntry.getUInt());
+				tempRelMcastCfg.setTdata( channelEntry.getUInt() );
 				mcastFlags |= 0x4000;
 			}
 			else if ( channelEntry.getName() == "trreq" )
 			{
-				tempRelMcastCfg.setTrreq(channelEntry.getUInt());
+				tempRelMcastCfg.setTrreq( channelEntry.getUInt() );
 				mcastFlags |= 0x8000;
 			}
 			else if ( channelEntry.getName() == "pktPoolLimitHigh" )
 			{
-				tempRelMcastCfg.setPktPoolLimitHigh(channelEntry.getUInt());
+				tempRelMcastCfg.setPktPoolLimitHigh( channelEntry.getUInt() );
 				mcastFlags |= 0x10000;
 			}
 			else if ( channelEntry.getName() == "pktPoolLimitLow" )
 			{
-				tempRelMcastCfg.setPktPoolLimitLow(channelEntry.getUInt());
+				tempRelMcastCfg.setPktPoolLimitLow( channelEntry.getUInt() );
 				mcastFlags |= 0x20000;
 			}
 			else if ( channelEntry.getName() == "twait" )
 			{
-				tempRelMcastCfg.setTwait(channelEntry.getUInt());
+				tempRelMcastCfg.setTwait( channelEntry.getUInt() );
 				mcastFlags |= 0x40000;
 			}
 			else if ( channelEntry.getName() == "tbchold" )
 			{
-				tempRelMcastCfg.setTbchold(channelEntry.getUInt());
+				tempRelMcastCfg.setTbchold( channelEntry.getUInt() );
 				mcastFlags |= 0x80000;
 			}
 			else if ( channelEntry.getName() == "tpphold" )
 			{
-				tempRelMcastCfg.setTpphold(channelEntry.getUInt());
+				tempRelMcastCfg.setTpphold( channelEntry.getUInt() );
 				mcastFlags |= 0x100000;
 			}
 			else if ( channelEntry.getName() == "userQLimit" )
 			{
-				tempRelMcastCfg.setUserQLimit(channelEntry.getUInt());
+				tempRelMcastCfg.setUserQLimit( channelEntry.getUInt() );
 				mcastFlags |= 0x200000;
 			}
 			break;
@@ -824,120 +1107,123 @@ void ProgrammaticConfigure::retrieveChannelInfo(const MapEntry& mapEntry, const 
 			break;
 		}
 	}
-										
+
 	if ( flags & 0x10 )
 	{
 		if ( hostFnCalled )
 		{
 			channelType = RSSL_CONN_TYPE_SOCKET;
-			ommConsumerActiveConfig.clearChannelSet();
+			activeConfig.clearChannelSet();
 		}
+
 		unsigned int positionFound = 0;
-		ChannelConfig *pCurrentChannelConfig = 0;
+		ChannelConfig* pCurrentChannelConfig = 0;
 
 		try
 		{
 			if ( channelType == RSSL_CONN_TYPE_SOCKET )
 			{
-				SocketChannelConfig * socketChannelConfig = new SocketChannelConfig();
+				SocketChannelConfig* socketChannelConfig = new SocketChannelConfig( activeConfig.defaultServiceName() );
 				pCurrentChannelConfig = socketChannelConfig;
-				ommConsumerActiveConfig.configChannelSet.push_back(pCurrentChannelConfig);
+				activeConfig.configChannelSet.push_back( pCurrentChannelConfig );
 
-				SocketChannelConfig *fileCfgSocket = NULL;
-				if(fileCfg && fileCfg->connectionType == RSSL_CONN_TYPE_SOCKET)
-					fileCfgSocket = static_cast<SocketChannelConfig*> (fileCfg);
+				SocketChannelConfig* fileCfgSocket = NULL;
+				if ( fileCfg && fileCfg->connectionType == RSSL_CONN_TYPE_SOCKET )
+					fileCfgSocket = static_cast<SocketChannelConfig*>( fileCfg );
+
 				if ( flags & 0x80 )
 					socketChannelConfig->tcpNodelay = tcpNodelay ? true : false;
-				else if (fileCfgSocket)
+				else if ( fileCfgSocket )
 					socketChannelConfig->tcpNodelay = fileCfgSocket->tcpNodelay;
 
 				if ( flags & 0x02 && ! hostFnCalled )
 					socketChannelConfig->hostName = host;
-				else if (fileCfgSocket)
+				else if ( fileCfgSocket )
 					socketChannelConfig->hostName = fileCfgSocket->hostName;
 
 				if ( flags & 0x04 && ! hostFnCalled )
 					socketChannelConfig->serviceName = port;
-				else if (fileCfgSocket)
-					socketChannelConfig->serviceName = fileCfgSocket->serviceName;			
-				
+				else if ( fileCfgSocket )
+					socketChannelConfig->serviceName = fileCfgSocket->serviceName;
+
 			}
 			else if ( channelType == RSSL_CONN_TYPE_RELIABLE_MCAST )
 			{
-				ReliableMcastChannelConfig *reliableMcastChannelCfg = new ReliableMcastChannelConfig();		
+				ReliableMcastChannelConfig* reliableMcastChannelCfg = new ReliableMcastChannelConfig();
 				pCurrentChannelConfig = reliableMcastChannelCfg;
 				EmaString errorMsg;
-				if(setReliableMcastChannelInfo(reliableMcastChannelCfg, mcastFlags, tempRelMcastCfg, errorMsg, fileCfg) )
-					ommConsumerActiveConfig.configChannelSet.push_back( pCurrentChannelConfig );
-				else 
+
+				if ( setReliableMcastChannelInfo( reliableMcastChannelCfg, mcastFlags, tempRelMcastCfg, errorMsg, fileCfg ) )
+					activeConfig.configChannelSet.push_back( pCurrentChannelConfig );
+				else
 				{
-					throwIceException(errorMsg);
+					throwIceException( errorMsg );
 					return;
 				}
 			}
 			else if ( channelType == RSSL_CONN_TYPE_HTTP )
 			{
-				HttpChannelConfig *httpChanelConfig = new HttpChannelConfig();
+				HttpChannelConfig* httpChanelConfig = new HttpChannelConfig();
 				pCurrentChannelConfig = httpChanelConfig;
-				ommConsumerActiveConfig.configChannelSet.push_back(pCurrentChannelConfig);
+				activeConfig.configChannelSet.push_back( pCurrentChannelConfig );
 
-				HttpChannelConfig *fileCfgHttp = NULL;
-				if(fileCfg && fileCfg->connectionType == RSSL_CONN_TYPE_HTTP)
-					fileCfgHttp = static_cast<HttpChannelConfig*> (fileCfg);
+				HttpChannelConfig* fileCfgHttp = NULL;
+				if ( fileCfg && fileCfg->connectionType == RSSL_CONN_TYPE_HTTP )
+					fileCfgHttp = static_cast<HttpChannelConfig*>( fileCfg );
 
 				if ( flags & 0x80 )
 					httpChanelConfig->tcpNodelay = tcpNodelay ? true : false;
-				else if (fileCfgHttp)
+				else if ( fileCfgHttp )
 					httpChanelConfig->tcpNodelay = fileCfgHttp->tcpNodelay;
 
 				if ( flags & 0x02 && ! hostFnCalled )
 					httpChanelConfig->hostName = host;
-				else if (fileCfgHttp)
+				else if ( fileCfgHttp )
 					httpChanelConfig->hostName = fileCfgHttp->hostName;
 
 				if ( flags & 0x04 && ! hostFnCalled )
 					httpChanelConfig->serviceName = port;
-				else if (fileCfgHttp)
-					httpChanelConfig->serviceName = fileCfgHttp->serviceName;			
+				else if ( fileCfgHttp )
+					httpChanelConfig->serviceName = fileCfgHttp->serviceName;
 
-				if( flags & 0x100000)
-					httpChanelConfig->objectName = objectName;			
-				else if (fileCfgHttp)
-					httpChanelConfig->objectName = fileCfgHttp->objectName;			
-				
+				if ( flags & 0x100000 )
+					httpChanelConfig->objectName = objectName;
+				else if ( fileCfgHttp )
+					httpChanelConfig->objectName = fileCfgHttp->objectName;
+
 			}
 			else if ( channelType == RSSL_CONN_TYPE_ENCRYPTED )
 			{
-				EncryptedChannelConfig* encryptChanelConfig = new EncryptedChannelConfig();										
+				EncryptedChannelConfig* encryptChanelConfig = new EncryptedChannelConfig();
 				pCurrentChannelConfig = encryptChanelConfig;
-				ommConsumerActiveConfig.configChannelSet.push_back(pCurrentChannelConfig);
+				activeConfig.configChannelSet.push_back( pCurrentChannelConfig );
 
-				EncryptedChannelConfig *fileCfgEncrypt = NULL;
-				if(fileCfg && fileCfg->connectionType == RSSL_CONN_TYPE_ENCRYPTED )
-					fileCfgEncrypt = static_cast<EncryptedChannelConfig*> (fileCfg);
+				EncryptedChannelConfig* fileCfgEncrypt = NULL;
+				if ( fileCfg && fileCfg->connectionType == RSSL_CONN_TYPE_ENCRYPTED )
+					fileCfgEncrypt = static_cast<EncryptedChannelConfig*>( fileCfg );
 
 				if ( flags & 0x80 )
 					encryptChanelConfig->tcpNodelay = tcpNodelay ? true : false;
-				else if (fileCfgEncrypt)
+				else if ( fileCfgEncrypt )
 					encryptChanelConfig->tcpNodelay = fileCfgEncrypt->tcpNodelay;
 
 				if ( flags & 0x02 && ! hostFnCalled )
 					encryptChanelConfig->hostName = host;
-				else if (fileCfgEncrypt)
+				else if ( fileCfgEncrypt )
 					encryptChanelConfig->hostName = fileCfgEncrypt->hostName;
 
 				if ( flags & 0x04 && ! hostFnCalled )
 					encryptChanelConfig->serviceName = port;
-				else if (fileCfgEncrypt)
-					encryptChanelConfig->serviceName = fileCfgEncrypt->serviceName;			
+				else if ( fileCfgEncrypt )
+					encryptChanelConfig->serviceName = fileCfgEncrypt->serviceName;
 
-				if( flags & 0x100000)
-					encryptChanelConfig->objectName = objectName;			
-				else if (fileCfgEncrypt)
-					encryptChanelConfig->objectName = fileCfgEncrypt->objectName;		
+				if ( flags & 0x100000 )
+					encryptChanelConfig->objectName = objectName;
+				else if ( fileCfgEncrypt )
+					encryptChanelConfig->objectName = fileCfgEncrypt->objectName;
 			}
-		} 
-		catch ( std::bad_alloc ) 
+		}
+		catch ( std::bad_alloc )
 		{
 			const char* temp = "Failed to allocate memory for ChannelConfig. Out of memory!";
 			throwMeeException( temp );
@@ -945,312 +1231,334 @@ void ProgrammaticConfigure::retrieveChannelInfo(const MapEntry& mapEntry, const 
 
 		pCurrentChannelConfig->name = channelName;
 
-		bool useFileCfg = ( fileCfg && fileCfg->connectionType == pCurrentChannelConfig->connectionType )? true : false;
+		bool useFileCfg = ( fileCfg && fileCfg->connectionType == pCurrentChannelConfig->connectionType ) ? true : false;
 
 		if ( flags & 0x80000 )
 			pCurrentChannelConfig->interfaceName = interfaceName;
-		else if( useFileCfg )
+		else if ( useFileCfg )
 			pCurrentChannelConfig->interfaceName = fileCfg->interfaceName;
 
-		if(channelType != RSSL_CONN_TYPE_RELIABLE_MCAST)
+		if ( channelType != RSSL_CONN_TYPE_RELIABLE_MCAST )
 		{
 			if ( flags & 0x20 )
-				pCurrentChannelConfig->compressionType = (RsslCompTypes)compressionType;
-			else if( useFileCfg )
+				pCurrentChannelConfig->compressionType = ( RsslCompTypes )compressionType;
+			else if ( useFileCfg )
 				pCurrentChannelConfig->compressionType = fileCfg->compressionType;
 
 			if ( flags & 0x1000000 )
-				pCurrentChannelConfig->compressionThreshold = compressionThreshold > maxUInt32 ? maxUInt32 : (UInt32)compressionThreshold;
-			else if( useFileCfg )
+				pCurrentChannelConfig->compressionThreshold = compressionThreshold > maxUInt32 ? maxUInt32 : ( UInt32 )compressionThreshold;
+			else if ( useFileCfg )
 				pCurrentChannelConfig->compressionThreshold = fileCfg->compressionThreshold;
 		}
 
 		if ( flags & 0x40 )
-			pCurrentChannelConfig->setGuaranteedOutputBuffers(guaranteedOutputBuffers);
-		else if( useFileCfg )
+			pCurrentChannelConfig->setGuaranteedOutputBuffers( guaranteedOutputBuffers );
+		else if ( useFileCfg )
 			pCurrentChannelConfig->guaranteedOutputBuffers = fileCfg->guaranteedOutputBuffers;
 
 		if ( flags & 0x800000 )
-			pCurrentChannelConfig->setNumInputBuffers(numInputBuffers);
-		else if( useFileCfg )
+			pCurrentChannelConfig->setNumInputBuffers( numInputBuffers );
+		else if ( useFileCfg )
 			pCurrentChannelConfig->numInputBuffers = fileCfg->numInputBuffers;
 
 		if ( flags & 0x200000 )
-			pCurrentChannelConfig->sysRecvBufSize = sysRecvBufSize > maxUInt32 ? maxUInt32 : (UInt32)sysRecvBufSize;
-		else if( useFileCfg )
+			pCurrentChannelConfig->sysRecvBufSize = sysRecvBufSize > maxUInt32 ? maxUInt32 : ( UInt32 )sysRecvBufSize;
+		else if ( useFileCfg )
 			pCurrentChannelConfig->sysRecvBufSize = fileCfg->sysRecvBufSize;
 
 		if ( flags & 0x400000 )
-			pCurrentChannelConfig->sysSendBufSize = sysSendBufSize > maxUInt32 ? maxUInt32 : (UInt32)sysSendBufSize;
-		else if( useFileCfg )
+			pCurrentChannelConfig->sysSendBufSize = sysSendBufSize > maxUInt32 ? maxUInt32 : ( UInt32 )sysSendBufSize;
+		else if ( useFileCfg )
 			pCurrentChannelConfig->sysSendBufSize = fileCfg->sysSendBufSize;
 
+		if ( flags & 0x8000000 )
+			pCurrentChannelConfig->highWaterMark = highWaterMark > maxUInt32 ? maxUInt32 : (UInt32) highWaterMark;
+		else if ( useFileCfg )
+			pCurrentChannelConfig->highWaterMark = fileCfg->highWaterMark;
+
 		if ( flags & 0x8000 )
-			pCurrentChannelConfig->connectionPingTimeout = connectionPingTimeout > maxUInt32  ? maxUInt32 : (UInt32)connectionPingTimeout;
-		else if( useFileCfg )
+			pCurrentChannelConfig->connectionPingTimeout = connectionPingTimeout > maxUInt32  ? maxUInt32 : ( UInt32 )connectionPingTimeout;
+		else if ( useFileCfg )
 			pCurrentChannelConfig->connectionPingTimeout = fileCfg->connectionPingTimeout;
 
 		if ( flags & 0x10000 )
 			pCurrentChannelConfig->setReconnectAttemptLimit( reconnectAttemptLimit );
-		else if( useFileCfg )
+		else if ( useFileCfg )
 			pCurrentChannelConfig->reconnectAttemptLimit = fileCfg->reconnectAttemptLimit;
 
 		if ( flags & 0x20000 )
 			pCurrentChannelConfig->setReconnectMinDelay( reconnectMinDelay );
-		else if( useFileCfg )
+		else if ( useFileCfg )
 			pCurrentChannelConfig->reconnectMinDelay = fileCfg->reconnectMinDelay;
 
 		if ( flags & 0x40000 )
 			pCurrentChannelConfig->setReconnectMaxDelay( reconnectMaxDelay );
-		else if( useFileCfg )
+		else if ( useFileCfg )
 			pCurrentChannelConfig->reconnectMaxDelay = fileCfg->reconnectMaxDelay;
 
 		if ( flags & 0x08 )
 			pCurrentChannelConfig->xmlTraceFileName = xmlTraceFileName;
-		else if( useFileCfg )
+		else if ( useFileCfg )
 			pCurrentChannelConfig->xmlTraceFileName = fileCfg->xmlTraceFileName;
 
 		if ( flags & 0x100 )
 			pCurrentChannelConfig->xmlTraceMaxFileSize = xmlTraceMaxFileSize;
-		else if( useFileCfg )
+		else if ( useFileCfg )
 			pCurrentChannelConfig->xmlTraceMaxFileSize = fileCfg->xmlTraceMaxFileSize;
 
 		if ( flags & 0x200 )
 			pCurrentChannelConfig->xmlTraceToFile = xmlTraceToFile ? true : false;
-		else if( useFileCfg )
+		else if ( useFileCfg )
 			pCurrentChannelConfig->xmlTraceToFile = fileCfg->xmlTraceToFile;
 
 		if ( flags & 0x400 )
 			pCurrentChannelConfig->xmlTraceToStdout = xmlTraceToStdout ? true : false;
-		else if( useFileCfg )
+		else if ( useFileCfg )
 			pCurrentChannelConfig->xmlTraceToStdout = fileCfg->xmlTraceToStdout;
 
 		if ( flags & 0x800 )
 			pCurrentChannelConfig->xmlTraceToMultipleFiles = xmlTraceToMultipleFiles ? true : false;
-		else if( useFileCfg )
+		else if ( useFileCfg )
 			pCurrentChannelConfig->xmlTraceToMultipleFiles = fileCfg->xmlTraceToMultipleFiles;
 
 		if ( flags & 0x1000 )
 			pCurrentChannelConfig->xmlTraceWrite = xmlTraceWrite ? true : false;
-		else if( useFileCfg )
+		else if ( useFileCfg )
 			pCurrentChannelConfig->xmlTraceWrite = fileCfg->xmlTraceWrite;
 
 		if ( flags & 0x2000 )
 			pCurrentChannelConfig->xmlTraceRead = xmlTraceRead ? true : false;
-		else if( useFileCfg )
+		else if ( useFileCfg )
 			pCurrentChannelConfig->xmlTraceRead = fileCfg->xmlTraceRead;
 
 		if ( flags & 0x2000000 )
 			pCurrentChannelConfig->xmlTracePing = xmlTracePing ? true : false;
-		else if( useFileCfg )
+		else if ( useFileCfg )
 			pCurrentChannelConfig->xmlTracePing = fileCfg->xmlTracePing;
 
 		if ( flags & 0x4000000 )
 			pCurrentChannelConfig->xmlTraceHex = xmlTraceHex ? true : false;
-		else if( useFileCfg )
+		else if ( useFileCfg )
 			pCurrentChannelConfig->xmlTraceHex = fileCfg->xmlTraceHex;
 
 		if ( flags & 0x4000 )
 			pCurrentChannelConfig->msgKeyInUpdates = msgKeyInUpdates ? true : false;
-		else if( useFileCfg )
+		else if ( useFileCfg )
 			pCurrentChannelConfig->msgKeyInUpdates = fileCfg->msgKeyInUpdates;
 	}
 }
 
-bool ProgrammaticConfigure::setReliableMcastChannelInfo( ReliableMcastChannelConfig *pChannelCfg, UInt64& mcastFlags, ReliableMcastChannelConfig &relMcastcfg, EmaString& errorText, ChannelConfig *fileCfg)
+bool ProgrammaticConfigure::setReliableMcastChannelInfo( ReliableMcastChannelConfig* pChannelCfg, UInt64& mcastFlags, ReliableMcastChannelConfig& relMcastcfg, EmaString& errorText, ChannelConfig* fileCfg )
 {
 	bool bValid = true;
 
-	ReliableMcastChannelConfig *pFileMcastCfg =  NULL;
-	bool useFileCfg = ( fileCfg && fileCfg->connectionType == relMcastcfg.connectionType )? true : false;
-	if( useFileCfg )
-		pFileMcastCfg =  static_cast<ReliableMcastChannelConfig *> (fileCfg);
+	ReliableMcastChannelConfig* pFileMcastCfg =  NULL;
+	bool useFileCfg = ( fileCfg && fileCfg->connectionType == relMcastcfg.connectionType ) ? true : false;
+	if ( useFileCfg )
+		pFileMcastCfg =  static_cast<ReliableMcastChannelConfig*>( fileCfg );
 
-	if( mcastFlags & 0x01 )
+	if ( mcastFlags & 0x01 )
 		pChannelCfg->recvAddress = relMcastcfg.recvAddress;
-	else if( useFileCfg )
-		pChannelCfg->recvAddress = pFileMcastCfg->recvAddress;		
+	else if ( useFileCfg )
+		pChannelCfg->recvAddress = pFileMcastCfg->recvAddress;
 
-	if( mcastFlags & 0x02 )
+	if ( mcastFlags & 0x02 )
 		pChannelCfg->recvServiceName = relMcastcfg.recvServiceName;
-	else if( useFileCfg )
+	else if ( useFileCfg )
 		pChannelCfg->recvServiceName = pFileMcastCfg->recvServiceName;
 
-	if( mcastFlags & 0x04 )
+	if ( mcastFlags & 0x04 )
 		pChannelCfg->sendAddress = relMcastcfg.sendAddress;
-	else if( useFileCfg )
+	else if ( useFileCfg )
 		pChannelCfg->sendAddress = pFileMcastCfg->sendAddress;
 
-	if( mcastFlags & 0x08 )
+	if ( mcastFlags & 0x08 )
 		pChannelCfg->sendServiceName = relMcastcfg.sendServiceName;
-	else if( useFileCfg )
+	else if ( useFileCfg )
 		pChannelCfg->sendServiceName = pFileMcastCfg->sendServiceName;
 
-	if( mcastFlags & 0x10 )
+	if ( mcastFlags & 0x10 )
 		pChannelCfg->unicastServiceName = relMcastcfg.unicastServiceName;
-	else if( useFileCfg )
+	else if ( useFileCfg )
 		pChannelCfg->unicastServiceName = pFileMcastCfg->unicastServiceName;
 
-	if( mcastFlags & 0x20 )
+	if ( mcastFlags & 0x20 )
 		pChannelCfg->hsmInterface = relMcastcfg.hsmInterface;
-	else if( useFileCfg )
+	else if ( useFileCfg )
 		pChannelCfg->hsmInterface = pFileMcastCfg->hsmInterface;
-	if( mcastFlags & 0x40 )
+
+	if ( mcastFlags & 0x40 )
 		pChannelCfg->hsmMultAddress = relMcastcfg.hsmMultAddress;
-	else if( useFileCfg )
+	else if ( useFileCfg )
 		pChannelCfg->hsmMultAddress = pFileMcastCfg->hsmMultAddress;
-	if( mcastFlags & 0x80 )
+
+	if ( mcastFlags & 0x80 )
 		pChannelCfg->hsmPort = relMcastcfg.hsmPort;
-	else if( useFileCfg )
+	else if ( useFileCfg )
 		pChannelCfg->hsmPort = pFileMcastCfg->hsmPort;
-	if( mcastFlags & 0x100 )
+
+	if ( mcastFlags & 0x100 )
 		pChannelCfg->packetTTL = relMcastcfg.packetTTL;
-	else if( useFileCfg )
+	else if ( useFileCfg )
 		pChannelCfg->packetTTL = pFileMcastCfg->packetTTL;
-	if( mcastFlags & 0x200 )
+
+	if ( mcastFlags & 0x200 )
 		pChannelCfg->disconnectOnGap = relMcastcfg.disconnectOnGap;
-	else if( useFileCfg )
+	else if ( useFileCfg )
 		pChannelCfg->disconnectOnGap = pFileMcastCfg->disconnectOnGap;
-	if( mcastFlags & 0x400 )
+
+	if ( mcastFlags & 0x400 )
 		pChannelCfg->hsmInterval = relMcastcfg.hsmInterval;
-	else if( useFileCfg )
+	else if ( useFileCfg )
 		pChannelCfg->hsmInterval = pFileMcastCfg->hsmInterval;
-	if( mcastFlags & 0x800 )
+
+	if ( mcastFlags & 0x800 )
 		pChannelCfg->ndata = relMcastcfg.ndata;
-	else if( useFileCfg )
+	else if ( useFileCfg )
 		pChannelCfg->ndata = pFileMcastCfg->ndata;
-	if( mcastFlags & 0x1000 )
+
+	if ( mcastFlags & 0x1000 )
 		pChannelCfg->nmissing = relMcastcfg.nmissing;
-	else if( useFileCfg )
+	else if ( useFileCfg )
 		pChannelCfg->nmissing = pFileMcastCfg->nmissing;
-	if( mcastFlags & 0x2000 )
+
+	if ( mcastFlags & 0x2000 )
 		pChannelCfg->nrreq = relMcastcfg.nrreq;
-	else if( useFileCfg )
+	else if ( useFileCfg )
 		pChannelCfg->nrreq = pFileMcastCfg->nrreq;
-	if( mcastFlags & 0x4000 )
+
+	if ( mcastFlags & 0x4000 )
 		pChannelCfg->tdata = relMcastcfg.tdata;
-	else if( useFileCfg )
+	else if ( useFileCfg )
 		pChannelCfg->tdata = pFileMcastCfg->tdata;
-	if( mcastFlags & 0x8000 )
+
+	if ( mcastFlags & 0x8000 )
 		pChannelCfg->trreq = relMcastcfg.trreq;
-	else if( useFileCfg )
+	else if ( useFileCfg )
 		pChannelCfg->trreq = pFileMcastCfg->trreq;
-	if( mcastFlags & 0x10000 )
+
+	if ( mcastFlags & 0x10000 )
 		pChannelCfg->pktPoolLimitHigh = relMcastcfg.pktPoolLimitHigh;
-	else if( useFileCfg )
+	else if ( useFileCfg )
 		pChannelCfg->pktPoolLimitHigh = pFileMcastCfg->pktPoolLimitHigh;
-	if( mcastFlags & 0x20000 )
+
+	if ( mcastFlags & 0x20000 )
 		pChannelCfg->pktPoolLimitLow = relMcastcfg.pktPoolLimitLow;
-	else if( useFileCfg )
+	else if ( useFileCfg )
 		pChannelCfg->pktPoolLimitLow = pFileMcastCfg->pktPoolLimitLow;
-	if( mcastFlags & 0x40000 )
+
+	if ( mcastFlags & 0x40000 )
 		pChannelCfg->twait = relMcastcfg.twait;
-	else if( useFileCfg )
+	else if ( useFileCfg )
 		pChannelCfg->twait = pFileMcastCfg->twait;
-	if( mcastFlags & 0x80000 )
+
+	if ( mcastFlags & 0x80000 )
 		pChannelCfg->tbchold = relMcastcfg.tbchold;
-	else if( useFileCfg )
+	else if ( useFileCfg )
 		pChannelCfg->tbchold = pFileMcastCfg->tbchold;
-	if( mcastFlags & 0x100000 )
+
+	if ( mcastFlags & 0x100000 )
 		pChannelCfg->tpphold = relMcastcfg.tpphold;
-	else if( useFileCfg )
+	else if ( useFileCfg )
 		pChannelCfg->tpphold = pFileMcastCfg->tpphold;
-	if( mcastFlags & 0x200000 )
+
+	if ( mcastFlags & 0x200000 )
 		pChannelCfg->userQLimit = relMcastcfg.userQLimit;
-	else if( useFileCfg )
+	else if ( useFileCfg )
 		pChannelCfg->userQLimit = pFileMcastCfg->userQLimit;
-	if( mcastFlags & 0x400000 )
+
+	if ( mcastFlags & 0x400000 )
 		pChannelCfg->tcpControlPort = relMcastcfg.tcpControlPort;
-	else if( useFileCfg )
+	else if ( useFileCfg )
 		pChannelCfg->tcpControlPort = pFileMcastCfg->tcpControlPort;
 
 	return bValid;
 }
 
 void ProgrammaticConfigure::retrieveLogger( const Map& map, const EmaString& loggerName, EmaConfigErrorList& emaConfigErrList,
-										  OmmConsumerActiveConfig& ommConsumerActiveConfig )
+    ActiveConfig& activeConfig )
 {
 	map.reset();
 	while ( map.forth() )
 	{
-		const MapEntry & mapEntry = map.getEntry();
+		const MapEntry& mapEntry = map.getEntry();
 
 		if ( mapEntry.getKey().getDataType() == DataType::AsciiEnum && mapEntry.getKey().getAscii() == "LoggerGroup" )
 		{
 			if ( mapEntry.getLoadType() == DataType::ElementListEnum )
 			{
-				const ElementList & elementList = mapEntry.getElementList();
+				const ElementList& elementList = mapEntry.getElementList();
 
 				while ( elementList.forth() )
 				{
-					const ElementEntry & elementEntry = elementList.getEntry();
+					const ElementEntry& elementEntry = elementList.getEntry();
 
 					if ( elementEntry.getLoadType() == DataType::MapEnum )
 					{
 						if ( elementEntry.getName() == "LoggerList" )
 						{
-							const Map & map = elementEntry.getMap();
+							const Map& map = elementEntry.getMap();
 
 							while ( map.forth() )
 							{
-								const MapEntry & mapEntry = map.getEntry();
+								const MapEntry& mapEntry = map.getEntry();
 
 								if ( ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == loggerName ) )
 								{
 									if ( mapEntry.getLoadType() == DataType::ElementListEnum )
 									{
-										const ElementList & elementListLogger = mapEntry.getElementList();
+										const ElementList& elementListLogger = mapEntry.getElementList();
 
 										while ( elementListLogger.forth() )
 										{
-											const ElementEntry & loggerEntry = elementListLogger.getEntry();
+											const ElementEntry& entry = elementListLogger.getEntry();
 
-											switch ( loggerEntry.getLoadType() )
+											switch ( entry.getLoadType() )
 											{
 											case DataType::AsciiEnum:
-												if ( loggerEntry.getName() == "FileName" )
+												if ( entry.getName() == "FileName" )
 												{
-													ommConsumerActiveConfig.loggerConfig.loggerFileName = loggerEntry.getAscii();
+													activeConfig.loggerConfig.loggerFileName = entry.getAscii();
 												}
 												break;
 
 											case DataType::EnumEnum:
-												if ( loggerEntry.getName() == "LoggerType" )
+												if ( entry.getName() == "LoggerType" )
 												{
-													UInt16 loggerType = loggerEntry.getEnum();
+													UInt16 loggerType = entry.getEnum();
 
 													if ( loggerType > 1 )
 													{
-														EmaString text( "Invalid LoggerType [");
+														EmaString text( "Invalid LoggerType [" );
 														text.append( loggerType );
-														text.append("] in Programmatic Configuration. Use default LoggerType [");
+														text.append( "] in Programmatic Configuration. Use default LoggerType [" );
 														text.append( DEFAULT_LOGGER_TYPE );
 														text.append( "]" );
-														EmaConfigError * mce( new EmaConfigError( text, OmmLoggerClient::ErrorEnum ) );
+														EmaConfigError* mce( new EmaConfigError( text, OmmLoggerClient::ErrorEnum ) );
 														emaConfigErrList.add( mce );
 													}
 													else
 													{
-														ommConsumerActiveConfig.loggerConfig.loggerType = (OmmLoggerClient::LoggerType)loggerType;
+														activeConfig.loggerConfig.loggerType = ( OmmLoggerClient::LoggerType )loggerType;
 													}
 												}
-												else if ( loggerEntry.getName() == "LoggerSeverity" )
+												else if ( entry.getName() == "LoggerSeverity" )
 												{
-													UInt16 severityType = loggerEntry.getEnum();
+													UInt16 severityType = entry.getEnum();
 
 													if ( severityType > 4 )
 													{
-														EmaString text( "Invalid LoggerSeverity [");
+														EmaString text( "Invalid LoggerSeverity [" );
 														text.append( severityType );
-														text.append("] in Programmatic Configuration. Use default LoggerSeverity [");
+														text.append( "] in Programmatic Configuration. Use default LoggerSeverity [" );
 														text.append( DEFAULT_LOGGER_SEVERITY );
 														text.append( "]" );
-														EmaConfigError * mce( new EmaConfigError( text, OmmLoggerClient::ErrorEnum ) );
+														EmaConfigError* mce( new EmaConfigError( text, OmmLoggerClient::ErrorEnum ) );
 														emaConfigErrList.add( mce );
 													}
 													else
 													{
-														ommConsumerActiveConfig.loggerConfig.minLoggerSeverity = (OmmLoggerClient::Severity)severityType;
+														activeConfig.loggerConfig.minLoggerSeverity = ( OmmLoggerClient::Severity )severityType;
 													}
 												}
 												break;
@@ -1268,76 +1576,76 @@ void ProgrammaticConfigure::retrieveLogger( const Map& map, const EmaString& log
 }
 
 void ProgrammaticConfigure::retrieveDictionary( const Map& map, const EmaString& dictionaryName, EmaConfigErrorList& emaConfigErrList,
-											  OmmConsumerActiveConfig& ommConsumerActiveConfig )
+    ActiveConfig& activeConfig )
 {
 	map.reset();
 	while ( map.forth() )
 	{
-		const MapEntry & mapEntry = map.getEntry();
+		const MapEntry& mapEntry = map.getEntry();
 
 		if ( mapEntry.getKey().getDataType() == DataType::AsciiEnum && mapEntry.getKey().getAscii() == "DictionaryGroup" )
 		{
 			if ( mapEntry.getLoadType() == DataType::ElementListEnum )
 			{
-				const ElementList & elementList = mapEntry.getElementList();
+				const ElementList& elementList = mapEntry.getElementList();
 
 				while ( elementList.forth() )
 				{
-					const ElementEntry & elementEntry = elementList.getEntry();
+					const ElementEntry& elementEntry = elementList.getEntry();
 
 					if ( elementEntry.getLoadType() == DataType::MapEnum )
 					{
 						if ( elementEntry.getName() == "DictionaryList" )
 						{
-							const Map & map = elementEntry.getMap();
+							const Map& map = elementEntry.getMap();
 
 							while ( map.forth() )
 							{
-								const MapEntry & mapEntry = map.getEntry();
+								const MapEntry& mapEntry = map.getEntry();
 
 								if ( ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == dictionaryName ) )
 								{
 									if ( mapEntry.getLoadType() == DataType::ElementListEnum )
 									{
-										const ElementList & elementListDictionary = mapEntry.getElementList();
+										const ElementList& elementListDictionary = mapEntry.getElementList();
 
 										while ( elementListDictionary.forth() )
 										{
-											const ElementEntry & loggerEntry = elementListDictionary.getEntry();
+											const ElementEntry& entry = elementListDictionary.getEntry();
 
-											switch ( loggerEntry.getLoadType() )
+											switch ( entry.getLoadType() )
 											{
 											case DataType::AsciiEnum:
 
-												if ( loggerEntry.getName() == "RdmFieldDictionaryFileName" )
+												if ( entry.getName() == "RdmFieldDictionaryFileName" )
 												{
-													ommConsumerActiveConfig.dictionaryConfig.rdmfieldDictionaryFileName = loggerEntry.getAscii();
+													activeConfig.dictionaryConfig.rdmfieldDictionaryFileName = entry.getAscii();
 												}
-												else if ( loggerEntry.getName() == "EnumTypeDefFileName" )
+												else if ( entry.getName() == "EnumTypeDefFileName" )
 												{
-													ommConsumerActiveConfig.dictionaryConfig.enumtypeDefFileName = loggerEntry.getAscii();
+													activeConfig.dictionaryConfig.enumtypeDefFileName = entry.getAscii();
 												}
 												break;
 
 											case DataType::EnumEnum:
 
-												if ( loggerEntry.getName() == "DictionaryType" )
+												if ( entry.getName() == "DictionaryType" )
 												{
-													UInt16 dictionaryType = loggerEntry.getEnum();
+													UInt16 dictionaryType = entry.getEnum();
 
 													if ( dictionaryType > 1 )
 													{
-														EmaString text( "Invalid DictionaryType [");
+														EmaString text( "Invalid DictionaryType [" );
 														text.append( dictionaryType );
-														text.append("] in Programmatic Configuration. Use default DictionaryType [");
+														text.append( "] in Programmatic Configuration. Use default DictionaryType [" );
 														text.append( DEFAULT_DICTIONARY_TYPE );
 														text.append( "]" );
-														EmaConfigError * mce( new EmaConfigError( text, OmmLoggerClient::ErrorEnum ) );
+														EmaConfigError* mce( new EmaConfigError( text, OmmLoggerClient::ErrorEnum ) );
 														emaConfigErrList.add( mce );
 													}
 													else
 													{
-														ommConsumerActiveConfig.dictionaryConfig.dictionaryType = (Dictionary::DictionaryType)dictionaryType;
+														activeConfig.dictionaryConfig.dictionaryType = ( Dictionary::DictionaryType )dictionaryType;
 													}
 												}
 												break;
@@ -1352,4 +1660,103 @@ void ProgrammaticConfigure::retrieveDictionary( const Map& map, const EmaString&
 			}
 		}
 	}
+}
+
+void ProgrammaticConfigure::retrieveDirectory( const Map& map, const EmaString& directoryName, EmaConfigErrorList& emaConfigErrList,
+    ActiveConfig& activeConfig )
+{
+	map.reset();
+	while ( map.forth() )
+	{
+		const MapEntry& mapEntry = map.getEntry();
+
+		if ( mapEntry.getKey().getDataType() == DataType::AsciiEnum && mapEntry.getKey().getAscii() == "DirectoryGroup" )
+		{
+			if ( mapEntry.getLoadType() == DataType::ElementListEnum )
+			{
+				const ElementList& elementList = mapEntry.getElementList();
+
+				while ( elementList.forth() )
+				{
+					const ElementEntry& elementEntry = elementList.getEntry();
+
+					if ( elementEntry.getLoadType() == DataType::MapEnum )
+					{
+						if ( elementEntry.getName() == "DirectoryList" )
+						{
+							const Map& map = elementEntry.getMap();
+
+							while ( map.forth() )
+							{
+								const MapEntry& mapEntry = map.getEntry();
+
+								if ( ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == directoryName ) )
+								{
+									if ( mapEntry.getLoadType() == DataType::ElementListEnum )
+									{
+										const ElementList& elementListDirectory = mapEntry.getElementList();
+
+										while ( elementListDirectory.forth() )
+										{
+											const ElementEntry& entry = elementListDirectory.getEntry();
+
+											switch ( entry.getLoadType() )
+											{
+											case DataType::AsciiEnum:
+
+												// todo ... provide missing impl
+												break;
+
+											case DataType::EnumEnum:
+
+												// todo .... provide missing impl
+												break;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+void ProgrammaticConfigure::retrieveGroupAndListName( const Map& map, EmaString& groupName, EmaString& listName )
+{
+	static EmaString group;
+	static EmaString list;
+	static bool set( false );
+
+	if ( set )
+	{
+		groupName = group;
+		listName = list;
+		return;
+	}
+
+	map.reset();
+	while ( map.forth() )
+	{
+		const MapEntry& mapEntry = map.getEntry();
+		if ( mapEntry.getKey().getDataType() == DataType::AsciiEnum )
+			if ( mapEntry.getKey().getAscii() == "ConsumerGroup" )
+			{
+				group = "ConsumerGroup";
+				list = "ConsumerList";
+				break;
+			}
+			else if ( mapEntry.getKey().getAscii() == "NiProviderGroup" )
+			{
+				group = "NiProviderGroup";
+				list = "NiProviderList";
+				break;
+			}
+	}
+
+	set = true;
+	groupName = group;
+	listName = list;
 }

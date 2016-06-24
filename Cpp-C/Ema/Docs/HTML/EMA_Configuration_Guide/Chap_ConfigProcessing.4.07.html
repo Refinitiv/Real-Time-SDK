@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>4.3.2 Using the host() Function: How “Host” and “Port” are Processed</title>
+    <title>4.2.3 Processing the NiProvider “Name”</title>
     <link rel="StyleSheet" href="css/Chap_ConfigProcessing.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -50,94 +50,40 @@
           <tr style="vertical-align: baseline">
             <td>
               <div class="H3_inner" style="width: 54pt; white-space: nowrap">
-                <span class="bold">4.3.2	</span>
+                <span class="bold">4.2.3	</span>
               </div>
             </td>
             <td width="100%">
-              <div class="H3_inner"><a name="1045544">Using the </a><span class="CodeOrCommand">host()</span> Function: How “Host” and “Port” are Processed</div>
+              <div class="H3_inner"><a name="1058576">Processing the NiProvider “Name”</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1058335">Because the </a><span class="Parameter">Host</span> and <span class="Parameter">Port</span> parameters both have global default values (<span class="Parameter">localhost</span> and <span class="Parameter">14002</span> respectively), if an OmmConsumerConfig object exists, its <span class="Parameter">Host</span> and <span class="Parameter">Port</span> will always have values (either the default value or some value specified within <span class="FileOrDirectory">EmaConfig.xml</span>).</div>
-      <div class="Body"><a name="1058339">If you wish, you can have the application reset both host and port values by calling the </a><span class="CodeOrCommand">host( </span><span class="CodeOrCommand">const </span><span class="CodeOrCommand">EmaString</span><span class="CodeOrCommand">&amp;</span><span class="CodeOrCommand"> )</span> method on the <span class="CodeOrCommand">OmmConsumerConfig</span> object using the syntax: <span class="VariableValue" style="font-weight: bold">HostValue</span><span class="Parameter" style="font-style: normal">:</span><span class="VariableValue" style="font-weight: bold">PortValue</span>.</div>
-      <div class="Blank_Line"><a name="1058349">&nbsp;</a></div>
-      <table class="Note" style="width: 555.75pt" cellspacing="0" summary="">
-        <caption></caption>
-        <tr style="vertical-align: top">
-          <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 555.75pt">
-            <div class="Note">
-              <span class="Bold">Note: </span><a name="1058348">Calling the </a><span class="CodeOrCommand" style="font-size: 9.0pt">host()</span> function results in the <span class="Parameter">channelType</span> (refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.08.html', '');" title="3.2.2 Universal Channel Entry Parameters">Section 3.2.2</a>) being set to <span class="Parameter">RSSL_SOCKET</span>, regardless of any previous setting for that configuration element.</div>
-          </td>
-        </tr>
-      </table>
-      <div class="Body"><span class="Parameter"><a name="1058353">Host</a></span> and <span class="Parameter">Port</span> values observe the following rules when updating due to the <span class="CodeOrCommand">host( </span><span class="CodeOrCommand">const </span><span class="CodeOrCommand">EmaString</span><span class="CodeOrCommand">&amp;</span><span class="CodeOrCommand"> )</span> method:</div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
+      <div class="Body"><a name="1060595">The EMA is hard-coded to use a default non-interactive provider of </a><span class="Parameter">EmaNiProvider</span>. However, you can change this by using <span class="Parameter">EmaConfig.xml</span>. When you use the XML file, the default <span class="Parameter">NiProvider Name</span> is either specified by the <span class="Parameter">DefaultNiProvider</span> element, or if this parameter is not set, then the EMA application will default to the name of the first non-interactive provider component.</div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
             <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1058354">If the host parameter is missing or empty, then host and port reset to their global default values (</a><span class="Parameter">localhost:14002</span>)</div>
+              <div class="Bullet_inner"><a name="1060596">If </a><span class="Parameter">DefaultNiProvider</span> uses an invalid name (i.e., no <span class="Parameter">NiProvider</span> components in the XML file use that name), the EMA throws an exception indicating that <span class="Parameter">DefaultNiProvider</span> is invalid.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
+      <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
             <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1058355">If the host parameter is set to the string </a><span class="Parameter">“:”</span>, then host and port reset to their global default values (<span class="Parameter">localhost:14002</span>)</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><a name="1058356">If the host parameter is a string (not containing a </a><span class="Parameter">:</span>), then host is set to that string and port resets to its default value (<span class="Parameter">14002</span>).</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><a name="1058357">If the parameter begins with a </a><span class="Parameter">:</span> and is followed by some text, then host is set to its global default value (<span class="Parameter">localhost</span>) and port is set to that text.</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><a name="1058358">If the parameter is </a><span class="VariableValue" style="font-weight: bold">HostValue</span><span class="Parameter" style="font-style: normal">:</span><span class="VariableValue" style="font-weight: bold">PortValue</span>, where both <span class="VariableValue" style="font-weight: bold">HostValue</span> and <span class="VariableValue" style="font-weight: bold">PortValue</span> have values, then host is set to <span class="VariableValue" style="font-weight: bold">HostValue</span> and port is set to <span class="VariableValue" style="font-weight: bold">PortValue</span>.</div>
+              <div class="Bullet_inner"><a name="1060597">If the </a><span class="FileOrDirectory">EmaConfig.xml</span> has no <span class="Parameter">NiProvider</span> components, the EMA application uses <span class="Parameter">EmaNiProvider</span>.</div>
             </td>
           </tr>
         </table>
@@ -153,7 +99,7 @@
       </script>
     </blockquote>
     <hr align="left" />
-    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 4	EMA Configuration Processing : <a class="WebWorks_Breadcrumb_Link" href="Chap_ConfigProcessing.4.05.html">4.3	Configuring EMA Using Function Calls</a> : 4.3.2	Using the host() Function: How “Host” and “Port” are Processed</div>
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 4	EMA Configuration Processing : <a class="WebWorks_Breadcrumb_Link" href="Chap_ConfigProcessing.4.04.html">4.2	Processing EmaConfig.xml</a> : 4.2.3	Processing the NiProvider “Name”</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

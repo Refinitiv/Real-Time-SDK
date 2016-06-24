@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>301__MarketPrice__PriorityChange</title>
+    <link rel="StyleSheet" href="css/EMAC_Consumer_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3_NoNum"><a name="1019295">301__MarketPrice__PriorityChange</a></div>
+      <div class="Body"><a name="1028183">Summary</a></div>
+      <div class="Body"><a name="1028184">=======</a></div>
+      <div class="Body"><a name="1028185">&nbsp;</a></div>
+      <div class="Body"><a name="1028186">The 301__MarketPrice__PriorityChange application is provided as an example</a></div>
+      <div class="Body"><a name="1028187">of OMM Consumer application written to the EMA library showcasing a change</a></div>
+      <div class="Body"><a name="1028188">to the item priority.</a></div>
+      <div class="Body"><a name="1028189">&nbsp;</a></div>
+      <div class="Body"><a name="1028190">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1028191">and parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1028192">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1028193">Distribution Server.</a></div>
+      <div class="Body"><a name="1028194">&nbsp;</a></div>
+      <div class="Body"><a name="1028195">The 301__MarketPrice__PriorityChange showcases reissue for priority feature</a></div>
+      <div class="Body"><a name="1028196">of OMM Consumer. This application arbitrarily chooses to modify item’s priority</a></div>
+      <div class="Body"><a name="1028197">after receiving an open ok status on this item’s refresh.</a></div>
+      <div class="Body"><a name="1028198">&nbsp;</a></div>
+      <div class="Body"><a name="1028199">&nbsp;</a></div>
+      <div class="Body"><a name="1028200">Detailed Description</a></div>
+      <div class="Body"><a name="1028201">====================</a></div>
+      <div class="Body"><a name="1028202">&nbsp;</a></div>
+      <div class="Body"><a name="1028203">The 301__MarketPrice__PriorityChange implements the following high level steps:</a></div>
+      <div class="Body"><a name="1028204">&nbsp;</a></div>
+      <div class="Body"><a name="1028205">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1028206">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1028207">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1028208">    - each of the method provided in this example use the ease of use</a></div>
+      <div class="Body"><a name="1028209">	  data extraction methods that are data type specific</a></div>
+      <div class="Body"><a name="1028210">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1028211">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1028212">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1028213">  - sets operationModel to UserDispatchEnum</a></div>
+      <div class="Body"><a name="1028214">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1028215">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1028216">+ Opens a streaming item interest</a></div>
+      <div class="Body"><a name="1028217">  - MarketPrice IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1028218">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1028219">  - modifies item’s priority after receiving the first open ok item refresh</a></div>
+      <div class="Body"><a name="1028220">  - all received messages are processed on main thread of control</a></div>
+      <div class="Body"><a name="1028221">+ Exits</a></div>
+      <div class="Body"><a name="1028222">&nbsp;</a></div>
+      <div class="Body"><a name="1028223">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1028224">      environment using EmaConfig.xml file..</a></div>
+      <div class="Body"><a name="1028225">	  </a></div>
+      <div class="Body"><a name="1028226">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1028227">      standard configuration.</a></div>
+      <div class="Body"><a name="1025989">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.01.html">EMA C++ Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.23.html">300 Series Examples</a> : 301__MarketPrice__PriorityChange</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

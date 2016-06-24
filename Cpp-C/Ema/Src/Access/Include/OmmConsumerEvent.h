@@ -60,12 +60,11 @@ public :
 
 private :
 
-	friend class ItemCallbackClient;
-	friend class LoginCallbackClient;
-	friend class DirectoryCallbackClient;
-	friend class DictionaryCallbackClient;
+	friend class ConsumerItem;
 
-	Item*		_pItem;
+	UInt64			_handle;
+	UInt64			_parentHandle;
+	void*			_closure;
 
 	OmmConsumerEvent();
 	virtual ~OmmConsumerEvent();

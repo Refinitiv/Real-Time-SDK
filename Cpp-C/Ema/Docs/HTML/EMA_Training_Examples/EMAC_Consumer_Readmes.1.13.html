@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>210__MarketByOrder__Streaming</title>
+    <link rel="StyleSheet" href="css/EMAC_Consumer_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3_NoNum"><a name="1019286">210__MarketByOrder__Streaming</a></div>
+      <div class="Body"><a name="1027642">Summary</a></div>
+      <div class="Body"><a name="1027643">=======</a></div>
+      <div class="Body"><a name="1027644">&nbsp;</a></div>
+      <div class="Body"><a name="1027645">The 210__MarketByOrder__Streaming application is provided as an example of</a></div>
+      <div class="Body"><a name="1027646">OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1027647">&nbsp;</a></div>
+      <div class="Body"><a name="1027648">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1027649">and parsing of OMM MarketByOrder data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1027650">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1027651">Distribution Server.</a></div>
+      <div class="Body"><a name="1027652">&nbsp;</a></div>
+      <div class="Body"><a name="1027653">The 210__MarketByOrder__Streaming showcases native or RWF decoding of received</a></div>
+      <div class="Body"><a name="1027654">Map and FieldList. This application iterates through the received FieldList and</a></div>
+      <div class="Body"><a name="1027655">calls respective (based on the data type) get***() methods to extract data in</a></div>
+      <div class="Body"><a name="1027656">native format.</a></div>
+      <div class="Body"><a name="1027657">&nbsp;</a></div>
+      <div class="Body"><a name="1027658">&nbsp;</a></div>
+      <div class="Body"><a name="1027659">Detailed Description</a></div>
+      <div class="Body"><a name="1027660">====================</a></div>
+      <div class="Body"><a name="1027661">&nbsp;</a></div>
+      <div class="Body"><a name="1027662">The 210__MarketByOrder__Streaming implements the following high level steps:</a></div>
+      <div class="Body"><a name="1027663">&nbsp;</a></div>
+      <div class="Body"><a name="1027664">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1027665">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1027666">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1027667">    - the decode( const FieldList&amp; ) iterates through the received FieldList,</a></div>
+      <div class="Body"><a name="1027668">	  extracts each FieldEntry reference from the current position on the</a></div>
+      <div class="Body"><a name="1027669">	  FieldList, and extracts field id, name and value of the current FieldEntry</a></div>
+      <div class="Body"><a name="1027670">	- the decode( const Map&amp; ) iterates through the received Map, extracts Summary</a></div>
+      <div class="Body"><a name="1027671">	  if it is present, extracts MapEntry from which it extracts key, and load values</a></div>
+      <div class="Body"><a name="1027672">	- both methods use native / RWF data format while extracting data</a></div>
+      <div class="Body"><a name="1027673">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1027674">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1027675">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1027676">  - sets host name on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1027677">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1027678">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1027679">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1027680">+ Opens a streaming item interest</a></div>
+      <div class="Body"><a name="1027681">  - MarketByOrder AAO.V item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1027682">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1027683">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1027684">+ Exits</a></div>
+      <div class="Body"><a name="1027685">&nbsp;</a></div>
+      <div class="Body"><a name="1027686">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1027687">      environment.</a></div>
+      <div class="Body"><a name="1027688">	  </a></div>
+      <div class="Body"><a name="1027689">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1027690">      standard configuration.</a></div>
+      <div class="Body"><a name="1025430">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.01.html">EMA C++ Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.11.html">200 Series Examples</a> : 210__MarketByOrder__Streaming</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

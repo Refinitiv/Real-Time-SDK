@@ -14,18 +14,18 @@
 using namespace thomsonreuters::ema::access;
 
 AckMsgDecoder::AckMsgDecoder() :
- MsgDecoder(),
- _rsslMsg(),
- _pRsslMsg( 0 ),
- _name(),
- _serviceName(),
- _text(),
- _extHeader(),
- _hexBuffer(),
- _serviceNameSet( false ),
- _rsslMajVer( RSSL_RWF_MAJOR_VERSION ),
- _rsslMinVer( RSSL_RWF_MINOR_VERSION ),
- _errorCode( OmmError::NoErrorEnum )
+	MsgDecoder(),
+	_rsslMsg(),
+	_pRsslMsg( 0 ),
+	_name(),
+	_serviceName(),
+	_text(),
+	_extHeader(),
+	_hexBuffer(),
+	_serviceNameSet( false ),
+	_rsslMajVer( RSSL_RWF_MAJOR_VERSION ),
+	_rsslMinVer( RSSL_RWF_MINOR_VERSION ),
+	_errorCode( OmmError::NoErrorEnum )
 {
 }
 
@@ -46,10 +46,10 @@ bool AckMsgDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslMsg* rsslMsg, c
 	_rsslMinVer = minVer;
 
 	StaticDecoder::setRsslData( &_attrib, &_pRsslMsg->msgBase.msgKey.encAttrib,
-		hasAttrib() ? _pRsslMsg->msgBase.msgKey.attribContainerType : RSSL_DT_NO_DATA, majVer, minVer, _pRsslDictionary );
+	                            hasAttrib() ? _pRsslMsg->msgBase.msgKey.attribContainerType : RSSL_DT_NO_DATA, majVer, minVer, _pRsslDictionary );
 
 	StaticDecoder::setRsslData( &_payload, &_pRsslMsg->msgBase.encDataBody,
-		_pRsslMsg->msgBase.containerType, majVer, minVer, _pRsslDictionary );
+	                            _pRsslMsg->msgBase.containerType, majVer, minVer, _pRsslDictionary );
 
 	_errorCode = OmmError::NoErrorEnum;
 
@@ -95,7 +95,7 @@ bool AckMsgDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuf
 	case RSSL_RET_SUCCESS :
 		_errorCode = OmmError::NoErrorEnum;
 		StaticDecoder::setRsslData( &_attrib, &_pRsslMsg->msgBase.msgKey.encAttrib,
-									hasAttrib() ? _pRsslMsg->msgBase.msgKey.attribContainerType : RSSL_DT_NO_DATA, majVer, minVer, _pRsslDictionary );
+		                            hasAttrib() ? _pRsslMsg->msgBase.msgKey.attribContainerType : RSSL_DT_NO_DATA, majVer, minVer, _pRsslDictionary );
 		StaticDecoder::setRsslData( &_payload, &_pRsslMsg->msgBase.encDataBody, _pRsslMsg->msgBase.containerType, majVer, minVer, _pRsslDictionary );
 		return true;
 	case RSSL_RET_ITERATOR_OVERRUN :
@@ -110,7 +110,7 @@ bool AckMsgDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuf
 	}
 }
 
-bool AckMsgDecoder::setRsslData( RsslDecodeIterator* , RsslBuffer* )
+bool AckMsgDecoder::setRsslData( RsslDecodeIterator*, RsslBuffer* )
 {
 	_errorCode = OmmError::UnknownErrorEnum;
 	return false;
@@ -124,37 +124,37 @@ bool AckMsgDecoder::hasMsgKey() const
 bool AckMsgDecoder::hasName() const
 {
 	return ( _pRsslMsg->ackMsg.flags & RSSL_AKMF_HAS_MSG_KEY ) &&
-			( _pRsslMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_NAME ) ? true : false;
+	       ( _pRsslMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_NAME ) ? true : false;
 }
 
 bool AckMsgDecoder::hasNameType() const
 {
 	return ( _pRsslMsg->ackMsg.flags & RSSL_AKMF_HAS_MSG_KEY ) &&
-			( _pRsslMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_NAME_TYPE ) ? true : false;
+	       ( _pRsslMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_NAME_TYPE ) ? true : false;
 }
 
 bool AckMsgDecoder::hasServiceId() const
 {
 	return ( _pRsslMsg->ackMsg.flags & RSSL_AKMF_HAS_MSG_KEY ) &&
-			( _pRsslMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_SERVICE_ID ) ? true : false;
+	       ( _pRsslMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_SERVICE_ID ) ? true : false;
 }
 
 bool AckMsgDecoder::hasId() const
 {
 	return ( _pRsslMsg->ackMsg.flags & RSSL_AKMF_HAS_MSG_KEY ) &&
-			( _pRsslMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_IDENTIFIER ) ? true : false;
+	       ( _pRsslMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_IDENTIFIER ) ? true : false;
 }
 
 bool AckMsgDecoder::hasFilter() const
 {
 	return ( _pRsslMsg->ackMsg.flags & RSSL_AKMF_HAS_MSG_KEY ) &&
-			( _pRsslMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_FILTER ) ? true : false;
+	       ( _pRsslMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_FILTER ) ? true : false;
 }
 
 bool AckMsgDecoder::hasAttrib() const
 {
 	return ( _pRsslMsg->ackMsg.flags & RSSL_AKMF_HAS_MSG_KEY ) &&
-			( _pRsslMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_ATTRIB ) ? true : false;
+	       ( _pRsslMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_ATTRIB ) ? true : false;
 }
 
 bool AckMsgDecoder::hasPayload() const

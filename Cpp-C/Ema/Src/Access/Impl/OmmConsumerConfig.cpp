@@ -8,33 +8,27 @@
 
 #include "OmmConsumerConfig.h"
 #include "OmmConsumerConfigImpl.h"
-#include "ExceptionTranslator.h"
-#include "ReqMsg.h"
+
 #include <new>
 
 using namespace thomsonreuters::ema::access;
 
 OmmConsumerConfig::OmmConsumerConfig() :
- _pImpl( 0 )
+	_pImpl( 0 )
 {
 	try {
 		_pImpl = new OmmConsumerConfigImpl();
-	} catch ( std::bad_alloc ) {}
+	}
+	catch ( std::bad_alloc ) {}
 
 	if ( !_pImpl )
-	{
-		const char* temp = "Failed to allocate memory for OmmConsumerConfigImpl in OmmConsumerConfig().";
-		throwMeeException( temp );
-	}
+		throwMeeException( "Failed to allocate memory for OmmConsumerConfigImpl in OmmConsumerConfig()." );
 }
 
 OmmConsumerConfig::~OmmConsumerConfig()
 {
 	if ( _pImpl )
-	{
 		delete _pImpl;
-		_pImpl = 0;
-	}
 }
 
 OmmConsumerConfig& OmmConsumerConfig::clear()

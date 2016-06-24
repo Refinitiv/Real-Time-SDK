@@ -26,6 +26,11 @@
 
 	\remark RmtesBuffer class contains a copy of the buffer passed on apply methods.
 	\remark All methods in this class are \ref SingleThreaded.
+	
+	@see EmaBuffer,
+		EmaString,
+		EmaBufferU16,
+		OmmInvalidUsageException
 */
 
 #include "Access/Include/Common.h"

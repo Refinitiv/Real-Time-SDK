@@ -24,7 +24,8 @@
 		OmmOutOfRangeException,
 		OmmSystemException,
 		OmmUnsupportedDomainTypeException,
-		OmmConsumerErrorClient
+		OmmConsumerErrorClient,
+		OmmProviderErrorClient
 */
 
 #define MAX_SIZE 2048

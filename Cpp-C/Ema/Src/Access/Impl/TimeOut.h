@@ -29,32 +29,37 @@ namespace access {
 #define TimeOutTimeType Int64
 #endif
 
-class OmmConsumerImpl;
+class OmmBaseImpl;
 
 class TimeOut : public ListLinks< TimeOut >
 {
-public :
+public:
 
-	TimeOut( OmmConsumerImpl & , Int64 , void (*functor)( void * ), void* args, bool allocatedOnHeap );
-	bool operator <( const TimeOut & rhs ) const;
+	static bool getTimeOutInMicroSeconds( OmmBaseImpl&, Int64& );
+
+	static void execute( OmmBaseImpl& );
+
+	TimeOut( OmmBaseImpl&, Int64, void( *functor )( void * ), void* args, bool allocatedOnHeap );
+
+	virtual ~TimeOut();
+
+	bool operator<( const TimeOut& rhs ) const;
+
 	void operator()() { _functor( _args ); }
-	static bool getTimeOutInMicroSeconds( OmmConsumerImpl &, Int64 & );
-	static void execute( OmmConsumerImpl &, EmaList< TimeOut* > & );
-	void cancel() { canceled = true; }
-	bool allocatedOnHeap() { return _allocatedOnHeap; }
 
-private :
+	void cancel();
 
-	Int64 _lengthInMicroSeconds;
-	void (*_functor)( void * );
-	void * _args;
-	TimeOutTimeType setAt;
-	TimeOutTimeType timeoutTime;
-	static TimeOutTimeType frequency;
-	bool canceled;
-	bool _allocatedOnHeap;
-	TimeOutTimeType setTime() { return setAt; }
-	OmmConsumerImpl & theConsumer;
+private:
+
+	static TimeOutTimeType	frequency;
+
+	void( *_functor )( void * );
+	Int64				_lengthInMicroSeconds;
+	void*				_args;
+	TimeOutTimeType		_timeoutTime;
+	bool				_canceled;
+	bool				_allocatedOnHeap;
+	OmmBaseImpl&		_ommBaseImpl;
 };
 
 }

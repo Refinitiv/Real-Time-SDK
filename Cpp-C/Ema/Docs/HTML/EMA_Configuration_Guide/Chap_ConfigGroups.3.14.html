@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>3.3 Logger Group</title>
+    <title>3.3.3 Parameters for Use with Channel Type: RSSL_SOCKET</title>
     <link rel="StyleSheet" href="css/Chap_ConfigGroups.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -45,21 +45,189 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H2_outer" style="margin-left: 0pt">
+      <div class="H3_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
             <td>
-              <div class="H2_inner" style="width: 54pt; white-space: nowrap">
-                <span class="bold">3.3	</span>
+              <div class="H3_inner" style="width: 54pt; white-space: nowrap">
+                <span class="bold">3.3.3	</span>
               </div>
             </td>
             <td width="100%">
-              <div class="H2_inner"><a name="1045509">Logger Group</a></div>
+              <div class="H3_inner"><a name="1062489">Parameters for Use with Channel Type: RSSL_SOCKET</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><span class="Parameter"><a name="1051266">LoggerGroup</a></span> contains a <span class="Parameter">LoggerList</span>, which contains one or more <span class="Parameter">Logger</span> components (each uniquely identified by a <span class="Parameter">&lt;Name …/&gt;</span> entry). A Logger component defines the parameters and behaviors for a single logging utility.</div>
+      <div class="Body"><a name="1092766">In addition to the universal parameters listed in</a> <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.13.html', '');" title="3.3.2 Universal Channel Entry Parameters">Section 3.3.2</a>, you can use the following parameters to configure a channel whose type is <span class="Parameter">RSSL_SOCKET</span>.</div>
+      <div class="Blank_Line"><a name="1092863">&nbsp;</a></div>
+      <table class="Two_Column" style="width: 555.7464pt" cellspacing="0" summary="">
+        <caption style="caption-side: bottom">
+          <div class="TableTitle">Table 8: <a name="1092856">Parameters for Channel Type: RSSL_SOCKET &nbsp;</a></div>
+        </caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: middle; width: 133.49952pt">
+            <div class="CellHeading"><a name="1092769">Parameter Name</a></div>
+          </td>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: middle; width: 83.24856pt">
+            <div class="CellHeading"><a name="1092771">Type</a></div>
+          </td>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: middle; width: 67.49856pt">
+            <div class="CellHeading"><a name="1092773">Default</a></div>
+          </td>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: middle; width: 271.49976pt">
+            <div class="CellHeading"><a name="1092775">Notes</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
+            <div class="CellBody"><a name="1092777">CompressionThreshold</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
+            <div class="CellBody"><a name="1092782">UInt64</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
+            <div class="CellBody"><a name="1092784">30</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
+            <div class="CellBody"><a name="1092786">Sets the message size threshold (in bytes, the allowed value is 30-UInt32 MAX), above which all messages are compressed (thus individual messages might not be compressed). Different compression types have different behaviors and compression efficiency can vary depending on message size.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top" rowspan="2">
+            <div class="CellBody"><a name="1092791">CompressionType</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top" rowspan="2">
+            <div class="CellBody"><a name="1092796">Enumeration</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top" rowspan="2">
+            <div class="CellBody"><a name="1092798">None</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
+            <div class="CellBody"><a name="1092800">Specifies the EMA’s preferred type of compression. Compression is negotiated between the client and server: if the server supports the preferred compression type, the server will compress data at that level. </a></div>
+            <div class="CellBody"><a name="1092801">Use enumeration values with EMA’s programmatic configuration (for details, refer to in </a><a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigProcessing.4.12.html', '');" title="4.4 Programmatic Configuration">Section 4.4</a>)</div>
+            <div class="CellBody"><a name="1092805">Available values are: </a></div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1092806">None</a></span> (0)</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1092807">ZLib</a></span> (1)</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1092808">LZ4</a></span> (2)</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
+            <div class="Note">
+              <span class="Bold">Note: </span><a name="1092816">A server can be configured to force a particular compression type, regardless of client settings.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
+            <div class="CellBody"><a name="1092818">Host</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
+            <div class="CellBody"><a name="1092823">EmaString</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
+            <div class="CellBody"><a name="1092825">localhost</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
+            <div class="CellBody"><a name="1092827">Specifies the host name of the server to which the EMA connects. The parameter value can be a remote host name or IP address.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
+            <div class="CellBody"><a name="1092829">Port</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
+            <div class="CellBody"><a name="1092834">EmaString</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
+            <div class="CellBody"><a name="1092836">14002</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
+            <div class="CellBody"><a name="1092838">Specifies the port on the remote server to which the EMA connects.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
+            <div class="CellBody"><a name="1092840">TcpNodelay</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
+            <div class="CellBody"><a name="1092845">UInt64</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
+            <div class="CellBody"><a name="1092847">1</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
+            <div class="CellBody"><a name="1092849">Specifies whether to use Nagle’s algorithm when sending data. Available values are:</a></div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1092850">0</a></span>: Send data using Nagle’s algorithm.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1092851">1</a></span>: Send data without delay.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+      </table>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -71,7 +239,7 @@
       </script>
     </blockquote>
     <hr align="left" />
-    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	Configuration Groups : 3.3	Logger Group</div>
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	Configuration Groups : <a class="WebWorks_Breadcrumb_Link" href="Chap_ConfigGroups.3.11.html">3.3	Channel Group</a> : 3.3.3	Parameters for Use with Channel Type: RSSL_SOCKET</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

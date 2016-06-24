@@ -34,7 +34,7 @@
 	{
 		void onRefreshMsg( const RefreshMsg& , const OmmConsumerEvent& );
 		void onUpdateMsg( const UpdateMsg& , const OmmConsumerEvent& );
-		void onStatusMsg( const StatusMsg& , const OmmConsumerEvent&);
+		void onStatusMsg( const StatusMsg& , const OmmConsumerEvent& );
 	};
 
 	AppClient appClient;
@@ -54,7 +54,7 @@
 
 	\code
 
-	// create an implementation for OmmConsumerclient to process received item messages.
+	// create an implementation for OmmConsumerClient to process received item messages.
 	// this object will process tunnel item and sub item messages
 	class AppClient : public OmmConsumerClient
 	{
@@ -140,7 +140,7 @@ public :
 	*/ 
 	enum DispatchTimeout
 	{
-		InfiniteWaitEnum = -1,		/*!< dispatch  blocks till a message arrives */
+		InfiniteWaitEnum = -1,		/*!< dispatch blocks till a message arrives */
 		NoWaitEnum = 0				/*!< dispatch exits immediately even if there is no message */
 	};
 

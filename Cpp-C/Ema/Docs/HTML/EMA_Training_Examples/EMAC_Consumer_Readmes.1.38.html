@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>400__Custom__NestedMessaging</title>
+    <link rel="StyleSheet" href="css/EMAC_Consumer_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3_NoNum"><a name="1019300">400__Custom__NestedMessaging</a></div>
+      <div class="Body"><a name="1028754">Summary</a></div>
+      <div class="Body"><a name="1028755">=======</a></div>
+      <div class="Body"><a name="1028756">&nbsp;</a></div>
+      <div class="Body"><a name="1028757">The 400__Custom__NestedMessaging application is provided as an example of</a></div>
+      <div class="Body"><a name="1028758">OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1028759">&nbsp;</a></div>
+      <div class="Body"><a name="1028760">This application demonstrates basic usage of the EMA library while using</a></div>
+      <div class="Body"><a name="1028761">nested messaging feature and parsing of custom OMM Data data from an OMM</a></div>
+      <div class="Body"><a name="1028762">Provider application, or from Thomson Reuters Advanced Distribution Server.</a></div>
+      <div class="Body"><a name="1028763">&nbsp;</a></div>
+      <div class="Body"><a name="1028764">The 400__Custom__NestedMessaging opens up a parent stream on which, when </a></div>
+      <div class="Body"><a name="1028765">this stream is open / ok, it opens a sub stream. This is also known as nested</a></div>
+      <div class="Body"><a name="1028766">messaging feature.</a></div>
+      <div class="Body"><a name="1028767">&nbsp;</a></div>
+      <div class="Body"><a name="1028768">Note: effective use of the nested messaging feature requires support from an</a></div>
+      <div class="Body"><a name="1028769">	  OMM Provider application.</a></div>
+      <div class="Body"><a name="1028770">&nbsp;</a></div>
+      <div class="Body"><a name="1028771">&nbsp;</a></div>
+      <div class="Body"><a name="1028772">Detailed Description</a></div>
+      <div class="Body"><a name="1028773">====================</a></div>
+      <div class="Body"><a name="1028774">&nbsp;</a></div>
+      <div class="Body"><a name="1028775">The 400__Custom__NestedMessaging implements the following high level steps:</a></div>
+      <div class="Body"><a name="1028776">&nbsp;</a></div>
+      <div class="Body"><a name="1028777">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1028778">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1028779">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1028780">    - each of the method provided in this example use the ease of use</a></div>
+      <div class="Body"><a name="1028781">	  data extraction methods that are data type specific</a></div>
+      <div class="Body"><a name="1028782">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1028783">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1028784">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1028785">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1028786">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1028787">+ Opens a private streaming item interest</a></div>
+      <div class="Body"><a name="1028788">  - Custom Domain (200) IBM.XYZ item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1028789">  - when this item becomes open / ok this application requests</a></div>
+      <div class="Body"><a name="1028790">    a sub stream using a GenericMsg submitted on the handle of the </a></div>
+      <div class="Body"><a name="1028791">	IBM.XYZ stream</a></div>
+      <div class="Body"><a name="1028792">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1028793">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1028794">+ Exits</a></div>
+      <div class="Body"><a name="1028795">&nbsp;</a></div>
+      <div class="Body"><a name="1028796">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1028797">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1026524">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.01.html">EMA C++ Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.37.html">400 Series Examples</a> : 400__Custom__NestedMessaging</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

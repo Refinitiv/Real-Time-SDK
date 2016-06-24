@@ -1,15 +1,13 @@
 function FileData_Pairs(x)
 {
-x.t("rdm","usage");
+x.t("introduction","1.6");
 x.t("api","edition");
-x.t("api","concepts");
-x.t("guide","api");
-x.t("references","elektron");
-x.t("1.6","references");
+x.t("chapter","introduction");
+x.t("1.6","documentation");
 x.t("message","api");
-x.t("usage","guide");
+x.t("documentation","feedback");
 x.t("elektron","message");
-x.t("edition","rdm");
+x.t("feedback","chapter");
+x.t("feedback","elektron");
 x.t("edition","1.6");
-x.t("concepts","guide");
 }

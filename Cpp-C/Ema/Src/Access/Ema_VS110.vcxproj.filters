@@ -2,19 +2,25 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{40147AC7-7EBD-4FBC-A324-06B11C72A14A}</UniqueIdentifier>
+      <UniqueIdentifier>{2012D3F2-5F41-40A6-8327-A7DAF409E65C}</UniqueIdentifier>
       <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{F9245923-FEB6-425D-8713-6BDDEC11E462}</UniqueIdentifier>
+      <UniqueIdentifier>{A779FD9C-1670-4A01-8673-DBEB632A3C9F}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
     <Filter Include="Resource Files">
-      <UniqueIdentifier>{33BF39B5-D33D-4673-9970-48F7234043B1}</UniqueIdentifier>
+      <UniqueIdentifier>{17F0DC4A-0571-4D1D-84BE-28E612AE8800}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
     </Filter>
   </ItemGroup>
 	<ItemGroup>
+	<ClCompile Include="..\Rdm\Impl\RdmUtilities.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="EmaVersion.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 	<ClCompile Include="Impl\AckMsg.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
@@ -22,6 +28,9 @@
 			<Filter>Source Files</Filter>
 		</ClCompile>
 	<ClCompile Include="Impl\AckMsgEncoder.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="Impl\ActiveConfig.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
 	<ClCompile Include="Impl\Attrib.cpp">
@@ -75,6 +84,9 @@
 	<ClCompile Include="Impl\EmaBufferU16Int.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+	<ClCompile Include="Impl\EmaConfigImpl.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 	<ClCompile Include="Impl\EmaPool.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
@@ -91,6 +103,9 @@
 			<Filter>Source Files</Filter>
 		</ClCompile>
 	<ClCompile Include="Impl\ExceptionTranslator.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="Impl\ErrorClientHandler.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
 	<ClCompile Include="Impl\FieldEntry.cpp">
@@ -127,6 +142,9 @@
 			<Filter>Source Files</Filter>
 		</ClCompile>
 	<ClCompile Include="Impl\GenericMsgEncoder.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="Impl\GetTime.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
 	<ClCompile Include="Impl\HashTable.cpp">
@@ -193,6 +211,9 @@
 			<Filter>Source Files</Filter>
 		</ClCompile>
 	<ClCompile Include="Impl\OmmAsciiDecoder.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="Impl\OmmBaseImpl.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
 	<ClCompile Include="Impl\OmmBuffer.cpp">
@@ -300,6 +321,18 @@
 	<ClCompile Include="Impl\OmmMemoryExhaustionExceptionImpl.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+	<ClCompile Include="Impl\OmmNiProviderActiveConfig.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="Impl\OmmNiProviderConfig.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="Impl\OmmNiProviderConfigImpl.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="Impl\OmmNiProviderImpl.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 	<ClCompile Include="Impl\OmmNonRwfEncoder.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
@@ -316,6 +349,21 @@
 			<Filter>Source Files</Filter>
 		</ClCompile>
 	<ClCompile Include="Impl\OmmOutOfRangeExceptionImpl.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="Impl\OmmProvider.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="Impl\OmmProviderClient.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="Impl\OmmProviderConfig.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="Impl\OmmProviderEvent.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="Impl\OmmProviderImpl.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
 	<ClCompile Include="Impl\OmmQos.cpp">
@@ -399,9 +447,6 @@
 	<ClCompile Include="Impl\ProgrammaticConfigure.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
-	<ClCompile Include="..\Rdm\Impl\RdmUtilities.cpp">
-			<Filter>Source Files</Filter>
-		</ClCompile>
 	<ClCompile Include="Impl\RefreshMsg.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
@@ -462,10 +507,10 @@
 	<ClCompile Include="Impl\TimeOut.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
-	<ClCompile Include="Impl\TunnelStreamRequest.cpp">
+	<ClCompile Include="Impl\TunnelStreamLoginReqMsgImpl.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
-	<ClCompile Include="Impl\TunnelStreamLoginReqMsgImpl.cpp">
+	<ClCompile Include="Impl\TunnelStreamRequest.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
 	<ClCompile Include="Impl\UpdateMsg.cpp">
@@ -483,16 +528,13 @@
 	<ClCompile Include="Impl\Vector.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
-	<ClCompile Include="Impl\VectorEncoder.cpp">
-			<Filter>Source Files</Filter>
-		</ClCompile>
 	<ClCompile Include="Impl\VectorDecoder.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
-	<ClCompile Include="Impl\VectorEntry.cpp">
+	<ClCompile Include="Impl\VectorEncoder.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
-	<ClCompile Include="EmaVersion.c">
+	<ClCompile Include="Impl\VectorEntry.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
 	</ItemGroup>
@@ -501,10 +543,22 @@
 		<ClInclude Include="..\Include\Ema.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
+		<ClInclude Include="..\Rdm\Impl\RdmUtilities.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Rdm\Include\EmaRdm.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="EmaVersion.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
 		<ClInclude Include="Impl\AckMsgDecoder.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Impl\AckMsgEncoder.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Impl\ActiveConfig.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Impl\ChannelCallbackClient.h">
@@ -540,6 +594,9 @@
 		<ClInclude Include="Impl\EmaBufferU16Int.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
+		<ClInclude Include="Impl\EmaConfigImpl.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
 		<ClInclude Include="Impl\EmaList.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
@@ -556,6 +613,9 @@
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Impl\Encoder.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Impl\ErrorClientHandler.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Impl\ExceptionTranslator.h">
@@ -580,6 +640,9 @@
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Impl\GenericMsgEncoder.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Impl\GetTime.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Impl\GlobalPool.h">
@@ -625,6 +688,9 @@
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Impl\OmmAsciiDecoder.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Impl\OmmBaseImpl.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Impl\OmmBufferDecoder.h">
@@ -678,6 +744,18 @@
 		<ClInclude Include="Impl\OmmMemoryExhaustionExceptionImpl.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
+		<ClInclude Include="Impl\OmmNiProviderActiveConfig.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Impl\OmmNiProviderConfigImpl.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Impl\OmmNiProviderEvent.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Impl\OmmNiProviderImpl.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
 		<ClInclude Include="Impl\OmmNonRwfEncoder.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
@@ -688,6 +766,9 @@
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Impl\OmmOutOfRangeExceptionImpl.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Impl\OmmProviderImpl.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Impl\OmmQosDecoder.h">
@@ -781,6 +862,9 @@
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Impl\UpdateMsgEncoder.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Impl\UserErrorHandler.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Impl\Utilities.h">
@@ -921,10 +1005,28 @@
 		<ClInclude Include="Include\OmmMemoryExhaustionException.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
+		<ClInclude Include="Include\OmmNiProviderConfig.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
 		<ClInclude Include="Include\OmmOpaque.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Include\OmmOutOfRangeException.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Include\OmmProvider.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Include\OmmProviderClient.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Include\OmmProviderConfig.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Include\OmmProviderErrorClient.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Include\OmmProviderEvent.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Include\OmmQos.h">
@@ -994,15 +1096,6 @@
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Include\VectorEntry.h">
-		<Filter>Header Files</Filter>
-		</ClInclude>
-		<ClInclude Include="..\Rdm\Impl\RdmUtilities.h">
-		<Filter>Header Files</Filter>
-		</ClInclude>
-		<ClInclude Include="..\Rdm\Include\EmaRdm.h">
-		<Filter>Header Files</Filter>
-		</ClInclude>
-		<ClInclude Include="EmaVersion.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
 	</ItemGroup>

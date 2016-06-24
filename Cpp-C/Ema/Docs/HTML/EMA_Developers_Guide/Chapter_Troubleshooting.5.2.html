@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>5.2 OmmConsumerErrorClient Class</title>
+    <title>6.2 Omm Error Client Classes</title>
     <link rel="StyleSheet" href="css/Chapter_Troubleshooting.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -50,11 +50,11 @@
           <tr style="vertical-align: baseline">
             <td>
               <div class="H2_inner" style="width: 54pt; white-space: nowrap">
-                <span class="bold">5.2	</span>
+                <span class="bold">6.2	</span>
               </div>
             </td>
             <td width="100%">
-              <div class="H2_inner"><a name="1021218">OmmConsumerErrorClient Class</a></div>
+              <div class="H2_inner"><a name="1021218">Omm Error Client Classes</a></div>
             </td>
           </tr>
         </table>
@@ -64,16 +64,16 @@
           <tr style="vertical-align: baseline">
             <td>
               <div class="H3_inner" style="width: 54pt; white-space: nowrap">
-                <span class="bold">5.2.1	</span>
+                <span class="bold">6.2.1	</span>
               </div>
             </td>
             <td width="100%">
-              <div class="H3_inner"><a name="1019163">OmmConsumerErrorClient Description</a></div>
+              <div class="H3_inner"><a name="1019163">Error Client Description</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1021377">The </a><span class="CodeOrCommand">OmmConsumerErrorClient</span> class is an alternate error notification mechanism in the EMA, which you can use instead of <span class="CodeOrCommand">OmmConsumer</span>’s default error notification mechanism (i.e., <span class="CodeOrCommand">OmmException</span>, for details, refer to <a href="javascript:WWHClickedPopup('EMA_Developers_Guide', 'Chapter_Troubleshooting.5.4.html', '');" title="5.3 OmmException Class">Section 5.3</a>). Both mechanisms deliver the same information and detect the same error conditions. To use <span class="CodeOrCommand">OmmConsumerErrorClient</span>, applications need to implement their own error client class and override the default implementation of each method.</div>
+      <div class="Body"><a name="1021661">EMA has two Error Client classes: </a><span class="CodeOrCommand">OmmConsumerErrorClient</span> and <span class="CodeOrCommand">OmmProviderErrorClient</span>. These two classes are an alternate error notification mechanism in the EMA, which you can use instead of the default error notification mechanism (i.e., <span class="CodeOrCommand">OmmException</span>, for details, refer to <a href="javascript:WWHClickedPopup('EMA_Developers_Guide', 'Chapter_Troubleshooting.5.4.html', '');" title="6.3 OmmException Class">Section 6.3</a>). Both mechanisms deliver the same information and detect the same error conditions. To use Error Client, applications need to implement their own error client class, override the default implementation of each method, and pass this Error Client class on the constructor to <span class="CodeOrCommand">OmmConsumer</span> and <span class="CodeOrCommand">OmmProvider</span>.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -85,7 +85,7 @@
       </script>
     </blockquote>
     <hr align="left" />
-    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 5	Troubleshooting and Debugging : 5.2	OmmConsumerErrorClient Class</div>
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 6	Troubleshooting and Debugging : 6.2	Omm Error Client Classes</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

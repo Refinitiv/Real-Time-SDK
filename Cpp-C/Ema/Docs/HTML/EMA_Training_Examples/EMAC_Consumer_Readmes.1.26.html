@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>310__MarketPrice__Rmtes</title>
+    <link rel="StyleSheet" href="css/EMAC_Consumer_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3_NoNum"><a name="1019291">310__MarketPrice__Rmtes</a></div>
+      <div class="Body"><a name="1028231">Summary</a></div>
+      <div class="Body"><a name="1028232">=======</a></div>
+      <div class="Body"><a name="1028233">&nbsp;</a></div>
+      <div class="Body"><a name="1028234">The 310__MarketPrice__Rmtes application is provided as an example of OMM Consumer</a></div>
+      <div class="Body"><a name="1028235">application written to the EMA library showcasing RWF RMTES_STRING processing.</a></div>
+      <div class="Body"><a name="1028236">&nbsp;</a></div>
+      <div class="Body"><a name="1028237">This application demonstrates basic usage of the EMA library for accessing and</a></div>
+      <div class="Body"><a name="1028238">parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D), directly</a></div>
+      <div class="Body"><a name="1028239">from an OMM Provider application, or from Thomson Reuters Advanced DistributionServer.</a></div>
+      <div class="Body"><a name="1028240">&nbsp;</a></div>
+      <div class="Body"><a name="1028241">The 310__MarketPrice__Rmtes showcases processing of RWF RMTES_STRING data</a></div>
+      <div class="Body"><a name="1028242">type.</a></div>
+      <div class="Body"><a name="1028243">&nbsp;</a></div>
+      <div class="Body"><a name="1028244"> </a></div>
+      <div class="Body"><a name="1028245">Detailed Description</a></div>
+      <div class="Body"><a name="1028246">====================</a></div>
+      <div class="Body"><a name="1028247">&nbsp;</a></div>
+      <div class="Body"><a name="1028248">The 310__MarketPrice__Rmtes implements the following high level steps:</a></div>
+      <div class="Body"><a name="1028249">&nbsp;</a></div>
+      <div class="Body"><a name="1028250">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1028251">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1028252">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1028253">    - each of the method provided in this example use the ease of use</a></div>
+      <div class="Body"><a name="1028254">	  data extraction methods that are data type specific</a></div>
+      <div class="Body"><a name="1028255">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1028256">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1028257">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1028258">  - sets operationModel to UserDispatchEnum</a></div>
+      <div class="Body"><a name="1028259">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1028260">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1028261">+ Opens a streaming item interest</a></div>
+      <div class="Body"><a name="1028262">  - MarketPrice N2_UBMS item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1028263">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1028264">  - closes the item stream after a number of received update messages</a></div>
+      <div class="Body"><a name="1028265">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1028266">+ Exits</a></div>
+      <div class="Body"><a name="1028267">&nbsp;</a></div>
+      <div class="Body"><a name="1028268">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1028269">      environment using EmaConfig.xml file..</a></div>
+      <div class="Body"><a name="1028270">	  </a></div>
+      <div class="Body"><a name="1028271">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1028272">      standard configuration.</a></div>
+      <div class="Body"><a name="1026036">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.01.html">EMA C++ Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.23.html">300 Series Examples</a> : 310__MarketPrice__Rmtes</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

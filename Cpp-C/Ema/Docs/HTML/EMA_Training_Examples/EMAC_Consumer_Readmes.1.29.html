@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>331__Directory__Streaming</title>
+    <link rel="StyleSheet" href="css/EMAC_Consumer_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3_NoNum"><a name="1020348">331__Directory__Streaming</a></div>
+      <div class="Body"><a name="1028372">Summary</a></div>
+      <div class="Body"><a name="1028373">=======</a></div>
+      <div class="Body"><a name="1028374">&nbsp;</a></div>
+      <div class="Body"><a name="1028375">The 331__Directory__Streaming application is provided as an example of</a></div>
+      <div class="Body"><a name="1028376">OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1028377">&nbsp;</a></div>
+      <div class="Body"><a name="1028378">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1028379">and parsing of OMM Directory and MarketPrice data from Reuters Data Feed </a></div>
+      <div class="Body"><a name="1028380">Direct (RDF-D), directly from an OMM Provider application, or from Thomson</a></div>
+      <div class="Body"><a name="1028381">Reuters Advanced Distribution Server.</a></div>
+      <div class="Body"><a name="1028382">&nbsp;</a></div>
+      <div class="Body"><a name="1028383">The 331__Directory__Streaming showcases usage of directory stream in OMM</a></div>
+      <div class="Body"><a name="1028384">Consumer. It demonstrates opening of directory stream as well as its processing.</a></div>
+      <div class="Body"><a name="1028385">Having a directory stream open is useful for consumer applications willing to</a></div>
+      <div class="Body"><a name="1028386">know the state of services and item groups it consumes.</a></div>
+      <div class="Body"><a name="1028387">&nbsp;</a></div>
+      <div class="Body"><a name="1028388">&nbsp;</a></div>
+      <div class="Body"><a name="1028389">Detailed Description</a></div>
+      <div class="Body"><a name="1028390">====================</a></div>
+      <div class="Body"><a name="1028391">&nbsp;</a></div>
+      <div class="Body"><a name="1028392">The 331__Directory__Streaming implements the following high level steps:</a></div>
+      <div class="Body"><a name="1028393">&nbsp;</a></div>
+      <div class="Body"><a name="1028394">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1028395">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1028396">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1028397">    - each of the method provided in this example use the ease of use</a></div>
+      <div class="Body"><a name="1028398">	  data extraction methods that are data type specific</a></div>
+      <div class="Body"><a name="1028399">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1028400">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1028401">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1028402">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1028403">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1028404">+ Opens two streaming item interests</a></div>
+      <div class="Body"><a name="1028405">  - Directory Domain stream</a></div>
+      <div class="Body"><a name="1028406">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1028407">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1028408">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1028409">+ Exits</a></div>
+      <div class="Body"><a name="1028410">&nbsp;</a></div>
+      <div class="Body"><a name="1028411">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1028412">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1028413">	  </a></div>
+      <div class="Body"><a name="1028414">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1028415">      standard configuration.</a></div>
+      <div class="Body"><a name="1026185">	 </a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.01.html">EMA C++ Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.23.html">300 Series Examples</a> : 331__Directory__Streaming</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

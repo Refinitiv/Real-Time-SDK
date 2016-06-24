@@ -19,21 +19,19 @@ namespace ema {
 
 namespace access {
 
-static EmaString CR("\n\t");
+static EmaString CR( "\n\t" );
 
 struct LoggerFile {
-	int clientCount;
-	FILE * ptr;
-	EmaString fileName;
+	int			clientCount;
+	FILE*		ptr;
+	EmaString	fileName;
 };
 
 struct LoggerClientFiles {
-	int fileCount;
-	int openFilesSize;
-	struct LoggerFile * openFiles;
+	int					fileCount;
+	int					openFilesSize;
+	struct LoggerFile*	openFiles;
 };
-
-class OmmConsumerImpl;
 
 class OmmLoggerClient
 {
@@ -52,38 +50,39 @@ public :
 		StdoutEnum
 	};
 
-	static OmmLoggerClient* create( OmmConsumerImpl& );
+	static OmmLoggerClient* create( LoggerType loggerType, bool includeDate, Severity severity, const EmaString& fileName );
 
 	static void destroy( OmmLoggerClient*& );
 
-	void log( const EmaString& ommConsumerName, Severity , const EmaString& text );
+	void log( const EmaString& instanceName, Severity , const EmaString& text );
 
-	void log( const EmaString& ommConsumerName, Severity , const char* text );
+	void log( const EmaString& instanceName, Severity , const char* text );
 
 	static const char* loggerSeverityString( Severity );
 
-	static char * timeString(bool includeDate = false);
+	static char* timeString( bool includeDate = false );
 
 private :
 
-	OmmLoggerClient( OmmConsumerImpl& );
+	OmmLoggerClient( LoggerType loggerType, bool includeDate, Severity severity, const EmaString& fileName );
 
 	virtual ~OmmLoggerClient();
-	void openLogFile();
+
+	void openLogFile( const EmaString& );
 
 	void closeLogFile();
 
-	static Mutex					_printLock;
+	static Mutex			_printLock;
 
 	FILE*					_pFile;
 
-	OmmConsumerImpl&				_ommConsImpl;
+	FILE*					_pOutput;
 
-	FILE*							_pOutput;
+	EmaString				_logLine;
 
-	EmaString						_logLine;
+	bool					_includeDateInLoggerOutput;
 
-	bool _includeDateInLoggerOutput;
+	Severity				_severity;
 
 	OmmLoggerClient();
 	OmmLoggerClient( const OmmLoggerClient& );

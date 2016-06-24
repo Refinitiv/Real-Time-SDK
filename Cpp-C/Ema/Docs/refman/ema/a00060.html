@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EMA: thomsonreuters::ema::access::OmmUnsupportedDomainTypeException Class Reference</title>
+<title>EMA: thomsonreuters::ema::access::OmmReal Class Reference</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -104,86 +104,288 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
   <div id="nav-path" class="navpath">
     <ul>
-      <li class="navelem"><a class="el" href="a00150.html">thomsonreuters</a>      </li>
+      <li class="navelem"><a class="el" href="a00162.html">thomsonreuters</a>      </li>
       <li class="navelem"><b>ema</b>      </li>
       <li class="navelem"><b>access</b>      </li>
-      <li class="navelem"><a class="el" href="a00060.html">OmmUnsupportedDomainTypeException</a>      </li>
+      <li class="navelem"><a class="el" href="a00060.html">OmmReal</a>      </li>
     </ul>
   </div>
 </div>
 <div class="header">
   <div class="summary">
-<a href="#pro-methods">Protected Member Functions</a> &#124;
-<a href="#pro-attribs">Protected Attributes</a>  </div>
+<a href="#pub-types">Public Types</a> &#124;
+<a href="#friends">Friends</a>  </div>
   <div class="headertitle">
-<div class="title">thomsonreuters::ema::access::OmmUnsupportedDomainTypeException Class Reference</div>  </div>
+<div class="title">thomsonreuters::ema::access::OmmReal Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p>OmmUnsupportedDomainTypeExceptionis thrown when a domain type value is greater than 255.  
+<p><a class="el" href="a00060.html" title="OmmReal represents Real number in Omm.">OmmReal</a> represents Real number in Omm.  
  <a href="a00060.html#details">More...</a></p>
 <div class="dynheader">
-Inheritance diagram for thomsonreuters::ema::access::OmmUnsupportedDomainTypeException:</div>
+Inheritance diagram for thomsonreuters::ema::access::OmmReal:</div>
 <div class="dyncontent">
  <div class="center">
-  <img src="a00060.png" usemap="#thomsonreuters::ema::access::OmmUnsupportedDomainTypeException_map" alt=""/>
-  <map id="thomsonreuters::ema::access::OmmUnsupportedDomainTypeException_map" name="thomsonreuters::ema::access::OmmUnsupportedDomainTypeException_map">
-<area href="a00043.html" title="OmmException is a parent class for all exception types thrown by EMA." alt="thomsonreuters::ema::access::OmmException" shape="rect" coords="0,0,403,24"/>
+  <img src="a00060.png" usemap="#thomsonreuters::ema::access::OmmReal_map" alt=""/>
+  <map id="thomsonreuters::ema::access::OmmReal_map" name="thomsonreuters::ema::access::OmmReal_map">
+<area href="a00011.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes..." alt="thomsonreuters::ema::access::Data" shape="rect" coords="0,0,232,24"/>
 </map>
  </div></div>
 
-<p><a href="a00212.html">List of all members.</a></p>
+<p><a href="a00224.html">List of all members.</a></p>
 <table class="memberdecls">
+<tr><td colspan="2"><h2><a name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a5cb7e63e3e809fc496624eeee7ab6fdc"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdc">MagnitudeType</a> { <br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdca6ae9ccd44882942b9cac3b8c5bc6ffea">ExponentNeg14Enum</a> =  0, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdca79a5416a222b5d60e471c261d8f8a32a">ExponentNeg13Enum</a> =  1, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdca97d526cb8e53bac8939411f10a2a7785">ExponentNeg12Enum</a> =  2, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdcaf9ccd1e62d1c4996a734fca9484fdaf6">ExponentNeg11Enum</a> =  3, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdca8bb9d57f7c779e18f16db54e656a71a1">ExponentNeg10Enum</a> =  4, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdcaaea6015328443168a4c8f9dd908a8435">ExponentNeg9Enum</a> =  5, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdca932ec8ec9c6f372c0bb2306e2821ef66">ExponentNeg8Enum</a> =  6, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdca6d63b378ff5b8b9e59d800430830297f">ExponentNeg7Enum</a> =  7, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdca6b23b1c636c1ae517f6c5ecf5c0257f1">ExponentNeg6Enum</a> =  8, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdca08f0be293ffbb999b9fd671382db7b52">ExponentNeg5Enum</a> =  9, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdcad6d5ffaf2f3d883f6377d2e1a2f09bf6">ExponentNeg4Enum</a> =  10, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdcacfd45ba0943f1cb9fadd2058c197de32">ExponentNeg3Enum</a> =  11, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdca69a0ba642eeb1a19580ed0103e648ae9">ExponentNeg2Enum</a> =  12, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdca2ae9445f678c89b1605daa45f8bc04c4">ExponentNeg1Enum</a> =  13, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdcac99a9c508dde01164eaa569fff3a75c1">Exponent0Enum</a> =  14, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdca286a571f9ff5b0a28359de10edf247f1">ExponentPos1Enum</a> =  15, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdca5fca58f0a8150f71455f7b35c88d6e8e">ExponentPos2Enum</a> =  16, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdcabc9d96741c4ac28abbc227aac6ee6538">ExponentPos3Enum</a> =  17, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdca485992d8db0496af171277b6e9b3f001">ExponentPos4Enum</a> =  18, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdcabde13f39f8ae92a7951093843ac615bd">ExponentPos5Enum</a> =  19, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdcaf4c0d961f65ec5d7c8751f5cd35162f2">ExponentPos6Enum</a> =  20, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdcab42d07565d8b19a1dd3ce292755626f3">ExponentPos7Enum</a> =  21, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdca2c4ac5dfb860d914f7668a3314361f69">Divisor1Enum</a> =  22, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdca27033cc4b02e1d82db96ed313fc377d0">Divisor2Enum</a> =  23, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdcae82032c4038d2b9d771ee539823fc3e8">Divisor4Enum</a> =  24, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdca811e7382a84a70b14b527e2d96c09121">Divisor8Enum</a> =  25, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdcae9fd84ecddac92fd527d817189f6e863">Divisor16Enum</a> =  26, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdcab91c0430340e95c6b6d0875e04459d28">Divisor32Enum</a> =  27, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdca29e093bdec5f51ab5640e3cbfdc524c1">Divisor64Enum</a> =  28, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdcac6894114b4db09c618e49399ad62aa36">Divisor128Enum</a> =  29, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdca507580d7ef8c996f772b0f58cd9fdf5e">Divisor256Enum</a> =  30, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdcac4cb7ee690a23c2ab723fb02ace511a0">InfinityEnum</a> =  33, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdca3fc22b48ae50b73e1ea28ae6742c9d8f">NegInfinityEnum</a> =  34, 
+<br/>
+&#160;&#160;<a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdca93069b0dda9b7c18b82433ad59f21d15">NotANumberEnum</a> =  35
+<br/>
+ }</td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Accessors</div></td></tr>
-<tr class="memitem:a9c5ab18fb3720a8ab0fbce410f45aed9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4b">OmmException::ExceptionType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00060.html#a9c5ab18fb3720a8ab0fbce410f45aed9">getExceptionType</a> () const </td></tr>
-<tr class="memitem:af217532c09eee845aba251a422325dba"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00060.html#af217532c09eee845aba251a422325dba">getText</a> () const </td></tr>
-<tr class="memitem:a607e8094314140992f186f927573ff3e"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00060.html#a607e8094314140992f186f927573ff3e">toString</a> () const </td></tr>
-<tr class="memitem:a605f37e4c797cc80c322a0ddc08198bf"><td class="memItemLeft" align="right" valign="top">UInt16&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00060.html#a605f37e4c797cc80c322a0ddc08198bf">getDomainType</a> () const </td></tr>
-<tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
-<tr class="memitem:a835d230f8767ff8633f46b0c51a91e97"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00060.html#a835d230f8767ff8633f46b0c51a91e97">~OmmUnsupportedDomainTypeException</a> ()</td></tr>
-<tr><td colspan="2"><h2><a name="pro-methods"></a>
-Protected Member Functions</h2></td></tr>
-<tr class="memitem:a968004a7d762ef2cfab0d6e85e68aa17"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a968004a7d762ef2cfab0d6e85e68aa17"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>OmmUnsupportedDomainTypeException</b> (const <a class="el" href="a00060.html">OmmUnsupportedDomainTypeException</a> &amp;)</td></tr>
-<tr class="memitem:a0b9a838d85acfb760588c1e42b3d2b52"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0b9a838d85acfb760588c1e42b3d2b52"></a>
-<a class="el" href="a00060.html">OmmUnsupportedDomainTypeException</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="a00060.html">OmmUnsupportedDomainTypeException</a> &amp;)</td></tr>
-<tr><td colspan="2"><h2><a name="pro-attribs"></a>
-Protected Attributes</h2></td></tr>
-<tr class="memitem:a2949bcf3a6617ef1e401aded25e28d0a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2949bcf3a6617ef1e401aded25e28d0a"></a>
-UInt16&#160;</td><td class="memItemRight" valign="bottom"><b>_domainType</b></td></tr>
+<tr class="memitem:a6b6782407362ad918de94c57327b6920"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00060.html#a6b6782407362ad918de94c57327b6920">getMagnitudeTypeAsString</a> () const </td></tr>
+<tr class="memitem:a9167f45af5f55509038f44a1ae222197"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0">DataType::DataTypeEnum</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00060.html#a9167f45af5f55509038f44a1ae222197">getDataType</a> () const </td></tr>
+<tr class="memitem:ae12204bcf4ce21e78a41f080b6a827d3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00011.html#abe4fa6d2527b42396246aad6aa66d8b4">Data::DataCode</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00060.html#ae12204bcf4ce21e78a41f080b6a827d3">getCode</a> () const </td></tr>
+<tr class="memitem:a7ae7d8405bcbbe59c14b6c10a312ed4b"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00015.html">EmaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00060.html#a7ae7d8405bcbbe59c14b6c10a312ed4b">getAsHex</a> () const </td></tr>
+<tr class="memitem:a4d7965bf6934453d74eb31c14c22b6c7"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00060.html#a4d7965bf6934453d74eb31c14c22b6c7">toString</a> () const </td></tr>
+<tr class="memitem:a818ac0308a0a882310af5bb8a5dace42"><td class="memItemLeft" align="right" valign="top">Int64&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00060.html#a818ac0308a0a882310af5bb8a5dace42">getMantissa</a> () const </td></tr>
+<tr class="memitem:a7ccc629461a4667950957369c293ad63"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdc">MagnitudeType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00060.html#a7ccc629461a4667950957369c293ad63">getMagnitudeType</a> () const </td></tr>
+<tr class="memitem:a71d0b6ccecc5a8b86a2a02db8be0a563"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00060.html#a71d0b6ccecc5a8b86a2a02db8be0a563">getAsDouble</a> () const </td></tr>
+<tr><td colspan="2"><h2><a name="friends"></a>
+Friends</h2></td></tr>
+<tr class="memitem:a7172b718e1a9fa826587adbe6e35d17a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7172b718e1a9fa826587adbe6e35d17a"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>Decoder</b></td></tr>
+<tr class="memitem:a331e551b1372c536ef4c71895ffce705"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a331e551b1372c536ef4c71895ffce705"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>StaticDecoder</b></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><dl class="section remark"><dt>Remarks:</dt><dd>All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free Method</a>.</dd></dl>
-<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00043.html" title="OmmException is a parent class for all exception types thrown by EMA.">OmmException</a> </dd></dl>
+<div class="textblock"><p><a class="el" href="a00060.html" title="OmmReal represents Real number in Omm.">OmmReal</a> encapsulates magnitude type and mantissa information.</p>
+<p>The following code snippet shows setting of Real in <a class="el" href="a00019.html" title="FieldList is a heterogeneous container of complex and primitive data type entries.">FieldList</a>;</p>
+<div class="fragment"><pre class="fragment">    FieldList fList;
+    flist.addReal( 321, 245, <a class="code" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdca932ec8ec9c6f372c0bb2306e2821ef66">OmmReal::ExponentNeg8Enum</a> ).
+        addRealFromDouble( 345, 245.234 ).
+        complete();
+</pre></div><p>The following code snippet shows extraction of <a class="el" href="a00060.html" title="OmmReal represents Real number in Omm.">OmmReal</a> from <a class="el" href="a00019.html" title="FieldList is a heterogeneous container of complex and primitive data type entries.">FieldList</a>.</p>
+<div class="fragment"><pre class="fragment">    <span class="keywordtype">void</span> decodeFieldList( <span class="keyword">const</span> FieldList&amp; fList )
+    {
+        <span class="keywordflow">while</span> ( fList.forth() )
+        {
+            <span class="keyword">const</span> FieldEntry&amp; fEntry = fList.getEntry();
 
-<p>Definition at line <a class="el" href="a00129_source.html#l00031">31</a> of file <a class="el" href="a00129_source.html">OmmUnsupportedDomainTypeException.h</a>.</p>
-</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="a835d230f8767ff8633f46b0c51a91e97"></a>
+            <span class="keywordflow">if</span> ( fEntry.getCode() != <a class="code" href="a00011.html#abe4fa6d2527b42396246aad6aa66d8b4a5d4acb36e8b1ceb770abf84100330cc8">Data::BlankEnum</a> )
+                <span class="keywordflow">switch</span> ( fEntry.getLoadType() )
+                {
+                    <span class="keywordflow">case</span> DataType::OmmReal :
+                        <span class="keyword">const</span> OmmReal&amp; ommReal = fEntry.getReal();
+                        Int64 mantissa = ommReal.getMantissa();
+                        <span class="keywordflow">break</span>;
+                }
+        }
+    }
+</pre></div><dl class="section remark"><dt>Remarks:</dt><dd><a class="el" href="a00060.html" title="OmmReal represents Real number in Omm.">OmmReal</a> is a read only class. </dd>
+<dd>
+This class is used for extraction of Real info only. </dd>
+<dd>
+All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free Method</a>.</dd></dl>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00011.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a>, <a class="el" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>, <a class="el" href="a00015.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> </dd></dl>
+
+<p>Definition at line <a class="el" href="a00135_source.html#l00071">71</a> of file <a class="el" href="a00135_source.html">OmmReal.h</a>.</p>
+</div><hr/><h2>Member Enumeration Documentation</h2>
+<a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdc"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual <a class="el" href="a00060.html#a835d230f8767ff8633f46b0c51a91e97">thomsonreuters::ema::access::OmmUnsupportedDomainTypeException::~OmmUnsupportedDomainTypeException</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td><code> [virtual]</code></td>
+          <td class="memname">enum <a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdc">thomsonreuters::ema::access::OmmReal::MagnitudeType</a></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Destructor </p>
+<p>An enumeration representing item stream data state. </p>
+<dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdca6ae9ccd44882942b9cac3b8c5bc6ffea"></a>ExponentNeg14Enum</em>&nbsp;</td><td>
+<p>Power of -14. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdca79a5416a222b5d60e471c261d8f8a32a"></a>ExponentNeg13Enum</em>&nbsp;</td><td>
+<p>Power of -13. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdca97d526cb8e53bac8939411f10a2a7785"></a>ExponentNeg12Enum</em>&nbsp;</td><td>
+<p>Power of -12. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdcaf9ccd1e62d1c4996a734fca9484fdaf6"></a>ExponentNeg11Enum</em>&nbsp;</td><td>
+<p>Power of -11. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdca8bb9d57f7c779e18f16db54e656a71a1"></a>ExponentNeg10Enum</em>&nbsp;</td><td>
+<p>Power of -10. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdcaaea6015328443168a4c8f9dd908a8435"></a>ExponentNeg9Enum</em>&nbsp;</td><td>
+<p>Power of -9. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdca932ec8ec9c6f372c0bb2306e2821ef66"></a>ExponentNeg8Enum</em>&nbsp;</td><td>
+<p>Power of -8. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdca6d63b378ff5b8b9e59d800430830297f"></a>ExponentNeg7Enum</em>&nbsp;</td><td>
+<p>Power of -7. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdca6b23b1c636c1ae517f6c5ecf5c0257f1"></a>ExponentNeg6Enum</em>&nbsp;</td><td>
+<p>Power of -6. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdca08f0be293ffbb999b9fd671382db7b52"></a>ExponentNeg5Enum</em>&nbsp;</td><td>
+<p>Power of -5. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdcad6d5ffaf2f3d883f6377d2e1a2f09bf6"></a>ExponentNeg4Enum</em>&nbsp;</td><td>
+<p>Power of -4. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdcacfd45ba0943f1cb9fadd2058c197de32"></a>ExponentNeg3Enum</em>&nbsp;</td><td>
+<p>Power of -3. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdca69a0ba642eeb1a19580ed0103e648ae9"></a>ExponentNeg2Enum</em>&nbsp;</td><td>
+<p>Power of -2. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdca2ae9445f678c89b1605daa45f8bc04c4"></a>ExponentNeg1Enum</em>&nbsp;</td><td>
+<p>Power of -1. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdcac99a9c508dde01164eaa569fff3a75c1"></a>Exponent0Enum</em>&nbsp;</td><td>
+<p>Power of 0. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdca286a571f9ff5b0a28359de10edf247f1"></a>ExponentPos1Enum</em>&nbsp;</td><td>
+<p>Power of 1. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdca5fca58f0a8150f71455f7b35c88d6e8e"></a>ExponentPos2Enum</em>&nbsp;</td><td>
+<p>Power of 2. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdcabc9d96741c4ac28abbc227aac6ee6538"></a>ExponentPos3Enum</em>&nbsp;</td><td>
+<p>Power of 3. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdca485992d8db0496af171277b6e9b3f001"></a>ExponentPos4Enum</em>&nbsp;</td><td>
+<p>Power of 4. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdcabde13f39f8ae92a7951093843ac615bd"></a>ExponentPos5Enum</em>&nbsp;</td><td>
+<p>Power of 5. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdcaf4c0d961f65ec5d7c8751f5cd35162f2"></a>ExponentPos6Enum</em>&nbsp;</td><td>
+<p>Power of 6. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdcab42d07565d8b19a1dd3ce292755626f3"></a>ExponentPos7Enum</em>&nbsp;</td><td>
+<p>Power of 7. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdca2c4ac5dfb860d914f7668a3314361f69"></a>Divisor1Enum</em>&nbsp;</td><td>
+<p>Divisor of 1. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdca27033cc4b02e1d82db96ed313fc377d0"></a>Divisor2Enum</em>&nbsp;</td><td>
+<p>Divisor of 2 </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdcae82032c4038d2b9d771ee539823fc3e8"></a>Divisor4Enum</em>&nbsp;</td><td>
+<p>Divisor of 4. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdca811e7382a84a70b14b527e2d96c09121"></a>Divisor8Enum</em>&nbsp;</td><td>
+<p>Divisor of 8. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdcae9fd84ecddac92fd527d817189f6e863"></a>Divisor16Enum</em>&nbsp;</td><td>
+<p>Divisor of 16. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdcab91c0430340e95c6b6d0875e04459d28"></a>Divisor32Enum</em>&nbsp;</td><td>
+<p>Divisor of 32. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdca29e093bdec5f51ab5640e3cbfdc524c1"></a>Divisor64Enum</em>&nbsp;</td><td>
+<p>Divisor of 64. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdcac6894114b4db09c618e49399ad62aa36"></a>Divisor128Enum</em>&nbsp;</td><td>
+<p>Divisor of 128. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdca507580d7ef8c996f772b0f58cd9fdf5e"></a>Divisor256Enum</em>&nbsp;</td><td>
+<p>Divisor of 256. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdcac4cb7ee690a23c2ab723fb02ace511a0"></a>InfinityEnum</em>&nbsp;</td><td>
+<p>Represents infinity. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdca3fc22b48ae50b73e1ea28ae6742c9d8f"></a>NegInfinityEnum</em>&nbsp;</td><td>
+<p>Represents negative infinity. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a5cb7e63e3e809fc496624eeee7ab6fdca93069b0dda9b7c18b82433ad59f21d15"></a>NotANumberEnum</em>&nbsp;</td><td>
+<p>Represents not a number (NaN). </p>
+</td></tr>
+</table>
+</dd>
+</dl>
+
+<p>Definition at line <a class="el" href="a00135_source.html#l00078">78</a> of file <a class="el" href="a00135_source.html">OmmReal.h</a>.</p>
 
 </div>
 </div>
 <hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="a605f37e4c797cc80c322a0ddc08198bf"></a>
+<a class="anchor" id="a71d0b6ccecc5a8b86a2a02db8be0a563"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">UInt16 <a class="el" href="a00060.html#a605f37e4c797cc80c322a0ddc08198bf">thomsonreuters::ema::access::OmmUnsupportedDomainTypeException::getDomainType</a> </td>
+          <td class="memname">double <a class="el" href="a00060.html#a71d0b6ccecc5a8b86a2a02db8be0a563">thomsonreuters::ema::access::OmmReal::getAsDouble</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -191,17 +393,17 @@ UInt16&#160;</td><td class="memItemRight" valign="bottom"><b>_domainType</b></td
       </table>
 </div>
 <div class="memdoc">
-<p>Returns the invalid DomainType. DomainTypes must be less than 256. </p>
-<dl class="section return"><dt>Returns:</dt><dd>domain type value that caused the exception </dd></dl>
+<p>Returns AsDouble. </p>
+<dl class="section return"><dt>Returns:</dt><dd>value of Real as double </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a9c5ab18fb3720a8ab0fbce410f45aed9"></a>
+<a class="anchor" id="a7ae7d8405bcbbe59c14b6c10a312ed4b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4b">OmmException::ExceptionType</a> <a class="el" href="a00060.html#a9c5ab18fb3720a8ab0fbce410f45aed9">thomsonreuters::ema::access::OmmUnsupportedDomainTypeException::getExceptionType</a> </td>
+          <td class="memname">const <a class="el" href="a00015.html">EmaBuffer</a>&amp; <a class="el" href="a00060.html#a7ae7d8405bcbbe59c14b6c10a312ed4b">thomsonreuters::ema::access::OmmReal::getAsHex</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const<code> [virtual]</code></td>
@@ -209,19 +411,19 @@ UInt16&#160;</td><td class="memItemRight" valign="bottom"><b>_domainType</b></td
       </table>
 </div>
 <div class="memdoc">
-<p>Returns ExceptionType. </p>
-<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00043.html#ac446e9a801d56c417ae54f1b02864a4ba87939a65ad8f60eca2004f56944ceac3">OmmException::OmmUnsupportedDomainTypeExceptionEnum</a> </dd></dl>
+<p>Returns a buffer that in turn provides an alphanumeric null-terminated hexadecimal string representation. </p>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00015.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> with the object hex information </dd></dl>
 
-<p>Implements <a class="el" href="a00043.html#aea01495519c77405808747e0f2d19a47">thomsonreuters::ema::access::OmmException</a>.</p>
+<p>Implements <a class="el" href="a00011.html#ad354334439d238097b04c5f644667dbf">thomsonreuters::ema::access::Data</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="af217532c09eee845aba251a422325dba"></a>
+<a class="anchor" id="ae12204bcf4ce21e78a41f080b6a827d3"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="a00017.html">EmaString</a>&amp; <a class="el" href="a00060.html#af217532c09eee845aba251a422325dba">thomsonreuters::ema::access::OmmUnsupportedDomainTypeException::getText</a> </td>
+          <td class="memname"><a class="el" href="a00011.html#abe4fa6d2527b42396246aad6aa66d8b4">Data::DataCode</a> <a class="el" href="a00060.html#ae12204bcf4ce21e78a41f080b6a827d3">thomsonreuters::ema::access::OmmReal::getCode</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const<code> [virtual]</code></td>
@@ -229,19 +431,93 @@ UInt16&#160;</td><td class="memItemRight" valign="bottom"><b>_domainType</b></td
       </table>
 </div>
 <div class="memdoc">
-<p>Returns Text. </p>
-<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a> with exception text information </dd></dl>
+<p>Returns the Code, which indicates a special state of a <a class="el" href="a00012.html" title="DataType class provides enumeration representing Omm data types.">DataType</a>. </p>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00011.html#abe4fa6d2527b42396246aad6aa66d8b4a5d4acb36e8b1ceb770abf84100330cc8">Data::BlankEnum</a> if received data is blank; <a class="el" href="a00011.html#abe4fa6d2527b42396246aad6aa66d8b4a88c2bb1c2e8f901631aa5ad9a0d1dc14">Data::NoCodeEnum</a> otherwise </dd></dl>
 
-<p>Implements <a class="el" href="a00043.html#ad375fcc2689b1b312d38dcd8b1608179">thomsonreuters::ema::access::OmmException</a>.</p>
+<p>Implements <a class="el" href="a00011.html#a8510d00b7a009f32c9c6de8adcb45d96">thomsonreuters::ema::access::Data</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a607e8094314140992f186f927573ff3e"></a>
+<a class="anchor" id="a9167f45af5f55509038f44a1ae222197"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="a00017.html">EmaString</a>&amp; <a class="el" href="a00060.html#a607e8094314140992f186f927573ff3e">thomsonreuters::ema::access::OmmUnsupportedDomainTypeException::toString</a> </td>
+          <td class="memname"><a class="el" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0">DataType::DataTypeEnum</a> <a class="el" href="a00060.html#a9167f45af5f55509038f44a1ae222197">thomsonreuters::ema::access::OmmReal::getDataType</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the <a class="el" href="a00012.html" title="DataType class provides enumeration representing Omm data types.">DataType</a>, which is the type of Omm data. Results in this class type. </p>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0a4fe7ab6090bb98689aeaca8d0ec9b573">DataType::RealEnum</a> </dd></dl>
+
+<p>Implements <a class="el" href="a00011.html#a361e280aecab30c47386a3e08ce325da">thomsonreuters::ema::access::Data</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a7ccc629461a4667950957369c293ad63"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdc">MagnitudeType</a> <a class="el" href="a00060.html#a7ccc629461a4667950957369c293ad63">thomsonreuters::ema::access::OmmReal::getMagnitudeType</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns MagnitudeType. </p>
+<dl class="section return"><dt>Returns:</dt><dd>value of <a class="el" href="a00060.html#a5cb7e63e3e809fc496624eeee7ab6fdc">OmmReal::MagnitudeType</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a6b6782407362ad918de94c57327b6920"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00017.html">EmaString</a>&amp; <a class="el" href="a00060.html#a6b6782407362ad918de94c57327b6920">thomsonreuters::ema::access::OmmReal::getMagnitudeTypeAsString</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the MagnitudeType value as a string format. </p>
+<dl class="section return"><dt>Returns:</dt><dd>string representation of this object MagnitudeType </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a818ac0308a0a882310af5bb8a5dace42"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Int64 <a class="el" href="a00060.html#a818ac0308a0a882310af5bb8a5dace42">thomsonreuters::ema::access::OmmReal::getMantissa</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns Mantissa. </p>
+<dl class="section return"><dt>Returns:</dt><dd>value of OmmReal::Mantissa </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a4d7965bf6934453d74eb31c14c22b6c7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00017.html">EmaString</a>&amp; <a class="el" href="a00060.html#a4d7965bf6934453d74eb31c14c22b6c7">thomsonreuters::ema::access::OmmReal::toString</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const<code> [virtual]</code></td>
@@ -252,7 +528,7 @@ UInt16&#160;</td><td class="memItemRight" valign="bottom"><b>_domainType</b></td
 <p>Returns a string representation of the class instance. </p>
 <dl class="section return"><dt>Returns:</dt><dd>string representation of the class instance </dd></dl>
 
-<p>Implements <a class="el" href="a00043.html#ab60b940c9ae6bd63f1c45c31dbe8fe6a">thomsonreuters::ema::access::OmmException</a>.</p>
+<p>Implements <a class="el" href="a00011.html#a971a83a435b8d8f34978b72821a661a3">thomsonreuters::ema::access::Data</a>.</p>
 
 </div>
 </div>
@@ -273,7 +549,7 @@ UInt16&#160;</td><td class="memItemRight" valign="bottom"><b>_domainType</b></td
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Fri Apr 29 2016</td>
+			<td><p class="smallfont">Fri Jun 24 2016</td>
           </tr>
         </table>
         </td>

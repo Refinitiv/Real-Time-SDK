@@ -30,24 +30,24 @@
 	{
 		void onRefreshMsg( const RefreshMsg& , const OmmConsumerEvent& );
 		void onUpdateMsg( const UpdateMsg& , const OmmConsumerEvent& );
-		void onStatusMsg( const StatusMsg& , const OmmConsumerEvent&);
+		void onStatusMsg( const StatusMsg& , const OmmConsumerEvent& );
 	};
 
-	void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEvent& ) 
+	void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEvent& event ) 
 	{
 		cout << "Handle " << event.getHandle() << endl
 			<< "Closure " << event.getClosure() << endl
 			<< refreshMsg << endl;
 	}
 
-	void AppClient::onUpdateMsg( const UpdateMsg& updateMsg, const OmmConsumerEvent& ) 
+	void AppClient::onUpdateMsg( const UpdateMsg& updateMsg, const OmmConsumerEvent& event ) 
 	{
 		cout << "Handle " << event.getHandle() << endl
 			<< "Closure " << event.getClosure() << endl
 			<< updateMsg << endl;
 	}
 
-	void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent& ) 
+	void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent& event ) 
 	{
 		cout << "Handle " << event.getHandle() << endl
 			<< "Closure " << event.getClosure() << endl
@@ -60,7 +60,6 @@
 		Msg,
 		AckMsg,
 		GenericMsg,
-		PostMsg,
 		RefreshMsg,
 		StatusMsg,
 		UpdateMsg

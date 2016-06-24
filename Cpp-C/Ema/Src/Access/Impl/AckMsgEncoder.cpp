@@ -13,9 +13,9 @@
 using namespace thomsonreuters::ema::access;
 
 AckMsgEncoder::AckMsgEncoder() :
- MsgEncoder()
+	MsgEncoder()
 #ifdef __EMA_COPY_ON_SET__
- ,_text()
+	, _text()
 #endif
 {
 	rsslClearAckMsg( &_rsslAckMsg );
@@ -42,10 +42,10 @@ void AckMsgEncoder::extendedHeader( const EmaBuffer& extHeader )
 
 #ifdef __EMA_COPY_ON_SET__
 	_extendedHeader = extHeader;
-	_rsslAckMsg.extendedHeader.data = (char*)_extendedHeader.c_buf();
+	_rsslAckMsg.extendedHeader.data = ( char* )_extendedHeader.c_buf();
 	_rsslAckMsg.extendedHeader.length = _extendedHeader.length();
 #else
-	_rsslAckMsg.extendedHeader.data = (char*)extHeader.c_buf();
+	_rsslAckMsg.extendedHeader.data = ( char* )extHeader.c_buf();
 	_rsslAckMsg.extendedHeader.length = extHeader.length();
 #endif
 
@@ -69,7 +69,7 @@ void AckMsgEncoder::seqNum( UInt32 seqNum )
 
 RsslAckMsg* AckMsgEncoder::getRsslAckMsg() const
 {
-	return (RsslAckMsg*)&_rsslAckMsg;
+	return ( RsslAckMsg* )&_rsslAckMsg;
 }
 
 void AckMsgEncoder::nackCode( UInt8 nackCode )
@@ -84,10 +84,10 @@ void AckMsgEncoder::text( const EmaString& text )
 
 #ifdef __EMA_COPY_ON_SET__
 	_text = text;
-	_rsslAckMsg.text.data = (char*)_text.c_str();
+	_rsslAckMsg.text.data = ( char* )_text.c_str();
 	_rsslAckMsg.text.length = _text.length();
 #else
-	_rsslAckMsg.text.data = (char*)text.c_str();
+	_rsslAckMsg.text.data = ( char* )text.c_str();
 	_rsslAckMsg.text.length = text.length();
 #endif
 
@@ -110,10 +110,10 @@ void AckMsgEncoder::name( const EmaString& name )
 
 #ifdef __EMA_COPY_ON_SET__
 	_name = name;
-	_rsslAckMsg.msgBase.msgKey.name.data = (char*)_name.c_str();
+	_rsslAckMsg.msgBase.msgKey.name.data = ( char* )_name.c_str();
 	_rsslAckMsg.msgBase.msgKey.name.length = _name.length();
 #else
-	_rsslAckMsg.msgBase.msgKey.name.data = (char*)name.c_str();
+	_rsslAckMsg.msgBase.msgKey.name.data = ( char* )name.c_str();
 	_rsslAckMsg.msgBase.msgKey.name.length = name.length();
 #endif
 
@@ -181,7 +181,7 @@ void AckMsgEncoder::attrib( const ComplexType& attrib )
 		return;
 	}
 
-	_rsslAckMsg.msgBase.msgKey.encAttrib.data = (char*)_attrib.c_buf();
+	_rsslAckMsg.msgBase.msgKey.encAttrib.data = ( char* )_attrib.c_buf();
 	_rsslAckMsg.msgBase.msgKey.encAttrib.length = _attrib.length();
 #else
 	if ( attrib.hasEncoder() && attrib.getEncoder().ownsIterator() )
@@ -219,7 +219,7 @@ void AckMsgEncoder::serviceId( UInt16 serviceId )
 bool AckMsgEncoder::hasServiceId() const
 {
 	return ( ( _rsslAckMsg.flags & RSSL_AKMF_HAS_MSG_KEY ) &&
-		( _rsslAckMsg.msgBase.msgKey.flags & RSSL_MKF_HAS_SERVICE_ID ) ) ? true : false;
+	         ( _rsslAckMsg.msgBase.msgKey.flags & RSSL_MKF_HAS_SERVICE_ID ) ) ? true : false;
 }
 
 void AckMsgEncoder::domainType( UInt8 domainType )
@@ -239,7 +239,7 @@ void AckMsgEncoder::streamId( Int32 streamId )
 void AckMsgEncoder::payload( const ComplexType& load )
 {
 	acquireEncIterator();
-	
+
 	_rsslAckMsg.msgBase.containerType = convertDataType( load.getDataType() );
 
 #ifdef __EMA_COPY_ON_SET__
@@ -260,7 +260,7 @@ void AckMsgEncoder::payload( const ComplexType& load )
 		return;
 	}
 
-	_rsslAckMsg.msgBase.encDataBody.data = (char*)_payload.c_buf();
+	_rsslAckMsg.msgBase.encDataBody.data = ( char* )_payload.c_buf();
 	_rsslAckMsg.msgBase.encDataBody.length = _payload.length();
 #else
 	if ( loadhasEncoder() && load.getEncoder().ownsIterator() )
@@ -278,5 +278,5 @@ void AckMsgEncoder::payload( const ComplexType& load )
 
 RsslMsg* AckMsgEncoder::getRsslMsg() const
 {
-	return (RsslMsg*) &_rsslAckMsg;
+	return ( RsslMsg* ) &_rsslAckMsg;
 }

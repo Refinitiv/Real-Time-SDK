@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EMA: thomsonreuters::ema::access::TunnelStreamRequest Class Reference</title>
+<title>EMA: thomsonreuters::ema::access::ReqMsg Class Reference</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -104,89 +104,200 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
   <div id="nav-path" class="navpath">
     <ul>
-      <li class="navelem"><a class="el" href="a00150.html">thomsonreuters</a>      </li>
+      <li class="navelem"><a class="el" href="a00162.html">thomsonreuters</a>      </li>
       <li class="navelem"><b>ema</b>      </li>
       <li class="navelem"><b>access</b>      </li>
-      <li class="navelem"><a class="el" href="a00073.html">TunnelStreamRequest</a>      </li>
+      <li class="navelem"><a class="el" href="a00073.html">ReqMsg</a>      </li>
     </ul>
   </div>
 </div>
 <div class="header">
   <div class="summary">
-<a href="#friends">Friends</a>  </div>
+<a href="#pub-types">Public Types</a>  </div>
   <div class="headertitle">
-<div class="title">thomsonreuters::ema::access::TunnelStreamRequest Class Reference</div>  </div>
+<div class="title">thomsonreuters::ema::access::ReqMsg Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="a00073.html" title="TunnelStreamRequest encapsulates tunnel stream request parameters.">TunnelStreamRequest</a> encapsulates tunnel stream request parameters.  
+<p><a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> allows consumer application to express its interest in an item.  
  <a href="a00073.html#details">More...</a></p>
+<div class="dynheader">
+Inheritance diagram for thomsonreuters::ema::access::ReqMsg:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="a00073.png" usemap="#thomsonreuters::ema::access::ReqMsg_map" alt=""/>
+  <map id="thomsonreuters::ema::access::ReqMsg_map" name="thomsonreuters::ema::access::ReqMsg_map">
+<area href="a00027.html" title="Msg class is a parent class for all message representing classes." alt="thomsonreuters::ema::access::Msg" shape="rect" coords="0,112,255,136"/>
+<area href="a00005.html" title="ComplexType class is a parent class from whom all complex data types inherit." alt="thomsonreuters::ema::access::ComplexType" shape="rect" coords="0,56,255,80"/>
+<area href="a00011.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes..." alt="thomsonreuters::ema::access::Data" shape="rect" coords="0,0,255,24"/>
+</map>
+ </div></div>
 
-<p><a href="a00224.html">List of all members.</a></p>
+<p><a href="a00236.html">List of all members.</a></p>
 <table class="memberdecls">
+<tr><td colspan="2"><h2><a name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:afc9b74001773a196ea5d4050899deb15"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#afc9b74001773a196ea5d4050899deb15">Rate</a> { <br/>
+&#160;&#160;<a class="el" href="a00073.html#afc9b74001773a196ea5d4050899deb15a22a38a7e1833a432d3e0c120ad93a77d">TickByTickEnum</a> =  0, 
+<br/>
+&#160;&#160;<a class="el" href="a00073.html#afc9b74001773a196ea5d4050899deb15ae7d33fb530b426af254512e5e230bb57">JustInTimeConflatedEnum</a> =  0xFFFFFF00, 
+<br/>
+&#160;&#160;<a class="el" href="a00073.html#afc9b74001773a196ea5d4050899deb15a086c31d946d5d225430d61f5629fdf76">BestConflatedRateEnum</a> =  0xFFFFFFFF, 
+<br/>
+&#160;&#160;<a class="el" href="a00073.html#afc9b74001773a196ea5d4050899deb15ace40103fd873fc047732f9d84693a436">BestRateEnum</a> =  0xFFFFFFFE
+<br/>
+ }</td></tr>
+<tr class="memitem:a65ec7c5d05b4fc39f50da081e571f531"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a65ec7c5d05b4fc39f50da081e571f531">Timeliness</a> { <br/>
+&#160;&#160;<a class="el" href="a00073.html#a65ec7c5d05b4fc39f50da081e571f531a36fc3dc7403a23022016c795083c7919">RealTimeEnum</a> =  0, 
+<br/>
+&#160;&#160;<a class="el" href="a00073.html#a65ec7c5d05b4fc39f50da081e571f531aa3eaf4ff5f8e6ad08e482d60b49b0a00">BestDelayedTimelinessEnum</a> =  0xFFFFFFFF, 
+<br/>
+&#160;&#160;<a class="el" href="a00073.html#a65ec7c5d05b4fc39f50da081e571f531aabe7300b3e1de644352bc54da42f3ce6">BestTimelinessEnum</a> =  0xFFFFFFFE
+<br/>
+ }</td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Constructor</div></td></tr>
-<tr class="memitem:a573d2b8a6db335d1dbdf96ec4c8bf1ca"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a573d2b8a6db335d1dbdf96ec4c8bf1ca">TunnelStreamRequest</a> ()</td></tr>
-<tr class="memitem:a28984fa530e61aca77385c0d979d6815"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a28984fa530e61aca77385c0d979d6815">TunnelStreamRequest</a> (const <a class="el" href="a00073.html">TunnelStreamRequest</a> &amp;other)</td></tr>
+<tr class="memitem:a8f58e0332e18fc2c072da503e750b29b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a8f58e0332e18fc2c072da503e750b29b">ReqMsg</a> ()</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
-<tr class="memitem:a6e0686ecda2873d7c78d979740ff78fd"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a6e0686ecda2873d7c78d979740ff78fd">~TunnelStreamRequest</a> ()</td></tr>
-<tr><td colspan="2"><div class="groupHeader">Operations</div></td></tr>
-<tr class="memitem:a8559578656091e95c0a03e4359fad190"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">TunnelStreamRequest</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a8559578656091e95c0a03e4359fad190">operator=</a> (const <a class="el" href="a00073.html">TunnelStreamRequest</a> &amp;other)</td></tr>
-<tr class="memitem:a0e7e6e1d6c157dbe71aa0df751a8e2b9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">TunnelStreamRequest</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a0e7e6e1d6c157dbe71aa0df751a8e2b9">clear</a> ()</td></tr>
-<tr class="memitem:a9c72cd9fc1e5aa1c94b8a78b69e3d815"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">TunnelStreamRequest</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a9c72cd9fc1e5aa1c94b8a78b69e3d815">domainType</a> (UInt16 <a class="el" href="a00073.html#a9c72cd9fc1e5aa1c94b8a78b69e3d815">domainType</a>)</td></tr>
-<tr class="memitem:aea93bb4bfb450ad834dc24bfb76a6c43"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">TunnelStreamRequest</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#aea93bb4bfb450ad834dc24bfb76a6c43">serviceId</a> (UInt32 <a class="el" href="a00073.html#aea93bb4bfb450ad834dc24bfb76a6c43">serviceId</a>)</td></tr>
-<tr class="memitem:a5978a4ab1c67b56168a5e83047bce856"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">TunnelStreamRequest</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a5978a4ab1c67b56168a5e83047bce856">serviceName</a> (const <a class="el" href="a00017.html">EmaString</a> &amp;<a class="el" href="a00073.html#a5978a4ab1c67b56168a5e83047bce856">serviceName</a>)</td></tr>
-<tr class="memitem:a23ea45fe876a965d7646e4ee4566faeb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">TunnelStreamRequest</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a23ea45fe876a965d7646e4ee4566faeb">name</a> (const <a class="el" href="a00017.html">EmaString</a> &amp;<a class="el" href="a00073.html#a23ea45fe876a965d7646e4ee4566faeb">name</a>)</td></tr>
-<tr class="memitem:abcceb0b4184830c1506e6a9003b73a56"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">TunnelStreamRequest</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#abcceb0b4184830c1506e6a9003b73a56">responseTimeout</a> (UInt32 timeout=60)</td></tr>
-<tr class="memitem:a75d5769cd338eadb9ff89a0d38c54305"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">TunnelStreamRequest</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a75d5769cd338eadb9ff89a0d38c54305">guaranteedOutputBuffers</a> (UInt32 value=50)</td></tr>
-<tr class="memitem:a9f31b1f5f35941f635cc8726391be03d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">TunnelStreamRequest</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a9f31b1f5f35941f635cc8726391be03d">classOfService</a> (const <a class="el" href="a00004.html">ClassOfService</a> &amp;cos)</td></tr>
-<tr class="memitem:a6840de44609c663b0cf7779f1ccd915d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">TunnelStreamRequest</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a6840de44609c663b0cf7779f1ccd915d">loginReqMsg</a> (const <a class="el" href="a00067.html">ReqMsg</a> &amp;loginReq)</td></tr>
+<tr class="memitem:ab678e0b649d46517bcc3bea757d76c98"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#ab678e0b649d46517bcc3bea757d76c98">~ReqMsg</a> ()</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Accessors</div></td></tr>
-<tr class="memitem:a04077fe6682d3f66b4fd0bcc0b45fcad"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a04077fe6682d3f66b4fd0bcc0b45fcad">hasServiceId</a> () const </td></tr>
-<tr class="memitem:a1c250db191f8c3a4d967eabd81aca431"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a1c250db191f8c3a4d967eabd81aca431">hasServiceName</a> () const </td></tr>
-<tr class="memitem:a9a068abf09c933323f381b24911e7e39"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a9a068abf09c933323f381b24911e7e39">hasName</a> () const </td></tr>
-<tr class="memitem:a51e326b15ecb21bf34168f400c29f62b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a51e326b15ecb21bf34168f400c29f62b">hasLoginReqMsg</a> () const </td></tr>
-<tr class="memitem:a377b1b4181c6ffbe849aa2f2bb220abb"><td class="memItemLeft" align="right" valign="top">UInt16&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a377b1b4181c6ffbe849aa2f2bb220abb">getDomainType</a> () const </td></tr>
-<tr class="memitem:aae648475d4158adfe69912423e622642"><td class="memItemLeft" align="right" valign="top">UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#aae648475d4158adfe69912423e622642">getServiceId</a> () const </td></tr>
-<tr class="memitem:a908bad9090dafa8eb56ef97fd270c509"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a908bad9090dafa8eb56ef97fd270c509">getServiceName</a> () const </td></tr>
-<tr class="memitem:aafcd5bee74e9e0a6499896c5eeb57f67"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#aafcd5bee74e9e0a6499896c5eeb57f67">getName</a> () const </td></tr>
-<tr class="memitem:ad4c31e42f3f61bb864801554b78ee026"><td class="memItemLeft" align="right" valign="top">UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#ad4c31e42f3f61bb864801554b78ee026">getResponseTimeOut</a> () const </td></tr>
-<tr class="memitem:a57be982c3d89080f5c381669b12f8e2d"><td class="memItemLeft" align="right" valign="top">UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a57be982c3d89080f5c381669b12f8e2d">getGuaranteedOutputBuffers</a> () const </td></tr>
-<tr class="memitem:a16634fb6160e24158c9426f0a2aa9c92"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00004.html">ClassOfService</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a16634fb6160e24158c9426f0a2aa9c92">getClassOfService</a> () const </td></tr>
-<tr class="memitem:aa1b16df6f7070b12903d72810bd95df3"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00067.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#aa1b16df6f7070b12903d72810bd95df3">getLoginReqMsg</a> () const </td></tr>
-<tr><td colspan="2"><h2><a name="friends"></a>
-Friends</h2></td></tr>
-<tr class="memitem:a1f819c0791f235f5b51f74a04872b6ec"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1f819c0791f235f5b51f74a04872b6ec"></a>
-class&#160;</td><td class="memItemRight" valign="bottom"><b>TunnelItem</b></td></tr>
+<tr class="memitem:a858d95d3dc10e65808dbcbdf1e315f75"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a858d95d3dc10e65808dbcbdf1e315f75">getRateAsString</a> () const </td></tr>
+<tr class="memitem:a679b96c6f11cb8a28ca9fc375365fd58"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a679b96c6f11cb8a28ca9fc375365fd58">getTimelinessAsString</a> () const </td></tr>
+<tr class="memitem:a20bd218cb8a52618a0c03d43612fabce"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0">DataType::DataTypeEnum</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a20bd218cb8a52618a0c03d43612fabce">getDataType</a> () const </td></tr>
+<tr class="memitem:a660517cab4fc5bdb0c450689b8dedad4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00011.html#abe4fa6d2527b42396246aad6aa66d8b4">Data::DataCode</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a660517cab4fc5bdb0c450689b8dedad4">getCode</a> () const </td></tr>
+<tr class="memitem:a9f59f7881635c07437b27bcfc6de3013"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00015.html">EmaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a9f59f7881635c07437b27bcfc6de3013">getAsHex</a> () const </td></tr>
+<tr class="memitem:a56573d5690ed4217fe562bb4fd2e2f4d"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a56573d5690ed4217fe562bb4fd2e2f4d">toString</a> () const </td></tr>
+<tr class="memitem:ac79db40704c8099313836f8c05b62d13"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#ac79db40704c8099313836f8c05b62d13">hasPriority</a> () const </td></tr>
+<tr class="memitem:a5c52d0ce74e32ece32152367944f1714"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a5c52d0ce74e32ece32152367944f1714">hasQos</a> () const </td></tr>
+<tr class="memitem:aa6c7936422ee3d0f862b08301219d7eb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#aa6c7936422ee3d0f862b08301219d7eb">hasView</a> () const </td></tr>
+<tr class="memitem:a05532e4d5171e5f82db50ee56903ae62"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a05532e4d5171e5f82db50ee56903ae62">hasBatch</a> () const </td></tr>
+<tr class="memitem:a55a0e32c3d92a852fcc5eff883545bd3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a55a0e32c3d92a852fcc5eff883545bd3">hasServiceName</a> () const </td></tr>
+<tr class="memitem:ac7413f94981a550fb72ed606a600129d"><td class="memItemLeft" align="right" valign="top">UInt8&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#ac7413f94981a550fb72ed606a600129d">getPriorityClass</a> () const </td></tr>
+<tr class="memitem:af9aebd6bfa5df997d4b99d3c18279950"><td class="memItemLeft" align="right" valign="top">UInt16&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#af9aebd6bfa5df997d4b99d3c18279950">getPriorityCount</a> () const </td></tr>
+<tr class="memitem:a7a85ba830b11f4e21cf6666ecf6b35e1"><td class="memItemLeft" align="right" valign="top">UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a7a85ba830b11f4e21cf6666ecf6b35e1">getQosTimeliness</a> () const </td></tr>
+<tr class="memitem:a131084803c7f9692df3ab4e780e0b3ff"><td class="memItemLeft" align="right" valign="top">UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a131084803c7f9692df3ab4e780e0b3ff">getQosRate</a> () const </td></tr>
+<tr class="memitem:a1168a68bd5e25488373fe37f55b17cfd"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a1168a68bd5e25488373fe37f55b17cfd">getInitialImage</a> () const </td></tr>
+<tr class="memitem:a67169fea176205cb85c9a62ba15f57b3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a67169fea176205cb85c9a62ba15f57b3">getInterestAfterRefresh</a> () const </td></tr>
+<tr class="memitem:a11a0a918e21fe28cd8f62b6ad83994be"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a11a0a918e21fe28cd8f62b6ad83994be">getConflatedInUpdates</a> () const </td></tr>
+<tr class="memitem:afaffd8c2f9338fd555b531dae86fee7e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#afaffd8c2f9338fd555b531dae86fee7e">getPause</a> () const </td></tr>
+<tr class="memitem:a7238f2d1260e5b04074930e1183220b8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a7238f2d1260e5b04074930e1183220b8">getPrivateStream</a> () const </td></tr>
+<tr class="memitem:aa892e8a53f88a876be27de522378b2ea"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#aa892e8a53f88a876be27de522378b2ea">getServiceName</a> () const </td></tr>
+<tr><td colspan="2"><div class="groupHeader">Operations</div></td></tr>
+<tr class="memitem:a5bd160a8a89881f3ab85b679394635ad"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a5bd160a8a89881f3ab85b679394635ad">clear</a> ()</td></tr>
+<tr class="memitem:ac9ba0b6e1ed468cb8002f381e4412f9a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#ac9ba0b6e1ed468cb8002f381e4412f9a">streamId</a> (Int32 <a class="el" href="a00073.html#ac9ba0b6e1ed468cb8002f381e4412f9a">streamId</a>)</td></tr>
+<tr class="memitem:a6a8adc8c9ee9f830263c4c017f041a32"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a6a8adc8c9ee9f830263c4c017f041a32">domainType</a> (UInt16 <a class="el" href="a00073.html#a6a8adc8c9ee9f830263c4c017f041a32">domainType</a>=rdm::MMT_MARKET_PRICE)</td></tr>
+<tr class="memitem:a708d7a300ee4f9a4437d1b0ecd19882a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a708d7a300ee4f9a4437d1b0ecd19882a">name</a> (const <a class="el" href="a00017.html">EmaString</a> &amp;<a class="el" href="a00073.html#a708d7a300ee4f9a4437d1b0ecd19882a">name</a>)</td></tr>
+<tr class="memitem:a4cbf02c1e5876eef69321789e741bbb0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a4cbf02c1e5876eef69321789e741bbb0">nameType</a> (UInt8 <a class="el" href="a00073.html#a4cbf02c1e5876eef69321789e741bbb0">nameType</a>=rdm::INSTRUMENT_NAME_RIC)</td></tr>
+<tr class="memitem:aa9feac83336de46549a99e804695e85d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#aa9feac83336de46549a99e804695e85d">serviceName</a> (const <a class="el" href="a00017.html">EmaString</a> &amp;<a class="el" href="a00073.html#aa9feac83336de46549a99e804695e85d">serviceName</a>)</td></tr>
+<tr class="memitem:a73b2e268bdabde4a70cc1e54f43e55b0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a73b2e268bdabde4a70cc1e54f43e55b0">serviceId</a> (UInt32 <a class="el" href="a00073.html#a73b2e268bdabde4a70cc1e54f43e55b0">serviceId</a>)</td></tr>
+<tr class="memitem:ab0d09bad02ab1578542dfff0a222cea9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#ab0d09bad02ab1578542dfff0a222cea9">id</a> (Int32 <a class="el" href="a00073.html#ab0d09bad02ab1578542dfff0a222cea9">id</a>)</td></tr>
+<tr class="memitem:a6766a76bcf66d188c065e1daf5c22bf5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a6766a76bcf66d188c065e1daf5c22bf5">filter</a> (UInt32 <a class="el" href="a00073.html#a6766a76bcf66d188c065e1daf5c22bf5">filter</a>)</td></tr>
+<tr class="memitem:a3bf74f699643d589d5a2e27bfe88e24d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a3bf74f699643d589d5a2e27bfe88e24d">priority</a> (UInt8 priorityClass=1, UInt16 priorityCount=1)</td></tr>
+<tr class="memitem:a2d2f0f1e0718bdfe5349fe9cd85e30db"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a2d2f0f1e0718bdfe5349fe9cd85e30db">qos</a> (UInt32 timeliness=<a class="el" href="a00073.html#a65ec7c5d05b4fc39f50da081e571f531aabe7300b3e1de644352bc54da42f3ce6">BestTimelinessEnum</a>, UInt32 rate=<a class="el" href="a00073.html#afc9b74001773a196ea5d4050899deb15ace40103fd873fc047732f9d84693a436">BestRateEnum</a>)</td></tr>
+<tr class="memitem:aa8000b9b4192d47f45f5ee42d4522874"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#aa8000b9b4192d47f45f5ee42d4522874">attrib</a> (const <a class="el" href="a00005.html">ComplexType</a> &amp;data)</td></tr>
+<tr class="memitem:a2e0ddb1cca8ea05c27096966c710924c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a2e0ddb1cca8ea05c27096966c710924c">payload</a> (const <a class="el" href="a00005.html">ComplexType</a> &amp;data)</td></tr>
+<tr class="memitem:a3783a455e0448b012e87e5490c1359dc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a3783a455e0448b012e87e5490c1359dc">extendedHeader</a> (const <a class="el" href="a00015.html">EmaBuffer</a> &amp;Buffer)</td></tr>
+<tr class="memitem:a9cda17f7383cac5ff5e7ba1eedaca613"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a9cda17f7383cac5ff5e7ba1eedaca613">initialImage</a> (bool <a class="el" href="a00073.html#a9cda17f7383cac5ff5e7ba1eedaca613">initialImage</a>=true)</td></tr>
+<tr class="memitem:a1d4cabad14e0151f209bf182594334ee"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a1d4cabad14e0151f209bf182594334ee">interestAfterRefresh</a> (bool <a class="el" href="a00073.html#a1d4cabad14e0151f209bf182594334ee">interestAfterRefresh</a>=true)</td></tr>
+<tr class="memitem:a0a10d1183b98aee643c208c096446535"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a0a10d1183b98aee643c208c096446535">pause</a> (bool <a class="el" href="a00073.html#a0a10d1183b98aee643c208c096446535">pause</a>=false)</td></tr>
+<tr class="memitem:a5adf76184cdfcb4d75d4ad2215dbba73"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a5adf76184cdfcb4d75d4ad2215dbba73">conflatedInUpdates</a> (bool <a class="el" href="a00073.html#a5adf76184cdfcb4d75d4ad2215dbba73">conflatedInUpdates</a>=false)</td></tr>
+<tr class="memitem:a908495a929cf6aa2216aced9e45d55f3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a908495a929cf6aa2216aced9e45d55f3">privateStream</a> (bool <a class="el" href="a00073.html#a908495a929cf6aa2216aced9e45d55f3">privateStream</a>=false)</td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p><a class="el" href="a00073.html" title="TunnelStreamRequest encapsulates tunnel stream request parameters.">TunnelStreamRequest</a> contains options used for creation of a tunnel stream.</p>
-<div class="fragment"><pre class="fragment">    <span class="comment">// create and populate TunnelStreamRequest object</span>
-    ClassOfService cos;
-    cos.authentication( CosAuthentication().type( <a class="code" href="a00006.html#a1606fa1032d25fe6b84e00b54d2d0a3ca1d205e79e3395f760e2ffa3a3795ae47">CosAuthentication::OmmLoginEnum</a> ) )
-        .dataIntegrity( CosDataIntegrity().type( <a class="code" href="a00008.html#ae17ed0788cf66b27802764a9d1042610af7e10cd4a8fb85c5cca77c973aa6a6a3">CosDataIntegrity::ReliableEnum</a> ) )
-        .flowControl( CosFlowControl().type( <a class="code" href="a00009.html#ac0ad3e998d1357c7da74728bbad46931a3cfd69d169bdb271b6d5c5db27cac82d">CosFlowControl::BidirectionalEnum</a> )
-                                    .recvWindowSize( 1200 )
-                                    .sendWindowSize( 1200 ) )
-        .guarantee( CosGuarantee().type( <a class="code" href="a00010.html#a8f7f68604c308a7f8b654ea2788b5f2eac755b98a8b9de4a4da41d02b853ad3b4">CosGuarantee::NoneEnum</a> ) );
+<div class="textblock"><p>Among other attributes, <a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> conveys item's name, service, domain type, and desired quality of service. <a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> may also be used to: specify application interest in a dynamic view, open a batch of items, or request a symbol list item with its data.</p>
+<p>The following code snippet shows specification of <a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> and registration of interest in this item.</p>
+<div class="fragment"><pre class="fragment">    <span class="keyword">class </span>AppClient : <span class="keyword">public</span> OmmConsumerClient { ... }
 
-    <a class="code" href="a00073.html#a573d2b8a6db335d1dbdf96ec4c8bf1ca">TunnelStreamRequest</a> tsr;
-    tsr.classOfService( cos )
-        .domainType( MMT_SYSTEM )
-        .name( <span class="stringliteral">&quot;TUNNEL_STREAM&quot;</span> )
-        .serviceId( 1 )
-        .responseTimeout( 45 );
-</pre></div><dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00004.html" title="ClassOfService encapsulates behaviours of tunnel stream.">ClassOfService</a>, <a class="el" href="a00033.html" title="OmmConsumer class encapsulates functionality of an Omm consuming type application.">OmmConsumer</a> </dd></dl>
+    AppClient client;
+    OmmConsumer consumer( OmmConsumerConfig().host( <span class="stringliteral">&quot;1.1.1.1:14002&quot;</span> ) );
+    <a class="code" href="a00073.html#a8f58e0332e18fc2c072da503e750b29b">ReqMsg</a> reqMsg;
+    reqMsg.name( <span class="stringliteral">&quot;IBM.N&quot;</span> ).serviceName( <span class="stringliteral">&quot;DIRECT_FEED&quot;</span> ).priority( 2, 1 );
 
-<p>Definition at line <a class="el" href="a00141_source.html#l00586">586</a> of file <a class="el" href="a00141_source.html">TunnelStreamRequest.h</a>.</p>
-</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="a573d2b8a6db335d1dbdf96ec4c8bf1ca"></a>
+    UInt64 itemHandle = consumer.registerClient( reqMsg, appClient );
+</pre></div><dl class="section remark"><dt>Remarks:</dt><dd>Calling get***() method on an optional member of <a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> must be preceded by a call to respective has***() method. </dd>
+<dd>
+Objects of this class are intended to be short lived or rather transitional. </dd>
+<dd>
+This class is designed to efficiently perform setting and getting of information from <a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a>. </dd>
+<dd>
+Objects of this class are not cache-able. </dd>
+<dd>
+Decoding of just encoded <a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> in the same application is not supported. </dd>
+<dd>
+All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free Method</a>.</dd></dl>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00011.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a>, <a class="el" href="a00027.html" title="Msg class is a parent class for all message representing classes.">Msg</a>, <a class="el" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>, <a class="el" href="a00015.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> </dd></dl>
+
+<p>Definition at line <a class="el" href="a00147_source.html#l00058">58</a> of file <a class="el" href="a00147_source.html">ReqMsg.h</a>.</p>
+</div><hr/><h2>Member Enumeration Documentation</h2>
+<a class="anchor" id="afc9b74001773a196ea5d4050899deb15"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html#a573d2b8a6db335d1dbdf96ec4c8bf1ca">thomsonreuters::ema::access::TunnelStreamRequest::TunnelStreamRequest</a> </td>
+          <td class="memname">enum <a class="el" href="a00073.html#afc9b74001773a196ea5d4050899deb15">thomsonreuters::ema::access::ReqMsg::Rate</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>An enumeration representing <a class="el" href="a00071.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> Rate. </p>
+<dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em><a class="anchor" id="afc9b74001773a196ea5d4050899deb15a22a38a7e1833a432d3e0c120ad93a77d"></a>TickByTickEnum</em>&nbsp;</td><td>
+<p>Rate is Tick By Tick, indicates every change to information is conveyed </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="afc9b74001773a196ea5d4050899deb15ae7d33fb530b426af254512e5e230bb57"></a>JustInTimeConflatedEnum</em>&nbsp;</td><td>
+<p>Rate is Just In Time Conflated, indicates extreme bursts of data may be conflated </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="afc9b74001773a196ea5d4050899deb15a086c31d946d5d225430d61f5629fdf76"></a>BestConflatedRateEnum</em>&nbsp;</td><td>
+<p>Request Rate with range from 1 millisecond conflation to maximum conflation. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="afc9b74001773a196ea5d4050899deb15ace40103fd873fc047732f9d84693a436"></a>BestRateEnum</em>&nbsp;</td><td>
+<p>Request Rate with range from tick-by-tick to maximum conflation. </p>
+</td></tr>
+</table>
+</dd>
+</dl>
+
+<p>Definition at line <a class="el" href="a00147_source.html#l00065">65</a> of file <a class="el" href="a00147_source.html">ReqMsg.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a65ec7c5d05b4fc39f50da081e571f531"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="a00073.html#a65ec7c5d05b4fc39f50da081e571f531">thomsonreuters::ema::access::ReqMsg::Timeliness</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>An enumeration representing <a class="el" href="a00071.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> Timeliness. </p>
+<dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em><a class="anchor" id="a65ec7c5d05b4fc39f50da081e571f531a36fc3dc7403a23022016c795083c7919"></a>RealTimeEnum</em>&nbsp;</td><td>
+<p>Timeliness is RealTime, indicates information is updated as soon as new information becomes available </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a65ec7c5d05b4fc39f50da081e571f531aa3eaf4ff5f8e6ad08e482d60b49b0a00"></a>BestDelayedTimelinessEnum</em>&nbsp;</td><td>
+<p>Request Timeliness with range from one second delay to maximum delay. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a65ec7c5d05b4fc39f50da081e571f531aabe7300b3e1de644352bc54da42f3ce6"></a>BestTimelinessEnum</em>&nbsp;</td><td>
+<p>Request Timeliness with range from real-time to maximum delay. </p>
+</td></tr>
+</table>
+</dd>
+</dl>
+
+<p>Definition at line <a class="el" href="a00147_source.html#l00081">81</a> of file <a class="el" href="a00147_source.html">ReqMsg.h</a>.</p>
+
+</div>
+</div>
+<hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a8f58e0332e18fc2c072da503e750b29b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00073.html#a8f58e0332e18fc2c072da503e750b29b">thomsonreuters::ema::access::ReqMsg::ReqMsg</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -194,40 +305,16 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>TunnelItem</b></td><
       </table>
 </div>
 <div class="memdoc">
-<p>Default constructor </p>
+<p>Constructs <a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a>. </p>
 
 </div>
 </div>
-<a class="anchor" id="a28984fa530e61aca77385c0d979d6815"></a>
+<a class="anchor" id="ab678e0b649d46517bcc3bea757d76c98"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html#a573d2b8a6db335d1dbdf96ec4c8bf1ca">thomsonreuters::ema::access::TunnelStreamRequest::TunnelStreamRequest</a> </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="a00073.html">TunnelStreamRequest</a> &amp;&#160;</td>
-          <td class="paramname"><em>other</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Copy constructor </p>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">other</td><td>specifies <a class="el" href="a00073.html" title="TunnelStreamRequest encapsulates tunnel stream request parameters.">TunnelStreamRequest</a> object to copy from </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a class="anchor" id="a6e0686ecda2873d7c78d979740ff78fd"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual <a class="el" href="a00073.html#a6e0686ecda2873d7c78d979740ff78fd">thomsonreuters::ema::access::TunnelStreamRequest::~TunnelStreamRequest</a> </td>
+          <td class="memname">virtual <a class="el" href="a00073.html#ab678e0b649d46517bcc3bea757d76c98">thomsonreuters::ema::access::ReqMsg::~ReqMsg</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td><code> [virtual]</code></td>
@@ -235,29 +322,29 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>TunnelItem</b></td><
       </table>
 </div>
 <div class="memdoc">
-<p>Destructor </p>
+<p>Destructor. </p>
 
 </div>
 </div>
 <hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="a9f31b1f5f35941f635cc8726391be03d"></a>
+<a class="anchor" id="aa8000b9b4192d47f45f5ee42d4522874"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html">TunnelStreamRequest</a>&amp; <a class="el" href="a00073.html#a9f31b1f5f35941f635cc8726391be03d">thomsonreuters::ema::access::TunnelStreamRequest::classOfService</a> </td>
+          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#aa8000b9b4192d47f45f5ee42d4522874">thomsonreuters::ema::access::ReqMsg::attrib</a> </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="a00004.html">ClassOfService</a> &amp;&#160;</td>
-          <td class="paramname"><em>cos</em></td><td>)</td>
+          <td class="paramtype">const <a class="el" href="a00005.html">ComplexType</a> &amp;&#160;</td>
+          <td class="paramname"><em>data</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Specifies the <a class="el" href="a00004.html" title="ClassOfService encapsulates behaviours of tunnel stream.">ClassOfService</a>. </p>
+<p>Specifies <a class="el" href="a00003.html" title="Attrib conveys message attribute information.">Attrib</a>. </p>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">cos</td><td>specifies <a class="el" href="a00004.html" title="ClassOfService encapsulates behaviours of tunnel stream.">ClassOfService</a> </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">attrib</td><td>an object of <a class="el" href="a00005.html" title="ComplexType class is a parent class from whom all complex data types inherit.">ComplexType</a> </td></tr>
   </table>
   </dd>
 </dl>
@@ -265,12 +352,12 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>TunnelItem</b></td><
 
 </div>
 </div>
-<a class="anchor" id="a0e7e6e1d6c157dbe71aa0df751a8e2b9"></a>
+<a class="anchor" id="a5bd160a8a89881f3ab85b679394635ad"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html">TunnelStreamRequest</a>&amp; <a class="el" href="a00073.html#a0e7e6e1d6c157dbe71aa0df751a8e2b9">thomsonreuters::ema::access::TunnelStreamRequest::clear</a> </td>
+          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a5bd160a8a89881f3ab85b679394635ad">thomsonreuters::ema::access::ReqMsg::clear</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -278,228 +365,111 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>TunnelItem</b></td><
       </table>
 </div>
 <div class="memdoc">
-<p>Clears object by setting defaults </p>
+<p>Clears the <a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a>. </p>
+<dl class="section remark"><dt>Remarks:</dt><dd>Invoking <a class="el" href="a00073.html#a5bd160a8a89881f3ab85b679394635ad">clear()</a> method clears all the values and resets all the defaults </dd></dl>
 <dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a9c72cd9fc1e5aa1c94b8a78b69e3d815"></a>
+<a class="anchor" id="a5adf76184cdfcb4d75d4ad2215dbba73"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html">TunnelStreamRequest</a>&amp; <a class="el" href="a00073.html#a9c72cd9fc1e5aa1c94b8a78b69e3d815">thomsonreuters::ema::access::TunnelStreamRequest::domainType</a> </td>
+          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a5adf76184cdfcb4d75d4ad2215dbba73">thomsonreuters::ema::access::ReqMsg::conflatedInUpdates</a> </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>conflatedInUpdates</em> = <code>false</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Specifies ConflatedInUpdates. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">conflatedInUpdates</td><td>specifies if conflated update is requested (default value is false) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a6a8adc8c9ee9f830263c4c017f041a32"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a6a8adc8c9ee9f830263c4c017f041a32">thomsonreuters::ema::access::ReqMsg::domainType</a> </td>
           <td>(</td>
           <td class="paramtype">UInt16&#160;</td>
-          <td class="paramname"><em>domainType</em></td><td>)</td>
+          <td class="paramname"><em>domainType</em> = <code>rdm::MMT_MARKET_PRICE</code></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
 <p>Specifies DomainType. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00066.html" title="OmmUnsupportedDomainTypeException is thrown when a domain type value is greater than 255...">OmmUnsupportedDomainTypeException</a></td><td>if domainType is greater than 255 </td></tr>
+  </table>
+  </dd>
+</dl>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">domainType</td><td>specifies RDM Message Model Type </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">domainType</td><td>specifies RDM Message Model Type (default value is rdm::MMT_MARKET_PRICE) </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
-<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
-  <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00060.html" title="OmmUnsupportedDomainTypeExceptionis thrown when a domain type value is greater than 255...">OmmUnsupportedDomainTypeException</a></td><td>if domainType is greater than 255 </td></tr>
+
+</div>
+</div>
+<a class="anchor" id="a3783a455e0448b012e87e5490c1359dc"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a3783a455e0448b012e87e5490c1359dc">thomsonreuters::ema::access::ReqMsg::extendedHeader</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00015.html">EmaBuffer</a> &amp;&#160;</td>
+          <td class="paramname"><em>Buffer</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Specifies ExtendedHeader. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">buffer</td><td>an <a class="el" href="a00015.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> containing extendedHeader information </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a16634fb6160e24158c9426f0a2aa9c92"></a>
+<a class="anchor" id="a6766a76bcf66d188c065e1daf5c22bf5"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="a00004.html">ClassOfService</a>&amp; <a class="el" href="a00073.html#a16634fb6160e24158c9426f0a2aa9c92">thomsonreuters::ema::access::TunnelStreamRequest::getClassOfService</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Retursn <a class="el" href="a00004.html" title="ClassOfService encapsulates behaviours of tunnel stream.">ClassOfService</a>. </p>
-<dl class="section return"><dt>Returns:</dt><dd>class of service </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a377b1b4181c6ffbe849aa2f2bb220abb"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">UInt16 <a class="el" href="a00073.html#a377b1b4181c6ffbe849aa2f2bb220abb">thomsonreuters::ema::access::TunnelStreamRequest::getDomainType</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns DomainType. </p>
-<dl class="section return"><dt>Returns:</dt><dd>domain type </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a57be982c3d89080f5c381669b12f8e2d"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">UInt32 <a class="el" href="a00073.html#a57be982c3d89080f5c381669b12f8e2d">thomsonreuters::ema::access::TunnelStreamRequest::getGuaranteedOutputBuffers</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns number of GuaranteedOutputBuffers. </p>
-<dl class="section return"><dt>Returns:</dt><dd>number of guaranteed output buffers </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="aa1b16df6f7070b12903d72810bd95df3"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="a00067.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#aa1b16df6f7070b12903d72810bd95df3">thomsonreuters::ema::access::TunnelStreamRequest::getLoginReqMsg</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns Login request message </p>
-<dl class="section return"><dt>Returns:</dt><dd>login request message </dd></dl>
-<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
-  <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if login request message is not set </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a class="anchor" id="aafcd5bee74e9e0a6499896c5eeb57f67"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="a00017.html">EmaString</a>&amp; <a class="el" href="a00073.html#aafcd5bee74e9e0a6499896c5eeb57f67">thomsonreuters::ema::access::TunnelStreamRequest::getName</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns tunnel stream name. </p>
-<dl class="section return"><dt>Returns:</dt><dd>tunnel stream name </dd></dl>
-<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
-  <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if name is not set </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a class="anchor" id="ad4c31e42f3f61bb864801554b78ee026"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">UInt32 <a class="el" href="a00073.html#ad4c31e42f3f61bb864801554b78ee026">thomsonreuters::ema::access::TunnelStreamRequest::getResponseTimeOut</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns ResponseTimeOut. </p>
-<dl class="section return"><dt>Returns:</dt><dd>response timeOut </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="aae648475d4158adfe69912423e622642"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">UInt32 <a class="el" href="a00073.html#aae648475d4158adfe69912423e622642">thomsonreuters::ema::access::TunnelStreamRequest::getServiceId</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns ServiceId. </p>
-<dl class="section return"><dt>Returns:</dt><dd>service id </dd></dl>
-<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
-  <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if service id is not set </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a class="anchor" id="a908bad9090dafa8eb56ef97fd270c509"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="a00017.html">EmaString</a>&amp; <a class="el" href="a00073.html#a908bad9090dafa8eb56ef97fd270c509">thomsonreuters::ema::access::TunnelStreamRequest::getServiceName</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns ServiceNme. </p>
-<dl class="section return"><dt>Returns:</dt><dd>service name </dd></dl>
-<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
-  <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if service name is not set </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a class="anchor" id="a75d5769cd338eadb9ff89a0d38c54305"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="a00073.html">TunnelStreamRequest</a>&amp; <a class="el" href="a00073.html#a75d5769cd338eadb9ff89a0d38c54305">thomsonreuters::ema::access::TunnelStreamRequest::guaranteedOutputBuffers</a> </td>
+          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a6766a76bcf66d188c065e1daf5c22bf5">thomsonreuters::ema::access::ReqMsg::filter</a> </td>
           <td>(</td>
           <td class="paramtype">UInt32&#160;</td>
-          <td class="paramname"><em>value</em> = <code>50</code></td><td>)</td>
+          <td class="paramname"><em>filter</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Specifies the number of guaranteed output buffers available for the tunnel stream. </p>
+<p>Specifies Filter. </p>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>specifies number of output buffers </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">filter</td><td>specifies filter </td></tr>
   </table>
   </dd>
 </dl>
@@ -507,12 +477,52 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>TunnelItem</b></td><
 
 </div>
 </div>
-<a class="anchor" id="a51e326b15ecb21bf34168f400c29f62b"></a>
+<a class="anchor" id="a9f59f7881635c07437b27bcfc6de3013"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="a00073.html#a51e326b15ecb21bf34168f400c29f62b">thomsonreuters::ema::access::TunnelStreamRequest::hasLoginReqMsg</a> </td>
+          <td class="memname">const <a class="el" href="a00015.html">EmaBuffer</a>&amp; <a class="el" href="a00073.html#a9f59f7881635c07437b27bcfc6de3013">thomsonreuters::ema::access::ReqMsg::getAsHex</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns a buffer that in turn provides an alphanumeric null-terminated hexadecimal string representation. </p>
+<dl class="section return"><dt>Returns:</dt><dd>a buffer with the message hex information </dd></dl>
+
+<p>Implements <a class="el" href="a00011.html#ad354334439d238097b04c5f644667dbf">thomsonreuters::ema::access::Data</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a660517cab4fc5bdb0c450689b8dedad4"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00011.html#abe4fa6d2527b42396246aad6aa66d8b4">Data::DataCode</a> <a class="el" href="a00073.html#a660517cab4fc5bdb0c450689b8dedad4">thomsonreuters::ema::access::ReqMsg::getCode</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the Code, which indicates a special state of a <a class="el" href="a00012.html" title="DataType class provides enumeration representing Omm data types.">DataType</a>. </p>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00011.html#abe4fa6d2527b42396246aad6aa66d8b4a88c2bb1c2e8f901631aa5ad9a0d1dc14">Data::NoCodeEnum</a> </dd></dl>
+
+<p>Implements <a class="el" href="a00011.html#a8510d00b7a009f32c9c6de8adcb45d96">thomsonreuters::ema::access::Data</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a11a0a918e21fe28cd8f62b6ad83994be"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00073.html#a11a0a918e21fe28cd8f62b6ad83994be">thomsonreuters::ema::access::ReqMsg::getConflatedInUpdates</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -520,17 +530,37 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>TunnelItem</b></td><
       </table>
 </div>
 <div class="memdoc">
-<p>Indicates presence of login request message. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if login request message is set </dd></dl>
+<p>Returns ConflatedInUpdates. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if conflation is requested; false otherwise </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a9a068abf09c933323f381b24911e7e39"></a>
+<a class="anchor" id="a20bd218cb8a52618a0c03d43612fabce"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="a00073.html#a9a068abf09c933323f381b24911e7e39">thomsonreuters::ema::access::TunnelStreamRequest::hasName</a> </td>
+          <td class="memname"><a class="el" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0">DataType::DataTypeEnum</a> <a class="el" href="a00073.html#a20bd218cb8a52618a0c03d43612fabce">thomsonreuters::ema::access::ReqMsg::getDataType</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the <a class="el" href="a00012.html" title="DataType class provides enumeration representing Omm data types.">DataType</a>, which is the type of Omm data. Results in this class type. </p>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0a88b598329adb0448ea529dfae0bc85f0">DataType::ReqMsgEnum</a> </dd></dl>
+
+<p>Implements <a class="el" href="a00011.html#a361e280aecab30c47386a3e08ce325da">thomsonreuters::ema::access::Data</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a1168a68bd5e25488373fe37f55b17cfd"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00073.html#a1168a68bd5e25488373fe37f55b17cfd">thomsonreuters::ema::access::ReqMsg::getInitialImage</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -538,17 +568,17 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>TunnelItem</b></td><
       </table>
 </div>
 <div class="memdoc">
-<p>Indicates presence of name </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if service name is set </dd></dl>
+<p>Returns InitialImage. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if an initial image is requested; false otherwise </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a04077fe6682d3f66b4fd0bcc0b45fcad"></a>
+<a class="anchor" id="a67169fea176205cb85c9a62ba15f57b3"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="a00073.html#a04077fe6682d3f66b4fd0bcc0b45fcad">thomsonreuters::ema::access::TunnelStreamRequest::hasServiceId</a> </td>
+          <td class="memname">bool <a class="el" href="a00073.html#a67169fea176205cb85c9a62ba15f57b3">thomsonreuters::ema::access::ReqMsg::getInterestAfterRefresh</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -556,17 +586,17 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>TunnelItem</b></td><
       </table>
 </div>
 <div class="memdoc">
-<p>Indicates presence of service id </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if service id is set </dd></dl>
+<p>Returns InterestAfterRefresh. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if an interest after refresh is requested; false otherwise </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a1c250db191f8c3a4d967eabd81aca431"></a>
+<a class="anchor" id="afaffd8c2f9338fd555b531dae86fee7e"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="a00073.html#a1c250db191f8c3a4d967eabd81aca431">thomsonreuters::ema::access::TunnelStreamRequest::hasServiceName</a> </td>
+          <td class="memname">bool <a class="el" href="a00073.html#afaffd8c2f9338fd555b531dae86fee7e">thomsonreuters::ema::access::ReqMsg::getPause</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -574,43 +604,361 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>TunnelItem</b></td><
       </table>
 </div>
 <div class="memdoc">
-<p>Indicates presence of service name </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if service name is set </dd></dl>
+<p>Returns Pause. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if pause is requested; false otherwise </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a6840de44609c663b0cf7779f1ccd915d"></a>
+<a class="anchor" id="ac7413f94981a550fb72ed606a600129d"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html">TunnelStreamRequest</a>&amp; <a class="el" href="a00073.html#a6840de44609c663b0cf7779f1ccd915d">thomsonreuters::ema::access::TunnelStreamRequest::loginReqMsg</a> </td>
+          <td class="memname">UInt8 <a class="el" href="a00073.html#ac7413f94981a550fb72ed606a600129d">thomsonreuters::ema::access::ReqMsg::getPriorityClass</a> </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="a00067.html">ReqMsg</a> &amp;&#160;</td>
-          <td class="paramname"><em>loginReq</em></td><td>)</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns PriorityClass. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00073.html#ac79db40704c8099313836f8c05b62d13">hasPriority()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>priority class </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="af9aebd6bfa5df997d4b99d3c18279950"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">UInt16 <a class="el" href="a00073.html#af9aebd6bfa5df997d4b99d3c18279950">thomsonreuters::ema::access::ReqMsg::getPriorityCount</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns PriorityCount. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00073.html#ac79db40704c8099313836f8c05b62d13">hasPriority()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>priority count </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a7238f2d1260e5b04074930e1183220b8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00073.html#a7238f2d1260e5b04074930e1183220b8">thomsonreuters::ema::access::ReqMsg::getPrivateStream</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns PrivateStream. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if private stream is requested; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a131084803c7f9692df3ab4e780e0b3ff"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">UInt32 <a class="el" href="a00073.html#a131084803c7f9692df3ab4e780e0b3ff">thomsonreuters::ema::access::ReqMsg::getQosRate</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns QosRate. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00073.html#a5c52d0ce74e32ece32152367944f1714">hasQos()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00071.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> Rate </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a7a85ba830b11f4e21cf6666ecf6b35e1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">UInt32 <a class="el" href="a00073.html#a7a85ba830b11f4e21cf6666ecf6b35e1">thomsonreuters::ema::access::ReqMsg::getQosTimeliness</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns QosTimeliness. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00073.html#a5c52d0ce74e32ece32152367944f1714">hasQos()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00071.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> Timeliness </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a858d95d3dc10e65808dbcbdf1e315f75"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00017.html">EmaString</a>&amp; <a class="el" href="a00073.html#a858d95d3dc10e65808dbcbdf1e315f75">thomsonreuters::ema::access::ReqMsg::getRateAsString</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the Rate value as a string format. </p>
+<dl class="section return"><dt>Returns:</dt><dd>string representation of <a class="el" href="a00071.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> Rate </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aa892e8a53f88a876be27de522378b2ea"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00017.html">EmaString</a>&amp; <a class="el" href="a00073.html#aa892e8a53f88a876be27de522378b2ea">thomsonreuters::ema::access::ReqMsg::getServiceName</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the ServiceName within the MsgKey. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00073.html#a55a0e32c3d92a852fcc5eff883545bd3">hasServiceName()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>service name </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a679b96c6f11cb8a28ca9fc375365fd58"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00017.html">EmaString</a>&amp; <a class="el" href="a00073.html#a679b96c6f11cb8a28ca9fc375365fd58">thomsonreuters::ema::access::ReqMsg::getTimelinessAsString</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the Timeliness value as a string format. </p>
+<dl class="section return"><dt>Returns:</dt><dd>string representation of <a class="el" href="a00071.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> Timeliness </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a05532e4d5171e5f82db50ee56903ae62"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00073.html#a05532e4d5171e5f82db50ee56903ae62">thomsonreuters::ema::access::ReqMsg::hasBatch</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of Batch. </p>
+<dl class="section remark"><dt>Remarks:</dt><dd>Batch specification is an optional member of <a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd>true if Batch specification is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ac79db40704c8099313836f8c05b62d13"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00073.html#ac79db40704c8099313836f8c05b62d13">thomsonreuters::ema::access::ReqMsg::hasPriority</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of Priority. </p>
+<dl class="section remark"><dt>Remarks:</dt><dd>Priority is an optional member of <a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd>true if priority is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a5c52d0ce74e32ece32152367944f1714"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00073.html#a5c52d0ce74e32ece32152367944f1714">thomsonreuters::ema::access::ReqMsg::hasQos</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of <a class="el" href="a00071.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a>. </p>
+<dl class="section remark"><dt>Remarks:</dt><dd><a class="el" href="a00071.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> is an optional member of <a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd>true if <a class="el" href="a00071.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a55a0e32c3d92a852fcc5eff883545bd3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00073.html#a55a0e32c3d92a852fcc5eff883545bd3">thomsonreuters::ema::access::ReqMsg::hasServiceName</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of the ServiceName within the MsgKey. </p>
+<dl class="section remark"><dt>Remarks:</dt><dd>ServiceName is an optional member of <a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a>. </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd>true if service name is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aa6c7936422ee3d0f862b08301219d7eb"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00073.html#aa6c7936422ee3d0f862b08301219d7eb">thomsonreuters::ema::access::ReqMsg::hasView</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of View. </p>
+<dl class="section remark"><dt>Remarks:</dt><dd>View specification is an optional member of <a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd>true if View is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ab0d09bad02ab1578542dfff0a222cea9"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#ab0d09bad02ab1578542dfff0a222cea9">thomsonreuters::ema::access::ReqMsg::id</a> </td>
+          <td>(</td>
+          <td class="paramtype">Int32&#160;</td>
+          <td class="paramname"><em>id</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Specifies login request message to be used if authentication type is set to <a class="el" href="a00006.html#a1606fa1032d25fe6b84e00b54d2d0a3ca1d205e79e3395f760e2ffa3a3795ae47">CosAuthentication::OmmLoginEnum</a>. </p>
+<p>Specifies Id. </p>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">loginReq</td><td>specifies the OMM login request message </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">id</td><td>specifies Id </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
-<dl class="section remark"><dt>Remarks:</dt><dd>if not specified, <a class="el" href="a00033.html" title="OmmConsumer class encapsulates functionality of an Omm consuming type application.">OmmConsumer</a> will use same login request message as one used for establihment of the connection </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a23ea45fe876a965d7646e4ee4566faeb"></a>
+<a class="anchor" id="a9cda17f7383cac5ff5e7ba1eedaca613"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html">TunnelStreamRequest</a>&amp; <a class="el" href="a00073.html#a23ea45fe876a965d7646e4ee4566faeb">thomsonreuters::ema::access::TunnelStreamRequest::name</a> </td>
+          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a9cda17f7383cac5ff5e7ba1eedaca613">thomsonreuters::ema::access::ReqMsg::initialImage</a> </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>initialImage</em> = <code>true</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Specifies InitialImage. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">initialImage</td><td>specifies if initial image / refresh is requested (default value is true) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a1d4cabad14e0151f209bf182594334ee"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a1d4cabad14e0151f209bf182594334ee">thomsonreuters::ema::access::ReqMsg::interestAfterRefresh</a> </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>interestAfterRefresh</em> = <code>true</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Specifies InterestAfterRefresh. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">interestAfterRefresh</td><td>specifies if streaming or snapshot item is requested default value is true / streaming item) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a708d7a300ee4f9a4437d1b0ecd19882a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a708d7a300ee4f9a4437d1b0ecd19882a">thomsonreuters::ema::access::ReqMsg::name</a> </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td>
           <td class="paramname"><em>name</em></td><td>)</td>
@@ -619,10 +967,10 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>TunnelItem</b></td><
       </table>
 </div>
 <div class="memdoc">
-<p>Specifies the tunnel stream name, which is provided to the remote application. </p>
+<p>Specifies Name. </p>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>specifies tunnel stream name </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>specifies item name </td></tr>
   </table>
   </dd>
 </dl>
@@ -630,24 +978,24 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>TunnelItem</b></td><
 
 </div>
 </div>
-<a class="anchor" id="a8559578656091e95c0a03e4359fad190"></a>
+<a class="anchor" id="a4cbf02c1e5876eef69321789e741bbb0"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html">TunnelStreamRequest</a>&amp; thomsonreuters::ema::access::TunnelStreamRequest::operator= </td>
+          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a4cbf02c1e5876eef69321789e741bbb0">thomsonreuters::ema::access::ReqMsg::nameType</a> </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="a00073.html">TunnelStreamRequest</a> &amp;&#160;</td>
-          <td class="paramname"><em>other</em></td><td>)</td>
+          <td class="paramtype">UInt8&#160;</td>
+          <td class="paramname"><em>nameType</em> = <code>rdm::INSTRUMENT_NAME_RIC</code></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Assignment operator </p>
+<p>Specifies NameType. </p>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">other</td><td>specifies <a class="el" href="a00073.html" title="TunnelStreamRequest encapsulates tunnel stream request parameters.">TunnelStreamRequest</a> object to copy from </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">nameType</td><td>specifies RDM Instrument NameType (default value is rdm::INSTRUMENT_NAME_RIC) </td></tr>
   </table>
   </dd>
 </dl>
@@ -655,24 +1003,146 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>TunnelItem</b></td><
 
 </div>
 </div>
-<a class="anchor" id="abcceb0b4184830c1506e6a9003b73a56"></a>
+<a class="anchor" id="a0a10d1183b98aee643c208c096446535"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html">TunnelStreamRequest</a>&amp; <a class="el" href="a00073.html#abcceb0b4184830c1506e6a9003b73a56">thomsonreuters::ema::access::TunnelStreamRequest::responseTimeout</a> </td>
+          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a0a10d1183b98aee643c208c096446535">thomsonreuters::ema::access::ReqMsg::pause</a> </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>pause</em> = <code>false</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Specifies Pause. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">pause</td><td>specifies if pause is requested (default value is false) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a2e0ddb1cca8ea05c27096966c710924c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a2e0ddb1cca8ea05c27096966c710924c">thomsonreuters::ema::access::ReqMsg::payload</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00005.html">ComplexType</a> &amp;&#160;</td>
+          <td class="paramname"><em>data</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Specifies <a class="el" href="a00069.html" title="Payload conveys the data part of item image.">Payload</a>. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">payload</td><td>an object of <a class="el" href="a00005.html" title="ComplexType class is a parent class from whom all complex data types inherit.">ComplexType</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a3bf74f699643d589d5a2e27bfe88e24d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a3bf74f699643d589d5a2e27bfe88e24d">thomsonreuters::ema::access::ReqMsg::priority</a> </td>
+          <td>(</td>
+          <td class="paramtype">UInt8&#160;</td>
+          <td class="paramname"><em>priorityClass</em> = <code>1</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">UInt16&#160;</td>
+          <td class="paramname"><em>priorityCount</em> = <code>1</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Specifies Priority. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">priorityClass</td><td>specifies priority class </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">priorityCount</td><td>specifies priority count within priority class </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a908495a929cf6aa2216aced9e45d55f3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a908495a929cf6aa2216aced9e45d55f3">thomsonreuters::ema::access::ReqMsg::privateStream</a> </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>privateStream</em> = <code>false</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Specifies PrivateStream. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">privateStream</td><td>specifies if private stream is requested (default value is false) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a2d2f0f1e0718bdfe5349fe9cd85e30db"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a2d2f0f1e0718bdfe5349fe9cd85e30db">thomsonreuters::ema::access::ReqMsg::qos</a> </td>
           <td>(</td>
           <td class="paramtype">UInt32&#160;</td>
-          <td class="paramname"><em>timeout</em> = <code>60</code></td><td>)</td>
+          <td class="paramname"><em>timeliness</em> = <code><a class="el" href="a00073.html#a65ec7c5d05b4fc39f50da081e571f531aabe7300b3e1de644352bc54da42f3ce6">BestTimelinessEnum</a></code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">UInt32&#160;</td>
+          <td class="paramname"><em>rate</em> = <code><a class="el" href="a00073.html#afc9b74001773a196ea5d4050899deb15ace40103fd873fc047732f9d84693a436">BestRateEnum</a></code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Sets the duration to wait for a provider to respond to a tunnel stream open request. </p>
+<p>Specifies <a class="el" href="a00071.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> as timeliness and rate. </p>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">timeOut</td><td>specifies time to wait for the response to the open request (in seconds) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">timeliness</td><td>specifies <a class="el" href="a00071.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> Timeliness (default value is BestTimelinessEnum) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">rate</td><td>specifies <a class="el" href="a00071.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> rate (default value is BestRateEnum) </td></tr>
   </table>
   </dd>
 </dl>
@@ -680,12 +1150,12 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>TunnelItem</b></td><
 
 </div>
 </div>
-<a class="anchor" id="aea93bb4bfb450ad834dc24bfb76a6c43"></a>
+<a class="anchor" id="a73b2e268bdabde4a70cc1e54f43e55b0"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html">TunnelStreamRequest</a>&amp; <a class="el" href="a00073.html#aea93bb4bfb450ad834dc24bfb76a6c43">thomsonreuters::ema::access::TunnelStreamRequest::serviceId</a> </td>
+          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a73b2e268bdabde4a70cc1e54f43e55b0">thomsonreuters::ema::access::ReqMsg::serviceId</a> </td>
           <td>(</td>
           <td class="paramtype">UInt32&#160;</td>
           <td class="paramname"><em>serviceId</em></td><td>)</td>
@@ -696,6 +1166,12 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>TunnelItem</b></td><
 <div class="memdoc">
 <p>Specifies ServiceId. </p>
 <dl class="section remark"><dt>Remarks:</dt><dd>One service identification must be set, either id or name. </dd></dl>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if service name is already set </td></tr>
+  </table>
+  </dd>
+</dl>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">serviceId</td><td>specifies service id </td></tr>
@@ -703,21 +1179,15 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>TunnelItem</b></td><
   </dd>
 </dl>
 <dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
-<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
-  <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if service name is already set </td></tr>
-  </table>
-  </dd>
-</dl>
 
 </div>
 </div>
-<a class="anchor" id="a5978a4ab1c67b56168a5e83047bce856"></a>
+<a class="anchor" id="aa9feac83336de46549a99e804695e85d"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html">TunnelStreamRequest</a>&amp; <a class="el" href="a00073.html#a5978a4ab1c67b56168a5e83047bce856">thomsonreuters::ema::access::TunnelStreamRequest::serviceName</a> </td>
+          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#aa9feac83336de46549a99e804695e85d">thomsonreuters::ema::access::ReqMsg::serviceName</a> </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td>
           <td class="paramname"><em>serviceName</em></td><td>)</td>
@@ -728,6 +1198,12 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>TunnelItem</b></td><
 <div class="memdoc">
 <p>Specifies ServiceName. </p>
 <dl class="section remark"><dt>Remarks:</dt><dd>One service identification must be set, either id or name. </dd></dl>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if service id is already set </td></tr>
+  </table>
+  </dd>
+</dl>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">serviceName</td><td>specifies service name </td></tr>
@@ -735,12 +1211,51 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>TunnelItem</b></td><
   </dd>
 </dl>
 <dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
-<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
-  <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if service id is already set </td></tr>
+
+</div>
+</div>
+<a class="anchor" id="ac9ba0b6e1ed468cb8002f381e4412f9a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#ac9ba0b6e1ed468cb8002f381e4412f9a">thomsonreuters::ema::access::ReqMsg::streamId</a> </td>
+          <td>(</td>
+          <td class="paramtype">Int32&#160;</td>
+          <td class="paramname"><em>streamId</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Specifies StreamId. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">streamId</td><td>specifies stream id </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a56573d5690ed4217fe562bb4fd2e2f4d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00017.html">EmaString</a>&amp; <a class="el" href="a00073.html#a56573d5690ed4217fe562bb4fd2e2f4d">thomsonreuters::ema::access::ReqMsg::toString</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns a string representation of the class instance. </p>
+<dl class="section return"><dt>Returns:</dt><dd>string representation of the class instance </dd></dl>
+
+<p>Implements <a class="el" href="a00011.html#a971a83a435b8d8f34978b72821a661a3">thomsonreuters::ema::access::Data</a>.</p>
 
 </div>
 </div>
@@ -761,7 +1276,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>TunnelItem</b></td><
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Fri Apr 29 2016</td>
+			<td><p class="smallfont">Fri Jun 24 2016</td>
           </tr>
         </table>
         </td>

@@ -12,7 +12,9 @@
 using namespace thomsonreuters::ema::access;
 
 OmmConsumerEvent::OmmConsumerEvent() :
- _pItem( 0 )
+	_handle( 0 ),
+	_closure( 0 ),
+	_parentHandle( 0 )
 {
 }
 
@@ -22,15 +24,15 @@ OmmConsumerEvent::~OmmConsumerEvent()
 
 UInt64 OmmConsumerEvent::getHandle() const
 {
-	return (UInt64)_pItem;
+	return _handle;
 }
 
 void* OmmConsumerEvent::getClosure() const
 {
-	return _pItem->getClosure();
+	return _closure;
 }
 
 UInt64 OmmConsumerEvent::getParentHandle() const
 {
-	return (UInt64)_pItem->getParent();
+	return _parentHandle;
 }

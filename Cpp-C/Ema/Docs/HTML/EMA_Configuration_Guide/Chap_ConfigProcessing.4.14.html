@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>4.4.2 Creating the Configuration</title>
+    <link rel="StyleSheet" href="css/Chap_ConfigProcessing.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="H3_inner" style="width: 54pt; white-space: nowrap">
+                <span class="bold">4.4.2	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="H3_inner"><a name="1053200">Creating the Configuration</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Blank_Line"><a name="1053233">&nbsp;</a></div>
+      <table class="Note" style="width: 555.75pt" cellspacing="0" summary="">
+        <caption></caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 555.75pt">
+            <div class="Note">
+              <span class="Bold">Note: </span><a name="1053239">When encoding OMM types, you must follow the OMM data structure and configuration parameter types listed in this document.</a></div>
+          </td>
+        </tr>
+      </table>
+      <div class="Procedure_Heading"><a name="1052843"><img class="Default" src="images/Chap_ConfigProcessing.4.14.1.jpg" width="15" height="17" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /> To programmatically configure EMA:</a></div>
+      <div class="Step1_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Step1_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bold">1.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Step1_inner"><a name="1052327">Create a map with the following hierarchy to configure EMA configuration parameters:</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="indent_25"><a name="1053380"><img class="Default" src="images/OMMDataStructure.png" width="709" height="591" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></div>
+      <div class="Stepnext_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Stepnext_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bold">2.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Stepnext_inner"><a name="1052340">Call the </a><span class="CodeOrCommand">config</span> method on an <span class="CodeOrCommand">OmmConsumerConfig</span> object, and pass the Map (which represents the programmatic OMM structure) as a parameter to the <span class="CodeOrCommand">config</span> method.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="indent_25"><a name="1052333">You can pass in multiple maps, each programmatic configuration being applied to create the application’s active configuration during instantiation of the </a><span class="CodeOrCommand">OmmConsumer</span> or <span class="CodeOrCommand">OmmProvider</span>.</div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 4	EMA Configuration Processing : <a class="WebWorks_Breadcrumb_Link" href="Chap_ConfigProcessing.4.12.html">4.4	Programmatic Configuration</a> : 4.4.2	Creating the Configuration</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

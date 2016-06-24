@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>2.1 Parameter Overview</title>
+    <title>2.1 About Message API Configuration</title>
     <link rel="StyleSheet" href="css/Chap_GlobalConfigParameters.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -54,13 +54,13 @@
               </div>
             </td>
             <td width="100%">
-              <div class="H2_inner"><a name="1045484">Parameter Overview</a></div>
+              <div class="H2_inner"><a name="1051694">About Message API Configuration</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1051564">Many default behaviors are hard-coded into the EMA library and globally enforced. However, if you need to change EMA behaviors or configure EMA for your specific deployment, you can use EMA’s XML configuration file (</a><span class="FileOrDirectory">EmaConfig.xml</span>) and adjust behaviors using the appropriate parameters (discussed in this section). While EMA globally enforces a set of default behaviors, certain other default behaviors are dependent on the use of the XML file and its settings.</div>
-      <div class="Body"><a name="1051565">For example:</a></div>
+      <div class="Body"><a name="1051989">You write the Message API configuration using a simple XML schema, some settings of which can be changed via software function calls. The initial configuration compiled into the Message API software defines a minimal set of configuration parameters. Message API users can also supply an XML file (</a><span class="FileOrDirectory">EmaConfig.xml</span>) to specify configuration parameters, which must be put in the same directory as the EMA application. Additionally, programmatic interfaces can change parameter settings.</div>
+      <div class="Body"><a name="1051990">Message API configuration data is divided into the following groups:</a></div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -70,7 +70,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1051566">EMA’s globally default behavior is to log its messages at a </a><span class="Parameter">LoggerSeverity</span> level of <span class="Parameter">Success</span> to a file named <span class="Parameter">emaLog_</span><span class="VariableValue" style="font-weight: bold">pid</span><span class="Parameter" style="font-style: normal">.log</span> (where <span class="VariableValue" style="font-weight: bold">pid</span> is the process ID). You can manually change the <span class="Parameter">LoggerSeverity</span> and the log filename by using <span class="FileOrDirectory">EmaConfig.xml</span>.</div>
+              <div class="Bullet_inner"><span class="Concept"><a name="1051991">Consumer</a></span>: Consumer configuration data is the highest-level description of the application. Such settings typically select entries from the channel, logger, and dictionary groups.</div>
             </td>
           </tr>
         </table>
@@ -84,13 +84,69 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1051567">By default (globally), the EMA does not XML trace to file (equivalent to </a><span class="Parameter">XmlTraceToFile value=“0”</span>). You need to add this parameter only if you want to turn on XML tracing. If you turn on XML tracing (a non-default behavior), the EMA will trace to a file named <span class="Parameter">EmaTrace</span> (equivalent to <span class="Parameter">XmlTraceFileName value=“EmaTrace”</span>).</div>
+              <div class="Bullet_inner"><span class="Concept"><a name="1051992">NiProvider</a></span>: Non-interactive provider configuration data is the highest-level description of the application. Such settings typically select entries from the channel, logger, and directory groups.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1051573">For a list of default behaviors (and the parameters that you can use to change these behaviors) refer to</a> <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_GlobalConfigParameters.2.2.html', '');" title="2.2 Default Behaviors">Section 2.2</a>.</div>
-      <div class="Body"><a name="1051580">For details on editing </a><span class="FileOrDirectory">EmaConfig.xml</span> and its XML schema, refer to Chapter 2, EMA Global Configuration Parameters.</div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><span class="Concept"><a name="1051993">Channel</a></span>: Channel configuration data describe various connection alternatives and provides configuration alternatives for those connections.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><span class="Concept"><a name="1051994">Logger</a></span>: Logger configuration data specify logging alternatives and associated parameters.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><span class="Concept"><a name="1051995">Dictionary</a></span>: Dictionary configuration data sets the location information for dictionary alternatives.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><span class="Concept"><a name="1051996">Directory</a></span>: Directory configuration data configures source directory refresh information.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1051997">The Consumer and NiProvider groups are top-level configuration groups. Specific consumer and non-interactive provider applications select their configurations using the consumer and non-interactive provider names, which are passed in using the </a><span class="CodeOrCommand">consumerName()</span> and <span class="CodeOrCommand">providerName()</span> methods (for details on these methods, refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigProcessing.4.09.html', '');" title="4.3.1 EMA Configuration Function Calls">Section 4.3.1</a>).</div>
+      <div class="Body"><a name="1052001">This manual discusses the six configuration groups and the configuration parameters available to each group.</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -102,7 +158,7 @@
       </script>
     </blockquote>
     <hr align="left" />
-    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 2	EMA Global Configuration Parameters : 2.1	Parameter Overview</div>
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 2	EMA Configuration General Overview : 2.1	About Message API Configuration</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

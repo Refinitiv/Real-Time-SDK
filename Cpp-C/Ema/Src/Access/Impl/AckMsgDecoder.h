@@ -29,11 +29,11 @@ public :
 
 	~AckMsgDecoder();
 
-	bool setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* );
+	bool setRsslData( UInt8 , UInt8 , RsslMsg*, const RsslDataDictionary* );
 
-	bool setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDictionary* , void* );
+	bool setRsslData( UInt8 , UInt8 , RsslBuffer*, const RsslDataDictionary*, void* );
 
-	bool setRsslData( RsslDecodeIterator* , RsslBuffer* );
+	bool setRsslData( RsslDecodeIterator*, RsslBuffer* );
 
 	bool hasMsgKey() const;
 
@@ -91,7 +91,7 @@ public :
 
 	bool getPrivateStream() const;
 
-	void setServiceName( const char* , UInt32 , bool nullTerm = true );
+	void setServiceName( const char*, UInt32 , bool nullTerm = true );
 
 	const RsslBuffer& getRsslBuffer() const;
 
@@ -102,7 +102,7 @@ private :
 	RsslMsg					_rsslMsg;
 
 	RsslMsg*				_pRsslMsg;
-	
+
 	mutable EmaStringInt	_name;
 
 	mutable EmaStringInt	_serviceName;

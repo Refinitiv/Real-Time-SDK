@@ -48,7 +48,7 @@ public :
 
 	void clear();
 
-	void push_back( const T& listElement );
+	void push_back( const T& entry );
 
 	bool removePosition( UInt32 pos );
 
@@ -57,9 +57,7 @@ public :
 private :
 
 	UInt32		_capacity;
-
 	UInt32		_size;
-
 	T*			_list;
 };
 
@@ -152,11 +150,11 @@ void EmaVector< T >::clear()
 }
 
 template < class T >
-void EmaVector< T >::push_back( const T& element )
+void EmaVector< T >::push_back( const T& entry )
 {
 	if ( _size < _capacity )
 	{
-		_list[_size] = element;
+		_list[_size] = entry;
 		++_size;
 	}
 	else
@@ -182,7 +180,7 @@ void EmaVector< T >::push_back( const T& element )
 
 		_list = tempList;
 
-		_list[ _size ] = element;
+		_list[ _size ] = entry;
 		++_size;
 	}
 }
@@ -203,10 +201,7 @@ template < class T >
 T& EmaVector< T >::operator[]( UInt32 position ) 
 {
 	if ( position >= _size )
-	{
-		EmaString temp( "Passed in position is out of range." );
-		throwIueException( temp );
-	}
+		throwOorException( EmaString( "Passed in position is out of range." ) );
 
 	return _list[position];
 }
@@ -215,10 +210,7 @@ template < class T >
 const T& EmaVector< T >::operator[]( UInt32 position ) const
 {
 	if ( position >= _size )
-	{
-		EmaString temp( "Passed in position is out of range." );
-		throwIueException( temp );
-	}
+		throwOorException( EmaString( "Passed in position is out of range." ) );
 
 	return _list[position];
 }

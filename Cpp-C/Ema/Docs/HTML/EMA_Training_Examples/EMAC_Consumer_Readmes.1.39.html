@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>410__MarketPrice__HorizontalScaling</title>
+    <link rel="StyleSheet" href="css/EMAC_Consumer_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3_NoNum"><a name="1019302">410__MarketPrice__HorizontalScaling</a></div>
+      <div class="Body"><a name="1028801">Summary</a></div>
+      <div class="Body"><a name="1028802">=======</a></div>
+      <div class="Body"><a name="1028803">&nbsp;</a></div>
+      <div class="Body"><a name="1028804">The 410__MarketPrice__HorizontalScaling application is provided as an example</a></div>
+      <div class="Body"><a name="1028805">of OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1028806">&nbsp;</a></div>
+      <div class="Body"><a name="1028807">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1028808">and parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1028809">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1028810">Distribution Server.</a></div>
+      <div class="Body"><a name="1028811">&nbsp;</a></div>
+      <div class="Body"><a name="1028812">The 410__MarketPrice__HorizontalScaling showcases horizontal scaling capability</a></div>
+      <div class="Body"><a name="1028813">of OMM Consumer to take advantage of multiple core processors.</a></div>
+      <div class="Body"><a name="1028814">&nbsp;</a></div>
+      <div class="Body"><a name="1028815">&nbsp;</a></div>
+      <div class="Body"><a name="1028816">Detailed Description</a></div>
+      <div class="Body"><a name="1028817">====================</a></div>
+      <div class="Body"><a name="1028818">&nbsp;</a></div>
+      <div class="Body"><a name="1028819">The 410__MarketPrice__HorizontalScaling implements the following high level steps:</a></div>
+      <div class="Body"><a name="1028820">&nbsp;</a></div>
+      <div class="Body"><a name="1028821">+ Implements ConsumerManager to manage OmmConsumer and control user dispatch thread</a></div>
+      <div class="Body"><a name="1028822">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1028823">  - provides own methods as needed</a></div>
+      <div class="Body"><a name="1028824">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1028825">+ Instantiates two ConsumerManager to create OmmConsumer and user threads with the </a></div>
+      <div class="Body"><a name="1028826">  following configuration</a></div>
+      <div class="Body"><a name="1028827">  - sets user name to “user1” and “user2” for each ConsumerManager respectively</a></div>
+      <div class="Body"><a name="1028828">  - sets host name on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1028829">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1028830">  - sets operationModel to UserDispatchEnum</a></div>
+      <div class="Body"><a name="1028831">+ ConsumerManager instantiates OmmConsumer object which</a></div>
+      <div class="Body"><a name="1028832">  - initializes connection and logins into specified server</a></div>
+      <div class="Body"><a name="1028833">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1028834">+ Opens streaming item interests from each ConsumerManager </a></div>
+      <div class="Body"><a name="1028835">  - MarketPrice IBM.N item from DIRECT_FEED service for first ConsumerManager</a></div>
+      <div class="Body"><a name="1028836">  - MarketPrice TRI.N item from DIRECT_FEED service for second ConsumerManager</a></div>
+      <div class="Body"><a name="1028837">+ Processes data received from user thread in ConsumerManager for 60 seconds</a></div>
+      <div class="Body"><a name="1028838">  - all received messages are processed on user thread of control  </a></div>
+      <div class="Body"><a name="1028839">+ Exits</a></div>
+      <div class="Body"><a name="1028840">&nbsp;</a></div>
+      <div class="Body"><a name="1028841">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1028842">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1028843">	  </a></div>
+      <div class="Body"><a name="1028844">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1028845">      standard configuration.</a></div>
+      <div class="Body"><a name="1026574">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.01.html">EMA C++ Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.37.html">400 Series Examples</a> : 410__MarketPrice__HorizontalScaling</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

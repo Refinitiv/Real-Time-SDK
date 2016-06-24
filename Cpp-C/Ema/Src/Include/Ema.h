@@ -97,6 +97,13 @@
 #include "Access/Include/OmmConsumerErrorClient.h"
 #include "Access/Include/OmmConsumerEvent.h"
 
+#include "Access/Include/OmmProvider.h"
+#include "Access/Include/OmmProviderClient.h"
+#include "Access/Include/OmmProviderConfig.h"
+#include "Access/Include/OmmProviderErrorClient.h"
+#include "Access/Include/OmmProviderEvent.h"
+#include "Access/Include/OmmNiProviderConfig.h"
+
 #include "Access/Include/TunnelStreamRequest.h"
 
 #endif // __thomsonreuters_ema_Ema_h

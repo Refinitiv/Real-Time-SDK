@@ -16,30 +16,31 @@
 #include "OmmLoggerClient.h"
 
 namespace thomsonreuters {
-	
+
 namespace ema {
 
 namespace access {
 
-class OmmConsumerImpl;
+class OmmBaseImpl;
 class Login;
 class Directory;
 class Dictionary;
 class StreamId;
 class ChannelConfig;
 
-class Channel : public ListLinks< Channel > 
+class Channel : public ListLinks< Channel >
 {
 public :
 
-	enum ChannelState {
+	enum ChannelState
+	{
 		ChannelDownEnum = 0,
 		ChannelDownReconnectingEnum,
 		ChannelUpEnum,
 		ChannelReadyEnum
 	};
 
-	static Channel* create( OmmConsumerImpl& , const EmaString& , RsslReactor* );
+	static Channel* create( OmmBaseImpl&, const EmaString&, RsslReactor* );
 	static void destroy( Channel*& );
 
 	const EmaString& getName() const;
@@ -48,7 +49,7 @@ public :
 
 	RsslReactorChannel* getRsslChannel() const;
 	Channel& setRsslChannel( RsslReactorChannel* );
-	
+
 	RsslSocket getRsslSocket() const;
 	Channel& setRsslSocket( RsslSocket );
 
@@ -61,7 +62,6 @@ public :
 	Dictionary* getDictionary() const;
 	Channel& setDictionary( Dictionary* );
 
-	const EmaList< Directory* >& getDirectoryList() const;
 	Channel& addDirectory( Directory* );
 	Channel& removeDirectory( Directory* );
 
@@ -82,20 +82,19 @@ private :
 	ChannelState			_state;
 	Login*					_pLogin;
 	Dictionary*				_pDictionary;
-	EmaList< Directory* >	_directoryList;
+	EmaVector< Directory* >	_directoryList;
 	mutable bool			_toStringSet;
 
-	Int32            nextStreamId;
-	EmaList< StreamId* > recoveredStreamIds;
-	Mutex streamIdMutex;
-  
-	Channel( const EmaString& , RsslReactor* );
+	Int32					_nextStreamId;
+	EmaList< StreamId* >	_recoveredStreamIds;
+	Mutex					_streamIdMutex;
+
+	Channel( const EmaString&, RsslReactor* );
 	virtual ~Channel();
 
 	Channel();
 	Channel( const Channel& );
 	Channel& operator=( const Channel& );
-
 };
 
 class ChannelList
@@ -119,7 +118,7 @@ public :
 
 	RsslReactorChannel* operator[]( UInt32 );
 
-	const Channel * front() const { return _list.front(); }
+	Channel* front() const;
 
 private :
 
@@ -133,19 +132,19 @@ class ChannelCallbackClient
 {
 public :
 
-	static ChannelCallbackClient* create( OmmConsumerImpl& , RsslReactor* );
+	static ChannelCallbackClient* create( OmmBaseImpl&, RsslReactor* );
 
 	static void destroy( ChannelCallbackClient*& );
 
-	RsslReactorCallbackRet processCallback(  RsslReactor* , RsslReactorChannel* , RsslReactorChannelEvent* );
+	RsslReactorCallbackRet processCallback( RsslReactor*, RsslReactorChannel*, RsslReactorChannelEvent* );
 
-	void initialize( RsslRDMLoginRequest* , RsslRDMDirectoryRequest* );
+	void initialize( RsslRDMLoginRequest*, RsslRDMDirectoryRequest* );
 
 	void removeChannel( RsslReactorChannel* );
 
 	void closeChannels();
 
-	const ChannelList & getChannelList();
+	const ChannelList& getChannelList();
 
 private :
 
@@ -153,13 +152,15 @@ private :
 
 	ChannelList						_channelList;
 
-	OmmConsumerImpl&				_ommConsImpl;
+	OmmBaseImpl&					_ommBaseImpl;
 
 	RsslReactor*					_pRsslReactor;
 
-	void  channelParametersToString (ChannelConfig *, EmaString& );
+	bool							_bInitialChannelReadyEventReceived;
 
-	ChannelCallbackClient( OmmConsumerImpl& , RsslReactor* );
+	void channelParametersToString( ChannelConfig*, EmaString& );
+
+	ChannelCallbackClient( OmmBaseImpl&, RsslReactor* );
 
 	virtual ~ChannelCallbackClient();
 

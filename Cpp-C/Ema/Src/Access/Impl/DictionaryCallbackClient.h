@@ -12,16 +12,17 @@
 #include "rtr/rsslReactor.h"
 #include "EmaString.h"
 #include "EmaList.h"
-#include "OmmLoggerClient.h"
+#include "EmaVector.h"
 #include "ItemCallbackClient.h"
 
 namespace thomsonreuters {
-	
+
 namespace ema {
 
 namespace access {
 
-class OmmConsumerImpl;
+class OmmBaseImpl;
+class OmmConsumerClient;
 class Channel;
 class Directory;
 class DictionaryItem;
@@ -30,9 +31,10 @@ class Dictionary
 {
 public :
 
-	enum DictionaryType {
-		FileDictionaryEnum = 0,			// indicates dictionary loaded from file
-		ChannelDictionaryEnum			// indicates dictionary loaded from server (one per server)
+	enum DictionaryType
+	{
+		FileDictionaryEnum = 0,
+		ChannelDictionaryEnum
 	};
 
 	virtual const RsslDataDictionary* getRsslDictionary() const = 0;
@@ -41,13 +43,13 @@ public :
 
 	virtual DictionaryType getType() const = 0;
 
-	Int32				getEnumStreamId();
-	Int32				getFldStreamId();
+	Int32 getEnumStreamId() const;
+	Int32 getFldStreamId() const;
 
 protected :
 
-	Int32						_enumStreamId;
-	Int32						_fldStreamId;
+	Int32	_enumStreamId;
+	Int32	_fldStreamId;
 
 	Dictionary();
 	virtual ~Dictionary();
@@ -62,7 +64,7 @@ class LocalDictionary : public Dictionary
 {
 public :
 
-	static LocalDictionary* create( OmmConsumerImpl& );
+	static LocalDictionary* create( OmmBaseImpl& );
 
 	static void destroy( LocalDictionary*& );
 
@@ -76,11 +78,11 @@ public :
 
 private :
 
-	LocalDictionary( OmmConsumerImpl& );
+	LocalDictionary( OmmBaseImpl& );
 	virtual ~LocalDictionary();
 
 	static const EmaString		_clientName;
-	OmmConsumerImpl&			_ommConsImpl;
+	OmmBaseImpl&				_ommBaseImpl;
 	RsslDataDictionary			_rsslDictionary;
 	bool						_isLoaded;
 
@@ -88,11 +90,11 @@ private :
 	LocalDictionary& operator=( const LocalDictionary& );
 };
 
-class ChannelDictionary : public Dictionary, public ListLinks< ChannelDictionary > 
+class ChannelDictionary : public Dictionary, public ListLinks< ChannelDictionary >
 {
 public :
 
-	static ChannelDictionary* create( OmmConsumerImpl& );
+	static ChannelDictionary* create( OmmBaseImpl& );
 	static void destroy( ChannelDictionary*& );
 
 	Channel* getChannel() const;
@@ -102,14 +104,14 @@ public :
 
 	bool isLoaded() const;
 
-	RsslReactorCallbackRet processCallback( RsslReactor* , RsslReactorChannel* , RsslRDMDictionaryMsgEvent* );
+	RsslReactorCallbackRet processCallback( RsslReactor*, RsslReactorChannel*, RsslRDMDictionaryMsgEvent* );
 
 	void notifyStatusToListener( const RsslRDMDictionaryStatus& );
 
 	DictionaryType getType() const;
 
 	void acquireLock();
-	
+
 	void releaseLock();
 
 	void addListener( DictionaryItem* item );
@@ -120,11 +122,11 @@ public :
 
 private :
 
-	ChannelDictionary( OmmConsumerImpl& );
+	ChannelDictionary( OmmBaseImpl& );
 	virtual ~ChannelDictionary();
 
 	static const EmaString		_clientName;
-	OmmConsumerImpl&			_ommConsImpl;
+	OmmBaseImpl&				_ommBaseImpl;
 	Channel*					_pChannel;
 	RsslDataDictionary			_rsslDictionary;
 	bool						_isFldLoaded;
@@ -140,21 +142,21 @@ class DictionaryCallbackClient
 {
 public :
 
-	static DictionaryCallbackClient* create( OmmConsumerImpl& );
+	static DictionaryCallbackClient* create( OmmBaseImpl& );
 
 	static void destroy( DictionaryCallbackClient*& );
 
 	void initialize();
 
-	RsslReactorCallbackRet processCallback(  RsslReactor* , RsslReactorChannel* , RsslRDMDictionaryMsgEvent* );
+	RsslReactorCallbackRet processCallback( RsslReactor*, RsslReactorChannel*, RsslRDMDictionaryMsgEvent* );
 
-	RsslReactorCallbackRet processRefreshMsg( RsslBuffer* , UInt32 , UInt8 , UInt8 , DictionaryItem* );
+	RsslReactorCallbackRet processRefreshMsg( RsslBuffer*, UInt32 , UInt8 , UInt8 , DictionaryItem* );
 
-	RsslReactorCallbackRet processRefreshMsg( RsslBuffer* , UInt8 , UInt8 , DictionaryItem* );
+	RsslReactorCallbackRet processRefreshMsg( RsslBuffer*, UInt8 , UInt8 , DictionaryItem* );
 
 	RsslReactorCallbackRet processStatusMsg( RsslBuffer*, UInt8 , UInt8 , DictionaryItem* );
 
-	DictionaryItem* getDictionaryItem( const ReqMsg& , OmmConsumerClient& , void* );
+	DictionaryItem* getDictionaryItem( const ReqMsg&, OmmConsumerClient&, void* );
 
 	bool downloadDictionary( const Directory& );
 
@@ -163,7 +165,7 @@ public :
 	Dictionary* getDefaultDictionary() const;
 
 	static void sendInternalMsg( void* );
-	
+
 private :
 
 	bool downloadDictionaryFromService( const Directory& );
@@ -176,18 +178,16 @@ private :
 
 	LocalDictionary*				_localDictionary;
 
-	OmmConsumerImpl&				_ommConsImpl;
-
-	OmmConsumerEvent				_event;
+	OmmBaseImpl&					_ommBaseImpl;
 
 	RefreshMsg						_refreshMsg;
 
 	StatusMsg						_statusMsg;
 
-	DictionaryCallbackClient( OmmConsumerImpl& );
+	DictionaryCallbackClient( OmmBaseImpl& );
 
-	RsslReactorCallbackRet processCallback( RsslReactor* , RsslReactorChannel* , RsslRDMDictionaryMsgEvent* , DictionaryItem* );
-	
+	RsslReactorCallbackRet processCallback( RsslReactor*, RsslReactorChannel*, RsslRDMDictionaryMsgEvent*, DictionaryItem* );
+
 	virtual ~DictionaryCallbackClient();
 
 	DictionaryCallbackClient();
@@ -199,7 +199,7 @@ class DictionaryItem : public SingleItem
 {
 public :
 
-	static DictionaryItem* create( OmmConsumerImpl& , OmmConsumerClient& , void* );
+	static DictionaryItem* create( OmmBaseImpl&, OmmConsumerClient&, void* );
 
 	bool open( const ReqMsg& );
 	bool modify( const ReqMsg& );
@@ -222,18 +222,21 @@ public :
 
 	static void ScheduleRemove( void* );
 
-	ItemType getType() const { return Item::DictionaryItemEnum; }
+	ItemType getType() const
+	{
+		return Item::DictionaryItemEnum;
+	}
 
 private :
-		
+
 	static const EmaString		_clientName;
 	EmaString					_name;
 	UInt8						_filter;
 	Int32						_currentFid;
 	bool						_isRemoved;
 
-	DictionaryItem( OmmConsumerImpl& , OmmConsumerClient& , void* );
-	
+	DictionaryItem( OmmBaseImpl&, OmmConsumerClient& , void* );
+
 	DictionaryItem();
 	virtual ~DictionaryItem();
 	DictionaryItem( const DictionaryItem& );

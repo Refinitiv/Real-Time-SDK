@@ -6,106 +6,130 @@
  *|-----------------------------------------------------------------------------
  */
 
-#include "OmmConsumerImpl.h"
+#include "OmmBaseImpl.h"
 #include "TimeOut.h"
 #include "Utilities.h"
 
 using namespace thomsonreuters::ema::access;
 
 #ifdef WIN32
-TimeOutTimeType TimeOut::frequency = {0,0};
+TimeOutTimeType TimeOut::frequency = { 0, 0 };
 #endif
 
-TimeOut::TimeOut( OmmConsumerImpl & consumer, Int64 lengthInMicroSeconds, void (* functor)( void * ), void * args, bool allocatedOnHeap )
-	: theConsumer( consumer), _lengthInMicroSeconds( lengthInMicroSeconds ), _functor( functor ), _args( args ), _allocatedOnHeap( allocatedOnHeap ), canceled( false )
+TimeOut::TimeOut( OmmBaseImpl& ommBaseImpl, Int64 lengthInMicroSeconds, void( *functor )( void* ), void* args, bool allocatedOnHeap ) :
+	_functor( functor ),
+	_lengthInMicroSeconds( lengthInMicroSeconds ),
+	_args( args ),
+	_timeoutTime(),
+	_canceled( false ),
+	_allocatedOnHeap( allocatedOnHeap ),
+	_ommBaseImpl( ommBaseImpl )
 {
 	if ( lengthInMicroSeconds == 0 )
 	{
-		theConsumer.getTimeOutList().insert( this );
+		_ommBaseImpl.getTimeOutList().insert( this );
+		_canceled = true;
 		return;
 	}
 
+	TimeOutTimeType setAt;
+
 #ifdef WIN32
-	if ( ! frequency.QuadPart )
+	if ( !frequency.QuadPart )
 		QueryPerformanceFrequency( &frequency );
 
 	QueryPerformanceCounter( &setAt );
-	timeoutTime.QuadPart = setAt.QuadPart + (frequency.QuadPart * lengthInMicroSeconds)/1000000;
+	_timeoutTime.QuadPart = setAt.QuadPart + ( frequency.QuadPart * lengthInMicroSeconds ) / 1000000;
 #else
 	struct timespec ts;
-	clock_gettime(CLOCK_REALTIME, &ts);
-	setAt = ts.tv_sec * static_cast<int>(1E9) + ts.tv_nsec;
-	timeoutTime = setAt + lengthInMicroSeconds * 1000;
+	clock_gettime( CLOCK_REALTIME, &ts );
+	setAt = ts.tv_sec * static_cast<int>( 1E9 ) + ts.tv_nsec;
+	_timeoutTime = setAt + lengthInMicroSeconds * 1000;
 #endif				
 
-	theConsumer.getTimeOutList().insert( this );
+	_ommBaseImpl.getTimeOutList().insert( this );
 
-	theConsumer.installTimeOut();
+	_ommBaseImpl.installTimeOut();
 }
 
-bool
-TimeOut::operator<( const TimeOut & rhs ) const
+TimeOut::~TimeOut()
+{
+}
+
+bool TimeOut::operator<( const TimeOut& rhs ) const
 {
 #ifdef WIN32
-	return timeoutTime.QuadPart < rhs.timeoutTime.QuadPart;
+	return _timeoutTime.QuadPart < rhs._timeoutTime.QuadPart;
 #else
-	return timeoutTime < rhs.timeoutTime;
+	return _timeoutTime < rhs._timeoutTime;
 #endif
 }
 
-bool
-TimeOut::getTimeOutInMicroSeconds( OmmConsumerImpl & consumer, Int64 & value )
+bool TimeOut::getTimeOutInMicroSeconds( OmmBaseImpl& ommBaseImpl, Int64& value )
 {
-	MutexLocker ml( consumer.getTimeOutMutex() );
+	MutexLocker ml( ommBaseImpl.getTimeOutMutex() );
 
-	EmaList< TimeOut* > & theTimeOuts( consumer.getTimeOutList() );
+	EmaList< TimeOut* >& _theTimeOuts( ommBaseImpl.getTimeOutList() );
 
-	if ( theTimeOuts.empty() )
+	if ( _theTimeOuts.empty() )
 		return false;
 
-	TimeOut * p( theTimeOuts.front() );
-	while( true )
+	TimeOut* p( _theTimeOuts.front() );
+	while ( true )
 	{
-	  if ( ! p )
-	    return false;
+		if ( !p )
+			return false;
 
-	  if ( p->canceled )
-	  {
-	    TimeOut * toBeDeleted( p );
-	    p = p->next();
-	    theTimeOuts.remove( toBeDeleted );
-	    if ( toBeDeleted->allocatedOnHeap() )
-	      delete toBeDeleted;
-	  }
-	  else if ( ! p->_lengthInMicroSeconds )
-	    p = p->next();
-	  else
-	    break;
+		if ( p->_canceled )
+		{
+			TimeOut * toBeDeleted( p );
+			p = p->next();
+			_theTimeOuts.remove( toBeDeleted );
+			if ( toBeDeleted->_allocatedOnHeap )
+				delete toBeDeleted;
+		}
+		else if ( !p->_lengthInMicroSeconds )
+			p = p->next();
+		else
+			break;
 	}
 
 	TimeOutTimeType current;
+
 #ifdef WIN32
 	QueryPerformanceCounter( &current );
-	if ( p->timeoutTime.QuadPart < current.QuadPart )
+	if ( p->_timeoutTime.QuadPart < current.QuadPart )
 		value = 0;
 	else
-		value = static_cast< Int64> ( ( p->timeoutTime.QuadPart - current.QuadPart ) * 1000000 / frequency.QuadPart );
+		value = static_cast<Int64> ( ( p->_timeoutTime.QuadPart - current.QuadPart ) * 1000000 / frequency.QuadPart );
 #else
 	struct timespec ts;
 	clock_gettime( CLOCK_REALTIME, &ts );
 	current = ts.tv_sec * static_cast<int>( 1E9 ) + ts.tv_nsec;
-	if ( p->timeoutTime < current )
+	if ( p->_timeoutTime < current )
 		value = 0;
 	else
-		value = static_cast< Int64> ( ( p->timeoutTime - current ) / 1000 );
+		value = static_cast<Int64> ( ( p->_timeoutTime - current ) / 1000 );
 #endif
 	return true;
 }
 
-void
-TimeOut::execute( OmmConsumerImpl & consumer, EmaList< TimeOut* > & theTimeOuts )
+void TimeOut::cancel()
 {
-	MutexLocker ml( consumer.getTimeOutMutex() );
+	MutexLocker ml( _ommBaseImpl.getTimeOutMutex() );
+
+	_canceled = true;
+
+	EmaList< TimeOut* > & _theTimeOuts( _ommBaseImpl.getTimeOutList() );
+
+	_theTimeOuts.remove( this );
+
+	if ( _allocatedOnHeap ) delete this;
+}
+
+void TimeOut::execute( OmmBaseImpl& baseImpl )
+{
+	MutexLocker ml( baseImpl.getTimeOutMutex() );
 
 	TimeOutTimeType current;
 #ifdef WIN32
@@ -116,22 +140,22 @@ TimeOut::execute( OmmConsumerImpl & consumer, EmaList< TimeOut* > & theTimeOuts 
 	current = ts.tv_sec * static_cast<int>( 1E9 ) + ts.tv_nsec;
 #endif
 
-	TimeOut * p( theTimeOuts.front() );
-	while( p )
+	TimeOut * p( baseImpl.getTimeOutList().front() );
+	while ( p )
 	{
 #ifdef WIN32
-		if ( current.QuadPart >= p->timeoutTime.QuadPart )
+		if ( current.QuadPart >= p->_timeoutTime.QuadPart )
 #else
-		if ( current >= p->timeoutTime )
+		if ( current >= p->_timeoutTime )
 #endif
 		{
-			if ( ! p->canceled )
-				(*p)();
-			if ( p->allocatedOnHeap() )
-				delete theTimeOuts.pop_front();
+			if ( !p->_canceled )
+				( *p )( );
+			if ( p->_allocatedOnHeap )
+				delete baseImpl.getTimeOutList().pop_front();
 			else
-				theTimeOuts.pop_front();
-			p = theTimeOuts.front();
+				baseImpl.getTimeOutList().pop_front();
+			p = baseImpl.getTimeOutList().front();
 		}
 		else
 			return;

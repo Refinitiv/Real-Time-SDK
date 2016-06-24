@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>280__MarketPrice__Performance</title>
+    <link rel="StyleSheet" href="css/EMAC_Consumer_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3_NoNum"><a name="1019438">280__MarketPrice__Performance</a></div>
+      <div class="Body"><a name="1027989">Summary</a></div>
+      <div class="Body"><a name="1027990">=======</a></div>
+      <div class="Body"><a name="1027991">&nbsp;</a></div>
+      <div class="Body"><a name="1027992">The 280__MarketPrice__Performance application is provided as an example</a></div>
+      <div class="Body"><a name="1027993">of OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1027994">&nbsp;</a></div>
+      <div class="Body"><a name="1027995">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1027996">and parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1027997">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1027998">Distribution Server.</a></div>
+      <div class="Body"><a name="1027999">&nbsp;</a></div>
+      <div class="Body"><a name="1028000">The 280__MarketPrice__Performance is a simple performance focused application</a></div>
+      <div class="Body"><a name="1028001">opening and processing a number of MarketPrice items.</a></div>
+      <div class="Body"><a name="1028002">&nbsp;</a></div>
+      <div class="Body"><a name="1028003">Note: to effectively open up items in this example, please connect it up to </a></div>
+      <div class="Body"><a name="1028004">	  custom build provider performance application, e.g. upacProvPerf, or </a></div>
+      <div class="Body"><a name="1028005">	  rfacppProvPerf.</a></div>
+      <div class="Body"><a name="1028006">&nbsp;</a></div>
+      <div class="Body"><a name="1028007">Detailed Description</a></div>
+      <div class="Body"><a name="1028008">====================</a></div>
+      <div class="Body"><a name="1028009">&nbsp;</a></div>
+      <div class="Body"><a name="1028010">The 280__MarketPrice__Performance implements the following high level steps:</a></div>
+      <div class="Body"><a name="1028011">&nbsp;</a></div>
+      <div class="Body"><a name="1028012">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1028013">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1028014">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1028015">    - the decode( const FieldList&amp; ) is a performance focused method</a></div>
+      <div class="Body"><a name="1028016">	  extracting the minimum needed for an application and not performing any</a></div>
+      <div class="Body"><a name="1028017">	  time and cpu consuming application specific functionalities (e.g., printing)</a></div>
+      <div class="Body"><a name="1028018">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1028019">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1028020">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1028021">  - sets host name on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1028022">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1028023">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1028024">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1028025">+ Opens a number of streaming item interests</a></div>
+      <div class="Body"><a name="1028026">  - MarketPrice RTR####.N items from DIRECT_FEED service (#### - a sequence number)</a></div>
+      <div class="Body"><a name="1028027">+ Processes data received from API for 300 seconds</a></div>
+      <div class="Body"><a name="1028028">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1028029">  - prints out</a></div>
+      <div class="Body"><a name="1028030">    - total number of refreshes</a></div>
+      <div class="Body"><a name="1028031">    - total number of status messages</a></div>
+      <div class="Body"><a name="1028032">    - number of updates received in a second</a></div>
+      <div class="Body"><a name="1028033">&nbsp;</a></div>
+      <div class="Body"><a name="1028034">+ Exits</a></div>
+      <div class="Body"><a name="1028035">&nbsp;</a></div>
+      <div class="Body"><a name="1028036">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1028037">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1028038">	  </a></div>
+      <div class="Body"><a name="1028039">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1028040">      standard configuration.</a></div>
+      <div class="Body"><a name="1025794">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.01.html">EMA C++ Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.11.html">200 Series Examples</a> : 280__MarketPrice__Performance</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

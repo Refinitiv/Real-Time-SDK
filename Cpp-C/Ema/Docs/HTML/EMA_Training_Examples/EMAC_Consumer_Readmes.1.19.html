@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>270__SymbolList</title>
+    <link rel="StyleSheet" href="css/EMAC_Consumer_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3_NoNum"><a name="1019376">270__SymbolList</a></div>
+      <div class="Body"><a name="1027938">Summary</a></div>
+      <div class="Body"><a name="1027939">=======</a></div>
+      <div class="Body"><a name="1027940">&nbsp;</a></div>
+      <div class="Body"><a name="1027941">The 270__SymbolList application is provided as an example of OMM Consumer</a></div>
+      <div class="Body"><a name="1027942">application written to the EMA library.</a></div>
+      <div class="Body"><a name="1027943">&nbsp;</a></div>
+      <div class="Body"><a name="1027944">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1027945">and parsing of OMM SymbolList data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1027946">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1027947">Distribution Server.</a></div>
+      <div class="Body"><a name="1027948">&nbsp;</a></div>
+      <div class="Body"><a name="1027949">The 270__SymbolList showcases opening and processing of SymbolList item.</a></div>
+      <div class="Body"><a name="1027950">While processing messages, this application simply prints their content to</a></div>
+      <div class="Body"><a name="1027951">screen using native or RWF decoding methods.</a></div>
+      <div class="Body"><a name="1027952">&nbsp;</a></div>
+      <div class="Body"><a name="1027953">&nbsp;</a></div>
+      <div class="Body"><a name="1027954">Detailed Description</a></div>
+      <div class="Body"><a name="1027955">====================</a></div>
+      <div class="Body"><a name="1027956">&nbsp;</a></div>
+      <div class="Body"><a name="1027957">The 270__SymbolList implements the following high level steps:</a></div>
+      <div class="Body"><a name="1027958">&nbsp;</a></div>
+      <div class="Body"><a name="1027959">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1027960">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1027961">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1027962">    - the decode( const FieldList&amp; ) iterates through the received FieldList,</a></div>
+      <div class="Body"><a name="1027963">	  extracts each FieldEntry reference from the current position on the</a></div>
+      <div class="Body"><a name="1027964">	  FieldList, and extracts field id, name and value of the current FieldEntry</a></div>
+      <div class="Body"><a name="1027965">	- the decode( const Map&amp; ) iterates through the received Map, extracts Summary</a></div>
+      <div class="Body"><a name="1027966">	  if it is present, extracts MapEntry from which it extracts key, and load values</a></div>
+      <div class="Body"><a name="1027967">	- both methods use native / RWF data format while extracting data</a></div>
+      <div class="Body"><a name="1027968">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1027969">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1027970">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1027971">  - sets host name on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1027972">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1027973">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1027974">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1027975">+ Opens streaming item interest</a></div>
+      <div class="Body"><a name="1027976">  - SymbolList .AV.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1027977">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1027978">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1027979">+ Exits</a></div>
+      <div class="Body"><a name="1027980">&nbsp;</a></div>
+      <div class="Body"><a name="1027981">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1027982">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1027983">	  </a></div>
+      <div class="Body"><a name="1027984">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1027985">      standard configuration.</a></div>
+      <div class="Body"><a name="1025737">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.01.html">EMA C++ Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.11.html">200 Series Examples</a> : 270__SymbolList</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

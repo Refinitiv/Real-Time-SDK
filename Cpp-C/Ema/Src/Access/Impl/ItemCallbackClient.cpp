@@ -12,7 +12,9 @@
 #include "DictionaryCallbackClient.h"
 #include "LoginCallbackClient.h"
 #include "OmmConsumerImpl.h"
+#include "OmmNiProviderImpl.h"
 #include "OmmConsumerClient.h"
+#include "OmmProviderClient.h"
 #include "ReqMsg.h"
 #include "PostMsg.h"
 #include "GenericMsg.h"
@@ -22,7 +24,6 @@
 #include "GenericMsgEncoder.h"
 #include "PostMsgEncoder.h"
 #include "OmmState.h"
-#include "OmmConsumerErrorClient.h"
 #include "Utilities.h"
 #include "RdmUtilities.h"
 #include "ExceptionTranslator.h"
@@ -30,38 +31,41 @@
 #include "TunnelStreamLoginReqMsgImpl.h"
 #include "StreamId.h"
 
+#include <new>
+
 using namespace thomsonreuters::ema::access;
 using namespace thomsonreuters::ema::rdm;
 
 const EmaString ItemCallbackClient::_clientName( "ItemCallbackClient" );
 const EmaString SingleItem::_clientName( "SingleItem" );
+const EmaString NiProviderSingleItem::_clientName( "NiProviderSingleItem" );
 const EmaString ItemList::_clientName( "ItemList" );
 const EmaString BatchItem::_clientName( "BatchItem" );
 const EmaString TunnelItem::_clientName( "TunnelItem" );
 const EmaString SubItem::_clientName( "SubItem" );
 
 const EmaString SingleItemString( "SingleItem" );
+const EmaString NiProviderSingleItemString( "NiProviderSingleItem" );
 const EmaString BatchItemString( "BatchItem" );
 const EmaString loginItemString( "LoginItem" );
+const EmaString NiProviderLoginItemString( "NiProviderLoginItem" );
 const EmaString DirectoryItemString( "DirectoryItem" );
 const EmaString DictionaryItemString( "DictionaryItem" );
+const EmaString NiProviderDictionaryItemString( "NiProviderDictionaryItem" );
 const EmaString TunnelItemString( "TunnelItem" );
 const EmaString SubItemString( "SubItem" );
 const EmaString UnknownItemString( "UnknownItem" );
 
-Item::Item( OmmConsumerImpl& ommConsImpl, OmmConsumerClient& ommConsClient, void* closure, Item* parent ) :
- _domainType( 0 ),
- _streamId( 0 ),
- _closure( closure ),
- _parent( parent ),
- _ommConsClient( ommConsClient ),
- _ommConsImpl( ommConsImpl )
+Item::Item( OmmBaseImpl& ommBaseImpl ) :
+	_domainType( 0 ),
+	_streamId( 0 ),
+	_ommBaseImpl( ommBaseImpl )
 {
 }
 
 Item::~Item()
 {
-	_ommConsImpl.getItemCallbackClient().removeFromMap( this );
+	_ommBaseImpl.getItemCallbackClient().removeFromMap( this );
 }
 
 void Item::destroy( Item*& pItem )
@@ -79,14 +83,20 @@ const EmaString& Item::getTypeAsString()
 	{
 	case Item::SingleItemEnum :
 		return SingleItemString;
+	case Item::NiProviderSingleItemEnum:
+		return NiProviderSingleItemString;
 	case Item::BatchItemEnum :
 		return BatchItemString;
 	case Item::LoginItemEnum :
 		return loginItemString;
+	case Item::NiProviderLoginItemEnum:
+		return NiProviderLoginItemString;
 	case Item::DirectoryItemEnum :
 		return DirectoryItemString;
 	case Item::DictionaryItemEnum :
 		return DictionaryItemString;
+	case Item::NiProviderDictionaryItemEnum:
+		return NiProviderDictionaryItemString;
 	case Item::TunnelItemEnum :
 		return TunnelItemString;
 	case Item::SubItemEnum :
@@ -96,65 +106,131 @@ const EmaString& Item::getTypeAsString()
 	}
 }
 
-OmmConsumerClient& Item::getClient() const
-{
-	return _ommConsClient;
-}
-
-void* Item::getClosure() const
-{
-	return _closure;
-}
-
-Item* Item::getParent() const
-{
-	return _parent;
-}
-
 Int32 Item::getStreamId() const
 {
 	return _streamId;
 }
 
-OmmConsumerImpl& Item::getOmmConsumerImpl()
+OmmBaseImpl& Item::getImpl()
 {
-	return _ommConsImpl;
+	return _ommBaseImpl;
 }
 
-SingleItem* SingleItem::create( OmmConsumerImpl& ommConsImpl, OmmConsumerClient& ommConsClient, void* closure, Item* batchItem )
+ConsumerItem::ConsumerItem( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure, Item* pParentItem ) :
+	Item( ommBaseImpl ),
+	_client( ommConsClient ),
+	_event()
+{
+	_event._handle = ( UInt64 )this;
+	_event._closure = closure;
+	_event._parentHandle = (UInt64) pParentItem;
+}
+
+ConsumerItem::~ConsumerItem()
+{
+}
+
+void ConsumerItem::onAllMsg( const Msg& msg )
+{
+	_client.onAllMsg( msg, _event );
+}
+
+void ConsumerItem::onRefreshMsg( const RefreshMsg& msg )
+{
+	_client.onRefreshMsg( msg, _event );
+}
+
+void ConsumerItem::onUpdateMsg( const UpdateMsg& msg )
+{
+	_client.onUpdateMsg( msg, _event );
+}
+
+void ConsumerItem::onStatusMsg( const StatusMsg& msg )
+{
+	_client.onStatusMsg( msg, _event );
+}
+
+void ConsumerItem::onAckMsg( const AckMsg& msg )
+{
+	_client.onAckMsg( msg, _event );
+}
+
+void ConsumerItem::onGenericMsg( const GenericMsg& msg )
+{
+	_client.onGenericMsg( msg, _event );
+}
+
+NiProviderItem::NiProviderItem( OmmBaseImpl& ommBaseImpl, OmmProviderClient& ommProvClient, void* closure ) :
+	Item( ommBaseImpl ),
+	_client( ommProvClient ),
+	_event()
+{
+	_event._handle = ( UInt64 )this;
+	_event._closure = closure;
+}
+
+NiProviderItem::~NiProviderItem()
+{
+}
+
+void NiProviderItem::onAllMsg( const Msg& msg )
+{
+	_client.onAllMsg( msg, _event );
+}
+
+void NiProviderItem::onRefreshMsg( const RefreshMsg& msg )
+{
+	_client.onRefreshMsg( msg, _event );
+}
+
+void NiProviderItem::onUpdateMsg( const UpdateMsg& msg )
+{
+}
+
+void NiProviderItem::onStatusMsg( const StatusMsg& msg )
+{
+	_client.onStatusMsg( msg, _event );
+}
+
+void NiProviderItem::onAckMsg( const AckMsg& msg )
+{
+}
+
+void NiProviderItem::onGenericMsg( const GenericMsg& msg )
+{
+	_client.onGenericMsg( msg, _event );
+}
+
+const Directory* NiProviderItem::getDirectory()
+{
+	return 0;
+}
+
+SingleItem* SingleItem::create( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure, Item* pParentItem )
 {
 	SingleItem* pItem = 0;
 
 	try {
-		pItem = new SingleItem( ommConsImpl, ommConsClient, closure, batchItem );
+		pItem = new SingleItem( ommBaseImpl, ommConsClient, closure, pParentItem );
 	}
 	catch( std::bad_alloc ) {}
 
 	if ( !pItem )
-	{
-		const char* temp = "Failed to create SingleItem";
-		if ( OmmLoggerClient::ErrorEnum >= ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-
-		if ( ommConsImpl.hasOmmConnsumerErrorClient() )
-			ommConsImpl.getOmmConsumerErrorClient().onMemoryExhaustion( temp );
-		else
-			throwMeeException( temp );
-	}
+		ommBaseImpl.handleMee( "Failed to create SingleItem" );
 
 	return pItem;
 }
 
-SingleItem::SingleItem( OmmConsumerImpl& ommConsImpl, OmmConsumerClient& ommConsClient, void* closure, Item* batchItem ) :
- Item( ommConsImpl, ommConsClient, closure, batchItem ),
- _pDirectory( 0 ),
- _closedStatusInfo( 0 )
+SingleItem::SingleItem( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure, Item* pParentItem ) :
+	ConsumerItem( ommBaseImpl, ommConsClient, closure, pParentItem ),
+	_pDirectory( 0 ),
+	_closedStatusInfo( 0 )
 {
 }
 
 SingleItem::~SingleItem()
 {
-	_ommConsImpl.getItemCallbackClient().removeFromList( this );
+	_ommBaseImpl.getItemCallbackClient().removeFromList( this );
 
 	if ( _closedStatusInfo )
 	{
@@ -183,7 +259,7 @@ bool SingleItem::open( const ReqMsg& reqMsg )
 
 	if ( reqMsgEncoder.hasServiceName() )
 	{
-		pDirectory = _ommConsImpl.getDirectoryCallbackClient().getDirectory( reqMsgEncoder.getServiceName() );
+		pDirectory = _ommBaseImpl.getDirectoryCallbackClient().getDirectory( reqMsgEncoder.getServiceName() );
 		if ( !pDirectory )
 		{
 			EmaString temp( "Service name of '" );
@@ -197,7 +273,7 @@ bool SingleItem::open( const ReqMsg& reqMsg )
 	else
 	{
 		if ( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.flags & RSSL_MKF_HAS_SERVICE_ID )
-			pDirectory = _ommConsImpl.getDirectoryCallbackClient().getDirectory( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.serviceId );
+			pDirectory = _ommBaseImpl.getDirectoryCallbackClient().getDirectory( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.serviceId );
 		else
 		{
 			EmaString temp( "Passed in request message does not identify any service." );
@@ -256,10 +332,10 @@ void SingleItem::remove()
 {
 	if ( getType() != Item::BatchItemEnum )
 	{
-		if ( _parent )
+		if ( _event.getParentHandle() )
 		{
-			if ( _parent->getType() == Item::BatchItemEnum )
-				static_cast<BatchItem*>(_parent)->decreaseItemCount();
+			if ( reinterpret_cast<Item*>( _event.getParentHandle() )->getType() == Item::BatchItemEnum )
+				reinterpret_cast<BatchItem*>( _event.getParentHandle() )->decreaseItemCount();
 		}
 
 		delete this;
@@ -271,8 +347,9 @@ bool SingleItem::submit( RsslRequestMsg* pRsslRequestMsg )
 	RsslReactorSubmitMsgOptions submitMsgOpts;
 	rsslClearReactorSubmitMsgOptions( &submitMsgOpts );
 
-	pRsslRequestMsg->msgBase.msgKey.flags &= ~RSSL_MKF_HAS_SERVICE_ID;	
-	
+	bool serviceIdSet = ( pRsslRequestMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_SERVICE_ID ) ? true : false;
+	pRsslRequestMsg->msgBase.msgKey.flags &= ~RSSL_MKF_HAS_SERVICE_ID;
+
 	if ( !( pRsslRequestMsg->flags & RSSL_RQMF_HAS_QOS ) )
 	{
 		pRsslRequestMsg->qos.timeliness = RSSL_QOS_TIME_REALTIME;
@@ -280,32 +357,32 @@ bool SingleItem::submit( RsslRequestMsg* pRsslRequestMsg )
 		pRsslRequestMsg->worstQos.rate = RSSL_QOS_RATE_TIME_CONFLATED;
 		pRsslRequestMsg->worstQos.timeliness = RSSL_QOS_TIME_DELAYED_UNKNOWN;
 		pRsslRequestMsg->worstQos.rateInfo = 65535;
-		pRsslRequestMsg->flags |= (RSSL_RQMF_HAS_QOS | RSSL_RQMF_HAS_WORST_QOS);
-	}	
+		pRsslRequestMsg->flags |= ( RSSL_RQMF_HAS_QOS | RSSL_RQMF_HAS_WORST_QOS );
+	}
 
-	pRsslRequestMsg->flags |= _ommConsImpl.getActiveConfig().configChannelSet[0]->msgKeyInUpdates ? RSSL_RQMF_MSG_KEY_IN_UPDATES : 0;
-	submitMsgOpts.pRsslMsg = (RsslMsg*)pRsslRequestMsg;
+	pRsslRequestMsg->flags |= _ommBaseImpl.getActiveConfig().configChannelSet[0]->msgKeyInUpdates ? RSSL_RQMF_MSG_KEY_IN_UPDATES : 0;
+	submitMsgOpts.pRsslMsg = (RsslMsg*) pRsslRequestMsg;
 
 	RsslBuffer serviceNameBuffer;
-	serviceNameBuffer.data = (char*)_pDirectory->getName().c_str();
+	serviceNameBuffer.data = (char*) _pDirectory->getName().c_str();
 	serviceNameBuffer.length = _pDirectory->getName().length();
 	submitMsgOpts.pServiceName = &serviceNameBuffer;
 
 	submitMsgOpts.majorVersion = _pDirectory->getChannel()->getRsslChannel()->majorVersion;
 	submitMsgOpts.minorVersion = _pDirectory->getChannel()->getRsslChannel()->minorVersion;
 
-	submitMsgOpts.requestMsgOptions.pUserSpec = (void*)this;
+	submitMsgOpts.requestMsgOptions.pUserSpec = ( void* )this;
 
 	if ( !_streamId )
 	{
 		if ( pRsslRequestMsg->flags & RSSL_RQMF_HAS_BATCH )
 		{
-			const EmaVector<SingleItem*>& singleItemList = static_cast<BatchItem &>(*this).getSingleItemList();
+			const EmaVector<SingleItem*>& singleItemList = static_cast<BatchItem &>( *this ).getSingleItemList();
 
 			submitMsgOpts.pRsslMsg->msgBase.streamId = _pDirectory->getChannel()->getNextStreamId( singleItemList.size() - 1 );
 			_streamId = submitMsgOpts.pRsslMsg->msgBase.streamId;
 
-			for( UInt32 i = 1; i < singleItemList.size(); ++i )
+			for ( UInt32 i = 1; i < singleItemList.size(); ++i )
 			{
 				singleItemList[i]->_streamId = _streamId + i;
 				singleItemList[i]->_pDirectory = _pDirectory;
@@ -332,10 +409,13 @@ bool SingleItem::submit( RsslRequestMsg* pRsslRequestMsg )
 	clearRsslErrorInfo( &rsslErrorInfo );
 	RsslRet ret;
 	if ( ( ret = rsslReactorSubmitMsg( _pDirectory->getChannel()->getRsslReactor(),
-										_pDirectory->getChannel()->getRsslChannel(),
-										&submitMsgOpts, &rsslErrorInfo ) ) != RSSL_RET_SUCCESS )
+		_pDirectory->getChannel()->getRsslChannel(),
+		&submitMsgOpts, &rsslErrorInfo ) ) != RSSL_RET_SUCCESS )
 	{
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		if ( serviceIdSet )
+			pRsslRequestMsg->msgBase.msgKey.flags |= RSSL_MKF_HAS_SERVICE_ID;
+
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Internal error: rsslReactorSubmitMsg() failed in SingleItem::submit( RsslRequestMsg* )" );
 			temp.append( CR )
@@ -344,7 +424,7 @@ bool SingleItem::submit( RsslRequestMsg* pRsslRequestMsg )
 				.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
 				.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
 				.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
 
 		EmaString text( "Failed to open or modify item request. Reason: " );
@@ -352,13 +432,13 @@ bool SingleItem::submit( RsslRequestMsg* pRsslRequestMsg )
 			.append( ". Error text: " )
 			.append( rsslErrorInfo.rsslError.text );
 
-		if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-			_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( text );
-		else
-			throwIueException( text );
+		_ommBaseImpl.handleIue( text );
 
 		return false;
 	}
+
+	if ( serviceIdSet )
+		pRsslRequestMsg->msgBase.msgKey.flags |= RSSL_MKF_HAS_SERVICE_ID;
 
 	return true;
 }
@@ -381,7 +461,7 @@ bool SingleItem::submit( RsslCloseMsg* pRsslCloseMsg )
 										_pDirectory->getChannel()->getRsslChannel(),
 										&submitMsgOpts, &rsslErrorInfo ) ) != RSSL_RET_SUCCESS )
 	{
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Internal error. rsslReactorSubmitMsg() failed in SingleItem::submit( RsslCloseMsg* )" );
 			temp.append( CR )
@@ -390,7 +470,7 @@ bool SingleItem::submit( RsslCloseMsg* pRsslCloseMsg )
 				.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
 				.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
 				.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
 
 		EmaString text( "Failed to close item request. Reason: " );
@@ -398,10 +478,7 @@ bool SingleItem::submit( RsslCloseMsg* pRsslCloseMsg )
 			.append( ". Error text: " )
 			.append( rsslErrorInfo.rsslError.text );
 
-		if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-			_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( text );
-		else
-			throwIueException( text );
+		_ommBaseImpl.handleIue( text );
 
 		return false;
 	}
@@ -428,7 +505,7 @@ bool SingleItem::submit( RsslGenericMsg* pRsslGenericMsg )
 										_pDirectory->getChannel()->getRsslChannel(),
 										&submitMsgOpts, &rsslErrorInfo ) ) != RSSL_RET_SUCCESS )
 	{
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Internal error. rsslReactorSubmitMsg() failed in SingleItem::submit( RsslGenericMsg* )" );
 			temp.append( CR )
@@ -438,7 +515,7 @@ bool SingleItem::submit( RsslGenericMsg* pRsslGenericMsg )
 				.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
 				.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
 
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
 
 		EmaString text( "Failed to submit GenericMsg on item stream. Reason: " );
@@ -446,10 +523,7 @@ bool SingleItem::submit( RsslGenericMsg* pRsslGenericMsg )
 			.append( ". Error text: " )
 			.append( rsslErrorInfo.rsslError.text );
 
-		if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-			_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( text );
-		else
-			throwIueException( text );
+		_ommBaseImpl.handleIue( text );
 
 		return false;
 	}
@@ -476,7 +550,7 @@ bool SingleItem::submit( RsslPostMsg* pRsslPostMsg )
 										_pDirectory->getChannel()->getRsslChannel(),
 										&submitMsgOpts, &rsslErrorInfo ) ) != RSSL_RET_SUCCESS )
 	{
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Internal error: rsslReactorSubmitMsg() failed in SingleItem::submit( RsslPostMsg* ) " );
 			temp.append( CR )
@@ -485,7 +559,7 @@ bool SingleItem::submit( RsslPostMsg* pRsslPostMsg )
 				.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
 				.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
 				.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
 
 		EmaString text( "Failed to submit PostMsg on item stream. Reason: " );
@@ -493,15 +567,310 @@ bool SingleItem::submit( RsslPostMsg* pRsslPostMsg )
 			.append( ". Error text: " )
 			.append( rsslErrorInfo.rsslError.text );
 
-		if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-			_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( text );
-		else
-			throwIueException( text );
+		_ommBaseImpl.handleIue( text );
 
 		return false;
 	}
 
 	return true;
+}
+
+NiProviderSingleItem* NiProviderSingleItem::create( OmmBaseImpl& ommBaseImpl, OmmProviderClient& ommProvClient, void* closure, Item* pParentItem )
+{
+	NiProviderSingleItem* pItem = 0;
+
+	try
+	{
+		pItem = new NiProviderSingleItem( ommBaseImpl, ommProvClient, closure, pParentItem );
+	}
+	catch ( std::bad_alloc ) {}
+
+	if ( !pItem )
+		ommBaseImpl.handleMee( "Failed to create NiProviderSingleItem" );
+
+	return pItem;
+}
+
+NiProviderSingleItem::NiProviderSingleItem( OmmBaseImpl& ommBaseImpl, OmmProviderClient& ommProvClient, void* closure, Item* ) :
+	NiProviderItem( ommBaseImpl, ommProvClient, closure ),
+	_closedStatusInfo( 0 )
+{
+}
+
+NiProviderSingleItem::~NiProviderSingleItem()
+{
+	_ommBaseImpl.getItemCallbackClient().removeFromList( this );
+
+	if ( _closedStatusInfo )
+	{
+		delete _closedStatusInfo;
+		_closedStatusInfo = 0;
+	}
+}
+
+Item::ItemType NiProviderSingleItem::getType() const
+{
+	return Item::NiProviderSingleItemEnum;
+}
+
+bool NiProviderSingleItem::open( const ReqMsg& reqMsg )
+{
+	UInt64 serviceId = 0;
+
+	const ReqMsgEncoder& reqMsgEncoder = static_cast<const ReqMsgEncoder&>( reqMsg.getEncoder() );
+
+	if ( reqMsgEncoder.hasServiceName() )
+	{
+		if ( !static_cast<OmmNiProviderImpl&>( _ommBaseImpl ).getServiceId( reqMsgEncoder.getServiceName(), serviceId ) )
+		{
+			EmaString temp( "Service name of '" );
+			temp.append( reqMsgEncoder.getServiceName() ).
+				append( "' is not found." );
+			scheduleItemClosedStatus( reqMsgEncoder, temp );
+
+			return true;
+		}
+
+		reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.serviceId = (UInt16) serviceId;
+		reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.flags |= RSSL_MKF_HAS_SERVICE_ID;
+	}
+	else
+	{
+		if ( !( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.flags & RSSL_MKF_HAS_SERVICE_ID ) )
+		{
+			EmaString temp( "Passed in request message does not identify any service." );
+			scheduleItemClosedStatus( reqMsgEncoder, temp );
+
+			return true;
+		}
+
+		serviceId = reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.serviceId;
+		EmaString serviceName;
+
+		if ( !static_cast<OmmNiProviderImpl&>( _ommBaseImpl ).getServiceName( serviceId, serviceName ) )
+		{
+			EmaString temp( "Service id of '" );
+			temp.append( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.serviceId ).
+				append( "' is not found." );
+			scheduleItemClosedStatus( reqMsgEncoder, temp );
+
+			return true;
+		}
+	}
+
+	return submit( reqMsgEncoder.getRsslRequestMsg() );
+}
+
+bool NiProviderSingleItem::modify( const ReqMsg& reqMsg )
+{
+	return false;
+}
+
+bool NiProviderSingleItem::close()
+{
+	RsslCloseMsg rsslCloseMsg;
+	rsslClearCloseMsg( &rsslCloseMsg );
+
+	rsslCloseMsg.msgBase.containerType = RSSL_DT_NO_DATA;
+	rsslCloseMsg.msgBase.domainType = _domainType;
+
+	bool retCode = submit( &rsslCloseMsg );
+
+	remove();
+
+	return retCode;
+}
+
+bool NiProviderSingleItem::submit( const PostMsg& postMsg )
+{
+	return false;
+}
+
+bool NiProviderSingleItem::submit( const GenericMsg& genMsg )
+{
+	return submit( static_cast<const GenericMsgEncoder&>( genMsg.getEncoder() ).getRsslGenericMsg() );
+}
+
+void NiProviderSingleItem::remove()
+{
+	if ( getType() != Item::BatchItemEnum )
+		delete this;
+}
+
+bool NiProviderSingleItem::submit( RsslRequestMsg* pRsslRequestMsg )
+{
+	RsslReactorSubmitMsgOptions submitMsgOpts;
+	rsslClearReactorSubmitMsgOptions( &submitMsgOpts );
+
+	if ( !( pRsslRequestMsg->flags & RSSL_RQMF_HAS_QOS ) )
+	{
+		pRsslRequestMsg->qos.timeliness = RSSL_QOS_TIME_REALTIME;
+		pRsslRequestMsg->qos.rate = RSSL_QOS_RATE_TICK_BY_TICK;
+		pRsslRequestMsg->worstQos.rate = RSSL_QOS_RATE_TIME_CONFLATED;
+		pRsslRequestMsg->worstQos.timeliness = RSSL_QOS_TIME_DELAYED_UNKNOWN;
+		pRsslRequestMsg->worstQos.rateInfo = 65535;
+		pRsslRequestMsg->flags |= ( RSSL_RQMF_HAS_QOS | RSSL_RQMF_HAS_WORST_QOS );
+	}
+
+	submitMsgOpts.pRsslMsg = (RsslMsg*) pRsslRequestMsg;
+
+	submitMsgOpts.pServiceName = 0;
+
+	Channel* pChannel = _ommBaseImpl.getChannelCallbackClient().getChannelList().front();
+
+	submitMsgOpts.majorVersion = pChannel->getRsslChannel()->majorVersion;
+	submitMsgOpts.minorVersion = pChannel->getRsslChannel()->minorVersion;
+
+	submitMsgOpts.requestMsgOptions.pUserSpec = ( void* )this;
+
+	if ( !_streamId )
+	{
+		if ( !submitMsgOpts.pRsslMsg->msgBase.streamId )
+			submitMsgOpts.pRsslMsg->msgBase.streamId = pChannel->getNextStreamId();
+
+		_streamId = submitMsgOpts.pRsslMsg->msgBase.streamId;
+	}
+	else
+		submitMsgOpts.pRsslMsg->msgBase.streamId = _streamId;
+
+	if ( !_domainType )
+		_domainType = submitMsgOpts.pRsslMsg->msgBase.domainType;
+	else
+		submitMsgOpts.pRsslMsg->msgBase.domainType = _domainType;
+
+	RsslErrorInfo rsslErrorInfo;
+	clearRsslErrorInfo( &rsslErrorInfo );
+	RsslRet ret;
+	if ( ( ret = rsslReactorSubmitMsg( pChannel->getRsslReactor(), pChannel->getRsslChannel(),
+		&submitMsgOpts, &rsslErrorInfo ) ) != RSSL_RET_SUCCESS )
+	{
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		{
+			EmaString temp( "Internal error: rsslReactorSubmitMsg() failed in SingleItem::submit( RsslRequestMsg* )" );
+			temp.append( CR )
+				.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
+				.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
+				.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
+				.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
+				.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
+		}
+
+		EmaString text( "Failed to open or modify item request. Reason: " );
+		text.append( rsslRetCodeToString( ret ) )
+			.append( ". Error text: " )
+			.append( rsslErrorInfo.rsslError.text );
+
+		_ommBaseImpl.handleIue( text );
+
+		return false;
+	}
+
+	return true;
+}
+
+bool NiProviderSingleItem::submit( RsslCloseMsg* pRsslCloseMsg )
+{
+	RsslReactorSubmitMsgOptions submitMsgOpts;
+	rsslClearReactorSubmitMsgOptions( &submitMsgOpts );
+
+	submitMsgOpts.pRsslMsg = (RsslMsg*) pRsslCloseMsg;
+
+	Channel* pChannel = _ommBaseImpl.getChannelCallbackClient().getChannelList().front();
+
+	submitMsgOpts.majorVersion = pChannel->getRsslChannel()->majorVersion;
+	submitMsgOpts.minorVersion = pChannel->getRsslChannel()->minorVersion;
+	submitMsgOpts.pRsslMsg->msgBase.streamId = _streamId;
+
+	RsslErrorInfo rsslErrorInfo;
+	clearRsslErrorInfo( &rsslErrorInfo );
+	RsslRet ret;
+	if ( ( ret = rsslReactorSubmitMsg( pChannel->getRsslReactor(), pChannel->getRsslChannel(),
+		&submitMsgOpts, &rsslErrorInfo ) ) != RSSL_RET_SUCCESS )
+	{
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		{
+			EmaString temp( "Internal error. rsslReactorSubmitMsg() failed in SingleItem::submit( RsslCloseMsg* )" );
+			temp.append( CR )
+				.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
+				.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
+				.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
+				.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
+				.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
+		}
+
+		EmaString text( "Failed to close item request. Reason: " );
+		text.append( rsslRetCodeToString( ret ) )
+			.append( ". Error text: " )
+			.append( rsslErrorInfo.rsslError.text );
+
+		_ommBaseImpl.handleIue( text );
+
+		return false;
+	}
+
+	return true;
+}
+
+bool NiProviderSingleItem::submit( RsslGenericMsg* pRsslGenericMsg )
+{
+	RsslReactorSubmitMsgOptions submitMsgOpts;
+	rsslClearReactorSubmitMsgOptions( &submitMsgOpts );
+
+	submitMsgOpts.pRsslMsg = (RsslMsg*) pRsslGenericMsg;
+
+	Channel* pChannel = _ommBaseImpl.getChannelCallbackClient().getChannelList().front();
+
+	submitMsgOpts.majorVersion = pChannel->getRsslChannel()->majorVersion;
+	submitMsgOpts.minorVersion = pChannel->getRsslChannel()->minorVersion;
+	submitMsgOpts.pRsslMsg->msgBase.streamId = _streamId;
+	submitMsgOpts.pRsslMsg->msgBase.domainType = _domainType;
+
+	RsslErrorInfo rsslErrorInfo;
+	clearRsslErrorInfo( &rsslErrorInfo );
+	RsslRet ret;
+	if ( ( ret = rsslReactorSubmitMsg( pChannel->getRsslReactor(), pChannel->getRsslChannel(),
+		&submitMsgOpts, &rsslErrorInfo ) ) != RSSL_RET_SUCCESS )
+	{
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		{
+			EmaString temp( "Internal error. rsslReactorSubmitMsg() failed in SingleItem::submit( RsslGenericMsg* )" );
+			temp.append( CR )
+				.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
+				.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
+				.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
+				.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
+				.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
+
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
+		}
+
+		EmaString text( "Failed to submit GenericMsg on item stream. Reason: " );
+		text.append( rsslRetCodeToString( ret ) )
+			.append( ". Error text: " )
+			.append( rsslErrorInfo.rsslError.text );
+
+		_ommBaseImpl.handleIue( text );
+
+		return false;
+	}
+
+	return true;
+}
+
+bool NiProviderSingleItem::submit( RsslPostMsg* pRsslPostMsg )
+{
+	return false;
+}
+
+void NiProviderSingleItem::scheduleItemClosedStatus( const ReqMsgEncoder& reqMsgEncoder, const EmaString& text )
+{
+	if ( _closedStatusInfo ) return;
+
+	_closedStatusInfo = new ClosedStatusInfo( this, reqMsgEncoder, text );
+
+	new TimeOut( _ommBaseImpl, 1000, ItemCallbackClient::sendItemClosedStatus, _closedStatusInfo, true );
 }
 
 void ItemCallbackClient::sendItemClosedStatus( void* pInfo )
@@ -538,14 +907,12 @@ void ItemCallbackClient::sendItemClosedStatus( void* pInfo )
 
 	statusMsg.getDecoder().setServiceName( pClosedStatusInfo->getServiceName().c_str(), pClosedStatusInfo->getServiceName().length() );
 
-	OmmConsumerEvent event;
+	Item* item = pClosedStatusInfo->getItem();
 
-	event._pItem = pClosedStatusInfo->getItem();
+	item->onAllMsg( statusMsg );
+	item->onStatusMsg( statusMsg );
 
-	event._pItem->getClient().onAllMsg( statusMsg, event );
-	event._pItem->getClient().onStatusMsg( statusMsg, event );
-
-	event._pItem->remove();
+	item->remove();
 }
 
 void SingleItem::scheduleItemClosedStatus( const ReqMsgEncoder& reqMsgEncoder, const EmaString& text )
@@ -554,17 +921,17 @@ void SingleItem::scheduleItemClosedStatus( const ReqMsgEncoder& reqMsgEncoder, c
 
 	_closedStatusInfo = new ClosedStatusInfo( this, reqMsgEncoder, text );
 
-	new TimeOut( _ommConsImpl, 1000, ItemCallbackClient::sendItemClosedStatus, _closedStatusInfo, true );
+	new TimeOut( _ommBaseImpl, 1000, ItemCallbackClient::sendItemClosedStatus, _closedStatusInfo, true );
 }
 
 ClosedStatusInfo::ClosedStatusInfo( Item* pItem, const ReqMsgEncoder& reqMsgEncoder, const EmaString& text ) :
- _msgKey(),
- _statusText( text ),
- _serviceName(),
- _domainType( reqMsgEncoder.getRsslRequestMsg()->msgBase.domainType ),
- _streamId( reqMsgEncoder.getRsslRequestMsg()->msgBase.streamId ),
- _pItem( pItem ),
- _privateStream( false )
+	_msgKey(),
+	_statusText( text ),
+	_serviceName(),
+	_domainType( reqMsgEncoder.getRsslRequestMsg()->msgBase.domainType ),
+	_streamId( reqMsgEncoder.getRsslRequestMsg()->msgBase.streamId ),
+	_pItem( pItem ),
+	_privateStream( false )
 {
 	rsslClearMsgKey( &_msgKey );
 
@@ -596,13 +963,13 @@ ClosedStatusInfo::ClosedStatusInfo( Item* pItem, const ReqMsgEncoder& reqMsgEnco
 }
 
 ClosedStatusInfo::ClosedStatusInfo( Item* pItem, const TunnelStreamRequest& tunnelStreamRequest, const EmaString& text ) :
- _msgKey(),
- _statusText( text ),
- _serviceName(),
- _domainType( tunnelStreamRequest.getDomainType() ),
- _streamId( 0 ),
- _pItem( pItem ),
- _privateStream( true )
+	_msgKey(),
+	_statusText( text ),
+	_serviceName(),
+	_domainType( tunnelStreamRequest.getDomainType() ),
+	_streamId( 0 ),
+	_pItem( pItem ),
+	_privateStream( true )
 {
 	rsslClearMsgKey( &_msgKey );
 
@@ -621,7 +988,6 @@ ClosedStatusInfo::ClosedStatusInfo( Item* pItem, const TunnelStreamRequest& tunn
 
 		_msgKey.flags |= RSSL_MKF_HAS_NAME;
 	}
-
 
 	if ( tunnelStreamRequest.hasServiceId() )
 	{
@@ -642,34 +1008,25 @@ ClosedStatusInfo::~ClosedStatusInfo()
 		free( _msgKey.encAttrib.data );
 }
 
-BatchItem* BatchItem::create( OmmConsumerImpl& ommConsImpl, OmmConsumerClient& ommConsClient, void* closure )
+BatchItem* BatchItem::create( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure )
 {
 	BatchItem* pItem = 0;
 
 	try {
-		pItem = new BatchItem( ommConsImpl, ommConsClient, closure );
+		pItem = new BatchItem( ommBaseImpl, ommConsClient, closure );
 	}
 	catch( std::bad_alloc ) {}
 
 	if ( !pItem )
-	{
-		const char* temp = "Failed to create BatchItem.";
-		if ( OmmLoggerClient::ErrorEnum >= ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-
-		if ( ommConsImpl.hasOmmConnsumerErrorClient() )
-			ommConsImpl.getOmmConsumerErrorClient().onMemoryExhaustion( temp );
-		else
-			throwMeeException( temp );
-	}
+		ommBaseImpl.handleMee( "Failed to create BatchItem." );
 
 	return pItem;
 }
 
-BatchItem::BatchItem( OmmConsumerImpl& ommConsImpl, OmmConsumerClient& ommConsClient, void* closure ) :
- SingleItem( ommConsImpl, ommConsClient, closure, 0 ),
- _singleItemList( 10 ),
- _itemCount( 1 )
+BatchItem::BatchItem( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure ) :
+	SingleItem( ommBaseImpl, ommConsClient, closure, 0 ),
+	_singleItemList( 10 ),
+	_itemCount( 1 )
 {
 	_singleItemList.push_back( 0 );
 }
@@ -692,15 +1049,9 @@ bool BatchItem::open( const ReqMsg& reqMsg )
 bool BatchItem::modify( const ReqMsg& reqMsg )
 {
 	EmaString temp( "Invalid attempt to modify batch stream. " );
-	temp.append( "OmmConsumer name='" ).append( _ommConsImpl .getConsumerName() ).append( "'." );
+	temp.append( "Instance name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
 
-	if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-		_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-
-	if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-		_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( temp );
-	else
-		throwIueException( temp );
+	_ommBaseImpl.handleIue( temp );
 
 	return false;
 }
@@ -708,15 +1059,9 @@ bool BatchItem::modify( const ReqMsg& reqMsg )
 bool BatchItem::close()
 {
 	EmaString temp( "Invalid attempt to close batch stream. " );
-	temp.append( "OmmConsumer name='" ).append( _ommConsImpl .getConsumerName() ).append( "'." );
+	temp.append( "Instance name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
 
-	if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-		_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-
-	if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-		_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( temp );
-	else
-		throwIueException( temp );
+	_ommBaseImpl.handleIue( temp );
 
 	return false;
 }
@@ -724,15 +1069,9 @@ bool BatchItem::close()
 bool BatchItem::submit( const PostMsg& )
 {
 	EmaString temp( "Invalid attempt to submit PostMsg on batch stream. " );
-	temp.append( "OmmConsumer name='" ).append( _ommConsImpl .getConsumerName() ).append( "'." );
+	temp.append( "Instance name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
 
-	if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-		_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-
-	if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-		_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( temp );
-	else
-		throwIueException( temp );
+	_ommBaseImpl.handleIue( temp );
 
 	return false;
 }
@@ -740,14 +1079,9 @@ bool BatchItem::submit( const PostMsg& )
 bool BatchItem::submit( const GenericMsg& )
 {
 	EmaString temp( "Invalid attempt to submit GenericMsg on batch stream. " );
-	temp.append( "OmmConsumer name='" ).append( _ommConsImpl .getConsumerName() ).append( "'." );
-	if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-		_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
+	temp.append( "Instance name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
 
-	if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-		_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( temp );
-	else
-		throwIueException( temp );
+	_ommBaseImpl.handleIue( temp );
 
 	return false;
 }
@@ -756,9 +1090,9 @@ bool BatchItem::addBatchItems( UInt32 batchSize )
 {
 	SingleItem* item = 0;
 
-	for( UInt32 i = 0 ; i < batchSize ; i++ )
+	for ( UInt32 i = 0 ; i < batchSize ; ++i )
 	{
-		item = SingleItem::create( _ommConsImpl, _ommConsClient, 0, this );
+		item = SingleItem::create( _ommBaseImpl, _client, 0, this );
 
 		if ( item )
 			_singleItemList.push_back( item );
@@ -787,43 +1121,34 @@ void BatchItem::decreaseItemCount()
 		delete this;
 }
 
-TunnelItem* TunnelItem::create( OmmConsumerImpl& ommConsImpl, OmmConsumerClient& ommConsClient, void* closure )
+TunnelItem* TunnelItem::create( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure )
 {
 	TunnelItem* pItem = 0;
 
 	try {
-		pItem = new TunnelItem( ommConsImpl, ommConsClient, closure );
+		pItem = new TunnelItem( ommBaseImpl, ommConsClient, closure );
 	}
 	catch( std::bad_alloc ) {}
 
 	if ( !pItem )
-	{
-		const char* temp = "Failed to create TunnelItem.";
-		if ( OmmLoggerClient::ErrorEnum >= ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-
-		if ( ommConsImpl.hasOmmConnsumerErrorClient() )
-			ommConsImpl.getOmmConsumerErrorClient().onMemoryExhaustion( temp );
-		else
-			throwMeeException( temp );
-	}
+		ommBaseImpl.handleMee( "Failed to create TunnelItem." );
 
 	return pItem;
 }
 
-TunnelItem::TunnelItem( OmmConsumerImpl& ommConsImpl, OmmConsumerClient& ommConsClient, void* closure ) :
- Item( ommConsImpl, ommConsClient, closure, 0 ),
- _pDirectory( 0 ),
- _pRsslTunnelStream( 0 ),
- _closedStatusInfo( 0 ),
- nextSubItemStreamId( _startingSubItemStreamId ),
- _subItems( 32 )
+TunnelItem::TunnelItem( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure ) :
+	ConsumerItem( ommBaseImpl, ommConsClient, closure, 0 ),
+	_pDirectory( 0 ),
+	_pRsslTunnelStream( 0 ),
+	_closedStatusInfo( 0 ),
+	nextSubItemStreamId( _startingSubItemStreamId ),
+	_subItems( 32 )
 {
 }
 
 TunnelItem::~TunnelItem()
 {
-	_ommConsImpl.getItemCallbackClient().removeFromList( this );
+	_ommBaseImpl.getItemCallbackClient().removeFromList( this );
 
 	for ( UInt32 i = 0; i < _subItems.size(); ++i )
 		if ( _subItems[ i ] )
@@ -834,6 +1159,7 @@ TunnelItem::~TunnelItem()
 		delete _closedStatusInfo;
 		_closedStatusInfo = 0;
 	}
+
 	if ( _pDirectory  && _pDirectory->getChannel() )
 		_pDirectory->getChannel()->returnStreamId( _streamId );
 }
@@ -853,7 +1179,7 @@ Int32 TunnelItem::getSubItemStreamId()
 	if ( returnedSubItemStreamIds.empty() )
 		return nextSubItemStreamId++;
 
-	StreamId * tmp( returnedSubItemStreamIds.pop_back() );
+	StreamId* tmp( returnedSubItemStreamIds.pop_back() );
 	Int32 retVal( (*tmp)() );
 	delete tmp;
 	return retVal;
@@ -876,14 +1202,7 @@ UInt32 TunnelItem::addSubItem( Item* pSubItem, Int32 streamId )
 			EmaString temp( "Invalid attempt to open a sub stream with streamId smaller than starting stream id. Passed in stream id is " );
 			temp.append( streamId );
 
-			if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-				_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-
-			if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-				_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( temp );
-			else
-				throwIueException( temp );
-
+			_ommBaseImpl.handleIue( temp );
 			return 0;
 		}
 
@@ -906,15 +1225,10 @@ UInt32 TunnelItem::addSubItem( Item* pSubItem, Int32 streamId )
 		{
 			if ( static_cast< UInt32 >( streamId ) < _subItems.size() && _subItems[ streamId ] )
 			{
-				EmaString errorMsg( "Invalid attempt to open a substream: substream streamId (" );
-				errorMsg.append( streamId ).append( ") is already in use" );
-				if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-					_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, errorMsg );
+				EmaString temp( "Invalid attempt to open a substream: substream streamId (" );
+				temp.append( streamId ).append( ") is already in use" );
 
-				if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-					_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( errorMsg );
-				else
-					throwIueException( errorMsg );
+				_ommBaseImpl.handleIue( temp );
 				return 0;
 			}
 		}
@@ -932,10 +1246,10 @@ void TunnelItem::removeSubItem( UInt32 streamId )
 	{
 		if ( streamId > 0 )
 		{
-			if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+			if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			{
 				EmaString temp( "Internal error. Current stream Id in TunnelItem::removeSubItem( UInt32 ) is less than the starting stream id." );
-				_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
+				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
 			}
 		}
 		return;
@@ -943,10 +1257,10 @@ void TunnelItem::removeSubItem( UInt32 streamId )
 
 	if ( streamId >= _subItems.size() )
 	{
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Internal error. Current stream Id in TunnelItem::removeSubItem( UInt32 ) is greater than the list size." );
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
 		}
 		return;
 	}
@@ -963,10 +1277,10 @@ Item* TunnelItem::getSubItem( UInt32 streamId )
 	{
 		if ( streamId > 0 )
 		{
-			if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+			if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			{
 				EmaString temp( "Internal error. Current stream Id in TunnelItem::getSubItem( UInt32 ) is less than the starting stream id." );
-				_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
+				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
 			}
 		}
 		return 0;
@@ -974,10 +1288,10 @@ Item* TunnelItem::getSubItem( UInt32 streamId )
 
 	if ( streamId >= _subItems.size() )
 	{
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Internal error. Current stream Id in TunnelItem::getSubItem( UInt32 ) is greater than the list size." );
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
 		}
 		return 0;
 	}
@@ -991,7 +1305,7 @@ bool TunnelItem::open( const TunnelStreamRequest& tunnelStreamRequest )
 
 	if ( tunnelStreamRequest.hasServiceName() )
 	{
-		pDirectory = _ommConsImpl.getDirectoryCallbackClient().getDirectory( tunnelStreamRequest.getServiceName() );
+		pDirectory = _ommBaseImpl.getDirectoryCallbackClient().getDirectory( tunnelStreamRequest.getServiceName() );
 		if ( !pDirectory )
 		{
 			EmaString temp( "Service name of '" );
@@ -1005,7 +1319,7 @@ bool TunnelItem::open( const TunnelStreamRequest& tunnelStreamRequest )
 	}
 	else if ( tunnelStreamRequest.hasServiceId() )
 	{
-		pDirectory = _ommConsImpl.getDirectoryCallbackClient().getDirectory( tunnelStreamRequest.getServiceId() );
+		pDirectory = _ommBaseImpl.getDirectoryCallbackClient().getDirectory( tunnelStreamRequest.getServiceId() );
 
 		if ( !pDirectory )
 		{
@@ -1030,7 +1344,7 @@ void TunnelItem::scheduleItemClosedStatus( const TunnelStreamRequest& tunnelStre
 
 	_closedStatusInfo = new ClosedStatusInfo( this, tunnelStreamRequest, text );
 
-	new TimeOut( _ommConsImpl, 1000, ItemCallbackClient::sendItemClosedStatus, _closedStatusInfo, true );
+	new TimeOut( _ommBaseImpl, 1000, ItemCallbackClient::sendItemClosedStatus, _closedStatusInfo, true );
 }
 
 void TunnelItem::rsslTunnelStream( RsslTunnelStream* pRsslTunnelStream )
@@ -1041,15 +1355,9 @@ void TunnelItem::rsslTunnelStream( RsslTunnelStream* pRsslTunnelStream )
 bool TunnelItem::open( const ReqMsg& )
 {
 	EmaString temp( "Invalid attempt to open tunnel stream using ReqMsg." );
-	temp.append( "OmmConsumer name='" ).append( _ommConsImpl .getConsumerName() ).append( "'." );
+	temp.append( "OmmConsumer name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
 
-	if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-		_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-
-	if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-		_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( temp );
-	else
-		throwIueException( temp );
+	_ommBaseImpl.handleIue( temp );
 
 	return false;
 }
@@ -1057,15 +1365,9 @@ bool TunnelItem::open( const ReqMsg& )
 bool TunnelItem::modify( const ReqMsg& )
 {
 	EmaString temp( "Invalid attempt to reissue tunnel stream using ReqMsg." );
-	temp.append( "OmmConsumer name='" ).append( _ommConsImpl .getConsumerName() ).append( "'." );
+	temp.append( "OmmConsumer name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
 
-	if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-		_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-
-	if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-		_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( temp );
-	else
-		throwIueException( temp );
+	_ommBaseImpl.handleIue( temp );
 
 	return false;
 }
@@ -1073,15 +1375,9 @@ bool TunnelItem::modify( const ReqMsg& )
 bool TunnelItem::submit( const PostMsg& )
 {
 	EmaString temp( "Invalid attempt to submit PostMsg on tunnel stream." );
-	temp.append( "OmmConsumer name='" ).append( _ommConsImpl .getConsumerName() ).append( "'." );
+	temp.append( "OmmConsumer name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
 
-	if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-		_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-
-	if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-		_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( temp );
-	else
-		throwIueException( temp );
+	_ommBaseImpl.handleIue( temp );
 
 	return false;
 }
@@ -1089,15 +1385,9 @@ bool TunnelItem::submit( const PostMsg& )
 bool TunnelItem::submit( const GenericMsg& )
 {
 	EmaString temp( "Invalid attempt to submit GenericMsg on tunnel stream." );
-	temp.append( "OmmConsumer name='" ).append( _ommConsImpl .getConsumerName() ).append( "'." );
+	temp.append( "OmmConsumer name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
 
-	if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-		_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-
-	if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-		_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( temp );
-	else
-		throwIueException( temp );
+	_ommBaseImpl.handleIue( temp );
 
 	return false;
 }
@@ -1123,8 +1413,8 @@ bool TunnelItem::submit( const TunnelStreamRequest& tunnelStreamRequest )
 	{
 		const char* temp = "Failed to allocate memory in TunnelItem::submit( const TunnelStreamRequest& ).";
 
-		if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-			_ommConsImpl.getOmmConsumerErrorClient().onMemoryExhaustion( temp );
+		if ( _ommBaseImpl.hasErrorClientHandler() )
+			_ommBaseImpl.getErrorClientHandler().onMemoryExhaustion( temp );
 		else
 			throwMeeException( temp );
 
@@ -1144,28 +1434,14 @@ bool TunnelItem::submit( const TunnelStreamRequest& tunnelStreamRequest )
 		if ( RSSL_RET_SUCCESS != rsslSetDecodeIteratorRWFVersion( &dIter, _pDirectory->getChannel()->getRsslChannel()->majorVersion, _pDirectory->getChannel()->getRsslChannel()->minorVersion ) )
 		{
 			free( rsslBuffer.data );
-
-			EmaString text( "Internal Error. Failed to set decode iterator version in TunnelItem::submit( const TunnelStreamRequest& )" );
-
-			if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-				_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( text );
-			else
-				throwIueException( text );
-
+			_ommBaseImpl.handleIue( "Internal Error. Failed to set decode iterator version in TunnelItem::submit( const TunnelStreamRequest& )" );
 			return false;
 		}
 
 		if ( RSSL_RET_SUCCESS != rsslSetDecodeIteratorBuffer( &dIter, tunnelStreamRequest._pImpl->getRsslBuffer() ) )
 		{
 			free( rsslBuffer.data );
-
-			EmaString text( "Internal Error. Failed to set decode iterator buffer in TunnelItem::submit( const TunnelStreamRequest& )" );
-
-			if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-				_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( text );
-			else
-				throwIueException( text );
-
+			_ommBaseImpl.handleIue( "Internal Error. Failed to set decode iterator buffer in TunnelItem::submit( const TunnelStreamRequest& )" );
 			return false;
 		}
 
@@ -1183,13 +1459,7 @@ bool TunnelItem::submit( const TunnelStreamRequest& tunnelStreamRequest )
 
 			if ( !rsslBuffer.data )
 			{
-				const char* temp = "Failed to allocate memory in TunnelItem::submit( const TunnelStreamRequest& ).";
-
-				if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-					_ommConsImpl.getOmmConsumerErrorClient().onMemoryExhaustion( temp );
-				else
-					throwMeeException( temp );
-
+				_ommBaseImpl.handleMee( "Failed to allocate memory in TunnelItem::submit( const TunnelStreamRequest& )." );
 				return false;
 			}
 
@@ -1199,14 +1469,7 @@ bool TunnelItem::submit( const TunnelStreamRequest& tunnelStreamRequest )
 		if ( RSSL_RET_SUCCESS != retCode )
 		{
 			free( rsslBuffer.data );
-
-			EmaString text( "Internal Error. Failed to decode login request in TunnelItem::submit( const TunnelStreamRequest& )" );
-
-			if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-				_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( text );
-			else
-				throwIueException( text );
-
+			_ommBaseImpl.handleIue( "Internal Error. Failed to decode login request in TunnelItem::submit( const TunnelStreamRequest& )" );
 			return false;
 		}
 
@@ -1241,7 +1504,7 @@ bool TunnelItem::submit( const TunnelStreamRequest& tunnelStreamRequest )
 	RsslRet ret;
 	if ( ( ret = rsslReactorOpenTunnelStream( _pDirectory->getChannel()->getRsslChannel(), &tsOpenOptions, &rsslErrorInfo ) ) != RSSL_RET_SUCCESS )
 	{
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Internal error: rsslReactorOpenTunnelStream() failed in TunnelItem::submit( const TunnelStreamRequest& )" );
 			temp.append( CR )
@@ -1250,7 +1513,7 @@ bool TunnelItem::submit( const TunnelStreamRequest& tunnelStreamRequest )
 				.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
 				.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
 				.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
 
 		free( rsslBuffer.data );
@@ -1260,10 +1523,7 @@ bool TunnelItem::submit( const TunnelStreamRequest& tunnelStreamRequest )
 			.append( ". Error text: " )
 			.append( rsslErrorInfo.rsslError.text );
 
-		if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-			_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( text );
-		else
-			throwIueException( text );
+		_ommBaseImpl.handleIue( text );
 
 		return false;
 	}
@@ -1283,7 +1543,7 @@ bool TunnelItem::close()
 	RsslRet ret;
 	if ( ( ret = rsslReactorCloseTunnelStream( _pRsslTunnelStream, &tunnelStreamCloseOptions, &rsslErrorInfo ) ) != RSSL_RET_SUCCESS )
 	{
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Internal error. rsslReactorCloseTunnelStream() failed in TunnelItem::close()" );
 			temp.append( CR )
@@ -1292,7 +1552,7 @@ bool TunnelItem::close()
 				.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
 				.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
 				.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
 
 		EmaString text( "Failed to close tunnel stream request. Reason: " );
@@ -1300,10 +1560,7 @@ bool TunnelItem::close()
 			.append( ". Error text: " )
 			.append( rsslErrorInfo.rsslError.text );
 
-		if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-			_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( text );
-		else
-			throwIueException( text );
+		_ommBaseImpl.handleIue( text );
 
 		return false;
 	}
@@ -1335,15 +1592,7 @@ bool TunnelItem::submitSubItemMsg( RsslMsg* pRsslMsg )
 
 	if ( !pRsslBuffer )
 	{
-		EmaString temp( "Internal Error. Failed to allocate RsslTunnelStreamBuffer in TunnelItem::submitSubItemMsg( RsslMsg* )." );
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
-
-		if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-			_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( temp );
-		else
-			throwIueException( temp );
-
+		_ommBaseImpl.handleMee( "Internal Error. Failed to allocate RsslTunnelStreamBuffer in TunnelItem::submitSubItemMsg( RsslMsg* )." );
 		return false;
 	}
 
@@ -1352,29 +1601,13 @@ bool TunnelItem::submitSubItemMsg( RsslMsg* pRsslMsg )
 
 	if ( rsslSetEncodeIteratorRWFVersion( &eIter, _pRsslTunnelStream->pReactorChannel->majorVersion, _pRsslTunnelStream->pReactorChannel->minorVersion ) != RSSL_RET_SUCCESS )
 	{
-		EmaString temp( "Internal Error. Failed to set encode iterator version in TunnelItem::submitSubItemMsg( RsslMsg* )." );
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
-
-		if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-			_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( temp );
-		else
-			throwIueException( temp );
-
+		_ommBaseImpl.handleIue( "Internal Error. Failed to set encode iterator version in TunnelItem::submitSubItemMsg( RsslMsg* )." );
 		return false;
 	}
 
 	if ( rsslSetEncodeIteratorBuffer( &eIter, pRsslBuffer ) != RSSL_RET_SUCCESS )
 	{
-		EmaString temp( "Internal Error. Failed to set encode iterator buffer in TunnelItem::submitSubItemMsg( RsslMsg* )." );
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
-
-		if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-			_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( temp );
-		else
-			throwIueException( temp );
-
+		_ommBaseImpl.handleIue( "Internal Error. Failed to set encode iterator buffer in TunnelItem::submitSubItemMsg( RsslMsg* )." );
 		return false;
 	}
 
@@ -1389,15 +1622,7 @@ bool TunnelItem::submitSubItemMsg( RsslMsg* pRsslMsg )
 
 		if ( !pRsslBuffer )
 		{
-			EmaString temp( "Internal Error. Failed to allocate RsslTunnelStreamBuffer in TunnelItem::submitSubItemMsg( RsslMsg* )." );
-			if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-				_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
-
-			if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-				_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( temp );
-			else
-				throwIueException( temp );
-
+			_ommBaseImpl.handleMee( "Internal Error. Failed to allocate RsslTunnelStreamBuffer in TunnelItem::submitSubItemMsg( RsslMsg* )." );
 			return false;
 		}
 
@@ -1405,29 +1630,13 @@ bool TunnelItem::submitSubItemMsg( RsslMsg* pRsslMsg )
 
 		if ( rsslSetEncodeIteratorRWFVersion( &eIter, _pRsslTunnelStream->pReactorChannel->majorVersion, _pRsslTunnelStream->pReactorChannel->minorVersion ) != RSSL_RET_SUCCESS )
 		{
-			EmaString temp( "Internal Error. Failed to set encode iterator version in TunnelItem::submitSubItemMsg( RsslMsg* )." );
-			if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-				_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
-
-			if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-				_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( temp );
-			else
-				throwIueException( temp );
-
+			_ommBaseImpl.handleIue( "Internal Error. Failed to set encode iterator version in TunnelItem::submitSubItemMsg( RsslMsg* )." );
 			return false;
 		}
 
 		if ( rsslSetEncodeIteratorBuffer( &eIter, pRsslBuffer ) != RSSL_RET_SUCCESS )
 		{
-			EmaString temp( "Internal Error. Failed to set encode iterator buffer in TunnelItem::submitSubItemMsg( RsslMsg* )." );
-			if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-				_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
-
-			if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-				_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( temp );
-			else
-				throwIueException( temp );
-
+			_ommBaseImpl.handleIue( "Internal Error. Failed to set encode iterator buffer in TunnelItem::submitSubItemMsg( RsslMsg* )." );
 			return false;
 		}
 	}
@@ -1436,15 +1645,7 @@ bool TunnelItem::submitSubItemMsg( RsslMsg* pRsslMsg )
 	{
 		rsslTunnelStreamReleaseBuffer( pRsslBuffer, &rsslErrorInfo );
 
-		EmaString temp( "Internal Error. Failed to encode message in TunnelItem::submitSubItemMsg( RsslMsg* )." );
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
-
-		if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-			_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( temp );
-		else
-			throwIueException( temp );
-
+		_ommBaseImpl.handleIue( "Internal Error. Failed to encode message in TunnelItem::submitSubItemMsg( RsslMsg* )." );
 		return false;
 	}
 
@@ -1460,56 +1661,39 @@ bool TunnelItem::submitSubItemMsg( RsslMsg* pRsslMsg )
 	{
 		rsslTunnelStreamReleaseBuffer( pRsslBuffer, &rsslErrorInfo );
 
-		EmaString temp( "Internal Error. Failed to submit message in TunnelItem::submitSubItemMsg( RsslMsg* )." );
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
-
-		if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-			_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( temp );
-		else
-			throwIueException( temp );
-
+		_ommBaseImpl.handleIue( "Internal Error. Failed to submit message in TunnelItem::submitSubItemMsg( RsslMsg* )." );
 		return false;
 	}
 
 	return true;
 }
 
-SubItem* SubItem::create( OmmConsumerImpl& ommConsImpl, OmmConsumerClient& ommConsClient, void* closure, Item* parent )
+SubItem* SubItem::create( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure, Item* parent )
 {
 	SubItem* pItem = 0;
 
 	try {
-		pItem = new SubItem( ommConsImpl, ommConsClient, closure, parent );
+		pItem = new SubItem( ommBaseImpl, ommConsClient, closure, parent );
 	}
 	catch( std::bad_alloc ) {}
 
 	if ( !pItem )
-	{
-		const char* temp = "Failed to create SubItem";
-		if ( OmmLoggerClient::ErrorEnum >= ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-
-		if ( ommConsImpl.hasOmmConnsumerErrorClient() )
-			ommConsImpl.getOmmConsumerErrorClient().onMemoryExhaustion( temp );
-		else
-			throwMeeException( temp );
-	}
+		ommBaseImpl.handleMee( "Failed to create SubItem" );
 
 	return pItem;
 }
 
-SubItem::SubItem( OmmConsumerImpl& ommConsImpl, OmmConsumerClient& ommConsClient, void* closure, Item* parent ) :
- Item( ommConsImpl, ommConsClient, closure, parent ),
- _closedStatusInfo( 0 )
+SubItem::SubItem( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure, Item* parent ) :
+	ConsumerItem( ommBaseImpl, ommConsClient, closure, parent ),
+	_closedStatusInfo( 0 )
 {
 }
 
 SubItem::~SubItem()
 {
-	static_cast<TunnelItem*>( _parent )->removeSubItem( _streamId );
+	reinterpret_cast<TunnelItem*>( _event.getParentHandle() )->removeSubItem( _streamId );
 
-	_ommConsImpl.getItemCallbackClient().removeFromList( this );
+	_ommBaseImpl.getItemCallbackClient().removeFromList( this );
 
 	if ( _closedStatusInfo )
 	{
@@ -1534,7 +1718,7 @@ void SubItem::scheduleItemClosedStatus( const ReqMsgEncoder& reqMsgEncoder, cons
 
 	_closedStatusInfo = new ClosedStatusInfo( this, reqMsgEncoder, text );
 
-	new TimeOut( _ommConsImpl, 1000, ItemCallbackClient::sendItemClosedStatus, _closedStatusInfo, true );
+	new TimeOut( _ommBaseImpl, 1000, ItemCallbackClient::sendItemClosedStatus, _closedStatusInfo, true );
 }
 
 bool SubItem::open( const ReqMsg& reqMsg )
@@ -1551,7 +1735,7 @@ bool SubItem::open( const ReqMsg& reqMsg )
 
 	if ( !reqMsgEncoder.getRsslRequestMsg()->msgBase.streamId )
 	{
-		_streamId = static_cast<TunnelItem*>( _parent )->addSubItem( this );
+		_streamId = reinterpret_cast<TunnelItem*>( _event.getParentHandle() )->addSubItem( this );
 		reqMsgEncoder.getRsslRequestMsg()->msgBase.streamId = _streamId;
 	}
 	else
@@ -1559,12 +1743,12 @@ bool SubItem::open( const ReqMsg& reqMsg )
 		if ( reqMsgEncoder.getRsslRequestMsg()->msgBase.streamId < 0 )
 		{
 			EmaString temp( "Invalid attempt to assign negative streamId to a sub stream." );
-			if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-				_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
+			if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
 
-			if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
+			if ( _ommBaseImpl.hasErrorClientHandler() )
 			{
-				_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( temp );
+				_ommBaseImpl.getErrorClientHandler().onInvalidUsage( temp );
 				return false;
 			}
 			else
@@ -1575,13 +1759,13 @@ bool SubItem::open( const ReqMsg& reqMsg )
 		}
 		else
 		{
-			_streamId = static_cast<TunnelItem*>( _parent )->addSubItem( this, reqMsgEncoder.getRsslRequestMsg()->msgBase.streamId );
+			_streamId = reinterpret_cast<TunnelItem*>( _event.getParentHandle() )->addSubItem( this, reqMsgEncoder.getRsslRequestMsg()->msgBase.streamId );
 		}
 	}
 
 	_domainType = (UInt8)reqMsgEncoder.getRsslRequestMsg()->msgBase.domainType;
 
-	return static_cast<TunnelItem*>( _parent )->submitSubItemMsg( (RsslMsg*)reqMsgEncoder.getRsslRequestMsg() );
+	return reinterpret_cast<TunnelItem*>( _event.getParentHandle() )->submitSubItemMsg( (RsslMsg*)reqMsgEncoder.getRsslRequestMsg() );
 }
 
 bool SubItem::modify( const ReqMsg& reqMsg )
@@ -1590,7 +1774,7 @@ bool SubItem::modify( const ReqMsg& reqMsg )
 
 	reqMsgEncoder.getRsslRequestMsg()->msgBase.streamId = _streamId;
 
-	return static_cast<TunnelItem*>( _parent )->submitSubItemMsg( (RsslMsg*)reqMsgEncoder.getRsslRequestMsg() );
+	return reinterpret_cast<TunnelItem*>( _event.getParentHandle() )->submitSubItemMsg( (RsslMsg*)reqMsgEncoder.getRsslRequestMsg() );
 }
 
 bool SubItem::submit( const PostMsg& postMsg )
@@ -1599,7 +1783,7 @@ bool SubItem::submit( const PostMsg& postMsg )
 
 	postMsgEncoder.getRsslPostMsg()->msgBase.streamId = _streamId;
 
-	return static_cast<TunnelItem*>( _parent )->submitSubItemMsg( (RsslMsg*)postMsgEncoder.getRsslPostMsg() );
+	return reinterpret_cast<TunnelItem*>( _event.getParentHandle() )->submitSubItemMsg( (RsslMsg*)postMsgEncoder.getRsslPostMsg() );
 }
 
 bool SubItem::submit( const GenericMsg& genMsg )
@@ -1608,7 +1792,7 @@ bool SubItem::submit( const GenericMsg& genMsg )
 
 	genMsgEncoder.getRsslGenericMsg()->msgBase.streamId = _streamId;
 
-	return static_cast<TunnelItem*>( _parent )->submitSubItemMsg( (RsslMsg*)genMsgEncoder.getRsslGenericMsg() );
+	return reinterpret_cast<TunnelItem*>( _event.getParentHandle() )->submitSubItemMsg( (RsslMsg*)genMsgEncoder.getRsslGenericMsg() );
 }
 
 bool SubItem::close()
@@ -1619,9 +1803,9 @@ bool SubItem::close()
 	rsslCloseMsg.msgBase.containerType = RSSL_DT_NO_DATA;
 	rsslCloseMsg.msgBase.domainType = _domainType;
 	rsslCloseMsg.msgBase.streamId = _streamId;
-    bool retCode = static_cast<TunnelItem*>( _parent )->submitSubItemMsg( (RsslMsg*)&rsslCloseMsg );
+    bool retCode = reinterpret_cast<TunnelItem*>( _event.getParentHandle() )->submitSubItemMsg( (RsslMsg*)&rsslCloseMsg );
 	
-	static_cast<TunnelItem*>( _parent )->returnSubItemStreamId( _streamId );
+	reinterpret_cast<TunnelItem*>( _event.getParentHandle() )->returnSubItemStreamId( _streamId );
 	
 	remove();
 
@@ -1633,26 +1817,17 @@ void SubItem::remove()
 	delete this;
 }
 
-ItemList* ItemList::create( OmmConsumerImpl& ommConsImpl )
+ItemList* ItemList::create( OmmBaseImpl& ommBaseImpl )
 {
 	ItemList* pItemList = 0;
 
 	try {
-		pItemList = new ItemList( ommConsImpl );
+		pItemList = new ItemList( ommBaseImpl );
 	}
 	catch( std::bad_alloc ) {}
 
 	if ( !pItemList )
-	{
-		const char* temp = "Failed to create ItemList";
-		if ( OmmLoggerClient::ErrorEnum >= ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-
-		if ( ommConsImpl.hasOmmConnsumerErrorClient() )
-			ommConsImpl.getOmmConsumerErrorClient().onMemoryExhaustion( temp );
-		else
-			throwMeeException( temp );
-	}
+		ommBaseImpl.handleMee( "Failed to create ItemList" );
 
 	return pItemList;
 }
@@ -1666,8 +1841,8 @@ void ItemList::destroy( ItemList*& pItemList )
 	}
 }
 
-ItemList::ItemList( OmmConsumerImpl& ommConsImpl ) :
- _ommConsImpl( ommConsImpl )
+ItemList::ItemList( OmmBaseImpl& ommBaseImpl ) :
+	_ommBaseImpl( ommBaseImpl )
 {
 }
 
@@ -1686,12 +1861,12 @@ Int32 ItemList::addItem( Item* pItem )
 {
 	_list.push_back( pItem );
 
-	if ( OmmLoggerClient::VerboseEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+	if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 	{
 		EmaString temp( "Added Item " );
 		temp.append( ptrToStringAsHex( pItem ) ).append( " to ItemList" ).append( CR )
-			.append( "OmmConsumer name " ).append( _ommConsImpl .getConsumerName() );
-		_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
+			.append( "OmmConsumer name " ).append( _ommBaseImpl .getInstanceName() );
+		_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
 	}
 
 	return _list.size();
@@ -1701,32 +1876,31 @@ void ItemList::removeItem( Item* pItem )
 {
 	_list.remove( pItem );
 
-	if ( OmmLoggerClient::VerboseEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+	if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 	{
 		EmaString temp( "Removed Item " );
 		temp.append( ptrToStringAsHex( pItem ) ).append( " from ItemList" ).append( CR )
-			.append( "OmmConsumer name " ).append( _ommConsImpl .getConsumerName() );
-		_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
+			.append( "Instance name " ).append( _ommBaseImpl .getInstanceName() );
+		_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
 	}
 }
 
-ItemCallbackClient::ItemCallbackClient( OmmConsumerImpl& ommConsImpl ) :
- _refreshMsg(),
- _updateMsg(),
- _statusMsg(),
- _genericMsg(),
- _ackMsg(),
- _event(),
- _ommConsImpl( ommConsImpl ),
- _itemMap( ommConsImpl.getActiveConfig().itemCountHint )
+ItemCallbackClient::ItemCallbackClient( OmmBaseImpl& ommBaseImpl ) :
+	_refreshMsg(),
+	_updateMsg(),
+	_statusMsg(),
+	_genericMsg(),
+	_ackMsg(),
+	_ommBaseImpl( ommBaseImpl ),
+	_itemMap( ommBaseImpl.getActiveConfig().itemCountHint )
 {
-    _itemList = ItemList::create( ommConsImpl );
+    _itemList = ItemList::create( ommBaseImpl );
 
-	if ( OmmLoggerClient::VerboseEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+	if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 	{
 		EmaString temp( "Created ItemCallbackClient." );
-		temp.append( " OmmConsumer name='" ).append( _ommConsImpl .getConsumerName() ).append( "'." );
-		_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
+		temp.append( " Instance name='" ).append( _ommBaseImpl.getInstanceName() ).append( "'." );
+		_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
 	}
 }
 
@@ -1734,31 +1908,25 @@ ItemCallbackClient::~ItemCallbackClient()
 {
 	ItemList::destroy( _itemList );
 
-	if ( OmmLoggerClient::VerboseEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+	if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 	{
-		EmaString temp( "Destroyed ItemCallbackClient." );
-		temp.append( " OmmConsumer name='" ).append( _ommConsImpl .getConsumerName() ).append( "'." );
-		_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
+		EmaString temp( "Destroyed ItemCallbackClient [" );
+		temp.append( _ommBaseImpl .getInstanceName() ).append( "]" );
+		_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
 	}
 }
 
-ItemCallbackClient* ItemCallbackClient::create( OmmConsumerImpl& ommConsImpl )
+ItemCallbackClient* ItemCallbackClient::create( OmmBaseImpl& ommBaseImpl )
 {
 	ItemCallbackClient* pClient = 0;
 
 	try {
-		pClient = new ItemCallbackClient( ommConsImpl );
+		pClient = new ItemCallbackClient( ommBaseImpl );
 	}
 	catch ( std::bad_alloc ) {}
 
 	if ( !pClient )
-	{
-		const char* temp = "Failed to create ItemCallbackClient";
-		if ( OmmLoggerClient::ErrorEnum >= ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-
-		throwMeeException( temp );
-	}
+		ommBaseImpl.handleMee( "Failed to create ItemCallbackClient" );
 
 	return pClient;
 }
@@ -1780,13 +1948,13 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslTunnelStream* pR
 {
 	if ( !pRsslTunnelStream )
 	{
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Received a tunnel stream status event without the pRsslTunnelStream in ItemCallbackClient::processCallback( RsslTunnelStream* , RsslTunnelStreamStatusEvent* )." );
 			temp.append( CR )
-				.append( "Consumer Name " ).append( _ommConsImpl.getConsumerName() ).append( CR )
+				.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
 				.append( "RsslChannel " ).append( ptrToStringAsHex( pTunnelStreamStatusEvent->pReactorChannel->pRsslChannel ) );
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
 
 		return RSSL_RC_CRET_SUCCESS;
@@ -1794,13 +1962,13 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslTunnelStream* pR
 
 	if ( !pRsslTunnelStream->userSpecPtr )
 	{
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Received a tunnel stream status event without the userSpecPtr in ItemCallbackClient::processCallback( RsslTunnelStream* , RsslTunnelStreamStatusEvent* )." );
 			temp.append( CR )
-				.append( "Consumer Name " ).append( _ommConsImpl.getConsumerName() ).append( CR )
+				.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
 				.append( "RsslChannel " ).append( ptrToStringAsHex( pTunnelStreamStatusEvent->pReactorChannel->pRsslChannel ) );
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
 
 		return RSSL_RC_CRET_SUCCESS;
@@ -1835,17 +2003,18 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslTunnelStream* pR
 
 	static_cast<TunnelItem*>( pRsslTunnelStream->userSpecPtr )->rsslTunnelStream( pRsslTunnelStream );
 
-	_event._pItem = (Item*)( pRsslTunnelStream->userSpecPtr );
+	Item* item = (Item*)( pRsslTunnelStream->userSpecPtr );
 
-	_statusMsg.getDecoder().setServiceName( _event._pItem->getDirectory()->getName().c_str(),
-											_event._pItem->getDirectory()->getName().length() );
+	_statusMsg.getDecoder().setServiceName( item->getDirectory()->getName().c_str(), item->getDirectory()->getName().length() );
 
-	_event._pItem->getClient().onAllMsg( _statusMsg, _event );
-	_event._pItem->getClient().onStatusMsg( _statusMsg, _event );
+	_ommBaseImpl.msgDispatched();
+
+	item->onAllMsg( _statusMsg );
+	item->onStatusMsg( _statusMsg );
 
 	if ( pTunnelStreamStatusEvent->pState )
 		if ( _statusMsg.getState().getStreamState() != OmmState::OpenEnum )
-			_event._pItem->remove();
+			item->remove();
 
 	return RSSL_RC_CRET_SUCCESS;
 }
@@ -1854,13 +2023,13 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslTunnelStream* pR
 {
 	if ( !pRsslTunnelStream )
 	{
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Received a tunnel stream message event without the pRsslTunnelStream in ItemCallbackClient::processCallback( RsslTunnelStream* , RsslTunnelStreamMsgEvent* )." );
 			temp.append( CR )
-				.append( "Consumer Name " ).append( _ommConsImpl.getConsumerName() ).append( CR )
+				.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
 				.append( "RsslChannel " ).append( ptrToStringAsHex( pTunnelStreamMsgEvent->pReactorChannel->pRsslChannel ) );
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
 
 		return RSSL_RC_CRET_SUCCESS;
@@ -1868,17 +2037,17 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslTunnelStream* pR
 
 	if ( !pRsslTunnelStream->userSpecPtr )
 	{
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Received a tunnel stream message event without the userSpecPtr in ItemCallbackClient::processCallback( RsslTunnelStream* , RsslTunnelStreamMsgEvent* )." );
 			temp.append( CR )
-				.append( "Consumer Name " ).append( _ommConsImpl.getConsumerName() ).append( CR )
+				.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
 				.append( "RsslChannel " ).append( ptrToStringAsHex( pTunnelStreamMsgEvent->pReactorChannel->pRsslChannel ) ).append( CR )
 				.append( "Error Id " ).append( pTunnelStreamMsgEvent->pErrorInfo->rsslError.rsslErrorId ).append( CR )
 				.append( "Internal sysError " ).append( pTunnelStreamMsgEvent->pErrorInfo->rsslError.sysError ).append( CR )
 				.append( "Error Location " ).append( pTunnelStreamMsgEvent->pErrorInfo->errorLocation ).append( CR )
 				.append( "Error Text " ).append( pTunnelStreamMsgEvent->pErrorInfo->rsslError.rsslErrorId ? pTunnelStreamMsgEvent->pErrorInfo->rsslError.text : "" );
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
 
 		return RSSL_RC_CRET_SUCCESS;
@@ -1886,57 +2055,57 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslTunnelStream* pR
 
 	if ( pTunnelStreamMsgEvent->containerType != RSSL_DT_MSG )
 	{
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Received a tunnel stream message event containing an unsupported data type of " );
 			temp += DataType( dataType[ pTunnelStreamMsgEvent->containerType ] ).toString();
 
 			temp.append( CR )
-				.append( "Consumer Name " ).append( _ommConsImpl.getConsumerName() ).append( CR )
+				.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
 				.append( "RsslChannel " ).append( ptrToStringAsHex( pTunnelStreamMsgEvent->pReactorChannel->pRsslChannel ) ).append( CR )
 				.append( "Tunnel Stream Handle " ).append( (UInt64)pRsslTunnelStream->userSpecPtr ).append( CR )
 				.append( "Tunnel Stream name " ).append( pRsslTunnelStream->name ).append( CR )
 				.append( "Tunnel Stream serviceId " ).append( pRsslTunnelStream->serviceId ).append( CR )
 				.append( "Tunnel Stream streamId " ).append( pRsslTunnelStream->streamId );
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
 
 		return RSSL_RC_CRET_SUCCESS;
 	}
 	else if ( !pTunnelStreamMsgEvent->pRsslMsg )
 	{
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Received a tunnel stream message event containing no sub stream message." );
 			temp.append( CR )
-				.append( "Consumer Name " ).append( _ommConsImpl.getConsumerName() ).append( CR )
+				.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
 				.append( "RsslChannel " ).append( ptrToStringAsHex( pTunnelStreamMsgEvent->pReactorChannel->pRsslChannel ) ).append( CR )
 				.append( "Tunnel Stream Handle " ).append( (UInt64)pRsslTunnelStream->userSpecPtr ).append( CR )
 				.append( "Tunnel Stream name " ).append( pRsslTunnelStream->name ).append( CR )
 				.append( "Tunnel Stream serviceId " ).append( pRsslTunnelStream->serviceId ).append( CR )
 				.append( "Tunnel Stream streamId " ).append( pRsslTunnelStream->streamId );
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
 
 		return RSSL_RC_CRET_SUCCESS;
 	}
 
-	_event._pItem = static_cast<TunnelItem*>( pRsslTunnelStream->userSpecPtr )->getSubItem( pTunnelStreamMsgEvent->pRsslMsg->msgBase.streamId );
+	Item* item = static_cast<TunnelItem*>( pRsslTunnelStream->userSpecPtr )->getSubItem( pTunnelStreamMsgEvent->pRsslMsg->msgBase.streamId );
 	
-	if ( !_event._pItem )
+	if ( ! item )
 	{
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Received a tunnel stream message event containing sub stream message with unknown streamId " );
 			temp.append( pTunnelStreamMsgEvent->pRsslMsg->msgBase.streamId ).append( ". Message is dropped." );
 			temp.append( CR )
-				.append( "Consumer Name " ).append( _ommConsImpl.getConsumerName() ).append( CR )
+				.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
 				.append( "RsslChannel " ).append( ptrToStringAsHex( pTunnelStreamMsgEvent->pReactorChannel->pRsslChannel ) ).append( CR )
 				.append( "Tunnel Stream Handle " ).append( (UInt64)pRsslTunnelStream->userSpecPtr ).append( CR )
 				.append( "Tunnel Stream name " ).append( pRsslTunnelStream->name ).append( CR )
 				.append( "Tunnel Stream serviceId " ).append( pRsslTunnelStream->serviceId ).append( CR )
 				.append( "Tunnel Stream streamId " ).append( pRsslTunnelStream->streamId );
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
 
 		return RSSL_RC_CRET_SUCCESS;
@@ -1946,28 +2115,28 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslTunnelStream* pR
 	{
 	default :
 		{
-			if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+			if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			{
 				EmaString temp( "Received a tunnel stream message event containing an unsupported message type of " );
 				temp += DataType( msgDataType[ pTunnelStreamMsgEvent->pRsslMsg->msgBase.msgClass ] ).toString();
 
 				temp.append( CR )
-					.append( "Consumer Name " ).append( _ommConsImpl.getConsumerName() ).append( CR )
+					.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
 					.append( "RsslChannel " ).append( ptrToStringAsHex( pTunnelStreamMsgEvent->pReactorChannel->pRsslChannel ) );
-				_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
+				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 			}
 		}
 		break;
 	case RSSL_MC_GENERIC :
-		return processGenericMsg( pRsslTunnelStream, pTunnelStreamMsgEvent );
+		return processGenericMsg( pRsslTunnelStream, pTunnelStreamMsgEvent, item );
 	case RSSL_MC_ACK :
-		return processAckMsg( pRsslTunnelStream, pTunnelStreamMsgEvent );
+		return processAckMsg( pRsslTunnelStream, pTunnelStreamMsgEvent, item );
 	case RSSL_MC_REFRESH :
-		return processRefreshMsg( pRsslTunnelStream, pTunnelStreamMsgEvent );
+		return processRefreshMsg( pRsslTunnelStream, pTunnelStreamMsgEvent, item );
 	case RSSL_MC_UPDATE :
-		return processUpdateMsg( pRsslTunnelStream, pTunnelStreamMsgEvent );
+		return processUpdateMsg( pRsslTunnelStream, pTunnelStreamMsgEvent, item );
 	case RSSL_MC_STATUS :
-		return processStatusMsg( pRsslTunnelStream, pTunnelStreamMsgEvent );
+		return processStatusMsg( pRsslTunnelStream, pTunnelStreamMsgEvent, item );
 	};
 
 	return RSSL_RC_CRET_SUCCESS;
@@ -1977,13 +2146,13 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslTunnelStream* pR
 {
 	if ( !pRsslTunnelStream )
 	{
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Received a tunnel stream queue message event without the pRsslTunnelStream in ItemCallbackClient::processCallback( RsslTunnelStream* , RsslTunnelStreamQueueMsgEvent* )." );
 			temp.append( CR )
-				.append( "Consumer Name " ).append( _ommConsImpl.getConsumerName() ).append( CR )
+				.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
 				.append( "RsslChannel " ).append( ptrToStringAsHex( pTunnelStreamQueueMsgEvent->base.pReactorChannel->pRsslChannel ) );
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
 
 		return RSSL_RC_CRET_SUCCESS;
@@ -1991,17 +2160,17 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslTunnelStream* pR
 
 	if ( !pRsslTunnelStream->userSpecPtr )
 	{
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Received a tunnel stream queue message event without the userSpecPtr in ItemCallbackClient::processCallback( RsslTunnelStream* , RsslTunnelStreamQueueMsgEvent* )." );
 			temp.append( CR )
-				.append( "Consumer Name " ).append( _ommConsImpl.getConsumerName() ).append( CR )
+				.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
 				.append( "RsslChannel " ).append( ptrToStringAsHex( pTunnelStreamQueueMsgEvent->base.pReactorChannel->pRsslChannel ) ).append( CR )
 				.append( "Error Id " ).append( pTunnelStreamQueueMsgEvent->base.pErrorInfo->rsslError.rsslErrorId ).append( CR )
 				.append( "Internal sysError " ).append( pTunnelStreamQueueMsgEvent->base.pErrorInfo->rsslError.sysError ).append( CR )
 				.append( "Error Location " ).append( pTunnelStreamQueueMsgEvent->base.pErrorInfo->errorLocation ).append( CR )
 				.append( "Error Text " ).append( pTunnelStreamQueueMsgEvent->base.pErrorInfo->rsslError.rsslErrorId ? pTunnelStreamQueueMsgEvent->base.pErrorInfo->rsslError.text : "" );
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
 
 		return RSSL_RC_CRET_SUCCESS;
@@ -2010,81 +2179,91 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslTunnelStream* pR
 	return RSSL_RC_CRET_SUCCESS;
 }
 
-RsslReactorCallbackRet ItemCallbackClient::processAckMsg( RsslTunnelStream* pRsslTunnelStream, RsslTunnelStreamMsgEvent* pTunnelStreamMsgEvent )
+RsslReactorCallbackRet ItemCallbackClient::processAckMsg( RsslTunnelStream* pRsslTunnelStream, RsslTunnelStreamMsgEvent* pTunnelStreamMsgEvent, Item* item )
 {
 	StaticDecoder::setRsslData( &_ackMsg, pTunnelStreamMsgEvent->pRsslMsg,
 		pTunnelStreamMsgEvent->pReactorChannel->majorVersion,
 		pTunnelStreamMsgEvent->pReactorChannel->minorVersion,
 		static_cast<Channel*>( pTunnelStreamMsgEvent->pReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
 
-	_event._pItem->getClient().onAllMsg( _ackMsg, _event );
-	_event._pItem->getClient().onAckMsg( _ackMsg, _event );
+	_ommBaseImpl.msgDispatched();
+
+	item->onAllMsg( _ackMsg );
+	item->onAckMsg( _ackMsg );
 
 	return RSSL_RC_CRET_SUCCESS;
 }
 
-RsslReactorCallbackRet ItemCallbackClient::processGenericMsg( RsslTunnelStream* pRsslTunnelStream, RsslTunnelStreamMsgEvent* pTunnelStreamMsgEvent )
+RsslReactorCallbackRet ItemCallbackClient::processGenericMsg( RsslTunnelStream* pRsslTunnelStream, RsslTunnelStreamMsgEvent* pTunnelStreamMsgEvent, Item* item )
 {
 	StaticDecoder::setRsslData( &_genericMsg, pTunnelStreamMsgEvent->pRsslMsg,
 		pTunnelStreamMsgEvent->pReactorChannel->majorVersion,
 		pTunnelStreamMsgEvent->pReactorChannel->minorVersion,
 		static_cast<Channel*>( pTunnelStreamMsgEvent->pReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
 
-	_event._pItem->getClient().onAllMsg( _genericMsg, _event );
-	_event._pItem->getClient().onGenericMsg( _genericMsg, _event );
+	_ommBaseImpl.msgDispatched();
+
+	item->onAllMsg( _genericMsg );
+	item->onGenericMsg( _genericMsg );
 
 	return RSSL_RC_CRET_SUCCESS;
 }
 
-RsslReactorCallbackRet ItemCallbackClient::processRefreshMsg( RsslTunnelStream* pRsslTunnelStream, RsslTunnelStreamMsgEvent* pTunnelStreamMsgEvent )
+RsslReactorCallbackRet ItemCallbackClient::processRefreshMsg( RsslTunnelStream* pRsslTunnelStream, RsslTunnelStreamMsgEvent* pTunnelStreamMsgEvent, Item* item )
 {
 	StaticDecoder::setRsslData( &_refreshMsg, pTunnelStreamMsgEvent->pRsslMsg,
 		pTunnelStreamMsgEvent->pReactorChannel->majorVersion,
 		pTunnelStreamMsgEvent->pReactorChannel->minorVersion,
 		static_cast<Channel*>( pTunnelStreamMsgEvent->pReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
 
-	_event._pItem->getClient().onAllMsg( _refreshMsg, _event );
-	_event._pItem->getClient().onRefreshMsg( _refreshMsg, _event );
+	_ommBaseImpl.msgDispatched();
+
+	item->onAllMsg( _refreshMsg );
+	item->onRefreshMsg( _refreshMsg );
 
 	if ( _refreshMsg.getState().getStreamState() == OmmState::NonStreamingEnum )
 	{
 		if ( _refreshMsg.getComplete() )
-			_event._pItem->remove();
+			item->remove();
 	}
 	else if ( _refreshMsg.getState().getStreamState() != OmmState::OpenEnum )
 	{
-		_event._pItem->remove();
+		item->remove();
 	}
 
 	return RSSL_RC_CRET_SUCCESS;
 }
 
-RsslReactorCallbackRet ItemCallbackClient::processUpdateMsg( RsslTunnelStream* pRsslTunnelStream, RsslTunnelStreamMsgEvent* pTunnelStreamMsgEvent )
+RsslReactorCallbackRet ItemCallbackClient::processUpdateMsg( RsslTunnelStream* pRsslTunnelStream, RsslTunnelStreamMsgEvent* pTunnelStreamMsgEvent, Item* item )
 {
 	StaticDecoder::setRsslData( &_updateMsg, pTunnelStreamMsgEvent->pRsslMsg,
 		pTunnelStreamMsgEvent->pReactorChannel->majorVersion,
 		pTunnelStreamMsgEvent->pReactorChannel->minorVersion,
 		static_cast<Channel*>( pTunnelStreamMsgEvent->pReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
 
-	_event._pItem->getClient().onAllMsg( _updateMsg, _event );
-	_event._pItem->getClient().onUpdateMsg( _updateMsg, _event );
+	_ommBaseImpl.msgDispatched();
+
+	item->onAllMsg( _updateMsg );
+	item->onUpdateMsg( _updateMsg );
 
 	return RSSL_RC_CRET_SUCCESS;
 }
 
-RsslReactorCallbackRet ItemCallbackClient::processStatusMsg( RsslTunnelStream* pRsslTunnelStream, RsslTunnelStreamMsgEvent* pTunnelStreamMsgEvent )
+RsslReactorCallbackRet ItemCallbackClient::processStatusMsg( RsslTunnelStream* pRsslTunnelStream, RsslTunnelStreamMsgEvent* pTunnelStreamMsgEvent, Item* item )
 {
 	StaticDecoder::setRsslData( &_statusMsg, pTunnelStreamMsgEvent->pRsslMsg,
 		pTunnelStreamMsgEvent->pReactorChannel->majorVersion,
 		pTunnelStreamMsgEvent->pReactorChannel->minorVersion,
 		static_cast<Channel*>( pTunnelStreamMsgEvent->pReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
 
-	_event._pItem->getClient().onAllMsg( _statusMsg, _event );
-	_event._pItem->getClient().onStatusMsg( _statusMsg, _event );
+	_ommBaseImpl.msgDispatched();
+
+	item->onAllMsg( _statusMsg );
+	item->onStatusMsg( _statusMsg );
 
 	if ( pTunnelStreamMsgEvent->pRsslMsg->statusMsg.flags & RSSL_STMF_HAS_STATE )
 		if ( _statusMsg.getState().getStreamState() != OmmState::OpenEnum )
-			_event._pItem->remove();
+			item->remove();
 
 	return RSSL_RC_CRET_SUCCESS;
 }
@@ -2097,20 +2276,20 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslReactor* pRsslRe
 
 	if ( !pRsslMsg )
 	{
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			RsslErrorInfo* pError = pEvent->pErrorInfo;
 
 			EmaString temp( "Received an item event without RsslMsg message" );
 			temp.append( CR )
-				.append( "Consumer Name " ).append( _ommConsImpl.getConsumerName() ).append( CR )
+				.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
 				.append( "RsslReactor " ).append( ptrToStringAsHex( pRsslReactor ) ).append( CR )
 				.append( "RsslChannel " ).append( ptrToStringAsHex( pError->rsslError.channel ) ).append( CR )
 				.append( "Error Id " ).append( pError->rsslError.rsslErrorId ).append( CR )
 				.append( "Internal sysError " ).append( pError->rsslError.sysError ).append( CR )
 				.append( "Error Location " ).append( pError->errorLocation ).append( CR )
 				.append( "Error Text " ).append( pError->rsslError.rsslErrorId ? pError->rsslError.text : "" );
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
 
 		return RSSL_RC_CRET_SUCCESS;
@@ -2119,16 +2298,16 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslReactor* pRsslRe
 	if ( pRsslMsg->msgBase.streamId != 1 && 
 		( !pEvent->pStreamInfo || !pEvent->pStreamInfo->pUserSpec ) )
 	{
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Received an item event without user specified pointer or stream info" );
 			temp.append( CR )
-				.append( "Consumer Name " ).append( _ommConsImpl.getConsumerName() ).append( CR )
+				.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
 				.append( "RsslReactor " ).append( ptrToStringAsHex( pRsslReactor ) ).append( CR )
 				.append( "RsslReactorChannel " ).append( ptrToStringAsHex( pRsslReactorChannel ) ).append( CR )
 				.append( "RsslSocket " ).append( (UInt64)pRsslReactorChannel->socketId );
 
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
 		}
 
 		return RSSL_RC_CRET_SUCCESS;
@@ -2138,7 +2317,7 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslReactor* pRsslRe
 	{
 	case RSSL_MC_ACK :
 		if ( pRsslMsg->msgBase.streamId == 1 )
-			return _ommConsImpl.getLoginCallbackClient().processAckMsg( pRsslMsg, pRsslReactorChannel, 0 );
+			return _ommBaseImpl.getLoginCallbackClient().processAckMsg( pRsslMsg, pRsslReactorChannel, 0 );
 		else
 			return processAckMsg( pRsslMsg, pRsslReactorChannel, pEvent );
 	case RSSL_MC_GENERIC :
@@ -2150,16 +2329,16 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslReactor* pRsslRe
 	case RSSL_MC_UPDATE :
 		return processUpdateMsg( pRsslMsg, pRsslReactorChannel, pEvent );
 	default :
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Received an item event with message containing unhandled message class" );
 			temp.append( CR )
 				.append( "Rssl Message Class " ).append( pRsslMsg->msgBase.msgClass ).append( CR )
-				.append( "Consumer Name " ).append( _ommConsImpl.getConsumerName() ).append( CR )
+				.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
 				.append( "RsslReactor " ).append( ptrToStringAsHex( pRsslReactor ) ).append( CR )
 				.append( "RsslReactorChannel " ).append( ptrToStringAsHex( pRsslReactorChannel ) ).append( CR )
 				.append( "RsslSocket" ).append( (UInt64)pRsslReactorChannel->socketId );
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
 		}
 		break;
 	}
@@ -2174,25 +2353,26 @@ RsslReactorCallbackRet ItemCallbackClient::processRefreshMsg( RsslMsg* pRsslMsg,
 		pRsslReactorChannel->minorVersion,
  		static_cast<Channel*>( pRsslReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
 
-	_event._pItem = (Item*)( pEvent->pStreamInfo->pUserSpec );
+	Item* pItem = (Item*)( pEvent->pStreamInfo->pUserSpec );
 
-	if ( _event._pItem->getType() == Item::BatchItemEnum )
-		_event._pItem = static_cast<BatchItem *>(_event._pItem)->getSingleItem( pRsslMsg->msgBase.streamId );
+	if ( pItem->getType() == Item::BatchItemEnum )
+		pItem = static_cast<BatchItem *>(pItem)->getSingleItem( pRsslMsg->msgBase.streamId );
 	
-	_refreshMsg.getDecoder().setServiceName( _event._pItem->getDirectory()->getName().c_str(),
-											_event._pItem->getDirectory()->getName().length() );
+	_refreshMsg.getDecoder().setServiceName( pItem->getDirectory()->getName().c_str(), pItem->getDirectory()->getName().length() );
 
-	_event._pItem->getClient().onAllMsg( _refreshMsg, _event );
-	_event._pItem->getClient().onRefreshMsg( _refreshMsg, _event );
+	_ommBaseImpl.msgDispatched();
+
+	pItem->onAllMsg( _refreshMsg );
+	pItem->onRefreshMsg( _refreshMsg );
 
 	if ( _refreshMsg.getState().getStreamState() == OmmState::NonStreamingEnum )
 	{
 		if ( _refreshMsg.getComplete() )
-			_event._pItem->remove();
+			pItem->remove();
 	}
 	else if ( _refreshMsg.getState().getStreamState() != OmmState::OpenEnum )
 	{
-		_event._pItem->remove();
+		pItem->remove();
 	}
 
 	return RSSL_RC_CRET_SUCCESS;
@@ -2205,16 +2385,17 @@ RsslReactorCallbackRet ItemCallbackClient::processUpdateMsg( RsslMsg* pRsslMsg, 
 		pRsslReactorChannel->minorVersion,
  		static_cast<Channel*>( pRsslReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
 
-	_event._pItem = (Item*)( pEvent->pStreamInfo->pUserSpec );
+	Item* item = (Item*) pEvent->pStreamInfo->pUserSpec;
 
-	if ( _event._pItem->getType() == Item::BatchItemEnum )
-		_event._pItem = static_cast<BatchItem *>(_event._pItem)->getSingleItem( pRsslMsg->msgBase.streamId );
+	if ( item->getType() == Item::BatchItemEnum )
+		item = static_cast<BatchItem *>(item)->getSingleItem( pRsslMsg->msgBase.streamId );
 	
-	_updateMsg.getDecoder().setServiceName( _event._pItem->getDirectory()->getName().c_str(),
-											_event._pItem->getDirectory()->getName().length() );
+	_updateMsg.getDecoder().setServiceName( item->getDirectory()->getName().c_str(), item->getDirectory()->getName().length() );
 
-	_event._pItem->getClient().onAllMsg( _updateMsg, _event );
-	_event._pItem->getClient().onUpdateMsg( _updateMsg, _event );
+	_ommBaseImpl.msgDispatched();
+
+	item->onAllMsg( _updateMsg );
+	item->onUpdateMsg( _updateMsg );
 
 	return RSSL_RC_CRET_SUCCESS;
 }
@@ -2226,20 +2407,21 @@ RsslReactorCallbackRet ItemCallbackClient::processStatusMsg( RsslMsg* pRsslMsg, 
 		pRsslReactorChannel->minorVersion,
  		static_cast<Channel*>( pRsslReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
 
-	_event._pItem = (Item*)( pEvent->pStreamInfo->pUserSpec );
+	Item* item = (Item*) pEvent->pStreamInfo->pUserSpec;
 
-	if ( _event._pItem->getType() == Item::BatchItemEnum )
-		_event._pItem = static_cast<BatchItem *>(_event._pItem)->getSingleItem( pRsslMsg->msgBase.streamId );
+	if ( item->getType() == Item::BatchItemEnum )
+		item = static_cast<BatchItem *>(item)->getSingleItem( pRsslMsg->msgBase.streamId );
 	
-	_statusMsg.getDecoder().setServiceName( _event._pItem->getDirectory()->getName().c_str(),
-											_event._pItem->getDirectory()->getName().length() );
+	_statusMsg.getDecoder().setServiceName( item->getDirectory()->getName().c_str(), item->getDirectory()->getName().length() );
 
-	_event._pItem->getClient().onAllMsg( _statusMsg, _event );
-	_event._pItem->getClient().onStatusMsg( _statusMsg, _event );
+	_ommBaseImpl.msgDispatched();
+
+	item->onAllMsg( _statusMsg );
+	item->onStatusMsg( _statusMsg );
 
 	if ( pRsslMsg->statusMsg.flags & RSSL_STMF_HAS_STATE )
 		if ( _statusMsg.getState().getStreamState() != OmmState::OpenEnum )
-			_event._pItem->remove();
+			item->remove();
 
 	return RSSL_RC_CRET_SUCCESS;
 }
@@ -2251,13 +2433,15 @@ RsslReactorCallbackRet ItemCallbackClient::processGenericMsg( RsslMsg* pRsslMsg,
 		pRsslReactorChannel->minorVersion,
 		static_cast<Channel*>( pRsslReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
 
-	_event._pItem = (Item*)( pEvent->pStreamInfo->pUserSpec );
+	Item* item = (Item*) pEvent->pStreamInfo->pUserSpec;
 
-	if ( _event._pItem->getType() == Item::BatchItemEnum )
-		_event._pItem  = static_cast<BatchItem *>(_event._pItem )->getSingleItem( pRsslMsg->msgBase.streamId );
+	if ( item->getType() == Item::BatchItemEnum )
+		item  = static_cast<BatchItem *>(item )->getSingleItem( pRsslMsg->msgBase.streamId );
 
-	_event._pItem->getClient().onAllMsg( _genericMsg, _event );
-	_event._pItem->getClient().onGenericMsg( _genericMsg, _event );
+	_ommBaseImpl.msgDispatched();
+
+	item->onAllMsg( _genericMsg );
+	item->onGenericMsg( _genericMsg );
 
 	return RSSL_RC_CRET_SUCCESS;
 }
@@ -2269,22 +2453,22 @@ RsslReactorCallbackRet ItemCallbackClient::processAckMsg( RsslMsg* pRsslMsg, Rss
 		pRsslReactorChannel->minorVersion,
 		static_cast<Channel*>( pRsslReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
 
-	_event._pItem = (Item*)( pEvent->pStreamInfo->pUserSpec );
+	Item* item = (Item*) pEvent->pStreamInfo->pUserSpec;
 
-	if ( _event._pItem->getType() == Item::BatchItemEnum )
-		_event._pItem = static_cast<BatchItem *>(_event._pItem)->getSingleItem( pRsslMsg->msgBase.streamId );
+	if ( item->getType() == Item::BatchItemEnum )
+		item = static_cast<BatchItem *>(item)->getSingleItem( pRsslMsg->msgBase.streamId );
 	
-	_ackMsg.getDecoder().setServiceName( _event._pItem->getDirectory()->getName().c_str(),
-										_event._pItem->getDirectory()->getName().length() );
+	_ackMsg.getDecoder().setServiceName( item->getDirectory()->getName().c_str(), item->getDirectory()->getName().length() );
 
-	_event._pItem->getClient().onAllMsg( _ackMsg, _event );
-	_event._pItem->getClient().onAckMsg( _ackMsg, _event );
+	_ommBaseImpl.msgDispatched();
+
+	item->onAllMsg( _ackMsg );
+	item->onAckMsg( _ackMsg );
 
 	return RSSL_RC_CRET_SUCCESS;
 }
 
-UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClient& ommConsClient,
-											void* closure, UInt64 parentHandle )
+UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClient& ommConsClient, void* closure, UInt64 parentHandle )
 {
 	if ( !parentHandle )
 	{
@@ -2294,7 +2478,7 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 		{
 		case RSSL_DMT_LOGIN :
 			{
-				SingleItem* pItem = _ommConsImpl.getLoginCallbackClient().getLoginItem( reqMsg, ommConsClient, closure );
+				LoginItem* pItem = _ommBaseImpl.getLoginCallbackClient().getLoginItem( reqMsg, ommConsClient, closure );
 
 				if ( pItem )
 				{
@@ -2311,16 +2495,8 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 				{
 					EmaString temp( "Invalid ReqMsg's name type : " );
 					temp.append( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.nameType );
-					temp.append( ". OmmConsumer name='" ).append( _ommConsImpl .getConsumerName() ).append( "'." );
-
-					if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-						_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-
-					if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-						_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( temp );
-					else
-						throwIueException( temp );
-
+					temp.append( ". Instance name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
+					_ommBaseImpl.handleIue( temp );
 					return 0;
 				}
 
@@ -2333,36 +2509,20 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 						EmaString temp( "Invalid ReqMsg's name : " );
 						temp.append( name );
 						temp.append( "\nReqMsg's name must be \"RWFFld\" or \"RWFEnum\" for MMT_DICTIONARY domain type. ");
-						temp.append( "OmmConsumer name='" ).append( _ommConsImpl .getConsumerName() ).append( "'." );
-
-						if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-							_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-
-						if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-							_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( temp );
-						else
-							throwIueException( temp );
-
+						temp.append( "Instance name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
+						_ommBaseImpl.handleIue( temp );
 						return 0;
 					}
 				}
 				else
 				{
 					EmaString temp( "ReqMsg's name is not defined. " );
-					temp.append( "OmmConsumer name='" ).append( _ommConsImpl .getConsumerName() ).append( "'." );
-
-					if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-						_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-
-					if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-						_ommConsImpl.getOmmConsumerErrorClient().onInvalidUsage( temp );
-					else
-						throwIueException( temp );
-
+					temp.append( "Instance name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
+					_ommBaseImpl.handleIue( temp );
 					return 0;
 				}
 
-				DictionaryItem* pItem = DictionaryItem::create( _ommConsImpl, ommConsClient, closure );
+				DictionaryItem* pItem = DictionaryItem::create( _ommBaseImpl, ommConsClient, closure );
 
 				if ( pItem )
 				{
@@ -2381,10 +2541,10 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 			}
 		case RSSL_DMT_SOURCE :
 			{
-				const ChannelList& channels( _ommConsImpl.getChannelCallbackClient().getChannelList() );
-				const Channel* c( channels.front() );
+				const ChannelList& channels( _ommBaseImpl.getChannelCallbackClient().getChannelList() );
+				Channel* c( channels.front() );
 
-				DirectoryItem* pItem = DirectoryItem::create( _ommConsImpl, ommConsClient, closure, c );
+				DirectoryItem* pItem = DirectoryItem::create( _ommBaseImpl, ommConsClient, closure, c );
 
 				if ( pItem )
 				{
@@ -2413,7 +2573,7 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 
 				if ( reqMsgEncoder.getRsslRequestMsg()->flags & RSSL_RQMF_HAS_BATCH )
 				{
-					BatchItem* pBatchItem = BatchItem::create( _ommConsImpl, ommConsClient, closure );
+					BatchItem* pBatchItem = BatchItem::create( _ommBaseImpl, ommConsClient, closure );
 
 					if ( pBatchItem )
 					{
@@ -2457,7 +2617,7 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 				}
 				else
 				{
-					pItem = SingleItem::create( _ommConsImpl, ommConsClient, closure, 0 );
+					pItem = SingleItem::create( _ommBaseImpl, ommConsClient, closure, 0 );
 
 					if ( pItem )
 					{
@@ -2484,20 +2644,11 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 	}
 	else
 	{
-
 		if ( !_itemMap.find( parentHandle ) )
 		{
 			EmaString temp( "Attempt to use invalid parentHandle on registerClient(). " );
-			temp.append( "OmmConsumer name='" ).append( _ommConsImpl .getConsumerName() ).append( "'." );
-
-			if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-				_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-
-			if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-				_ommConsImpl.getOmmConsumerErrorClient().onInvalidHandle( parentHandle, temp );
-			else
-				throwIheException( parentHandle, temp );
-
+			temp.append( "Instance name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
+			_ommBaseImpl.handleIhe( parentHandle, temp );
 			return 0;
 		}
 
@@ -2506,20 +2657,12 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 			EmaString temp( "Invalid attempt to use " );
 			temp += ((Item*)parentHandle)->getTypeAsString();
 			temp.append( " as parentHandle on registerClient(). " );
-			temp.append( "OmmConsumer name='" ).append( _ommConsImpl .getConsumerName() ).append( "'." );
-
-			if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-				_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-
-			if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-				_ommConsImpl.getOmmConsumerErrorClient().onInvalidHandle( parentHandle, temp );
-			else
-				throwIheException( parentHandle, temp );
-
+			temp.append( "Instance name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
+			_ommBaseImpl.handleIhe( parentHandle, temp );
 			return 0;
 		}
 
-		SubItem* pItem = SubItem::create( _ommConsImpl, ommConsClient, closure, (Item*)parentHandle );
+		SubItem* pItem = SubItem::create( _ommBaseImpl, ommConsClient, closure, (Item*)parentHandle );
 
 		if ( pItem )
 		{
@@ -2543,9 +2686,101 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 	}
 }
 
+UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmProviderClient& ommProvClient, void* closure, UInt64 parentHandle )
+{
+	if ( !parentHandle )
+	{
+		const ReqMsgEncoder& reqMsgEncoder = static_cast<const ReqMsgEncoder&>( reqMsg.getEncoder() );
+
+		switch ( reqMsgEncoder.getRsslRequestMsg()->msgBase.domainType )
+		{
+		case RSSL_DMT_LOGIN:
+		{
+			NiProviderLoginItem* pItem = _ommBaseImpl.getLoginCallbackClient().getLoginItem( reqMsg, ommProvClient, closure );
+
+			if ( pItem )
+			{
+				addToList( pItem );
+				addToMap( pItem );
+			}
+
+			return (UInt64) pItem;
+		}
+		case RSSL_DMT_DICTIONARY:
+		{
+			if ( ( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.nameType != INSTRUMENT_NAME_UNSPECIFIED ) &&
+				( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.nameType != rdm::INSTRUMENT_NAME_RIC ) )
+			{
+				EmaString temp( "Invalid ReqMsg's name type : " );
+				temp.append( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.nameType );
+				temp.append( ". Instance name='" ).append( _ommBaseImpl.getInstanceName() ).append( "'." );
+				_ommBaseImpl.handleIue( temp );
+				return 0;
+			}
+
+			if ( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.flags & RSSL_MKF_HAS_NAME )
+			{
+				EmaString name( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.name.data, reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.name.length );
+
+				if ( ( name != "RWFFld" ) && ( name != "RWFEnum" ) )
+				{
+					EmaString temp( "Invalid ReqMsg's name : " );
+					temp.append( name );
+					temp.append( "\nReqMsg's name must be \"RWFFld\" or \"RWFEnum\" for MMT_DICTIONARY domain type. " );
+					temp.append( "Instance name='" ).append( _ommBaseImpl.getInstanceName() ).append( "'." );
+					_ommBaseImpl.handleIue( temp );
+					return 0;
+				}
+			}
+			else
+			{
+				EmaString temp( "ReqMsg's name is not defined. " );
+				temp.append( "Instance name='" ).append( _ommBaseImpl.getInstanceName() ).append( "'." );
+				_ommBaseImpl.handleIue( temp );
+				return 0;
+			}
+
+			// todo ... add dictionary download feature
+			DictionaryItem* pItem = 0; // DictionaryItem::create( _ommBaseImpl, ommProvClient, closure );
+
+			if ( pItem )
+			{
+				if ( !pItem->open( reqMsg ) )
+				{
+					Item::destroy( (Item*&) pItem );
+				}
+				else
+				{
+					addToList( pItem );
+					addToMap( pItem );
+				}
+			}
+
+			return (UInt64) pItem;
+		}
+
+		default:
+		{
+			EmaString temp( "Invalid ReqMsg's domain type : " );
+			temp.append( reqMsgEncoder.getRsslRequestMsg()->msgBase.domainType );
+			temp.append( ". Instance name='" ).append( _ommBaseImpl.getInstanceName() ).append( "'." );
+			_ommBaseImpl.handleIue( temp );
+			return 0;
+		}
+		}
+	}
+	else
+	{
+		EmaString temp( "Attempt to use parentHandle on OmmProvider::registerClient(). " );
+		temp.append( "Instance name='" ).append( _ommBaseImpl.getInstanceName() ).append( "'." );
+		_ommBaseImpl.handleIue( temp );
+		return 0;
+	}
+}
+
 UInt64 ItemCallbackClient::registerClient( const TunnelStreamRequest& tunnelStreamRequest, OmmConsumerClient& ommConsClient, void* closure )
 {
-	TunnelItem* pItem = TunnelItem::create( _ommConsImpl, ommConsClient, closure );
+	TunnelItem* pItem = TunnelItem::create( _ommBaseImpl, ommConsClient, closure );
 
 	if ( pItem )
 	{
@@ -2573,16 +2808,8 @@ void ItemCallbackClient::reissue( const ReqMsg& reqMsg, UInt64 handle )
 	if ( !_itemMap.find( handle ) )
 	{
 		EmaString temp( "Attempt to use invalid Handle on reissue(). " );
-		temp.append( "OmmConsumer name='" ).append( _ommConsImpl .getConsumerName() ).append( "'." );
-
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-
-		if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-			_ommConsImpl.getOmmConsumerErrorClient().onInvalidHandle( handle, temp );
-		else
-			throwIheException( handle, temp );
-
+		temp.append( "Instance name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
+		_ommBaseImpl.handleIhe( handle, temp );
 		return;
 	}
 
@@ -2601,16 +2828,8 @@ void ItemCallbackClient::submit( const PostMsg& postMsg, UInt64 handle )
 	if ( !_itemMap.find( handle ) )
 	{
 		EmaString temp( "Attempt to use invalid Handle on submit( const PostMsg& ). " );
-		temp.append( "OmmConsumer name='" ).append( _ommConsImpl .getConsumerName() ).append( "'." );
-
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-
-		if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-			_ommConsImpl.getOmmConsumerErrorClient().onInvalidHandle( handle, temp );
-		else
-			throwIheException( handle, temp );
-
+		temp.append( "Instance name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
+		_ommBaseImpl.handleIhe( handle, temp );
 		return;
 	}
 
@@ -2622,16 +2841,8 @@ void ItemCallbackClient::submit( const GenericMsg& genericMsg, UInt64 handle )
 	if ( !_itemMap.find( handle ) )
 	{
 		EmaString temp( "Attempt to use invalid Handle on submit( const GenericMsg& ). " );
-		temp.append( "OmmConsumer name='" ).append( _ommConsImpl .getConsumerName() ).append( "'." );
-
-		if ( OmmLoggerClient::ErrorEnum >= _ommConsImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			_ommConsImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-
-		if ( _ommConsImpl.hasOmmConnsumerErrorClient() )
-			_ommConsImpl.getOmmConsumerErrorClient().onInvalidHandle( handle, temp );
-		else
-			throwIheException( handle, temp );
-
+		temp.append( "Instance name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
+		_ommBaseImpl.handleIhe( handle, temp );
 		return;
 	}
 

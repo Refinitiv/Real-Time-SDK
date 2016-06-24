@@ -18,16 +18,16 @@ using namespace thomsonreuters::ema::rdm;
 
 extern const EmaString& getDTypeAsString( DataType::DataTypeEnum dType );
 
-const EmaString AccessDeniedString ( "AccessDenied" );
-const EmaString DeniedBySourceString ( "DeniedBySource" );
-const EmaString SourceDownString ( "SourceDown" );
-const EmaString SourceUnknownString ( "SourceUnknown" );
-const EmaString NoResourcesString ( "NoResources" );
-const EmaString NoResponseString ( "NoResponse" );
-const EmaString SymbolUnknownString ( "SymbolUnknown" );
-const EmaString NotOpenString ( "NotOpen" );
+const EmaString AccessDeniedString( "AccessDenied" );
+const EmaString DeniedBySourceString( "DeniedBySource" );
+const EmaString SourceDownString( "SourceDown" );
+const EmaString SourceUnknownString( "SourceUnknown" );
+const EmaString NoResourcesString( "NoResources" );
+const EmaString NoResponseString( "NoResponse" );
+const EmaString SymbolUnknownString( "SymbolUnknown" );
+const EmaString NotOpenString( "NotOpen" );
 const EmaString GatewayDownString( "GatewayDown" );
-const EmaString NoneString ( "None" );
+const EmaString NoneString( "None" );
 const EmaString InvalidContentString( "InvalidContent" );
 EmaString TempNCString;
 
@@ -63,8 +63,8 @@ const EmaString& getNCodeAsString( UInt16 nCode )
 }
 
 AckMsg::AckMsg() :
- Msg(),
- _toString()
+	Msg(),
+	_toString()
 {
 }
 
@@ -105,10 +105,10 @@ const EmaString& AckMsg::toString() const
 	return toString( 0 );
 }
 
-const EmaString& AckMsg::toString(  UInt64 indent ) const
+const EmaString& AckMsg::toString( UInt64 indent ) const
 {
 	const AckMsgDecoder* pTempDecoder = static_cast<const AckMsgDecoder*>( _pDecoder );
-		
+
 	addIndent( _toString.clear(), indent++ ).append( "AckMsg" );
 	addIndent( _toString, indent, true ).append( "streamId=\"" ).append( pTempDecoder->getStreamId() ).append( "\"" );
 	addIndent( _toString, indent, true ).append( "domain=\"" ).append( rdmDomainToString( getDomainType() ) ).append( "\"" );
@@ -147,7 +147,7 @@ const EmaString& AckMsg::toString(  UInt64 indent ) const
 
 		if ( pTempDecoder->hasId() )
 			addIndent( _toString, indent, true ).append( "id=\"" ).append( pTempDecoder->getId() ).append( "\"" );
-			
+
 		indent--;
 
 		if ( pTempDecoder->hasAttrib() )
@@ -192,7 +192,7 @@ const EmaString& AckMsg::toString(  UInt64 indent ) const
 		addIndent( _toString, indent ).append( "PayloadEnd" );
 		indent--;
 	}
-			
+
 	addIndent( _toString, indent, true ).append( "AckMsgEnd\n" );
 
 	return _toString;
@@ -205,52 +205,52 @@ const EmaBuffer& AckMsg::getAsHex() const
 
 bool AckMsg::hasSeqNum() const
 {
-	return static_cast<const AckMsgDecoder*>(_pDecoder)->hasSeqNum();
+	return static_cast<const AckMsgDecoder*>( _pDecoder )->hasSeqNum();
 }
 
 bool AckMsg::hasNackCode() const
 {
-	return static_cast<const AckMsgDecoder*>(_pDecoder)->hasNackCode();
+	return static_cast<const AckMsgDecoder*>( _pDecoder )->hasNackCode();
 }
 
 bool AckMsg::hasText() const
 {
-	return static_cast<const AckMsgDecoder*>(_pDecoder)->hasText();
+	return static_cast<const AckMsgDecoder*>( _pDecoder )->hasText();
 }
 
 bool AckMsg::hasServiceName() const
 {
-	return static_cast<const AckMsgDecoder*>(_pDecoder)->hasServiceName();
+	return static_cast<const AckMsgDecoder*>( _pDecoder )->hasServiceName();
 }
 
 UInt32 AckMsg::getAckId() const
 {
-	return static_cast<const AckMsgDecoder*>(_pDecoder)->getAckId();
+	return static_cast<const AckMsgDecoder*>( _pDecoder )->getAckId();
 }
 
 UInt8 AckMsg::getNackCode() const
 {
-	return static_cast<const AckMsgDecoder*>(_pDecoder)->getNackCode();
+	return static_cast<const AckMsgDecoder*>( _pDecoder )->getNackCode();
 }
 
 UInt32 AckMsg::getSeqNum() const
 {
-	return static_cast<const AckMsgDecoder*>(_pDecoder)->getSeqNum();
+	return static_cast<const AckMsgDecoder*>( _pDecoder )->getSeqNum();
 }
 
 const EmaString& AckMsg::getText() const
 {
-	return static_cast<const AckMsgDecoder*>(_pDecoder)->getText();
+	return static_cast<const AckMsgDecoder*>( _pDecoder )->getText();
 }
 
 const EmaString& AckMsg::getServiceName() const
 {
-	return static_cast<const AckMsgDecoder*>(_pDecoder)->getServiceName();
+	return static_cast<const AckMsgDecoder*>( _pDecoder )->getServiceName();
 }
 
 bool AckMsg::getPrivateStream() const
 {
-	return static_cast<const AckMsgDecoder*>(_pDecoder)->getPrivateStream();
+	return static_cast<const AckMsgDecoder*>( _pDecoder )->getPrivateStream();
 }
 
 Decoder& AckMsg::getDecoder()
@@ -336,7 +336,7 @@ AckMsg& AckMsg::domainType( UInt16 domainType )
 	if ( !_pEncoder )
 		_pEncoder = g_pool._ackMsgEncoderPool.getItem();
 
-	_pEncoder->domainType( (UInt8)domainType );
+	_pEncoder->domainType( ( UInt8 )domainType );
 	return *this;
 }
 
@@ -345,7 +345,7 @@ AckMsg& AckMsg::seqNum( UInt32 seqNum )
 	if ( !_pEncoder )
 		_pEncoder = g_pool._ackMsgEncoderPool.getItem();
 
-	static_cast<AckMsgEncoder*>(_pEncoder)->seqNum( seqNum );
+	static_cast<AckMsgEncoder*>( _pEncoder )->seqNum( seqNum );
 	return *this;
 }
 
@@ -354,7 +354,7 @@ AckMsg& AckMsg::ackId( UInt32 postId )
 	if ( !_pEncoder )
 		_pEncoder = g_pool._ackMsgEncoderPool.getItem();
 
-	static_cast<AckMsgEncoder*>(_pEncoder)->ackId( postId );
+	static_cast<AckMsgEncoder*>( _pEncoder )->ackId( postId );
 	return *this;
 }
 
@@ -363,7 +363,7 @@ AckMsg& AckMsg::nackCode( UInt8 nackCode )
 	if ( !_pEncoder )
 		_pEncoder = g_pool._ackMsgEncoderPool.getItem();
 
-	static_cast<AckMsgEncoder*>(_pEncoder)->nackCode( nackCode );
+	static_cast<AckMsgEncoder*>( _pEncoder )->nackCode( nackCode );
 	return *this;
 }
 
@@ -372,7 +372,7 @@ AckMsg& AckMsg::text( const EmaString& text )
 	if ( !_pEncoder )
 		_pEncoder = g_pool._ackMsgEncoderPool.getItem();
 
-	static_cast<AckMsgEncoder*>(_pEncoder)->text( text );
+	static_cast<AckMsgEncoder*>( _pEncoder )->text( text );
 	return *this;
 }
 
@@ -399,7 +399,7 @@ AckMsg& AckMsg::extendedHeader( const EmaBuffer& Buffer )
 	if ( !_pEncoder )
 		_pEncoder = g_pool._ackMsgEncoderPool.getItem();
 
-	static_cast<AckMsgEncoder*>(_pEncoder)->extendedHeader( Buffer );
+	static_cast<AckMsgEncoder*>( _pEncoder )->extendedHeader( Buffer );
 	return *this;
 }
 
@@ -408,6 +408,6 @@ AckMsg& AckMsg::privateStream( bool privateStream )
 	if ( !_pEncoder )
 		_pEncoder = g_pool._ackMsgEncoderPool.getItem();
 
-	static_cast<AckMsgEncoder*>(_pEncoder)->privateStream( privateStream );
+	static_cast<AckMsgEncoder*>( _pEncoder )->privateStream( privateStream );
 	return *this;
 }

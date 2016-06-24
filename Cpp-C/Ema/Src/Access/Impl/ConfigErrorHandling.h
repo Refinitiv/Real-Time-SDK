@@ -12,48 +12,68 @@
 #include "EmaString.h"
 #include "OmmLoggerClient.h"
 
+namespace thomsonreuters {
+
+namespace ema {
+
+namespace access {
+
 class EmaConfigError
 {
 public:
 
-	EmaConfigError( const thomsonreuters::ema::access::EmaString & errorMsg, thomsonreuters::ema::access::OmmLoggerClient::Severity severity ) : _errorMsg( errorMsg ), _severity( severity ) {}
+	EmaConfigError( const EmaString& errorMsg, OmmLoggerClient::Severity severity );
 
-	thomsonreuters::ema::access::OmmLoggerClient::Severity severity()
-	{
-		return _severity;
-	}
+	virtual ~EmaConfigError();
 
-	const thomsonreuters::ema::access::EmaString& errorMsg()
-	{
-		return _errorMsg;
-	}
-	
+	OmmLoggerClient::Severity severity() const;
+
+	const EmaString& errorMsg() const;
+
 private:
-	thomsonreuters::ema::access::OmmLoggerClient::Severity	_severity;
-	thomsonreuters::ema::access::EmaString					_errorMsg;
+
+	OmmLoggerClient::Severity	_severity;
+	EmaString					_errorMsg;
 };
 
-class EmaConfigErrorList {
+class EmaConfigErrorList
+{
 public:
-	EmaConfigErrorList() : theList(0), _count(0) {}
-	~EmaConfigErrorList()
-	{
-		clear();
-	}
-	void add(EmaConfigError *);
-	void add( EmaConfigErrorList & );
-	void printErrors(thomsonreuters::ema::access::OmmLoggerClient::Severity severity = thomsonreuters::ema::access::OmmLoggerClient::VerboseEnum);
-	void log(thomsonreuters::ema::access::OmmLoggerClient *, thomsonreuters::ema::access::OmmLoggerClient::Severity = thomsonreuters::ema::access::OmmLoggerClient::VerboseEnum);
+
+	EmaConfigErrorList();
+
+	virtual ~EmaConfigErrorList();
+
+	void add( EmaConfigError* );
+
+	void add( EmaConfigErrorList& );
+
+	void printErrors( OmmLoggerClient::Severity severity = OmmLoggerClient::VerboseEnum );
+
+	void log( OmmLoggerClient*, OmmLoggerClient::Severity = OmmLoggerClient::VerboseEnum );
+
 	void clear();
-	int count() { return _count; }
+
+	UInt32 count() const;
+
 private:
-	struct listElement {
-		listElement(EmaConfigError * error) : error(error), next(0) {}
-		EmaConfigError * error;
-		listElement * next;
+
+	struct ListElement
+	{
+		ListElement( EmaConfigError* error ) : error( error ), next( 0 ) {}
+
+		EmaConfigError*		error;
+		ListElement*		next;
 	};
-	listElement * theList;
-	int _count;
+
+	ListElement*	_pList;
+	UInt32			_count;
 };
 
-#endif //__thomsonreuters_ema_access_DefaultXML_h
+}
+
+}
+
+}
+
+#endif //__thomsonreuters_ema_access_ConfigErrorHandling_h

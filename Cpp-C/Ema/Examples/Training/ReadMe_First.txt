@@ -15,7 +15,8 @@ a folder the greater number may be associated with growing advancement and compl
 
 Note: All presented example applications may be easily modified and configured
       to fit local needs and environment. The configuration is specified using
-      EmaConfig.xml file.      
+      EmaConfig.xml file. If the application is using EmaConfig.xml, that 
+      file needs to be located in the same directory as the application.
       
 
 Example Naming Convention
@@ -28,8 +29,12 @@ The EMA training examples follow a general naming convention specified as follow
 - <domain>  represents message domain type
 - <main showcased functionality>
 
-In general the 100 Series examples present message output converted to string.
-The 200 Series and above examples present message output in RWF or native format.
+In general, the 100 Series Consumer examples present message output converted to string.
+The 200 Series and above Consumer examples present message output in RWF or native format.
+The 100 Series NiProvider examples use a hard-coded source directory message
+and publish a single item.
+In general, the 200 Series NiProvider examples use a configurable source
+directory message and publish multiple items.
 Different individual EMA and OMM functionalities are depicted in respectively named
 examples.
 
@@ -73,5 +78,8 @@ MSBuild Project file:
 
 Running Examples
 =================
-To run any example, any OMM provider application/component is needed to source
+To run any consumer example, any OMM provider application/component is needed to source
 the data from. Any OMM based provider (UPA/RFA) or (ADS/EED) may be used.
+
+To run any non-interactive provider example an ADH is required. 
+

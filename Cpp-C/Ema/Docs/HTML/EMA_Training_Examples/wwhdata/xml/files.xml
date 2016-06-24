@@ -38,48 +38,64 @@
     <h7 weight="2" />
   </ScoringPrefs>
   <DocumentInfo>
-    <Document title="100 Series Examples" href="EMAC_Readmes.1.01.html" />
-    <Document title="100__MarketPrice__Streaming" href="EMAC_Readmes.1.02.html" />
-    <Document title="101__MarketPrice__QosPriority" href="EMAC_Readmes.1.03.html" />
-    <Document title="102__MarketPrice__Snapshot" href="EMAC_Readmes.1.04.html" />
-    <Document title="110__MarketPrice__FileConfig" href="EMAC_Readmes.1.05.html" />
-    <Document title="120__MarketPrice__FieldListWalk" href="EMAC_Readmes.1.06.html" />
-    <Document title="121__MarketPrice__FieldListSearchByName" href="EMAC_Readmes.1.07.html" />
-    <Document title="130__MarketPrice__UserDisp" href="EMAC_Readmes.1.08.html" />
-    <Document title="140__MarketByOrder__Streaming" href="EMAC_Readmes.1.09.html" />
-    <Document title="200 Series Examples" href="EMAC_Readmes.1.10.html" />
-    <Document title="200__MarketPrice__Streaming" href="EMAC_Readmes.1.11.html" />
-    <Document title="210__MarketByOrder__Streaming" href="EMAC_Readmes.1.12.html" />
-    <Document title="220__MarketByPrice__PrivateStream" href="EMAC_Readmes.1.13.html" />
-    <Document title="230__MarketByOrder__SwitchEntryAction" href="EMAC_Readmes.1.14.html" />
-    <Document title="240__MarketPrice__RippleFields" href="EMAC_Readmes.1.15.html" />
-    <Document title="250__Custom__Opaque" href="EMAC_Readmes.1.16.html" />
-    <Document title="260__MarketPrice__FieldListSearchByList" href="EMAC_Readmes.1.17.html" />
-    <Document title="270__SymbolList" href="EMAC_Readmes.1.18.html" />
-    <Document title="280__MarketPrice__Performance" href="EMAC_Readmes.1.19.html" />
-    <Document title="290__Custom__Decode" href="EMAC_Readmes.1.20.html" />
-    <Document title="291__Custom__DownCast" href="EMAC_Readmes.1.21.html" />
-    <Document title="300 Series Examples" href="EMAC_Readmes.1.22.html" />
-    <Document title="300__MarketPrice__Close" href="EMAC_Readmes.1.23.html" />
-    <Document title="301__MarketPrice__PriorityChange" href="EMAC_Readmes.1.24.html" />
-    <Document title="310__MarketPrice__Rmtes" href="EMAC_Readmes.1.25.html" />
-    <Document title="320__Custom__GenericMsg" href="EMAC_Readmes.1.26.html" />
-    <Document title="330__Login__Streaming" href="EMAC_Readmes.1.27.html" />
-    <Document title="331__Directory__Streaming" href="EMAC_Readmes.1.28.html" />
-    <Document title="332__Dictionary__Streaming" href="EMAC_Readmes.1.29.html" />
-    <Document title="340__MarketPrice__OnStreamPost" href="EMAC_Readmes.1.30.html" />
-    <Document title="341__MarketPrice__OffStreamPost" href="EMAC_Readmes.1.31.html" />
-    <Document title="350__MarketPrice__PauseAll" href="EMAC_Readmes.1.32.html" />
-    <Document title="360__MarketPrice__View" href="EMAC_Readmes.1.33.html" />
-    <Document title="370__MarketPrice__Batch" href="EMAC_Readmes.1.34.html" />
-    <Document title="371__MarketPrice__BatchViewReissue" href="EMAC_Readmes.1.35.html" />
-    <Document title="400 Series Examples" href="EMAC_Readmes.1.36.html" />
-    <Document title="400__Custom__NestedMessaging" href="EMAC_Readmes.1.37.html" />
-    <Document title="410__MarketPrice__HorizontalScaling" href="EMAC_Readmes.1.38.html" />
-    <Document title="420__MarketPrice__AdminDomainConfig" href="EMAC_Readmes.1.39.html" />
-    <Document title="421__MarketPrice__ProgrammaticConfig" href="EMAC_Readmes.1.40.html" />
-    <Document title="422__MarketPrice__ErrorClient" href="EMAC_Readmes.1.41.html" />
-    <Document title="430__ServiceProviderStatus__Streaming" href="EMAC_Readmes.1.42.html" />
+    <Document title="EMA C++ Consumer Examples" href="EMAC_Consumer_Readmes.1.01.html" />
+    <Document title="100 Series Examples" href="EMAC_Consumer_Readmes.1.02.html" />
+    <Document title="100__MarketPrice__Streaming" href="EMAC_Consumer_Readmes.1.03.html" />
+    <Document title="101__MarketPrice__QosPriority" href="EMAC_Consumer_Readmes.1.04.html" />
+    <Document title="102__MarketPrice__Snapshot" href="EMAC_Consumer_Readmes.1.05.html" />
+    <Document title="110__MarketPrice__FileConfig" href="EMAC_Consumer_Readmes.1.06.html" />
+    <Document title="120__MarketPrice__FieldListWalk" href="EMAC_Consumer_Readmes.1.07.html" />
+    <Document title="121__MarketPrice__FieldListSearchByName" href="EMAC_Consumer_Readmes.1.08.html" />
+    <Document title="130__MarketPrice__UserDisp" href="EMAC_Consumer_Readmes.1.09.html" />
+    <Document title="140__MarketByOrder__Streaming" href="EMAC_Consumer_Readmes.1.10.html" />
+    <Document title="200 Series Examples" href="EMAC_Consumer_Readmes.1.11.html" />
+    <Document title="200__MarketPrice__Streaming" href="EMAC_Consumer_Readmes.1.12.html" />
+    <Document title="210__MarketByOrder__Streaming" href="EMAC_Consumer_Readmes.1.13.html" />
+    <Document title="220__MarketByPrice__PrivateStream" href="EMAC_Consumer_Readmes.1.14.html" />
+    <Document title="230__MarketByOrder__SwitchEntryAction" href="EMAC_Consumer_Readmes.1.15.html" />
+    <Document title="240__MarketPrice__RippleFields" href="EMAC_Consumer_Readmes.1.16.html" />
+    <Document title="250__Custom__Opaque" href="EMAC_Consumer_Readmes.1.17.html" />
+    <Document title="260__MarketPrice__FieldListSearchByList" href="EMAC_Consumer_Readmes.1.18.html" />
+    <Document title="270__SymbolList" href="EMAC_Consumer_Readmes.1.19.html" />
+    <Document title="280__MarketPrice__Performance" href="EMAC_Consumer_Readmes.1.20.html" />
+    <Document title="290__Custom__Decode" href="EMAC_Consumer_Readmes.1.21.html" />
+    <Document title="291__Custom__DownCast" href="EMAC_Consumer_Readmes.1.22.html" />
+    <Document title="300 Series Examples" href="EMAC_Consumer_Readmes.1.23.html" />
+    <Document title="300__MarketPrice__Close" href="EMAC_Consumer_Readmes.1.24.html" />
+    <Document title="301__MarketPrice__PriorityChange" href="EMAC_Consumer_Readmes.1.25.html" />
+    <Document title="310__MarketPrice__Rmtes" href="EMAC_Consumer_Readmes.1.26.html" />
+    <Document title="320__Custom__GenericMsg" href="EMAC_Consumer_Readmes.1.27.html" />
+    <Document title="330__Login__Streaming" href="EMAC_Consumer_Readmes.1.28.html" />
+    <Document title="331__Directory__Streaming" href="EMAC_Consumer_Readmes.1.29.html" />
+    <Document title="332__Dictionary__Streaming" href="EMAC_Consumer_Readmes.1.30.html" />
+    <Document title="340__MarketPrice__OnStreamPost" href="EMAC_Consumer_Readmes.1.31.html" />
+    <Document title="341__MarketPrice__OffStreamPost" href="EMAC_Consumer_Readmes.1.32.html" />
+    <Document title="350__MarketPrice__PauseAll" href="EMAC_Consumer_Readmes.1.33.html" />
+    <Document title="360__MarketPrice__View" href="EMAC_Consumer_Readmes.1.34.html" />
+    <Document title="370__MarketPrice__Batch" href="EMAC_Consumer_Readmes.1.35.html" />
+    <Document title="371__MarketPrice__BatchViewReissue" href="EMAC_Consumer_Readmes.1.36.html" />
+    <Document title="400 Series Examples" href="EMAC_Consumer_Readmes.1.37.html" />
+    <Document title="400__Custom__NestedMessaging" href="EMAC_Consumer_Readmes.1.38.html" />
+    <Document title="410__MarketPrice__HorizontalScaling" href="EMAC_Consumer_Readmes.1.39.html" />
+    <Document title="420__MarketPrice__AdminDomainConfig" href="EMAC_Consumer_Readmes.1.40.html" />
+    <Document title="421__MarketPrice__ProgrammaticConfig" href="EMAC_Consumer_Readmes.1.41.html" />
+    <Document title="422__MarketPrice__ErrorClient" href="EMAC_Consumer_Readmes.1.42.html" />
+    <Document title="430__ServiceProviderStatus__Streaming" href="EMAC_Consumer_Readmes.1.43.html" />
+    <Document title="EMA C++ Non-interactive Provider Examples" href="EMAC_NIP_Readmes.2.01.html" />
+    <Document title="100 Series Examples" href="EMAC_NIP_Readmes.2.02.html" />
+    <Document title="100__MarketPrice__Streaming" href="EMAC_NIP_Readmes.2.03.html" />
+    <Document title="110__MarketByOrder__Streaming" href="EMAC_NIP_Readmes.2.04.html" />
+    <Document title="200 Series Examples" href="EMAC_NIP_Readmes.2.05.html" />
+    <Document title="200__MarketPrice__Streaming" href="EMAC_NIP_Readmes.2.06.html" />
+    <Document title="210__MarketByOrder__Streaming" href="EMAC_NIP_Readmes.2.07.html" />
+    <Document title="250__MarketPrice__Performance" href="EMAC_NIP_Readmes.2.08.html" />
+    <Document title="251__MarketPrice__Performance__KeyByServiceId" href="EMAC_NIP_Readmes.2.09.html" />
+    <Document title="300 Series Examples" href="EMAC_NIP_Readmes.2.10.html" />
+    <Document title="300__MarketPrice__Streaming" href="EMAC_NIP_Readmes.2.11.html" />
+    <Document title="310__MarketByOrder__Streaming" href="EMAC_NIP_Readmes.2.12.html" />
+    <Document title="320__MarketPrice__Streaming__StatusClosed" href="EMAC_NIP_Readmes.2.13.html" />
+    <Document title="340__Login__Streaming" href="EMAC_NIP_Readmes.2.14.html" />
+    <Document title="360__MarketPrice__ConnectionRecovery" href="EMAC_NIP_Readmes.2.15.html" />
   </DocumentInfo>
   <TopicMap />
 </WebWorksHelpBook>

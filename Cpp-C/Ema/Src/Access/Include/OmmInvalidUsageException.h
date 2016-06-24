@@ -16,7 +16,8 @@
 	\remark All methods in this class are \ref SingleThreaded.
 
 	@see OmmException,
-		OmmConsumerErrorClient
+		OmmConsumerErrorClient,
+		OmmProviderErrorClient
 */
 
 #include "Access/Include/OmmException.h"

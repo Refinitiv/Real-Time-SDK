@@ -59,93 +59,93 @@
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1033664">The following example illustrates how to extract information from the </a><span class="CodeOrCommand">GenericMsg</span> class.</div>
-      <div class="Blank_Line"><a name="1033700">&nbsp;</a></div>
+      <div class="Body"><a name="1033684">The following example illustrates how to extract information from the </a><span class="CodeOrCommand">GenericMsg</span> class.</div>
+      <div class="Blank_Line"><a name="1033720">&nbsp;</a></div>
       <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command"><a name="1033667">&nbsp;</a></div>
+            <div class="command"><a name="1033687">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><span class="Color_003aBlue"><a name="1033669">void</a></span> decode( <span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">GenericMsg</span>&amp; genMsg )</div>
+            <div class="command"><span class="Color_003aBlue"><a name="1033689">void</a></span> decode( <span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">GenericMsg</span>&amp; genMsg )</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1033671">{</a></div>
+            <div class="command"><a name="1033691">{</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1033673">	</a><span class="Color_003aBlue">if</span> ( genMsg.hasName() )</div>
+            <div class="command"><a name="1033693">	</a><span class="Color_003aBlue">if</span> ( genMsg.hasName() )</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1033675">		cout &lt;&lt; endl &lt;&lt; </a><span class="Color_003aRed">"Name: "</span> &lt;&lt; genMsg.getName();</div>
+            <div class="command"><a name="1033695">		cout &lt;&lt; endl &lt;&lt; </a><span class="Color_003aRed">"Name: "</span> &lt;&lt; genMsg.getName();</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1033677">&nbsp;</a></div>
+            <div class="command"><a name="1033697">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1033679">	</a><span class="Color_003aBlue">if</span> ( genMsg.hasHeader() )</div>
+            <div class="command"><a name="1033699">	</a><span class="Color_003aBlue">if</span> ( genMsg.hasHeader() )</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1033681">		</a><span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">EmaBuffer</span>&amp; header = genMsg.getHeader();</div>
+            <div class="command"><a name="1033701">		</a><span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">EmaBuffer</span>&amp; header = genMsg.getHeader();</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1033683">&nbsp;</a></div>
+            <div class="command"><a name="1033703">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1033685">	</a><span class="Color_003aBlue">switch</span> ( genMsg.getPayload().getDataType() )</div>
+            <div class="command"><a name="1033705">	</a><span class="Color_003aBlue">switch</span> ( genMsg.getPayload().getDataType() )</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1033687">	{</a></div>
+            <div class="command"><a name="1033707">	{</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1033689">	</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::FieldListEnum :</div>
+            <div class="command"><a name="1033709">	</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::FieldListEnum :</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1033691">		decode( genMsg.getPayload().getFieldList() );</a></div>
+            <div class="command"><a name="1033711">		decode( genMsg.getPayload().getFieldList() );</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1033693">		</a><span class="Color_003aBlue">break</span></div>
+            <div class="command"><a name="1033713">		</a><span class="Color_003aBlue">break</span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1033695">	}</a></div>
+            <div class="command"><a name="1033715">	}</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1033697">}</a></div>
+            <div class="command"><a name="1033717">}</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1033699">&nbsp;</a></div>
+            <div class="command"><a name="1033719">&nbsp;</a></div>
           </td>
         </tr>
       </table>

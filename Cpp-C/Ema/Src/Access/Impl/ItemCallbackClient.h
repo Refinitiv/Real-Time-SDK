@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_ItemCallbackClient_h
 
 #include "rtr/rsslReactor.h"
-#include "EmaString.h"
+#include "HashTable.h"
 #include "EmaList.h"
 #include "OmmState.h"
 #include "AckMsg.h"
@@ -20,7 +20,7 @@
 #include "StatusMsg.h"
 #include "OmmLoggerClient.h"
 #include "OmmConsumerEvent.h"
-#include "HashTable.h"
+#include "OmmProviderEvent.h"
 #include "EmaVector.h"
 
 namespace thomsonreuters {
@@ -29,8 +29,12 @@ namespace ema {
 
 namespace access {
 
-class OmmConsumerImpl;
 class OmmConsumerClient;
+class OmmProviderClient;
+class OmmConsumerImpl;
+class OmmProviderImpl;
+
+class OmmBaseImpl;
 class ReqMsg;
 class PostMsg;
 class Channel;
@@ -45,7 +49,7 @@ class ItemList
 {
 public :
 
-	static ItemList* create( OmmConsumerImpl& );
+	static ItemList* create( OmmBaseImpl& );
 
 	static void destroy( ItemList*& );
 
@@ -57,10 +61,10 @@ private :
 
 	static const EmaString		_clientName;
 
-	EmaList< Item* >				_list;
-	OmmConsumerImpl&			_ommConsImpl;
+	EmaList< Item* >			_list;
+	OmmBaseImpl&				_ommBaseImpl;
 
-	ItemList( OmmConsumerImpl& );
+	ItemList( OmmBaseImpl& );
 	ItemList();
 	virtual ~ItemList();
 	ItemList( const ItemList& );
@@ -74,10 +78,13 @@ public :
 	enum ItemType
 	{
 		SingleItemEnum,
+		NiProviderSingleItemEnum,
 		BatchItemEnum,
 		LoginItemEnum,
+		NiProviderLoginItemEnum,
 		DirectoryItemEnum,
 		DictionaryItemEnum,
+		NiProviderDictionaryItemEnum,
 		TunnelItemEnum,
 		SubItemEnum
 	};
@@ -86,9 +93,6 @@ public :
 
 	static void destroy( Item*& );
 
-	OmmConsumerClient& getClient() const;
-	void* getClosure() const;
-	Item* getParent() const;
 	Int32 getStreamId() const;
 	
 	virtual const Directory* getDirectory() = 0;
@@ -102,18 +106,22 @@ public :
 
 	virtual ItemType getType() const = 0;
 
-	OmmConsumerImpl& getOmmConsumerImpl();
+	OmmBaseImpl& getImpl();
+
+	virtual void onAllMsg( const Msg& ) = 0;
+	virtual void onRefreshMsg( const RefreshMsg& ) = 0;
+	virtual void onUpdateMsg( const UpdateMsg& ) = 0;
+	virtual void onStatusMsg( const StatusMsg& ) = 0;
+	virtual void onAckMsg( const AckMsg& ) = 0;
+	virtual void onGenericMsg( const GenericMsg& ) = 0;
 
 protected :
 
-	UInt8						_domainType;
-	Int32						_streamId;
-	void*						_closure;
-	Item*						_parent;
-	OmmConsumerClient&			_ommConsClient;
-	OmmConsumerImpl&			_ommConsImpl;
+	UInt8				_domainType;
+	Int32				_streamId;
+	OmmBaseImpl&		_ommBaseImpl;
 
-	Item( OmmConsumerImpl& , OmmConsumerClient& , void* , Item* );
+	Item( OmmBaseImpl& );
 	virtual ~Item();
 
 private :
@@ -158,11 +166,65 @@ private :
 	bool			_privateStream;
 };
 
-class SingleItem : public Item
+class ConsumerItem : public Item
 {
 public :
 
-	static SingleItem* create( OmmConsumerImpl& , OmmConsumerClient& , void* , Item* );
+	void onAllMsg( const Msg& );
+	void onRefreshMsg( const RefreshMsg& );
+	void onUpdateMsg( const UpdateMsg& );
+	void onStatusMsg( const StatusMsg& );
+	void onAckMsg( const AckMsg& );
+	void onGenericMsg( const GenericMsg& );
+
+protected :
+
+	ConsumerItem( OmmBaseImpl&, OmmConsumerClient&, void* , Item* );
+	virtual ~ConsumerItem();
+
+	OmmConsumerClient&		_client;
+	OmmConsumerEvent		_event;
+
+private:
+
+	ConsumerItem();
+	ConsumerItem( const ConsumerItem& );
+	ConsumerItem& operator=( const ConsumerItem& );
+};
+
+class NiProviderItem : public Item
+{
+public :
+
+	void onAllMsg( const Msg& );
+	void onRefreshMsg( const RefreshMsg& );
+	void onUpdateMsg( const UpdateMsg& );
+	void onStatusMsg( const StatusMsg& );
+	void onAckMsg( const AckMsg& );
+	void onGenericMsg( const GenericMsg& );
+
+	const Directory* getDirectory();
+
+protected :
+
+	NiProviderItem( OmmBaseImpl& , OmmProviderClient& , void* );
+	virtual ~NiProviderItem();
+
+	OmmProviderClient&		_client;
+	OmmProviderEvent		_event;
+
+private:
+
+	NiProviderItem();
+	NiProviderItem( const NiProviderItem& );
+	NiProviderItem& operator=( const NiProviderItem& );
+};
+
+class SingleItem : public ConsumerItem
+{
+public :
+
+	static SingleItem* create( OmmBaseImpl& , OmmConsumerClient&, void* , Item* );
 
 	const Directory* getDirectory();
 
@@ -173,13 +235,11 @@ public :
 	bool close();
 	void remove();
 
-	void state( const OmmState& );
-
 	ItemType getType() const;
 
 protected :
 
-	SingleItem( OmmConsumerImpl& , OmmConsumerClient& , void* , Item* );
+	SingleItem( OmmBaseImpl& , OmmConsumerClient& , void* , Item* );
 
 	virtual ~SingleItem();
 
@@ -202,11 +262,50 @@ private :
 	SingleItem& operator=( const SingleItem& );
 };
 
+class NiProviderSingleItem : public NiProviderItem
+{
+public:
+
+	static NiProviderSingleItem* create( OmmBaseImpl&, OmmProviderClient&, void* , Item* );
+
+	bool open( const ReqMsg& );
+	bool modify( const ReqMsg& );
+	bool submit( const PostMsg& );
+	bool submit( const GenericMsg& );
+	bool close();
+	void remove();
+
+	ItemType getType() const;
+
+protected:
+
+	NiProviderSingleItem( OmmBaseImpl&, OmmProviderClient&, void* , Item* );
+
+	virtual ~NiProviderSingleItem();
+
+	void scheduleItemClosedStatus( const ReqMsgEncoder&, const EmaString& );
+
+private:
+
+	bool submit( RsslGenericMsg* );
+	bool submit( RsslRequestMsg* );
+	bool submit( RsslCloseMsg* );
+	bool submit( RsslPostMsg* );
+
+	static const EmaString		_clientName;
+
+	ClosedStatusInfo*			_closedStatusInfo;
+
+	NiProviderSingleItem();
+	NiProviderSingleItem( const NiProviderSingleItem& );
+	NiProviderSingleItem& operator=( const NiProviderSingleItem& );
+};
+
 class BatchItem : public SingleItem
 {
 public :
 
-	static BatchItem* create( OmmConsumerImpl& , OmmConsumerClient& , void* );
+	static BatchItem* create( OmmBaseImpl& , OmmConsumerClient& , void* );
 
 	bool open( const ReqMsg& );
 	bool modify( const ReqMsg& );
@@ -233,18 +332,18 @@ private :
 	EmaVector<SingleItem*>		_singleItemList;
 	UInt32						_itemCount;
 
-	BatchItem( OmmConsumerImpl& , OmmConsumerClient& , void* );
+	BatchItem( OmmBaseImpl& , OmmConsumerClient& , void* );
 	BatchItem();
 	virtual ~BatchItem();
 	BatchItem( const BatchItem& );
 	BatchItem& operator=( const BatchItem& );
 };
 
-class TunnelItem : public Item
+class TunnelItem : public ConsumerItem
 {
 public :
 
-	static TunnelItem* create( OmmConsumerImpl& , OmmConsumerClient& , void* );
+	static TunnelItem* create( OmmBaseImpl& , OmmConsumerClient& , void* );
 
 	ItemType getType() const;
 
@@ -270,8 +369,9 @@ public :
 
 protected :
 
-	TunnelItem( OmmConsumerImpl& , OmmConsumerClient& , void* );
+	TunnelItem( OmmBaseImpl& , OmmConsumerClient&, void* );
 	virtual ~TunnelItem();
+
 	Int32 getSubItemStreamId();
 	void scheduleItemClosedStatus( const TunnelStreamRequest& , const EmaString& );
 
@@ -280,7 +380,7 @@ private :
 	bool submit( const TunnelStreamRequest& );
 
 	static const EmaString		_clientName;
-	Int32                       nextSubItemStreamId;
+	Int32                       nextSubItemStreamId;		// todo ... use underscore
 	EmaList< StreamId* >        returnedSubItemStreamIds;
 	const Directory*			_pDirectory;
 	RsslTunnelStream*			_pRsslTunnelStream;
@@ -289,11 +389,11 @@ private :
     static const Int32          _startingSubItemStreamId = 5;
 };
 
-class SubItem : public Item
+class SubItem : public ConsumerItem
 {
 public :
 
-	static SubItem* create( OmmConsumerImpl& , OmmConsumerClient& , void* , Item* );
+	static SubItem* create( OmmBaseImpl& , OmmConsumerClient&, void* , Item* );
 
 	ItemType getType() const;
 
@@ -308,7 +408,7 @@ public :
 
 protected :
 
-	SubItem( OmmConsumerImpl& , OmmConsumerClient& , void* , Item* );
+	SubItem( OmmBaseImpl& , OmmConsumerClient&, void* , Item* );
 
 	virtual ~SubItem();
 
@@ -329,13 +429,15 @@ public :
 
 	static void sendItemClosedStatus( void* );
 
-	static ItemCallbackClient* create( OmmConsumerImpl& );
+	static ItemCallbackClient* create( OmmBaseImpl& );
 
 	static void destroy( ItemCallbackClient*& );
 
 	void initialize();
 
-	UInt64 registerClient( const ReqMsg& , OmmConsumerClient& , void* , UInt64 );
+	UInt64 registerClient( const ReqMsg& , OmmConsumerClient&, void* , UInt64 );
+
+	UInt64 registerClient( const ReqMsg&, OmmProviderClient&, void*, UInt64 );
 
 	UInt64 registerClient( const TunnelStreamRequest& , OmmConsumerClient& , void* );
 
@@ -375,9 +477,7 @@ private :
 
 	AckMsg							_ackMsg;
 
-	OmmConsumerEvent				_event;
-
-	OmmConsumerImpl&				_ommConsImpl;
+	OmmBaseImpl&					_ommBaseImpl;
 
 	ItemList*						_itemList;
 
@@ -401,13 +501,13 @@ private :
 	RsslReactorCallbackRet processUpdateMsg( RsslMsg* , RsslReactorChannel* , RsslMsgEvent* );
 	RsslReactorCallbackRet processStatusMsg( RsslMsg* , RsslReactorChannel* , RsslMsgEvent* );
 
-	RsslReactorCallbackRet processAckMsg( RsslTunnelStream* , RsslTunnelStreamMsgEvent* );
-	RsslReactorCallbackRet processGenericMsg( RsslTunnelStream* , RsslTunnelStreamMsgEvent* );
-	RsslReactorCallbackRet processRefreshMsg( RsslTunnelStream* , RsslTunnelStreamMsgEvent* );
-	RsslReactorCallbackRet processUpdateMsg( RsslTunnelStream* , RsslTunnelStreamMsgEvent* );
-	RsslReactorCallbackRet processStatusMsg( RsslTunnelStream* , RsslTunnelStreamMsgEvent* );
+	RsslReactorCallbackRet processAckMsg( RsslTunnelStream* , RsslTunnelStreamMsgEvent*, Item* );
+	RsslReactorCallbackRet processGenericMsg( RsslTunnelStream* , RsslTunnelStreamMsgEvent*, Item* );
+	RsslReactorCallbackRet processRefreshMsg( RsslTunnelStream* , RsslTunnelStreamMsgEvent*, Item* );
+	RsslReactorCallbackRet processUpdateMsg( RsslTunnelStream* , RsslTunnelStreamMsgEvent*, Item* );
+	RsslReactorCallbackRet processStatusMsg( RsslTunnelStream* , RsslTunnelStreamMsgEvent*, Item* );
 
-	ItemCallbackClient( OmmConsumerImpl& );
+	ItemCallbackClient( OmmBaseImpl& );
 	virtual ~ItemCallbackClient();
 
 	ItemCallbackClient();

@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>3.2 Channel Group</title>
+    <title>3.2 Non-interactive Provider Group</title>
     <link rel="StyleSheet" href="css/Chap_ConfigGroups.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -54,13 +54,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="H2_inner"><a name="1037599">Channel Group</a></div>
+              <div class="H2_inner"><a name="1080827">Non-interactive Provider Group</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1081398">The </a><span class="Parameter">ChannelGroup</span> contains a <span class="Parameter">ChannelList</span>, which contains one or more <span class="Parameter">Channel</span> entries (each uniquely identified by a <span class="Parameter">&lt;Name …/&gt;</span> entry). Each channel includes a set of connection parameters for a specific connection or connection type.</div>
-      <div class="Body"><a name="1081399">There is no default channel group. If a consumer application needs a specific channel group, you should specify this in the appropriate </a><span class="Parameter">Consumer</span> section (for details on configuring the <span class="Parameter">Consumer</span> component, refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.04.html', '');" title="3.1.3 Configuring Consumers in a ConsumerGroup">Section 3.1.3</a>).</div>
+      <div class="Body"><a name="1092992">A </a><span class="Parameter">NiProviderGroup</span> contains two elements:</div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -70,21 +69,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1081412">For a generic </a><span class="Parameter">ChannelGroup</span> XML schema, refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.07.html', '');" title="3.2.1 Generic XML Schema for ChannelGroup">Section 3.2.1</a>.</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><a name="1081413">For a list of universal parameters you can use in configuring any type of </a><span class="Parameter">Channel</span> regardless of the channel type, refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.08.html', '');" title="3.2.2 Universal Channel Entry Parameters">Section 3.2.2</a>.</div>
+              <div class="Bullet_inner"><a name="1092993">A </a><span class="Parameter">DefaultNiProvider</span> element, which you can use to specify a default <span class="Parameter">NiProvider</span> component. If a default <span class="Parameter">NiProvider</span> is not specified in the <span class="Parameter">NiProviderGroup</span>, EMA uses the first non-interactive provider listed in the <span class="Parameter">NiProviderList</span>. For details on configuring a default <span class="Parameter">NiProvider</span>, refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.08.html', '');" title="3.2.2 Setting a Default Non-interactive Provider">Section 3.2.2</a>.</div>
             </td>
           </tr>
         </table>
@@ -98,53 +83,14 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1081420">For a list of parameters you can use only when configuring a </a><span class="Parameter">Channel</span> whose channel type is <span class="Parameter">RSSL_SOCKET</span>, refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.09.html', '');" title="3.2.3 Parameters for Use with Channel Type: RSSL_SOCKET">Section 3.2.3</a>.</div>
+              <div class="Bullet_inner"><a name="1093000">A </a><span class="Parameter">NiProviderList</span> element, which contains one or more <span class="Parameter">NiProvider</span> components (each should be uniquely identified by a <span class="Parameter">&lt;Name …/&gt;</span> entry). The non-interactive provider component is the highest-level abstraction within an application and typically refers to <span class="Parameter">Channel</span>, <span class="Parameter">Logger</span>, and/or <span class="Parameter">Directory</span> components which specify non-interactive provider capabilities.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><a name="1081427">For a list of parameters you can use only when configuring a </a><span class="Parameter">Channel</span> whose channel type is <span class="Parameter">RSSL_ENCRYPTED</span>, refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.10.html', '');" title="3.2.4 Parameters for Use with Channel Types: RSSL_HTTP or RSSL_ENCRYPTED">Section 3.2.4</a>.</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><a name="1081431">For a list of parameters you can use only when configuring a </a><span class="Parameter">Channel</span> whose channel type is <span class="Parameter">RSSL_HTTP</span>, refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.10.html', '');" title="3.2.4 Parameters for Use with Channel Types: RSSL_HTTP or RSSL_ENCRYPTED">Section 3.2.4</a>.</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><a name="1081435">For a list of parameters you can use only when configuring a </a><span class="Parameter">Channel</span> whose channel type is <span class="Parameter">RSSL_RELIABLE_MCAST</span>, refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.11.html', '');" title="3.2.5 Parameters for Use with Channel Type: RSSL_RELIABLE_MCAST">Section 3.2.5</a>.</div>
-            </td>
-          </tr>
-        </table>
-      </div>
+      <div class="Body"><a name="1093007">For a generic </a><span class="Parameter">NiProviderGroup</span> XML schema, refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.07.html', '');" title="3.2.1 Generic XML Schema for Non-interactive Provider Group">Section 3.2.1</a>.</div>
+      <div class="Body"><a name="1093014">For details on configuring a </a><span class="Parameter">NiProviderGroup</span>, refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.09.html', '');" title="3.2.3 Configuring a Non-interactive Provider in a NiProviderGroup">Section 3.2.3</a>.</div>
+      <div class="Body"><a name="1093021">For a list of parameters you can use in configuring a </a><span class="Parameter">NiProvider</span>, refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.10.html', '');" title="3.2.4 Non-interactive Provider Entry Parameters">Section 3.2.4</a>.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -156,7 +102,7 @@
       </script>
     </blockquote>
     <hr align="left" />
-    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	Configuration Groups : 3.2	Channel Group</div>
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	Configuration Groups : 3.2	Non-interactive Provider Group</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

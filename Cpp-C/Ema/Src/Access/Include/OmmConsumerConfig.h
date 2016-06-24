@@ -20,7 +20,7 @@
 
 	The EmaConfig.xml file is read in if it is present in the working directory of the application.
 
-	Calling any interface methods of OmmConsumerconfig class overrides or appends the existing configuration.
+	Calling any interface methods of OmmConsumerConfig class overrides or appends the existing configuration.
 
 	\remark All methods in this class are \ref SingleThreaded.
 
@@ -73,19 +73,19 @@ public :
 	*/
 	OmmConsumerConfig& clear();
 
-	/** Specifies the username. Overrides a value specified in Login domain via the AddReqMsg(..) method.
+	/** Specifies the username. Overrides a value specified in Login domain via the addAdminMsg(..) method.
 		@param[in] username specifies name used on login request
 		@return reference to this object
 	*/
 	OmmConsumerConfig& username( const EmaString& username );
 
-	/** Specifies the password. Overrides a value specified in Login domain via the AddReqMsg(..) method.
+	/** Specifies the password. Overrides a value specified in Login domain via the addAdminMsg(..) method.
 		@param[in] password specifies respective login request attribute
 		@return reference to this object
 	*/
 	OmmConsumerConfig& password( const EmaString& password );
 
-	/** Specifies the position. Overrides a value specified in Login domain via the AddReqMsg(..) method.
+	/** Specifies the position. Overrides a value specified in Login domain via the addAdminMsg(..) method.
 		@param[in] position specifies respective login request attribute
 		@return reference to this object
 	*/

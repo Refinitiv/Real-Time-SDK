@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>360__MarketPrice__ConnectionRecovery</title>
+    <link rel="StyleSheet" href="css/EMAC_NIP_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3_NoNum"><a name="1020346">360__MarketPrice__ConnectionRecovery</a></div>
+      <div class="Body"><a name="1028450">Summary</a></div>
+      <div class="Body"><a name="1028451">=======</a></div>
+      <div class="Body"><a name="1028452">&nbsp;</a></div>
+      <div class="Body"><a name="1028453">360__MarketPrice__ConnectionRecovery is an example of an OMM NiProvider application</a></div>
+      <div class="Body"><a name="1028454">written to the EMA library.</a></div>
+      <div class="Body"><a name="1028455">&nbsp;</a></div>
+      <div class="Body"><a name="1028456">This application demonstrates the basic usage of the EMA library in providing</a></div>
+      <div class="Body"><a name="1028457">of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.</a></div>
+      <div class="Body"><a name="1028458">&nbsp;</a></div>
+      <div class="Body"><a name="1028459">360__MarketPrice__ConnectionRecovery illustrates how to create and publish one OMM item,</a></div>
+      <div class="Body"><a name="1028460">and register for and process login events. The login events signify connection state.</a></div>
+      <div class="Body"><a name="1028461">For example, login status of Open / Suspect / None / “channel down” signifies a disconnect,</a></div>
+      <div class="Body"><a name="1028462">login status of Open / Ok / None / “channel up” signifies a successful reconnect.</a></div>
+      <div class="Body"><a name="1028463">This application uses source directory configured in the EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1028464">&nbsp;</a></div>
+      <div class="Body"><a name="1028465">&nbsp;</a></div>
+      <div class="Body"><a name="1028466">Detailed Description</a></div>
+      <div class="Body"><a name="1028467">====================</a></div>
+      <div class="Body"><a name="1028468">&nbsp;</a></div>
+      <div class="Body"><a name="1028469">360__MarketPrice__ConnectionRecovery implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1028470">&nbsp;</a></div>
+      <div class="Body"><a name="1028471">+ Implements OmmProviderClient class in AppClient</a></div>
+      <div class="Body"><a name="1028472">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1028473">  - the onStatusMsg() and onRefreshMsg() recognize the Open / Suspect and Open / Ok status</a></div>
+      <div class="Body"><a name="1028474">    as indication of the underlying connection state</a></div>
+      <div class="Body"><a name="1028475">+ Instantiates AppClient object that receives and processes login messages</a></div>
+      <div class="Body"><a name="1028476">+ Instantiates and modifies an OmmNiProviderConfig object:</a></div>
+      <div class="Body"><a name="1028477">  - which reads in the EmaConfig.xml file with:</a></div>
+      <div class="Body"><a name="1028478">    - specified SourceDirectory of TEST_NI_PUB</a></div>
+      <div class="Body"><a name="1028479">	- specified Channel’s host and port</a></div>
+      <div class="Body"><a name="1028480">  - Sets the username to “user”</a></div>
+      <div class="Body"><a name="1028481">  - Sets the operationModel to UserDispatchEnum.</a></div>
+      <div class="Body"><a name="1028482">+ Instantiates an OmmProvider object which:</a></div>
+      <div class="Body"><a name="1028483">  - initializes the connection and logs into the configured ADH</a></div>
+      <div class="Body"><a name="1028484">  - sends down the source directory refresh message with TEST_NI_PUB service info</a></div>
+      <div class="Body"><a name="1028485">+ Registers for login stream</a></div>
+      <div class="Body"><a name="1028486">+ Creates streaming item (refresh and updates) and publishes it</a></div>
+      <div class="Body"><a name="1028487">  - MarketPrice TRI.N item on the TEST_NI_PUB service</a></div>
+      <div class="Body"><a name="1028488">+ Publishes updates 1 per second</a></div>
+      <div class="Body"><a name="1028489">  - items are not published if connection is down</a></div>
+      <div class="Body"><a name="1028490">+ Processes data received while calling OmmProvider::dispatch( 1000000 )</a></div>
+      <div class="Body"><a name="1028491">  - All messages received are processed on the application’s main thread of control</a></div>
+      <div class="Body"><a name="1028492">+ Exits after 60 updates is sent out</a></div>
+      <div class="Body"><a name="1028493">&nbsp;</a></div>
+      <div class="Body"><a name="1028494">Note: Please refer to the EMA Configuration Guide for details on usage of the following</a></div>
+      <div class="Body"><a name="1028495">      configuration parameters: ‘RemoveItemsOnDisconnect’ and ‘RecoverUserSubmitSourceDirectory’.</a></div>
+      <div class="Body"><a name="1028496">&nbsp;</a></div>
+      <div class="Body"><a name="1028497">Note: If needed, these and other details may be modified to fit your local</a></div>
+      <div class="Body"><a name="1028498">      environment. For details on standard configuration, refer to the EMA library</a></div>
+      <div class="Body"><a name="1028499">      ReadMe.txt file and EMA Configuration Guide.</a></div>
+      <div class="Body"><a name="1028024">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_NIP_Readmes.2.01.html">EMA C++ Non-interactive Provider Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_NIP_Readmes.2.10.html">300 Series Examples</a> : 360__MarketPrice__ConnectionRecovery</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

@@ -6,14 +6,14 @@
 --------------------------------------------------------------------------*/
 #define Ema_Release_Major		3
 #define Ema_Release_Minor		0
-#define Ema_Product_Major		2
-#define Ema_Product_Minor		13
+#define Ema_Product_Major		3
+#define Ema_Product_Minor		15
 #define PRODNAME			"Elektron Message API EMA "
-#define PRODVERNAME			"3.0.2 "
+#define PRODVERNAME			"3.0.3 "
 #define COMPANYNAME			"Thomson Reuters, Oak Brook, IL"
 #define COPYRIGHTYEAR			"2016"
-#define DDATE				"Tue Apr 28 10:49:27 CST 2016"
-#define INTERNALVERSION			"(Internal Node: Ema 3.0.2.13)"
+#define DDATE				"Fri June 24 10:49:27 CST 2016"
+#define INTERNALVERSION			"(Internal Node: Ema 3.0.3.15)"
 /*--------------------------------------------------------------------------
 	 CHANGE ABOVE HERE
 --------------------------------------------------------------------------*/
