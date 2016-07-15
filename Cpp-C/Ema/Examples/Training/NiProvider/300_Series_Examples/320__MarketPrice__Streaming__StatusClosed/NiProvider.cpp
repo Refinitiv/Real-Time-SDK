@@ -64,7 +64,7 @@ int main( int argc, char* argv[] )
 			sleep( 1000 );
 		}
 
-		provider.submit( StatusMsg()
+		provider.submit( StatusMsg().serviceName( "TEST_NI_PUB" ).name( "IBM.N" )
 			.state( OmmState::ClosedEnum, OmmState::SuspectEnum, OmmState::NoneEnum, "Stream Closed" ), ibmHandle );
 
 		sleep( 20000 );
