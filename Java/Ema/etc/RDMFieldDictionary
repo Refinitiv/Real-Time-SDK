@@ -4,14 +4,14 @@
 ! Thomson Reuters. Thomson Reuters may update or remove this
 ! document at any time without notice.
 !
-!   Version	 4.20.24_TREP_16.41		05/12/2016
-!	* Modified 05/12/2016 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.24.
+!   Version	 4.20.25_TREP_16.51		06/17/2016
+!	* Modified 06/17/2016 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.25.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.24_TREP
+!   Version: 4.20.25_TREP
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -29,9 +29,9 @@
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.24
-!tag Build     002
-!tag Date      08-Mar-2016
+!tag Version   4.20.25
+!tag Build     001
+!tag Date      19-May-2016
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -2627,9 +2627,7 @@ CNV_PARITY "CNV PARITY"           873  NULL        PRICE              17  REAL64
 !
 PREMIUM    "PREMIUM"              874  NULL        PRICE              17  REAL64           7
 !
-! For warrants and convertible securities the premium over or discount to the 
-! converted security price that the current price implies taking into account the 
-! conversion rate and the rate of exchange where appropriate.
+! Premium/Discount Value
 !
 VALUE_DT1  "VALUE DATE 1"         875  VALUE_DT2   DATE               11  DATE             4
 !
@@ -19665,9 +19663,18 @@ SELL_MOV   "SELL NUM MOVES"      7091  NULL        INTEGER            15  INT64 
 !
 ! Number of sell trades
 !
-PRE_INT213 "PRED INTEGER 213"    7092  NULL        INTEGER            15  INT64            6
-PRE_INT214 "PRED INTEGER 214"    7093  NULL        INTEGER            15  INT64            6
-PRE_INT215 "PRED INTEGER 215"    7094  NULL        INTEGER            15  INT64            6
+FC_COUNT   "FCAST COUNT"         7092  NULL        INTEGER            15  INT64            6
+!
+! Number of forecasts received
+!
+IRG_NUMMOV "IRG TRD NUM MOV"     7093  NULL        INTEGER            15  INT64            6
+!
+! Number of last ineligible trades
+!
+MOC_NUMMOV "MOC TRD NUM MOV"     7094  NULL        INTEGER            15  INT64            6
+!
+! Number of Market on Close trades
+!
 PRE_INT216 "PRED INTEGER 216"    7095  NULL        INTEGER            15  INT64            6
 PRE_INT217 "PRED INTEGER 217"    7096  NULL        INTEGER            15  INT64            6
 PRE_INT218 "PRED INTEGER 218"    7097  NULL        INTEGER            15  INT64            6
@@ -23776,9 +23783,9 @@ ASSET_TP   "ASSET TYPE"          8454  NULL        ALPHANUMERIC        4  RMTES_
 ! Asset Type: Thomson Reuters instrument classification code that identifies the asset 
 ! type.
 !
-PRE_4TX008 "PRED 4 TXT 008"      8455  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+IMB_TO_IND "IMB TOLERANCE IND"   8455  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 !
-! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
+! Imbalance tolerance indicator
 !
 IP_TRBC    "IMMED PARENT IND"    8456  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 !
@@ -24273,7 +24280,10 @@ CO_RPT_STN "NATIVE CO PRT STA"   8594  NULL        ALPHANUMERIC       16  RMTES_
 !
 ! Native company reporting status for the venue traded
 !
-PRE_16T028 "PRED 16 TXT 028"     8595  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+CTB_ID     "CTBTR ID CODE"       8595  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+!
+! The ID code of the contributor
+!
 PRE_16T029 "PRED 16 TXT 029"     8596  NULL        ALPHANUMERIC       16  RMTES_STRING    16
 PRE_16T030 "PRED 16 TXT 030"     8597  NULL        ALPHANUMERIC       16  RMTES_STRING    16
 PRE_16T031 "PRED 16 TXT 031"     8598  NULL        ALPHANUMERIC       16  RMTES_STRING    16
@@ -25149,7 +25159,7 @@ MID_IV_FLG "MID IMP VOLT FLAG"   8952  NULL        ENUMERATED    3 ( 8 )  ENUM  
 ! Qualifier of mid implied volatility. ' ' = Mid volatility computed from bid and ask 
 ! price. '*' = Interpolated mid implied volatility
 !
-UN_CRS_SC  "UNDERLYING CRS SC"   8953  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+UN_CRS_SC  "UNDERLYING CRS SC"   8953  NULL        ENUMERATED    3 ( 5 )  ENUM             1
 !
 ! Scaling factor for the underlying FX Spot price
 !
@@ -25314,7 +25324,7 @@ STAT_TYPE  "STATISTIC TYPE"      8990  NULL        ENUMERATED    5 ( 8 )  ENUM  
 !
 ! Type of Statistic
 !
-LIST_MKT2  "LIST MARKET"         8991  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+LIST_MKT2  "LIST MARKET"         8991  NULL        ENUMERATED    5 ( 3 )  ENUM             2
 !
 ! Listing Market - an enumerated (FID 1709; RDN_EXCHD2) variation upon FID 3183; 
 ! LIST_MKT
@@ -26066,13 +26076,36 @@ SRCDATE    "SRC MSG DATE"        9266  NULL        DATE               11  DATE  
 !
 ! Inbound msg date (GMT) if supplied
 !
-PRE_DT156  "PRED DATE 156"       9267  NULL        DATE               11  DATE             4
-PRE_DT157  "PRED DATE 157"       9268  NULL        DATE               11  DATE             4
-PRE_DT158  "PRED DATE 158"       9269  NULL        DATE               11  DATE             4
-PRE_DT159  "PRED DATE 159"       9270  NULL        DATE               11  DATE             4
-PRE_DT160  "PRED DATE 160"       9271  NULL        DATE               11  DATE             4
-PRE_DT161  "PRED DATE 161"       9272  NULL        DATE               11  DATE             4
-PRE_DT162  "PRED DATE 162"       9273  NULL        DATE               11  DATE             4
+MET_VTO_DT "MET VAL VALD TO DT"  9267  NULL        DATE               11  DATE             4
+!
+! Value-to-date is the end of the interval the MET_VAL is valid
+!
+EVENT_DT2  "EVENT DATE 2"        9268  NULL        DATE               11  DATE             4
+!
+! Native date (GMT) of the event where there is more than one for an event
+!
+EVENT_DT3  "EVENT DATE 3"        9269  NULL        DATE               11  DATE             4
+!
+! Native date (GMT) of the event where there is more than two for an event
+!
+ACT_END_DT "ACTUAL END DATE"     9270  NULL        DATE               11  DATE             4
+!
+! When the actual value could be provided between a range of dates, this field shows 
+! the end date of the date range
+!
+ACT_INS_DT "ACTUAL INS DATE"     9271  NULL        DATE               11  DATE             4
+!
+! Date that a correction was made to the actual value
+!
+ACT_REV_DT "ACTUAL REV DATE"     9272  NULL        DATE               11  DATE             4
+!
+! Date that a revision was made to the actual value
+!
+ACT_STA_DT "ACTUAL START DATE"   9273  NULL        DATE               11  DATE             4
+!
+! When the actual value could be provided between a range of dates, this field shows 
+! the start date of the date range
+!
 PRE_DT163  "PRED DATE 163"       9274  NULL        DATE               11  DATE             4
 PRE_DT164  "PRED DATE 164"       9275  NULL        DATE               11  DATE             4
 PRE_DT165  "PRED DATE 165"       9276  NULL        DATE               11  DATE             4
@@ -27287,27 +27320,100 @@ OFBK_LOTSZ "OFFBK LOT SIZE"     10006  NULL        PRICE              17  REAL64
 !
 ! Minimum tradable lot size for an off book trade
 !
-PRERL1016  "PRED REAL 1016"     10007  NULL        PRICE              17  REAL64           7
-PRERL1017  "PRED REAL 1017"     10008  NULL        PRICE              17  REAL64           7
-PRERL1018  "PRED REAL 1018"     10009  NULL        PRICE              17  REAL64           7
-PRERL1019  "PRED REAL 1019"     10010  NULL        PRICE              17  REAL64           7
-PRERL1020  "PRED REAL 1020"     10011  NULL        PRICE              17  REAL64           7
-PRERL1021  "PRED REAL 1021"     10012  NULL        PRICE              17  REAL64           7
-PRERL1022  "PRED REAL 1022"     10013  NULL        PRICE              17  REAL64           7
-PRERL1023  "PRED REAL 1023"     10014  NULL        PRICE              17  REAL64           7
-PRERL1024  "PRED REAL 1024"     10015  NULL        PRICE              17  REAL64           7
-PRERL1025  "PRED REAL 1025"     10016  NULL        PRICE              17  REAL64           7
-PRERL1026  "PRED REAL 1026"     10017  NULL        PRICE              17  REAL64           7
-PRERL1027  "PRED REAL 1027"     10018  NULL        PRICE              17  REAL64           7
-PRERL1028  "PRED REAL 1028"     10019  NULL        PRICE              17  REAL64           7
-PRERL1029  "PRED REAL 1029"     10020  NULL        PRICE              17  REAL64           7
-PRERL1030  "PRED REAL 1030"     10021  NULL        PRICE              17  REAL64           7
-PRERL1031  "PRED REAL 1031"     10022  NULL        PRICE              17  REAL64           7
-PRERL1032  "PRED REAL 1032"     10023  NULL        PRICE              17  REAL64           7
-PRERL1033  "PRED REAL 1033"     10024  NULL        PRICE              17  REAL64           7
-PRERL1034  "PRED REAL 1034"     10025  NULL        PRICE              17  REAL64           7
-PRERL1035  "PRED REAL 1035"     10026  NULL        PRICE              17  REAL64           7
-PRERL1036  "PRED REAL 1036"     10027  NULL        PRICE              17  REAL64           7
+LEG3_R_PRC "LEG3 REF PRICE"     10007  NULL        PRICE              17  REAL64           7
+LEG4_R_PRC "LEG4 REF PRICE"     10008  NULL        PRICE              17  REAL64           7
+LEG5_R_PRC "LEG5 REF PRICE"     10009  NULL        PRICE              17  REAL64           7
+LEG6_R_PRC "LEG6 REF PRICE"     10010  NULL        PRICE              17  REAL64           7
+!
+! Reference price associated with the Nth leg of a strategy instrument 
+!
+LMT_REFPR2 "PRC LMT REF PRC2"   10011  NULL        PRICE              17  REAL64           7
+!
+! Reference price for upper/lower price limit calculation, associated with UPLIMIT_2 
+! (#3816) / LOLIMIT_2 (#3815)
+!
+ACT_LO_RNG "ACTUAL LOWER RANGE" 10012  NULL        PRICE              17  REAL64           7
+!
+! When the actual value is provided as a value range, i.e., between 0.25 and 0.5, this 
+! field shows the lower value of the actual range
+!
+ACT_UP_RNG "ACTUAL UPPER RANGE" 10013  NULL        PRICE              17  REAL64           7
+!
+! When the actual value is provided as a value range, i.e., between 0.25 and 0.5, this 
+! field shows the upper value of the actual range
+!
+FC_HI_LRNG "FCAST HIGH LWR RNG" 10014  NULL        PRICE              17  REAL64           7
+!
+! Highest Forecast - lower range.  When forecasts are provided as a value range, this 
+! field shows the lower range value of the highest forecast
+!
+FC_HI_URNG "FCAST HIGH UPP RNG" 10015  NULL        PRICE              17  REAL64           7
+!
+! Highest Forecast - upper range.  When forecasts are provided as a value range, this 
+! field shows the upper range value of the highest forecast
+!
+FC_LO_LRNG "FCAST LOW LWR RNG"  10016  NULL        PRICE              17  REAL64           7
+!
+! Lowest Forecast - lower range.  When forecasts are provided as a value range, this 
+! field shows the lower range value of the lowest forecast
+!
+FC_LO_URNG "FCAST LOW UPP RNG"  10017  NULL        PRICE              17  REAL64           7
+!
+! Lowest Forecast - upper range.  When forecasts are provided as a value range, this 
+! field shows the upper range value of the lowest forecast
+!
+FC_ME_LRNG "FCAST MEDN LWR RNG" 10018  NULL        PRICE              17  REAL64           7
+!
+! When forecasts are provided as a value range, this field shows the median value of 
+! all forecasted lower range values
+!
+FC_ME_URNG "FCAST MEDN UPP RNG" 10019  NULL        PRICE              17  REAL64           7
+!
+! When forecasts are provided as a value range, this field shows the median value of 
+! all forecasted upper range values
+!
+FC_MN_LRNG "FCAST MEAN LWR RNG" 10020  NULL        PRICE              17  REAL64           7
+!
+! When forecasts are provided as a value range, this field shows the mean value of all 
+! forecasted lower range values
+!
+FC_MN_URNG "FCAST MEAN UPP RNG" 10021  NULL        PRICE              17  REAL64           7
+!
+! When forecasts are provided as a value range, this field shows the mean value of all 
+! forecasted upper range values
+!
+FC_MO_LRNG "FCAST MODE LWR RNG" 10022  NULL        PRICE              17  REAL64           7
+!
+! When forecasts are provided as a value range, this field shows the lower range value 
+! of the mode value.  I.e., if mode for the range value is 0.25 and 0.5, this field 
+! will show "0.25". 
+!
+FC_MO_URNG "FCAST MODE UPP RNG" 10023  NULL        PRICE              17  REAL64           7
+!
+! When forecasts are provided as a value range, this field shows the upper range value 
+! of the mode value.  I.e., if mode for the range value is 0.25 and 0.5, this field 
+! will show "0.5". 
+!
+REV_LO_RNG "REVISED LOWER RNG"  10024  NULL        PRICE              17  REAL64           7
+!
+! When the revised actual value is provided as a value range, i.e., between 0.35 and 
+! 0.6, this field shows the lower value of the revised range
+!
+REV_UP_RNG "REVISED UPPER RNG"  10025  NULL        PRICE              17  REAL64           7
+!
+! When the revised actual value is provided as a value range, i.e., between 0.35 and 
+! 0.6, this field shows the upper value of the revised range
+!
+SMT_FC_LRG "SMART FCAST LWR RG" 10026  NULL        PRICE              17  REAL64           7
+!
+! When smart forecast is provided as a value range, i.e., between 0.25 and 0.5, this 
+! field shows the lower value of the forecasted range
+!
+SMT_FC_URG "SMART FCAST UPP RG" 10027  NULL        PRICE              17  REAL64           7
+!
+! When smart forecast is provided as a value range, i.e., between 0.25 and 0.5, this 
+! field shows the upper value of the forecasted range
+!
 PRERL1037  "PRED REAL 1037"     10028  NULL        PRICE              17  REAL64           7
 PRERL1038  "PRED REAL 1038"     10029  NULL        PRICE              17  REAL64           7
 PRERL1039  "PRED REAL 1039"     10030  NULL        PRICE              17  REAL64           7
@@ -29271,12 +29377,30 @@ EVENT_SIDE "EVENT SIDE"         11810  NULL        ALPHANUMERIC       10  RMTES_
 !
 ! Order Side - 1 'B', 2 'A'
 !
-PRE_10T086 "PRED 10 TXT 086"    11811  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T087 "PRED 10 TXT 087"    11812  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T088 "PRED 10 TXT 088"    11813  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T089 "PRED 10 TXT 089"    11814  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T090 "PRED 10 TXT 090"    11815  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T091 "PRED 10 TXT 091"    11816  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+IRG_P_XID  "IRG TRD PRC XID"    11811  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Trading System identifier code for last ineligible trade
+!
+CAN_P_XID  "CAN TRD PRC XID"    11812  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Trading System identifier code for cancelled trade
+!
+INS_P_XID  "INS TRD PRC XID"    11813  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Trading System identifier code for corrected trade
+!
+EVENT_CDE3 "EVENT COND CDE 3"   11814  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Native Event Type 3
+!
+EVENT_CDE4 "EVENT COND CDE 4"   11815  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Native Event Type 4
+!
+EVENT_CDE5 "EVENT COND CDE 5"   11816  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Native Event Type 5
+!
 PRE_10T092 "PRED 10 TXT 092"    11817  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 PRE_10T093 "PRED 10 TXT 093"    11818  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 PRE_10T094 "PRED 10 TXT 094"    11819  NULL        ALPHANUMERIC       10  RMTES_STRING    10
@@ -29559,12 +29683,22 @@ SRCMSG_TYP "SRC MSG TYPE"       12062  NULL        ALPHANUMERIC       32  RMTES_
 !
 ! Native Message Type ID
 !
-PRE_32T012 "PRED 32 TXT 012"    12063  NULL        ALPHANUMERIC       32  RMTES_STRING    32
-PRE_32T013 "PRED 32 TXT 013"    12064  NULL        ALPHANUMERIC       32  RMTES_STRING    32
-PRE_32T014 "PRED 32 TXT 014"    12065  NULL        ALPHANUMERIC       32  RMTES_STRING    32
-PRE_32T015 "PRED 32 TXT 015"    12066  NULL        ALPHANUMERIC       32  RMTES_STRING    32
+CTB_NAME   "CTBTR NAME"         12063  NULL        ALPHANUMERIC       32  RMTES_STRING    32
 !
-! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
+! Name of the contributor
+!
+DSPLY_CHNM "DISPLAY CHN NAME"   12064  NULL        ALPHANUMERIC       32  RMTES_STRING    32
+!
+! Chinese Display Name
+!
+DSPLY_JPNM "DISPLAY JPY NAME"   12065  NULL        ALPHANUMERIC       32  RMTES_STRING    32
+!
+! Japanese Display Name
+!
+MET_DATSET "METRIC DATASET"     12066  NULL        ALPHANUMERIC       32  RMTES_STRING    32
+!
+! The dataset code is used to group metric value series that shares similar 
+! characteristics
 !
 REFRIC_ISS "REF AST RIC AT ISS" 12067  NULL        ALPHANUMERIC       32  RMTES_STRING    32
 !
@@ -29578,7 +29712,10 @@ UUID       "UUID"               12069  NULL        ALPHANUMERIC       32  RMTES_
 !
 ! Field carrying a user or machines unique unchanging identifier
 !
-PRE_32T019 "PRED 32 TXT 019"    12070  NULL        ALPHANUMERIC       32  RMTES_STRING    32
+TRNCH_DESC "TRANCHE DESC"       12070  NULL        ALPHANUMERIC       32  RMTES_STRING    32
+!
+! Tranche Description
+!
 PRE_32T020 "PRED 32 TXT 020"    12071  NULL        ALPHANUMERIC       32  RMTES_STRING    32
 PRE_32T021 "PRED 32 TXT 021"    12072  NULL        ALPHANUMERIC       32  RMTES_STRING    32
 PRE_32T022 "PRED 32 TXT 022"    12073  NULL        ALPHANUMERIC       32  RMTES_STRING    32
@@ -30946,13 +31083,34 @@ ORDER_SETL "ORDER SETL TYPE"    12941  NULL        ENUMERATED    3 ( 8 )  ENUM  
 !
 ! Condition codes related to the settlement period of the order
 !
-PRE_1ET241 "PRED 1 ET 241"      12942  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET242 "PRED 1 ET 242"      12943  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET243 "PRED 1 ET 243"      12944  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET244 "PRED 1 ET 244"      12945  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET245 "PRED 1 ET 245"      12946  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET246 "PRED 1 ET 246"      12947  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET247 "PRED 1 ET 247"      12948  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+SRCUPD_TYP "SRC UPT MSG TYPE"   12942  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! Source update message type
+!
+LAT_REL_FG "LATEST REL FLAG"    12943  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! Flag to indicate the most recently released actual value
+!
+VAL_DS_SN  "VALUE DISPLAY SIGN" 12944  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! The value display sign.
+!
+CCY_CIR_TP "CCY CIRCULATN TYPE" 12945  NULL        ENUMERATED    3 ( 5 )  ENUM             1
+!
+! Currency circulation type
+!
+PAYF_STYLE "PAYOFF STYLE"       12946  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Payoff style at expiry
+!
+ACT_REL_ST "ACTUAL RELEASE STA" 12947  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Actual value release status
+!
+DEF_FC_TP  "DEFAULT FCAST TYPE" 12948  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! The averaging methodology used for the consensus forecast value
+!
 PRE_1ET248 "PRED 1 ET 248"      12949  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET249 "PRED 1 ET 249"      12950  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET250 "PRED 1 ET 250"      12951  NULL        ENUMERATED    3 ( 8 )  ENUM             1
@@ -32008,10 +32166,22 @@ MET_TYP20  "METRIC TYPE 20"     13562  NULL        ENUMERATED    5 ( 8 )  ENUM  
 !
 ! Metric Type 20
 !
-PRE_2ET242 "PRED 2 ET 242"      13563  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET243 "PRED 2 ET 243"      13564  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET244 "PRED 2 ET 244"      13565  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET245 "PRED 2 ET 245"      13566  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+SHS_PR_RUL "SH SAL PRC RULE"    13563  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Shortselling rule(s) applied to the order price
+!
+MET_UNIT   "MET VAL UNIT"       13564  NULL        ENUMERATED    5 ( 5 )  ENUM             2
+!
+! Metric value unit
+!
+UNIT_PREFX "UNIT PREFIX"        13565  NULL        ENUMERATED    5 ( 5 )  ENUM             2
+!
+! The prefix for the unit of measurement
+!
+LMT_LV_TG  "LMT LVL TRIGGERED"  13566  NULL        ENUMERATED    5 ( 6 )  ENUM             2
+!
+! Indicates the level of price limit that has been triggered
+!
 PRE_2ET246 "PRED 2 ET 246"      13567  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET247 "PRED 2 ET 247"      13568  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET248 "PRED 2 ET 248"      13569  NULL        ENUMERATED    5 ( 8 )  ENUM             2
@@ -32590,7 +32760,7 @@ PRE_2ET820 "PRED 2 ET 820"      14141  NULL        ENUMERATED    5 ( 8 )  ENUM  
 !
 ! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
 !
-OFFBK_H_RN "OFFBK HALT REASON"  14142  NULL        ENUMERATED    3 ( 5 )  ENUM             1
+OFFBK_H_RN "OFFBK HALT REASON"  14142  NULL        ENUMERATED    3 ( 2 )  ENUM             1
 !
 ! Enumerated/Standardized off book Halt Reason Code.
 !
@@ -33146,7 +33316,7 @@ DUDT_TM_NS "DUDT TMSTMP IN NS"  14286  NULL        INTEGER            15  TIME  
 !
 EVENTIM_NS "EVENTTIM NS"        14287  NULL        INTEGER            15  TIME             8
 !
-! Time to nanoseconds precision associated with EVENT_VAL and EVENT_VOL
+! Deprecated, DO NOT USE
 !
 CRSTIM_NS  "CRSTIM NS"          14288  NULL        INTEGER            15  TIME             8
 !
@@ -33240,24 +33410,78 @@ SRC_ES_NS  "SRC EGRESS TM NS"   14312  NULL        INTEGER            15  TIME  
 !
 ! Egress time of the update from source
 !
-PRE_033_NS "PRED TIME NS 033"   14313  NULL        INTEGER            15  TIME             8
-PRE_034_NS "PRED TIME NS 034"   14314  NULL        INTEGER            15  TIME             8
-PRE_035_NS "PRED TIME NS 035"   14315  NULL        INTEGER            15  TIME             8
-PRE_036_NS "PRED TIME NS 036"   14316  NULL        INTEGER            15  TIME             8
-PRE_037_NS "PRED TIME NS 037"   14317  NULL        INTEGER            15  TIME             8
-PRE_038_NS "PRED TIME NS 038"   14318  NULL        INTEGER            15  TIME             8
-PRE_039_NS "PRED TIME NS 039"   14319  NULL        INTEGER            15  TIME             8
-PRE_040_NS "PRED TIME NS 040"   14320  NULL        INTEGER            15  TIME             8
-PRE_041_NS "PRED TIME NS 041"   14321  NULL        INTEGER            15  TIME             8
-PRE_042_NS "PRED TIME NS 042"   14322  NULL        INTEGER            15  TIME             8
-PRE_043_NS "PRED TIME NS 043"   14323  NULL        INTEGER            15  TIME             8
-PRE_044_NS "PRED TIME NS 044"   14324  NULL        INTEGER            15  TIME             8
-PRE_045_NS "PRED TIME NS 045"   14325  NULL        INTEGER            15  TIME             8
-PRE_046_NS "PRED TIME NS 046"   14326  NULL        INTEGER            15  TIME             8
-PRE_047_NS "PRED TIME NS 047"   14327  NULL        INTEGER            15  TIME             8
-PRE_048_NS "PRED TIME NS 048"   14328  NULL        INTEGER            15  TIME             8
-PRE_049_NS "PRED TIME NS 049"   14329  NULL        INTEGER            15  TIME             8
-PRE_050_NS "PRED TIME NS 050"   14330  NULL        INTEGER            15  TIME             8
+IMB_TIM_NS "IMBALANCE TM NS"    14313  NULL        INTEGER            15  TIME             8
+!
+! Time of Imbalance
+!
+EVNT_T2_NS "EVENT TM 2 NS"      14314  NULL        INTEGER            15  TIME             8
+!
+! Native time (GMT) of the event where there is more than one for an event
+!
+EVNT_T3_NS "EVENT TM 3 NS"      14315  NULL        INTEGER            15  TIME             8
+!
+! Native time (GMT) of the event where there is more than two for an event
+!
+BID_ASK_NS "CLS BID ASK TM NS"  14316  NULL        INTEGER            15  TIME             8
+!
+! Closing BID time closing Ask time 
+!
+CB_ETIM_NS "CIR BRK END TM NS"  14317  NULL        INTEGER            15  TIME             8
+!
+! End Tim of the CB or Price Limit event
+!
+CB_TIME_NS "CIR BRK TM NS"      14318  NULL        INTEGER            15  TIME             8
+!
+! Millisecond Time of Trade which triggered a circuit breaker
+!
+HALT_TM_NS "HALT TM NS"         14319  NULL        INTEGER            15  TIME             8
+!
+! The time security was originally halted, associated with HALT_DATE
+!
+HLT_RSM_NS "HALT RESUME TM NS"  14320  NULL        INTEGER            15  TIME             8
+!
+! Trade resumption time for a halted/suspended security
+!
+LMTBTM_NS  "PRC LMT BREACH NS"  14321  NULL        INTEGER            15  TIME             8
+!
+! The time upper/lower price limit is breached.  
+!
+LMTXTM_NS  "PRC LMT EXP TG NS"  14322  NULL        INTEGER            15  TIME             8
+!
+! Time the price limit is expected to be triggered
+!
+OFF_CLS_NS "OFF CLS TM NS"      14323  NULL        INTEGER            15  TIME             8
+!
+! The time when OFF_CLOSE field was last updated
+!
+OPINT_1_NS "OPEN INT TM NS"     14324  NULL        INTEGER            15  TIME             8
+!
+! Open Interest update time in nanosecond
+!
+ORDREC2_NS "ORDER RECV TM2 NS"  14325  NULL        INTEGER            15  TIME             8
+!
+! A secondary field for the time when order was received
+!
+ORDRECV_NS "ORDER RECV TM NS"   14326  NULL        INTEGER            15  TIME             8
+!
+! The time when the order was received by the exchange/venue
+!
+PHA_STM_NS "MK PHASE STA TM NS" 14327  NULL        INTEGER            15  TIME             8
+!
+! Start Time of the current Instrument Phase
+!
+RFQ_TIM_NS "RFQ TM NS"          14328  NULL        INTEGER            15  TIME             8
+!
+! Time of message of Request for Quote/Request For Size
+!
+SESS1_C_NS "SESS1 CLS TM NS"    14329  NULL        INTEGER            15  TIME             8
+!
+! The time at which the value in SESS1_CLS was set. 
+!
+SESS1_H_NS "SESS1 HIGH TM NS"   14330  NULL        INTEGER            15  TIME             8
+!
+! The time at which the value in SESSION1HI was set 
+!
 PRE_4TX125 "PRED 4 TXT 125"     14331  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 PRE_4TX126 "PRED 4 TXT 126"     14332  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 PRE_4TX127 "PRED 4 TXT 127"     14333  NULL        ALPHANUMERIC        4  RMTES_STRING     4
@@ -33414,23 +33638,77 @@ PRE_40T131 "PRED 40 TXT 131"    14477  NULL        ALPHANUMERIC       40  RMTES_
 PRE_40T132 "PRED 40 TXT 132"    14478  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 PRE_40T133 "PRED 40 TXT 133"    14479  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 PRE_40T134 "PRED 40 TXT 134"    14480  NULL        ALPHANUMERIC       40  RMTES_STRING    40
-PRE_051_NS "PRED TIME NS 051"   14481  NULL        INTEGER            15  TIME             8
-PRE_052_NS "PRED TIME NS 052"   14482  NULL        INTEGER            15  TIME             8
-PRE_053_NS "PRED TIME NS 053"   14483  NULL        INTEGER            15  TIME             8
-PRE_054_NS "PRED TIME NS 054"   14484  NULL        INTEGER            15  TIME             8
-PRE_055_NS "PRED TIME NS 055"   14485  NULL        INTEGER            15  TIME             8
-PRE_056_NS "PRED TIME NS 056"   14486  NULL        INTEGER            15  TIME             8
-PRE_057_NS "PRED TIME NS 057"   14487  NULL        INTEGER            15  TIME             8
-PRE_058_NS "PRED TIME NS 058"   14488  NULL        INTEGER            15  TIME             8
-PRE_059_NS "PRED TIME NS 059"   14489  NULL        INTEGER            15  TIME             8
-PRE_060_NS "PRED TIME NS 060"   14490  NULL        INTEGER            15  TIME             8
-PRE_061_NS "PRED TIME NS 061"   14491  NULL        INTEGER            15  TIME             8
-PRE_062_NS "PRED TIME NS 062"   14492  NULL        INTEGER            15  TIME             8
-PRE_063_NS "PRED TIME NS 063"   14493  NULL        INTEGER            15  TIME             8
-PRE_064_NS "PRED TIME NS 064"   14494  NULL        INTEGER            15  TIME             8
-PRE_065_NS "PRED TIME NS 065"   14495  NULL        INTEGER            15  TIME             8
-PRE_066_NS "PRED TIME NS 066"   14496  NULL        INTEGER            15  TIME             8
-PRE_067_NS "PRED TIME NS 067"   14497  NULL        INTEGER            15  TIME             8
+!
+! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
+!
+SESS1_L_NS "SESS1 LOW TM NS"    14481  NULL        INTEGER            15  TIME             8
+!
+! The time at which the value in SESSION1LO was set 
+!
+SESS1_O_NS "SESS1 OPEN TM NS"   14482  NULL        INTEGER            15  TIME             8
+!
+! The time at which the value in SESS1_OPEN was set 
+!
+SESS2_H_NS "SESS2 HIGH TM NS"   14483  NULL        INTEGER            15  TIME             8
+!
+! The time at which the value in SESSION2HI was set.
+!
+SESS2_L_NS "SESS2 LOW TM NS"    14484  NULL        INTEGER            15  TIME             8
+!
+! The time at which the value in SESSION2LO was set. 
+!
+SESS2_O_NS "SESS2 OPEN TM NS"   14485  NULL        INTEGER            15  TIME             8
+!
+! The time at which the value in SESS2_OPEN was set. 
+!
+SETL_TM_NS "SETTLE PRC TM NS"   14486  NULL        INTEGER            15  TIME             8
+!
+! The time when SETTLE field was last updated
+!
+THEO_OP_NS "THEO OPN TM NS"     14487  NULL        INTEGER            15  TIME             8
+!
+! Timestamp for THEO_OPEN
+!
+TRDREC2_NS "TRD RECV TM2 NS"    14488  NULL        INTEGER            15  TIME             8
+!
+! A secondary field for the time when trade was received
+!
+TRG_RSM_NS "TRG RESUME TM NS"   14489  NULL        INTEGER            15  TIME             8
+!
+! Target resumption time for a halted/suspended security
+!
+FCAST_T_NS "FORECAST TIME NS"   14490  NULL        INTEGER            15  TIME             8
+!
+! Time of the forecast
+!
+ACT_INS_NS "ACTUAL INS TM NS"   14491  NULL        INTEGER            15  TIME             8
+!
+! Time that a correction was made to the actual value
+!
+ACT_REV_NS "ACTUAL REV TM NS"   14492  NULL        INTEGER            15  TIME             8
+!
+! Time that a revision was made to the actual value
+!
+ACT_VAL_NS "ACTUAL VALUE TM NS" 14493  NULL        INTEGER            15  TIME             8
+!
+! Time the actual value
+!
+FCAST_NS   "FORECAST TM NS"     14494  NULL        INTEGER            15  TIME             8
+!
+! Time of the forecast
+!
+MET_TIM_NS "MET VAL TIM NS"     14495  NULL        INTEGER            15  TIME             8
+!
+! The time of when the Metric Value was calculated/provided
+!
+MET_VTO_NS "MET VAL VALD TO NS" 14496  NULL        INTEGER            15  TIME             8
+!
+! Time associated with MET_VTO_DT
+!
+NAV_TM_NS  "NAV TM NS"          14497  NULL        INTEGER            15  TIME             8
+!
+! NAV Time
+!
 PRE_068_NS "PRED TIME NS 068"   14498  NULL        INTEGER            15  TIME             8
 PRE_069_NS "PRED TIME NS 069"   14499  NULL        INTEGER            15  TIME             8
 PRE_070_NS "PRED TIME NS 070"   14500  NULL        INTEGER            15  TIME             8
@@ -34697,8 +34975,14 @@ STRGY_ACVL "STRGY TRD ACVOL"    32489  NULL        INTEGER            15  UINT64
 !
 ! Accumulated trade volume for strategy trades
 !
-PR_UINT012 "PRED UNS INT 012"   32490  NULL        INTEGER            15  UINT64           8
-PR_UINT013 "PRED UNS INT 013"   32491  NULL        INTEGER            15  UINT64           8
+IRG_ACVOL  "IRG TRD ACVOL"      32490  NULL        INTEGER            15  UINT64           8
+!
+! Accumulated last ineligible trade volume
+!
+MOC_ACVOL  "MOC TRD ACVOL"      32491  NULL        INTEGER            15  UINT64           8
+!
+! Accumulated Market on Close trade volume
+!
 PR_UINT014 "PRED UNS INT 014"   32492  NULL        INTEGER            15  UINT64           8
 PR_UINT015 "PRED UNS INT 015"   32493  NULL        INTEGER            15  UINT64           8
 PR_UINT016 "PRED UNS INT 016"   32494  NULL        INTEGER            15  UINT64           8
@@ -34878,10 +35162,22 @@ EVENT_QTY1 "EVENT QUANTITY"     32585  NULL        PRICE              17  REAL64
 !
 ! Quantity associated with an Event
 !
-PRE_LRL028 "PRED LRG REAL 028"  32586  NULL        PRICE              17  REAL64           8
-PRE_LRL029 "PRED LRG REAL 029"  32587  NULL        PRICE              17  REAL64           8
-PRE_LRL030 "PRED LRG REAL 030"  32588  NULL        PRICE              17  REAL64           8
-PRE_LRL031 "PRED LRG REAL 031"  32589  NULL        PRICE              17  REAL64           8
+EVENT_QTY2 "EVENT QUANTITY 2"   32586  NULL        PRICE              17  REAL64           8
+!
+! Volume or Quantity
+!
+IRG_TNOV   "IRG TRD TNOV"       32587  NULL        PRICE              17  REAL64           8
+!
+! Total last ineligible trade turnover
+!
+MOC_TNOV   "MOC TRD TNOV"       32588  NULL        PRICE              17  REAL64           8
+!
+! Total Market on Close trade turnover
+!
+EVENT_VAL2 "EVENT VALUE 2"      32589  NULL        PRICE              17  REAL64           8
+!
+! Secondary price or value of an event on the feed
+!
 PRE_LRL032 "PRED LRG REAL 032"  32590  NULL        PRICE              17  REAL64           8
 PRE_LRL033 "PRED LRG REAL 033"  32591  NULL        PRICE              17  REAL64           8
 PRE_LRL034 "PRED LRG REAL 034"  32592  NULL        PRICE              17  REAL64           8

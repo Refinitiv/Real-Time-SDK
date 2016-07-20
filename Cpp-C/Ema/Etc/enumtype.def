@@ -11,10 +11,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.24
-!tag Build_RDMD  4.20.24
-!tag DT_Version  16.41
-!tag Date        12-May-2016
+!tag RT_Version  4.20.25
+!tag Build_RDMD  4.20.25
+!tag DT_Version  16.51
+!tag Date        17-Jun-2016
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -544,6 +544,7 @@ LEG2_CURR  13446
     907        "AEf"   UAE Fils
     931        "CUC"   Cuba Convertible Peso
     932        "ZWL"   Zimbabwe Dollar 
+    933        "BYN"   Belarusian Ruble (from Jul 2016)
     934        "TMT"   Turkmenistan New Manat
     936        "GHS"   Ghana Cedi
     937        "VEF"   Venezuelan Bolivar
@@ -578,7 +579,7 @@ LEG2_CURR  13446
     971        "AFN"   Afghanistan afghani
     972        "TJS"   Tajikistan Somoni
     973        "AOA"   Angolan kwanza
-    974        "BYR"   Belarussian Ruble 
+    974        "BYR"   Belarusian Ruble (Jan 2000 - Dec 2016)
     975        "BGN"   Bulgarian Lev
     976        "CDF"   Congolese Franc 
     977        "BAM"   Convertible Mark
@@ -921,7 +922,7 @@ BIDXID      3298
      16        "OMG"   Omega
      17        "ALP"   Alpha - Canadian ATS
      18        "WCB"   Chicago Board Options Exchange
-     19        "CXC"   Instinet Chi-X Canada- Canadian ATS
+     19        "CXC"   Nasdaq CXC
      20        "ALV"   ALPHA TRADING SYSTEMS TSX VENTURE-CANADIAN ATS L1
      21        "C2E"   C2 Options Exchange
      25        "ALX"   Alpha Exchange Level 1
@@ -939,7 +940,7 @@ BIDXID      3298
     217        "BAT"   BATS Exch Equities
     220        "TRF"   NASD Trade Reporting Facility
     221        "TMX"   TMX Select
-    222        "CXX"   CHI-X CANADA - 2ND LIT MARKET - L1
+    222        "CXX"   Nasdaq CX2
     223        "IXX"   INSTINET CANADA CROSS
     224        "CNX"   Canadian Securities Exchange - CSE Listed
     225        "LNX"   Omega LYNX
@@ -7931,7 +7932,7 @@ BLK_EXID   13552
     979        "GCY"   BATS Y For NASDAQ OMX Global Select Market 
     980        "SHO"   Daily Short Sale (U.S. exchanges)
     981        "GCT"   GLOBECOT
-    982        "MEN"   Mendoza Stock Exchange
+    982        "MEN"   Mendoza Stock Exchange (deprecated)
     983        "BTX"   BATS Options Exchange
     984        "STI"   The Steel Index
     985        "SMX"   SINGAPORE MERCANTILE EXCHANGE
@@ -8391,6 +8392,8 @@ BLK_EXID   13552
    1439        "ENT"   ENTSOE
    1440        "CUR"   CME Europe
    1441        "VLM"   VALMER S.A
+   1442        "YSX"   YANGON STOCK EXCHANGE
+   1443        "CRN"   Currenex
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -10713,6 +10716,10 @@ PRC_QL3     3264
     393        "IXG"   Inflation adjusted Gross Price (percentage of par)
     394        "IXC"   Inflation adjusted Clean Price (percentage of par)
     395        "ILD"   Inflation Adjusted Yield
+    396        "INL"   Intentional Cross
+    397        "INC"   Internal Cross
+    398        "CYL"   Composite Yield
+    399        "BEI"   Break Even Inflation Rate
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12031,6 +12038,7 @@ TRD_STATUS  6614
       3         "S "   Suspended
       4         "OD"   Opening Delay
       5         "R "   Restricted
+      6         "CD"   Closing Delay
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -14796,6 +14804,7 @@ EVAL_FRQ_U 12793
       6   "Months  "   Months
       7   "Quarters"   Quarters
       8   "Years   "   Years
+      9   "Ticks   "   Tick by Tick
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -15813,13 +15822,87 @@ ORDER_SETL 12941
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET241 12942
-PRE_1ET242 12943
-PRE_1ET243 12944
-PRE_1ET244 12945
-PRE_1ET245 12946
-PRE_1ET246 12947
-PRE_1ET247 12948
+SRCUPD_TYP 12942
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   undefined
+      1        "ADD"   Addition
+      2        "CHG"   Change
+      3        "DEL"   Delete
+!
+! ACRONYM    FID
+! -------    ---
+!
+LAT_REL_FG 12943
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   undefined
+      1        "Y  "   Yes
+!
+! ACRONYM    FID
+! -------    ---
+!
+VAL_DS_SN  12944
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   undefined
+      1        "+  "   Positive
+!
+! ACRONYM    FID
+! -------    ---
+!
+CCY_CIR_TP 12945
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0      "     "   undefined
+      1      "ON   "   Onshore
+      2      "OFF  "   Offshore
+!
+! ACRONYM    FID
+! -------    ---
+!
+PAYF_STYLE 12946
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "LOOKBACK"   Lookback - The right to receive the lowest (highest) price over a predefined preceding time period
+      2   "RUSSIAN "   Russian - A variant of Lookback payoff style where the "lookback" period is perpetual
+      3   "ASIAN   "   Asian - Payoff determined by an average price reference of a predefined period of time
+      4   "BINARY  "   Binary - Payoff is either a fixed amount or nothing depending on the underlying security at expiry.  Also known as Digital Option.
+      5   "CHOOSER "   Chooser - Gives the option holder the right to decide to enter into either a call or put side of the option contract
+      6   "FWDSTA  "   Forward Start - The strike price is determined in a future date, hence, also the pay off.
+!
+! ACRONYM    FID
+! -------    ---
+!
+ACT_REL_ST 12947
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "TENT    "   Tentative
+      2   "CONF    "   Confirmed
+!
+! ACRONYM    FID
+! -------    ---
+!
+DEF_FC_TP  12948
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "MEDIAN  "   Median
+      2   "TRIMMEAN"   Trimmed Mean
+      3   "MEAN    "   Mean
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_1ET248 12949
 PRE_1ET249 12950
 PRE_1ET250 12951
@@ -16575,6 +16658,7 @@ OWNER      13414
 LOTSZUNIT2 13416
 MIN_AQT_UT 13420
 MIN_BQT_UT 13421
+MET_UNIT   13564
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -17933,10 +18017,53 @@ PRPTY_CD   13550
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET242 13563
-PRE_2ET243 13564
-PRE_2ET244 13565
-PRE_2ET245 13566
+SHS_PR_RUL 13563
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "None    "   Any price is accepted
+      2   "=>LTRD  "   Equal or above the last traded price
+      3   "=>HCLS  "   Equal or above the historical close price
+      4   "=>CHGH  "   Equal or above current highest bid price
+      5   "=>CLOW  "   Equal or above the current lowest ask price
+!
+! ACRONYM    FID
+! -------    ---
+!
+UNIT_PREFX 13565
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0      "     "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+LMT_LV_TG  13566
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0     "      "   Undefined
+      1     "U1    "   Upper Price Limit Level 1 is triggered
+      2     "L1    "   Lower Price Limit Level 1 is triggered
+      3     "U1L1  "   Upper Price Limit Level 1 & Lower Limit Price Level 1 are triggered
+      4     "U1L2  "   Upper Price Limit Level 1 & Lower Limit Price Level 2 are triggered
+      5     "U1L3  "   Upper Price Limit Level 1 & Lower Limit Price Level 3 are triggered
+      6     "U2    "   Upper Price Limit Level 2 is triggered
+      7     "L2    "   Lower Price Limit Level 2 is triggered
+      8     "U2L1  "   Upper Price Limit Level 2 & Lower Price Limit Level 1 are triggered
+      9     "U2L2  "   Upper Price Limit Level 2 & Lower Price Limit Level 2 are triggered
+     10     "U2L3  "   Upper Price Limit Level 2 & Lower Price Limit Level 3 are triggered
+     11     "U3    "   Upper Price Limit Level 3 is triggered
+     12     "L3    "   Lower Price Limit Level 3 is triggered
+     13     "U3L1  "   Upper Price Limit Level 3 & Lower Limit Price Level 1 are triggered
+     14     "U3L2  "   Upper Price Limit Level 3 & Lower Limit Price Level 2 are triggered
+     15     "U3L3  "   Upper Price Limit Level 3 & Lower Limit Price Level 3 are triggered
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_2ET246 13567
 PRE_2ET247 13568
 PRE_2ET248 13569
