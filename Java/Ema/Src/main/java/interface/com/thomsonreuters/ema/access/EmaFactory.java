@@ -181,6 +181,40 @@ public class EmaFactory
 	}
 	
 	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.OmmProvider}.<br>
+	 * Enables exception throwing as means of error reporting.
+	 * 
+	 * @param config OmmProviderConfig providing configuration
+	 * @return {@link com.thomsonreuters.ema.access.OmmProvider}
+	 */
+	public static OmmProvider createOmmProvider(OmmProviderConfig config)
+	{
+		return new OmmNiProviderImpl(config);
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.OmmProvider}.
+	 * 
+	 * @param config OmmProviderConfig providing configuration
+	 * @param client OmmProviderErrorClient that provides callback interfaces to be used for error reporting
+	 * 
+	 * @return {@link com.thomsonreuters.ema.access.OmmProvider}
+	 */
+	public static OmmProvider createOmmProvider(OmmProviderConfig config, OmmProviderErrorClient client)
+	{
+		return new OmmNiProviderImpl(config, client);
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.OmmNiProviderConfig}.
+	 * @return {@link com.thomsonreuters.ema.access.OmmNiProviderConfig}
+	 */
+	public static OmmNiProviderConfig createOmmNiProviderConfig()
+	{
+		return new OmmNiProviderConfigImpl();
+	}
+	
+	/**
 	 * Creates a {@link com.thomsonreuters.ema.access.RmtesBuffer}.
 	 * @return {@link com.thomsonreuters.ema.access.RmtesBuffer}
 	 */

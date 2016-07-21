@@ -1,3 +1,10 @@
+///*|-----------------------------------------------------------------------------
+// *|            This source code is provided under the Apache 2.0 license      --
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+// *|                See the project's LICENSE.md for details.                  --
+// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+///*|-----------------------------------------------------------------------------
+
 package com.thomsonreuters.ema.access;
 
 import java.util.ArrayList;
@@ -20,14 +27,14 @@ class ConfigReader
 {
 	static ConfigReader configReaderFactory;
 	
-	OmmConsumerConfigImpl _parent;
+	EmaConfigImpl _parent;
 	
 	ConfigReader() 
 	{
 
 	}
 
-	ConfigReader(OmmConsumerConfigImpl parent)
+	ConfigReader(EmaConfigImpl parent)
 	{
 		this._parent = parent;
 	}
@@ -52,9 +59,9 @@ class ConfigReader
 		return configReaderFactory;
 	}
 
-	static ConfigReader createXMLConfigReader(OmmConsumerConfigImpl ommConsumerConfigImpl)
+	static ConfigReader createXMLConfigReader(EmaConfigImpl emaConfigImpl)
 	{
-		return(ConfigReader.acquire().new XMLConfigReader(ommConsumerConfigImpl));
+		return(ConfigReader.acquire().new XMLConfigReader(emaConfigImpl));
 	}
 
 	class XMLnode 
@@ -114,6 +121,11 @@ class ConfigReader
 		String name() 
 		{ 
 			return _name; 
+		}
+		
+		int tagId()
+		{
+			return _tagId;
 		}
 		
 		int level() 
@@ -182,7 +194,7 @@ class ConfigReader
 			{
 				int nodeId = branch.get(i);
 				
-				if ( currentNode._children.isEmpty() )
+				if ( currentNode == null || currentNode._children.isEmpty() )
 					return null;
 
 				currentNode = currentNode.getChild(nodeId);
@@ -273,7 +285,10 @@ class ConfigReader
 		private XMLnode xmlRoot;
 
 		private String _defaultConsumerName;
+		private String _defaultNiProviderName;
 		private XMLnode _defaultConsumerNode;
+		private XMLnode	_defaultNiProviderNode;
+		private boolean _getDefaultName = false;
 
 		boolean _debugDump = false;
 
@@ -287,14 +302,31 @@ class ConfigReader
 			}
 		}
 
-		XMLConfigReader(OmmConsumerConfigImpl ommConsumerConfigImpl)
+		XMLConfigReader(EmaConfigImpl emaConfigImpl)
 		{
-			super(ommConsumerConfigImpl);
+			super(emaConfigImpl);
 		}
 
 		String defaultConsumerName() 
 		{
+			if(!_getDefaultName)
+			{
+				verifyAndGetDefaultConsumer();
+				_getDefaultName = true;
+			}
+			
 			return _defaultConsumerName;
+		}
+		
+		String defaultNiProviderName()
+		{
+			if(!_getDefaultName)
+			{
+				verifyAndGetDefaultNiProvider();
+				_getDefaultName = true;
+			}
+			
+			return _defaultNiProviderName;
 		}
 
 		private ConfigElement convertEnum(XMLnode parent, String enumValue)
@@ -381,6 +413,125 @@ class ConfigReader
 
 				if( compressionType != -1 )
 					return ConfigManager.acquire().new IntConfigElement( parent, ConfigElement.Type.Enum,compressionType);
+			}
+			else if (enumType.equals("StreamState") )
+			{
+				int streamState = -1;
+
+				if(enumValue.equals("Open"))
+					streamState = OmmState.StreamState.OPEN;
+				else if(enumValue.equals("NonStreaming"))
+					streamState = OmmState.StreamState.NON_STREAMING;
+				else if(enumValue.equals("ClosedRecover"))
+					streamState = OmmState.StreamState.CLOSED_RECOVER;
+				else if(enumValue.equals("Closed"))
+					streamState = OmmState.StreamState.CLOSED;
+				else if(enumValue.equals("ClosedRedirected"))
+					streamState = OmmState.StreamState.CLOSED_REDIRECTED;
+				else
+				{
+					errorTracker().append( "no implementation in convertEnum for enumType [" )
+					.append( enumValue )
+					.append( "]")
+					.create(Severity.ERROR);
+				}
+				
+				if( streamState != -1 )
+					return ConfigManager.acquire().new IntConfigElement( parent, ConfigElement.Type.Enum,streamState);
+			}
+			else if (enumType.equals("DataState") )
+			{
+				int dataState = -1;
+
+				if(enumValue.equals("NoChange"))
+					dataState = OmmState.DataState.NO_CHANGE;
+				else if(enumValue.equals("Ok"))
+					dataState = OmmState.DataState.OK;
+				else if(enumValue.equals("Suspect"))
+					dataState = OmmState.DataState.SUSPECT;
+				else
+				{
+					errorTracker().append( "no implementation in convertEnum for enumType [" )
+					.append( enumValue )
+					.append( "]")
+					.create(Severity.ERROR);
+				}
+				
+				if( dataState != -1 )
+					return ConfigManager.acquire().new IntConfigElement( parent, ConfigElement.Type.Enum,dataState);
+			}
+			else if (enumType.equals("StatusCode") )
+			{
+				int statusCode = -1;
+				
+				if(enumValue.equals("None"))
+					statusCode = OmmState.StatusCode.NONE;
+				else if(enumValue.equals("NotFound"))
+					statusCode = OmmState.StatusCode.NOT_FOUND;
+				else if(enumValue.equals("Timeout"))
+					statusCode = OmmState.StatusCode.TIMEOUT;
+				else if(enumValue.equals("NotAuthorized"))
+					statusCode = OmmState.StatusCode.NOT_AUTHORIZED;
+				else if(enumValue.equals("InvalidArgument"))
+					statusCode = OmmState.StatusCode.INVALID_ARGUMENT;
+				else if(enumValue.equals("UsageError"))
+					statusCode = OmmState.StatusCode.USAGE_ERROR;
+				else if(enumValue.equals("Preempted"))
+					statusCode = OmmState.StatusCode.PREEMPTED;
+				else if(enumValue.equals("JustInTimeConflationStarted"))
+					statusCode = OmmState.StatusCode.JUST_IN_TIME_CONFLATION_STARTED;
+				else if(enumValue.equals("TickByTickResumed"))
+					statusCode = OmmState.StatusCode.TICK_BY_TICK_RESUMED;
+				else if(enumValue.equals("FailoverStarted"))
+					statusCode = OmmState.StatusCode.FAILOVER_STARTED;
+				else if(enumValue.equals("FailoverCompleted"))
+					statusCode = OmmState.StatusCode.FAILOVER_COMPLETED;
+				else if(enumValue.equals("GapDetected"))
+					statusCode = OmmState.StatusCode.GAP_DETECTED;
+				else if(enumValue.equals("NoResources"))
+					statusCode = OmmState.StatusCode.NO_RESOURCES;
+				else if(enumValue.equals("TooManyItems"))
+					statusCode = OmmState.StatusCode.TOO_MANY_ITEMS;
+				else if(enumValue.equals("AlreadyOpen"))
+					statusCode = OmmState.StatusCode.ALREADY_OPEN;
+				else if(enumValue.equals("SourceUnknown"))
+					statusCode = OmmState.StatusCode.SOURCE_UNKNOWN;
+				else if(enumValue.equals("NotOpen"))
+					statusCode = OmmState.StatusCode.NOT_OPEN;
+				else if(enumValue.equals("NonUpdatingItem"))
+					statusCode = OmmState.StatusCode.NON_UPDATING_ITEM;
+				else if(enumValue.equals("UnsupportedViewType"))
+					statusCode = OmmState.StatusCode.UNSUPPORTED_VIEW_TYPE;
+				else if(enumValue.equals("InvalidView"))
+					statusCode = OmmState.StatusCode.INVALID_VIEW;
+				else if(enumValue.equals("FullViewProvided"))
+					statusCode = OmmState.StatusCode.FULL_VIEW_PROVIDED;
+				else if(enumValue.equals("UnableToRequestAsBatch"))
+					statusCode = OmmState.StatusCode.UNABLE_TO_REQUEST_AS_BATCH;
+				else if(enumValue.equals("NoBatchViewSupportInReq"))
+					statusCode = OmmState.StatusCode.NO_BATCH_VIEW_SUPPORT_IN_REQ;
+				else if(enumValue.equals("ExceededMaxMountsPerUser"))
+					statusCode = OmmState.StatusCode.EXCEEDED_MAX_MOUNTS_PER_USER;
+				else if(enumValue.equals("Error"))
+					statusCode = OmmState.StatusCode.ERROR;
+				else if(enumValue.equals("DacsDown"))
+					statusCode = OmmState.StatusCode.DACS_DOWN;
+				else if(enumValue.equals("UserUnknownToPermSys"))
+					statusCode = OmmState.StatusCode.USER_UNKNOWN_TO_PERM_SYS;
+				else if(enumValue.equals("DacsMaxLoginsReached"))
+					statusCode = OmmState.StatusCode.DACS_MAX_LOGINS_REACHED;
+				else if(enumValue.equals("DacsUserAccessToAppDenied"))
+					statusCode = OmmState.StatusCode.DACS_USER_ACCESS_TO_APP_DENIED;
+				else
+				{
+					errorTracker().append( "no implementation in convertEnum for enumType [" )
+					.append( enumValue )
+					.append( "]")
+					.create(Severity.ERROR);
+				}
+				
+				if( statusCode != -1 )
+					return ConfigManager.acquire().new IntConfigElement( parent, ConfigElement.Type.Enum,statusCode);
 			}
 			else 
 			{
@@ -564,6 +715,10 @@ class ConfigReader
 						{
 							tagDict = ConfigManager.ConsumerTagDict;
 						}
+						else if ( configNodeChild.getName().equals("NiProviderGroup") )
+						{
+							tagDict = ConfigManager.NiProviderTagDict;
+						}
 						else if( configNodeChild.getName().equals("ChannelGroup"))
 						{
 							tagDict = ConfigManager.ChannelTagDict;
@@ -574,9 +729,21 @@ class ConfigReader
 							level--;
 							continue;
 						}
+						else if( configNodeChild.getName().equals("DirectoryGroup"))
+						{
+							tagDict = ConfigManager.DirectoryTagDict;
+						}
 						else if( configNodeChild.getName().equals("DictionaryGroup"))
 						{
 							tagDict = ConfigManager.DictionaryTagDict;
+						}
+					}
+					
+					if ( level == 5 )
+					{
+						if( configNodeChild.getName().equals("Service"))
+						{
+							tagDict = ConfigManager.ServiceTagDict;
 						}
 					}
 
@@ -681,12 +848,13 @@ class ConfigReader
 
 			// debugging
 			// xmlRoot.dump(0);
-
-			verifyAndGetDefaultConsumer();
 		}
 
 		void verifyAndGetDefaultConsumer()
 		{
+			if ( xmlRoot == null )
+				return;
+			
 			_defaultConsumerName = (String) xmlRoot.getNode(ConfigManager.DEFAULT_CONSUMER,0);
 			if ( _defaultConsumerName == null ) 
 				return;
@@ -717,13 +885,70 @@ class ConfigReader
 					return;
 
 				String errorMsg = String.format("specified default consumer name [%s] was not found in the configured consumers",_defaultConsumerName);
-				throw _parent.oommICExcept().message( errorMsg );
+			    errorTracker().append(errorMsg).create(Severity.TRACE);
+				_defaultConsumerName = null;
 			}
 			else if ( _defaultConsumerName.equals("EmaConsumer") == false )
 			{
 				String errorMsg = String.format("default consumer name [%s] was specified, but no consumers were configured",_defaultConsumerName);
 				throw _parent.oommICExcept().message( errorMsg );
 			}
+		}
+		
+		void verifyAndGetDefaultNiProvider()
+		{
+			if ( xmlRoot == null )
+				return;
+			
+			_defaultNiProviderName = (String) xmlRoot.getNode(ConfigManager.DEFAULT_NIPROVIDER,0);
+			if ( _defaultNiProviderName == null ) 
+				return;
+
+			XMLnode niProviderList = (XMLnode) xmlRoot.getChildren(ConfigManager.NIPROVIDER_LIST,0);
+			if ( niProviderList != null )
+			{
+				for( int i = 0; i < niProviderList.children().size(); i++)
+				{
+					XMLnode child = niProviderList.children().get(i);
+
+					// debugging 
+					// child._attributeNode.dump("**");
+
+					String childName = (String) child.attributeList().getValue(ConfigManager.NiProviderName);
+
+					if( childName != null && childName.equals(_defaultNiProviderName) )
+					{
+						_defaultNiProviderNode = child;
+						break;
+					}
+				}
+
+				if( _defaultNiProviderNode != null ) 
+					return;
+
+				if( _defaultNiProviderName.equals("EmaNiProvider") ) 
+					return;
+
+				String errorMsg = String.format("specified default niprovider name [%s] was not found in the configured niproviders",_defaultNiProviderName);
+			    errorTracker().append(errorMsg).create(Severity.TRACE);
+				_defaultNiProviderName = null;
+			}
+			else if ( _defaultNiProviderName.equals("EmaNiProvider") == false )
+			{
+				String errorMsg = String.format("default niprovider name [%s] was specified, but no niproviders were configured",_defaultNiProviderName);
+				throw _parent.oommICExcept().message( errorMsg );
+			}
+		}
+		
+		String getDefaultDirectoryName()
+		{
+			if ( xmlRoot != null )
+			{
+				String defaultDirectoryName = (String) xmlRoot.getNode(ConfigManager.DEFAULT_DIRECTORY,0);
+				return defaultDirectoryName;
+			}
+			
+			return null;
 		}
 
 		boolean setDefaultConsumer(String consumerName) 
@@ -739,6 +964,24 @@ class ConfigReader
 			if(bSetAttribute)
 			{
 				_defaultConsumerName = consumerName;
+			}
+
+			return bSetAttribute;
+		}
+		
+		boolean setDefaultNiProvider(String niproviderName) 
+		{
+			XMLnode theNode = (XMLnode) xmlRoot.getChildren(ConfigManager.NIPROVIDER_GROUP, 0);
+			if( theNode == null )
+			{
+				return false;
+			}
+
+			int elementType = configkeyTypePair.get("DefaultNiProvider");
+			boolean bSetAttribute = theNode.attributeList().setValue(ConfigManager.DefaultNiProvider, niproviderName, elementType);
+			if(bSetAttribute)
+			{
+				_defaultNiProviderName = niproviderName;
 			}
 
 			return bSetAttribute;
@@ -770,11 +1013,42 @@ class ConfigReader
 
 			return bFoundChildName;
 		}
+		
+		boolean isNiProviderChildAvailable()
+		{
+			XMLnode niproviderList = (XMLnode) xmlRoot.getChildren(ConfigManager.NIPROVIDER_LIST,0);
 
+			if( niproviderList == null )
+				return false;
+
+			boolean bFoundChildName = false;
+			for( int i = 0; i < niproviderList.children().size(); i++)
+			{
+				XMLnode child = niproviderList.children().get(i);
+				String childName = (String) child.attributeList().getValue(ConfigManager.NiProviderName);
+
+				if( childName == null )
+				{
+					bFoundChildName = false;
+				}
+				else
+				{
+					bFoundChildName = true;
+					break;
+				}
+			}			
+
+			return bFoundChildName;
+		}
 
 		Object getConsumerAttributeValue( String forConsumerName, int findAttributeKey )
 		{
 			return(getAttributeValue(ConfigManager.CONSUMER_LIST,ConfigManager.ConsumerName,forConsumerName,findAttributeKey));
+		}
+		
+		Object getNiProviderAttributeValue( String forNiProviderName, int findAttributeKey )
+		{
+			return(getAttributeValue(ConfigManager.NIPROVIDER_LIST,ConfigManager.NiProviderName,forNiProviderName,findAttributeKey));
 		}
 
 		Object getDictionaryAttributeValue( String consumerName, int attributeKey )
@@ -816,9 +1090,9 @@ class ConfigReader
 			return attributeValue;
 		}
 
-		void appendAttributeValue( Branch setNode, int setAttributeKey, String setAttributeValue )
+		void appendAttributeValue( Branch setNode, String elementName, int setAttributeKey, String setAttributeValue )
 		{
-			XMLnode node = (XMLnode) xmlRoot.getNode(ConfigManager.CONSUMER_GROUP,0);
+			XMLnode node = (XMLnode) xmlRoot.getNode(setNode, 0);
 
 			if( node == null )
 			{
@@ -826,7 +1100,7 @@ class ConfigReader
 				return;
 			}
 
-			ConfigElement ce = makeConfigEntry(node,"DefaultConsumer",setAttributeValue,setAttributeKey);
+			ConfigElement ce = makeConfigEntry(node,elementName,setAttributeValue,setAttributeKey);
 			node.addAttribute(ce);
 		}
 
@@ -852,18 +1126,125 @@ class ConfigReader
 			}
 
 			String attributeValue = null;
-			for( int i = 0; i < list.children().size(); i++)
-			{
-				XMLnode child = list.children().get(i);
+			XMLnode child = list.children().get(0);
 
-				attributeValue = (String) child.attributeList().getValue(ConfigManager.ConsumerName);
-				if( attributeValue == null )
-				{
-					errorTracker().append("could not get the first consumer node for ConsumerList").create(Severity.TRACE);
-				}
+			attributeValue = (String) child.attributeList().getValue(ConfigManager.ConsumerName);
+			if( attributeValue == null )
+			{
+				errorTracker().append("could not get the first consumer node for ConsumerList").create(Severity.TRACE);
+			}
+			
+			return attributeValue;		
+		}
+		
+		Object getFirstNiProvider()
+		{
+			if( xmlRoot == null )
+			{
+				return null;
+			}
+			
+			XMLnode list = (XMLnode) xmlRoot.getChildren(ConfigManager.NIPROVIDER_LIST,0);
+
+			if( list == null )
+			{
+				errorTracker().append("could not get NiProviderList").create(Severity.TRACE);
+				return null;
+			}
+
+			if( list.children().size() == 0 )
+			{
+				errorTracker().append("could not get niprovider nodes for NiProviderList").create(Severity.TRACE);
+				return null;
+			}
+
+			String attributeValue = null;
+			XMLnode child = list.children().get(0);
+
+			attributeValue = (String) child.attributeList().getValue(ConfigManager.NiProviderName);
+			if( attributeValue == null )
+			{
+				errorTracker().append("could not get the first niprovider node for NiProviderList").create(Severity.TRACE);
 			}
 			return attributeValue;		
 		}
+		
+		Object getFirstDirectory()
+		{
+			if( xmlRoot == null )
+			{
+				return null;
+			}
+			
+			XMLnode list = (XMLnode) xmlRoot.getChildren(ConfigManager.DIRECTORY_LIST,0);
+
+			if( list == null )
+			{
+				errorTracker().append("could not get DirectoryList").create(Severity.TRACE);
+				return null;
+			}
+
+			if( list.children().size() == 0 )
+			{
+				errorTracker().append("could not get directory nodes for DirectoryList").create(Severity.TRACE);
+				return null;
+			}
+			
+			XMLnode child = list.children().get(0);
+			
+			String attributeValue = (String) child.attributeList().getValue(ConfigManager.DirectoryName);
+			if( attributeValue == null )
+			{
+				errorTracker().append("could not get the first directory node for DirectoryList").create(Severity.TRACE);
+			}
+			
+			return attributeValue;		
+		}
+		
+		XMLnode getDirectory(String directoryName)
+		{
+			if( xmlRoot == null )
+			{
+				return null;
+			}
+			
+			XMLnode list = (XMLnode) xmlRoot.getChildren(ConfigManager.DIRECTORY_LIST,0);
+
+			if( list == null )
+			{
+				errorTracker().append("could not get DirectoryList").create(Severity.TRACE);
+				return null;
+			}
+
+			if( list.children().size() == 0 )
+			{
+				errorTracker().append("could not get directory nodes for DirectoryList").create(Severity.TRACE);
+				return null;
+			}
+
+			String attributeValue = null;
+			
+			XMLnode child = null;
+			for( int i = 0; i < list.children().size(); i++)
+			{
+				child = list.children().get(i);
+
+				attributeValue = (String) child.attributeList().getValue(ConfigManager.DirectoryName);
+				
+				if( attributeValue == null )
+				{
+					errorTracker().append("could not get the first directory node for DirectoryList").create(Severity.TRACE);
+				}
+				else if ( attributeValue.equals(directoryName))
+				{
+					break;
+				}
+			}
+		
+			return child;		
+		}
+		
+		
 
 		ConfigAttributes getConsumerAttributes(String consumerName) 
 		{
@@ -872,7 +1253,17 @@ class ConfigReader
 				return null;
 			}
 
-			return(xmlRoot.getNodeWithAttributeList(ConfigManager.CONSUMER_LIST,consumerName,ConfigManager.ConsumerName));
+			return(xmlRoot.getNodeWithAttributeList(ConfigManager.CONSUMER_LIST, consumerName, ConfigManager.ConsumerName));
+		}
+		
+		ConfigAttributes getNiProviderAttributes(String niProviderName) 
+		{
+			if( xmlRoot == null )
+			{
+				return null;
+			}
+
+			return(xmlRoot.getNodeWithAttributeList(ConfigManager.NIPROVIDER_LIST, niProviderName, ConfigManager.NiProviderName));
 		}
 
 		ConfigAttributes getDictionaryAttributes(String dictionaryName) 

@@ -292,6 +292,11 @@ class UpdateMsgImpl extends MsgImpl implements UpdateMsg
 		return toString(0);
 	}
 	
+	com.thomsonreuters.upa.codec.UpdateMsg rsslMsg()
+	{
+		return ((_rsslEncodeIter != null) ? (com.thomsonreuters.upa.codec.UpdateMsg)(_rsslMsg) : null);
+	}
+	
 	String toString(int indent)
 	{
 		_toString.setLength(0);
@@ -359,7 +364,7 @@ class UpdateMsgImpl extends MsgImpl implements UpdateMsg
 				_toString.append(attribData().toString(indent));
 				indent--;
 
-				Utilities.addIndent(_toString, indent, true).append("AttribEnd");
+				Utilities.addIndent(_toString, indent, false).append("AttribEnd");
 				indent--;
 			}
 		}

@@ -409,7 +409,7 @@ class PostMsgImpl extends MsgImpl implements PostMsg
 				_toString.append(attribData().toString(indent));
 				indent--;
 
-				Utilities.addIndent(_toString, indent, true).append("AttribEnd");
+				Utilities.addIndent(_toString, indent, false).append("AttribEnd");
 				indent--;
 			}
 		}

@@ -7,281 +7,52 @@
 
 package com.thomsonreuters.ema.access;
 
-import java.io.IOException;
-import java.nio.channels.CancelledKeyException;
-import java.nio.channels.ClosedChannelException;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.util.Iterator;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.thomsonreuters.ema.access.ConfigManager.ConfigAttributes;
 import com.thomsonreuters.ema.access.ConfigManager.ConfigElement;
-import com.thomsonreuters.ema.access.OmmConsumerConfig.OperationModel;
 import com.thomsonreuters.ema.access.OmmException.ExceptionType;
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
-import com.thomsonreuters.upa.codec.CodecFactory;
-import com.thomsonreuters.upa.codec.DecodeIterator;
-import com.thomsonreuters.upa.codec.EncodeIterator;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
-import com.thomsonreuters.upa.valueadd.common.VaIteratableQueue;
-import com.thomsonreuters.upa.valueadd.reactor.Reactor;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorDispatchOptions;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorOptions;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
+import com.thomsonreuters.upa.transport.WriteFlags;
+import com.thomsonreuters.upa.transport.WritePriorities;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEvent;
 
-class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
+class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsumer
 {
-	private final static int SHUTDOWN_TIMEOUT_IN_SECONDS = 3;
-
-	static class OmmConsumerState
-	{
-		final static int NOT_INITIALIZED = 0;
-		final static int REACTOR_INITIALIZED = 1;
-		final static int RSSLCHANNEL_DOWN = 2;
-		final static int RSSLCHANNEL_UP = 3;
-		final static int LOGIN_STREAM_OPEN_SUSPECT = 4;
-		final static int LOGIN_STREAM_OPEN_OK = 5;
-		final static int LOGIN_STREAM_CLOSED = 6;
-		final static int DIRECTORY_STREAM_OPEN_SUSPECT = 7;
-		final static int DIRECTORY_STREAM_OPEN_OK = 8;
-	}
-
-	private static int CONSUMER_INSTANCE_ID = 0;
-	
-	private int _consumerState = OmmConsumerState.NOT_INITIALIZED;
-	private Logger _loggerClient;
-	private StringBuilder _consumerStrBuilder = new StringBuilder();
-	private OmmInvalidUsageExceptionImpl _ommIUExcept;
-	private OmmInvalidHandleExceptionImpl _ommIHExcept;
+	private OmmConsumerErrorClient _consumerErrorClient;
 	private OmmConsumerActiveConfig _activeConfig;
 
-	private LoginCallbackClient _loginCallbackClient;
-	private DictionaryCallbackClient _dictionaryCallbackClient;
-	private DirectoryCallbackClient _directoryCallbackClient;
-	private ItemCallbackClient _itemCallbackClient;
-	private ChannelCallbackClient _channelCallbackClient;
-	private OmmConsumerErrorClient _consumerErrorClient;
-	private ReentrantLock _consumerLock = new java.util.concurrent.locks.ReentrantLock();
-	private Reactor _rsslReactor;
-	private ReactorOptions _rsslReactorOpts = ReactorFactory.createReactorOptions();
-	private ReactorErrorInfo _rsslErrorInfo = ReactorFactory.createReactorErrorInfo();
-	private ReactorDispatchOptions _rsslDispatchOptions = ReactorFactory.createReactorDispatchOptions();
-	private EncodeIterator _rsslEncIter = CodecFactory.createEncodeIterator();
-	private DecodeIterator _rsslDecIter = CodecFactory.createDecodeIterator();
-	private ReactorSubmitOptions _rsslSubmitOptions = ReactorFactory.createReactorSubmitOptions();
-	private Selector _selector;
-	private ExecutorService _executor;
-	private volatile boolean _threadRunning = false;
-	private boolean _eventTimeout;
-	protected VaIteratableQueue _timeoutEventQueue = new VaIteratableQueue();
-	protected EmaObjectManager _objManager = new EmaObjectManager(); 
-	
 	OmmConsumerImpl(OmmConsumerConfig config)
 	{
-		initialize(config);
+		super();
+		_activeConfig = new OmmConsumerActiveConfig();
+		super.initialize(_activeConfig, (OmmConsumerConfigImpl)config);
+		
+		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
+		if (_activeConfig.channelConfig.rsslConnectionType == ConnectionTypes.SOCKET &&
+				((SocketChannelConfig)_activeConfig.channelConfig).directWrite)
+			_rsslSubmitOptions.writeArgs().flags( _rsslSubmitOptions.writeArgs().flags() |  WriteFlags.DIRECT_SOCKET_WRITE);
 	}
 
 	OmmConsumerImpl(OmmConsumerConfig config, OmmConsumerErrorClient client)
 	{
+		super();
+		_activeConfig = new OmmConsumerActiveConfig();
 		_consumerErrorClient = client;
-		initialize(config);
+		super.initialize(_activeConfig, (OmmConsumerConfigImpl)config);
+		
+		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
+		if (_activeConfig.channelConfig.rsslConnectionType == ConnectionTypes.SOCKET &&
+				((SocketChannelConfig)_activeConfig.channelConfig).directWrite)
+			_rsslSubmitOptions.writeArgs().flags( _rsslSubmitOptions.writeArgs().flags() |  WriteFlags.DIRECT_SOCKET_WRITE);
 	}
-
-	void initialize(OmmConsumerConfig config)
-	{
-		try
-		{
-			_objManager.initialize();
-
-			_consumerLock.lock();
-			
-			_loggerClient = LoggerFactory.getLogger(OmmConsumerImpl.class);
-
-			readConfiguration(config);
-
-			((OmmConsumerConfigImpl) config).errorTracker().log(this, _loggerClient);
-
-			try
-			{
-				_selector = Selector.open();
-
-			} catch (Exception e)
-			{
-				_threadRunning = false;
-
-				consumerStrBuilder().append("Failed to open Selector: ").append(e.getLocalizedMessage());
-				String temp = _consumerStrBuilder.toString();
-				
-				if (_loggerClient.isErrorEnabled())
-					_loggerClient.error(formatLogMessage(_activeConfig.instanceName, temp, Severity.ERROR));
-
-				throw (ommIUExcept().message(temp));
-			}
-
-			if (_loggerClient.isTraceEnabled())
-				_loggerClient.trace(formatLogMessage(_activeConfig.instanceName, "Successfully open Selector.", Severity.TRACE));
-
-			if (_activeConfig.channelConfig.xmlTraceEnable)
-				_rsslReactorOpts.enableXmlTracing();
-
-			_rsslReactorOpts.userSpecObj(this);
-
-			_rsslReactor = ReactorFactory.createReactor(_rsslReactorOpts, _rsslErrorInfo);
-			if (ReactorReturnCodes.SUCCESS != _rsslErrorInfo.code())
-			{
-				_threadRunning = false;
-
-				consumerStrBuilder().append("Failed to initialize OmmConsumer (ReactorFactory.createReactor).")
-						.append("' Error Id='").append(_rsslErrorInfo.error().errorId()).append("' Internal sysError='")
-						.append(_rsslErrorInfo.error().sysError()).append("' Error Location='")
-						.append(_rsslErrorInfo.location()).append("' Error Text='")
-						.append(_rsslErrorInfo.error().text()).append("'. ");
-				
-				String temp = _consumerStrBuilder.toString();
-				
-				if (_loggerClient.isErrorEnabled())
-					_loggerClient.error(formatLogMessage(_activeConfig.instanceName, temp, Severity.ERROR));
-
-				throw (ommIUExcept().message(temp));
-			} else
-			{
-				if (_loggerClient.isTraceEnabled())
-					_loggerClient.trace(formatLogMessage(_activeConfig.instanceName, "Successfully created Reactor.", Severity.TRACE));
-			}
-
-			_consumerState = OmmConsumerState.REACTOR_INITIALIZED;
-
-			try
-			{
-				_rsslReactor.reactorChannel().selectableChannel().register(_selector, SelectionKey.OP_READ,
-						_rsslReactor.reactorChannel());
-			} catch (ClosedChannelException e)
-			{
-				_threadRunning = false;
-
-				consumerStrBuilder().append("Failed to register selector: " + e.getLocalizedMessage());
-				String temp = _consumerStrBuilder.toString();
-
-				if (_loggerClient.isErrorEnabled())
-					_loggerClient.error(formatLogMessage(_activeConfig.instanceName, temp, Severity.ERROR));
-
-				throw (ommIUExcept().message(temp));
-			}
-
-			_loginCallbackClient = new LoginCallbackClient(this);
-			_loginCallbackClient.initialize();
-
-			_dictionaryCallbackClient = new DictionaryCallbackClient(this);
-			_dictionaryCallbackClient.initialize();
-
-			_directoryCallbackClient = new DirectoryCallbackClient(this);
-			_directoryCallbackClient.initialize();
-
-			_itemCallbackClient = new ItemCallbackClient(this);
-			_itemCallbackClient.initialize();
-
-			_channelCallbackClient = new ChannelCallbackClient(this, _rsslReactor);
-			_channelCallbackClient.initialize(_loginCallbackClient.rsslLoginRequest(), _directoryCallbackClient.rsslDirectoryRequest());
-
-			handleAdminReqTimeout();
-
-			if (_activeConfig.userDispatch == OperationModel.API_DISPATCH)
-			{
-				_threadRunning = true;
-
-				if (_executor == null)
-					_executor = Executors.newSingleThreadExecutor();
-
-				_executor.execute(this);
-			}
-		} catch (OmmException exception)
-		{
-			uninitialize();
-
-			if (hasConsumerErrorClient())
-				notifyOmmConsumerErrorClient(exception, _consumerErrorClient);
-			else
-				throw exception;
-		} finally
-		{
-			if (_consumerLock.isLocked())
-				_consumerLock.unlock();
-		}
-	}
-
+	
 	@Override
 	public void uninitialize()
 	{
-		if (_consumerState == OmmConsumerState.NOT_INITIALIZED)
-			return;
-
-		try
-		{
-			_consumerLock.lock();
-			
-			_threadRunning = false;
-			
-			if (_rsslReactor != null)
-			{
-				if (_loginCallbackClient != null)
-					rsslReactorDispatchLoop(10000, _loginCallbackClient.sendLoginClose());
-
-				if (_channelCallbackClient != null)
-					_channelCallbackClient.closeChannels();
-
-				if (ReactorReturnCodes.SUCCESS != _rsslReactor.shutdown(_rsslErrorInfo))
-				{
-					if (_loggerClient.isErrorEnabled())
-					{
-						consumerStrBuilder().append("Failed to uninitialize OmmConsumer (Reactor.shutdown).")
-								.append("Error Id ").append(_rsslErrorInfo.error().errorId())
-								.append("Internal sysError ").append(_rsslErrorInfo.error().sysError())
-								.append("Error Location ").append(_rsslErrorInfo.location()).append("Error Text ")
-								.append(_rsslErrorInfo.error().text()).append("'. ");
-
-						_loggerClient.error(formatLogMessage(_activeConfig.instanceName, _consumerStrBuilder.toString(), Severity.ERROR));
-					}
-				}
-
-				if (_selector != null)
-				{
-					_selector.close();
-					_selector = null;
-				}
-
-				if (_executor != null)
-				{
-					_executor.shutdown();
-					_executor.awaitTermination(SHUTDOWN_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
-					_executor = null;
-				}
-			}
-
-			_rsslReactor = null;
-			_consumerState = OmmConsumerState.NOT_INITIALIZED;
-		} catch (InterruptedException | IOException e)
-		{
-			consumerStrBuilder().append("OmmConsumer unintialize(), Exception occurred, exception=")
-					.append(e.getLocalizedMessage());
-
-			if (_loggerClient.isErrorEnabled())
-				_loggerClient.error(formatLogMessage(_activeConfig.instanceName, _consumerStrBuilder.toString(), Severity.ERROR));
-
-		} finally
-		{
-			_consumerLock.unlock();
-		}
+		super.uninitialize();
 	}
 
 	@Override
@@ -293,294 +64,69 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 	@Override
 	public long registerClient(ReqMsg reqMsg, OmmConsumerClient client, Object closure, long parentHandle)
 	{
-		try
-		{
-			_consumerLock.lock();
-			long handle = _itemCallbackClient != null ? _itemCallbackClient.registerClient(reqMsg, client, closure, parentHandle) : 0;
-			return handle;
-		}
-		finally
-		{
-			_consumerLock.unlock();
-		}
+		return super.registerClient(reqMsg, client, closure, parentHandle);
 	}
 
 	@Override
 	public long registerClient(TunnelStreamRequest tunnelStreamRequest, OmmConsumerClient client, Object closure)
 	{
-		try
-		{
-			_consumerLock.lock();
-			long handle = _itemCallbackClient != null ? _itemCallbackClient.registerClient(tunnelStreamRequest, client, closure) : 0;
-			return handle;
-		}
-		finally
-		{
-			_consumerLock.unlock();
-		}
+		return super.registerClient(tunnelStreamRequest, client, closure);
 	}
 
 	@Override
 	public long registerClient(ReqMsg reqMsg, OmmConsumerClient client)
 	{
-		try
-		{
-			_consumerLock.lock();
-			long handle = _itemCallbackClient != null ? _itemCallbackClient.registerClient(reqMsg, client, null, 0) : 0;
-			return handle;
-		}
-		finally
-		{
-			_consumerLock.unlock();
-		}
+		return super.registerClient(reqMsg, client);
 	}
 
 	@Override
 	public long registerClient(ReqMsg reqMsg, OmmConsumerClient client, Object closure)
 	{
-		try
-		{
-			_consumerLock.lock();
-			long handle = _itemCallbackClient != null ? _itemCallbackClient.registerClient(reqMsg, client, closure, 0) : 0;
-			return handle;
-		}
-		finally
-		{
-			_consumerLock.unlock();
-		}
+		return super.registerClient(reqMsg, client, closure);
 	}
 
 	@Override
 	public long registerClient(TunnelStreamRequest tunnelStreamRequest, OmmConsumerClient client)
 	{
-		try
-		{
-			_consumerLock.lock();
-			long handle = _itemCallbackClient != null ? _itemCallbackClient.registerClient(tunnelStreamRequest, client, null) : 0;
-			return handle;
-		}
-		finally
-		{
-			_consumerLock.unlock();
-		}
+		return super.registerClient(tunnelStreamRequest, client);
 	}
 
 	@Override
 	public void reissue(ReqMsg reqMsg, long handle)
 	{
-		try
-		{
-			_consumerLock.lock();
-			if (_itemCallbackClient != null)
-				_itemCallbackClient.reissue(reqMsg, handle);
-		}
-		finally
-		{
-			_consumerLock.unlock();
-		}
+		super.reissue(reqMsg, handle);
 	}
 
 	@Override
 	public void unregister(long handle)
 	{
-		try
-		{
-			_consumerLock.lock();
-			if (_itemCallbackClient != null)
-				_itemCallbackClient.unregister(handle);
-		}
-		finally
-		{
-			_consumerLock.unlock();
-		}
+		super.unregister(handle);
 	}
 
 	@Override
 	public void submit(GenericMsg genericMsg, long handle)
 	{
-		try
-		{
-			_consumerLock.lock();
-			if (_itemCallbackClient != null)
-				_itemCallbackClient.submit(genericMsg, handle);
-		}
-		finally
-		{
-			_consumerLock.unlock();
-		}
+		super.submit(genericMsg, handle);
 	}
 
 	@Override
 	public void submit(PostMsg postMsg, long handle)
 	{
-		try
-		{
-			_consumerLock.lock();
-			if (_itemCallbackClient != null)
-				_itemCallbackClient.submit(postMsg, handle);
-		}
-		finally
-		{
-			_consumerLock.unlock();
-		}
+		super.submit(postMsg, handle);
 	}
 
 	@Override
 	public long dispatch(long timeOut)
 	{
-		if (_activeConfig.userDispatch == OperationModel.USER_DISPATCH)
-			return rsslReactorDispatchLoop(timeOut, _activeConfig.maxDispatchCountUserThread)
-					? DispatchReturn.DISPATCHED : DispatchReturn.TIMEOUT;
-
-		return DispatchReturn.TIMEOUT;
+		return super.dispatch(timeOut);
 	}
 
 	@Override
 	public long dispatch()
 	{
-		if (_activeConfig.userDispatch == OperationModel.USER_DISPATCH)
-			return rsslReactorDispatchLoop(DispatchTimeout.NO_WAIT, _activeConfig.maxDispatchCountUserThread)
-					? DispatchReturn.DISPATCHED : DispatchReturn.TIMEOUT;
-
-		return DispatchReturn.TIMEOUT;
+		return super.dispatch();
 	}
-
-	@Override
-	public void run()
-	{
-		while (_threadRunning)
-			rsslReactorDispatchLoop(_activeConfig.dispatchTimeoutApiThread, _activeConfig.maxDispatchCountApiThread);
-	}
-
-	@Override
-	public void handleTimeoutEvent()
-	{
-		_eventTimeout = true;
-	}
-
-	boolean rsslReactorDispatchLoop(long timeOut, int count)
-	{
-		if (_selector == null)
-			return false;
-
-		long userTimeout = TimeoutEvent.userTimeOutExist(this);
-		boolean userTimeoutExist = false;
-		if (userTimeout >= 0)
-		{
-			userTimeout = userTimeout / 1000000;
-			if (timeOut > 0 && timeOut < userTimeout)
-				userTimeoutExist = false;
-			else
-			{
-				userTimeoutExist = true;
-				timeOut = (userTimeout > 0 ? userTimeout : 1);
-			}
-		}
-
-		try
-		{
-			int selectCount = _selector.select(timeOut);
-			if (selectCount > 0 || !_selector.selectedKeys().isEmpty())
-			{
-				Iterator<SelectionKey> iter = _selector.selectedKeys().iterator();
-				int ret = ReactorReturnCodes.SUCCESS;
-				
-				_rsslDispatchOptions.maxMessages(count);
-				
-				while (iter.hasNext())
-				{
-					SelectionKey key = iter.next();
-					iter.remove();
-					try
-					{
-						if (!key.isValid())
-							continue;
-						if (key.isReadable())
-						{
-							ReactorChannel reactorChnl = (ReactorChannel) key.attachment();
-
-							_rsslErrorInfo.clear();
-
-							ret = reactorChnl.dispatch(_rsslDispatchOptions, _rsslErrorInfo);
-							if (ret < ReactorReturnCodes.SUCCESS)//
-							{
-								if (reactorChnl.state() != ReactorChannel.State.CLOSED
-										&& reactorChnl.state() != ReactorChannel.State.DOWN_RECONNECTING)
-								{
-									if (_loggerClient.isErrorEnabled())
-									{
-										consumerStrBuilder()
-												.append("Call to rsslReactorDispatchLoop() failed. Internal sysError='")
-												.append(_rsslErrorInfo.error().sysError()).append("' Error text='")
-												.append(_rsslErrorInfo.error().text()).append("'. ");
-
-										if (_loggerClient.isErrorEnabled())
-											_loggerClient.error(formatLogMessage(_activeConfig.instanceName, _consumerStrBuilder.toString(), Severity.ERROR));
-									}
-
-									return false;
-								}
-							} else
-							{
-								if (userTimeoutExist && timeOut == 1)
-									TimeoutEvent.execute(this);
-
-								if (ret > ReactorReturnCodes.SUCCESS)
-									return true;
-								else
-									return false;
-							}
-						}
-					} catch (CancelledKeyException e)
-					{
-						continue;
-					}
-				}
-			} else if (selectCount == 0 && userTimeoutExist)
-			{
-				TimeoutEvent.execute(this);
-			}
-
-			if (Thread.currentThread().isInterrupted())
-			{
-				_threadRunning = false;
-
-				if (_loggerClient.isTraceEnabled())
-				{
-					consumerStrBuilder().append("Call to rsslReactorDispatchLoop() received thread interruption signal.");
-
-					_loggerClient.trace(formatLogMessage(_activeConfig.instanceName, _consumerStrBuilder.toString(), Severity.TRACE));
-				}
-			}
-		} //
-		catch (CancelledKeyException e)
-		{
-			if (_loggerClient.isTraceEnabled())
-			{
-				consumerStrBuilder().append("Call to rsslReactorDispatchLoop() received cancelled key exception.");
-
-				_loggerClient.trace(formatLogMessage(_activeConfig.instanceName, _consumerStrBuilder.toString(), Severity.TRACE));
-			}
-
-			return true;
-		} catch (IOException e)
-		{
-			if (_loggerClient.isErrorEnabled())
-			{
-				consumerStrBuilder().append("Call to rsslReactorDispatchLoop() failed. Received exception,")
-						.append(" exception text= ").append(e.getLocalizedMessage()).append(". ");
-
-				_loggerClient.error(formatLogMessage(_activeConfig.instanceName, _consumerStrBuilder.toString(), Severity.ERROR));
-			}
-
-			uninitialize();
-
-			return false;
-		}
-
-		return true;
-	}
-
+	
 	boolean hasConsumerErrorClient()
 	{
 		return (_consumerErrorClient != null);
@@ -590,69 +136,73 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 	{
 		return _consumerErrorClient;
 	}
-
-	void readConfiguration(OmmConsumerConfig config)
+	
+	@Override
+	void notifyErrorClient(OmmException ommException)
 	{
-		OmmConsumerConfigImpl configImpl = (OmmConsumerConfigImpl) config;
+		switch (ommException.exceptionType())
+		{
+		case ExceptionType.OmmInvalidHandleException:
+			_consumerErrorClient.onInvalidHandle(((OmmInvalidHandleException) ommException).handle(), ommException.getMessage());
+			break;
+		case ExceptionType.OmmInvalidUsageException:
+			_consumerErrorClient.onInvalidUsage(ommException.getMessage());
+			break;
+		default:
+			break;
+		}
+	}
 
-		if (_activeConfig == null)
-			_activeConfig = new OmmConsumerActiveConfig(this);
+	@Override
+	String formatLogMessage(String clientName, String temp, int level) {
+		strBuilder().append("loggerMsg\n").append("    ClientName: ").append(clientName).append("\n")
+        .append("    Severity: ").append(OmmLoggerClient.loggerSeverityAsString(level)).append("\n")
+        .append("    Text:    ").append(temp).append("\n").append("loggerMsgEnd\n\n");
 
-		_activeConfig.consumerName = configImpl.consumerName();
+		return _strBuilder.toString();
+	}
 
-		_activeConfig.dictionaryConfig = (DictionaryConfig) new DictionaryConfig();
-		_activeConfig.dictionaryConfig.dictionaryName = configImpl.dictionaryName(_activeConfig.consumerName);
+	@Override
+	String instanceName() {
+		return _activeConfig.instanceName;
+	}
+	
+	@Override
+	boolean hasErrorClient()
+	{
+		return _consumerErrorClient != null ? true: false;
+	}
 
-		_consumerStrBuilder.setLength(0);
-		_activeConfig.instanceName = _consumerStrBuilder.append(_activeConfig.consumerName).append("_").append(Integer.toString(++CONSUMER_INSTANCE_ID)).toString();
-
-		ConfigAttributes attributes = configImpl.xmlConfig().getConsumerAttributes(_activeConfig.consumerName);
+	@Override
+	void readCustomConfig(EmaConfigImpl config)
+	{
+		_activeConfig.dictionaryConfig = (DictionaryConfig) new DictionaryConfig(false);
+		
+		_activeConfig.dictionaryConfig.dictionaryName = ((OmmConsumerConfigImpl)config).dictionaryName(_activeConfig.configuredName);
+		
+		ConfigAttributes attributes = config.xmlConfig().getConsumerAttributes(_activeConfig.configuredName);
 
 		ConfigElement ce = null;
 		int maxInt = Integer.MAX_VALUE;
 
 		if (attributes != null)
 		{
-			if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerItemCountHint)) != null)
-				_activeConfig.itemCountHint = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
-
-			if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerServiceCountHint)) != null)
-				_activeConfig.serviceCountHint = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
-
-			if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerObeyOpenWindow)) != null)
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.ObeyOpenWindow)) != null)
 				_activeConfig.obeyOpenWindow = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
 
-			if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerPostAckTimeout)) != null)
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.PostAckTimeout)) != null)
 				_activeConfig.postAckTimeout = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
 
-			if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerRequestTimeout)) != null)
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.RequestTimeout)) != null)
 				_activeConfig.requestTimeout = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
 
-			if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerLoginRequestTimeOut)) != null)
-				_activeConfig.loginRequestTimeOut = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
-
-			if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerDirectoryRequestTimeOut)) != null)
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.DirectoryRequestTimeOut)) != null)
 				_activeConfig.directoryRequestTimeOut = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
 
-			if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerDictionaryRequestTimeOut)) != null)
-				_activeConfig.dictionaryRequestTimeOut = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
-
-			if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerMaxOutstandingPosts)) != null)
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.MaxOutstandingPosts)) != null)
 				_activeConfig.maxOutstandingPosts = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
-
-			if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerDispatchTimeoutApiThread)) != null)
-				_activeConfig.dispatchTimeoutApiThread = ce.intValue();
-
-			if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerMaxDispatchCountApiThread)) != null)
-				_activeConfig.maxDispatchCountApiThread = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
-
-			if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerMaxDispatchCountUserThread)) != null)
-				_activeConfig.maxDispatchCountUserThread = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
 		}
-
-		// .........................................................................
-		// dictionary
-		//
+		
 		if (_activeConfig.dictionaryConfig.dictionaryName == null)
 		{
 			_activeConfig.dictionaryConfig.dictionaryName = "Dictionary";
@@ -661,10 +211,10 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 			_activeConfig.dictionaryConfig.rdmfieldDictionaryFileName = null;
 		} else
 		{
-			attributes = configImpl.xmlConfig().getDictionaryAttributes(_activeConfig.dictionaryConfig.dictionaryName);
+			attributes = config.xmlConfig().getDictionaryAttributes(_activeConfig.dictionaryConfig.dictionaryName);
 			if (attributes == null)
 			{
-				configImpl.errorTracker().append("no configuration exists for consumer dictionary [")
+				config.errorTracker().append("no configuration exists for consumer dictionary [")
 						.append(ConfigManager.DICTIONARY_LIST.toString()).create(Severity.ERROR);
 			}
 			else
@@ -686,462 +236,19 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 				}
 			}
 		}
-		//
-		// dictionary
-		// .........................................................................
-
-		// IGNORE LOGGER
-
-		// .........................................................................
-		// Channel
-		//
-
-		String channelName = configImpl.channelName(_activeConfig.consumerName);
-		if (channelName != null)
-			readChannelConfig(configImpl, channelName);
-		else
-		{
-			String checkValue = (String) configImpl.xmlConfig().getConsumerAttributeValue(_activeConfig.consumerName,
-					ConfigManager.ConsumerChannelSet);
-			if (checkValue != null)
-			{
-				String[] pieces = checkValue.split(",");
-
-				for (int i = 0; i < pieces.length; i++)
-				{
-					channelName = pieces[i];
-					readChannelConfig(configImpl, channelName);
-				}
-			}
-			else
-			{
-				SocketChannelConfig socketChannelConfig = new SocketChannelConfig();
-				if (socketChannelConfig.rsslConnectionType == ConnectionTypes.SOCKET)
-				{
-					String tempHost = configImpl.getUserSpecifiedHostname();
-					if (tempHost == null)
-					{
-						if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
-							socketChannelConfig.hostName = ce.asciiValue();
-					}
-					else
-						socketChannelConfig.hostName = tempHost;
-
-					String tempService = configImpl.getUserSpecifiedPort();
-					if (tempService == null)
-					{
-						if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelPort)) != null)
-							socketChannelConfig.serviceName = ce.asciiValue();
-					}
-					else
-						socketChannelConfig.serviceName = tempService;
-				}
-				_activeConfig.channelConfig = socketChannelConfig;
-			}
-		}
-
-		//
-		// Channel
-		// .........................................................................
-
-		/*
-		 * if ( ProgrammaticConfigure * const ppc =
-		 * pConfigImpl->pProgrammaticConfigure() ) {
-		 * ppc->retrieveConsumerConfig( _activeConfig.consumerName,
-		 * _activeConfig ); bool isProgmaticCfgChannelName =
-		 * ppc->getActiveChannelName(_activeConfig.consumerName, channelName);
-		 * bool isProgramatiCfgChannelset =
-		 * ppc->getActiveChannelSet(_activeConfig.consumerName, channelSet); if(
-		 * isProgmaticCfgChannelName ) ppc->retrieveChannelConfig( channelName,
-		 * _activeConfig, pConfigImpl->getUserSpecifiedHostname().length() > 0
-		 * ); else { _activeConfig.clearChannelSet(); char *pToken = NULL;
-		 * pToken = strtok(const_cast<char *>(channelSet.c_str()), ",");
-		 * while(pToken != NULL) { channelName = pToken;
-		 * ppc->retrieveChannelConfig( channelName.trimWhitespace(),
-		 * _activeConfig, pConfigImpl->getUserSpecifiedHostname().length() > 0
-		 * ); pToken = strtok(NULL, ","); } }
-		 * 
-		 * ppc->retrieveLoggerConfig( _activeConfig.loggerConfig.loggerName ,
-		 * _activeConfig ); ppc->retrieveDictionaryConfig(
-		 * _activeConfig.dictionaryConfig.dictionaryName, _activeConfig ); }
-		 */
-
-		_activeConfig.userDispatch = configImpl.operationModel();
-		_activeConfig.rsslRDMLoginRequest = configImpl.loginReq();
-		_activeConfig.rsslDirectoryRequest = configImpl.directoryReq();
-		_activeConfig.rsslFldDictRequest = configImpl.rdmFldDictionaryReq();
-		_activeConfig.rsslEnumDictRequest = configImpl.enumDefDictionaryReq();
-		_activeConfig.fldDictReqServiceName = configImpl.fidDictReqServiceName();
-		_activeConfig.enumDictReqServiceName = configImpl.enumDictReqServiceName();
+		
+		_activeConfig.rsslDirectoryRequest = config.directoryReq();
+		_activeConfig.rsslFldDictRequest = config.rdmFldDictionaryReq();
+		_activeConfig.rsslEnumDictRequest = config.enumDefDictionaryReq();
+		_activeConfig.fldDictReqServiceName = config.fidDictReqServiceName();
+		_activeConfig.enumDictReqServiceName = config.enumDictReqServiceName();
 	}
 
-	void readChannelConfig(OmmConsumerConfigImpl configImpl, String channelName)
-	{
-		int maxInt = Integer.MAX_VALUE;
-
-		ConfigAttributes attributes = null;
-		ConfigElement ce = null;
-		int connectionType = ConnectionTypes.SOCKET;
-
-		attributes = configImpl.xmlConfig().getChannelAttributes(channelName);
-		if (attributes != null) 
-			ce = attributes.getPrimitiveValue(ConfigManager.ChannelType);
-
-		if (ce == null)
-		{
-			if (configImpl.getUserSpecifiedHostname() != null)
-				connectionType = ConnectionTypes.SOCKET;
-		} else
-		{
-			connectionType = ce.intValue();
-		}
-
-		switch (connectionType)
-		{
-		case ConnectionTypes.SOCKET:
-		{
-			SocketChannelConfig socketChannelConfig = new SocketChannelConfig();
-			_activeConfig.channelConfig = socketChannelConfig;
-
-			String tempHost = configImpl.getUserSpecifiedHostname();
-			if (tempHost == null)
-			{
-				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
-					socketChannelConfig.hostName = ce.asciiValue();
-			}
-			else
-				socketChannelConfig.hostName = tempHost;
-
-			String tempService = configImpl.getUserSpecifiedPort();
-			if (tempService == null)
-			{
-				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelPort)) != null)
-					socketChannelConfig.serviceName = ce.asciiValue();
-			}
-			else
-				socketChannelConfig.serviceName = tempService;
-			
-			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
-				socketChannelConfig.tcpNodelay = ce.booleanValue();
-
-			break;
-		}
-		case ConnectionTypes.HTTP:
-		{
-			HttpChannelConfig httpChannelCfg = new HttpChannelConfig();
-			_activeConfig.channelConfig = httpChannelCfg;
-
-			String tempHost = configImpl.getUserSpecifiedHostname();
-			if (tempHost == null)
-			{
-				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
-					httpChannelCfg.hostName = ce.asciiValue();
-			}
-			else
-				httpChannelCfg.hostName = tempHost;
-
-			String tempService = configImpl.getUserSpecifiedPort();
-			if (tempService == null)
-			{
-				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelPort)) != null)
-					httpChannelCfg.serviceName = ce.asciiValue();
-			}
-			else
-				httpChannelCfg.serviceName = tempService;
-
-			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
-				httpChannelCfg.tcpNodelay = ce.booleanValue();
-
-			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelObjectName)) != null)
-				httpChannelCfg.objectName = ce.asciiValue();
-
-			break;
-		}
-		case ConnectionTypes.ENCRYPTED:
-		{
-			EncryptedChannelConfig encryptedChannelCfg = new EncryptedChannelConfig();
-			_activeConfig.channelConfig = encryptedChannelCfg;
-
-			String tempHost = configImpl.getUserSpecifiedHostname();
-			if (tempHost == null)
-			{
-				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
-					encryptedChannelCfg.hostName = ce.asciiValue();
-			}
-			else
-				encryptedChannelCfg.hostName = tempHost;
-
-			String tempService = configImpl.getUserSpecifiedPort();
-			if (tempService == null)
-			{
-				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelPort)) != null)
-					encryptedChannelCfg.serviceName = ce.asciiValue();
-			}
-			else
-				encryptedChannelCfg.serviceName = tempService;
-
-			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
-				encryptedChannelCfg.tcpNodelay = ce.booleanValue();
-
-			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelObjectName)) != null)
-				encryptedChannelCfg.objectName = ce.asciiValue();
-
-			break;
-		}
-		default:
-		{
-			configImpl.errorTracker().append("Not supported channel type. Type = ")
-					.append(ConnectionTypes.toString(connectionType));
-			throw ommIUExcept().message(configImpl.errorTracker().text());
-		}
-		}
-
-		ChannelConfig currentChannelConfig = _activeConfig.channelConfig;
-		currentChannelConfig.name = channelName;
-
-		if (attributes != null)
-		{
-			if((ce = attributes.getPrimitiveValue(ConfigManager.ChannelInterfaceName)) != null)
-				currentChannelConfig.interfaceName = ce.asciiValue();
-	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelCompressionType)) != null)
-				currentChannelConfig.compressionType = ce.intValue();
-	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelGuaranteedOutputBuffers)) != null)
-				currentChannelConfig.guaranteedOutputBuffers = ce.intLongValue();
-	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelNumInputBuffers)) != null)
-				currentChannelConfig.numInputBuffers = ce.intLongValue();
-	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelCompressionThreshold)) != null)
-				currentChannelConfig.compressionThreshold = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
-	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelConnectionPingTimeout)) != null)
-				currentChannelConfig.connectionPingTimeout = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
-	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelSysRecvBufSize)) != null)
-				currentChannelConfig.sysRecvBufSize = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
-	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelSysSendBufSize)) != null)
-				currentChannelConfig.sysSendBufSize = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
-	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectAttemptLimit)) != null)
-				currentChannelConfig.reconnectAttemptLimit = ce.intValue();
-	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectMinDelay)) != null)
-				currentChannelConfig.reconnectMinDelay = ce.intValue();
-	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectMaxDelay)) != null)
-				currentChannelConfig.reconnectMaxDelay = ce.intValue();
-	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelMsgKeyInUpdates)) != null)
-				currentChannelConfig.msgKeyInUpdates = ce.booleanValue();
-	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelXmlTraceToStdout)) != null)
-				currentChannelConfig.xmlTraceEnable = ce.booleanValue();
-		}
-	}
-
-	OmmInvalidUsageExceptionImpl ommIUExcept()
-	{
-		if (_ommIUExcept == null)
-			_ommIUExcept = new OmmInvalidUsageExceptionImpl();
-
-		return _ommIUExcept;
-	}
-
-	OmmInvalidHandleExceptionImpl ommIHExcept()
-	{
-		if (_ommIHExcept == null)
-			_ommIHExcept = new OmmInvalidHandleExceptionImpl();
-
-		return _ommIHExcept;
-	}
-
-	EncodeIterator rsslEncIter()
-	{
-		return _rsslEncIter;
-	}
-
-	DecodeIterator rsslDecIter()
-	{
-		return _rsslDecIter;
-	}
-
-	ReactorErrorInfo rsslErrorInfo()
-	{
-		return _rsslErrorInfo;
-	}
-
-	ReactorSubmitOptions rsslSubmitOptions()
-	{
-		return _rsslSubmitOptions;
-	}
-
-	String formatLogMessage(String clientName, String temp, int level)
-	{
-		consumerStrBuilder().append("loggerMsg\n").append("    ClientName: ").append(clientName).append("\n")
-				.append("    Severity: ").append(OmmLoggerClient.loggerSeverityAsString(level)).append("\n")
-				.append("    Text:    ").append(temp).append("\n").append("loggerMsgEnd\n\n");
-
-		return _consumerStrBuilder.toString();
-	}
-
-	StringBuilder consumerStrBuilder()
-	{
-		_consumerStrBuilder.setLength(0);
-		return _consumerStrBuilder;
-	}
-
-	OmmConsumerActiveConfig activeConfig()
-	{
-		return _activeConfig;
-	}
-
-	Logger loggerClient()
-	{
-		return _loggerClient;
-	}
-
-	ItemCallbackClient itemCallbackClient()
-	{
-		return _itemCallbackClient;
-	}
-
-	DictionaryCallbackClient dictionaryCallbackClient()
-	{
-		return _dictionaryCallbackClient;
-	}
-
-	DirectoryCallbackClient directoryCallbackClient()
-	{
-		return _directoryCallbackClient;
-	}
-
-	LoginCallbackClient loginCallbackClient()
-	{
-		return _loginCallbackClient;
-	}
-
-	ChannelCallbackClient channelCallbackClient()
-	{
-		return _channelCallbackClient;
-	}
-
-	Selector selector()
-	{
-		return _selector;
-	}
-
-	ReactorChannel rsslReactorChannel()
-	{
-		return _rsslReactor.reactorChannel();
-	}
-
-	void closeRsslChannel(ReactorChannel rsslReactorChannel)
-	{
-		if (rsslReactorChannel == null)
-			return;
-
-		_rsslErrorInfo.clear();
-		if (rsslReactorChannel.close(_rsslErrorInfo) != ReactorReturnCodes.SUCCESS)
-		{
-			if (_loggerClient.isErrorEnabled())
-			{
-				_consumerLock.lock();
-
-				consumerStrBuilder().append("Failed to close reactor channel (rsslReactorChannel).")
-						.append("' RsslChannel='")
-						.append(Integer.toHexString(_rsslErrorInfo.error().channel() != null ? _rsslErrorInfo.error().channel().hashCode() : 0))
-						.append("Error Id ").append(_rsslErrorInfo.error().errorId())
-						.append("Internal sysError ").append(_rsslErrorInfo.error().sysError())
-						.append("Error Location ").append(_rsslErrorInfo.location())
-						.append("Error Text ").append(_rsslErrorInfo.error().text()).append("'. ");
-
-				_loggerClient.error(
-						formatLogMessage(_activeConfig.instanceName, _consumerStrBuilder.toString(), Severity.ERROR));
-
-				_consumerLock.unlock();
-			}
-		}
-
-		_channelCallbackClient.removeChannel(rsslReactorChannel);
-	}
-
-	void ommConsumerState(int state)
-	{
-		_consumerState = state;
-	}
-
-	VaIteratableQueue timerEventQueue()
-	{
-		return _timeoutEventQueue;
-	}
-
-	TimeoutEvent addTimeoutEvent(long timeoutInMicroSec, TimeoutClient client)
-	{
-		TimeoutEvent timeoutEvent = (TimeoutEvent) _objManager._timeoutEventPool.poll();
-		if (timeoutEvent == null)
-		{
-			timeoutEvent = new TimeoutEvent(timeoutInMicroSec * 1000, client);
-			_objManager._timeoutEventPool.updatePool(timeoutEvent);
-		} else
-			timeoutEvent.timeoutInNanoSec(timeoutInMicroSec * 1000, client);
-
-		_timeoutEventQueue.add(timeoutEvent);
-
-		return timeoutEvent;
-	}
-
-	void handleAdminReqTimeout()
-	{
-		if (_activeConfig.loginRequestTimeOut == 0)
-		{
-			while (_consumerState < OmmConsumerState.LOGIN_STREAM_OPEN_OK)
-				rsslReactorDispatchLoop(_activeConfig.dispatchTimeoutApiThread, _activeConfig.maxDispatchCountApiThread);
-		}
-		else
-		{
-			_eventTimeout = false;
-			TimeoutEvent timeoutEvent = addTimeoutEvent(_activeConfig.loginRequestTimeOut * 1000, this);
-	
-			while (!_eventTimeout && (_consumerState < OmmConsumerState.LOGIN_STREAM_OPEN_OK))
-				rsslReactorDispatchLoop(_activeConfig.dispatchTimeoutApiThread, _activeConfig.maxDispatchCountApiThread);
-	
-			if (_eventTimeout)
-			{
-				consumerStrBuilder().append("login failed (timed out after waiting ")
-						.append(_activeConfig.loginRequestTimeOut).append(" milliseconds) for ");
-				if (_activeConfig.channelConfig.rsslConnectionType == ConnectionTypes.SOCKET)
-				{
-					SocketChannelConfig channelConfig = (SocketChannelConfig) _activeConfig.channelConfig;
-					_consumerStrBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
-							.append(")");
-				} else if (_activeConfig.channelConfig.rsslConnectionType == ConnectionTypes.HTTP)
-				{
-					HttpChannelConfig channelConfig = ((HttpChannelConfig) _activeConfig.channelConfig);
-					_consumerStrBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
-							.append(")");
-				} else if (_activeConfig.channelConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
-				{
-					EncryptedChannelConfig channelConfig = (EncryptedChannelConfig) _activeConfig.channelConfig;
-					_consumerStrBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
-							.append(")");
-				}
-				
-				String excepText = _consumerStrBuilder.toString();
-	
-				if (_loggerClient.isErrorEnabled())
-					_loggerClient.error(formatLogMessage(_activeConfig.instanceName, excepText, Severity.ERROR));
-	
-				throw ommIUExcept().message(excepText);
-			} else
-				timeoutEvent.cancel();
-		}
-
+	void loadDirectory()
+	{	
 		if (_activeConfig.directoryRequestTimeOut == 0)
 		{
-			while (_consumerState < OmmConsumerState.DIRECTORY_STREAM_OPEN_OK)
+			while (_state < OmmImplState.DIRECTORY_STREAM_OPEN_OK)
 				rsslReactorDispatchLoop(_activeConfig.dispatchTimeoutApiThread, _activeConfig.maxDispatchCountApiThread);
 		}
 		else
@@ -1149,58 +256,24 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 			_eventTimeout = false;
 			TimeoutEvent timeoutEvent = addTimeoutEvent(_activeConfig.directoryRequestTimeOut * 1000, this);
 	
-			while (!_eventTimeout && (_consumerState < OmmConsumerState.DIRECTORY_STREAM_OPEN_OK))
+			while (!_eventTimeout && (_state < OmmImplState.DIRECTORY_STREAM_OPEN_OK))
 				rsslReactorDispatchLoop(_activeConfig.dispatchTimeoutApiThread, _activeConfig.maxDispatchCountApiThread);
 	
 			if (_eventTimeout)
 			{
-				consumerStrBuilder().append("directory retrieval failed (timed out after waiting ")
+				strBuilder().append("directory retrieval failed (timed out after waiting ")
 						.append(_activeConfig.directoryRequestTimeOut).append(" milliseconds) for ");
 				if (_activeConfig.channelConfig.rsslConnectionType == ConnectionTypes.SOCKET)
 				{
 					SocketChannelConfig channelConfig = (SocketChannelConfig) _activeConfig.channelConfig;
-					_consumerStrBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
+					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
 							.append(")");
 				}
 				
-				String excepText = _consumerStrBuilder.toString();
+				String excepText = _strBuilder.toString();
 				
-				if (_loggerClient.isErrorEnabled())
-					_loggerClient.error(formatLogMessage(_activeConfig.instanceName, excepText, Severity.ERROR));
-	
-				throw ommIUExcept().message(excepText);
-			} else
-				timeoutEvent.cancel();
-		}
-		
-		if (_activeConfig.dictionaryRequestTimeOut == 0)
-		{
-			while (!_dictionaryCallbackClient.isDictionaryReady())
-				rsslReactorDispatchLoop(_activeConfig.dispatchTimeoutApiThread, _activeConfig.maxDispatchCountApiThread);
-		}
-		else
-		{
-			_eventTimeout = false;
-			TimeoutEvent timeoutEvent = addTimeoutEvent(_activeConfig.dictionaryRequestTimeOut * 1000, this);
-	
-			while (!_eventTimeout && !_dictionaryCallbackClient.isDictionaryReady())
-				rsslReactorDispatchLoop(_activeConfig.dispatchTimeoutApiThread, _activeConfig.maxDispatchCountApiThread);
-	
-			if (_eventTimeout)
-			{
-				consumerStrBuilder().append("dictionary retrieval failed (timed out after waiting ")
-						.append(_activeConfig.dictionaryRequestTimeOut).append(" milliseconds) for ");
-				if (_activeConfig.channelConfig.rsslConnectionType == ConnectionTypes.SOCKET)
-				{
-					SocketChannelConfig channelConfig = (SocketChannelConfig) _activeConfig.channelConfig;
-					_consumerStrBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
-							.append(")");
-				}
-	
-				String excepText = _consumerStrBuilder.toString();
-				
-				if (_loggerClient.isErrorEnabled())
-					_loggerClient.error(formatLogMessage(_activeConfig.instanceName, excepText, Severity.ERROR));
+				if (loggerClient().isErrorEnabled())
+					loggerClient().error(formatLogMessage(_activeConfig.instanceName, excepText, Severity.ERROR));
 	
 				throw ommIUExcept().message(excepText);
 			} else
@@ -1208,18 +281,105 @@ class OmmConsumerImpl implements Runnable, OmmConsumer, TimeoutClient
 		}
 	}
 
-	void notifyOmmConsumerErrorClient(OmmException ommException, OmmConsumerErrorClient errorClient)
+	void loadDictionary()
 	{
-		switch (ommException.exceptionType())
+		if (_activeConfig.dictionaryRequestTimeOut == 0)
 		{
-		case ExceptionType.OmmInvalidHandleException:
-			errorClient.onInvalidHandle(((OmmInvalidHandleException) ommException).handle(), ommException.getMessage());
-			break;
-		case ExceptionType.OmmInvalidUsageException:
-			errorClient.onInvalidUsage(ommException.getMessage());
-			break;
-		default:
-			break;
+			while (!dictionaryCallbackClient().isDictionaryReady())
+				rsslReactorDispatchLoop(_activeConfig.dispatchTimeoutApiThread, _activeConfig.maxDispatchCountApiThread);
 		}
+		else
+		{
+			_eventTimeout = false;
+			TimeoutEvent timeoutEvent = addTimeoutEvent(_activeConfig.dictionaryRequestTimeOut * 1000, this);
+	
+			while (!_eventTimeout && !dictionaryCallbackClient().isDictionaryReady())
+				rsslReactorDispatchLoop(_activeConfig.dispatchTimeoutApiThread, _activeConfig.maxDispatchCountApiThread);
+	
+			if (_eventTimeout)
+			{
+				strBuilder().append("dictionary retrieval failed (timed out after waiting ")
+						.append(_activeConfig.dictionaryRequestTimeOut).append(" milliseconds) for ");
+				if (_activeConfig.channelConfig.rsslConnectionType == ConnectionTypes.SOCKET)
+				{
+					SocketChannelConfig channelConfig = (SocketChannelConfig) _activeConfig.channelConfig;
+					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
+							.append(")");
+				}
+	
+				String excepText = _strBuilder.toString();
+				
+				if (loggerClient().isErrorEnabled())
+					loggerClient().error(formatLogMessage(_activeConfig.instanceName, excepText, Severity.ERROR));
+	
+				throw ommIUExcept().message(excepText);
+			} else
+				timeoutEvent.cancel();
+		}
+	}
+
+	@Override
+	void processChannelEvent(ReactorChannelEvent reactorChannelEvent)
+	{
+	}
+
+	@Override
+	Logger createLoggerClient() {
+		return LoggerFactory.getLogger(OmmConsumerImpl.class);
+	}
+
+	@Override
+	ConfigAttributes getAttributes(EmaConfigImpl config)
+	{
+		return config.xmlConfig().getConsumerAttributes(_activeConfig.configuredName);
+	}
+	
+	@Override
+	Object getAttributeValue(EmaConfigImpl config, int attributeKey)
+	{
+		return config.xmlConfig().getConsumerAttributeValue(_activeConfig.configuredName, attributeKey);
+	}
+
+	@Override
+	void handleAdminDomains() {
+		
+		_loginCallbackClient = new LoginCallbackClientConsumer(this);;
+		_loginCallbackClient.initialize();
+
+		_dictionaryCallbackClient = new DictionaryCallbackClientConsumer(this);
+		_dictionaryCallbackClient.initialize();
+
+		_directoryCallbackClient = new DirectoryCallbackClientConsumer(this);
+		_directoryCallbackClient.initialize();
+
+		_itemCallbackClient = new ItemCallbackClientConsumer(this);
+		_itemCallbackClient.initialize();
+
+		_channelCallbackClient = new ChannelCallbackClient<>(this,_rsslReactor);
+		_channelCallbackClient.initializeConsumerRole(_loginCallbackClient.rsslLoginRequest(), _directoryCallbackClient.rsslDirectoryRequest());
+
+		handleLoginReqTimeout();
+		loadDirectory();
+		loadDictionary();
+		
+	}
+	
+	@Override
+	void handleInvalidUsage(String text)
+	{
+		if ( hasErrorClient() )
+			_consumerErrorClient.onInvalidUsage(text);
+		else
+			throw (ommIUExcept().message(text.toString()));
+		
+	}
+
+	@Override
+	void handleInvalidHandle(long handle, String text)
+	{	
+		if ( hasErrorClient() )
+			_consumerErrorClient.onInvalidHandle(handle, text);
+		else
+			throw (ommIHExcept().message(text, handle));
 	}
 }
