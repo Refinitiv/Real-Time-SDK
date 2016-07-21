@@ -1602,9 +1602,6 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 		_loginCallbackClient = new LoginCallbackClientProvider(this);
 		_loginCallbackClient.initialize();
 
-		_dictionaryCallbackClient = new DictionaryCallbackClientProvider(this);
-		_dictionaryCallbackClient.initialize();
-
 		_itemCallbackClient = new ItemCallbackClientProvider(this);
 		_itemCallbackClient.initialize();
 
