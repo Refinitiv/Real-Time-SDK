@@ -62,7 +62,22 @@ class ElementListImpl extends CollectionDataImpl implements ElementList
 			super.clear();
 
 			_rsslElementList.clear();
-			_elementListCollection.clear();
+			
+			int collectionSize = _elementListCollection.size();
+			if (collectionSize > 0)
+			{
+				ElementEntryImpl elementEntryImpl;
+				GlobalPool.lock();
+				for (int index = 0; index < collectionSize; ++index)
+				{
+					elementEntryImpl = (ElementEntryImpl)_elementListCollection.get(index);
+					GlobalPool.returnPool(elementEntryImpl._previousEncodingType, elementEntryImpl._entryData);
+					elementEntryImpl._previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.UNKNOWN;
+				}
+				GlobalPool.unlock();
+		
+				_elementListCollection.clear();
+			}
 		}
 		else
 			clearCollection();

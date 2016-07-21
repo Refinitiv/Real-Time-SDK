@@ -123,7 +123,22 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 			super.clear();
 		
 			_rsslFieldList.clear();
-			_fieldListCollection.clear();
+			
+			int collectionSize = _fieldListCollection.size();
+			if (collectionSize > 0)
+			{
+				FieldEntryImpl fieldEntryImpl;
+				GlobalPool.lock();
+				for (int index = 0; index < collectionSize; ++index)
+				{
+					fieldEntryImpl = (FieldEntryImpl)_fieldListCollection.get(index);
+					GlobalPool.returnPool(fieldEntryImpl._previousEncodingType, fieldEntryImpl._entryData);
+					fieldEntryImpl._previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.UNKNOWN;
+				}
+				GlobalPool.unlock();
+		
+				_fieldListCollection.clear();
+			}
 		}
 		else
 			clearCollection();
@@ -577,7 +592,9 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 		if (collectionSize > 0)
 		{
 			for (int index = 0; index < collectionSize; ++index)
+			{
 				((FieldEntryImpl)_fieldListCollection.get(index)).returnToPool();
+			}
 	
 			_fieldListCollection.clear();
 		}

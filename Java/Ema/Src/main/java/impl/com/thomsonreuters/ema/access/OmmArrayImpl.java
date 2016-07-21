@@ -123,7 +123,22 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 			super.clear();
 		
 			_rsslArray.clear();
-			_ommArrayCollection.clear();
+			
+			int collectionSize = _ommArrayCollection.size();
+			if (collectionSize > 0)
+			{
+				OmmArrayEntryImpl arrayEntryImpl;
+				GlobalPool.lock();
+				for (int index = 0; index < collectionSize; ++index)
+				{
+					arrayEntryImpl = (OmmArrayEntryImpl)_ommArrayCollection.get(index);
+					GlobalPool.returnPool(arrayEntryImpl._previousEncodingType, arrayEntryImpl._entryData);
+					arrayEntryImpl._previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.UNKNOWN;
+				}
+				GlobalPool.unlock();
+		
+				_ommArrayCollection.clear();
+			}
 		}
 		else
 			clearCollection();

@@ -10,7 +10,6 @@ package com.thomsonreuters.ema.access;
 import java.nio.ByteBuffer;
 
 import com.thomsonreuters.ema.access.ComplexType;
-import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.OmmError.ErrorCode;
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.CodecFactory;

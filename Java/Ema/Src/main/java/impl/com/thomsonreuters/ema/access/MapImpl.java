@@ -373,11 +373,11 @@ class MapImpl extends CollectionDataImpl implements Map
 			
 			if (key.dataType() == DataTypes.BUFFER)
 			{
-				_toString.append("\" value=\n\n").append(key.toString());
-				Utilities.addIndent(_toString.append("\n"), indent);											  
+				_toString.append("\" value=\"").append(key.toString());
+				Utilities.addIndent(_toString.append("\"\n"), indent);											  
 			}
 			else
-				_toString.append("\" value=\n\n").append(key.toString()).append("\"");
+				_toString.append("\" value=\"").append(key.toString()).append("\"");
 
 			if (mapEntry.hasPermissionData())
 			{
