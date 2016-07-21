@@ -155,15 +155,15 @@
 					<!-- EMA will populate the Service::InfoFilter::DictionariesProvided element		-->
 					<!-- with the respective <>ItemName values											-->
 					<DictionariesProvided>
-						<DictionariesProvidedEntry value="Dictionary_1"/>
 						<DictionariesProvidedEntry value="Dictionary_3"/>
+						<DictionariesProvidedEntry value="Dictionary_4"/>
 					</DictionariesProvided>
 					
 					<!-- list of dictionary names specified in the DictionaryGroup						-->
 					<!-- EMA will populate the Service::InfoFilter::DictionariesUsed element			-->
 					<!-- with the respective <>ItemName values											-->
 					<DictionariesUsed>
-						<DictionariesUsedEntry value="Dictionary_1"/>
+						<DictionariesUsedEntry value="Dictionary_3"/>
 					</DictionariesUsed>
 
 					<!-- list of QoS values supported by this service									-->
@@ -224,10 +224,10 @@
 				<Name value="NI_PUB"/>		
 				<InfoFilter>
 					<DictionariesProvided>
-						<DictionariesProvidedEntry value="Dictionary_1"/>
+						<DictionariesProvidedEntry value="Dictionary_3"/>
 					</DictionariesProvided>
 					<DictionariesUsed>
-						<DictionariesUsedEntry value="Dictionary_2"/>
+						<DictionariesUsedEntry value="Dictionary_3"/>
 					</DictionariesUsed>
 
 					<Vendor value="company name"/>
