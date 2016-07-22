@@ -171,7 +171,7 @@ See the top level Elektron-SDK README.md for details.
 - EMA-533 ChannelSet with two multicast channels userQLimit set incorrectly 
 - EMA-560 tunnelStreamConsumer exit crash
 - EMA-575 NiProvider360 application uses 100% CPU when CTRL-C pressed while publishing data
-
+- EMA-634 EMA library should only support serviceId for source directory mapkey (NIProv).  ***[ServiceName use for source directory has been deprecated]***
  
 
 # Obtaining the Thomson Reuters Field Dictionaries
