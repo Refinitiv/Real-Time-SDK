@@ -22,9 +22,9 @@ import com.thomsonreuters.upa.codec.DataTypes;
 import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.codec.MsgKey;
-import com.thomsonreuters.upa.codec.MsgKeyFlags;
 import com.thomsonreuters.upa.codec.QosRates;
 import com.thomsonreuters.upa.codec.QosTimeliness;
+import com.thomsonreuters.upa.codec.RefreshMsg;
 import com.thomsonreuters.upa.codec.RefreshMsgFlags;
 import com.thomsonreuters.upa.codec.RequestMsg;
 import com.thomsonreuters.upa.codec.RequestMsgFlags;
@@ -43,71 +43,124 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorMsgEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
 
-class ConsumerCallbackClient
+class CallbackClient<T>
 {
 	protected RefreshMsgImpl			_refreshMsg;
 	protected UpdateMsgImpl				_updateMsg;
 	protected StatusMsgImpl				_statusMsg;
 	protected GenericMsgImpl			_genericMsg;
 	protected AckMsgImpl				_ackMsg;
-	protected OmmConsumerEventImpl		_event;
-	protected OmmConsumerImpl			_consumer;
-	protected OmmConsumerClientImpl 	_consumerClient;
+	protected OmmEventImpl<T>			_eventImpl;
+	protected OmmBaseImpl<T>			_baseImpl;
+	protected RefreshMsg				_rsslRefreshMsg;  
+	protected CloseMsg					_rsslCloseMsg;
+	protected RequestMsg 				_rsslRequestMsg;
+	protected StatusMsg					_rsslStatusMsg;
+	
 
-	ConsumerCallbackClient(OmmConsumerImpl consumer, String clientName)
+	CallbackClient(OmmBaseImpl<T> baseImpl, String clientName)
 	{
-		_consumer = consumer;
-		_event = new OmmConsumerEventImpl();
-		_refreshMsg = new RefreshMsgImpl(_consumer._objManager);
-		_consumerClient = new OmmConsumerClientImpl();
+		_baseImpl = baseImpl;
+		_eventImpl = new OmmEventImpl<T>();
+		_refreshMsg = new RefreshMsgImpl(_baseImpl._objManager);
 		
-		if (_consumer.loggerClient().isTraceEnabled())
+		if (_baseImpl.loggerClient().isTraceEnabled())
 		{
 			String temp = "Created " + clientName;
-			_consumer.loggerClient().trace(_consumer.formatLogMessage(clientName,
+			_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(clientName,
 											temp, Severity.TRACE).toString());
 		}
 	}
 	
-	StatusMsg rsslStatusMsg() {return null;}
+	com.thomsonreuters.upa.codec.RequestMsg rsslRequestMsg()
+	{
+		if (_rsslRequestMsg == null)
+			_rsslRequestMsg = (RequestMsg)CodecFactory.createMsg();
+		else
+			_rsslRequestMsg.clear();
+		
+		_rsslRequestMsg.msgClass(MsgClasses.REQUEST);
+		return _rsslRequestMsg;
+	}
+	
+	com.thomsonreuters.upa.codec.RefreshMsg rsslRefreshMsg()
+	{
+		if (_rsslRefreshMsg == null)
+			_rsslRefreshMsg = (RefreshMsg)CodecFactory.createMsg();
+		else
+			_rsslRefreshMsg.clear();
+		
+		_rsslRefreshMsg.msgClass(MsgClasses.REFRESH);
+		return _rsslRefreshMsg;
+	}
+	
+	com.thomsonreuters.upa.codec.StatusMsg rsslStatusMsg()
+	{
+		if (_rsslStatusMsg == null)
+			_rsslStatusMsg = (StatusMsg)CodecFactory.createMsg();
+		else
+			_rsslStatusMsg.clear();
+		
+		_rsslStatusMsg.msgClass(MsgClasses.STATUS);
+		return _rsslStatusMsg;
+	}
+	
+	com.thomsonreuters.upa.codec.CloseMsg rsslCloseMsg()
+	{
+		if (_rsslCloseMsg == null)
+			_rsslCloseMsg = (CloseMsg)CodecFactory.createMsg();
+		else
+			_rsslCloseMsg.clear();
+		
+		_rsslCloseMsg.msgClass(MsgClasses.CLOSE);
+		return _rsslCloseMsg;
+	}
+	
+	void notifyOnAllMsg(com.thomsonreuters.ema.access.Msg msg) {}
+    void notifyOnRefreshMsg() {}
+	void notifyOnUpdateMsg() {}
+	void notifyOnStatusMsg() {}
+	void notifyOnGenericMsg() {} 
+	void notifyOnAckMsg() {}
 }
 
-class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCallback
+class ItemCallbackClient<T> extends CallbackClient<T> implements DefaultMsgCallback
 {
 	private static final String CLIENT_NAME = "ItemCallbackClient";
 	
-	private HashMap<LongObject, Item>	_itemMap;
+	private HashMap<LongObject, Item<T>>	_itemMap;
 	private LongObject _longObjHolder;
-	private StatusMsg	_rsslStatusMsg;
-	private com.thomsonreuters.upa.codec.CloseMsg	_rsslCloseMsg;
 
-	ItemCallbackClient(OmmConsumerImpl consumer)
+	ItemCallbackClient(OmmBaseImpl<T> baseImpl)
 	{
-		super(consumer, CLIENT_NAME);
+		super(baseImpl, CLIENT_NAME);
 		
-		_itemMap = new HashMap<LongObject, Item>(_consumer.activeConfig().itemCountHint == 0 ? 1024 : _consumer.activeConfig().itemCountHint);
+		_itemMap = new HashMap<>(_baseImpl.activeConfig().itemCountHint == 0 ? 1024 : _baseImpl.activeConfig().itemCountHint);
 		
-		_updateMsg = new UpdateMsgImpl(_consumer._objManager);
+		_updateMsg = new UpdateMsgImpl(_baseImpl._objManager);
 		
 		_longObjHolder = new LongObject();
 	}
 
 	void initialize() {}
 
+	@SuppressWarnings("unchecked")
 	public int defaultMsgCallback(ReactorMsgEvent event)
 	{
+		_baseImpl.eventReceived();
+		
 		Msg msg = event.msg();
 		ChannelInfo channelInfo = (ChannelInfo)event.reactorChannel().userSpecObj();
         if (msg == null)
         {
         	com.thomsonreuters.upa.transport.Error error = event.errorInfo().error();
         	
-        	if (_consumer.loggerClient().isErrorEnabled())
+        	if (_baseImpl.loggerClient().isErrorEnabled())
         	{
-	        	StringBuilder temp = _consumer.consumerStrBuilder();
+	        	StringBuilder temp = _baseImpl.strBuilder();
 	        	temp.append("Received an item event without RsslMsg message")
 	        		.append(OmmLoggerClient.CR)
-	    			.append("Consumer Name ").append(_consumer.consumerName())
+	    			.append("Instance Name ").append(_baseImpl.instanceName())
 	    			.append(OmmLoggerClient.CR)
 	    			.append("RsslReactor ").append(Integer.toHexString(channelInfo.rsslReactor().hashCode()))
 	    			.append(OmmLoggerClient.CR)
@@ -118,21 +171,21 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 	    			.append("Error Location ").append(event.errorInfo().location()).append(OmmLoggerClient.CR)
 	    			.append("Error Text ").append(error.text());
 	        	
-        		_consumer.loggerClient().error(_consumer.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
         	}
         	
     		return ReactorCallbackReturnCodes.SUCCESS;
         }
         
-        _event._item = (Item)(event.streamInfo() != null ? event.streamInfo().userSpecObject() : null);
-        if (_event._item == null && msg.streamId() != 1)
+        _eventImpl._item = (Item<T>)(event.streamInfo() != null ? event.streamInfo().userSpecObject() : null);
+        if (_eventImpl._item == null && msg.streamId() != 1)
         {
-        	if (_consumer.loggerClient().isErrorEnabled())
+        	if (_baseImpl.loggerClient().isErrorEnabled())
         	{
-	        	StringBuilder temp = _consumer.consumerStrBuilder();
+	        	StringBuilder temp = _baseImpl.strBuilder();
 	        	temp.append("Received an item event without user specified pointer or stream info")
 	        		.append(OmmLoggerClient.CR)
-	        		.append("Consumer Name ").append(_consumer.consumerName())
+	        		.append("Instance Name ").append(_baseImpl.instanceName())
 	        		.append(OmmLoggerClient.CR)
 	        		.append("RsslReactor ").append(Integer.toHexString(channelInfo.rsslReactor().hashCode()))
 	        		.append(OmmLoggerClient.CR);
@@ -143,7 +196,7 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 	        	else
 	        		temp.append("RsslReactorChannel is null").append(OmmLoggerClient.CR);
 	        	
-	        	_consumer.loggerClient().error(_consumer.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
         	}
 
         	return ReactorCallbackReturnCodes.SUCCESS;
@@ -153,27 +206,27 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
     	{
 	    	case MsgClasses.ACK :
 	    		if (msg.streamId() == 1)
-	    			return _consumer.loginCallbackClient().processAckMsg(msg, channelInfo);
+	    			return _baseImpl.loginCallbackClient().processAckMsg(msg, channelInfo);
 	    		else
-	    			return _consumer.itemCallbackClient().processAckMsg(msg, channelInfo);
+	    			return _baseImpl.itemCallbackClient().processAckMsg(msg, channelInfo);
 	    	case MsgClasses.GENERIC :
 	    		if (msg.streamId() == 1)
-	    			return _consumer.loginCallbackClient().processGenericMsg(msg, channelInfo);
+	    			return _baseImpl.loginCallbackClient().processGenericMsg(msg, channelInfo);
 	    		else
-	    			return _consumer.itemCallbackClient().processGenericMsg(msg, channelInfo);
+	    			return _baseImpl.itemCallbackClient().processGenericMsg(msg, channelInfo);
 	    	case MsgClasses.REFRESH :
-	    		return _consumer.itemCallbackClient().processRefreshMsg(msg, channelInfo);
+	    		return _baseImpl.itemCallbackClient().processRefreshMsg(msg, channelInfo);
 	    	case MsgClasses.STATUS :
-	    		return _consumer.itemCallbackClient().processStatusMsg(msg, channelInfo);
+	    		return _baseImpl.itemCallbackClient().processStatusMsg(msg, channelInfo);
 	    	case MsgClasses.UPDATE :
-	    		return _consumer.itemCallbackClient().processUpdateMsg(msg, channelInfo);
+	    		return _baseImpl.itemCallbackClient().processUpdateMsg(msg, channelInfo);
 	    	default :
-	    		if (_consumer.loggerClient().isErrorEnabled())
+	    		if (_baseImpl.loggerClient().isErrorEnabled())
 	        	{
-		        	StringBuilder temp = _consumer.consumerStrBuilder();
+		        	StringBuilder temp = _baseImpl.strBuilder();
 		        	temp.append("Received an item event with message containing unhandled message class")
 		        		.append(OmmLoggerClient.CR)
-		        		.append("Consumer Name ").append(_consumer.consumerName())
+		        		.append("Instance Name ").append(_baseImpl.instanceName())
 		        		.append(OmmLoggerClient.CR)
 		        		.append("RsslReactor ").append(Integer.toHexString(channelInfo.rsslReactor().hashCode()))
 		        		.append(OmmLoggerClient.CR);
@@ -184,7 +237,7 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 			        	else
 			        		temp.append("RsslReactorChannel is null").append(OmmLoggerClient.CR);
 		        	
-		        	_consumer.loggerClient().error(_consumer.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+			        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
 	        	}
 	    		break;
     	}
@@ -196,23 +249,23 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 	{
 		_refreshMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
 	
-		if (_event._item.type() == Item.ItemType.BATCH_ITEM)
-			_event._item = ((BatchItem)_event._item).singleItem(rsslMsg.streamId());
+		if (_eventImpl._item.type() == Item.ItemType.BATCH_ITEM)
+			_eventImpl._item = ((BatchItem<T>)_eventImpl._item).singleItem(rsslMsg.streamId());
 		
-		_refreshMsg.service(_event._item.directory().serviceName());
-
-		_event._item.client().onAllMsg(_refreshMsg, _event);
-		_event._item.client().onRefreshMsg(_refreshMsg, _event);
+		_refreshMsg.service(_eventImpl._item.directory().serviceName());
+		
+		notifyOnAllMsg(_refreshMsg);
+		notifyOnRefreshMsg();
 		
 		int rsslStreamState = ((com.thomsonreuters.upa.codec.RefreshMsg)rsslMsg).state().streamState();
 		if (rsslStreamState == StreamStates.NON_STREAMING)
 		{
 			if (((com.thomsonreuters.upa.codec.RefreshMsg)rsslMsg).checkRefreshComplete())
-				_event._item.remove();
+				_eventImpl._item.remove();
 		}
 		else if (rsslStreamState != StreamStates.OPEN)
 		{
-			_event._item.remove();
+			_eventImpl._item.remove();
 		}
 
 		return ReactorCallbackReturnCodes.SUCCESS;
@@ -222,13 +275,13 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 	{
 		_updateMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
 		
-		if (_event._item.type() == Item.ItemType.BATCH_ITEM)
-			_event._item = ((BatchItem)_event._item).singleItem(rsslMsg.streamId());
+		if (_eventImpl._item.type() == Item.ItemType.BATCH_ITEM)
+			_eventImpl._item = ((BatchItem<T>)_eventImpl._item).singleItem(rsslMsg.streamId());
 	
-		_updateMsg.service(_event._item.directory().serviceName());
+		_updateMsg.service(_eventImpl._item.directory().serviceName());
 
-		_event._item.client().onAllMsg(_updateMsg, _event);
-		_event._item.client().onUpdateMsg(_updateMsg, _event);
+		notifyOnAllMsg(_updateMsg);
+		notifyOnUpdateMsg();
 
 		return ReactorCallbackReturnCodes.SUCCESS;
 	}
@@ -236,21 +289,21 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 	int processStatusMsg(Msg rsslMsg,  ChannelInfo channelInfo)
 	{
 		if (_statusMsg == null)
-			_statusMsg = new StatusMsgImpl(_consumer._objManager);
+			_statusMsg = new StatusMsgImpl(_baseImpl._objManager);
 		
 		_statusMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
 		
-		if (_event._item.type() == Item.ItemType.BATCH_ITEM)
-			_event._item = ((BatchItem)_event._item).singleItem(rsslMsg.streamId());
+		if (_eventImpl._item.type() == Item.ItemType.BATCH_ITEM)
+			_eventImpl._item = ((BatchItem<T>)_eventImpl._item).singleItem(rsslMsg.streamId());
 		
-		_statusMsg.service(_event._item.directory().serviceName());
+		_statusMsg.service(_eventImpl._item.directory().serviceName());
 
-		_event._item.client().onAllMsg(_statusMsg, _event);
-		_event._item.client().onStatusMsg(_statusMsg, _event);
+		notifyOnAllMsg(_statusMsg);
+		notifyOnStatusMsg();
 
 		if (((com.thomsonreuters.upa.codec.StatusMsg)rsslMsg).checkHasState() &&  
 				((com.thomsonreuters.upa.codec.StatusMsg)rsslMsg).state().streamState() != StreamStates.OPEN) 
-			_event._item.remove();
+			_eventImpl._item.remove();
 
 		return ReactorCallbackReturnCodes.SUCCESS;
 	}
@@ -258,15 +311,15 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 	int processGenericMsg(Msg rsslMsg,  ChannelInfo channelInfo)
 	{
 		if (_genericMsg == null)
-			_genericMsg = new GenericMsgImpl(_consumer._objManager);
+			_genericMsg = new GenericMsgImpl(_baseImpl._objManager);
 
 		_genericMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
 		
-		if (_event._item.type() == Item.ItemType.BATCH_ITEM)
-			_event._item = ((BatchItem)_event._item).singleItem(rsslMsg.streamId());
+		if (_eventImpl._item.type() == Item.ItemType.BATCH_ITEM)
+			_eventImpl._item = ((BatchItem<T>)_eventImpl._item).singleItem(rsslMsg.streamId());
 		
-		_event._item.client().onAllMsg(_genericMsg, _event);
-		_event._item.client().onGenericMsg(_genericMsg, _event);
+		notifyOnAllMsg(_genericMsg);
+		notifyOnGenericMsg();
 
 		return ReactorCallbackReturnCodes.SUCCESS;
 	}
@@ -274,36 +327,24 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 	int processAckMsg(Msg rsslMsg,  ChannelInfo channelInfo)
 	{
 		if (_ackMsg == null)
-			_ackMsg = new AckMsgImpl(_consumer._objManager);
+			_ackMsg = new AckMsgImpl(_baseImpl._objManager);
 		
 		_ackMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
 
-		if (_event._item.type() == Item.ItemType.BATCH_ITEM)
-			_event._item = ((BatchItem)_event._item).singleItem(rsslMsg.streamId());
+		if (_eventImpl._item.type() == Item.ItemType.BATCH_ITEM)
+			_eventImpl._item = ((BatchItem<T>)_eventImpl._item).singleItem(rsslMsg.streamId());
 				
-		_ackMsg.service(_event._item.directory().serviceName());
+		_ackMsg.service(_eventImpl._item.directory().serviceName());
 
-		_event._item.client().onAllMsg(_ackMsg, _event);
-		_event._item.client().onAckMsg(_ackMsg, _event);
+		notifyOnAllMsg(_ackMsg);
+		notifyOnAckMsg();
 
 		return ReactorCallbackReturnCodes.SUCCESS;
 	}
 	
-	com.thomsonreuters.upa.codec.StatusMsg rsslStatusMsg()
+	@SuppressWarnings("unchecked")
+	long registerClient(ReqMsg reqMsg, T client, Object closure , long parentHandle)
 	{
-		if (_rsslStatusMsg == null)
-			_rsslStatusMsg = (StatusMsg)CodecFactory.createMsg();
-		else
-			_rsslStatusMsg.clear();
-		
-		return _rsslStatusMsg;
-	}
-
-	long registerClient(ReqMsg reqMsg, OmmConsumerClient consumerClient, Object closure , long parentHandle)
-	{
-		if (consumerClient == null)
-			consumerClient = _consumerClient;
-		
 		if (parentHandle == 0)
 		{
 			com.thomsonreuters.upa.codec.RequestMsg requestMsg = ((ReqMsgImpl)reqMsg).rsslMsg();
@@ -312,7 +353,7 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 			{
 				case DomainTypes.LOGIN :
 				{
-					SingleItem item = _consumer.loginCallbackClient().loginItem(reqMsg, consumerClient, closure);
+					SingleItem<T> item = _baseImpl.loginCallbackClient().loginItem(reqMsg, client, closure);
 
 					return addToMap(LongIdGenerator.nextLongId(), item);
 				}
@@ -321,21 +362,18 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 					int nameType = requestMsg.msgKey().nameType();
 					if ((nameType != InstrumentNameTypes.UNSPECIFIED) && (nameType != InstrumentNameTypes.RIC))
 					{
-						StringBuilder temp = _consumer.consumerStrBuilder();
+						StringBuilder temp = _baseImpl.strBuilder();
 						
 			        	temp.append("Invalid ReqMsg's name type : ")
 			        		.append(nameType)
-			        		.append(". OmmConsumer name='").append(_consumer .consumerName()).append("'.");
+			        		.append(". Instance name='").append(_baseImpl.instanceName()).append("'.");
 		
-			        	if (_consumer.loggerClient().isErrorEnabled())
+			        	if (_baseImpl.loggerClient().isErrorEnabled())
 			        	{
-			        		_consumer.loggerClient().error(_consumer.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+			        		_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
 			        	}
 
-						if (_consumer.hasConsumerErrorClient())
-							_consumer.consumerErrorClient().onInvalidUsage(temp.toString());
-						else
-							throw (_consumer.ommIUExcept().message(temp.toString()));
+						_baseImpl.handleInvalidUsage( temp.toString() );
 
 						return 0;
 					}
@@ -346,54 +384,48 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 
 						if (!(name.equals(DictionaryCallbackClient.DICTIONARY_RWFFID)) && !(name.equals(DictionaryCallbackClient.DICTIONARY_RWFENUM)))
 						{
-							StringBuilder temp = _consumer.consumerStrBuilder();
+							StringBuilder temp = _baseImpl.strBuilder();
 							
 				        	temp.append("Invalid ReqMsg's name : ")
 				        		.append(name)
 				        		.append("\nReqMsg's name must be \"RWFFld\" or \"RWFEnum\" for MMT_DICTIONARY domain type. ")
-								.append("OmmConsumer name='").append(_consumer .consumerName()).append("'.");
+								.append("Instance name='").append(_baseImpl.instanceName()).append("'.");
 
-				        	if (_consumer.loggerClient().isErrorEnabled())
+				        	if (_baseImpl.loggerClient().isErrorEnabled())
 				        	{
-				        		_consumer.loggerClient().error(_consumer.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+				        		_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
 				        	}
 
-							if (_consumer.hasConsumerErrorClient())
-								_consumer.consumerErrorClient().onInvalidUsage(temp.toString());
-							else
-								throw (_consumer.ommIUExcept().message(temp.toString()));
+				        	_baseImpl.handleInvalidUsage( temp.toString() );
 
 							return 0;
 						}
 					}
 					else
 					{
-						StringBuilder temp = _consumer.consumerStrBuilder();
+						StringBuilder temp = _baseImpl.strBuilder();
 						
 			        	temp.append("ReqMsg's name is not defined. ")
-							.append("OmmConsumer name='").append(_consumer .consumerName()).append("'.");
+							.append("Instance name='").append(_baseImpl.instanceName()).append("'.");
 
-			        	if (_consumer.loggerClient().isErrorEnabled())
+			        	if (_baseImpl.loggerClient().isErrorEnabled())
 			        	{
-			        		_consumer.loggerClient().error(_consumer.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+			        		_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
 			        	}
 
-						if (_consumer.hasConsumerErrorClient())
-							_consumer.consumerErrorClient().onInvalidUsage(temp.toString());
-						else
-							throw (_consumer.ommIUExcept().message(temp.toString()));
+			        	_baseImpl.handleInvalidUsage( temp.toString() );
 
 						return 0;
 					}
 
-					DictionaryItem item;
-					if ((item = (DictionaryItem)_consumer._objManager._dictionaryItemPool.poll()) == null)
+					DictionaryItem<T> item;
+					if ((item = (DictionaryItem<T>)_baseImpl._objManager._dictionaryItemPool.poll()) == null)
 					{
-						item = new DictionaryItem(_consumer, consumerClient, closure);
-						_consumer._objManager._dictionaryItemPool.updatePool(item);
+						item = new DictionaryItem<T>(_baseImpl, client, closure);
+						_baseImpl._objManager._dictionaryItemPool.updatePool(item);
 					}
 					else
-						item.reset(_consumer, consumerClient, closure, null);
+						item.reset(_baseImpl, client, closure, null);
 					
 					if (!item.open(reqMsg))
 					{
@@ -407,17 +439,17 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 				}
 				case DomainTypes.SOURCE :
 				{
-					List<ChannelInfo> channels = _consumer.channelCallbackClient().channelList();
+					List<ChannelInfo> channels = _baseImpl.channelCallbackClient().channelList();
 					for(ChannelInfo eachChannel : channels)
 					{
-						DirectoryItem item;
-						if ((item = (DirectoryItem)_consumer._objManager._directoryItemPool.poll()) == null)
+						DirectoryItem<T> item;
+						if ((item = (DirectoryItem<T>)_baseImpl._objManager._directoryItemPool.poll()) == null)
 						{
-							item = new DirectoryItem(_consumer, consumerClient, closure);
-							_consumer._objManager._directoryItemPool.updatePool(item);
+							item = new DirectoryItem<T>(_baseImpl, client, closure);
+							_baseImpl._objManager._directoryItemPool.updatePool(item);
 						}
 						else
-							item.reset(_consumer, consumerClient, closure, null);
+							item.reset(_baseImpl, client, closure, null);
 						item.channelInfo(eachChannel);
 						
 						if (!item.open(reqMsg))
@@ -438,21 +470,21 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 				{
 					if (requestMsg.checkHasBatch())
 					{
-						BatchItem batchItem;
-						if ((batchItem = (BatchItem)_consumer._objManager._batchItemPool.poll()) == null)
+						BatchItem<T> batchItem;
+						if ((batchItem = (BatchItem<T>)_baseImpl._objManager._batchItemPool.poll()) == null)
 						{
-							batchItem = new BatchItem(_consumer, consumerClient, closure);
-							_consumer._objManager._batchItemPool.updatePool(batchItem);
+							batchItem = new BatchItem<T>(_baseImpl, client, closure);
+							_baseImpl._objManager._batchItemPool.updatePool(batchItem);
 						}
 						else
-							batchItem.reset(_consumer, consumerClient, closure, null);
+							batchItem.reset(_baseImpl, client, closure, null);
 						
 							batchItem.addBatchItems( ((ReqMsgImpl)reqMsg).batchItemList().size() );
-							List<SingleItem> items = batchItem.singleItemList();
+							List<SingleItem<T>> items = batchItem.singleItemList();
 							int numOfItem = items.size();
 							if ( !batchItem.open( reqMsg ) )
 							{
-								SingleItem item;
+								SingleItem<T> item;
 								for ( int i = 1 ; i < numOfItem ; i++ )
 								{
 									item = items.get(i);
@@ -477,14 +509,14 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 					}
 					else
 					{
-						SingleItem item;
-						if ((item = (SingleItem)_consumer._objManager._singleItemPool.poll()) == null)
+						SingleItem<T> item;
+						if ((item = (SingleItem<T>)_baseImpl._objManager._singleItemPool.poll()) == null)
 						{
-							item = new SingleItem(_consumer, consumerClient, closure, null);
-							_consumer._objManager._singleItemPool.updatePool(item);
+							item = new SingleItem<T>(_baseImpl, client, closure, null);
+							_baseImpl._objManager._singleItemPool.updatePool(item);
 						}
 						else
-							item.reset(_consumer, consumerClient, closure, null);
+							item.reset(_baseImpl, client, closure, null);
 						
 						if (!item.open(reqMsg))
 						{
@@ -508,28 +540,25 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 		return 0;
 	}
 	
-	long registerClient(TunnelStreamRequest tunnelStreamReq, OmmConsumerClient consumerClient, Object closure)
+	long registerClient(TunnelStreamRequest tunnelStreamReq, T client, Object closure)
 	{
 		return 0;
 	}
 	
-	void reissue(ReqMsg reqMsg, long handle)
+	void reissue(com.thomsonreuters.ema.access.ReqMsg reqMsg, long handle)
 	{
-		Item item = _itemMap.get(_longObjHolder.value(handle));
+		Item<T> item = _itemMap.get(_longObjHolder.value(handle));
 		if (item == null)
 		{
-			StringBuilder temp = _consumer.consumerStrBuilder();
-			temp.append("Attempt to use invalid Handle on reissue(). ").append("OmmConsumer name='")
-					.append(_consumer.consumerName()).append("'.");
+			StringBuilder temp = _baseImpl.strBuilder();
+			temp.append("Attempt to use invalid Handle on reissue(). ").append("Instance name='")
+					.append(_baseImpl.instanceName()).append("'.");
 
-			if (_consumer.loggerClient().isErrorEnabled())
-				_consumer.loggerClient().error(
-						_consumer.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient().error(
+						_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-			if (_consumer.hasConsumerErrorClient())
-				_consumer.consumerErrorClient().onInvalidHandle(handle, temp.toString());
-			else
-				throw (_consumer.ommIHExcept().message(temp.toString(), handle));
+			_baseImpl.handleInvalidHandle(handle, temp.toString());
 
 			return;
 		}
@@ -539,28 +568,88 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 
 	void unregister(long handle)
 	{
-		Item item = _itemMap.get(_longObjHolder.value(handle));
+		Item<T> item = _itemMap.get(_longObjHolder.value(handle));
 		if (item != null)
 			item.close();
 	}
-
-	void submit(PostMsg postMsg, long handle)
+	
+	void submit(com.thomsonreuters.ema.access.RefreshMsg refreshMsg, long handle)
 	{
-		Item found = _itemMap.get(_longObjHolder.value(handle));
+		Item<T> found = _itemMap.get(_longObjHolder.value(handle));
 		if ( found == null )
 		{
-			StringBuilder temp = _consumer.consumerStrBuilder();
-			temp.append("Attempt to use invalid Handle on submit(PostMsg). ").append("OmmConsumer name='")
-					.append(_consumer.consumerName()).append("'.");
+			StringBuilder temp = _baseImpl.strBuilder();
+			temp.append("Attempt to use invalid Handle on submit(RefreshMsg). ").append("name='")
+					.append(_baseImpl.instanceName()).append("'.");
 
-			if (_consumer.loggerClient().isErrorEnabled())
-				_consumer.loggerClient().error(
-						_consumer.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient().error(
+						_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-			if (_consumer.hasConsumerErrorClient())
-				_consumer.consumerErrorClient().onInvalidHandle(handle, temp.toString());
-			else
-				throw (_consumer.ommIHExcept().message(temp.toString(), handle));
+			_baseImpl.handleInvalidHandle(handle, temp.toString());
+			
+			return;
+		}
+
+		found.submit( refreshMsg );
+	}
+	
+	void submit(com.thomsonreuters.ema.access.UpdateMsg updateMsg, long handle)
+	{
+		Item<T> found = _itemMap.get(_longObjHolder.value(handle));
+		if ( found == null )
+		{
+			StringBuilder temp = _baseImpl.strBuilder();
+			temp.append("Attempt to use invalid Handle on submit(UpdateMsg). ").append("name='")
+					.append(_baseImpl.instanceName()).append("'.");
+
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient().error(
+						_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+			_baseImpl.handleInvalidHandle(handle, temp.toString());
+			
+			return;
+		}
+
+		found.submit( updateMsg );
+	}
+	
+	void submit(com.thomsonreuters.ema.access.StatusMsg statusMsg, long handle)
+	{
+		Item<T> found = _itemMap.get(_longObjHolder.value(handle));
+		if ( found == null )
+		{
+			StringBuilder temp = _baseImpl.strBuilder();
+			temp.append("Attempt to use invalid Handle on submit(StatusMsg). ").append("name='")
+					.append(_baseImpl.instanceName()).append("'.");
+
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient().error(
+						_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+			_baseImpl.handleInvalidHandle(handle, temp.toString());
+			
+			return;
+		}
+
+		found.submit(statusMsg);
+	}
+
+	void submit(com.thomsonreuters.ema.access.PostMsg postMsg, long handle)
+	{
+		Item<T> found = _itemMap.get(_longObjHolder.value(handle));
+		if ( found == null )
+		{
+			StringBuilder temp = _baseImpl.strBuilder();
+			temp.append("Attempt to use invalid Handle on submit(PostMsg). ").append("Instance name='")
+					.append(_baseImpl.instanceName()).append("'.");
+
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient().error(
+						_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+			_baseImpl.handleInvalidHandle(handle, temp.toString());
 			
 			return;
 		}
@@ -568,23 +657,20 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 		found.submit( postMsg );
 	}
 
-	void submit(GenericMsg genericMsg, long handle)
+	void submit(com.thomsonreuters.ema.access.GenericMsg genericMsg, long handle)
 	{
-		Item found = _itemMap.get(_longObjHolder.value(handle));
+		Item<T> found = _itemMap.get(_longObjHolder.value(handle));
 		if ( found == null )
 		{
-			StringBuilder temp = _consumer.consumerStrBuilder();
-			temp.append("Attempt to use invalid Handle on submit(GenericMsg). ").append("OmmConsumer name='")
-					.append(_consumer.consumerName()).append("'.");
+			StringBuilder temp = _baseImpl.strBuilder();
+			temp.append("Attempt to use invalid Handle on submit(GenericMsg). ").append("Instance name='")
+					.append(_baseImpl.instanceName()).append("'.");
 
-			if (_consumer.loggerClient().isErrorEnabled())
-				_consumer.loggerClient().error(
-						_consumer.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient().error(
+						_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-			if (_consumer.hasConsumerErrorClient())
-				_consumer.consumerErrorClient().onInvalidHandle(handle, temp.toString());
-			else
-				throw (_consumer.ommIHExcept().message(temp.toString(), handle));
+			_baseImpl.handleInvalidHandle(handle, temp.toString());
 			
 			return;
 		}
@@ -598,50 +684,119 @@ class ItemCallbackClient extends ConsumerCallbackClient implements DefaultMsgCal
 	//	int processCallback(TunnelStream , TunnelStreamMsgEvent)
 	//	int processCallback(TunnelStream , TunnelStreamQueueMsgEvent)
 
-	long addToMap(long itemId, Item item)
+	long addToMap(long itemId, Item<T> item)
 	{
-		LongObject itemIdObj = _consumer._objManager.createLongObject().value(itemId);
+		LongObject itemIdObj = _baseImpl._objManager.createLongObject().value(itemId);
 		item.itemId(itemId, itemIdObj);
 		_itemMap.put(itemIdObj, item);
 		
-		if (_consumer.loggerClient().isTraceEnabled())
+		if (_baseImpl.loggerClient().isTraceEnabled())
 		{
-			StringBuilder temp = _consumer.consumerStrBuilder();
+			StringBuilder temp = _baseImpl.strBuilder();
 			temp.append("Added Item ").append(itemId).append(" to item map" ).append( OmmLoggerClient.CR )
-			.append( "OmmConsumer name " ).append( _consumer .consumerName() );
+			.append( "Instance name " ).append( _baseImpl .instanceName() );
 			
-			_consumer.loggerClient().trace(_consumer.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
+			_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
 		}
 		
 		return itemId;
 	}
 	
-	void removeFromMap(Item item)
+	Item<T> getItem(long handle)
 	{
-		if (_consumer.loggerClient().isTraceEnabled())
+		return _itemMap.get(_longObjHolder.value(handle));
+	}
+	
+	void removeFromMap(Item<T> item)
+	{
+		if (_baseImpl.loggerClient().isTraceEnabled())
 		{
-			StringBuilder temp = _consumer.consumerStrBuilder();
+			StringBuilder temp = _baseImpl.strBuilder();
 			temp.append("Removed Item ").append(item._itemId).append(" from item map" ).append( OmmLoggerClient.CR )
-			.append( "OmmConsumer name " ).append( _consumer .consumerName() );
+			.append( "Instance name " ).append( _baseImpl .instanceName() );
 			
-			_consumer.loggerClient().trace(_consumer.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
+			_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
 		}
 		
 		_itemMap.remove(item.itemIdObj());
 	}
+}
+
+class ItemCallbackClientConsumer extends ItemCallbackClient<OmmConsumerClient>
+{
+	ItemCallbackClientConsumer(OmmBaseImpl<OmmConsumerClient> baseImpl) {
+		super(baseImpl);
+	}
 	
-	com.thomsonreuters.upa.codec.CloseMsg rsslCloseMsg()
+	@Override
+	void notifyOnAllMsg(com.thomsonreuters.ema.access.Msg msg)
 	{
-		if (_rsslCloseMsg == null)
-			_rsslCloseMsg = (CloseMsg)CodecFactory.createMsg();
-		else
-			_rsslCloseMsg.clear();
-		
-		return _rsslCloseMsg;
+		_eventImpl._item.client().onAllMsg(msg, _eventImpl);
+	}
+	
+	@Override
+    void notifyOnRefreshMsg()
+	{
+		_eventImpl._item.client().onRefreshMsg(_refreshMsg, _eventImpl);
+	}
+	
+	@Override
+	void notifyOnUpdateMsg()
+	{
+		_eventImpl._item.client().onUpdateMsg(_updateMsg, _eventImpl);
+	}
+	
+	@Override
+	void notifyOnStatusMsg() 
+	{
+		_eventImpl._item.client().onStatusMsg(_statusMsg, _eventImpl);
+	}
+	
+	@Override
+	void notifyOnGenericMsg()
+	{
+		_eventImpl._item.client().onGenericMsg(_genericMsg, _eventImpl);
+	} 
+	
+	@Override
+	void notifyOnAckMsg()
+	{
+		_eventImpl._item.client().onAckMsg(_ackMsg, _eventImpl);
 	}
 }
 
-abstract class Item extends VaNode
+class ItemCallbackClientProvider extends ItemCallbackClient<OmmProviderClient>
+{
+	ItemCallbackClientProvider(OmmBaseImpl<OmmProviderClient> baseImpl) {
+		super(baseImpl);
+	}
+	
+	@Override
+	void notifyOnAllMsg(com.thomsonreuters.ema.access.Msg msg)
+	{
+		_eventImpl._item.client().onAllMsg(msg, _eventImpl);
+	}
+	
+	@Override
+    void notifyOnRefreshMsg()
+	{
+		_eventImpl._item.client().onRefreshMsg(_refreshMsg, _eventImpl);
+	}
+	
+	@Override
+	void notifyOnStatusMsg() 
+	{
+		_eventImpl._item.client().onStatusMsg(_statusMsg, _eventImpl);
+	}
+	
+	@Override
+	void notifyOnGenericMsg()
+	{
+		_eventImpl._item.client().onGenericMsg(_genericMsg, _eventImpl);
+	} 
+}
+
+abstract class Item<T> extends VaNode
 {
 	static final class ItemType
 	{
@@ -652,27 +807,27 @@ abstract class Item extends VaNode
 	int						_domainType;
 	int						_streamId;
 	Object					_closure;
-	Item					_parent;
-	OmmConsumerClient		_consumerClient;
-	OmmConsumerImpl			_consumer;
+	Item<T>					_parent;
+	T						_client;
+	OmmBaseImpl<T>			_baseImpl;
 	long 					_itemId;
 	LongObject _itemIdObj;
 
 	Item() {}
-	
-	Item(OmmConsumerImpl consumer, OmmConsumerClient consumerClient, Object closure, Item parent)
+
+	Item(OmmBaseImpl<T> baseImpl, T client, Object closure, Item<T> parent)
 	{
 		_domainType = 0;
 		_streamId = 0;
 		_closure = closure;
 		_parent = parent;
-		_consumerClient = consumerClient;
-		_consumer = consumer;
+		_baseImpl = baseImpl;
+		_client = client;
 	}
 
-	OmmConsumerClient client()
+	T client()
 	{
-		return _consumerClient;
+		return _client;
 	}
 	
 	Object closure()
@@ -680,14 +835,14 @@ abstract class Item extends VaNode
 		return _closure;
 	}
 	
-	Item parent()
+	Item<T> parent()
 	{
 		return _parent;
 	}
 	
-	OmmConsumerImpl consumer()
+	OmmBaseImpl<T> source()
 	{
-		return _consumer;
+		return _baseImpl;
 	}
 	
 	void itemId(long itemId, LongObject itemIdObj)
@@ -711,14 +866,14 @@ abstract class Item extends VaNode
 		return _itemIdObj;
 	}
 	
-	void reset(OmmConsumerImpl consumer, OmmConsumerClient consumerClient, Object closure, Item parent)
+	void reset(OmmBaseImpl<T> baseImpl, T client, Object closure, Item<T> parent)
 	{
 		_domainType = 0;
 		_streamId = 0;
 		_closure = closure;
 		_parent = parent;
-		_consumerClient = consumerClient;
-		_consumer = consumer;
+		_baseImpl = baseImpl;
+		_client = client;
 	}
 	
 	int streamId()
@@ -726,37 +881,38 @@ abstract class Item extends VaNode
 		return _streamId;
 	}
 	
-	
-	
-	abstract boolean open(ReqMsg reqMsg);
-	abstract boolean modify(ReqMsg reqMsg);
-	abstract boolean submit(PostMsg postMsg);
-	abstract boolean submit(GenericMsg genericMsg);
+	abstract boolean open(com.thomsonreuters.ema.access.ReqMsg reqMsg);
+	abstract boolean modify(com.thomsonreuters.ema.access.ReqMsg reqMsg);
+	abstract boolean submit(com.thomsonreuters.ema.access.RefreshMsg refreshMsg);
+	abstract boolean submit(com.thomsonreuters.ema.access.UpdateMsg updateMsg);
+	abstract boolean submit(com.thomsonreuters.ema.access.StatusMsg statusMsg);
+	abstract boolean submit(com.thomsonreuters.ema.access.PostMsg postMsg);
+	abstract boolean submit(com.thomsonreuters.ema.access.GenericMsg genericMsg);
 	abstract boolean close();
 	abstract void remove();
 	abstract int type();
 	abstract Directory directory();
 }
 
-class SingleItem extends Item
+class SingleItem<T> extends Item<T>
 {
 	private static final String 	CLIENT_NAME = "SingleItem";
 	
 	protected Directory	_directory;
-	protected ClosedStatusClient	_closedStatusClient;
+	protected ClosedStatusClient<T>		_closedStatusClient;
 	
 
 	SingleItem() {}
 	
-	SingleItem(OmmConsumerImpl consumer, OmmConsumerClient consumerClient, Object closure , Item batchItem)
+	SingleItem(OmmBaseImpl<T> baseImpl,T client, Object closure , Item<T> batchItem)
 	{
-		super(consumer, consumerClient, closure, batchItem);
+		super(baseImpl, client, closure, batchItem);
 	}
 	
 	@Override
-	void reset(OmmConsumerImpl consumer, OmmConsumerClient consumerClient, Object closure , Item batchItem)
+	void reset(OmmBaseImpl<T> baseImpl, T client, Object closure , Item<T> batchItem)
 	{
-		super.reset(consumer, consumerClient, closure, batchItem);
+		super.reset(baseImpl, client, closure, batchItem);
 		
 		_directory = null;
 	}
@@ -775,21 +931,21 @@ class SingleItem extends Item
 	}
 
 	@Override
-	boolean open(ReqMsg reqMsg)
+	boolean open(com.thomsonreuters.ema.access.ReqMsg reqMsg)
 	{
 		Directory directory = null;
 
 		if (reqMsg.hasServiceName())
 		{
-			directory = _consumer.directoryCallbackClient().directory(reqMsg.serviceName());
+			directory = _baseImpl.directoryCallbackClient().directory(reqMsg.serviceName());
 			if (directory == null)
 			{
-				StringBuilder temp = _consumer.consumerStrBuilder();
+				StringBuilder temp = _baseImpl.strBuilder();
 	        	temp.append("Service name of '")
 	        		.append(reqMsg.serviceName())
 	        		.append("' is not found.");
 
-	        	scheduleItemClosedStatus(_consumer.itemCallbackClient(),
+	        	scheduleItemClosedStatus(_baseImpl.itemCallbackClient(),
 											this, ((ReqMsgImpl)reqMsg).rsslMsg(), 
 											temp.toString(), reqMsg.serviceName());
 	        	
@@ -799,10 +955,10 @@ class SingleItem extends Item
 		else
 		{
 			if (reqMsg.hasServiceId())
-				directory = _consumer.directoryCallbackClient().directory(reqMsg.serviceId());
+				directory = _baseImpl.directoryCallbackClient().directory(reqMsg.serviceId());
 			else
 			{
-				scheduleItemClosedStatus(_consumer.itemCallbackClient(),
+				scheduleItemClosedStatus(_baseImpl.itemCallbackClient(),
 						this, ((ReqMsgImpl)reqMsg).rsslMsg(), 
 						"Passed in request message does not identify any service.",
 						null);
@@ -812,13 +968,13 @@ class SingleItem extends Item
 
 			if (directory == null)
 			{
-				StringBuilder temp = _consumer.consumerStrBuilder();
+				StringBuilder temp = _baseImpl.strBuilder();
 				
 	        	temp.append("Service id of '")
 	        		.append(reqMsg.serviceName())
 	        		.append("' is not found.");
 	        	
-	        	scheduleItemClosedStatus(_consumer.itemCallbackClient(),
+	        	scheduleItemClosedStatus(_baseImpl.itemCallbackClient(),
 						this, ((ReqMsgImpl)reqMsg).rsslMsg(), 
 						temp.toString(), null);
 	        	
@@ -828,36 +984,53 @@ class SingleItem extends Item
 
 		_directory = directory;
 
-		return submit(((ReqMsgImpl)reqMsg).rsslMsg());
+		return rsslSubmit(((ReqMsgImpl)reqMsg).rsslMsg());
 	}
 	
 	@Override
-	boolean modify(ReqMsg reqMsg)
+	boolean modify(com.thomsonreuters.ema.access.ReqMsg reqMsg)
 	{
-		return submit(((ReqMsgImpl) reqMsg).rsslMsg());
+		return rsslSubmit(((ReqMsgImpl) reqMsg).rsslMsg());
 	}
 
 	@Override
-	boolean submit(PostMsg postMsg)
+	boolean submit(com.thomsonreuters.ema.access.PostMsg postMsg)
 	{
-		return submit(((PostMsgImpl) postMsg).rsslMsg());
+		return rsslSubmit(((PostMsgImpl) postMsg).rsslMsg());
 	}
 
 	@Override
-	boolean submit(GenericMsg genericMsg)
+	boolean submit(com.thomsonreuters.ema.access.GenericMsg genericMsg)
 	{
-		return submit(((GenericMsgImpl) genericMsg).rsslMsg());
+		return rsslSubmit(((GenericMsgImpl) genericMsg).rsslMsg());
+	}
+	
+	@Override
+	boolean submit(com.thomsonreuters.ema.access.RefreshMsg refreshMsg) 
+	{
+		return rsslSubmit( ((RefreshMsgImpl)refreshMsg).rsslMsg());
+	}
+
+	@Override
+	boolean submit(com.thomsonreuters.ema.access.UpdateMsg updateMsg)
+	{
+		return rsslSubmit( ((UpdateMsgImpl)updateMsg).rsslMsg());
+	}
+
+	@Override
+	boolean submit(com.thomsonreuters.ema.access.StatusMsg statusMsg)
+	{
+		return rsslSubmit(((StatusMsgImpl)statusMsg).rsslMsg());
 	}
 	
 	@Override
 	boolean close()
 	{
-		CloseMsg rsslCloseMsg = _consumer.itemCallbackClient().rsslCloseMsg();
-		rsslCloseMsg.msgClass(MsgClasses.CLOSE);
+		CloseMsg rsslCloseMsg = _baseImpl.itemCallbackClient().rsslCloseMsg();
 		rsslCloseMsg.containerType(DataTypes.NO_DATA);
 		rsslCloseMsg.domainType(_domainType);
 
-		boolean retCode = submit(rsslCloseMsg);
+		boolean retCode = rsslSubmit(rsslCloseMsg);
 
 		remove();
 		return retCode;
@@ -871,10 +1044,10 @@ class SingleItem extends Item
 			if (_parent != null)
 			{
 				if (_parent.type() == ItemType.BATCH_ITEM)
-					((BatchItem)_parent).decreaseItemCount();
+					((BatchItem<T>)_parent).decreaseItemCount();
 			}
 			
-			_consumer.itemCallbackClient().removeFromMap(this);
+			_baseImpl.itemCallbackClient().removeFromMap(this);
 			this.itemIdObj().returnToPool();
 			this.returnStreamId();
 			this.returnToPool();
@@ -887,13 +1060,13 @@ class SingleItem extends Item
 			_directory.channelInfo().returnStreamId(_streamId);
 	}
 	
-	boolean submit(RequestMsg rsslRequestMsg)
+	boolean rsslSubmit(com.thomsonreuters.upa.codec.RequestMsg rsslRequestMsg)
 	{
-		ReactorSubmitOptions rsslSubmitOptions = _consumer.rsslSubmitOptions();
-		rsslSubmitOptions.clear();
+		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
+		rsslSubmitOptions.serviceName(null);
 		
-		int rsslFlags = rsslRequestMsg.msgKey().flags();
-		rsslRequestMsg.msgKey().flags(rsslFlags & ~MsgKeyFlags.HAS_SERVICE_ID);
+		if (!rsslRequestMsg.msgKey().checkHasServiceId() && _directory != null)
+			rsslSubmitOptions.serviceName(_directory.serviceName());
 
 		if (!rsslRequestMsg.checkHasQos())
 		{
@@ -907,11 +1080,8 @@ class SingleItem extends Item
 			rsslRequestMsg.worstQos().rateInfo(65535);
 		}	
 		
-		if (_consumer.activeConfig().channelConfig.msgKeyInUpdates)
+		if (_baseImpl.activeConfig().channelConfig.msgKeyInUpdates)
 			rsslRequestMsg.applyMsgKeyInUpdates();
-		
-		if (_directory != null)
-			rsslSubmitOptions.serviceName(_directory.serviceName());
 		
 		rsslSubmitOptions.requestMsgOptions().userSpecObj(this);
 		
@@ -921,13 +1091,13 @@ class SingleItem extends Item
 		{
 			if (rsslRequestMsg.checkHasBatch())
 			{
-				List<SingleItem> items = ((BatchItem)this).singleItemList();
+				List<SingleItem<T>> items = ((BatchItem<T>)this).singleItemList();
 				int numOfItem = items.size();
 
 				rsslRequestMsg.streamId(_directory.channelInfo().nextStreamId(numOfItem));
 				_streamId = rsslRequestMsg.streamId();
 				
-				SingleItem item;
+				SingleItem<T> item;
 				int itemStreamIdStart = _streamId;
 				for ( int index = 0; index < numOfItem; index++)
 				{
@@ -951,14 +1121,14 @@ class SingleItem extends Item
 		else
 			rsslRequestMsg.domainType(_domainType);
 		
-	    ReactorErrorInfo rsslErrorInfo = _consumer.rsslErrorInfo();
+	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();
 		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
 		int ret;
 		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslRequestMsg, rsslSubmitOptions, rsslErrorInfo)))
 	    {
-			StringBuilder temp = _consumer.consumerStrBuilder();
-			if (_consumer.loggerClient().isErrorEnabled())
+			StringBuilder temp = _baseImpl.strBuilder();
+			if (_baseImpl.loggerClient().isErrorEnabled())
         	{
 				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
 				
@@ -970,7 +1140,7 @@ class SingleItem extends Item
 	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
 	    			.append("Error Text ").append(error.text());
 	        	
-	        	_consumer.loggerClient().error(_consumer.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 	        	
 	        	temp.setLength(0);
         	}
@@ -980,10 +1150,7 @@ class SingleItem extends Item
 				.append(". Error text: ")
 				.append(rsslErrorInfo.error().text());
 				
-			if (_consumer.hasConsumerErrorClient())
-				_consumer.consumerErrorClient().onInvalidUsage(temp.toString());
-			else
-				throw (_consumer.ommIUExcept().message(temp.toString()));
+			_baseImpl.handleInvalidUsage(temp.toString());
 
 			return false;
 	    }
@@ -991,32 +1158,32 @@ class SingleItem extends Item
 		return true;
 	}
 
-	boolean submit(CloseMsg rsslCloseMsg)
+	boolean rsslSubmit(com.thomsonreuters.upa.codec.CloseMsg rsslCloseMsg)
 	{	
-		ReactorSubmitOptions rsslSubmitOptions = _consumer.rsslSubmitOptions();
-		rsslSubmitOptions.clear();
+		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
+		rsslSubmitOptions.serviceName(null);
 
 		rsslSubmitOptions.requestMsgOptions().userSpecObj(this);
 	
 		if (_streamId == 0)
 		{
-			if (_consumer.loggerClient().isErrorEnabled())
-	        	_consumer.loggerClient().error(_consumer.formatLogMessage(SingleItem.CLIENT_NAME,
+			if (_baseImpl.loggerClient().isErrorEnabled())
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME,
 	        									"Invalid streamId for this item in in SingleItem.submit(CloseMsg)",
 	        									Severity.ERROR));
 		}
 		else
 			rsslCloseMsg.streamId(_streamId);
 	
-		ReactorErrorInfo rsslErrorInfo = _consumer.rsslErrorInfo();
+		ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();
 		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
 		int ret;
 		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslCloseMsg, rsslSubmitOptions, rsslErrorInfo)))
 	    {
-			StringBuilder temp = _consumer.consumerStrBuilder();
+			StringBuilder temp = _baseImpl.strBuilder();
 			
-			if (_consumer.loggerClient().isErrorEnabled())
+			if (_baseImpl.loggerClient().isErrorEnabled())
 	    	{
 				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
 				
@@ -1028,7 +1195,7 @@ class SingleItem extends Item
 	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
 	    			.append("Error Text ").append(error.text());
 	        	
-	        	_consumer.loggerClient().error(_consumer.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 	        	
 	        	temp.setLength(0);
 	    	}
@@ -1038,10 +1205,8 @@ class SingleItem extends Item
 				.append(". Error text: ")
 				.append(rsslErrorInfo.error().text());
 				
-			if (_consumer.hasConsumerErrorClient())
-				_consumer.consumerErrorClient().onInvalidUsage(temp.toString());
-			else
-				throw (_consumer.ommIUExcept().message(temp.toString()));
+
+			_baseImpl.handleInvalidUsage(temp.toString());
 	
 			return false;
 	    }
@@ -1049,22 +1214,23 @@ class SingleItem extends Item
 		return true;
 	}
 
-	boolean submit(com.thomsonreuters.upa.codec.PostMsg rsslPostMsg)
+	boolean rsslSubmit(com.thomsonreuters.upa.codec.PostMsg rsslPostMsg)
 	{
-		ReactorSubmitOptions rsslSubmitOptions = _consumer.rsslSubmitOptions();
-		rsslSubmitOptions.clear();
+		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
+		rsslSubmitOptions.serviceName(null);
+		rsslSubmitOptions.requestMsgOptions().clear();
 		
 		rsslPostMsg.streamId(_streamId);
 		rsslPostMsg.domainType(_domainType);
 		
-	    ReactorErrorInfo rsslErrorInfo = _consumer.rsslErrorInfo();
+	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();
 		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
 		int ret;
 		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslPostMsg, rsslSubmitOptions, rsslErrorInfo)))
 	    {
-			StringBuilder temp = _consumer.consumerStrBuilder();
-			if (_consumer.loggerClient().isErrorEnabled())
+			StringBuilder temp = _baseImpl.strBuilder();
+			if (_baseImpl.loggerClient().isErrorEnabled())
         	{
 				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
 				
@@ -1076,7 +1242,7 @@ class SingleItem extends Item
 	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
 	    			.append("Error Text ").append(error.text());
 	        	
-	        	_consumer.loggerClient().error(_consumer.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 	        	
 	        	temp.setLength(0);
         	}
@@ -1086,10 +1252,8 @@ class SingleItem extends Item
 				.append(". Error text: ")
 				.append(rsslErrorInfo.error().text());
 				
-			if (_consumer.hasConsumerErrorClient())
-				_consumer.consumerErrorClient().onInvalidUsage(temp.toString());
-			else
-				throw (_consumer.ommIUExcept().message(temp.toString()));
+
+			_baseImpl.handleInvalidUsage(temp.toString());
 
 			return false;
 	    }
@@ -1097,22 +1261,23 @@ class SingleItem extends Item
 		return true;
 	}
 	
-	boolean submit(com.thomsonreuters.upa.codec.GenericMsg rsslGenericMsg)
+	boolean rsslSubmit(com.thomsonreuters.upa.codec.GenericMsg rsslGenericMsg)
 	{
-		ReactorSubmitOptions rsslSubmitOptions = _consumer.rsslSubmitOptions();
-		rsslSubmitOptions.clear();
+		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
+		rsslSubmitOptions.serviceName(null);
+		rsslSubmitOptions.requestMsgOptions().clear();
 		
 		rsslGenericMsg.streamId(_streamId);
 		rsslGenericMsg.domainType(_domainType);
 		
-	    ReactorErrorInfo rsslErrorInfo = _consumer.rsslErrorInfo();
+	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();
 		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
 		int ret;
 		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslGenericMsg, rsslSubmitOptions, rsslErrorInfo)))
 	    {
-			StringBuilder temp = _consumer.consumerStrBuilder();
-			if (_consumer.loggerClient().isErrorEnabled())
+			StringBuilder temp = _baseImpl.strBuilder();
+			if (_baseImpl.loggerClient().isErrorEnabled())
         	{
 				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
 				
@@ -1124,7 +1289,7 @@ class SingleItem extends Item
 	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
 	    			.append("Error Text ").append(error.text());
 	        	
-	        	_consumer.loggerClient().error(_consumer.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 	        	
 	        	temp.setLength(0);
         	}
@@ -1134,10 +1299,149 @@ class SingleItem extends Item
 				.append(". Error text: ")
 				.append(rsslErrorInfo.error().text());
 				
-			if (_consumer.hasConsumerErrorClient())
-				_consumer.consumerErrorClient().onInvalidUsage(temp.toString());
-			else
-				throw (_consumer.ommIUExcept().message(temp.toString()));
+
+			_baseImpl.handleInvalidUsage(temp.toString());
+
+			return false;
+	    }
+        
+		return true;
+	}
+	
+	boolean rsslSubmit(com.thomsonreuters.upa.codec.RefreshMsg rsslRefreshMsg)
+	{
+		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
+		rsslSubmitOptions.serviceName(null);
+		rsslSubmitOptions.requestMsgOptions().clear();
+		
+		rsslRefreshMsg.streamId(_streamId);
+		rsslRefreshMsg.domainType(_domainType);
+		
+	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
+		rsslErrorInfo.clear();
+		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
+		int ret;
+		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslRefreshMsg, rsslSubmitOptions, rsslErrorInfo)))
+	    {
+			StringBuilder temp = _baseImpl.strBuilder();
+			if (_baseImpl.loggerClient().isErrorEnabled())
+        	{
+				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
+				
+	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(RefreshMsg)")
+	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+	    			.append(OmmLoggerClient.CR)
+	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+	    			.append("Error Text ").append(error.text());
+	        	
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	
+	        	temp.setLength(0);
+        	}
+			
+			temp.append("Failed to submit RefreshMsg on item stream. Reason: ")
+				.append(ReactorReturnCodes.toString(ret))
+				.append(". Error text: ")
+				.append(rsslErrorInfo.error().text());
+				
+
+			_baseImpl.handleInvalidUsage(temp.toString());
+
+			return false;
+	    }
+        
+		return true;
+	}
+	
+	boolean rsslSubmit(com.thomsonreuters.upa.codec.UpdateMsg rsslUpateMsg)
+	{
+		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
+		rsslSubmitOptions.serviceName(null);
+		rsslSubmitOptions.requestMsgOptions().clear();
+		
+		rsslUpateMsg.streamId(_streamId);
+		rsslUpateMsg.domainType(_domainType);
+		
+	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
+		rsslErrorInfo.clear();
+		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
+		int ret;
+		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslUpateMsg, rsslSubmitOptions, rsslErrorInfo)))
+	    {
+			StringBuilder temp = _baseImpl.strBuilder();
+			if (_baseImpl.loggerClient().isErrorEnabled())
+        	{
+				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
+				
+	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(UpdateMsg)")
+	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+	    			.append(OmmLoggerClient.CR)
+	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+	    			.append("Error Text ").append(error.text());
+	        	
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	
+	        	temp.setLength(0);
+        	}
+			
+			temp.append("Failed to submit UpdateMsg on item stream. Reason: ")
+				.append(ReactorReturnCodes.toString(ret))
+				.append(". Error text: ")
+				.append(rsslErrorInfo.error().text());
+				
+
+			_baseImpl.handleInvalidUsage(temp.toString());
+
+			return false;
+	    }
+        
+		return true;
+	}
+	
+	boolean rsslSubmit(com.thomsonreuters.upa.codec.StatusMsg rsslStatusMsg)
+	{
+		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
+		rsslSubmitOptions.serviceName(null);
+		rsslSubmitOptions.requestMsgOptions().clear();
+		
+		rsslStatusMsg.streamId(_streamId);
+		rsslStatusMsg.domainType(_domainType);
+		
+	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
+		rsslErrorInfo.clear();
+		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
+		int ret;
+		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslStatusMsg, rsslSubmitOptions, rsslErrorInfo)))
+	    {
+			StringBuilder temp = _baseImpl.strBuilder();
+			if (_baseImpl.loggerClient().isErrorEnabled())
+        	{
+				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
+				
+	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(StatusMsg)")
+	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+	    			.append(OmmLoggerClient.CR)
+	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+	    			.append("Error Text ").append(error.text());
+	        	
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	
+	        	temp.setLength(0);
+        	}
+			
+			temp.append("Failed to submit StatusMsg on item stream. Reason: ")
+				.append(ReactorReturnCodes.toString(ret))
+				.append(". Error text: ")
+				.append(rsslErrorInfo.error().text());
+				
+
+			_baseImpl.handleInvalidUsage(temp.toString());
 
 			return false;
 	    }
@@ -1145,110 +1449,103 @@ class SingleItem extends Item
 		return true;
 	}
 		
-	ClosedStatusClient closedStatusClient(ConsumerCallbackClient client, Item item, Msg rsslMsg, String statusText, String serviceName)
+	ClosedStatusClient<T> closedStatusClient(CallbackClient<T> client, Item<T> item, Msg rsslMsg, String statusText, String serviceName)
 	{
 		if (_closedStatusClient == null)
-			_closedStatusClient = new ClosedStatusClient(client, item, rsslMsg, statusText, serviceName);
+			_closedStatusClient = new ClosedStatusClient<T>(client, item, rsslMsg, statusText, serviceName);
 		else
 			_closedStatusClient.reset(client, item, rsslMsg, statusText, serviceName);
 		
 		return _closedStatusClient;
 	}
 	
-	void scheduleItemClosedStatus(ConsumerCallbackClient client, Item item, Msg rsslMsg, String statusText, String serviceName)
+	void scheduleItemClosedStatus(CallbackClient<T> client, Item<T> item, Msg rsslMsg, String statusText, String serviceName)
 	{
 		if (_closedStatusClient != null) return;
     	
-		_closedStatusClient = new ClosedStatusClient(client, item, rsslMsg, statusText, serviceName);
-    	_consumer.addTimeoutEvent(1000, _closedStatusClient);
+		_closedStatusClient = new ClosedStatusClient<T>(client, item, rsslMsg, statusText, serviceName);
+    	_baseImpl.addTimeoutEvent(1000, _closedStatusClient);
 	}
 }
 
-class BatchItem extends SingleItem
+class BatchItem<T> extends SingleItem<T>
 {
 	private static final String 	CLIENT_NAME = "BatchItem";
 	
-	private List<SingleItem>		_singleItemList = new ArrayList<SingleItem>();
+	private List<SingleItem<T>>		_singleItemList = new ArrayList<>();
 	private  int	 _itemCount;
 	
 	BatchItem() {}
 			
-	BatchItem(OmmConsumerImpl consumer, OmmConsumerClient consumerClient, Object closure)
+	BatchItem(OmmBaseImpl<T> baseImpl, T client, Object closure)
 	{
-		super(consumer, consumerClient, closure, null);
+		super(baseImpl, client, closure, null);
 		
-		_singleItemList = new ArrayList<SingleItem>();
+		_singleItemList = new ArrayList<>();
 		_itemCount = 1;
 	}
 	
 	@Override
-	void reset(OmmConsumerImpl consumer, OmmConsumerClient consumerClient, Object closure, Item item)
+	void reset(OmmBaseImpl<T> baseImpl, T client, Object closure, Item<T> item)
 	{
-		super.reset(consumer, consumerClient, closure, null);
+		super.reset(baseImpl, client, closure, null);
 		
 		_singleItemList.clear();
 		_itemCount = 1;
 	}
 
 	@Override
-	boolean open(ReqMsg reqMsg)
+	boolean open(com.thomsonreuters.ema.access.ReqMsg reqMsg)
 	{
 		return super.open(reqMsg);
 	}
 	
 	@Override
-	boolean modify(ReqMsg reqMsg)
+	boolean modify(com.thomsonreuters.ema.access.ReqMsg reqMsg)
 	{
-		StringBuilder temp = _consumer.consumerStrBuilder();
-		temp.append("Invalid attempt to modify batch stream. ").append("OmmConsumer name='")
-				.append(_consumer.consumerName()).append("'.");
+		StringBuilder temp = _baseImpl.strBuilder();
+		temp.append("Invalid attempt to modify batch stream. ").append("Instance name='")
+				.append(_baseImpl.instanceName()).append("'.");
 
-		if (_consumer.loggerClient().isErrorEnabled())
-			_consumer.loggerClient()
-					.error(_consumer.formatLogMessage(BatchItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+		if (_baseImpl.loggerClient().isErrorEnabled())
+			_baseImpl.loggerClient()
+					.error(_baseImpl.formatLogMessage(BatchItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-		if (_consumer.hasConsumerErrorClient())
-			_consumer.consumerErrorClient().onInvalidUsage(temp.toString());
-		else
-			throw (_consumer.ommIUExcept().message(temp.toString()));
+
+		_baseImpl.handleInvalidUsage(temp.toString());
 
 		return false;
 	}
 
 	@Override
-	boolean submit(PostMsg postMsg)
+	boolean submit(com.thomsonreuters.ema.access.PostMsg postMsg)
 	{
-		StringBuilder temp = _consumer.consumerStrBuilder();
-		temp.append("Invalid attempt to submit PostMsg on batch stream. ").append("OmmConsumer name='")
-				.append(_consumer.consumerName()).append("'.");
+		StringBuilder temp = _baseImpl.strBuilder();
+		temp.append("Invalid attempt to submit PostMsg on batch stream. ").append("Instance name='")
+				.append(_baseImpl.instanceName()).append("'.");
 
-		if (_consumer.loggerClient().isErrorEnabled())
-			_consumer.loggerClient()
-					.error(_consumer.formatLogMessage(BatchItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+		if (_baseImpl.loggerClient().isErrorEnabled())
+			_baseImpl.loggerClient()
+					.error(_baseImpl.formatLogMessage(BatchItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-		if (_consumer.hasConsumerErrorClient())
-			_consumer.consumerErrorClient().onInvalidUsage(temp.toString());
-		else
-			throw (_consumer.ommIUExcept().message(temp.toString()));
+
+		_baseImpl.handleInvalidUsage(temp.toString());
 
 		return false;
 	}
 
 	@Override
-	boolean submit(GenericMsg genericMsg)
+	boolean submit(com.thomsonreuters.ema.access.GenericMsg genericMsg)
 	{
-		StringBuilder temp = _consumer.consumerStrBuilder();
-		temp.append("Invalid attempt to submit GenericMsg on batch stream. ").append("OmmConsumer name='")
-				.append(_consumer.consumerName()).append("'.");
+		StringBuilder temp = _baseImpl.strBuilder();
+		temp.append("Invalid attempt to submit GenericMsg on batch stream. ").append("Instance name='")
+				.append(_baseImpl.instanceName()).append("'.");
 
-		if (_consumer.loggerClient().isErrorEnabled())
-			_consumer.loggerClient()
-					.error(_consumer.formatLogMessage(BatchItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+		if (_baseImpl.loggerClient().isErrorEnabled())
+			_baseImpl.loggerClient()
+					.error(_baseImpl.formatLogMessage(BatchItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-		if (_consumer.hasConsumerErrorClient())
-			_consumer.consumerErrorClient().onInvalidUsage(temp.toString());
-		else
-			throw (_consumer.ommIUExcept().message(temp.toString()));
+		_baseImpl.handleInvalidUsage(temp.toString());
 
 		return false;
 	}
@@ -1256,18 +1553,16 @@ class BatchItem extends SingleItem
 	@Override
 	boolean close()
 	{
-		StringBuilder temp = _consumer.consumerStrBuilder();
-		temp.append("Invalid attempt to close batch stream. ").append("OmmConsumer name='")
-				.append(_consumer.consumerName()).append("'.");
+		StringBuilder temp = _baseImpl.strBuilder();
+		temp.append("Invalid attempt to close batch stream. ").append("Instance name='")
+				.append(_baseImpl.instanceName()).append("'.");
 
-		if (_consumer.loggerClient().isErrorEnabled())
-			_consumer.loggerClient()
-					.error(_consumer.formatLogMessage(BatchItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+		if (_baseImpl.loggerClient().isErrorEnabled())
+			_baseImpl.loggerClient()
+					.error(_baseImpl.formatLogMessage(BatchItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
-		if (_consumer.hasConsumerErrorClient())
-			_consumer.consumerErrorClient().onInvalidUsage(temp.toString());
-		else
-			throw (_consumer.ommIUExcept().message(temp.toString()));
+
+		_baseImpl.handleInvalidUsage(temp.toString());
 
 		return false;
 	}
@@ -1279,32 +1574,34 @@ class BatchItem extends SingleItem
 	
 	}
 	
-	SingleItem createSingleItem()
+	@SuppressWarnings("unchecked")
+	SingleItem<T> createSingleItem()
 	{
-		SingleItem item;
-		if ((item = (SingleItem)_consumer._objManager._singleItemPool.poll()) == null)
+		SingleItem<T> item;
+		if ((item = (SingleItem<T>)_baseImpl._objManager._singleItemPool.poll()) == null)
 		{
-			item = new SingleItem(_consumer, _consumerClient, 0, this);
-			_consumer._objManager._singleItemPool.updatePool(item);
+			item = new SingleItem<T>(_baseImpl, _client, 0, this);
+			_baseImpl._objManager._singleItemPool.updatePool(item);
 		}
 		else
-			item.reset(_consumer, _consumerClient, 0, this);
+			item.reset(_baseImpl, _client, 0, this);
 		
 		return item;
 	}
 	
+	@SuppressWarnings("unchecked")
 	void addBatchItems(int numOfItem )
 	{
-		SingleItem item;
+		SingleItem<T> item;
 		for( int i = 0 ; i < numOfItem ; i++ )
 		{
-			if ((item = (SingleItem)_consumer._objManager._singleItemPool.poll()) == null)
+			if ((item = (SingleItem<T>)_baseImpl._objManager._singleItemPool.poll()) == null)
 			{
-				item = new SingleItem(_consumer, _consumerClient, _closure, this);
-				_consumer._objManager._singleItemPool.updatePool(item);
+				item = new SingleItem<T>(_baseImpl, _client, _closure, this);
+				_baseImpl._objManager._singleItemPool.updatePool(item);
 			}
 			else
-				item.reset(_consumer, _consumerClient, _closure, this);
+				item.reset(_baseImpl, _client, _closure, this);
 			
 			_singleItemList.add( item );
 		}
@@ -1312,12 +1609,12 @@ class BatchItem extends SingleItem
 		_itemCount = numOfItem;
 	}
 	
-	List<SingleItem> singleItemList()
+	List<SingleItem<T>> singleItemList()
 	{
 		return _singleItemList;
 	}
 
-	SingleItem singleItem(int streamId)
+	SingleItem<T> singleItem(int streamId)
 	{
 		int index = streamId - _streamId;
 		if (index < 0)
@@ -1336,23 +1633,23 @@ class BatchItem extends SingleItem
 //TODO TunnelItem
 //TODO SubItem
 
-class ClosedStatusClient implements TimeoutClient
+class ClosedStatusClient<T> implements TimeoutClient
 {
 	private MsgKey 		_rsslMsgKey = CodecFactory.createMsgKey();
 	private Buffer 		_statusText =  CodecFactory.createBuffer();
 	private String 		_serviceName;
 	private int 		_domainType;
 	private int 		_streamId;
-	private Item 		_item;
+	private Item<T> 		_item;
 	private boolean 	_isPrivateStream; 
-	private ConsumerCallbackClient _client;
+	private CallbackClient<T> _client;
 	
-	ClosedStatusClient(ConsumerCallbackClient client, Item item, Msg rsslMsg, String statusText, String serviceName)
+	ClosedStatusClient(CallbackClient<T> client, Item<T> item, Msg rsslMsg, String statusText, String serviceName)
 	{
 		reset(client, item, rsslMsg, statusText, serviceName);
 	}
 	
-	void reset(ConsumerCallbackClient client, Item item, Msg rsslMsg, String statusText, String serviceName)
+	void reset(CallbackClient<T> client, Item<T> item, Msg rsslMsg, String statusText, String serviceName)
 	{
 		_client = client;
 		_item = item;
@@ -1389,7 +1686,6 @@ class ClosedStatusClient implements TimeoutClient
 	{
 		StatusMsg rsslStatusMsg = _client.rsslStatusMsg();
 
-		rsslStatusMsg.msgClass(MsgClasses.STATUS);
 		rsslStatusMsg.streamId(_streamId);
 		rsslStatusMsg.domainType(_domainType);
 		rsslStatusMsg.containerType(DataTypes.NO_DATA);
@@ -1407,17 +1703,17 @@ class ClosedStatusClient implements TimeoutClient
 			rsslStatusMsg.applyPrivateStream();
 
 		if (_client._statusMsg == null)
-			_client._statusMsg = new StatusMsgImpl(_client._consumer._objManager);
+			_client._statusMsg = new StatusMsgImpl(_client._baseImpl._objManager);
 		
 		_client._statusMsg.decode(rsslStatusMsg, Codec.majorVersion(), Codec.majorVersion(), null);
 
 		_client._statusMsg.service(_serviceName);
 
-		_client._event._item = _item;
+		_client._eventImpl._item = _item;
+		
+		_client.notifyOnAllMsg(_client._statusMsg);
+		_client.notifyOnStatusMsg();
 
-		_client._event._item.client().onAllMsg(_client._statusMsg, _client._event);
-		_client._event._item.client().onStatusMsg(_client._statusMsg, _client._event);
-
-		_client._event._item.remove();
+		_client._eventImpl._item.remove();
 	}
 }

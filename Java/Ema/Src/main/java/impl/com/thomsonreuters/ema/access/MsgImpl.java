@@ -810,25 +810,28 @@ class MsgImpl extends DataImpl implements Msg
 		_serviceNameSet = false;
 		_serviceName = null;
 		
-		if (_rsslMsg != null)
+		if (_objManager == null)
 		{
-			_rsslMsg.clear(); 
-			_rsslMsg.msgClass(Utilities.toRsslMsgClass[_dataType]);
-			_rsslMsg.domainType(DomainTypes.MARKET_PRICE);
-			_rsslMsg.containerType(com.thomsonreuters.upa.codec.DataTypes.NO_DATA);
+			if (_rsslMsg != null)
+			{
+				_rsslMsg.clear(); 
+				_rsslMsg.msgClass(Utilities.toRsslMsgClass[_dataType]);
+				_rsslMsg.domainType(DomainTypes.MARKET_PRICE);
+				_rsslMsg.containerType(com.thomsonreuters.upa.codec.DataTypes.NO_DATA);
+			}
+			
+			_encodeComplete = false;
+			
+			_rsslEncodeIter.clear();
+			ByteBuffer data = _rsslBuffer.data();
+			if (data != null)
+			{
+				data.clear();
+				_rsslBuffer.data(data);
+			}
+			else
+				_rsslBuffer.clear();
 		}
-		
-		_encodeComplete = false;
-		
-		_rsslEncodeIter.clear();
-		ByteBuffer data = _rsslBuffer.data();
-		if (data != null)
-		{
-			data.clear();
-			_rsslBuffer.data(data);
-		}
-		else
-			_rsslBuffer.clear();
 	}
 	
 	Buffer encodedData() 

@@ -12,7 +12,6 @@ import com.thomsonreuters.ema.access.AckMsg;
 import com.thomsonreuters.ema.access.Data.DataCode;
 import com.thomsonreuters.ema.access.DataType;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.ema.access.ElementList;
 import com.thomsonreuters.ema.access.FieldList;
@@ -59,6 +58,8 @@ abstract class EntryImpl extends VaNode
 	private StringBuilder _errorString;
 	protected DataImpl 	_load;
 	protected StringBuilder	_toString = new StringBuilder();
+	protected int _previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.UNKNOWN;
+	protected Object _entryData;
 	
 	EntryImpl() {}
 	
@@ -649,17 +650,32 @@ abstract class EntryImpl extends VaNode
 	
 	Object dateTimeValue(int year, int month, int day, int hour, int minute, int second,	int millisecond, int microsecond, int nanosecond)
 	{
-		DateTime cacheEntryData = CodecFactory.createDateTime();
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.DateTime)cacheEntryData).year(year) ||
-				CodecReturnCodes.SUCCESS !=  ((com.thomsonreuters.upa.codec.DateTime)cacheEntryData).month(month) || 
-				CodecReturnCodes.SUCCESS !=  ((com.thomsonreuters.upa.codec.DateTime)cacheEntryData).day(day) ||
-				CodecReturnCodes.SUCCESS !=  ((com.thomsonreuters.upa.codec.DateTime)cacheEntryData).hour(hour) ||
-				CodecReturnCodes.SUCCESS !=  ((com.thomsonreuters.upa.codec.DateTime)cacheEntryData).minute(minute) || 
-				CodecReturnCodes.SUCCESS !=  ((com.thomsonreuters.upa.codec.DateTime)cacheEntryData).second(second) ||
-				CodecReturnCodes.SUCCESS !=  ((com.thomsonreuters.upa.codec.DateTime)cacheEntryData).millisecond(millisecond) || 
-				CodecReturnCodes.SUCCESS !=  ((com.thomsonreuters.upa.codec.DateTime)cacheEntryData).microsecond(microsecond) || 
-				CodecReturnCodes.SUCCESS !=  ((com.thomsonreuters.upa.codec.DateTime)cacheEntryData).nanosecond(nanosecond) || 
-				!((com.thomsonreuters.upa.codec.DateTime)cacheEntryData).isValid())
+		DateTime cacheEntryData; 
+		
+		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.DATETIME )
+		{
+			GlobalPool.lock();
+			GlobalPool.returnPool(_previousEncodingType, _entryData);
+			cacheEntryData = GlobalPool.getDateTime();
+			GlobalPool.unlock();
+			
+			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.DATETIME;
+		}
+		else
+		{
+			cacheEntryData = (DateTime)_entryData;
+		}
+		
+		if (CodecReturnCodes.SUCCESS != (cacheEntryData).year(year) ||
+				CodecReturnCodes.SUCCESS !=  (cacheEntryData).month(month) || 
+				CodecReturnCodes.SUCCESS !=  (cacheEntryData).day(day) ||
+				CodecReturnCodes.SUCCESS !=  (cacheEntryData).hour(hour) ||
+				CodecReturnCodes.SUCCESS !=  (cacheEntryData).minute(minute) || 
+				CodecReturnCodes.SUCCESS !=  (cacheEntryData).second(second) ||
+				CodecReturnCodes.SUCCESS !=  (cacheEntryData).millisecond(millisecond) || 
+				CodecReturnCodes.SUCCESS !=  (cacheEntryData).microsecond(microsecond) || 
+				CodecReturnCodes.SUCCESS !=  (cacheEntryData).nanosecond(nanosecond) || 
+				!(cacheEntryData).isValid())
 		{
 			String errText = errorString().append("Attempt to specify invalid time. Passed in value is='" )
 																			.append( month ).append( " / " )
@@ -679,11 +695,27 @@ abstract class EntryImpl extends VaNode
 	
 	Object dateValue(int year, int month, int day)
 	{
-		Date  cacheEntryData = CodecFactory.createDate();
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Date)cacheEntryData).year(year) || 
-				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Date)cacheEntryData).month(month) || 
-				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Date)cacheEntryData).day(day) || 
-				!((com.thomsonreuters.upa.codec.Date)cacheEntryData).isValid())
+		Date  cacheEntryData;
+		
+		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.DATE )
+		{
+			GlobalPool.lock();
+			GlobalPool.returnPool(_previousEncodingType, _entryData);
+			cacheEntryData = GlobalPool.getDate();
+			GlobalPool.unlock();
+			
+			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.DATE;
+		}
+		else
+		{
+			cacheEntryData = (Date)_entryData;
+		}
+		
+		
+		if (CodecReturnCodes.SUCCESS != (cacheEntryData).year(year) || 
+				CodecReturnCodes.SUCCESS != (cacheEntryData).month(month) || 
+				CodecReturnCodes.SUCCESS != (cacheEntryData).day(day) || 
+				!(cacheEntryData).isValid())
 		{
 			String errText = errorString().append("Attempt to specify invalid date. Passed in value is='" )
 										.append( month ).append( " / " )
@@ -697,14 +729,29 @@ abstract class EntryImpl extends VaNode
 	
 	Object  timeValue(int hour, int minute, int second, int millisecond, int microsecond, int nanosecond)
 	{
-		Time cacheEntryData = CodecFactory.createTime();
-		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Time)cacheEntryData).hour(hour) ||
-				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Time)cacheEntryData).minute(minute) || 
-				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Time)cacheEntryData).second(second) || 
-				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Time)cacheEntryData).millisecond(millisecond) ||
-				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Time)cacheEntryData).microsecond(microsecond) || 
-				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Time)cacheEntryData).nanosecond(nanosecond) || 
-				!((com.thomsonreuters.upa.codec.Time)cacheEntryData).isValid() )
+		Time cacheEntryData;
+		
+		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.TIME )
+		{
+			GlobalPool.lock();
+			GlobalPool.returnPool(_previousEncodingType, _entryData);
+			cacheEntryData = GlobalPool.getTime();
+			GlobalPool.unlock();
+			
+			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.TIME;
+		}
+		else
+		{
+			cacheEntryData = (Time)_entryData;
+		}
+		
+		if (CodecReturnCodes.SUCCESS != (cacheEntryData).hour(hour) ||
+				CodecReturnCodes.SUCCESS != (cacheEntryData).minute(minute) || 
+				CodecReturnCodes.SUCCESS != (cacheEntryData).second(second) || 
+				CodecReturnCodes.SUCCESS != (cacheEntryData).millisecond(millisecond) ||
+				CodecReturnCodes.SUCCESS != (cacheEntryData).microsecond(microsecond) || 
+				CodecReturnCodes.SUCCESS != (cacheEntryData).nanosecond(nanosecond) || 
+				!(cacheEntryData).isValid() )
 		{
 			String errText = errorString().append("Attempt to specify invalid time. Passed in value is='" )
 																			.append( hour ).append( ":" )
@@ -721,11 +768,26 @@ abstract class EntryImpl extends VaNode
 
 	Object stateValue(int streamState, int dataState, int statusCode, String statusText)
     {
-        State cacheEntryData = CodecFactory.createState();
-        if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)cacheEntryData).streamState(streamState) ||
-                CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)cacheEntryData).dataState(dataState) ||
-                CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)cacheEntryData).code(statusCode) || 
-                CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)cacheEntryData).text().data(statusText))
+        State cacheEntryData;
+        
+        if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.STATE )
+		{
+			GlobalPool.lock();
+			GlobalPool.returnPool(_previousEncodingType, _entryData);
+			cacheEntryData = GlobalPool.getState();
+			GlobalPool.unlock();
+			
+			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.STATE;
+		}
+		else
+		{
+			cacheEntryData = (State)_entryData;
+		}
+        
+        if (CodecReturnCodes.SUCCESS != (cacheEntryData).streamState(streamState) ||
+                CodecReturnCodes.SUCCESS != (cacheEntryData).dataState(dataState) ||
+                CodecReturnCodes.SUCCESS != (cacheEntryData).code(statusCode) || 
+                CodecReturnCodes.SUCCESS != (cacheEntryData).text().data(statusText))
         {
             String errText = errorString().append("Attempt to specify invalid state. Passed in value is='" )
                 .append( streamState ).append( " / " )

@@ -78,15 +78,17 @@ class EmaObjectManager
 	VaPool _mapEntryPool = new VaPool(false);
 	VaPool _seriesEntryPool = new VaPool(false);
 	VaPool _vectorEntryPool = new VaPool(false);
+	VaPool _ommServiceIdIntegerPool = new VaPool(true);
+	VaPool _streamInfoPool = new VaPool(true);
 	
-	void initialize()
+	<T> void initialize()
 	{
 		if (_intialized)
 			return;
-
+		
 		_intialized = true;
-
 		NoDataImpl load;
+		
 		for (int index = 0; index < DATA_POOL_INITIAL_SIZE; ++index)
 		{
 			_ommIntPool.add(new OmmIntImpl());
@@ -111,8 +113,8 @@ class EmaObjectManager
 			_noDataPool.add(new NoDataImpl());
 			_ommErrorPool.add(new OmmErrorImpl());
 
-			_singleItemPool.add(new SingleItem());
-			_batchItemPool.add(new BatchItem());
+			_singleItemPool.add(new SingleItem<T>());
+			_batchItemPool.add(new BatchItem<T>());
 			_longObjectPool.add(new LongObject());
 			
 			_timeoutEventPool.add(new TimeoutEvent(0, null));

@@ -105,7 +105,7 @@ class ConfigErrorTracker
 		System.out.println("==============================================");
 	}
 	
-	void log(OmmConsumerImpl consumer, Logger loggerClient)
+	<T> void log(OmmBaseImpl<T> ommBaseImpl, Logger loggerClient)
 	{
 		if(_errorList.size() == 0 )
 			return;
@@ -116,27 +116,27 @@ class ConfigErrorTracker
 			{
 			case OmmLoggerClient.Severity.DEBUG:
 				if (loggerClient.isDebugEnabled())
-					loggerClient.debug(consumer.formatLogMessage("EmaConfig", error.text, Severity.DEBUG));
+					loggerClient.debug(ommBaseImpl.formatLogMessage("EmaConfig", error.text, Severity.DEBUG));
 				break;
 			case OmmLoggerClient.Severity.TRACE:
 				if (loggerClient.isTraceEnabled())
-					loggerClient.trace(consumer.formatLogMessage("EmaConfig", error.text, Severity.TRACE));
+					loggerClient.trace(ommBaseImpl.formatLogMessage("EmaConfig", error.text, Severity.TRACE));
 				break;
 			case OmmLoggerClient.Severity.INFO:
 				if (loggerClient.isInfoEnabled())
-					loggerClient.info(consumer.formatLogMessage("EmaConfig", error.text, Severity.INFO));
+					loggerClient.info(ommBaseImpl.formatLogMessage("EmaConfig", error.text, Severity.INFO));
 				break;
 			case OmmLoggerClient.Severity.WARNING:
 				if (loggerClient.isWarnEnabled())
-					loggerClient.warn(consumer.formatLogMessage("EmaConfig", error.text, Severity.WARNING));
+					loggerClient.warn(ommBaseImpl.formatLogMessage("EmaConfig", error.text, Severity.WARNING));
 				break;
 			case OmmLoggerClient.Severity.ERROR:
 				if (loggerClient.isErrorEnabled())
-					loggerClient.error(consumer.formatLogMessage("EmaConfig", error.text, Severity.ERROR));
+					loggerClient.error(ommBaseImpl.formatLogMessage("EmaConfig", error.text, Severity.ERROR));
 				break;
 			default:
 				if (loggerClient.isErrorEnabled())
-					loggerClient.error(consumer.formatLogMessage("EmaConfig", "Invalid error level", Severity.ERROR));
+					loggerClient.error(ommBaseImpl.formatLogMessage("EmaConfig", "Invalid error level", Severity.ERROR));
 			}
 		}
 	}

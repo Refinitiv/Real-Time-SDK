@@ -17,7 +17,6 @@ import com.thomsonreuters.upa.codec.CodecReturnCodes;
 class ElementEntryImpl extends EntryImpl implements ElementEntry
 {
 	protected com.thomsonreuters.upa.codec.ElementEntry	_rsslElementEntry;
-	protected Object _entryData;
 	
 	ElementEntryImpl() 
 	{
@@ -159,7 +158,16 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 	{
 		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.INT);
 
-		_entryData = CodecFactory.createInt();
+		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.INT )
+		{
+			GlobalPool.lock();
+			GlobalPool.returnPool(_previousEncodingType, _entryData);
+			_entryData = GlobalPool.getInt();
+			GlobalPool.unlock();
+			
+			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.INT;
+		}
+		
 		((com.thomsonreuters.upa.codec.Int)_entryData).value(value);
 		
 		return this;
@@ -170,7 +178,16 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 	{
 		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.UINT);
 
-		_entryData = CodecFactory.createUInt();
+		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.UINT )
+		{
+			GlobalPool.lock();
+			GlobalPool.returnPool(_previousEncodingType, _entryData);
+			_entryData = GlobalPool.getUInt();
+			GlobalPool.unlock();
+			
+			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.UINT;
+		}
+		
 		((com.thomsonreuters.upa.codec.UInt)_entryData).value(value) ;
 		
 		return this;
@@ -181,7 +198,16 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 	{
 		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.UINT);
 
-		_entryData = CodecFactory.createUInt();
+		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.UINT )
+		{
+			GlobalPool.lock();
+			GlobalPool.returnPool(_previousEncodingType, _entryData);
+			_entryData = GlobalPool.getUInt();
+			GlobalPool.unlock();
+			
+			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.UINT;
+		}
+		
 		((com.thomsonreuters.upa.codec.UInt)_entryData).value(value) ;
 		
 		return this;
@@ -192,7 +218,16 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 	{
 		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.REAL);
 
-		_entryData = CodecFactory.createReal();
+		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.REAL )
+		{
+			GlobalPool.lock();
+			GlobalPool.returnPool(_previousEncodingType, _entryData);
+			_entryData = GlobalPool.getReal();
+			GlobalPool.unlock();
+			
+			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.REAL;
+		}
+		
 		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_entryData).value(mantissa, magnitudeType) )
 		{
 			String errText = errorString().append("Attempt to specify invalid real value. Passed mantissa, magnitudeType are='" )
@@ -215,7 +250,16 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 	{
 		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.REAL);
 
-		_entryData = CodecFactory.createReal();
+		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.REAL )
+		{
+			GlobalPool.lock();
+			GlobalPool.returnPool(_previousEncodingType, _entryData);
+			_entryData = GlobalPool.getReal();
+			GlobalPool.unlock();
+			
+			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.REAL;
+		}
+		
 		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_entryData).value(value, magnitudeType) )
 		{
 			String errText = errorString().append("Attempt to specify invalid real value. Passed in value,  magnitudeType are='" )
@@ -232,7 +276,16 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 	{
 		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.FLOAT);
 
-		_entryData = CodecFactory.createFloat();
+		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.FLOAT )
+		{
+			GlobalPool.lock();
+			GlobalPool.returnPool(_previousEncodingType, _entryData);
+			_entryData = GlobalPool.getFloat();
+			GlobalPool.unlock();
+			
+			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.FLOAT;
+		}
+		
 		((com.thomsonreuters.upa.codec.Float)_entryData).value(value);
 		
 		return this;
@@ -243,7 +296,16 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 	{
 		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.DOUBLE);
 
-		_entryData = CodecFactory.createDouble();
+		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.DOUBLE )
+		{
+			GlobalPool.lock();
+			GlobalPool.returnPool(_previousEncodingType, _entryData);
+			_entryData = GlobalPool.getDouble();
+			GlobalPool.unlock();
+			
+			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.DOUBLE;
+		}
+		
 		((com.thomsonreuters.upa.codec.Double)_entryData).value(value);
 		
 		return this;
@@ -354,7 +416,16 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 	{
 		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.QOS);
 
-		_entryData = CodecFactory.createQos();
+		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.QOS )
+		{
+			GlobalPool.lock();
+			GlobalPool.returnPool(_previousEncodingType, _entryData);
+			_entryData = GlobalPool.getQos();
+			GlobalPool.unlock();
+			
+			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.QOS;
+		}
+		
 		Utilities.toRsslQos(rate, timeliness, (com.thomsonreuters.upa.codec.Qos)_entryData);
 		
 		return this;
@@ -393,7 +464,16 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 	{
 		entryValue(name, com.thomsonreuters.upa.codec.DataTypes.ENUM);
 
-		_entryData = CodecFactory.createEnum();
+		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.ENUM )
+		{
+			GlobalPool.lock();
+			GlobalPool.returnPool(_previousEncodingType, _entryData);
+			_entryData = GlobalPool.getEnum();
+			GlobalPool.unlock();
+			
+			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.ENUM; 
+		}
+		
 		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Enum)_entryData).value(value) )
 		{
 			String errText = errorString().append("Attempt to specify invalid enum. Passed in value is='" )
@@ -412,7 +492,16 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 		if (value == null)
 			throw ommIUExcept().message("Passed in value is null");
 		
-		_entryData = CodecFactory.createBuffer();
+		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.BUFFER )
+		{
+			GlobalPool.lock();
+			GlobalPool.returnPool(_previousEncodingType, _entryData);
+			_entryData = GlobalPool.getBuffer();
+			GlobalPool.unlock();
+			
+			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.BUFFER;
+		}
+		
 		Utilities.copy(value, (Buffer)_entryData);
 		
 		return this;
@@ -426,7 +515,16 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 		if (value == null)
 			throw ommIUExcept().message("Passed in value is null");
 		
-		_entryData = CodecFactory.createBuffer();
+		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.BUFFER )
+		{
+			GlobalPool.lock();
+			GlobalPool.returnPool(_previousEncodingType, _entryData);
+			_entryData = GlobalPool.getBuffer();
+			GlobalPool.unlock();
+			
+			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.BUFFER;
+		}
+		
 		((Buffer)_entryData).data(value);
 		
 		return this;
@@ -440,7 +538,16 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 		if (value == null)
 			throw ommIUExcept().message("Passed in value is null");
 		
-		_entryData = CodecFactory.createBuffer();
+		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.BUFFER )
+		{
+			GlobalPool.lock();
+			GlobalPool.returnPool(_previousEncodingType, _entryData);
+			_entryData = GlobalPool.getBuffer();
+			GlobalPool.unlock();
+			
+			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.BUFFER;
+		}
+		
 		Utilities.copy(value, (Buffer)_entryData);
 
 		return this;
@@ -454,7 +561,16 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 		if (value == null)
 			throw ommIUExcept().message("Passed in value is null");
 		
-		_entryData = CodecFactory.createBuffer();
+		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.BUFFER )
+		{
+			GlobalPool.lock();
+			GlobalPool.returnPool(_previousEncodingType, _entryData);
+			_entryData = GlobalPool.getBuffer();
+			GlobalPool.unlock();
+			
+			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.BUFFER;
+		}
+		
 		((Buffer)_entryData).data(value);
 		
 		return this;
@@ -468,7 +584,16 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 		if (value == null)
 			throw ommIUExcept().message("Passed in value is null");
 		
-		_entryData = CodecFactory.createBuffer();
+		if ( _previousEncodingType != com.thomsonreuters.upa.codec.DataTypes.BUFFER )
+		{
+			GlobalPool.lock();
+			GlobalPool.returnPool(_previousEncodingType, _entryData);
+			_entryData = GlobalPool.getBuffer();
+			GlobalPool.unlock();
+			
+			_previousEncodingType = com.thomsonreuters.upa.codec.DataTypes.BUFFER;
+		}
+		
 		Utilities.copy(value, (Buffer)_entryData);
 		
 		return this;

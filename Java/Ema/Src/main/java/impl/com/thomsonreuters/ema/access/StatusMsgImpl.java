@@ -295,6 +295,11 @@ class StatusMsgImpl extends MsgImpl implements StatusMsg
 		return toString(0);
 	}
 	
+	com.thomsonreuters.upa.codec.StatusMsg rsslMsg()
+	{
+		return ((_rsslEncodeIter != null) ? (com.thomsonreuters.upa.codec.StatusMsg)(_rsslMsg) : null);
+	}
+	
 	String toString(int indent)
 	{
 		_toString.setLength(0);
@@ -373,7 +378,7 @@ class StatusMsgImpl extends MsgImpl implements StatusMsg
 				_toString.append(attribData().toString(indent));
 				indent--;
 
-				Utilities.addIndent(_toString, indent, true).append("AttribEnd");
+				Utilities.addIndent(_toString, indent, false).append("AttribEnd");
 				indent--;
 			}
 		}

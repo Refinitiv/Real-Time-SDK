@@ -327,7 +327,19 @@ public class EmaRdm
 	   * Service down, Service not accepting requests, or link down
 	   */
 	  public static final int SERVICE_NO	= 0;
-	
+	  
+	 
+	//Service state
+	  /**
+	   * Service up
+	   */
+	  public static final int SERVICE_UP = 1;
+	  
+	  /**
+	   * Service down
+	   */
+	  public static final int SERVICE_DOWN = 0;
+	  
 	  
 	//Service Link Types
 	//Service link type describes type of a link from which a service is sourced.
