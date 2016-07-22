@@ -8,14 +8,14 @@
     <i t="Acronyms and Abbreviations" l="5" />
     <i t="References" l="6" />
     <i t="Conventions" l="7">
-      <i t="Typographic and Syntax" l="7#pID0E0A40HA" />
+      <i t="Typographic and Syntax" l="7#pID0E0630HA" />
       <i t="Definitions" l="8" />
     </i>
   </i>
   <i t="Chapter 2 Domain Model Overview" l="9">
     <i t="Introduction" l="10" />
     <i t="Reuters Domain Models VS User Defined Model" l="11">
-      <i t="Reuters Domain Models (RDMs)" l="11#pID0E0M30HA" />
+      <i t="Reuters Domain Models (RDMs)" l="11#pID0E0L30HA" />
       <i t="User-Defined Domain Model" l="12" />
       <i t="Domain Message Model Creation" l="13" />
     </i>
