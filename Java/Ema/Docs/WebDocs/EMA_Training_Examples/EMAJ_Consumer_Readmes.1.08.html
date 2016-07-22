@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>130__MarketPrice__UserDisp</title>
+    <link rel="StyleSheet" href="css/EMAJ_Consumer_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3_NoNum"><a name="1017950">130__MarketPrice__UserDisp</a></div>
+      <div class="Body"><a name="1030919">Summary</a></div>
+      <div class="Body"><a name="1030920">=======</a></div>
+      <div class="Body"><a name="1030921">&nbsp;</a></div>
+      <div class="Body"><a name="1030922">example130__MarketPrice__UserDisp is provided as an example of an OMM Consumer </a></div>
+      <div class="Body"><a name="1030923">application that demonstrates basic usage of the EMA library in accessing</a></div>
+      <div class="Body"><a name="1030924">and parsing OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1030925">directly from an OMM Provider  application, or from an Advanced Distribution</a></div>
+      <div class="Body"><a name="1030926">Server.</a></div>
+      <div class="Body"><a name="1030927">&nbsp;</a></div>
+      <div class="Body"><a name="1030928">example130__MarketPrice__UserDisp illustrates a “user dispatch” mode in which all </a></div>
+      <div class="Body"><a name="1030929">callbacks execute on the application’s thread of control and call the </a></div>
+      <div class="Body"><a name="1030930">dispatch() method.</a></div>
+      <div class="Body"><a name="1030931">&nbsp;</a></div>
+      <div class="Body"><a name="1030932"> </a></div>
+      <div class="Body"><a name="1030933">Detailed Description</a></div>
+      <div class="Body"><a name="1030934">====================</a></div>
+      <div class="Body"><a name="1030935">&nbsp;</a></div>
+      <div class="Body"><a name="1030936">example130__MarketPrice__UserDisp implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1030937">&nbsp;</a></div>
+      <div class="Body"><a name="1030938">+ Implements an OmmConsumerClient class in an AppClient</a></div>
+      <div class="Body"><a name="1030939">  - Overrides desired methods.</a></div>
+      <div class="Body"><a name="1030940">  - Provides its own methods as needed (e.g.: decode( FieldList ))</a></div>
+      <div class="Body"><a name="1030941">    - The method decode( FieldList ) iterates through the received FieldList</a></div>
+      <div class="Body"><a name="1030942">	  extracting each FieldEntry reference from the current position on the</a></div>
+      <div class="Body"><a name="1030943">	  FieldList. The decode method then extracts the fieldentry’s field id, </a></div>
+      <div class="Body"><a name="1030944">	  name, and value.</a></div>
+      <div class="Body"><a name="1030945">+ Instantiates an AppClient object that receives and processes item messages.</a></div>
+      <div class="Body"><a name="1030946">+ Instantiates and modifies an OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1030947">  - Sets the username to “user”.</a></div>
+      <div class="Body"><a name="1030948">  - Sets the hostname on the preconfigured connection to “localhost”.</a></div>
+      <div class="Body"><a name="1030949">  - Sets the port on the preconfigured connection to “14002”.</a></div>
+      <div class="Body"><a name="1030950">  - Sets the operationModel to UserDispatchEnum.</a></div>
+      <div class="Body"><a name="1030951">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1030952">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1030953">  - The application calls dispatch() in a while loop.</a></div>
+      <div class="Body"><a name="1030954">+ Opens a streaming item interest for the MarketPrice IBM.N item from the DIRECT_FEED</a></div>
+      <div class="Body"><a name="1030955">  service</a></div>
+      <div class="Body"><a name="1030956">+ Processes data received with a user dispatch loop for 60 seconds</a></div>
+      <div class="Body"><a name="1030957">  - All messages received are processed on the application’s main thread of control</a></div>
+      <div class="Body"><a name="1030958">+ Exits</a></div>
+      <div class="Body"><a name="1030959">&nbsp;</a></div>
+      <div class="Body"><a name="1030960">Note: If needed, you can modify these and other details to fit your local environment.</a></div>
+      <div class="Body"><a name="1030961">      For details on standard configuration, refer to the EMA library ReadMe.txt file</a></div>
+      <div class="Body"><a name="1030962">      or to the EMA COnfiguration Guide.</a></div>
+      <div class="Body"><a name="1027320">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Consumer_Readmes.1.01.html">EMA Java Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Consumer_Readmes.1.02.html">100 Series Examples</a> : 130__MarketPrice__UserDisp</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

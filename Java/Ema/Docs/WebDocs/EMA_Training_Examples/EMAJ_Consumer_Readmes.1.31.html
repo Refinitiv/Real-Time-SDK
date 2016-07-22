@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>350__MarketPrice__PauseAll</title>
+    <link rel="StyleSheet" href="css/EMAJ_Consumer_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3_NoNum"><a name="1020432">350__MarketPrice__PauseAll</a></div>
+      <div class="Body"><a name="1031924">Summary</a></div>
+      <div class="Body"><a name="1031925">=======</a></div>
+      <div class="Body"><a name="1031926">&nbsp;</a></div>
+      <div class="Body"><a name="1031927">The example350__MarketPrice__PauseAll application is provided as an example of</a></div>
+      <div class="Body"><a name="1031928">OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1031929">&nbsp;</a></div>
+      <div class="Body"><a name="1031930">This application demonstrates basic usage of the EMA library for opening</a></div>
+      <div class="Body"><a name="1031931">login and item streams and pausing item response messages from Reuters Data</a></div>
+      <div class="Body"><a name="1031932">Feed Direct (RDF-D), directly from an OMM Provider application, or from</a></div>
+      <div class="Body"><a name="1031933">Thomson Reuters Advanced Distribution Server with login stream.</a></div>
+      <div class="Body"><a name="1031934">&nbsp;</a></div>
+      <div class="Body"><a name="1031935">example350__MarketPrice__PauseAll showcases the pause all feature of OMM Consumer.</a></div>
+      <div class="Body"><a name="1031936">It sends a single pause request on login stream to pause all open items.</a></div>
+      <div class="Body"><a name="1031937">&nbsp;</a></div>
+      <div class="Body"><a name="1031938">&nbsp;</a></div>
+      <div class="Body"><a name="1031939">Detailed Description</a></div>
+      <div class="Body"><a name="1031940">====================</a></div>
+      <div class="Body"><a name="1031941">&nbsp;</a></div>
+      <div class="Body"><a name="1031942">example350__MarketPrice__PauseAll implements the following high level steps:</a></div>
+      <div class="Body"><a name="1031943">&nbsp;</a></div>
+      <div class="Body"><a name="1031944">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1031945">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1031946">  - provides own methods as needed, e.g. decode( FieldList )</a></div>
+      <div class="Body"><a name="1031947">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1031948">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1031949">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1031950">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1031951">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1031952">+ Opens three streaming item interests</a></div>
+      <div class="Body"><a name="1031953">  - Login Domain stream</a></div>
+      <div class="Body"><a name="1031954">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1031955">  - MarketPrice Domain MSFT.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1031956">+ Sends a PauseAll request message on login stream</a></div>
+      <div class="Body"><a name="1031957">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1031958">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1031959">+ Exits</a></div>
+      <div class="Body"><a name="1031960">&nbsp;</a></div>
+      <div class="Body"><a name="1031961">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1031962">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1031963">	  </a></div>
+      <div class="Body"><a name="1031964">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1031965">      standard configuration.</a></div>
+      <div class="Body"><a name="1030208">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Consumer_Readmes.1.01.html">EMA Java Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Consumer_Readmes.1.21.html">300 Series Examples</a> : 350__MarketPrice__PauseAll</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

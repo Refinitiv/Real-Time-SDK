@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>Special Semantics</title>
+    <link rel="StyleSheet" href="css/EMAJ_RDMUsageGuide.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="Heading_2_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Heading_2_inner" style="width: 54pt; white-space: nowrap">
+                <span style="color: #666666; font-size: 18pt; font-style: normal; font-weight: bold; vertical-align: baseline">5.8	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Heading_2_inner"><a name="pID0E05M0HA"> Special Semantics</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Heading_3_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Heading_3_inner" style="width: 54pt; white-space: nowrap">
+                <span style="color: #FF9100; font-family: Arial; font-size: 13pt; font-style: normal; font-weight: bold; vertical-align: baseline">5.8.1	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Heading_3_inner"><a name="pID0E04M0HA">DictionariesProvided and DictionariesUsed</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Normal"><a name="pID0E03M0HA">The Directory’s DirectoryInfo FilterEntry (</a><a href="javascript:WWHClickedPopup('EMA_RDM_Usage_Guide', 'EMAJ_RDMUsageGuide.1.055.html#pID0E0IV0HA', '');" title="Data">Table 22</a>) includes two Elements that are related to Dictionaries: “DictionariesProvided” and “DictionariesUsed”. Both elements contain an <span class="Char_LucidaConsole">OmmArray</span> of Ascii dictionary names. These names can be used in <span class="Char_Code">Name</span> to request the dictionaries.</div>
+      <div class="Procedure_Title"><a name="pID0E02M0HA"><img class="Default" src="images/image14.png" width="11" height="8" style="display: inline; left: 0pt; top: 0pt" alt="" /> To dynamically discover dictionaries while minimizing the amount of data downloaded:</a></div>
+      <div class="List_Number_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="List_Number_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-weight: normal">1.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="List_Number_inner"><a name="pID0E01M0HA">Parse the “DictionariesUsed” from each desired service in the Directory.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="List_Number_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="List_Number_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-weight: normal">3.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="List_Number_inner"><a name="pID0E0ZM0HA">Parse the “DictionariesProvided” from every service in the Directory.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="List_Number_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="List_Number_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-weight: normal">4.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="List_Number_inner"><a name="pID0E0YM0HA">Make a streaming request for each Dictionary Name listed in “DictionariesUsed” from the service that lists the DictionaryName in “DictionariesProvided”. The DataMask of each request (Section </a><a href="javascript:WWHClickedPopup('EMA_RDM_Usage_Guide', 'EMAJ_RDMUsageGuide.1.015.html', '');" title="Message Concepts">2.3</a>) message should be set to DICTIONARY_INFO. By only requesting the DICTIONARY_INFO, the application does not incur the extra bandwidth overhead of dictionaries which it does not need.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="List_Number_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="List_Number_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-weight: normal">5.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="List_Number_inner"><a name="pID0E0XM0HA">Parse the </a><span class="Char_LucidaConsole">Payload.SummaryData</span> for each Dictionary response message received.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="List_Number_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="List_Number_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-weight: normal">6.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="List_Number_inner"><a name="pID0E0WM0HA">If the response </a><span class="Char_LucidaConsole">Payload.DataType</span> is <span class="Char_Code">Series</span> (of <span class="Char_Code">ElementList</span>) and DictionaryType <span class="Char_Code">Element</span> in the <span class="Char_LucidaConsole">Payload.SummaryData</span> is not one that the application needs, then unregister the request.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="List_Number_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="List_Number_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-weight: normal">7.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="List_Number_inner"><a name="pID0E0VM0HA">If the DictionaryType is needed, then the application should reissue the request with a different DataMask that includes the data (e.g. </a><span class="Char_Parameter">DICTIONARY_NORMAL</span>).</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="List_Number_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="List_Number_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #666666; font-family: Arial; font-size: 10pt; font-style: normal; font-weight: normal">8.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="List_Number_inner"><a name="pID0E0UM0HA">If the application previously downloaded and saved the Dictionary, the Version Element can be used to see if the application has the latest version.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #FF9100; font-size: 10.5pt">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="pID0E0TM0HA">If the application does not have the latest version, the application should reissue the request for the Dictionary with a different DataMask.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #FF9100; font-size: 10.5pt">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="pID0E0SM0HA">If the application has the latest version, it can leave the first request open so it can monitor when the dictionary is changed.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_RDMUsageGuide.1.064.html">Chapter 5	Dictionary Domain</a> :  Special Semantics</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>
