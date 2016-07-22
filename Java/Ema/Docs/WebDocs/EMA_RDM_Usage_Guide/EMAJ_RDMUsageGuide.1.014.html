@@ -64,12 +64,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Heading_3_inner"><a name="pID0E0F30HA">Domain Message Model Creation</a></div>
+              <div class="Heading_3_inner"><a name="pID0E0E30HA">Domain Message Model Creation</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Normal"><a name="pID0E0E30HA">The focus of this document is to discuss defined RDMs that are capable of flowing through EMA. OMM allows users of EMA to create their own Domain Message Models (DMMs) in addition to those described in this document. When defining a DMM, several things should be considered:</a></div>
+      <div class="Normal"><a name="pID0E0D30HA">The focus of this document is to discuss defined RDMs that are capable of flowing through EMA. OMM allows users of EMA to create their own Domain Message Models (DMMs) in addition to those described in this document. When defining a DMM, several things should be considered:</a></div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -79,21 +79,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="pID0E0D30HA">Is a new DMM really needed, or can you express the data in terms of an existing RDM?</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span style="color: #FF9100; font-size: 10.5pt">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><a name="pID0E0C30HA">The DMM should be well-defined. Following the design templates used in this document may be a good idea. The structure, properties, use cases, and limitations of the DMM should be specified.</a></div>
+              <div class="bullet_ind_inner"><a name="pID0E0C30HA">Is a new DMM really needed, or can you express the data in terms of an existing RDM?</a></div>
             </td>
           </tr>
         </table>
@@ -107,7 +93,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="pID0E0B30HA">While OMM provides building blocks that can structure the data in many ways, the semantics of the data must abide by the rules of OMM. For example, custom DMMs should follow the request, refresh, status, and update semantics implicitly defined by those messages. More flexible messaging can be accomplished through the use of a generic message, which allows for more free-form bidirectional messaging after a stream is established.</a></div>
+              <div class="bullet_ind_inner"><a name="pID0E0B30HA">The DMM should be well-defined. Following the design templates used in this document may be a good idea. The structure, properties, use cases, and limitations of the DMM should be specified.</a></div>
             </td>
           </tr>
         </table>
@@ -121,7 +107,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="pID0E0A30HA">DomainType values less than 128 are reserved for RDMs. The domainType of a custom DMM must be between 128 and 255 (including 128 and 255).</a></div>
+              <div class="bullet_ind_inner"><a name="pID0E0A30HA">While OMM provides building blocks that can structure the data in many ways, the semantics of the data must abide by the rules of OMM. For example, custom DMMs should follow the request, refresh, status, and update semantics implicitly defined by those messages. More flexible messaging can be accomplished through the use of a generic message, which allows for more free-form bidirectional messaging after a stream is established.</a></div>
             </td>
           </tr>
         </table>
@@ -135,7 +121,21 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="pID0E0620HA">You might want to work with Thomson Reuters to define a published RDM, rather than using a custom DMM. This ensures the most seamless interoperability with future RDMs and other Thomson Reuters products.</a></div>
+              <div class="bullet_ind_inner"><a name="pID0E0620HA">DomainType values less than 128 are reserved for RDMs. The domainType of a custom DMM must be between 128 and 255 (including 128 and 255).</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #FF9100; font-size: 10.5pt">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="pID0E0520HA">You might want to work with Thomson Reuters to define a published RDM, rather than using a custom DMM. This ensures the most seamless interoperability with future RDMs and other Thomson Reuters products.</a></div>
             </td>
           </tr>
         </table>
