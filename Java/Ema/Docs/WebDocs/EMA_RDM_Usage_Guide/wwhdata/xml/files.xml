@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WebWorksHelpBook version="5.0" name="EMA Java RDM Usage Guide" context="EMA_RDM_Usage_Guide" locale="en" xmlns="urn:WebWorks-Help-Book-Files-Schema">
+  <CommonWordsToSkip minlen="3">
+    a about after all also am an and another any are as at
+    be because been before being between both but by
+    came can come copyright corp corporation could
+    did do does
+    each etc
+    for from
+    get goes got
+    had has have he her here him himself his how
+    if in inc into is it its
+    let like
+    make many me might more most much must my
+    never nor not now
+    of off on one only or other our out over own
+    reserved rights
+    said same see set shall she should since so some still such
+    take than that the their them then there these they this those though through to too
+    under us use
+    very
+    was way we well were what when where which while who why will with would
+    yes yet you your
+   </CommonWordsToSkip>
+  <ScoringPrefs>
+    <meta name="keywords" weight="100" />
+    <meta name="description" weight="50" />
+    <meta name="summary" weight="50" />
+    <title weight="20" />
+    <h1 weight="15" />
+    <h2 weight="10" />
+    <caption weight="10" />
+    <h3 weight="7" />
+    <th weight="5" />
+    <h4 weight="5" />
+    <h5 weight="4" />
+    <h6 weight="3" />
+    <h7 weight="2" />
+  </ScoringPrefs>
+  <DocumentInfo>
+    <Document title="Chapter 1 Introduction" href="EMAJ_RDMUsageGuide.1.001.html" />
+    <Document title="About this Manual" href="EMAJ_RDMUsageGuide.1.002.html" />
+    <Document title="Audience" href="EMAJ_RDMUsageGuide.1.003.html" />
+    <Document title="Open Message Models (OMM)" href="EMAJ_RDMUsageGuide.1.004.html" />
+    <Document title="Reuters Wire Format (RWF)" href="EMAJ_RDMUsageGuide.1.005.html" />
+    <Document title="Acronyms and Abbreviations" href="EMAJ_RDMUsageGuide.1.006.html" />
+    <Document title="References" href="EMAJ_RDMUsageGuide.1.007.html" />
+    <Document title="Conventions" href="EMAJ_RDMUsageGuide.1.008.html" />
+    <Document title="Definitions" href="EMAJ_RDMUsageGuide.1.009.html" />
+    <Document title="Chapter 2 Domain Model Overview" href="EMAJ_RDMUsageGuide.1.010.html" />
+    <Document title="Introduction" href="EMAJ_RDMUsageGuide.1.011.html" />
+    <Document title="Reuters Domain Models VS User Defined Model" href="EMAJ_RDMUsageGuide.1.012.html" />
+    <Document title="User-Defined Domain Model" href="EMAJ_RDMUsageGuide.1.013.html" />
+    <Document title="Domain Message Model Creation" href="EMAJ_RDMUsageGuide.1.014.html" />
+    <Document title="Message Concepts" href="EMAJ_RDMUsageGuide.1.015.html" />
+    <Document title="OMM Consumer / OMM Interactive Provider Initial Interaction" href="EMAJ_RDMUsageGuide.1.016.html" />
+    <Document title="Sending and Receiving Content" href="EMAJ_RDMUsageGuide.1.017.html" />
+    <Document title="General EMA Concepts" href="EMAJ_RDMUsageGuide.1.018.html" />
+    <Document title="Snapshot and Streaming Requests" href="EMAJ_RDMUsageGuide.1.019.html" />
+    <Document title="Reissue Requests and Pause/Resume" href="EMAJ_RDMUsageGuide.1.020.html" />
+    <Document title="Clearing the Cache on Refreshes" href="EMAJ_RDMUsageGuide.1.021.html" />
+    <Document title="Dynamic View" href="EMAJ_RDMUsageGuide.1.022.html" />
+    <Document title="Batch Request" href="EMAJ_RDMUsageGuide.1.023.html" />
+    <Document title="Posting" href="EMAJ_RDMUsageGuide.1.024.html" />
+    <Document title="Chapter 3 Login Domain" href="EMAJ_RDMUsageGuide.1.025.html" />
+    <Document title="Description" href="EMAJ_RDMUsageGuide.1.026.html" />
+    <Document title="Usage" href="EMAJ_RDMUsageGuide.1.027.html" />
+    <Document title="Login Request Elements" href="EMAJ_RDMUsageGuide.1.028.html" />
+    <Document title="Login Refresh Message" href="EMAJ_RDMUsageGuide.1.029.html" />
+    <Document title="Login Refresh Elements" href="EMAJ_RDMUsageGuide.1.030.html" />
+    <Document title="Login Status Message" href="EMAJ_RDMUsageGuide.1.031.html" />
+    <Document title="Login Update Message" href="EMAJ_RDMUsageGuide.1.032.html" />
+    <Document title="Login Close Message" href="EMAJ_RDMUsageGuide.1.033.html" />
+    <Document title="Login Generic Message" href="EMAJ_RDMUsageGuide.1.034.html" />
+    <Document title="Login Post Message" href="EMAJ_RDMUsageGuide.1.035.html" />
+    <Document title="Login Ack Message" href="EMAJ_RDMUsageGuide.1.036.html" />
+    <Document title="Data" href="EMAJ_RDMUsageGuide.1.037.html" />
+    <Document title="Login Generic Message Payload" href="EMAJ_RDMUsageGuide.1.038.html" />
+    <Document title="Special Semantics" href="EMAJ_RDMUsageGuide.1.039.html" />
+    <Document title="Initial Login" href="EMAJ_RDMUsageGuide.1.040.html" />
+    <Document title="Authentication" href="EMAJ_RDMUsageGuide.1.041.html" />
+    <Document title="Multiple Logins" href="EMAJ_RDMUsageGuide.1.042.html" />
+    <Document title="Group and Service Status" href="EMAJ_RDMUsageGuide.1.043.html" />
+    <Document title="Single Open and Allow Suspect Data" href="EMAJ_RDMUsageGuide.1.044.html" />
+    <Document title="Specific Usage: RDF Direct Login" href="EMAJ_RDMUsageGuide.1.045.html" />
+    <Document title="Specific Usage: Enterprise Platform" href="EMAJ_RDMUsageGuide.1.046.html" />
+    <Document title="Specific Usage: Login Credentials Update Feature" href="EMAJ_RDMUsageGuide.1.047.html" />
+    <Document title="Chapter 4 Source Directory Domain" href="EMAJ_RDMUsageGuide.1.048.html" />
+    <Document title="Description" href="EMAJ_RDMUsageGuide.1.049.html" />
+    <Document title="Usage" href="EMAJ_RDMUsageGuide.1.050.html" />
+    <Document title="Source Directory Refresh Message" href="EMAJ_RDMUsageGuide.1.051.html" />
+    <Document title="Source Directory Update Message" href="EMAJ_RDMUsageGuide.1.052.html" />
+    <Document title="Source Directory Status Message" href="EMAJ_RDMUsageGuide.1.053.html" />
+    <Document title="Source Directory Generic Message" href="EMAJ_RDMUsageGuide.1.054.html" />
+    <Document title="Data" href="EMAJ_RDMUsageGuide.1.055.html" />
+    <Document title="Source Directory ConsumerStatus Generic Message Payload" href="EMAJ_RDMUsageGuide.1.056.html" />
+    <Document title="Special Semantics" href="EMAJ_RDMUsageGuide.1.057.html" />
+    <Document title="ServiceState and AcceptingRequests" href="EMAJ_RDMUsageGuide.1.058.html" />
+    <Document title="Service and Group Status Values" href="EMAJ_RDMUsageGuide.1.059.html" />
+    <Document title="Removing a Services" href="EMAJ_RDMUsageGuide.1.060.html" />
+    <Document title="Service IDs" href="EMAJ_RDMUsageGuide.1.061.html" />
+    <Document title="Automatic Request from EMA Consumer" href="EMAJ_RDMUsageGuide.1.062.html" />
+    <Document title="Client Requests Non-Existing Service Directory" href="EMAJ_RDMUsageGuide.1.063.html" />
+    <Document title="Chapter 5 Dictionary Domain" href="EMAJ_RDMUsageGuide.1.064.html" />
+    <Document title="Description" href="EMAJ_RDMUsageGuide.1.065.html" />
+    <Document title="Decoding FieldList Contents with Field and Enumerated Types Dictionaries" href="EMAJ_RDMUsageGuide.1.066.html" />
+    <Document title="Usage" href="EMAJ_RDMUsageGuide.1.067.html" />
+    <Document title="Dictionary Request Message" href="EMAJ_RDMUsageGuide.1.068.html" />
+    <Document title="Dictionary Refresh Message" href="EMAJ_RDMUsageGuide.1.069.html" />
+    <Document title="Dictionary Status Message" href="EMAJ_RDMUsageGuide.1.070.html" />
+    <Document title="Data" href="EMAJ_RDMUsageGuide.1.071.html" />
+    <Document title="Refresh Message Summary Data" href="EMAJ_RDMUsageGuide.1.072.html" />
+    <Document title="Response Message Payload" href="EMAJ_RDMUsageGuide.1.073.html" />
+    <Document title="DictionaryId" href="EMAJ_RDMUsageGuide.1.074.html" />
+    <Document title="Field Dictionary" href="EMAJ_RDMUsageGuide.1.075.html" />
+    <Document title="Field Dictionary File Format" href="EMAJ_RDMUsageGuide.1.076.html" />
+    <Document title="Specific Usage: RDF Direct and FieldDefinition Dictionary" href="EMAJ_RDMUsageGuide.1.077.html" />
+    <Document title="Enumerated Types Dictionary" href="EMAJ_RDMUsageGuide.1.078.html" />
+    <Document title="Enumerated Types Dictionary File Format" href="EMAJ_RDMUsageGuide.1.079.html" />
+    <Document title="Specific Usage: RDF Direct and EnumTable Dictionary" href="EMAJ_RDMUsageGuide.1.080.html" />
+    <Document title="Other Dictionary Types" href="EMAJ_RDMUsageGuide.1.081.html" />
+    <Document title="DisplayTemplate DictionaryType" href="EMAJ_RDMUsageGuide.1.082.html" />
+    <Document title="DataDefinition DictionaryType" href="EMAJ_RDMUsageGuide.1.083.html" />
+    <Document title="StyleSheet DictionaryType" href="EMAJ_RDMUsageGuide.1.084.html" />
+    <Document title="Reference Dictionary Type" href="EMAJ_RDMUsageGuide.1.085.html" />
+    <Document title="Special Semantics" href="EMAJ_RDMUsageGuide.1.086.html" />
+    <Document title="Version Check" href="EMAJ_RDMUsageGuide.1.087.html" />
+    <Document title="Streaming Dictionary" href="EMAJ_RDMUsageGuide.1.088.html" />
+    <Document title="Specific Usage: Enterprise Platform" href="EMAJ_RDMUsageGuide.1.089.html" />
+    <Document title="Chapter 6 MarketPrice Domain" href="EMAJ_RDMUsageGuide.1.090.html" />
+    <Document title="Description" href="EMAJ_RDMUsageGuide.1.091.html" />
+    <Document title="Usage" href="EMAJ_RDMUsageGuide.1.092.html" />
+    <Document title="MarketPrice Request Message" href="EMAJ_RDMUsageGuide.1.093.html" />
+    <Document title="MarketPrice Refresh Message" href="EMAJ_RDMUsageGuide.1.094.html" />
+    <Document title="MarketPrice Update Message" href="EMAJ_RDMUsageGuide.1.095.html" />
+    <Document title="MarketPrice Status Message" href="EMAJ_RDMUsageGuide.1.096.html" />
+    <Document title="MarketPrice Post Message" href="EMAJ_RDMUsageGuide.1.097.html" />
+    <Document title="Data: Response Message Payload" href="EMAJ_RDMUsageGuide.1.098.html" />
+    <Document title="Special Semantics" href="EMAJ_RDMUsageGuide.1.099.html" />
+    <Document title="Ripple Fields" href="EMAJ_RDMUsageGuide.1.100.html" />
+    <Document title="Specific Usage: RDF Direct MarketPrice" href="EMAJ_RDMUsageGuide.1.101.html" />
+    <Document title="Specific Usage: Legacy Records" href="EMAJ_RDMUsageGuide.1.102.html" />
+    <Document title="Chapter 7 MarketByOrder Domain" href="EMAJ_RDMUsageGuide.1.103.html" />
+    <Document title="Description" href="EMAJ_RDMUsageGuide.1.104.html" />
+    <Document title="Usage" href="EMAJ_RDMUsageGuide.1.105.html" />
+    <Document title="MarketByOrder Request Message" href="EMAJ_RDMUsageGuide.1.106.html" />
+    <Document title="MarketByOrder Refresh Message" href="EMAJ_RDMUsageGuide.1.107.html" />
+    <Document title="MarketByOrder Update Message" href="EMAJ_RDMUsageGuide.1.108.html" />
+    <Document title="MarketByOrder Status Message" href="EMAJ_RDMUsageGuide.1.109.html" />
+    <Document title="MarketByOrder Post Message" href="EMAJ_RDMUsageGuide.1.110.html" />
+    <Document title="Data: Response Message Payload" href="EMAJ_RDMUsageGuide.1.111.html" />
+    <Document title="Special Semantics" href="EMAJ_RDMUsageGuide.1.112.html" />
+    <Document title="Specific Usage: RDF Direct and Response Message Payload" href="EMAJ_RDMUsageGuide.1.113.html" />
+    <Document title="Specific Usage: Enterprise Platform" href="EMAJ_RDMUsageGuide.1.114.html" />
+    <Document title="Chapter 8 MarketByPrice Domain" href="EMAJ_RDMUsageGuide.1.115.html" />
+    <Document title="Description" href="EMAJ_RDMUsageGuide.1.116.html" />
+    <Document title="Usage" href="EMAJ_RDMUsageGuide.1.117.html" />
+    <Document title="MarketByPrice Request Message" href="EMAJ_RDMUsageGuide.1.118.html" />
+    <Document title="MarketByPrice Refresh Message" href="EMAJ_RDMUsageGuide.1.119.html" />
+    <Document title="MarketByPrice Update Message" href="EMAJ_RDMUsageGuide.1.120.html" />
+    <Document title="MarketByPrice Status Message" href="EMAJ_RDMUsageGuide.1.121.html" />
+    <Document title="MarketByPrice Post Message" href="EMAJ_RDMUsageGuide.1.122.html" />
+    <Document title="Data: Response Message Payload" href="EMAJ_RDMUsageGuide.1.123.html" />
+    <Document title="Special Semantics" href="EMAJ_RDMUsageGuide.1.124.html" />
+    <Document title="Specific Usage: RDF Direct and the Response Message Payload" href="EMAJ_RDMUsageGuide.1.125.html" />
+    <Document title="Specific Usage: Enterprise Platform" href="EMAJ_RDMUsageGuide.1.126.html" />
+    <Document title="Chapter 9 MarketMaker Domain" href="EMAJ_RDMUsageGuide.1.127.html" />
+    <Document title="Description" href="EMAJ_RDMUsageGuide.1.128.html" />
+    <Document title="Usage" href="EMAJ_RDMUsageGuide.1.129.html" />
+    <Document title="MarketMaker Request Message" href="EMAJ_RDMUsageGuide.1.130.html" />
+    <Document title="MarketMaker Refresh Message" href="EMAJ_RDMUsageGuide.1.131.html" />
+    <Document title="MarketMaker Update Message" href="EMAJ_RDMUsageGuide.1.132.html" />
+    <Document title="MarketMaker Status Message" href="EMAJ_RDMUsageGuide.1.133.html" />
+    <Document title="MarketMaker Post Message" href="EMAJ_RDMUsageGuide.1.134.html" />
+    <Document title="Data: Response Message Payload" href="EMAJ_RDMUsageGuide.1.135.html" />
+    <Document title="Special Semantics" href="EMAJ_RDMUsageGuide.1.136.html" />
+    <Document title="Specific Usage: RDF Direct and the Response Message Payload" href="EMAJ_RDMUsageGuide.1.137.html" />
+    <Document title="Specific Usage: Enterprise Platform" href="EMAJ_RDMUsageGuide.1.138.html" />
+    <Document title="Chapter 10 YieldCurve Domain" href="EMAJ_RDMUsageGuide.1.139.html" />
+    <Document title="Description" href="EMAJ_RDMUsageGuide.1.140.html" />
+    <Document title="Usage" href="EMAJ_RDMUsageGuide.1.141.html" />
+    <Document title="YieldCurve Request Message" href="EMAJ_RDMUsageGuide.1.142.html" />
+    <Document title="YieldCurve Refresh Message" href="EMAJ_RDMUsageGuide.1.143.html" />
+    <Document title="YieldCurve Update Message" href="EMAJ_RDMUsageGuide.1.144.html" />
+    <Document title="YieldCurve Status Message" href="EMAJ_RDMUsageGuide.1.145.html" />
+    <Document title="YieldCurve Domain Post Message" href="EMAJ_RDMUsageGuide.1.146.html" />
+    <Document title="Data: The Response Message Payload" href="EMAJ_RDMUsageGuide.1.147.html" />
+    <Document title="Special Semantics" href="EMAJ_RDMUsageGuide.1.148.html" />
+    <Document title="Specific Usage: ATS" href="EMAJ_RDMUsageGuide.1.149.html" />
+    <Document title="Chapter 11 SymbolList Domain" href="EMAJ_RDMUsageGuide.1.150.html" />
+    <Document title="Description" href="EMAJ_RDMUsageGuide.1.151.html" />
+    <Document title="Usage" href="EMAJ_RDMUsageGuide.1.152.html" />
+    <Document title="SymbolList Request Message" href="EMAJ_RDMUsageGuide.1.153.html" />
+    <Document title="SymbolList Refresh Message" href="EMAJ_RDMUsageGuide.1.154.html" />
+    <Document title="SymbolList Update Message" href="EMAJ_RDMUsageGuide.1.155.html" />
+    <Document title="SymbolList Status Message" href="EMAJ_RDMUsageGuide.1.156.html" />
+    <Document title="Data: Response Message Payload" href="EMAJ_RDMUsageGuide.1.157.html" />
+    <Document title="Special Semantics" href="EMAJ_RDMUsageGuide.1.158.html" />
+    <Document title="Specific Usage: RDF Direct" href="EMAJ_RDMUsageGuide.1.159.html" />
+    <Document title="Chapter 12 Payload in ReqMsg" href="EMAJ_RDMUsageGuide.1.160.html" />
+    <Document title="View Definition" href="EMAJ_RDMUsageGuide.1.161.html" />
+    <Document title="ItemList" href="EMAJ_RDMUsageGuide.1.162.html" />
+    <Document title="Symbol List Behaviors" href="EMAJ_RDMUsageGuide.1.163.html" />
+  </DocumentInfo>
+  <TopicMap />
+</WebWorksHelpBook>

@@ -9,6 +9,9 @@
 	<property name="libs.dir" value="${dist.dir}/Libs"/>
 	<property name="bin.dir" value="${dist.dir}/Src/bin"/>	
 	<property name="emaj.src.dir" value="${dist.dir}/Src" />
+	<property name="vendor" value="Thomson Reuters"/>
+	<property name="project.version" value="3.0"/>
+    <property name="load.version" value="emaj3.0.2.all.rrg"/>
 	
 	<path id="emaj.classpath">
         <pathelement path="${etaj.dist.dir}/Libs/upa.jar"/>
@@ -53,6 +56,14 @@
 				<include name="com/thomsonreuters/ema/access/**/*.class"/>
 				<include name="com/thomsonreuters/ema/rdm/**/*.class"/>
 			</fileset>
+			<manifest>
+				<attribute name="Build-Date" value="${TODAY}"/>
+				<attribute name="Specification-Title" value="EMA JAVA"/>
+				<attribute name="Specification-Version" value="${project.version}"/>
+				<attribute name="Specification-Vendor" value="${vendor}"/>
+				<attribute name="package_Version" value="${load.version}"/>
+				<attribute name="Implementation-Version" value="${load.version}"/>
+			</manifest>
 		</jar>
 	</target>
 

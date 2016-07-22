@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WebWorksHelpTOC version="5.0" xmlns="urn:WebWorks-Help-TOC-Schema">
+  <i t="Chapter 1 API Concepts">
+    <i t="1.1 About this Manual" l="0" />
+    <i t="1.2 Audience" l="1" />
+    <i t="1.3 Acronyms and Abbreviations" l="2" />
+    <i t="1.4 References" l="3" />
+    <i t="1.5 Documentation Feedback" l="4" />
+    <i t="1.6 Document Conventions" l="5">
+      <i t="1.6.1 Typographic" l="6" />
+      <i t="1.6.2 Field and Text Values" l="7" />
+    </i>
+  </i>
+  <i t="Chapter 2 EMA Configuration General Overview">
+    <i t="2.1 About Message API Configuration" l="8" />
+    <i t="2.2 Parameter Overview" l="9" />
+    <i t="2.3 Default Behaviors" l="10" />
+  </i>
+  <i t="Chapter 3 Configuration Groups">
+    <i t="3.1 ConsumerGroup" l="11">
+      <i t="3.1.1 Generic XML Schema for ConsumerGroup" l="12" />
+      <i t="3.1.2 Setting a Default Consumer" l="13" />
+      <i t="3.1.3 Configuring Consumers in a ConsumerGroup" l="14" />
+      <i t="3.1.4 Consumer Entry Parameters" l="15" />
+    </i>
+    <i t="3.2 Non-interactive Provider Group" l="16">
+      <i t="3.2.1 Generic XML Schema for Non-interactive Provider Group" l="17" />
+      <i t="3.2.2 Setting a Default Non-interactive Provider" l="18" />
+      <i t="3.2.3 Configuring a Non-interactive Provider in a NiProviderGroup" l="19" />
+      <i t="3.2.4 Non-interactive Provider Entry Parameters" l="20" />
+    </i>
+    <i t="3.3 Channel Group" l="21">
+      <i t="3.3.1 Generic XML Schema for ChannelGroup" l="22" />
+      <i t="3.3.2 Universal Channel Entry Parameters" l="23" />
+      <i t="3.3.3 Parameters for Use with Channel Type: RSSL_SOCKET" l="24" />
+    </i>
+    <i t="3.4 Dictionary Group" l="25">
+      <i t="3.4.1 Generic XML Schema for DictionaryGroup" l="26" />
+      <i t="3.4.2 Dictionary Entry Parameters" l="27" />
+    </i>
+    <i t="3.5 Directory Group" l="28">
+      <i t="3.5.1 Generic XML Schema for Directory Entry" l="29" />
+      <i t="3.5.2 Setting Default Directory" l="30" />
+      <i t="3.5.3 Configuring a Directory in a DirectoryGroup" l="31" />
+      <i t="3.5.4 Service Entry Parameters" l="32" />
+      <i t="3.5.5 InfoFilter Entry Parameters" l="33">
+        <i t="3.5.5.1 Capabilities Entry Parameter" l="34" />
+        <i t="3.5.5.2 DictionariesProvided Entry Parameter" l="35" />
+        <i t="3.5.5.3 DictionariesUsed Entry Parameter" l="36" />
+        <i t="3.5.5.4 QoSEntry Section and Associated Parameters" l="37" />
+      </i>
+      <i t="3.5.6 StateFilter Entry Parameters" l="38" />
+      <i t="3.5.7 Status Entry Parameters" l="39" />
+    </i>
+  </i>
+  <i t="Chapter 4 EMA Configuration Processing">
+    <i t="4.1 Default Configuration" l="40">
+      <i t="4.1.1 Default Consumer Configuration" l="41" />
+      <i t="4.1.2 Default NiProvider Configuration" l="42" />
+    </i>
+    <i t="4.2 Processing EmaConfig.xml" l="43">
+      <i t="4.2.1 Use of the Correct Order in the XML Schema" l="44" />
+      <i t="4.2.2 Processing the Consumer “Name”" l="45" />
+      <i t="4.2.3 Processing the NiProvider “Name”" l="46" />
+    </i>
+    <i t="4.3 Configuring EMA Using Function Calls" l="47">
+      <i t="4.3.1 EMA Configuration Function Calls" l="48">
+        <i t="4.3.1.1 OmmConsumerConfig Class Function Calls" l="48#1060642" />
+        <i t="4.3.1.2 OmmNiProviderConfig Class Function Calls" l="49" />
+      </i>
+      <i t="4.3.2 Using the host() Function: How “Host” and “Port” are Processed" l="50" />
+    </i>
+  </i>
+  <i t="Appendix A EmaConfig.xml Configuration File" l="51" />
+</WebWorksHelpTOC>

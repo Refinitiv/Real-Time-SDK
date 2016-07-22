@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>Clearing the Cache on Refreshes</title>
+    <link rel="StyleSheet" href="css/EMAJ_RDMUsageGuide.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="Heading_3_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Heading_3_inner" style="width: 54pt; white-space: nowrap">
+                <span style="color: #FF9100; font-family: Arial; font-size: 13pt; font-style: normal; font-weight: bold; vertical-align: baseline">2.6.3	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Heading_3_inner"><a name="pID0E0610HA">Clearing the Cache on Refreshes</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Normal"><a name="pID0E0510HA">If you perform a refresh, you might need to clear the cache. To clear the cache, you must call </a><span class="Char_LucidaConsole">RefreshMsg.ClearCache </span>with a value of <span class="Char_Parameter">true</span>. For further details on using the clear cache flag, refer to the <span class="Char_Document_Title">EMA C++ Reference Manual</span>.</div>
+      <div class="Code"><a name="pID0E0410HA">&nbsp;</a></div>
+      <div class="Code"><a name="pID0E0310HA">RefreshMsg().clearCache(true);</a></div>
+      <div class="Code"><a name="pID0E0210HA">&nbsp;</a></div>
+      <div class="Normal"><a name="pID0E0110HA">When clearing a cache, you must observe the following conditions:</a></div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #FF9100; font-size: 10.5pt">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="pID0E0Z10HA">Pass </a><span class="Char_Parameter">true</span> value on all solicited level 1 data refreshes.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #FF9100; font-size: 10.5pt">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="pID0E0Y10HA">Pass </a><span class="Char_Parameter">true</span> value only in the first part of solicited level 2 data refreshes.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #FF9100; font-size: 10.5pt">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="pID0E0X10HA">Calling this function on unsolicited refreshes depends on the application and its intent:</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_dash_outer" style="margin-left: 28.1pt; margin-top: 2pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_dash_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #FF9100; font-size: 10pt">−	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_dash_inner"><a name="pID0E0W10HA">If pass </a><span class="Char_Parameter">true</span> value on an unsolicited refresh, the cache is cleared and populated with new data.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_dash_outer" style="margin-left: 28.1pt; margin-top: 2pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_dash_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #FF9100; font-size: 10pt">−	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_dash_inner"><a name="pID0E0V10HA">If this method is not set to </a><span class="Char_Parameter">true</span> value on the unsolicited refresh, new data is overlaid onto the existing data. In this case, the resulting image / refresh will be a superset of the fields currently contained in the cache combined with the set brought by the current refresh.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_RDMUsageGuide.1.010.html">Chapter 2	Domain Model Overview</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAJ_RDMUsageGuide.1.018.html">General EMA Concepts</a> : Clearing the Cache on Refreshes</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>
