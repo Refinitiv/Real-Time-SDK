@@ -14,40 +14,36 @@ Reuters Oak Brook, IL USA
 
 # Message API Features and Functionality
 
-    - Default Admin Domain Requests: EMA uses default login, directory and 
+##Consumer Features:
+- Default Admin Domain Requests: EMA uses default login, directory and 
       dictionary request while connecting to server. This provides minimum 
-      configuration for applications to get up and running. 
+      configuration for applications to get up and running.   
+- Configurable Admin Domain Requests:  EMA provides means for modifying the default admin domain requests
+- Batch Request: Application may use a single request message to specify interest in multiple items via the item list
+- Dynamic View:	Application may specify a subset of fields or elements of a particular item
+- Optimized Pause and Resume: Application may request server to pause and resume item stream
+- Single Open: EMA supports application selected single open functionality
 	  
-    - Configurable Admin Domain Requests:  EMA provides means for modifying the
-      default admin domain requests. 
-	  
-    - Batch Request: Application may use a single request message to specify 
-      interest in multiple items via the item list
-	  
-    - Dynamic View:	Application may specify a subset of fields or elements of a 
-      particular item
-	  
-    - Component Versioning: This features sends information about itself to 
-      the connected component.
-	  
-    - Optimized Pause and Resume: Application may request server to pause and 
-      resume item stream
-	
-    - Single Open: EMA supports application selected single open functionality
-	  
-    - RMTES Decoder	EMA provides a built in RMTES decoder. If desired, application
-      may cache RmtesBuffer objects and apply all the received changes to them.
-	
-    - Data::toString()	All OMM containers, primitives and messages may simply be
-      printed out to screen in a standardized output format. 
-	
-    - Data::asHex()	Applications may obtain binary representations of all OMM 
-      containers, primitives and messages.
-	
-    - File Config:	Enables applications to specify EMA configuration in an 
-      EmaConfig.xml file
+
+
+
+##Non-Interactive Provider Features:
+
+- Default Admin Domains: EMA uses default login and directory messages while connecting to server. This provides minimum configuration for applications to get up and running.
+- Configurable Admin Domains:  EMA provides means for modifying the default admin domain messages. 		
+
+##Common Features:
+
+- TCP/IP Connectivity
+- Component Versioning: This feature sends information about itself to the connected component.
+- RMTES Decoder	EMA provides a built in RMTES decoder. If desired, application may cache RmtesBuffer objects and apply all the received changes to them.
+- Data::toString()	All OMM containers, primitives and messages may simply be printed out to screen in a standardized output format. 
+- Data::asHex()	Applications may obtain binary representations of all OMM containers, primitives and messages.
+- File Config:	Enables applications to specify EMA configuration in an      EmaConfig.xml file
+- Direct Write setting on socket channel
+- High Water Mark setting on socket channel
 		
-		
+
 
 # Product Content
 
@@ -143,11 +139,18 @@ See the top level Elektron-SDK README.md for details.
 # Issues and Workarounds
 
     - EMA-9: Generic Message is not currently supported on login stream.
-	- EMA-414: Although VIEW interface is supported at the EMA level, view
+    - EMA-414: Although VIEW interface is supported at the EMA level, view
                requests are sent without ‘view definition'.  Full views will be received.
     - EMA-375: EMAJ cannot send login request with the "User Token" nametype
     - EMA-401: Source directory reissue may internally request on invalid handle
-	- EMA-412: NumInputBuffers are not logged
+    - EMA-437 Batch Request status message itemName not correct.
+	- EMA-618 Invalid value connectionPingTimeout is not defaults to default value
+    - EMA-619 CaseId: 04749617 EMA Java throws a ClassCastException while processing a Batch Request
+    - EMA-620 CaseId: 04745892 NPE in EMA Java Batch example while making multiple batch requests
+    - EMA-621 CaseId: 04756012 EMA Java Consumer logs error messages when requesting multiple items
+	- EMA-622Invalid value of compressionThreshold give error and could not connect
+    - EMA-623 Encoding a length-specified DateTime with nanoseconds returns INVALID_DATA.
+    - EMA-624 Invalid config for tcpNodelay and REconnectMaxDelay defaults to incorrect defaults.
  
 
 # Obtaining the Thomson Reuters Field Dictionaries
