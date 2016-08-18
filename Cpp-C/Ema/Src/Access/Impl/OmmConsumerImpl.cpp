@@ -276,19 +276,19 @@ UInt64 OmmConsumerImpl::registerClient( const TunnelStreamRequest& tunnelStreamR
 
 RsslReactorCallbackRet OmmConsumerImpl::tunnelStreamStatusEventCallback( RsslTunnelStream* pTunnelStream, RsslTunnelStreamStatusEvent* pTunnelStreamStatusEvent )
 {
-	static_cast<OmmBaseImpl*>( pTunnelStream->userSpecPtr )->eventReceived();
+	static_cast<TunnelItem*>( pTunnelStream->userSpecPtr )->getImpl().eventReceived();
 	return static_cast<TunnelItem*>( pTunnelStream->userSpecPtr )->getImpl().getItemCallbackClient().processCallback( pTunnelStream, pTunnelStreamStatusEvent );
 }
 
 RsslReactorCallbackRet OmmConsumerImpl::tunnelStreamDefaultMsgCallback( RsslTunnelStream* pTunnelStream, RsslTunnelStreamMsgEvent* pTunnelStreamMsgEvent )
 {
-	static_cast<OmmBaseImpl*>( pTunnelStream->userSpecPtr )->eventReceived();
+	static_cast<TunnelItem*>( pTunnelStream->userSpecPtr )->getImpl().eventReceived();
 	return static_cast<TunnelItem*>( pTunnelStream->userSpecPtr )->getImpl().getItemCallbackClient().processCallback( pTunnelStream, pTunnelStreamMsgEvent );
 }
 
 RsslReactorCallbackRet OmmConsumerImpl::tunnelStreamQueueMsgCallback( RsslTunnelStream* pTunnelStream, RsslTunnelStreamQueueMsgEvent* pTunnelStreamQueueMsgEvent )
 {
-	static_cast<OmmBaseImpl*>( pTunnelStream->userSpecPtr )->eventReceived();
+	static_cast<TunnelItem*>( pTunnelStream->userSpecPtr )->getImpl().eventReceived();
 	return static_cast<TunnelItem*>( pTunnelStream->userSpecPtr )->getImpl().getItemCallbackClient().processCallback( pTunnelStream, pTunnelStreamQueueMsgEvent );
 }
 

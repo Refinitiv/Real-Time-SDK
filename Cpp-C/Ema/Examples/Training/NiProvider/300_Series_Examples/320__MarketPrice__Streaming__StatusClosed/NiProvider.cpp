@@ -16,6 +16,7 @@ int main( int argc, char* argv[] )
 	try
 	{
 		OmmProvider provider( OmmNiProviderConfig().adminControlDirectory( OmmNiProviderConfig::UserControlEnum ).username( "user" ) );
+		UInt64 serviceId = 0;
 		UInt64 sourceDirectoryHandle = 1;
 		UInt64 ibmHandle = 5;
 		RefreshMsg refresh;
@@ -24,8 +25,9 @@ int main( int argc, char* argv[] )
 
 		provider.submit( refresh.domainType( MMT_DIRECTORY ).filter( SERVICE_INFO_FILTER | SERVICE_STATE_FILTER )
 			.payload( Map()
-			.addKeyAscii( "TEST_NI_PUB", MapEntry::AddEnum, FilterList()
+			.addKeyUInt( serviceId, MapEntry::AddEnum, FilterList()
 					.add( SERVICE_INFO_ID, FilterEntry::SetEnum, ElementList()
+						.addAscii( ENAME_NAME, "TEST_NI_PUB" )
 						.addArray( ENAME_CAPABILITIES, OmmArray()
 							.addUInt( MMT_MARKET_PRICE )
 							.addUInt( MMT_MARKET_BY_PRICE )

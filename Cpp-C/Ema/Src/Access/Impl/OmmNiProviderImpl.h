@@ -91,10 +91,6 @@ private :
 
 	bool decodeSourceDirectoryKeyUInt( RsslMap& , RsslDecodeIterator& , EmaString& );
 
-	bool decodeSourceDirectoryKeyAscii( RsslMap& , RsslDecodeIterator& , EmaString& );
-
-	bool swapServiceNameAndId( RsslBuffer* , RsslBuffer* , EmaString& );
-
 	bool realocateBuffer( RsslBuffer* , RsslBuffer* , RsslEncodeIterator* , EmaString& );
 
 	bool isApiDispatching() const;

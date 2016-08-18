@@ -13,8 +13,8 @@
 !tag Desc        IDN Marketstream enumerated tables
 !tag RT_Version  4.20.25
 !tag Build_RDMD  4.20.25
-!tag DT_Version  16.51
-!tag Date        17-Jun-2016
+!tag DT_Version  16.61
+!tag Date        27-Jul-2016
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -544,7 +544,7 @@ LEG2_CURR  13446
     907        "AEf"   UAE Fils
     931        "CUC"   Cuba Convertible Peso
     932        "ZWL"   Zimbabwe Dollar 
-    933        "BYN"   Belarusian Ruble (from Jul 2016)
+    933        "BYN"   Belarusian Ruble
     934        "TMT"   Turkmenistan New Manat
     936        "GHS"   Ghana Cedi
     937        "VEF"   Venezuelan Bolivar
@@ -625,6 +625,7 @@ LEG2_CURR  13446
    2026        "CRU"   Costa Rican Unidad de Desarrolla
    2027        "BTC"   bitcoin
    2028        "UYR"   Unidades Reajustables
+   2029        "BYk"   Belarusian Kapeyka
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -948,6 +949,7 @@ BIDXID      3298
     227        "NEO"   Aequitas NEO NEO EXCHANGE
     228        "NLS"   Aequitas NEO LIT Special Terms
     229        "IEX"   IEX GROUP INC - (CTA)
+    230        "CXD"   Nasdaq CXD
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -4049,6 +4051,7 @@ CAN_COND    6585
   21343        "BMR"   Benchmark Trade. Out of Sequence Retransmission. (OPRA).
   21345        "TTE"   Trade Trough Exempt. Out of Sequence. Not LAST (OPRA).
   21346        "TTR"   Trade Through Exempt. Out of sequence Retransmission. (OPRA).
+  32691        "RFQ"   Request for Quote
   32692        "NR "   Non-Resident
   32693        "CTO"   Contingent Trade - Extended Hours - Odd Lot
   32694        "COD"   Contingent Trade - Odd Lot
@@ -5042,6 +5045,7 @@ OFF_CD_IN2  1055
      53        "EII"   Eurex Individual ISIN
      54        "EPI"   Exchange Product ISIN
      55        "ALF"   Alpha Code
+     56        "SZX"   China SZSE local code
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -8380,7 +8384,7 @@ BLK_EXID   13552
    1427        "IEQ"   NATIONAL STOCK EXCHANGE OF INDIA EQUITIES
    1428        "IDR"   NATIONAL STOCK EXCHANGE OF INDIA DERIVATIVES
    1429        "PLO"   PointLogic Energy
-   1430        "430"   Not allocated (was NASDAQ BASIC FOR NYSE LISTINGS)
+   1430        "MIB"   MIBGAS-Iberian Gas Market
    1431        "431"   Not allocated (was NASDAQ BASIC FOR NASDAQ LISTINGS)
    1432        "BDR"   BOAT Russian Segment
    1433        "OMN"   OMF CommTrade CARBON
@@ -8394,6 +8398,11 @@ BLK_EXID   13552
    1441        "VLM"   VALMER S.A
    1442        "YSX"   YANGON STOCK EXCHANGE
    1443        "CRN"   Currenex
+   1444        "RSG"   ROSGAN
+   1445        "CNC"   Council of the French Sworn Brokers of Commodities
+   1446        "EMK"   ENERGY MARKET COMPANY
+   1447        "CXD"   Nasdaq CXD
+   1448        "ICQ"   Consolidated Issues Listed By IEX Exchange
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12511,6 +12520,12 @@ IDX_SIZE    8943
       5   "MIC     "   Micro-Cap
       6   "NANO    "   Nano-Cap
       7   "SMID    "   Mid+Small Cap
+      8   "LMID    "   Large + Mid Cap
+      9   "LMSMA   "   Large + Mid + Small Cap
+     10   "LSMA    "   Large + Small Cap
+     11   "SMIC    "   Small  + Micro Cap
+     12   "MSMIC   "   Mid + Small + Micro Cap
+     13   "LMSMIC  "   Large + Mid + Small + Micro Cap
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12915,6 +12930,8 @@ WRNT_TYPE   8987
       1   "Perpet  "   Perpetual Warrant
       2   "Institut"   Institutional Warrant
       3   "Perp-Ins"   Perpetual and Institutional Warrant
+      4   "Plain   "   Plain Warrant
+      5   "Certif  "   Certificate
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -15794,6 +15811,12 @@ DATBLK_TYP 12939
      35   "STS PHA "   The phase or status an instrument or market is in
      36   "REF     "   Static Reference update
      37   "STAT    "   Economic rates
+     38   "TRD CNT "   Total moves
+     39   "PCT CHG "   Percentage Change
+     40   "NET CHG "   Net Change
+     41   "TIC DIR "   Tick Direction
+     42   "MID PRC "   MID Price
+     43   "ANLYS   "   Analytics update
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16954,6 +16977,9 @@ MET_UNIT   13564
     289      "NIKEL"   1% nickel content in NPI.
     290      "FLASK"   1 flask (mercury) appox. 76 lb
     291      "1BWP "   Botswana Pula
+    292      "PHD  "   PER HEAD
+    293      " CLP "   Chilean Peso
+    294      "GRAM1"   One gram
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17092,6 +17118,10 @@ TRD_MD_ELG 13440
       0   "        "   undefined
       1   "CO      "   Central Limit Order Book + Off Book
       2   "CBO     "   Central Limit Order Book + Central Limit Order Book Block Trade + Off Book
+      3   "CLOB    "   Central Limit Order Book only
+      4   "COD     "   Central Limit Order Book + Off Book + Dark Book
+      5   "COP     "   Central Limit Orderbook + Off Book + Periodic Auction Book
+      6   "CODP    "   Central Limit Orderbook + Off Book + Dark Book + Periodic Auction Book
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17431,6 +17461,7 @@ ORDBK_DEPH 13490
      11     "20_OL "   20 Order Levels
      12     "25_OL "   25 Order Levels
      13     "30_OL "   30 Order Levels
+     14     "3_PL  "   3 Price Levels
 !
 ! ACRONYM    FID
 ! -------    ---

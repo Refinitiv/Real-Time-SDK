@@ -139,8 +139,8 @@ Elektron Message API Documentation is also available online at https://customers
       ---------------------------------------------------------
       Enterprise Platform for Real-Time - RSSL/RWF connections
       ---------------------------------------------------------
-      - ADS 2.4 or higher
-      - ADH 2.4 or higher
+      - ADS 2.5 or higher
+      - ADH 2.5 or higher
 	  
        --------
        Elektron
@@ -171,7 +171,8 @@ See the top level Elektron-SDK README.md for details.
 - EMA-533 ChannelSet with two multicast channels userQLimit set incorrectly 
 - EMA-560 tunnelStreamConsumer exit crash
 - EMA-575 NiProvider360 application uses 100% CPU when CTRL-C pressed while publishing data
-- EMA-634 EMA library should only support serviceId for source directory mapkey (NIProv).  ***[ServiceName use for source directory has been deprecated]***
+- EMA-691 Random exit issue with NiProvider, application does not exit.
+
  
 
 # Obtaining the Thomson Reuters Field Dictionaries

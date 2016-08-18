@@ -350,6 +350,7 @@ bool SingleItem::submit( RsslRequestMsg* pRsslRequestMsg )
 	bool serviceIdSet = ( pRsslRequestMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_SERVICE_ID ) ? true : false;
 	pRsslRequestMsg->msgBase.msgKey.flags &= ~RSSL_MKF_HAS_SERVICE_ID;
 
+	bool qosSet = false;
 	if ( !( pRsslRequestMsg->flags & RSSL_RQMF_HAS_QOS ) )
 	{
 		pRsslRequestMsg->qos.timeliness = RSSL_QOS_TIME_REALTIME;
@@ -359,6 +360,10 @@ bool SingleItem::submit( RsslRequestMsg* pRsslRequestMsg )
 		pRsslRequestMsg->worstQos.rateInfo = 65535;
 		pRsslRequestMsg->flags |= ( RSSL_RQMF_HAS_QOS | RSSL_RQMF_HAS_WORST_QOS );
 	}
+	else
+		qosSet = true;
+
+	bool msgKeyInUpdatesSet = ( pRsslRequestMsg->flags & RSSL_RQMF_MSG_KEY_IN_UPDATES ) ? true : false;
 
 	pRsslRequestMsg->flags |= _ommBaseImpl.getActiveConfig().configChannelSet[0]->msgKeyInUpdates ? RSSL_RQMF_MSG_KEY_IN_UPDATES : 0;
 	submitMsgOpts.pRsslMsg = (RsslMsg*) pRsslRequestMsg;
@@ -372,6 +377,8 @@ bool SingleItem::submit( RsslRequestMsg* pRsslRequestMsg )
 	submitMsgOpts.minorVersion = _pDirectory->getChannel()->getRsslChannel()->minorVersion;
 
 	submitMsgOpts.requestMsgOptions.pUserSpec = ( void* )this;
+	
+	Int32 origStreamId = submitMsgOpts.pRsslMsg->msgBase.streamId;
 
 	if ( !_streamId )
 	{
@@ -391,14 +398,15 @@ bool SingleItem::submit( RsslRequestMsg* pRsslRequestMsg )
 		}
 		else
 		{
-			if ( !submitMsgOpts.pRsslMsg->msgBase.streamId )
-				submitMsgOpts.pRsslMsg->msgBase.streamId = _pDirectory->getChannel()->getNextStreamId();
+			submitMsgOpts.pRsslMsg->msgBase.streamId = _pDirectory->getChannel()->getNextStreamId();
 
 			_streamId = submitMsgOpts.pRsslMsg->msgBase.streamId;
 		}
 	}
 	else
 		submitMsgOpts.pRsslMsg->msgBase.streamId = _streamId;
+
+	UInt8 origDomainType = submitMsgOpts.pRsslMsg->msgBase.domainType;
 
 	if ( !_domainType )
 		_domainType = submitMsgOpts.pRsslMsg->msgBase.domainType;
@@ -412,6 +420,18 @@ bool SingleItem::submit( RsslRequestMsg* pRsslRequestMsg )
 		_pDirectory->getChannel()->getRsslChannel(),
 		&submitMsgOpts, &rsslErrorInfo ) ) != RSSL_RET_SUCCESS )
 	{
+		pRsslRequestMsg->msgBase.domainType = origDomainType;
+
+		pRsslRequestMsg->msgBase.streamId = origStreamId;
+
+		if ( msgKeyInUpdatesSet )
+			pRsslRequestMsg->flags |= RSSL_RQMF_MSG_KEY_IN_UPDATES;
+		else
+			pRsslRequestMsg->flags &= ~RSSL_RQMF_MSG_KEY_IN_UPDATES;
+
+		if ( !qosSet )
+			pRsslRequestMsg->flags &= ~( RSSL_RQMF_HAS_QOS | RSSL_RQMF_HAS_WORST_QOS );
+
 		if ( serviceIdSet )
 			pRsslRequestMsg->msgBase.msgKey.flags |= RSSL_MKF_HAS_SERVICE_ID;
 
@@ -436,6 +456,18 @@ bool SingleItem::submit( RsslRequestMsg* pRsslRequestMsg )
 
 		return false;
 	}
+
+	pRsslRequestMsg->msgBase.domainType = origDomainType;
+
+	pRsslRequestMsg->msgBase.streamId = origStreamId;
+
+	if ( msgKeyInUpdatesSet )
+		pRsslRequestMsg->flags |= RSSL_RQMF_MSG_KEY_IN_UPDATES;
+	else
+		pRsslRequestMsg->flags &= ~RSSL_RQMF_MSG_KEY_IN_UPDATES;
+
+	if ( !qosSet )
+		pRsslRequestMsg->flags &= ~( RSSL_RQMF_HAS_QOS | RSSL_RQMF_HAS_WORST_QOS );
 
 	if ( serviceIdSet )
 		pRsslRequestMsg->msgBase.msgKey.flags |= RSSL_MKF_HAS_SERVICE_ID;
