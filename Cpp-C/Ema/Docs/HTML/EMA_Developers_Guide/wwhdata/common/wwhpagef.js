@@ -115,9 +115,11 @@ function  WWHGetWWHFrame(ParamToBookDir,
       // Redirect
       //
       RedirectURI = WWHToWWHelpDirectory() + ParamToBookDir + "wwhelp/wwhimpl/api.htm?context=" + WWHBookData_Context() + "&file=" + BaseFilename + "&single=true";
-      window.setTimeout(function () {
-        window.location.replace(RedirectURI);
-      }, 50);
+      if (window.navigator.userAgent.indexOf('bot/') === -1) {
+        window.setTimeout(function () {
+          window.location.replace(RedirectURI);
+        }, 50);
+      }
     }
   }
 

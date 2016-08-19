@@ -46,60 +46,60 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1021262">371__MarketPrice__BatchViewReissue</a></div>
-      <div class="Body"><a name="1028697">Summary</a></div>
-      <div class="Body"><a name="1028698">=======</a></div>
-      <div class="Body"><a name="1028699">&nbsp;</a></div>
-      <div class="Body"><a name="1028700">The 371__MarketPrice__BatchViewReissue application is provided as</a></div>
-      <div class="Body"><a name="1028701">an example of OMM Consumer application written to the EMA library.</a></div>
-      <div class="Body"><a name="1028702">&nbsp;</a></div>
-      <div class="Body"><a name="1028703">This application demonstrates basic usage of the EMA library while </a></div>
-      <div class="Body"><a name="1028704">opening multiple items via a single request with a specific view and</a></div>
-      <div class="Body"><a name="1028705">parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
-      <div class="Body"><a name="1028706">directly from an OMM Provider application, or from Thomson Reuters</a></div>
-      <div class="Body"><a name="1028707">Advanced Distribution Server.</a></div>
-      <div class="Body"><a name="1028708">&nbsp;</a></div>
-      <div class="Body"><a name="1028709">The 371__MarketPrice__BatchViewReissue showcases usage of combined</a></div>
-      <div class="Body"><a name="1028710">batch and view request feature supported by Omm Consumer and Omm Provider.</a></div>
-      <div class="Body"><a name="1028711">&nbsp;</a></div>
-      <div class="Body"><a name="1028712">Detailed Description</a></div>
-      <div class="Body"><a name="1028713">====================</a></div>
-      <div class="Body"><a name="1028714">&nbsp;</a></div>
-      <div class="Body"><a name="1028715">The 371__MarketPrice__BatchViewReissue implements the following high level steps:</a></div>
-      <div class="Body"><a name="1028716">&nbsp;</a></div>
-      <div class="Body"><a name="1028717">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1028718">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1028719">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
-      <div class="Body"><a name="1028720">    - each of the method provided in this example use the ease of use</a></div>
-      <div class="Body"><a name="1028721">	  data extraction methods that are data type specific</a></div>
-      <div class="Body"><a name="1028722">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1028723">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1028724">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1028725">  - sets host name on the preconfigured connection to “localhost”</a></div>
-      <div class="Body"><a name="1028726">  - sets port on the preconfigured connection to “14002”</a></div>
-      <div class="Body"><a name="1028727">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1028728">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1028729">+ Opens a batch of streaming item interests</a></div>
-      <div class="Body"><a name="1028730">  - MarketPrice Domain batch request from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1028731">    - the batch (a list of item names) and view definition is added to</a></div>
-      <div class="Body"><a name="1028732">	  the request using the payload() method</a></div>
-      <div class="Body"><a name="1028733">+ Processes data received from API for 60 seconds</a></div>
-      <div class="Body"><a name="1028734">  - all received messages are processed on API thread of control</a></div>
-      <div class="Body"><a name="1028735">  - modifies or reissues view for each item</a></div>
-      <div class="Body"><a name="1028736">+ Exits</a></div>
-      <div class="Body"><a name="1028737">&nbsp;</a></div>
-      <div class="Body"><a name="1028738">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1028739">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1028740">	  </a></div>
-      <div class="Body"><a name="1028741">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1028742">      standard configuration.</a></div>
-      <div class="Body"><a name="1028743">&nbsp;</a></div>
-      <div class="Body"><a name="1028744">&nbsp;</a></div>
-      <div class="Body"><a name="1028745">OmmConsumerClient and Callbacks</a></div>
-      <div class="Body"><a name="1028746">===============================</a></div>
-      <div class="Body"><a name="1028747">&nbsp;</a></div>
-      <div class="Body"><a name="1028748">The 371__MarketPrice__BatchViewReissue demonstrates how to receive and process</a></div>
-      <div class="Body"><a name="1028749">individual item response messages for MarketPrice domains. Additionally this</a></div>
-      <div class="Body"><a name="1024469">application shows a native / RWF decoding of FieldList container.</a></div>
+      <div class="Body"><a name="1030575">Summary</a></div>
+      <div class="Body"><a name="1030576">=======</a></div>
+      <div class="Body"><a name="1030577">&nbsp;</a></div>
+      <div class="Body"><a name="1030578">The 371__MarketPrice__BatchViewReissue application is provided as</a></div>
+      <div class="Body"><a name="1030579">an example of OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1030580">&nbsp;</a></div>
+      <div class="Body"><a name="1030581">This application demonstrates basic usage of the EMA library while </a></div>
+      <div class="Body"><a name="1030582">opening multiple items via a single request with a specific view and</a></div>
+      <div class="Body"><a name="1030583">parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1030584">directly from an OMM Provider application, or from Thomson Reuters</a></div>
+      <div class="Body"><a name="1030585">Advanced Distribution Server.</a></div>
+      <div class="Body"><a name="1030586">&nbsp;</a></div>
+      <div class="Body"><a name="1030587">The 371__MarketPrice__BatchViewReissue showcases usage of combined</a></div>
+      <div class="Body"><a name="1030588">batch and view request feature supported by Omm Consumer and Omm Provider.</a></div>
+      <div class="Body"><a name="1030589">&nbsp;</a></div>
+      <div class="Body"><a name="1030590">Detailed Description</a></div>
+      <div class="Body"><a name="1030591">====================</a></div>
+      <div class="Body"><a name="1030592">&nbsp;</a></div>
+      <div class="Body"><a name="1030593">The 371__MarketPrice__BatchViewReissue implements the following high level steps:</a></div>
+      <div class="Body"><a name="1030594">&nbsp;</a></div>
+      <div class="Body"><a name="1030595">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1030596">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1030597">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1030598">    - each of the method provided in this example use the ease of use</a></div>
+      <div class="Body"><a name="1030599">	  data extraction methods that are data type specific</a></div>
+      <div class="Body"><a name="1030600">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1030601">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1030602">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1030603">  - sets host name on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1030604">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1030605">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1030606">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1030607">+ Opens a batch of streaming item interests</a></div>
+      <div class="Body"><a name="1030608">  - MarketPrice Domain batch request from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1030609">    - the batch (a list of item names) and view definition is added to</a></div>
+      <div class="Body"><a name="1030610">	  the request using the payload() method</a></div>
+      <div class="Body"><a name="1030611">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1030612">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1030613">  - modifies or reissues view for each item</a></div>
+      <div class="Body"><a name="1030614">+ Exits</a></div>
+      <div class="Body"><a name="1030615">&nbsp;</a></div>
+      <div class="Body"><a name="1030616">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1030617">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1030618">	  </a></div>
+      <div class="Body"><a name="1030619">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1030620">      standard configuration.</a></div>
+      <div class="Body"><a name="1030621">&nbsp;</a></div>
+      <div class="Body"><a name="1030622">&nbsp;</a></div>
+      <div class="Body"><a name="1030623">OmmConsumerClient and Callbacks</a></div>
+      <div class="Body"><a name="1030624">===============================</a></div>
+      <div class="Body"><a name="1030625">&nbsp;</a></div>
+      <div class="Body"><a name="1030626">The 371__MarketPrice__BatchViewReissue demonstrates how to receive and process</a></div>
+      <div class="Body"><a name="1030627">individual item response messages for MarketPrice domains. Additionally this</a></div>
+      <div class="Body"><a name="1028767">application shows a native / RWF decoding of FieldList container.</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

@@ -1,6 +1,5 @@
 function FileData_Pairs(x)
 {
-x.t("real-time","chapter");
 x.t("description","usage");
 x.t("source","directory");
 x.t("state","filter");
@@ -16,7 +15,6 @@ x.t("status","values");
 x.t("info","filter");
 x.t("group","status");
 x.t("group","filter");
-x.t("enterprise","platform");
 x.t("api","edition");
 x.t("filter","entry");
 x.t("entry","source");
@@ -40,7 +38,7 @@ x.t("directory","generic");
 x.t("directory","request");
 x.t("directory","refresh");
 x.t("directory","domain");
-x.t("directory","specific");
+x.t("directory","chapter");
 x.t("directory","data");
 x.t("directory","consumerstatus");
 x.t("directory","load");
@@ -53,11 +51,8 @@ x.t("message","payload");
 x.t("message","api");
 x.t("message","data");
 x.t("usage","source");
-x.t("usage","enterprise");
-x.t("specific","usage");
 x.t("elektron","message");
 x.t("services","service");
-x.t("platform","real-time");
 x.t("data","source");
 x.t("data","filter");
 x.t("semantics","multiple");

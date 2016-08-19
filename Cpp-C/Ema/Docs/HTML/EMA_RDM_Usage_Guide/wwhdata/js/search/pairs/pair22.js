@@ -1,5 +1,6 @@
 function FileData_Pairs(x)
 {
+x.t("3.0.4","edition");
 x.t("refer","section");
 x.t("refer","ema");
 x.t("support","batch");
@@ -17,10 +18,9 @@ x.t("new","individual");
 x.t("status","batch");
 x.t("non-administrative","domain");
 x.t("indicates","support");
-x.t("3.0","developers");
 x.t("api","edition");
 x.t("requested","batch");
-x.t("guide","edition");
+x.t("guide","chapter");
 x.t("overview","general");
 x.t("via","supportbatchrequests");
 x.t("requesting","leveraged");
@@ -56,7 +56,7 @@ x.t("application","respond");
 x.t("described","section");
 x.t("3.2.4","information");
 x.t("itself","new");
-x.t("edition","chapter");
+x.t("edition","developers");
 x.t("edition","2.6.5");
 x.t("individual","item");
 x.t("model","overview");
@@ -68,7 +68,7 @@ x.t("streams","single");
 x.t("streams","item");
 x.t("item","requested");
 x.t("item","streams");
-x.t("ema","3.0");
+x.t("ema","3.0.4");
 x.t("ema","concepts");
 x.t("concepts","batch");
 }

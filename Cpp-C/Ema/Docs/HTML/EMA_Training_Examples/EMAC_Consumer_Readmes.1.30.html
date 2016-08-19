@@ -46,50 +46,50 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1020350">332__Dictionary__Streaming</a></div>
-      <div class="Body"><a name="1028420">Summary</a></div>
-      <div class="Body"><a name="1028421">=======</a></div>
-      <div class="Body"><a name="1028422">&nbsp;</a></div>
-      <div class="Body"><a name="1028423">The 332__Dictionary__Streaming application is provided as an example of</a></div>
-      <div class="Body"><a name="1028424">OMM Consumer application written to the EMA library.</a></div>
-      <div class="Body"><a name="1028425">&nbsp;</a></div>
-      <div class="Body"><a name="1028426">This application demonstrates basic usage of the EMA library for accessing</a></div>
-      <div class="Body"><a name="1028427">and parsing of OMM Dictionary and MarketPrice data from Reuters Data Feed</a></div>
-      <div class="Body"><a name="1028428">Direct (RDF-D), directly from an OMM Provider application, or from Thomson</a></div>
-      <div class="Body"><a name="1028429">Reuters Advanced Distribution Server.</a></div>
-      <div class="Body"><a name="1028430">&nbsp;</a></div>
-      <div class="Body"><a name="1028431">The 332__Dictionary__Streaming showcases usage of directory stream in OMM</a></div>
-      <div class="Body"><a name="1028432">Consumer. It demonstrates opening of dictionary stream as well as its processing.</a></div>
-      <div class="Body"><a name="1028433">&nbsp;</a></div>
-      <div class="Body"><a name="1028434">&nbsp;</a></div>
-      <div class="Body"><a name="1028435">Detailed Description</a></div>
-      <div class="Body"><a name="1028436">====================</a></div>
-      <div class="Body"><a name="1028437">&nbsp;</a></div>
-      <div class="Body"><a name="1028438">The 332__Dictionary__Streaming implements the following high level steps:</a></div>
-      <div class="Body"><a name="1028439">&nbsp;</a></div>
-      <div class="Body"><a name="1028440">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1028441">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1028442">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
-      <div class="Body"><a name="1028443">    - each of the method provided in this example use the ease of use</a></div>
-      <div class="Body"><a name="1028444">	  data extraction methods that are data type specific</a></div>
-      <div class="Body"><a name="1028445">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1028446">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1028447">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1028448">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1028449">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1028450">+ Opens three streaming item interests</a></div>
-      <div class="Body"><a name="1028451">  - Dictionary Domain stream for RWFFld</a></div>
-      <div class="Body"><a name="1028452">  - Dictionary Domain stream for RWFEnum</a></div>
-      <div class="Body"><a name="1028453">  - Market Price Domain IBM.N item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1028454">+ Processes data received from API for 60 seconds</a></div>
-      <div class="Body"><a name="1028455">  - all received messages are processed on API thread of control</a></div>
-      <div class="Body"><a name="1028456">+ Exits</a></div>
-      <div class="Body"><a name="1028457">&nbsp;</a></div>
-      <div class="Body"><a name="1028458">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1028459">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1028460">	  </a></div>
-      <div class="Body"><a name="1028461">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1028462">      standard configuration.</a></div>
-      <div class="Body"><a name="1026234">&nbsp;</a></div>
+      <div class="Body"><a name="1030298">Summary</a></div>
+      <div class="Body"><a name="1030299">=======</a></div>
+      <div class="Body"><a name="1030300">&nbsp;</a></div>
+      <div class="Body"><a name="1030301">The 332__Dictionary__Streaming application is provided as an example of</a></div>
+      <div class="Body"><a name="1030302">OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1030303">&nbsp;</a></div>
+      <div class="Body"><a name="1030304">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1030305">and parsing of OMM Dictionary and MarketPrice data from Reuters Data Feed</a></div>
+      <div class="Body"><a name="1030306">Direct (RDF-D), directly from an OMM Provider application, or from Thomson</a></div>
+      <div class="Body"><a name="1030307">Reuters Advanced Distribution Server.</a></div>
+      <div class="Body"><a name="1030308">&nbsp;</a></div>
+      <div class="Body"><a name="1030309">The 332__Dictionary__Streaming showcases usage of directory stream in OMM</a></div>
+      <div class="Body"><a name="1030310">Consumer. It demonstrates opening of dictionary stream as well as its processing.</a></div>
+      <div class="Body"><a name="1030311">&nbsp;</a></div>
+      <div class="Body"><a name="1030312">&nbsp;</a></div>
+      <div class="Body"><a name="1030313">Detailed Description</a></div>
+      <div class="Body"><a name="1030314">====================</a></div>
+      <div class="Body"><a name="1030315">&nbsp;</a></div>
+      <div class="Body"><a name="1030316">The 332__Dictionary__Streaming implements the following high level steps:</a></div>
+      <div class="Body"><a name="1030317">&nbsp;</a></div>
+      <div class="Body"><a name="1030318">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1030319">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1030320">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1030321">    - each of the method provided in this example use the ease of use</a></div>
+      <div class="Body"><a name="1030322">	  data extraction methods that are data type specific</a></div>
+      <div class="Body"><a name="1030323">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1030324">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1030325">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1030326">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1030327">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1030328">+ Opens three streaming item interests</a></div>
+      <div class="Body"><a name="1030329">  - Dictionary Domain stream for RWFFld</a></div>
+      <div class="Body"><a name="1030330">  - Dictionary Domain stream for RWFEnum</a></div>
+      <div class="Body"><a name="1030331">  - Market Price Domain IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1030332">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1030333">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1030334">+ Exits</a></div>
+      <div class="Body"><a name="1030335">&nbsp;</a></div>
+      <div class="Body"><a name="1030336">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1030337">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1030338">	  </a></div>
+      <div class="Body"><a name="1030339">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1030340">      standard configuration.</a></div>
+      <div class="Body"><a name="1028468">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

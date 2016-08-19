@@ -1,6 +1,7 @@
 div.Blank_Line
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 3.0pt;
   font-style: normal;
@@ -10,7 +11,7 @@ div.Blank_Line
   margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 1.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -26,12 +27,13 @@ div.Blank_Line
 .Blank_Line_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 3.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -47,6 +49,7 @@ div.Blank_Line
 div.Body
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
@@ -56,7 +59,7 @@ div.Body
   margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 7.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -72,12 +75,13 @@ div.Body
 .Body_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -93,6 +97,7 @@ div.Body
 div.H1
 {
   color: #f2960c;
+  direction: ltr;
   font-family: Arial;
   font-size: 18.0pt;
   font-style: normal;
@@ -102,7 +107,7 @@ div.H1
   margin-left: 99pt;
   margin-right: 0pt;
   margin-top: 30.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: -99pt;
   text-transform: none;
   vertical-align: baseline;
@@ -118,12 +123,13 @@ div.H1
 .H1_inner
 {
   color: #f2960c;
+  direction: ltr;
   font-family: Arial;
   font-size: 18.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: bold;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -139,6 +145,7 @@ div.H1
 div.Legal_Notices
 {
   color: #f2960c;
+  direction: ltr;
   font-family: Arial;
   font-size: 18.0pt;
   font-style: normal;
@@ -148,7 +155,7 @@ div.Legal_Notices
   margin-left: 99pt;
   margin-right: 0pt;
   margin-top: 30.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: -99pt;
   text-transform: none;
   vertical-align: baseline;
@@ -164,12 +171,13 @@ div.Legal_Notices
 .Legal_Notices_inner
 {
   color: #f2960c;
+  direction: ltr;
   font-family: Arial;
   font-size: 18.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: bold;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -206,6 +214,7 @@ span.SL
 table.Format_B
 {
   border-collapse: collapse;
+  direction: ltr;
   margin-bottom: 12.0pt;
   margin-left: 0pt;
   margin-right: 0pt;
@@ -221,6 +230,7 @@ table.Format_B
 table.Format_A
 {
   border-collapse: collapse;
+  direction: ltr;
   margin-bottom: 12.0pt;
   margin-left: 0pt;
   margin-right: 0pt;

@@ -1,7 +1,6 @@
 function FileData_Pairs(x)
 {
 x.t("(rdm)","defined");
-x.t("real-time","component");
 x.t("available","reuters");
 x.t("rdm","usage");
 x.t("rdm","data");
@@ -33,7 +32,7 @@ x.t("elektron","message");
 x.t("elektron","messaging");
 x.t("models","(rdm)");
 x.t("distribution","server");
-x.t("platform","real-time");
+x.t("platform","component");
 x.t("data","available");
 x.t("data","feed");
 x.t("messaging","api");

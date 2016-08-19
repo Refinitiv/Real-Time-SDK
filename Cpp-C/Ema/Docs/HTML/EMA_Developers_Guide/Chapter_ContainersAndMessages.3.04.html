@@ -59,82 +59,82 @@
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1032909">The </a><span class="CodeOrCommand">Data</span> class is a parent abstract class from which all OMM containers, messages, and primitives inherit. <span class="CodeOrCommand">Data</span> provides interfaces common across all its children, which in turn enables down-casting operations. The <span class="CodeOrCommand">Data</span> class and all classes that inherit from it are optimized for efficiency and built so that data can be easily accessed. Though all primitive data types are represented by classes that inherit from the <span class="CodeOrCommand">Data</span> class, the ease-of-use interfaces do not return such references: all primitive data types are returned by their intrinsic representation.</div>
-      <div class="Blank_Line"><a name="1032918">&nbsp;</a></div>
+      <div class="Body"><a name="1034410">The </a><span class="CodeOrCommand">Data</span> class is a parent abstract class from which all OMM containers, messages, and primitives inherit. <span class="CodeOrCommand">Data</span> provides interfaces common across all its children, which in turn enables down-casting operations. The <span class="CodeOrCommand">Data</span> class and all classes that inherit from it are optimized for efficiency and built so that data can be easily accessed. Though all primitive data types are represented by classes that inherit from the <span class="CodeOrCommand">Data</span> class, the ease-of-use interfaces do not return such references: all primitive data types are returned by their intrinsic representation.</div>
+      <div class="Blank_Line"><a name="1034419">&nbsp;</a></div>
       <table class="Warning" style="width: 554.99976pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 30.74904pt">
-            <div class="Body" style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1032915"><img class="Default" src="images/Chapter_ContainersAndMessages.3.04.1.jpg" width="34" height="33" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></span></div>
+            <div class="Body" style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1034416"><img class="Default" src="images/Chapter_ContainersAndMessages.3.04.1.jpg" width="34" height="33" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></span></div>
           </td>
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 524.25072pt">
             <div class="Warning">
-              <span class="Bold">Warning! </span><a name="1032917"> The </a><span class="CodeOrCommand">Data</span> class and all classes that inherit from it are designed as temporary and short-lived objects. For this reason, do not use them as storage or caching devices.</div>
+              <span class="Bold">Warning! </span><a name="1034418"> The </a><span class="CodeOrCommand">Data</span> class and all classes that inherit from it are designed as temporary and short-lived objects. For this reason, do not use them as storage or caching devices.</div>
           </td>
         </tr>
       </table>
-      <div class="Body"><a name="1032919">The EMA does not support immediately retrieving data from freshly created OMM containers or messages. The following code snippet demonstrates this restriction:</a></div>
-      <div class="Blank_Line"><a name="1032945">&nbsp;</a></div>
+      <div class="Body"><a name="1034420">The EMA does not support immediately retrieving data from freshly created OMM containers or messages. The following code snippet demonstrates this restriction:</a></div>
+      <div class="Blank_Line"><a name="1034446">&nbsp;</a></div>
       <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command"><a name="1032922">&nbsp;</a></div>
+            <div class="command"><a name="1034423">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><span class="Color_003aLight_Blue"><a name="1032924">FieldList</a></span> fieldList;</div>
+            <div class="command"><span class="Color_003aLight_Blue"><a name="1034425">FieldList</a></span> fieldList;</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1032926">&nbsp;</a></div>
+            <div class="command"><a name="1034427">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1032928">fieldList.addAscii( 1, </a><span class="Color_003aRed">"ascii"</span> ).addInt( 10, 20 ).complete();</div>
+            <div class="command"><a name="1034429">fieldList.addAscii( 1, </a><span class="Color_003aRed">"ascii"</span> ).addInt( 10, 20 ).complete();</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1032930">&nbsp;</a></div>
+            <div class="command"><a name="1034431">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><span class="Color_003aBlue"><a name="1032932">while</a></span> ( fieldList.forth() )</div>
+            <div class="command"><span class="Color_003aBlue"><a name="1034433">while</a></span> ( fieldList.forth() )</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1032934">{</a></div>
+            <div class="command"><a name="1034435">{</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1032936">	</a><span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">FieldEntry</span>&amp; fieldEntry = fieldList.getEntry();</div>
+            <div class="command"><a name="1034437">	</a><span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">FieldEntry</span>&amp; fieldEntry = fieldList.getEntry();</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1032938">&nbsp;</a></div>
+            <div class="command"><a name="1034439">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1032940">	...</a></div>
+            <div class="command"><a name="1034441">	...</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1032942">}</a></div>
+            <div class="command"><a name="1034443">}</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1032944">&nbsp;</a></div>
+            <div class="command"><a name="1034445">&nbsp;</a></div>
           </td>
         </tr>
       </table>

@@ -1,6 +1,5 @@
 function FileData_Pairs(x)
 {
-x.t("real-time","specific");
 x.t("description","usage");
 x.t("close","message");
 x.t("payload","login");
@@ -52,7 +51,7 @@ x.t("usage","rdf");
 x.t("specific","usage");
 x.t("elektron","message");
 x.t("authentication","multiple");
-x.t("platform","real-time");
+x.t("platform","specific");
 x.t("data","login");
 x.t("data","specific");
 x.t("ack","message");

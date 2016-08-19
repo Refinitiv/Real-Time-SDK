@@ -59,8 +59,8 @@
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1060583">Each EMA provider-type application must eventually instantiate an </a><span class="Concept">OmmProvider</span> object. Constructors for <span class="CodeOrCommand">OmmProvider</span> require a <span class="Concept">OmmNiProviderConfig</span> object. The <span class="CodeOrCommand">OmmNiProviderConfig</span> constructor takes no arguments, but it does read and process an optional XML file (<span class="FileOrDirectory">EmaConfig.xml</span>), which applications can use to modify EMA’s default non-interactive provider behavior.</div>
-      <div class="Body"><a name="1060584">EMA provides a hard-coded configuration for use whenever an </a><span class="CodeOrCommand">OmmNiProviderConfig</span> object is instantiated without an <span class="FileOrDirectory">EmaConfig.xml</span> file in the run-time environment. The resulting EMA configuration is created by taking the defaults from the various configuration groups. For example, the default (hard-coded) behavior for a <span class="Parameter">Channel</span> adheres to the following configuration:</div>
+      <div class="Body"><a name="1062263">Each EMA provider-type application must eventually instantiate an </a><span class="Concept">OmmProvider</span> object. Constructors for <span class="CodeOrCommand">OmmProvider</span> require a <span class="Concept">OmmNiProviderConfig</span> object. The <span class="CodeOrCommand">OmmNiProviderConfig</span> constructor takes no arguments, but it does read and process an optional XML file (<span class="FileOrDirectory">EmaConfig.xml</span>), which applications can use to modify EMA’s default non-interactive provider behavior.</div>
+      <div class="Body"><a name="1062264">EMA provides a hard-coded configuration for use whenever an </a><span class="CodeOrCommand">OmmNiProviderConfig</span> object is instantiated without an <span class="FileOrDirectory">EmaConfig.xml</span> file in the run-time environment. The resulting EMA configuration is created by taking the defaults from the various configuration groups. For example, the default (hard-coded) behavior for a <span class="Parameter">Channel</span> adheres to the following configuration:</div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -70,7 +70,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><span class="Parameter"><a name="1060585">ChannelType</a></span> value=”RSSL_SOCKET”</div>
+              <div class="Bullet_inner"><span class="Parameter"><a name="1062265">ChannelType</a></span> value=”RSSL_SOCKET”</div>
             </td>
           </tr>
         </table>
@@ -84,7 +84,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><span class="Parameter"><a name="1060586">CompressionType</a></span> value=”None”</div>
+              <div class="Bullet_inner"><span class="Parameter"><a name="1062266">CompressionType</a></span> value=”None”</div>
             </td>
           </tr>
         </table>
@@ -98,7 +98,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><span class="Parameter"><a name="1060587">TcpNoDelay</a></span> value=”1”</div>
+              <div class="Bullet_inner"><span class="Parameter"><a name="1062267">TcpNoDelay</a></span> value=”1”</div>
             </td>
           </tr>
         </table>
@@ -112,7 +112,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><span class="Parameter"><a name="1060588">Host</a></span> value=”localhost”</div>
+              <div class="Bullet_inner"><span class="Parameter"><a name="1062268">Host</a></span> value=”localhost”</div>
             </td>
           </tr>
         </table>
@@ -126,7 +126,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><span class="Parameter"><a name="1060589">Port</a></span> value= “14003”</div>
+              <div class="Bullet_inner"><span class="Parameter"><a name="1062269">Port</a></span> value= “14003”</div>
             </td>
           </tr>
         </table>
@@ -140,12 +140,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><span class="Parameter"><a name="1060590">XmlTraceToFile</a></span> value=”0”</div>
+              <div class="Bullet_inner"><span class="Parameter"><a name="1062270">XmlTraceToFile</a></span> value=”0”</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1060591">Note that unlike EMA’s default behavior of choosing the first </a><span class="Parameter">NiProvider</span> component in the <span class="Parameter">NiProviderList</span>, EMA applications will not choose the first <span class="Parameter">Logger</span> or <span class="Parameter">Channel</span> in their respective lists. Instead, if an application wants to use a specific channel, logger, or dictionary configuration, the application must explicitly configure it in the appropriate <span class="Parameter">NiProvider</span> section of the XML file.</div>
+      <div class="Body"><a name="1062271">Note that unlike EMA’s default behavior of choosing the first </a><span class="Parameter">NiProvider</span> component in the <span class="Parameter">NiProviderList</span>, EMA applications will not choose the first <span class="Parameter">Logger</span> or <span class="Parameter">Channel</span> in their respective lists. Instead, if an application wants to use a specific channel, logger, or dictionary configuration, the application must explicitly configure it in the appropriate <span class="Parameter">NiProvider</span> section of the XML file.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

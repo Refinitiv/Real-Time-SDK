@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>Message Concepts</title>
+    <link rel="StyleSheet" href="css/EMACPP_RDMUsageGuide.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="Heading_2_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Heading_2_inner" style="width: 54pt; white-space: nowrap">
+                <span style="color: #666666; font-size: 18pt; font-style: normal; font-weight: bold; vertical-align: baseline">2.3	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Heading_2_inner"><a name="pID0E0520HA">Message Concepts</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Normal"><a name="pID0E0420HA">The following table describes the mapping of OMM concepts with actual interfaces. For clarity and consistency, the Message concept will be referenced throughout the rest of the </a><span class="Char_Document_Title">RDM Usage Guide</span>.</div>
+      <table class="TR_Table" style="width: 540.35pt" cellspacing="0" summary="">
+        <tr style="vertical-align: top">
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-style: solid; border-bottom-width: 1pt; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-color: #A0968C; border-left-style: solid; border-left-style: solid; border-left-width: 1pt; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-color: #A0968C; border-top-style: solid; border-top-style: solid; border-top-width: 1pt; border-top-width: 1pt; color: #FFFFFF; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt; text-transform: uppercase; width: 115.4pt">
+            <div class="Column_Heading"><a name="pID0EABI0320HA">Message Concept</a></div>
+          </td>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-style: solid; border-bottom-width: 1pt; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #FF9100; border-right-color: #A0968C; border-right-style: solid; border-right-style: solid; border-right-width: 1pt; border-right-width: 1pt; border-top-color: #FF9100; border-top-color: #A0968C; border-top-style: solid; border-top-style: solid; border-top-width: 1pt; border-top-width: 1pt; color: #FFFFFF; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt; text-transform: uppercase; width: 424.95pt">
+            <div class="Column_Heading"><a name="pID0EAAI0320HA">Description/Value</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EABH0320HA">Request Message</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EAAH0320HA">ReqMsg</a></span> whose data type is <span class="Char_LucidaConsole">DataType.ReqMsgEnum</span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EBBG0320HA">Close Message</a></div>
+            <div class="Table_Text"><a name="pID0EABG0320HA">(Request)</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_LucidaConsole"><a name="pID0EAAG0320HA">OmmConsumer.unregister()</a></span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EBBF0320HA">Refresh Message </a></div>
+            <div class="Table_Text"><a name="pID0EABF0320HA">(Response)</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EAAF0320HA">RefreshMsg</a></span> whose data type is <span class="Char_LucidaConsole">DataType.RefreshMsgEnum</span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EBBE0320HA">Update Message</a></div>
+            <div class="Table_Text"><a name="pID0EABE0320HA">(Response)</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EAAE0320HA">UpdateMsg</a></span> whose data type is <span class="Char_LucidaConsole">DataType.UpdateMsgEnum</span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EBBD0320HA">Status message</a></div>
+            <div class="Table_Text"><a name="pID0EABD0320HA">(Response)</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EAAD0320HA">StatusMsg</a></span> whose data type is<span class="Char_Parameter"> </span><span class="Char_LucidaConsole">DataType.StatusMsgEnum</span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EBBC0320HA">Post Message</a></div>
+            <div class="Table_Text"><a name="pID0EABC0320HA">&nbsp;</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EAAC0320HA">PostMsg</a></span> whose data type is<span class="Char_Parameter"> </span><span class="Char_LucidaConsole">DataType.PostMsgEnum</span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EBBB0320HA">Generic Message</a></div>
+            <div class="Table_Text"><a name="pID0EABB0320HA">&nbsp;</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EAAB0320HA">GenericMsg</a></span> whose data type is<span class="Char_Parameter"> </span><span class="Char_LucidaConsole">DataType.GenericMsgEnum</span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EBBA0320HA">Ack Message</a></div>
+            <div class="Table_Text"><a name="pID0EABA0320HA">&nbsp;</a></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EAAA0320HA">AckMsg</a></span> whose data type is<span class="Char_Parameter"> </span><span class="Char_LucidaConsole">DataType.AckMsgEnum</span></div>
+          </td>
+        </tr>
+      </table>
+      <div class="Caption"><a name="pID0E0220HA">Table 3: Message Concepts </a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMACPP_RDMUsageGuide.1.010.html">Chapter 2	Domain Model Overview</a> : Message Concepts</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

@@ -1,0 +1,972 @@
+div.Normal
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 10pt;
+  margin-bottom: 6pt;
+  margin-top: 2pt;
+}
+
+.Normal_outer
+{
+  margin-bottom: 6pt;
+  margin-top: 2pt;
+}
+
+.Normal_inner
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 10pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.Heading_1
+{
+  color: #FF9100;
+  font-family: Arial;
+  font-size: 18pt;
+  font-weight: bold;
+  margin-bottom: 15pt;
+  margin-left: 108pt;
+  margin-top: 12pt;
+  text-indent: -108pt;
+}
+
+.Heading_1_outer
+{
+  margin-bottom: 15pt;
+  margin-top: 12pt;
+}
+
+.Heading_1_inner
+{
+  color: #FF9100;
+  font-family: Arial;
+  font-size: 18pt;
+  font-weight: bold;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.Heading_2
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 15pt;
+  font-weight: bold;
+  margin-bottom: 13pt;
+  margin-left: 54pt;
+  margin-top: 18pt;
+  text-indent: -54pt;
+}
+
+.Heading_2_outer
+{
+  margin-bottom: 13pt;
+  margin-top: 18pt;
+}
+
+.Heading_2_inner
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 15pt;
+  font-weight: bold;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.Heading_3
+{
+  color: #FF9100;
+  font-family: Arial;
+  font-size: 13pt;
+  font-weight: bold;
+  margin-bottom: 10pt;
+  margin-left: 54pt;
+  margin-top: 12pt;
+  text-indent: -54pt;
+}
+
+.Heading_3_outer
+{
+  margin-bottom: 10pt;
+  margin-top: 12pt;
+}
+
+.Heading_3_inner
+{
+  color: #FF9100;
+  font-family: Arial;
+  font-size: 13pt;
+  font-weight: bold;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.Heading_4
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 11pt;
+  font-weight: bold;
+  margin-bottom: 9pt;
+  margin-left: 54pt;
+  margin-top: 12pt;
+  text-indent: -54pt;
+}
+
+.Heading_4_outer
+{
+  margin-bottom: 9pt;
+  margin-top: 12pt;
+}
+
+.Heading_4_inner
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 11pt;
+  font-weight: bold;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.List_Number
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 10pt;
+  margin-bottom: 6pt;
+  margin-left: 18pt;
+  text-indent: -18pt;
+}
+
+.List_Number_outer
+{
+  margin-bottom: 6pt;
+}
+
+.List_Number_inner
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 10pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.Note
+{
+  border-bottom-color: #FF9100;
+  border-bottom-style: solid;
+  border-bottom-width: 0.5pt;
+  border-top-color: #FF9100;
+  border-top-style: solid;
+  border-top-width: 0.5pt;
+  color: #666666;
+  font-family: Arial;
+  font-size: 10pt;
+  margin-bottom: 6pt;
+  margin-left: 54pt;
+  margin-top: 6pt;
+  text-indent: -54pt;
+}
+
+.Note_outer
+{
+  border-bottom-color: #FF9100;
+  border-bottom-style: solid;
+  border-bottom-width: 0.5pt;
+  border-top-color: #FF9100;
+  border-top-style: solid;
+  border-top-width: 0.5pt;
+  margin-bottom: 6pt;
+  margin-top: 6pt;
+}
+
+.Note_inner
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 10pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.Code
+{
+  background-color: #FFF4E5;
+  color: #666666;
+  font-family: "Lucida Console";
+  font-size: 8pt;
+  margin-bottom: -2pt;
+  margin-left: 0in;
+  margin-top: -2pt;
+  padding-bottom: 2pt;
+  padding-left: 5in;
+  padding-top: 2pt;
+  text-indent: -36pt;
+}
+
+.Code_outer
+{
+  background-color: #FFF4E5;
+  margin-bottom: -2pt;
+  margin-top: -2pt;
+  padding-bottom: 2pt;
+  padding-left: 5in;
+  padding-top: 2pt;
+}
+
+.Code_inner
+{
+  color: #666666;
+  font-family: "Lucida Console";
+  font-size: 8pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.Caption
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 10pt;
+  font-weight: bold;
+  margin-bottom: 12pt;
+  margin-left: 18pt;
+  margin-top: 6pt;
+}
+
+.Caption_outer
+{
+  margin-bottom: 12pt;
+  margin-top: 6pt;
+}
+
+.Caption_inner
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 10pt;
+  font-weight: bold;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.Title
+{
+  color: #FF9100;
+  font-family: Arial;
+  font-size: 24pt;
+  margin-bottom: 6pt;
+  text-transform: uppercase;
+}
+
+.Title_outer
+{
+  margin-bottom: 6pt;
+}
+
+.Title_inner
+{
+  color: #FF9100;
+  font-family: Arial;
+  font-size: 24pt;
+  text-transform: uppercase;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.Subtitle
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 18pt;
+  margin-bottom: 6pt;
+  text-transform: uppercase;
+}
+
+.Subtitle_outer
+{
+  margin-bottom: 6pt;
+}
+
+.Subtitle_inner
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 18pt;
+  text-transform: uppercase;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.Table_Text
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 9pt;
+  margin-bottom: 1pt;
+  margin-top: 3pt;
+}
+
+.Table_Text_outer
+{
+  margin-bottom: 1pt;
+  margin-top: 3pt;
+}
+
+.Table_Text_inner
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 9pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.Contents
+{
+  color: #FF9100;
+  font-family: Arial;
+  font-size: 18pt;
+  font-weight: bold;
+  margin-bottom: 9pt;
+}
+
+.Contents_outer
+{
+  margin-bottom: 9pt;
+}
+
+.Contents_inner
+{
+  color: #FF9100;
+  font-family: Arial;
+  font-size: 18pt;
+  font-weight: bold;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.TGST_Legal
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 9pt;
+  margin-bottom: 6pt;
+  margin-top: 3pt;
+}
+
+.TGST_Legal_outer
+{
+  margin-bottom: 6pt;
+  margin-top: 3pt;
+}
+
+.TGST_Legal_inner
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 9pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.Bullet
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 10pt;
+  margin-bottom: 6pt;
+  margin-left: 18pt;
+  text-indent: -18pt;
+}
+
+.Bullet_outer
+{
+  margin-bottom: 6pt;
+}
+
+.Bullet_inner
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 10pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.Body_Text
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 10pt;
+  margin-bottom: 6pt;
+}
+
+.Body_Text_outer
+{
+  margin-bottom: 6pt;
+}
+
+.Body_Text_inner
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 10pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.Footnote_Text
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 9pt;
+  margin-bottom: 6pt;
+}
+
+.Footnote_Text_outer
+{
+  margin-bottom: 6pt;
+}
+
+.Footnote_Text_inner
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 9pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.Bullet_table
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 9pt;
+  margin-bottom: 2pt;
+  margin-left: 18pt;
+  margin-top: 2pt;
+  text-indent: -18pt;
+}
+
+.Bullet_table_outer
+{
+  margin-bottom: 2pt;
+  margin-top: 2pt;
+}
+
+.Bullet_table_inner
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 9pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.bullet_dash
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 10pt;
+  margin-bottom: 6pt;
+  margin-left: 54pt;
+  text-indent: -18pt;
+}
+
+.bullet_dash_outer
+{
+  margin-bottom: 6pt;
+}
+
+.bullet_dash_inner
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 10pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.bullet_ind
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 10pt;
+  margin-bottom: 6pt;
+  margin-left: 36pt;
+  text-indent: -18pt;
+}
+
+.bullet_ind_outer
+{
+  margin-bottom: 6pt;
+}
+
+.bullet_ind_inner
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 10pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.Column_Heading
+{
+  color: #FFFFFF;
+  font-family: Arial;
+  font-size: 9pt;
+  margin-bottom: 0pt;
+}
+
+.Column_Heading_outer
+{
+  margin-bottom: 0pt;
+}
+
+.Column_Heading_inner
+{
+  color: #FFFFFF;
+  font-family: Arial;
+  font-size: 9pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.Procedure_Title
+{
+  color: #FF9100;
+  font-family: Arial;
+  font-size: 10pt;
+  font-weight: bold;
+  margin-bottom: 6pt;
+}
+
+.Procedure_Title_outer
+{
+  margin-bottom: 6pt;
+}
+
+.Procedure_Title_inner
+{
+  color: #FF9100;
+  font-family: Arial;
+  font-size: 10pt;
+  font-weight: bold;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.Note_8pt
+{
+  border-bottom-color: #FF9100;
+  border-bottom-style: solid;
+  border-bottom-width: 0.5pt;
+  border-top-color: #FF9100;
+  border-top-style: solid;
+  border-top-width: 0.5pt;
+  color: #666666;
+  font-family: Arial;
+  font-size: 8pt;
+  margin-bottom: 6pt;
+  margin-left: 36pt;
+  margin-top: 6pt;
+  text-indent: -36pt;
+}
+
+.Note_8pt_outer
+{
+  border-bottom-color: #FF9100;
+  border-bottom-style: solid;
+  border-bottom-width: 0.5pt;
+  border-top-color: #FF9100;
+  border-top-style: solid;
+  border-top-width: 0.5pt;
+  margin-bottom: 6pt;
+  margin-top: 6pt;
+}
+
+.Note_8pt_inner
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 8pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.Note_9pt
+{
+  border-bottom-color: #FF9100;
+  border-bottom-style: solid;
+  border-bottom-width: 0.5pt;
+  border-top-color: #FF9100;
+  border-top-style: solid;
+  border-top-width: 0.5pt;
+  color: #666666;
+  font-family: Arial;
+  font-size: 9pt;
+  margin-bottom: 6pt;
+  margin-left: 36pt;
+  margin-top: 6pt;
+  text-indent: -36pt;
+}
+
+.Note_9pt_outer
+{
+  border-bottom-color: #FF9100;
+  border-bottom-style: solid;
+  border-bottom-width: 0.5pt;
+  border-top-color: #FF9100;
+  border-top-style: solid;
+  border-top-width: 0.5pt;
+  margin-bottom: 6pt;
+  margin-top: 6pt;
+}
+
+.Note_9pt_inner
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 9pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.Table_Text_Indent
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 9pt;
+  margin-bottom: 1pt;
+  margin-left: 18pt;
+  margin-top: 3pt;
+}
+
+.Table_Text_Indent_outer
+{
+  margin-bottom: 1pt;
+  margin-top: 3pt;
+}
+
+.Table_Text_Indent_inner
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 9pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+span.Emphasis
+{
+  font-style: italic;
+}
+
+span.Table_Text_Char
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 9pt;
+}
+
+span.Caption_Char
+{
+  color: #666666;
+  font-family: Arial;
+  font-weight: bold;
+}
+
+span.Footnote_Reference
+{
+  vertical-align: super;
+}
+
+span.Char_Parameter
+{
+  font-weight: bold;
+}
+
+span.Char_BoldEmphasis
+{
+  font-weight: bold;
+}
+
+span.Char_Code
+{
+  color: #FF9100;
+  font-family: "Lucida Console";
+  font-size: 9pt;
+}
+
+span.Char_Document_Title
+{
+  font-style: italic;
+}
+
+span.Char_Field
+{
+  font-weight: bold;
+}
+
+span.Char_LucidaConsole
+{
+  color: #FF9100;
+  font-family: "Lucida Console";
+}
+
+span.Concept_Char1
+{
+  color: #666666;
+  font-family: Arial;
+  font-style: italic;
+  font-weight: bold;
+}
+
+span.Char
+{
+  font-family: Arial;
+  font-weight: bold;
+}
+
+span.Code_Fragment
+{
+  font-family: "Courier New";
+}
+
+span.Bullet_table_Char_Char
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 9pt;
+}
+
+span.Char_DomainName
+{
+  font-style: italic;
+  font-weight: bold;
+}
+
+span.Char_SectionName
+{
+  font-weight: bold;
+}
+
+span.Char_Concept
+{
+  font-style: italic;
+  font-weight: bold;
+}
+
+span.Char_MsgName
+{
+  font-style: italic;
+  font-weight: bold;
+}
+
+span.orange_text
+{
+  color: #FF9100;
+  font-family: "Lucida Console";
+  font-size: 9pt;
+}
+
+span.Doc_Link
+{
+  color: #666666;
+  font-family: Arial;
+  font-size: 10pt;
+  font-style: italic;
+}
+
+span.Char_Code_Variable
+{
+  color: #FF9100;
+  font-family: "Lucida Console";
+  font-size: 9pt;
+  font-style: italic;
+}
+
+table.Table_Normal
+{
+  border-collapse: collapse;
+  margin-left: -5.4pt;
+  padding-bottom: 0pt;
+  padding-left: 5.4pt;
+  padding-right: 5.4pt;
+  padding-top: 0pt;
+  text-align: left;
+  vertical-align: top;
+}
+
+table.TR_Table
+{
+  border-collapse: collapse;
+  font-size: 9pt;
+  margin-left: -2.9pt;
+  padding-bottom: 1.45pt;
+  padding-left: 2.9pt;
+  padding-right: 2.9pt;
+  padding-top: 1.45pt;
+  text-align: left;
+  vertical-align: top;
+}
+

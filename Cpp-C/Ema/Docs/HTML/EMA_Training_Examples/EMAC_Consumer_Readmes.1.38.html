@@ -46,51 +46,51 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1019300">400__Custom__NestedMessaging</a></div>
-      <div class="Body"><a name="1028754">Summary</a></div>
-      <div class="Body"><a name="1028755">=======</a></div>
-      <div class="Body"><a name="1028756">&nbsp;</a></div>
-      <div class="Body"><a name="1028757">The 400__Custom__NestedMessaging application is provided as an example of</a></div>
-      <div class="Body"><a name="1028758">OMM Consumer application written to the EMA library.</a></div>
-      <div class="Body"><a name="1028759">&nbsp;</a></div>
-      <div class="Body"><a name="1028760">This application demonstrates basic usage of the EMA library while using</a></div>
-      <div class="Body"><a name="1028761">nested messaging feature and parsing of custom OMM Data data from an OMM</a></div>
-      <div class="Body"><a name="1028762">Provider application, or from Thomson Reuters Advanced Distribution Server.</a></div>
-      <div class="Body"><a name="1028763">&nbsp;</a></div>
-      <div class="Body"><a name="1028764">The 400__Custom__NestedMessaging opens up a parent stream on which, when </a></div>
-      <div class="Body"><a name="1028765">this stream is open / ok, it opens a sub stream. This is also known as nested</a></div>
-      <div class="Body"><a name="1028766">messaging feature.</a></div>
-      <div class="Body"><a name="1028767">&nbsp;</a></div>
-      <div class="Body"><a name="1028768">Note: effective use of the nested messaging feature requires support from an</a></div>
-      <div class="Body"><a name="1028769">	  OMM Provider application.</a></div>
-      <div class="Body"><a name="1028770">&nbsp;</a></div>
-      <div class="Body"><a name="1028771">&nbsp;</a></div>
-      <div class="Body"><a name="1028772">Detailed Description</a></div>
-      <div class="Body"><a name="1028773">====================</a></div>
-      <div class="Body"><a name="1028774">&nbsp;</a></div>
-      <div class="Body"><a name="1028775">The 400__Custom__NestedMessaging implements the following high level steps:</a></div>
-      <div class="Body"><a name="1028776">&nbsp;</a></div>
-      <div class="Body"><a name="1028777">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1028778">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1028779">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
-      <div class="Body"><a name="1028780">    - each of the method provided in this example use the ease of use</a></div>
-      <div class="Body"><a name="1028781">	  data extraction methods that are data type specific</a></div>
-      <div class="Body"><a name="1028782">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1028783">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1028784">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1028785">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1028786">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1028787">+ Opens a private streaming item interest</a></div>
-      <div class="Body"><a name="1028788">  - Custom Domain (200) IBM.XYZ item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1028789">  - when this item becomes open / ok this application requests</a></div>
-      <div class="Body"><a name="1028790">    a sub stream using a GenericMsg submitted on the handle of the </a></div>
-      <div class="Body"><a name="1028791">	IBM.XYZ stream</a></div>
-      <div class="Body"><a name="1028792">+ Processes data received from API for 60 seconds</a></div>
-      <div class="Body"><a name="1028793">  - all received messages are processed on API thread of control</a></div>
-      <div class="Body"><a name="1028794">+ Exits</a></div>
-      <div class="Body"><a name="1028795">&nbsp;</a></div>
-      <div class="Body"><a name="1028796">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1028797">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1026524">&nbsp;</a></div>
+      <div class="Body"><a name="1030632">Summary</a></div>
+      <div class="Body"><a name="1030633">=======</a></div>
+      <div class="Body"><a name="1030634">&nbsp;</a></div>
+      <div class="Body"><a name="1030635">The 400__Custom__NestedMessaging application is provided as an example of</a></div>
+      <div class="Body"><a name="1030636">OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1030637">&nbsp;</a></div>
+      <div class="Body"><a name="1030638">This application demonstrates basic usage of the EMA library while using</a></div>
+      <div class="Body"><a name="1030639">nested messaging feature and parsing of custom OMM Data data from an OMM</a></div>
+      <div class="Body"><a name="1030640">Provider application, or from Thomson Reuters Advanced Distribution Server.</a></div>
+      <div class="Body"><a name="1030641">&nbsp;</a></div>
+      <div class="Body"><a name="1030642">The 400__Custom__NestedMessaging opens up a parent stream on which, when </a></div>
+      <div class="Body"><a name="1030643">this stream is open / ok, it opens a sub stream. This is also known as nested</a></div>
+      <div class="Body"><a name="1030644">messaging feature.</a></div>
+      <div class="Body"><a name="1030645">&nbsp;</a></div>
+      <div class="Body"><a name="1030646">Note: effective use of the nested messaging feature requires support from an</a></div>
+      <div class="Body"><a name="1030647">	  OMM Provider application.</a></div>
+      <div class="Body"><a name="1030648">&nbsp;</a></div>
+      <div class="Body"><a name="1030649">&nbsp;</a></div>
+      <div class="Body"><a name="1030650">Detailed Description</a></div>
+      <div class="Body"><a name="1030651">====================</a></div>
+      <div class="Body"><a name="1030652">&nbsp;</a></div>
+      <div class="Body"><a name="1030653">The 400__Custom__NestedMessaging implements the following high level steps:</a></div>
+      <div class="Body"><a name="1030654">&nbsp;</a></div>
+      <div class="Body"><a name="1030655">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1030656">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1030657">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1030658">    - each of the method provided in this example use the ease of use</a></div>
+      <div class="Body"><a name="1030659">	  data extraction methods that are data type specific</a></div>
+      <div class="Body"><a name="1030660">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1030661">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1030662">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1030663">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1030664">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1030665">+ Opens a private streaming item interest</a></div>
+      <div class="Body"><a name="1030666">  - Custom Domain (200) IBM.XYZ item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1030667">  - when this item becomes open / ok this application requests</a></div>
+      <div class="Body"><a name="1030668">    a sub stream using a GenericMsg submitted on the handle of the </a></div>
+      <div class="Body"><a name="1030669">	IBM.XYZ stream</a></div>
+      <div class="Body"><a name="1030670">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1030671">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1030672">+ Exits</a></div>
+      <div class="Body"><a name="1030673">&nbsp;</a></div>
+      <div class="Body"><a name="1030674">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1030675">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1028816">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

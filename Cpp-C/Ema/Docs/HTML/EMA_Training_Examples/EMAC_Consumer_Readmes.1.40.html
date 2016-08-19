@@ -46,53 +46,53 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1019298">420__MarketPrice__AdminDomainConfig</a></div>
-      <div class="Body"><a name="1028849">Summary</a></div>
-      <div class="Body"><a name="1028850">=======</a></div>
-      <div class="Body"><a name="1028851">&nbsp;</a></div>
-      <div class="Body"><a name="1028852">The 420__MarketPrice__AdminDomainConfig application is provided as</a></div>
-      <div class="Body"><a name="1028853">an example of OMM Consumer application written to the EMA library.</a></div>
-      <div class="Body"><a name="1028854">&nbsp;</a></div>
-      <div class="Body"><a name="1028855">This application demonstrates basic usage of the EMA library while specifying</a></div>
-      <div class="Body"><a name="1028856">Administrative domain messages to override default EMA behaviour, for accessing</a></div>
-      <div class="Body"><a name="1028857">and parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
-      <div class="Body"><a name="1028858">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
-      <div class="Body"><a name="1028859">Distribution Server.</a></div>
-      <div class="Body"><a name="1028860">&nbsp;</a></div>
-      <div class="Body"><a name="1028861">The 420__MarketPrice__AdminDomainConfig showcases customization of the default EMA</a></div>
-      <div class="Body"><a name="1028862">behaviour with respect to the administrative domains. EMA defaults login request</a></div>
-      <div class="Body"><a name="1028863">as well as directory and dictionary request. Using the addAdminMsg() method, users</a></div>
-      <div class="Body"><a name="1028864">are able to modify the EMA to suite their needs and preferences.</a></div>
-      <div class="Body"><a name="1028865">&nbsp;</a></div>
-      <div class="Body"><a name="1028866">&nbsp;</a></div>
-      <div class="Body"><a name="1028867">Detailed Description</a></div>
-      <div class="Body"><a name="1028868">====================</a></div>
-      <div class="Body"><a name="1028869">&nbsp;</a></div>
-      <div class="Body"><a name="1028870">The 420__MarketPrice__AdminDomainConfig implements the following high level steps:</a></div>
-      <div class="Body"><a name="1028871">&nbsp;</a></div>
-      <div class="Body"><a name="1028872">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1028873">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1028874">  - provides own methods as needed</a></div>
-      <div class="Body"><a name="1028875">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1028876">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1028877">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1028878">  - sets request message for Login domain to override default</a></div>
-      <div class="Body"><a name="1028879">  - sets request message for Directory domain to override default</a></div>
-      <div class="Body"><a name="1028880">  - sets request message for Dictionary domain to override default</a></div>
-      <div class="Body"><a name="1028881">  - sets operationModel to UserDispatchEnum</a></div>
-      <div class="Body"><a name="1028882">+ Instantiates OmmConsumer object which initializes connection and logins into</a></div>
-      <div class="Body"><a name="1028883">  the specified server</a></div>
-      <div class="Body"><a name="1028884">+ Opens a streaming item interest</a></div>
-      <div class="Body"><a name="1028885">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1028886">+ Processes data received from API for 60 seconds</a></div>
-      <div class="Body"><a name="1028887">  - all received messages are processed on API thread of control+\</a></div>
-      <div class="Body"><a name="1028888">+ Exits</a></div>
-      <div class="Body"><a name="1028889">&nbsp;</a></div>
-      <div class="Body"><a name="1028890">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1028891">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1028892">	  </a></div>
-      <div class="Body"><a name="1028893">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1028894">      standard configuration.</a></div>
-      <div class="Body"><a name="1026625">&nbsp;</a></div>
+      <div class="Body"><a name="1030727">Summary</a></div>
+      <div class="Body"><a name="1030728">=======</a></div>
+      <div class="Body"><a name="1030729">&nbsp;</a></div>
+      <div class="Body"><a name="1030730">The 420__MarketPrice__AdminDomainConfig application is provided as</a></div>
+      <div class="Body"><a name="1030731">an example of OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1030732">&nbsp;</a></div>
+      <div class="Body"><a name="1030733">This application demonstrates basic usage of the EMA library while specifying</a></div>
+      <div class="Body"><a name="1030734">Administrative domain messages to override default EMA behaviour, for accessing</a></div>
+      <div class="Body"><a name="1030735">and parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1030736">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1030737">Distribution Server.</a></div>
+      <div class="Body"><a name="1030738">&nbsp;</a></div>
+      <div class="Body"><a name="1030739">The 420__MarketPrice__AdminDomainConfig showcases customization of the default EMA</a></div>
+      <div class="Body"><a name="1030740">behaviour with respect to the administrative domains. EMA defaults login request</a></div>
+      <div class="Body"><a name="1030741">as well as directory and dictionary request. Using the addAdminMsg() method, users</a></div>
+      <div class="Body"><a name="1030742">are able to modify the EMA to suite their needs and preferences.</a></div>
+      <div class="Body"><a name="1030743">&nbsp;</a></div>
+      <div class="Body"><a name="1030744">&nbsp;</a></div>
+      <div class="Body"><a name="1030745">Detailed Description</a></div>
+      <div class="Body"><a name="1030746">====================</a></div>
+      <div class="Body"><a name="1030747">&nbsp;</a></div>
+      <div class="Body"><a name="1030748">The 420__MarketPrice__AdminDomainConfig implements the following high level steps:</a></div>
+      <div class="Body"><a name="1030749">&nbsp;</a></div>
+      <div class="Body"><a name="1030750">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1030751">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1030752">  - provides own methods as needed</a></div>
+      <div class="Body"><a name="1030753">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1030754">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1030755">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1030756">  - sets request message for Login domain to override default</a></div>
+      <div class="Body"><a name="1030757">  - sets request message for Directory domain to override default</a></div>
+      <div class="Body"><a name="1030758">  - sets request message for Dictionary domain to override default</a></div>
+      <div class="Body"><a name="1030759">  - sets operationModel to UserDispatchEnum</a></div>
+      <div class="Body"><a name="1030760">+ Instantiates OmmConsumer object which initializes connection and logins into</a></div>
+      <div class="Body"><a name="1030761">  the specified server</a></div>
+      <div class="Body"><a name="1030762">+ Opens a streaming item interest</a></div>
+      <div class="Body"><a name="1030763">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1030764">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1030765">  - all received messages are processed on API thread of control+\</a></div>
+      <div class="Body"><a name="1030766">+ Exits</a></div>
+      <div class="Body"><a name="1030767">&nbsp;</a></div>
+      <div class="Body"><a name="1030768">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1030769">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1030770">	  </a></div>
+      <div class="Body"><a name="1030771">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1030772">      standard configuration.</a></div>
+      <div class="Body"><a name="1028917">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

@@ -1,6 +1,7 @@
 function FileData_Pairs(x)
 {
 x.t("unlike","messagemodeltypes");
+x.t("key","information");
 x.t("source","directory");
 x.t("open","stream");
 x.t("open","two");
@@ -10,17 +11,17 @@ x.t("api","edition");
 x.t("permitted","open");
 x.t("filter","open");
 x.t("4.4.1","multiple");
-x.t("parameters","permissible");
 x.t("stream","chapter");
 x.t("domain","special");
 x.t("chapter","source");
 x.t("directory","domain");
 x.t("directory","streams");
-x.t("identical","attribinfo");
+x.t("identical","message");
+x.t("message","key");
 x.t("message","api");
 x.t("4.4","special");
-x.t("attribinfo","parameters");
 x.t("elektron","message");
+x.t("information","permissible");
 x.t("semantics","4.4.1");
 x.t("semantics","elektron");
 x.t("messagemodeltypes","permitted");

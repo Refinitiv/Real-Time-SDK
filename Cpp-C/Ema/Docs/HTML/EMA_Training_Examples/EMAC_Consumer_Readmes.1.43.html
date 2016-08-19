@@ -46,45 +46,45 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1024837">430__ServiceProviderStatus__Streaming</a></div>
-      <div class="Body"><a name="1028992">Summary</a></div>
-      <div class="Body"><a name="1028993">=======</a></div>
-      <div class="Body"><a name="1028994">&nbsp;</a></div>
-      <div class="Body"><a name="1028995">The 430__ServiceProviderStatus__Streaming application is provided as an example of</a></div>
-      <div class="Body"><a name="1028996">OMM Consumer application written to the EMA library.</a></div>
-      <div class="Body"><a name="1028997">&nbsp;</a></div>
-      <div class="Body"><a name="1028998">This application demonstrates basic usage of the EMA library for opening</a></div>
-      <div class="Body"><a name="1028999">a Service Provider Status (SPS) item for monitoring the health of the Elektron</a></div>
-      <div class="Body"><a name="1029000">distribution path.</a></div>
-      <div class="Body"><a name="1029001">&nbsp;</a></div>
-      <div class="Body"><a name="1029002">&nbsp;</a></div>
-      <div class="Body"><a name="1029003">Detailed Description</a></div>
-      <div class="Body"><a name="1029004">====================</a></div>
-      <div class="Body"><a name="1029005">&nbsp;</a></div>
-      <div class="Body"><a name="1029006">This application implements the following high level steps:</a></div>
-      <div class="Body"><a name="1029007">- implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1029008">- instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1029009">- instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1029010">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1029011">  - sets host name on the preconfigured connection to “localhost” (user will</a></div>
-      <div class="Body"><a name="1029012">    have to change to provider address that supplies SPS domain)</a></div>
-      <div class="Body"><a name="1029013">  - sets port on the preconfigured connection to “14002”</a></div>
-      <div class="Body"><a name="1029014">- instantiates OmmConsumer object which</a></div>
-      <div class="Body"><a name="1029015">  - initializes connection and logs into specified server</a></div>
-      <div class="Body"><a name="1029016">- opens item interest</a></div>
-      <div class="Body"><a name="1029017">  - Top level SPS, .[SPSAMER (user will have to modify if not in AMER region)</a></div>
-      <div class="Body"><a name="1029018">  - Several provider level SPS</a></div>
-      <div class="Body"><a name="1029019">  - The subprovider SPS under each provider level</a></div>
-      <div class="Body"><a name="1029020">- processes data received from API for 60 seconds</a></div>
-      <div class="Body"><a name="1029021">  - all received messages are processed on API thread of control</a></div>
-      <div class="Body"><a name="1029022">- exits</a></div>
-      <div class="Body"><a name="1029023">&nbsp;</a></div>
-      <div class="Body"><a name="1029024">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1029025">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1029026">	  </a></div>
-      <div class="Body"><a name="1029027">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1029028">      standard configuration.</a></div>
-      <div class="Body"><a name="1029029">&nbsp;</a></div>
-      <div class="Body"><a name="1024982">&nbsp;</a></div>
+      <div class="Body"><a name="1030870">Summary</a></div>
+      <div class="Body"><a name="1030871">=======</a></div>
+      <div class="Body"><a name="1030872">&nbsp;</a></div>
+      <div class="Body"><a name="1030873">The 430__ServiceProviderStatus__Streaming application is provided as an example of</a></div>
+      <div class="Body"><a name="1030874">OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1030875">&nbsp;</a></div>
+      <div class="Body"><a name="1030876">This application demonstrates basic usage of the EMA library for opening</a></div>
+      <div class="Body"><a name="1030877">a Service Provider Status (SPS) item for monitoring the health of the Elektron</a></div>
+      <div class="Body"><a name="1030878">distribution path.</a></div>
+      <div class="Body"><a name="1030879">&nbsp;</a></div>
+      <div class="Body"><a name="1030880">&nbsp;</a></div>
+      <div class="Body"><a name="1030881">Detailed Description</a></div>
+      <div class="Body"><a name="1030882">====================</a></div>
+      <div class="Body"><a name="1030883">&nbsp;</a></div>
+      <div class="Body"><a name="1030884">This application implements the following high level steps:</a></div>
+      <div class="Body"><a name="1030885">- implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1030886">- instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1030887">- instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1030888">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1030889">  - sets host name on the preconfigured connection to “localhost” (user will</a></div>
+      <div class="Body"><a name="1030890">    have to change to provider address that supplies SPS domain)</a></div>
+      <div class="Body"><a name="1030891">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1030892">- instantiates OmmConsumer object which</a></div>
+      <div class="Body"><a name="1030893">  - initializes connection and logs into specified server</a></div>
+      <div class="Body"><a name="1030894">- opens item interest</a></div>
+      <div class="Body"><a name="1030895">  - Top level SPS, .[SPSAMER (user will have to modify if not in AMER region)</a></div>
+      <div class="Body"><a name="1030896">  - Several provider level SPS</a></div>
+      <div class="Body"><a name="1030897">  - The subprovider SPS under each provider level</a></div>
+      <div class="Body"><a name="1030898">- processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1030899">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1030900">- exits</a></div>
+      <div class="Body"><a name="1030901">&nbsp;</a></div>
+      <div class="Body"><a name="1030902">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1030903">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1030904">	  </a></div>
+      <div class="Body"><a name="1030905">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1030906">      standard configuration.</a></div>
+      <div class="Body"><a name="1030907">&nbsp;</a></div>
+      <div class="Body"><a name="1029058">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

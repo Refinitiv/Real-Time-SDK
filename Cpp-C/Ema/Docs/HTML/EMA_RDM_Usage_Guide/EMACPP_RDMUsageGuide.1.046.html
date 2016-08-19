@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>Specific Usage: Enterprise Platform</title>
+    <link rel="StyleSheet" href="css/EMACPP_RDMUsageGuide.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="Heading_2_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Heading_2_inner" style="width: 54pt; white-space: nowrap">
+                <span style="color: #666666; font-size: 18pt; font-style: normal; font-weight: bold; vertical-align: baseline">3.6	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Heading_2_inner"><a name="pID0E0FX0HA">Specific Usage: Enterprise Platform</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Normal"><a name="pID0E0EX0HA">When sending a Login to a DACS enabled Enterprise Platform, the </a><span class="Char_Code">Name</span> should be a valid username in DACS. The <span class="Char_Code">Attrib </span>containing <span class="Char_Parameter">ApplicationId</span> and <span class="Char_Parameter">Position</span> will also be used for DACS authorization. The Name is used for scoping some Enterprise Platform configuration. The <span class="Char_LucidaConsole">NameType</span> must be <span class="Char_Parameter">USER_NAME</span> (1).</div>
+      <div class="Normal"><a name="pID0E0DX0HA">In the </a><span class="Char_Code">Attrib</span>’s <span class="Char_Code">ElementList</span>, <span class="Char_Parameter">ApplicationId</span>, <span class="Char_Parameter">Position</span>, <span class="Char_Parameter">SingleOpen</span>, <span class="Char_Parameter">AllowSuspectData</span>, and <span class="Char_Parameter">ProvidePermissionExpressions</span> are supported. <span class="Char_Parameter">Password</span> and <span class="Char_Parameter">ProvidePermissionProfile</span> are ignored. They may be echoed to the consumer, but the values are not necessarily correct.</div>
+      <div class="Normal"><a name="pID0E0CX0HA">The request and response message </a><span class="Char_Code">Payload</span> have no data.</div>
+      <div class="Normal"><a name="pID0E0BX0HA">The Enterprise Platform only supports one Login per connection.</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMACPP_RDMUsageGuide.1.025.html">Chapter 3	Login Domain</a> : Specific Usage: Enterprise Platform</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

@@ -1,10 +1,5 @@
 function FileData_Pairs(x)
 {
-x.t("real-time","supports");
-x.t("real-time","sending");
-x.t("real-time","name");
-x.t("real-time","configuration");
-x.t("real-time","elektron");
 x.t("supports","login");
 x.t("sending","login");
 x.t("enabled","enterprise");
@@ -48,7 +43,11 @@ x.t("specific","usage");
 x.t("providepermissionprofile","ignored");
 x.t("elektron","message");
 x.t("valid","username");
-x.t("platform","real-time");
+x.t("platform","supports");
+x.t("platform","sending");
+x.t("platform","name");
+x.t("platform","configuration");
+x.t("platform","elektron");
 x.t("correct","request");
 x.t("data","enterprise");
 x.t("values","necessarily");

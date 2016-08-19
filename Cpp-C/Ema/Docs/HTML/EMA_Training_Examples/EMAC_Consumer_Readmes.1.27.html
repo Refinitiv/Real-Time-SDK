@@ -46,52 +46,52 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1020344">320__Custom__GenericMsg</a></div>
-      <div class="Body"><a name="1028276">Summary</a></div>
-      <div class="Body"><a name="1028277">=======</a></div>
-      <div class="Body"><a name="1028278">&nbsp;</a></div>
-      <div class="Body"><a name="1028279">The 320__Consumer__GenericMsg application is provided as an example of</a></div>
-      <div class="Body"><a name="1028280">OMM Consumer application written to the EMA library.</a></div>
-      <div class="Body"><a name="1028281">&nbsp;</a></div>
-      <div class="Body"><a name="1028282">This application demonstrates basic usage of the EMA library for accessing</a></div>
-      <div class="Body"><a name="1028283">and parsing of OMM Custom data from Reuters Data Feed Direct (RDF-D),</a></div>
-      <div class="Body"><a name="1028284">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
-      <div class="Body"><a name="1028285">Distribution Server.</a></div>
-      <div class="Body"><a name="1028286">&nbsp;</a></div>
-      <div class="Body"><a name="1028287">The 320__Consumer__GenericMsg showcases usage of GenericMsg in OMM Consumer</a></div>
-      <div class="Body"><a name="1028288">application. It demonstrates submission of a GenericMsg as well as receiving</a></div>
-      <div class="Body"><a name="1028289">and processing it.</a></div>
-      <div class="Body"><a name="1028290">&nbsp;</a></div>
-      <div class="Body"><a name="1028291">&nbsp;</a></div>
-      <div class="Body"><a name="1028292">Detailed Description</a></div>
-      <div class="Body"><a name="1028293">====================</a></div>
-      <div class="Body"><a name="1028294">&nbsp;</a></div>
-      <div class="Body"><a name="1028295">The 320__Consumer__GenericMsg implements the following high level steps:</a></div>
-      <div class="Body"><a name="1028296">&nbsp;</a></div>
-      <div class="Body"><a name="1028297">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1028298">  - overrides desired methods (e.g. onGenericMsg() )</a></div>
-      <div class="Body"><a name="1028299">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
-      <div class="Body"><a name="1028300">    - each of the method provided in this example use the ease of use</a></div>
-      <div class="Body"><a name="1028301">	  data extraction methods that are data type specific</a></div>
-      <div class="Body"><a name="1028302">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1028303">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1028304">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1028305">  - sets operationModel to UserDispatchEnum</a></div>
-      <div class="Body"><a name="1028306">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1028307">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1028308">+ Opens a streaming item interest</a></div>
-      <div class="Body"><a name="1028309">  - Custom Domain IBM.XYZ item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1028310">+ Sends a GenericMsg with ElementList as payload on the item stream	</a></div>
-      <div class="Body"><a name="1028311">+ Processes data received on user thread for 60 seconds</a></div>
-      <div class="Body"><a name="1028312">  - all received messages are processed on main thread of control</a></div>
-      <div class="Body"><a name="1028313">  - application may receive RespMsg as well as GenericMsg</a></div>
-      <div class="Body"><a name="1028314">+ Exits</a></div>
-      <div class="Body"><a name="1028315">&nbsp;</a></div>
-      <div class="Body"><a name="1028316">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1028317">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1028318">	  </a></div>
-      <div class="Body"><a name="1028319">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1028320">      standard configuration.</a></div>
-      <div class="Body"><a name="1026086">&nbsp;</a></div>
+      <div class="Body"><a name="1030154">Summary</a></div>
+      <div class="Body"><a name="1030155">=======</a></div>
+      <div class="Body"><a name="1030156">&nbsp;</a></div>
+      <div class="Body"><a name="1030157">The 320__Consumer__GenericMsg application is provided as an example of</a></div>
+      <div class="Body"><a name="1030158">OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1030159">&nbsp;</a></div>
+      <div class="Body"><a name="1030160">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1030161">and parsing of OMM Custom data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1030162">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1030163">Distribution Server.</a></div>
+      <div class="Body"><a name="1030164">&nbsp;</a></div>
+      <div class="Body"><a name="1030165">The 320__Consumer__GenericMsg showcases usage of GenericMsg in OMM Consumer</a></div>
+      <div class="Body"><a name="1030166">application. It demonstrates submission of a GenericMsg as well as receiving</a></div>
+      <div class="Body"><a name="1030167">and processing it.</a></div>
+      <div class="Body"><a name="1030168">&nbsp;</a></div>
+      <div class="Body"><a name="1030169">&nbsp;</a></div>
+      <div class="Body"><a name="1030170">Detailed Description</a></div>
+      <div class="Body"><a name="1030171">====================</a></div>
+      <div class="Body"><a name="1030172">&nbsp;</a></div>
+      <div class="Body"><a name="1030173">The 320__Consumer__GenericMsg implements the following high level steps:</a></div>
+      <div class="Body"><a name="1030174">&nbsp;</a></div>
+      <div class="Body"><a name="1030175">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1030176">  - overrides desired methods (e.g. onGenericMsg() )</a></div>
+      <div class="Body"><a name="1030177">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1030178">    - each of the method provided in this example use the ease of use</a></div>
+      <div class="Body"><a name="1030179">	  data extraction methods that are data type specific</a></div>
+      <div class="Body"><a name="1030180">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1030181">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1030182">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1030183">  - sets operationModel to UserDispatchEnum</a></div>
+      <div class="Body"><a name="1030184">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1030185">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1030186">+ Opens a streaming item interest</a></div>
+      <div class="Body"><a name="1030187">  - Custom Domain IBM.XYZ item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1030188">+ Sends a GenericMsg with ElementList as payload on the item stream	</a></div>
+      <div class="Body"><a name="1030189">+ Processes data received on user thread for 60 seconds</a></div>
+      <div class="Body"><a name="1030190">  - all received messages are processed on main thread of control</a></div>
+      <div class="Body"><a name="1030191">  - application may receive RespMsg as well as GenericMsg</a></div>
+      <div class="Body"><a name="1030192">+ Exits</a></div>
+      <div class="Body"><a name="1030193">&nbsp;</a></div>
+      <div class="Body"><a name="1030194">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1030195">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1030196">	  </a></div>
+      <div class="Body"><a name="1030197">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1030198">      standard configuration.</a></div>
+      <div class="Body"><a name="1028320">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

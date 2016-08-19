@@ -1,12 +1,12 @@
 function FileData_Pairs(x)
 {
 x.t("defines","concepts");
+x.t("3.0.4","edition");
 x.t("description","section");
 x.t("refer","ema");
 x.t("details","chapter");
-x.t("3.0","developers");
 x.t("api","edition");
-x.t("guide","edition");
+x.t("guide","further");
 x.t("domains","share");
 x.t("overview","general");
 x.t("specified","domain\u2019s");
@@ -28,13 +28,13 @@ x.t("specific","behavior");
 x.t("elektron","message");
 x.t("domain\u2019s","detailed");
 x.t("data","specific");
-x.t("edition","further");
+x.t("edition","developers");
 x.t("edition","2.6");
 x.t("model","overview");
 x.t("general","ema");
 x.t("behavior","supported");
 x.t("2.6","general");
-x.t("ema","3.0");
+x.t("ema","3.0.4");
 x.t("ema","concepts");
 x.t("concepts","refer");
 x.t("concepts","domains");

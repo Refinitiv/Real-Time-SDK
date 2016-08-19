@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>Reissue Requests and Pause/Resume</title>
+    <link rel="StyleSheet" href="css/EMACPP_RDMUsageGuide.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="Heading_3_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Heading_3_inner" style="width: 54pt; white-space: nowrap">
+                <span style="color: #FF9100; font-family: Arial; font-size: 13pt; font-style: normal; font-weight: bold; vertical-align: baseline">2.6.2	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Heading_3_inner"><a name="pID0E0G20HA">Reissue Requests and Pause/Resume</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Normal"><a name="pID0E0F20HA">A consumer application can request a new refresh and change certain parameters on an already requested stream. To do so, the application sends subsequent request message (Section 2.2) on the same stream. This is known as a </a><span class="Char_Concept">reissue</span>. </div>
+      <div class="Normal"><a name="pID0E0E20HA">A reissue changes the priority of a stream and pauses or resumes data flow.</a></div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #FF9100; font-size: 10.5pt">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="pID0E0D20HA">To pause streaming data, the application can send a reissue by setting </a><span class="Char_LucidaConsole">ReqMsg.Pause </span>with <span class="Char_Parameter">true </span>value. Issuing a pause on the Login stream is interpreted as a Pause All request, resulting in all streams being paused.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span style="color: #FF9100; font-size: 10.5pt">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="pID0E0C20HA">To resume data flow on the stream, the application can send a subsequent reissue by calling </a><span class="Char_LucidaConsole">ReqMsg.InterestAfterRefresh </span>with <span class="Char_Parameter">true </span>value. Issuing a resume on the Login stream is interpreted as a Resume All.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Normal"><a name="pID0E0B20HA">Pause and Resume is provided as a best effort, and data may continue streaming even after a pause has been issued.</a></div>
+      <div class="Normal"><a name="pID0E0A20HA">For further details on reissue requests, changeable parameters, and Pause and Resume functionality, refer to the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;EDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">EMA 3.0.4 C++ Edition Developers Guide</a></span><span class="Char_Document_Title">.</span></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMACPP_RDMUsageGuide.1.010.html">Chapter 2	Domain Model Overview</a> : <a class="WebWorks_Breadcrumb_Link" href="EMACPP_RDMUsageGuide.1.018.html">General EMA Concepts</a> : Reissue Requests and Pause/Resume</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

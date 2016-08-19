@@ -2,6 +2,7 @@ function FileData_Pairs(x)
 {
 x.t("resumes","data");
 x.t("reqmsg.pause","true");
+x.t("3.0.4","edition");
 x.t("refer","ema");
 x.t("pauses","resumes");
 x.t("resume","provided");
@@ -17,10 +18,9 @@ x.t("new","refresh");
 x.t("certain","parameters");
 x.t("details","reissue");
 x.t("issued","further");
-x.t("3.0","developers");
 x.t("api","edition");
 x.t("requested","stream");
-x.t("guide","edition");
+x.t("guide","chapter");
 x.t("overview","general");
 x.t("true","value");
 x.t("resulting","streams");
@@ -84,7 +84,7 @@ x.t("application","send");
 x.t("pause/resume","consumer");
 x.t("pause/resume","elektron");
 x.t("priority","stream");
-x.t("edition","chapter");
+x.t("edition","developers");
 x.t("edition","2.6.2");
 x.t("model","overview");
 x.t("2.2","stream");
@@ -98,7 +98,7 @@ x.t("subsequent","request");
 x.t("subsequent","reissue");
 x.t("even","pause");
 x.t("streams","paused");
-x.t("ema","3.0");
+x.t("ema","3.0.4");
 x.t("ema","concepts");
 x.t("concepts","reissue");
 }

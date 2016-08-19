@@ -46,44 +46,44 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1018745">102__MarketPrice__Snapshot</a></div>
-      <div class="Body"><a name="1027327">Summary</a></div>
-      <div class="Body"><a name="1027328">=======</a></div>
-      <div class="Body"><a name="1027329">&nbsp;</a></div>
-      <div class="Body"><a name="1027330">102__MarketPrice__Snapshot is an example of an OMM Consumer application</a></div>
-      <div class="Body"><a name="1027331">written to the EMA library and demonstrates basic usage of the EMA library </a></div>
-      <div class="Body"><a name="1027332">in accessing and parsing OMM MarketPrice data either from Reuters Data Feed Direct (RDF-D),</a></div>
-      <div class="Body"><a name="1027333">directly from an OMM Provider application, or from a Thomson Reuters Advanced</a></div>
-      <div class="Body"><a name="1027334">Distribution Server.</a></div>
-      <div class="Body"><a name="1027335">&nbsp;</a></div>
-      <div class="Body"><a name="1027336">102__MarketPrice__Snapshot illustrates how to open a single snapshot OMM item.</a></div>
-      <div class="Body"><a name="1027337">While processing received messages, the application prints them to the screen.</a></div>
-      <div class="Body"><a name="1027338">&nbsp;</a></div>
-      <div class="Body"><a name="1027339">&nbsp;</a></div>
-      <div class="Body"><a name="1027340">Detailed Description</a></div>
-      <div class="Body"><a name="1027341">====================</a></div>
-      <div class="Body"><a name="1027342">&nbsp;</a></div>
-      <div class="Body"><a name="1027343">102__MarketPrice__Snapshot implements the following high-level steps:</a></div>
-      <div class="Body"><a name="1027344">&nbsp;</a></div>
-      <div class="Body"><a name="1027345">+ Implements the OmmConsumerClient class in an AppClient</a></div>
-      <div class="Body"><a name="1027346">  - Overrides desired methods</a></div>
-      <div class="Body"><a name="1027347">+ Instantiates an AppClient object to receive and process item messages</a></div>
-      <div class="Body"><a name="1027348">+ Instantiates and modifies an OmmConsumerConfig object:</a></div>
-      <div class="Body"><a name="1027349">  - Sets the username to “user”</a></div>
-      <div class="Body"><a name="1027350">  - Sets the hostname on the preconfigured connection to “localhost”</a></div>
-      <div class="Body"><a name="1027351">  - Sets port on the preconfigured connection to “14002”</a></div>
-      <div class="Body"><a name="1027352">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1027353">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1027354">+ Opens snapshot item interest:</a></div>
-      <div class="Body"><a name="1027355">  - MarketPrice IBM.N item from the DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1027356">  - Uses interestAfterRefresh( false ) to make it a snapshot request</a></div>
-      <div class="Body"><a name="1027357">+ Processes data received from the API for 60 seconds</a></div>
-      <div class="Body"><a name="1027358">  - The API thread of control processes all received messages.</a></div>
-      <div class="Body"><a name="1027359">+ Exits</a></div>
-      <div class="Body"><a name="1027360">&nbsp;</a></div>
-      <div class="Body"><a name="1027361">Note: If needed, you can modify these and other details to fit your local</a></div>
-      <div class="Body"><a name="1027362">      environment. For details on standard configuration, refer to the</a></div>
-      <div class="Body"><a name="1027363">      EMA library ReadMe.txt file and the EMA Configuration Guide.</a></div>
-      <div class="Body"><a name="1025089">&nbsp;</a></div>
+      <div class="Body"><a name="1029205">Summary</a></div>
+      <div class="Body"><a name="1029206">=======</a></div>
+      <div class="Body"><a name="1029207">&nbsp;</a></div>
+      <div class="Body"><a name="1029208">102__MarketPrice__Snapshot is an example of an OMM Consumer application</a></div>
+      <div class="Body"><a name="1029209">written to the EMA library and demonstrates basic usage of the EMA library </a></div>
+      <div class="Body"><a name="1029210">in accessing and parsing OMM MarketPrice data either from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1029211">directly from an OMM Provider application, or from a Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1029212">Distribution Server.</a></div>
+      <div class="Body"><a name="1029213">&nbsp;</a></div>
+      <div class="Body"><a name="1029214">102__MarketPrice__Snapshot illustrates how to open a single snapshot OMM item.</a></div>
+      <div class="Body"><a name="1029215">While processing received messages, the application prints them to the screen.</a></div>
+      <div class="Body"><a name="1029216">&nbsp;</a></div>
+      <div class="Body"><a name="1029217">&nbsp;</a></div>
+      <div class="Body"><a name="1029218">Detailed Description</a></div>
+      <div class="Body"><a name="1029219">====================</a></div>
+      <div class="Body"><a name="1029220">&nbsp;</a></div>
+      <div class="Body"><a name="1029221">102__MarketPrice__Snapshot implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1029222">&nbsp;</a></div>
+      <div class="Body"><a name="1029223">+ Implements the OmmConsumerClient class in an AppClient</a></div>
+      <div class="Body"><a name="1029224">  - Overrides desired methods</a></div>
+      <div class="Body"><a name="1029225">+ Instantiates an AppClient object to receive and process item messages</a></div>
+      <div class="Body"><a name="1029226">+ Instantiates and modifies an OmmConsumerConfig object:</a></div>
+      <div class="Body"><a name="1029227">  - Sets the username to “user”</a></div>
+      <div class="Body"><a name="1029228">  - Sets the hostname on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1029229">  - Sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1029230">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1029231">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1029232">+ Opens snapshot item interest:</a></div>
+      <div class="Body"><a name="1029233">  - MarketPrice IBM.N item from the DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1029234">  - Uses interestAfterRefresh( false ) to make it a snapshot request</a></div>
+      <div class="Body"><a name="1029235">+ Processes data received from the API for 60 seconds</a></div>
+      <div class="Body"><a name="1029236">  - The API thread of control processes all received messages.</a></div>
+      <div class="Body"><a name="1029237">+ Exits</a></div>
+      <div class="Body"><a name="1029238">&nbsp;</a></div>
+      <div class="Body"><a name="1029239">Note: If needed, you can modify these and other details to fit your local</a></div>
+      <div class="Body"><a name="1029240">      environment. For details on standard configuration, refer to the</a></div>
+      <div class="Body"><a name="1029241">      EMA library ReadMe.txt file and the EMA Configuration Guide.</a></div>
+      <div class="Body"><a name="1027323">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

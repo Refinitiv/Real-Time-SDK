@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>MarketMaker Request Message</title>
+    <link rel="StyleSheet" href="css/EMACPP_RDMUsageGuide.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="Heading_3_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Heading_3_inner" style="width: 54pt; white-space: nowrap">
+                <span style="color: #FF9100; font-family: Arial; font-size: 13pt; font-style: normal; font-weight: bold; vertical-align: baseline">9.2.1	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Heading_3_inner"><a name="pID0E06F0HA">MarketMaker Request Message </a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Normal"><a name="pID0E05F0HA">A MarketMaker request message is encoded using </a><span class="Char_LucidaConsole">ReqMsg</span> and sent by OMM consumer applications. The request specifies the name of an item in which the consumer is interested.</div>
+      <div class="Normal"><a name="pID0E04F0HA">If a consumer wishes to receive updates, it may make a “streaming” request by setting the </a><span class="Char_Code">ReqMsg.InterestAfterRefresh</span> is set to <span class="Char_Parameter">true</span>. If the flag is not set, the consumer is requesting a “snapshot” and the refresh should end the request (updates may be received in either case if the refresh has multiple parts).</div>
+      <div class="Normal"><a name="pID0E03F0HA">A consumer can send pause an item to stop updates (if the provider supports such functionality). For more information, refer to the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;EDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">EMA 3.0.4 C++ Edition Developers Guide</a></span>.</div>
+      <table class="TR_Table" style="width: 540.35pt" cellspacing="0" summary="">
+        <tr style="vertical-align: top">
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-style: solid; border-bottom-width: 1pt; border-bottom-width: 1pt; border-left-color: #FF9100; border-left-color: #A0968C; border-left-style: solid; border-left-style: solid; border-left-width: 1pt; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #FF9100; border-top-color: #A0968C; border-top-style: solid; border-top-style: solid; border-top-width: 1pt; border-top-width: 1pt; color: #FFFFFF; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt; text-transform: uppercase; width: 171.35pt">
+            <div class="Column_Heading"><a name="pID0EABK02F0HA">Component</a></div>
+          </td>
+          <td style="background-color: #FF9100; border-bottom-color: #FF9100; border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-style: solid; border-bottom-width: 1pt; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #FF9100; border-right-color: #A0968C; border-right-style: solid; border-right-style: solid; border-right-width: 1pt; border-right-width: 1pt; border-top-color: #FF9100; border-top-color: #A0968C; border-top-style: solid; border-top-style: solid; border-top-width: 1pt; border-top-width: 1pt; color: #FFFFFF; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt; text-transform: uppercase; width: 369pt">
+            <div class="Column_Heading"><a name="pID0EAAK02F0HA">Description / Value</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EABJ02F0HA">DomainType</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_BoldEmphasis"><a name="pID0EBAJ02F0HA">Required</a></span>.</div>
+            <div class="Table_Text"><span class="Char_Parameter"><a name="pID0EAAJ02F0HA">MMT_MARKET_MAKER = 9</a></span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code_Variable"><a name="pID0EABI02F0HA">Interactions</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_BoldEmphasis"><a name="pID0EGAI02F0HA">Required</a></span>.</div>
+            <div class="Bullet_table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_table_inner" style="width: 18pt; white-space: nowrap">
+                      <span style="color: #666666; font-size: 10pt">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_table_inner"><span class="Char_LucidaConsole"><a name="pID0EFAI02F0HA">InitialImage</a></span></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Table_Text_Indent"><span class="Char_Parameter"><a name="pID0EEAI02F0HA">true</a></span>: indicates initial image is required</div>
+            <div class="Bullet_table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_table_inner" style="width: 18pt; white-space: nowrap">
+                      <span style="color: #666666; font-size: 10pt">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_table_inner"><span class="Char_LucidaConsole"><a name="pID0EDAI02F0HA">InterestAfterRefresh</a></span></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Table_Text_Indent"><span class="Char_Parameter"><a name="pID0ECAI02F0HA">true</a></span>: indicates streaming request is required</div>
+            <div class="Bullet_table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_table_inner" style="width: 18pt; white-space: nowrap">
+                      <span style="color: #666666; font-size: 10pt">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_table_inner"><span class="Char_LucidaConsole"><a name="pID0EBAI02F0HA">Pause</a></span></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_table" style="margin-left: 18pt"><span class="Char_Parameter"><a name="pID0EAAI02F0HA">true</a></span>: indicates pause is required</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code_Variable"><a name="pID0EABH02F0HA">Indications</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EDAH02F0HA">Optional.</a></div>
+            <div class="Bullet_table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_table_inner" style="width: 18pt; white-space: nowrap">
+                      <span style="color: #666666; font-size: 10pt">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_table_inner"><span class="Char_LucidaConsole"><a name="pID0ECAH02F0HA">ConflatedInUpdates</a></span></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Table_Text_Indent"><span class="Char_Parameter"><a name="pID0EBAH02F0HA">true</a></span><span class="Char_Parameter" style="font-weight: normal">: indicates conflated updates is required.</span></div>
+            <div class="Table_Text"><span class="Char_Parameter" style="font-weight: normal"><a name="pID0EAAH02F0HA">Batch and View request are specified in the </a></span><span class="Char_LucidaConsole">Payload</span>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EABG02F0HA">QoS</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EBAG02F0HA">Optional.</a></div>
+            <div class="Table_Text"><a name="pID0EAAG02F0HA">Indicates the quality of service at which the consumer want the stream serviced.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_LucidaConsole"><a name="pID0EABF02F0HA">Priority</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EBAF02F0HA">Optional.</a></div>
+            <div class="Table_Text"><a name="pID0EAAF02F0HA">Indicates class and count associated with stream priority.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EABE02F0HA">NameType</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0EBAE02F0HA">Optional.</a></div>
+            <div class="Table_Text"><a name="pID0EAAE02F0HA">When consuming from Thomson Reuters sources, typically set to </a><span class="Char_Parameter">INSTRUMENT_NAME_RIC = 1</span> (the “Reuters Instrument Code”). If it is not specified, <span class="Char_Code">NameType</span> defaults to <span class="Char_Parameter">INSTRUMENT_NAME_RIC = 1</span>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EABD02F0HA">Name</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_BoldEmphasis"><a name="pID0ECAD02F0HA">Required</a></span>.</div>
+            <div class="Table_Text"><a name="pID0EBAD02F0HA">The name of requested item.</a></div>
+            <div class="Note_9pt_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Note_9pt_inner" style="width: 36pt; white-space: nowrap">
+                      <span style="color: #FF9100; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold">Note:	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Note_9pt_inner"><a name="pID0EAAD02F0HA">Not used for Batch Item request.</a></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EABC02F0HA">ServiceName</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_BoldEmphasis"><a name="pID0ECAC02F0HA">Required</a></span>.</div>
+            <div class="Table_Text"><a name="pID0EBAC02F0HA">This should be the Name associated with the service from which the consumer wishes to request the item.</a></div>
+            <div class="Note_9pt_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Note_9pt_inner" style="width: 36pt; white-space: nowrap">
+                      <span style="color: #FF9100; font-family: Arial; font-size: 9pt; font-style: normal; font-weight: bold">Note:	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Note_9pt_inner"><a name="pID0EAAC02F0HA">The consumer application should set either the </a><span class="Char_LucidaConsole">ServiceName</span> or <span class="Char_LucidaConsole">ServiceId</span> of the service, but not both.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_Code"><a name="pID0EABB02F0HA">ServiceId</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_BoldEmphasis"><a name="pID0ECAB02F0HA">Required</a></span>.</div>
+            <div class="Table_Text"><a name="pID0EBAB02F0HA">This should be the ID associated with the service from which the consumer wishes to request the item.</a></div>
+            <div class="Note_9pt_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Note_9pt_inner" style="width: 36pt; white-space: nowrap">
+                      <span style="color: #FF9100; font-size: 9pt; font-style: normal; font-weight: bold">Note:	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Note_9pt_inner"><a name="pID0EAAB02F0HA">The consumer application should set either the </a><span class="Char_LucidaConsole">ServiceId</span> or <span class="Char_LucidaConsole">ServiceName</span> of the service, but not both.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><span class="Char_LucidaConsole"><a name="pID0EABA02F0HA">Payload</a></span></div>
+          </td>
+          <td style="border-bottom-color: #A0968C; border-bottom-style: solid; border-bottom-width: 1pt; border-left-color: #A0968C; border-left-style: solid; border-left-width: 1pt; border-right-color: #A0968C; border-right-style: solid; border-right-width: 1pt; border-top-color: #A0968C; border-top-style: solid; border-top-width: 1pt; padding-bottom: 1.45pt; padding-left: 2.9pt; padding-right: 2.9pt; padding-top: 1.45pt">
+            <div class="Table_Text"><a name="pID0ECAA02F0HA">Optional.</a></div>
+            <div class="Table_Text"><a name="pID0EBAA02F0HA">When features such as View or Batch are leveraged, the payload can contain information relevant to that feature. </a></div>
+            <div class="Table_Text"><a name="pID0EAAA02F0HA">For more detailed information about View see </a><a href="javascript:WWHClickedPopup('EMA_RDM_Usage_Guide', 'EMACPP_RDMUsageGuide.1.160.html', '');" title="Chapter 12 Payload in ReqMsg">Chapter 12</a>.</div>
+          </td>
+        </tr>
+      </table>
+      <div class="Caption"><a name="pID0E01F0HA">Table 57: MarketMaker Request Message</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMACPP_RDMUsageGuide.1.127.html">Chapter 9	MarketMaker Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="EMACPP_RDMUsageGuide.1.129.html">Usage</a> : MarketMaker Request Message </div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>
