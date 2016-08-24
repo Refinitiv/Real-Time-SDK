@@ -15,13 +15,17 @@ The Elektron-SDK has support for JDK 1.7 and JDK 1.8.  Please see the individual
 ## Common Setup
 This section shows the required setup needed before you can build any of the APIs within this package.
 
-Firstly, obtain the source from this repository. It will contain all of the required source to build EMA and ETA libraries as detailed below.
+Firstly, obtain the source from this repository. It will contain all of the required source to build EMA and ETA as detailed below.
+In addition, this repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/thomsonreuters/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location.  That repository contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product. 
 
 
 ## Building ETA
 
 #### ETA Special Instructions
-The ETA package contains transport, decoder, encoder, and cache components.  The transport, decoder and encoder components are closed source and is proprietary to Thomson Reuters and the source code is not included in this package. To facilitate the ability to build all APIs of this Elektron-SDK package a 'stub' library is provided for the closed portion of the ETA.   This 'stub' library will allow you to build and run, but will not provide implementation for connectivity or data handling. To get a fully functioning ETA library please see "Obtaining the ETA Binary Package" below.
+The ETA package contains transport, decoder, encoder, and cache components.  
+The transport, decoder, encoder, and cache components are closed source and is proprietary to Thomson Reuters and the source code is not included on GitHub. 
+This repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/thomsonreuters/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location.  That repository contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.
+
 
 ####1) Build the ETA API 
 
@@ -30,11 +34,10 @@ The ETA package contains transport, decoder, encoder, and cache components.  The
 Ant can be downloaded from http://ant.apache.org
 
 Navigate to `Eta/Source` 
--	Run `ant all` to build Stub libraries and Reactor and its dependencies
--	Run `ant build-stubs` to build only the Stub libraries
--	Run `ant build` or `ant build-valueadd` to build only Reactor and its dependencies.  This is the default build to avoid clobbering any binary pack libraries.
+-	Run `ant all` to build Reactor and its dependencies.  This will use the fully functional JAR files and libraries provided in the `Libs` location of the `Elektron-SDK-BinaryPack` repository.
+-	Run `ant build-stubs` to build only the Stub libraries.  This will overwrite libraries in the `Libs` location with the built stub libraries. 
+-	Run `ant build` or `ant build-valueadd` to build only Reactor and its dependencies.  This will link to the fully functional JAR files and libraries provided in the `Libs` location.  This is the same as the `ant all` target.
 
-**NOTE:** You must build the stub libraries prior to building the Reactor and its dependencies.
 
 ####2) Build the ETA API Examples
 
@@ -46,9 +49,9 @@ The Performance Tools are located in `Eta/Applications/PerfTools`
 
 ####3) Run the ETA Examples
 
-If you have only built the 'stub' library from above, the examples run but fail.  
-In order to get full functioning behaviour of ETA you will need to get the official binaries from the Thomson Reuters Customer Zone (http://customers.thomsonreuters.com). 
-Please see "Obtaining the ETA Binary Package" below.
+Run the application from the command line using the appropriate execution commands.  Most applications have a help menu that can be viewed with a -? option.
+
+**NOTE** If you have built using the 'stub' libraries, the examples run but fail.  
 
 ## Building EMA
 
@@ -81,38 +84,6 @@ Set the `CLASSPATH` to include the required jars.
 See `.../Src/examples/example100__MarketPrice__Streaming.bat` for an example of setting the `CLASSPATH` and running an example
 
 That should do it!  
-
-
-
-# Obtaining the ETA Binary Package
-
-To get the full functionality of the Transport API, please get the official ETA libraries from the following.
-
-**Developer Community:**
-
-https://developers.thomsonreuters.com/
-
-Then select the following options:
-
-- **APIs by Product**: Elektron
-- **APIs in this Family**: Elektron SDK - Java Edition
-- **Downloads**: ETA - Java - BINARY PACKS
-
-**Customer Zone:**
-
-https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
-
-- **Category**: MDS - API
-- **Products**: Elektron SDK
-
-Then select the following release
-
-    etaj3.0.0.L1.all-binaries.lib
-	
-Once you have downloaded these libraries, copy them to the corresponding directories under `Eta/Libs`
-Additional information about the contents of the closed source ETA libraries are available in the README contained in that distribution package.
-
-Your example should now be functional.
 
 
 # Developing 

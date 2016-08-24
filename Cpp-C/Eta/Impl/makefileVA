@@ -182,3 +182,5 @@ librsslVA.so.8  : $(librsslVA_objs)
 	mkdir -p $(EXE_DIR)/Shared
 	$(CC) $(CFLAGS) -o $(EXE_DIR)/Shared/$@ $(librsslVA_objs)  $(SONAME_OPT)$@ $(RSSL_LIB_PATH)/Shared $(RSSL_LIB) $(SYSTEM_LIBS)
 
+clean:
+	rm -rf $(OUTPUT_DIR)

@@ -6,7 +6,7 @@ The Transport API is the re-branding of the Ultra Performance API (UPA), which i
 
 
 ETA contains both closed source and open source components.  The transport, decoder, encoder, and cache components are closed source and is proprietary to Thomson Reuters.  As a result, the source code is not included on GitHub. 
-The `Libs` location in this package contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.
+This repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/thomsonreuters/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location.  That repository contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.The `Libs` location in this package contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.
 
 
 # Building the Transport API
@@ -47,6 +47,7 @@ Navigate to `Eta/Applications`, locate the example, performance tool, or trainin
 
 Run the application from the command line using the appropriate execution commands.  Most applications have a help menu that can be viewed with a -? option.
 
+**NOTE** If you have built using the 'stub' libraries, the examples run but fail. 
 
 ####Supported Platforms
 The makefiles and Windows project files provided facilitate building on a subset of platforms, generally overlapping with platforms supported or qualified by the product.
@@ -61,10 +62,10 @@ At the current time, the makefiles and project files support the following platf
 	- Visual Studio 11 (2012)
 	- Visual Studio 12 (2013)
 	- Visual Studio 14 (2015)
-- Solaris 10 X86 64-bit (SunStudio12)
-- Solaris 11 X86 64-bit (SunStudio12)
+
 
 Users are welcome to migrate open source code to the platforms they prefer, however support for the included ETA libraries are only provided on platforms captured in the README file.
+
 # Obtaining the Thomson Reuters Field Dictionaries
 
 The Thomson Reuters `RDMFieldDictionary` and `enumtype.def` files are present in the GitHub repo under `Eta/etc` and also distributed with the full Elektron SDK Package.  

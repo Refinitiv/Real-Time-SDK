@@ -8,29 +8,30 @@ Transport and OMM encoder/decoder API.  It is used by the Thomson Reuters Enterp
 
 # Supported Platforms and Compilers
 
-The Elektron-SDK has support for Linux, Windows and Solaris.  Please see the individual API README.md files for further details on supported platforms and compilers.
+The Elektron-SDK has support for Linux and Windows.  Please see the individual API README.md files for further details on supported platforms and compilers.
 
 # Building the APIs
 
 ## Common Setup
 This section shows the required setup needed before you can build any of the APIs within this package.
 
-Firstly, obtain the source from this repository. It will contain all of the required source to build EMA and ETA libraries as detailed below.
+Firstly, obtain the source from this repository. It will contain all of the required source to build EMA and ETA as detailed below.  
+In addition, this repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/thomsonreuters/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location.  That repository contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product. 
 
 
 ## Building ETA
 
 #### ETA Special Instructions
-The ETA package contains transport, decoder, encoder, and cache components.  The transport, decoder and encoder components are closed source and is proprietary to Thomson Reuters and the source code is not included 
+The ETA package contains transport, decoder, encoder, and cache components.  
 The transport, decoder, encoder, and cache components are closed source and is proprietary to Thomson Reuters and the source code is not included on GitHub. 
-The `Eta\Libs` location in this package contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.
+This repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/thomsonreuters/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location.  That repository contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.
 
 ####1) Build the ETA 
 
 **For Linux/Solaris**:
 
 Navigate to `Eta/Impl` 
--	Run `make all` to build Reactor and its dependencies.  This will link to the fully functional libraries provided in the `Libs` location.
+-	Run `make all` to build Reactor and its dependencies.  This will link to the fully functional libraries provided in the `Libs` location of the `Elektron-SDK-BinaryPack` repository.
 -	Run `make stubs` to build only the Stub libraries.  This will overwrite libraries in the `Libs` location with the compiled Stub libraries.
 -	Run `make rsslVA` to build only Reactor and its dependencies.  This will link to the fully functional libraries provided in the `Libs` location.  This is the same as the `make all` target.
 
@@ -54,6 +55,8 @@ Navigate to `Eta/Applications`, locate the example, performance tool, or trainin
 ####3) Run the ETA Examples
 
 Run the application from the command line using the appropriate execution commands.  Most applications have a help menu that can be viewed with a -? option.
+
+**NOTE** If you have built using the 'stub' libraries, the examples run but fail.  
 
 ## Building EMA
 

@@ -19,13 +19,18 @@
         <mkdir dir="${bin.dir}"/>
 		<mkdir dir="${stubs.dir}"/>
     </target>
+	
+	<target depends="init" name="bin-links">
+		<echo message="Creating symlink to Libs" />
+			<symlink link="../" resource="../../../Elektron-SDK-BinaryPack/Java/Libs" failonerror="false"/>
+	</target>
 
 	<target name="clean">
 		<echo message="Cleaning up old build output" />
         <delete dir="${bin.dir}"/>
     </target>
 
-	<target depends="init" name="build-valueadd">
+	<target depends="bin-links" name="build-valueadd">
 		<echo message="Building the valueadd" />
         <javac debug="false" debuglevel="${debuglevel}" destdir="${bin.dir}" source="${source}" target="${target}" includeantruntime="false">
 			<exclude name="com/thomsonreuters/upa/valueadd/cache/**" />
