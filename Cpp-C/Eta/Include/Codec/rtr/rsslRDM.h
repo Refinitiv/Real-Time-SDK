@@ -389,7 +389,9 @@ static const RsslBuffer RSSL_ENAME_SUPPS_QOS_RANGE = { 16 , (char*)"SupportsQoSR
 static const RsslBuffer RSSL_ENAME_ITEM_LIST = { 8 , (char*)"ItemList" };
 static const RsslBuffer RSSL_ENAME_SUPPS_OOB_SNAPSHOTS = { 26 , (char*)"SupportsOutOfBandSnapshots" };
 static const RsslBuffer RSSL_ENAME_ACCEPTING_CONS_STATUS = { 23 , (char*)"AcceptingConsumerStatus" };
+/* SOURCE_MIROR deprecated, use SOURCE_MIRROR */
 static const RsslBuffer RSSL_ENAME_SOURCE_MIROR_MODE = { 19 , (char*)"SourceMirroringMode" };
+static const RsslBuffer RSSL_ENAME_SOURCE_MIRROR_MODE = { 19 , (char*)"SourceMirroringMode" };
 static const RsslBuffer RSSL_ENAME_CONS_STATUS = { 14 , (char*)"ConsumerStatus" };
 static const RsslBuffer RSSL_ENAME_SVC_STATE = { 12 , (char*)"ServiceState" };
 static const RsslBuffer RSSL_ENAME_ACCEPTING_REQS = { 17 , (char*)"AcceptingRequests" };
