@@ -313,6 +313,7 @@ typedef struct {
 	RsslMCastStats		multicastStats;			 /*!< @brief When using a multicast connection type, this will be populated with information about the multicast protocol */
 	RsslUInt32			componentInfoCount;		 /*!< @brief Number of RsslComponentInfo structures contained in the dynamic componentInfo array */
 	RsslComponentInfo**	componentInfo;			 /*!< @brief A variable length array that contains product version information for the component(s) that this RsslChannel is connected to. The number of RsslComponentInfo structures present in array is indicated by componentInfoCount.  */
+	RsslUInt64			encryptionProtocol;		 /*!< @brief Current encryption protocol used. */
 } RsslChannelInfo;
 
 /**
@@ -451,6 +452,25 @@ typedef struct {
 
 #define RSSL_INIT_PROXY_OPTS {0, 0}
 
+typedef enum {
+	RSSL_ENC_NONE    = 0x00,			/*!< @brief (0x00) No encryption. */
+	RSSL_ENC_TLSV1   = 0x01,			/*!< @brief (0x02) Encryption using TLSv1 protocol */
+	RSSL_ENC_TLSV1_1 = 0x02,			/*!< @brief (0x04) Encryption using TLSv1.1 protocol */
+	RSSL_ENC_TLSV1_2 = 0x04				/*!< @brief (0x08) Encryption using TLSv1.2 protocol */
+} RsslEncryptionProtocolTypes;
+
+
+
+/** @brief Options used for configuring an encrypted tunneled connection (::RSSL_CONN_TYPE_ENCRYPTED).
+ *  see rsslConnect
+ *  see RsslConnectOptions
+ */
+typedef struct {
+	RsslUInt32 encryptionProtocolFlags;
+} RsslEncryptionOpts;
+
+#define RSSL_INIT_ENCRYPTION_OPTS { RSSL_ENC_TLSV1 | RSSL_ENC_TLSV1_1 | RSSL_ENC_TLSV1_2}
+
 
 
 /**
@@ -525,6 +545,7 @@ typedef struct {
 	RsslSeqMCastOpts	seqMulticastOpts;		/*!< @brief Sequenced Multicast transport specific options (used by ::RSSL_CONN_TYPE_SEQ_MCAST). */
 	RsslProxyOpts		proxyOpts;
 	char*				componentVersion;		/*!< @brief User defined component version information*/
+	RsslEncryptionOpts  encryptionOpts;
 
 } RsslConnectOptions;
 
@@ -532,7 +553,7 @@ typedef struct {
  * @brief RSSL Connect Options initialization
  * @see RsslConnectOptions
  */
-#define RSSL_INIT_CONNECT_OPTS { 0, 0, 0, RSSL_CONN_TYPE_SOCKET, RSSL_INIT_CONNECTION_INFO, RSSL_COMP_NONE, RSSL_FALSE, RSSL_FALSE, 60, 50, 10, 0, 0, 0, 0, 0, 0, RSSL_INIT_TCP_OPTS, RSSL_INIT_MCAST_OPTS, RSSL_INIT_SHMEM_OPTS, RSSL_INIT_SEQ_MCAST_OPTS, RSSL_INIT_PROXY_OPTS, 0 }
+#define RSSL_INIT_CONNECT_OPTS { 0, 0, 0, RSSL_CONN_TYPE_SOCKET, RSSL_INIT_CONNECTION_INFO, RSSL_COMP_NONE, RSSL_FALSE, RSSL_FALSE, 60, 50, 10, 0, 0, 0, 0, 0, 0, RSSL_INIT_TCP_OPTS, RSSL_INIT_MCAST_OPTS, RSSL_INIT_SHMEM_OPTS, RSSL_INIT_SEQ_MCAST_OPTS, RSSL_INIT_PROXY_OPTS, 0, RSSL_INIT_ENCRYPTION_OPTS }
 
 
 
@@ -596,6 +617,7 @@ RTR_C_INLINE void rsslClearConnectOpts(RsslConnectOptions *opts)
 	opts->proxyOpts.proxyHostName = 0;
 	opts->proxyOpts.proxyPort = 0;
 	opts->componentVersion = NULL;
+	opts->encryptionOpts.encryptionProtocolFlags = RSSL_ENC_TLSV1 | RSSL_ENC_TLSV1_1 | RSSL_ENC_TLSV1_2;
 }
 
 /**
