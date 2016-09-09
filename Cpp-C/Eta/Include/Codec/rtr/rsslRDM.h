@@ -45,6 +45,7 @@ typedef enum {
 	RSSL_DMT_ECONOMIC_INDICATOR			= 34,	/*!< (34) Economic Indicator content */
 	RSSL_DMT_POLL						= 35,   /*!< (35) Poll content */
 	RSSL_DMT_FORECAST					= 36,	/*!< (36) Forecast content */
+	RSSL_DMT_MARKET_BY_TIME				= 37,	/*!< Market By Time content */
 	RSSL_DMT_SYSTEM						= 127,  /*!< (127) System domain for use with domain netural content (e.g. tunnel stream creation) */
 	RSSL_DMT_MAX_RESERVED				= 127,	/*!< (127) Maximum reserved message type value */
 	RSSL_DMT_MAX_VALUE					= 255	/*!< (255) Maximum value for a message type */
