@@ -30,7 +30,9 @@
  * Detailed Descriptions:
  * The first step of any UPA Interactive Provider application is to establish 
  * a listening socket, usually on a well-known port so that consumer applications 
- * can easily connect. The provider uses the rsslBind function to open the port 
+ * can easily connect. In this example, the port is consistent with that of 
+ * other training consumer examples.
+ * The provider uses the rsslBind function to open the port
  * and listen for incoming connection attempts.
  * Whenever an OMM consumer application attempts to connect, the provider uses 
  * the rsslAccept function to begin the connection initialization process.
@@ -63,6 +65,9 @@
  * it may not need to send heartbeats as the other data is sufficient to announce 
  * its continued presence. It is the responsibility of each connection to manage 
  * the sending and receiving of heartbeat messages.
+ *
+ * Add one more main loop for message processing. Similar to consumer module_ping, this
+ * module adds functions to initial ping and process ping.
  *
  *
  ************************************************************************
@@ -99,6 +104,8 @@
  * to accept additional bytes for writing. The UPA Transport can continue to
  * queue data, even if the network is unable to write. 
  *
+ * Fulfill the third loop module built in module_1b_ping. Add lines of codes to process
+ * message buffer.
  */
 
 #include <stdio.h>

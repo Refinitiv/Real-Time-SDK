@@ -28,11 +28,16 @@
  * Detailed Descriptions:
  * The first step of any UPA consumer application is to establish a 
  * network connection with its peer component (i.e., another application 
- * with which to interact). An OMM consumer typically creates an outbound 
+ * with which to interact). User must start a interactive provider (server) or a 
+ * non-interactive provider which connects to an ADH. 
+ * There are training examples available for Providers and NIProviders.
+ * An OMM consumer typically creates an outbound 
  * connection to the well-known hostname and port of a server (Interactive 
  * Provider or ADS). The consumer uses the rsslConnect() function to initiate 
  * the connection and then uses the rsslInitChannel() function to complete 
- * channel initialization.
+ * channel initialization.(rssl stands for Reuters Source Sink Library.
+ * UPA stands for “Ultra Performance API.” It was the previous name of the product, 
+ * before it was re-branded as ETA “Elektron Transport API”.)
  * 
  *
  ************************************************************************
@@ -65,7 +70,7 @@
  * Summary:
  * When channel initialization is complete, the state of the channel 
  * (RsslChannel.state) is RSSL_CH_STATE_ACTIVE, and applications can send 
- * and receive data.
+ * and receive data.(Read and Write)
  *
  * Detailed Descriptions:
  * When a client or server RsslChannel.state is RSSL_CH_STATE_ACTIVE, it is 
@@ -76,6 +81,7 @@
  * which it determines RsslBuffer boundaries and returns each buffer one by 
  * one.
  * 
+ * (Buffer is used since Ping module and all the latter examples.)
  * When a client or server RsslChannel.state is RSSL_CH_STATE_ACTIVE, it is 
  * possible for an application to write data to the connection. Writing 
  * involves a several step process. Because the UPA Transport provides 
@@ -89,6 +95,7 @@
  * mechanism can be used to help with determining when the network is able 
  * to accept additional bytes for writing. The UPA Transport can continue to
  * queue data, even if the network is unable to write. 
+ * 
  * 
  *
  ************************************************************************
@@ -114,7 +121,7 @@
  * and the use of Dynamic Views. The consumer application can use this 
  * information to tailor its interaction with the provider.
  *
- * Content is encoded and decoded using the UPA Message Package and the UPA 
+ * Content is encoded and decoded using the UPA Message Package and the UPA  
  * Data Package. 
  * 
  *
@@ -142,6 +149,7 @@
  * The Source Directory Group filter conveys item group status information, 
  * including information about group states, as well as the merging of groups. 
  *
+
  * Content is encoded and decoded using the UPA Message Package and the UPA 
  * Data Package.
  *
@@ -177,7 +185,13 @@
  *   offers several utility functions for encoding and decoding of the
  *   Dictionary domain content.
  * 
- * Content is encoded and decoded using the UPA Message Package and the UPA 
+ *
+ * Change the function closeChannelCleanUpAndExit() by adding parameter of datadictionary.
+ *
+ * After check for source directory, it will check dictionary(add more code after source directory).
+ * Also added are two more functions:processDictionaryResponse() and sendDictionaryRequest().
+ *
+ * Content is encoded and decoded using the UPA Message Package and the UPA  
  * Data Package.
  *
  *
@@ -209,6 +223,9 @@
  * corresponds to a piece of information and its current value. The field list should be 
  * decoded using its associated Field Dictionary, indicated by the dictionaryId present 
  * in the field list.
+ * Similar to module_Dictionary, the main change is to add one more option in the second main loop.
+ * Also added 4 more functions: sendMarketPriceItemRequest(), processMarketPriceItemResponse(), decodeMarketPricePayload()
+ * and closeMarketPriceItemStream(). More details are in those functions.
  * 
  * Content is encoded and decoded using the UPA Message Package and the UPA 
  * Data Package.
