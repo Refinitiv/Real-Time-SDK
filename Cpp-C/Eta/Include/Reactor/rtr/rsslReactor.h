@@ -464,7 +464,7 @@ RSSL_VA_API RsslRet rsslReactorSubmitMsg(RsslReactor *pReactor, RsslReactorChann
  */
 typedef struct
 {
-	char									*name;						/*!< Name used when opening this tunnel stream. This name is transmitted to the provider. If not specified, "TunnelStream" is used. */
+	char									*name;						/*!< Name used when opening this tunnel stream. This name is transmitted to the provider. If not specified, "TunnelStream" is used. Length must be 0-255 characters. */
 	RsslInt32								streamId;					/*!< Stream ID to use when opening the tunnel stream. */
 	RsslUInt8								domainType;					/*!< Domain type to use when opening the tunnel stream. */
 	RsslUInt16								serviceId;					/*!< Service ID to use when opening the tunnel stream. */
