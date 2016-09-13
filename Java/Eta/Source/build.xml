@@ -22,7 +22,7 @@
 	
 	<target depends="init" name="bin-links">
 		<echo message="Creating symlink to Libs" />
-			<symlink link="../" resource="../../../Elektron-SDK-BinaryPack/Java/Libs" failonerror="false"/>
+			<symlink link="../" resource="../../../Elektron-SDK-BinaryPack/Java/Eta/Libs" failonerror="false"/>
 	</target>
 
 	<target name="clean">
