@@ -7,6 +7,7 @@ The Transport API is the re-branding of the Ultra Performance API (UPA), which i
 
 ETA contains both closed source and open source components.  The transport, decoder, encoder, and cache components are closed source and is proprietary to Thomson Reuters.  As a result, the source code is not included on GitHub. 
 This repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/thomsonreuters/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location.  That repository contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.The `Libs` location in this package contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.
+This repository uses submodules for this cross-dependency, so users should add the `--recursive` option to their git clone command.
 
 
 # Building the Transport API
