@@ -3,11 +3,11 @@ export LIBTYPE = Optimized
 
 OS_NAME= $(shell uname -s)
 ifeq ($(OS_NAME), SunOS)
-	LNCMD = ln -s
+	LNCMD = ln -sfn
 endif
 
 ifeq ($(OS_NAME), Linux)
-	LNCMD = ln -is
+	LNCMD = ln -fs
 endif
 
 
@@ -18,7 +18,7 @@ main: rsslVA
 #it depends on git submodule to pull Elektron-SDK-BinaryPack repository as 
 #well and then links to the libraries folder.
 rsslVA:
-	$(LNCMD) ../../../Elektron-SDK-BinaryPack/Cpp-C/Eta/Libs ../
+	$(LNCMD) ../../Elektron-SDK-BinaryPack/Cpp-C/Eta/Libs ../
 	make -f makefileVA
 
 stubs:
