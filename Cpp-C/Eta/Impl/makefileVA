@@ -183,4 +183,9 @@ librsslVA.so.8  : $(librsslVA_objs)
 	$(CC) $(CFLAGS) -o $(EXE_DIR)/Shared/$@ $(librsslVA_objs)  $(SONAME_OPT)$@ $(RSSL_LIB_PATH)/Shared $(RSSL_LIB) $(SYSTEM_LIBS)
 
 clean:
-	rm -rf $(OUTPUT_DIR)
+	rm -f $(OUTPUT_DIR)/librsslVAUtil*
+	rm -f $(OUTPUT_DIR)/librsslRDM.*
+	rm -f $(OUTPUT_DIR)/librsslVA.*
+	rm -f $(OUTPUT_DIR)/librsslReactor.*
+	rm -rf $(OUTPUT_DIR)/obj
+
