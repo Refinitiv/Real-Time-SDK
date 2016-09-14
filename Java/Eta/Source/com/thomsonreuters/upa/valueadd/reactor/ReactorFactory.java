@@ -25,6 +25,7 @@ public class ReactorFactory
     static VaPool _wlServicePool = new VaPool(true);
     static VaPool _wlItemGroupPool = new VaPool(true);
     static VaPool _wlIntegerPool = new VaPool(true);
+    static VaPool _wlViewPool = new VaPool(true);
     
     private ReactorFactory()
     {
@@ -529,4 +530,20 @@ public class ReactorFactory
         }
         return wlInteger;
     }
+    
+    static WlView createWlView()
+    {
+        WlView wlView = (WlView)_wlViewPool.poll();
+        if(wlView == null)
+        {
+            wlView = new WlView();
+            _wlServicePool.updatePool(wlView);
+        }
+        else
+        {
+            wlView.clear();
+        }
+        return wlView;
+    }    
+    
 }

@@ -15,6 +15,7 @@ import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.codec.RequestMsg;
 import com.thomsonreuters.upa.rdm.DomainTypes;
+import com.thomsonreuters.upa.rdm.ViewTypes;
 import com.thomsonreuters.upa.valueadd.common.VaNode;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.MsgBase;
 import com.thomsonreuters.upa.valueadd.reactor.WlRequest.State;
@@ -521,6 +522,16 @@ class Watchlist extends VaNode
         {
             wlRequest.tableKey().returnToPool();
         }
+        
+        if (wlRequest.viewElemCount() > 0 && wlRequest.view() != null)
+        {
+        	if (wlRequest.viewType() == ViewTypes.FIELD_ID_LIST)
+        		_itemHandler._wlViewHandler._viewFieldIdListPool.add(wlRequest.view().fieldIdList());
+        	else if (wlRequest.viewType() == ViewTypes.ELEMENT_NAME_LIST)
+        		_itemHandler._wlViewHandler._viewElementNameListPool.add(wlRequest.view().elementNameList());
+        	wlRequest.view().returnToPool();
+        }
+        
         wlRequest.state(State.RETURN_TO_POOL);
         wlRequest.returnToPool();
     }

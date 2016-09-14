@@ -1,5 +1,6 @@
 package com.thomsonreuters.upa.valueadd.reactor;
 
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -94,6 +95,13 @@ class WlStream extends VaNode
     int _requestsPausedCount;
     boolean _paused;
     
+    WlView _aggregateView;
+    int _requestsWithViewCount;
+    boolean _pendingViewChange;  
+    boolean _pendingViewRefresh;
+    Buffer _viewBuffer = CodecFactory.createBuffer();
+    ByteBuffer _viewByteBuffer = ByteBuffer.allocateDirect(2048);
+        
     WlStream()
     {
         _ackMsg = (AckMsg)CodecFactory.createMsg();
@@ -395,7 +403,54 @@ class WlStream extends VaNode
     int sendMsg(Msg msg, ReactorSubmitOptions submitOptions, ReactorErrorInfo errorInfo)
     {
         int ret = ReactorReturnCodes.SUCCESS;
-        
+     
+        if ( msg.msgClass() == MsgClasses.REQUEST)
+        {         
+			if (_requestsWithViewCount > 0 )
+			{
+//				System.out.println("WLSTREAM.SENDMSG  _requestsWithViewCount = " + _requestsWithViewCount + " _userRequestList.size() =  "
+//						+ _userRequestList.size() +  " _unsentMsgQueue.size() =  " + _unsentMsgQueue.size() + " _waitingRequestList.size() = "
+//						 + _waitingRequestList.size());
+//				
+				
+//				if ((_requestsWithViewCount == _waitingRequestList.size() + _unsentMsgQueue.size() + _userRequestList.size()))
+				if (_requestsWithViewCount == _userRequestList.size())
+				{			
+					if (_pendingViewChange && !_pendingViewRefresh)
+//						if (_pendingViewChange)
+					{
+						_aggregateView.viewHandler().aggregateViewMerge((RequestMsg)msg, _aggregateView);
+				
+						msg.flags(msg.flags() | RequestMsgFlags.HAS_VIEW);
+			   	
+						_viewByteBuffer.clear();
+						_viewBuffer.data(_viewByteBuffer);
+						_eIter.clear();
+						_eIter.setBufferAndRWFVersion(_viewBuffer, _reactorChannel.majorVersion(), _reactorChannel.minorVersion());			       
+						_aggregateView.viewHandler().encodeViewRequest(_eIter, _aggregateView);
+						msg.containerType(DataTypes.ELEMENT_LIST);
+						msg.encodedDataBody(_viewBuffer);
+					}
+					else
+					{
+						// until viewRefresh is applied
+	                    // add to unsent message queue and trigger dispatch
+                        addToUnsentMsgQueue(msg);
+						return ReactorReturnCodes.SUCCESS;
+					}
+				}
+				else
+				{
+					_pendingViewChange = true;
+					msg.flags(msg.flags() & ~RequestMsgFlags.HAS_VIEW);
+					_viewBuffer.clear();
+					msg.encodedDataBody(_viewBuffer);
+					msg.containerType(DataTypes.NO_DATA);
+					
+				}
+			}
+        }
+                
         // encode into buffer and send out
         if (isChannelUp()) // channel is up
         {
@@ -452,6 +507,20 @@ class WlStream extends VaNode
                                 return ReactorReturnCodes.FAILURE;
                             }
                         }
+                        if ( _pendingViewChange)
+                        {
+                        	_pendingViewChange = false;
+                        	if (!((RequestMsg)msg).checkNoRefresh())
+                        		_pendingViewRefresh = true;
+                                            
+                            if (_aggregateView != null)
+                            	_aggregateView.viewHandler().aggregateViewCommit(_aggregateView);
+
+                            if (_aggregateView!= null && _requestsWithViewCount == 0 )
+                            {
+                            	_aggregateView.viewHandler().aggregateViewDestroy(_aggregateView);
+                            }                    		
+                    	}                        
                     }
                     
                     // if post message and ACK required, increment number of outstanding post messages and update post tables
@@ -965,5 +1034,17 @@ class WlStream extends VaNode
         {
             _watchlist.closeWlRequest(wlRequest);
         }
+        if (_aggregateView != null) _aggregateView.clear();
     }
+    
+	WlView aggregateView()
+	{
+		return _aggregateView;
+	}
+
+	public void aggregateView(WlView aggregateView)
+	{
+		_aggregateView = aggregateView;
+	}
+      
 }

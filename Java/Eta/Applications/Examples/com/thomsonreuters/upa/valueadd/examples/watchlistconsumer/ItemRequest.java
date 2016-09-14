@@ -540,9 +540,22 @@ public class ItemRequest
            return CodecReturnCodes.FAILURE;
        }
 
-       if (checkHasView() && (encodeViewRequest(encodeIter) < CodecReturnCodes.SUCCESS))
+       if (checkHasView())
        {
-           return CodecReturnCodes.FAILURE;
+    	   if(viewFieldList != null && viewFieldList.size() > 0)
+    	   {
+    		   if (encodeViewRequest(encodeIter, ViewTypes.FIELD_ID_LIST) < CodecReturnCodes.SUCCESS)
+    		   {
+    			   return CodecReturnCodes.FAILURE;
+    		   }
+    	   }
+    	   else if(viewElementNameList != null && viewElementNameList.size() > 0)
+    	   {
+    		   if (encodeViewRequest(encodeIter, ViewTypes.ELEMENT_NAME_LIST) < CodecReturnCodes.SUCCESS)
+    		   {
+    			   return CodecReturnCodes.FAILURE;
+    		   }
+    	   }
        }
        
        if (isSymbolListData &&
@@ -641,87 +654,84 @@ public class ItemRequest
     * 
     * This method is only used within the Market Price Handler
     */
-   private int encodeViewRequest(EncodeIterator encodeIter)
+   private int encodeViewRequest(EncodeIterator encodeIter, int viewType)
    {
-	   boolean fidType = true;
-	   if (viewFieldList == null && viewElementNameList == null)  // do nothing 
-		   return CodecReturnCodes.SUCCESS;
-	   if (viewFieldList!= null && viewFieldList.size() > 0) fidType = true;
-	   else if  (viewElementNameList!= null && viewElementNameList.size() > 0) fidType = false;
-	   else // do nothing
-		   return CodecReturnCodes.SUCCESS;
-		   
-	   
-       elementEntry.clear();
-       elementEntry.name(ElementNames.VIEW_TYPE);
-       elementEntry.dataType(DataTypes.UINT);
-       if (fidType) 
-    	   tempUInt.value(ViewTypes.FIELD_ID_LIST);
-       else 
-    	   tempUInt.value(ViewTypes.ELEMENT_NAME_LIST);
-    	   
-       int ret = elementEntry.encode(encodeIter, tempUInt);
-       if (ret < CodecReturnCodes.SUCCESS)
-       {
-           return ret;
-       }
+	      elementEntry.clear();
+	       elementEntry.name(ElementNames.VIEW_TYPE);
+	       elementEntry.dataType(DataTypes.UINT);
+	       if ( viewType == ViewTypes.FIELD_ID_LIST)
+	    	   tempUInt.value(ViewTypes.FIELD_ID_LIST);
+	       else
+	    	   tempUInt.value(ViewTypes.ELEMENT_NAME_LIST);    	   
+	       int ret = elementEntry.encode(encodeIter, tempUInt);
+	       if (ret < CodecReturnCodes.SUCCESS)
+	       {
+	           return ret;
+	       }
 
-       elementEntry.clear();
-       elementEntry.name(ElementNames.VIEW_DATA);
-       elementEntry.dataType(DataTypes.ARRAY);
-       if ((ret = elementEntry.encodeInit(encodeIter, 0)) < CodecReturnCodes.SUCCESS)
-       {
-           return ret;
-       }
+	       elementEntry.clear();
+	       elementEntry.name(ElementNames.VIEW_DATA);
+	       elementEntry.dataType(DataTypes.ARRAY);
+	       if ((ret = elementEntry.encodeInit(encodeIter, 0)) < CodecReturnCodes.SUCCESS)
+	       {
+	           return ret;
+	       }
 
-       if (fidType)
-       {
-    	   viewArray.primitiveType(DataTypes.INT);
-    	   viewArray.itemLength(2);
-       }
-       else
-    	   viewArray.primitiveType(DataTypes.ASCII_STRING);
-    	   
+	       if ( viewType == ViewTypes.FIELD_ID_LIST)
+	       {
+	    	   viewArray.primitiveType(DataTypes.INT);
+	    	   viewArray.itemLength(2);
+	       }
+	       else
+	    	   viewArray.primitiveType(DataTypes.ASCII_STRING);
+	    	   
 
-       if ((ret = viewArray.encodeInit(encodeIter)) < CodecReturnCodes.SUCCESS)
-       {
-           return ret;
-       }
+	       if ((ret = viewArray.encodeInit(encodeIter)) < CodecReturnCodes.SUCCESS)
+	       {
+	           return ret;
+	       }
 
-       if (fidType)
-       {
-    	   for (Integer viewField : viewFieldList)
-    	   {
-    		   arrayEntry.clear();
-    		   tempInt.value(viewField);
-    		   ret = arrayEntry.encode(encodeIter, tempInt);
-    		   if (ret < CodecReturnCodes.SUCCESS) return ret;
-    	   }
-       }
-       else
-       {
-      	   for (String elemName : viewElementNameList)
-    	   {
-       		   arrayEntry.clear();
-    		   elementNameBuf.data(elemName);
-    		   ret = arrayEntry.encode(encodeIter, elementNameBuf);
-    		   if (ret < CodecReturnCodes.SUCCESS)  return ret;
-    	   }
-       }
-       ret = viewArray.encodeComplete(encodeIter, true);
+	       if ( viewType == ViewTypes.FIELD_ID_LIST)
+	       {
+	    	   for (Integer viewField : viewFieldList)
+	    	   {
+	    		   arrayEntry.clear();
+	    		   tempInt.value(viewField);
+	    		   ret = arrayEntry.encode(encodeIter, tempInt);
+	    		   if (ret < CodecReturnCodes.SUCCESS)
+	    		   {
+	    			   return ret;
+	    		   }
+	    	   }
+	       }
+	       else
+	       {
+	       	   for (String elementName : viewElementNameList)
+	    	   {
+	    		   arrayEntry.clear(); 
+	    		   elementNameBuf.data(elementName);
+	    		   ret = arrayEntry.encode(encodeIter, elementNameBuf);
+	 
+	    		   if (ret < CodecReturnCodes.SUCCESS)
+	    		   {
+	    			   return ret;
+	    		   }
+	    	   }
+	       }     
+	       ret = viewArray.encodeComplete(encodeIter, true);
 
-       if (ret < CodecReturnCodes.SUCCESS)
-       {
-           return ret;
-       }
+	       if (ret < CodecReturnCodes.SUCCESS)
+	       {
+	           return ret;
+	       }
 
-       ret = elementEntry.encodeComplete(encodeIter, true);
-       if (ret < CodecReturnCodes.SUCCESS)
-       {
-           return ret;
-       }
+	       ret = elementEntry.encodeComplete(encodeIter, true);
+	       if (ret < CodecReturnCodes.SUCCESS)
+	       {
+	           return ret;
+	       }
 
-       return CodecReturnCodes.SUCCESS;
+	       return CodecReturnCodes.SUCCESS;
    }
    
    public int encodeSymbolListData(EncodeIterator encodeIter)
