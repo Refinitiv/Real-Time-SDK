@@ -294,7 +294,26 @@ class ItemCallbackClient<T> extends CallbackClient<T> implements DefaultMsgCallb
 		_statusMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
 		
 		if (_eventImpl._item.type() == Item.ItemType.BATCH_ITEM)
+		{
 			_eventImpl._item = ((BatchItem<T>)_eventImpl._item).singleItem(rsslMsg.streamId());
+			if  (_eventImpl._item == null)
+			{
+				if (_baseImpl.loggerClient().isErrorEnabled())
+	        	{
+		        	StringBuilder temp = _baseImpl.strBuilder();
+		        	temp.append("Received an item event with invalid message stream")
+		        		.append(OmmLoggerClient.CR)
+		        		.append("Instance Name ").append(_baseImpl.instanceName())
+		        		.append(OmmLoggerClient.CR)
+		        		.append("RsslReactor ").append(Integer.toHexString(channelInfo.rsslReactor().hashCode()))
+		        		.append(OmmLoggerClient.CR);
+		        	
+			        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	}
+				
+				return ReactorCallbackReturnCodes.FAILURE;
+			}
+		}
 		
 		_statusMsg.service(_eventImpl._item.directory().serviceName());
 
