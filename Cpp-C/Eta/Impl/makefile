@@ -19,6 +19,8 @@ main: rsslVA
 #well and then links to the libraries folder.
 rsslVA:
 	$(LNCMD) ../../Elektron-SDK-BinaryPack/Cpp-C/Eta/Libs ../
+	$(LNCMD) ../../../../Elektron-SDK-BinaryPack/Cpp-C/Eta/Utils/Dacs/Libs ../Utils/Dacs/
+	$(LNCMD) ../../../../Elektron-SDK-BinaryPack/Cpp-C/Eta/Utils/Ansi/Libs ../Utils/Ansi/
 	make -f makefileVA
 
 stubs:
