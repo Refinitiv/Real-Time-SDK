@@ -1054,6 +1054,8 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 							}
 							
 							unspecifiedIdList.get(index).serviceId(serviceId);
+							serviceIdSet.add(serviceId);
+							serviceId++;
 						}
 					}
 				}
