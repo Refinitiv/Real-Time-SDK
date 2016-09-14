@@ -1411,7 +1411,7 @@ public class Reactor
 
         try
         {
-            if (reactorChannel.state() == ReactorChannel.State.CLOSED)
+            if (!isReactorChannelReady(reactorChannel))
             {
                 ret = ReactorReturnCodes.FAILURE;
                 return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
@@ -1591,7 +1591,7 @@ public class Reactor
 
         try
         {
-            if (reactorChannel.state() == ReactorChannel.State.CLOSED)
+        	if (!isReactorChannelReady(reactorChannel))
             {
                 ret = ReactorReturnCodes.FAILURE;
                 return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
