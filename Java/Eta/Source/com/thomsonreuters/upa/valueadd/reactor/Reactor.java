@@ -1434,19 +1434,8 @@ public class Reactor
             		ret == TransportReturnCodes.WRITE_FLUSH_FAILED ||
             		ret == TransportReturnCodes.WRITE_CALL_AGAIN)
             	{
-            		// send FLUSH event to worker
-                    if (!sendWorkerEvent(WorkerEventTypes.FLUSH, reactorChannel))
-                    {
-                    	// sendWorkerEvent() failed, send channel down
-                        reactorChannel.state(State.DOWN);
-                        sendAndHandleChannelEventCallback("Reactor.submitChannel",
-                                                              ReactorChannelEventTypes.CHANNEL_DOWN,
-                                                              reactorChannel, errorInfo);
-                        return populateErrorInfo(errorInfo,
-                                          ReactorReturnCodes.FAILURE,
-                                          "Reactor.submitChannel",
-                                          "sendWorkerEvent() failed");
-                    }
+                    if (sendFlushRequest(reactorChannel, "Reactor.submitChannel", errorInfo) != ReactorReturnCodes.SUCCESS)
+                        return ReactorReturnCodes.FAILURE;
 
             		if (ret != TransportReturnCodes.WRITE_CALL_AGAIN)
             		{
@@ -1479,6 +1468,8 @@ public class Reactor
                     
                     ret = ReactorReturnCodes.FAILURE;
             	}
+                else
+                    reactorChannel.flushAgain(false);
             }
         }
         finally
@@ -1569,19 +1560,8 @@ public class Reactor
 	            	}
 	            	else // return NO_BUFFERS
 	            	{
-                		// send FLUSH event to worker
-                        if (!sendWorkerEvent(WorkerEventTypes.FLUSH, reactorChannel))
-                        {
-                        	// sendWorkerEvent() failed, send channel down
-                            reactorChannel.state(State.DOWN);
-                            sendAndHandleChannelEventCallback("Reactor.submitChannel",
-                                                                  ReactorChannelEventTypes.CHANNEL_DOWN,
-                                                                  reactorChannel, errorInfo);
-                            return populateErrorInfo(errorInfo,
-                                              ReactorReturnCodes.FAILURE,
-                                              "Reactor.submitChannel",
-                                              "sendWorkerEvent() failed");
-                        }
+                        if (sendFlushRequest(reactorChannel, "Reactor.submitChannel", errorInfo) != ReactorReturnCodes.SUCCESS)
+                            return ReactorReturnCodes.FAILURE;
                         
 	            		populateErrorInfo(errorInfo, ReactorReturnCodes.NO_BUFFERS,
 	                            "Reactor.submitChannel", "channel out of buffers chnl="
@@ -1677,19 +1657,8 @@ public class Reactor
                     }
                     else // return NO_BUFFERS
                     {
-                        // send FLUSH event to worker
-                        if (!sendWorkerEvent(WorkerEventTypes.FLUSH, reactorChannel))
-                        {
-                            // sendWorkerEvent() failed, send channel down
-                            reactorChannel.state(State.DOWN);
-                            sendAndHandleChannelEventCallback("Reactor.submitChannel",
-                                                                  ReactorChannelEventTypes.CHANNEL_DOWN,
-                                                                  reactorChannel, errorInfo);
-                            return populateErrorInfo(errorInfo,
-                                              ReactorReturnCodes.FAILURE,
-                                              "Reactor.submitChannel",
-                                              "sendWorkerEvent() failed");
-                        }
+                        if (sendFlushRequest(reactorChannel, "Reactor.submitChannel", errorInfo) != ReactorReturnCodes.SUCCESS)
+                            return ReactorReturnCodes.FAILURE;
                         
                         populateErrorInfo(errorInfo, ReactorReturnCodes.NO_BUFFERS,
                                 "Reactor.submitChannel", "channel out of buffers chnl="
@@ -1999,6 +1968,16 @@ public class Reactor
 
         switch (eventType)
         {
+            case FLUSH_DONE:
+                event.reactorChannel().flushRequested(false);
+                if (event.reactorChannel().flushAgain())
+                {
+                    /* Channel wrote a message since its last flush request, request flush again
+                     * in case that message was not flushed. */
+                    if (sendFlushRequest(event.reactorChannel(), "Reactor.processWorkerEvent", errorInfo) != ReactorReturnCodes.SUCCESS)
+                        return ReactorReturnCodes.FAILURE;
+                }
+                break;
             case CHANNEL_UP:
                 processChannelUp(event, errorInfo);
                 break;
@@ -2265,19 +2244,7 @@ public class Reactor
         retval = channel.write(msgBuf, _writeArgs, errorInfo.error());
         if (retval > TransportReturnCodes.SUCCESS)
         {
-            // send FLUSH WorkerEvent to Worker
-            if (!sendWorkerEvent(WorkerEventTypes.FLUSH, reactorChannel))
-            {
-            	// sendWorkerEvent() failed, send channel down
-                reactorChannel.state(State.DOWN);
-                sendAndHandleChannelEventCallback("Reactor.encodeAndWriteLoginRequest",
-                                                      ReactorChannelEventTypes.CHANNEL_DOWN,
-                                                      reactorChannel, errorInfo);
-                populateErrorInfo(errorInfo,
-                                  ReactorReturnCodes.FAILURE,
-                                  "Reactor.encodeAndWriteLoginRequest",
-                                  "sendWorkerEvent() failed");            	
-            }
+            sendFlushRequest(reactorChannel, "Reactor.encodeAndWriteLoginRequest", errorInfo);
         }
         else if (retval < TransportReturnCodes.SUCCESS)
         {
@@ -2305,6 +2272,8 @@ public class Reactor
                                       + CodecReturnCodes.toString(retval) + ">" + " error="
                                       + errorInfo.error().text());
         }
+        else
+            reactorChannel.flushAgain(false);
     }
 
     private void encodeAndWriteLoginClose(LoginClose loginClose, ReactorChannel reactorChannel, ReactorErrorInfo errorInfo)
@@ -2352,14 +2321,7 @@ public class Reactor
         retval = channel.write(msgBuf, _writeArgs, errorInfo.error());
         if (retval > TransportReturnCodes.SUCCESS)
         {
-            // send FLUSH WorkerEvent to Worker
-            if (!sendWorkerEvent(WorkerEventTypes.FLUSH, reactorChannel))
-            {
-                populateErrorInfo(errorInfo,
-                                  ReactorReturnCodes.FAILURE,
-                                  "Reactor.encodeAndWriteLoginClose",
-                                  "sendWorkerEvent() failed");            	
-            }
+            sendFlushRequest(reactorChannel, "Reactor.encodeAndWriteLoginClose", errorInfo);
         }
         else if (retval < TransportReturnCodes.SUCCESS)
         {
@@ -2370,6 +2332,8 @@ public class Reactor
                                       + CodecReturnCodes.toString(retval) + ">" + " error="
                                       + errorInfo.error().text());
         }
+        else
+            reactorChannel.flushAgain(false);
     }
 
     private void encodeAndWriteDirectoryRequest(DirectoryRequest directoryRequest, ReactorChannel reactorChannel, ReactorErrorInfo errorInfo)
@@ -2419,19 +2383,7 @@ public class Reactor
         retval = channel.write(msgBuf, _writeArgs, errorInfo.error());
         if (retval > TransportReturnCodes.SUCCESS)
         {
-            // send FLUSH WorkerEvent to Worker
-            if (!sendWorkerEvent(WorkerEventTypes.FLUSH, reactorChannel))
-            {
-            	// sendWorkerEvent() failed, send channel down
-                reactorChannel.state(State.DOWN);
-                sendAndHandleChannelEventCallback("Reactor.encodeAndWriteDirectoryRequest",
-                                                      ReactorChannelEventTypes.CHANNEL_DOWN,
-                                                      reactorChannel, errorInfo);
-                populateErrorInfo(errorInfo,
-                                  ReactorReturnCodes.FAILURE,
-                                  "Reactor.encodeAndWriteDirectoryRequest",
-                                  "sendWorkerEvent() failed");            	
-            }
+            sendFlushRequest(reactorChannel, "Reactor.encodeAndWriteDirectoryRequest", errorInfo);
         }
         else if (retval < TransportReturnCodes.SUCCESS)
         {
@@ -2459,6 +2411,8 @@ public class Reactor
                                       + CodecReturnCodes.toString(retval) + ">" + " error="
                                       + errorInfo.error().text());
         }
+        else
+            reactorChannel.flushAgain(false);
     }
     
     private void encodeAndWriteDirectoryRefresh(DirectoryRefresh directoryRefresh, ReactorChannel reactorChannel, ReactorErrorInfo errorInfo)
@@ -2508,19 +2462,7 @@ public class Reactor
         retval = channel.write(msgBuf, _writeArgs, errorInfo.error());
         if (retval > TransportReturnCodes.SUCCESS)
         {
-            // send FLUSH WorkerEvent to Worker
-            if (!sendWorkerEvent(WorkerEventTypes.FLUSH, reactorChannel))
-            {
-            	// sendWorkerEvent() failed, send channel down
-                reactorChannel.state(State.DOWN);
-                sendAndHandleChannelEventCallback("Reactor.encodeAndWriteDirectoryRefresh",
-                                                      ReactorChannelEventTypes.CHANNEL_DOWN,
-                                                      reactorChannel, errorInfo);
-                populateErrorInfo(errorInfo,
-                                  ReactorReturnCodes.FAILURE,
-                                  "Reactor.encodeAndWriteDirectoryRefresh",
-                                  "sendWorkerEvent() failed");            	
-            }
+            sendFlushRequest(reactorChannel, "Reactor.encodeAndWriteDirectoryRefresh", errorInfo);
         }
         else if (retval < TransportReturnCodes.SUCCESS)
         {
@@ -2548,6 +2490,8 @@ public class Reactor
                                       + CodecReturnCodes.toString(retval) + ">" + " error="
                                       + errorInfo.error().text());
         }
+        else
+            reactorChannel.flushAgain(false);
     }
 
     private void encodeAndWriteDirectoryClose(DirectoryClose directoryClose, ReactorChannel reactorChannel, ReactorErrorInfo errorInfo)
@@ -2595,14 +2539,7 @@ public class Reactor
         retval = channel.write(msgBuf, _writeArgs, errorInfo.error());
         if (retval > TransportReturnCodes.SUCCESS)
         {
-            // send FLUSH WorkerEvent to Worker
-            if (!sendWorkerEvent(WorkerEventTypes.FLUSH, reactorChannel))
-            {
-                populateErrorInfo(errorInfo,
-                                  ReactorReturnCodes.FAILURE,
-                                  "Reactor.encodeAndWriteDirectoryClose",
-                                  "sendWorkerEvent() failed");            	
-            }
+            sendFlushRequest(reactorChannel, "Reactor.encodeAndWriteDirectoryClose", errorInfo);
         }
         else if (retval < TransportReturnCodes.SUCCESS)
         {
@@ -2613,6 +2550,8 @@ public class Reactor
                                       + CodecReturnCodes.toString(retval) + ">" + " error="
                                       + errorInfo.error().text());
         }
+        else
+            reactorChannel.flushAgain(false);
     }
 
     private void encodeAndWriteDictionaryRequest(DictionaryRequest dictionaryRequest, ReactorChannel reactorChannel, ReactorErrorInfo errorInfo)
@@ -2662,19 +2601,7 @@ public class Reactor
         retval = channel.write(msgBuf, _writeArgs, errorInfo.error());
         if (retval > TransportReturnCodes.SUCCESS)
         {
-            // send FLUSH WorkerEvent to Worker
-            if (!sendWorkerEvent(WorkerEventTypes.FLUSH, reactorChannel))
-            {
-            	// sendWorkerEvent() failed, send channel down
-                reactorChannel.state(State.DOWN);
-                sendAndHandleChannelEventCallback("Reactor.encodeAndWriteDictionaryRequest",
-                                                      ReactorChannelEventTypes.CHANNEL_DOWN,
-                                                      reactorChannel, errorInfo);
-                populateErrorInfo(errorInfo,
-                                  ReactorReturnCodes.FAILURE,
-                                  "Reactor.encodeAndWriteDictionaryRequest",
-                                  "sendWorkerEvent() failed");            	
-            }
+            sendFlushRequest(reactorChannel, "Reactor.encodeAndWriteDictionaryRequest", errorInfo);
         }
         else if (retval < TransportReturnCodes.SUCCESS)
         {
@@ -2702,6 +2629,8 @@ public class Reactor
                                       + CodecReturnCodes.toString(retval) + ">" + " error="
                                       + errorInfo.error().text());
         }
+        else
+            reactorChannel.flushAgain(false);
     }
 
     private void encodeAndWriteDictionaryClose(DictionaryClose dictionaryClose, ReactorChannel reactorChannel, ReactorErrorInfo errorInfo)
@@ -2754,19 +2683,7 @@ public class Reactor
         retval = channel.write(msgBuf, _writeArgs, errorInfo.error());
         if (retval > TransportReturnCodes.SUCCESS)
         {
-            // send FLUSH WorkerEvent to Worker
-            if (!sendWorkerEvent(WorkerEventTypes.FLUSH, reactorChannel))
-            {
-            	// sendWorkerEvent() failed, send channel down
-                reactorChannel.state(State.DOWN);
-                sendAndHandleChannelEventCallback("Reactor.encodeAndWriteDictionaryClose",
-                                                      ReactorChannelEventTypes.CHANNEL_DOWN,
-                                                      reactorChannel, errorInfo);
-                populateErrorInfo(errorInfo,
-                                  ReactorReturnCodes.FAILURE,
-                                  "Reactor.encodeAndWriteDictionaryClose",
-                                  "sendWorkerEvent() failed");            	
-            }
+            sendFlushRequest(reactorChannel, "Reactor.encodeAndWriteDictionaryClose", errorInfo);
         }
         else if (retval < TransportReturnCodes.SUCCESS)
         {
@@ -2794,6 +2711,8 @@ public class Reactor
                                       + CodecReturnCodes.toString(retval) + ">" + " error="
                                       + errorInfo.error().text());
         }
+        else
+            reactorChannel.flushAgain(false);
     }
 
     int processChannelMessage(ReactorChannel reactorChannel, DecodeIterator dIter, Msg msg, TransportBuffer transportBuffer, ReactorErrorInfo errorInfo)
@@ -3707,4 +3626,32 @@ public class Reactor
 
         return ReactorReturnCodes.SUCCESS;
     }
+
+    /* Request that the Worker start flushing this channel.  */
+    private int sendFlushRequest(ReactorChannel reactorChannel, String location, ReactorErrorInfo errorInfo)
+    {
+        if (reactorChannel.flushRequested())
+            reactorChannel.flushAgain(true); /* Flush already in progress; wait till FLUSH_DONE is received, then request again. */
+        else
+        {
+            if (!sendWorkerEvent(WorkerEventTypes.FLUSH, reactorChannel))
+            {
+                // sendWorkerEvent() failed, send channel down
+                reactorChannel.state(State.DOWN);
+                sendAndHandleChannelEventCallback(location,
+                        ReactorChannelEventTypes.CHANNEL_DOWN,
+                        reactorChannel, errorInfo);
+                return populateErrorInfo(errorInfo,
+                        ReactorReturnCodes.FAILURE,
+                        location,
+                        "sendWorkerEvent() failed while requesting flush");
+            }
+
+            reactorChannel.flushAgain(false);
+            reactorChannel.flushRequested(true);
+        }
+
+        return ReactorReturnCodes.SUCCESS;
+    }
+
 }

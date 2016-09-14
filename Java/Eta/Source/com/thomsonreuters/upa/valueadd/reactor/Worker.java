@@ -353,6 +353,8 @@ class Worker implements Runnable
                                 "failed to remove OP_WRITE to selectableChannel.");
                     }
                 }
+
+                sendWorkerEvent(reactorChannel, WorkerEventTypes.FLUSH_DONE, ReactorReturnCodes.SUCCESS, null, null);
             }
             else if (retval < TransportReturnCodes.SUCCESS)
             {

@@ -17,6 +17,8 @@ enum WorkerEventTypes
     CHANNEL_CLOSE,
     // sent from Worker to Reactor
     CHANNEL_CLOSE_ACK,
+    // sent from Worker to Reactor
+    FLUSH_DONE,
 
     WARNING,
     
@@ -64,6 +66,8 @@ enum WorkerEventTypes
                 return "ReactorChannelEventTypes.FD_CHANGE";
             case FLUSH:
                 return "ReactorChannelEventTypes.FLUSH";
+            case FLUSH_DONE:
+                return "ReactorChannelEventTypes.FLUSH_DONE";
             case SHUTDOWN:
                 return "ReactorChannelEventTypes.SHUTDOWN";
             case START_DISPATCH_TIMER:

@@ -41,6 +41,8 @@ public class ReactorChannel extends VaNode
     private StringBuilder _stringBuilder = new StringBuilder();
     private int _initializationTimeout = 0;
     private long _initializationEndTimeMs = 0;
+    private boolean _flushRequested = false;
+    private boolean _flushAgain = false;
 
     /* The last tunnel-stream expire time requested to the Worker, if one is currently requested. */
     private long _tunnelStreamManagerNextDispatchTime = 0;
@@ -156,6 +158,8 @@ public class ReactorChannel extends VaNode
         _userSpecObj = null;
         _initializationTimeout = 0;
         _initializationEndTimeMs = 0L;
+        _flushRequested = false;
+        _flushAgain = false;
         _pingHandler.clear();
         _streamIdtoTunnelStreamTable.clear();
         _tunnelStreamRespMsg.clear();
@@ -1155,5 +1159,29 @@ public class ReactorChannel extends VaNode
     long nextRecoveryTime()
     {
         return _nextRecoveryTime;
+    }
+
+    /* Returns whether a FLUSH event is has been sent to the worker and is awaiting a FLUSH_DONE event. */
+    boolean flushRequested()
+    {
+        return _flushRequested;
+    }
+
+    /* Sets whether a FLUSH event is has been sent to the worker and is awaiting a FLUSH_DONE event. */
+    void flushRequested(boolean flushRequested)
+    {
+        _flushRequested = flushRequested;
+    }
+
+    /* Returns whether the Reactor should request more flushing when the FLUSH_DONE event arrives. */
+    boolean flushAgain()
+    {
+        return _flushAgain;
+    }
+
+    /* Sets whether the Reactor should request more flushing when the FLUSH_DONE event arrives. */
+    void flushAgain(boolean flushAgain)
+    {
+        _flushAgain = flushAgain;
     }
 }
