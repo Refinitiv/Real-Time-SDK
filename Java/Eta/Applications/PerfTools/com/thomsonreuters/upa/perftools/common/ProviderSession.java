@@ -31,6 +31,7 @@ public class ProviderSession
     private ItemEncoder _itemEncoder;                           // item encoder
     private XmlMsgData _xmlMsgData;                             // Msgs from XML
     private int _unexpectedCloseCount;                          // Count of unexpected close messages received
+    private ProviderThread _providerThread;                     // Provider thread of this session.
 
     public ProviderSession(XmlMsgData xmlMsgData, ItemEncoder itemEncoder)
     {
@@ -342,5 +343,21 @@ public class ProviderSession
     public void timeActivated(long timeActivated)
     {
         _timeActivated = timeActivated;
+    }
+    
+    /**
+     * Provider thread of this session.
+     */
+    public ProviderThread providerThread()
+    {
+        return _providerThread;
+    }
+
+    /**
+     * Provider thread of this session.
+     */
+    public void providerThread(ProviderThread providerThread)
+    {
+        _providerThread = providerThread;
     }
 }

@@ -18,10 +18,15 @@ import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.transport.Channel;
 import com.thomsonreuters.upa.transport.Error;
 import com.thomsonreuters.upa.transport.TransportBuffer;
+import com.thomsonreuters.upa.transport.WritePriorities;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
 
 /**
  * Determines the information a provider needs for accepting logins, and
@@ -38,6 +43,9 @@ public class LoginProvider
     private String                _applicationName;
     private String                _position;
     
+    private ReactorErrorInfo      _errorInfo; // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    private ReactorSubmitOptions  _reactorSubmitOptions; // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    
     public LoginProvider()
     {
         _loginRefresh = (LoginRefresh)LoginMsgFactory.createMsg();
@@ -45,6 +53,11 @@ public class LoginProvider
         _encodeIter = CodecFactory.createEncodeIterator();
         _loginRefresh.rdmMsgType(LoginMsgType.REFRESH);
         _loginRequest.rdmMsgType(LoginMsgType.REQUEST);
+        
+        _errorInfo = ReactorFactory.createReactorErrorInfo();
+        _reactorSubmitOptions = ReactorFactory.createReactorSubmitOptions();
+        _reactorSubmitOptions.clear();
+        _reactorSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
     }
 
     /**
@@ -183,6 +196,102 @@ public class LoginProvider
 
         //send login response
         return channelHandler.writeChannel(clientChannelInfo, msgBuf, 0, error);
+    }
+
+    /*
+     * Encodes and sends login refresh.
+     */
+    int sendRefreshReactor(ClientChannelInfo clientChannelInfo, Error error)
+    {
+        // initialize login response info
+        _loginRefresh.clear();
+
+        ReactorChannel reactorChannel = clientChannelInfo.reactorChannel;
+        
+        // get a buffer for the login response
+        TransportBuffer msgBuf = reactorChannel.getBuffer(REFRESH_MSG_SIZE, false, _errorInfo);
+
+        if (msgBuf == null)
+        {
+            return PerfToolsReturnCodes.FAILURE;
+        }
+
+        // provide login response information 
+
+        // StreamId
+        _loginRefresh.streamId(_loginRequest.streamId());
+
+        // Username
+        _loginRefresh.applyHasUserName();
+        _loginRefresh.userName().data(_loginRequest.userName().data(), _loginRequest.userName().position(), _loginRequest.userName().length());
+
+        _loginRefresh.applyHasUserNameType();
+        _loginRefresh.userNameType(Login.UserIdTypes.NAME);
+
+        _loginRefresh.state().code(StateCodes.NONE);
+        _loginRefresh.state().dataState(DataStates.OK);
+        _loginRefresh.state().streamState(StreamStates.OPEN);
+        _loginRefresh.state().text().data("Login accepted by host localhost");
+
+        _loginRefresh.applySolicited();
+
+       
+        _loginRefresh.applyHasAttrib();
+        
+        // ApplicationId
+        _loginRefresh.attrib().applyHasApplicationId();
+        _loginRefresh.attrib().applicationId().data(_applicationId);
+
+        // ApplicationName
+        _loginRefresh.attrib().applyHasApplicationName();
+        _loginRefresh.attrib().applicationName().data(_applicationName);
+
+         // Position
+        _loginRefresh.attrib().applyHasPosition();
+        _loginRefresh.attrib().position().data(_position);
+
+        //
+        // this provider does not support
+        // SingleOpen behavior
+        //
+        _loginRefresh.attrib().applyHasSingleOpen();
+        _loginRefresh.attrib().singleOpen(0);
+
+
+        //
+        // this provider supports
+        // batch requests
+        //
+        _loginRefresh.applyHasFeatures();
+        _loginRefresh.features().applyHasSupportBatchRequests();
+        _loginRefresh.features().supportBatchRequests(1); 
+        
+        _loginRefresh.features().applyHasSupportPost();
+        _loginRefresh.features().supportOMMPost(1);
+
+
+        // keep default values for all others
+
+        // encode login response
+        _encodeIter.clear();
+        int ret = _encodeIter.setBufferAndRWFVersion(msgBuf, reactorChannel.majorVersion(), reactorChannel.minorVersion());
+        if (ret != CodecReturnCodes.SUCCESS)
+        {
+            error.text("EncodeIter.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
+            error.errorId(ret);
+            return PerfToolsReturnCodes.FAILURE;
+        }
+
+        ret = _loginRefresh.encode(_encodeIter);
+        if (ret != CodecReturnCodes.SUCCESS)
+        {
+            error.text("LoginRefresh.encode() failed with return code: " + CodecReturnCodes.toString(ret));
+            error.errorId(ret);
+            return PerfToolsReturnCodes.FAILURE;
+        }
+
+        //send login response
+        return reactorChannel.submit(msgBuf, _reactorSubmitOptions, _errorInfo);
     }
 
     /**

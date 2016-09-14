@@ -22,6 +22,9 @@ import com.thomsonreuters.upa.transport.Server;
 import com.thomsonreuters.upa.transport.Transport;
 import com.thomsonreuters.upa.transport.TransportFactory;
 import com.thomsonreuters.upa.transport.TransportReturnCodes;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 
 /**
  * The upajProvPerf application. Implements an interactive provider, which
@@ -133,7 +136,14 @@ public class upajProvPerf
         _provider.startThreads();
 
         _initArgs.clear();
-        _initArgs.globalLocking(ProviderPerfConfig.threadCount() > 1 ? true : false);
+        if (!ProviderPerfConfig.useReactor()) // use UPA Channel for sending and receiving
+        {
+            _initArgs.globalLocking(ProviderPerfConfig.threadCount() > 1 ? true : false);
+        }
+        else // use UPA VA Reactor
+        {
+            _initArgs.globalLocking(true);
+        }
         if (Transport.initialize(_initArgs, _error) != TransportReturnCodes.SUCCESS)
         {
             System.err.println("Error: Transport failed to initialize: " + _error.text());
@@ -199,6 +209,7 @@ public class upajProvPerf
         int writeStatsInterval = ProviderPerfConfig.writeStatsInterval();
         int runTime = ProviderPerfConfig.runTime();
         boolean displayStats = ProviderPerfConfig.displayStats();
+        ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
 
         // this is the main loop
         while (!_shutdownApp)
@@ -236,6 +247,8 @@ public class upajProvPerf
         			if (key.isAcceptable())
         			{
         				Server upajServer = (Server)key.attachment();
+                        if (!ProviderPerfConfig.useReactor()) // use UPA Channel
+                        {
         				Channel clientChannel = upajServer.accept(_acceptOptions, _error);
         				if (clientChannel == null)
         				{
@@ -245,6 +258,14 @@ public class upajProvPerf
         				{
         					System.err.printf("Server accepting new channel '%s'.\n\n", clientChannel.selectableChannel());
         					sendToLeastLoadedThread(clientChannel);
+        				}
+        			}
+        				else // use UPA VA Reactor
+        				{
+                            if (acceptReactorConnection(upajServer, errorInfo) != ReactorReturnCodes.SUCCESS)
+                            {
+                                System.err.printf("acceptReactorConnection: failed <%s>\n", errorInfo.error().text());
+                            }
         				}
         			}
         		}
@@ -331,6 +352,28 @@ public class upajProvPerf
         }
 
         provThread.acceptNewChannel(channel);
+    }
+
+    private int acceptReactorConnection(Server server, ReactorErrorInfo errorInfo)
+    {   
+        IProviderThread provThread = null;
+
+        int minProvConnCount = 0x7fffffff;
+
+        // find least loaded thread
+        for (int i = 0; i < ProviderPerfConfig.threadCount(); ++i)
+        {
+            IProviderThread tmpProvThread = (IProviderThread) _provider.providerThreadList()[i];
+            int connCount = tmpProvThread.connectionCount();
+            if (connCount < minProvConnCount)
+            {
+                minProvConnCount = connCount;
+                provThread = tmpProvThread;
+            }
+        }
+
+        // accept new reactor channel
+        return provThread.acceptNewReactorChannel(server, errorInfo);
     }
 
     /*

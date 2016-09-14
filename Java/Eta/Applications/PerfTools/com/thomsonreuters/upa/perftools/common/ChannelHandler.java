@@ -20,6 +20,8 @@ import com.thomsonreuters.upa.transport.TransportFactory;
 import com.thomsonreuters.upa.transport.TransportReturnCodes;
 import com.thomsonreuters.upa.transport.WriteArgs;
 import com.thomsonreuters.upa.transport.WritePriorities;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.perftools.upajprovperf.IProviderThread;
 
 /**
@@ -39,6 +41,8 @@ public class ChannelHandler
     private InProgInfo _inProgInfo;
     private WriteArgs _writeArgs;
     
+    private ReactorErrorInfo _errorInfo; // Used for when application uses VA Reactor instead of UPA Channel.
+    
     public ChannelHandler(ProviderThread providerThread)
     {
         _activeChannelList = new LinkedList<>();
@@ -48,6 +52,7 @@ public class ChannelHandler
         _writeArgs = TransportFactory.createWriteArgs();
         _inProgInfo = TransportFactory.createInProgInfo();
         _providerThread = (IProviderThread) providerThread;
+        _errorInfo = ReactorFactory.createReactorErrorInfo();
         try
         {
             _selector = Selector.open();
@@ -79,9 +84,17 @@ public class ChannelHandler
      */
     public void closeChannel(ClientChannelInfo clientChannelInfo, Error error)
     {
-        _providerThread.processInactiveChannel(this, clientChannelInfo, error);
-        clientChannelInfo.channel.close(_error);
-        clientChannelInfo.parentQueue.remove(clientChannelInfo);
+        if (clientChannelInfo.reactorChannel == null) // use UPA Channel
+        {
+            _providerThread.processInactiveChannel(this, clientChannelInfo, error);
+            clientChannelInfo.channel.close(_error);
+            clientChannelInfo.parentQueue.remove(clientChannelInfo);
+        }
+        else // use UPA VA Reactor
+        {
+            clientChannelInfo.reactorChannel.close(_errorInfo);
+            System.out.println("Channel Closed.");
+        }
     }
 
     /**
@@ -338,8 +351,9 @@ public class ChannelHandler
     public void processNewChannels()
     {
     	if (_initializingChannelList.size() > 0)
-    		for (ClientChannelInfo channelInfo : _initializingChannelList)
+    		for (int i = 0; i < _initializingChannelList.size(); i++)
     		{
+    		    ClientChannelInfo channelInfo = _initializingChannelList.get(i);
     			initializeChannel(channelInfo, _error);
     			if (channelInfo.channel.state() == ChannelState.ACTIVE)
     			{

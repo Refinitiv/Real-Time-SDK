@@ -1134,11 +1134,6 @@ public class ConsumerThread implements Runnable, ResponseCallback
                 {
                     int bufLen = _itemEncoder.estimateItemPostBufferLength(_itemInfo);
                     testBuffer = channel.getBuffer(bufLen, false, _error);
-                    if (testBuffer == null)
-                    {
-                        closeChannelAndShutDown("printEstimatedPostMsgSizes: getBuffer() failed");
-                        return;
-                    }
                     if ((ret = _itemEncoder.encodeItemPost(_consThreadInfo.channel(), _itemInfo, testBuffer, _postUserInfo, 0)) != CodecReturnCodes.SUCCESS) 
                     {
                         closeChannelAndShutDown("printEstimatedPostMsgSizes: encodeItemPost() failed: " + CodecReturnCodes.toString(ret));
@@ -1183,11 +1178,6 @@ public class ConsumerThread implements Runnable, ResponseCallback
 				{
 					int bufLen = _itemEncoder.estimateItemGenMsgBufferLength(_itemInfo);
 					testBuffer = channel.getBuffer(bufLen, false, _error);
-                    if (testBuffer == null)
-                    {
-                        closeChannelAndShutDown("printEstimatedGenMsgSizes: getBuffer() failed");
-                        return;
-                    }
 					if ((ret = _itemEncoder.encodeItemGenMsg(_consThreadInfo.channel(),	_itemInfo, testBuffer, 0)) != CodecReturnCodes.SUCCESS) 
 					{
 						closeChannelAndShutDown("printEstimatedGenMsgSizes: encodeItemGenMsg() failed: " + CodecReturnCodes.toString(ret));

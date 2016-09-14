@@ -655,14 +655,14 @@ public class NIProviderThread extends ProviderThread implements NIProviderCallba
                 {
                     closeChannelAndShutDown("ReactorChannel.info() failed");
                 } 
-                System.out.printf("Channel active. " + _reactorChannnelInfo.toString() + "\n");
+                System.out.printf("Channel active. " + _reactorChannnelInfo.channelInfo().toString() + "\n");
         
                 /* Check that we can successfully pack, if packing messages. */
                 if (NIProvPerfConfig.totalBuffersPerPack() > 1
-                        && NIProvPerfConfig.packingBufferLength() > _reactorChannnelInfo.channelInfo().maxFragmentSize())
+                        && NIProvPerfConfig.packingBufferLength() > _channelInfo.maxFragmentSize())
                 {
                     System.err.printf("Error(Channel %s): MaxFragmentSize %d is too small for packing buffer size %d\n",
-                            _reactorChannel.selectableChannel(), _reactorChannnelInfo.channelInfo().maxFragmentSize(), 
+                            _reactorChannel.selectableChannel(), _channelInfo.maxFragmentSize(), 
                             NIProvPerfConfig.packingBufferLength());
                     System.exit(-1);
                 }

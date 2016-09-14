@@ -78,9 +78,6 @@ public class ProviderThread extends Thread
         _error = TransportFactory.createError();
         _provThreadInfo = new ProviderThreadInfo(); 
         _submitOptions = ReactorFactory.createReactorSubmitOptions();
-        _submitOptions.writeArgs().clear();
-        _submitOptions.writeArgs().priority(WritePriorities.HIGH);
-        _submitOptions.writeArgs().flags(ProviderPerfConfig.directWrite() ? WriteFlags.DIRECT_SOCKET_WRITE : 0);
         _errorInfo = ReactorFactory.createReactorErrorInfo();
     }
 
@@ -177,15 +174,15 @@ public class ProviderThread extends Thread
      */
     private int writeCurrentBuffer(ProviderSession session, Error error)
     {
-        // Reset the session write buffer packed count,
-        // so that packing can continue in the next buffer
-        session.packedBufferCount(0);
-        
-        if (!NIProvPerfConfig.useReactor()) // use UPA Channel for sending and receiving
+        if (!NIProvPerfConfig.useReactor() && !ProviderPerfConfig.useReactor()) // use UPA Channel for sending and receiving
         {
             _writeArgs.clear();
             _writeArgs.priority(WritePriorities.HIGH);
             _writeArgs.flags(ProviderPerfConfig.directWrite() ? WriteFlags.DIRECT_SOCKET_WRITE : 0);
+            
+            // Reset the session write buffer packed count,
+            // so that packing can continue in the next buffer
+            session.packedBufferCount(0);
             
             int ret = session.clientChannelInfo().channel.write(session.writingBuffer(), _writeArgs, error);
             
@@ -200,10 +197,11 @@ public class ProviderThread extends Thread
                 ret = session.clientChannelInfo().channel.write(session.writingBuffer(), _writeArgs, error);
             }
             
+            bufferSentCount().increment();
+            
             if(ret >= TransportReturnCodes.SUCCESS)
             {
                 session.writingBuffer(null);
-                bufferSentCount().increment();
                 return ret;
             }
             
@@ -215,7 +213,6 @@ public class ProviderThread extends Thread
                     if(session.clientChannelInfo().channel.state() == ChannelState.ACTIVE)
                     {
                         session.writingBuffer(null);
-                        bufferSentCount().increment();
                         return TransportReturnCodes.SUCCESS;
                     }
                     // Otherwise treat as error, fall through to default.
@@ -227,6 +224,9 @@ public class ProviderThread extends Thread
         }
         else // use UPA VA Reactor for sending and receiving
         {
+            _submitOptions.writeArgs().clear();
+            _submitOptions.writeArgs().priority(WritePriorities.HIGH);
+            _submitOptions.writeArgs().flags(ProviderPerfConfig.directWrite() ? WriteFlags.DIRECT_SOCKET_WRITE : 0);
             int retval = session.clientChannelInfo().reactorChannel.submit(session.writingBuffer(), _submitOptions, _errorInfo);
 
             if (retval == ReactorReturnCodes.WRITE_CALL_AGAIN)
@@ -246,12 +246,7 @@ public class ProviderThread extends Thread
                 return TransportReturnCodes.FAILURE;   
             }
             
-            if(retval >= ReactorReturnCodes.SUCCESS)
-            {
-                session.writingBuffer(null);
-                bufferSentCount().increment();
-            }
-
+            session.writingBuffer(null);
             return retval;
         }
     }
@@ -346,7 +341,7 @@ public class ProviderThread extends Thread
     {
        TransportBuffer msgBuf;
        
-       if (!NIProvPerfConfig.useReactor()) // use UPA Channel for sending and receiving
+       if (!NIProvPerfConfig.useReactor() && !ProviderPerfConfig.useReactor()) // use UPA Channel for sending and receiving
        {
            msgBuf = session.clientChannelInfo().channel.getBuffer(length, ProviderPerfConfig.totalBuffersPerPack() > 1, error);
        }
@@ -398,22 +393,7 @@ public class ProviderThread extends Thread
        {
            //Pack the buffer and continue using it.
            session.packedBufferCount(session.packedBufferCount()+1);
-           if (!NIProvPerfConfig.useReactor()) // use UPA Channel for sending and receiving
-           {
-               if (session.clientChannelInfo().channel.packBuffer(session.writingBuffer(), error) < TransportReturnCodes.SUCCESS)
-               {
-                   return TransportReturnCodes.FAILURE;
-               }
-           }
-           else // use UPA VA Reactor for sending and receiving
-           {
-               if (session.clientChannelInfo().reactorChannel.packBuffer(session.writingBuffer(), _errorInfo) < ReactorReturnCodes.SUCCESS)
-               {
-                   error.errorId(_errorInfo.error().errorId());
-                   error.text(_errorInfo.error().text());
-                   return ReactorReturnCodes.FAILURE;
-               }
-           }
+           session.clientChannelInfo().channel.packBuffer(session.writingBuffer(), error);
            return TransportReturnCodes.SUCCESS;
        }
     }
