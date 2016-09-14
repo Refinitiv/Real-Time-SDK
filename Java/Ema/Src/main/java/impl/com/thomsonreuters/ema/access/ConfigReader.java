@@ -7,6 +7,9 @@
 
 package com.thomsonreuters.ema.access;
 
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -328,6 +331,11 @@ class ConfigReader
 			
 			return _defaultNiProviderName;
 		}
+		
+		XMLnode getRootNode()
+		{
+			return xmlRoot;
+		}
 
 		private ConfigElement convertEnum(XMLnode parent, String enumValue)
 		{
@@ -641,15 +649,28 @@ class ConfigReader
 			List<ConfigurationNode> attributeList = nodePtr.getAttributes();
 
 			String attributeValue = null;
+			StringBuilder tmpAttribValue = new StringBuilder();
+			int size = attributeList.size();
 
-			for (int i = 0; i < attributeList.size(); i++)
+			for (int i = 0; i < size; i++)
 			{
 				ConfigurationNode attribute = attributeList.get(i);
 
 				String attributeName = attribute.getName();
 				if(attributeName.equalsIgnoreCase("value") )
 				{
-					attributeValue = (String) attribute.getValue();	
+					if(tagId == ConfigManager.ChannelSet)
+					{
+						String tmpValue = (String) attribute.getValue();
+						if(tmpValue != null && !tmpValue.isEmpty() )
+							tmpAttribValue.append(tmpValue);
+						if( (i < size -1) )
+						{
+							tmpAttribValue.append(",");
+						}
+					}
+					else
+						attributeValue = (String) attribute.getValue();	
 				}
 				else
 				{
@@ -657,6 +678,8 @@ class ConfigReader
 				}
 			}
 
+			if( tagId == ConfigManager.ChannelSet )
+				attributeValue = tmpAttribValue.toString();
 			ConfigElement e = makeConfigEntry(theNode.parent(),nodePtr.getName(),attributeValue,tagId);
 			return e;
 		}
@@ -1089,7 +1112,77 @@ class ConfigReader
 			}
 			return attributeValue;
 		}
+		Object getMutualExclusiveAttribute( Branch searchNode, int forNodeKey, String findNodeName, List<Integer> mExclusiveTags)
+		{
+		
+			if( xmlRoot == null )
+				return null;
+			
+			XMLnode list = (XMLnode) xmlRoot.getChildren(searchNode,0);
 
+			if( list == null )
+			{
+				errorTracker().append("could not get ").append(searchNode.branchName).create(Severity.TRACE);
+				return null;
+			}
+			
+			XMLnode child = null;
+			
+			ConfigAttributes consAttribs = null;
+			
+			for( int i = 0; i < list.children().size(); i++ )
+			{
+				child = list.children().get(i);
+
+				String nodeNameMatch = (String) child.attributeList().getValue(forNodeKey);
+				if( findNodeName.equals(nodeNameMatch) )
+				{
+					consAttribs = child.attributeList();
+					break;
+				}
+			}
+
+			if( consAttribs == null )
+			{
+				errorTracker().append("could not get ").append(findNodeName).create(Severity.TRACE);
+				return null;
+			}
+			
+			String attributeValue = null;		
+		       
+			int maxPos = 0;
+			int position = 0;
+			List<ConfigElement> maxCfgElement = null;
+			Map<Integer, List<ConfigElement>> listOfAttribs = consAttribs.getList();
+			Set< Entry<Integer, List<ConfigElement>> > entrySet =  listOfAttribs.entrySet();
+			for( Entry<Integer, List<ConfigElement>> entry : entrySet)
+			{
+				int intVal = entry.getKey().intValue();
+				position++;
+			    for(int i = 0; i <  mExclusiveTags.size(); ++i)
+			    {
+			    	if(mExclusiveTags.get(i).intValue() == intVal)
+			    	{
+			    		if( position > maxPos )	
+			    		{		    			
+			    			maxPos = position;
+			    			maxCfgElement = entry.getValue();		    			
+			    		}
+			    	}		    	
+			    }
+			}
+			
+			if(maxCfgElement != null)
+			{
+				ConfigElement ce = maxCfgElement.get(maxCfgElement.size() - 1);
+				if(ce != null)
+					attributeValue = (String) ce.value();
+			}
+			
+			return attributeValue;
+			
+		}
+		
 		void appendAttributeValue( Branch setNode, String elementName, int setAttributeKey, String setAttributeValue )
 		{
 			XMLnode node = (XMLnode) xmlRoot.getNode(setNode, 0);

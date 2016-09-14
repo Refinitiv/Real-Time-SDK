@@ -66,11 +66,6 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 		super();
 		_activeConfig = new OmmNiProviderActiveConfig();
 		super.initialize(_activeConfig, (OmmNiProviderConfigImpl)config);
-		
-		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
-		if (_activeConfig.channelConfig.rsslConnectionType == ConnectionTypes.SOCKET &&
-				((SocketChannelConfig)_activeConfig.channelConfig).directWrite)
-			_rsslSubmitOptions.writeArgs().flags( _rsslSubmitOptions.writeArgs().flags() |  WriteFlags.DIRECT_SOCKET_WRITE);
 	}
 
 	OmmNiProviderImpl(OmmProviderConfig config, OmmProviderErrorClient client)
@@ -81,9 +76,6 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 		_providerErrorClient = client;
 		
 		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
-		if (_activeConfig.channelConfig.rsslConnectionType == ConnectionTypes.SOCKET &&
-				((SocketChannelConfig)_activeConfig.channelConfig).directWrite)
-			_rsslSubmitOptions.writeArgs().flags( _rsslSubmitOptions.writeArgs().flags() |  WriteFlags.DIRECT_SOCKET_WRITE);
 	}
 	
 	@Override

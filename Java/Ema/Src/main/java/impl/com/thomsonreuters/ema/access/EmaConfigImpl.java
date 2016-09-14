@@ -7,7 +7,11 @@
 
 package com.thomsonreuters.ema.access;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.thomsonreuters.ema.access.ConfigReader.XMLConfigReader;
+
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.Codec;
@@ -56,6 +60,8 @@ abstract class EmaConfigImpl
 	
 	private OmmInvalidConfigurationExceptionImpl _oommICExcept;
 	
+	protected List<Integer> channelOrChannelSet = new ArrayList<Integer>();
+
 	abstract int operationModel();
 	
 	EmaConfigImpl()
@@ -259,6 +265,7 @@ abstract class EmaConfigImpl
 	abstract String configuredName();
 	
 	abstract String channelName(String instanceName);
+	
 	
 	int setLoginRequest(RequestMsg rsslRequestMsg)
 	{

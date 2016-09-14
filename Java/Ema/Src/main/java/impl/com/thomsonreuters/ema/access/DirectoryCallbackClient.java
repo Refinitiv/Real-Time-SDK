@@ -284,17 +284,25 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 		            }
 
 		            Service existService = null;
+		            Directory existDirectory = null;
 		            if (_serviceByName.size() > 0)
 		            {
-		            	Directory directory = _serviceByName.get(serviceName);
-		            	existService = directory != null ? directory.service() : null;
+		            	existDirectory = _serviceByName.get(serviceName);
+		            	existService = existDirectory != null ? existDirectory.service() : null;
 		            }
 		            if (existService != null)
 		            {
 		            	if (existService.serviceId() != oneService.serviceId())
 						{
+		            		_serviceById.remove(existService.serviceId());
 		            		existService.serviceId(oneService.serviceId());
+		            		_serviceById.put(existService.serviceId(), existDirectory);
+		            		
 						}
+		            	if( existDirectory.channelInfo() != chnlInfo )
+		            	{
+		            		chnlInfo.rsslDictionary(existDirectory.channelInfo().rsslDictionary());
+		            	}
 		            }
 		            else
 		            {    
@@ -348,7 +356,11 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 						
 						_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(DirectoryCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
 					}
-	
+	            	if((existDirectory != null) && existDirectory.channelInfo() != chnlInfo )
+	            	{
+	            		chnlInfo.rsslDictionary(existDirectory.channelInfo().rsslDictionary());
+	            	}
+
 					if (oneService.checkHasInfo())
 					{
 	
@@ -915,7 +927,7 @@ class DirectoryItem<T> extends SingleItem<T>
 			rsslRequestMsg.worstQos().rateInfo(65535);
 		}	
 
-		if (_baseImpl.activeConfig().channelConfig.msgKeyInUpdates)
+		if (_baseImpl.activeConfig().channelConfigSet.get(0).msgKeyInUpdates)
 			rsslRequestMsg.applyMsgKeyInUpdates();
 		
 		if (_directory != null)

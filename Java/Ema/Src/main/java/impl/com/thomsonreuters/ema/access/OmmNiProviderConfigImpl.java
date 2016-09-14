@@ -7,6 +7,7 @@
 
 package com.thomsonreuters.ema.access;
 
+
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
 
 public class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProviderConfig
@@ -17,6 +18,8 @@ public class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProvi
 	OmmNiProviderConfigImpl()
 	{
 		super();
+		channelOrChannelSet.add(ConfigManager.NiProviderChannelName);
+		channelOrChannelSet.add(ConfigManager.ChannelSet);
 		clear();
 	}
 
@@ -179,7 +182,7 @@ public class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProvi
 
 		// TODO: Retrieve from programmatic configuration
 
-		channelName = (String)xmlConfig().getNiProviderAttributeValue(instanceName,ConfigManager.NiProviderChannelName);
+		channelName = (String) xmlConfig().getMutualExclusiveAttribute(ConfigManager.NIPROVIDER_LIST, ConfigManager.NiProviderName, instanceName, channelOrChannelSet);
 		return channelName;
 	}
 	

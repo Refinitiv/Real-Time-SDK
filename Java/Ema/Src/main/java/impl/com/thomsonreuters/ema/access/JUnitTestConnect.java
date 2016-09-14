@@ -96,7 +96,7 @@ public class JUnitTestConnect
 	public static final int ChannelUnicastPort  = ConfigManager.ChannelUnicastPort; 
 	public static final int ChanneluserQLimit  = ConfigManager.ChanneluserQLimit; 
 	
-	
+	public static String _lastErrorText = "";
 	public static EmaObjectManager _objManager = new EmaObjectManager();
 	
 	static {
@@ -221,6 +221,12 @@ public class JUnitTestConnect
 	}
 	
 	// used only for JUNIT tests
+	public static String getLastErrorText()
+	{
+		return _lastErrorText;
+	}
+	
+	// used only for JUNIT tests
 	public static void setRsslData(Buffer bufEncoded, Data dataEncoded)
 	{
 		((DataImpl)dataEncoded).encodedData().copy(bufEncoded);
@@ -236,6 +242,382 @@ public class JUnitTestConnect
 	public static String configGetConsumerName(OmmConsumerConfig consConfig)
 	{
 		return ((OmmConsumerConfigImpl) consConfig).configuredName();
+	}
+	
+	// used only for JUINT tests
+	public static int configVerifyChannelEncrypTypeAttribs(ChannelConfig chanCfg, String position,  OmmConsumerConfig consConfig, String channelName)
+	{
+		int result = 0;
+		_lastErrorText = "";
+		EncryptedChannelConfig encCfg = (EncryptedChannelConfig) chanCfg;
+		String strValue = configGetChanPort(consConfig, channelName);
+		if(strValue.equals(encCfg.serviceName) == false)
+		{
+			_lastErrorText = "Port mismatch in '";
+			_lastErrorText += channelName;
+			_lastErrorText += "' FileConfig port='";
+			_lastErrorText += strValue;
+			_lastErrorText += "' Internal Active ChannelSet[";
+			_lastErrorText += position;
+			_lastErrorText += "] port='";
+			_lastErrorText += encCfg.serviceName;
+			_lastErrorText += "' for ";
+			return 5;
+		}
+		strValue = configGetChanHost(consConfig, channelName);
+		if(strValue.equals(encCfg.hostName) == false)
+		{
+			_lastErrorText = "HostName mismatch in '";
+			_lastErrorText += channelName;
+			_lastErrorText += "' FileConfig host='";
+			_lastErrorText += strValue;
+			_lastErrorText += "' Internal Active ChannelSet[";
+			_lastErrorText += position;
+			_lastErrorText += "] host='";
+			_lastErrorText += encCfg.hostName;
+			_lastErrorText += "' for ";
+			return 6;	
+		}	
+		Boolean boolValue = JUnitTestConnect.configGetBooleanValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelTcpNodelay);
+		if(boolValue != encCfg.tcpNodelay)
+		{
+			_lastErrorText = "TcpNodelay mismatch in '";
+			_lastErrorText += channelName;
+			_lastErrorText += "' FileConfig tcpNodelay ='";
+			_lastErrorText += (boolValue ? "1" : "0");
+			_lastErrorText += "' Internal Active ChannelSet[";
+			_lastErrorText += position;
+			_lastErrorText += "] tcpNodelay ='";
+			_lastErrorText += (encCfg.tcpNodelay ? "1" : "0");
+			_lastErrorText += "' for ";
+			return 7;
+		}	
+		
+		strValue = configGetStringValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelObjectName);
+		if(strValue.equals(encCfg.objectName) == false)
+		{
+			_lastErrorText = "ObjectName mismatch in '";
+			_lastErrorText += channelName;
+			_lastErrorText += "' FileConfig objectName='";
+			_lastErrorText += strValue;
+			_lastErrorText += "' Internal Active ChannelSet[";
+			_lastErrorText += position;
+			_lastErrorText += "] objectName='";
+			_lastErrorText += encCfg.objectName;
+			_lastErrorText += "' for ";
+			return 8;	
+		}	
+	
+		return result;			
+	}
+
+	// used only for JUINT tests
+	public static int configVerifyChannelSocketTypeAttribs(ChannelConfig chanCfg, String position,  OmmConsumerConfig consConfig, String channelName)
+	{
+		int result = 0;
+		_lastErrorText = "";
+		SocketChannelConfig socCfg = (SocketChannelConfig) chanCfg;
+		String strValue = configGetChanPort(consConfig, channelName);
+		if(strValue.equals(socCfg.serviceName) == false)
+		{
+			_lastErrorText = "Port mismatch in '";
+			_lastErrorText += channelName;
+			_lastErrorText += "' FileConfig port='";
+			_lastErrorText += strValue;
+			_lastErrorText += "' Internal Active ChannelSet[";
+			_lastErrorText += position;
+			_lastErrorText += "] port='";
+			_lastErrorText += socCfg.serviceName;
+			_lastErrorText += "' for ";
+			return 5;
+		}
+		strValue = configGetChanHost(consConfig, channelName);
+		if(strValue.equals(socCfg.hostName) == false)
+		{
+			_lastErrorText = "HostName mismatch in '";
+			_lastErrorText += channelName;
+			_lastErrorText += "' FileConfig host='";
+			_lastErrorText += strValue;
+			_lastErrorText += "' Internal Active ChannelSet[";
+			_lastErrorText += position;
+			_lastErrorText += "] host='";
+			_lastErrorText += socCfg.hostName;
+			_lastErrorText += "' for ";
+			return 6;	
+		}	
+		Boolean boolValue = JUnitTestConnect.configGetBooleanValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelTcpNodelay);
+		if(boolValue != socCfg.tcpNodelay)
+		{
+			_lastErrorText = "TcpNodelay mismatch in '";
+			_lastErrorText += channelName;
+			_lastErrorText += "' FileConfig tcpNodelay ='";
+			_lastErrorText += (boolValue ? "1" : "0");
+			_lastErrorText += "' Internal Active ChannelSet[";
+			_lastErrorText += position;
+			_lastErrorText += "] tcpNodelay ='";
+			_lastErrorText += (socCfg.tcpNodelay ? "1" : "0");
+			_lastErrorText += "' for ";
+			return 7;
+		}		
+		return result;
+	}
+
+	// used only for JUINT tests
+	public static int configVerifyChannelCommonAttribs(ChannelConfig chanCfg, String position,  OmmConsumerConfig consConfig, String channelName, ChannelConfig lastChanCfg)
+	{
+		int result = 0;
+		int intValue = ( int ) JUnitTestConnect.configGetIntValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelCompressionType);
+		if(intValue != chanCfg.compressionType)
+		{
+			_lastErrorText = "CompressionType mismatch in '";
+			_lastErrorText += channelName;
+			_lastErrorText += "' FileConfig CompressionType='";
+			_lastErrorText += Integer.toString(intValue);
+			_lastErrorText += "' Internal Active ChannelSet[";
+			_lastErrorText += position;
+			_lastErrorText += "] CompressionType='";
+			_lastErrorText += Integer.toString(chanCfg.compressionType);
+			_lastErrorText += "' for ";
+			return 9;
+		}
+		
+		int intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelGuaranteedOutputBuffers);
+		if(intLongValue != chanCfg.guaranteedOutputBuffers)
+		{
+			_lastErrorText = "GuaranteedOutputBuffers mismatch in '";
+			_lastErrorText += channelName;
+			_lastErrorText += "' FileConfig guaranteedOutputBuffers ='";
+			_lastErrorText += Integer.toString(intValue);
+			_lastErrorText += "' Internal Active ChannelSet[";
+			_lastErrorText += position;
+			_lastErrorText += "] guaranteedOutputBuffers ='";
+			_lastErrorText += Integer.toString(chanCfg.guaranteedOutputBuffers);
+			_lastErrorText += "' for ";
+			return 10;
+		}
+		
+		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelNumInputBuffers);
+		if(intLongValue != chanCfg.numInputBuffers)
+		{
+			_lastErrorText = "NumInputBuffers mismatch in '";
+			_lastErrorText += channelName;
+			_lastErrorText += "' FileConfig numInputBuffers ='";
+			_lastErrorText += Integer.toString(intValue);
+			_lastErrorText += "' Internal Active ChannelSet[";
+			_lastErrorText += position;
+			_lastErrorText += "] numInputBuffers ='";
+			_lastErrorText += Integer.toString(chanCfg.numInputBuffers);
+			_lastErrorText += "' for ";
+			return 11;
+		}
+
+		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelSysRecvBufSize);
+		if(intLongValue != chanCfg.sysRecvBufSize)
+		{
+			_lastErrorText = "SysRecvBufSize mismatch in '";
+			_lastErrorText += channelName;
+			_lastErrorText += "' FileConfig sysRecvBufSize ='";
+			_lastErrorText += Integer.toString(intValue);
+			_lastErrorText += "' Internal Active ChannelSet[";
+			_lastErrorText += position;
+			_lastErrorText += "] sysRecvBufSize ='";
+			_lastErrorText += Integer.toString(chanCfg.sysRecvBufSize);
+			_lastErrorText += "' for ";
+			return 12;
+		}
+
+		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelSysSendBufSize);
+		if(intLongValue != chanCfg.sysSendBufSize)
+		{
+			_lastErrorText = "SysSendBufSize mismatch in '";
+			_lastErrorText += channelName;
+			_lastErrorText += "' FileConfig sysSendBufSize ='";
+			_lastErrorText += Integer.toString(intValue);
+			_lastErrorText += "' Internal Active ChannelSet[";
+			_lastErrorText += position;
+			_lastErrorText += "] sysSendBufSize ='";
+			_lastErrorText += Integer.toString(chanCfg.sysSendBufSize);
+			_lastErrorText += "' for ";
+			return 13;
+		}
+		
+		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelCompressionThreshold);
+		if(intLongValue != chanCfg.compressionThreshold)
+		{
+			_lastErrorText = "CompressionThreshold mismatch in '";
+			_lastErrorText += channelName;
+			_lastErrorText += "' FileConfig compressionThreshold ='";
+			_lastErrorText += Integer.toString(intValue);
+			_lastErrorText += "' Internal Active ChannelSet[";
+			_lastErrorText += position;
+			_lastErrorText += "] compressionThreshold ='";
+			_lastErrorText += Integer.toString(chanCfg.compressionThreshold);
+			_lastErrorText += "' for ";
+			return 14;
+		}
+
+		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelConnectionPingTimeout);
+		if(intLongValue != chanCfg.connectionPingTimeout)
+		{
+			_lastErrorText = "ConnectionPingTimeout mismatch in '";
+			_lastErrorText += channelName;
+			_lastErrorText += "' FileConfig connectionPingTimeout ='";
+			_lastErrorText += Integer.toString(intValue);
+			_lastErrorText += "' Internal Active ChannelSet[";
+			_lastErrorText += position;
+			_lastErrorText += "] connectionPingTimeout ='";
+			_lastErrorText += Integer.toString(chanCfg.connectionPingTimeout);
+			_lastErrorText += "' for ";
+			return 15;
+		}
+
+		if(lastChanCfg.reconnectAttemptLimit != chanCfg.reconnectAttemptLimit)
+		{
+			_lastErrorText = "ReconnectAttemptLimit mismatch in '";
+			_lastErrorText += channelName;
+			_lastErrorText += "' LastChannel reconnectAttemptLimit ='";
+			_lastErrorText += Integer.toString(lastChanCfg.reconnectAttemptLimit);
+			_lastErrorText += "' Internal Active ChannelSet[";
+			_lastErrorText += position;
+			_lastErrorText += "] reconnectAttemptLimit ='";
+			_lastErrorText += Integer.toString(chanCfg.reconnectAttemptLimit);
+			_lastErrorText += "' for ";
+			return 16;
+		}
+
+		if(lastChanCfg.reconnectMinDelay != chanCfg.reconnectMinDelay)
+		{
+			_lastErrorText = "ReconnectMinDelay mismatch in '";
+			_lastErrorText += channelName;
+			_lastErrorText += "' LastChannel reconnectMinDelay ='";
+			_lastErrorText += Integer.toString(lastChanCfg.reconnectMinDelay);
+			_lastErrorText += "' Internal Active ChannelSet[";
+			_lastErrorText += position;
+			_lastErrorText += "] reconnectMinDelay ='";
+			_lastErrorText += Integer.toString(chanCfg.reconnectMinDelay);
+			_lastErrorText += "' for ";
+			return 17;
+		}
+
+		if(lastChanCfg.reconnectMaxDelay != chanCfg.reconnectMaxDelay)
+		{
+			_lastErrorText = "ReconnectMaxDelay mismatch in '";
+			_lastErrorText += channelName;
+			_lastErrorText += "' LastChannel reconnectMaxDelay ='";
+			_lastErrorText += Integer.toString(lastChanCfg.reconnectMaxDelay);
+			_lastErrorText += "' Internal Active ChannelSet[";
+			_lastErrorText += position;
+			_lastErrorText += "] reconnectMaxDelay ='";
+			_lastErrorText += Integer.toString(chanCfg.reconnectMaxDelay);
+			_lastErrorText += "' for ";
+			return 18;
+		}
+
+		if(lastChanCfg.msgKeyInUpdates != chanCfg.msgKeyInUpdates)
+		{
+			_lastErrorText = "msgKeyInUpdates mismatch in '";
+			_lastErrorText += channelName;
+			_lastErrorText += "' LastChannel msgKeyInUpdates ='";
+			_lastErrorText += (lastChanCfg.msgKeyInUpdates ? "1": "0");
+			_lastErrorText += "' Internal Active ChannelSet[";
+			_lastErrorText += position;
+			_lastErrorText += "] reconnectMaxDelay ='";
+			_lastErrorText += (chanCfg.msgKeyInUpdates ? "1": "0");
+			_lastErrorText += "' for ";
+			return 19;
+		}
+	
+		return result;
+	}
+	
+	// used only for JUNIT tests
+	public static int configVerifyConsChannelSetAttribs(OmmConsumer consumer, OmmConsumerConfig consConfig, String consumerName )
+	{
+		_lastErrorText = "";
+		int result = 0;
+		OmmConsumerImpl consImpl = ( OmmConsumerImpl ) consumer;
+		
+		String channelName = configGetChannelName(consConfig, consumerName);
+		if(channelName == null)
+		{
+			_lastErrorText = "Channel is null for ";
+			_lastErrorText += consImpl.consumerName();
+			result = 1;
+			return 1;
+		}
+		
+		String [] channels  = channelName.split(",");
+		if(channels.length != consImpl.activeConfig().channelConfigSet.size())
+		{
+			_lastErrorText = "Channel set size is != number of channels in the file config channelSet for ";
+			_lastErrorText += consImpl.consumerName();
+			return 2;
+		}
+		String channName = null;
+		String position = null;
+		ChannelConfig lastChanCfg = consImpl.activeConfig().channelConfigSet.get( channels.length - 1);
+		for (int i = 0; i < channels.length; i++)
+		{
+			ChannelConfig chanCfg = consImpl.activeConfig().channelConfigSet.get(i);
+			channName = channels[i];
+			position = Integer.toString(i);
+			int channelConnType = configGetChannelType(consConfig, channName);
+			if( channName.equals(chanCfg.name) == false )
+			{
+				_lastErrorText = "ChannelName mismatch: FileConfig name='";
+				_lastErrorText += channName;
+				_lastErrorText += "' Internal Active ChannelSet[";
+				_lastErrorText += position;
+				_lastErrorText += "] name='";
+				_lastErrorText += chanCfg.name;
+				_lastErrorText += "' for ";
+				_lastErrorText += consImpl.consumerName();
+				return 3;
+			}
+			if( channelConnType != chanCfg.rsslConnectionType )
+			{
+				_lastErrorText = "ConnectionType mismatch in '";
+				_lastErrorText += channName;
+				_lastErrorText += "' FileConfig ConnectionType='";
+				_lastErrorText += Integer.toString(channelConnType);
+				_lastErrorText += "' Internal Active ChannelSet[";
+				_lastErrorText += position;
+				_lastErrorText += "] ConnectionType='";
+				_lastErrorText += Integer.toString(chanCfg.rsslConnectionType);
+				_lastErrorText += "' for ";
+				_lastErrorText += consImpl.consumerName();
+				return 4;
+			}
+			switch( channelConnType )
+			{
+			case com.thomsonreuters.upa.transport.ConnectionTypes.SOCKET:
+				{
+					result = configVerifyChannelSocketTypeAttribs(chanCfg, position, consConfig, channName);
+					break;
+				}
+			case com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED:
+				{
+					result = configVerifyChannelEncrypTypeAttribs(chanCfg, position, consConfig, channName);
+					break;
+				}			
+			}
+			if(result != 0)
+			{
+				_lastErrorText += consImpl.consumerName();
+				break;
+			}
+			else
+			{
+				result = configVerifyChannelCommonAttribs(chanCfg, position, consConfig, channName, lastChanCfg);
+				if(result != 0)
+				{
+					_lastErrorText += consImpl.consumerName();
+					break;
+				}
+			}
+		}		
+
+		return result;
 	}
 	
 	// used only for JUNIT tests

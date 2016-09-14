@@ -214,11 +214,11 @@ public class ConfigManager
 		
 		ConsumerTagDict.add( "Name",ConsumerName );
 		ConsumerTagDict.add( "Channel",ConsumerChannelName );
+		ConsumerTagDict.add( "ChannelSet",ChannelSet );
 		ConsumerTagDict.add( "Logger",ConsumerLoggerName );
 		ConsumerTagDict.add( "Dictionary",ConsumerDictionaryName );
 		
 		ConsumerTagDict.add( "CatchUnhandledException",CatchUnhandledException );
-		ConsumerTagDict.add( "ChannelSet",ChannelSet );
 		ConsumerTagDict.add( "DictionaryRequestTimeOut",DictionaryRequestTimeOut );
 		ConsumerTagDict.add( "DirectoryRequestTimeOut",DirectoryRequestTimeOut );
 		ConsumerTagDict.add( "DispatchTimeoutApiThread",DispatchTimeoutApiThread );
@@ -310,6 +310,7 @@ public class ConfigManager
 		NiProviderTagDict.add( "NiProvider", NiProvider);
 		NiProviderTagDict.add( "Name", NiProviderName);
 		NiProviderTagDict.add( "Channel", NiProviderChannelName);
+		NiProviderTagDict.add( "ChannelSet", ChannelSet);
 		NiProviderTagDict.add( "Directory", NiProviderDirectoryName);
         NiProviderTagDict.add( "DictionaryRequestTimeOut",DictionaryRequestTimeOut );
 		NiProviderTagDict.add( "DispatchTimeoutApiThread",DispatchTimeoutApiThread );
@@ -756,6 +757,11 @@ public class ConfigManager
 			_list = new LinkedHashMap<Integer, List<ConfigElement>>();
 			
 		}
+		 
+		 Map<Integer, List<ConfigElement>> getList()
+		 {			 
+			return _list;
+		 }
 		 
 		List<ConfigElement> getConfigElementList(int attributeId)
 		{

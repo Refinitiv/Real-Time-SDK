@@ -15,7 +15,6 @@ import com.thomsonreuters.ema.access.ConfigManager.ConfigElement;
 import com.thomsonreuters.ema.access.OmmException.ExceptionType;
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
-import com.thomsonreuters.upa.transport.WriteFlags;
 import com.thomsonreuters.upa.transport.WritePriorities;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEvent;
 
@@ -28,12 +27,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 	{
 		super();
 		_activeConfig = new OmmConsumerActiveConfig();
-		super.initialize(_activeConfig, (OmmConsumerConfigImpl)config);
-		
-		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
-		if (_activeConfig.channelConfig.rsslConnectionType == ConnectionTypes.SOCKET &&
-				((SocketChannelConfig)_activeConfig.channelConfig).directWrite)
-			_rsslSubmitOptions.writeArgs().flags( _rsslSubmitOptions.writeArgs().flags() |  WriteFlags.DIRECT_SOCKET_WRITE);
+		super.initialize(_activeConfig, (OmmConsumerConfigImpl)config);		
 	}
 
 	OmmConsumerImpl(OmmConsumerConfig config, OmmConsumerErrorClient client)
@@ -43,10 +37,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 		_consumerErrorClient = client;
 		super.initialize(_activeConfig, (OmmConsumerConfigImpl)config);
 		
-		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
-		if (_activeConfig.channelConfig.rsslConnectionType == ConnectionTypes.SOCKET &&
-				((SocketChannelConfig)_activeConfig.channelConfig).directWrite)
-			_rsslSubmitOptions.writeArgs().flags( _rsslSubmitOptions.writeArgs().flags() |  WriteFlags.DIRECT_SOCKET_WRITE);
+		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);		
 	}
 	
 	@Override
@@ -263,9 +254,11 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 			{
 				strBuilder().append("directory retrieval failed (timed out after waiting ")
 						.append(_activeConfig.directoryRequestTimeOut).append(" milliseconds) for ");
-				if (_activeConfig.channelConfig.rsslConnectionType == ConnectionTypes.SOCKET)
+				int count = _loginCallbackClient.loginChannelList().size();
+				ChannelInfo loginChanInfo = _loginCallbackClient.loginChannelList().get(count - 1);
+				if( loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.SOCKET)
 				{
-					SocketChannelConfig channelConfig = (SocketChannelConfig) _activeConfig.channelConfig;
+					SocketChannelConfig channelConfig = (SocketChannelConfig) loginChanInfo._channelConfig;
 					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
 							.append(")");
 				}
@@ -300,9 +293,11 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 			{
 				strBuilder().append("dictionary retrieval failed (timed out after waiting ")
 						.append(_activeConfig.dictionaryRequestTimeOut).append(" milliseconds) for ");
-				if (_activeConfig.channelConfig.rsslConnectionType == ConnectionTypes.SOCKET)
+				int count = _loginCallbackClient.loginChannelList().size();
+				ChannelInfo loginChanInfo = _loginCallbackClient.loginChannelList().get(count - 1);
+				if( loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.SOCKET)
 				{
-					SocketChannelConfig channelConfig = (SocketChannelConfig) _activeConfig.channelConfig;
+					SocketChannelConfig channelConfig = (SocketChannelConfig) loginChanInfo._channelConfig;
 					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
 							.append(")");
 				}

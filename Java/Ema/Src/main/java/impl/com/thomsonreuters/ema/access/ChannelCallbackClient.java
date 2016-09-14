@@ -16,6 +16,9 @@ import com.thomsonreuters.ema.access.OmmBaseImpl.OmmImplState;
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
 import com.thomsonreuters.upa.codec.DataDictionary;
 import com.thomsonreuters.upa.rdm.Login;
+import com.thomsonreuters.upa.transport.ConnectionTypes;
+import com.thomsonreuters.upa.transport.WriteFlags;
+import com.thomsonreuters.upa.transport.WritePriorities;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
@@ -35,6 +38,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorConnectInfo;
 
 class ChannelInfo
 {
@@ -50,6 +54,8 @@ class ChannelInfo
 	protected int _majorVersion;
 	protected int _minorVersion;
 	protected DataDictionary		_rsslDictionary;
+	
+	ChannelConfig				_channelConfig;
 	
 	ChannelInfo(String name, Reactor rsslReactor)
 	{
@@ -213,7 +219,13 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		_baseImpl.eventReceived();
 		ChannelInfo chnlInfo = (ChannelInfo)event.reactorChannel().userSpecObj();
 		ReactorChannel rsslReactorChannel  = event.reactorChannel();
+		ChannelConfig channelConfig = chnlInfo._channelConfig;
 		
+		_baseImpl._rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
+		if (channelConfig.rsslConnectionType == ConnectionTypes.SOCKET &&
+				((SocketChannelConfig) channelConfig).directWrite)
+			_baseImpl._rsslSubmitOptions.writeArgs().flags( _baseImpl._rsslSubmitOptions.writeArgs().flags() |  WriteFlags.DIRECT_SOCKET_WRITE);
+
 		switch(event.eventType())
 		{
 			case ReactorChannelEventTypes.CHANNEL_OPENED :
@@ -316,8 +328,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
                     return ReactorCallbackReturnCodes.SUCCESS;
                 }
                 
-                ChannelConfig channelConfig = _baseImpl.activeConfig().channelConfig;
-                
+                               
                 if (rsslReactorChannel.ioctl(com.thomsonreuters.upa.transport.IoctlCodes.COMPRESSION_THRESHOLD, channelConfig.compressionThreshold, rsslReactorErrorInfo) != ReactorReturnCodes.SUCCESS)
                 {
                 	if (_baseImpl.loggerClient().isErrorEnabled())
@@ -599,132 +610,269 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		}
 	}
 	
+	private String channelParametersToString( ChannelConfig channelCfg )
+	{
+		boolean bValidChType = true;
+		StringBuilder cfgParameters = new StringBuilder();
+		String compType;
+		String strConnectionType;
+		switch (channelCfg.compressionType)
+		{
+		case com.thomsonreuters.upa.transport.CompressionTypes.ZLIB:
+			{
+				compType = "ZLib";
+				break;
+			}
+		case com.thomsonreuters.upa.transport.CompressionTypes.LZ4:
+			{
+				compType = "LZ4";
+				break;
+			}
+		case com.thomsonreuters.upa.transport.CompressionTypes.NONE:
+			{
+				compType = "None";
+				break;
+			}
+		default:
+			{	
+				compType = "Unknown Compression Type";
+				break;
+			}
+		}
+		
+		switch (channelCfg.rsslConnectionType)
+		{
+		case com.thomsonreuters.upa.transport.ConnectionTypes.SOCKET:
+			{
+				SocketChannelConfig tempChannelCfg = (SocketChannelConfig) channelCfg;
+				strConnectionType = "SOCKET";
+				cfgParameters.append( "hostName " ).append( tempChannelCfg.hostName ).append( OmmLoggerClient.CR )
+				.append( "port " ).append( tempChannelCfg.serviceName ).append( OmmLoggerClient.CR )
+				.append( "CompressionType " ).append( compType ).append( OmmLoggerClient.CR )
+				.append( "tcpNodelay " ).append( ( tempChannelCfg.tcpNodelay ? "true" : "false" ) ).append( OmmLoggerClient.CR );
+
+				break;
+			}
+		case com.thomsonreuters.upa.transport.ConnectionTypes.HTTP:
+			{
+				HttpChannelConfig tempChannelCfg = (HttpChannelConfig) channelCfg;
+				strConnectionType = "HTTP";
+				cfgParameters.append( "hostName " ).append( tempChannelCfg.hostName ).append( OmmLoggerClient.CR )
+				.append( "port " ).append( tempChannelCfg.serviceName ).append( OmmLoggerClient.CR )
+				.append( "CompressionType " ).append( compType ).append( OmmLoggerClient.CR )
+				.append( "tcpNodelay " ).append( ( tempChannelCfg.tcpNodelay ? "true" : "false" ) ).append( OmmLoggerClient.CR )
+				.append( "ObjectName " ).append( tempChannelCfg.objectName ).append( OmmLoggerClient.CR );
+				break;
+			}
+		case com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED:
+			{
+				EncryptedChannelConfig tempChannelCfg = (EncryptedChannelConfig) channelCfg;
+				strConnectionType = "ENCRYPTED";
+				cfgParameters.append( "hostName " ).append( tempChannelCfg.hostName ).append( OmmLoggerClient.CR )
+				.append( "port " ).append( tempChannelCfg.serviceName ).append( OmmLoggerClient.CR )
+				.append( "CompressionType " ).append( compType ).append( OmmLoggerClient.CR )
+				.append( "tcpNodelay " ).append( ( tempChannelCfg.tcpNodelay ? "true" : "false" ) ).append( OmmLoggerClient.CR )
+				.append( "ObjectName " ).append( tempChannelCfg.objectName ).append( OmmLoggerClient.CR );
+				break;
+			}
+		default:
+			{	
+				strConnectionType = "Invalid ChannelType: ";
+				strConnectionType += com.thomsonreuters.upa.transport.ConnectionTypes.toString(channelCfg.rsslConnectionType);
+				bValidChType = false;
+				break;
+			}
+		}
+		
+		StringBuilder tempBlder = _baseImpl.strBuilder();
+		tempBlder.append( strConnectionType ).append( OmmLoggerClient.CR )
+		.append( "Channel name " ).append( channelCfg.name ).append( OmmLoggerClient.CR )
+		.append( "Instance Name " ).append( _baseImpl.instanceName() ).append( OmmLoggerClient.CR );
+
+		if( bValidChType == true)
+		{
+			tempBlder.append("RsslReactor ").append("@").append(Integer.toHexString(_rsslReactor.hashCode())).append(OmmLoggerClient.CR)
+			.append( "InterfaceName " ).append( channelCfg.interfaceName ).append( OmmLoggerClient.CR )
+			.append( cfgParameters )
+			.append( "reconnectAttemptLimit " ).append( channelCfg.reconnectAttemptLimit ).append( OmmLoggerClient.CR )
+			.append( "reconnectMinDelay " ).append( channelCfg.reconnectMinDelay ).append( " msec" ).append( OmmLoggerClient.CR )
+			.append( "reconnectMaxDelay " ).append( channelCfg.reconnectMaxDelay ).append( " msec" ).append( OmmLoggerClient.CR )
+			.append( "guaranteedOutputBuffers " ).append( channelCfg.guaranteedOutputBuffers ).append( OmmLoggerClient.CR )
+			.append( "numInputBuffers " ).append( channelCfg.numInputBuffers ).append( OmmLoggerClient.CR )
+			.append( "sysRecvBufSize " ).append( channelCfg.sysRecvBufSize ).append( OmmLoggerClient.CR )
+			.append( "sysSendBufSize " ).append( channelCfg.sysSendBufSize ).append( OmmLoggerClient.CR )
+			.append( "connectionPingTimeout " ).append( channelCfg.connectionPingTimeout ).append( " msec" ).append( OmmLoggerClient.CR );
+		}
+		
+		return tempBlder.toString();
+	}
+	
 	private void initializeReactor()
 	{
 		ActiveConfig activeConfig = _baseImpl.activeConfig();
+		List<ChannelConfig>	activeConfigChannelSet = activeConfig.channelConfigSet;
+		int channelCfgSetLastIndex = activeConfigChannelSet.size() - 1;
+		int rsslReactorConnListSize = _rsslReactorConnOptions.connectionList().size();
+		int supportedConnectionTypeChannelCount = 0;
+		String channelParams = "";
+		String channelNames = "";
+		StringBuilder temp = new StringBuilder();
 
-		int connectionType = activeConfig.channelConfig.rsslConnectionType;
+		if( activeConfigChannelSet.size() > 1 )
+			temp.append("Attempt to connect using the following list");
+		else
+			temp.append("Attempt to connect using ");
 		
-		if (connectionType == com.thomsonreuters.upa.transport.ConnectionTypes.SOCKET  ||
-			connectionType == com.thomsonreuters.upa.transport.ConnectionTypes.HTTP ||
-			connectionType == com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED)
+		StringBuilder errorStrUnsupportedConnectionType = new StringBuilder();		
+		errorStrUnsupportedConnectionType.append( "Unknown connection type. Passed in type is ");
+
+		
+		_rsslReactorConnOptions.reconnectAttemptLimit(activeConfigChannelSet.get(channelCfgSetLastIndex).reconnectAttemptLimit);
+		_rsslReactorConnOptions.reconnectMinDelay(activeConfigChannelSet.get(channelCfgSetLastIndex).reconnectMinDelay);
+		_rsslReactorConnOptions.reconnectMaxDelay(activeConfigChannelSet.get(channelCfgSetLastIndex).reconnectMaxDelay);
+		com.thomsonreuters.upa.transport.ConnectOptions connectOptions = null;
+		
+		for(int i = 0; i < activeConfigChannelSet.size(); i++)
 		{
-			ChannelInfo channelInfo = channelInfo(activeConfig.channelConfig.name, _rsslReactor);
-
-			com.thomsonreuters.upa.transport.ConnectOptions connectOptions = _rsslReactorConnOptions.connectionList().get(0).connectOptions();
+			ChannelConfig channelConfig = activeConfigChannelSet.get(i);
+			int connectionType = channelConfig.rsslConnectionType;
 			
-			connectOptions.userSpecObject(channelInfo);
-
-			connectOptions.majorVersion(com.thomsonreuters.upa.codec.Codec.majorVersion());
-			connectOptions.minorVersion(com.thomsonreuters.upa.codec.Codec.minorVersion());
-			connectOptions.protocolType(com.thomsonreuters.upa.codec.Codec.protocolType());
-
-			_rsslReactorConnOptions.reconnectAttemptLimit(activeConfig.channelConfig.reconnectAttemptLimit);
-			_rsslReactorConnOptions.reconnectMinDelay(activeConfig.channelConfig.reconnectMinDelay);
-			_rsslReactorConnOptions.reconnectMaxDelay(activeConfig.channelConfig.reconnectMaxDelay);
-
-			connectOptions.compressionType(activeConfig.channelConfig.compressionType);
-			connectOptions.connectionType(connectionType);
-			connectOptions.pingTimeout(activeConfig.channelConfig.connectionPingTimeout/1000);
-			connectOptions.guaranteedOutputBuffers(activeConfig.channelConfig.guaranteedOutputBuffers);
-			connectOptions.sysRecvBufSize(activeConfig.channelConfig.sysRecvBufSize);
-			connectOptions.sysSendBufSize(activeConfig.channelConfig.sysSendBufSize);
-			connectOptions.numInputBuffers(activeConfig.channelConfig.numInputBuffers);
-			connectOptions.componentVersion(_productVersion);
-
-			switch (connectOptions.connectionType())
+			if (connectionType == com.thomsonreuters.upa.transport.ConnectionTypes.SOCKET  ||
+				connectionType == com.thomsonreuters.upa.transport.ConnectionTypes.HTTP ||
+				connectionType == com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED)
 			{
-			case com.thomsonreuters.upa.transport.ConnectionTypes.SOCKET:
+				ChannelInfo channelInfo = channelInfo(channelConfig.name, _rsslReactor);
+				channelInfo._channelConfig = channelConfig;
+				channelConfig.channelInfo = channelInfo;
+				if( i < rsslReactorConnListSize )
 				{
-					connectOptions.unifiedNetworkInfo().address(((SocketChannelConfig)activeConfig.channelConfig).hostName);
-					try
+					connectOptions = _rsslReactorConnOptions.connectionList().get(i).connectOptions();
+					connectOptions.userSpecObject(channelInfo);
+					_rsslReactorConnOptions.connectionList().get(i).initTimeout(5);
+				}
+				else
+				{
+					
+					ReactorConnectInfo newReactConnInfo = ReactorFactory.createReactorConnectInfo();
+					newReactConnInfo.initTimeout(5);
+					connectOptions = newReactConnInfo.connectOptions();
+					connectOptions.userSpecObject(channelInfo);
+					_rsslReactorConnOptions.connectionList().add(newReactConnInfo);					
+					rsslReactorConnListSize = _rsslReactorConnOptions.connectionList().size();
+				}
+				
+				
+	
+				connectOptions.majorVersion(com.thomsonreuters.upa.codec.Codec.majorVersion());
+				connectOptions.minorVersion(com.thomsonreuters.upa.codec.Codec.minorVersion());
+				connectOptions.protocolType(com.thomsonreuters.upa.codec.Codec.protocolType());
+	
+	
+				connectOptions.compressionType(channelConfig.compressionType);
+				connectOptions.connectionType(connectionType);
+				connectOptions.pingTimeout(channelConfig.connectionPingTimeout/1000);
+				connectOptions.guaranteedOutputBuffers(channelConfig.guaranteedOutputBuffers);
+				connectOptions.sysRecvBufSize(channelConfig.sysRecvBufSize);
+				connectOptions.sysSendBufSize(channelConfig.sysSendBufSize);
+				connectOptions.numInputBuffers(channelConfig.numInputBuffers);
+				connectOptions.componentVersion(_productVersion);
+	
+				switch (connectOptions.connectionType())
+				{
+				case com.thomsonreuters.upa.transport.ConnectionTypes.SOCKET:
 					{
-					connectOptions.unifiedNetworkInfo().serviceName(((SocketChannelConfig)activeConfig.channelConfig).serviceName);
+						connectOptions.unifiedNetworkInfo().address(((SocketChannelConfig) channelConfig).hostName);
+						try
+						{
+						connectOptions.unifiedNetworkInfo().serviceName(((SocketChannelConfig) channelConfig).serviceName);
+						}
+						catch(Exception e) 
+						{
+			        	   if (_baseImpl.loggerClient().isErrorEnabled())
+			        	   {
+			        		   StringBuilder tempErr = _baseImpl.strBuilder();
+								tempErr.append("Failed to set service name on channel options, received exception: '")
+			        				     .append(e.getLocalizedMessage())
+			        				     .append( "'. ");
+					        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, tempErr.toString(), Severity.ERROR));
+			        	   }
+						}
+						connectOptions.tcpOpts().tcpNoDelay(((SocketChannelConfig) channelConfig).tcpNodelay);
+						connectOptions.unifiedNetworkInfo().interfaceName(((SocketChannelConfig) channelConfig).interfaceName);
+						connectOptions.unifiedNetworkInfo().unicastServiceName("");
+					break;
 					}
-					catch(Exception e) 
+				case com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED:
 					{
-		        	   if (_baseImpl.loggerClient().isErrorEnabled())
-		        	   {
-		        		   StringBuilder temp = _baseImpl.strBuilder();
-							temp.append("Failed to set service name on channel options, received exception: '")
-		        				     .append(e.getLocalizedMessage())
-		        				     .append( "'. ");
-				        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
-		        	   }
+						connectOptions.unifiedNetworkInfo().address(((EncryptedChannelConfig) channelConfig).hostName);
+						connectOptions.unifiedNetworkInfo().serviceName(((EncryptedChannelConfig) channelConfig).serviceName);
+						connectOptions.tcpOpts().tcpNoDelay(((EncryptedChannelConfig) channelConfig).tcpNodelay);
+						connectOptions.tunnelingInfo().objectName(((EncryptedChannelConfig) channelConfig).objectName);
+						connectOptions.tunnelingInfo().tunnelingType("encrypted"); 
+						connectOptions.unifiedNetworkInfo().interfaceName(((EncryptedChannelConfig) channelConfig).interfaceName);
+						connectOptions.unifiedNetworkInfo().unicastServiceName("");
+						encryptedConfiguration(connectOptions);
+					break;
 					}
-					connectOptions.tcpOpts().tcpNoDelay(((SocketChannelConfig)activeConfig.channelConfig).tcpNodelay);
-					connectOptions.unifiedNetworkInfo().interfaceName(((SocketChannelConfig)activeConfig.channelConfig).interfaceName);
-					connectOptions.unifiedNetworkInfo().unicastServiceName("");
-				break;
+				case com.thomsonreuters.upa.transport.ConnectionTypes.HTTP:
+					{
+						connectOptions.unifiedNetworkInfo().address(((HttpChannelConfig) channelConfig).hostName);
+						connectOptions.unifiedNetworkInfo().serviceName(((HttpChannelConfig) channelConfig).serviceName);
+						connectOptions.tcpOpts().tcpNoDelay(((HttpChannelConfig) channelConfig).tcpNodelay);
+						connectOptions.tunnelingInfo().objectName(((HttpChannelConfig) channelConfig).objectName);
+						connectOptions.tunnelingInfo().tunnelingType("http"); 
+						connectOptions.unifiedNetworkInfo().interfaceName(((HttpChannelConfig) channelConfig).interfaceName);
+						connectOptions.unifiedNetworkInfo().unicastServiceName("");
+						httpConfiguration(connectOptions);
+					break;
+					}
+				default :
+					break;
 				}
-			case com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED:
+	
+				connectOptions.unifiedNetworkInfo().interfaceName( channelConfig.interfaceName);
+				connectOptions.unifiedNetworkInfo().unicastServiceName("");
+				channelNames.concat(channelConfig.name);
+				if( i < channelCfgSetLastIndex )
 				{
-					connectOptions.unifiedNetworkInfo().address(((EncryptedChannelConfig)activeConfig.channelConfig).hostName);
-					connectOptions.unifiedNetworkInfo().serviceName(((EncryptedChannelConfig)activeConfig.channelConfig).serviceName);
-					connectOptions.tcpOpts().tcpNoDelay(((EncryptedChannelConfig)activeConfig.channelConfig).tcpNodelay);
-					connectOptions.tunnelingInfo().objectName(((EncryptedChannelConfig)activeConfig.channelConfig).objectName);
-					connectOptions.tunnelingInfo().tunnelingType("encrypted"); 
-					connectOptions.unifiedNetworkInfo().interfaceName(((SocketChannelConfig)activeConfig.channelConfig).interfaceName);
-					connectOptions.unifiedNetworkInfo().unicastServiceName("");
-					encryptedConfiguration(connectOptions);
-				break;
+					channelNames.concat( ", " );
+					activeConfigChannelSet.get(i).reconnectAttemptLimit = _rsslReactorConnOptions.reconnectAttemptLimit();
+					activeConfigChannelSet.get(i).reconnectMaxDelay = _rsslReactorConnOptions.reconnectMaxDelay();
+					activeConfigChannelSet.get(i).reconnectMinDelay = _rsslReactorConnOptions.reconnectMinDelay();
+					activeConfigChannelSet.get(i).xmlTraceEnable = activeConfigChannelSet.get(channelCfgSetLastIndex).xmlTraceEnable;
+					activeConfigChannelSet.get(i).msgKeyInUpdates = activeConfigChannelSet.get(channelCfgSetLastIndex).msgKeyInUpdates;
+				
 				}
-			case com.thomsonreuters.upa.transport.ConnectionTypes.HTTP:
+				if (_baseImpl.loggerClient().isTraceEnabled())
 				{
-					connectOptions.unifiedNetworkInfo().address(((HttpChannelConfig)activeConfig.channelConfig).hostName);
-					connectOptions.unifiedNetworkInfo().serviceName(((HttpChannelConfig)activeConfig.channelConfig).serviceName);
-					connectOptions.tcpOpts().tcpNoDelay(((HttpChannelConfig)activeConfig.channelConfig).tcpNodelay);
-					connectOptions.tunnelingInfo().objectName(((HttpChannelConfig)activeConfig.channelConfig).objectName);
-					connectOptions.tunnelingInfo().tunnelingType("http"); 
-					connectOptions.unifiedNetworkInfo().interfaceName(((SocketChannelConfig)activeConfig.channelConfig).interfaceName);
-					connectOptions.unifiedNetworkInfo().unicastServiceName("");
-					httpConfiguration(connectOptions);
-				break;
-				}
-			default :
-				break;
+					channelParams = channelParametersToString( activeConfigChannelSet.get( i ) );
+					temp.append( OmmLoggerClient.CR ).append( i + 1 ).append( "] " ).append( channelParams );
+					if ( i == ( channelCfgSetLastIndex ) )				
+						_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.TRACE));
+				}	
+	
+				_channelList.add(channelInfo);
+				supportedConnectionTypeChannelCount++;
 			}
-
-			connectOptions.unifiedNetworkInfo().interfaceName(activeConfig.channelConfig.interfaceName);
-			connectOptions.unifiedNetworkInfo().unicastServiceName("");
-
-			if (_baseImpl.loggerClient().isTraceEnabled())
+			else
 			{
-					StringBuilder temp = _baseImpl.strBuilder();
-					temp.append("Attempt to connect using ")
-						.append(com.thomsonreuters.upa.transport.ConnectionTypes.toString(connectionType))
-						.append(" connection type")
-						.append(OmmLoggerClient.CR)
-						.append("Channel name ").append(channelInfo.name()).append(OmmLoggerClient.CR)
-						.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR)
-						.append("RsslReactor ").append("@").append(Integer.toHexString(_rsslReactor.hashCode())).append(OmmLoggerClient.CR)
-						.append("interfaceName ").append(connectOptions.unifiedNetworkInfo().interfaceName()).append(OmmLoggerClient.CR)
-						.append("hostName ").append(connectOptions.unifiedNetworkInfo().address()).append(OmmLoggerClient.CR)
-						.append("port ").append(connectOptions.unifiedNetworkInfo().serviceName()).append(OmmLoggerClient.CR)
-						.append("reconnectAttemptLimit ").append(_rsslReactorConnOptions.reconnectAttemptLimit()).append(OmmLoggerClient.CR)
-						.append("guaranteedOutputBuffers ").append(connectOptions.guaranteedOutputBuffers()).append(OmmLoggerClient.CR)
-						.append("numInputBuffers ").append(connectOptions.numInputBuffers()).append(OmmLoggerClient.CR)
-						.append("sysRecvBufSize ").append(connectOptions.sysRecvBufSize()).append(OmmLoggerClient.CR)
-						.append("sysSendBufSize ").append(connectOptions.sysSendBufSize()).append(OmmLoggerClient.CR)
-						.append("reconnectMinDelay ").append(_rsslReactorConnOptions.reconnectMinDelay()).append(" msec").append(OmmLoggerClient.CR)
-						.append("reconnectMaxDelay ").append(_rsslReactorConnOptions.reconnectMaxDelay()).append(" msec").append(OmmLoggerClient.CR)
-						.append("CompressionType ").append(com.thomsonreuters.upa.transport.CompressionTypes.toString(connectOptions.compressionType())).append(OmmLoggerClient.CR)
-						.append("connectionPingTimeout ").append(connectOptions.pingTimeout()).append(" sec").append(OmmLoggerClient.CR)
-						.append("tcpNodelay ").append((connectOptions.tcpOpts().tcpNoDelay() ? "true" : "false"));
-					
-						if(connectionType == com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED || connectionType == com.thomsonreuters.upa.transport.ConnectionTypes.HTTP)
-							temp.append(OmmLoggerClient.CR).append("ObjectName ").append(connectOptions.tunnelingInfo().objectName());
-					
-					_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.TRACE));
+				errorStrUnsupportedConnectionType.append( com.thomsonreuters.upa.transport.ConnectionTypes.toString(channelConfig.rsslConnectionType))
+				.append( " for " )
+				.append( activeConfigChannelSet.get(i).name );
+				if ( i < channelCfgSetLastIndex )
+					errorStrUnsupportedConnectionType.append( ", " );				
 			}
-
+		}
+		
+		if( supportedConnectionTypeChannelCount > 0 )
+		{
 			ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 			if (ReactorReturnCodes.SUCCESS > _rsslReactor.connect(_rsslReactorConnOptions, (ReactorRole)_rsslReactorRole, rsslErrorInfo))
 			{
 				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
-				StringBuilder temp = _baseImpl.strBuilder();
-				temp.append("Failed to add RsslChannel to RsslReactor. Channel name ")
-				    .append(channelInfo.name()).append(OmmLoggerClient.CR)
+				StringBuilder tempErr = _baseImpl.strBuilder();
+				tempErr.append("Failed to add RsslChannel(s) to RsslReactor. Channel name(s) ")
+				    .append( channelNames ).append(OmmLoggerClient.CR)
 					.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR)
 					.append("RsslReactor ").append("@").append(Integer.toHexString(_rsslReactor.hashCode())).append(OmmLoggerClient.CR)
 					.append("RsslChannel ").append(error.channel()).append(OmmLoggerClient.CR)
@@ -734,31 +882,34 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 					.append("Error Text ").append(error.text());
 
 				if (_baseImpl.loggerClient().isErrorEnabled())
-					_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.ERROR));
+					_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.ERROR));
 				
-				throw _baseImpl.ommIUExcept().message(temp.toString());
+				for(int i = 0; i <  _rsslReactorConnOptions.connectionList().size(); i++ )
+				{
+					ChannelInfo channelInfo = (ChannelInfo) _rsslReactorConnOptions.connectionList().get(i).connectOptions().userSpecObject();
+					if( channelInfo != null)
+					{
+						removeChannel( channelInfo );
+					}
+				}
+				throw _baseImpl.ommIUExcept().message(tempErr.toString());
 			}
 
 			_baseImpl.ommImplState(OmmImplState.RSSLCHANNEL_DOWN);
 
 			if (_baseImpl.loggerClient().isTraceEnabled())
 			{
-				StringBuilder temp = _baseImpl.strBuilder();
-				temp.append("Successfully created a Reactor Channel")
+				StringBuilder tempTrace = _baseImpl.strBuilder();
+				tempTrace.append("Successfully created a Reactor and Channel(s)")
 	            	.append(OmmLoggerClient.CR)
-				    .append(" Channel name ").append(channelInfo.name()).append(OmmLoggerClient.CR)
+				    .append(" Channel name(s) ").append( channelNames ).append(OmmLoggerClient.CR)
 					.append("Instance Name ").append(_baseImpl.instanceName());
-				_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.TRACE));
-			}
-
-			_channelList.add(channelInfo);
+				_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(CLIENT_NAME, tempTrace.toString(), Severity.TRACE));
+			}	
 		}
 		else
 		{
-			StringBuilder temp = _baseImpl.strBuilder();
-			temp.append("Unknown connection type. Passed in type is ")
-				.append(connectionType);
-			throw _baseImpl.ommIUExcept().message(temp.toString());
+			throw _baseImpl.ommIUExcept().message( errorStrUnsupportedConnectionType.toString() );
 		}
 	}
 	
@@ -824,10 +975,10 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 			return (_channelPool.get(0).reset(name, rsslReactor));
 	}
 	
-	void removeChannel(ReactorChannel rsslReactorChannel)
+	void removeChannel(ChannelInfo chanInfo)
 	{
-		_channelList.remove((ChannelInfo)rsslReactorChannel.userSpecObj());
-		_channelPool.add((ChannelInfo)rsslReactorChannel.userSpecObj());
+		_channelList.remove( chanInfo );
+		_channelPool.add( chanInfo );
 	}
 
 	void closeChannels()

@@ -7,15 +7,18 @@
 
 package com.thomsonreuters.ema.access;
 
+
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
 
 class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 {
 	private int 				_operationModel;
-
+	
 	OmmConsumerConfigImpl()
 	{
 		super();
+		channelOrChannelSet.add(ConfigManager.ConsumerChannelName);
+		channelOrChannelSet.add(ConfigManager.ChannelSet);
 		clear();
 	}
 
@@ -168,8 +171,8 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 		String channelName = null;
 
 		// TODO: Retrieve from programmatic configuration
-
-		channelName = (String) xmlConfig().getConsumerAttributeValue(instanceName,ConfigManager.ConsumerChannelName);
+	
+		channelName = (String) xmlConfig().getMutualExclusiveAttribute(ConfigManager.CONSUMER_LIST, ConfigManager.ConsumerName, instanceName, channelOrChannelSet);
 		return channelName;
 	}
 	

@@ -8,6 +8,9 @@
 package com.thomsonreuters.ema.access;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.thomsonreuters.ema.access.OmmConsumerConfig.OperationModel;
 import com.thomsonreuters.upa.transport.CompressionTypes;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
@@ -84,7 +87,7 @@ class ActiveConfig
 	int						directoryRequestTimeOut;
 	int						dictionaryRequestTimeOut;
 	int		    			userDispatch;
-	ChannelConfig			channelConfig;
+	List<ChannelConfig>		channelConfigSet;
 	DictionaryConfig		dictionaryConfig;
 	LoginRequest			rsslRDMLoginRequest;
 	DirectoryRequest		rsslDirectoryRequest;
@@ -112,6 +115,7 @@ class ActiveConfig
 		 dictionaryRequestTimeOut = DEFAULT_DICTIONARY_REQUEST_TIMEOUT;
 		 userDispatch = DEFAULT_USER_DISPATCH;
 		 ActiveConfig.defaultServiceName = defaultServiceName;
+		 channelConfigSet = new ArrayList<>();
 	}
 
 	void clear()
@@ -156,6 +160,7 @@ class ChannelConfig
 	int					reconnectMinDelay;
 	int					reconnectMaxDelay;
 	boolean				msgKeyInUpdates;
+	ChannelInfo			channelInfo;
 
 	ChannelConfig() 
 	{

@@ -14,6 +14,7 @@
 			<Name value="Consumer_1"/>
 
 			<!-- Channel is optional: defaulted to "RSSL_SOCKET + localhost + 14002"					-->
+			<!-- Channel or ChannelSet may be specified													-->
 			<Channel value="Channel_1"/>
 
 			<!-- Dictionary is optional: defaulted to "ChannelDictionary"								-->
@@ -23,7 +24,9 @@
 		<Consumer>
 			<Name value="Consumer_2"/>
 			
-			<Channel value="Channel_2"/>
+			<!-- ChannelSet specifies an ordered list of Channels to which OmmConsumer will attempt to	-->
+			<!-- connect, one at a time, if the previous one fails to connect							-->
+			<ChannelSet value="Channel_1, Channel_2"/>
 			
 			<Dictionary value="Dictionary_2"/>
 		</Consumer>

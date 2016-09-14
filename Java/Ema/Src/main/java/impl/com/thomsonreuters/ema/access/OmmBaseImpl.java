@@ -161,8 +161,9 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 
 			if (_loggerClient.isTraceEnabled())
 				_loggerClient.trace(formatLogMessage(_activeConfig.instanceName, "Successfully open Selector.", Severity.TRACE));
-
-			if (_activeConfig.channelConfig.xmlTraceEnable)
+			
+			int channelSetSize = _activeConfig.channelConfigSet.size();
+			if (_activeConfig.channelConfigSet.get( channelSetSize - 1 ).xmlTraceEnable)
 				_rsslReactorOpts.enableXmlTracing();
 
 			_rsslReactorOpts.userSpecObj(this);
@@ -595,46 +596,40 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 		//
 
 		String channelName = config.channelName(_activeConfig.configuredName);
-		if (channelName != null)
-			readChannelConfig(config, channelName);
+		if (channelName != null  && channelName.trim().length() > 0)
+		{
+			String[] pieces = channelName.split(",");
+
+			for (int i = 0; i < pieces.length; i++)
+			{
+				readChannelConfig(config,  pieces[i]);
+			}
+		}
 		else
 		{
-			String checkValue = (String)getAttributeValue(config, ConfigManager.ChannelSet);
-			if (checkValue != null)
+			SocketChannelConfig socketChannelConfig = new SocketChannelConfig();
+			if (socketChannelConfig.rsslConnectionType == ConnectionTypes.SOCKET)
 			{
-				String[] pieces = checkValue.split(",");
-
-				for (int i = 0; i < pieces.length; i++)
+				String tempHost = config.getUserSpecifiedHostname();
+				if (tempHost == null)
 				{
-					channelName = pieces[i];
-					readChannelConfig(config, channelName);
+					if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
+						socketChannelConfig.hostName = ce.asciiValue();
 				}
-			}
-			else
-			{
-				SocketChannelConfig socketChannelConfig = new SocketChannelConfig();
-				if (socketChannelConfig.rsslConnectionType == ConnectionTypes.SOCKET)
-				{
-					String tempHost = config.getUserSpecifiedHostname();
-					if (tempHost == null)
-					{
-						if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
-							socketChannelConfig.hostName = ce.asciiValue();
-					}
-					else
-						socketChannelConfig.hostName = tempHost;
+				else
+					socketChannelConfig.hostName = tempHost;
 
-					String tempService = config.getUserSpecifiedPort();
-					if (tempService == null)
-					{
-						if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelPort)) != null)
-							socketChannelConfig.serviceName = ce.asciiValue();
-					}
-					else
-						socketChannelConfig.serviceName = tempService;
+				String tempService = config.getUserSpecifiedPort();
+				if (tempService == null)
+				{
+					if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelPort)) != null)
+						socketChannelConfig.serviceName = ce.asciiValue();
 				}
-				_activeConfig.channelConfig = socketChannelConfig;
+				else
+					socketChannelConfig.serviceName = tempService;
 			}
+			socketChannelConfig.name = "Channel";
+			_activeConfig.channelConfigSet.add( socketChannelConfig);
 		}
 
 		//
@@ -649,7 +644,8 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 	
 	void readChannelConfig(EmaConfigImpl configImpl, String channelName)
 	{
-		int maxInt = Integer.MAX_VALUE;
+		int maxInt = Integer.MAX_VALUE;		
+		ChannelConfig currentChannelConfig = null;
 
 		ConfigAttributes attributes = null;
 		ConfigElement ce = null;
@@ -659,11 +655,11 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 		if (attributes != null) 
 			ce = attributes.getPrimitiveValue(ConfigManager.ChannelType);
 
-		if (ce == null)
+		if (ce == null || configImpl.getUserSpecifiedHostname() != null)
 		{
-			if (configImpl.getUserSpecifiedHostname() != null)
 				connectionType = ConnectionTypes.SOCKET;
-		} else
+		} 
+		else
 		{
 			connectionType = ce.intValue();
 		}
@@ -673,8 +669,7 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 		case ConnectionTypes.SOCKET:
 		{
 			SocketChannelConfig socketChannelConfig = new SocketChannelConfig();
-			_activeConfig.channelConfig = socketChannelConfig;
-
+			
 			String tempHost = configImpl.getUserSpecifiedHostname();
 			if (tempHost == null)
 			{
@@ -699,13 +694,14 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelDirectSocketWrite)) != null)
 				socketChannelConfig.directWrite = ce.booleanValue();
 			
+			currentChannelConfig = socketChannelConfig;
+			
 			break;
 		}
 		case ConnectionTypes.HTTP:
 		{
 			HttpChannelConfig httpChannelCfg = new HttpChannelConfig();
-			_activeConfig.channelConfig = httpChannelCfg;
-
+			
 			String tempHost = configImpl.getUserSpecifiedHostname();
 			if (tempHost == null)
 			{
@@ -729,13 +725,14 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 
 			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelObjectName)) != null)
 				httpChannelCfg.objectName = ce.asciiValue();
-
+			
+			currentChannelConfig =  httpChannelCfg;
+			
 			break;
 		}
 		case ConnectionTypes.ENCRYPTED:
 		{
 			EncryptedChannelConfig encryptedChannelCfg = new EncryptedChannelConfig();
-			_activeConfig.channelConfig = encryptedChannelCfg;
 
 			String tempHost = configImpl.getUserSpecifiedHostname();
 			if (tempHost == null)
@@ -761,6 +758,8 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelObjectName)) != null)
 				encryptedChannelCfg.objectName = ce.asciiValue();
 
+			currentChannelConfig =  encryptedChannelCfg;
+			
 			break;
 		}
 		default:
@@ -771,7 +770,6 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 		}
 		}
 
-		ChannelConfig currentChannelConfig = _activeConfig.channelConfig;
 		currentChannelConfig.name = channelName;
 
 		if (attributes != null)
@@ -843,6 +841,8 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelXmlTraceToStdout)) != null)
 				currentChannelConfig.xmlTraceEnable = ce.booleanValue();
 		}
+		
+		_activeConfig.channelConfigSet.add( currentChannelConfig );
 	}
 	
 	StringBuilder strBuilder()
@@ -868,21 +868,22 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 	
 			if (_eventTimeout)
 			{
+				ChannelConfig currentConfig = _activeConfig.channelConfigSet.get( 0 );
 				strBuilder().append("login failed (timed out after waiting ")
 						.append(_activeConfig.loginRequestTimeOut).append(" milliseconds) for ");
-				if (_activeConfig.channelConfig.rsslConnectionType == ConnectionTypes.SOCKET)
+				if (currentConfig.rsslConnectionType == ConnectionTypes.SOCKET)
 				{
-					SocketChannelConfig channelConfig = (SocketChannelConfig) _activeConfig.channelConfig;
+					SocketChannelConfig channelConfig = (SocketChannelConfig) currentConfig;
 					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
 							.append(")");
-				} else if (_activeConfig.channelConfig.rsslConnectionType == ConnectionTypes.HTTP)
+				} else if (currentConfig.rsslConnectionType == ConnectionTypes.HTTP)
 				{
-					HttpChannelConfig channelConfig = ((HttpChannelConfig) _activeConfig.channelConfig);
+					HttpChannelConfig channelConfig = ((HttpChannelConfig) currentConfig);
 					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
 							.append(")");
-				} else if (_activeConfig.channelConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+				} else if (currentConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
 				{
-					EncryptedChannelConfig channelConfig = (EncryptedChannelConfig) _activeConfig.channelConfig;
+					EncryptedChannelConfig channelConfig = (EncryptedChannelConfig) currentConfig;
 					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
 							.append(")");
 				}
@@ -1204,7 +1205,7 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 			}
 		}
 
-		_channelCallbackClient.removeChannel(rsslReactorChannel);
+		_channelCallbackClient.removeChannel( (ChannelInfo) rsslReactorChannel.userSpecObj());
 	}
 	
 	void processChannelEvent( ReactorChannelEvent reactorChannelEvent){}
