@@ -185,7 +185,7 @@ librsslVA.so.8  : $(librsslVA_objs)
 clean:
 	rm -f $(OUTPUT_DIR)/librsslVAUtil*
 	rm -f $(OUTPUT_DIR)/librsslRDM.*
-	rm -f $(OUTPUT_DIR)/librsslVA.*
+	rm -f $(OUTPUT_DIR)/Shared/librsslVA.*
 	rm -f $(OUTPUT_DIR)/librsslReactor.*
 	rm -rf $(OUTPUT_DIR)/obj
 
