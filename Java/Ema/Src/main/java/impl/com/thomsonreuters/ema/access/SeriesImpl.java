@@ -403,7 +403,7 @@ class SeriesImpl extends CollectionDataImpl implements Series
 
 	Buffer encodedData()
 	{
-		if (_encodeComplete)
+		if (_encodeComplete || (_rsslEncodeIter == null) )
 			return _rsslBuffer; 
 		
 		if (_seriesCollection.isEmpty())
@@ -420,7 +420,15 @@ class SeriesImpl extends CollectionDataImpl implements Series
 	    
 	    SeriesEntryImpl firstEntry = (SeriesEntryImpl)_seriesCollection.get(0);
 	    int entryType = firstEntry._entryDataType;
-		_rsslSeries.containerType(entryType);
+	    
+	    if ( entryType != com.thomsonreuters.upa.codec.DataTypes.UNKNOWN )
+	    {
+	    	_rsslSeries.containerType(entryType);
+	    }
+	    else
+	    {
+	    	_rsslSeries.containerType(Utilities.toRsslDataType(firstEntry.loadType()));
+	    }
 		
 	    while ((ret = _rsslSeries.encodeInit(_rsslEncodeIter, 0, 0)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 	    {

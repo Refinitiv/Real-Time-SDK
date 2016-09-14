@@ -432,7 +432,7 @@ class VectorImpl extends CollectionDataImpl implements Vector
 
 	Buffer encodedData()
 	{
-		if (_encodeComplete)
+		if (_encodeComplete || (_rsslEncodeIter == null))
 			return _rsslBuffer; 
 		
 		if (_vectorCollection.isEmpty())
@@ -449,7 +449,15 @@ class VectorImpl extends CollectionDataImpl implements Vector
 	    
 	    VectorEntryImpl firstEntry = (VectorEntryImpl)_vectorCollection.get(0);
 	    int entryType = firstEntry._entryDataType;
-		_rsslVector.containerType(entryType);
+	    
+	    if ( entryType != com.thomsonreuters.upa.codec.DataTypes.UNKNOWN )
+	    {
+	    	_rsslVector.containerType(entryType);
+	    }
+	    else
+	    {
+	    	_rsslVector.containerType(Utilities.toRsslDataType(firstEntry.loadType()));
+	    }
 
 	    while ((ret = _rsslVector.encodeInit(_rsslEncodeIter, 0, 0)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 	    {

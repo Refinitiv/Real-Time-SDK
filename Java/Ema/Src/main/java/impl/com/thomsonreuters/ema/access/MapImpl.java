@@ -480,7 +480,7 @@ class MapImpl extends CollectionDataImpl implements Map
 	
 	Buffer encodedData()
 	{
-		if (_encodeComplete)
+		if (_encodeComplete || (_rsslEncodeIter == null))
 			return _rsslBuffer; 
 		
 		if (_mapCollection.isEmpty())

@@ -345,8 +345,8 @@ class ElementListImpl extends CollectionDataImpl implements ElementList
 
 	Buffer encodedData()
 	{
-		if (_encodeComplete)
-			return _rsslBuffer;
+		if (_encodeComplete || (_rsslEncodeIter == null) )
+			return _rsslBuffer; 
 		else
 		{
 			_rsslEncodeIter.clear();

@@ -381,7 +381,7 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 	
 	Buffer encodedData() 
 	{
-		if (_encodeComplete)
+		if (_encodeComplete || (_rsslEncodeIter == null) )
 			return _rsslBuffer; 
 		
 		if (!_fieldListCollection.isEmpty())

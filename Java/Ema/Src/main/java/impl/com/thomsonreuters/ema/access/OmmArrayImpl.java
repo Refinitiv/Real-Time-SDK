@@ -22,7 +22,6 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 {
 	private com.thomsonreuters.upa.codec.Array	_rsslArray = com.thomsonreuters.upa.codec.CodecFactory.createArray();
 	private LinkedList<OmmArrayEntry> _ommArrayCollection = new LinkedList<OmmArrayEntry>(); 
-	private com.thomsonreuters.upa.codec.ArrayEntry	_rsslArrayEntry;
 
 	OmmArrayImpl() 
 	{
@@ -349,11 +348,6 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 				
 		clearCollection();
 		
-		if (_rsslArrayEntry == null)
-			_rsslArrayEntry = CodecFactory.createArrayEntry() ;
-		else
-			_rsslArrayEntry.clear();
-		
 		OmmArrayEntryImpl arrayEntry = ommArrayEntryInstance();
 
 		if ( ErrorCode.NO_ERROR != _errorCode)
@@ -367,25 +361,25 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 		}
 		
 		int retCode;
-		while ((retCode  = _rsslArrayEntry.decode(_rsslDecodeIter)) != com.thomsonreuters.upa.codec.CodecReturnCodes.END_OF_CONTAINER)
+		while ((retCode  = arrayEntry._rsslArrayEntry.decode(_rsslDecodeIter)) != com.thomsonreuters.upa.codec.CodecReturnCodes.END_OF_CONTAINER)
 		{
 			switch(retCode)
 			{
 			case com.thomsonreuters.upa.codec.CodecReturnCodes.SUCCESS :
 			load = dataInstance(arrayEntry._load, Utilities.toEmaDataType[_rsslArray.primitiveType()]);
-			load.decode(_rsslArrayEntry.encodedData(),_rsslDecodeIter);
+			load.decode(arrayEntry._rsslArrayEntry.encodedData(),_rsslDecodeIter);
 			break;
 			case com.thomsonreuters.upa.codec.CodecReturnCodes.INCOMPLETE_DATA :
 				load = dataInstance(arrayEntry._load, DataTypes.ERROR);
-				load.decode(_rsslArrayEntry.encodedData(),ErrorCode.INCOMPLETE_DATA);
+				load.decode(arrayEntry._rsslArrayEntry.encodedData(),ErrorCode.INCOMPLETE_DATA);
 				break;
 			case com.thomsonreuters.upa.codec.CodecReturnCodes.UNSUPPORTED_DATA_TYPE :
 				load = dataInstance(arrayEntry._load, DataTypes.ERROR);
-				load.decode(_rsslArrayEntry.encodedData(),ErrorCode.UNSUPPORTED_DATA_TYPE);
+				load.decode(arrayEntry._rsslArrayEntry.encodedData(),ErrorCode.UNSUPPORTED_DATA_TYPE);
 				break;
 			default :
 				load = dataInstance(arrayEntry._load, DataTypes.ERROR);
-				load.decode(_rsslArrayEntry.encodedData(),ErrorCode.UNKNOWN_ERROR);
+				load.decode(arrayEntry._rsslArrayEntry.encodedData(),ErrorCode.UNKNOWN_ERROR);
 				break;
 			}
 			
@@ -393,7 +387,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 			_ommArrayCollection.add(arrayEntry);
 			
 			arrayEntry = ommArrayEntryInstance();
-			_rsslArrayEntry.clear();
+			arrayEntry._rsslArrayEntry.clear();
 		}
 		
 		arrayEntry.returnToPool();
@@ -403,7 +397,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 	
 	Buffer encodedData()
 	{
-		if (_encodeComplete)
+		if (_encodeComplete || (_rsslEncodeIter == null))
 			return _rsslBuffer; 
 		
 		if (_ommArrayCollection.isEmpty())

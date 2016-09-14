@@ -336,7 +336,7 @@ class FilterListImpl extends CollectionDataImpl implements FilterList
 	
 	Buffer encodedData()
 	{
-		if (_encodeComplete)
+		if (_encodeComplete || (_rsslEncodeIter == null) )
 			return _rsslBuffer; 
 		
 		if (_filterListCollection.isEmpty())
