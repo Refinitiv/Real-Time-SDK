@@ -7,7 +7,6 @@
 
 package com.thomsonreuters.ema.access;
 
-import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -500,14 +499,19 @@ class MapImpl extends CollectionDataImpl implements Map
 	    int keyType = firstEntry._keyDataType; 
 	    int entryType = firstEntry._entryDataType;
 		_rsslMap.keyPrimitiveType(keyType);
-		_rsslMap.containerType(entryType);
+				
+		if( firstEntry._entryDataType != com.thomsonreuters.upa.codec.DataTypes.UNKNOWN )
+		{
+			_rsslMap.containerType(entryType);
+		}
+		else
+		{
+			_rsslMap.containerType(Utilities.toRsslDataType(firstEntry.loadType()));
+		}
 	 
-	    ret = _rsslMap.encodeInit(_rsslEncodeIter, 0, 0);
-	    while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+	    while ((ret = _rsslMap.encodeInit(_rsslEncodeIter, 0, 0)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 	    {
-	    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-	    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-	    	ret = _rsslMap.encodeInit(_rsslEncodeIter, 0, 0);
+	    	_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 	    }
 	    
 	    if (ret != CodecReturnCodes.SUCCESS)
@@ -568,119 +572,89 @@ class MapImpl extends CollectionDataImpl implements Map
 	{
 		int ret;
 		if ( cacheKeyData == null )
-			throw ommIUExcept().message("Map entry key to be encoded is empty.");
+		{
+			 while ((ret =  rsslMapEntry.encode(_rsslEncodeIter)) == CodecReturnCodes.BUFFER_TOO_SMALL)
+			    {
+				 	_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
+			    }
+			 return ret;
+		}
 		
 		switch (rsslDataType)
 		{
 		case com.thomsonreuters.upa.codec.DataTypes.INT:
-			ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Int)cacheKeyData);
-			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			 while ((ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Int)cacheKeyData)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 			    {
-			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-			    	ret = rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Int)cacheKeyData);
+				 	_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 			    }
 			 return ret;
 		case com.thomsonreuters.upa.codec.DataTypes.UINT:
-			ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.UInt)cacheKeyData);
-			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			 while ((ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.UInt)cacheKeyData)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 			    {
-			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-			    	ret = rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.UInt)cacheKeyData);
+				 	_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 			    }
 			 return ret;
 		case com.thomsonreuters.upa.codec.DataTypes.REAL:
-			ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Real)cacheKeyData);
-			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			 while ((ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Real)cacheKeyData)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 			    {
-			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-			    	ret = rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Real)cacheKeyData);
+				 _rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 			    }
 			 return ret;
 		case com.thomsonreuters.upa.codec.DataTypes.DOUBLE:
-			ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Double)cacheKeyData);
-			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			 while ((ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Double)cacheKeyData)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 			    {
-			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-			    	ret = rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Double)cacheKeyData);
+				 	_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 			    }
 			 return ret;
 		case com.thomsonreuters.upa.codec.DataTypes.FLOAT:
-			ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Float)cacheKeyData);
-			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			 while ((ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Float)cacheKeyData)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 			    {
-			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-			    	ret = rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Float)cacheKeyData);
+				 	_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 			    }
 			 return ret;
 		case com.thomsonreuters.upa.codec.DataTypes.DATETIME:
-			ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.DateTime)cacheKeyData);
-			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			 while ((ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.DateTime)cacheKeyData)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 			    {
-			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-			    	ret = rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.DateTime)cacheKeyData);
+				 	_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 			    }
 			 return ret;
 		case com.thomsonreuters.upa.codec.DataTypes.DATE:
-			ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Date)cacheKeyData);
-			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			 while ((ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Date)cacheKeyData)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 			    {
-			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-			    	ret = rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Date)cacheKeyData);
+				 	_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 			    }
 			 return ret;
 		case com.thomsonreuters.upa.codec.DataTypes.TIME:
-			ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Time)cacheKeyData);
-			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			 while ((ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Time)cacheKeyData)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 			    {
-			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-			    	ret = rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Time)cacheKeyData);
+				 	_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 			    }
 			 return ret;
 		case com.thomsonreuters.upa.codec.DataTypes.QOS:
-			ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Qos)cacheKeyData);
-			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			 while ((ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Qos)cacheKeyData)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 			    {
-			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-			    	ret = rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Qos)cacheKeyData);
+				 	_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 			    }
 			 return ret;
 		case com.thomsonreuters.upa.codec.DataTypes.STATE:
-			ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.State)cacheKeyData);
-			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			 while ((ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.State)cacheKeyData)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 			    {
-			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-			    	ret = rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.State)cacheKeyData);
+				 	_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 			    }
 			 return ret;
 		case com.thomsonreuters.upa.codec.DataTypes.ENUM:
-			ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Enum)cacheKeyData);
-			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			 while ((ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Enum)cacheKeyData)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 			    {
-			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-			    	ret = rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Enum)cacheKeyData);
+				 	_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 			    }
 			 return ret;
 		case com.thomsonreuters.upa.codec.DataTypes.BUFFER:
 		case com.thomsonreuters.upa.codec.DataTypes.UTF8_STRING:
 		case com.thomsonreuters.upa.codec.DataTypes.ASCII_STRING:
 		case com.thomsonreuters.upa.codec.DataTypes.RMTES_STRING:
-			ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Buffer)cacheKeyData);
-			 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			 while ((ret =  rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Buffer)cacheKeyData)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 			    {
-			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-			    	ret = rsslMapEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Buffer)cacheKeyData);
+				 	_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 			    }
 			 return ret;
 		 default:
@@ -698,6 +672,8 @@ class MapImpl extends CollectionDataImpl implements Map
         }
         else
         	retData._rsslMapEntry.clear();
+        
+        retData._keyDataType = _rsslMap.keyPrimitiveType();
         
         return retData;
 	}

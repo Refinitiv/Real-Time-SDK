@@ -46,6 +46,7 @@ class MsgImpl extends DataImpl implements Msg
 	protected boolean _encodeComplete;
 	protected int  _errorCode = ErrorCode.NO_ERROR;
 	protected StringBuilder _errorString;
+	private ByteBuffer _extendedHeader;
 	
 	MsgImpl(int dataType, EmaObjectManager objManager)
 	{
@@ -848,12 +849,9 @@ class MsgImpl extends DataImpl implements Msg
 	    	throw ommIUExcept().message(errText);
 	    }
 	    
-		ret = _rsslMsg.encode(_rsslEncodeIter);
-		 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+		 while ((ret = _rsslMsg.encode(_rsslEncodeIter)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 		  {
-		    _rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-		    _rsslEncodeIter.realignBuffer(_rsslBuffer);
-		    ret = _rsslMsg.encode(_rsslEncodeIter);
+			 _rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 		  }
 		    
 		 if (ret != CodecReturnCodes.SUCCESS)

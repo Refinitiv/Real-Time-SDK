@@ -7,7 +7,6 @@
 
 package com.thomsonreuters.ema.access;
 
-import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -423,12 +422,9 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 	    int primitiveType = firstEntry._entryDataType; 
 		_rsslArray.primitiveType(primitiveType);
 		
-	    ret = _rsslArray.encodeInit(_rsslEncodeIter);
-	    while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+	    while ((ret = _rsslArray.encodeInit(_rsslEncodeIter)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 	    {
-	    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-	    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-	    	ret = _rsslArray.encodeInit(_rsslEncodeIter);
+	    	_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 	    }
 	    
 	    if (ret != CodecReturnCodes.SUCCESS)
@@ -483,12 +479,9 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 		int ret;
 		if ( value == null )
 		{
-			ret = rsslArrayEntry.encode(_rsslEncodeIter); //could be blank
-			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			while ((ret = rsslArrayEntry.encode(_rsslEncodeIter)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 		    {
-		    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-		    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-		    	ret = rsslArrayEntry.encode(_rsslEncodeIter);
+				_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 		    }
 			return ret;
 		}
@@ -533,12 +526,9 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 						 throw ommIUExcept().message(errText);
 					}
 			}
-			ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.UInt)value);
-			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			while ((ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.UInt)value)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 		    {
-		    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-		    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-		    	ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.UInt)value);
+				_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 		    }
 			return ret;
 		case com.thomsonreuters.upa.codec.DataTypes.INT:
@@ -579,12 +569,9 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 					 throw ommIUExcept().message(errText);
 				}
 			}
-			ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Int)value);
-			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			while ((ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Int)value)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 		    {
-		    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-		    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-		    	ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Int)value);
+				_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 		    }
 			return ret;
 		case com.thomsonreuters.upa.codec.DataTypes.ENUM:
@@ -616,12 +603,9 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 					 throw ommIUExcept().message(errText);
 				}
 			}
-			ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Enum)value);
-			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			while ((ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Enum)value)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 		    {
-		    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-		    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-		    	ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Enum)value);
+				_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 		    }
 			return ret;
 		case com.thomsonreuters.upa.codec.DataTypes.REAL:
@@ -631,12 +615,9 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 				.append( fixedItemLength ).append( "'. " ).toString();
 				 throw ommIUExcept().message(errText);
 			}
-			ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Real)value);
-			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			while ((ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Real)value)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 		    {
-		    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-		    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-		    	ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Real)value);
+				_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 		    }
 			return ret;
 		case com.thomsonreuters.upa.codec.DataTypes.FLOAT:
@@ -646,12 +627,9 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 				.append( fixedItemLength ).append( "'. " ).toString();
 				 throw ommIUExcept().message(errText);
 			}
-			ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Float)value);
-			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			while ((ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Float)value)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 		    {
-		    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-		    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-		    	ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Float)value);
+				_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 		    }
 			return ret;
 		case com.thomsonreuters.upa.codec.DataTypes.DOUBLE:
@@ -661,12 +639,9 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 				.append( fixedItemLength ).append( "'. " ).toString();
 				 throw ommIUExcept().message(errText);
 			}
-			ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Double)value);
-			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			while ((ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Double)value)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 		    {
-		    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-		    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-		    	ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Double)value);
+				_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 		    }
 			return ret;
 		case com.thomsonreuters.upa.codec.DataTypes.DATE:
@@ -676,23 +651,17 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 				.append( fixedItemLength ).append( "'. " ).toString();
 				 throw ommIUExcept().message(errText);
 			}
-			ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Date)value);
-			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			while ((ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Date)value)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 		    {
-		    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-		    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-		    	ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Date)value);
+				_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 		    }
 			return ret;
 		case com.thomsonreuters.upa.codec.DataTypes.TIME:
 			if ( fixedItemLength == 0 || fixedItemLength == 5 || (fixedItemLength == 3 && ((com.thomsonreuters.upa.codec.Time)value).millisecond() == 0)  )
 			{
-				ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Time)value);
-				while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+				while ((ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Time)value)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 			    {
-			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-			    	ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Time)value);
+					_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 			    }
 				return ret;
 			}
@@ -705,12 +674,9 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 		case com.thomsonreuters.upa.codec.DataTypes.DATETIME :
 			if ( fixedItemLength == 0 || fixedItemLength == 9 || (fixedItemLength == 7 && ((com.thomsonreuters.upa.codec.DateTime)value).millisecond() == 0)  )
 			{
-				ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.DateTime)value);
-				while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+				while ((ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.DateTime)value)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 			    {
-			    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-			    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-			    	ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.DateTime)value);
+					_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 			    }
 				return ret;
 			}
@@ -727,12 +693,9 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 				.append( fixedItemLength ).append( "'. " ).toString();
 				 throw ommIUExcept().message(errText);
 			}
-			ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Qos)value);
-			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			while ((ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Qos)value)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 		    {
-		    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-		    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-		    	ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Qos)value);
+				_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 		    }
 			return ret;
 		case com.thomsonreuters.upa.codec.DataTypes.STATE:
@@ -742,12 +705,9 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 				.append( fixedItemLength ).append( "'. " ).toString();
 				 throw ommIUExcept().message(errText);
 			}
-			ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.State)value);
-			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			while ((ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.State)value)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 		    {
-		    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-		    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-		    	ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.State)value);
+				_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 		    }
 			return ret;
 		case com.thomsonreuters.upa.codec.DataTypes.BUFFER:
@@ -760,12 +720,9 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 				.append( fixedItemLength ).append( "'. " ).toString();
 				 throw ommIUExcept().message(errText);
 			}
-			ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Buffer)value);
-			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			while ((ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Buffer)value)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 		    {
-		    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-		    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-		    	ret = rsslArrayEntry.encode(_rsslEncodeIter, (com.thomsonreuters.upa.codec.Buffer)value);
+				_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 		    }
 			return ret;
 		default:
@@ -782,9 +739,15 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 		OmmArrayEntryImpl retData = (OmmArrayEntryImpl)_objManager._arrayEntryPool.poll();
         if(retData == null)
         {
-        	retData = new OmmArrayEntryImpl(noDataInstance());
+        	retData = new OmmArrayEntryImpl(com.thomsonreuters.upa.codec.CodecFactory.createArrayEntry(), noDataInstance());
         	_objManager._arrayEntryPool.updatePool(retData);
         }
+        else
+        {
+        	retData._rsslArrayEntry.clear();
+        }
+        
+        retData._entryDataType = _rsslArray.primitiveType();
         
         return retData;
 	}

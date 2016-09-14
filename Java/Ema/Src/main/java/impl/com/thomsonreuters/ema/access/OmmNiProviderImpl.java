@@ -2430,8 +2430,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 			{	
 				while( ( retCode = outMapEntry.encode(encodeIt, _deletedServicesNameAndIdTable.get(serviceName)) ) == CodecReturnCodes.BUFFER_TOO_SMALL )
 				{
-					outputBuffer.data(ByteBuffer.allocate(outputBuffer.capacity()*2));
-					encodeIt.realignBuffer(outputBuffer);
+					 outputBuffer = Utilities.realignBuffer(encodeIt, outputBuffer.capacity() * 2);
 				}
 				
 				if ( retCode != CodecReturnCodes.SUCCESS )
@@ -2454,8 +2453,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 				
 				while( ( retCode = outMapEntry.encodeInit(encodeIt, serviceIdUInt, 0) ) == CodecReturnCodes.BUFFER_TOO_SMALL )
 				{
-					outputBuffer.data(ByteBuffer.allocate(outputBuffer.capacity()*2));
-					encodeIt.realignBuffer(outputBuffer);
+					outputBuffer = Utilities.realignBuffer(encodeIt, outputBuffer.capacity() * 2);
 				}
 				
 				if ( retCode != CodecReturnCodes.SUCCESS )
@@ -2467,8 +2465,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 				
 				while ( ( retCode = outFilterList.encodeInit(encodeIt)) == CodecReturnCodes.BUFFER_TOO_SMALL )
 				{
-					outputBuffer.data(ByteBuffer.allocate(outputBuffer.capacity()*2));
-					encodeIt.realignBuffer(outputBuffer);
+					outputBuffer = Utilities.realignBuffer(encodeIt, outputBuffer.capacity() * 2);
 				}
 				
 				if ( retCode != CodecReturnCodes.SUCCESS )
@@ -2507,8 +2504,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 						
 						while( ( retCode = outFilterEntry.encodeInit(encodeIt, 0) ) == CodecReturnCodes.BUFFER_TOO_SMALL )
 						{
-							outputBuffer.data(ByteBuffer.allocate(outputBuffer.capacity()*2));
-							encodeIt.realignBuffer(outputBuffer);
+							outputBuffer = Utilities.realignBuffer(encodeIt, outputBuffer.capacity() * 2);
 						}
 						
 						if ( retCode != CodecReturnCodes.SUCCESS )
@@ -2537,8 +2533,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 						
 						while ( ( retCode = outElementList.encodeInit(encodeIt, null, 0) ) == CodecReturnCodes.BUFFER_TOO_SMALL )
 						{
-							outputBuffer.data(ByteBuffer.allocate(outputBuffer.capacity()*2));
-							encodeIt.realignBuffer(outputBuffer);
+							outputBuffer = Utilities.realignBuffer(encodeIt, outputBuffer.capacity() * 2);
 						}
 						
 						if ( retCode != CodecReturnCodes.SUCCESS )
@@ -2554,8 +2549,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 						
 						while ( ( retCode = outElementEntry.encode(encodeIt,serviceNameBuffer)) == CodecReturnCodes.BUFFER_TOO_SMALL )
 						{
-							outputBuffer.data(ByteBuffer.allocate(outputBuffer.capacity()*2));
-							encodeIt.realignBuffer(outputBuffer);
+							outputBuffer = Utilities.realignBuffer(encodeIt, outputBuffer.capacity() * 2);
 						}
 						
 						if ( retCode != CodecReturnCodes.SUCCESS )
@@ -2575,8 +2569,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 								
 								while ( ( retCode = outElementEntry.encode(encodeIt)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 								{	
-									outputBuffer.data(ByteBuffer.allocate(outputBuffer.capacity()*2));
-									encodeIt.realignBuffer(outputBuffer);
+									outputBuffer = Utilities.realignBuffer(encodeIt, outputBuffer.capacity() * 2);
 								}
 								
 								if ( retCode != CodecReturnCodes.SUCCESS)
@@ -2599,8 +2592,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 						
 						while ( ( retCode = outFilterEntry.encode(encodeIt) ) == CodecReturnCodes.BUFFER_TOO_SMALL )
 						{
-							outputBuffer.data(ByteBuffer.allocate(outputBuffer.capacity()*2));
-							encodeIt.realignBuffer(outputBuffer);
+							outputBuffer = Utilities.realignBuffer(encodeIt, outputBuffer.capacity() * 2);
 						}
 						
 						if ( retCode != CodecReturnCodes.SUCCESS )
@@ -2653,8 +2645,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 		
 		while ( ( retCode = directoryRefresh.encode(encodeIt) ) == CodecReturnCodes.BUFFER_TOO_SMALL )
 		{
-			encodedBuffer.data(ByteBuffer.allocate(encodedBuffer.capacity()*2));
-			encodeIt.realignBuffer(encodedBuffer);
+			encodedBuffer = Utilities.realignBuffer(encodeIt, encodedBuffer.capacity() * 2);
 		}
 		
 		if ( retCode != CodecReturnCodes.SUCCESS )
