@@ -762,6 +762,13 @@ public class ReactorChannel extends VaNode
             {
                 return ReactorReturnCodes.FAILURE;                
             }
+
+            if (options.name() != null && options.name().length() > 255)
+            {
+                return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                                                  "ReactorChannel.openTunnelStream",
+                                                  "TunnelStream name is too long.");
+            }
             
             
             WlInteger wlInteger = ReactorFactory.createWlInteger();

@@ -199,7 +199,7 @@ class TunnelStreamHandler implements TunnelStreamListenerCallback, TunnelStreamS
             _loginRefresh.attrib().applyHasSingleOpen();
             _loginRefresh.attrib().singleOpen(0); 
             
-            TransportBuffer buffer = _tunnelStream.getBuffer(256, event.errorInfo());
+            TransportBuffer buffer = _tunnelStream.getBuffer(1024, event.errorInfo());
             if (buffer == null)
             {
                 System.out.println("defaultMsgCallback failed: Unable to get a buffer from TunnelStream <" + event.errorInfo().error().text() + ">");
@@ -218,7 +218,7 @@ class TunnelStreamHandler implements TunnelStreamListenerCallback, TunnelStreamS
             ret = _loginRefresh.encode(_encodeIter);
             if (ret != CodecReturnCodes.SUCCESS)
             {
-                event.errorInfo().error().text("LoginRefresh.encode() failed with return code: " + CodecReturnCodes.toString(ret));
+                System.out.println("LoginRefresh.encode() failed with return code: " + CodecReturnCodes.toString(ret));
                 return ReactorCallbackReturnCodes.SUCCESS;
             }
 
