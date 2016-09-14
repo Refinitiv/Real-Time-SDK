@@ -21,16 +21,16 @@ rsslVA:
 	$(LNCMD) ../../Elektron-SDK-BinaryPack/Cpp-C/Eta/Libs ../
 	$(LNCMD) ../../../../Elektron-SDK-BinaryPack/Cpp-C/Eta/Utils/Dacs/Libs ../Utils/Dacs/
 	$(LNCMD) ../../../../Elektron-SDK-BinaryPack/Cpp-C/Eta/Utils/Ansi/Libs ../Utils/Ansi/
-	make -f makefileVA
+	gmake -f makefileVA
 
 stubs:
-	make -f makefileStubs
+	gmake -f makefileStubs
 	
 clean:
-	make -f makefileVA clean
+	gmake -f makefileVA clean
 	
 cleanstubs:
-	make -f makefileStubs clean
+	gmake -f makefileStubs clean
 	
 all:
-	make rsslVA
+	gmake rsslVA
