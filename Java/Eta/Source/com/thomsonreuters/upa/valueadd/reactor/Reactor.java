@@ -1372,7 +1372,7 @@ public class Reactor
                 int msgCount = 0;
                 int retval = 1;
                 
-                while (msgCount < maxMessages && retval > 0)
+                while (reactorChannel.state() != ReactorChannel.State.CLOSED && msgCount < maxMessages && retval > 0)
                 {
                     msgCount++;
                     if ((retval = performChannelRead(reactorChannel, dispatchOptions.readArgs(),
@@ -3143,7 +3143,7 @@ public class Reactor
 			                	// retrieve associated reactor channel and read on that channel 
 			                    ReactorChannel reactorChnl = (ReactorChannel)key.attachment();
 
-			                    while (msgCount < maxMessages && retval > 0)
+			                    while (reactorChnl.state() != ReactorChannel.State.CLOSED && msgCount < maxMessages && retval > 0)
 			                    {
 			                        msgCount++;
 			                        if ((retval = performChannelRead(reactorChnl, dispatchOptions.readArgs(),

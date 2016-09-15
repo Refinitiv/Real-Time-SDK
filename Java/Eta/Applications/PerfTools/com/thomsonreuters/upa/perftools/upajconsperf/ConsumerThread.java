@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.ByteBuffer;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
@@ -19,13 +20,16 @@ import com.thomsonreuters.upa.codec.DataStates;
 import com.thomsonreuters.upa.codec.DataTypes;
 import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.EncodeIterator;
+import com.thomsonreuters.upa.codec.GenericMsg;
 import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.codec.MsgKey;
+import com.thomsonreuters.upa.codec.PostMsg;
 import com.thomsonreuters.upa.codec.PostUserInfo;
 import com.thomsonreuters.upa.codec.Qos;
 import com.thomsonreuters.upa.codec.RefreshMsg;
 import com.thomsonreuters.upa.codec.RequestMsg;
+import com.thomsonreuters.upa.codec.State;
 import com.thomsonreuters.upa.codec.StatusMsg;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.perftools.common.ConsumerLoginState;
@@ -40,6 +44,7 @@ import com.thomsonreuters.upa.perftools.common.LatencyRandomArrayOptions;
 import com.thomsonreuters.upa.perftools.common.LoginHandler;
 import com.thomsonreuters.upa.perftools.common.MarketPriceItem;
 import com.thomsonreuters.upa.perftools.common.PerfToolsReturnCodes;
+import com.thomsonreuters.upa.perftools.common.ProviderPerfConfig;
 import com.thomsonreuters.upa.perftools.common.ResponseCallback;
 import com.thomsonreuters.upa.perftools.common.ShutdownCallback;
 import com.thomsonreuters.upa.perftools.common.XmlItemInfoList;
@@ -63,13 +68,40 @@ import com.thomsonreuters.upa.transport.TransportReturnCodes;
 import com.thomsonreuters.upa.transport.WriteArgs;
 import com.thomsonreuters.upa.transport.WriteFlags;
 import com.thomsonreuters.upa.transport.WritePriorities;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsg;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsg;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
+import com.thomsonreuters.upa.valueadd.reactor.ConsumerCallback;
+import com.thomsonreuters.upa.valueadd.reactor.ConsumerRole;
+import com.thomsonreuters.upa.valueadd.reactor.DictionaryDownloadModes;
+import com.thomsonreuters.upa.valueadd.reactor.RDMDictionaryMsgEvent;
+import com.thomsonreuters.upa.valueadd.reactor.RDMDirectoryMsgEvent;
+import com.thomsonreuters.upa.valueadd.reactor.RDMLoginMsgEvent;
+import com.thomsonreuters.upa.valueadd.reactor.Reactor;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorCallbackReturnCodes;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEvent;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEventTypes;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelInfo;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorConnectInfo;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorConnectOptions;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorDispatchOptions;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorMsgEvent;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorOptions;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
 
 /** Provides the logic that consumer connections use in upajConsPerf for
   * connecting to a provider, requesting items, and processing the received
   * refreshes and updates.
   */
-public class ConsumerThread implements Runnable, ResponseCallback
+public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallback
 {
     private static final int CONNECTION_RETRY_TIME = 1; // seconds
     private static final int ITEM_STREAM_ID_START = 6;
@@ -79,32 +111,33 @@ public class ConsumerThread implements Runnable, ResponseCallback
     public static int TRANSPORT_BUFFER_SIZE_REQUEST = MAX_MSG_SIZE;
     public static int TRANSPORT_BUFFER_SIZE_CLOSE = MAX_MSG_SIZE;
 
-    protected ConsumerThreadInfo _consThreadInfo; /* thread information */
-    protected ConsPerfConfig _consPerfConfig; /* configuration information */
-    protected EncodeIterator _eIter; /* encode iterator */
-    protected DecodeIterator _dIter; /* decode iterator */
+    private ConsumerThreadInfo _consThreadInfo; /* thread information */
+    private ConsPerfConfig _consPerfConfig; /* configuration information */
+    private EncodeIterator _eIter; /* encode iterator */
+    private DecodeIterator _dIter; /* decode iterator */
     private WriteArgs _writeArgs = TransportFactory.createWriteArgs();
     private ReadArgs _readArgs = TransportFactory.createReadArgs();
     private Msg _responseMsg; /* response message */
     private LoginHandler _loginHandler; /* login handler */
     private DirectoryHandler _srcDirHandler; /* source directory handler */ 
-    protected DictionaryHandler _dictionaryHandler; /* dictionary handler */
+    private DictionaryHandler _dictionaryHandler; /* dictionary handler */
     private PingHandler _pingHandler; /* ping handler */
     private MarketPriceDecoder _marketPriceDecoder; /* market price decoder */
     private InProgInfo _inProg; /* connection in progress information */
-    protected Error _error; /* error structure */
+    private Error _error; /* error structure */
     private XmlItemInfoList _itemInfoList; /* item information list from XML file */
     private XmlMsgData _msgData; /* message data information from XML file */
     private ItemRequest[] _itemRequestList; /* item request list */
     private int _postItemCount; /* number of items in _itemRequestList that are posting items */
     private int _genMsgItemCount; /* number of items in _itemRequestList that are for sending generic msgs on items */
     private RequestMsg _requestMsg; /* request message */
-    protected PostUserInfo _postUserInfo; /* post user information */
-    protected boolean _requestsSent; /* indicates if requested service is up */
-    protected long _nsecPerTick; /* nanoseconds per tick */
+    private PostUserInfo _postUserInfo; /* post user information */
+    private boolean _requestsSent; /* indicates if requested service is up */
+    private long _nsecPerTick; /* nanoseconds per tick */
+    private long _millisPerTick; /* milliseconds per tick */
     private int _requestListSize; /* request list size */
     private int _requestListIndex; /* current request list index */
-    protected ShutdownCallback _shutdownCallback; /* shutdown callback to main application */
+    private ShutdownCallback _shutdownCallback; /* shutdown callback to main application */
     private ConnectOptions _connectOpts; /* connection options */
     private ChannelInfo _chnlInfo; /* channel information */
     private boolean _haveMarketPricePostItems; /* indicates there are post items in the item list */
@@ -114,17 +147,33 @@ public class ConsumerThread implements Runnable, ResponseCallback
     private long _genMsgsPerTick; /* gen msgs per tick */
     private long _genMsgsPerTickRemainder; /* gen msgs per tick remainder */
     private LatencyRandomArrayOptions _randomArrayOpts; /* random array options */
-    protected LatencyRandomArray _postLatencyRandomArray; /* post random latency array */
+    private LatencyRandomArray _postLatencyRandomArray; /* post random latency array */
     private int _postItemIndex; /* current post item index */
-    protected LatencyRandomArray _genMsgLatencyRandomArray; /* generic msg random latency array */
+    private LatencyRandomArray _genMsgLatencyRandomArray; /* generic msg random latency array */
     private int _genMsgItemIndex; /* current generic msg item index */
-    protected ItemEncoder _itemEncoder; /* item encoder */
+    private ItemEncoder _itemEncoder; /* item encoder */
     private MarketPriceItem _mpItem; /* market price item */
     private MsgKey _msgKey; /* message key */
     private ItemInfo _itemInfo; /* item information */
     private int _JVMPrimingRefreshCount; /* used to determine when JVM priming is complete */
     private Channel _channel;
     private Selector _selector;
+    
+    private Reactor _reactor; // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    private ReactorOptions _reactorOptions; // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    private ConsumerRole _role; // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    private ReactorErrorInfo _errorInfo; // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    private ReactorConnectOptions _connectOptions; // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    private ReactorDispatchOptions _dispatchOptions; // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    private ReactorSubmitOptions _submitOptions; // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    private Service _service; // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    private ReactorConnectInfo _connectInfo;  // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    private ReactorChannelInfo _reactorChannnelInfo;  // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    private ReactorChannel _reactorChannel; // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    private PostMsg _postMsg; // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    private Buffer _postBuffer; // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    private GenericMsg _genericMsg; // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    private Buffer _genericBuffer; // Use the VA Reactor instead of the UPA Channel for sending and receiving
 
     {
     	_eIter = CodecFactory.createEncodeIterator();
@@ -166,10 +215,26 @@ public class ConsumerThread implements Runnable, ResponseCallback
 		_msgData = msgData;
 		_itemEncoder = new ItemEncoder(msgData);
 		_marketPriceDecoder = new MarketPriceDecoder(_postUserInfo);
+        
+        _reactorOptions = ReactorFactory.createReactorOptions();
+        _role = ReactorFactory.createConsumerRole();
+        _errorInfo = ReactorFactory.createReactorErrorInfo();
+        _connectOptions = ReactorFactory.createReactorConnectOptions();
+        _dispatchOptions = ReactorFactory.createReactorDispatchOptions();
+        _submitOptions = ReactorFactory.createReactorSubmitOptions();
+        _connectInfo = ReactorFactory.createReactorConnectInfo();
+        _reactorChannnelInfo = ReactorFactory.createReactorChannelInfo();
+        _service = DirectoryMsgFactory.createService();
+        _postMsg = (PostMsg)CodecFactory.createMsg();
+        _postBuffer = CodecFactory.createBuffer();
+        _postBuffer.data(ByteBuffer.allocate(512));
+        _genericMsg = (GenericMsg)CodecFactory.createMsg();
+        _genericBuffer = CodecFactory.createBuffer();
+        _genericBuffer.data(ByteBuffer.allocate(512));
 	}
 
 	/* Initializes consumer thread. */
-	protected void initialize()
+	private void initialize()
 	{
 		// create latency log file writer for this thread 
 		if (_consPerfConfig.logLatencyToFile())
@@ -236,8 +301,9 @@ public class ConsumerThread implements Runnable, ResponseCallback
     	// populate item information from the XML list. 
     	populateItemInfo();
     			
-		// initialize time tracking parameters 
-		_nsecPerTick = 1000000000 / _consPerfConfig.ticksPerSec();
+		// initialize time tracking parameters
+    	_nsecPerTick = 1000000000 / _consPerfConfig.ticksPerSec();
+		_millisPerTick = 1000 / _consPerfConfig.ticksPerSec();
 		_postsPerTick = _consPerfConfig.postsPerSec() / _consPerfConfig.ticksPerSec();
 		_postsPerTickRemainder = _consPerfConfig.postsPerSec() % _consPerfConfig.ticksPerSec();
 		_genMsgsPerTick = _consPerfConfig.genMsgsPerSec() / _consPerfConfig.ticksPerSec();
@@ -251,109 +317,187 @@ public class ConsumerThread implements Runnable, ResponseCallback
 	}
 	
 	/* Connect and wait until connection is active */
-    protected void connect()
+    private void connect()
     {
-        // Initialize Transport
-        InitArgs initArgs = TransportFactory.createInitArgs();
-        initArgs.globalLocking(_consPerfConfig.threadCount() > 1 ? true : false);
-        if (Transport.initialize(initArgs, _error) != TransportReturnCodes.SUCCESS)
+        ConnectOptions connectOptions;
+        
+        // open selector
+        try
         {
-    		System.out.println("Transport.initialize failed ");
-    		System.exit(-1);
+            _selector = Selector.open();
+        }
+        catch (Exception exception)
+        {
+            System.out.println("selector open failure");
+            System.exit(-1);
         }
         
-		/* set connect options  */
-        _connectOpts.majorVersion(Codec.majorVersion());
-        _connectOpts.minorVersion(Codec.minorVersion());        
-		_connectOpts.connectionType(_consPerfConfig.connectionType());
-		_connectOpts.guaranteedOutputBuffers(_consPerfConfig.guaranteedOutputBuffers());
-		_connectOpts.numInputBuffers(_consPerfConfig.numInputBuffers());
-		if (_consPerfConfig.sendBufSize() > 0)
-		{
-			_connectOpts.sysSendBufSize(_consPerfConfig.sendBufSize());
-		}
-		if (_consPerfConfig.recvBufSize() > 0)
-		{
-			_connectOpts.sysRecvBufSize(_consPerfConfig.recvBufSize());
-		}
-		if(_consPerfConfig.connectionType() == ConnectionTypes.SOCKET)
-		{
-			_connectOpts.tcpOpts().tcpNoDelay(_consPerfConfig.tcpNoDelay());
-		}
-        // set the connection parameters on the connect options 
-		_connectOpts.unifiedNetworkInfo().address(_consPerfConfig.hostName());
-		_connectOpts.unifiedNetworkInfo().serviceName(_consPerfConfig.portNo());
-		_connectOpts.unifiedNetworkInfo().interfaceName(_consPerfConfig.interfaceName());
-		
-    	// Connection recovery loop. It will try to connect until successful
-        System.out.println("Starting connection...");
-        int handshake;
-        while (!_consThreadInfo.shutdown())
+        if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use UPA Channel for sending and receiving
         {
-            _channel = Transport.connect(_connectOpts, _error);
-            if (_channel == null)
+            connectOptions = _connectOpts;
+        }
+        else // use UPA VA Reactor for sending and receiving
+        {
+            connectOptions =  _connectInfo.connectOptions();
+        }
+        
+        /* set connect options  */
+        connectOptions.majorVersion(Codec.majorVersion());
+        connectOptions.minorVersion(Codec.minorVersion());        
+        connectOptions.connectionType(_consPerfConfig.connectionType());
+        connectOptions.guaranteedOutputBuffers(_consPerfConfig.guaranteedOutputBuffers());
+        connectOptions.numInputBuffers(_consPerfConfig.numInputBuffers());
+        if (_consPerfConfig.sendBufSize() > 0)
+        {
+            connectOptions.sysSendBufSize(_consPerfConfig.sendBufSize());
+        }
+        if (_consPerfConfig.recvBufSize() > 0)
+        {
+            connectOptions.sysRecvBufSize(_consPerfConfig.recvBufSize());
+        }
+        if(_consPerfConfig.connectionType() == ConnectionTypes.SOCKET)
+        {
+            connectOptions.tcpOpts().tcpNoDelay(_consPerfConfig.tcpNoDelay());
+        }
+        // set the connection parameters on the connect options 
+        connectOptions.unifiedNetworkInfo().address(_consPerfConfig.hostName());
+        connectOptions.unifiedNetworkInfo().serviceName(_consPerfConfig.portNo());
+        connectOptions.unifiedNetworkInfo().interfaceName(_consPerfConfig.interfaceName());
+
+        if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use UPA Channel for sending and receiving
+        {
+            // Initialize Transport
+            InitArgs initArgs = TransportFactory.createInitArgs();
+            initArgs.globalLocking(_consPerfConfig.threadCount() > 1 ? true : false);
+            if (Transport.initialize(initArgs, _error) != TransportReturnCodes.SUCCESS)
             {
-                System.err.println("Error: Transport connect failure: " + _error.text());
-                System.exit(-1);
+        		System.out.println("Transport.initialize failed ");
+        		System.exit(-1);
             }
-            
-            while ((handshake = _channel.init(_inProg, _error)) != TransportReturnCodes.SUCCESS)
+            		
+        	// Connection recovery loop. It will try to connect until successful
+            System.out.println("Starting connection...");
+            int handshake;
+            while (!_consThreadInfo.shutdown())
             {
-            	if (handshake == TransportReturnCodes.FAILURE)
-            		break;
-            	
-            	try
+                _channel = Transport.connect(connectOptions, _error);
+                if (_channel == null)
+                {
+                    System.err.println("Error: Transport connect failure: " + _error.text());
+                    System.exit(-1);
+                }
+                
+                while ((handshake = _channel.init(_inProg, _error)) != TransportReturnCodes.SUCCESS)
+                {
+                	if (handshake == TransportReturnCodes.FAILURE)
+                		break;
+                	
+                	try
+                	{
+                		Thread.sleep(1000);
+                	}
+                	catch(Exception e)
+                	{
+                		System.out.println("Thread.sleep failed ");
+                		System.exit(-1);
+                	}
+                }
+                if (handshake == TransportReturnCodes.SUCCESS)
+                	break;
+                
+                System.out.println("Connection failure: " + _error.text() + ". Will retry shortly.");
+                try
             	{
-            		Thread.sleep(1000);
+            		Thread.sleep(CONNECTION_RETRY_TIME * 1000);
             	}
             	catch(Exception e)
             	{
             		System.out.println("Thread.sleep failed ");
             		System.exit(-1);
             	}
+            }        
+            if (!_consThreadInfo.shutdown())
+            {
+            	_consThreadInfo.channel(_channel);
+                System.out.println("Connected ");
+        
+                // set the high water mark if configured
+            	if (_consPerfConfig.highWaterMark() > 0)
+            	{
+            		if (_channel.ioctl(IoctlCodes.HIGH_WATER_MARK, _consPerfConfig.highWaterMark(), _error) != TransportReturnCodes.SUCCESS)
+            		{
+            			closeChannelAndShutDown("Channel.ioctl() failed");
+                    	return;
+            		}
+            	}
+        
+            	// register selector for read
+            	addOption(SelectionKey.OP_READ, _channel);
             }
-            if (handshake == TransportReturnCodes.SUCCESS)
-            	break;
+        }
+        else // use UPA VA Reactor for sending and receiving
+        {
+            // initialize Reactor
+            _reactor = ReactorFactory.createReactor(_reactorOptions, _errorInfo);
+            if (_errorInfo.code() != ReactorReturnCodes.SUCCESS)
+            {
+                System.out.println("createReactor() failed: " + _errorInfo.toString());
+                System.exit(ReactorReturnCodes.FAILURE);            
+            }
             
-            System.out.println("Connection failure: " + _error.text() + ". Will retry shortly.");
+            // register selector with reactor's reactorChannel.
             try
-        	{
-        		Thread.sleep(CONNECTION_RETRY_TIME * 1000);
-        	}
-        	catch(Exception e)
-        	{
-        		System.out.println("Thread.sleep failed ");
-        		System.exit(-1);
-        	}
-        }        
-        if (!_consThreadInfo.shutdown())
-        {
-    	_consThreadInfo.channel(_channel);
-        System.out.println("Connected ");
-
-        // set the high water mark if configured
-    	if (_consPerfConfig.highWaterMark() > 0)
-    	{
-    		if (_channel.ioctl(IoctlCodes.HIGH_WATER_MARK, _consPerfConfig.highWaterMark(), _error) != TransportReturnCodes.SUCCESS)
-    		{
-    			closeChannelAndShutDown("Channel.ioctl() failed");
-            	return;
-    		}
-    	}
-
-    	try
-        {
-            _selector = Selector.open();
+            {
+                _reactor.reactorChannel().selectableChannel().register(_selector,
+                                                                    SelectionKey.OP_READ,
+                                                                    _reactor.reactorChannel());
+            }
+            catch (ClosedChannelException e)
+            {
+                System.out.println("selector register failed: " + e.getLocalizedMessage());
+                System.exit(ReactorReturnCodes.FAILURE);
+            }
+            
+            _connectOptions.connectionList().add(_connectInfo);
+            
+            // set consumer role information
+            _role.channelEventCallback(this);
+            _role.defaultMsgCallback(this);
+            _role.loginMsgCallback(this);
+            _role.directoryMsgCallback(this);
+            _role.dictionaryMsgCallback(this);
+            if (!isDictionariesLoaded())
+            {
+                _role.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
+            }
+            _role.initDefaultRDMLoginRequest();
+            // set login parameters
+            _role.rdmLoginRequest().applyHasAttrib();
+            _role.rdmLoginRequest().attrib().applyHasApplicationName();
+            _role.rdmLoginRequest().attrib().applicationName().data("upajConsPerf");
+            if (_consPerfConfig.username() != null && !_consPerfConfig.username().equals(""))
+            {
+                _role.rdmLoginRequest().userName().data(_consPerfConfig.username());
+            }
+            _role.initDefaultRDMDirectoryRequest();
+            // enable watchlist if configured
+            if (_consPerfConfig.useWatchlist())
+            {
+                _role.watchlistOptions().enableWatchlist(true);
+                // set itemCountHint to itemRequestCount
+                _role.watchlistOptions().itemCountHint(_consPerfConfig.itemRequestCount());
+                // set request timeout to 0, request timers reduce performance
+                _role.watchlistOptions().requestTimeout(0);
+            }
+            
+            // connect via Reactor
+            int ret;
+            if ((ret = _reactor.connect(_connectOptions, (ReactorRole)_role, _errorInfo)) < ReactorReturnCodes.SUCCESS)
+            {
+                System.out.println("Reactor.connect failed with return code: " + ret + " error = " + _errorInfo.error().text());
+                System.exit(ReactorReturnCodes.FAILURE);
+            }       
         }
-        catch (Exception exception)
-        {
-    		System.out.println("selector open ");
-    		System.exit(-1);
-        }
-
-    	// register selector for read
-    	addOption(SelectionKey.OP_READ, _channel);
-    }
 	}
 
 	/** Run the consumer thread. */
@@ -364,72 +508,98 @@ public class ConsumerThread implements Runnable, ResponseCallback
 
         if (!_consThreadInfo.shutdown())
         {
-            // Check if the test is configured for the correct buffer size to fit post messages
-            printEstimatedPostMsgSizes(_channel);
-
-            // Check if the test is configured for the correct buffer size to fit generic messages
-            printEstimatedGenMsgSizes(_channel);
-
-            // set service name in directory handler
-            _srcDirHandler.serviceName(_consPerfConfig.serviceName());
-
-            // get and print the channel info
-            if (_channel.info(_chnlInfo, _error) != TransportReturnCodes.SUCCESS)
+            if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use UPA Channel for sending and receiving
             {
-                closeChannelAndShutDown("Channel.info() failed");
-                return;
-            } 
-            System.out.printf("Channel active. " + _chnlInfo.toString() + "\n");
-            
-            // set login parameters
-            _loginHandler.applicationName("upajConsPerf");
-            _loginHandler.userName(_consPerfConfig.username());
-            _loginHandler.role(Login.RoleTypes.CONS);
+                // Check if the test is configured for the correct buffer size to fit post messages
+                printEstimatedPostMsgSizes(_channel);
     
-            // Send login request message
-            TransportBuffer msg= _loginHandler.getRequestMsg(_channel, _error, _eIter);
-            if (msg != null)
-            {
-                write(msg);
-            }
-            else
-            {
-                closeChannelAndShutDown("Sending login request failed");
-                return;
-            }
+                // Check if the test is configured for the correct buffer size to fit generic messages
+                printEstimatedGenMsgSizes(_channel);
     
-            /* Initialize ping handler */
-            _pingHandler.initPingHandler(_channel.pingTimeout());
+                // set service name in directory handler
+                _srcDirHandler.serviceName(_consPerfConfig.serviceName());
+    
+                // get and print the channel info
+                if (_channel.info(_chnlInfo, _error) != TransportReturnCodes.SUCCESS)
+                {
+                    closeChannelAndShutDown("Channel.info() failed");
+                    return;
+                } 
+                System.out.printf("Channel active. " + _chnlInfo.toString() + "\n");
+                
+                // set login parameters
+                _loginHandler.applicationName("upajConsPerf");
+                _loginHandler.userName(_consPerfConfig.username());
+                _loginHandler.role(Login.RoleTypes.CONS);
+        
+                // Send login request message
+                TransportBuffer msg = _loginHandler.getRequestMsg(_channel, _error, _eIter);
+                if (msg != null)
+                {
+                    write(msg);
+                }
+                else
+                {
+                    closeChannelAndShutDown("Sending login request failed");
+                    return;
+                }
+        
+                /* Initialize ping handler */
+                _pingHandler.initPingHandler(_channel.pingTimeout());
+            }
         }
 
         int ret = 0;
         int currentTicks = 0;
-        long nextTickTime = System.nanoTime() + _nsecPerTick;
+        long nextTickTime;
         long selectTime;
+        
+        nextTickTime = initNextTickTime();
 
         while (!_consThreadInfo.shutdown())
         {
-
             // read until no more to read and then write leftover from previous burst
-        	selectTime = nextTickTime-System.nanoTime(); 
-        	selectorReadAndWrite(selectTime);
+            selectTime = selectTime(nextTickTime);
+        	
+        	if (!_consPerfConfig.busyRead())
+        	{
+        	    selectorReadAndWrite(selectTime);
+        	}
+        	else
+        	{
+        	    busyReadAndWrite(selectTime);
+        	}
         	
             /* Handle pings */
-            if (_pingHandler.handlePings(_channel, _error) != CodecReturnCodes.SUCCESS)
+            if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use UPA Channel for sending and receiving
             {
-            	closeChannelAndShutDown("Error handling pings: " + _error.text());
-            	return;
+                if (_pingHandler.handlePings(_channel, _error) != CodecReturnCodes.SUCCESS)
+                {
+                	closeChannelAndShutDown("Error handling pings: " + _error.text());
+                	return;
+                }
             }
 
-            if (System.nanoTime() >= nextTickTime)
+            long currentTime = currentTime();            
+            if (currentTime >= nextTickTime)
             {
-            	nextTickTime += _nsecPerTick;
+                nextTickTime = nextTickTime(nextTickTime);
 
             	// only send bursts on tick boundary
             	if (_requestsSent)
             	{
+            	    Service service;
+            	    
             		// send item request and post bursts
-            		if ((ret = sendBursts(currentTicks, _channel, _srcDirHandler.serviceInfo())) < TransportReturnCodes.SUCCESS)
+                    if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use UPA Channel for sending and receiving
+                    {
+                        service = _srcDirHandler.serviceInfo();
+                    }
+                    else // use UPA VA Reactor for sending and receiving
+                    {
+                        service = _service;
+                    }
+            		if ((ret = sendBursts(currentTicks, service)) < TransportReturnCodes.SUCCESS)
             		{
             			if (ret != TransportReturnCodes.NO_BUFFERS)
             			{
@@ -454,7 +624,14 @@ public class ConsumerThread implements Runnable, ResponseCallback
 			System.out.println("Selector close failure ");
 		}
     	_consThreadInfo.shutdownAck(true);
-        closeChannel();
+        if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use UPA Channel for sending and receiving
+        {
+            closeChannel();
+        }
+        else // use UPA VA Reactor for sending and receiving
+        {
+            closeReactor();
+        }
         System.out.println("\nConsumerThread " + _consThreadInfo.threadId() + " exiting...");
 	}
 
@@ -467,7 +644,12 @@ public class ConsumerThread implements Runnable, ResponseCallback
         try
         {
         	int selectRetVal;
-        	selectTime /= 1000000;
+        	
+        	if (_consPerfConfig.ticksPerSec() > 1000) // use nanosecond timer for tickRate of greater than 1000
+        	{
+        	    selectTime /= 1000000;
+        	}
+
         	if (selectTime > 0)
         		selectRetVal = _selector.select(selectTime);
         	else
@@ -498,18 +680,29 @@ public class ConsumerThread implements Runnable, ResponseCallback
         	{
         		if (key.isReadable())
         		{
-        			read();
+                    if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use UPA Channel for sending and receiving
+                    {
+                        read();
+                    }
+                    else // use UPA VA Reactor for sending and receiving
+                    {
+                        ReactorChannel reactorChannel = (ReactorChannel)key.attachment();
+                        read(reactorChannel);
+                    }
         		}
 
         		/* flush for write file descriptor and active state */
-        		if (key.isWritable())
-        		{
-        			ret = _channel.flush(_error);
-        			if (ret == TransportReturnCodes.SUCCESS)
-        			{
-        				removeOption(SelectionKey.OP_WRITE, _channel);
-        			}
-        		}
+                if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use UPA Channel for sending and receiving
+                {
+            		if (key.isWritable())
+            		{
+            			ret = _channel.flush(_error);
+            			if (ret == TransportReturnCodes.SUCCESS)
+            			{
+            				removeOption(SelectionKey.OP_WRITE, _channel);
+            			}
+            		}
+                }
         	}
         	catch (CancelledKeyException e)
         	{
@@ -517,80 +710,178 @@ public class ConsumerThread implements Runnable, ResponseCallback
         }
     }
 	
+    /* Reads from a channel with no select call. */
+    private void busyReadAndWrite(long selectTime)
+    {
+        long pollTime, currentTime = currentTime();
+        
+        pollTime = currentTime + selectTime;
+        
+        if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use UPA Channel for sending and receiving
+        {
+            // call flush once
+            _channel.flush(_error);
+            
+            while (currentTime < pollTime)
+            {
+                read();
+                
+                currentTime = currentTime();
+            }
+        }
+        else // use UPA VA Reactor for sending and receiving
+        {
+            int ret;
+            
+            while (currentTime < pollTime)
+            {
+                /* read until no more to read */
+                if (_reactorChannel != null)
+                {
+                    while ((ret = _reactorChannel.dispatch(_dispatchOptions, _errorInfo)) > 0) {}
+                    if (ret == ReactorReturnCodes.FAILURE)
+                    {
+                        if (_reactorChannel.state() != ReactorChannel.State.CLOSED &&
+                                _reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+                        {
+                            System.out.println("ReactorChannel dispatch failed: " + ret + "(" + _errorInfo.error().text() + ")");
+                            closeReactor();
+                            System.exit(ReactorReturnCodes.FAILURE);
+                        }
+                    }
+                }
+                
+                if (_reactor != null && _reactor.reactorChannel() != null)
+                {
+                    while ((ret = _reactor.reactorChannel().dispatch(_dispatchOptions, _errorInfo)) > 0) {}
+                    if (ret == ReactorReturnCodes.FAILURE)
+                    {
+                        System.out.println("Reactor.ReactorChannel dispatch failed: " + ret + "(" + _errorInfo.error().text() + ")");
+                        closeReactor();
+                        System.exit(ReactorReturnCodes.FAILURE);
+                    }
+                }
+                
+                currentTime = currentTime();
+            }
+        }
+    }
+	
 	/* Writes an message to the UPA channel. */
-	protected int writeMsg(Msg msg, Channel channel)
+	private int writeMsg(Msg msg)
 	{
 	    int ret = TransportReturnCodes.SUCCESS;
 	    
-        TransportBuffer msgBuf = null;
-        if ((msgBuf = channel.getBuffer(512, false, _error)) == null)
+        if (!_consPerfConfig.useWatchlist()) // VA Reactor Watchlist not enabled
         {
-            return TransportReturnCodes.NO_BUFFERS;
+            TransportBuffer msgBuf = null;
+            if ((msgBuf = getBuffer(512, false)) == null)
+            {
+                return TransportReturnCodes.NO_BUFFERS;
+            }
+    
+            _eIter.clear();
+            ret = _eIter.setBufferAndRWFVersion(msgBuf, majorVersion(), minorVersion());
+            if (ret != CodecReturnCodes.SUCCESS)
+            {
+                System.out.printf("setBufferAndRWFVersion() failed: %d\n", ret);
+                return ret;
+            }
+    
+            if ((ret = _requestMsg.encode(_eIter)) != CodecReturnCodes.SUCCESS)
+            {
+                System.out.printf("encodeMsg() failed: %d.\n", ret);
+                return ret;
+            }
+            
+            write(msgBuf);
         }
-
-        _eIter.clear();
-        ret = _eIter.setBufferAndRWFVersion(msgBuf, channel.majorVersion(), channel.minorVersion());
-        if (ret != CodecReturnCodes.SUCCESS)
+        else // VA Reactor Watchlist is enabled, submit message instead of buffer
         {
-            System.out.printf("setBufferAndRWFVersion() failed: %d\n", ret);
-            return ret;
+            if (_reactorChannel.state() == com.thomsonreuters.upa.valueadd.reactor.ReactorChannel.State.READY)
+            {
+                ret = _reactorChannel.submit(msg, _submitOptions, _errorInfo);
+                
+                if (ret == ReactorReturnCodes.NO_BUFFERS)
+                {
+                    ret = TransportReturnCodes.NO_BUFFERS;
+                }
+            }
         }
-
-        if ((ret = _requestMsg.encode(_eIter)) != CodecReturnCodes.SUCCESS)
-        {
-            System.out.printf("encodeMsg() failed: %d.\n", ret);
-            return ret;
-        }
-        
-        write(msgBuf);
         
         return ret;
 	}
 
     /* Writes the content of the TransportBuffer to the UPA channel.*/
-    protected void write(TransportBuffer msgBuf)
+    private void write(TransportBuffer msgBuf)
     {
-    	// write data to the channel
-    	_writeArgs.clear();
-    	_writeArgs.priority(WritePriorities.HIGH);
-    	_writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
-    	int retval = _channel.write(msgBuf, _writeArgs, _error);
+        if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use UPA Channel for sending and receiving
+        {
+            // write data to the channel
+            _writeArgs.clear();
+            _writeArgs.priority(WritePriorities.HIGH);
+            _writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
+            int retval = _channel.write(msgBuf, _writeArgs, _error);
 
-    	if (retval > TransportReturnCodes.FAILURE)
-    	{
-    		if (retval > TransportReturnCodes.SUCCESS)
-    		{
-    			// register for write if there's still data queued
-    			addOption(SelectionKey.OP_WRITE, _channel);
-    		}
-    	}
-    	else
-    	{
-    		if (retval == TransportReturnCodes.WRITE_CALL_AGAIN)
-    		{
-    			//call flush and write again until there is data in the queue
-    			while (retval == TransportReturnCodes.WRITE_CALL_AGAIN)
-    			{
-    				retval = _channel.flush(_error);
-    				if (retval < TransportReturnCodes.SUCCESS)
-    					System.out.println("_channel flush failed with returned code: " + retval + " - " + _error.text());
-    				retval = _channel.write(msgBuf, _writeArgs, _error);
-    			}
+            if (retval > TransportReturnCodes.FAILURE)
+            {
+                if (retval > TransportReturnCodes.SUCCESS)
+                {
+                    // register for write if there's still data queued
+                    addOption(SelectionKey.OP_WRITE, _channel);
+                }
+            }
+            else
+            {
+                if (retval == TransportReturnCodes.WRITE_CALL_AGAIN)
+                {
+                    //call flush and write again until there is data in the queue
+                    while (retval == TransportReturnCodes.WRITE_CALL_AGAIN)
+                    {
+                        retval = _channel.flush(_error);
+                        if (retval < TransportReturnCodes.SUCCESS)
+                            System.out.println("_channel flush failed with returned code: " + retval + " - " + _error.text());
+                        retval = _channel.write(msgBuf, _writeArgs, _error);
+                    }
 
-    			//register for write if there's still data queued
-    			if (retval > TransportReturnCodes.SUCCESS)
-    			{
-    				addOption(SelectionKey.OP_WRITE, _channel);
-    			}
-    		}
-    		else
-    		{
-    			// write failed, release buffer and shut down 
-    			_channel.releaseBuffer(msgBuf, _error);
-            	closeChannelAndShutDown(_error.text());
-            	return;
-    		}
-    	}
+                    //register for write if there's still data queued
+                    if (retval > TransportReturnCodes.SUCCESS)
+                    {
+                        addOption(SelectionKey.OP_WRITE, _channel);
+                    }
+                }
+                else
+                {
+                    // write failed, release buffer and shut down 
+                    _channel.releaseBuffer(msgBuf, _error);
+                    closeChannelAndShutDown(_error.text());
+                    return;
+                }
+            }
+        }
+        else // use UPA VA Reactor for sending and receiving
+        {
+            // write data to the channel
+            _submitOptions.writeArgs().clear();
+            _submitOptions.writeArgs().priority(WritePriorities.HIGH);
+            _submitOptions.writeArgs().flags(WriteFlags.DIRECT_SOCKET_WRITE);
+            int retval = _reactorChannel.submit(msgBuf, _submitOptions, _errorInfo);
+
+            if (retval == ReactorReturnCodes.WRITE_CALL_AGAIN)
+            {
+                //call flush and write again until there is data in the queue
+                while (retval == ReactorReturnCodes.WRITE_CALL_AGAIN)
+                {
+                    retval = _reactorChannel.submit(msgBuf, _submitOptions, _errorInfo);
+                }
+            }
+            else if (retval < ReactorReturnCodes.SUCCESS)
+            {
+                // write failed, release buffer and shut down 
+                _reactorChannel.releaseBuffer(msgBuf, _errorInfo);
+                closeChannelAndShutDown(_errorInfo.error().text());
+            }
+        }
     }
     
     private void read()
@@ -765,7 +1056,7 @@ public class ConsumerThread implements Runnable, ResponseCallback
     }
     
     /* Process dictionary response. */
-    protected void processDictionaryResp(Msg responseMsg, DecodeIterator dIter)
+    private void processDictionaryResp(Msg responseMsg, DecodeIterator dIter)
     {
         if (_dictionaryHandler.processResponse(_channel, responseMsg, dIter, _error) != CodecReturnCodes.SUCCESS)
         {
@@ -782,7 +1073,7 @@ public class ConsumerThread implements Runnable, ResponseCallback
     }
     
     //process market price response.
-    protected void processMarketPriceResp(Msg responseMsg, DecodeIterator dIter)
+    private void processMarketPriceResp(Msg responseMsg, DecodeIterator dIter)
     {
     	int ret = CodecReturnCodes.SUCCESS;
     	int msgClass = responseMsg.msgClass();
@@ -900,7 +1191,7 @@ public class ConsumerThread implements Runnable, ResponseCallback
     }
     
     //sends a burst of item requests.
-    private int sendItemRequestBurst(int itemBurstCount, Channel channel, Service service)
+    private int sendItemRequestBurst(int itemBurstCount, Service service)
     {
     	int ret;
     	Qos qos = null;
@@ -953,9 +1244,8 @@ public class ConsumerThread implements Runnable, ResponseCallback
     		_requestMsg.msgKey().applyHasServiceId();
     		_requestMsg.msgKey().serviceId(service.serviceId());
     		
-            if ((ret = writeMsg(_requestMsg, channel)) != TransportReturnCodes.SUCCESS)
+            if ((ret = writeMsg(_requestMsg)) != TransportReturnCodes.SUCCESS)
             {
-                System.out.printf("writeMsg() failed: %d.\n", ret);
                 return ret;
             }
 
@@ -970,10 +1260,9 @@ public class ConsumerThread implements Runnable, ResponseCallback
     }
     
     //sends a burst of post messages. 
-	protected int sendPostBurst(int itemBurstCount, Channel channel)
+	private int sendPostBurst(int itemBurstCount)
 	{
 		int ret;
-    	TransportBuffer msgBuf = null;
 		long encodeStartTime;
 		int latencyUpdateNumber;
 
@@ -983,25 +1272,52 @@ public class ConsumerThread implements Runnable, ResponseCallback
 		for(int i = 0; i < itemBurstCount; ++i)
 		{
 			ItemRequest postItem = nextPostItem();
-			int bufLen = _itemEncoder.estimateItemPostBufferLength(postItem.itemInfo());
-
-    		if ((msgBuf = channel.getBuffer(bufLen, false, _error)) == null)
-    		{
-    			return TransportReturnCodes.NO_BUFFERS;
-    		}
 
 			if (latencyUpdateNumber == i)
 				encodeStartTime = System.nanoTime()/1000;
 			else
 				encodeStartTime = 0;
 
-			if ((ret = _itemEncoder.encodeItemPost(channel, postItem.itemInfo(), msgBuf, _postUserInfo, encodeStartTime)) != CodecReturnCodes.SUCCESS)
-    		{
-				System.out.printf("encodeItemPost() failed: %d.\n", ret);
-				return ret;
-			}
-
-			write(msgBuf);
+	        if (!_consPerfConfig.useWatchlist()) // VA Reactor Watchlist not enabled
+	        {
+                int bufLen = _itemEncoder.estimateItemPostBufferLength(postItem.itemInfo());
+                
+                TransportBuffer msgBuf = null;
+                if ((msgBuf = getBuffer(bufLen, false)) == null)
+                {
+                    return TransportReturnCodes.NO_BUFFERS;
+                }
+                
+                Channel channel = _channel;
+                if (_consPerfConfig.useReactor()) // use VA Reactor 
+                {
+                    channel = _reactorChannel.channel();
+                }
+                
+    			if ((ret = _itemEncoder.encodeItemPost(channel, postItem.itemInfo(), msgBuf, _postUserInfo, encodeStartTime)) != CodecReturnCodes.SUCCESS)
+        		{
+    				System.out.printf("encodeItemPost() failed: %d.\n", ret);
+    				return ret;
+    			}
+    
+    			write(msgBuf);
+	        }
+	        else // VA Reactor Watchlist is enabled, submit message instead of buffer
+	        {
+                // create properly encoded post message
+	            if (_reactorChannel.state() != ReactorChannel.State.CLOSED)
+	            {
+                    _postMsg.clear();
+                    _postBuffer.data().clear();
+                    if ((ret = _itemEncoder.createItemPost(_reactorChannel.channel(), postItem.itemInfo(), _postMsg, _postBuffer, _postUserInfo, encodeStartTime)) != CodecReturnCodes.SUCCESS)
+                    {
+                        System.out.printf("createItemPost() failed: %d.\n", ret);
+                        return ret;
+                    }
+    
+                    writeMsg(_postMsg);
+	            }
+	        }
 
 			_consThreadInfo.stats().postSentCount().increment();
 		}
@@ -1010,50 +1326,75 @@ public class ConsumerThread implements Runnable, ResponseCallback
 	}
 
 	// sends a burst of generic messages.
-	protected int sendGenMsgBurst(int itemBurstCount, Channel channel) 
+	private int sendGenMsgBurst(int itemBurstCount) 
 	{
 		int ret;
-		TransportBuffer msgBuf = null;
 		long encodeStartTime;
 		int latencyGenMsgNumber;
 
-		latencyGenMsgNumber = (_consPerfConfig.latencyGenMsgsPerSec() > 0) ? _genMsgLatencyRandomArray
-				.next() : -1;
+		latencyGenMsgNumber = (_consPerfConfig.latencyGenMsgsPerSec() > 0) ? _genMsgLatencyRandomArray.next() : -1;
 
 		for (int i = 0; i < itemBurstCount; ++i) 
 		{
 			ItemRequest genMsgItem = nextGenMsgItem();
-			int bufLen = _itemEncoder.estimateItemGenMsgBufferLength(genMsgItem.itemInfo());
-
-			if ((msgBuf = channel.getBuffer(bufLen, false, _error)) == null) 
-			{
-				return TransportReturnCodes.NO_BUFFERS;
-			}
 
 			if (latencyGenMsgNumber == i)
-			{
-				_consThreadInfo.stats().latencyGenMsgSentCount().increment();
-				encodeStartTime = System.nanoTime() / 1000;
-			}
-			else
-			    encodeStartTime = 0;
-
-			if ((ret = _itemEncoder.encodeItemGenMsg(channel, genMsgItem.itemInfo(), msgBuf, encodeStartTime)) != CodecReturnCodes.SUCCESS) 
-			{
-				System.out.printf("encodeItemGenMsg() failed: %d.\n", ret);
-				return ret;
-			}
-
-			write(msgBuf);
-
+            {
+                _consThreadInfo.stats().latencyGenMsgSentCount().increment();
+                encodeStartTime = System.nanoTime() / 1000;
+            }
+            else
+                encodeStartTime = 0;
+			
+            if (!_consPerfConfig.useWatchlist()) // VA Reactor Watchlist not enabled
+            {
+    			int bufLen = _itemEncoder.estimateItemGenMsgBufferLength(genMsgItem.itemInfo());
+    
+    	        TransportBuffer msgBuf = null;
+    			if ((msgBuf = getBuffer(bufLen, false)) == null) 
+    			{
+    				return TransportReturnCodes.NO_BUFFERS;
+    			}
+    
+    			Channel channel = _channel;
+    			if (_consPerfConfig.useReactor()) // use VA Reactor 
+    			{
+    			    channel = _reactorChannel.channel();
+    			}
+    			
+    			if ((ret = _itemEncoder.encodeItemGenMsg(channel, genMsgItem.itemInfo(), msgBuf, encodeStartTime)) != CodecReturnCodes.SUCCESS) 
+    			{
+    				System.out.printf("encodeItemGenMsg() failed: %d.\n", ret);
+    				return ret;
+    			}
+    
+    			write(msgBuf);
+            }
+            else // VA Reactor Watchlist is enabled, submit message instead of buffer
+            {
+                // create properly encoded generic message
+                if (_reactorChannel.state() != ReactorChannel.State.CLOSED)
+                {
+                    _genericMsg.clear();
+                    _genericBuffer.data().clear();
+                    if ((ret = _itemEncoder.createItemGenMsg(_reactorChannel.channel(), genMsgItem.itemInfo(), _genericMsg, _genericBuffer, encodeStartTime)) != CodecReturnCodes.SUCCESS)
+                    {
+                        System.out.printf("createItemPost() failed: %d.\n", ret);
+                        return ret;
+                    }
+    
+                    writeMsg(_genericMsg);
+                }
+            }
+            
 			_consThreadInfo.stats().genMsgSentCount().increment();
 		}
 
     	return TransportReturnCodes.SUCCESS;
 	}
-	
-	//retrieves next post item information to send.
-	protected ItemRequest nextPostItem()
+
+    //retrieves next post item information to send.
+	private ItemRequest nextPostItem()
 	{
 		ItemRequest itemRequest = null;
 		
@@ -1074,7 +1415,7 @@ public class ConsumerThread implements Runnable, ResponseCallback
 	}
 
 	// retrieves next generic msg item information to send.
-	protected ItemRequest nextGenMsgItem() {
+	private ItemRequest nextGenMsgItem() {
 		ItemRequest itemRequest = null;
 
 		do {
@@ -1092,7 +1433,7 @@ public class ConsumerThread implements Runnable, ResponseCallback
 	}
     
     //indicates if dictionaries have been loaded.
-    protected boolean isDictionariesLoaded()
+    private boolean isDictionariesLoaded()
     {
         return _dictionaryHandler.isFieldDictionaryLoaded()
                 && _dictionaryHandler.isEnumTypeDictionaryLoaded();
@@ -1106,7 +1447,7 @@ public class ConsumerThread implements Runnable, ResponseCallback
     }
 
     //print estimated post message sizes.
-    protected void printEstimatedPostMsgSizes(Channel channel)
+    private void printEstimatedPostMsgSizes(Channel channel)
     {
         int ret;
     	TransportBuffer testBuffer;
@@ -1134,6 +1475,11 @@ public class ConsumerThread implements Runnable, ResponseCallback
                 {
                     int bufLen = _itemEncoder.estimateItemPostBufferLength(_itemInfo);
                     testBuffer = channel.getBuffer(bufLen, false, _error);
+                    if (testBuffer == null)
+                    {
+                        closeChannelAndShutDown("printEstimatedPostMsgSizes: getBuffer() failed");
+                        return;
+                    }
                     if ((ret = _itemEncoder.encodeItemPost(_consThreadInfo.channel(), _itemInfo, testBuffer, _postUserInfo, 0)) != CodecReturnCodes.SUCCESS) 
                     {
                         closeChannelAndShutDown("printEstimatedPostMsgSizes: encodeItemPost() failed: " + CodecReturnCodes.toString(ret));
@@ -1150,7 +1496,7 @@ public class ConsumerThread implements Runnable, ResponseCallback
 	}
 
 	// print estimated generic message sizes.
-	protected void printEstimatedGenMsgSizes(Channel channel) 
+	private void printEstimatedGenMsgSizes(Channel channel) 
 	{
 	    int ret;
 		TransportBuffer testBuffer;
@@ -1178,6 +1524,11 @@ public class ConsumerThread implements Runnable, ResponseCallback
 				{
 					int bufLen = _itemEncoder.estimateItemGenMsgBufferLength(_itemInfo);
 					testBuffer = channel.getBuffer(bufLen, false, _error);
+                    if (testBuffer == null)
+                    {
+                        closeChannelAndShutDown("printEstimatedGenMsgSizes: getBuffer() failed");
+                        return;
+                    }
 					if ((ret = _itemEncoder.encodeItemGenMsg(_consThreadInfo.channel(),	_itemInfo, testBuffer, 0)) != CodecReturnCodes.SUCCESS) 
 					{
 						closeChannelAndShutDown("printEstimatedGenMsgSizes: encodeItemGenMsg() failed: " + CodecReturnCodes.toString(ret));
@@ -1311,7 +1662,7 @@ public class ConsumerThread implements Runnable, ResponseCallback
 	}
 
 	// send item requests, post bursts and or generic msg bursts.
-	protected int sendBursts(int currentTicks, Channel channel, Service service) 
+	private int sendBursts(int currentTicks, Service service) 
 	{
 		int ret = TransportReturnCodes.SUCCESS;
 
@@ -1339,7 +1690,7 @@ public class ConsumerThread implements Runnable, ResponseCallback
                 }
 			}
 
-			if ((ret = sendItemRequestBurst(requestBurstCount, channel, service)) < TransportReturnCodes.SUCCESS) 
+			if ((ret = sendItemRequestBurst(requestBurstCount, service)) < TransportReturnCodes.SUCCESS) 
 			{
 				if (ret != TransportReturnCodes.NO_BUFFERS)
 				{
@@ -1354,7 +1705,7 @@ public class ConsumerThread implements Runnable, ResponseCallback
 		{
 			if (_consPerfConfig.postsPerSec() > 0 && _postItemCount > 0) 
 			{
-				if ((ret = sendPostBurst((int) (_postsPerTick + ((currentTicks < _postsPerTickRemainder) ? 1 : 0)), channel)) < TransportReturnCodes.SUCCESS) 
+				if ((ret = sendPostBurst((int) (_postsPerTick + ((currentTicks < _postsPerTickRemainder) ? 1 : 0)))) < TransportReturnCodes.SUCCESS) 
 				{
 					if (ret != TransportReturnCodes.NO_BUFFERS) 
 					{
@@ -1365,7 +1716,7 @@ public class ConsumerThread implements Runnable, ResponseCallback
 			}
 			if (_consPerfConfig.genMsgsPerSec() > 0 && _genMsgItemCount > 0) 
 			{
-				if ((ret = sendGenMsgBurst((int) (_genMsgsPerTick + ((currentTicks < _genMsgsPerTickRemainder) ? 1 : 0)), channel)) < TransportReturnCodes.SUCCESS) 
+				if ((ret = sendGenMsgBurst((int) (_genMsgsPerTick + ((currentTicks < _genMsgsPerTickRemainder) ? 1 : 0)))) < TransportReturnCodes.SUCCESS) 
 				{
 					if (ret != TransportReturnCodes.NO_BUFFERS) 
 					{
@@ -1423,12 +1774,406 @@ public class ConsumerThread implements Runnable, ResponseCallback
         	key.cancel();
     }
 
-    protected void closeChannelAndShutDown(String text)
+    private void closeChannelAndShutDown(String text)
     {
 		System.out.println(text);
 		_shutdownCallback.shutdown();
 		_consThreadInfo.shutdownAck(true);
-    	closeChannel();
-    	return;    	
+        if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use UPA Channel for sending and receiving
+        {
+            closeChannel();
+        }
+        else // use UPA VA Reactor for sending and receiving
+        {
+            closeReactor();
+        }
+    }
+    
+    @Override
+    public int reactorChannelEventCallback(ReactorChannelEvent event)
+    {
+        switch(event.eventType())
+        {
+            case ReactorChannelEventTypes.CHANNEL_UP:
+            {
+                _reactorChannel = event.reactorChannel();
+                _consThreadInfo.channel(_reactorChannel.channel());
+                System.out.println("Connected ");
+
+                // set the high water mark if configured
+                if (_consPerfConfig.highWaterMark() > 0)
+                {
+                    if (_reactorChannel.ioctl(IoctlCodes.HIGH_WATER_MARK, _consPerfConfig.highWaterMark(), _errorInfo) != TransportReturnCodes.SUCCESS)
+                    {
+                        closeChannelAndShutDown("Channel.ioctl() failed");
+                        return ReactorCallbackReturnCodes.FAILURE;
+                    }
+                }
+
+                // register selector with channel event's reactorChannel
+                try
+                {
+                    event.reactorChannel().selectableChannel().register(_selector,
+                                                                        SelectionKey.OP_READ,
+                                                                        event.reactorChannel());
+                }
+                catch (ClosedChannelException e)
+                {
+                    System.out.println("selector register failed: " + e.getLocalizedMessage());
+                    return ReactorCallbackReturnCodes.SUCCESS;
+                }
+                
+                // get and print the channel info
+                if (_reactorChannel.info(_reactorChannnelInfo, _errorInfo) != TransportReturnCodes.SUCCESS)
+                {
+                    closeChannelAndShutDown("Channel.info() failed");
+                    return ReactorCallbackReturnCodes.FAILURE;
+                } 
+                System.out.printf("Channel active. " + _reactorChannnelInfo.channelInfo().toString() + "\n");
+
+                break;
+            }
+            case ReactorChannelEventTypes.FD_CHANGE:
+            {
+                System.out.println("Channel Change - Old Channel: "
+                        + event.reactorChannel().oldSelectableChannel() + " New Channel: "
+                        + event.reactorChannel().selectableChannel());
+                
+                // cancel old reactorChannel select
+                SelectionKey key = event.reactorChannel().oldSelectableChannel().keyFor(_selector);
+                if (key != null)
+                    key.cancel();
+    
+                // register selector with channel event's new reactorChannel
+                try
+                {
+                    event.reactorChannel().selectableChannel().register(_selector,
+                                                                    SelectionKey.OP_READ,
+                                                                    event.reactorChannel());
+                }
+                catch (Exception e)
+                {
+                    System.out.println("selector register failed: " + e.getLocalizedMessage());
+                    return ReactorCallbackReturnCodes.SUCCESS;
+                }
+                break;
+            }
+            case ReactorChannelEventTypes.CHANNEL_READY:
+            {
+                printEstimatedPostMsgSizes(event.reactorChannel().channel());
+                printEstimatedGenMsgSizes(event.reactorChannel().channel());
+
+                if (isRequestedServiceUp())
+                {
+                    // dictionaries were loaded at initialization. send item requests and post
+                    // messages only after dictionaries are loaded.
+                    if (isDictionariesLoaded())
+                    {
+                        _consThreadInfo.dictionary(_dictionaryHandler.dictionary());
+                        System.out.println("Dictionary ready, requesting item(s)...\n");
+                    }
+
+                    _requestsSent = true;
+                }
+                else
+                {
+                    // service not up or
+                    // previously up service went down
+                    _requestsSent = false;
+
+                    System.out.println("Requested service '" + _consPerfConfig.serviceName() + "' not up. Waiting for service to be up...");
+                }
+                
+                break;
+            }
+            case ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING:
+            {
+                if (event.reactorChannel().selectableChannel() != null)
+                    System.out.println("\nConnection down reconnecting: Channel " + event.reactorChannel().selectableChannel());
+                else
+                    System.out.println("\nConnection down reconnecting");
+    
+                if (event.errorInfo() != null && event.errorInfo().error().text() != null)
+                    System.out.println("    Error text: " + event.errorInfo().error().text() + "\n");
+                            
+                // allow Reactor to perform connection recovery
+                
+                // unregister selectableChannel from Selector
+                if (event.reactorChannel().selectableChannel() != null)
+                {
+                    SelectionKey key = event.reactorChannel().selectableChannel().keyFor(_selector);
+                    if (key != null)
+                        key.cancel();
+                }
+
+                break;
+            }
+            case ReactorChannelEventTypes.CHANNEL_DOWN:
+            {                
+                if (event.reactorChannel().selectableChannel() != null)
+                    System.out.println("\nConnection down: Channel " + event.reactorChannel().selectableChannel());
+                else
+                    System.out.println("\nConnection down");
+
+                if (event.errorInfo() != null && event.errorInfo().error().text() != null)
+                    System.out.println("    Error text: " + event.errorInfo().error().text() + "\n");
+
+                // unregister selectableChannel from Selector
+                if (event.reactorChannel().selectableChannel() != null)
+                {
+                    SelectionKey key = event.reactorChannel().selectableChannel().keyFor(_selector);
+                    if (key != null)
+                        key.cancel();
+                }
+
+                // close ReactorChannel
+                if (_reactorChannel != null)
+                {
+                    _reactorChannel.close(_errorInfo);
+                }
+                break;
+            }
+            case ReactorChannelEventTypes.WARNING:
+                System.out.println("Received ReactorChannel WARNING event\n");
+                break;
+            default:
+            {
+                System.out.println("Unknown channel event!\n");
+                return ReactorCallbackReturnCodes.SUCCESS;
+            }
+        }
+
+        return ReactorCallbackReturnCodes.SUCCESS;
+    }
+
+    @Override
+    public int defaultMsgCallback(ReactorMsgEvent event)
+    {
+        Msg msg = event.msg();
+        
+        _dIter.clear();
+        _dIter.setBufferAndRWFVersion(msg.encodedDataBody(), _reactorChannel.majorVersion(), _reactorChannel.minorVersion());
+
+        processMarketPriceResp(msg, _dIter);
+
+        return ReactorCallbackReturnCodes.SUCCESS;
+    }
+
+    @Override
+    public int rdmLoginMsgCallback(RDMLoginMsgEvent event)
+    {
+        LoginMsg loginMsg = event.rdmLoginMsg();
+        
+        switch (loginMsg.rdmMsgType())
+        {
+            case REFRESH:
+                LoginRefresh loginRefresh = (LoginRefresh)loginMsg;
+                System.out.println("Received Login Response for Username: " + loginRefresh.userName());
+                System.out.println(loginRefresh.toString());
+                
+                State state = loginRefresh.state();
+                if (state.streamState() != StreamStates.OPEN && state.dataState() != DataStates.OK)
+                {
+                    closeChannelAndShutDown("Invalid login state : " + state);
+                }
+
+                if (_consPerfConfig.postsPerSec() > 0 &&
+                    (!loginRefresh.checkHasFeatures() ||
+                     !loginRefresh.features().checkHasSupportPost() ||
+                     loginRefresh.features().supportOMMPost() == 0))
+                {
+                    closeChannelAndShutDown("Provider for this connection does not support posting.");
+                }
+                break;
+            default:
+                break;
+        }
+        
+        return ReactorCallbackReturnCodes.SUCCESS;
+    }
+
+    @Override
+    public int rdmDirectoryMsgCallback(RDMDirectoryMsgEvent event)
+    {
+        DirectoryMsg directoryMsg = event.rdmDirectoryMsg();
+        
+        switch (directoryMsg.rdmMsgType())
+        {
+            case REFRESH:
+                DirectoryRefresh directoryRefresh = (DirectoryRefresh)directoryMsg;
+                System.out.println("Received Source Directory Refresh");
+                System.out.println(directoryRefresh.toString());
+
+               for (Service rdmService : directoryRefresh.serviceList())
+                {
+                    if(rdmService.info().serviceName().toString() != null)
+                    {
+                        System.out.println("Received serviceName: " + rdmService.info().serviceName());
+                    }
+
+                    // cache service requested by the application
+                    if (rdmService.info().serviceName().toString().equals(_consPerfConfig.serviceName()))
+                    {
+                        rdmService.copy(_service);
+                    }
+                }
+               
+                break;
+            default:
+                break;
+        }
+        
+        return ReactorCallbackReturnCodes.SUCCESS;
+    }
+
+    @Override
+    public int rdmDictionaryMsgCallback(RDMDictionaryMsgEvent event)
+    {
+        Msg msg = event.msg();
+        
+        _dIter.clear();
+        
+        _dIter.setBufferAndRWFVersion(event.msg().encodedDataBody(), event.reactorChannel().majorVersion(), event.reactorChannel().minorVersion());
+            
+        processDictionaryResp(msg, _dIter);
+        
+        return ReactorCallbackReturnCodes.SUCCESS;
+    }
+    
+    private boolean isRequestedServiceUp()
+    {
+        return  _service.checkHasState() && _service.state().checkHasAcceptingRequests() && _service.state().acceptingRequests() == 1 && _service.state().serviceState() == 1;
+    }
+
+    private void read(ReactorChannel reactorChannel)
+    {
+        int ret;
+        
+        /* read until no more to read */
+        if (reactorChannel != null)
+        {
+            while ((ret = reactorChannel.dispatch(_dispatchOptions, _errorInfo)) > 0) {}
+            if (ret == ReactorReturnCodes.FAILURE)
+            {
+                if (reactorChannel.state() != ReactorChannel.State.CLOSED &&
+                        reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+                {
+                    System.out.println("ReactorChannel dispatch failed: " + ret + "(" + _errorInfo.error().text() + ")");
+                    closeReactor();
+                    System.exit(ReactorReturnCodes.FAILURE);
+                }
+            }
+        }
+    }
+
+    // close Reactor used by this thread
+    private void closeReactor()
+    {
+        _reactor.shutdown(_errorInfo);
+    }
+    
+    private TransportBuffer getBuffer(int length, boolean packedBuffer)
+    {
+        TransportBuffer msgBuf = null;
+        
+        if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use UPA Channel for sending and receiving
+        {
+            msgBuf = _channel.getBuffer(length, ProviderPerfConfig.totalBuffersPerPack() > 1, _error);
+        }
+        else // use UPA VA Reactor for sending and receiving
+        {
+            if (_reactorChannel != null && _reactorChannel.state() == ReactorChannel.State.READY)
+            {
+                msgBuf = _reactorChannel.getBuffer(length, ProviderPerfConfig.totalBuffersPerPack() > 1, _errorInfo);
+            }
+        }
+        
+        return msgBuf;        
+    }
+
+    private int majorVersion()
+    {
+        if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use UPA Channel for sending and receiving
+        {
+            return _channel.majorVersion();
+        }
+        else // use UPA VA Reactor for sending and receiving
+        {
+            return _reactorChannel.majorVersion();
+        }
+    }
+
+    private int minorVersion()
+    {
+        if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use UPA Channel for sending and receiving
+        {
+            return _channel.minorVersion();
+        }
+        else // use UPA VA Reactor for sending and receiving
+        {
+            return _reactorChannel.minorVersion();
+        }
+    }
+    
+    private long currentTime()
+    {
+        long currentTime;
+        
+        if (_consPerfConfig.ticksPerSec() <= 1000) // use millisecond timer for tickRate of 1000 and below
+        {
+            currentTime = System.currentTimeMillis(); 
+        }
+        else // use nanosecond timer for tickRate of greater than 1000
+        {
+            currentTime = System.nanoTime();
+        }
+        
+        return currentTime;
+    }
+    
+    private long initNextTickTime()
+    {
+        long nextTickTime;
+        
+        if (_consPerfConfig.ticksPerSec() <= 1000) // use millisecond timer for tickRate of 1000 and below
+        {
+            nextTickTime = System.currentTimeMillis() + _millisPerTick;
+        }
+        else // use nanosecond timer for tickRate of greater than 1000
+        {
+            nextTickTime = System.nanoTime() + _nsecPerTick;
+        }
+        
+        return nextTickTime;
+    }
+
+    private long nextTickTime(long nextTickTime)
+    {
+        if (_consPerfConfig.ticksPerSec() <= 1000) // use millisecond timer for tickRate of 1000 and below
+        {
+            nextTickTime += _millisPerTick;
+        }
+        else // use nanosecond timer for tickRate of greater than 1000
+        {
+            nextTickTime += _nsecPerTick;
+        }
+    
+        return nextTickTime;
+    }
+    
+    private long selectTime(long nextTickTime)
+    {
+        long selectTime;
+        
+        if (_consPerfConfig.ticksPerSec() <= 1000) // use millisecond timer for tickRate of 1000 and below
+        {
+            selectTime = nextTickTime - System.currentTimeMillis(); 
+        }
+        else // use nanosecond timer for tickRate of greater than 1000
+        {
+            selectTime = nextTickTime - System.nanoTime();
+        }
+    
+        return selectTime;
     }
 }

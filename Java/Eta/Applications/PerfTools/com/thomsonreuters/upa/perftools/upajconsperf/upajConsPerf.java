@@ -288,14 +288,7 @@ public class upajConsPerf implements ShutdownCallback
 		{
 			_consumerThreadsInfo[i].threadId(i + 1);
 			
-			if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use UPA Channel for sending and receiving
-			{
-			    new Thread(new ConsumerThread(_consumerThreadsInfo[i], _consPerfConfig, _xmlItemInfoList, _xmlMsgData, _postUserInfo, this)).start();
-			}
-			else // use VA Reactor for for sending and receiving
-			{
-                new Thread(new ConsumerThreadReactor(_consumerThreadsInfo[i], _consPerfConfig, _xmlItemInfoList, _xmlMsgData, _postUserInfo, this)).start();
-			}
+			new Thread(new ConsumerThread(_consumerThreadsInfo[i], _consPerfConfig, _xmlItemInfoList, _xmlMsgData, _postUserInfo, this)).start();
 		}
 
 		// set application end time

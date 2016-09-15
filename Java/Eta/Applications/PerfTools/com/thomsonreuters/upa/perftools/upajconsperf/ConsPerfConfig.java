@@ -57,6 +57,7 @@ public class ConsPerfConfig
 	private boolean _primeJVM;				/* At startup, prime the JVM to optimize code by requesting a snapshot of all items before opening the streaming items. */
 	private boolean _useReactor;            /* Use the VA Reactor instead of the UPA Channel for sending and receiving. */
 	private boolean _useWatchlist;          /* Use the VA Reactor watchlist instead of the UPA Channel for sending and receiving. */
+	private boolean _busyRead;              /* If set, the application will continually read rather than using notification. */
 	
     {
         CommandLine.programName("upajConsPerf");
@@ -93,6 +94,7 @@ public class ConsPerfConfig
         CommandLine.addOption("primeJVM", false, "At startup, prime the JVM to optimize code by requesting a snapshot of all items before opening the streaming items");
         CommandLine.addOption("reactor", false, "Use the VA Reactor instead of the UPA Channel for sending and receiving");
         CommandLine.addOption("watchlist", false, "Use the VA Reactor watchlist instead of the UPA Channel for sending and receiving");
+        CommandLine.addOption("busyRead", false, "If set, the application will continually read rather than using notification.");
     }
 	
     /** Parses command-line arguments to fill in the application's configuration structures. */
@@ -129,6 +131,7 @@ public class ConsPerfConfig
     	_primeJVM = CommandLine.booleanValue("primeJVM");
     	_useReactor = CommandLine.booleanValue("reactor");
         _useWatchlist = CommandLine.booleanValue("watchlist");
+        _busyRead = CommandLine.booleanValue("busyRead");
         try
         {
         	_steadyStateTime = CommandLine.intValue("steadyStateTime");
@@ -320,7 +323,8 @@ public class ConsPerfConfig
 				"        Latency Log File: " + (_latencyLogFilename.length() > 0 ? _latencyLogFilename : "(none)") + "\n" +
 				"               Tick Rate: " + _ticksPerSec + "\n" +
 				"               Prime JVM: " + (_primeJVM ? "Yes" : "No") + "\n" +
-                " Reactor/Watchlist Usage: " + reactorWatchlistUsageString + "\n";
+                " Reactor/Watchlist Usage: " + reactorWatchlistUsageString + "\n" +
+                "               Busy Read: " + (_busyRead ? "Yes" : "No") + "\n";
 	}
 
 	/* APPLICATION configuration */
@@ -547,5 +551,11 @@ public class ConsPerfConfig
     public boolean useWatchlist()
     {
         return _useWatchlist;
+    }
+    
+    /** If set, the application will continually read rather than using notification. */
+    public boolean busyRead()
+    {
+        return _busyRead;
     }
 }
