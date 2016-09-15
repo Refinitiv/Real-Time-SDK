@@ -39,8 +39,7 @@ public class Provider
                                                                          // of output buffers.
     private CountStat                _msgSentCount;                      // Counts total messages sent.
     private CountStat                _bufferSentCount;                   // Counts total buffers sent(used with
-                                                                         // msgSentCount for packing statistics).    
-    private long                     _previousStatsTime;                 // timestamp at last stats report
+                                                                         // msgSentCount for packing statistics).
 
     public Provider()
     {
@@ -100,7 +99,6 @@ public class Provider
             _providerThreadList[i].init(i, providerType);
         }
 
-        _previousStatsTime = System.nanoTime();
         _summaryFile = new File(summaryFileName);
         try
         {
@@ -179,13 +177,9 @@ public class Provider
      * @param currentRuntimeSec - current time
      * @param timePassedSec - time passed since last stats collection, used to calculate message rates.
      */
-    public void collectStats(boolean writeStats, boolean displayStats, long currentRuntimeSec,
-            long timePassedSec)
+    public void collectStats(boolean writeStats, boolean displayStats, long currentRuntimeSec, long timePassedSec)
     {
         long refreshCount, updateCount, requestCount, closeCount, postCount, genMsgSentCount, genMsgRecvCount, latencyGenMsgSentCount, latencyGenMsgRecvCount, outOfBuffersCount, msgSentCount, bufferSentCount;
-        long timeNow = System.nanoTime();
-        long statsInterval = timeNow - _previousStatsTime;
-        _previousStatsTime = timeNow;
         double processCpuLoad = ResourceUsageStats.currentProcessCpuLoad();
         double memoryUsage = ResourceUsageStats.currentMemoryUsage();
         if(timePassedSec != 0)
@@ -285,7 +279,7 @@ public class Provider
                     System.out.printf("%03d: Thread %d:\n  ", currentRuntimeSec, i + 1);
 
                 System.out.printf("UpdRate: %8d, CPU: %6.2f%%, Mem: %6.2fMB\n", 
-                                  (updateCount * 1000000000L)/statsInterval,
+                                  updateCount/timePassedSec,
                                   processCpuLoad, memoryUsage);
 
                 switch(_providerType)

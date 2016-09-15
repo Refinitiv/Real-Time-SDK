@@ -113,9 +113,6 @@ public class upajConsPerf implements ShutdownCallback
 	// stdio writer 
 	private PrintWriter _stdOutWriter = new PrintWriter(System.out);  
 	
-	// timestamp at last stats report 
-	private long _previousStatsTime; 
-	
 	// indicates whether or not application should be shutdown 
 	private volatile boolean _shutdownApp = false; 
 	
@@ -130,8 +127,6 @@ public class upajConsPerf implements ShutdownCallback
     {
 		long nextTime;
 	
-		_previousStatsTime = System.nanoTime();
-
 		// main statistics polling thread here
 		while(!_shutdownApp)
 		{
@@ -143,7 +138,7 @@ public class upajConsPerf implements ShutdownCallback
 			
 			if (_intervalSeconds == _consPerfConfig.writeStatsInterval())
 			{
-				collectStats(true, _consPerfConfig.displayStats(), _currentRuntimeSec);
+				collectStats(true, _consPerfConfig.displayStats(), _currentRuntimeSec, _consPerfConfig.writeStatsInterval());
 				_intervalSeconds = 0;
 			}
 			
@@ -697,14 +692,10 @@ public class upajConsPerf implements ShutdownCallback
 	}
 
 	/* Collect statistics. */
-	private void collectStats(boolean writeStats, boolean displayStats, int currentRuntimeSec) 
+	private void collectStats(boolean writeStats, boolean displayStats, int currentRuntimeSec, long timePassedSec) 
 	{
 		boolean allRefreshesRetrieved = true;
 		
-		long timeNow = System.nanoTime();
-		long statsInterval = timeNow - _previousStatsTime;
-		_previousStatsTime = timeNow;
-
 		double processCpuLoad = ResourceUsageStats.currentProcessCpuLoad();
 		double memoryUsage = ResourceUsageStats.currentMemoryUsage();
 		
@@ -780,7 +771,7 @@ public class upajConsPerf implements ShutdownCallback
 						((_consumerThreadsInfo[i].stats().intervalLatencyStats().count() > 0) ? _consumerThreadsInfo[i].stats().intervalLatencyStats().maxValue() : 0.0),
 						((_consumerThreadsInfo[i].stats().intervalLatencyStats().count() > 0) ? _consumerThreadsInfo[i].stats().intervalLatencyStats().minValue() : 0.0),
 						refreshCount,
-						(startupUpdateCount + steadyStateUpdateCount)*1000000000L/statsInterval,
+						(startupUpdateCount + steadyStateUpdateCount)/timePassedSec,
 						_consumerThreadsInfo[i].stats().intervalPostLatencyStats().count(),
 						_consumerThreadsInfo[i].stats().intervalPostLatencyStats().average(),
 						Math.sqrt(_consumerThreadsInfo[i].stats().intervalPostLatencyStats().variance()),
@@ -809,7 +800,7 @@ public class upajConsPerf implements ShutdownCallback
 				System.out.printf("Images: %6d, Posts: %6d, UpdRate: %8d, CPU: %6.2f%%, Mem: %6.2fMB\n", 
 						refreshCount,
 						postSentCount,
-						(startupUpdateCount + steadyStateUpdateCount)*1000000000L/statsInterval,
+						(startupUpdateCount + steadyStateUpdateCount)/timePassedSec,
 						processCpuLoad,
 						memoryUsage);
 
