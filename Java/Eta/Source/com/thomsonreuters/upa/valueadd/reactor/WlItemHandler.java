@@ -511,6 +511,7 @@ public class WlItemHandler implements WlHandler
     
                         // add to waiting request list for stream
                         wlRequest.streamInfo().serviceName(submitOptions.serviceName());
+                        wlRequest.streamInfo().userSpecObject(submitOptions.requestMsgOptions().userSpecObj());
                         wlStream.waitingRequestList().add(wlRequest);
                     }
                 }
