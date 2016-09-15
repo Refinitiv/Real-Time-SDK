@@ -197,6 +197,8 @@ public class NIProviderThread extends ProviderThread implements NIProviderCallba
 
         /* Initialize ping handler */
         _pingHandler.initPingHandler(_channel.pingTimeout());
+        
+        _provSession.timeActivated(System.nanoTime());
 
     }
     
