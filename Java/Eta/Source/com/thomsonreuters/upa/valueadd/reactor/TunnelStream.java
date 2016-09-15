@@ -1112,7 +1112,8 @@ public class TunnelStream
 	{
 		_streamOpen = true;
 		_firstIsSendWindowOpenCall = true;
-        _bufferPool = new SlicedBufferPool(_classOfService.common().maxMsgSize(), guaranteedOutputBuffers());
+
+		if (isProvider()) setupBufferPool();
 		
 		if (_tunnelStreamState != TunnelStreamState.NOT_OPEN)
 		{
@@ -1122,7 +1123,7 @@ public class TunnelStream
 		}
 
 		if (_reactorChannel.tunnelStreamManager().reactorChannel().channel() != null)
-		{
+		 {
 		    if (!isProvider()) // consumer tunnel stream
 		    {
 		        _tunnelStreamState = TunnelStreamState.SEND_REQUEST;
@@ -1140,6 +1141,11 @@ public class TunnelStream
 		return ReactorReturnCodes.SUCCESS;
 	}
 
+	void setupBufferPool()
+	{	
+		_bufferPool = new SlicedBufferPool(_classOfService.common().maxMsgSize(), guaranteedOutputBuffers());
+	}
+	
     // For testing only
     void forceFileReset(boolean forceFileReset)
     {

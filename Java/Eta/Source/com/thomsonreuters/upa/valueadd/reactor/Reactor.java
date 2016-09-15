@@ -3554,6 +3554,11 @@ public class Reactor
                     if (tunnelStream.classOfService().flowControl().sendWindowSize() == -1)
                         tunnelStream.classOfService().flowControl().sendWindowSize(TunnelStream.DEFAULT_RECV_WINDOW);
 
+                    if (!tunnelStream.isProvider())
+                    {
+                    	// do the _bufferPool here 
+                    	tunnelStream.setupBufferPool();
+                    }                    
                 }
                 else
                 {
