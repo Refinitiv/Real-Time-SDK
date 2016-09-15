@@ -1150,6 +1150,7 @@ public class ReactorChannel extends VaNode
 
         // enable channel read/write locking for reactor since it's multi-threaded with worker thread
         ReactorConnectInfo reactorConnectInfo = _reactorConnectOptions.connectionList().get(_listIndex);
+        userSpecObj(reactorConnectInfo.connectOptions().userSpecObject());
         reactorConnectInfo.connectOptions().channelReadLocking(true);
         reactorConnectInfo.connectOptions().channelWriteLocking(true);
 
