@@ -98,7 +98,7 @@ public class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProvi
 			configStrBuilder().append( "OmmNiProviderConfigImpl::providerName parameter [" )
 									.append( providerName )
 									.append( "] is an non-existent niprovider name" );
-			throw ( oommICExcept().message( configStrBuilder().toString()));
+			throw ( oommICExcept().message( _configStrBuilder.toString()));
 		}
  		else //if ( name != null ) 
 		{

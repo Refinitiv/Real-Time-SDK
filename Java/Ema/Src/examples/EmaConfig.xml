@@ -79,8 +79,8 @@
 		<Channel>
 			<Name value="Channel_1"/>
 
-			<!-- ChannelType possible values are: -->
-			<!-- ChannelType::RSSL_SOCKET    - TCP IP connection type -->
+			<!-- ChannelType possible values are:														-->
+			<!-- ChannelType::RSSL_SOCKET    - TCP IP connection type									-->
 			<ChannelType value="ChannelType::RSSL_SOCKET"/>
 
 			<!-- CompressionType is optional: defaulted to None											-->
@@ -136,7 +136,7 @@
 
 				<InfoFilter>
 					<!-- optional value; if not specified EMA will assign it							-->
-					<ServiceId value="0"/>
+					<ServiceId value="11"/>
 					
 					<!-- optional value																	-->
 					<Vendor value="company name"/>

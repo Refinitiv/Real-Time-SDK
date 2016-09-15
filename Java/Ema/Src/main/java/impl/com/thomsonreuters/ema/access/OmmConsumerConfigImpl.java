@@ -97,7 +97,7 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 			configStrBuilder().append( "OmmConsumerConfigImpl::consumerName parameter [" )
 									.append( consumerName )
 									.append( "] is an non-existent consumer name" );
-			throw ( oommICExcept().message( configStrBuilder().toString()));
+			throw ( oommICExcept().message( _configStrBuilder.toString()));
 		}
  		else //if ( name != null ) 
 		{
