@@ -70,12 +70,12 @@ import com.thomsonreuters.upa.transport.TransportReturnCodes;
  * No additional files are necessary to run this application.
  * <p>
  * <H2>Running the application:</H2>
- * From the <i>PerfTools</i> directory run <i>ant</i> or <i>buildPerfTools.bat/ksh</i> script to
+ * From the <i>Applications/PerfTools</i> directory run <i>ant</i> or <i>buildPerfTools.bat/ksh</i> script to
  * build performance examples.
  * <p>
  * Run example with the following command:
  * <p>
- * java -cp ../Libs/upa.jar;../ValueAdd/Libs/upaValueAdd.jar;./xpp3-1.1.3_8.jar;./xpp3_min-1.1.3_8.jar;bin
+ * java -cp ../../Libs/upa.jar;../../Libs/upaValueAdd.jar;./xpp3-1.1.3_8.jar;./xpp3_min-1.1.3_8.jar;bin
  * com.thomsonreuters.upa.perftools.upajtransportperf.upajTransportPerf
  * <p>
  * <i>-help</i> displays command line options, with a brief description of each option
