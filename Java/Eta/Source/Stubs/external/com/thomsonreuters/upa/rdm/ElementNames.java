@@ -100,8 +100,12 @@ public class ElementNames
     public static final Buffer SUPPS_OOB_SNAPSHOTS = CodecFactory.createBuffer();
     /** AcceptingConsumerStatus */
     public static final Buffer ACCEPTING_CONS_STATUS = CodecFactory.createBuffer();
-    /** SourceMirroringMode */
+    /** @deprecated due to spelling error
+	 * 				use {@link #SOURCE_MIRROR_MODE}
+	 */
     public static final Buffer SOURCE_MIROR_MODE = CodecFactory.createBuffer();
+	/** SourceMirroringMode */
+	public static final Buffer SOURCE_MIRROR_MODE = CodecFactory.createBuffer();
     /** ConsumerStatus */
     public static final Buffer CONS_STATUS = CodecFactory.createBuffer();
     /** ServiceState */
@@ -310,8 +314,12 @@ public class ElementNames
         SUPPS_OOB_SNAPSHOTS.data("SupportsOutOfBandSnapshots");
         /** AcceptingConsumerStatus */
         ACCEPTING_CONS_STATUS.data("AcceptingConsumerStatus");
-        /** SourceMirroringMode */
+        /** @deprecated Uses buffer with spelling error in name
+		 * 				use {@link #SOURCE_MIRROR_MODE instead}
+		 */
         SOURCE_MIROR_MODE.data("SourceMirroringMode");
+		/** SourceMirroringMode */
+		SOURCE_MIRROR_MODE.data("SourceMirroringMode");
         /** ConsumerStatus */
         CONS_STATUS.data("ConsumerStatus");
         /** ServiceState */

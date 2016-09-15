@@ -6,7 +6,7 @@ import java.nio.channels.Selector;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 
 import com.thomsonreuters.upa.perftools.common.ClientChannelInfo;
@@ -29,8 +29,8 @@ import com.thomsonreuters.upa.transport.TransportReturnCodes;
  */
 public class TransportChannelHandler
 {
-    private List<ClientChannelInfo> _activeChannelList;       // List of channels that are active.
-    private List<ClientChannelInfo> _initializingChannelList; // List of initializing channels.
+    private Queue<ClientChannelInfo> _activeChannelList;       // List of channels that are active.
+    private Queue<ClientChannelInfo> _initializingChannelList; // List of initializing channels.
     private TransportThread _transportThread;                 // Reference to application-specified data.
     private Object _userSpec;                                 // Reference to application-specified data.
 
@@ -632,7 +632,7 @@ public class TransportChannelHandler
     /**
      * @return List of channels that are active.
      */
-    public List<ClientChannelInfo> activeChannelList()
+    public Queue<ClientChannelInfo> activeChannelList()
     {
         return _activeChannelList;
     }
@@ -640,7 +640,7 @@ public class TransportChannelHandler
     /**
      * @return List of initializing channels.
      */
-    public List<ClientChannelInfo> initializingChannelList()
+    public Queue<ClientChannelInfo> initializingChannelList()
     {
         return _initializingChannelList;
     }

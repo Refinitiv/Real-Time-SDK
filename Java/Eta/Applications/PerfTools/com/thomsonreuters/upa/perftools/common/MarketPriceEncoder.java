@@ -3,11 +3,22 @@ package com.thomsonreuters.upa.perftools.common;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.codec.DataTypes;
+import com.thomsonreuters.upa.codec.Date;
+import com.thomsonreuters.upa.codec.DateTime;
 import com.thomsonreuters.upa.codec.EncodeIterator;
 import com.thomsonreuters.upa.codec.FieldEntry;
 import com.thomsonreuters.upa.codec.FieldList;
+import com.thomsonreuters.upa.codec.Int;
 import com.thomsonreuters.upa.codec.MsgClasses;
+import com.thomsonreuters.upa.codec.Qos;
+import com.thomsonreuters.upa.codec.Real;
+import com.thomsonreuters.upa.codec.State;
+import com.thomsonreuters.upa.codec.Time;
 import com.thomsonreuters.upa.codec.UInt;
+import com.thomsonreuters.upa.codec.Enum;
+import com.thomsonreuters.upa.codec.Buffer;
+import com.thomsonreuters.upa.codec.Float;
+import com.thomsonreuters.upa.codec.Double;
 
 /**
  * Provides encoding of a MarketPrice domain data payload.
@@ -75,8 +86,50 @@ public class MarketPriceEncoder
 
 		for(int i = 0; i < mpMsg.fieldEntryCount(); ++i)
 		{
-		    ret = mpMsg.fieldEntries()[i].fieldEntry().encode(_eIter,
-		                                                      mpMsg.fieldEntries()[i].value());
+		    switch (mpMsg.fieldEntries()[i].fieldEntry().dataType())
+		    {
+		        case DataTypes.INT:
+		            ret = mpMsg.fieldEntries()[i].fieldEntry().encode(_eIter, (Int)mpMsg.fieldEntries()[i].value());
+		            break;
+                case DataTypes.UINT:
+                    ret = mpMsg.fieldEntries()[i].fieldEntry().encode(_eIter, (UInt)mpMsg.fieldEntries()[i].value());
+                    break;
+                case DataTypes.REAL:
+                    ret = mpMsg.fieldEntries()[i].fieldEntry().encode(_eIter, (Real)mpMsg.fieldEntries()[i].value());
+                    break;
+                case DataTypes.DATE:
+                    ret = mpMsg.fieldEntries()[i].fieldEntry().encode(_eIter, (Date)mpMsg.fieldEntries()[i].value());
+                    break;
+                case DataTypes.TIME:
+                    ret = mpMsg.fieldEntries()[i].fieldEntry().encode(_eIter, (Time)mpMsg.fieldEntries()[i].value());
+                    break;
+                case DataTypes.DATETIME:
+                    ret = mpMsg.fieldEntries()[i].fieldEntry().encode(_eIter, (DateTime)mpMsg.fieldEntries()[i].value());
+                    break;
+                case DataTypes.QOS:
+                    ret = mpMsg.fieldEntries()[i].fieldEntry().encode(_eIter, (Qos)mpMsg.fieldEntries()[i].value());
+                    break;
+                case DataTypes.STATE:
+                    ret = mpMsg.fieldEntries()[i].fieldEntry().encode(_eIter, (State)mpMsg.fieldEntries()[i].value());
+                    break;
+                case DataTypes.ENUM:
+                    ret = mpMsg.fieldEntries()[i].fieldEntry().encode(_eIter, (Enum)mpMsg.fieldEntries()[i].value());
+                    break;
+                case DataTypes.BUFFER:
+                case DataTypes.RMTES_STRING:
+                    ret = mpMsg.fieldEntries()[i].fieldEntry().encode(_eIter, (Buffer)mpMsg.fieldEntries()[i].value());
+                    break;
+                case DataTypes.FLOAT:
+                    ret = mpMsg.fieldEntries()[i].fieldEntry().encode(_eIter, (Float)mpMsg.fieldEntries()[i].value());
+                    break;
+                case DataTypes.DOUBLE:
+                    ret = mpMsg.fieldEntries()[i].fieldEntry().encode(_eIter, (Double)mpMsg.fieldEntries()[i].value());
+                    break;
+                default:
+                    ret = CodecReturnCodes.FAILURE;
+                    break;
+		    }
+		    
 			if (ret < CodecReturnCodes.SUCCESS)
 				return ret;
 		}

@@ -46,11 +46,11 @@ import com.thomsonreuters.upa.codec.EncodeIterator;
  * This example is intended to run within an IDE but can also be ran
  * stand-alone.
  * <p>
- * To run stand-alone, change directory to the <i>Examples</i> directory, run
+ * To run stand-alone, change directory to the <i>Applications/Examples</i> directory, run
  * <i>ant</i> to build, then run the following command. Use this as a template
  * to run the other examples in this package.
  * <p>
- * java -cp ./bin;../Libs/upa.jar
+ * java -cp ./bin;../../Libs/upa.jar
  * com.thomsonreuters.upa.examples.codec.CodecExample
  */
 public class CodecExample

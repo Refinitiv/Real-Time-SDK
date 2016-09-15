@@ -20,6 +20,7 @@ set CLASSPATH=.\;..\..\Libs\upa.jar;..\..\Libs\jdacsUpalib.jar;..\..\Libs\upaVal
 %JAVAC% -d bin com\thomsonreuters\upa\valueadd\examples\queueconsumer\*.java
 %JAVAC% -d bin com\thomsonreuters\upa\valueadd\examples\watchlistconsumer\*.java
 
+@ECHO OFF
 if exist ..\..\Libs\ansipage.jar (
 	echo Building AnsiPageExample...
 	%JAVAC% -d bin com\thomsonreuters\upa\examples\ansipage\*.java 
@@ -27,6 +28,7 @@ if exist ..\..\Libs\ansipage.jar (
 	echo Warning: ansipage.jar not found; not building AnsiPageExample.
 )
 
+@ECHO OFF
 if exist ..\..\Libs\jdacsUpalib.jar (
 	echo Building AuthLockExample...
 	%JAVAC% -d bin com\thomsonreuters\upa\examples\authlock\*.java

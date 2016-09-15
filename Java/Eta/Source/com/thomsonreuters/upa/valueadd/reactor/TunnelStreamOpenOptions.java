@@ -228,6 +228,7 @@ public class TunnelStreamOpenOptions
 
     /**
      * Sets the name of the TunnelStream.
+     * Length of the name must be in the range of 0-255.
      */
     public void name(String name)
     {

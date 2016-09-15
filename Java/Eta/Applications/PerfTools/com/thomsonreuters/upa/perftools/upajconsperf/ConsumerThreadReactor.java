@@ -70,7 +70,7 @@ public class ConsumerThreadReactor extends ConsumerThread implements ConsumerCal
     private ReactorSubmitOptions _submitOptions;
     private Service _service;
     private ReactorConnectInfo _connectInfo; /* connection information */
-    private ReactorChannelInfo _chnlInfo; /* channel information */
+    private ReactorChannelInfo _reactorChannnelInfo; /* channel information */
     private ReactorChannel _reactorChannel;
     private Selector _selector;
     private PostMsg _postMsg;
@@ -91,7 +91,7 @@ public class ConsumerThreadReactor extends ConsumerThread implements ConsumerCal
         _dispatchOptions = ReactorFactory.createReactorDispatchOptions();
         _submitOptions = ReactorFactory.createReactorSubmitOptions();
         _connectInfo = ReactorFactory.createReactorConnectInfo();
-        _chnlInfo = ReactorFactory.createReactorChannelInfo();
+        _reactorChannnelInfo = ReactorFactory.createReactorChannelInfo();
         _service = DirectoryMsgFactory.createService();
         _postMsg = (PostMsg)CodecFactory.createMsg();
         _postBuffer = CodecFactory.createBuffer();
@@ -222,7 +222,7 @@ public class ConsumerThreadReactor extends ConsumerThread implements ConsumerCal
                 nextTickTime += _nsecPerTick;
 
                 // only send bursts on tick boundary
-                if (_requestsSent && _reactorChannel.state() == ReactorChannel.State.READY)
+                if (_requestsSent)
                 {
                     // send item request and post bursts
                     if ((ret = sendBursts(currentTicks, _reactorChannel.channel(), _service)) < TransportReturnCodes.SUCCESS)
@@ -503,12 +503,12 @@ public class ConsumerThreadReactor extends ConsumerThread implements ConsumerCal
                 }
                 
                 // get and print the channel info
-                if (_reactorChannel.info(_chnlInfo, _errorInfo) != TransportReturnCodes.SUCCESS)
+                if (_reactorChannel.info(_reactorChannnelInfo, _errorInfo) != TransportReturnCodes.SUCCESS)
                 {
                     closeChannelAndShutDown("Channel.info() failed");
                     return ReactorCallbackReturnCodes.FAILURE;
                 } 
-                System.out.printf("Channel active. " + _chnlInfo.toString() + "\n");
+                System.out.printf("Channel active. " + _reactorChannnelInfo.channelInfo().toString() + "\n");
 
                 break;
             }

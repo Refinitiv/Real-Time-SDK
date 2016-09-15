@@ -456,7 +456,8 @@ public class WlDirectoryHandler implements WlHandler
     		_tempUpdateMsg.clear();
     		_watchlist.convertRDMToCodecMsg(_directoryUpdate, _tempUpdateMsg);
     		
-    		if ((callbackUser("WlDirectoryHandler.handleClose", _tempUpdateMsg, _directoryUpdate, _errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
+            _tempWlInteger.value(_tempUpdateMsg.streamId());
+    		if ((callbackUser("WlDirectoryHandler.handleClose", _tempUpdateMsg, _directoryUpdate, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), _errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
     		{
     			break;
     		}
@@ -518,7 +519,8 @@ public class WlDirectoryHandler implements WlHandler
                 _tempUpdateMsg.clear();
                 _watchlist.convertRDMToCodecMsg(_directoryUpdate, _tempUpdateMsg);
 
-                if ((callbackUser("WlDirectoryHandler.handleClose", _tempUpdateMsg, _directoryUpdate, _errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
+                _tempWlInteger.value(_tempUpdateMsg.streamId());
+                if ((callbackUser("WlDirectoryHandler.handleClose", _tempUpdateMsg, _directoryUpdate, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), _errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
                 {
                     break;
                 }
@@ -622,7 +624,8 @@ public class WlDirectoryHandler implements WlHandler
                     _watchlist.convertRDMToCodecMsg(newDirectoryRefresh, _tempRefreshMsg);
                     
                     // callback user
-                    if ((ret = callbackUser("WlDirectoryHandler.readRefreshMsg", _tempRefreshMsg, newDirectoryRefresh, errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
+                    _tempWlInteger.value(_tempRefreshMsg.streamId());
+                    if ((ret = callbackUser("WlDirectoryHandler.readRefreshMsg", _tempRefreshMsg, newDirectoryRefresh, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
                      {
                         // put Directory Refresh services back into pool since we are finished with them
                         for (int j = 0; j < newDirectoryRefresh.serviceList().size(); ++j)
@@ -755,7 +758,8 @@ public class WlDirectoryHandler implements WlHandler
                     _watchlist.convertRDMToCodecMsg(_directoryUpdate, _tempUpdateMsg);
                     
                     // callback user
-                    if ((ret = callbackUser("WlDirectoryHandler.readRefreshMsgAsUpdate", _tempUpdateMsg, _directoryUpdate, errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
+                    _tempWlInteger.value(_tempUpdateMsg.streamId());
+                    if ((ret = callbackUser("WlDirectoryHandler.readRefreshMsgAsUpdate", _tempUpdateMsg, _directoryUpdate, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
                      {
                         // put Directory Refresh services back into pool since we are finished with them
                         for (int j = 0; j < newDirectoryRefresh.serviceList().size(); ++j)
@@ -889,7 +893,8 @@ public class WlDirectoryHandler implements WlHandler
                     _directoryUpdateCopy.streamId(wlRequest.requestMsg().streamId());
                     
                     // callback user
-                    if ((ret = callbackUser("WlDirectoryHandler.readUpdateMsg", msg, _directoryUpdateCopy, errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
+                    _tempWlInteger.value(msg.streamId());
+                    if ((ret = callbackUser("WlDirectoryHandler.readUpdateMsg", msg, _directoryUpdateCopy, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
                      {
                         // break out of loop for error
                         return ret;
@@ -981,7 +986,8 @@ public class WlDirectoryHandler implements WlHandler
                     _watchlist.convertRDMToCodecMsg(newDirectoryRefresh, _tempRefreshMsg);
 	                	
 	                    // callback user
-                    if ((ret = callbackUser("WlDirectoryHandler.dispatch", _tempRefreshMsg, newDirectoryRefresh, errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
+                    _tempWlInteger.value(_tempRefreshMsg.streamId());
+                    if ((ret = callbackUser("WlDirectoryHandler.dispatch", _tempRefreshMsg, newDirectoryRefresh, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
                     {
 	                        // put Directory Refresh services back into pool since we are finished with them
 	                        for (int j = 0; j < newDirectoryRefresh.serviceList().size(); ++j)
@@ -1156,7 +1162,8 @@ public class WlDirectoryHandler implements WlHandler
             	_directoryStatus.filter(wlRequest.requestMsg().msgKey().filter());
             	
                 // callback user
-                if ((ret = callbackUser("WlDirectoryHandler.fanoutStatus", _statusMsg, _directoryStatus, _errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
+                _tempWlInteger.value(_statusMsg.streamId());
+                if ((ret = callbackUser("WlDirectoryHandler.fanoutStatus", _statusMsg, _directoryStatus, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), _errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
                  {
                 	// Break out of loop
                 	break;
@@ -1168,13 +1175,10 @@ public class WlDirectoryHandler implements WlHandler
     }
     
     @Override
-    public int callbackUser(String location, Msg msg, MsgBase rdmMsg, ReactorErrorInfo errorInfo)
+    public int callbackUser(String location, Msg msg, MsgBase rdmMsg, WlRequest wlRequest, ReactorErrorInfo errorInfo)
     {
     	
         int ret = ReactorReturnCodes.SUCCESS;
-    	
-        _tempWlInteger.value(msg.streamId());
-    	WlRequest wlRequest = _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger);
 
         ret = _watchlist.reactor().sendAndHandleDirectoryMsgCallback(location,
                                                                  _watchlist.reactorChannel(),

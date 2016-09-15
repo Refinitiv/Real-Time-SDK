@@ -67,7 +67,7 @@ class ConsumerStatusServiceImpl implements ConsumerStatusService
                 return ret;
             }
 
-            if (elementEntry.name().equals(ElementNames.SOURCE_MIROR_MODE))
+            if (elementEntry.name().equals(ElementNames.SOURCE_MIRROR_MODE))
             {
                 if (elementEntry.dataType() != DataTypes.UINT)
                 {
@@ -101,7 +101,7 @@ class ConsumerStatusServiceImpl implements ConsumerStatusService
             return ret;
 
         elementEntry.clear();
-        elementEntry.name(ElementNames.SOURCE_MIROR_MODE);
+        elementEntry.name(ElementNames.SOURCE_MIRROR_MODE);
         elementEntry.dataType(DataTypes.UINT);
         tmpUInt.value(sourceMirroringMode);
         ret = elementEntry.encode(encodeIter, tmpUInt);

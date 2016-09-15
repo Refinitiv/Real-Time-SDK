@@ -49,6 +49,7 @@ public class ProviderPerfConfig
     private static int                 _writeStatsInterval;          // Controls how often statistics are written 
     private static boolean             _displayStats;                // Controls whether stats appear on the screen
     private static boolean             _directWrite;                 // direct write enabled
+    private static boolean             _useReactor;                  // Use the VA Reactor instead of the UPA Channel for sending and receiving.
     
     static
     {
@@ -82,6 +83,7 @@ public class ProviderPerfConfig
         CommandLine.addOption("writeStatsInterval", 5, "Controls how often stats are written to the file");
         CommandLine.addOption("runTime", 360, "Runtime of the application, in seconds");
         CommandLine.addOption("threads", 1, "Number of provider threads to create");
+        CommandLine.addOption("reactor", false, "Use the VA Reactor instead of the UPA Channel for sending and receiving");
     }
 
     private ProviderPerfConfig()
@@ -124,6 +126,7 @@ public class ProviderPerfConfig
         String latencyUpdateRate = CommandLine.value("latencyUpdateRate");
         String latencyGenMsgRate = CommandLine.value("genericMsgLatencyRate");
         _directWrite = CommandLine.booleanValue("directWrite");
+        _useReactor = CommandLine.booleanValue("reactor");
         try
         {
             _runTime = CommandLine.intValue("runTime");
@@ -264,7 +267,8 @@ public class ProviderPerfConfig
                 "                 Packing: " + (_totalBuffersPerPack <= 1 ? "No" :  "Yes(max " + _totalBuffersPerPack  + " per pack, " + _packingBufferLength +" buffer size)") + "\n" +
                 "            Service Name: " + _serviceName + "\n" +
                 "              Service ID: " + _serviceId + "\n" +
-                "              Open Limit: " + _openLimit + "\n" ;
+                "              Open Limit: " + _openLimit + "\n" +
+                "             Use Reactor: " + (_useReactor ? "Yes" : "No") + "\n";
                                }
 
     /** Time application runs before exiting. */
@@ -642,4 +646,10 @@ public class ProviderPerfConfig
 	{
 		_genMsgsPerTickRemainder = genMsgsPerTickRemainder;
 	}
+	
+    /** Use the VA Reactor instead of the UPA Channel for sending and receiving. */
+    public static boolean useReactor()
+    {
+        return _useReactor;
+    }
 }

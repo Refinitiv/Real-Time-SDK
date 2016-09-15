@@ -1112,7 +1112,8 @@ public class TunnelStream
 	{
 		_streamOpen = true;
 		_firstIsSendWindowOpenCall = true;
-        _bufferPool = new SlicedBufferPool(_classOfService.common().maxMsgSize(), guaranteedOutputBuffers());
+
+		if (isProvider()) setupBufferPool();
 		
 		if (_tunnelStreamState != TunnelStreamState.NOT_OPEN)
 		{
@@ -1122,7 +1123,7 @@ public class TunnelStream
 		}
 
 		if (_reactorChannel.tunnelStreamManager().reactorChannel().channel() != null)
-		{
+		 {
 		    if (!isProvider()) // consumer tunnel stream
 		    {
 		        _tunnelStreamState = TunnelStreamState.SEND_REQUEST;
@@ -1140,6 +1141,11 @@ public class TunnelStream
 		return ReactorReturnCodes.SUCCESS;
 	}
 
+	void setupBufferPool()
+	{	
+		_bufferPool = new SlicedBufferPool(_classOfService.common().maxMsgSize(), guaranteedOutputBuffers());
+	}
+	
     // For testing only
     void forceFileReset(boolean forceFileReset)
     {
@@ -2350,9 +2356,14 @@ public class TunnelStream
 	int sendCloseMsg(Error error)
 	{
 		int ret;
+        TunnelStreamState tunnelStreamState = _tunnelStreamState;
+
 		if ((ret = streamClosed(error)) != ReactorReturnCodes.SUCCESS)
 		return ret;		
 	    
+		if (tunnelStreamState == TunnelStreamState.SEND_REQUEST || tunnelStreamState == TunnelStreamState.NOT_OPEN)
+		    return ReactorReturnCodes.SUCCESS; /* Stream was not open, no need to send CloseMsg. */
+		
         // send close for consumer and status for provider
         _encMsg.clear();
         _encMsg.streamId(_streamId);

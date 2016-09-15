@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="examples">
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.7"/>
+    <property name="source" value="1.7"/>
+
+	<property name="bin.dir" value="bin"/>
+	<property name="libs.dir" value="../../Libs"/>	
+	
+	<path id="examples.classpath">
+		<pathelement location="${libs.dir}/upa.jar"/>
+		<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+	</path>
+
+	<target name="init">
+		<echo message="Creating a directory for the compiler output" />
+        <mkdir dir="${bin.dir}"/>
+    </target>
+
+	<target name="clean">
+		<echo message="Cleaning up old build output" />
+        <delete dir="${bin.dir}"/>
+    </target>
+    
+	<target depends="clean" name="cleanall"/>
+
+	<target depends="clean,build-training" name="build"/>
+    
+	<target depends="init" name="build-training">
+		<echo message="Building the training examples" />
+        <javac debug="false" debuglevel="${debuglevel}" destdir="${bin.dir}" source="${source}" target="${target}" includeantruntime="false">
+        	<src path="."/>
+			<src path="../Examples/com/thomsonreuters/upa/examples/common"/>
+			<src path="../Examples/com/thomsonreuters/upa/examples/rdm"/>
+            <classpath refid="examples.classpath"/>
+        </javac>
+    </target>
+	
+	<!-- this target runs the provider training example module 1a connect -->
+	<target name="run-provider-mod1a">
+		<java classname="com.thomsonreuters.upa.training.provider.Module_1a_Connect"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+	<!-- this target runs the provider training example module 1b ping -->
+	<target name="run-provider-mod1b">
+		<java classname="com.thomsonreuters.upa.training.provider.Module_1b_Ping"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+	<!-- this target runs the provider training example module 1c Read Write -->
+	<target name="run-provider-mod1c">
+		<java classname="com.thomsonreuters.upa.training.provider.Module_1c_ReadWrite"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+	<!-- this target runs the provider training example module 2 Login -->
+	<target name="run-provider-mod2">
+		<java classname="com.thomsonreuters.upa.training.provider.Module_2_Login"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+	<!-- this target runs the provider training example module 3 Provide Directory -->
+	<target name="run-provider-mod3">
+		<java classname="com.thomsonreuters.upa.training.provider.Module_3_ProvideDirectory"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+	<!-- this target runs the provider training example module 4 Provide Dictionary -->
+	<target name="run-provider-mod4">
+		<java classname="com.thomsonreuters.upa.training.provider.Module_4_ProvideDictionary"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+	<!-- this target runs the provider training example module 5 Handle Item Requests -->
+	<target name="run-provider-mod5">
+		<java classname="com.thomsonreuters.upa.training.provider.Module_5_HandleItemRequest"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+
+	<!-- this target runs the consumer training example module 1a Connect -->
+	<target name="run-consumer-mod1a">
+		<java classname="com.thomsonreuters.upa.training.consumer.Module_1a_Connect"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+	<!-- this target runs the consumer training example module 1b ping -->
+	<target name="run-consumer-mod1b">
+		<java classname="com.thomsonreuters.upa.training.consumer.Module_1b_Ping"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+	<!-- this target runs the consumer training example module 1c Read/Write -->
+	<target name="run-consumer-mod1c">
+		<java classname="com.thomsonreuters.upa.training.consumer.Module_1c_ReadWrite"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+	<!-- this target runs the consumer training example module 2 Login -->
+	<target name="run-consumer-mod2">
+		<java classname="com.thomsonreuters.upa.training.consumer.Module_2_Login"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+	<!-- this target runs the consumer training example module 3 Directory -->
+	<target name="run-consumer-mod3">
+		<java classname="com.thomsonreuters.upa.training.consumer.Module_3_Directory"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+	<!-- this target runs the consumer training example module 4 Dictionary -->
+	<target name="run-consumer-mod4">
+		<java classname="com.thomsonreuters.upa.training.consumer.Module_4_Dictionary"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+	<!-- this target runs the consumer training example module 5 Item Request -->
+	<target name="run-consumer-mod5">
+		<java classname="com.thomsonreuters.upa.training.consumer.Module_5_ItemRequest"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+	<!-- this target runs the Non-interactive provider training example module 1a Connect -->
+	<target name="run-niprovider-mod1a">
+		<java classname="com.thomsonreuters.upa.training.niprovider.Module_1a_Connect"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+		<!-- this target runs the Non-interactive provider training example module 1b Ping -->
+	<target name="run-niprovider-mod1b">
+		<java classname="com.thomsonreuters.upa.training.niprovider.Module_1b_Ping"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+		<!-- this target runs the Non-interactive provider training example module 1c ReadWrite -->
+	<target name="run-niprovider-mod1c">
+		<java classname="com.thomsonreuters.upa.training.niprovider.Module_1c_ReadWrite"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+		<!-- this target runs the Non-interactive provider training example module 2 Login -->
+	<target name="run-niprovider-mod2">
+		<java classname="com.thomsonreuters.upa.training.niprovider.Module_2_Login"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+		<!-- this target runs the Non-interactive provider training example module 3 ProvideDirectory -->
+	<target name="run-niprovider-mod3">
+		<java classname="com.thomsonreuters.upa.training.niprovider.Module_3_ProvideDirectory"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+		<!-- this target runs the Non-interactive provider training example module 4 Dictionary -->
+	<target name="run-niprovider-mod4">
+		<java classname="com.thomsonreuters.upa.training.niprovider.Module_4_Dictionary"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+		<!-- this target runs the Non-interactive provider training example module 5 Provide Content -->
+	<target name="run-niprovider-mod5">
+		<java classname="com.thomsonreuters.upa.training.niprovider.Module_5_ProvideContent"
+			  fork="true">
+			<classpath>
+				<pathelement path="bin" />
+				<pathelement path="${libs.dir}/upa.jar" />
+				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+	
+</project>

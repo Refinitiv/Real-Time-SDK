@@ -1,6 +1,6 @@
 package com.thomsonreuters.upa.perftools.common;
 
-import java.util.List;
+import java.util.Queue;
 
 import com.thomsonreuters.upa.transport.Channel;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
@@ -20,6 +20,6 @@ public class ClientChannelInfo
     public boolean                      checkPings;             // Whether ping handling is done for this channel.
     public long                         nextReceivePingTime;    // Time before which this channel should receive a ping.
     public long                         nextSendPingTime;       // Time before which a ping should be sent for this channel.
-    public List<ClientChannelInfo>      parentQueue;            // Reference back to the list this channel is an element of.
+    public Queue<ClientChannelInfo>     parentQueue;            // Reference back to the list this channel is an element of.
     public ReactorChannel               reactorChannel;         // Use the VA Reactor instead of the UPA Channel for sending and receiving
 }

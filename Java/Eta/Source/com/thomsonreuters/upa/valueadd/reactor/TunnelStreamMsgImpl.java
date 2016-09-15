@@ -84,7 +84,7 @@ class TunnelStreamMsgImpl extends TunnelStreamMsg
 
     public int requestBufferSize()
     {
-        return 256;
+        return  _name.length() + 256;
     }
 
     /* Sets the message header members of a TunnelStream request. */

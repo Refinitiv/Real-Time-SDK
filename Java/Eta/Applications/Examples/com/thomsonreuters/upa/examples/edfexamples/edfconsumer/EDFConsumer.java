@@ -55,10 +55,10 @@ import com.thomsonreuters.upa.transport.TransportFactory;
  * <p>
  * <H2>Running the application:</H2>
  * <p>
- * Change directory to the <i>Examples</i> directory and run <i>ant</i> to
+ * Change directory to the <i>Applications/Examples</i> directory and run <i>ant</i> to
  * build.
  * <p>
- * java -cp ./bin;../ValueAdd/Libs/upaValueAdd.jar;../Libs/upa.jar
+ * java -cp ./bin;../../Libs/upaValueAdd.jar;../../Libs/upa.jar
  * com.thomsonreuters.upa.examples.edfexamples.edfconsumer.EDFConsumer [-mp marketPriceItemName] 
  * [-mbo marketByOrderItemName] [-mbp marketByPriceItemName] [-rtda realTimeServerAddress]
  * [-rtdp realTimeServerPort] [-rtif realTimeNetworkInterface] [-ssa snapshotServerAddress]

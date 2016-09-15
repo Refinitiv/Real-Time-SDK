@@ -181,7 +181,7 @@ public class ProviderThread extends Thread
         // so that packing can continue in the next buffer
         session.packedBufferCount(0);
         
-        if (!NIProvPerfConfig.useReactor()) // use UPA Channel for sending and receiving
+        if (!NIProvPerfConfig.useReactor() && !ProviderPerfConfig.useReactor()) // use UPA Channel for sending and receiving
         {
             _writeArgs.clear();
             _writeArgs.priority(WritePriorities.HIGH);
@@ -239,8 +239,11 @@ public class ProviderThread extends Thread
             }
             else if (retval < ReactorReturnCodes.SUCCESS)
             {
-                // write failed, release buffer and shut down 
-                session.clientChannelInfo().reactorChannel.releaseBuffer(session.writingBuffer(), _errorInfo);
+                // write failed, release buffer and shut down
+                if (session.clientChannelInfo().reactorChannel.state() != ReactorChannel.State.CLOSED)
+                {
+                    session.clientChannelInfo().reactorChannel.releaseBuffer(session.writingBuffer(), _errorInfo);
+                }
                 error.text("ReactorChannel.submit() failed with return code: " + retval + " <" + _errorInfo.error().text() + ">");
                 error.errorId(retval);
                 return TransportReturnCodes.FAILURE;   
@@ -346,7 +349,7 @@ public class ProviderThread extends Thread
     {
        TransportBuffer msgBuf;
        
-       if (!NIProvPerfConfig.useReactor()) // use UPA Channel for sending and receiving
+       if (!NIProvPerfConfig.useReactor() && !ProviderPerfConfig.useReactor()) // use UPA Channel for sending and receiving
        {
            msgBuf = session.clientChannelInfo().channel.getBuffer(length, ProviderPerfConfig.totalBuffersPerPack() > 1, error);
        }
@@ -398,7 +401,7 @@ public class ProviderThread extends Thread
        {
            //Pack the buffer and continue using it.
            session.packedBufferCount(session.packedBufferCount()+1);
-           if (!NIProvPerfConfig.useReactor()) // use UPA Channel for sending and receiving
+           if (!NIProvPerfConfig.useReactor() && !ProviderPerfConfig.useReactor()) // use UPA Channel for sending and receiving
            {
                if (session.clientChannelInfo().channel.packBuffer(session.writingBuffer(), error) < TransportReturnCodes.SUCCESS)
                {

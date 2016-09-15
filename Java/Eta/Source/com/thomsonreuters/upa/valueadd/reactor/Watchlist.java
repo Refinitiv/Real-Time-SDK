@@ -520,9 +520,10 @@ class Watchlist extends VaNode
         if (wlRequest.tableKey() != null)
         {
             wlRequest.tableKey().returnToPool();
-        }
+        }                
         wlRequest.state(State.RETURN_TO_POOL);
         wlRequest.returnToPool();
+        _itemHandler.putWlRequestViewListBackToPool(wlRequest);
     }
     
     /* Close the watchlist. */

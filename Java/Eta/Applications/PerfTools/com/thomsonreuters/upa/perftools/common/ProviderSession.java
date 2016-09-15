@@ -11,6 +11,8 @@ import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.rdm.InstrumentNameTypes;
 import com.thomsonreuters.upa.transport.Error;
 import com.thomsonreuters.upa.transport.TransportBuffer;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 
 /** Represents one channel's session. Stores information about items requested. */
 public class ProviderSession
@@ -31,6 +33,8 @@ public class ProviderSession
     private ItemEncoder _itemEncoder;                           // item encoder
     private XmlMsgData _xmlMsgData;                             // Msgs from XML
     private int _unexpectedCloseCount;                          // Count of unexpected close messages received
+    private ProviderThread _providerThread;                     // Provider thread of this session.
+    private ReactorErrorInfo _errorInfo;                        // Use the VA Reactor instead of the UPA Channel for sending and receiving
 
     public ProviderSession(XmlMsgData xmlMsgData, ItemEncoder itemEncoder)
     {
@@ -41,6 +45,7 @@ public class ProviderSession
         _itemStreamIdTable = new HashMap<Integer, ItemInfo>(100000);
         _xmlMsgData = xmlMsgData;
         _itemEncoder = itemEncoder;
+        _errorInfo = ReactorFactory.createReactorErrorInfo();
     }
 
     /**
@@ -165,7 +170,7 @@ public class ProviderSession
             itemInfo.itemData(mpItem);
 
             int bufLen = _itemEncoder.estimateRefreshBufferLength(itemInfo);
-            TransportBuffer testBuffer = _clientChannelInfo.channel.getBuffer(bufLen, false, error);
+            TransportBuffer testBuffer = getTempBuffer(bufLen, error);
             if (testBuffer == null)
                 return PerfToolsReturnCodes.FAILURE;
             int ret = _itemEncoder.encodeRefresh(_clientChannelInfo.channel, itemInfo, testBuffer, null, 0, error);
@@ -177,13 +182,13 @@ public class ProviderSession
             System.out.printf("  MarketPrice RefreshMsg (without name): \n");
             System.out.printf("         estimated length: %d bytes\n", bufLen);
             System.out.printf("    approx encoded length: %d bytes\n", testBuffer.length());
-            _clientChannelInfo.channel.releaseBuffer(testBuffer, error);
+            releaseTempBuffer(testBuffer, error);
 
             // Update msgs
             for (int i = 0; i < _xmlMsgData.marketPriceUpdateMsgCount(); ++i)
             {
                 bufLen = _itemEncoder.estimateUpdateBufferLength(itemInfo);
-                testBuffer = _clientChannelInfo.channel.getBuffer(bufLen, false, error);
+                testBuffer = getTempBuffer(bufLen, error);
                 if (testBuffer == null)
                     return PerfToolsReturnCodes.FAILURE;
                 ret = _itemEncoder.encodeUpdate(_clientChannelInfo.channel, itemInfo, testBuffer, null, 0, error);
@@ -194,8 +199,7 @@ public class ProviderSession
                 System.out.printf("  MarketPrice UpdateMsg %d: \n", i + 1);
                 System.out.printf("         estimated length: %d bytes\n", bufLen);
                 System.out.printf("    approx encoded length: %d bytes\n", testBuffer.length());
-                _clientChannelInfo.channel.releaseBuffer(testBuffer, error);
-
+                releaseTempBuffer(testBuffer, error);
             }
         }
 
@@ -342,5 +346,49 @@ public class ProviderSession
     public void timeActivated(long timeActivated)
     {
         _timeActivated = timeActivated;
+    }
+    
+    /**
+     * Provider thread of this session.
+     */
+    public ProviderThread providerThread()
+    {
+        return _providerThread;
+    }
+
+    /**
+     * Provider thread of this session.
+     */
+    public void providerThread(ProviderThread providerThread)
+    {
+        _providerThread = providerThread;
+    }
+    
+    private TransportBuffer getTempBuffer(int length, Error error)
+    {
+        TransportBuffer msgBuf = null;
+        
+        if (!NIProvPerfConfig.useReactor() && !ProviderPerfConfig.useReactor()) // use UPA Channel for sending and receiving
+        {
+            msgBuf = _clientChannelInfo.channel.getBuffer(length, false, error);
+        }
+        else // use UPA VA Reactor for sending and receiving
+        {
+            msgBuf = _clientChannelInfo.reactorChannel.getBuffer(length, false, _errorInfo);
+        }
+
+        return msgBuf;
+    }
+    
+    private void releaseTempBuffer(TransportBuffer msgBuf, Error error)
+    {
+        if (!NIProvPerfConfig.useReactor() && !ProviderPerfConfig.useReactor()) // use UPA Channel for sending and receiving
+        {
+            _clientChannelInfo.channel.releaseBuffer(msgBuf, error);
+        }
+        else // use UPA VA Reactor for sending and receiving
+        {
+            _clientChannelInfo.reactorChannel.releaseBuffer(msgBuf, _errorInfo);
+        }
     }
 }

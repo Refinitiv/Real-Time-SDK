@@ -1,5 +1,6 @@
 package com.thomsonreuters.upa.valueadd.reactor;
 
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -94,6 +95,14 @@ class WlStream extends VaNode
     int _requestsPausedCount;
     boolean _paused;
     
+    WlView _aggregateView;
+    int _requestsWithViewCount;
+    boolean _pendingViewChange;  
+    boolean _pendingViewRefresh;
+    boolean _viewSubsetContained;
+    Buffer _viewBuffer = CodecFactory.createBuffer();
+    ByteBuffer _viewByteBuffer = ByteBuffer.allocateDirect(2048);
+        
     WlStream()
     {
         _ackMsg = (AckMsg)CodecFactory.createMsg();
@@ -395,7 +404,53 @@ class WlStream extends VaNode
     int sendMsg(Msg msg, ReactorSubmitOptions submitOptions, ReactorErrorInfo errorInfo)
     {
         int ret = ReactorReturnCodes.SUCCESS;
-        
+     
+        if ( msg.msgClass() == MsgClasses.REQUEST)
+        {         
+			if (_requestsWithViewCount > 0 )
+			{
+				if (_requestsWithViewCount == _userRequestList.size() && 
+						_watchlist._loginHandler._loginRefresh.features().checkHasSupportViewRequests() &&
+						_watchlist._loginHandler._loginRefresh.features().supportViewRequests() == 1)
+				{			
+					if (_pendingViewChange && !_pendingViewRefresh)
+					{						
+						_viewSubsetContained = false;
+						if(_aggregateView.viewHandler().aggregateViewContainsNewViews(_aggregateView))
+							_viewSubsetContained = true;			
+						_aggregateView.viewHandler().aggregateViewMerge((RequestMsg)msg, _aggregateView);
+				
+						msg.flags(msg.flags() | RequestMsgFlags.HAS_VIEW);
+			   	
+						_viewByteBuffer.clear();
+						_viewBuffer.data(_viewByteBuffer);
+						_eIter.clear();
+						_eIter.setBufferAndRWFVersion(_viewBuffer, _reactorChannel.majorVersion(), _reactorChannel.minorVersion());			       
+						_aggregateView.viewHandler().encodeViewRequest(_eIter, _aggregateView);
+						msg.containerType(DataTypes.ELEMENT_LIST);
+						msg.encodedDataBody(_viewBuffer);
+					}
+					else
+					{
+						// until viewRefresh is applied
+	                    // add to unsent message queue and trigger dispatch
+                        addToUnsentMsgQueue(msg);
+						return ReactorReturnCodes.SUCCESS;
+					}
+				}
+				else
+				{
+					msg.flags(msg.flags() & ~RequestMsgFlags.HAS_VIEW);
+					_viewBuffer.clear();
+					msg.encodedDataBody(_viewBuffer);
+					msg.containerType(DataTypes.NO_DATA);
+					_aggregateView.viewHandler().aggregateViewUncommit(_aggregateView);
+					_pendingViewChange = true;
+					_viewSubsetContained = false;
+				}
+			}
+        }
+                
         // encode into buffer and send out
         if (isChannelUp()) // channel is up
         {
@@ -452,6 +507,21 @@ class WlStream extends VaNode
                                 return ReactorReturnCodes.FAILURE;
                             }
                         }
+                        if ( _pendingViewChange)
+                        {
+                        	// no need to send refresh back on other app streams already received
+                        	_pendingViewChange = false;                        	
+                        	if (!((RequestMsg)msg).checkNoRefresh() && !_viewSubsetContained)
+                        		_pendingViewRefresh = true;
+                                            
+                            if (_aggregateView != null && 	(int)(msg.flags() & RequestMsgFlags.HAS_VIEW) > 0)
+                            	_aggregateView.viewHandler().aggregateViewCommit(_aggregateView);
+
+                            if (_aggregateView!= null && _requestsWithViewCount == 0 )
+                            {
+                            	_aggregateView.viewHandler().aggregateViewDestroy(_aggregateView);
+                            }                    		
+                    	}                        
                     }
                     
                     // if post message and ACK required, increment number of outstanding post messages and update post tables
@@ -473,7 +543,7 @@ class WlStream extends VaNode
                    // change WRITE_FLUSH_FAILED and NO_BUFFERS and not post message to SUCCESS
                     // post messages return NO_BUFFERS
                     if (ret == TransportReturnCodes.WRITE_FLUSH_FAILED ||
-                        (ret == TransportReturnCodes.NO_BUFFERS && msg.msgClass() != MsgClasses.POST))
+                        (ret == ReactorReturnCodes.NO_BUFFERS && msg.msgClass() != MsgClasses.POST))
                     {
                         ret = ReactorReturnCodes.SUCCESS;
                     }
@@ -722,7 +792,10 @@ class WlStream extends VaNode
             _ackMsg.applyHasSeqNum();
          
         // call back with NAK message
-        return _handler.callbackUser("WlStream.sendNak", _ackMsg, null, errorInfo);
+        WlInteger tempWlInteger = ReactorFactory.createWlInteger();
+        tempWlInteger.value(_ackMsg.streamId());
+        
+        return _handler.callbackUser("WlStream.sendNak", _ackMsg, null, _watchlist.streamIdtoWlRequestTable().get(tempWlInteger), errorInfo);
     }
     
     /* Encodes a UPA message into buffer and writes to channel. */
@@ -821,8 +894,11 @@ class WlStream extends VaNode
         _state.streamState(StreamStates.CLOSED);
         _state.dataState(DataStates.SUSPECT);                
         // remove this stream from watchlist table
-        _watchlist.streamIdtoWlStreamTable().remove(_tableKey);
-        _tableKey.returnToPool();
+        if (_tableKey != null)
+        {
+            _watchlist.streamIdtoWlStreamTable().remove(_tableKey);
+            _tableKey.returnToPool();   
+        }
         _requestsPausedCount = 0;
         _paused = false;
         
@@ -965,5 +1041,17 @@ class WlStream extends VaNode
         {
             _watchlist.closeWlRequest(wlRequest);
         }
+        if (_aggregateView != null) _aggregateView.clear();
     }
+    
+	WlView aggregateView()
+	{
+		return _aggregateView;
+	}
+
+	public void aggregateView(WlView aggregateView)
+	{
+		_aggregateView = aggregateView;
+	}
+      
 }

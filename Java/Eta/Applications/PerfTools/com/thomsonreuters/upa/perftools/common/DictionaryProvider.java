@@ -18,18 +18,25 @@ import com.thomsonreuters.upa.transport.Error;
 import com.thomsonreuters.upa.transport.TransportBuffer;
 import com.thomsonreuters.upa.transport.TransportFactory;
 import com.thomsonreuters.upa.transport.TransportReturnCodes;
+import com.thomsonreuters.upa.transport.WritePriorities;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryStatus;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelInfo;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
 
 /**
  * Provides sending of the upajprovperf's dictionary, if requested.
  */
 public class DictionaryProvider
 {
-	enum DictionaryRejectReason
+	public enum DictionaryRejectReason
 	{
 	    UNKNOWN_DICTIONARY_NAME,
 	    MAX_DICTIONARY_REQUESTS_REACHED;
@@ -64,6 +71,10 @@ public class DictionaryProvider
     private DictionaryStatus        _dictionaryStatus;
     private ChannelInfo             _chnlInfo;
 
+    private ReactorErrorInfo      _errorInfo; // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    private ReactorSubmitOptions  _reactorSubmitOptions; // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    private ReactorChannelInfo    _reactorChnlInfo; // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    
     public DictionaryProvider()
     {
         _encodeIter = CodecFactory.createEncodeIterator();
@@ -77,6 +88,12 @@ public class DictionaryProvider
         _dictionaryStatus = (DictionaryStatus)DictionaryMsgFactory.createMsg();
         _dictionaryStatus.rdmMsgType(DictionaryMsgType.STATUS);
         _chnlInfo = TransportFactory.createChannelInfo();
+        
+        _errorInfo = ReactorFactory.createReactorErrorInfo();
+        _reactorSubmitOptions = ReactorFactory.createReactorSubmitOptions();
+        _reactorSubmitOptions.clear();
+        _reactorSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
+        _reactorChnlInfo = ReactorFactory.createReactorChannelInfo();
     }
     
     /**
@@ -236,12 +253,36 @@ public class DictionaryProvider
     }
 
     /*
+     * Sends the dictionary request reject status message for a reactor channel. 
+     * chnl - The channel to send request reject status message to 
+     * streamId - The stream id of the request 
+     * reason - The reason for the reject
+     */
+    public int sendRequestRejectReactor(ClientChannelInfo clientChannelInfo, int streamId, DictionaryRejectReason reason, Error error)
+    {
+        ReactorChannel reactorChannel = clientChannelInfo.reactorChannel;
+        
+        // get a buffer for the dictionary request reject status 
+        TransportBuffer msgBuf = reactorChannel.getBuffer(MAX_DICTIONARY_STATUS_MSG_SIZE, false, _errorInfo);
+        if (msgBuf == null)
+            return PerfToolsReturnCodes.FAILURE;
+        
+        // encode dictionary request reject status
+        int ret = encodeDictionaryRequestReject(reactorChannel.channel(), streamId, reason, msgBuf, error);
+        if (ret != CodecReturnCodes.SUCCESS)
+            return PerfToolsReturnCodes.FAILURE;
+
+        // send request reject status
+        return reactorChannel.submit(msgBuf, _reactorSubmitOptions, _errorInfo);
+    }
+
+    /*
      * Sends a field dictionary response to a channel. This consists of getting
      * a message buffer, encoding the dictionary response, and sending the
      * dictionary response to the server. Returns success if send dictionary
      * response succeeds or failure if send response fails. 
      * channelHandler - The client channel handler.
-     * clientChannelInfo - Cleint channel information to send dictionary response to.
+     * clientChannelInfo - Client channel information to send dictionary response to.
      */
     private int sendFieldDictionaryResponse(ChannelHandler channelHandler, ClientChannelInfo clientChannelInfo, Error error)
     {
@@ -309,12 +350,84 @@ public class DictionaryProvider
     }
 
     /*
+     * Sends a field dictionary response to a reactor channel. This consists of getting
+     * a message buffer, encoding the dictionary response, and sending the
+     * dictionary response to the server. Returns success if send dictionary
+     * response succeeds or failure if send response fails. 
+     * clientChannelInfo - Client channel information to send dictionary response to.
+     */
+    public int sendFieldDictionaryResponseReactor(ClientChannelInfo clientChannelInfo, Error error)
+    {
+        // set-up message
+        _dictionaryRefresh.clear();
+        _dictionaryRefresh.rdmMsgType(DictionaryMsgType.REFRESH);
+        _dictionaryRefresh.streamId(_dictionaryRequest.streamId());
+        _dictionaryRefresh.dictionaryType(Dictionary.Types.FIELD_DEFINITIONS);
+        _dictionaryRefresh.dictionary(_dictionary);
+        _dictionaryRefresh.state().streamState(StreamStates.OPEN);
+        _dictionaryRefresh.state().dataState(DataStates.OK);
+        _dictionaryRefresh.state().code(StateCodes.NONE);
+        _dictionaryRefresh.verbosity(_dictionaryRequest.verbosity());
+        _dictionaryRefresh.serviceId(_dictionaryRequest.serviceId());
+        _dictionaryRefresh.dictionaryName().data(_dictionaryRequest.dictionaryName().data(), _dictionaryRequest.dictionaryName().position(), _dictionaryRequest.dictionaryName().length());
+        _dictionaryRefresh.applySolicited();
+        
+        ReactorChannel reactorChannel = clientChannelInfo.reactorChannel;
+        
+        while (true)
+        {
+            int ret = reactorChannel.info(_reactorChnlInfo, _errorInfo);
+            if (ret != TransportReturnCodes.SUCCESS)
+            {
+                return PerfToolsReturnCodes.FAILURE;
+            }
+            
+            // get a buffer for the dictionary response
+            TransportBuffer msgBuf = reactorChannel.getBuffer(_reactorChnlInfo.channelInfo().maxFragmentSize(), false, _errorInfo);
+            if (msgBuf == null)
+            {
+                return PerfToolsReturnCodes.FAILURE;
+            }
+
+            _encodeIter.clear();
+            ret = _encodeIter.setBufferAndRWFVersion(msgBuf, reactorChannel.majorVersion(), reactorChannel.minorVersion());
+            if (ret != CodecReturnCodes.SUCCESS)
+            {
+                error.text("EncodeIter.setBufferAndRWFVersion() failed with return code: " + ret);
+                error.errorId(ret);
+                return PerfToolsReturnCodes.FAILURE;
+            }
+            
+            _dictionaryRefresh.state().text().data("Field Dictionary Refresh (starting fid " + _dictionaryRefresh.startFid() + ")");
+            ret = _dictionaryRefresh.encode(_encodeIter);
+            if (ret < CodecReturnCodes.SUCCESS)
+            {
+                error.text("DictionaryRefresh.encode() failed");
+                error.errorId(ret);
+                return PerfToolsReturnCodes.FAILURE;
+            }
+
+            // send dictionary response
+            if(reactorChannel.submit(msgBuf, _reactorSubmitOptions, _errorInfo) < ReactorReturnCodes.SUCCESS)
+                return PerfToolsReturnCodes.FAILURE;
+
+            // break out of loop when all dictionary responses sent
+            if (ret == ReactorReturnCodes.SUCCESS)
+            {
+                break;
+            }
+        }
+
+        return PerfToolsReturnCodes.SUCCESS;
+    }
+
+    /*
      * Sends a enum dictionary response to a channel. This consists of getting
      * a message buffer, encoding the dictionary response, and sending the
      * dictionary response to the server. Returns success if send dictionary
      * response succeeds or failure if send response fails. 
      * channelHandler - The client channel handler.
-     * clientChannelInfo - Cleint channel information to send dictionary response to.
+     * clientChannelInfo - Client channel information to send dictionary response to.
      */
     private int sendEnumTypeDictionaryResponse(ChannelHandler channelHandler, ClientChannelInfo clientChannelInfo, Error error)
     {
@@ -360,5 +473,76 @@ public class DictionaryProvider
             return PerfToolsReturnCodes.FAILURE;
 
         return PerfToolsReturnCodes.SUCCESS;
+    }
+
+    /*
+     * Sends a enum dictionary response to a reactor channel. This consists of getting
+     * a message buffer, encoding the dictionary response, and sending the
+     * dictionary response to the server. Returns success if send dictionary
+     * response succeeds or failure if send response fails. 
+     * clientChannelInfo - Client channel information to send dictionary response to.
+     */
+    public int sendEnumTypeDictionaryResponseReactor(ClientChannelInfo clientChannelInfo, Error error)
+    {
+        ReactorChannel reactorChannel = clientChannelInfo.reactorChannel;
+        
+        // get a buffer for the dictionary response
+        TransportBuffer msgBuf = reactorChannel.getBuffer(MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE, false, _errorInfo);
+        if (msgBuf == null)
+            return PerfToolsReturnCodes.FAILURE;
+
+        //encode dictionary refresh - enum type
+        _dictionaryRefresh.clear();
+        _dictionaryRefresh.rdmMsgType(DictionaryMsgType.REFRESH);
+        _dictionaryRefresh.streamId(_dictionaryRequest.streamId());
+        _dictionaryRefresh.applySolicited();
+        _dictionaryRefresh.dictionaryType(Dictionary.Types.ENUM_TABLES);
+        _dictionaryRefresh.dictionary(_dictionary);
+        _dictionaryRefresh.verbosity((int)_dictionaryRequest.verbosity());
+        _dictionaryRefresh.dictionaryName().data(_dictionaryRequest.dictionaryName().data(), _dictionaryRequest.dictionaryName().position(), _dictionaryRequest.dictionaryName().length());
+        _dictionaryRefresh.applyRefreshComplete();
+
+        _encodeIter.clear();
+        int ret = _encodeIter.setBufferAndRWFVersion(msgBuf, reactorChannel.majorVersion(), reactorChannel.minorVersion());
+        if (ret != CodecReturnCodes.SUCCESS)
+        {
+            error.text("EncodeIter.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
+            error.errorId(ret);
+            return PerfToolsReturnCodes.FAILURE;
+        }
+
+        // encode message
+        ret = _dictionaryRefresh.encode(_encodeIter);
+        if (ret < CodecReturnCodes.SUCCESS)
+        {
+            error.text("DictionaryRefresh.encode() failed");
+            error.errorId(ret);
+            return PerfToolsReturnCodes.FAILURE;
+        }
+
+        // send dictionary response
+        ret = reactorChannel.submit(msgBuf, _reactorSubmitOptions, _errorInfo);
+        if (ret < TransportReturnCodes.SUCCESS)
+            return PerfToolsReturnCodes.FAILURE;
+
+        return PerfToolsReturnCodes.SUCCESS;
+    }
+
+    /* Returns fieldDictionaryDownloadName. */
+    public Buffer fieldDictionaryDownloadName()
+    {
+        return fieldDictionaryDownloadName;
+    }
+    
+    /* Returns enumTypeDictionaryDownloadName. */
+    public Buffer enumTypeDictionaryDownloadName()
+    {
+        return enumTypeDictionaryDownloadName;
+    }
+
+    /* Returns dictionaryRequest. */
+    public DictionaryRequest dictionaryRequest()
+    {
+        return _dictionaryRequest;
     }
 }

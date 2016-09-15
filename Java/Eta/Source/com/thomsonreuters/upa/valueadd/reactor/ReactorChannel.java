@@ -20,6 +20,7 @@ import com.thomsonreuters.upa.transport.Server;
 import com.thomsonreuters.upa.transport.Transport;
 import com.thomsonreuters.upa.transport.TransportBuffer;
 import com.thomsonreuters.upa.valueadd.common.VaNode;
+import com.thomsonreuters.upa.valueadd.common.VaDoubleLinkList.Link;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.MsgBase;
 
 /**
@@ -41,6 +42,8 @@ public class ReactorChannel extends VaNode
     private StringBuilder _stringBuilder = new StringBuilder();
     private int _initializationTimeout = 0;
     private long _initializationEndTimeMs = 0;
+    private boolean _flushRequested = false;
+    private boolean _flushAgain = false;
 
     /* The last tunnel-stream expire time requested to the Worker, if one is currently requested. */
     private long _tunnelStreamManagerNextDispatchTime = 0;
@@ -88,6 +91,17 @@ public class ReactorChannel extends VaNode
     };
 
     State _state = State.UNKNOWN;
+    
+    /* Link for ReactorChannel queue */
+    private ReactorChannel _reactorChannelNext, _reactorChannelPrev;
+    static class ReactorChannelLink implements Link<ReactorChannel>
+    {
+        public ReactorChannel getPrev(ReactorChannel thisPrev) { return thisPrev._reactorChannelPrev; }
+        public void setPrev(ReactorChannel thisPrev, ReactorChannel thatPrev) { thisPrev._reactorChannelPrev = thatPrev; }
+        public ReactorChannel getNext(ReactorChannel thisNext) { return thisNext._reactorChannelNext; }
+        public void setNext(ReactorChannel thisNext, ReactorChannel thatNext) { thisNext._reactorChannelNext = thatNext; }
+    }
+    static final ReactorChannelLink REACTOR_CHANNEL_LINK = new ReactorChannelLink();
 
     /**
      * The state of the ReactorChannel.
@@ -156,6 +170,8 @@ public class ReactorChannel extends VaNode
         _userSpecObj = null;
         _initializationTimeout = 0;
         _initializationEndTimeMs = 0L;
+        _flushRequested = false;
+        _flushAgain = false;
         _pingHandler.clear();
         _streamIdtoTunnelStreamTable.clear();
         _tunnelStreamRespMsg.clear();
@@ -758,6 +774,13 @@ public class ReactorChannel extends VaNode
             {
                 return ReactorReturnCodes.FAILURE;                
             }
+
+            if (options.name() != null && options.name().length() > 255)
+            {
+                return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                                                  "ReactorChannel.openTunnelStream",
+                                                  "TunnelStream name is too long.");
+            }
             
             
             WlInteger wlInteger = ReactorFactory.createWlInteger();
@@ -1139,6 +1162,7 @@ public class ReactorChannel extends VaNode
 
         // enable channel read/write locking for reactor since it's multi-threaded with worker thread
         ReactorConnectInfo reactorConnectInfo = _reactorConnectOptions.connectionList().get(_listIndex);
+        userSpecObj(reactorConnectInfo.connectOptions().userSpecObject());
         reactorConnectInfo.connectOptions().channelReadLocking(true);
         reactorConnectInfo.connectOptions().channelWriteLocking(true);
 
@@ -1155,5 +1179,29 @@ public class ReactorChannel extends VaNode
     long nextRecoveryTime()
     {
         return _nextRecoveryTime;
+    }
+
+    /* Returns whether a FLUSH event is has been sent to the worker and is awaiting a FLUSH_DONE event. */
+    boolean flushRequested()
+    {
+        return _flushRequested;
+    }
+
+    /* Sets whether a FLUSH event is has been sent to the worker and is awaiting a FLUSH_DONE event. */
+    void flushRequested(boolean flushRequested)
+    {
+        _flushRequested = flushRequested;
+    }
+
+    /* Returns whether the Reactor should request more flushing when the FLUSH_DONE event arrives. */
+    boolean flushAgain()
+    {
+        return _flushAgain;
+    }
+
+    /* Sets whether the Reactor should request more flushing when the FLUSH_DONE event arrives. */
+    void flushAgain(boolean flushAgain)
+    {
+        _flushAgain = flushAgain;
     }
 }

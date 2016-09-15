@@ -76,10 +76,10 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
  * <p>
  * <H2>Running the application:</H2>
  * <p>
- * Change directory to the <i>Examples</i> directory and run <i>ant</i> to
+ * Change directory to the <i>Applications/Examples</i> directory and run <i>ant</i> to
  * build.
  * <p>
- * java -cp ./bin;../ValueAdd/Libs/upaValueAdd.jar;../Libs/upa.jar
+ * java -cp ./bin;../../Libs/upaValueAdd.jar;../../Libs/upa.jar
  * com.thomsonreuters.upa.examples.consumer.Consumer [-h srvrHostName] [-p
  * srvrPortNo] [-uname loginUserName] [-s serviceName] [-mp|-mpps
  * marketPriceItemName] [-mbo|-mbops marketByOrderItemName] [-mbp|-mbpps

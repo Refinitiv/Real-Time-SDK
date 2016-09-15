@@ -1357,7 +1357,7 @@ public class Consumer implements ConsumerCallback
 		chnlInfo.consumerRole.channelEventCallback(this);
 		chnlInfo.consumerRole.loginMsgCallback(this);
 		chnlInfo.consumerRole.directoryMsgCallback(this);
-        if (fieldDictionaryLoadedFromFile == false &&
+        if (fieldDictionaryLoadedFromFile == false ||
         	enumTypeDictionaryLoadedFromFile == false)
         {
         	chnlInfo.consumerRole.dictionaryMsgCallback(this);
@@ -1378,8 +1378,8 @@ public class Consumer implements ConsumerCallback
         chnlInfo.consumerRole.initDefaultRDMLoginRequest();
         chnlInfo.consumerRole.initDefaultRDMDirectoryRequest();
         // if unable to load from file and no queue messaging, enable consumer to download dictionary
-        if (fieldDictionaryLoadedFromFile == false &&
-            enumTypeDictionaryLoadedFromFile == false &&
+        if ((fieldDictionaryLoadedFromFile == false ||
+            enumTypeDictionaryLoadedFromFile == false) &&
             chnlInfo.connectionArg.qSource() == null)
         {
         	chnlInfo.consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
