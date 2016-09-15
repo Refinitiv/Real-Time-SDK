@@ -49,7 +49,6 @@ abstract class EmaConfigImpl
 	private DecodeIterator    					_rsslDecIter;
 	private String              				_hostnameSetViaFunctionCall;
 	private String              				_portSetViaFunctionCall;
-	private StringBuilder 						_configStrBuilder;
 	private String								_fidDictReqServiceName;
 	private String								_enumDictReqServiceName;
 	private boolean 							_fidDictReqServiceIdSet;
@@ -59,6 +58,8 @@ abstract class EmaConfigImpl
 	private XMLConfigReader						_xmlConfig;
 	
 	private OmmInvalidConfigurationExceptionImpl _oommICExcept;
+	
+	protected StringBuilder 						_configStrBuilder;
 	
 	protected List<Integer> channelOrChannelSet = new ArrayList<Integer>();
 

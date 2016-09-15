@@ -13,6 +13,7 @@ import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.OmmQos;
 import com.thomsonreuters.ema.rdm.EmaRdm;
 import com.thomsonreuters.upa.codec.Buffer;
+import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.codec.Qos;
 
@@ -328,5 +329,13 @@ class Utilities
 		destByteBuffer.flip();
 		
 		destBuffer.data(destByteBuffer);
+	}
+	 
+	static Buffer realignBuffer(com.thomsonreuters.upa.codec.EncodeIterator eIter, int newLength)
+	{
+		Buffer bigBuffer = CodecFactory.createBuffer();
+		bigBuffer.data(ByteBuffer.allocate(newLength));
+		eIter.realignBuffer(bigBuffer);
+		return bigBuffer;
 	}
 }

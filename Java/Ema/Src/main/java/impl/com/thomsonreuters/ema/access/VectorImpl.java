@@ -7,7 +7,6 @@
 
 package com.thomsonreuters.ema.access;
 
-import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -433,7 +432,7 @@ class VectorImpl extends CollectionDataImpl implements Vector
 
 	Buffer encodedData()
 	{
-		if (_encodeComplete)
+		if (_encodeComplete || (_rsslEncodeIter == null))
 			return _rsslBuffer; 
 		
 		if (_vectorCollection.isEmpty())
@@ -450,14 +449,19 @@ class VectorImpl extends CollectionDataImpl implements Vector
 	    
 	    VectorEntryImpl firstEntry = (VectorEntryImpl)_vectorCollection.get(0);
 	    int entryType = firstEntry._entryDataType;
-		_rsslVector.containerType(entryType);
-
-		ret = _rsslVector.encodeInit(_rsslEncodeIter, 0, 0);
-	    while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+	    
+	    if ( entryType != com.thomsonreuters.upa.codec.DataTypes.UNKNOWN )
 	    {
-	    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-	    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-	    	ret = _rsslVector.encodeInit(_rsslEncodeIter, 0, 0);
+	    	_rsslVector.containerType(entryType);
+	    }
+	    else
+	    {
+	    	_rsslVector.containerType(Utilities.toRsslDataType(firstEntry.loadType()));
+	    }
+
+	    while ((ret = _rsslVector.encodeInit(_rsslEncodeIter, 0, 0)) == CodecReturnCodes.BUFFER_TOO_SMALL)
+	    {
+	    	_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 	    }
 	    
 	    if (ret != CodecReturnCodes.SUCCESS)
@@ -481,12 +485,9 @@ class VectorImpl extends CollectionDataImpl implements Vector
 				throw ommIUExcept().message(errText);
 			}
 			
-			ret = vectorEntry._rsslVectorEntry.encode(_rsslEncodeIter);
-			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			while ((ret = vectorEntry._rsslVectorEntry.encode(_rsslEncodeIter)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 			{
-			   	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-			   	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-			   	ret = vectorEntry._rsslVectorEntry.encode(_rsslEncodeIter);
+				_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 			}
 
 			if (ret != CodecReturnCodes.SUCCESS)

@@ -551,6 +551,8 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 		_rsslNestedMsg.clear();
 
 		_rsslMsg = _rsslNestedMsg;
+		
+		_rsslBuffer = rsslBuffer;
 
 		_rsslDictionary = rsslDictionary;
 
@@ -566,7 +568,7 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 
 		_rsslDecodeIter.clear();
 
-		int retCode = _rsslDecodeIter.setBufferAndRWFVersion(rsslBuffer, _rsslMajVer, _rsslMinVer);
+		int retCode = _rsslDecodeIter.setBufferAndRWFVersion(_rsslBuffer, _rsslMajVer, _rsslMinVer);
 		if (CodecReturnCodes.SUCCESS != retCode)
 		{
 			_errorCode = ErrorCode.ITERATOR_SET_FAILURE;
@@ -582,18 +584,18 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 				return;
 			case CodecReturnCodes.ITERATOR_OVERRUN:
 				_errorCode = ErrorCode.ITERATOR_OVERRUN;
-				dataInstance(_attribDecoded, DataTypes.ERROR).decode(rsslBuffer, _errorCode);
-				dataInstance(_payloadDecoded, DataTypes.ERROR).decode(	rsslBuffer, _errorCode);
+				dataInstance(_attribDecoded, DataTypes.ERROR).decode(_rsslBuffer, _errorCode);
+				dataInstance(_payloadDecoded, DataTypes.ERROR).decode(_rsslBuffer, _errorCode);
 				return;
 			case CodecReturnCodes.INCOMPLETE_DATA:
 				_errorCode = ErrorCode.INCOMPLETE_DATA;
-				dataInstance(_attribDecoded, DataTypes.ERROR).decode(rsslBuffer, _errorCode);
-				dataInstance(_payloadDecoded, DataTypes.ERROR).decode(rsslBuffer, _errorCode);
+				dataInstance(_attribDecoded, DataTypes.ERROR).decode(_rsslBuffer, _errorCode);
+				dataInstance(_payloadDecoded, DataTypes.ERROR).decode(_rsslBuffer, _errorCode);
 				return;
 			default:
 				_errorCode = ErrorCode.UNKNOWN_ERROR;
-				dataInstance(_attribDecoded, DataTypes.ERROR).decode(rsslBuffer, _errorCode);
-				dataInstance(_payloadDecoded, DataTypes.ERROR).decode(rsslBuffer, _errorCode);
+				dataInstance(_attribDecoded, DataTypes.ERROR).decode(_rsslBuffer, _errorCode);
+				dataInstance(_payloadDecoded, DataTypes.ERROR).decode(_rsslBuffer, _errorCode);
 				return;
 		}
 	}

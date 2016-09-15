@@ -261,10 +261,11 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 		com.thomsonreuters.upa.codec.RequestMsg rsslMsg = ((com.thomsonreuters.upa.codec.RequestMsg)_rsslMsg);
 		int timeliness = Timeliness.BEST_TIMELINESS;
 		int reqTimeliness = rsslMsg.qos().timeliness();
-		int wReqTimeliness = rsslMsg.worstQos().timeliness();
 		
 		if (rsslMsg.checkHasWorstQos())
 		{
+			int wReqTimeliness = rsslMsg.worstQos().timeliness();
+			
 			if (reqTimeliness == wReqTimeliness)
 			{
 				switch (reqTimeliness)
@@ -322,10 +323,11 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 		com.thomsonreuters.upa.codec.RequestMsg rsslMsg = ((com.thomsonreuters.upa.codec.RequestMsg)_rsslMsg);
 		int rate = Rate.BEST_RATE;
 		int reqRate = rsslMsg.qos().rate();
-		int wReqRate = rsslMsg.worstQos().rate();
 
 		if (rsslMsg.checkHasWorstQos())
 		{
+			int wReqRate = rsslMsg.worstQos().rate();
+			
 			if (reqRate == wReqRate)
 			{
 				switch (reqRate)

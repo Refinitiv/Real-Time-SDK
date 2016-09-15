@@ -46,6 +46,7 @@ class MsgImpl extends DataImpl implements Msg
 	protected boolean _encodeComplete;
 	protected int  _errorCode = ErrorCode.NO_ERROR;
 	protected StringBuilder _errorString;
+	private ByteBuffer _extendedHeader;
 	
 	MsgImpl(int dataType, EmaObjectManager objManager)
 	{
@@ -216,7 +217,20 @@ class MsgImpl extends DataImpl implements Msg
 			throw ommIUExcept().message(temp);
 		}
 		
-		return _rsslMsg.extendedHeader().data();
+		if( _extendedHeader == null || (_extendedHeader.capacity() < _rsslMsg.extendedHeader().length()) )
+		{
+			_extendedHeader = ByteBuffer.allocate(_rsslMsg.extendedHeader().length() * 2);
+		}
+		else
+		{
+			_extendedHeader.clear();
+		}
+		
+		_extendedHeader.put(_rsslMsg.extendedHeader().data().array(), _rsslMsg.extendedHeader().position(), _rsslMsg.extendedHeader().length());
+		
+		_extendedHeader.flip();
+		
+		return _extendedHeader;
 	}
 
 	@Override
@@ -836,7 +850,7 @@ class MsgImpl extends DataImpl implements Msg
 	
 	Buffer encodedData() 
 	{
-		if (_encodeComplete)
+		if (_encodeComplete || (_rsslEncodeIter == null))
 			return _rsslBuffer; 
 		
 		int ret = _rsslEncodeIter.setBufferAndRWFVersion(_rsslBuffer, _rsslMajVer, _rsslMinVer);
@@ -848,12 +862,9 @@ class MsgImpl extends DataImpl implements Msg
 	    	throw ommIUExcept().message(errText);
 	    }
 	    
-		ret = _rsslMsg.encode(_rsslEncodeIter);
-		 while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+		 while ((ret = _rsslMsg.encode(_rsslEncodeIter)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 		  {
-		    _rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-		    _rsslEncodeIter.realignBuffer(_rsslBuffer);
-		    ret = _rsslMsg.encode(_rsslEncodeIter);
+			 _rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 		  }
 		    
 		 if (ret != CodecReturnCodes.SUCCESS)

@@ -7,7 +7,6 @@
 
 package com.thomsonreuters.ema.access;
 
-import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -337,7 +336,7 @@ class FilterListImpl extends CollectionDataImpl implements FilterList
 	
 	Buffer encodedData()
 	{
-		if (_encodeComplete)
+		if (_encodeComplete || (_rsslEncodeIter == null) )
 			return _rsslBuffer; 
 		
 		if (_filterListCollection.isEmpty())
@@ -355,12 +354,9 @@ class FilterListImpl extends CollectionDataImpl implements FilterList
 	    FilterEntryImpl firstEntry = (FilterEntryImpl)_filterListCollection.get(0);
 		_rsslFilterList.containerType(firstEntry._rsslFilterEntry.containerType());
 
-		ret = _rsslFilterList.encodeInit(_rsslEncodeIter);
-	    while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+	    while ((ret = _rsslFilterList.encodeInit(_rsslEncodeIter)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 	    {
-	    	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-	    	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-	    	ret = _rsslFilterList.encodeInit(_rsslEncodeIter);
+	    	_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 	    }
 	    
 	    if (ret != CodecReturnCodes.SUCCESS)
@@ -373,12 +369,9 @@ class FilterListImpl extends CollectionDataImpl implements FilterList
 	    
 		for (com.thomsonreuters.ema.access.FilterEntry entry  : _filterListCollection)
 		{
-			ret = ((FilterEntryImpl)entry)._rsslFilterEntry.encode(_rsslEncodeIter);
-			while (ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+			while ((ret = ((FilterEntryImpl)entry)._rsslFilterEntry.encode(_rsslEncodeIter)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 			{
-			   	_rsslBuffer.data(ByteBuffer.allocate(_rsslBuffer.data().capacity()*2)); 
-			   	_rsslEncodeIter.realignBuffer(_rsslBuffer);
-			   	ret = ((FilterEntryImpl)entry)._rsslFilterEntry.encode(_rsslEncodeIter);
+				_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
 			}
 
 			if (ret != CodecReturnCodes.SUCCESS)

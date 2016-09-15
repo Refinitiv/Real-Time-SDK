@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 
 import com.thomsonreuters.ema.access.ConfigManager.ConfigAttributes;
 import com.thomsonreuters.ema.access.ConfigManager.ConfigElement;
+import com.thomsonreuters.ema.access.OmmBaseImpl.OmmImplState;
 import com.thomsonreuters.ema.access.OmmConsumer.DispatchReturn;
 import com.thomsonreuters.ema.access.OmmConsumer.DispatchTimeout;
 import com.thomsonreuters.ema.access.OmmConsumerConfig.OperationModel;
@@ -905,6 +906,8 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 		_rsslDispatchOptions.maxMessages(count);
 		int ret = ReactorReturnCodes.SUCCESS;
 		int loopCount = 0;
+		long startTime = System.nanoTime();
+		long endTime = 0;
 		
 		if (_selector == null)
 			return false;
@@ -919,13 +922,10 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 			else
 			{
 				userTimeoutExist = true;
-				timeOut = (userTimeout > 0 ? userTimeout : 1);
+				timeOut = (userTimeout > 0 ? userTimeout : 1000000);
 			}
 		}
 
-		long startTime = System.nanoTime();
-		long endTime = 0;
-		
 		try
 		{
 			if (_state >= OmmImplState.RSSLCHANNEL_UP)
@@ -956,95 +956,108 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 				
 				endTime = System.nanoTime();
 	
-				if ( ( timeOut > 0 ) && ( endTime - startTime >= timeOut ) )
-				{
-					if (userTimeoutExist)
-						TimeoutEvent.execute(this);
-	
-					return _eventReceived ? true : false;
-				}
-	
-				if ( timeOut >= 0 )
+				if ( timeOut > 0 )
 				{
 					timeOut -= endTime - startTime;
-					if ( timeOut < 0 )
-						timeOut = 0;
+					if ( timeOut <=0 )
+					{
+						if (userTimeoutExist)
+							TimeoutEvent.execute(this);
+		
+						return _eventReceived ? true : false;
+					}
+					else if ( timeOut < 1000000  )
+							timeOut = 1000000;
 				}
 			}
 
-			int selectCount = _selector.select(timeOut/1000000);
-			if (selectCount > 0 || !_selector.selectedKeys().isEmpty())
+			do
 			{
-				Iterator<SelectionKey> iter = _selector.selectedKeys().iterator();
-				while (iter.hasNext())
+				startTime = endTime;
+			
+				int selectCount = _selector.select(timeOut/1000000);
+				if (selectCount > 0 || !_selector.selectedKeys().isEmpty())
 				{
-					SelectionKey key = iter.next();
-					iter.remove();
-					try
+					Iterator<SelectionKey> iter = _selector.selectedKeys().iterator();
+					while (iter.hasNext())
 					{
-						if (!key.isValid())
+						SelectionKey key = iter.next();
+						iter.remove();
+						try
+						{
+							if (!key.isValid())
+								continue;
+							if (key.isReadable())
+									ret = ((ReactorChannel) key.attachment()).dispatch(_rsslDispatchOptions, _rsslErrorInfo);
+						}
+						 catch (CancelledKeyException e)
+						{
 							continue;
-						if (key.isReadable())
-								ret = ((ReactorChannel) key.attachment()).dispatch(_rsslDispatchOptions, _rsslErrorInfo);
+						}
 					}
-					 catch (CancelledKeyException e)
-					{
-						continue;
-					}
-				}
-				
-				if (_pipeWriteCount == 1)
-					pipeRead();
-				
-				if (_state >= OmmImplState.RSSLCHANNEL_UP)
-				{
-					loopCount = 0;
-					do
-					{
-						ret = _rsslReactor.reactorChannel()  != null  ? _rsslReactor.dispatchAll(null, _rsslDispatchOptions, _rsslErrorInfo) : ReactorReturnCodes.SUCCESS;
-					}
-					while ( ret > ReactorReturnCodes.SUCCESS && !_eventReceived && ++loopCount < 15 );
 					
-					if (ret < ReactorReturnCodes.SUCCESS)//
+					if (_pipeWriteCount == 1)
+						pipeRead();
+					
+					if (_state >= OmmImplState.RSSLCHANNEL_UP)
 					{
-							if (_loggerClient.isErrorEnabled())
-							{
-								strBuilder().append("Call to rsslReactorDispatchLoop() failed. Internal sysError='")
-											.append(_rsslErrorInfo.error().sysError()).append("' Error text='")
-											.append(_rsslErrorInfo.error().text()).append("'. ");
-
+						loopCount = 0;
+						do
+						{
+							ret = _rsslReactor.reactorChannel()  != null  ? _rsslReactor.dispatchAll(null, _rsslDispatchOptions, _rsslErrorInfo) : ReactorReturnCodes.SUCCESS;
+						}
+						while ( ret > ReactorReturnCodes.SUCCESS && !_eventReceived && ++loopCount < 15 );
+						
+						if (ret < ReactorReturnCodes.SUCCESS)
+						{
 								if (_loggerClient.isErrorEnabled())
-									_loggerClient.error(formatLogMessage(_activeConfig.instanceName, _strBuilder.toString(), Severity.ERROR));
-							}
-
-							return false;
-					} 
-					
-					if ( _eventReceived ) return true;
-
-					TimeoutEvent.execute(this);
-					
-					if ( _eventReceived ) 	return true;
-					}
-			} //selectCount > 0
-			else if (selectCount == 0)
-			{
-				TimeoutEvent.execute(this);
-					
-				if ( _eventReceived ) return true;
-			}
+								{
+									strBuilder().append("Call to rsslReactorDispatchLoop() failed. Internal sysError='")
+												.append(_rsslErrorInfo.error().sysError()).append("' Error text='")
+												.append(_rsslErrorInfo.error().text()).append("'. ");
 	
-			if (Thread.currentThread().isInterrupted())
-			{
-				_threadRunning = false;
-
-				if (_loggerClient.isTraceEnabled())
+									if (_loggerClient.isErrorEnabled())
+										_loggerClient.error(formatLogMessage(_activeConfig.instanceName, _strBuilder.toString(), Severity.ERROR));
+								}
+	
+								return false;
+						} 
+						
+						if ( _eventReceived ) return true;
+	
+						TimeoutEvent.execute(this);
+						
+						if ( _eventReceived ) 	return true;
+					}
+				} //selectCount > 0
+				else if (selectCount == 0)
 				{
-					strBuilder().append("Call to rsslReactorDispatchLoop() received thread interruption signal.");
-
-					_loggerClient.trace(formatLogMessage(_activeConfig.instanceName, _strBuilder.toString(), Severity.TRACE));
+					TimeoutEvent.execute(this);
+						
+					if ( _eventReceived ) return true;
+				}
+		
+				endTime = System.nanoTime();
+				if ( timeOut > 0 )
+				{
+					timeOut -= ( endTime - startTime );
+					if (timeOut < 1000000) return false;
+				}
+				
+				if (Thread.currentThread().isInterrupted())
+				{
+					_threadRunning = false;
+	
+					if (_loggerClient.isTraceEnabled())
+					{
+						strBuilder().append("Call to rsslReactorDispatchLoop() received thread interruption signal.");
+	
+						_loggerClient.trace(formatLogMessage(_activeConfig.instanceName, _strBuilder.toString(), Severity.TRACE));
+					}
 				}
 			}
+			while (true);
+			
 		} //end of Try		
 		catch (CancelledKeyException e)
 		{
@@ -1071,8 +1084,6 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 
 			return false;
 		}
-		
-		return true;
 	}
 	
 	OmmInvalidUsageExceptionImpl ommIUExcept()

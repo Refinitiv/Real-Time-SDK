@@ -24,9 +24,10 @@ class OmmArrayEntryImpl extends EntryImpl implements OmmArrayEntry
 		_rsslArrayEntry = CodecFactory.createArrayEntry();
 	}
 	
-	OmmArrayEntryImpl(DataImpl load)
+	OmmArrayEntryImpl(com.thomsonreuters.upa.codec.ArrayEntry rsslArrayEntry, DataImpl load)
 	{
 		super(load);
+		_rsslArrayEntry = rsslArrayEntry;
 	}
 	
 	@Override
