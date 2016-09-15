@@ -6,7 +6,9 @@ package com.thomsonreuters.upa.valueadd.common;
 public class VaPool
 {
     private VaQueue _queue;
-
+    
+    private boolean _debug;
+    
     /**
      * Creates a pool. This pool is not thread safe.
      */
@@ -29,6 +31,17 @@ public class VaPool
             _queue = new VaQueue();
     }
 
+    /* For turning on debug per pool. */
+    public VaPool(boolean useConcurrent, boolean debug)
+    {
+        if (useConcurrent)
+            _queue = new VaConcurrentQueue();
+        else
+            _queue = new VaQueue();
+        
+        _debug = debug;
+    }
+
     /**
      * Adds a node to the pool.
      * 
@@ -36,6 +49,9 @@ public class VaPool
      */
     public void add(VaNode node)
     {
+        if (_debug)
+            _queue.verifyQueue();
+        
         if (node.inPool())
             return; // already in pool.
 
@@ -44,6 +60,9 @@ public class VaPool
 
         node.inPool(true);
         _queue.add(node);
+
+        if (_debug)
+            _queue.verifyQueue();
     }
 
     /**
@@ -64,10 +83,17 @@ public class VaPool
      */
     public VaNode poll()
     {
+        if (_debug)
+            _queue.verifyQueue();
+
         VaNode node = _queue.poll();
 
         if (node != null)
             node.inPool(false);
+        
+        if (_debug)
+            _queue.verifyQueue();
+
         return node;
     }
 

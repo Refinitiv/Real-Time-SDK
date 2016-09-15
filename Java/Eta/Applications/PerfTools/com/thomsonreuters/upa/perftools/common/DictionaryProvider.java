@@ -528,16 +528,19 @@ public class DictionaryProvider
         return PerfToolsReturnCodes.SUCCESS;
     }
 
+    /* Returns fieldDictionaryDownloadName. */
     public Buffer fieldDictionaryDownloadName()
     {
         return fieldDictionaryDownloadName;
     }
     
+    /* Returns enumTypeDictionaryDownloadName. */
     public Buffer enumTypeDictionaryDownloadName()
     {
         return enumTypeDictionaryDownloadName;
     }
 
+    /* Returns dictionaryRequest. */
     public DictionaryRequest dictionaryRequest()
     {
         return _dictionaryRequest;

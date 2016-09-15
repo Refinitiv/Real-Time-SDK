@@ -130,6 +130,7 @@ public class WlItemHandler implements WlHandler
 	WlInteger _tempWlInteger = ReactorFactory.createWlInteger();
 
 	UInt _viewType = CodecFactory.createUInt();
+	boolean _hasViewType;
 	Buffer _viewDataElement = CodecFactory.createBuffer();
 	boolean _viewDataFound;
 	UInt _fieldId = CodecFactory.createUInt();
@@ -142,6 +143,10 @@ public class WlItemHandler implements WlHandler
 	ArrayEntry _viewArrayEntry = CodecFactory.createArrayEntry();
 	Buffer _elementName = CodecFactory.createBuffer();
 	Buffer _viewElemList = CodecFactory.createBuffer();
+	boolean _snapshotViewClosed;
+	// Denotes if the watchlist stream had already called handleClose
+	//     due to snapshot stream close on a wlStream with no other requests
+	boolean _snapshotStreamClosed;
 
     WlStream _currentFanoutStream;
 		
@@ -191,10 +196,11 @@ public class WlItemHandler implements WlHandler
 
             if (requestMsg.checkHasBatch())
             {
+                
             	// handle batch request
             	return handleBatchRequest(wlRequest, requestMsg, submitOptions, errorInfo);
             }
-            
+
             // handle request
             return handleRequest(wlRequest, requestMsg, submitOptions, true, errorInfo);
         }
@@ -255,9 +261,10 @@ public class WlItemHandler implements WlHandler
                     // add to fanout list                        
                     wlStream.userRequestList().add(wlRequest);
                     
-               		if ( requestMsg.checkHasView())
+               		if ( requestMsg.checkHasView() && requestMsg.domainType() != DomainTypes.SYMBOL_LIST)
             		{ 
-                    	handleViews(wlRequest, false, errorInfo);	    		
+               			if ( (ret = handleViews(wlRequest, false, errorInfo)) < ReactorReturnCodes.SUCCESS)
+               				return ret;			
             		}
             	                    
                     WlItemAggregationKey itemAggregationKey = null;
@@ -378,8 +385,6 @@ public class WlItemHandler implements WlHandler
                         wlStream.wlService(wlService);
                         
                         // add stream to service's stream list
-                        //if (!_watchlist.streamIdtoWlStreamTable().containsKey(wlStream.streamId()))
-                        //if (!wlService.streamList().contains(wlStream))
                         wlService.streamList().add(wlStream);
                         
                         // update request state to REFRESH_PENDING
@@ -417,17 +422,17 @@ public class WlItemHandler implements WlHandler
                     
                     // set stream associated with request
                     wlRequest.stream(wlStream);
-
+                    
                     /* add request to stream only if not in the middle of snapshot or
-                       multi-part refresh */
-                    if ((wlStream.numSnapshotsPending() == 0 || (wlStream.numSnapshotsPending() > 0 && !requestMsg.checkStreaming())) &&
-                        !wlStream.multiPartRefreshPending())
-                    {
+                       multi-part refresh and not in pending view refresh, and snapshot view with no request pending */
+                    if ((((wlStream.numSnapshotsPending() == 0 || (wlStream.numSnapshotsPending() > 0 && !requestMsg.checkStreaming())) || wlRequest.state() == WlRequest.State.PENDING_REQUEST ) &&
+                        !wlStream.multiPartRefreshPending() ) && !wlStream._pendingViewRefresh  && !(requestMsg.checkHasView() && !requestMsg.checkStreaming() && wlStream.requestPending()) )
+                    {                   	
                 		if ( requestMsg.checkHasView())
-                 		{                           
-                     		handleViews(wlRequest, false, errorInfo);	
+                 		{                   			
+                			if ( (ret = handleViews(wlRequest, false, errorInfo)) < ReactorReturnCodes.SUCCESS)
+                	            return ret;
                  		}
-                 		
                         // add request to stream
                         wlStream.userRequestList().add(wlRequest);
 
@@ -474,13 +479,15 @@ public class WlItemHandler implements WlHandler
                         	streamRequestMsg.applyStreaming();
                         
                         // send message to stream if streaming or it is a snapshot with no request pending
-                        if (sendNow && (requestMsg.checkStreaming() || (!requestMsg.checkStreaming() && !wlStream.requestPending())))
+                        if (sendNow && (requestMsg.checkStreaming() 
+                        		|| (!requestMsg.checkStreaming() && !wlStream.requestPending()) ))
                         {
                             // increment number of outstanding requests if not dictionary domain and a request isn't currently pending
                             if (requestMsg.domainType() != DomainTypes.DICTIONARY && !wlStream.requestPending() && !requestMsg.checkNoRefresh())
                             {
                                 wlService.numOutstandingRequests(wlService.numOutstandingRequests() + 1);
                             }
+                            
                             ret = wlStream.sendMsg(streamRequestMsg, submitOptions, _errorInfo);
                         }                        
                         else // if not sendNow, add stream to pending send message list if not already there
@@ -488,7 +495,7 @@ public class WlItemHandler implements WlHandler
                             if (!_pendingSendMsgList.contains(wlStream))
                             {
                                 _pendingSendMsgList.add(wlStream);
-                                
+ 
                                 // increment number of outstanding requests if not dictionary domain and a request isn't currently pending
                                 if (requestMsg.domainType() != DomainTypes.DICTIONARY && !wlStream.requestPending() && !requestMsg.checkNoRefresh())
                                 {
@@ -520,6 +527,7 @@ public class WlItemHandler implements WlHandler
             {
                 // add to waiting request list for service            	
                 wlRequest.streamInfo().serviceName(submitOptions.serviceName());
+                wlRequest.streamInfo().userSpecObject(submitOptions.requestMsgOptions().userSpecObj());
                 wlService.waitingRequestList().add(wlRequest);         	
             }
         }
@@ -675,6 +683,7 @@ public class WlItemHandler implements WlHandler
 			            	removeWlRequest.returnToPool();
 			            	requestMsgList.remove(currentStreamId);
 			            	currentStreamId++;
+			            	putWlRequestViewListBackToPool(removeWlRequest);
 						}
 			            return _watchlist.reactor().populateErrorInfo(errorInfo,
 			            		ReactorReturnCodes.FAILURE,
@@ -793,8 +802,10 @@ public class WlItemHandler implements WlHandler
                     "Reissue not allowed on an unopen stream.");
             return ret;
         }
-    	wlRequest._reissue_hasChange = true;
-        if ( requestMsg.checkNoRefresh())
+    	wlRequest._reissue_hasChange = false;
+    	wlRequest._reissue_hasViewChange = false;
+    	
+        if (requestMsg.checkNoRefresh())
         {
         	wlRequest._reissue_hasChange = false;
         }
@@ -815,7 +826,8 @@ public class WlItemHandler implements WlHandler
             	if (requestMsg.checkPause() &&  !wlRequest.requestMsg().checkPause())
             	{
             		wlRequest.stream().numPausedRequestsCount(wlRequest.stream().numPausedRequestsCount() +1);
-            		wlRequest._reissue_hasChange= true;
+                  	if(wlRequest.stream().numPausedRequestsCount() == wlRequest.stream()._userRequestList.size())  	  
+                  		wlRequest._reissue_hasChange= true;
             	}
             	if (!requestMsg.checkPause() && wlRequest.requestMsg().checkPause())
             	{
@@ -826,18 +838,79 @@ public class WlItemHandler implements WlHandler
             // retrieve request from stream
             RequestMsg streamRequestMsg = wlRequest.stream().requestMsg();
 
-            if (wlRequest.view() != null && wlRequest.viewElemCount() > 0)
-            {
-				removeRequestView(wlRequest.stream(), wlRequest, errorInfo);	
-            }
-            
-    		if ( requestMsg.checkHasView())
-    		{
-    			if ( (ret = extractViewFromMsg(wlRequest, requestMsg, errorInfo)) < ReactorReturnCodes.SUCCESS)
-    				return ret;    			
-    			handleViews(wlRequest, true, errorInfo);    
+            boolean removeOldView = true;
+            boolean effectiveViewChange = true; 
+            WlRequest tempWlRequest = ReactorFactory.createWlRequest();
+    		if (requestMsg.checkHasView())  // has viewFlag
+    		{    			
+    			// for re-issue, in case incoming request does not have view data, re-use the cached one
+    			if (requestMsg.encodedDataBody().data() == null ) requestMsg.encodedDataBody(wlRequest.requestMsg().encodedDataBody());
+    			
+    			if ( (ret = extractViewFromMsg(tempWlRequest, requestMsg, errorInfo)) < ReactorReturnCodes.SUCCESS)
+    			{
+    				
+    				if (!_hasViewType && tempWlRequest._viewElemCount == 0)
+//    				if (tempWlRequest.viewType() != ViewTypes.FIELD_ID_LIST &&  tempWlRequest.viewType() != ViewTypes.ELEMENT_NAME_LIST)
+    				{
+    					// no view type and empty view content, use the old view type and view field list, do not remove old view, still send out request
+    					removeOldView = false;
+    					// same view needs to go out on the wire again
+    					wlRequest._reissue_hasViewChange = true;
+    				}
+//    				else if (!_viewDataFound)
+//    				{
+//    				  // valid but empty fieldId list and empty elementyNameList, use this new empty view 	
+//    				}
+    				else
+    					return ret;
+    			}
+    			    			
+            	if(wlRequest.viewElemCount() > 0 )
+            	{
+            		if ( wlRequest.viewType() != tempWlRequest.viewType() )
+            		{
+                        ret = _watchlist.reactor().populateErrorInfo(errorInfo,
+                                ReactorReturnCodes.FAILURE,
+                                "WlItemHandler.handleReissue",
+                                "Requested view type does not match existing stream.");
+                        return ret;
+            		}	        
+            		 // for only one view, aggView is that view and might be removed later
+            		if(_wlViewHandler.aggregateViewContainsView(wlRequest.stream()._aggregateView, tempWlRequest) && streamRequestMsg.checkHasView())         	
+            		effectiveViewChange = false;
+            	}     			
     		}
-            
+            WlView oldView = null; 
+            if (wlRequest.viewElemCount() > 0 && removeOldView)
+            {
+            	// has old view and can be removed
+            	oldView = removeRequestView(wlRequest.stream(), wlRequest, errorInfo);
+            	wlRequest._reissue_hasViewChange = true;
+            }                            			
+            if (requestMsg.checkHasView())
+            {
+            	extractViewFromMsg(wlRequest, requestMsg, errorInfo);  	  
+    			if ( (ret = handleViews(wlRequest, false, errorInfo)) < ReactorReturnCodes.SUCCESS)
+    	            return ret;
+            	wlRequest._reissue_hasViewChange = true;
+            		
+            	// if only one view re-issue, the original aggView could be removed above, this check hence becomes no-op
+            	if(_wlViewHandler.aggregateViewContainsNewViews(wlRequest.stream()._aggregateView) && streamRequestMsg.checkHasView()) 
+            		wlRequest._reissue_hasViewChange = false;				
+            	
+            	if(!streamRequestMsg.checkHasView() && wlRequest.stream()._requestsWithViewCount != wlRequest.stream()._userRequestList.size())
+            		wlRequest._reissue_hasViewChange = false;            
+            	
+            	if (!effectiveViewChange) wlRequest._reissue_hasViewChange = false;
+            }
+                        
+            if ( tempWlRequest != null) 
+            {
+                tempWlRequest.state(State.RETURN_TO_POOL);
+            	tempWlRequest.returnToPool();
+            	putWlRequestViewListBackToPool(tempWlRequest);
+            }
+        
             // User requested no refresh flag, so temporarily for this message, set it and turn it off after send
             if (requestMsg.checkNoRefresh())
             	streamRequestMsg.applyNoRefresh();
@@ -884,8 +957,7 @@ public class WlItemHandler implements WlHandler
                 {
                     streamRequestMsg.msgKey().filter(requestMsg.msgKey().filter());
                     wlRequest._reissue_hasChange = true;
-                }
- 
+                } 
             }
             
             // send reissue if stream is open
@@ -894,17 +966,28 @@ public class WlItemHandler implements WlHandler
                 // handle reissue only if not in the middle of snapshot or multi-part refresh
                 if (wlRequest.stream().numSnapshotsPending() == 0 &&
                     !wlRequest.stream().multiPartRefreshPending())
-                {
-                    // update request state to REFRESH_PENDING if refresh is desired
-                    if (!requestMsg.checkNoRefresh())
-                    {
-                        wlRequest.state(WlRequest.State.REFRESH_PENDING);
-                    }
-                    
+                {                   
                     // send message to stream
-            		if( wlRequest._reissue_hasChange)                    
+            		if( wlRequest._reissue_hasChange || wlRequest._reissue_hasViewChange)
+            		{
+            			if(wlRequest._reissue_hasViewChange) wlRequest.stream()._pendingViewChange = true;
+            			
             			ret = wlRequest.stream().sendMsg(streamRequestMsg, submitOptions, _errorInfo);
+              			if ( oldView!= null &&  wlRequest._reissue_hasViewChange)
+            			{
+               				// this stems from when no_refresh is set on request, but later still get refresh callback from Provider,
+               				// need this flag to send fan out to all
+              				 if (requestMsg.checkNoRefresh()) wlRequest.stream()._pendingViewRefresh = true;
+            				_wlViewHandler.destroyView(oldView);
+            			} 
             		
+              			// update request state to REFRESH_PENDING if refresh is desired
+              			if (!requestMsg.checkNoRefresh())
+              			{
+              				wlRequest.state(WlRequest.State.REFRESH_PENDING);
+              			}
+            		}
+            		            	
             		if (streamRequestMsg.checkNoRefresh())
                     	streamRequestMsg.flags(streamRequestMsg.flags() & ~RequestMsgFlags.NO_REFRESH);
                 }
@@ -915,6 +998,13 @@ public class WlItemHandler implements WlHandler
                 		wlRequest.stream().waitingRequestList().add(wlRequest);
                 }
             }
+            else
+            {
+                ret = _watchlist.reactor().populateErrorInfo(errorInfo,
+                                                              ReactorReturnCodes.FAILURE,
+                                                              "WlItemHandler.handleRequest",
+                                                              "Request reissue while stream state is known as open.");           	
+            }             
         }
         else // streaming flag has changed
         {
@@ -922,7 +1012,7 @@ public class WlItemHandler implements WlHandler
             ret = _watchlist.reactor().populateErrorInfo(errorInfo,
                                                           ReactorReturnCodes.FAILURE,
                                                           "WlItemHandler.handleRequest",
-                                                          "Request reissue may not remove streaming flag.");
+                                                          "Request reissue may not alter streaming flag.");
         }
         
         return ret;
@@ -1219,7 +1309,7 @@ public class WlItemHandler implements WlHandler
         switch (msg.msgClass())
         {
             case MsgClasses.CLOSE:
-       	
+
             	WlStream wlStream = wlRequest.stream();
             	
             	if (wlStream != null)
@@ -1348,13 +1438,18 @@ public class WlItemHandler implements WlHandler
                     int userRequestPriorityCount = wlRequest.requestMsg().checkHasPriority() ? 
                             wlRequest.requestMsg().priority().count() : 1;
                     wlRequest.stream().requestMsg().priority().count(streamPriorityCount - userRequestPriorityCount);                            
-                    if ( wlStream._requestsWithViewCount > 0)
+                    if (wlRequest.requestMsg().checkHasView() &&  wlStream._requestsWithViewCount > 0)
                     {
                     	removeRequestView(wlStream, wlRequest, errorInfo);
                     	wlStream._pendingViewChange = true;
                     }
-                    // resend 
+                    else if (wlStream._requestsWithViewCount > 0 )
+                    	wlStream._pendingViewChange = true;
+                    	
+                    // resend  
+                    wlRequest.stream().requestMsg().flags(wlStream.requestMsg().flags() | RequestMsgFlags.NO_REFRESH);            		   
                     wlRequest.stream().sendMsg(wlRequest.stream().requestMsg(), submitOptions, errorInfo);
+                    wlRequest.stream().requestMsg().flags(wlStream.requestMsg().flags() & ~RequestMsgFlags.NO_REFRESH);
                 }                       
                 
                 // close watchlist request
@@ -1547,6 +1642,37 @@ public class WlItemHandler implements WlHandler
         }
     }
     
+    void handleStateTransition(WlStream wlStream, Msg msg)
+    {
+        // handle any state transition
+        switch (wlStream.state().streamState())
+        { 
+            case StreamStates.CLOSED:
+                handleClose(wlStream, msg);
+                break;
+            case StreamStates.CLOSED_RECOVER:
+                if (_watchlist.loginHandler().supportSingleOpen())
+                {                       
+                    WlService wlService = wlStream.wlService();
+                    handleCloseRecover(wlStream, msg);
+                    serviceAdded(wlService);
+                }
+                else 
+                    handleCloseRecoverStatusMsg(wlStream, msg);                 
+                break;
+            case StreamStates.REDIRECTED:
+                handleRedirected(wlStream, msg);
+                break;
+            case StreamStates.OPEN:
+                if (msg.msgClass() == MsgClasses.STATUS
+                    || (msg.msgClass() == MsgClasses.REFRESH && wlStream.state().dataState() == DataStates.SUSPECT))
+                handleOpenStatus(wlStream, msg);                                
+                break;
+            default:
+                break;
+        }
+    }
+    
     @Override
     public int readMsg(WlStream wlStream, DecodeIterator dIter, Msg msg, ReactorErrorInfo errorInfo)
     {
@@ -1569,6 +1695,11 @@ public class WlItemHandler implements WlHandler
                     }
                 }                    
                 ret = readRefreshMsg(wlStream, dIter, msg, errorInfo);
+                if (ret == ReactorReturnCodes.SUCCESS && !_snapshotStreamClosed)
+                {
+                    handleStateTransition(wlStream, msg);
+                }
+
                 break;
             case MsgClasses.STATUS:
                 // if dictionary domain, create RDM dictionary message
@@ -1583,6 +1714,10 @@ public class WlItemHandler implements WlHandler
                     }
                 }                    
                 ret =  readStatusMsg(wlStream, dIter, msg, errorInfo);
+                if (ret == ReactorReturnCodes.SUCCESS)
+                {
+                    handleStateTransition(wlStream, msg);
+                }
                 break;
             case MsgClasses.UPDATE:
                 ret =  readUpdateMsg(wlStream, dIter, msg, errorInfo);
@@ -1599,37 +1734,6 @@ public class WlItemHandler implements WlHandler
                                                               "WlItemHandler.readMsg",
                                                               "Invalid message class (" + msg.msgClass() + ") received by Watchlist directory handler");
                 break;
-        }
-        
-        // handle any state transition
-        if (ret == ReactorReturnCodes.SUCCESS)
-        {
-            switch (wlStream.state().streamState())
-            { 
-                case StreamStates.CLOSED:
-                	handleClose(wlStream, msg);
-                	break;
-                case StreamStates.CLOSED_RECOVER:
-                	if (_watchlist.loginHandler().supportSingleOpen())
-                	{                		
-                	    WlService wlService = wlStream.wlService();
-                		handleCloseRecover(wlStream, msg);
-                		serviceAdded(wlService);
-                	}
-                	else 
-                		handleCloseRecoverStatusMsg(wlStream, msg);                	
-                	break;
-                case StreamStates.REDIRECTED:
-                	handleRedirected(wlStream, msg);
-                    break;
-                case StreamStates.OPEN:
-                	if (msg.msgClass() == MsgClasses.STATUS
-                		|| (msg.msgClass() == MsgClasses.REFRESH && wlStream.state().dataState() == DataStates.SUSPECT))
-                    handleOpenStatus(wlStream, msg);                	        	
-                    break;
-                default:
-                    break;
-            }
         }
 
         if (_currentFanoutStream == null)
@@ -1657,12 +1761,23 @@ public class WlItemHandler implements WlHandler
     int readRefreshMsg(WlStream wlStream, DecodeIterator dIter, Msg msg, ReactorErrorInfo errorInfo)
     {
         int ret = ReactorReturnCodes.SUCCESS;
+        _snapshotViewClosed = false;
+        _snapshotStreamClosed = false;
+        int currentViewCount = 0;
+        
+        // have to flip the pendingViewRefresh after callback
+        boolean needtoSetPendingViewRefreshFlagOff = false;
+        
         boolean isRefreshComplete = ((RefreshMsg)msg).checkRefreshComplete();
         
         // notify stream that response received if solicited
         if (((RefreshMsg)msg).checkSolicited())
         {
             wlStream.responseReceived();
+        }
+        if( wlStream._requestsWithViewCount  > 0 && wlStream._pendingViewRefresh)
+        {
+        	needtoSetPendingViewRefreshFlagOff = true;
         }
         
         // set state from refresh message
@@ -1691,8 +1806,8 @@ public class WlItemHandler implements WlHandler
                 if (!wlRequest.requestMsg().checkNoRefresh() &&
                     (!((RefreshMsg)msg).checkSolicited() ||
                     wlRequest.state() == WlRequest.State.REFRESH_PENDING ||
-                    wlRequest.state() == WlRequest.State.REFRESH_COMPLETE_PENDING ||
-                    wlStream._pendingViewRefresh))
+                    wlRequest.state() == WlRequest.State.REFRESH_COMPLETE_PENDING ) ||
+                    wlStream._pendingViewRefresh)
                 {
                     // check refresh complete flag and change state of user request accordingly
                     if (isRefreshComplete)
@@ -1759,10 +1874,6 @@ public class WlItemHandler implements WlHandler
                             	wlRequest.stream().numPausedRequestsCount(wlRequest.stream().numPausedRequestsCount() -1);
                             }
                         }
-                        if(wlStream._pendingViewRefresh)   
-                        {
-                        	 wlStream._pendingViewRefresh = false;
-                        }
                     }
                     else if (wlRequest.state() == WlRequest.State.REFRESH_PENDING) // multi-part refresh
                     {
@@ -1784,6 +1895,13 @@ public class WlItemHandler implements WlHandler
                     if (!wlRequest.requestMsg().checkStreaming() && tmpStreamState == StreamStates.OPEN)
                         ((RefreshMsg)msg).state().streamState(StreamStates.NON_STREAMING);
                                                            
+                    // For streaming requests, change NON_STREAMING state to OPEN, and user request state to OPEN.
+                    if (wlRequest.requestMsg().checkStreaming() && tmpStreamState == StreamStates.NON_STREAMING)
+                    {
+                        ((RefreshMsg)msg).state().streamState(StreamStates.OPEN);
+                        wlRequest.state(WlRequest.State.OPEN);
+                    }
+                    
                     // if snapshot request or NON_STREAMING, close watchlist request and stream if necessary
                     if (!wlRequest.requestMsg().checkStreaming() ||
                         ((RefreshMsg)msg).state().streamState() == StreamStates.NON_STREAMING)
@@ -1793,9 +1911,11 @@ public class WlItemHandler implements WlHandler
                                 && (wlRequest.symbolListFlags() & SymbolList.SymbolListDataStreamRequestFlags.SYMBOL_LIST_DATA_SNAPSHOTS)  > 0 ))
                         {
                             wlStream.userRequestList().remove(i--);
-                            if (wlRequest.requestMsg().checkHasView() &&  wlStream._requestsWithViewCount > 0) 
+                            if (wlStream._requestsWithViewCount > 0) 
                             {
-                            	removeRequestView(wlStream, wlRequest, errorInfo);     
+                                if (wlRequest.requestMsg().checkHasView())
+                                    removeRequestView(wlStream, wlRequest, errorInfo);     
+                                wlStream._pendingViewChange = true;
                             	_snapshotViewClosed = true;
                             	// save the current view count as callbackuser() and waiting list below can potentially add views 
                             	currentViewCount = wlStream._requestsWithViewCount;
@@ -1815,6 +1935,8 @@ public class WlItemHandler implements WlHandler
                                 wlStream.wlService().waitingRequestList().size() == 0)
                             {                            
                                 handleClose(wlStream, msg);
+                                _pendingSendMsgList.remove(wlStream);
+                                _snapshotStreamClosed = true;
                             }
                         }
                         
@@ -1834,8 +1956,6 @@ public class WlItemHandler implements WlHandler
                         }
                     }
                     
-                    ((RefreshMsg)msg).state().streamState(tmpStreamState);
-                    
                     // if snapshot request or NON_STREAMING, close watchlist request and stream if necessary
                     if (!wlRequest.requestMsg().checkStreaming() ||
                         ((RefreshMsg)msg).state().streamState() == StreamStates.NON_STREAMING)
@@ -1844,29 +1964,14 @@ public class WlItemHandler implements WlHandler
                         if (!(msg.domainType() == DomainTypes.SYMBOL_LIST 
                                 && (wlRequest.symbolListFlags() & SymbolList.SymbolListDataStreamRequestFlags.SYMBOL_LIST_DATA_SNAPSHOTS)  > 0 ))
                         {
-                            wlStream.userRequestList().remove(i--);
-                            removeRequestView(wlStream, wlRequest, errorInfo);
-                            if ( wlStream._requestsWithViewCount > 0)
-                            {
-                            	// re-evaluate each request's view and send  
-                                _submitOptions.serviceName(wlRequest.streamInfo().serviceName());
-                                _submitOptions.requestMsgOptions().userSpecObj(wlRequest.streamInfo().userSpecObject());
-                            	wlStream.sendMsg(wlStream.requestMsg(), _submitOptions, errorInfo);
-                            }
-                            
                             _watchlist.closeWlRequest(wlRequest);
-                        }
-                                                
-                        // if no more requests in stream, close stream
-                        if (wlStream.userRequestList().size() == 0 &&   
-                            wlStream.waitingRequestList().size() == 0 &&
-                            wlStream.wlService().waitingRequestList().size() == 0)
-                        {
-                            wlStream.close();
                         }
                     }
                 }
             }
+
+            if(needtoSetPendingViewRefreshFlagOff) wlStream._pendingViewRefresh = false;
+            
             
             /* if longer waiting for snapshot or multi-part refresh,
                send requests in waiting request list */
@@ -1875,11 +1980,14 @@ public class WlItemHandler implements WlHandler
                 !wlStream.multiPartRefreshPending())
             {
                 WlRequest waitingRequest = null;
-                while((waitingRequest = wlStream.waitingRequestList().poll()) != null)
+                                                
+                while(!wlStream._pendingViewRefresh && (waitingRequest = wlStream.waitingRequestList().poll()) != null) 
                 {
                     _submitOptions.serviceName(waitingRequest.streamInfo().serviceName());
                     _submitOptions.requestMsgOptions().userSpecObj(waitingRequest.streamInfo().userSpecObject());
-                    ret = handleRequest(waitingRequest, waitingRequest.requestMsg(), _submitOptions, true, _errorInfo);
+
+                    ret = handleRequest(waitingRequest, waitingRequest.requestMsg(), _submitOptions, true, errorInfo);                    
+           			if (ret < ReactorReturnCodes.SUCCESS) return ret;
                 }
             }
            /* send next request in service's waiting request list */
@@ -1888,9 +1996,24 @@ public class WlItemHandler implements WlHandler
                 WlRequest waitingRequest = wlStream.wlService().waitingRequestList().poll();
                 _submitOptions.serviceName(waitingRequest.streamInfo().serviceName());
                 _submitOptions.requestMsgOptions().userSpecObj(waitingRequest.streamInfo().userSpecObject());
-                ret = handleRequest(waitingRequest, waitingRequest.requestMsg(), _submitOptions, true, _errorInfo);
+
+                ret = handleRequest(waitingRequest, waitingRequest.requestMsg(), _submitOptions, true, errorInfo);
+            	if (ret < ReactorReturnCodes.SUCCESS) return ret;
             }
             
+            if (_snapshotViewClosed)
+            {
+            	_snapshotViewClosed = false;
+
+            	if ( currentViewCount > 0 && wlStream._requestsWithViewCount == currentViewCount && wlStream.userRequestList().size()  > 0 && (_wlViewHandler.resorted() ||
+            	        !_wlViewHandler.commitedViewsContainsAggregateView(wlStream._aggregateView)) && wlStream._requestsWithViewCount == wlStream._userRequestList.size())
+            	{ 
+            		wlStream.requestMsg().flags(wlStream.requestMsg().flags() | RequestMsgFlags.NO_REFRESH);            		 
+            		wlStream.sendMsg(wlStream.requestMsg(), _submitOptions, errorInfo);
+                	wlStream.requestMsg().flags(wlStream.requestMsg().flags() & ~RequestMsgFlags.NO_REFRESH);
+                	if (_wlViewHandler.resorted()) _wlViewHandler.resorted(false);
+            	}
+            }           
             
         }
         if (msg.domainType() == DomainTypes.SYMBOL_LIST)
@@ -1909,12 +2032,12 @@ public class WlItemHandler implements WlHandler
         {
         	handleSymbolList(wlStream, msg, dIter, errorInfo); 
         }
-        
+                
         // fanout update message to user requests associated with the stream
         for (int i = 0; i < wlStream.userRequestList().size(); i++)
         {
             WlRequest wlRequest = wlStream.userRequestList().get(i);
-            
+                        
             // only fanout to those whose state is OPEN or REFRESH_COMPLETE_PENDING
             if (wlRequest.state() == WlRequest.State.OPEN ||
                 wlRequest.state() == WlRequest.State.REFRESH_COMPLETE_PENDING)
@@ -1924,6 +2047,7 @@ public class WlItemHandler implements WlHandler
                 
                 // callback user
                 _tempWlInteger.value(msg.streamId());
+                
                 if ((ret = callbackUser("WlItemHandler.readUpdateMsg", msg, null, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
                 {
                     // break out of loop for error
@@ -2228,6 +2352,10 @@ public class WlItemHandler implements WlHandler
             {
                 _submitOptions.serviceName(wlRequest.streamInfo().serviceName());
                 _submitOptions.requestMsgOptions().userSpecObj(wlRequest.streamInfo().userSpecObject());
+                
+          		if (wlRequest.requestMsg().checkNoRefresh())
+          			wlRequest.requestMsg().flags(wlRequest.requestMsg().flags() & ~RequestMsgFlags.NO_REFRESH);
+                                
                 if ((ret = handleRequest(wlRequest, wlRequest.requestMsg(), _submitOptions, false, _errorInfo)) < ReactorReturnCodes.SUCCESS)
                 {
                     return ret;
@@ -2686,7 +2814,8 @@ public class WlItemHandler implements WlHandler
             
             if (((StatusMsg)msg).checkHasGroupId())
             	wlStream.wlService().itemGroupTableGet(((StatusMsg)msg).groupId()).openStreamList().remove(wlStream);
-            wlStream.wlService().streamList().remove(wlStream);
+            if (wlStream.wlService() != null)
+            	wlStream.wlService().streamList().remove(wlStream);
         	wlStream.close();
         	
             _tempWlInteger.value(msg.streamId());
@@ -2748,7 +2877,7 @@ public class WlItemHandler implements WlHandler
     	LinkedList<WlRequest> requestList = wlStream.userRequestList();
      	   
     	WlRequest usrRequest = null;
-    	
+
         if (wlStream.itemAggregationKey() != null)
         {
             _itemAggregationKeytoWlStreamTable.remove(wlStream.itemAggregationKey());
@@ -2782,7 +2911,7 @@ public class WlItemHandler implements WlHandler
 			    _symbolListRequestKey.qos(usrRequest.requestMsg().qos());
 			    _providerRequestTable.remove(_symbolListRequestKey);
     		}    		
-    		
+
             _watchlist.closeWlRequest(usrRequest);
     	}             
     }
@@ -2907,6 +3036,7 @@ public class WlItemHandler implements WlHandler
 			_closeMsg.streamId(wlStream.streamId());
 			_closeMsg.domainType(requestList.get(0).requestMsg().domainType());
 			_closeMsg.containerType(DataTypes.NO_DATA); 
+
 			ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
 			ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
 			if ((wlStream.sendMsg(_closeMsg, submitOptions, errorInfo)) < ReactorReturnCodes.SUCCESS)
@@ -2967,6 +3097,9 @@ public class WlItemHandler implements WlHandler
     @Override
     public int requestTimeout(WlStream wlStream, ReactorErrorInfo errorInfo)
     {
+    	// remove stream from service
+    	 wlStream.wlService().streamList().remove(wlStream);
+    	 
         // close stream and update item aggregation table
         if (wlStream.itemAggregationKey() != null)
         {
@@ -3254,9 +3387,11 @@ public class WlItemHandler implements WlHandler
 	private int extractViewFromMsg(WlRequest wlRequest, RequestMsg requestMsg, ReactorErrorInfo errorInfo)
 	{		
 		wlRequest.viewElemCount(0);
+		_viewDataFound = false;		
 	    _viewElemCount = 0;	    
 		_elementList.clear();
 		_elementEntry.clear();
+		_hasViewType = false;
 		_viewType.clear();
 		_viewDataElement.clear();
 		_viewElemList = requestMsg.encodedDataBody();
@@ -3298,6 +3433,7 @@ public class WlItemHandler implements WlHandler
 					_elementEntry.dataType() == DataTypes.UINT) 
 				{
 					_viewType.decode(_dIter);
+					_hasViewType = true;
 				}
 			
 				if (_elementEntry.name().equals(ElementNames.VIEW_DATA) &&
@@ -3312,9 +3448,11 @@ public class WlItemHandler implements WlHandler
 					
 		int viewType = _viewType.toBigInteger().intValue();		
 		wlRequest.viewType(viewType);
-		
-		if (viewType == ViewTypes.FIELD_ID_LIST || viewType == ViewTypes.ELEMENT_NAME_LIST)			
+	    wlRequest.viewAction(VIEW_ACTION_SET);
+	    
+		if (viewType == ViewTypes.FIELD_ID_LIST || viewType == ViewTypes.ELEMENT_NAME_LIST || !_hasViewType)			
 		{
+			if(requestMsg.domainType() == DomainTypes.SYMBOL_LIST) return CodecReturnCodes.SUCCESS;
 			if (!_viewDataFound)
 			{
 				_watchlist.reactor().populateErrorInfo(errorInfo,
@@ -3324,7 +3462,6 @@ public class WlItemHandler implements WlHandler
 			}
 			else
 			{
-			    wlRequest.viewAction(VIEW_ACTION_SET);
 				_dIter.clear();
 				_dIter.setBufferAndRWFVersion(_viewDataElement, _watchlist.reactorChannel().majorVersion(), 
 						_watchlist.reactorChannel().minorVersion());
@@ -3343,11 +3480,12 @@ public class WlItemHandler implements WlHandler
 									"Unexpected primitive type in array  <" + _viewArray.primitiveType() + ">");
 								return CodecReturnCodes.FAILURE;							
 							}	
-							
-							ArrayList<Integer> fieldIdList = _wlViewHandler._viewFieldIdListPool.poll();
-							if (fieldIdList== null) fieldIdList = new ArrayList<Integer>();
+			
+							if (wlRequest._viewFieldIdList == null)	 										
+								wlRequest._viewFieldIdList = _wlViewHandler._viewFieldIdListPool.poll();
+							if (wlRequest._viewFieldIdList == null) wlRequest._viewFieldIdList  = new ArrayList<Integer>();
 							else 
-								fieldIdList.clear();
+								wlRequest._viewFieldIdList.clear();;
 								
 							while ((ret = _viewArrayEntry.decode(_dIter)) != CodecReturnCodes.END_OF_CONTAINER)
 							{								
@@ -3356,7 +3494,6 @@ public class WlItemHandler implements WlHandler
 									_watchlist.reactor().populateErrorInfo(errorInfo,
 										ReactorReturnCodes.FAILURE, "ItemHandler.extractViewFromMsg",
 										"Error decoding array entry   <" + ret + ">");
-									_wlViewHandler._viewFieldIdListPool.add(fieldIdList);
 									return ret;										
 								}
 								else
@@ -3369,8 +3506,8 @@ public class WlItemHandler implements WlHandler
 													ReactorReturnCodes.FAILURE, "ItemHandler.extractViewFromMsg",
 													"Field id in view request is outside the valid ID range <" + _fieldId + ">");
 												return CodecReturnCodes.FAILURE;												
-										}		
-										fieldIdList.add(_fieldId.toBigInteger().intValue());
+										}	
+										wlRequest._viewFieldIdList.add(_fieldId.toBigInteger().intValue());
 										_viewElemCount++;
 									}
 									else
@@ -3378,13 +3515,11 @@ public class WlItemHandler implements WlHandler
 										_watchlist.reactor().populateErrorInfo(errorInfo,
 												ReactorReturnCodes.FAILURE, "ItemHandler.extractViewFromMsg",
 												"Invalid BLANK_DATA or incomplete data while decoding :ViewData <" + ret + ">");
-										_wlViewHandler._viewFieldIdListPool.add(fieldIdList);
 										return ret;												
 									}
 								}								
 							}// while
 							wlRequest.viewElemCount(_viewElemCount);
-							wlRequest.viewFieldIdList(fieldIdList);
 						}
 						else
 						{
@@ -3409,10 +3544,11 @@ public class WlItemHandler implements WlHandler
 								return CodecReturnCodes.FAILURE;							
 							}
 						
-							ArrayList<String> elementNameList = _wlViewHandler._viewElementNameListPool.poll();
-							if (elementNameList == null) elementNameList = new ArrayList<String>();
+							if (wlRequest._viewElementNameList == null)	 	
+								wlRequest._viewElementNameList = _wlViewHandler._viewElementNameListPool.poll();
+							if (wlRequest._viewElementNameList == null) wlRequest._viewElementNameList = new ArrayList<String>();
 							else
-								elementNameList.clear();
+								wlRequest._viewElementNameList.clear();
 	
 							while ((ret = _viewArrayEntry.decode(_dIter)) != CodecReturnCodes.END_OF_CONTAINER)
 							{
@@ -3427,7 +3563,7 @@ public class WlItemHandler implements WlHandler
 								{						           
 									if (_elementName.decode(_dIter) == CodecReturnCodes.SUCCESS)
 									{
-										elementNameList.add(_elementName.toString());
+										wlRequest._viewElementNameList.add(_elementName.toString());
 										_viewElemCount++;
 									}
 									else
@@ -3437,10 +3573,9 @@ public class WlItemHandler implements WlHandler
 												"Invalid BLANK_DATA or incomplete data while decoding :ViewData <" + ret + ">");
 										return ret;																					
 									}
-									wlRequest.viewElemCount(_viewElemCount);
-									wlRequest.viewElementNameList(elementNameList);
 								}								
 							}// while			
+							wlRequest.viewElemCount(_viewElemCount);
 						}
 						else
 						{
@@ -3450,7 +3585,112 @@ public class WlItemHandler implements WlHandler
 							return ret;														
 						}
 
-				    break;
+						break;
+					}
+					default:
+					{
+						// non-existent viewType, but still move on, infer from primitive type 
+						_viewArray.clear();
+						if ((ret = _viewArray.decode(_dIter)) == CodecReturnCodes.SUCCESS)
+						{
+							if (_viewArray.primitiveType() == DataTypes.INT)
+							{
+								if (wlRequest._viewFieldIdList == null)								
+									wlRequest._viewFieldIdList  = _wlViewHandler._viewFieldIdListPool.poll();
+								if (wlRequest._viewFieldIdList == null) wlRequest._viewFieldIdList = new ArrayList<Integer>();
+								else 
+									wlRequest._viewFieldIdList.clear();
+									
+								while ((ret = _viewArrayEntry.decode(_dIter)) != CodecReturnCodes.END_OF_CONTAINER)
+								{								
+									if (ret < CodecReturnCodes.SUCCESS)
+									{
+										_watchlist.reactor().populateErrorInfo(errorInfo,
+											ReactorReturnCodes.FAILURE, "ItemHandler.extractViewFromMsg",
+											"Error decoding array entry   <" + ret + ">");
+										return ret;										
+									}
+									else
+									{								
+										if ((ret = _fieldId.decode(_dIter)) == CodecReturnCodes.SUCCESS)
+										{
+											if (_fieldId.toBigInteger().intValue() < -32768 || _fieldId.toBigInteger().intValue() > 32767)
+											{
+												_watchlist.reactor().populateErrorInfo(errorInfo,
+														ReactorReturnCodes.FAILURE, "ItemHandler.extractViewFromMsg",
+														"Field id in view request is outside the valid ID range <" + _fieldId + ">");
+													return CodecReturnCodes.FAILURE;												
+											}		
+											wlRequest._viewFieldIdList.add(_fieldId.toBigInteger().intValue());
+											_viewElemCount++;
+										}
+										else
+										{
+											_watchlist.reactor().populateErrorInfo(errorInfo,
+													ReactorReturnCodes.FAILURE, "ItemHandler.extractViewFromMsg",
+													"Invalid BLANK_DATA or incomplete data while decoding :ViewData <" + ret + ">");
+											return ret;												
+										}
+									}								
+								}// while
+								wlRequest.viewElemCount(_viewElemCount);
+								return CodecReturnCodes.FAILURE;
+							}												
+							else if (_viewArray.primitiveType() == DataTypes.ASCII_STRING ||
+									_viewArray.primitiveType() == DataTypes.UTF8_STRING ||
+											_viewArray.primitiveType() == DataTypes.RMTES_STRING)
+							{
+								if (wlRequest._viewElementNameList == null)	 	
+									wlRequest._viewElementNameList = _wlViewHandler._viewElementNameListPool.poll();
+								if (wlRequest._viewElementNameList == null) wlRequest._viewElementNameList = new ArrayList<String>();
+								
+								else
+									wlRequest._viewElementNameList.clear();
+	
+								while ((ret = _viewArrayEntry.decode(_dIter)) != CodecReturnCodes.END_OF_CONTAINER)
+								{
+									if (ret < CodecReturnCodes.SUCCESS)
+									{
+										_watchlist.reactor().populateErrorInfo(errorInfo,
+												ReactorReturnCodes.FAILURE, "ItemHandler.extractViewFromMsg",
+												"Error decoding array entry   <" + ret + ">");
+										return ret;										
+									}
+									else
+									{						           
+										if (_elementName.decode(_dIter) == CodecReturnCodes.SUCCESS)
+										{
+											wlRequest._viewElementNameList.add(_elementName.toString());
+											_viewElemCount++;
+										}
+										else
+										{
+											_watchlist.reactor().populateErrorInfo(errorInfo,
+												ReactorReturnCodes.FAILURE, "ItemHandler.extractViewFromMsg",
+												"Invalid BLANK_DATA or incomplete data while decoding :ViewData <" + ret + ">");
+											return ret;																					
+										}
+									}								
+								}// while			
+								wlRequest.viewElemCount(_viewElemCount);
+								return CodecReturnCodes.FAILURE;
+							}
+							else
+							{
+								_watchlist.reactor().populateErrorInfo(errorInfo,
+									ReactorReturnCodes.FAILURE, "ItemHandler.extractViewFromMsg",
+									"Error decoding array  <" + ret + ">");
+								return ret;														
+							}
+						}
+						else
+						{							
+							_watchlist.reactor().populateErrorInfo(errorInfo,
+									ReactorReturnCodes.FAILURE, "ItemHandler.extractViewFromMsg",
+									"Error decoding array  <" + ret + ">");
+							return ret;														
+						}
+					
 					}
 				}// switch
 			}// viewDataFound	
@@ -3478,11 +3718,7 @@ public class WlItemHandler implements WlHandler
 			}
 			case VIEW_ACTION_MAINTAIN:
 				break;
-			case VIEW_ACTION_NONE:
-				if (isReissue && wlRequest.viewElemCount()>0)
-				{
-					removeRequestView(wlRequest.stream(), wlRequest, errorInfo);					
-				}								
+			case VIEW_ACTION_NONE:					
 				break;
 			default:
 			{
@@ -3492,8 +3728,7 @@ public class WlItemHandler implements WlHandler
 				return CodecReturnCodes.FAILURE;
 			}
 		}					
-		addRequestView(wlRequest, errorInfo);
-		return CodecReturnCodes.SUCCESS;
+		return addRequestView(wlRequest, errorInfo);
 	}
 	
 	private int addRequestView(WlRequest wlRequest, ReactorErrorInfo errorInfo)
@@ -3509,28 +3744,46 @@ public class WlItemHandler implements WlHandler
 		}
 		
 		wlStream._requestsWithViewCount++;
-		wlStream._pendingViewChange = true;
 		
+		wlStream._pendingViewChange = true;		
 		if ( wlStream.aggregateView() == null) 
 		{
 			WlView aggView = _wlViewHandler.aggregateViewCreate(wlRequest.view(), errorInfo);
 			if ( aggView == null ) return CodecReturnCodes.FAILURE;
 			wlStream.aggregateView(aggView);
 		}	
-		else if (_wlViewHandler.aggregateViewAdd(wlStream.aggregateView(), wlRequest.view(), errorInfo) < CodecReturnCodes.SUCCESS)
+		else
 		{
-			return CodecReturnCodes.FAILURE;
-		}
-		
-		return CodecReturnCodes.SUCCESS;
-		
+			if(_wlViewHandler.aggregateViewAdd(wlStream.aggregateView(), wlRequest.view(), errorInfo) < CodecReturnCodes.SUCCESS)
+			{
+				return CodecReturnCodes.FAILURE;
+			}			
+		}		
+		return CodecReturnCodes.SUCCESS;		
 	}
 	
-	private void removeRequestView(WlStream wlStream, WlRequest wlRequest, ReactorErrorInfo errorInfo)
+	private WlView removeRequestView(WlStream wlStream, WlRequest wlRequest, ReactorErrorInfo errorInfo)
 	{
 		_wlViewHandler.removeRequestView(wlStream, wlRequest, errorInfo);
 		wlStream._pendingViewChange = true;		
-	}			
+		return wlRequest.view();
+	}	
+	
+	public void putWlRequestViewListBackToPool(WlRequest wlRequest)
+	{
+		if(wlRequest.view() == null) return;
+ 
+		switch(wlRequest.view().viewType())
+		{		
+			case ViewTypes.FIELD_ID_LIST:
+				_wlViewHandler._viewFieldIdListPool.add(wlRequest._viewFieldIdList);
+				break;
+			case ViewTypes.ELEMENT_NAME_LIST:				
+				_wlViewHandler._viewElementNameListPool.add(wlRequest._viewElementNameList);				
+				break;
+		}
+		wlRequest.view().returnToPool();
+	}	
 	
 } 
 

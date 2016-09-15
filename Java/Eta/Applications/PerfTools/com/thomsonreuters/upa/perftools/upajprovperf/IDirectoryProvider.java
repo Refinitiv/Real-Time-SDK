@@ -213,4 +213,10 @@ public class IDirectoryProvider extends DirectoryProvider
         // send source directory refresh
         return reactorChannel.submit(msgBuf, _reactorSubmitOptions, _errorInfo);
     }
+
+    /* Returns directoryRequest. */
+    public DirectoryRequest directoryRequest()
+    {
+        return _directoryRequest;
+    }
 }

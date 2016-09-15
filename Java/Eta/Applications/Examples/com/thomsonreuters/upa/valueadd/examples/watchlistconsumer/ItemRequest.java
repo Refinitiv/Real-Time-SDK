@@ -105,6 +105,7 @@ public class ItemRequest
        priorityClass = 1;
        priorityCount = 1;
        identifier = -1;
+       isSymbolListData = false;
        if (viewFieldList != null )  viewFieldList.clear();
        if (viewElementNameList != null )  viewElementNameList.clear();
    }
@@ -656,7 +657,8 @@ public class ItemRequest
     */
    private int encodeViewRequest(EncodeIterator encodeIter, int viewType)
    {
-	      elementEntry.clear();
+	       elementEntry.clear();
+	       tempUInt.clear();
 	       elementEntry.name(ElementNames.VIEW_TYPE);
 	       elementEntry.dataType(DataTypes.UINT);
 	       if ( viewType == ViewTypes.FIELD_ID_LIST)

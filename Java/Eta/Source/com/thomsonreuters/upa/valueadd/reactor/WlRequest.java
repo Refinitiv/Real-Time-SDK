@@ -30,6 +30,7 @@ public class WlRequest extends VaNode
     int _viewType;
     int _viewAction;
     boolean _reissue_hasChange = false;
+    boolean _reissue_hasViewChange = false;
        
     Qos _matchedQos = CodecFactory.createQos();
     

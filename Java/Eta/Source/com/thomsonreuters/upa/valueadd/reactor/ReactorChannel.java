@@ -20,6 +20,7 @@ import com.thomsonreuters.upa.transport.Server;
 import com.thomsonreuters.upa.transport.Transport;
 import com.thomsonreuters.upa.transport.TransportBuffer;
 import com.thomsonreuters.upa.valueadd.common.VaNode;
+import com.thomsonreuters.upa.valueadd.common.VaDoubleLinkList.Link;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.MsgBase;
 
 /**
@@ -90,6 +91,17 @@ public class ReactorChannel extends VaNode
     };
 
     State _state = State.UNKNOWN;
+    
+    /* Link for ReactorChannel queue */
+    private ReactorChannel _reactorChannelNext, _reactorChannelPrev;
+    static class ReactorChannelLink implements Link<ReactorChannel>
+    {
+        public ReactorChannel getPrev(ReactorChannel thisPrev) { return thisPrev._reactorChannelPrev; }
+        public void setPrev(ReactorChannel thisPrev, ReactorChannel thatPrev) { thisPrev._reactorChannelPrev = thatPrev; }
+        public ReactorChannel getNext(ReactorChannel thisNext) { return thisNext._reactorChannelNext; }
+        public void setNext(ReactorChannel thisNext, ReactorChannel thatNext) { thisNext._reactorChannelNext = thatNext; }
+    }
+    static final ReactorChannelLink REACTOR_CHANNEL_LINK = new ReactorChannelLink();
 
     /**
      * The state of the ReactorChannel.

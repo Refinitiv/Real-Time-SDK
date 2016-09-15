@@ -1,12 +1,12 @@
 package com.thomsonreuters.upa.perftools.upajprovperf;
 
 import java.io.IOException;
-import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
 
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
@@ -16,7 +16,6 @@ import com.thomsonreuters.upa.perftools.common.ItemRejectReason;
 import com.thomsonreuters.upa.perftools.common.ChannelHandler;
 import com.thomsonreuters.upa.perftools.common.ClientChannelInfo;
 import com.thomsonreuters.upa.perftools.common.DictionaryProvider;
-import com.thomsonreuters.upa.perftools.common.NIProvPerfConfig;
 import com.thomsonreuters.upa.perftools.common.PerfToolsReturnCodes;
 import com.thomsonreuters.upa.perftools.common.ProviderPerfConfig;
 import com.thomsonreuters.upa.perftools.common.ProviderSession;
@@ -35,7 +34,9 @@ import com.thomsonreuters.upa.transport.TransportReturnCodes;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsg;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsg;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsg;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
 import com.thomsonreuters.upa.valueadd.reactor.ProviderCallback;
 import com.thomsonreuters.upa.valueadd.reactor.ProviderRole;
 import com.thomsonreuters.upa.valueadd.reactor.RDMDictionaryMsgEvent;
@@ -77,6 +78,10 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
     private Msg _tmpMsg;
     
     private int _connectionCount; //Number of client sessions currently connected.
+    
+    private long _nsecPerTick; /* nanoseconds per tick */
+    private long _millisPerTick; /* milliseconds per tick */
+    private long _divisor = 1;
 
     private Reactor _reactor; // Use the VA Reactor instead of the UPA Channel for sending and receiving
     private ProviderRole _providerRole; // Use the VA Reactor instead of the UPA Channel for sending and receiving
@@ -86,6 +91,7 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
     private ReactorDispatchOptions _dispatchOptions; // Use the VA Reactor instead of the UPA Channel for sending and receiving
     private ReactorChannelInfo _reactorChannnelInfo; // Use the VA Reactor instead of the UPA Channel for sending and receiving
     private Selector _selector; // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    private boolean _reactorInitialized; // Use the VA Reactor instead of the UPA Channel for sending and receiving
 
     {
         _decodeIter = CodecFactory.createDecodeIterator();
@@ -96,6 +102,13 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
         _channelInfo = TransportFactory.createChannelInfo();
         _itemRequestHandler = new ItemRequestHandler();
         _channelHandler = new ChannelHandler(this);
+        
+        _nsecPerTick = 1000000000 / ProviderPerfConfig.ticksPerSec();
+        _millisPerTick = 1000 / ProviderPerfConfig.ticksPerSec();
+        if (ProviderPerfConfig.ticksPerSec() > 1000)
+        {
+            _divisor = 1000000;
+        }
         
         _providerRole = ReactorFactory.createProviderRole();
         _errorInfo = ReactorFactory.createReactorErrorInfo();
@@ -108,8 +121,8 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
     public IProviderThread(XmlMsgData xmlMsgData)
     {
         super(xmlMsgData);
-    } 
-
+    }
+    
     /**
      * Handles newly accepted client channel.
      */
@@ -125,6 +138,17 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
      */
     public int acceptNewReactorChannel(Server server, ReactorErrorInfo errorInfo)
     {
+        while (!_reactorInitialized)
+        {
+            try
+            {
+                Thread.sleep(10);
+            }
+            catch (InterruptedException e)
+            {
+                System.out.printf("acceptNewReactorChannel() Thread.sleep() exception: " + e.getLocalizedMessage());
+            }
+        }
         // create provider session
         ProviderSession provSession = new ProviderSession(_xmlMsgData, _itemEncoder);
         ClientChannelInfo ccInfo = new ClientChannelInfo();
@@ -230,8 +254,10 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
         channelHandler.providerThread().getProvThreadInfo().stats().inactiveTime(inactiveTime);
         System.out.printf("processInactiveChannel(%d)", inactiveTime);
         
+        _channelHandler.handlerLock().lock();
         --_connectionCount;
-        
+        _channelHandler.handlerLock().unlock();
+
         if (error != null)
             System.out.println("Channel Closed: " + error.text());
         else
@@ -359,30 +385,31 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
         }
         
         getProvThreadInfo().dictionary(_dictionaryProvider.dictionary());
+        
+        _reactorInitialized = true;
 
         // Determine update rates on per-tick basis
-        long nsecPerTick = 1000000000 / ProviderPerfConfig.ticksPerSec();
-        long nextTickTime = System.nanoTime() + nsecPerTick;
-
+        long nextTickTime = initNextTickTime();
+        
         // this is the main loop
         while (!shutdown())
         {
             if (!ProviderPerfConfig.useReactor()) // use UPA Channel
             {
-            	if (nextTickTime <= System.nanoTime())
+            	if (nextTickTime <= currentTime())
             	{
-            		nextTickTime += nsecPerTick;
+            	    nextTickTime = nextTickTime(nextTickTime);
             		sendMsgBurst(nextTickTime);
             		_channelHandler.processNewChannels();
             	}
-        		_channelHandler.readChannels(nextTickTime, _error);
-        		_channelHandler.checkPings();
+	        	_channelHandler.readChannels(nextTickTime, _error);
+	        	_channelHandler.checkPings();
             }
             else // use UPA VA Reactor
             {
-                if (nextTickTime <= System.nanoTime())
+                if (nextTickTime <= currentTime())
                 {
-                    nextTickTime += nsecPerTick;
+                    nextTickTime = nextTickTime(nextTickTime);
                     sendMsgBurst(nextTickTime);
                 }
 
@@ -391,7 +418,15 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
                 // set select time 
                 try
                 {
-                    if (_selector.selectNow() > 0)
+                    int selectRetVal;
+                    long selTime = (long)(selectTime(nextTickTime) / _divisor);
+                    
+                    if (selTime <= 0)
+                        selectRetVal = _selector.selectNow();
+                    else
+                        selectRetVal = _selector.select(selTime);
+                    
+                    if (selectRetVal > 0)
                     {
                         keySet = _selector.selectedKeys();
                     }
@@ -410,32 +445,28 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
                 {
                     SelectionKey key = iter.next();
                     iter.remove();
-                    try
+                    if(!key.isValid())
+                        continue;
+                    if (key.isReadable())
                     {
-                        if (key.isReadable())
+                        int ret;
+                        
+                        // retrieve associated reactor channel and dispatch on that channel 
+                        ReactorChannel reactorChnl = (ReactorChannel)key.attachment();
+                        
+                        /* read until no more to read */
+                        while ((ret = reactorChnl.dispatch(_dispatchOptions, _errorInfo)) > 0 && !shutdown()) {}
+                        if (ret == ReactorReturnCodes.FAILURE)
                         {
-                            int ret;
-                            
-                            // retrieve associated reactor channel and dispatch on that channel 
-                            ReactorChannel reactorChnl = (ReactorChannel)key.attachment();
-                            
-                            /* read until no more to read */
-                            while ((ret = reactorChnl.dispatch(_dispatchOptions, _errorInfo)) > 0) {}
-                            if (ret == ReactorReturnCodes.FAILURE)
+                            if (reactorChnl.state() != ReactorChannel.State.CLOSED &&
+                                reactorChnl.state() != ReactorChannel.State.DOWN_RECONNECTING)
                             {
-                                if (reactorChnl.state() != ReactorChannel.State.CLOSED &&
-                                    reactorChnl.state() != ReactorChannel.State.DOWN_RECONNECTING)
-                                {
-                                    System.out.println("ReactorChannel dispatch failed");
-                                    reactorChnl.close(_errorInfo);
-                                    System.exit(CodecReturnCodes.FAILURE);
-                                }
+                                System.out.println("ReactorChannel dispatch failed");
+                                reactorChnl.close(_errorInfo);
+                                System.exit(CodecReturnCodes.FAILURE);
                             }
                         }
                     }
-                    catch (CancelledKeyException e)
-                    {
-                    } // key can be canceled during shutdown
                 }
             }
         }
@@ -449,17 +480,16 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
      * the channel is closed.
      * 
      */
-    private void sendMsgBurst(long stopTimeNSec)
+    private void sendMsgBurst(long stopTime)
     {
-       for(int i = 0; i < _channelHandler.activeChannelList().size(); i++)
+       for (ClientChannelInfo clientChannelInfo : _channelHandler.activeChannelList())
        {
-           ClientChannelInfo clientChannelInfo = _channelHandler.activeChannelList().get(i);
            ProviderSession providerSession = (ProviderSession)clientChannelInfo.userSpec;
 
            // The application corrects for ticks that don't finish before the time 
            // that the next update burst should start.  But don't do this correction 
            // for new channels.
-           if(stopTimeNSec < providerSession.timeActivated())
+           if(providerSession.timeActivated() == 0)
            {
                continue;
            }
@@ -494,14 +524,8 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
                }
            }
 
-           // Always send at least one refresh burst if using VA Reactor
-           if (ProviderPerfConfig.useReactor()) // use UPA VA Reactor
-           {
-               ret = sendRefreshBurst(providerSession, _error);
-           }
-           
            // Use remaining time in the tick to send refreshes.
-           while(ret >= TransportReturnCodes.SUCCESS &&  providerSession.refreshItemList().count() != 0 && System.nanoTime() < stopTimeNSec)
+           while(ret >= TransportReturnCodes.SUCCESS &&  providerSession.refreshItemList().count() != 0 && currentTime() < stopTime)
                ret = sendRefreshBurst(providerSession, _error);
            
            if(ret < TransportReturnCodes.SUCCESS)
@@ -612,12 +636,12 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
                 System.out.printf("Channel active. " + _reactorChannnelInfo.channelInfo().toString() + "\n");
         
                 /* Check that we can successfully pack, if packing messages. */
-                if (NIProvPerfConfig.totalBuffersPerPack() > 1
-                        && NIProvPerfConfig.packingBufferLength() > _channelInfo.maxFragmentSize())
+                if (ProviderPerfConfig.totalBuffersPerPack() > 1
+                        && ProviderPerfConfig.packingBufferLength() > _reactorChannnelInfo.channelInfo().maxFragmentSize())
                 {
                     System.err.printf("Error(Channel %s): MaxFragmentSize %d is too small for packing buffer size %d\n",
-                            reactorChannel.selectableChannel(), _channelInfo.maxFragmentSize(), 
-                            NIProvPerfConfig.packingBufferLength());
+                            reactorChannel.selectableChannel(), _reactorChannnelInfo.channelInfo().maxFragmentSize(), 
+                            ProviderPerfConfig.packingBufferLength());
                     System.exit(-1);
                 }
                                 
@@ -680,12 +704,14 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
                 --_connectionCount;
                 
                 // unregister selectableChannel from Selector
-                try
+                if (reactorChannel.selectableChannel() != null)
                 {
-                    SelectionKey key = event.reactorChannel().selectableChannel().keyFor(_selector);
-                    key.cancel();
+                    SelectionKey key = reactorChannel.selectableChannel().keyFor(_selector);
+                    if (key != null)
+                    {
+                        key.cancel();
+                    }
                 }
-                catch (Exception e) { } // channel may be null so ignore
                 
                 if (provSession.clientChannelInfo().reactorChannel != null && provSession.clientChannelInfo().parentQueue.size() > 0)
                 {
@@ -697,6 +723,7 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
                 {
                     reactorChannel.close(_errorInfo);
                 }
+                
                 break;
             }
             case ReactorChannelEventTypes.WARNING:
@@ -720,6 +747,13 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
         ProviderThread providerThread = provSession.providerThread();
         
         Msg msg = event.msg();
+        
+        _decodeIter.clear();
+        
+        if (msg.encodedDataBody() != null && msg.encodedDataBody().data() != null)
+        {
+            _decodeIter.setBufferAndRWFVersion(msg.encodedDataBody(), reactorChannel.majorVersion(), reactorChannel.minorVersion());
+        }
         
         switch (msg.domainType())
         {
@@ -749,6 +783,8 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
         {
             case REQUEST:
                 //send login response
+                LoginRequest loginRequest = (LoginRequest)loginMsg;
+                loginRequest.copy(_loginProvider.loginRequest());
                 _loginProvider.sendRefreshReactor(provSession.clientChannelInfo(), event.errorInfo().error());
                 break;
             case CLOSE:
@@ -773,6 +809,8 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
         switch (directoryMsg.rdmMsgType())
         {
             case REQUEST:
+                DirectoryRequest directoryRequest = (DirectoryRequest)directoryMsg;
+                directoryRequest.copy(_directoryProvider.directoryRequest());
                 System.out.println("Received Source Directory Request");
                 // send source directory response
                 _directoryProvider.sendRefreshReactor(provSession.clientChannelInfo(), event.errorInfo().error());
@@ -825,5 +863,72 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
         }
 
         return ReactorCallbackReturnCodes.SUCCESS;
+    }
+
+    private long currentTime()
+    {
+        long currentTime;
+        
+        if (ProviderPerfConfig.ticksPerSec() <= 1000) // use millisecond timer for tickRate of 1000 and below
+        {
+            currentTime = System.currentTimeMillis(); 
+        }
+        else // use nanosecond timer for tickRate of greater than 1000
+        {
+            currentTime = System.nanoTime();
+        }
+        
+        return currentTime;
+    }
+
+    private long initNextTickTime()
+    {
+        long nextTickTime;
+        
+        if (ProviderPerfConfig.ticksPerSec() <= 1000) // use millisecond timer for tickRate of 1000 and below
+        {
+            nextTickTime = System.currentTimeMillis() + _millisPerTick;
+        }
+        else // use nanosecond timer for tickRate of greater than 1000
+        {
+            nextTickTime = System.nanoTime() + _nsecPerTick;
+        }
+        
+        return nextTickTime;
+    }
+
+    private long nextTickTime(long nextTickTime)
+    {
+        if (ProviderPerfConfig.ticksPerSec() <= 1000) // use millisecond timer for tickRate of 1000 and below
+        {
+            nextTickTime += _millisPerTick;
+        }
+        else // use nanosecond timer for tickRate of greater than 1000
+        {
+            nextTickTime += _nsecPerTick;
+        }
+    
+        return nextTickTime;
+    }
+
+    private long selectTime(long nextTickTime)
+    {
+        long selectTime;
+        
+        if (ProviderPerfConfig.ticksPerSec() <= 1000) // use millisecond timer for tickRate of 1000 and below
+        {
+            selectTime = nextTickTime - System.currentTimeMillis(); 
+        }
+        else // use nanosecond timer for tickRate of greater than 1000
+        {
+            selectTime = nextTickTime - System.nanoTime();
+        }
+    
+        return selectTime;
+    }
+    
+    Lock handlerLock()
+    {
+    	return _channelHandler.handlerLock();
     }
 }

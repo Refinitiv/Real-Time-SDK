@@ -537,7 +537,7 @@ public class ReactorFactory
         if(wlView == null)
         {
             wlView = new WlView();
-            _wlServicePool.updatePool(wlView);
+            _wlViewPool.updatePool(wlView);
         }
         else
         {

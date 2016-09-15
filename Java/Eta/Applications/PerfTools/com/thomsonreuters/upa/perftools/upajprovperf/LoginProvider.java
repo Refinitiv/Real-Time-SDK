@@ -370,4 +370,10 @@ public class LoginProvider
             _position = "1.1.1.1/net";
         }
     }
+
+    /** Returns loginRequest. */
+    public LoginRequest loginRequest()
+    {
+        return _loginRequest;
+    }
 }

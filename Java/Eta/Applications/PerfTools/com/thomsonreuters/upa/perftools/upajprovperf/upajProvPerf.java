@@ -313,12 +313,14 @@ public class upajProvPerf
 
         for (int i = 0; i < ProviderPerfConfig.threadCount(); i++)
         {
+            int shutdownCount = 0;
             // wait for provider thread cleanup or timeout
-            while (!_provider.providerThreadList()[i].shutdownAck())
+            while (!_provider.providerThreadList()[i].shutdownAck() && shutdownCount < 3)
             {
                 try
                 {
                     Thread.sleep(1000);
+                    shutdownCount++;
                 }
                 catch (InterruptedException e)
                 {
@@ -343,15 +345,19 @@ public class upajProvPerf
         for (int i = 0; i < ProviderPerfConfig.threadCount(); ++i)
         {
         	IProviderThread tmpProvThread = (IProviderThread) _provider.providerThreadList()[i];
+        	tmpProvThread.handlerLock().lock();
             int connCount = tmpProvThread.connectionCount();
             if (connCount < minProvConnCount)
             {
                 minProvConnCount = connCount;
                 provThread = tmpProvThread;
             }
+            tmpProvThread.handlerLock().unlock();
         }
 
+        provThread.handlerLock().lock();
         provThread.acceptNewChannel(channel);
+        provThread.handlerLock().unlock();
     }
 
     private int acceptReactorConnection(Server server, ReactorErrorInfo errorInfo)

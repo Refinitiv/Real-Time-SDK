@@ -99,6 +99,7 @@ class WlStream extends VaNode
     int _requestsWithViewCount;
     boolean _pendingViewChange;  
     boolean _pendingViewRefresh;
+    boolean _viewSubsetContained;
     Buffer _viewBuffer = CodecFactory.createBuffer();
     ByteBuffer _viewByteBuffer = ByteBuffer.allocateDirect(2048);
         
@@ -408,17 +409,15 @@ class WlStream extends VaNode
         {         
 			if (_requestsWithViewCount > 0 )
 			{
-//				System.out.println("WLSTREAM.SENDMSG  _requestsWithViewCount = " + _requestsWithViewCount + " _userRequestList.size() =  "
-//						+ _userRequestList.size() +  " _unsentMsgQueue.size() =  " + _unsentMsgQueue.size() + " _waitingRequestList.size() = "
-//						 + _waitingRequestList.size());
-//				
-				
-//				if ((_requestsWithViewCount == _waitingRequestList.size() + _unsentMsgQueue.size() + _userRequestList.size()))
-				if (_requestsWithViewCount == _userRequestList.size())
+				if (_requestsWithViewCount == _userRequestList.size() && 
+						_watchlist._loginHandler._loginRefresh.features().checkHasSupportViewRequests() &&
+						_watchlist._loginHandler._loginRefresh.features().supportViewRequests() == 1)
 				{			
 					if (_pendingViewChange && !_pendingViewRefresh)
-//						if (_pendingViewChange)
-					{
+					{						
+						_viewSubsetContained = false;
+						if(_aggregateView.viewHandler().aggregateViewContainsNewViews(_aggregateView))
+							_viewSubsetContained = true;			
 						_aggregateView.viewHandler().aggregateViewMerge((RequestMsg)msg, _aggregateView);
 				
 						msg.flags(msg.flags() | RequestMsgFlags.HAS_VIEW);
@@ -441,12 +440,13 @@ class WlStream extends VaNode
 				}
 				else
 				{
-					_pendingViewChange = true;
 					msg.flags(msg.flags() & ~RequestMsgFlags.HAS_VIEW);
 					_viewBuffer.clear();
 					msg.encodedDataBody(_viewBuffer);
 					msg.containerType(DataTypes.NO_DATA);
-					
+					_aggregateView.viewHandler().aggregateViewUncommit(_aggregateView);
+					_pendingViewChange = true;
+					_viewSubsetContained = false;
 				}
 			}
         }
@@ -509,11 +509,12 @@ class WlStream extends VaNode
                         }
                         if ( _pendingViewChange)
                         {
-                        	_pendingViewChange = false;
-                        	if (!((RequestMsg)msg).checkNoRefresh())
+                        	// no need to send refresh back on other app streams already received
+                        	_pendingViewChange = false;                        	
+                        	if (!((RequestMsg)msg).checkNoRefresh() && !_viewSubsetContained)
                         		_pendingViewRefresh = true;
                                             
-                            if (_aggregateView != null)
+                            if (_aggregateView != null && 	(int)(msg.flags() & RequestMsgFlags.HAS_VIEW) > 0)
                             	_aggregateView.viewHandler().aggregateViewCommit(_aggregateView);
 
                             if (_aggregateView!= null && _requestsWithViewCount == 0 )
@@ -542,7 +543,7 @@ class WlStream extends VaNode
                    // change WRITE_FLUSH_FAILED and NO_BUFFERS and not post message to SUCCESS
                     // post messages return NO_BUFFERS
                     if (ret == TransportReturnCodes.WRITE_FLUSH_FAILED ||
-                        (ret == TransportReturnCodes.NO_BUFFERS && msg.msgClass() != MsgClasses.POST))
+                        (ret == ReactorReturnCodes.NO_BUFFERS && msg.msgClass() != MsgClasses.POST))
                     {
                         ret = ReactorReturnCodes.SUCCESS;
                     }
@@ -893,8 +894,11 @@ class WlStream extends VaNode
         _state.streamState(StreamStates.CLOSED);
         _state.dataState(DataStates.SUSPECT);                
         // remove this stream from watchlist table
-        _watchlist.streamIdtoWlStreamTable().remove(_tableKey);
-        _tableKey.returnToPool();
+        if (_tableKey != null)
+        {
+            _watchlist.streamIdtoWlStreamTable().remove(_tableKey);
+            _tableKey.returnToPool();   
+        }
         _requestsPausedCount = 0;
         _paused = false;
         

@@ -41,7 +41,7 @@ import com.thomsonreuters.upa.transport.TransportFactory;
 import com.thomsonreuters.upa.transport.TransportReturnCodes;
 import com.thomsonreuters.upa.transport.WriteArgs;
 import com.thomsonreuters.upa.valueadd.common.SelectableBiDirectionalQueue;
-import com.thomsonreuters.upa.valueadd.common.VaIteratableQueue;
+import com.thomsonreuters.upa.valueadd.common.VaDoubleLinkList;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.MsgBase;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryClose;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsg;
@@ -102,8 +102,9 @@ public class Reactor
     Worker _worker = null;
     ExecutorService _esWorker = null;
 
-    // Queue to track reactorChannels
-    VaIteratableQueue _reactorChannelQueue = new VaIteratableQueue();
+    // Queue to track ReactorChannels
+    VaDoubleLinkList<ReactorChannel>  _reactorChannelQueue = new VaDoubleLinkList<ReactorChannel>();
+    
     Lock _reactorLock = new ReentrantLock();
 	int _reactorChannelCount; // used by reactor.dispatchAll
 
@@ -202,7 +203,7 @@ public class Reactor
             _reactorChannel.reactor(this);
             _reactorChannel.userSpecObj(this);
             _reactorChannel.selectableChannel(_workerQueue.readChannel());
-
+            
             // create the worker thread.
             _worker = new Worker(_reactorChannel, _workerQueue.remote());
             _esWorker = Executors.newSingleThreadExecutor();
@@ -277,9 +278,10 @@ public class Reactor
              * For all reactorChannels, send CHANNEL_DOWN to worker and
              * application (via callback).
              */
-            while (_reactorChannelQueue.size() > 0)
+            for(ReactorChannel reactorChannel = _reactorChannelQueue.start(ReactorChannel.REACTOR_CHANNEL_LINK); 
+                    reactorChannel != null;
+                    reactorChannel = _reactorChannelQueue.forth(ReactorChannel.REACTOR_CHANNEL_LINK))
             {
-                ReactorChannel reactorChannel = (ReactorChannel)_reactorChannelQueue.poll();
                 if (reactorChannel == null || reactorChannel.state() == State.CLOSED)
                     continue;
 
@@ -288,7 +290,7 @@ public class Reactor
                 if (errorInfo.error().text() == null)
                 {
                     errorInfo.error().text("Reactor shutting down...");
-                }                
+                }            
                 sendChannelEventCallback(ReactorChannelEventTypes.CHANNEL_DOWN, reactorChannel, errorInfo);
                 
                 if (reactorChannel.state() != State.CLOSED)
@@ -417,8 +419,8 @@ public class Reactor
             reactorChannel.reactor(this);
             reactorChannel.initializationTimeout(reactorAcceptOptions.initTimeout());
             reactorChannel.server(server);
-            _reactorChannelQueue.add(reactorChannel);
-            
+            _reactorChannelQueue.pushBack(reactorChannel, ReactorChannel.REACTOR_CHANNEL_LINK);
+
             // enable channel read/write locking for reactor since it's multi-threaded with worker thread
             reactorAcceptOptions.acceptOptions().channelReadLocking(true);
             reactorAcceptOptions.acceptOptions().channelWriteLocking(true);
@@ -575,7 +577,7 @@ public class Reactor
             reactorChannel.userSpecObj(reactorConnectOptions.connectionList().get(0).connectOptions().userSpecObject());
             reactorChannel.initializationTimeout(reactorConnectOptions.connectionList().get(0).initTimeout());
             reactorChannel.reactorConnectOptions(reactorConnectOptions);
-            _reactorChannelQueue.add(reactorChannel);
+            _reactorChannelQueue.pushBack(reactorChannel, ReactorChannel.REACTOR_CHANNEL_LINK);
             
             // enable channel read/write locking for reactor since it's multi-threaded with worker thread
             ConnectOptions connectOptions = reactorConnectOptions.connectionList().get(0).connectOptions();
@@ -759,7 +761,9 @@ public class Reactor
 		{
             /* Channel callback complete. If channel is not already closed, notify worker. */
             if (reactorChannel.state() != State.CLOSED)
+            {
                 sendWorkerEvent(WorkerEventTypes.CHANNEL_DOWN, reactorChannel);
+            }
 
 		    if (reactorChannel.watchlist() == null)
 		    {
@@ -1358,7 +1362,7 @@ public class Reactor
     int dispatchChannel(ReactorChannel reactorChannel, ReactorDispatchOptions dispatchOptions, ReactorErrorInfo errorInfo)
     {
         _reactorLock.lock();
-
+        
         try
         {
             if (reactorChannel.state() == ReactorChannel.State.CLOSED)
@@ -1370,14 +1374,21 @@ public class Reactor
             {
                 int maxMessages = dispatchOptions.maxMessages();
                 int msgCount = 0;
-                int retval = 1;
+                int retval = ReactorReturnCodes.SUCCESS;
                 
-                while (reactorChannel.state() != ReactorChannel.State.CLOSED && msgCount < maxMessages && retval > 0)
+                if (!isReactorChannelReady(reactorChannel))
                 {
-                    msgCount++;
-                    if ((retval = performChannelRead(reactorChannel, dispatchOptions.readArgs(),
-                                                     errorInfo)) < ReactorReturnCodes.SUCCESS)
-                        return retval;
+                    sendAndHandleChannelEventCallback("Reactor.performChannelRead",
+                                                      ReactorChannelEventTypes.CHANNEL_DOWN,
+                                                      reactorChannel, errorInfo);
+                }
+                else
+                {
+                    do
+                    {
+                        msgCount++;
+                        retval = performChannelRead(reactorChannel, dispatchOptions.readArgs(), errorInfo);
+                    } while (isReactorChannelReady(reactorChannel) && msgCount < maxMessages && retval > 0);
                 }
 
                 return retval;
@@ -1453,19 +1464,7 @@ public class Reactor
                                     + reactorChannel.channel().selectableChannel() + " errorId="
                                     + errorInfo.error().errorId() + " errorText="
                                     + errorInfo.error().text());
-            		
-                    if (reactorChannel.server() == null && !reactorChannel.recoveryAttemptLimitReached()) // client channel
-                    {
-                        reactorChannel.state(State.DOWN_RECONNECTING);
-                    }
-                    else // server channel or no more retries
-                    {
-                        reactorChannel.state(State.DOWN);
-                    }
-
-                    // send CHANNEL_DOWN WorkerEvent to Worker.
-                    sendWorkerEvent(WorkerEventTypes.CHANNEL_DOWN, reactorChannel);
-                    
+            		                    
                     ret = ReactorReturnCodes.FAILURE;
             	}
                 else
@@ -1494,7 +1493,7 @@ public class Reactor
 
         try
         {
-            if (reactorChannel.state() == ReactorChannel.State.CLOSED)
+        	if (!isReactorChannelReady(reactorChannel))
             {
                 ret = ReactorReturnCodes.FAILURE;
                 return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
@@ -2088,25 +2087,29 @@ public class Reactor
     private void processChannelDown(WorkerEvent event, ReactorErrorInfo errorInfo)
     {
         ReactorChannel reactorChannel = (ReactorChannel)event.reactorChannel();
-        if (reactorChannel.server() == null && !reactorChannel.recoveryAttemptLimitReached()) // client channel
+        
+        if (reactorChannel.state() != State.CLOSED)
         {
-            // send CHANNEL_DOWN_RECONNECTING
-            reactorChannel.state(State.DOWN_RECONNECTING);
-
-            // send channel_down to user app via reactorChannelEventCallback.
-            sendAndHandleChannelEventCallback("Reactor.processChannelDown",
-                                               ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING,
-                                               reactorChannel, errorInfo);
-        }
-        else // server channel or no more retries
-        {
-            // send CHANNEL_DOWN since server channels are not recovered
-            reactorChannel.state(State.DOWN);
-
-            // send channel_down to user app via reactorChannelEventCallback.
-            sendAndHandleChannelEventCallback("Reactor.processChannelDown",
-                                               ReactorChannelEventTypes.CHANNEL_DOWN,
-                                               reactorChannel, errorInfo);
+	        if (reactorChannel.server() == null && !reactorChannel.recoveryAttemptLimitReached()) // client channel
+	        {
+	            // send CHANNEL_DOWN_RECONNECTING
+	            reactorChannel.state(State.DOWN_RECONNECTING);
+	
+	            // send channel_down to user app via reactorChannelEventCallback.
+	            sendAndHandleChannelEventCallback("Reactor.processChannelDown",
+	                                               ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING,
+	                                               reactorChannel, errorInfo);
+	        }
+	        else // server channel or no more retries
+	        {
+	            // send CHANNEL_DOWN since server channels are not recovered
+	            reactorChannel.state(State.DOWN);
+	
+	            // send channel_down to user app via reactorChannelEventCallback.
+	            sendAndHandleChannelEventCallback("Reactor.processChannelDown",
+	                                               ReactorChannelEventTypes.CHANNEL_DOWN,
+	                                               reactorChannel, errorInfo);
+	        }
         }
     }
 
@@ -2114,6 +2117,11 @@ public class Reactor
     {
         ReactorChannel reactorChannel = (ReactorChannel)event.reactorChannel();
         ReactorRole reactorRole = reactorChannel.role();
+        
+        if (reactorChannel.state() == State.CLOSED || reactorChannel.state() == State.DOWN)
+        {
+            return;
+        }
 
         // handle queue messaging
         reactorChannel.tunnelStreamManager().setChannel(reactorChannel, errorInfo.error());
@@ -3143,7 +3151,16 @@ public class Reactor
 			                	// retrieve associated reactor channel and read on that channel 
 			                    ReactorChannel reactorChnl = (ReactorChannel)key.attachment();
 
-			                    while (reactorChnl.state() != ReactorChannel.State.CLOSED && msgCount < maxMessages && retval > 0)
+			                    if (!isReactorChannelReady(reactorChnl))
+			                    {
+			                        sendAndHandleChannelEventCallback("Reactor.performChannelRead",
+			                                                          ReactorChannelEventTypes.CHANNEL_DOWN,
+			                                                          reactorChnl, errorInfo);
+			                        
+			                        return ReactorReturnCodes.SUCCESS;
+			                    }
+			                    
+			                    while (isReactorChannelReady(reactorChnl) && msgCount < maxMessages && retval > 0)
 			                    {
 			                        msgCount++;
 			                        if ((retval = performChannelRead(reactorChnl, dispatchOptions.readArgs(),
@@ -3178,14 +3195,21 @@ public class Reactor
 		        }
 		        else // no keySet, round robin through all channels
 		        {
-			        while (_reactorChannelQueue.hasNext())
+		            _reactorChannelCount = 0;
+		            
+			        for(ReactorChannel reactorChnl = _reactorChannelQueue.start(ReactorChannel.REACTOR_CHANNEL_LINK); 
+			            reactorChnl != null;
+			            reactorChnl = _reactorChannelQueue.forth(ReactorChannel.REACTOR_CHANNEL_LINK))
 			        {
 			        	retval = 1;
 			        	_reactorChannelCount++;
-	                	// retrieve associated reactor channel and read on that channel 
-	                    ReactorChannel reactorChnl = (ReactorChannel)_reactorChannelQueue.next();
 	                    
-	                    while (msgCount < maxMessages && retval > 0)
+                        if (!isReactorChannelReady(reactorChnl))
+                        {
+                            continue;
+                        }
+                        
+	                    while (isReactorChannelReady(reactorChnl) && msgCount < maxMessages && retval > 0)
 	                    {
 	                    	int bytesReadBefore = dispatchOptions.readArgs().uncompressedBytesRead();
 	                        if ((retval = performChannelRead(reactorChnl, dispatchOptions.readArgs(),
@@ -3210,26 +3234,20 @@ public class Reactor
 	                        }
 	                    }
 	                    
-				        if (msgCount == maxMessages || _reactorChannelCount == _reactorChannelQueue.size())
+				        if (msgCount == maxMessages || _reactorChannelCount == _reactorChannelQueue.count())
 				        {
 				        	// update retval
-				        	retval = (_reactorChannelCount < _reactorChannelQueue.size() ? 1 : 0) + retval;
+				        	retval = (_reactorChannelCount < _reactorChannelQueue.count() ? 1 : 0) + retval;
 				        	break;
 				        }
 			        }
-		        	// reset _reactorChannelCount if equal to _reactorChannelQueue size
-		        	if (_reactorChannelCount == _reactorChannelQueue.size())
-		        	{
-		        		_reactorChannelCount = 0;
-		        		_reactorChannelQueue.rewind();
-		        	}
 		        }
 	        }
 	        else // maxMessages reached
 	        {
 	        	// update retval
 	        	retval = _workerQueue.readQueueSize() +
-	        		(keySet != null ? keySet.size() : (_reactorChannelCount < _reactorChannelQueue.size() ? 1 : 0));
+	        		(keySet != null ? keySet.size() : (_reactorChannelCount < _reactorChannelQueue.count() ? 1 : 0));
 	        }
         }
         finally
@@ -3297,8 +3315,8 @@ public class Reactor
 		    // set the ReactorChannel's state to CLOSED.
 	        // and remove it from the queue.
 	        reactorChannel.state(State.CLOSED);
-	        _reactorChannelQueue.remove(reactorChannel);
-            
+	        _reactorChannelQueue.remove(reactorChannel, ReactorChannel.REACTOR_CHANNEL_LINK);
+	        
 	        // send CHANNEL_CLOSED WorkerEvent to Worker.
 	        if (!sendWorkerEvent(WorkerEventTypes.CHANNEL_CLOSE, reactorChannel))
 	        {
@@ -3659,4 +3677,9 @@ public class Reactor
         return ReactorReturnCodes.SUCCESS;
     }
 
+    boolean isReactorChannelReady(ReactorChannel reactorChannel)
+    {
+        return reactorChannel.state() == ReactorChannel.State.UP ||
+               reactorChannel.state() == ReactorChannel.State.READY;
+    }
 }

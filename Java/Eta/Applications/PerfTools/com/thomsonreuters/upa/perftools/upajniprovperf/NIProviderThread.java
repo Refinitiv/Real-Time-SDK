@@ -1,7 +1,6 @@
 package com.thomsonreuters.upa.perftools.upajniprovperf;
 
 import java.io.IOException;
-import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -93,6 +92,9 @@ public class NIProviderThread extends ProviderThread implements NIProviderCallba
     private PingHandler _pingHandler; /* ping handler */
     private Msg _responseMsg; /* response message */
     
+    private long _nsecPerTick; /* nanoseconds per tick */
+    private long _millisPerTick; /* milliseconds per tick */
+    
     private Reactor _reactor; // Use the VA Reactor instead of the UPA Channel for sending and receiving
     private ReactorOptions _reactorOptions; // Use the VA Reactor instead of the UPA Channel for sending and receiving
     private NIProviderRole _role; // Use the VA Reactor instead of the UPA Channel for sending and receiving
@@ -115,6 +117,9 @@ public class NIProviderThread extends ProviderThread implements NIProviderCallba
         _pingHandler = new PingHandler();
     	_responseMsg = CodecFactory.createMsg();
     	
+        _nsecPerTick = 1000000000 / ProviderPerfConfig.ticksPerSec();
+        _millisPerTick = 1000 / ProviderPerfConfig.ticksPerSec();
+        
         _reactorOptions = ReactorFactory.createReactorOptions();
         _role = ReactorFactory.createNIProviderRole();
         _errorInfo = ReactorFactory.createReactorErrorInfo();
@@ -412,14 +417,14 @@ public class NIProviderThread extends ProviderThread implements NIProviderCallba
 		}
     	
     	/* Determine update rates on per-tick basis */
-        long nsecPerTick =  1000000000 / ProviderPerfConfig.ticksPerSec();
-        long nextTickTime = System.nanoTime() + nsecPerTick;
+		long nextTickTime = initNextTickTime();
 
         /* this is the main loop */
         while (!shutdown())
         {
             // read until no more to read and then write leftover from previous burst
-        	selectorRead();
+            long selectTime = selectTime(nextTickTime);
+        	selectorRead(selectTime);
         	
             /* Handle pings */
         	if (!NIProvPerfConfig.useReactor()) // use UPA Channel for sending and receiving
@@ -430,10 +435,10 @@ public class NIProviderThread extends ProviderThread implements NIProviderCallba
                 }
         	}
 
-			if (nextTickTime <= System.nanoTime())
+			if (nextTickTime <= currentTime())
 			{
-				nextTickTime += nsecPerTick;
-				sendMsgBurst(nextTickTime);
+			    nextTickTime = nextTickTime(nextTickTime);
+				sendMsgBurst();
 			}
         }
         
@@ -441,14 +446,26 @@ public class NIProviderThread extends ProviderThread implements NIProviderCallba
 	}
 	
 	/* Reads from a channel. */
-	private void selectorRead()
+	private void selectorRead(long selectTime)
 	{
 		Set<SelectionKey> keySet = null;
 
 		// set select time 
         try
         {
-            if (_selector.selectNow() > 0)
+            int selectRetVal;
+            
+            if (ProviderPerfConfig.ticksPerSec() > 1000) // use nanosecond timer for tickRate of greater than 1000
+            {
+                selectTime /= 1000000;
+            }
+
+            if (selectTime > 0)
+                selectRetVal = _selector.select(selectTime);
+            else
+                selectRetVal = _selector.selectNow();
+                
+            if (selectRetVal > 0)
             {
                 keySet = _selector.selectedKeys();
             }
@@ -467,58 +484,54 @@ public class NIProviderThread extends ProviderThread implements NIProviderCallba
         {
         	SelectionKey key = iter.next();
         	iter.remove();
-        	try
-        	{
-        		if (key.isReadable())
-        		{
-                    if (!NIProvPerfConfig.useReactor()) // use UPA Channel for sending and receiving
+    	    if(!key.isValid())
+                continue;
+    		if (key.isReadable())
+    		{
+                if (!NIProvPerfConfig.useReactor()) // use UPA Channel for sending and receiving
+                {
+        	    	TransportBuffer msgBuf;
+        	    	do /* read until no more to read */
+        	    	{
+        	    		msgBuf = _channel.read(_readArgs, _error);
+        	    		if (msgBuf != null)
+        	    		{
+        	    			processResponse(msgBuf);
+
+        	    			//set flag for server message received
+        	    			_pingHandler.receivedMsg();
+        	    		}
+        	    		else
+        	    		{
+        	    			if (_readArgs.readRetVal() == TransportReturnCodes.READ_PING)
+        	    			{
+        	    				//set flag for server message received
+        	    				_pingHandler.receivedMsg();
+        	    			}
+        	    		}
+        	    	}
+        	    	while (_readArgs.readRetVal() > TransportReturnCodes.SUCCESS);
+                }
+                else // use UPA VA Reactor for sending and receiving
+                {
+                    int ret;
+                    
+                    // retrieve associated reactor channel and dispatch on that channel 
+                    ReactorChannel reactorChnl = (ReactorChannel)key.attachment();
+                    
+                    /* read until no more to read */
+                    while ((ret = reactorChnl.dispatch(_dispatchOptions, _errorInfo)) > 0) {}
+                    if (ret == ReactorReturnCodes.FAILURE)
                     {
-            	    	TransportBuffer msgBuf;
-            	    	do /* read until no more to read */
-            	    	{
-            	    		msgBuf = _channel.read(_readArgs, _error);
-            	    		if (msgBuf != null)
-            	    		{
-            	    			processResponse(msgBuf);
-    
-            	    			//set flag for server message received
-            	    			_pingHandler.receivedMsg();
-            	    		}
-            	    		else
-            	    		{
-            	    			if (_readArgs.readRetVal() == TransportReturnCodes.READ_PING)
-            	    			{
-            	    				//set flag for server message received
-            	    				_pingHandler.receivedMsg();
-            	    			}
-            	    		}
-            	    	}
-            	    	while (_readArgs.readRetVal() > TransportReturnCodes.SUCCESS);
-                    }
-                    else // use UPA VA Reactor for sending and receiving
-                    {
-                        int ret;
-                        
-                        // retrieve associated reactor channel and dispatch on that channel 
-                        ReactorChannel reactorChnl = (ReactorChannel)key.attachment();
-                        
-                        /* read until no more to read */
-                        while ((ret = reactorChnl.dispatch(_dispatchOptions, _errorInfo)) > 0) {}
-                        if (ret == ReactorReturnCodes.FAILURE)
+                        if (reactorChnl.state() != ReactorChannel.State.CLOSED &&
+                            reactorChnl.state() != ReactorChannel.State.DOWN_RECONNECTING)
                         {
-                            if (reactorChnl.state() != ReactorChannel.State.CLOSED &&
-                                reactorChnl.state() != ReactorChannel.State.DOWN_RECONNECTING)
-                            {
-                                closeChannelAndShutDown("ReactorChannel dispatch failed: " + ret + "(" + _errorInfo.error().text() + ")");
-                                System.exit(ReactorReturnCodes.FAILURE);
-                            }
+                            closeChannelAndShutDown("ReactorChannel dispatch failed: " + ret + "(" + _errorInfo.error().text() + ")");
+                            System.exit(ReactorReturnCodes.FAILURE);
                         }
                     }
-        		}
-        	}
-        	catch (CancelledKeyException e)
-        	{
-        	} // key can be canceled during shutdown
+                }
+    		}
         }
     }
 
@@ -661,10 +674,10 @@ public class NIProviderThread extends ProviderThread implements NIProviderCallba
         
                 /* Check that we can successfully pack, if packing messages. */
                 if (NIProvPerfConfig.totalBuffersPerPack() > 1
-                        && NIProvPerfConfig.packingBufferLength() > _channelInfo.maxFragmentSize())
+                        && NIProvPerfConfig.packingBufferLength() > _reactorChannnelInfo.channelInfo().maxFragmentSize())
                 {
                     System.err.printf("Error(Channel %s): MaxFragmentSize %d is too small for packing buffer size %d\n",
-                            _reactorChannel.selectableChannel(), _channelInfo.maxFragmentSize(), 
+                            _reactorChannel.selectableChannel(), _reactorChannnelInfo.channelInfo().maxFragmentSize(), 
                             NIProvPerfConfig.packingBufferLength());
                     System.exit(-1);
                 }
@@ -863,7 +876,7 @@ public class NIProviderThread extends ProviderThread implements NIProviderCallba
     /**
      * Send refreshes & updates to channels open.
      */
-    private void sendMsgBurst(long stopTimeNSec)
+    private void sendMsgBurst()
     {
         if (_provSession == null)
         {
@@ -873,7 +886,7 @@ public class NIProviderThread extends ProviderThread implements NIProviderCallba
         // The application corrects for ticks that don't finish before the time 
         // that the next update burst should start.  But don't do this correction 
         // for new channels.
-        if(stopTimeNSec < _provSession.timeActivated())
+        if(_provSession.timeActivated() == 0)
         {
             return;
         }
@@ -995,5 +1008,67 @@ public class NIProviderThread extends ProviderThread implements NIProviderCallba
 		shutdown();
 		shutdownAck(true);
 		System.exit(-1);
+    }
+
+    private long currentTime()
+    {
+        long currentTime;
+        
+        if (ProviderPerfConfig.ticksPerSec() <= 1000) // use millisecond timer for tickRate of 1000 and below
+        {
+            currentTime = System.currentTimeMillis(); 
+        }
+        else // use nanosecond timer for tickRate of greater than 1000
+        {
+            currentTime = System.nanoTime();
+        }
+        
+        return currentTime;
+    }
+
+    private long initNextTickTime()
+    {
+        long nextTickTime;
+        
+        if (ProviderPerfConfig.ticksPerSec() <= 1000) // use millisecond timer for tickRate of 1000 and below
+        {
+            nextTickTime = System.currentTimeMillis() + _millisPerTick;
+        }
+        else // use nanosecond timer for tickRate of greater than 1000
+        {
+            nextTickTime = System.nanoTime() + _nsecPerTick;
+        }
+        
+        return nextTickTime;
+    }
+
+    private long nextTickTime(long nextTickTime)
+    {
+        if (ProviderPerfConfig.ticksPerSec() <= 1000) // use millisecond timer for tickRate of 1000 and below
+        {
+            nextTickTime += _millisPerTick;
+        }
+        else // use nanosecond timer for tickRate of greater than 1000
+        {
+            nextTickTime += _nsecPerTick;
+        }
+    
+        return nextTickTime;
+    }
+    
+    private long selectTime(long nextTickTime)
+    {
+        long selectTime;
+        
+        if (ProviderPerfConfig.ticksPerSec() <= 1000) // use millisecond timer for tickRate of 1000 and below
+        {
+            selectTime = nextTickTime - System.currentTimeMillis(); 
+        }
+        else // use nanosecond timer for tickRate of greater than 1000
+        {
+            selectTime = nextTickTime - System.nanoTime();
+        }
+    
+        return selectTime;
     }
 }

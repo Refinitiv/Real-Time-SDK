@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
-import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -49,6 +48,7 @@ import com.thomsonreuters.upa.perftools.common.ResponseCallback;
 import com.thomsonreuters.upa.perftools.common.ShutdownCallback;
 import com.thomsonreuters.upa.perftools.common.XmlItemInfoList;
 import com.thomsonreuters.upa.perftools.common.XmlMsgData;
+import com.thomsonreuters.upa.rdm.Dictionary;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.rdm.InstrumentNameTypes;
 import com.thomsonreuters.upa.rdm.Login;
@@ -68,9 +68,13 @@ import com.thomsonreuters.upa.transport.TransportReturnCodes;
 import com.thomsonreuters.upa.transport.WriteArgs;
 import com.thomsonreuters.upa.transport.WriteFlags;
 import com.thomsonreuters.upa.transport.WritePriorities;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsgFactory;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsgType;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsg;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRefresh;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryUpdate;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsg;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
@@ -174,6 +178,9 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
     private Buffer _postBuffer; // Use the VA Reactor instead of the UPA Channel for sending and receiving
     private GenericMsg _genericMsg; // Use the VA Reactor instead of the UPA Channel for sending and receiving
     private Buffer _genericBuffer; // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    private DictionaryRequest _dictionaryRequest; // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    private Buffer _fieldDictionaryName = CodecFactory.createBuffer(); // Use the VA Reactor instead of the UPA Channel for sending and receiving
+    private Buffer _enumTypeDictionaryName = CodecFactory.createBuffer(); // Use the VA Reactor instead of the UPA Channel for sending and receiving
 
     {
     	_eIter = CodecFactory.createEncodeIterator();
@@ -224,13 +231,16 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         _submitOptions = ReactorFactory.createReactorSubmitOptions();
         _connectInfo = ReactorFactory.createReactorConnectInfo();
         _reactorChannnelInfo = ReactorFactory.createReactorChannelInfo();
-        _service = DirectoryMsgFactory.createService();
         _postMsg = (PostMsg)CodecFactory.createMsg();
         _postBuffer = CodecFactory.createBuffer();
         _postBuffer.data(ByteBuffer.allocate(512));
         _genericMsg = (GenericMsg)CodecFactory.createMsg();
         _genericBuffer = CodecFactory.createBuffer();
         _genericBuffer.data(ByteBuffer.allocate(512));
+        _dictionaryRequest = (DictionaryRequest)DictionaryMsgFactory.createMsg();
+        _dictionaryRequest.rdmMsgType(DictionaryMsgType.REQUEST);
+        _fieldDictionaryName.data("RWFFld");
+        _enumTypeDictionaryName.data("RWFEnum");
 	}
 
 	/* Initializes consumer thread. */
@@ -378,15 +388,30 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         	// Connection recovery loop. It will try to connect until successful
             System.out.println("Starting connection...");
             int handshake;
+            boolean initializedChannel;
             while (!_consThreadInfo.shutdown())
             {
-                _channel = Transport.connect(connectOptions, _error);
-                if (_channel == null)
-                {
-                    System.err.println("Error: Transport connect failure: " + _error.text());
-                    System.exit(-1);
-                }
-                
+            	initializedChannel = false;
+            	while (!initializedChannel)
+            	{
+                    _channel = Transport.connect(connectOptions, _error);
+                    if (_channel == null)
+                    {
+                        System.err.println("Error: Transport connect failure: " + _error.text() + ". Will retry shortly.");
+                        try
+                    	{
+                    		Thread.sleep(CONNECTION_RETRY_TIME * 1000);
+                    		continue;
+                    	}
+                    	catch(Exception e)
+                    	{
+                    		System.out.println("Thread.sleep failed ");
+                    		System.exit(-1);
+                    	}
+                    }
+                    initializedChannel = true;
+            	}
+
                 while ((handshake = _channel.init(_inProg, _error)) != TransportReturnCodes.SUCCESS)
                 {
                 	if (handshake == TransportReturnCodes.FAILURE)
@@ -466,7 +491,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
             _role.loginMsgCallback(this);
             _role.directoryMsgCallback(this);
             _role.dictionaryMsgCallback(this);
-            if (!isDictionariesLoaded())
+            if (!isDictionariesLoaded() && !_consPerfConfig.useWatchlist())
             {
                 _role.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
             }
@@ -490,6 +515,10 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                 _role.watchlistOptions().requestTimeout(0);
             }
             
+            _connectOptions.reconnectAttemptLimit(-1);
+            _connectOptions.reconnectMaxDelay(5000);
+            _connectOptions.reconnectMinDelay(1000);
+
             // connect via Reactor
             int ret;
             if ((ret = _reactor.connect(_connectOptions, (ReactorRole)_role, _errorInfo)) < ReactorReturnCodes.SUCCESS)
@@ -676,37 +705,33 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         {
         	SelectionKey key = iter.next();
         	iter.remove();
-        	try
-        	{
-        		if (key.isReadable())
-        		{
-                    if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use UPA Channel for sending and receiving
-                    {
-                        read();
-                    }
-                    else // use UPA VA Reactor for sending and receiving
-                    {
-                        ReactorChannel reactorChannel = (ReactorChannel)key.attachment();
-                        read(reactorChannel);
-                    }
-        		}
-
-        		/* flush for write file descriptor and active state */
+        	if(!key.isValid())
+                continue;
+    		if (key.isReadable())
+    		{
                 if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use UPA Channel for sending and receiving
                 {
-            		if (key.isWritable())
-            		{
-            			ret = _channel.flush(_error);
-            			if (ret == TransportReturnCodes.SUCCESS)
-            			{
-            				removeOption(SelectionKey.OP_WRITE, _channel);
-            			}
-            		}
+                    read();
                 }
-        	}
-        	catch (CancelledKeyException e)
-        	{
-        	} // key can be canceled during shutdown
+                else // use UPA VA Reactor for sending and receiving
+                {
+                    ReactorChannel reactorChannel = (ReactorChannel)key.attachment();
+                    read(reactorChannel);
+                }
+    		}
+
+    		/* flush for write file descriptor and active state */
+            if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use UPA Channel for sending and receiving
+            {
+        		if (key.isWritable())
+        		{
+        			ret = _channel.flush(_error);
+        			if (ret == TransportReturnCodes.SUCCESS)
+        			{
+        				removeOption(SelectionKey.OP_WRITE, _channel);
+        			}
+        		}
+            }
         }
     }
 	
@@ -715,6 +740,11 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
     {
         long pollTime, currentTime = currentTime();
         
+        if (selectTime < 0)
+        {
+            selectTime = 0;
+        }
+        
         pollTime = currentTime + selectTime;
         
         if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use UPA Channel for sending and receiving
@@ -722,38 +752,23 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
             // call flush once
             _channel.flush(_error);
             
-            while (currentTime < pollTime)
+            while (currentTime <= pollTime)
             {
                 read();
                 
                 currentTime = currentTime();
             }
+            
         }
         else // use UPA VA Reactor for sending and receiving
         {
             int ret;
-            
-            while (currentTime < pollTime)
+            while (currentTime <= pollTime)
             {
                 /* read until no more to read */
-                if (_reactorChannel != null)
-                {
-                    while ((ret = _reactorChannel.dispatch(_dispatchOptions, _errorInfo)) > 0) {}
-                    if (ret == ReactorReturnCodes.FAILURE)
-                    {
-                        if (_reactorChannel.state() != ReactorChannel.State.CLOSED &&
-                                _reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
-                        {
-                            System.out.println("ReactorChannel dispatch failed: " + ret + "(" + _errorInfo.error().text() + ")");
-                            closeReactor();
-                            System.exit(ReactorReturnCodes.FAILURE);
-                        }
-                    }
-                }
-                
                 if (_reactor != null && _reactor.reactorChannel() != null)
                 {
-                    while ((ret = _reactor.reactorChannel().dispatch(_dispatchOptions, _errorInfo)) > 0) {}
+                    while (( ret =  _reactor.dispatchAll(null, _dispatchOptions, _errorInfo)) > 0 ) {}
                     if (ret == ReactorReturnCodes.FAILURE)
                     {
                         System.out.println("Reactor.ReactorChannel dispatch failed: " + ret + "(" + _errorInfo.error().text() + ")");
@@ -761,7 +776,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                         System.exit(ReactorReturnCodes.FAILURE);
                     }
                 }
-                
+
                 currentTime = currentTime();
             }
         }
@@ -877,8 +892,11 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
             }
             else if (retval < ReactorReturnCodes.SUCCESS)
             {
-                // write failed, release buffer and shut down 
-                _reactorChannel.releaseBuffer(msgBuf, _errorInfo);
+                // write failed, release buffer and shut down
+                if (_reactorChannel.state() != ReactorChannel.State.CLOSED)
+                {
+                    _reactorChannel.releaseBuffer(msgBuf, _errorInfo);
+                }
                 closeChannelAndShutDown(_errorInfo.error().text());
             }
         }
@@ -1002,7 +1020,17 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
 
         if (_srcDirHandler.isRequestedServiceUp())
         {
-            sendDictionaryRequests(_channel, _srcDirHandler.serviceInfo());
+            if (isDictionariesLoaded())
+            {
+                _consThreadInfo.dictionary(_dictionaryHandler.dictionary());
+                System.out.println("Dictionary ready, requesting item(s)...\n");
+
+                _requestsSent = true;
+            }
+            else // dictionaries not loaded yet
+            {
+                sendDictionaryRequests(_channel, _srcDirHandler.serviceInfo());
+            }
         }
         else
         {
@@ -1051,8 +1079,39 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         		return;
             }            
         }
+    }
+    
+
+    private void sendWatchlistDictionaryRequests(ReactorChannel reactorChannel, Service service)
+    {
+        int ret;
         
-        _requestsSent = true;
+        if (_requestsSent)
+            return;
+        
+        _dictionaryRequest.applyStreaming();
+        _dictionaryRequest.verbosity(Dictionary.VerbosityValues.NORMAL);
+        _dictionaryRequest.serviceId(service.serviceId());
+        
+        _dictionaryRequest.streamId(3);
+        _dictionaryRequest.dictionaryName(_fieldDictionaryName);
+
+        ret = reactorChannel.submit(_dictionaryRequest, _submitOptions, _errorInfo);
+        if (ret < ReactorReturnCodes.SUCCESS && ret != ReactorReturnCodes.NO_BUFFERS)
+        {
+            closeChannelAndShutDown("Sending field dictionary request failed");
+            return;
+        }
+
+        _dictionaryRequest.streamId(4);
+        _dictionaryRequest.dictionaryName(_enumTypeDictionaryName);
+
+        ret = reactorChannel.submit(_dictionaryRequest, _submitOptions, _errorInfo);
+        if (ret < ReactorReturnCodes.SUCCESS && ret != ReactorReturnCodes.NO_BUFFERS)
+        {
+            closeChannelAndShutDown("Sending enum type dictionary request failed");
+            return;
+        }
     }
     
     /* Process dictionary response. */
@@ -1069,6 +1128,8 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         {
         	_consThreadInfo.dictionary(_dictionaryHandler.dictionary());
             System.out.println("Dictionary ready, requesting item(s)...\n");
+            
+            _requestsSent = true;
         }
     }
     
@@ -1305,7 +1366,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
 	        else // VA Reactor Watchlist is enabled, submit message instead of buffer
 	        {
                 // create properly encoded post message
-	            if (_reactorChannel.state() != ReactorChannel.State.CLOSED)
+	            if (_reactorChannel.state() == ReactorChannel.State.UP || _reactorChannel.state() == ReactorChannel.State.READY)
 	            {
                     _postMsg.clear();
                     _postBuffer.data().clear();
@@ -1373,7 +1434,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
             else // VA Reactor Watchlist is enabled, submit message instead of buffer
             {
                 // create properly encoded generic message
-                if (_reactorChannel.state() != ReactorChannel.State.CLOSED)
+                if (_reactorChannel.state() == ReactorChannel.State.UP || _reactorChannel.state() == ReactorChannel.State.READY)
                 {
                     _genericMsg.clear();
                     _genericBuffer.data().clear();
@@ -1871,9 +1932,17 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                     {
                         _consThreadInfo.dictionary(_dictionaryHandler.dictionary());
                         System.out.println("Dictionary ready, requesting item(s)...\n");
-                    }
 
-                    _requestsSent = true;
+                        _requestsSent = true;
+                    }
+                    else // dictionaries not loaded yet
+                    {
+                        // request dictionaries if watchlist enabled
+                        if (_consPerfConfig.useWatchlist())
+                        {
+                            sendWatchlistDictionaryRequests(_reactorChannel, _service);
+                        }
+                    }
                 }
                 else
                 {
@@ -1905,6 +1974,13 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                     if (key != null)
                         key.cancel();
                 }
+                
+                // only allow one connect
+                if (_service != null)
+                {
+                    _shutdownCallback.shutdown();
+                    _consThreadInfo.shutdownAck(true);
+                }
 
                 break;
             }
@@ -1926,11 +2002,9 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                         key.cancel();
                 }
 
-                // close ReactorChannel
-                if (_reactorChannel != null)
-                {
-                    _reactorChannel.close(_errorInfo);
-                }
+                _shutdownCallback.shutdown();
+                _consThreadInfo.shutdownAck(true);
+
                 break;
             }
             case ReactorChannelEventTypes.WARNING:
@@ -2014,10 +2088,52 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                     // cache service requested by the application
                     if (rdmService.info().serviceName().toString().equals(_consPerfConfig.serviceName()))
                     {
+                        _service = DirectoryMsgFactory.createService();
                         rdmService.copy(_service);
                     }
                 }
                
+                break;
+            case UPDATE:
+                DirectoryUpdate directoryUpdate = (DirectoryUpdate)directoryMsg;
+                System.out.println("Received Source Directory Update");
+                System.out.println(directoryUpdate.toString());
+
+               for (Service rdmService : directoryUpdate.serviceList())
+                {
+                    if(rdmService.info().serviceName().toString() != null)
+                    {
+                        System.out.println("Received serviceName: " + rdmService.info().serviceName());
+
+                        // cache service requested by the application
+                        if (rdmService.info().serviceName().toString().equals(_consPerfConfig.serviceName()))
+                        {
+                            _service = DirectoryMsgFactory.createService();
+                            rdmService.copy(_service);
+                        }
+                    }
+                }
+               
+                if (isRequestedServiceUp())
+                {
+                    // dictionaries were loaded at initialization. send item requests and post
+                    // messages only after dictionaries are loaded.
+                    if (isDictionariesLoaded())
+                    {
+                        _consThreadInfo.dictionary(_dictionaryHandler.dictionary());
+                        System.out.println("Dictionary ready, requesting item(s)...\n");
+
+                        _requestsSent = true;
+                    }
+                }
+                else
+                {
+                    // service not up or
+                    // previously up service went down
+                    _requestsSent = false;
+
+                    System.out.println("Requested service '" + _consPerfConfig.serviceName() + "' not up. Waiting for service to be up...");
+                }
                 break;
             default:
                 break;
@@ -2042,7 +2158,12 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
     
     private boolean isRequestedServiceUp()
     {
-        return  _service.checkHasState() && _service.state().checkHasAcceptingRequests() && _service.state().acceptingRequests() == 1 && _service.state().serviceState() == 1;
+        
+        return  _service != null &&
+                _service.checkHasState() &&
+                _service.state().checkHasAcceptingRequests() &&
+                _service.state().acceptingRequests() == 1 &&
+                _service.state().serviceState() == 1;
     }
 
     private void read(ReactorChannel reactorChannel)

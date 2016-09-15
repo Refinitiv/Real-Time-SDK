@@ -8,6 +8,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Iterator;
 import java.util.Set;
+
 import com.thomsonreuters.upa.transport.Channel;
 import com.thomsonreuters.upa.transport.ChannelState;
 import com.thomsonreuters.upa.transport.Error;
@@ -78,8 +79,12 @@ class Worker implements Runnable
                         if (key.isConnectable())
                         {
                             ReactorChannel reactorChannel = (ReactorChannel)key.attachment(); 
-                            if (reactorChannel.state() == ReactorChannel.State.INITIALIZING)
+                            // this is an extra measure because on the Solaris OS initial notification is different
+                            if (reactorChannel.channel() != null &&
+                                (reactorChannel.channel().state() == ChannelState.INACTIVE || reactorChannel.channel().state() == ChannelState.INITIALIZING))
+                            {
                                 initializeChannel(reactorChannel);
+                            }
                             if (!key.isValid())
                                 continue;
                         }
@@ -92,8 +97,12 @@ class Worker implements Runnable
                             }
                             else
                             {
-                            	if (reactorChannel.state() == ReactorChannel.State.INITIALIZING)
+                                // this is an extra measure because on the Solaris OS initial notification is different
+                                if (reactorChannel.channel() != null &&
+                                    (reactorChannel.channel().state() == ChannelState.INACTIVE || reactorChannel.channel().state() == ChannelState.INITIALIZING))
+                                {
                             		initializeChannel(reactorChannel);
+                                }
                                 if (!key.isValid())
                                     continue;
                             }
@@ -163,7 +172,7 @@ class Worker implements Runnable
 	                    	if (reactorChannel.pingHandler().handlePings(reactorChannel.channel(), _error)
 	                    			< TransportReturnCodes.SUCCESS)
 	                    	{
-	                            reactorChannel.state(State.CLOSED);
+	                            reactorChannel.state(State.DOWN);
 	                            sendWorkerEvent(reactorChannel, WorkerEventTypes.CHANNEL_DOWN,
 	                                            ReactorReturnCodes.FAILURE, "Worker.run()",
 	                                            "Ping error for channel: " + _error.text());
@@ -329,7 +338,7 @@ class Worker implements Runnable
                     if (reactorChannel.state() != State.CLOSED && reactorChannel.state() != State.DOWN 
                     		&& reactorChannel.state() != State.DOWN_RECONNECTING)
                     {
-                        reactorChannel.state(State.DOWN);                   
+                        reactorChannel.state(State.DOWN);
                         sendWorkerEvent(reactorChannel, WorkerEventTypes.CHANNEL_DOWN,
                                     ReactorReturnCodes.FAILURE, "Worker.processChannelFlush",
                                     "failed to add OP_WRITE to selectableChannel.");
@@ -445,7 +454,7 @@ class Worker implements Runnable
                     if ((retval = reRegister(_inProg, reactorChannel, _error)) != ReactorReturnCodes.SUCCESS)
                     {
                         cancelRegister(reactorChannel);
-                        reactorChannel.channel().close(_error);
+                        reactorChannel.channel().close(_error);                            
                         reactorChannel.selectableChannelFromChannel(null);
                         sendWorkerEvent(reactorChannel, WorkerEventTypes.CHANNEL_DOWN,
                                         ReactorReturnCodes.FAILURE, "Worker.initializeChannel",
@@ -480,7 +489,6 @@ class Worker implements Runnable
                 // move the channel from the initQueue to the activeQueue
                 _initChannelQueue.remove(reactorChannel);
                 _activeChannelQueue.add(reactorChannel);
-
                 sendWorkerEvent(reactorChannel, WorkerEventTypes.CHANNEL_UP,
                                 ReactorReturnCodes.SUCCESS, null, null);
                 break;

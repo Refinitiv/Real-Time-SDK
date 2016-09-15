@@ -29,6 +29,8 @@ public class WlView extends VaNode
 	LinkedList<WlView> _committedViews;
 	HashMap<Integer, Integer> _viewFieldIdCountMap;
 	HashMap<String, Integer> _viewElementNameCountMap;
+//	HashMap<Integer, Boolean> _viewFieldIdCommitMap;
+//	HashMap<String, Boolean> _viewElementNameCommitMap;
 
 	
 	public WlViewHandler viewHandler()

@@ -1,6 +1,7 @@
 package com.thomsonreuters.upa.valueadd.reactor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -30,6 +31,7 @@ public class WlViewHandler
 	private UInt tempUInt = CodecFactory.createUInt();	
     private Buffer elementNameBuf = CodecFactory.createBuffer();
     Watchlist _watchlist;
+    private boolean _resorted;
 	
     LinkedList<ArrayList<Integer>> _viewFieldIdListPool = new LinkedList<ArrayList<Integer>>();
     LinkedList<ArrayList<String>> _viewElementNameListPool = new LinkedList<ArrayList<String>>();
@@ -38,10 +40,14 @@ public class WlViewHandler
     LinkedList<LinkedList<WlView>> _newViewsPool = new LinkedList<LinkedList<WlView>>();   
     LinkedList<HashMap<Integer, Integer>> _viewFieldIdCountMapPool = new LinkedList<HashMap<Integer, Integer>>();
     LinkedList<HashMap<String, Integer>> _viewElementNameCountMapPool = new LinkedList<HashMap<String, Integer>>();
+//    LinkedList<HashMap<Integer, Boolean>> _viewFieldIdCommitMapPool = new LinkedList<HashMap<Integer, Boolean>>();
+//    LinkedList<HashMap<String, Boolean>> _viewElementNameCommitMapPool = new LinkedList<HashMap<String, Boolean>>();
+//    
 
     WlViewHandler(Watchlist watchlist)
     {
     	_watchlist = watchlist;
+    	_resorted = false;
     }
             
 	WlView viewCreate(ArrayList<Integer> fieldIdList, ArrayList<String> elementNameList, int elemCount, int viewType, ReactorErrorInfo errorInfo)
@@ -174,6 +180,9 @@ public class WlViewHandler
 			{
 				aggView._viewFieldIdCountMap.put(fieldId,  1);
 			}
+//			aggView._viewFieldIdCommitMap = _viewFieldIdCommitMapPool.poll();
+//			if (aggView._viewFieldIdCommitMap == null) aggView._viewFieldIdCommitMap = new HashMap<Integer, Boolean>();
+//			aggView._viewFieldIdCommitMap.clear();
 		}
 		else if ( view.viewType() == ViewTypes.ELEMENT_NAME_LIST)
 		{
@@ -184,6 +193,9 @@ public class WlViewHandler
 			{
 				aggView._viewElementNameCountMap.put(elementName,  1);
 			}
+//			aggView._viewElementNameCommitMap = _viewElementNameCommitMapPool.poll();
+//			if (aggView._viewElementNameCommitMap == null) aggView._viewElementNameCommitMap = new HashMap<String, Boolean>();
+//			aggView._viewElementNameCommitMap.clear();
 		}
 		aggView.mergedViews().add(view);
 		view.state(WlView.State.MERGED);
@@ -253,7 +265,8 @@ public class WlViewHandler
 						if (aggViewFieldIdList == null ) aggViewFieldIdList = new ArrayList<Integer>();
 						else 
 							aggViewFieldIdList.clear();
-							
+						 
+						aggView.fieldIdList(aggViewFieldIdList);	
 						aggView._elemCount = 0;
 					}
 				
@@ -293,6 +306,9 @@ public class WlViewHandler
 						if (aggViewElementNameList == null ) aggViewElementNameList = new ArrayList<String>();
 						else 
 							aggViewElementNameList.clear();
+						
+						aggView.elementNameList(aggViewElementNameList);	
+
 						aggView._elemCount = 0;
 					}
 				
@@ -384,26 +400,25 @@ public class WlViewHandler
 							 
 						}
 					}
-					if(view.state() == WlView.State.MERGED)
-					{
-					// so if the fid commited, cannot remove, just for cleanup, in case needed again 
-						boolean needResort = false;
-						for (int i = 0; i < aggViewFieldIdList.subList(0, aggView.elemCount()).size(); i++)
-						{						
-							if (aggView._viewFieldIdCountMap.get(aggViewFieldIdList.get(i)) == 0 ) 
-							{
-								aggViewFieldIdList.set(i, aggViewFieldIdList.get(aggView.elemCount()-1));
-								--aggView._elemCount;
-								needResort = true;
-							}
-						}
 					
-						if (needResort)
-							Collections.sort(aggViewFieldIdList.subList(0, aggView._elemCount));					
+					_resorted = false;
+					for (int i = 0; i < aggViewFieldIdList.subList(0, aggView.elemCount()).size(); i++)
+					{						
+						if (aggView._viewFieldIdCountMap.get(aggViewFieldIdList.get(i)) == 0 ) 
+						{
+//							aggView._viewFieldIdCommitMap.remove(aggViewFieldIdList.get(i));
+						
+							aggViewFieldIdList.set(i, aggViewFieldIdList.get(aggView.elemCount()-1));
+							--aggView._elemCount;
+							_resorted = true;							
+						}
 					}
+						
+					if (_resorted)
+						Collections.sort(aggViewFieldIdList.subList(0, aggView._elemCount));					
+
 					break;
-				}
-			
+				}			
 				case ViewTypes.ELEMENT_NAME_LIST:
 				{
 					ArrayList<String> aggViewElementNameList = aggView.elementNameList();
@@ -411,7 +426,7 @@ public class WlViewHandler
 					for (int i = 0; i < view.elementNameList().subList(0, view.elemCount()-1).size(); i++)
 					{						
 						String elementName = view.elementNameList().get(i);
-						int index = Collections.binarySearch(aggViewElementNameList.subList(0, aggView._elemCount-1), elementName);
+						int index = Collections.binarySearch(aggViewElementNameList.subList(0, aggView._elemCount), elementName);
 						if ( index >= 0) 
 						{
 					    	Integer count = aggView._viewElementNameCountMap.get(elementName);
@@ -424,24 +439,23 @@ public class WlViewHandler
 									"Aggregate View cannot remove a non-existent elementName  <" + elementName + ">");
 						}
 					}
-					if(view.state() == WlView.State.MERGED)
-					{
-						// so if the fid commited, cannot remove then, just for cleanup, in case needed again 
-						boolean needResort = false;
-						for (int i = 0; i < aggViewElementNameList.subList(0, aggView.elemCount()-1).size(); i++)
-						{						
-							if (aggView._viewElementNameCountMap.get(aggViewElementNameList.get(i)) == 0 ) 
-							{
-								aggViewElementNameList.set(i, aggViewElementNameList.get(aggView.elemCount()-1));
-								--aggView._elemCount;
-								needResort = true;
-							}
+
+					_resorted = false;
+					for (int i = 0; i < aggViewElementNameList.subList(0, aggView.elemCount()-1).size(); i++)
+					{						
+						if (aggView._viewElementNameCountMap.get(aggViewElementNameList.get(i)) == 0 ) 
+						{
+//							aggView._viewElementNameCommitMap.remove(aggViewElementNameList.get(i));
+						
+							aggViewElementNameList.set(i, aggViewElementNameList.get(aggView.elemCount()-1));
+							--aggView._elemCount;
+							_resorted = true;							
 						}
-					
-						if (needResort)
-							Collections.sort(aggViewElementNameList.subList(0, aggView._elemCount-1));					
 					}
-		        
+					
+					if (_resorted)
+						Collections.sort(aggViewElementNameList.subList(0, aggView._elemCount-1));					
+					
 					break;
 				}
 		
@@ -457,53 +471,17 @@ public class WlViewHandler
     	{			   		
 	   		aggView.committedViews().add(view);
 	   	    view.state(WlView.State.COMMITTED);
-    	}
-
-		switch(aggView.viewType())
-		{		
-			case ViewTypes.FIELD_ID_LIST:
-			{
-				ArrayList<Integer> aggViewFieldIdList = aggView.fieldIdList();
-
-				boolean needResort = false;
-				for (int i = 0; i < aggViewFieldIdList.subList(0, aggView.elemCount()).size(); i++)
-				{						
-					if (aggView._viewFieldIdCountMap.get(aggViewFieldIdList.get(i)) == 0 ) 
-					{
-						aggViewFieldIdList.set(i, aggViewFieldIdList.get(aggView.elemCount()-1));
-						--aggView._elemCount;
-						needResort = true;
-					}
-				}
+    	}   	
+	}
 	
-				if (needResort)
-					Collections.sort(aggViewFieldIdList.subList(0, aggView._elemCount));
-				break;
-			}
-			case ViewTypes.ELEMENT_NAME_LIST:
-			{
-				ArrayList<String> aggViewElementNameList = aggView.elementNameList();
-					
-				boolean needResort = false;
-				for (int i = 0; i < aggViewElementNameList.subList(0, aggView.elemCount()).size(); i++)
-				{						
-					if (aggView._viewElementNameCountMap.get(aggViewElementNameList.get(i)) == 0 ) 
-					{
-						aggViewElementNameList.set(i, aggViewElementNameList.get(aggView.elemCount()-1));
-						--aggView._elemCount;
-						needResort = true;
-					}
-				}
-				
-				if (needResort)
-					Collections.sort(aggViewElementNameList.subList(0, aggView._elemCount));				
-				
-				break;
-			}
-			default:
-				break;							
-		}	   	
-	}	
+	void aggregateViewUncommit(WlView aggView)
+	{			
+	   	for (WlView view = aggView.committedViews().poll(); view!= null; view = aggView.committedViews().poll())
+    	{			   		
+	   		aggView.mergedViews().add(view);
+	   	    view.state(WlView.State.MERGED);
+    	}	
+	}
 	
 	int encodeViewRequest(EncodeIterator encodeIter, WlView aggView)
 	{
@@ -596,7 +574,7 @@ public class WlViewHandler
 				}
 
 				viewArray.primitiveType(DataTypes.ASCII_STRING);
-//				viewArray.itemLength(0);   or what
+//				viewArray.itemLength(0);  
 
 				if ((ret = viewArray.encodeInit(encodeIter)) < CodecReturnCodes.SUCCESS)
 				{
@@ -646,6 +624,8 @@ public class WlViewHandler
 	{
 		_viewFieldIdCountMapPool.add(aggView._viewFieldIdCountMap);	
 		_viewElementNameCountMapPool.add(aggView._viewElementNameCountMap);	
+//		_viewFieldIdCommitMapPool.add(aggView._viewFieldIdCommitMap);
+//		_viewElementNameCommitMapPool.add(aggView._viewElementNameCommitMap);
 		
 		_newViewsPool.add(aggView._newViews);
 		_mergedViewsPool.add(aggView._mergedViews);
@@ -655,4 +635,205 @@ public class WlViewHandler
 		_viewElementNameListPool.add(aggView._elementNameList);
 		aggView.returnToPool();
 	}
+	
+	
+	boolean aggregateViewContainsNewViews(WlView aggView)
+	{
+		int mergedCount = aggView.mergedViews().size() + aggView.committedViews().size();
+		if ( mergedCount == 0 ) return false;    
+		for (WlView view : aggView.newViews())
+    	{						
+			switch(aggView.viewType())
+			{		
+				case ViewTypes.FIELD_ID_LIST:
+				{
+					ArrayList<Integer> aggViewFieldIdList = aggView.fieldIdList();
+
+					ArrayList<Integer> viewFieldIdList = view.fieldIdList();
+	
+					if (view.elemCount() > aggView.elemCount())
+						return false;
+			   
+					for (int i = 0; i < viewFieldIdList.subList(0, view.elemCount()).size(); i++)
+					{					
+						Integer fid = view.fieldIdList().get(i);
+						int index = Collections.binarySearch(aggViewFieldIdList.subList(0, aggView._elemCount), fid);
+						if ( index < 0 ) return false;
+					}			   
+					return true;			   
+				}
+			
+				case ViewTypes.ELEMENT_NAME_LIST:
+				{
+					ArrayList<String> aggViewElementNameList = aggView.elementNameList();
+
+					ArrayList<String> viewElementNameList = view.elementNameList();
+	
+					if (view.elemCount() > aggView.elemCount())
+						return false;
+			   
+					for (int i = 0; i < viewElementNameList.subList(0, view.elemCount()).size(); i++)
+					{			
+						String elementName = view.elementNameList().get(i);
+						int index = Collections.binarySearch(aggViewElementNameList.subList(0, aggView._elemCount), elementName);
+
+						if ( index < 0 ) return false;
+					}			   
+					return true;	   
+				}
+				default: 
+					break;
+			}
+    	}
+		return false;
+	}
+	
+	boolean aggregateViewContainsView(WlView aggView, WlRequest wlRequest)
+	{
+		int mergedCount = aggView.mergedViews().size() + aggView.committedViews().size();
+		if ( mergedCount == 0 ) return false;    
+						
+		switch(aggView.viewType())
+		{		
+		case ViewTypes.FIELD_ID_LIST:
+		{
+			ArrayList<Integer> aggViewFieldIdList = aggView.fieldIdList();
+
+			ArrayList<Integer> viewFieldIdList = wlRequest.viewFieldIdList();
+	
+			if (wlRequest.viewElemCount() > aggView.elemCount())
+				return false;
+			   
+			for (int i = 0; i < viewFieldIdList.subList(0, wlRequest.viewElemCount()).size(); i++)
+			{					
+				Integer fid = viewFieldIdList.get(i);
+				int index = Collections.binarySearch(aggViewFieldIdList.subList(0, aggView._elemCount), fid);
+				if ( index < 0 ) return false;
+			}			   
+			return true;			   
+		}
+			
+		case ViewTypes.ELEMENT_NAME_LIST:
+		{
+			ArrayList<String> aggViewElementNameList = aggView.elementNameList();
+
+			ArrayList<String> viewElementNameList = wlRequest.viewElementNameList();
+	
+			if (wlRequest.viewElemCount() > aggView.elemCount())
+					return false;
+			   
+			for (int i = 0; i < viewElementNameList.subList(0, wlRequest.viewElemCount()).size(); i++)
+			{			
+				String elementName = viewElementNameList.get(i);
+				int index = Collections.binarySearch(aggViewElementNameList.subList(0, aggView._elemCount), elementName);
+				
+				if ( index < 0 ) return false;
+			}			   
+			return true;	   
+		}
+		default: 
+			break;
+		}
+    	
+		return false;
+	}
+	
+	
+	boolean commitedViewsContainsAggregateView(WlView aggView)
+	{
+		if(aggView.committedViews().size() == 0 ) return false;
+ 					
+		switch(aggView.viewType())
+		{		
+			case ViewTypes.FIELD_ID_LIST:
+			{
+				ArrayList<Integer> aggViewFieldIdList = aggView.fieldIdList();
+
+				for (int kk = 0; kk < aggViewFieldIdList.subList(0, aggView.elemCount()).size(); kk++)
+				{					
+					Integer aggFid =  aggViewFieldIdList.get(kk);
+					boolean found = false;
+				
+					for (WlView view : aggView.committedViews())
+					{						
+						ArrayList<Integer> viewFieldIdList = view.fieldIdList();			   
+						int index = Collections.binarySearch(viewFieldIdList.subList(0, view._elemCount), aggFid);
+						if ( index >= 0 )
+						{
+							found = true;
+						    break;
+						}
+					}
+					if (!found) return found;						
+				}				
+				break;
+			}
+			
+			case ViewTypes.ELEMENT_NAME_LIST:
+			{
+				ArrayList<String> aggViewElementNameList = aggView.elementNameList();
+
+				for (int kk = 0; kk < aggViewElementNameList.subList(0, aggView.elemCount()).size(); kk++)
+				{					
+					String aggName =  aggViewElementNameList.get(kk);
+					boolean found = false;
+				
+					for (WlView view : aggView.committedViews())
+					{						
+						ArrayList<String> viewElementNameList = view.elementNameList();			   
+						int index = Collections.binarySearch(viewElementNameList.subList(0, view._elemCount), aggName);
+						if ( index >= 0 )
+						{
+							found = true;
+						    break;
+						}
+					}
+					if (!found) return found;						
+				}				
+				break;
+			}
+			default: 
+				return false;
+		}
+		return true;
+	}	
+	
+	boolean sameViews(WlView view1, WlRequest wlRequest)
+	{
+		if (view1 == null ) return false;
+		if(view1.viewType() != wlRequest.viewType()) return false;
+
+        if ( view1.elemCount() != wlRequest.viewElemCount()) return false;
+		        
+		switch(view1.viewType())
+		{		
+			case ViewTypes.FIELD_ID_LIST:
+// should be sorted 
+				 return Arrays.equals(view1.fieldIdList().subList(0, view1._elemCount).toArray(), wlRequest._viewFieldIdList.subList(0, wlRequest.viewElemCount()).toArray());			
+			case ViewTypes.ELEMENT_NAME_LIST:
+				// should be sorted 
+				 return Arrays.equals(view1.elementNameList().subList(0, view1._elemCount).toArray(), wlRequest._viewElementNameList.subList(0, wlRequest.viewElemCount()).toArray());
+			default: 
+				return false;
+		}
+        
+	}
+		
+	void destroyView(WlView view)
+	{
+		_viewFieldIdListPool.add(view._fieldIdList);
+		_viewElementNameListPool.add(view._elementNameList);
+		view.returnToPool();
+	}
+	
+	boolean resorted()
+	{
+		return _resorted;
+	}
+	
+	void resorted(boolean resorted)
+	{
+		this._resorted = resorted;
+	}
+	
 }
