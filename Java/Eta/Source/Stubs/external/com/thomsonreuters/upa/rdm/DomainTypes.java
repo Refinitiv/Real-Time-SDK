@@ -62,6 +62,8 @@ public class DomainTypes
 	public static final int POLL = 35;
 	/** Forecast domain */
 	public static final int FORECAST = 36;
+	/** Market By Time domain */
+	public static final int MARKET_BY_TIME = 37;
 	/** System domain for use with domain neutral content (e.g. tunnel stream creation) */
 	public static final int SYSTEM = 127;
     /* Maximum reserved message type value */
@@ -153,6 +155,9 @@ public class DomainTypes
 				break;
 			case FORECAST:
 				ret = "FORECAST";
+				break;
+			case MARKET_BY_TIME:
+				ret = "MARKET_BY_TIME";
 				break;
             case SYSTEM:
                 ret = "SYSTEM";
@@ -271,6 +276,10 @@ public class DomainTypes
 		else if (domainTypeString.equals("FORECAST"))
 		{
 			ret = FORECAST;
+		}
+		else if (domainTypeString.equals("MARKET_BY_TIME"))
+		{
+			ret = MARKET_BY_TIME;
 		}
 		else if (domainTypeString.equals("SYSTEM"))
 		{
