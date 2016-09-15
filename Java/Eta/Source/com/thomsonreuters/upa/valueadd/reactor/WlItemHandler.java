@@ -775,10 +775,7 @@ public class WlItemHandler implements WlHandler
                     "WlItemHandler.handleBatchRequest",
                     ":ItemList not found.");
 		}
-		
-		// Close batch stream
-		_watchlist.closeWlRequest(wlRequest);
-		
+
     	return ret;
     }
 
