@@ -60,6 +60,8 @@ public class DomainTypes
 	public static final int ECONOMIC_INDICATOR = 34;
 	/** Poll domain */
 	public static final int POLL = 35;
+	/** Forecast domain */
+	public static final int FORECAST = 36;
 	/** System domain for use with domain neutral content (e.g. tunnel stream creation) */
 	public static final int SYSTEM = 127;
     /* Maximum reserved message type value */
@@ -148,6 +150,9 @@ public class DomainTypes
 				break;
 			case POLL:
 				ret = "POLL";
+				break;
+			case FORECAST:
+				ret = "FORECAST";
 				break;
             case SYSTEM:
                 ret = "SYSTEM";
@@ -262,6 +267,10 @@ public class DomainTypes
 		else if (domainTypeString.equals("POLL"))
 		{
 			ret = POLL;
+		}
+		else if (domainTypeString.equals("FORECAST"))
+		{
+			ret = FORECAST;
 		}
 		else if (domainTypeString.equals("SYSTEM"))
 		{
