@@ -17,5 +17,5 @@ interface WlHandler
     /* Used to notify the watchlist handler of a request timeout. */ 
     int requestTimeout(WlStream wlStream, ReactorErrorInfo errorInfo);
     /* Used to call back the user. */ 
-    int callbackUser(String location, Msg msg, MsgBase rdmMsg, ReactorErrorInfo errorInfo);    
+    int callbackUser(String location, Msg msg, MsgBase rdmMsg, WlRequest wlRequest, ReactorErrorInfo errorInfo);    
 }

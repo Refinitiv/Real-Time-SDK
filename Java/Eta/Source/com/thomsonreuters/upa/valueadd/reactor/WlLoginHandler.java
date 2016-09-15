@@ -750,8 +750,9 @@ class WlLoginHandler implements WlHandler
 		}
 
 		// call back user
+        _tempWlInteger.value(msg.streamId());
 		return callbackUser("WlLoginHandler.readRefreshMsg", msg,
-				_loginRefresh, errorInfo);
+				_loginRefresh, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), errorInfo);
 	}
 
 	/* Reads a status message. */
@@ -777,7 +778,8 @@ class WlLoginHandler implements WlHandler
 		}
 
 		// call back user
-		return callbackUser("WlLoginHandler.readStatusMsg", msg, _loginStatus, errorInfo);
+        _tempWlInteger.value(msg.streamId());
+		return callbackUser("WlLoginHandler.readStatusMsg", msg, _loginStatus, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), errorInfo);
 	}
     
     /* Used when login Closed/Recoverable state is received.
@@ -786,7 +788,8 @@ class WlLoginHandler implements WlHandler
     {
         int ret;
         
-        if ((ret = callbackUser(location, msg, loginMsg, errorInfo)) != ReactorReturnCodes.SUCCESS)
+        _tempWlInteger.value(msg.streamId());
+        if ((ret = callbackUser(location, msg, loginMsg, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), errorInfo)) != ReactorReturnCodes.SUCCESS)
             return ret;
         
         _watchlist.reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE, location, 
@@ -814,11 +817,12 @@ class WlLoginHandler implements WlHandler
 		// handle the post Ack
 		if (wlStream.handlePostAck(msg)) {
 			// call back user if ACK was processed
+	        _tempWlInteger.value(msg.streamId());
 			if (msg.domainType() != DomainTypes.LOGIN) {
 				ret = _watchlist.itemHandler().callbackUser(
-						"WlLoginHandler.readAckMsg", msg, null, errorInfo);
+						"WlLoginHandler.readAckMsg", msg, null, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), errorInfo);
 			} else {
-				ret = callbackUser("WlLoginHandler.readAckMsg", msg, null,
+				ret = callbackUser("WlLoginHandler.readAckMsg", msg, null, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger),
 						errorInfo);
 			}
 		}
@@ -827,13 +831,9 @@ class WlLoginHandler implements WlHandler
 	}
 
 	@Override
-	public int callbackUser(String location, Msg msg, MsgBase rdmMsg, ReactorErrorInfo errorInfo) 
+	public int callbackUser(String location, Msg msg, MsgBase rdmMsg, WlRequest wlRequest, ReactorErrorInfo errorInfo) 
 	{
 		int ret = ReactorReturnCodes.SUCCESS;
-
-		_tempWlInteger.value(msg.streamId());
-		WlRequest wlRequest = _watchlist.streamIdtoWlRequestTable().get(
-				_tempWlInteger);
 
 		ret = _watchlist.reactor().sendAndHandleLoginMsgCallback(location,
 				_watchlist.reactorChannel(), null, msg, (LoginMsg) rdmMsg,
@@ -1006,8 +1006,9 @@ class WlLoginHandler implements WlHandler
 				_loginStatus.state().text(_tempBuffer);
 
                 _userloginStreamOpen = false;
+                _tempWlInteger.value(_statusMsg.streamId());
                 callbackUser("WlLoginHandler.channelDown", _statusMsg,
-                        _loginStatus, _errorInfo);
+                        _loginStatus, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), _errorInfo);
 			}
 		}
 	}
@@ -1130,7 +1131,8 @@ class WlLoginHandler implements WlHandler
 		_loginStatus.state().code(StateCodes.NONE);
 		_loginStatus.state().text(_tempBuffer);
 
-		callbackUser("WlLoginHandler.channelDown", _statusMsg, _loginStatus,
+        _tempWlInteger.value(_statusMsg.streamId());
+		callbackUser("WlLoginHandler.channelDown", _statusMsg, _loginStatus, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), 
 				_errorInfo);
 
 		// re-send login request

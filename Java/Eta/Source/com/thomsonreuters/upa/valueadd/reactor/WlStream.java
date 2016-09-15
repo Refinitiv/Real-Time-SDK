@@ -791,7 +791,10 @@ class WlStream extends VaNode
             _ackMsg.applyHasSeqNum();
          
         // call back with NAK message
-        return _handler.callbackUser("WlStream.sendNak", _ackMsg, null, errorInfo);
+        WlInteger tempWlInteger = ReactorFactory.createWlInteger();
+        tempWlInteger.value(_ackMsg.streamId());
+        
+        return _handler.callbackUser("WlStream.sendNak", _ackMsg, null, _watchlist.streamIdtoWlRequestTable().get(tempWlInteger), errorInfo);
     }
     
     /* Encodes a UPA message into buffer and writes to channel. */
