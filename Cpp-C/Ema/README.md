@@ -169,7 +169,6 @@ See the top level Elektron-SDK README.md for details.
 - EMA-491 XmlTracePing, XmlTraceHex default to true when XmlTraceRead , XmlTracePing, XmlTraceHex and XmlTraceWrite set to invalid value. 
 - EMA-532 XMLTrace may not flush all information to trace file 
 - EMA-533 ChannelSet with two multicast channels userQLimit set incorrectly 
-- EMA-560 tunnelStreamConsumer exit crash
 - EMA-575 NiProvider360 application uses 100% CPU when CTRL-C pressed while publishing data
 - EMA-691 Random exit issue with NiProvider, application does not exit.
 
