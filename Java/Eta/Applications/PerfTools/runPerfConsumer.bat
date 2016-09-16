@@ -27,7 +27,7 @@ rem application class
 set APPNAME=com.thomsonreuters.upa.perftools.upajconsperf.upajConsPerf
 
 rem classpath
-set APP_CLASSPATH=../../Libs/upa.jar;../../Libs/upaValueAdd.jar;./xpp3-1.1.3_8.jar;./xpp3_min-1.1.3_8.jar;bin
+set APP_CLASSPATH=../../Libs/upa.jar;../../Libs/upaValueAdd.jar;./xpp3-1.1.3_8.jar;./xpp3_min-1.1.3_8.jar;bin;..\..\..\..\Elektron-SDK-BinaryPack\Java\Eta\Libs\upa.jar
 
 rem command
 set RUN_CMD=%JAVA_BIN%  %JVM_OPTIONS% -cp %APP_CLASSPATH% %APPNAME% %APP_ARGS%
