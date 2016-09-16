@@ -82,7 +82,7 @@ If these are not present when building some of the applications, their build wil
 
 # Documentation
 
-Elektron Transport API Documentation is available online at https://docs-developers.thomsonreuters.com/4721/Docs/WebDocs/index.html 
+Elektron Transport API Documentation is available online at https://developers.thomsonreuters.com/elektron/elektron-sdk-cc/docs
 
 These are also available as part of the full Elektron SDK package that can be downloaded from the the following locations. 
 
