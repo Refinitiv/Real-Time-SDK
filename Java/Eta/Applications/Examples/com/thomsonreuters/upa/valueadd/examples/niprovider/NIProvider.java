@@ -98,7 +98,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
  * build.
  * </p>
  * <p> 
- * java -cp ./bin;../../Libs/upa.jar;../Libs/upaValueAdd.jar;../Libs/upaValueAddCache.jar
+ * java -cp ./bin;../../Libs/upa.jar;../../Libs/upaValueAdd.jar;../../Libs/upaValueAddCache.jar
  * com.thomsonreuters.upa.valueadd.examples.niprovider.NIProvider
  * [-c &lthostname&gt:&ltport&gt &ltservice &gt &ltdomain&gt:&ltitem name&gt,...]
  * [-uname &ltLoginUsername&gt] [-runtime &ltseconds&gt] [-bc &ltbackup hostname&gt:&lt backup port&gt]

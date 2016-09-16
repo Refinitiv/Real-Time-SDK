@@ -72,7 +72,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
  * build.
  * </p>
  * <p> 
- * java -cp ./bin;../../Libs/upa.jar;../Libs/upaValueAdd.jar
+ * java -cp ./bin;../../Libs/upa.jar;../../Libs/upaValueAdd.jar
  * com.thomsonreuters.upa.valueadd.examples.queueconsumer.QueueConsumer
  * [-c &lthostname&gt:&ltport&gt ]
  * </p>

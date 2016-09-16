@@ -136,7 +136,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
  * build.
  * </p>
  * <p> 
- * java -cp ./bin;../../Libs/upa.jar;../Libs/upaValueAdd.jar;../Libs/upaValueAddCache.jar
+ * java -cp ./bin;../../Libs/upa.jar;../../Libs/upaValueAdd.jar;../../Libs/upaValueAddCache.jar
  * com.thomsonreuters.upa.valueadd.examples.consumer.Consumer
  * [-c &lthostname&gt:&ltport&gt &ltservice name&gt &ltdomain&gt:&ltitem name&gt,...]
  * [-uname &ltLoginUsername&gt] [-view] [-post] [-offpost]  [-publisherInfo &ltuserId,address&gt] [-snapshot] [-runtime &ltseconds&gt]
