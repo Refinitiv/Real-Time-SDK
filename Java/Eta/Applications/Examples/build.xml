@@ -6,6 +6,7 @@
 
 	<property name="bin.dir" value="bin"/>
 	<property name="libs.dir" value="../../Libs"/>	
+	<property name="submodule.dir" value="../../../../Elektron-SDK-BinaryPack/Java/Eta/Libs"/>
 	
 	<path id="examples.classpath">
 		<pathelement location="${libs.dir}/upa.jar"/>
@@ -13,6 +14,10 @@
 		<pathelement location="${libs.dir}/ansipage.jar"/>
 		<pathelement location="${libs.dir}/upaValueAdd.jar"/>
 		<pathelement location="${libs.dir}/upaValueAddCache.jar"/>
+		<pathelement location="${submodule.dir}/upa.jar"/>
+		<pathelement location="${submodule.dir}/jdacsUpalib.jar"/>
+		<pathelement location="${submodule.dir}/ansipage.jar"/>
+		<pathelement location="${submodule.dir}/upaValueAddCache.jar"/>
     </path>
 
 	<target name="init">

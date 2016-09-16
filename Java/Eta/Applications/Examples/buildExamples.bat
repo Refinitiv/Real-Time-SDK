@@ -1,6 +1,6 @@
 mkdir bin
 set JAVAC="%JAVA_HOME%\bin\javac"
-set CLASSPATH=.\;..\..\Libs\upa.jar;..\..\Libs\jdacsUpalib.jar;..\..\Libs\upaValueAdd.jar;..\..\Libs\upaValueAddCache.jar;..\..\Libs\ansipage.jar
+set CLASSPATH=.\;..\..\Libs\upa.jar;..\..\Libs\jdacsUpalib.jar;..\..\Libs\upaValueAdd.jar;..\..\Libs\upaValueAddCache.jar;..\..\Libs\ansipage.jar;..\..\..\..\Elektron-SDK-BinaryPack\Java\Eta\Libs\upa.jar;..\..\..\..\Elektron-SDK-BinaryPack\Java\Eta\Libs\upaValueAddCache.jar;..\..\..\..\Elektron-SDK-BinaryPack\Java\Eta\Libs\jdacsUpalib.jar;..\..\..\..\Elektron-SDK-BinaryPack\Java\Eta\Libs\ansipage.jar
 
 %JAVAC% -d bin com\thomsonreuters\upa\examples\codec\*.java 
 %JAVAC% -d bin com\thomsonreuters\upa\examples\common\*.java
@@ -25,7 +25,12 @@ if exist ..\..\Libs\ansipage.jar (
 	echo Building AnsiPageExample...
 	%JAVAC% -d bin com\thomsonreuters\upa\examples\ansipage\*.java 
 ) else (
-	echo Warning: ansipage.jar not found; not building AnsiPageExample.
+	if exist ..\..\..\..\Elektron-SDK-BinaryPack\Java\Eta\Libs\ansipage.jar (
+		echo Building AnsiPageExample...
+		%JAVAC% -d bin com\thomsonreuters\upa\examples\ansipage\*.java 
+	) else (
+		echo Warning: ansipage.jar not found; not building AnsiPageExample.
+	)
 )
 
 @ECHO OFF
@@ -33,6 +38,12 @@ if exist ..\..\Libs\jdacsUpalib.jar (
 	echo Building AuthLockExample...
 	%JAVAC% -d bin com\thomsonreuters\upa\examples\authlock\*.java
 ) else (
-	echo Warning: jdacsUpalib.jar not found; not building AuthLockExample.
+	if exist ..\..\..\..\Elektron-SDK-BinaryPack\Java\Eta\Libs\jdacsUpalib.jar (
+		echo Building AuthLockExample...
+		%JAVAC% -d bin com\thomsonreuters\upa\examples\ansipage\*.java 
+	) else (
+		echo Warning: ansipage.jar not found; not building AuthLockExample.
+	)
 )
+
 

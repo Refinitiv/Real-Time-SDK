@@ -5,6 +5,7 @@
     <property name="source" value="1.7"/>
 	
 	<property name="dist.dir" value="../"/>
+	<property name="submodule.dir" value="../../../Elektron-SDK-BinaryPack/Java/Eta/Libs"/>
 	<property name="libs.dir" value="${dist.dir}/Libs"/>
 	<property name="bin.dir" value="${dist.dir}/Source/bin"/>	
 	<property name="stubs.dir" value="${bin.dir}/stubs"/>
@@ -12,6 +13,7 @@
 	
 	<path id="valueadd.classpath">
         <pathelement location="${libs.dir}/upa.jar"/>
+		<pathelement location="${submodule.dir}/upa.jar"/>
     </path>
 
 	<target name="init">
@@ -20,17 +22,12 @@
 		<mkdir dir="${stubs.dir}"/>
     </target>
 	
-	<target depends="init" name="bin-links">
-		<echo message="Creating symlink to Libs" />
-			<symlink link="../" resource="../../Elektron-SDK-BinaryPack/Java/Eta/Libs" failonerror="false"/>
-	</target>
-
 	<target name="clean">
 		<echo message="Cleaning up old build output" />
         <delete dir="${bin.dir}"/>
     </target>
 
-	<target depends="bin-links" name="build-valueadd">
+	<target depends="init" name="build-valueadd">
 		<echo message="Building the valueadd" />
         <javac debug="false" debuglevel="${debuglevel}" destdir="${bin.dir}" source="${source}" target="${target}" includeantruntime="false">
 			<exclude name="com/thomsonreuters/upa/valueadd/cache/**" />

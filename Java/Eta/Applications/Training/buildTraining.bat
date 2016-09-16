@@ -1,6 +1,6 @@
 mkdir bin
 set JAVAC="%JAVA_HOME%\bin\javac"
-set CLASSPATH=.\;..\Examples;..\..\Libs\upa.jar;..\..\Libs\upaValueAdd.jar;
+set CLASSPATH=.\;..\Examples;..\..\Libs\upa.jar;..\..\Libs\upaValueAdd.jar;..\..\..\..\Elektron-SDK-BinaryPack\Java\Eta\Libs\upa.jar
 
 %JAVAC% -d bin ..\Examples\com\thomsonreuters\upa\examples\common\*.java 
 %JAVAC% -d bin ..\Examples\com\thomsonreuters\upa\examples\rdm\marketprice\*.java
