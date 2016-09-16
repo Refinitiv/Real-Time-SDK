@@ -34,6 +34,7 @@ var searchData=
   ['rssldatatypes',['RsslDataTypes',['../group__RSSLTypeEnums.html#ga8df9a55c9711b3eccf6e9cb72a62b623',1,'rsslDataTypeEnums.h']]],
   ['rssldomaintypes',['RsslDomainTypes',['../group__RSSLWFDomain.html#gaaad95808886774a2ecdfd5a18519f193',1,'rsslRDM.h']]],
   ['rsslelementlistflags',['RsslElementListFlags',['../group__EStruct.html#ga3daa8fab6fa96511d44867c1cedf042d',1,'rsslElementList.h']]],
+  ['rsslencryptionprotocoltypes',['RsslEncryptionProtocolTypes',['../group__RSSLConnectOpts.html#ga2c632450261c1f272c6c843e582b3994',1,'rsslTransport.h']]],
   ['rsslfieldlistflags',['RsslFieldListFlags',['../group__FStruct.html#ga575d6602c3efae8498ad0ef7214519fa',1,'rsslFieldList.h']]],
   ['rsslfilterentryactions',['RsslFilterEntryActions',['../group__FLEStruct.html#ga1c1787fa98b8de82f02ee7116d9b7e08',1,'rsslFilterList.h']]],
   ['rsslfilterentryflags',['RsslFilterEntryFlags',['../group__FLEStruct.html#ga1a8dfc494d1f1c97e40e21f786aec887',1,'rsslFilterList.h']]],

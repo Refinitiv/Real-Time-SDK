@@ -194,6 +194,10 @@ Enumerations</h2></td></tr>
 <br/>
 &#160;&#160;<a class="el" href="group__RSSLWFDomain.html#ggaaad95808886774a2ecdfd5a18519f193a2ee0ca1b50c2609f7a4b05e46c30e888">RSSL_DMT_POLL</a> =  35, 
 <br/>
+&#160;&#160;<a class="el" href="group__RSSLWFDomain.html#ggaaad95808886774a2ecdfd5a18519f193acaf5f38189145345b4635c9aea3abb43">RSSL_DMT_FORECAST</a> =  36, 
+<br/>
+&#160;&#160;<a class="el" href="group__RSSLWFDomain.html#ggaaad95808886774a2ecdfd5a18519f193ab3c9875a933e20b197d18cad523697d1">RSSL_DMT_MARKET_BY_TIME</a> =  37, 
+<br/>
 &#160;&#160;<a class="el" href="group__RSSLWFDomain.html#ggaaad95808886774a2ecdfd5a18519f193a8ce2a58418ac1efa121019b3bf239064">RSSL_DMT_SYSTEM</a> =  127, 
 <br/>
 &#160;&#160;<a class="el" href="group__RSSLWFDomain.html#ggaaad95808886774a2ecdfd5a18519f193a5b35720c22ed2f56e4cd78adc538b1b0">RSSL_DMT_MAX_RESERVED</a> =  127, 
@@ -362,6 +366,8 @@ static const <a class="el" href="group__RsslBufferStruct.html#gaa07157d4dc418cc8
 static const <a class="el" href="group__RsslBufferStruct.html#gaa07157d4dc418cc86d631c2a4950d6c6">RsslBuffer</a>&#160;</td><td class="memItemRight" valign="bottom"><b>RSSL_ENAME_SNAPSHOT_SERVER_PORT</b> = { 18, (char*)&quot;SnapshotServerPort&quot; }</td></tr>
 <tr class="memitem:gadde1d56eec1f3ff97f5b0001ac1372be"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gadde1d56eec1f3ff97f5b0001ac1372be"></a>
 static const <a class="el" href="group__RsslBufferStruct.html#gaa07157d4dc418cc86d631c2a4950d6c6">RsslBuffer</a>&#160;</td><td class="memItemRight" valign="bottom"><b>RSSL_ENAME_SOURCE_MIROR_MODE</b> = { 19 , (char*)&quot;SourceMirroringMode&quot; }</td></tr>
+<tr class="memitem:ga57cfeb51434e4130b82324635d14d28e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga57cfeb51434e4130b82324635d14d28e"></a>
+static const <a class="el" href="group__RsslBufferStruct.html#gaa07157d4dc418cc86d631c2a4950d6c6">RsslBuffer</a>&#160;</td><td class="memItemRight" valign="bottom"><b>RSSL_ENAME_SOURCE_MIRROR_MODE</b> = { 19 , (char*)&quot;SourceMirroringMode&quot; }</td></tr>
 <tr class="memitem:gaa2c6d0dfe026774a14c0c25059d1503c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gaa2c6d0dfe026774a14c0c25059d1503c"></a>
 static const <a class="el" href="group__RsslBufferStruct.html#gaa07157d4dc418cc86d631c2a4950d6c6">RsslBuffer</a>&#160;</td><td class="memItemRight" valign="bottom"><b>RSSL_ENAME_STATUS</b> = { 6 , (char*)&quot;Status&quot; }</td></tr>
 <tr class="memitem:ga68a39dd5066ab69fc5a0681b14ebe124"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga68a39dd5066ab69fc5a0681b14ebe124"></a>
@@ -435,7 +441,7 @@ static const <a class="el" href="group__RsslBufferStruct.html#gaa07157d4dc418cc8
 </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="rsslRDM_8h_source.html#l00253">253</a> of file <a class="el" href="rsslRDM_8h_source.html">rsslRDM.h</a>.</p>
+<p>Definition at line <a class="el" href="rsslRDM_8h_source.html#l00255">255</a> of file <a class="el" href="rsslRDM_8h_source.html">rsslRDM.h</a>.</p>
 
 </div>
 </div>
@@ -463,7 +469,7 @@ static const <a class="el" href="group__RsslBufferStruct.html#gaa07157d4dc418cc8
 </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="rsslRDM_8h_source.html#l00262">262</a> of file <a class="el" href="rsslRDM_8h_source.html">rsslRDM.h</a>.</p>
+<p>Definition at line <a class="el" href="rsslRDM_8h_source.html#l00264">264</a> of file <a class="el" href="rsslRDM_8h_source.html">rsslRDM.h</a>.</p>
 
 </div>
 </div>
@@ -545,6 +551,12 @@ static const <a class="el" href="group__RsslBufferStruct.html#gaa07157d4dc418cc8
 <tr><td valign="top"><em><a class="anchor" id="ggaaad95808886774a2ecdfd5a18519f193a2ee0ca1b50c2609f7a4b05e46c30e888"></a>RSSL_DMT_POLL</em>&nbsp;</td><td>
 <p>(35) Poll content </p>
 </td></tr>
+<tr><td valign="top"><em><a class="anchor" id="ggaaad95808886774a2ecdfd5a18519f193acaf5f38189145345b4635c9aea3abb43"></a>RSSL_DMT_FORECAST</em>&nbsp;</td><td>
+<p>(36) Forecast content </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="ggaaad95808886774a2ecdfd5a18519f193ab3c9875a933e20b197d18cad523697d1"></a>RSSL_DMT_MARKET_BY_TIME</em>&nbsp;</td><td>
+<p>Market By Time content </p>
+</td></tr>
 <tr><td valign="top"><em><a class="anchor" id="ggaaad95808886774a2ecdfd5a18519f193a8ce2a58418ac1efa121019b3bf239064"></a>RSSL_DMT_SYSTEM</em>&nbsp;</td><td>
 <p>(127) System domain for use with domain netural content (e.g. tunnel stream creation) </p>
 </td></tr>
@@ -578,7 +590,7 @@ static const <a class="el" href="group__RsslBufferStruct.html#gaa07157d4dc418cc8
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-            <td><p class="smallfont">Fri Apr 29 2016</td>
+            <td><p class="smallfont">Fri Sep 16 2016</td>
           </tr>
         </table>
         <p class="smallfont">&nbsp;</td>
