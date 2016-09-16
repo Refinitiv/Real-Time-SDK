@@ -17,7 +17,7 @@ This section shows the required setup needed before you can build any of the API
 
 Firstly, obtain the source from this repository. It will contain all of the required source to build EMA and ETA as detailed below.
 In addition, this repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/thomsonreuters/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location.  That repository contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product. 
-This repository uses submodules for this cross-dependency, so users should add the `--recursive` option to their git clone command.
+This repository uses submodules for this cross-dependency, so users should add the `--recursive` option to their git clone command.  In addition, any classpaths should be updated to also include jars from the submodule library location, which will be your clone location followed by `Elektron-SDK-BinaryPack/Java/Eta/Libs`
 
 
 ## Building ETA
