@@ -36,7 +36,7 @@ Ant can be downloaded from http://ant.apache.org
 
 Navigate to `Eta/Source` 
 -	Run `ant all` to build Reactor and its dependencies.  This will use the fully functional JAR files and libraries provided in the `Libs` location of the `Elektron-SDK-BinaryPack` repository.
--	Run `ant build-stubs` to build only the Stub libraries.  This will overwrite libraries in the `Libs` location with the built stub libraries. 
+-	Run `ant build-stubs` to build only the Stub libraries.  This will build to a `bin` location. 
 -	Run `ant build` or `ant build-valueadd` to build only Reactor and its dependencies.  This will link to the fully functional JAR files and libraries provided in the `Libs` location.  This is the same as the `ant all` target.
 
 
