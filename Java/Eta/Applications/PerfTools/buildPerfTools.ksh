@@ -3,7 +3,7 @@
 mkdir -p bin
 JAVAC="$JAVA_HOME/bin/javac"
 export JAVAC
-CLASSPATH=./:./xpp3-1.1.3_8.jar:./xpp3_min-1.1.3_8.jar:../../Libs/upa.jar:../../Libs/upaValueAdd.jar
+CLASSPATH=./:./xpp3-1.1.3_8.jar:./xpp3_min-1.1.3_8.jar:../../Libs/upa.jar:../../Libs/upaValueAdd.jar:../../../../Elektron-SDK-BinaryPack/Java/Eta/Libs/upa.jar
 export CLASSPATH
 
 rm -f `find . -name *.class`
