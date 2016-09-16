@@ -32,31 +32,15 @@
     
 	<target depends="clean" name="cleanall"/>
 
-	<!-- Don't build AnsiPageExample unless Ansi library is present. -->
-	<condition property="ansi.present">
-		<available file="${libs.dir}/ansipage.jar"/>
-	</condition>
-	<target name="ansi-lib-check" unless="ansi.present">
-		<echo message="Warning: Ansi library not found; not building AnsiPageExample." />
-	</target>
 
-	<!-- Don't build AuthLockExample unless Dacs library is present. -->
-	<condition property="dacs.present">
-		<available file="${libs.dir}/jdacsUpalib.jar"/>
-	</condition>
-	<target name="dacs-lib-check" unless="dacs.present">
-		<echo message="Warning: Dacs library not found; not building AuthLockExample." />
-	</target>
 
-	<target depends="clean,ansi-lib-check,dacs-lib-check,build-examples" name="build"/>
+	<target depends="clean,build-examples" name="build"/>
     
 	<target depends="init" name="build-examples">
 		<echo message="Building the examples" />
         <javac debug="false" debuglevel="${debuglevel}" destdir="${bin.dir}" source="${source}" target="${target}" includeantruntime="false">
         	<src path="."/>
             <classpath refid="examples.classpath"/>
-			<exclude name="**/ansipage/*.java" unless="ansi.present" />
-			<exclude name="**/authlock/*.java" unless="dacs.present" />
         </javac>
     </target>
 	
