@@ -56,51 +56,51 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1020348">331__Directory__Streaming</a></div>
-      <div class="Body"><a name="1031737">Summary</a></div>
-      <div class="Body"><a name="1031738">=======</a></div>
-      <div class="Body"><a name="1031739">&nbsp;</a></div>
-      <div class="Body"><a name="1031740">The example331__Directory__Streaming application is provided as an example of</a></div>
-      <div class="Body"><a name="1031741">OMM Consumer application written to the EMA library.</a></div>
-      <div class="Body"><a name="1031742">&nbsp;</a></div>
-      <div class="Body"><a name="1031743">This application demonstrates basic usage of the EMA library for accessing</a></div>
-      <div class="Body"><a name="1031744">and parsing of OMM Directory and MarketPrice data from Reuters Data Feed </a></div>
-      <div class="Body"><a name="1031745">Direct (RDF-D), directly from an OMM Provider application, or from Thomson</a></div>
-      <div class="Body"><a name="1031746">Reuters Advanced Distribution Server.</a></div>
-      <div class="Body"><a name="1031747">&nbsp;</a></div>
-      <div class="Body"><a name="1031748">example331__Directory__Streaming showcases usage of directory stream in OMM</a></div>
-      <div class="Body"><a name="1031749">Consumer. It demonstrates opening of directory stream as well as its processing.</a></div>
-      <div class="Body"><a name="1031750">Having a directory stream open is useful for consumer applications willing to</a></div>
-      <div class="Body"><a name="1031751">know the state of services and item groups it consumes.</a></div>
-      <div class="Body"><a name="1031752">&nbsp;</a></div>
-      <div class="Body"><a name="1031753">&nbsp;</a></div>
-      <div class="Body"><a name="1031754">Detailed Description</a></div>
-      <div class="Body"><a name="1031755">====================</a></div>
-      <div class="Body"><a name="1031756">&nbsp;</a></div>
-      <div class="Body"><a name="1031757">example331__Directory__Streaming implements the following high level steps:</a></div>
-      <div class="Body"><a name="1031758">&nbsp;</a></div>
-      <div class="Body"><a name="1031759">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1031760">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1031761">  - provides own methods as needed, e.g. decode( FieldList )</a></div>
-      <div class="Body"><a name="1031762">  - each of the methods provided in this example use the ease of use</a></div>
-      <div class="Body"><a name="1031763">	data extraction methods that are data type specific</a></div>
-      <div class="Body"><a name="1031764">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1031765">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1031766">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1031767">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1031768">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1031769">+ Opens two streaming item interests</a></div>
-      <div class="Body"><a name="1031770">  - Directory Domain stream</a></div>
-      <div class="Body"><a name="1031771">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1031772">+ Processes data received from API for 60 seconds</a></div>
-      <div class="Body"><a name="1031773">  - all received messages are processed on API thread of control</a></div>
-      <div class="Body"><a name="1031774">+ Exits</a></div>
-      <div class="Body"><a name="1031775">&nbsp;</a></div>
-      <div class="Body"><a name="1031776">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1031777">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1031778">	  </a></div>
-      <div class="Body"><a name="1031779">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1031780">      standard configuration.</a></div>
-      <div class="Body"><a name="1029919">	 </a></div>
+      <div class="Body"><a name="1033345">Summary</a></div>
+      <div class="Body"><a name="1033346">=======</a></div>
+      <div class="Body"><a name="1033347">&nbsp;</a></div>
+      <div class="Body"><a name="1033348">The example331__Directory__Streaming application is provided as an example of</a></div>
+      <div class="Body"><a name="1033349">OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1033350">&nbsp;</a></div>
+      <div class="Body"><a name="1033351">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1033352">and parsing of OMM Directory and MarketPrice data from Reuters Data Feed </a></div>
+      <div class="Body"><a name="1033353">Direct (RDF-D), directly from an OMM Provider application, or from Thomson</a></div>
+      <div class="Body"><a name="1033354">Reuters Advanced Distribution Server.</a></div>
+      <div class="Body"><a name="1033355">&nbsp;</a></div>
+      <div class="Body"><a name="1033356">example331__Directory__Streaming showcases usage of directory stream in OMM</a></div>
+      <div class="Body"><a name="1033357">Consumer. It demonstrates opening of directory stream as well as its processing.</a></div>
+      <div class="Body"><a name="1033358">Having a directory stream open is useful for consumer applications willing to</a></div>
+      <div class="Body"><a name="1033359">know the state of services and item groups it consumes.</a></div>
+      <div class="Body"><a name="1033360">&nbsp;</a></div>
+      <div class="Body"><a name="1033361">&nbsp;</a></div>
+      <div class="Body"><a name="1033362">Detailed Description</a></div>
+      <div class="Body"><a name="1033363">====================</a></div>
+      <div class="Body"><a name="1033364">&nbsp;</a></div>
+      <div class="Body"><a name="1033365">example331__Directory__Streaming implements the following high level steps:</a></div>
+      <div class="Body"><a name="1033366">&nbsp;</a></div>
+      <div class="Body"><a name="1033367">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1033368">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1033369">  - provides own methods as needed, e.g. decode( FieldList )</a></div>
+      <div class="Body"><a name="1033370">  - each of the methods provided in this example use the ease of use</a></div>
+      <div class="Body"><a name="1033371">	data extraction methods that are data type specific</a></div>
+      <div class="Body"><a name="1033372">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1033373">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1033374">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1033375">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1033376">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1033377">+ Opens two streaming item interests</a></div>
+      <div class="Body"><a name="1033378">  - Directory Domain stream</a></div>
+      <div class="Body"><a name="1033379">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1033380">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1033381">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1033382">+ Exits</a></div>
+      <div class="Body"><a name="1033383">&nbsp;</a></div>
+      <div class="Body"><a name="1033384">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1033385">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1033386">	  </a></div>
+      <div class="Body"><a name="1033387">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1033388">      standard configuration.</a></div>
+      <div class="Body"><a name="1031812">	 </a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

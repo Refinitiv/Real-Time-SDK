@@ -53,4 +53,6 @@ C=B.fN("310__MarketByOrder__Streaming","49");
 C=B.fN("320__MarketPrice__Streaming__StatusClosed","50");
 C=B.fN("340__Login__Streaming","51");
 C=B.fN("360__MarketPrice__ConnectionRecovery","52");
+A=P.fN("EMA Java Performance Tools Examples","53");
+B=A.fN("EmajConsPerf","54");
 }

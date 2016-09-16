@@ -94,54 +94,6 @@ div.Body
   padding-bottom: 0pt;
 }
 
-div.body_sm
-{
-  color: #666666;
-  direction: ltr;
-  font-family: Arial;
-  font-size: 9.0pt;
-  font-style: normal;
-  font-variant: normal;
-  font-weight: normal;
-  margin-bottom: 6.0pt;
-  margin-left: 0pt;
-  margin-right: 0pt;
-  margin-top: 6.0pt;
-  text-align: left;
-  text-indent: 0pt;
-  text-transform: none;
-  vertical-align: baseline;
-}
-
-.body_sm_outer
-{
-  margin-bottom: 6.0pt;
-  margin-right: 0pt;
-  margin-top: 6.0pt;
-}
-
-.body_sm_inner
-{
-  color: #666666;
-  direction: ltr;
-  font-family: Arial;
-  font-size: 9.0pt;
-  font-style: normal;
-  font-variant: normal;
-  font-weight: normal;
-  text-align: left;
-  text-transform: none;
-  vertical-align: baseline;
-  margin-left: 0pt;
-  margin-right: 0pt;
-  margin-top: 0pt;
-  margin-bottom: 0pt;
-  padding-left: 0pt;
-  padding-right: 0pt;
-  padding-top: 0pt;
-  padding-bottom: 0pt;
-}
-
 div.Bullet
 {
   color: #666666;
@@ -1910,6 +1862,16 @@ span.DocumentTitle
   font-style: italic;
 }
 
+span.Emphasis
+{
+  font-style: italic;
+}
+
+span.EquationVariables
+{
+  font-style: italic;
+}
+
 span.FileOrDirectory
 {
   font-weight: bold;
@@ -2002,6 +1964,134 @@ table.Warning_Ident_25
   padding-bottom: 6pt;
   padding-left: 0pt;
   padding-right: 0pt;
+  padding-top: 6pt;
+  text-align: left;
+  vertical-align: top;
+}
+
+table.Border_Blue
+{
+  border-collapse: collapse;
+  direction: ltr;
+  margin-bottom: 12.0pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 12.0pt;
+  padding-bottom: 4pt;
+  padding-left: 6pt;
+  padding-right: 6pt;
+  padding-top: 6pt;
+  text-align: left;
+  vertical-align: top;
+}
+
+table.First_Column_Blue
+{
+  border-collapse: collapse;
+  direction: ltr;
+  margin-bottom: 12.0pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 12.0pt;
+  padding-bottom: 4pt;
+  padding-left: 6pt;
+  padding-right: 6pt;
+  padding-top: 6pt;
+  text-align: left;
+  vertical-align: top;
+}
+
+table.Shaded_Blue
+{
+  border-collapse: collapse;
+  direction: ltr;
+  margin-bottom: 12.0pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 12.0pt;
+  padding-bottom: 4pt;
+  padding-left: 6pt;
+  padding-right: 6pt;
+  padding-top: 6pt;
+  text-align: left;
+  vertical-align: top;
+}
+
+table.First_Column_Grey
+{
+  border-collapse: collapse;
+  direction: ltr;
+  margin-bottom: 12.0pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 12.0pt;
+  padding-bottom: 4pt;
+  padding-left: 6pt;
+  padding-right: 6pt;
+  padding-top: 6pt;
+  text-align: left;
+  vertical-align: top;
+}
+
+table.Minimal_Grey
+{
+  border-collapse: collapse;
+  direction: ltr;
+  margin-bottom: 12.0pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 12.0pt;
+  padding-bottom: 4pt;
+  padding-left: 6pt;
+  padding-right: 6pt;
+  padding-top: 6pt;
+  text-align: left;
+  vertical-align: top;
+}
+
+table.Shaded_Grey
+{
+  border-collapse: collapse;
+  direction: ltr;
+  margin-bottom: 12.0pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 12.0pt;
+  padding-bottom: 4pt;
+  padding-left: 6pt;
+  padding-right: 6pt;
+  padding-top: 6pt;
+  text-align: left;
+  vertical-align: top;
+}
+
+table.Border_Grey
+{
+  border-collapse: collapse;
+  direction: ltr;
+  margin-bottom: 12.0pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 12.0pt;
+  padding-bottom: 4pt;
+  padding-left: 6pt;
+  padding-right: 6pt;
+  padding-top: 6pt;
+  text-align: left;
+  vertical-align: top;
+}
+
+table.Minimal_Blue
+{
+  border-collapse: collapse;
+  direction: ltr;
+  margin-bottom: 12.0pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 12.0pt;
+  padding-bottom: 4pt;
+  padding-left: 6pt;
+  padding-right: 6pt;
   padding-top: 6pt;
   text-align: left;
   vertical-align: top;
@@ -2199,23 +2289,6 @@ table.Commands__25
   vertical-align: top;
 }
 
-table.Two_Column
-{
-  border-collapse: collapse;
-  caption-side: bottom;
-  direction: ltr;
-  margin-bottom: 12.0pt;
-  margin-left: 0pt;
-  margin-right: 0pt;
-  margin-top: 0.0pt;
-  padding-bottom: 4pt;
-  padding-left: 6pt;
-  padding-right: 6pt;
-  padding-top: 6pt;
-  text-align: left;
-  vertical-align: top;
-}
-
 table.Tip
 {
   border-collapse: collapse;
@@ -2246,5 +2319,34 @@ table.Warning
   padding-top: 6pt;
   text-align: left;
   vertical-align: top;
+}
+
+table.Two_Column
+{
+  border-collapse: collapse;
+  caption-side: bottom;
+  direction: ltr;
+  margin-bottom: 12.0pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0.0pt;
+  padding-bottom: 4pt;
+  padding-left: 6pt;
+  padding-right: 6pt;
+  padding-top: 6pt;
+  text-align: left;
+  vertical-align: top;
+}
+
+img.Warning
+{
+  float: left;
+  margin-right: 6pt;
+}
+
+img.Tip
+{
+  float: left;
+  margin-right: 6pt;
 }
 

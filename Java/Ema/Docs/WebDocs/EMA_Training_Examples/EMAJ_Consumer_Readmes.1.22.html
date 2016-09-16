@@ -56,46 +56,46 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1019293">300__MarketPrice__Close</a></div>
-      <div class="Body"><a name="1031512">Summary</a></div>
-      <div class="Body"><a name="1031513">=======</a></div>
-      <div class="Body"><a name="1031514">&nbsp;</a></div>
-      <div class="Body"><a name="1031515">The example300__MarketPrice__Close application is provided as an example of OMM Consumer</a></div>
-      <div class="Body"><a name="1031516">application written to the EMA library showcasing closing of a streaming request.</a></div>
-      <div class="Body"><a name="1031517">&nbsp;</a></div>
-      <div class="Body"><a name="1031518">This application demonstrates basic usage of the EMA library for accessing and</a></div>
-      <div class="Body"><a name="1031519">parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D), directly</a></div>
-      <div class="Body"><a name="1031520">from an OMM Provider application, or from Thomson Reuters Advanced DistributionServer.</a></div>
-      <div class="Body"><a name="1031521">&nbsp;</a></div>
-      <div class="Body"><a name="1031522">example300__MarketPrice__Close showcases closing of an item. This application</a></div>
-      <div class="Body"><a name="1031523">arbitrarily chooses to close an item after a number of received updates.</a></div>
-      <div class="Body"><a name="1031524">&nbsp;</a></div>
-      <div class="Body"><a name="1031525"> </a></div>
-      <div class="Body"><a name="1031526">Detailed Description</a></div>
-      <div class="Body"><a name="1031527">====================</a></div>
-      <div class="Body"><a name="1031528">&nbsp;</a></div>
-      <div class="Body"><a name="1031529">example300__MarketPrice__Close implements the following high level steps:</a></div>
-      <div class="Body"><a name="1031530">&nbsp;</a></div>
-      <div class="Body"><a name="1031531">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1031532">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1031533">  - provides own methods as needed, e.g. decode( FieldList )</a></div>
-      <div class="Body"><a name="1031534">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1031535">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1031536">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1031537">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1031538">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1031539">+ Opens a streaming item interest</a></div>
-      <div class="Body"><a name="1031540">  - MarketPrice IBM.N item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1031541">+ Processes data received from API for 60 seconds</a></div>
-      <div class="Body"><a name="1031542">  - closes the item stream after 3 update messages are received</a></div>
-      <div class="Body"><a name="1031543">  - all received messages are processed on API thread of control</a></div>
-      <div class="Body"><a name="1031544">+ Exits</a></div>
-      <div class="Body"><a name="1031545">&nbsp;</a></div>
-      <div class="Body"><a name="1031546">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1031547">      environment using EmaConfig.xml file..</a></div>
-      <div class="Body"><a name="1031548">	  </a></div>
-      <div class="Body"><a name="1031549">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1031550">      standard configuration.</a></div>
-      <div class="Body"><a name="1029555">&nbsp;</a></div>
+      <div class="Body"><a name="1033120">Summary</a></div>
+      <div class="Body"><a name="1033121">=======</a></div>
+      <div class="Body"><a name="1033122">&nbsp;</a></div>
+      <div class="Body"><a name="1033123">The example300__MarketPrice__Close application is provided as an example of OMM Consumer</a></div>
+      <div class="Body"><a name="1033124">application written to the EMA library showcasing closing of a streaming request.</a></div>
+      <div class="Body"><a name="1033125">&nbsp;</a></div>
+      <div class="Body"><a name="1033126">This application demonstrates basic usage of the EMA library for accessing and</a></div>
+      <div class="Body"><a name="1033127">parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D), directly</a></div>
+      <div class="Body"><a name="1033128">from an OMM Provider application, or from Thomson Reuters Advanced DistributionServer.</a></div>
+      <div class="Body"><a name="1033129">&nbsp;</a></div>
+      <div class="Body"><a name="1033130">example300__MarketPrice__Close showcases closing of an item. This application</a></div>
+      <div class="Body"><a name="1033131">arbitrarily chooses to close an item after a number of received updates.</a></div>
+      <div class="Body"><a name="1033132">&nbsp;</a></div>
+      <div class="Body"><a name="1033133"> </a></div>
+      <div class="Body"><a name="1033134">Detailed Description</a></div>
+      <div class="Body"><a name="1033135">====================</a></div>
+      <div class="Body"><a name="1033136">&nbsp;</a></div>
+      <div class="Body"><a name="1033137">example300__MarketPrice__Close implements the following high level steps:</a></div>
+      <div class="Body"><a name="1033138">&nbsp;</a></div>
+      <div class="Body"><a name="1033139">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1033140">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1033141">  - provides own methods as needed, e.g. decode( FieldList )</a></div>
+      <div class="Body"><a name="1033142">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1033143">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1033144">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1033145">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1033146">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1033147">+ Opens a streaming item interest</a></div>
+      <div class="Body"><a name="1033148">  - MarketPrice IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1033149">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1033150">  - closes the item stream after 3 update messages are received</a></div>
+      <div class="Body"><a name="1033151">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1033152">+ Exits</a></div>
+      <div class="Body"><a name="1033153">&nbsp;</a></div>
+      <div class="Body"><a name="1033154">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1033155">      environment using EmaConfig.xml file..</a></div>
+      <div class="Body"><a name="1033156">	  </a></div>
+      <div class="Body"><a name="1033157">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1033158">      standard configuration.</a></div>
+      <div class="Body"><a name="1031572">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

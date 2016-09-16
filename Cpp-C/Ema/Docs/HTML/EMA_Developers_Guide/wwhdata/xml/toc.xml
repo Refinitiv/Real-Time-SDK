@@ -17,57 +17,71 @@
     </i>
     <i t="2.3 Supported Features" l="11" />
     <i t="2.4 Product Architecture" l="12">
-      <i t="2.4.1 EMA Consumer Architecture" l="12#1026408" />
-      <i t="2.4.2 EMA Non-Interactive Provider Architecture" l="13" />
-      <i t="2.4.3 EMA Codec Architecture" l="14" />
+      <i t="2.4.1 EMA Consumer Architecture" l="13" />
+      <i t="2.4.2 EMA Non-Interactive Provider Architecture" l="14" />
+      <i t="2.4.3 EMA Codec Architecture" l="15" />
     </i>
-    <i t="2.5 Tunnel Streams" l="15" />
+    <i t="2.5 Tunnel Streams" l="16" />
   </i>
   <i t="Chapter 3 OMM Containers and Messages">
-    <i t="3.1 Overview" l="16" />
-    <i t="3.2 Classes" l="17">
-      <i t="3.2.1 DataType Class" l="17#1019110" />
-      <i t="3.2.2 DataCode Class" l="18" />
-      <i t="3.2.3 Data Class" l="19" />
-      <i t="3.2.4 Msg Class" l="20" />
-      <i t="3.2.5 OmmError Class" l="21" />
-      <i t="3.2.6 TunnelStreamRequest and ClassOfService Classes" l="22" />
+    <i t="3.1 Overview" l="17" />
+    <i t="3.2 Classes" l="18">
+      <i t="3.2.1 DataType Class" l="18#1019110" />
+      <i t="3.2.2 DataCode Class" l="19" />
+      <i t="3.2.3 Data Class" l="20" />
+      <i t="3.2.4 Msg Class" l="21" />
+      <i t="3.2.5 OmmError Class" l="22" />
+      <i t="3.2.6 TunnelStreamRequest and ClassOfService Classes" l="23" />
     </i>
-    <i t="3.3 Working with OMM Containers" l="23">
-      <i t="3.3.1 Example: Populating a FieldList Class" l="24" />
-      <i t="3.3.2 Example: Populating a Map Class Relying on the FieldList Memory Buffer" l="25" />
-      <i t="3.3.3 Example: Populating a Map Class Relying on the Map Class Buffer" l="26" />
-      <i t="3.3.4 Example: Extracting Information from a FieldList Class" l="27" />
-      <i t="3.3.5 Example: Application Filtering on the FieldList Class" l="28" />
-      <i t="3.3.6 Example: Extracting FieldList information using a Downcast Operation" l="29" />
+    <i t="3.3 Working with OMM Containers" l="24">
+      <i t="3.3.1 Example: Populating a FieldList Class" l="25" />
+      <i t="3.3.2 Example: Populating a Map Class Relying on the FieldList Memory Buffer" l="26" />
+      <i t="3.3.3 Example: Populating a Map Class Relying on the Map Class Buffer" l="27" />
+      <i t="3.3.4 Example: Extracting Information from a FieldList Class" l="28" />
+      <i t="3.3.5 Example: Application Filtering on the FieldList Class" l="29" />
+      <i t="3.3.6 Example: Extracting FieldList information using a Downcast Operation" l="30" />
     </i>
-    <i t="3.4 Working with OMM Messages" l="30">
-      <i t="3.4.1 Example: Populating the GenericMsg with an ElementList Payload" l="31" />
-      <i t="3.4.2 Example: Extracting Information from the GenericMsg Class" l="32" />
-      <i t="3.4.3 Example: Working with the TunnelStreamRequest Class" l="33" />
+    <i t="3.4 Working with OMM Messages" l="31">
+      <i t="3.4.1 Example: Populating the GenericMsg with an ElementList Payload" l="32" />
+      <i t="3.4.2 Example: Extracting Information from the GenericMsg Class" l="33" />
+      <i t="3.4.3 Example: Working with the TunnelStreamRequest Class" l="34" />
     </i>
   </i>
   <i t="Chapter 4 Consumer Classes">
-    <i t="4.1 OmmConsumer Class" l="34">
-      <i t="4.1.1 Connecting to a Server and Opening Items" l="35" />
-      <i t="4.1.2 Opening Items Immediately After OmmConsumer Object Instantiation" l="36" />
-      <i t="4.1.3 Destroying the OmmConsumer Object" l="37" />
-      <i t="4.1.4 Example: Working with the OmmConsumer Class" l="38" />
-      <i t="4.1.5 Working with Items" l="39" />
-      <i t="4.1.6 Example: Working with Items" l="40" />
+    <i t="4.1 OmmConsumer Class" l="35">
+      <i t="4.1.1 Connecting to a Server and Opening Items" l="36" />
+      <i t="4.1.2 Opening Items Immediately After OmmConsumer Object Instantiation" l="37" />
+      <i t="4.1.3 Destroying the OmmConsumer Object" l="38" />
+      <i t="4.1.4 Example: Working with the OmmConsumer Class" l="39" />
+      <i t="4.1.5 Working with Items" l="40" />
+      <i t="4.1.6 Example: Working with Items" l="41" />
     </i>
-    <i t="4.2 OmmConsumerClient Class" l="41">
-      <i t="4.2.1 OmmConsumerClient Description" l="41#1020898" />
-      <i t="4.2.2 Example: OmmConsumerClient" l="42" />
+    <i t="4.2 OmmConsumerClient Class" l="42">
+      <i t="4.2.1 OmmConsumerClient Description" l="42#1020898" />
+      <i t="4.2.2 Example: OmmConsumerClient" l="43" />
     </i>
-    <i t="4.3 OmmConsumerConfig Class" l="43" />
+    <i t="4.3 OmmConsumerConfig Class" l="44" />
+  </i>
+  <i t="Chapter 5 Provider Classes">
+    <i t="5.1 OmmProvider Class" l="45">
+      <i t="5.1.1 Connecting to ADH and Submitting Items" l="46" />
+      <i t="5.1.2 Submitting Items Immediately After OmmProvider Object Instantiation" l="47" />
+      <i t="5.1.3 Destroying the OmmProvider Object" l="48" />
+      <i t="5.1.4 Example: Working with the OmmProvider Class" l="49" />
+      <i t="5.1.5 Working with Items" l="50" />
+    </i>
+    <i t="5.2 OmmProviderClient Class" l="51">
+      <i t="5.2.1 OmmProviderClient Description" l="51#1025276" />
+      <i t="5.2.2 Example: OmmProviderClient" l="52" />
+    </i>
+    <i t="5.3 OmmNiProviderConfig Class" l="53" />
   </i>
   <i t="Chapter 6 Troubleshooting and Debugging">
-    <i t="6.1 EMA Logger Usage" l="44" />
-    <i t="6.2 Omm Error Client Classes" l="45">
-      <i t="6.2.1 Error Client Description" l="45#1019163" />
-      <i t="6.2.2 Example: Error Client" l="46" />
+    <i t="6.1 EMA Logger Usage" l="54" />
+    <i t="6.2 Omm Error Client Classes" l="55">
+      <i t="6.2.1 Error Client Description" l="55#1019163" />
+      <i t="6.2.2 Example: Error Client" l="56" />
     </i>
-    <i t="6.3 OmmException Class" l="47" />
+    <i t="6.3 OmmException Class" l="57" />
   </i>
 </WebWorksHelpTOC>

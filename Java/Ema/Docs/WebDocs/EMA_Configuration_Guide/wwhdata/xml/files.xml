@@ -63,21 +63,23 @@
     <Document title="3.3.1 Generic XML Schema for ChannelGroup" href="Chap_ConfigGroups.3.12.html" />
     <Document title="3.3.2 Universal Channel Entry Parameters" href="Chap_ConfigGroups.3.13.html" />
     <Document title="3.3.3 Parameters for Use with Channel Type: RSSL_SOCKET" href="Chap_ConfigGroups.3.14.html" />
-    <Document title="3.4 Dictionary Group" href="Chap_ConfigGroups.3.15.html" />
-    <Document title="3.4.1 Generic XML Schema for DictionaryGroup" href="Chap_ConfigGroups.3.16.html" />
-    <Document title="3.4.2 Dictionary Entry Parameters" href="Chap_ConfigGroups.3.17.html" />
-    <Document title="3.5 Directory Group" href="Chap_ConfigGroups.3.18.html" />
-    <Document title="3.5.1 Generic XML Schema for Directory Entry" href="Chap_ConfigGroups.3.19.html" />
-    <Document title="3.5.2 Setting Default Directory" href="Chap_ConfigGroups.3.20.html" />
-    <Document title="3.5.3 Configuring a Directory in a DirectoryGroup" href="Chap_ConfigGroups.3.21.html" />
-    <Document title="3.5.4 Service Entry Parameters" href="Chap_ConfigGroups.3.22.html" />
-    <Document title="3.5.5 InfoFilter Entry Parameters" href="Chap_ConfigGroups.3.23.html" />
-    <Document title="3.5.5.1 Capabilities Entry Parameter" href="Chap_ConfigGroups.3.24.html" />
-    <Document title="3.5.5.2 DictionariesProvided Entry Parameter" href="Chap_ConfigGroups.3.25.html" />
-    <Document title="3.5.5.3 DictionariesUsed Entry Parameter" href="Chap_ConfigGroups.3.26.html" />
-    <Document title="3.5.5.4 QoSEntry Section and Associated Parameters" href="Chap_ConfigGroups.3.27.html" />
-    <Document title="3.5.6 StateFilter Entry Parameters" href="Chap_ConfigGroups.3.28.html" />
-    <Document title="3.5.7 Status Entry Parameters" href="Chap_ConfigGroups.3.29.html" />
+    <Document title="3.3.4 Example XML Schema for Configuring ChannelSet" href="Chap_ConfigGroups.3.15.html" />
+    <Document title="3.3.5 Example Configuration for ChannelSet" href="Chap_ConfigGroups.3.16.html" />
+    <Document title="3.4 Dictionary Group" href="Chap_ConfigGroups.3.17.html" />
+    <Document title="3.4.1 Generic XML Schema for DictionaryGroup" href="Chap_ConfigGroups.3.18.html" />
+    <Document title="3.4.2 Dictionary Entry Parameters" href="Chap_ConfigGroups.3.19.html" />
+    <Document title="3.5 Directory Group" href="Chap_ConfigGroups.3.20.html" />
+    <Document title="3.5.1 Generic XML Schema for Directory Entry" href="Chap_ConfigGroups.3.21.html" />
+    <Document title="3.5.2 Setting Default Directory" href="Chap_ConfigGroups.3.22.html" />
+    <Document title="3.5.3 Configuring a Directory in a DirectoryGroup" href="Chap_ConfigGroups.3.23.html" />
+    <Document title="3.5.4 Service Entry Parameters" href="Chap_ConfigGroups.3.24.html" />
+    <Document title="3.5.5 InfoFilter Entry Parameters" href="Chap_ConfigGroups.3.25.html" />
+    <Document title="3.5.5.1 Capabilities Entry Parameter" href="Chap_ConfigGroups.3.26.html" />
+    <Document title="3.5.5.2 DictionariesProvided Entry Parameter" href="Chap_ConfigGroups.3.27.html" />
+    <Document title="3.5.5.3 DictionariesUsed Entry Parameter" href="Chap_ConfigGroups.3.28.html" />
+    <Document title="3.5.5.4 QoSEntry Section and Associated Parameters" href="Chap_ConfigGroups.3.29.html" />
+    <Document title="3.5.6 StateFilter Entry Parameters" href="Chap_ConfigGroups.3.30.html" />
+    <Document title="3.5.7 Status Entry Parameters" href="Chap_ConfigGroups.3.31.html" />
     <Document title="4.1 Default Configuration" href="Chap_ConfigProcessing.4.01.html" />
     <Document title="4.1.1 Default Consumer Configuration" href="Chap_ConfigProcessing.4.02.html" />
     <Document title="4.1.2 Default NiProvider Configuration" href="Chap_ConfigProcessing.4.03.html" />

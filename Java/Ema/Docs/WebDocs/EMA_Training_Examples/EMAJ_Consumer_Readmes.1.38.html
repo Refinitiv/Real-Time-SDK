@@ -56,54 +56,54 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1021535">422__MarketPrice__ErrorClient</a></div>
-      <div class="Body"><a name="1032199">Summary</a></div>
-      <div class="Body"><a name="1032200">=======</a></div>
-      <div class="Body"><a name="1032201">&nbsp;</a></div>
-      <div class="Body"><a name="1032202">The example422__MarketPrice__ErrorClient application is provided as an example of</a></div>
-      <div class="Body"><a name="1032203">OMM Consumer application written to the EMA library.</a></div>
-      <div class="Body"><a name="1032204">&nbsp;</a></div>
-      <div class="Body"><a name="1032205">This application demonstrates basic usage of the EMA for accessing and parsing</a></div>
-      <div class="Body"><a name="1032206">of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D), directly from</a></div>
-      <div class="Body"><a name="1032207">an OMM Provider application, or from Thomson Reuters Advanced Distribution Server.</a></div>
-      <div class="Body"><a name="1032208">&nbsp;</a></div>
-      <div class="Body"><a name="1032209">example422__MarketPrice__ErrorClient showcases usage of the OmmConsumerErrorClient</a></div>
-      <div class="Body"><a name="1032210">functionality. OMM Consumer provides two ways of notifying application about</a></div>
-      <div class="Body"><a name="1032211">encountered user errors. By default OMM Consumer throws a respective exception</a></div>
-      <div class="Body"><a name="1032212">when an error is encountered. Users may specify to receive a respective callback</a></div>
-      <div class="Body"><a name="1032213">instead of exception.</a></div>
-      <div class="Body"><a name="1032214">&nbsp;</a></div>
-      <div class="Body"><a name="1032215">&nbsp;</a></div>
-      <div class="Body"><a name="1032216">Detailed Description</a></div>
-      <div class="Body"><a name="1032217">====================</a></div>
-      <div class="Body"><a name="1032218">&nbsp;</a></div>
-      <div class="Body"><a name="1032219">example422__MarketPrice__ErrorClient implements the following high level steps:</a></div>
-      <div class="Body"><a name="1032220">&nbsp;</a></div>
-      <div class="Body"><a name="1032221">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1032222">+ Implements OmmConsumerErrorClient class in AppErrorClient</a></div>
-      <div class="Body"><a name="1032223">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1032224">+ Instantiates AppErrorClient object that receives error messages</a></div>
-      <div class="Body"><a name="1032225">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1032226">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1032227">  - sets operationModel to UserDispatchEnum</a></div>
-      <div class="Body"><a name="1032228">+ Instantiates OmmConsumer object which initializes connection and logins into</a></div>
-      <div class="Body"><a name="1032229">  specified server</a></div>
-      <div class="Body"><a name="1032230">  - handles errors with AppErrorClient</a></div>
-      <div class="Body"><a name="1032231">+ Performs the following functionalities (this error scenarios are done on purpose</a></div>
-      <div class="Body"><a name="1032232">  to demonstrate the OmmConsumerErrorClient functionality)</a></div>
-      <div class="Body"><a name="1032233">  - Invalid handle to send reissue request </a></div>
-      <div class="Body"><a name="1032234">  - Invalid handle to submit GenericMsg</a></div>
-      <div class="Body"><a name="1032235">  - Invalid handle to submit PostMsg</a></div>
-      <div class="Body"><a name="1032236">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1032237">+ Processes data received from main thread for 60 seconds</a></div>
-      <div class="Body"><a name="1032238">  - all received messages and errors are processed on user thread of control</a></div>
-      <div class="Body"><a name="1032239">+ Exits</a></div>
-      <div class="Body"><a name="1032240">&nbsp;</a></div>
-      <div class="Body"><a name="1032241">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1032242">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1032243">	  </a></div>
-      <div class="Body"><a name="1032244">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1032245">      standard configuration.</a></div>
-      <div class="Body"><a name="1030669">&nbsp;</a></div>
+      <div class="Body"><a name="1033807">Summary</a></div>
+      <div class="Body"><a name="1033808">=======</a></div>
+      <div class="Body"><a name="1033809">&nbsp;</a></div>
+      <div class="Body"><a name="1033810">The example422__MarketPrice__ErrorClient application is provided as an example of</a></div>
+      <div class="Body"><a name="1033811">OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1033812">&nbsp;</a></div>
+      <div class="Body"><a name="1033813">This application demonstrates basic usage of the EMA for accessing and parsing</a></div>
+      <div class="Body"><a name="1033814">of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D), directly from</a></div>
+      <div class="Body"><a name="1033815">an OMM Provider application, or from Thomson Reuters Advanced Distribution Server.</a></div>
+      <div class="Body"><a name="1033816">&nbsp;</a></div>
+      <div class="Body"><a name="1033817">example422__MarketPrice__ErrorClient showcases usage of the OmmConsumerErrorClient</a></div>
+      <div class="Body"><a name="1033818">functionality. OMM Consumer provides two ways of notifying application about</a></div>
+      <div class="Body"><a name="1033819">encountered user errors. By default OMM Consumer throws a respective exception</a></div>
+      <div class="Body"><a name="1033820">when an error is encountered. Users may specify to receive a respective callback</a></div>
+      <div class="Body"><a name="1033821">instead of exception.</a></div>
+      <div class="Body"><a name="1033822">&nbsp;</a></div>
+      <div class="Body"><a name="1033823">&nbsp;</a></div>
+      <div class="Body"><a name="1033824">Detailed Description</a></div>
+      <div class="Body"><a name="1033825">====================</a></div>
+      <div class="Body"><a name="1033826">&nbsp;</a></div>
+      <div class="Body"><a name="1033827">example422__MarketPrice__ErrorClient implements the following high level steps:</a></div>
+      <div class="Body"><a name="1033828">&nbsp;</a></div>
+      <div class="Body"><a name="1033829">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1033830">+ Implements OmmConsumerErrorClient class in AppErrorClient</a></div>
+      <div class="Body"><a name="1033831">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1033832">+ Instantiates AppErrorClient object that receives error messages</a></div>
+      <div class="Body"><a name="1033833">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1033834">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1033835">  - sets operationModel to UserDispatchEnum</a></div>
+      <div class="Body"><a name="1033836">+ Instantiates OmmConsumer object which initializes connection and logins into</a></div>
+      <div class="Body"><a name="1033837">  specified server</a></div>
+      <div class="Body"><a name="1033838">  - handles errors with AppErrorClient</a></div>
+      <div class="Body"><a name="1033839">+ Performs the following functionalities (this error scenarios are done on purpose</a></div>
+      <div class="Body"><a name="1033840">  to demonstrate the OmmConsumerErrorClient functionality)</a></div>
+      <div class="Body"><a name="1033841">  - Invalid handle to send reissue request </a></div>
+      <div class="Body"><a name="1033842">  - Invalid handle to submit GenericMsg</a></div>
+      <div class="Body"><a name="1033843">  - Invalid handle to submit PostMsg</a></div>
+      <div class="Body"><a name="1033844">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1033845">+ Processes data received from main thread for 60 seconds</a></div>
+      <div class="Body"><a name="1033846">  - all received messages and errors are processed on user thread of control</a></div>
+      <div class="Body"><a name="1033847">+ Exits</a></div>
+      <div class="Body"><a name="1033848">&nbsp;</a></div>
+      <div class="Body"><a name="1033849">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1033850">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1033851">	  </a></div>
+      <div class="Body"><a name="1033852">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1033853">      standard configuration.</a></div>
+      <div class="Body"><a name="1032297">&nbsp;</a></div>
       <div class="Body"><a name="1024982">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--

@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>2.5.3 EMA Codec Architecture</title>
+    <title>2.5.2 EMA Non-Interactive Provider Architecture</title>
     <link rel="StyleSheet" href="css/Chapter_Prod_Desc.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -60,16 +60,20 @@
           <tr style="vertical-align: baseline">
             <td>
               <div class="H3_inner" style="width: 54pt; white-space: nowrap">
-                <span class="bold">2.5.3	</span>
+                <span class="bold">2.5.2	</span>
               </div>
             </td>
             <td width="100%">
-              <div class="H3_inner"><a name="1027878">EMA Codec Architecture</a></div>
+              <div class="H3_inner"><a name="1029847">EMA Non-Interactive Provider Architecture</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1027879">The EMA Codec uses the Elektron Transport API decoding and encoding functions to read and populate OMM containers and messages. Each OMM container and message is represented by a respective EMA interface class, which provides relevant methods for setting information on, and accessing information from, these containers and messages. All classes representing OMM containers, messages, and primitives inherit from the common parent class of </a><span class="CodeOrCommand">Data</span>. Through such inheritance, classes provide the same basic, common, and easy to use functionality that applications might expect from them (e.g., printing contained data using <span class="CodeOrCommand">toString()</span>).</div>
+      <div class="Body"><a name="1029848">The EMA Non-Interactive Provider incorporates the Value Added Reactor component from the Transport API, which provides the transport-level functionality. The EMA wraps up the reactor component in its own class of </a><span class="CodeOrCommand">OmmProvider</span>. <span class="CodeOrCommand">OmmProvider</span> provides interfaces to submit item messages as well as open and close login and dictionary streams. To complete the set of provider functionalities, the <span class="CodeOrCommand">OmmProvider</span> class provides the <span class="CodeOrCommand">dispatch()</span> method. Depending on its design and configuration, an application might need to call this method to dispatch received messages. The <span class="CodeOrCommand">OmmNiProviderConfig</span> class configures both the reactor and <span class="CodeOrCommand">OmmProvider</span>.</div>
+      <div class="Body"><a name="1029849">EMA sends incoming messages to the application using the </a><span class="CodeOrCommand">OmmProviderClient</span> callback mechanism. To receive and process messages, the application needs to implement a class inheriting from the <span class="CodeOrCommand">OmmProviderClient</span> class. By default, <span class="CodeOrCommand">OmmProviderClient</span> callback methods are executed in EMA's thread of control. However, you can use the <span class="CodeOrCommand">OmmNiProviderConfig::operationModel()</span> interface to execute callback methods on the application’s thread, in which case the application must also call the <span class="CodeOrCommand">OmmProvider::dispatch()</span> method to dispatch received messages.</div>
+      <div class="Body"><a name="1029850">While the </a><span class="CodeOrCommand">OmmProvider</span> class throws an <span class="CodeOrCommand">OmmException</span> to report error conditions, the <span class="CodeOrCommand">OmmProviderErrorClient</span> class provides an alternate reporting mechanism via callbacks. To use the alternate error reporting, pass the <span class="CodeOrCommand">OmmProviderErrorClient</span> on the constructor of the <span class="CodeOrCommand">OmmProvider</span> class, which switches the error reporting from exception throwing to callbacks. In addition to its error reporting mechanisms, EMA provides a logger mechanism which is useful in monitoring EMA behavior and debugging any issues that might arise.</div>
+      <div class="Body"><a name="1029851">An EMA non-interactive provider must always have at least one thread, which is implemented by the VA Reactor and runs the internal, VA Reactor logic. For details on this thread, refer to the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCVACG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> Java</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> Edition Value Added Component Developers Guide</a></span>. Additionally, you can configure EMA to create a second internal thread to dispatch received messages by setting the <span class="CodeOrCommand">OmmNiProviderConfig</span> operation model to <span class="CodeOrCommand">OmmNiProviderConfig.OperationModel.API_DISPATCH</span> (if set to <span class="CodeOrCommand">OmmNiProviderConfig.OperationModel.USER_DISPATCH</span>, EMA will not run a second thread). Without running a second thread, the application is responsible for calling the <span class="CodeOrCommand">OmmProvider::dispatch()</span> method to dispatch all received messages.</div>
+      <div class="Body"><a name="1029859">The EMA non-interactive provider provides an internal, hard-coded, and configurable initial source directory refresh message which by default is sent to the connected ADH. The application can either use the internal hard-coded source directory, configure its own internal one via the </a><span class="FileOrDirectory">EmaConfig.xml</span> file, or programmatically create own one and/or disable the internal one. To disable the internal source directory message, the application must set <span class="CodeOrCommand">OmmNiProviderConfig.AdminControl.USER_CONTROL</span> through the <span class="CodeOrCommand">OmmNiProviderConfig::adminControlDirectory()</span> method. If the internal source directory refresh message is disabled, the application is responsible for sending own one.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -81,7 +85,7 @@
       </script>
     </blockquote>
     <hr align="left" />
-    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 2	Product Overview : <a class="WebWorks_Breadcrumb_Link" href="Chapter_Prod_Desc.2.6.html">2.5	Product Architecture</a> : 2.5.3	EMA Codec Architecture</div>
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 2	Product Overview : <a class="WebWorks_Breadcrumb_Link" href="Chapter_Prod_Desc.2.6.html">2.5	Product Architecture</a> : <a class="WebWorks_Breadcrumb_Link" href="Chapter_Prod_Desc.2.7.html">2.5.1	EMA Consumer Architecture</a> : 2.5.2	EMA Non-Interactive Provider Architecture</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

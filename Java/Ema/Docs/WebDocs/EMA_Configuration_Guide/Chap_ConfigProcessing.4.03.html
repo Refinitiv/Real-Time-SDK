@@ -69,8 +69,8 @@
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1067218">Each EMA provider-type application must eventually instantiate an </a><span class="Concept">OmmProvider</span> object. Constructors for <span class="CodeOrCommand">OmmProvider</span> require a <span class="Concept">OmmNiProviderConfig</span> object. The <span class="CodeOrCommand">OmmNiProviderConfig</span> constructor takes no arguments, but it does read and process an optional XML file (<span class="FileOrDirectory">EmaConfig.xml</span>), which applications can use to modify EMA’s default non-interactive provider behavior.</div>
-      <div class="Body"><a name="1067219">EMA provides a hard-coded configuration for use whenever an </a><span class="CodeOrCommand">OmmNiProviderConfig</span> object is instantiated without an <span class="FileOrDirectory">EmaConfig.xml</span> file in the run-time environment. The resulting EMA configuration is created by taking the defaults from the various configuration groups. For example, the default (hard-coded) behavior for a <span class="Parameter">Channel</span> adheres to the following configuration:</div>
+      <div class="Body"><a name="1068535">Each EMA provider-type application must eventually instantiate an </a><span class="Concept">OmmProvider</span> object. Constructors for <span class="CodeOrCommand">OmmProvider</span> require a <span class="Concept">OmmNiProviderConfig</span> object. The <span class="CodeOrCommand">OmmNiProviderConfig</span> constructor takes no arguments, but it does read and process an optional XML file (<span class="FileOrDirectory">EmaConfig.xml</span>), which applications can use to modify EMA’s default non-interactive provider behavior.</div>
+      <div class="Body"><a name="1068536">EMA provides a hard-coded configuration for use whenever an </a><span class="CodeOrCommand">OmmNiProviderConfig</span> object is instantiated without an <span class="FileOrDirectory">EmaConfig.xml</span> file in the run-time environment. The resulting EMA configuration is created by taking the defaults from the various configuration groups. For example, the default (hard-coded) behavior for a <span class="Parameter">Channel</span> adheres to the following configuration:</div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -80,7 +80,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><span class="Parameter"><a name="1067220">ChannelType</a></span> value=”RSSL_SOCKET”</div>
+              <div class="Bullet_inner"><span class="Parameter"><a name="1068537">ChannelType</a></span> value=”RSSL_SOCKET”</div>
             </td>
           </tr>
         </table>
@@ -94,7 +94,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><span class="Parameter"><a name="1067221">CompressionType</a></span> value=”None”</div>
+              <div class="Bullet_inner"><span class="Parameter"><a name="1068538">CompressionType</a></span> value=”None”</div>
             </td>
           </tr>
         </table>
@@ -108,7 +108,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><span class="Parameter"><a name="1067222">TcpNoDelay</a></span> value=”1”</div>
+              <div class="Bullet_inner"><span class="Parameter"><a name="1068539">TcpNoDelay</a></span> value=”1”</div>
             </td>
           </tr>
         </table>
@@ -122,7 +122,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><span class="Parameter"><a name="1067223">Host</a></span> value=”localhost”</div>
+              <div class="Bullet_inner"><span class="Parameter"><a name="1068540">Host</a></span> value=”localhost”</div>
             </td>
           </tr>
         </table>
@@ -136,12 +136,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><span class="Parameter"><a name="1067224">Port</a></span> value= “14003”</div>
+              <div class="Bullet_inner"><span class="Parameter"><a name="1068541">Port</a></span> value= “14003”</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1067226">Note that unlike EMA’s default behavior of choosing the first </a><span class="Parameter">NiProvider</span> component in the <span class="Parameter">NiProviderList</span>, EMA applications will not choose the first  or <span class="Parameter">Channel</span> in their respective lists. Instead, if an application wants to use a specific channel or dictionary configuration, the application must explicitly configure it in the appropriate <span class="Parameter">NiProvider</span> section of the XML file.</div>
+      <div class="Body"><a name="1068543">Note that unlike EMA’s default behavior of choosing the first </a><span class="Parameter">NiProvider</span> component in the <span class="Parameter">NiProviderList</span>, EMA applications will not choose the first  or <span class="Parameter">Channel</span> in their respective lists. Instead, if an application wants to use a specific channel or dictionary configuration, the application must explicitly configure it in the appropriate <span class="Parameter">NiProvider</span> section of the XML file.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

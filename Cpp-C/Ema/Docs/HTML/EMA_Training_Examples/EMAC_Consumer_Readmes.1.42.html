@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>422__MarketPrice__ErrorClient</title>
+    <title>440__System__TunnelStream</title>
     <link rel="StyleSheet" href="css/EMAC_Consumer_Readmes.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -45,55 +45,46 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3_NoNum"><a name="1021535">422__MarketPrice__ErrorClient</a></div>
-      <div class="Body"><a name="1030820">Summary</a></div>
-      <div class="Body"><a name="1030821">=======</a></div>
-      <div class="Body"><a name="1030822">&nbsp;</a></div>
-      <div class="Body"><a name="1030823">The 422__MarketPrice__ErrorClient application is provided as an example of</a></div>
-      <div class="Body"><a name="1030824">OMM Consumer application written to the EMA library.</a></div>
-      <div class="Body"><a name="1030825">&nbsp;</a></div>
-      <div class="Body"><a name="1030826">This application demonstrates basic usage of the EMA for accessing and parsing</a></div>
-      <div class="Body"><a name="1030827">of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D), directly from</a></div>
-      <div class="Body"><a name="1030828">an OMM Provider application, or from Thomson Reuters Advanced Distribution Server.</a></div>
-      <div class="Body"><a name="1030829">&nbsp;</a></div>
-      <div class="Body"><a name="1030830">The 422__MarketPrice__ErrorClient showcases usage of the OmmConsumerErrorClient</a></div>
-      <div class="Body"><a name="1030831">functionality. OMM Consumer provides two ways of notifying application about</a></div>
-      <div class="Body"><a name="1030832">encountered user errors. By default OMM Consumer throws a respective exception</a></div>
-      <div class="Body"><a name="1030833">when an error is encountered. Users may specify to receive a respective callback</a></div>
-      <div class="Body"><a name="1030834">instead of exception.</a></div>
-      <div class="Body"><a name="1030835">&nbsp;</a></div>
-      <div class="Body"><a name="1030836">&nbsp;</a></div>
-      <div class="Body"><a name="1030837">Detailed Description</a></div>
-      <div class="Body"><a name="1030838">====================</a></div>
-      <div class="Body"><a name="1030839">&nbsp;</a></div>
-      <div class="Body"><a name="1030840">The 422__MarketPrice__ErrorClient implements the following high level steps:</a></div>
-      <div class="Body"><a name="1030841">&nbsp;</a></div>
-      <div class="Body"><a name="1030842">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1030843">+ Implements OmmConsumerErrorClient class in AppErrorClient</a></div>
-      <div class="Body"><a name="1030844">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1030845">+ Instantiates AppErrorClient object that receives error messages</a></div>
-      <div class="Body"><a name="1030846">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1030847">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1030848">  - sets operationModel to UserDispatchEnum</a></div>
-      <div class="Body"><a name="1030849">+ Instantiates OmmConsumer object which initializes connection and logins into</a></div>
-      <div class="Body"><a name="1030850">  specified server</a></div>
-      <div class="Body"><a name="1030851">  - handles errors with AppErrorClient</a></div>
-      <div class="Body"><a name="1030852">+ Performs the following functionalities (this error scenarios are done on purpose</a></div>
-      <div class="Body"><a name="1030853">  to demonstrate the OmmConsumerErrorClient functionality)</a></div>
-      <div class="Body"><a name="1030854">  - Invalid handle to send reissue request </a></div>
-      <div class="Body"><a name="1030855">  - Invalid handle to submit PostMsg</a></div>
-      <div class="Body"><a name="1030856">  - Invalid handle to submit PostMsg</a></div>
-      <div class="Body"><a name="1030857">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1030858">+ Processes data received from main thread for 60 seconds</a></div>
-      <div class="Body"><a name="1030859">  - all received messages and errors are processed on user thread of control</a></div>
-      <div class="Body"><a name="1030860">+ Exits</a></div>
-      <div class="Body"><a name="1030861">&nbsp;</a></div>
-      <div class="Body"><a name="1030862">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1030863">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1030864">	  </a></div>
-      <div class="Body"><a name="1030865">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1030866">      standard configuration.</a></div>
-      <div class="Body"><a name="1029015">&nbsp;</a></div>
+      <div class="H3_NoNum"><a name="1024837">440__System__TunnelStream</a></div>
+      <div class="Body"><a name="1031768">Summary</a></div>
+      <div class="Body"><a name="1031769">=======</a></div>
+      <div class="Body"><a name="1031770">&nbsp;</a></div>
+      <div class="Body"><a name="1031771">440__System__TunnelStream is an example of an OMM Consumer application written to the EMA</a></div>
+      <div class="Body"><a name="1031772">library.</a></div>
+      <div class="Body"><a name="1031773">&nbsp;</a></div>
+      <div class="Body"><a name="1031774">This application demonstrates the usage of the EMA library in accessing and parsing of</a></div>
+      <div class="Body"><a name="1031775">OMM Data received through the Tunnel Stream connectivity. Such connectivity and OMM Data</a></div>
+      <div class="Body"><a name="1031776">can be obtained from the Auxiliary Services Gateway. Referential data and Time Series are</a></div>
+      <div class="Body"><a name="1031777">examples of OMM Data for which one requires the Tunnel Stream connectivity.</a></div>
+      <div class="Body"><a name="1031778">&nbsp;</a></div>
+      <div class="Body"><a name="1031779">440__System__TunnelStream illustrates how to open and process a tunnel stream and a sub-stream.</a></div>
+      <div class="Body"><a name="1031780">While processing received messages, the application prints them to the screen.</a></div>
+      <div class="Body"><a name="1031781">&nbsp;</a></div>
+      <div class="Body"><a name="1031782">Detailed Description</a></div>
+      <div class="Body"><a name="1031783">====================</a></div>
+      <div class="Body"><a name="1031784">&nbsp;</a></div>
+      <div class="Body"><a name="1031785">440__System__TunnelStream implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1031786">&nbsp;</a></div>
+      <div class="Body"><a name="1031787">+ Implements the OmmConsumerClient class in the AppClient</a></div>
+      <div class="Body"><a name="1031788">  - Overrides desired methods</a></div>
+      <div class="Body"><a name="1031789">+ Instantiates an AppClient object to receive and process item messages</a></div>
+      <div class="Body"><a name="1031790">+ Instantiates and modifies an OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1031791">  - Sets the user name to “user”</a></div>
+      <div class="Body"><a name="1031792">  - Reads in EmaConfig.xml file</a></div>
+      <div class="Body"><a name="1031793">+ Instantiates an OmmConsumer object which initializes the connection</a></div>
+      <div class="Body"><a name="1031794">  and logs into the specified server</a></div>
+      <div class="Body"><a name="1031795">+ Opens a tunnel stream</a></div>
+      <div class="Body"><a name="1031796">  - TUNNEL on MMT_SYSTEM domain from the service of DIRECT_FEED</a></div>
+      <div class="Body"><a name="1031797">+ Opens streaming sub stream item on the tunnel stream</a></div>
+      <div class="Body"><a name="1031798">  - MarketPrice TUNNEL_ITEM from the service with id of 1</a></div>
+      <div class="Body"><a name="1031799">+ Processes data received from the API for 60 seconds</a></div>
+      <div class="Body"><a name="1031800">  - Received messages are processed on the API thread of control</a></div>
+      <div class="Body"><a name="1031801">+ Exits</a></div>
+      <div class="Body"><a name="1031802">&nbsp;</a></div>
+      <div class="Body"><a name="1031803">Note: If needed, these and other details may be modified to fit your local</a></div>
+      <div class="Body"><a name="1031804">      environment. For details on standard configuration, refer to the EMA library</a></div>
+      <div class="Body"><a name="1031805">      ReadMe.txt file and EMA COnfiguration Guide.</a></div>
+      <div class="Body"><a name="1030025">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -106,7 +97,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.01.html">EMA C++ Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.37.html">400 Series Examples</a> : 422__MarketPrice__ErrorClient</div>
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.01.html">EMA C++ Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.36.html">400 Series Examples</a> : 440__System__TunnelStream</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

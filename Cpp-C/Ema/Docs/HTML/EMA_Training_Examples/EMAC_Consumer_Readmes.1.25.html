@@ -46,52 +46,52 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1019295">301__MarketPrice__PriorityChange</a></div>
-      <div class="Body"><a name="1030061">Summary</a></div>
-      <div class="Body"><a name="1030062">=======</a></div>
-      <div class="Body"><a name="1030063">&nbsp;</a></div>
-      <div class="Body"><a name="1030064">The 301__MarketPrice__PriorityChange application is provided as an example</a></div>
-      <div class="Body"><a name="1030065">of OMM Consumer application written to the EMA library showcasing a change</a></div>
-      <div class="Body"><a name="1030066">to the item priority.</a></div>
-      <div class="Body"><a name="1030067">&nbsp;</a></div>
-      <div class="Body"><a name="1030068">This application demonstrates basic usage of the EMA library for accessing</a></div>
-      <div class="Body"><a name="1030069">and parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
-      <div class="Body"><a name="1030070">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
-      <div class="Body"><a name="1030071">Distribution Server.</a></div>
-      <div class="Body"><a name="1030072">&nbsp;</a></div>
-      <div class="Body"><a name="1030073">The 301__MarketPrice__PriorityChange showcases reissue for priority feature</a></div>
-      <div class="Body"><a name="1030074">of OMM Consumer. This application arbitrarily chooses to modify item’s priority</a></div>
-      <div class="Body"><a name="1030075">after receiving an open ok status on this item’s refresh.</a></div>
-      <div class="Body"><a name="1030076">&nbsp;</a></div>
-      <div class="Body"><a name="1030077">&nbsp;</a></div>
-      <div class="Body"><a name="1030078">Detailed Description</a></div>
-      <div class="Body"><a name="1030079">====================</a></div>
-      <div class="Body"><a name="1030080">&nbsp;</a></div>
-      <div class="Body"><a name="1030081">The 301__MarketPrice__PriorityChange implements the following high level steps:</a></div>
-      <div class="Body"><a name="1030082">&nbsp;</a></div>
-      <div class="Body"><a name="1030083">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1030084">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1030085">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
-      <div class="Body"><a name="1030086">    - each of the method provided in this example use the ease of use</a></div>
-      <div class="Body"><a name="1030087">	  data extraction methods that are data type specific</a></div>
-      <div class="Body"><a name="1030088">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1030089">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1030090">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1030091">  - sets operationModel to UserDispatchEnum</a></div>
-      <div class="Body"><a name="1030092">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1030093">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1030094">+ Opens a streaming item interest</a></div>
-      <div class="Body"><a name="1030095">  - MarketPrice IBM.N item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1030096">+ Processes data received from API for 60 seconds</a></div>
-      <div class="Body"><a name="1030097">  - modifies item’s priority after receiving the first open ok item refresh</a></div>
-      <div class="Body"><a name="1030098">  - all received messages are processed on main thread of control</a></div>
-      <div class="Body"><a name="1030099">+ Exits</a></div>
-      <div class="Body"><a name="1030100">&nbsp;</a></div>
-      <div class="Body"><a name="1030101">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1030102">      environment using EmaConfig.xml file..</a></div>
-      <div class="Body"><a name="1030103">	  </a></div>
-      <div class="Body"><a name="1030104">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1030105">      standard configuration.</a></div>
-      <div class="Body"><a name="1028223">&nbsp;</a></div>
+      <div class="Body"><a name="1031016">Summary</a></div>
+      <div class="Body"><a name="1031017">=======</a></div>
+      <div class="Body"><a name="1031018">&nbsp;</a></div>
+      <div class="Body"><a name="1031019">The 301__MarketPrice__PriorityChange application is provided as an example</a></div>
+      <div class="Body"><a name="1031020">of OMM Consumer application written to the EMA library showcasing a change</a></div>
+      <div class="Body"><a name="1031021">to the item priority.</a></div>
+      <div class="Body"><a name="1031022">&nbsp;</a></div>
+      <div class="Body"><a name="1031023">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1031024">and parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1031025">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1031026">Distribution Server.</a></div>
+      <div class="Body"><a name="1031027">&nbsp;</a></div>
+      <div class="Body"><a name="1031028">The 301__MarketPrice__PriorityChange showcases reissue for priority feature</a></div>
+      <div class="Body"><a name="1031029">of OMM Consumer. This application arbitrarily chooses to modify item’s priority</a></div>
+      <div class="Body"><a name="1031030">after receiving an open ok status on this item’s refresh.</a></div>
+      <div class="Body"><a name="1031031">&nbsp;</a></div>
+      <div class="Body"><a name="1031032">&nbsp;</a></div>
+      <div class="Body"><a name="1031033">Detailed Description</a></div>
+      <div class="Body"><a name="1031034">====================</a></div>
+      <div class="Body"><a name="1031035">&nbsp;</a></div>
+      <div class="Body"><a name="1031036">The 301__MarketPrice__PriorityChange implements the following high level steps:</a></div>
+      <div class="Body"><a name="1031037">&nbsp;</a></div>
+      <div class="Body"><a name="1031038">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1031039">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1031040">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1031041">    - each of the method provided in this example use the ease of use</a></div>
+      <div class="Body"><a name="1031042">	  data extraction methods that are data type specific</a></div>
+      <div class="Body"><a name="1031043">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1031044">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1031045">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1031046">  - sets operationModel to UserDispatchEnum</a></div>
+      <div class="Body"><a name="1031047">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1031048">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1031049">+ Opens a streaming item interest</a></div>
+      <div class="Body"><a name="1031050">  - MarketPrice IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1031051">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1031052">  - modifies item’s priority after receiving the first open ok item refresh</a></div>
+      <div class="Body"><a name="1031053">  - all received messages are processed on main thread of control</a></div>
+      <div class="Body"><a name="1031054">+ Exits</a></div>
+      <div class="Body"><a name="1031055">&nbsp;</a></div>
+      <div class="Body"><a name="1031056">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1031057">      environment using EmaConfig.xml file..</a></div>
+      <div class="Body"><a name="1031058">	  </a></div>
+      <div class="Body"><a name="1031059">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1031060">      standard configuration.</a></div>
+      <div class="Body"><a name="1028852">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

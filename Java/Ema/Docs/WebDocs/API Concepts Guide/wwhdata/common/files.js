@@ -60,4 +60,5 @@ P.fA("5.4 Permission Data","Chap_DataTypesandMessages.5.4.html");
 P.fA("5.5 Summary Data","Chap_DataTypesandMessages.5.5.html");
 P.fA("5.6 Messaging Concepts","Chap_DataTypesandMessages.5.6.html");
 P.fA("5.7 Message Class Information","Chap_DataTypesandMessages.5.7.html");
+P.fA("\u00a9 2015, 2016 Thomson Reuters. All rights reserved.","lastpage.html");
 }

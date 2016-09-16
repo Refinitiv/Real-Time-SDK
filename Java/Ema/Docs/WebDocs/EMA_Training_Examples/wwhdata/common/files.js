@@ -53,4 +53,6 @@ P.fA("310__MarketByOrder__Streaming","EMAJ_NIP_Readmes.2.12.html");
 P.fA("320__MarketPrice__Streaming__StatusClosed","EMAJ_NIP_Readmes.2.13.html");
 P.fA("340__Login__Streaming","EMAJ_NIP_Readmes.2.14.html");
 P.fA("360__MarketPrice__ConnectionRecovery","EMAJ_NIP_Readmes.2.15.html");
+P.fA("EMA Java Performance Tools Examples","EMAJ_PerfTools_Readmes.3.1.html");
+P.fA("EmajConsPerf","EMAJ_PerfTools_Readmes.3.2.html");
 }

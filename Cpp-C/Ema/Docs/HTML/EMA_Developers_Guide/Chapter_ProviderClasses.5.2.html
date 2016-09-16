@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>5.1.1 Connecting to ADH and Submitting Items</title>
+    <link rel="StyleSheet" href="css/Chapter_ProviderClasses.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="H3_inner" style="width: 54pt; white-space: nowrap">
+                <span class="bold">5.1.1	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="H3_inner"><a name="1023877">Connecting to ADH and Submitting Items</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1027269">To connect to ADH and provide items, applications should perform the following procedure.</a></div>
+      <div class="Procedure_Heading"><a name="1027273"><img class="Default" src="images/Chapter_ProviderClasses.5.2.1.jpg" width="14" height="16" style="display: inline; left: 0.0; top: 0.0" alt="" /> To connect to ADH and provide items:</a></div>
+      <div class="Step1_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Step1_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bold">1.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Step1_inner"><a name="1027274">(Optional) Specify a configuration using the </a><span class="FileOrDirectory">EmaConfig.xml</span> file.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="indent_25"><a name="1027275">Specifying a configuration in </a><span class="FileOrDirectory">EmaConfig.xml</span> is optional because the EMA provides a default configuration which is usually sufficient in simple application cases.</div>
+      <div class="Stepnext_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Stepnext_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bold">2.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Stepnext_inner"><a name="1027279">Create an </a><span class="CodeOrCommand">OmmNiProviderConfig</span> object (for details, refer to <a href="javascript:WWHClickedPopup('EMA_Developers_Guide', 'Chapter_ProviderClasses.5.9.html', '');" title="5.3 OmmNiProviderConfig Class">Section 5.3</a>). </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Stepnext_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Stepnext_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bold">3.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Stepnext_inner"><a name="1027280">(Optional) Change the EMA configuration using methods on the </a><span class="CodeOrCommand">OmmNiProviderConfig</span> class.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="indent_25"><a name="1027281">If </a><span class="FileOrDirectory">EmaConfig.xml</span> file is not used, then at a minimum, applications might need to modify the default host address and port.</div>
+      <div class="Stepnext_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Stepnext_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bold">4.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Stepnext_inner"><a name="1027282">(Optional) Implement an application callback client class that inherits from the </a><span class="CodeOrCommand">OmmProviderClient</span> class (for details, refer to <a href="javascript:WWHClickedPopup('EMA_Developers_Guide', 'Chapter_ProviderClasses.5.7.html', '');" title="5.2 OmmProviderClient Class">Section 5.2</a>).</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="indent_25"><a name="1027286">An application might need to override the default callback implementation and provide its own business logic. Not all methods need to be overridden: only those that require the application’s business logic. This step is optional because the application may choose not to open any login or dictionary items. In such cases, the non-interactive provider application will not receive any return messages.</a></div>
+      <div class="Stepnext_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Stepnext_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bold">5.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Stepnext_inner"><a name="1027287">(Optional) Implement an application error client class that inherits from the </a><span class="CodeOrCommand">OmmProviderErrorClient</span> class (for details, refer to <a href="javascript:WWHClickedPopup('EMA_Developers_Guide', 'Chapter_ProviderClasses.5.7.html', '');" title="5.2 OmmProviderClient Class">Section 5.2</a>).</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="indent_25"><a name="1027291">To be effectively notified about error conditions, the application needs to override any default, error callback methods.</a></div>
+      <div class="Stepnext_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Stepnext_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bold">6.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Stepnext_inner"><a name="1027292">Create an </a><span class="CodeOrCommand">OmmProvider</span> object and pass the <span class="CodeOrCommand">OmmNiProviderConfig</span> object (and if needed, also pass in the application error client object).</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Stepnext_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Stepnext_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bold">7.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Stepnext_inner"><a name="1027293">(optional) Open login and dictionary items if needed using the </a><span class="CodeOrCommand">OmmProvider::registerClient()</span> method.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Stepnext_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Stepnext_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bold">8.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Stepnext_inner"><a name="1027294">Process received messages.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Stepnext_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Stepnext_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bold">9.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Stepnext_inner"><a name="1027295">Create, populate, and submit item messages (refresh, update, status).</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="indent_25"><a name="1027296">The application needs to associate each item with a handle that uniquely identifies the item.</a></div>
+      <div class="Stepnext_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Stepnext_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bold">10.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Stepnext_inner"><a name="1027297">(Optional) Submit </a><span class="CodeOrCommand">GenericMsg</span> messages and close open items using appropriate <span class="CodeOrCommand">OmmProvider</span> class methods.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Stepnext_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Stepnext_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bold">11.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Stepnext_inner"><a name="1027298">Exit.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 5	Provider Classes : <a class="WebWorks_Breadcrumb_Link" href="Chapter_ProviderClasses.5.1.html">5.1	OmmProvider Class</a> : 5.1.1	Connecting to ADH and Submitting Items</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

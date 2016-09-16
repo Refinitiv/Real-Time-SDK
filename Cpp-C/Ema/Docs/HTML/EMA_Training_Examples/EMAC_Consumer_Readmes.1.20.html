@@ -46,59 +46,59 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1019438">280__MarketPrice__Performance</a></div>
-      <div class="Body"><a name="1029867">Summary</a></div>
-      <div class="Body"><a name="1029868">=======</a></div>
-      <div class="Body"><a name="1029869">&nbsp;</a></div>
-      <div class="Body"><a name="1029870">The 280__MarketPrice__Performance application is provided as an example</a></div>
-      <div class="Body"><a name="1029871">of OMM Consumer application written to the EMA library.</a></div>
-      <div class="Body"><a name="1029872">&nbsp;</a></div>
-      <div class="Body"><a name="1029873">This application demonstrates basic usage of the EMA library for accessing</a></div>
-      <div class="Body"><a name="1029874">and parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
-      <div class="Body"><a name="1029875">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
-      <div class="Body"><a name="1029876">Distribution Server.</a></div>
-      <div class="Body"><a name="1029877">&nbsp;</a></div>
-      <div class="Body"><a name="1029878">The 280__MarketPrice__Performance is a simple performance focused application</a></div>
-      <div class="Body"><a name="1029879">opening and processing a number of MarketPrice items.</a></div>
-      <div class="Body"><a name="1029880">&nbsp;</a></div>
-      <div class="Body"><a name="1029881">Note: to effectively open up items in this example, please connect it up to </a></div>
-      <div class="Body"><a name="1029882">	  custom build provider performance application, e.g. upacProvPerf, or </a></div>
-      <div class="Body"><a name="1029883">	  rfacppProvPerf.</a></div>
-      <div class="Body"><a name="1029884">&nbsp;</a></div>
-      <div class="Body"><a name="1029885">Detailed Description</a></div>
-      <div class="Body"><a name="1029886">====================</a></div>
-      <div class="Body"><a name="1029887">&nbsp;</a></div>
-      <div class="Body"><a name="1029888">The 280__MarketPrice__Performance implements the following high level steps:</a></div>
-      <div class="Body"><a name="1029889">&nbsp;</a></div>
-      <div class="Body"><a name="1029890">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1029891">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1029892">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
-      <div class="Body"><a name="1029893">    - the decode( const FieldList&amp; ) is a performance focused method</a></div>
-      <div class="Body"><a name="1029894">	  extracting the minimum needed for an application and not performing any</a></div>
-      <div class="Body"><a name="1029895">	  time and cpu consuming application specific functionalities (e.g., printing)</a></div>
-      <div class="Body"><a name="1029896">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1029897">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1029898">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1029899">  - sets host name on the preconfigured connection to “localhost”</a></div>
-      <div class="Body"><a name="1029900">  - sets port on the preconfigured connection to “14002”</a></div>
-      <div class="Body"><a name="1029901">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1029902">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1029903">+ Opens a number of streaming item interests</a></div>
-      <div class="Body"><a name="1029904">  - MarketPrice RTR####.N items from DIRECT_FEED service (#### - a sequence number)</a></div>
-      <div class="Body"><a name="1029905">+ Processes data received from API for 300 seconds</a></div>
-      <div class="Body"><a name="1029906">  - all received messages are processed on API thread of control</a></div>
-      <div class="Body"><a name="1029907">  - prints out</a></div>
-      <div class="Body"><a name="1029908">    - total number of refreshes</a></div>
-      <div class="Body"><a name="1029909">    - total number of status messages</a></div>
-      <div class="Body"><a name="1029910">    - number of updates received in a second</a></div>
-      <div class="Body"><a name="1029911">&nbsp;</a></div>
-      <div class="Body"><a name="1029912">+ Exits</a></div>
-      <div class="Body"><a name="1029913">&nbsp;</a></div>
-      <div class="Body"><a name="1029914">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1029915">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1029916">	  </a></div>
-      <div class="Body"><a name="1029917">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1029918">      standard configuration.</a></div>
-      <div class="Body"><a name="1028028">&nbsp;</a></div>
+      <div class="Body"><a name="1030822">Summary</a></div>
+      <div class="Body"><a name="1030823">=======</a></div>
+      <div class="Body"><a name="1030824">&nbsp;</a></div>
+      <div class="Body"><a name="1030825">The 280__MarketPrice__Performance application is provided as an example</a></div>
+      <div class="Body"><a name="1030826">of OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1030827">&nbsp;</a></div>
+      <div class="Body"><a name="1030828">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1030829">and parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1030830">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1030831">Distribution Server.</a></div>
+      <div class="Body"><a name="1030832">&nbsp;</a></div>
+      <div class="Body"><a name="1030833">The 280__MarketPrice__Performance is a simple performance focused application</a></div>
+      <div class="Body"><a name="1030834">opening and processing a number of MarketPrice items.</a></div>
+      <div class="Body"><a name="1030835">&nbsp;</a></div>
+      <div class="Body"><a name="1030836">Note: to effectively open up items in this example, please connect it up to </a></div>
+      <div class="Body"><a name="1030837">	  custom build provider performance application, e.g. upacProvPerf, or </a></div>
+      <div class="Body"><a name="1030838">	  rfacppProvPerf.</a></div>
+      <div class="Body"><a name="1030839">&nbsp;</a></div>
+      <div class="Body"><a name="1030840">Detailed Description</a></div>
+      <div class="Body"><a name="1030841">====================</a></div>
+      <div class="Body"><a name="1030842">&nbsp;</a></div>
+      <div class="Body"><a name="1030843">The 280__MarketPrice__Performance implements the following high level steps:</a></div>
+      <div class="Body"><a name="1030844">&nbsp;</a></div>
+      <div class="Body"><a name="1030845">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1030846">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1030847">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1030848">    - the decode( const FieldList&amp; ) is a performance focused method</a></div>
+      <div class="Body"><a name="1030849">	  extracting the minimum needed for an application and not performing any</a></div>
+      <div class="Body"><a name="1030850">	  time and cpu consuming application specific functionalities (e.g., printing)</a></div>
+      <div class="Body"><a name="1030851">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1030852">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1030853">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1030854">  - sets host name on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1030855">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1030856">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1030857">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1030858">+ Opens a number of streaming item interests</a></div>
+      <div class="Body"><a name="1030859">  - MarketPrice RTR####.N items from DIRECT_FEED service (#### - a sequence number)</a></div>
+      <div class="Body"><a name="1030860">+ Processes data received from API for 300 seconds</a></div>
+      <div class="Body"><a name="1030861">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1030862">  - prints out</a></div>
+      <div class="Body"><a name="1030863">    - total number of refreshes</a></div>
+      <div class="Body"><a name="1030864">    - total number of status messages</a></div>
+      <div class="Body"><a name="1030865">    - number of updates received in a second</a></div>
+      <div class="Body"><a name="1030866">&nbsp;</a></div>
+      <div class="Body"><a name="1030867">+ Exits</a></div>
+      <div class="Body"><a name="1030868">&nbsp;</a></div>
+      <div class="Body"><a name="1030869">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1030870">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1030871">	  </a></div>
+      <div class="Body"><a name="1030872">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1030873">      standard configuration.</a></div>
+      <div class="Body"><a name="1028565">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

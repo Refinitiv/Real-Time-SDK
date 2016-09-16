@@ -56,43 +56,43 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1020344">320__MarketPrice__Streaming__StatusClosed</a></div>
-      <div class="Body"><a name="1030044">Summary</a></div>
-      <div class="Body"><a name="1030045">=======</a></div>
-      <div class="Body"><a name="1030046">&nbsp;</a></div>
-      <div class="Body"><a name="1030047">320__MarketPrice__Streaming__StatusClosed is an example of an OMM NiProvider application </a></div>
-      <div class="Body"><a name="1030048">written to the EMA library.</a></div>
-      <div class="Body"><a name="1030049">&nbsp;</a></div>
-      <div class="Body"><a name="1030050">This application demonstrates the basic usage of the EMA library in providing</a></div>
-      <div class="Body"><a name="1030051">of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.</a></div>
-      <div class="Body"><a name="1030052">&nbsp;</a></div>
-      <div class="Body"><a name="1030053">320_MarketPrice_Streaming_StatusClosed illustrates how to create and publish a single OMM</a></div>
-      <div class="Body"><a name="1030054">streaming item and a source directory.</a></div>
-      <div class="Body"><a name="1030055">&nbsp;</a></div>
-      <div class="Body"><a name="1030056">&nbsp;</a></div>
-      <div class="Body"><a name="1030057">Detailed Description</a></div>
-      <div class="Body"><a name="1030058">====================</a></div>
-      <div class="Body"><a name="1030059">&nbsp;</a></div>
-      <div class="Body"><a name="1030060">320__MarketPrice__Streaming__StatusClosed implements the following high-level steps:</a></div>
-      <div class="Body"><a name="1030061">&nbsp;</a></div>
-      <div class="Body"><a name="1030062">+ Instantiates and modifies an OmmNiProviderConfig object:</a></div>
-      <div class="Body"><a name="1030063">  - which reads in the EmaConfig.xml file with:</a></div>
-      <div class="Body"><a name="1030064">	- specified SourceDirectory of NI_PUB</a></div>
-      <div class="Body"><a name="1030065">	- specified Channel’s host and port</a></div>
-      <div class="Body"><a name="1030066">  - Sets the username to “user”</a></div>
-      <div class="Body"><a name="1030067">  - sets the UserControl mode for the source directory</a></div>
-      <div class="Body"><a name="1030068">+ Instantiates an OmmProvider object which:</a></div>
-      <div class="Body"><a name="1030069">  - initializes the connection and logs into the configured ADH</a></div>
-      <div class="Body"><a name="1030070">+ Creates source directory refresh message with TEST_NI_PUB service and publishes it </a></div>
-      <div class="Body"><a name="1030071">+ Creates streaming item (refresh and updates) and publishes it</a></div>
-      <div class="Body"><a name="1030072">  - MarketPrice IBM.N item on the NI_PUB service</a></div>
-      <div class="Body"><a name="1030073">+ Publishes updates 1 per second for 60 seconds.</a></div>
-      <div class="Body"><a name="1030074">+ Publishes item status closed message.</a></div>
-      <div class="Body"><a name="1030075">+ Waits for 20 seconds</a></div>
-      <div class="Body"><a name="1030076">+ Exits</a></div>
-      <div class="Body"><a name="1030077">&nbsp;</a></div>
-      <div class="Body"><a name="1030078">Note: If needed, these and other details may be modified to fit your local</a></div>
-      <div class="Body"><a name="1030079">      environment. For details on standard configuration, refer to the EMA library</a></div>
-      <div class="Body"><a name="1029497">      ReadMe.txt file and EMA Configuration Guide.</a></div>
+      <div class="Body"><a name="1030506">Summary</a></div>
+      <div class="Body"><a name="1030507">=======</a></div>
+      <div class="Body"><a name="1030508">&nbsp;</a></div>
+      <div class="Body"><a name="1030509">320__MarketPrice__Streaming__StatusClosed is an example of an OMM NiProvider application </a></div>
+      <div class="Body"><a name="1030510">written to the EMA library.</a></div>
+      <div class="Body"><a name="1030511">&nbsp;</a></div>
+      <div class="Body"><a name="1030512">This application demonstrates the basic usage of the EMA library in providing</a></div>
+      <div class="Body"><a name="1030513">of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.</a></div>
+      <div class="Body"><a name="1030514">&nbsp;</a></div>
+      <div class="Body"><a name="1030515">320_MarketPrice_Streaming_StatusClosed illustrates how to create and publish a single OMM</a></div>
+      <div class="Body"><a name="1030516">streaming item and a source directory.</a></div>
+      <div class="Body"><a name="1030517">&nbsp;</a></div>
+      <div class="Body"><a name="1030518">&nbsp;</a></div>
+      <div class="Body"><a name="1030519">Detailed Description</a></div>
+      <div class="Body"><a name="1030520">====================</a></div>
+      <div class="Body"><a name="1030521">&nbsp;</a></div>
+      <div class="Body"><a name="1030522">320__MarketPrice__Streaming__StatusClosed implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1030523">&nbsp;</a></div>
+      <div class="Body"><a name="1030524">+ Instantiates and modifies an OmmNiProviderConfig object:</a></div>
+      <div class="Body"><a name="1030525">  - which reads in the EmaConfig.xml file with:</a></div>
+      <div class="Body"><a name="1030526">	- specified SourceDirectory of NI_PUB</a></div>
+      <div class="Body"><a name="1030527">	- specified Channel’s host and port</a></div>
+      <div class="Body"><a name="1030528">  - Sets the username to “user”</a></div>
+      <div class="Body"><a name="1030529">  - sets the UserControl mode for the source directory</a></div>
+      <div class="Body"><a name="1030530">+ Instantiates an OmmProvider object which:</a></div>
+      <div class="Body"><a name="1030531">  - initializes the connection and logs into the configured ADH</a></div>
+      <div class="Body"><a name="1030532">+ Creates source directory refresh message with TEST_NI_PUB service and publishes it </a></div>
+      <div class="Body"><a name="1030533">+ Creates streaming item (refresh and updates) and publishes it</a></div>
+      <div class="Body"><a name="1030534">  - MarketPrice IBM.N item on the NI_PUB service</a></div>
+      <div class="Body"><a name="1030535">+ Publishes updates 1 per second for 60 seconds.</a></div>
+      <div class="Body"><a name="1030536">+ Publishes item status closed message.</a></div>
+      <div class="Body"><a name="1030537">+ Waits for 20 seconds</a></div>
+      <div class="Body"><a name="1030538">+ Exits</a></div>
+      <div class="Body"><a name="1030539">&nbsp;</a></div>
+      <div class="Body"><a name="1030540">Note: If needed, these and other details may be modified to fit your local</a></div>
+      <div class="Body"><a name="1030541">      environment. For details on standard configuration, refer to the EMA library</a></div>
+      <div class="Body"><a name="1030082">      ReadMe.txt file and EMA Configuration Guide.</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

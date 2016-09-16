@@ -56,49 +56,49 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1020432">350__MarketPrice__PauseAll</a></div>
-      <div class="Body"><a name="1031924">Summary</a></div>
-      <div class="Body"><a name="1031925">=======</a></div>
-      <div class="Body"><a name="1031926">&nbsp;</a></div>
-      <div class="Body"><a name="1031927">The example350__MarketPrice__PauseAll application is provided as an example of</a></div>
-      <div class="Body"><a name="1031928">OMM Consumer application written to the EMA library.</a></div>
-      <div class="Body"><a name="1031929">&nbsp;</a></div>
-      <div class="Body"><a name="1031930">This application demonstrates basic usage of the EMA library for opening</a></div>
-      <div class="Body"><a name="1031931">login and item streams and pausing item response messages from Reuters Data</a></div>
-      <div class="Body"><a name="1031932">Feed Direct (RDF-D), directly from an OMM Provider application, or from</a></div>
-      <div class="Body"><a name="1031933">Thomson Reuters Advanced Distribution Server with login stream.</a></div>
-      <div class="Body"><a name="1031934">&nbsp;</a></div>
-      <div class="Body"><a name="1031935">example350__MarketPrice__PauseAll showcases the pause all feature of OMM Consumer.</a></div>
-      <div class="Body"><a name="1031936">It sends a single pause request on login stream to pause all open items.</a></div>
-      <div class="Body"><a name="1031937">&nbsp;</a></div>
-      <div class="Body"><a name="1031938">&nbsp;</a></div>
-      <div class="Body"><a name="1031939">Detailed Description</a></div>
-      <div class="Body"><a name="1031940">====================</a></div>
-      <div class="Body"><a name="1031941">&nbsp;</a></div>
-      <div class="Body"><a name="1031942">example350__MarketPrice__PauseAll implements the following high level steps:</a></div>
-      <div class="Body"><a name="1031943">&nbsp;</a></div>
-      <div class="Body"><a name="1031944">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1031945">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1031946">  - provides own methods as needed, e.g. decode( FieldList )</a></div>
-      <div class="Body"><a name="1031947">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1031948">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1031949">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1031950">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1031951">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1031952">+ Opens three streaming item interests</a></div>
-      <div class="Body"><a name="1031953">  - Login Domain stream</a></div>
-      <div class="Body"><a name="1031954">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1031955">  - MarketPrice Domain MSFT.N item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1031956">+ Sends a PauseAll request message on login stream</a></div>
-      <div class="Body"><a name="1031957">+ Processes data received from API for 60 seconds</a></div>
-      <div class="Body"><a name="1031958">  - all received messages are processed on API thread of control</a></div>
-      <div class="Body"><a name="1031959">+ Exits</a></div>
-      <div class="Body"><a name="1031960">&nbsp;</a></div>
-      <div class="Body"><a name="1031961">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1031962">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1031963">	  </a></div>
-      <div class="Body"><a name="1031964">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1031965">      standard configuration.</a></div>
-      <div class="Body"><a name="1030208">&nbsp;</a></div>
+      <div class="Body"><a name="1033532">Summary</a></div>
+      <div class="Body"><a name="1033533">=======</a></div>
+      <div class="Body"><a name="1033534">&nbsp;</a></div>
+      <div class="Body"><a name="1033535">The example350__MarketPrice__PauseAll application is provided as an example of</a></div>
+      <div class="Body"><a name="1033536">OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1033537">&nbsp;</a></div>
+      <div class="Body"><a name="1033538">This application demonstrates basic usage of the EMA library for opening</a></div>
+      <div class="Body"><a name="1033539">login and item streams and pausing item response messages from Reuters Data</a></div>
+      <div class="Body"><a name="1033540">Feed Direct (RDF-D), directly from an OMM Provider application, or from</a></div>
+      <div class="Body"><a name="1033541">Thomson Reuters Advanced Distribution Server with login stream.</a></div>
+      <div class="Body"><a name="1033542">&nbsp;</a></div>
+      <div class="Body"><a name="1033543">example350__MarketPrice__PauseAll showcases the pause all feature of OMM Consumer.</a></div>
+      <div class="Body"><a name="1033544">It sends a single pause request on login stream to pause all open items.</a></div>
+      <div class="Body"><a name="1033545">&nbsp;</a></div>
+      <div class="Body"><a name="1033546">&nbsp;</a></div>
+      <div class="Body"><a name="1033547">Detailed Description</a></div>
+      <div class="Body"><a name="1033548">====================</a></div>
+      <div class="Body"><a name="1033549">&nbsp;</a></div>
+      <div class="Body"><a name="1033550">example350__MarketPrice__PauseAll implements the following high level steps:</a></div>
+      <div class="Body"><a name="1033551">&nbsp;</a></div>
+      <div class="Body"><a name="1033552">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1033553">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1033554">  - provides own methods as needed, e.g. decode( FieldList )</a></div>
+      <div class="Body"><a name="1033555">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1033556">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1033557">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1033558">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1033559">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1033560">+ Opens three streaming item interests</a></div>
+      <div class="Body"><a name="1033561">  - Login Domain stream</a></div>
+      <div class="Body"><a name="1033562">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1033563">  - MarketPrice Domain MSFT.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1033564">+ Sends a PauseAll request message on login stream</a></div>
+      <div class="Body"><a name="1033565">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1033566">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1033567">+ Exits</a></div>
+      <div class="Body"><a name="1033568">&nbsp;</a></div>
+      <div class="Body"><a name="1033569">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1033570">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1033571">	  </a></div>
+      <div class="Body"><a name="1033572">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1033573">      standard configuration.</a></div>
+      <div class="Body"><a name="1032005">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

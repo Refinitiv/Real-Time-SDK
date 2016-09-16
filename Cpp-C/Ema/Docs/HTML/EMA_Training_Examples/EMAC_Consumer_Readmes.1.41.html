@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>421__MarketPrice__ProgrammaticConfig</title>
+    <title>422__MarketPrice__ErrorClient</title>
     <link rel="StyleSheet" href="css/EMAC_Consumer_Readmes.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -45,49 +45,55 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3_NoNum"><a name="1017940">421__MarketPrice__ProgrammaticConfig</a></div>
-      <div class="Body"><a name="1030776">Summary</a></div>
-      <div class="Body"><a name="1030777">=======</a></div>
-      <div class="Body"><a name="1030778">&nbsp;</a></div>
-      <div class="Body"><a name="1030779">The 421__MarketPrice__ProgrammaticConfig application is provided as an example</a></div>
-      <div class="Body"><a name="1030780">of OMM Consumer application written to the EMA library.</a></div>
-      <div class="Body"><a name="1030781">&nbsp;</a></div>
-      <div class="Body"><a name="1030782">This application demonstrates basic usage of the EMA library for accessing and</a></div>
-      <div class="Body"><a name="1030783">parsing of OMM MarketPrice Domain data from Reuters Data Feed Direct (RDF-D),</a></div>
-      <div class="Body"><a name="1030784">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
-      <div class="Body"><a name="1030785">Distribution Server.</a></div>
-      <div class="Body"><a name="1030786">&nbsp;</a></div>
-      <div class="Body"><a name="1030787">The 421__MarketPrice__ProgrammaticConfig showcases creation and usage of the </a></div>
-      <div class="Body"><a name="1030788">programmatic configuration feature of EMA. In addition to file configuration,</a></div>
-      <div class="Body"><a name="1030789">EMA allows users to grammatically configure Omm Consumer instances.</a></div>
-      <div class="Body"><a name="1030790">&nbsp;</a></div>
-      <div class="Body"><a name="1030791">&nbsp;</a></div>
-      <div class="Body"><a name="1030792">Detailed Description</a></div>
-      <div class="Body"><a name="1030793">====================</a></div>
-      <div class="Body"><a name="1030794">&nbsp;</a></div>
-      <div class="Body"><a name="1030795">The 421__MarketPrice__ProgrammaticConfig implements the following high level steps:</a></div>
-      <div class="Body"><a name="1030796">&nbsp;</a></div>
-      <div class="Body"><a name="1030797">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1030798">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1030799">  - provides own methods as needed</a></div>
-      <div class="Body"><a name="1030800">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1030801">+ Instantiates a Map (configMap object) and populates it with configuration info</a></div>
-      <div class="Body"><a name="1030802">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1030803">  - sets Omm Consumer configuration with data from the programmatic configuration</a></div>
-      <div class="Body"><a name="1030804">+ Instantiates OmmConsumer object which initializes connection and logins into</a></div>
-      <div class="Body"><a name="1030805">  the specified server</a></div>
-      <div class="Body"><a name="1030806">+ Opens a streaming item interest</a></div>
-      <div class="Body"><a name="1030807">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1030808">+ Processes data received from API for 60 seconds</a></div>
-      <div class="Body"><a name="1030809">  - all received messages are processed on API thread of control</a></div>
-      <div class="Body"><a name="1030810">+ Exits</a></div>
-      <div class="Body"><a name="1030811">&nbsp;</a></div>
-      <div class="Body"><a name="1030812">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1030813">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1030814">	  </a></div>
-      <div class="Body"><a name="1030815">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1030816">      standard configuration.</a></div>
-      <div class="Body"><a name="1028963">&nbsp;</a></div>
+      <div class="H3_NoNum"><a name="1021535">422__MarketPrice__ErrorClient</a></div>
+      <div class="Body"><a name="1031718">Summary</a></div>
+      <div class="Body"><a name="1031719">=======</a></div>
+      <div class="Body"><a name="1031720">&nbsp;</a></div>
+      <div class="Body"><a name="1031721">The 422__MarketPrice__ErrorClient application is provided as an example of</a></div>
+      <div class="Body"><a name="1031722">OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1031723">&nbsp;</a></div>
+      <div class="Body"><a name="1031724">This application demonstrates basic usage of the EMA for accessing and parsing</a></div>
+      <div class="Body"><a name="1031725">of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D), directly from</a></div>
+      <div class="Body"><a name="1031726">an OMM Provider application, or from Thomson Reuters Advanced Distribution Server.</a></div>
+      <div class="Body"><a name="1031727">&nbsp;</a></div>
+      <div class="Body"><a name="1031728">The 422__MarketPrice__ErrorClient showcases usage of the OmmConsumerErrorClient</a></div>
+      <div class="Body"><a name="1031729">functionality. OMM Consumer provides two ways of notifying application about</a></div>
+      <div class="Body"><a name="1031730">encountered user errors. By default OMM Consumer throws a respective exception</a></div>
+      <div class="Body"><a name="1031731">when an error is encountered. Users may specify to receive a respective callback</a></div>
+      <div class="Body"><a name="1031732">instead of exception.</a></div>
+      <div class="Body"><a name="1031733">&nbsp;</a></div>
+      <div class="Body"><a name="1031734">&nbsp;</a></div>
+      <div class="Body"><a name="1031735">Detailed Description</a></div>
+      <div class="Body"><a name="1031736">====================</a></div>
+      <div class="Body"><a name="1031737">&nbsp;</a></div>
+      <div class="Body"><a name="1031738">The 422__MarketPrice__ErrorClient implements the following high level steps:</a></div>
+      <div class="Body"><a name="1031739">&nbsp;</a></div>
+      <div class="Body"><a name="1031740">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1031741">+ Implements OmmConsumerErrorClient class in AppErrorClient</a></div>
+      <div class="Body"><a name="1031742">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1031743">+ Instantiates AppErrorClient object that receives error messages</a></div>
+      <div class="Body"><a name="1031744">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1031745">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1031746">  - sets operationModel to UserDispatchEnum</a></div>
+      <div class="Body"><a name="1031747">+ Instantiates OmmConsumer object which initializes connection and logins into</a></div>
+      <div class="Body"><a name="1031748">  specified server</a></div>
+      <div class="Body"><a name="1031749">  - handles errors with AppErrorClient</a></div>
+      <div class="Body"><a name="1031750">+ Performs the following functionalities (this error scenarios are done on purpose</a></div>
+      <div class="Body"><a name="1031751">  to demonstrate the OmmConsumerErrorClient functionality)</a></div>
+      <div class="Body"><a name="1031752">  - Invalid handle to send reissue request </a></div>
+      <div class="Body"><a name="1031753">  - Invalid handle to submit PostMsg</a></div>
+      <div class="Body"><a name="1031754">  - Invalid handle to submit PostMsg</a></div>
+      <div class="Body"><a name="1031755">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1031756">+ Processes data received from main thread for 60 seconds</a></div>
+      <div class="Body"><a name="1031757">  - all received messages and errors are processed on user thread of control</a></div>
+      <div class="Body"><a name="1031758">+ Exits</a></div>
+      <div class="Body"><a name="1031759">&nbsp;</a></div>
+      <div class="Body"><a name="1031760">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1031761">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1031762">	  </a></div>
+      <div class="Body"><a name="1031763">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1031764">      standard configuration.</a></div>
+      <div class="Body"><a name="1029928">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -100,7 +106,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.01.html">EMA C++ Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.37.html">400 Series Examples</a> : 421__MarketPrice__ProgrammaticConfig</div>
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.01.html">EMA C++ Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.36.html">400 Series Examples</a> : 422__MarketPrice__ErrorClient</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

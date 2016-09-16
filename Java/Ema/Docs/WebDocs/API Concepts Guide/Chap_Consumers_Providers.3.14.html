@@ -64,13 +64,13 @@
               </div>
             </td>
             <td width="100%">
-              <div class="H3_inner"><a name="1042696">Private Streams</a></div>
+              <div class="H3_inner"><a name="1046249">Private Streams</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1042697">Using a</a><span class="Concept"> Private Stream</span>, a consumer application can create a virtual private connection with an interactive provider. This virtual private connection can be either a direct connection, through the TREP, or via a cascaded set of platforms. The following diagram illustrates these different configurations.</div>
-      <div class="Body"><a name="1042704"><img class="Default" src="images/PrivateStreamsScenarios.jpg" width="708" height="358" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></div>
+      <div class="Body"><a name="1046250">Using a</a><span class="Concept"> Private Stream</span>, a consumer application can create a virtual private connection with an interactive provider. This virtual private connection can be either a direct connection, through the TREP, or via a cascaded set of platforms. The following diagram illustrates these different configurations.</div>
+      <div class="Body"><a name="1046257"><img class="Default" src="images/PrivateStreamsScenarios.jpg" width="708" height="358" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></div>
       <div class="FigTitle_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -78,14 +78,14 @@
               <div class="FigTitle_inner" style="width: 36pt; white-space: nowrap">Figure 13.  </div>
             </td>
             <td width="100%">
-              <div class="FigTitle_inner"><a name="1042709">Private Stream Scenarios</a></div>
+              <div class="FigTitle_inner"><a name="1046262">Private Stream Scenarios</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1042712">A virtual private connection piggy backs on existing, individual point-to-point and multicast connections in the system (</a><a href="javascript:WWHClickedPopup('API_Concepts_Guide', 'Chap_Consumers_Providers.3.14.html#1042709', '');" title="3.2.8 Private Streams">Figure 13</a> illustrates this behavior using a white connector). Messages exchanged via a Private Stream flow between a Consumer and an Interactive Provider using these existing underlying connections. However, unlike a regular stream, the Elektron API or TREP components do not fan out these messages to other consumers or providers.</div>
-      <div class="Body"><a name="1042723">In </a><a href="javascript:WWHClickedPopup('API_Concepts_Guide', 'Chap_Consumers_Providers.3.14.html#1042709', '');" title="3.2.8 Private Streams">Figure 13</a>, each diagram shows a green consumer creating a private stream with a green provider. The private stream, using existing infrastructure and network connections, is illustrated as a white path in each of the diagrams. When established, communications sent on a private stream flow only between the green consumer and the green provider to which it connects. Blue providers and consumers do not see messages sent via the private stream.</div>
-      <div class="Body"><a name="1042724">Any break in a “virtual connection” causes the provider and consumer to be notified of the loss of connection. In such a scenario, the consumer is responsible for re-establishing the connection and re-requesting any data it might have missed from the provider. All types of requests, functionality, and Domain Models can flow across a private stream, including (but not limited to):</a></div>
+      <div class="Body"><a name="1046265">A virtual private connection piggy backs on existing, individual point-to-point and multicast connections in the system (</a><a href="javascript:WWHClickedPopup('API_Concepts_Guide', 'Chap_Consumers_Providers.3.14.html#1046262', '');" title="3.2.8 Private Streams">Figure 13</a> illustrates this behavior using a white connector). Messages exchanged via a Private Stream flow between a Consumer and an Interactive Provider using these existing underlying connections. However, unlike a regular stream, the Elektron API or TREP components do not fan out these messages to other consumers or providers.</div>
+      <div class="Body"><a name="1046276">In </a><a href="javascript:WWHClickedPopup('API_Concepts_Guide', 'Chap_Consumers_Providers.3.14.html#1046262', '');" title="3.2.8 Private Streams">Figure 13</a>, each diagram shows a green consumer creating a private stream with a green provider. The private stream, using existing infrastructure and network connections, is illustrated as a white path in each of the diagrams. When established, communications sent on a private stream flow only between the green consumer and the green provider to which it connects. Blue providers and consumers do not see messages sent via the private stream.</div>
+      <div class="Body"><a name="1046277">Any break in a “virtual connection” causes the provider and consumer to be notified of the loss of connection. In such a scenario, the consumer is responsible for re-establishing the connection and re-requesting any data it might have missed from the provider. All types of requests, functionality, and Domain Models can flow across a private stream, including (but not limited to):</a></div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -95,21 +95,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1042725">Streaming Requests</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><a name="1042726">Snapshot Requests</a></div>
+              <div class="bullet_ind_inner"><a name="1046278">Streaming Requests</a></div>
             </td>
           </tr>
         </table>
@@ -123,7 +109,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1042727">Posting</a></div>
+              <div class="bullet_ind_inner"><a name="1046279">Snapshot Requests</a></div>
             </td>
           </tr>
         </table>
@@ -137,7 +123,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1042728">Generic Messages</a></div>
+              <div class="bullet_ind_inner"><a name="1046280">Posting</a></div>
             </td>
           </tr>
         </table>
@@ -151,7 +137,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1042729">Batch Requests</a></div>
+              <div class="bullet_ind_inner"><a name="1046281">Generic Messages</a></div>
             </td>
           </tr>
         </table>
@@ -165,7 +151,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1042730">Views</a></div>
+              <div class="bullet_ind_inner"><a name="1046282">Batch Requests</a></div>
             </td>
           </tr>
         </table>
@@ -179,7 +165,21 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1042731">All Thomson Reuters Domain Models &amp; Custom Domain Models</a></div>
+              <div class="bullet_ind_inner"><a name="1046283">Views</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1046284">All Thomson Reuters Domain Models &amp; Custom Domain Models</a></div>
             </td>
           </tr>
         </table>

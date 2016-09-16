@@ -1,6 +1,5 @@
 function BookData_Search(x,y)
 {
-if(x.t("calculate"))y.f("146,6");
 if(x.t("futr_basis"))y.f("146,1");
 if(x.t("frequency"))y.f("146,1");
 if(x.t("vt_element_name_list"))y.f("160,1");
@@ -628,6 +627,7 @@ if(x.t("noted"))y.f("21,1");
 if(x.t("3.2.1"))y.f("26,1");
 if(x.t("internally"))y.f("41,1,67,1,26,1,49,1,65,1,46,2");
 if(x.t("configure"))y.f("67,1,26,2,49,1");
+if(x.t("applicationauthorizationtoken"))y.f("27,1");
 if(x.t("host"))y.f("27,2");
 if(x.t("ommstate.open"))y.f("28,1,54,2,40,1");
 if(x.t("supportstandby"))y.f("29,1");

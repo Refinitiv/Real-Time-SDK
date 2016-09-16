@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>371__MarketPrice__BatchViewReissue</title>
+    <title>400 Series Examples</title>
     <link rel="StyleSheet" href="css/EMAC_Consumer_Readmes.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -45,61 +45,27 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3_NoNum"><a name="1021262">371__MarketPrice__BatchViewReissue</a></div>
-      <div class="Body"><a name="1030575">Summary</a></div>
-      <div class="Body"><a name="1030576">=======</a></div>
-      <div class="Body"><a name="1030577">&nbsp;</a></div>
-      <div class="Body"><a name="1030578">The 371__MarketPrice__BatchViewReissue application is provided as</a></div>
-      <div class="Body"><a name="1030579">an example of OMM Consumer application written to the EMA library.</a></div>
-      <div class="Body"><a name="1030580">&nbsp;</a></div>
-      <div class="Body"><a name="1030581">This application demonstrates basic usage of the EMA library while </a></div>
-      <div class="Body"><a name="1030582">opening multiple items via a single request with a specific view and</a></div>
-      <div class="Body"><a name="1030583">parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
-      <div class="Body"><a name="1030584">directly from an OMM Provider application, or from Thomson Reuters</a></div>
-      <div class="Body"><a name="1030585">Advanced Distribution Server.</a></div>
-      <div class="Body"><a name="1030586">&nbsp;</a></div>
-      <div class="Body"><a name="1030587">The 371__MarketPrice__BatchViewReissue showcases usage of combined</a></div>
-      <div class="Body"><a name="1030588">batch and view request feature supported by Omm Consumer and Omm Provider.</a></div>
-      <div class="Body"><a name="1030589">&nbsp;</a></div>
-      <div class="Body"><a name="1030590">Detailed Description</a></div>
-      <div class="Body"><a name="1030591">====================</a></div>
-      <div class="Body"><a name="1030592">&nbsp;</a></div>
-      <div class="Body"><a name="1030593">The 371__MarketPrice__BatchViewReissue implements the following high level steps:</a></div>
-      <div class="Body"><a name="1030594">&nbsp;</a></div>
-      <div class="Body"><a name="1030595">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1030596">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1030597">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
-      <div class="Body"><a name="1030598">    - each of the method provided in this example use the ease of use</a></div>
-      <div class="Body"><a name="1030599">	  data extraction methods that are data type specific</a></div>
-      <div class="Body"><a name="1030600">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1030601">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1030602">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1030603">  - sets host name on the preconfigured connection to “localhost”</a></div>
-      <div class="Body"><a name="1030604">  - sets port on the preconfigured connection to “14002”</a></div>
-      <div class="Body"><a name="1030605">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1030606">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1030607">+ Opens a batch of streaming item interests</a></div>
-      <div class="Body"><a name="1030608">  - MarketPrice Domain batch request from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1030609">    - the batch (a list of item names) and view definition is added to</a></div>
-      <div class="Body"><a name="1030610">	  the request using the payload() method</a></div>
-      <div class="Body"><a name="1030611">+ Processes data received from API for 60 seconds</a></div>
-      <div class="Body"><a name="1030612">  - all received messages are processed on API thread of control</a></div>
-      <div class="Body"><a name="1030613">  - modifies or reissues view for each item</a></div>
-      <div class="Body"><a name="1030614">+ Exits</a></div>
-      <div class="Body"><a name="1030615">&nbsp;</a></div>
-      <div class="Body"><a name="1030616">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1030617">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1030618">	  </a></div>
-      <div class="Body"><a name="1030619">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1030620">      standard configuration.</a></div>
-      <div class="Body"><a name="1030621">&nbsp;</a></div>
-      <div class="Body"><a name="1030622">&nbsp;</a></div>
-      <div class="Body"><a name="1030623">OmmConsumerClient and Callbacks</a></div>
-      <div class="Body"><a name="1030624">===============================</a></div>
-      <div class="Body"><a name="1030625">&nbsp;</a></div>
-      <div class="Body"><a name="1030626">The 371__MarketPrice__BatchViewReissue demonstrates how to receive and process</a></div>
-      <div class="Body"><a name="1030627">individual item response messages for MarketPrice domains. Additionally this</a></div>
-      <div class="Body"><a name="1028767">application shows a native / RWF decoding of FieldList container.</a></div>
+      <div class="H2_NoNum"><a name="1017958">400 Series Examples</a></div>
+      <div class="WebWorks_MiniTOC">
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="EMAC_Consumer_Readmes.1.37.html">400__Custom__NestedMessaging</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="EMAC_Consumer_Readmes.1.38.html">410__MarketPrice__HorizontalScaling</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="EMAC_Consumer_Readmes.1.39.html">420__MarketPrice__AdminDomainConfig</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="EMAC_Consumer_Readmes.1.40.html">421__MarketPrice__ProgrammaticConfig</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="EMAC_Consumer_Readmes.1.41.html">422__MarketPrice__ErrorClient</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="EMAC_Consumer_Readmes.1.42.html">440__System__TunnelStream</a>
+        </div>
+      </div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -112,7 +78,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.01.html">EMA C++ Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.23.html">300 Series Examples</a> : 371__MarketPrice__BatchViewReissue</div>
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.01.html">EMA C++ Consumer Examples</a> : 400 Series Examples</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

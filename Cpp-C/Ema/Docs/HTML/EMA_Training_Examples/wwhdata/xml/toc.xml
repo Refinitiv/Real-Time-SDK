@@ -37,34 +37,36 @@
       <i t="350__MarketPrice__PauseAll" l="32" />
       <i t="360__MarketPrice__View" l="33" />
       <i t="370__MarketPrice__Batch" l="34" />
-      <i t="371__MarketPrice__BatchViewReissue" l="35" />
     </i>
-    <i t="400 Series Examples" l="36">
-      <i t="400__Custom__NestedMessaging" l="37" />
-      <i t="410__MarketPrice__HorizontalScaling" l="38" />
-      <i t="420__MarketPrice__AdminDomainConfig" l="39" />
-      <i t="421__MarketPrice__ProgrammaticConfig" l="40" />
-      <i t="422__MarketPrice__ErrorClient" l="41" />
-      <i t="430__ServiceProviderStatus__Streaming" l="42" />
+    <i t="400 Series Examples" l="35">
+      <i t="400__Custom__NestedMessaging" l="36" />
+      <i t="410__MarketPrice__HorizontalScaling" l="37" />
+      <i t="420__MarketPrice__AdminDomainConfig" l="38" />
+      <i t="421__MarketPrice__ProgrammaticConfig" l="39" />
+      <i t="422__MarketPrice__ErrorClient" l="40" />
+      <i t="440__System__TunnelStream" l="41" />
     </i>
   </i>
-  <i t="EMA C++ Non-interactive Provider Examples" l="43">
-    <i t="100 Series Examples" l="44">
-      <i t="100__MarketPrice__Streaming" l="45" />
-      <i t="110__MarketByOrder__Streaming" l="46" />
+  <i t="EMA C++ Non-interactive Provider Examples" l="42">
+    <i t="100 Series Examples" l="43">
+      <i t="100__MarketPrice__Streaming" l="44" />
+      <i t="110__MarketByOrder__Streaming" l="45" />
     </i>
-    <i t="200 Series Examples" l="47">
-      <i t="200__MarketPrice__Streaming" l="48" />
-      <i t="210__MarketByOrder__Streaming" l="49" />
-      <i t="250__MarketPrice__Performance" l="50" />
-      <i t="251__MarketPrice__Performance__KeyByServiceId" l="51" />
+    <i t="200 Series Examples" l="46">
+      <i t="200__MarketPrice__Streaming" l="47" />
+      <i t="210__MarketByOrder__Streaming" l="48" />
+      <i t="250__MarketPrice__Performance" l="49" />
+      <i t="251__MarketPrice__Performance__KeyByServiceId" l="50" />
     </i>
-    <i t="300 Series Examples" l="52">
-      <i t="300__MarketPrice__Streaming" l="53" />
-      <i t="310__MarketByOrder__Streaming" l="54" />
-      <i t="320__MarketPrice__Streaming__StatusClosed" l="55" />
-      <i t="340__Login__Streaming" l="56" />
-      <i t="360__MarketPrice__ConnectionRecovery" l="57" />
+    <i t="300 Series Examples" l="51">
+      <i t="300__MarketPrice__Streaming" l="52" />
+      <i t="310__MarketByOrder__Streaming" l="53" />
+      <i t="320__MarketPrice__Streaming__StatusClosed" l="54" />
+      <i t="340__Login__Streaming" l="55" />
+      <i t="360__MarketPrice__ConnectionRecovery" l="56" />
     </i>
+  </i>
+  <i t="EMA C++ Performance Tools Example" l="57">
+    <i t="EmaCppConsPerf" l="58" />
   </i>
 </WebWorksHelpTOC>

@@ -725,7 +725,6 @@ if(x.t("(true)"))y.f("20,1");
 if(x.t("direction"))y.f("38,1,24,1");
 if(x.t("3.4"))y.f("25,1,38,1");
 if(x.t("obtain"))y.f("54,1,26,1");
-if(x.t("applicationauthenticationtoken"))y.f("27,1");
 if(x.t("addr/net"))y.f("29,1,27,1");
 if(x.t("streamstate"))y.f("28,1,52,1,30,2,43,28,40,2");
 if(x.t("forward"))y.f("57,1,29,1,58,2,146,1");
@@ -1048,4 +1047,5 @@ if(x.t("6.2"))y.f("91,1");
 if(x.t("instrument_update_volume_alert=4"))y.f("94,1");
 if(x.t("opra"))y.f("100,1,158,3");
 if(x.t("chains"))y.f("101,2");
+if(x.t("calculate"))y.f("146,6");
 }

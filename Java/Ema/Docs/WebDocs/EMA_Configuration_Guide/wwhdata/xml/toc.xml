@@ -33,43 +33,45 @@
       <i t="3.3.1 Generic XML Schema for ChannelGroup" l="22" />
       <i t="3.3.2 Universal Channel Entry Parameters" l="23" />
       <i t="3.3.3 Parameters for Use with Channel Type: RSSL_SOCKET" l="24" />
+      <i t="3.3.4 Example XML Schema for Configuring ChannelSet" l="25" />
+      <i t="3.3.5 Example Configuration for ChannelSet" l="26" />
     </i>
-    <i t="3.4 Dictionary Group" l="25">
-      <i t="3.4.1 Generic XML Schema for DictionaryGroup" l="26" />
-      <i t="3.4.2 Dictionary Entry Parameters" l="27" />
+    <i t="3.4 Dictionary Group" l="27">
+      <i t="3.4.1 Generic XML Schema for DictionaryGroup" l="28" />
+      <i t="3.4.2 Dictionary Entry Parameters" l="29" />
     </i>
-    <i t="3.5 Directory Group" l="28">
-      <i t="3.5.1 Generic XML Schema for Directory Entry" l="29" />
-      <i t="3.5.2 Setting Default Directory" l="30" />
-      <i t="3.5.3 Configuring a Directory in a DirectoryGroup" l="31" />
-      <i t="3.5.4 Service Entry Parameters" l="32" />
-      <i t="3.5.5 InfoFilter Entry Parameters" l="33">
-        <i t="3.5.5.1 Capabilities Entry Parameter" l="34" />
-        <i t="3.5.5.2 DictionariesProvided Entry Parameter" l="35" />
-        <i t="3.5.5.3 DictionariesUsed Entry Parameter" l="36" />
-        <i t="3.5.5.4 QoSEntry Section and Associated Parameters" l="37" />
+    <i t="3.5 Directory Group" l="30">
+      <i t="3.5.1 Generic XML Schema for Directory Entry" l="31" />
+      <i t="3.5.2 Setting Default Directory" l="32" />
+      <i t="3.5.3 Configuring a Directory in a DirectoryGroup" l="33" />
+      <i t="3.5.4 Service Entry Parameters" l="34" />
+      <i t="3.5.5 InfoFilter Entry Parameters" l="35">
+        <i t="3.5.5.1 Capabilities Entry Parameter" l="36" />
+        <i t="3.5.5.2 DictionariesProvided Entry Parameter" l="37" />
+        <i t="3.5.5.3 DictionariesUsed Entry Parameter" l="38" />
+        <i t="3.5.5.4 QoSEntry Section and Associated Parameters" l="39" />
       </i>
-      <i t="3.5.6 StateFilter Entry Parameters" l="38" />
-      <i t="3.5.7 Status Entry Parameters" l="39" />
+      <i t="3.5.6 StateFilter Entry Parameters" l="40" />
+      <i t="3.5.7 Status Entry Parameters" l="41" />
     </i>
   </i>
   <i t="Chapter 4 EMA Configuration Processing">
-    <i t="4.1 Default Configuration" l="40">
-      <i t="4.1.1 Default Consumer Configuration" l="41" />
-      <i t="4.1.2 Default NiProvider Configuration" l="42" />
+    <i t="4.1 Default Configuration" l="42">
+      <i t="4.1.1 Default Consumer Configuration" l="43" />
+      <i t="4.1.2 Default NiProvider Configuration" l="44" />
     </i>
-    <i t="4.2 Processing EmaConfig.xml" l="43">
-      <i t="4.2.1 Use of the Correct Order in the XML Schema" l="44" />
-      <i t="4.2.2 Processing the Consumer “Name”" l="45" />
-      <i t="4.2.3 Processing the NiProvider “Name”" l="46" />
+    <i t="4.2 Processing EmaConfig.xml" l="45">
+      <i t="4.2.1 Use of the Correct Order in the XML Schema" l="46" />
+      <i t="4.2.2 Processing the Consumer “Name”" l="47" />
+      <i t="4.2.3 Processing the NiProvider “Name”" l="48" />
     </i>
-    <i t="4.3 Configuring EMA Using Function Calls" l="47">
-      <i t="4.3.1 EMA Configuration Function Calls" l="48">
-        <i t="4.3.1.1 OmmConsumerConfig Class Function Calls" l="48#1060642" />
-        <i t="4.3.1.2 OmmNiProviderConfig Class Function Calls" l="49" />
+    <i t="4.3 Configuring EMA Using Function Calls" l="49">
+      <i t="4.3.1 EMA Configuration Function Calls" l="50">
+        <i t="4.3.1.1 OmmConsumerConfig Class Function Calls" l="50#1060642" />
+        <i t="4.3.1.2 OmmNiProviderConfig Class Function Calls" l="51" />
       </i>
-      <i t="4.3.2 Using the host() Function: How “Host” and “Port” are Processed" l="50" />
+      <i t="4.3.2 Using the host() Function: How “Host” and “Port” are Processed" l="52" />
     </i>
   </i>
-  <i t="Appendix A EmaConfig.xml Configuration File" l="51" />
+  <i t="Appendix A EmaConfig.xml Configuration File" l="53" />
 </WebWorksHelpTOC>

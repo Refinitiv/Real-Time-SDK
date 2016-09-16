@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>EmaCppConsPerf</title>
+    <link rel="StyleSheet" href="css/EMAC_PerfTools_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H2_NoNum"><a name="1018368">EmaCppConsPerf</a></div>
+      <div class="Body"><a name="1027498">&nbsp;</a></div>
+      <div class="Body"><a name="1027499">EmaCppConsPerf Application Description</a></div>
+      <div class="Body"><a name="1027500">&nbsp;</a></div>
+      <div class="Body"><a name="1027501">--------</a></div>
+      <div class="Body"><a name="1027502">Summary:</a></div>
+      <div class="Body"><a name="1027503">--------</a></div>
+      <div class="Body"><a name="1027504"> </a></div>
+      <div class="Body"><a name="1027505">The purpose of this application is to measure performance of the EMA,</a></div>
+      <div class="Body"><a name="1027506">in consuming Level I Market Price content directly from an</a></div>
+      <div class="Body"><a name="1027507">OMM provider or through the Thomson Reuters Enterprise Platform.</a></div>
+      <div class="Body"><a name="1027508">&nbsp;</a></div>
+      <div class="Body"><a name="1027509">The consumer creates two types of threads:</a></div>
+      <div class="Body"><a name="1027510">- A main thread, which collects and records statistical information,</a></div>
+      <div class="Body"><a name="1027511">- Consumer threads, each of which create a connection to a provider and</a></div>
+      <div class="Body"><a name="1027512">request market data.</a></div>
+      <div class="Body"><a name="1027513">&nbsp;</a></div>
+      <div class="Body"><a name="1027514">To measure latency, a timestamp is randomly placed in each burst of updates by </a></div>
+      <div class="Body"><a name="1027515">the provider.  The consumer then decodes the timestamp from the update to</a></div>
+      <div class="Body"><a name="1027516">determine the end-to-end latency.  ConsPerf also supports measurement of </a></div>
+      <div class="Body"><a name="1027517">posting latency.</a></div>
+      <div class="Body"><a name="1027518">&nbsp;</a></div>
+      <div class="Body"><a name="1027519">This application also measures memory and CPU usage.  The memory usage measured </a></div>
+      <div class="Body"><a name="1027520">is the ‘resident set,’ or the memory currently in physical use by the </a></div>
+      <div class="Body"><a name="1027521">application.  The CPU usage is the total time using the CPU divided by the </a></div>
+      <div class="Body"><a name="1027522">total system time (The CPU time is the total across all threads, and as such </a></div>
+      <div class="Body"><a name="1027523">this number can be greater than 100% if multiple threads are busy).  </a></div>
+      <div class="Body"><a name="1027524">&nbsp;</a></div>
+      <div class="Body"><a name="1027525">This application uses Libxml2, an open source  XML parser library.</a></div>
+      <div class="Body"><a name="1027526">See the readme in the provided Libxml2 source for more details.</a></div>
+      <div class="Body"><a name="1027527">&nbsp;</a></div>
+      <div class="Body"><a name="1027528">-----------------</a></div>
+      <div class="Body"><a name="1027529">Application Name:</a></div>
+      <div class="Body"><a name="1027530">-----------------</a></div>
+      <div class="Body"><a name="1027531">&nbsp;</a></div>
+      <div class="Body"><a name="1027532">EmaCppConsPerf</a></div>
+      <div class="Body"><a name="1027533">&nbsp;</a></div>
+      <div class="Body"><a name="1027534">------------------</a></div>
+      <div class="Body"><a name="1027535">Setup Environment:</a></div>
+      <div class="Body"><a name="1027536">------------------</a></div>
+      <div class="Body"><a name="1027537">&nbsp;</a></div>
+      <div class="Body"><a name="1027538">The following configuration files are required:</a></div>
+      <div class="Body"><a name="1027539">- RDMFieldDictionary and enumtype.def, located in the etc directory.</a></div>
+      <div class="Body"><a name="1027540">- 350k.xml, located in PerfTools/Common</a></div>
+      <div class="Body"><a name="1027541">- MsgData.xml, located in PerfTools/Common (only required if posting). Currently posting is not supported.</a></div>
+      <div class="Body"><a name="1027542">&nbsp;</a></div>
+      <div class="Body"><a name="1027543">-------------------</a></div>
+      <div class="Body"><a name="1027544">Command line usage:</a></div>
+      <div class="Body"><a name="1027545">-------------------  </a></div>
+      <div class="Body"><a name="1027546">&nbsp;</a></div>
+      <div class="Body"><a name="1027547">EmaCppConsPerf</a></div>
+      <div class="Body"><a name="1027548">(runs with a default set of parameters. The full set of configurable </a></div>
+      <div class="Body"><a name="1027549"> parameters is printed to the screen. )</a></div>
+      <div class="Body"><a name="1027550">&nbsp;</a></div>
+      <div class="Body"><a name="1027551">- EmaCppConsPerf -? displays command line options, with a brief description</a></div>
+      <div class="Body"><a name="1027552">   of each option.  </a></div>
+      <div class="Body"><a name="1027553">&nbsp;</a></div>
+      <div class="Body"><a name="1027554">- Pressing the CTRL+C buttons terminates the program.  </a></div>
+      <div class="Body"><a name="1027555">&nbsp;</a></div>
+      <div class="Body"><a name="1027556">-----------------</a></div>
+      <div class="Body"><a name="1027557">Compiling Source:</a></div>
+      <div class="Body"><a name="1027558">-----------------</a></div>
+      <div class="Body"><a name="1027559">&nbsp;</a></div>
+      <div class="Body"><a name="1027560">Development Tool: </a></div>
+      <div class="Body"><a name="1027561">&nbsp;</a></div>
+      <div class="Body"><a name="1027562">open one of the included solution files with visual studio</a></div>
+      <div class="Body"><a name="1027563">and build.</a></div>
+      <div class="Body"><a name="1027564">&nbsp;</a></div>
+      <div class="Body"><a name="1027565">----------------</a></div>
+      <div class="Body"><a name="1027566">Example Content:</a></div>
+      <div class="Body"><a name="1027567">----------------</a></div>
+      <div class="Body"><a name="1027568">&nbsp;</a></div>
+      <div class="Body"><a name="1027569">Included for this application are:</a></div>
+      <div class="Body"><a name="1027570">&nbsp;</a></div>
+      <div class="Body"><a name="1027571">- Source files.</a></div>
+      <div class="Body"><a name="1027572">&nbsp;</a></div>
+      <div class="Body"><a name="1027573">- This document.</a></div>
+      <div class="Body"><a name="1027574">&nbsp;</a></div>
+      <div class="Body"><a name="1027575">--------------------</a></div>
+      <div class="Body"><a name="1027576">Detailed Description</a></div>
+      <div class="Body"><a name="1027577">--------------------</a></div>
+      <div class="Body"><a name="1027578">&nbsp;</a></div>
+      <div class="Body"><a name="1027579">EmaCppConsPerf.cpp - The main file for the EmaCppConsPerf application.</a></div>
+      <div class="Body"><a name="1027580">&nbsp;</a></div>
+      <div class="Body"><a name="1027581">ConsPerfConfig.cpp - Provides configurable options for the application.</a></div>
+      <div class="Body"><a name="1027582">&nbsp;</a></div>
+      <div class="Body"><a name="1027583">ConsumerThread.cpp - Handles consumer connections and consuming content.</a></div>
+      <div class="Body"><a name="1027584">&nbsp;</a></div>
+      <div class="Body"><a name="1027585">AppUtil.cpp - Utility for use by applications and/or common classes.</a></div>
+      <div class="Body"><a name="1027586">&nbsp;</a></div>
+      <div class="Body"><a name="1027587">CtrlBreakHandler.cpp  - Provides Contol-C handling</a></div>
+      <div class="Body"><a name="1027588"> </a></div>
+      <div class="Body"><a name="1027589">GetTime.cpp - Provides functions for retrieving time information for use in  measurements.</a></div>
+      <div class="Body"><a name="1027590">&nbsp;</a></div>
+      <div class="Body"><a name="1027591">Statistics.cpp - Provides methods for collecting and calculating statistical  information.</a></div>
+      <div class="Body"><a name="1027592">&nbsp;</a></div>
+      <div class="Body"><a name="1027593">PerfConfig.cpp  - Common configurable options across PerfTool applications.</a></div>
+      <div class="Body"><a name="1027594">&nbsp;</a></div>
+      <div class="Body"><a name="1027595">Mutex.cpp   - Provides Mutex handling.</a></div>
+      <div class="Body"><a name="1027596">&nbsp;</a></div>
+      <div class="Body"><a name="1027597">ThreadAffinity.cpp  -Used for printout and determination of thread affinity binding</a></div>
+      <div class="Body"><a name="1027598">&nbsp;</a></div>
+      <div class="Body"><a name="1027599">ThreadBinding.h - Handles Thread binding.</a></div>
+      <div class="Body"><a name="1027600">&nbsp;</a></div>
+      <div class="Body"><a name="1027601"> XmlItemParser.cpp  -Used for parsing Item file (350k.xml)</a></div>
+      <div class="Body"><a name="1027602">&nbsp;</a></div>
+      <div class="Body"><a name="1027432">&nbsp;</a></div>
+      <div class="Body"><a name="1024982">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_PerfTools_Readmes.3.1.html">EMA C++ Performance Tools Example</a> : EmaCppConsPerf</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>
