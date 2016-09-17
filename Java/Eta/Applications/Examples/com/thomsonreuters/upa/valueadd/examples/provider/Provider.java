@@ -110,7 +110,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
  * build.
  * </p>
  * <p>
- * java -cp ./bin;../../Libs/upa.jar;../Libs/upaValueAdd.jar;../Libs/upaValueAddCache.jar
+ * java -cp ./bin;../../Libs/upa.jar;../../Libs/upaValueAdd.jar;../../Libs/upaValueAddCache.jar
  * com.thomsonreuters.upa.valueadd.examples.provider.Provider [-p &ltport number&gt]
  * [-i &ltinterface name&gt] [-s &ltservice name&gt] [-id &ltservice ID&gt] [-cache] [-runtime &ltseconds&gt]
  * </p>

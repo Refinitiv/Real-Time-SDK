@@ -132,7 +132,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  * build.
  * </p>
  * <p>
- *  java -cp ./bin;../../Libs/upa.jar;../Libs/upaValueAdd.jar;../Libs/upaValueAddCache.jar
+ *  java -cp ./bin;../../Libs/upa.jar;../../Libs/upaValueAdd.jar;../../Libs/upaValueAddCache.jar
  * com.thomsonreuters.upa.valueadd.examples.watchlistconsumer.WatchlistConsumer [-h srvrHostName]
  * [-p srvrPortNo] [-u loginUserName] [-s serviceName] [-mp marketPriceItemName]
  * [-mbo marketByOrderItemName] [-mbp marketByPriceItemName] [-yc yieldCurveItemName] [-view viewFlag]
