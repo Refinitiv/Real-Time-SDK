@@ -1,0 +1,56 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EmaCppConsPerf", "EmaCppConsPerf\EmaCppConsPerf_VS100.vcxproj", "{DB5232C4-2812-4622-976E-64F26C10908D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B0BE83F2-DBE9-BAB3-2F20-3E0818E7FAE4} = {B0BE83F2-DBE9-BAB3-2F20-3E0818E7FAE4}
+		{57D0ECF0-9C25-EF40-3289-320E150F2F3C} = {57D0ECF0-9C25-EF40-3289-320E150F2F3C}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Libxml2_VS100", "..\..\..\Eta\Utils\Libxml2\Libxml2_VS100.vcxproj", "{57D0ECF0-9C25-EF40-3289-320E150F2F3C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug MDd|x64 = Debug MDd|x64
+		Debug Shared MDd|x64 = Debug Shared MDd|x64
+		Release MD Assert|x64 = Release MD Assert|x64
+		Release MD|x64 = Release MD|x64
+		Release Shared MD Assert|x64 = Release Shared MD Assert|x64
+		Release Shared MD|x64 = Release Shared MD|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DB5232C4-2812-4622-976E-64F26C10908D}.Debug MDd|x64.ActiveCfg = Debug MDd|x64
+		{DB5232C4-2812-4622-976E-64F26C10908D}.Debug MDd|x64.Build.0 = Debug MDd|x64
+		{DB5232C4-2812-4622-976E-64F26C10908D}.Debug Shared MDd|x64.ActiveCfg = Debug Shared MDd|x64
+		{DB5232C4-2812-4622-976E-64F26C10908D}.Debug Shared MDd|x64.Build.0 = Debug Shared MDd|x64
+		{DB5232C4-2812-4622-976E-64F26C10908D}.Release MD Assert|x64.ActiveCfg = Release MD Assert|x64
+		{DB5232C4-2812-4622-976E-64F26C10908D}.Release MD Assert|x64.Build.0 = Release MD Assert|x64
+		{DB5232C4-2812-4622-976E-64F26C10908D}.Release MD|x64.ActiveCfg = Release MD|x64
+		{DB5232C4-2812-4622-976E-64F26C10908D}.Release MD|x64.Build.0 = Release MD|x64
+		{DB5232C4-2812-4622-976E-64F26C10908D}.Release Shared MD Assert|x64.ActiveCfg = Release Shared MD Assert|x64
+		{DB5232C4-2812-4622-976E-64F26C10908D}.Release Shared MD Assert|x64.Build.0 = Release Shared MD Assert|x64
+		{DB5232C4-2812-4622-976E-64F26C10908D}.Release Shared MD|x64.ActiveCfg = Release Shared MD|x64
+		{DB5232C4-2812-4622-976E-64F26C10908D}.Release Shared MD|x64.Build.0 = Release Shared MD|x64
+		{57D0ECF0-9C25-EF40-3289-320E150F2F3C}.Debug MDd|x64.ActiveCfg = Debug MDd|x64
+		{57D0ECF0-9C25-EF40-3289-320E150F2F3C}.Debug MDd|x64.Build.0 = Debug MDd|x64
+		{57D0ECF0-9C25-EF40-3289-320E150F2F3C}.Debug Shared MDd|x64.ActiveCfg = Debug MDd|x64
+		{57D0ECF0-9C25-EF40-3289-320E150F2F3C}.Release MD Assert|x64.ActiveCfg = Release MD Assert|x64
+		{57D0ECF0-9C25-EF40-3289-320E150F2F3C}.Release MD Assert|x64.Build.0 = Release MD Assert|x64
+		{57D0ECF0-9C25-EF40-3289-320E150F2F3C}.Release MD|x64.ActiveCfg = Release MD|x64
+		{57D0ECF0-9C25-EF40-3289-320E150F2F3C}.Release MD|x64.Build.0 = Release MD|x64
+		{57D0ECF0-9C25-EF40-3289-320E150F2F3C}.Release Shared MD Assert|x64.ActiveCfg = Release MD Assert|x64
+		{57D0ECF0-9C25-EF40-3289-320E150F2F3C}.Release Shared MD|x64.ActiveCfg = Release MD|x64
+		{B0BE83F2-DBE9-BAB3-2F20-3E0818E7FAE4}.Debug MDd|x64.ActiveCfg = Debug Shared MDd|x64
+		{B0BE83F2-DBE9-BAB3-2F20-3E0818E7FAE4}.Debug Shared MDd|x64.ActiveCfg = Debug Shared MDd|x64
+		{B0BE83F2-DBE9-BAB3-2F20-3E0818E7FAE4}.Debug Shared MDd|x64.Build.0 = Debug Shared MDd|x64
+		{B0BE83F2-DBE9-BAB3-2F20-3E0818E7FAE4}.Release MD Assert|x64.ActiveCfg = Release Shared MD Assert|x64
+		{B0BE83F2-DBE9-BAB3-2F20-3E0818E7FAE4}.Release MD|x64.ActiveCfg = Release Shared MD|x64
+		{B0BE83F2-DBE9-BAB3-2F20-3E0818E7FAE4}.Release Shared MD Assert|x64.ActiveCfg = Release Shared MD Assert|x64
+		{B0BE83F2-DBE9-BAB3-2F20-3E0818E7FAE4}.Release Shared MD Assert|x64.Build.0 = Release Shared MD Assert|x64
+		{B0BE83F2-DBE9-BAB3-2F20-3E0818E7FAE4}.Release Shared MD|x64.ActiveCfg = Release Shared MD|x64
+		{B0BE83F2-DBE9-BAB3-2F20-3E0818E7FAE4}.Release Shared MD|x64.Build.0 = Release Shared MD|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
