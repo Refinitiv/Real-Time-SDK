@@ -15,6 +15,9 @@ com.thomsonreuters.upa.examples.rdm.marketbyprice
 com.thomsonreuters.upa.examples.rdm.marketprice
 com.thomsonreuters.upa.examples.rdm.symbollist
 com.thomsonreuters.upa.examples.rdm.yieldcurve
+com.thomsonreuters.upa.training.consumer
+com.thomsonreuters.upa.training.niprovider
+com.thomsonreuters.upa.training.provider
 com.thomsonreuters.upa.valueadd.cache
 com.thomsonreuters.upa.valueadd.common
 com.thomsonreuters.upa.valueadd.domainrep.rdm

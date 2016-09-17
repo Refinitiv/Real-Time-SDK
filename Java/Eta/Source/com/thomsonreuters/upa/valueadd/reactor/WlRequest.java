@@ -1,5 +1,7 @@
 package com.thomsonreuters.upa.valueadd.reactor;
 
+import java.util.ArrayList;
+
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.codec.Qos;
@@ -21,9 +23,14 @@ public class WlRequest extends VaNode
     boolean _initialResponseReceived;
     boolean _hasServiceId;
     long _serviceId;
+    WlView _view;
+    ArrayList<Integer> _viewFieldIdList;
+    ArrayList<String> _viewElementNameList;
+    int _viewElemCount;    
     int _viewType;
     int _viewAction;
     boolean _reissue_hasChange = false;
+    boolean _reissue_hasViewChange = false;
        
     Qos _matchedQos = CodecFactory.createQos();
     
@@ -45,6 +52,7 @@ public class WlRequest extends VaNode
         RETURN_TO_POOL,
         PENDING_REQUEST,
         REFRESH_PENDING,
+        REFRESH_VIEW_PENDING, 
         REFRESH_COMPLETE_PENDING, // multi-part
         OPEN
     }
@@ -255,7 +263,47 @@ public class WlRequest extends VaNode
     {
         return _tableKey;
     }
+    
+    WlView view()
+    {
+    	return _view;
+    }
+    
+    void view(WlView view)
+    {
+    	_view = view;
+    }
+      
+	public ArrayList<Integer> viewFieldIdList() 
+	{
+		return _viewFieldIdList;
+	}
 
+	public void viewFieldIdList(ArrayList<Integer> viewFieldIdList)
+	{
+		_viewFieldIdList = viewFieldIdList;
+	}
+
+	public ArrayList<String> viewElementNameList()
+	{
+		return _viewElementNameList;
+	}
+
+	public void viewElementNameList(ArrayList<String> viewElementNameList)
+	{
+		_viewElementNameList = viewElementNameList;
+	}
+
+	int viewElemCount()
+	{
+		return _viewElemCount;
+	}
+
+	void viewElemCount(int viewElemCount)
+	{
+		_viewElemCount = viewElemCount;
+	}
+    
 	/* Clears the object for re-use. */
     void clear()
     {

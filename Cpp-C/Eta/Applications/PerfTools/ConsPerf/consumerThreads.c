@@ -302,6 +302,51 @@ RsslRet sendDictionaryRequests(ConsumerThread *pConsumerThread, RsslUInt16 servi
 	return RSSL_RET_SUCCESS;
 }
 
+RsslRet sendWatchlistDictionaryRequests(ConsumerThread *pConsumerThread, RsslUInt16 serviceId, 
+		RsslInt32 fieldDictionaryStreamId, RsslInt32 enumTypeDictionaryStreamId)
+{
+	RsslRDMDictionaryRequest dictionaryRequest;
+	RsslRet ret;
+	RsslReactorSubmitMsgOptions submitMsgOpts;
+	RsslErrorInfo rsslErrorInfo;
+
+	rsslClearRDMDictionaryRequest(&dictionaryRequest);
+	dictionaryRequest.flags = RDM_DC_RQF_STREAMING;
+	dictionaryRequest.serviceId = serviceId;
+
+	/* Field dictionary request. */
+	dictionaryRequest.dictionaryName.data = (char*)"RWFFld";
+	dictionaryRequest.dictionaryName.length = 6;
+	dictionaryRequest.rdmMsgBase.streamId = fieldDictionaryStreamId;
+
+	rsslClearReactorSubmitMsgOptions(&submitMsgOpts);
+
+	// submit message to VA Reactor Watchlist
+	submitMsgOpts.pRDMMsg = (RsslRDMMsg *)&dictionaryRequest;
+	if ((ret = rsslReactorSubmitMsg(pConsumerThread->pReactor, pConsumerThread->pReactorChannel, &submitMsgOpts, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
+	{
+		printf("rsslReactorSubmitMsg() failed: %d(%s)\n", ret, rsslErrorInfo.rsslError.text);
+		return ret;
+	}
+
+	/* Enumerated types dictionary request. */
+	dictionaryRequest.dictionaryName.data = (char*)"RWFEnum";
+	dictionaryRequest.dictionaryName.length = 7;
+	dictionaryRequest.rdmMsgBase.streamId = enumTypeDictionaryStreamId;
+
+	rsslClearReactorSubmitMsgOptions(&submitMsgOpts);
+
+	// submit message to VA Reactor Watchlist
+	submitMsgOpts.pRDMMsg = (RsslRDMMsg *)&dictionaryRequest;
+	if ((ret = rsslReactorSubmitMsg(pConsumerThread->pReactor, pConsumerThread->pReactorChannel, &submitMsgOpts, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
+	{
+		printf("rsslReactorSubmitMsg() failed: %d(%s)\n", ret, rsslErrorInfo.rsslError.text);
+		return ret;
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
 RsslRet sendItemRequestBurst(ConsumerThread *pConsumerThread, RsslUInt32 itemBurstCount)
 {
 	RsslRet ret;
@@ -1000,7 +1045,7 @@ static RsslRet connectReactor(ConsumerThread* pConsumerThread)
 	pConsumerThread->consumerRole.loginMsgCallback = loginMsgCallback;
 	pConsumerThread->consumerRole.directoryMsgCallback = directoryMsgCallback;
 	pConsumerThread->consumerRole.dictionaryMsgCallback = dictionaryMsgCallback;
-	if (!pConsumerThread->dictionaryStateFlags)
+	if (!pConsumerThread->dictionaryStateFlags && consPerfConfig.useWatchlist == RSSL_FALSE)
 	{
 		pConsumerThread->consumerRole.dictionaryDownloadMode = RSSL_RC_DICTIONARY_DOWNLOAD_FIRST_AVAILABLE;
 	}
@@ -1489,6 +1534,19 @@ static RsslRet processSourceDirectoryResp(ConsumerThread* pConsumerThread, RsslR
 				{
 					if (pConsumerThread->dictionaryStateFlags != (DICTIONARY_STATE_HAVE_FIELD_DICT | DICTIONARY_STATE_HAVE_ENUM_DICT))
 						if ( (ret = sendDictionaryRequests(pConsumerThread, (RsslUInt16)pConsumerThread->pDesiredService->serviceId,
+										FIELD_DICTIONARY_STREAM_ID, ENUM_TYPE_DICTIONARY_STREAM_ID)) != RSSL_RET_SUCCESS)
+						{
+							rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+							shutdownThreads = RSSL_TRUE;
+							return RSSL_RET_FAILURE;
+						}
+				}
+
+				/* send dictionary requests if using VA Watchlist */
+				if (consPerfConfig.useWatchlist == RSSL_TRUE)
+				{
+					if (pConsumerThread->dictionaryStateFlags != (DICTIONARY_STATE_HAVE_FIELD_DICT | DICTIONARY_STATE_HAVE_ENUM_DICT))
+						if ( (ret = sendWatchlistDictionaryRequests(pConsumerThread, (RsslUInt16)pConsumerThread->pDesiredService->serviceId,
 										FIELD_DICTIONARY_STREAM_ID, ENUM_TYPE_DICTIONARY_STREAM_ID)) != RSSL_RET_SUCCESS)
 						{
 							rsslCloseChannel(pConsumerThread->pChannel, &closeError);
@@ -2657,7 +2715,7 @@ RsslReactorCallbackRet dictionaryMsgCallback(RsslReactor *pReactor, RsslReactorC
 	RsslRDMDictionaryMsg *pDictionaryMsg = pDictionaryMsgEvent->pRDMDictionaryMsg;
 	RsslMsg *pMsg = pDictionaryMsgEvent->baseMsgEvent.pRsslMsg;
 
-	if (!pDictionaryMsg || !pMsg)
+	if (!pDictionaryMsg && !pMsg)
 	{
 		RsslErrorInfo *pError = pDictionaryMsgEvent->baseMsgEvent.pErrorInfo;
 		printf("dictionaryResponseCallback: %s(%s)\n", pError->rsslError.text, pError->errorLocation);
@@ -2670,7 +2728,14 @@ RsslReactorCallbackRet dictionaryMsgCallback(RsslReactor *pReactor, RsslReactorC
 		
 	/* set version info */
 	rsslSetDecodeIteratorRWFVersion(&dIter, pConsumerThread->pChannel->majorVersion, pConsumerThread->pChannel->minorVersion);
-	rsslSetDecodeIteratorBuffer(&dIter, &pMsg->msgBase.encDataBody);
+	if (pMsg)
+	{
+		rsslSetDecodeIteratorBuffer(&dIter, &pMsg->msgBase.encDataBody);
+	}
+	else
+	{
+		rsslSetDecodeIteratorBuffer(&dIter, &pDictionaryMsg->refresh.dataBody);
+	}
 
 	if (processDictionaryResp(pConsumerThread, pDictionaryMsg, &dIter) < RSSL_RET_SUCCESS)
 	{

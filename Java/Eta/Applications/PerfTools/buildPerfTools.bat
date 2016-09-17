@@ -1,6 +1,6 @@
 mkdir bin
 set JAVAC="%JAVA_HOME%\bin\javac"
-set CLASSPATH=.\;.\xpp3-1.1.3_8.jar;.\xpp3_min-1.1.3_8.jar;..\..\Libs\upa.jar;..\..\Libs\upaValueAdd.jar
+set CLASSPATH=.\;.\xpp3-1.1.3_8.jar;.\xpp3_min-1.1.3_8.jar;..\..\Libs\upa.jar;..\..\Libs\upaValueAdd.jar;..\..\..\..\Elektron-SDK-BinaryPack\Java\Eta\Libs\upa.jar
 
 del /S *.class
 

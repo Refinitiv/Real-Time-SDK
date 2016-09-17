@@ -65,12 +65,12 @@ import com.thomsonreuters.upa.perftools.common.XmlMsgData;
  * <p>
  * <H2>Running the application:</H2>
  * <p>
- * From the <i>PerfTools</i> directory run <i>ant</i> or <i>buildPerfTools.bat/ksh</i> script to
+ * From the <i>Applications/PerfTools</i> directory run <i>ant</i> or <i>buildPerfTools.bat/ksh</i> script to
  * build performance examples.
  * <p>
  * Run example with the following command:
  * <p>
- * java -cp ../Libs/upa.jar;../ValueAdd/Libs/upaValueAdd.jar;./xpp3-1.1.3_8.jar;./xpp3_min-1.1.3_8.jar;bin
+ * java -cp ../../Libs/upa.jar;../../Libs/upaValueAdd.jar;./xpp3-1.1.3_8.jar;./xpp3_min-1.1.3_8.jar;bin
  *  com.thomsonreuters.upa.perftools.upajconsperf.upajConsPerf
  * <p> 
  * <i>-help</i> displays command line options, with a brief description of each option
@@ -113,9 +113,6 @@ public class upajConsPerf implements ShutdownCallback
 	// stdio writer 
 	private PrintWriter _stdOutWriter = new PrintWriter(System.out);  
 	
-	// timestamp at last stats report 
-	private long _previousStatsTime; 
-	
 	// indicates whether or not application should be shutdown 
 	private volatile boolean _shutdownApp = false; 
 	
@@ -130,8 +127,6 @@ public class upajConsPerf implements ShutdownCallback
     {
 		long nextTime;
 	
-		_previousStatsTime = System.nanoTime();
-
 		// main statistics polling thread here
 		while(!_shutdownApp)
 		{
@@ -143,7 +138,7 @@ public class upajConsPerf implements ShutdownCallback
 			
 			if (_intervalSeconds == _consPerfConfig.writeStatsInterval())
 			{
-				collectStats(true, _consPerfConfig.displayStats(), _currentRuntimeSec);
+				collectStats(true, _consPerfConfig.displayStats(), _currentRuntimeSec, _consPerfConfig.writeStatsInterval());
 				_intervalSeconds = 0;
 			}
 			
@@ -288,14 +283,7 @@ public class upajConsPerf implements ShutdownCallback
 		{
 			_consumerThreadsInfo[i].threadId(i + 1);
 			
-			if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use UPA Channel for sending and receiving
-			{
-			    new Thread(new ConsumerThread(_consumerThreadsInfo[i], _consPerfConfig, _xmlItemInfoList, _xmlMsgData, _postUserInfo, this)).start();
-			}
-			else // use VA Reactor for for sending and receiving
-			{
-                new Thread(new ConsumerThreadReactor(_consumerThreadsInfo[i], _consPerfConfig, _xmlItemInfoList, _xmlMsgData, _postUserInfo, this)).start();
-			}
+			new Thread(new ConsumerThread(_consumerThreadsInfo[i], _consPerfConfig, _xmlItemInfoList, _xmlMsgData, _postUserInfo, this)).start();
 		}
 
 		// set application end time
@@ -704,14 +692,10 @@ public class upajConsPerf implements ShutdownCallback
 	}
 
 	/* Collect statistics. */
-	private void collectStats(boolean writeStats, boolean displayStats, int currentRuntimeSec) 
+	private void collectStats(boolean writeStats, boolean displayStats, int currentRuntimeSec, long timePassedSec) 
 	{
 		boolean allRefreshesRetrieved = true;
 		
-		long timeNow = System.nanoTime();
-		long statsInterval = timeNow - _previousStatsTime;
-		_previousStatsTime = timeNow;
-
 		double processCpuLoad = ResourceUsageStats.currentProcessCpuLoad();
 		double memoryUsage = ResourceUsageStats.currentMemoryUsage();
 		
@@ -787,7 +771,7 @@ public class upajConsPerf implements ShutdownCallback
 						((_consumerThreadsInfo[i].stats().intervalLatencyStats().count() > 0) ? _consumerThreadsInfo[i].stats().intervalLatencyStats().maxValue() : 0.0),
 						((_consumerThreadsInfo[i].stats().intervalLatencyStats().count() > 0) ? _consumerThreadsInfo[i].stats().intervalLatencyStats().minValue() : 0.0),
 						refreshCount,
-						(startupUpdateCount + steadyStateUpdateCount)*1000000000L/statsInterval,
+						(startupUpdateCount + steadyStateUpdateCount)/timePassedSec,
 						_consumerThreadsInfo[i].stats().intervalPostLatencyStats().count(),
 						_consumerThreadsInfo[i].stats().intervalPostLatencyStats().average(),
 						Math.sqrt(_consumerThreadsInfo[i].stats().intervalPostLatencyStats().variance()),
@@ -816,7 +800,7 @@ public class upajConsPerf implements ShutdownCallback
 				System.out.printf("Images: %6d, Posts: %6d, UpdRate: %8d, CPU: %6.2f%%, Mem: %6.2fMB\n", 
 						refreshCount,
 						postSentCount,
-						(startupUpdateCount + steadyStateUpdateCount)*1000000000L/statsInterval,
+						(startupUpdateCount + steadyStateUpdateCount)/timePassedSec,
 						processCpuLoad,
 						memoryUsage);
 

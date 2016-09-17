@@ -11,10 +11,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.24
-!tag Build_RDMD  4.20.24
-!tag DT_Version  16.41
-!tag Date        12-May-2016
+!tag RT_Version  4.20.25
+!tag Build_RDMD  4.20.25
+!tag DT_Version  16.71
+!tag Date        30-Aug-2016
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -544,6 +544,7 @@ LEG2_CURR  13446
     907        "AEf"   UAE Fils
     931        "CUC"   Cuba Convertible Peso
     932        "ZWL"   Zimbabwe Dollar 
+    933        "BYN"   Belarusian Ruble
     934        "TMT"   Turkmenistan New Manat
     936        "GHS"   Ghana Cedi
     937        "VEF"   Venezuelan Bolivar
@@ -578,7 +579,7 @@ LEG2_CURR  13446
     971        "AFN"   Afghanistan afghani
     972        "TJS"   Tajikistan Somoni
     973        "AOA"   Angolan kwanza
-    974        "BYR"   Belarussian Ruble 
+    974        "BYR"   Belarusian Ruble (Jan 2000 - Dec 2016)
     975        "BGN"   Bulgarian Lev
     976        "CDF"   Congolese Franc 
     977        "BAM"   Convertible Mark
@@ -624,6 +625,7 @@ LEG2_CURR  13446
    2026        "CRU"   Costa Rican Unidad de Desarrolla
    2027        "BTC"   bitcoin
    2028        "UYR"   Unidades Reajustables
+   2029        "BYk"   Belarusian Kapeyka
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -921,7 +923,7 @@ BIDXID      3298
      16        "OMG"   Omega
      17        "ALP"   Alpha - Canadian ATS
      18        "WCB"   Chicago Board Options Exchange
-     19        "CXC"   Instinet Chi-X Canada- Canadian ATS
+     19        "CXC"   Nasdaq CXC
      20        "ALV"   ALPHA TRADING SYSTEMS TSX VENTURE-CANADIAN ATS L1
      21        "C2E"   C2 Options Exchange
      25        "ALX"   Alpha Exchange Level 1
@@ -939,7 +941,7 @@ BIDXID      3298
     217        "BAT"   BATS Exch Equities
     220        "TRF"   NASD Trade Reporting Facility
     221        "TMX"   TMX Select
-    222        "CXX"   CHI-X CANADA - 2ND LIT MARKET - L1
+    222        "CXX"   Nasdaq CX2
     223        "IXX"   INSTINET CANADA CROSS
     224        "CNX"   Canadian Securities Exchange - CSE Listed
     225        "LNX"   Omega LYNX
@@ -947,6 +949,7 @@ BIDXID      3298
     227        "NEO"   Aequitas NEO NEO EXCHANGE
     228        "NLS"   Aequitas NEO LIT Special Terms
     229        "IEX"   IEX GROUP INC - (CTA)
+    230        "CXD"   Nasdaq CXD
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -4048,6 +4051,7 @@ CAN_COND    6585
   21343        "BMR"   Benchmark Trade. Out of Sequence Retransmission. (OPRA).
   21345        "TTE"   Trade Trough Exempt. Out of Sequence. Not LAST (OPRA).
   21346        "TTR"   Trade Through Exempt. Out of sequence Retransmission. (OPRA).
+  32691        "RFQ"   Request for Quote
   32692        "NR "   Non-Resident
   32693        "CTO"   Contingent Trade - Extended Hours - Odd Lot
   32694        "COD"   Contingent Trade - Odd Lot
@@ -4123,6 +4127,7 @@ CAN_COND    6585
   32764        "CLS"   Official close
   32765        "NEG"   Put through trade
   32766        "DRK"   Trade on Dark Book
+  32767        "AOD"   Auction on Demand
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -5041,6 +5046,10 @@ OFF_CD_IN2  1055
      53        "EII"   Eurex Individual ISIN
      54        "EPI"   Exchange Product ISIN
      55        "ALF"   Alpha Code
+     56        "SZX"   China SZSE local code
+     57        "ARG"   Argus PA Code
+     58        "TWI"   Tradeweb ID Code
+     59        "RED"   RED ID code for Credit Default Swaps
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -6901,6 +6910,11 @@ DOMICILE    4037
     894        "ZMB"   Zambia
    2000        "MUL"   Multinational
    2001        "SUP"   Supra-National
+   2002        "EUZ"   Euro Zone
+   2003        "EUS"   EU-27
+   2004        "EUT"   EU-25
+   2005        "EUF"   EU-15
+   2006        "WOL"   World
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -7500,7 +7514,7 @@ BLK_EXID   13552
     548        "NL2"   Nasdaq Liffe LLC Level 2
     549        "ADC"   NASD Alternative Display Facility for NYSE/AMEX Issues
     550        "IMQ"   US Intermarket Level 2
-    551        "LCA"   NYSE Alternext when trading NASDAQ Global Market
+    551        "LCA"   NYSE MKT when trading NASDAQ Global Market
     552        "LCB"   Boston Stock Exchange for Nasdaq Large Cap
     553        "LCC"   Cincinnati Stock Exchange for Nasdaq Large Cap
     554        "LCM"   Chicago Stock Exchange for Nasdaq Large Cap
@@ -7510,7 +7524,7 @@ BLK_EXID   13552
     558        "LCX"   NASDAQ OMX PSX for Nasdaq Global Market (formerly Philadelphia Stock Exchange)
     559        "NAQ"   Nasdaq Stock Exchange Consolidated Capital Market
     560        "NMQ"   NASDAQ Stock Market Exchange Consolidated Large Cap
-    561        "SCA"   NYSE Alternext when trading NASDAQ Capital Market
+    561        "SCA"   NYSE MKT when trading NASDAQ Capital Market
     562        "SCB"   Boston Stock Exchange for Nasdaq Capital Market
     563        "SCC"   Cincinnati Stock Exchange for Nasdaq Capital Market
     564        "SCM"   Chicago Stock Exchange for Nasdaq Capital Market
@@ -7597,7 +7611,7 @@ BLK_EXID   13552
     645        "GSX"   NASDAQ OMX PSX for Nasdaq Global Select Market (formerly Philadelphia Stock Exchange)
     646        "NSQ"   Consolidated Issue Listed on Nasdaq Global Select Market
     647        "GSN"   NYSE when trading Nasdaq Global Select Market
-    648        "GSA"   NYSE Alternext when trading NASDAQ Global Select Market
+    648        "GSA"   NYSE MKT when trading NASDAQ Global Select Market
     649        "GSB"   Boston SE when trading Nasdaq Global Select Market
     650        "GSW"   CBOE when trading Nasdaq Global Select Market
     651        "GSM"   Chicago SE when trading Nasdaq Global Select Market
@@ -7931,7 +7945,7 @@ BLK_EXID   13552
     979        "GCY"   BATS Y For NASDAQ OMX Global Select Market 
     980        "SHO"   Daily Short Sale (U.S. exchanges)
     981        "GCT"   GLOBECOT
-    982        "MEN"   Mendoza Stock Exchange
+    982        "MEN"   Mendoza Stock Exchange (deprecated)
     983        "BTX"   BATS Options Exchange
     984        "STI"   The Steel Index
     985        "SMX"   SINGAPORE MERCANTILE EXCHANGE
@@ -8379,7 +8393,7 @@ BLK_EXID   13552
    1427        "IEQ"   NATIONAL STOCK EXCHANGE OF INDIA EQUITIES
    1428        "IDR"   NATIONAL STOCK EXCHANGE OF INDIA DERIVATIVES
    1429        "PLO"   PointLogic Energy
-   1430        "430"   Not allocated (was NASDAQ BASIC FOR NYSE LISTINGS)
+   1430        "MIB"   MIBGAS-Iberian Gas Market
    1431        "431"   Not allocated (was NASDAQ BASIC FOR NASDAQ LISTINGS)
    1432        "BDR"   BOAT Russian Segment
    1433        "OMN"   OMF CommTrade CARBON
@@ -8391,6 +8405,14 @@ BLK_EXID   13552
    1439        "ENT"   ENTSOE
    1440        "CUR"   CME Europe
    1441        "VLM"   VALMER S.A
+   1442        "YSX"   YANGON STOCK EXCHANGE
+   1443        "CRN"   Currenex
+   1444        "RSG"   ROSGAN
+   1445        "CNC"   Council of the French Sworn Brokers of Commodities
+   1446        "EMK"   ENERGY MARKET COMPANY
+   1447        "CXD"   Nasdaq CXD
+   1448        "ICQ"   Consolidated Issues Listed By IEX Exchange
+   1449        "IEB"   IRISH SE BONDS & FUNDS
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -10713,6 +10735,10 @@ PRC_QL3     3264
     393        "IXG"   Inflation adjusted Gross Price (percentage of par)
     394        "IXC"   Inflation adjusted Clean Price (percentage of par)
     395        "ILD"   Inflation Adjusted Yield
+    396        "INL"   Intentional Cross
+    397        "INC"   Internal Cross
+    398        "CYL"   Composite Yield
+    399        "BEI"   Break Even Inflation Rate
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -10854,6 +10880,218 @@ RPT_UNITS   4033
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0   "        "   undefined
+      1   "Acre    "   Acre
+      2   "ARS     "   Currency unit - Argentine Peso
+      3   "AUD     "   Currency unit - Australian Dollar
+      4   "Barrel  "   Barrel
+      5   "Brl/Day "   Barrels per day
+      6   "BRL     "   Currency unit - Brazilian Real
+      7   "Bushel  "   Bushels
+      8   "CAD     "   Currency unit - Canadian Dollar
+      9   "CHF     "   Currency unit - Swiss Franc
+     10   "CNY     "   Currency unit - Yuan Renminbi
+     11   "Cft     "   Cubic foot
+     12   "CZK     "   Currency unit - Czech Koruna
+     13   "Diff.Idx"   Diffusion index
+     14   "DKK     "   Currency unit - Danish Krone
+     15   "EUR     "   Currency unit - Euro
+     16   "GBP     "   Currency unit - Pound Sterling
+     17   "Hour    "   Hour
+     18   "HUF     "   Currency unit - Forint
+     19   "ILS     "   Currency unit - New Israeli Sheqel
+     20   "Index   "   Index number
+     21   "INR     "   Currency unit - Indian Rupee
+     22   "JPY     "   Currency unit - Yen
+     23   "KWD     "   Currency unit - Kuwaiti Dinar
+     24   "MXN     "   Currency unit - Mexican Peso
+     25   "MYR     "   Currency unit - Malaysian Ringgit
+     26   "Balance "   Balance
+     27   "NGN     "   Currency unit - Naira
+     28   "NOK     "   Currency unit - Norwegian Krone
+     29   "No. of  "   Number of
+     30   "NZD     "   Currency unit - New Zealand Dollar
+     31   "OMR     "   Currency unit - Rial Omani
+     32   "Percent "   Percent
+     33   "Person  "   Person
+     34   "PHP     "   Currency unit - Philippine Peso
+     35   "SEK     "   Currency unit - Swedish Krona
+     36   "SGD     "   Currency unit - Singapore Dollar
+     37   "Times   "   Times
+     38   "Ratio   "   Ratio
+     39   "TRY     "   Currency unit - Turkish Lira
+     40   "UAH     "   Currency unit - Hryvnia
+     41   "USD     "   Currency unit - US Dollar
+     42   "ZAR     "   Currency unit - Rand
+     43   "AED     "   Currency unit - UAE Dirham
+     44   "AFA     "   Currency unit - Afghanistan afghani
+     45   "AFN     "   Currency unit - Afghani
+     46   "ALL     "   Currency unit - Lek
+     47   "AMD     "   Currency unit - Armenian Dram
+     48   "ANG     "   Currency unit - Netherlands Antillean Guilder
+     49   "AOA     "   Currency unit - Kwanza
+     50   "AON     "   Currency unit - Angolan new kwanza
+     51   "ATS     "   Currency unit - Austrian schilling
+     52   "AUc     "   Currency unit - Australian cent (deprecated)
+     53   "AWG     "   Currency unit - Aruban Florin
+     54   "AZN     "   Currency unit - Azerbaijanian Manat
+     55   "BAM     "   Currency unit - Convertible Mark
+     56   "BBD     "   Currency unit - Barbados Dollar
+     57   "BDT     "   Currency unit - Taka
+     58   "BEF     "   Currency unit - Belgian franc
+     59   "BGN     "   Currency unit - Bulgarian Lev
+     60   "BHD     "   Currency unit - Bahraini Dinar
+     61   "BIF     "   Currency unit - Burundi Franc
+     62   "BMD     "   Currency unit - Bermudian Dollar
+     63   "BND     "   Currency unit - Brunei Dollar
+     64   "BOB     "   Currency unit - Boliviano
+     65   "BRE     "   Currency unit - Brazilian Cruziero
+     66   "BSD     "   Currency unit - Bahamian Dollar
+     67   "BTN     "   Currency unit - Ngultrum
+     68   "BWP     "   Currency unit - Pula
+     69   "BYR     "   Currency unit - Belarusian Ruble
+     70   "BZD     "   Currency unit - Belize Dollar
+     71   "CDF     "   Currency unit - Congolese Franc
+     72   "CLF     "   Currency unit - Unidad de Fomento
+     73   "CLP     "   Currency unit - Chilean Peso
+     74   "CNH     "   Currency unit - Chinese Yuan Offshore
+     75   "COP     "   Currency unit - Colombian Peso
+     76   "CRC     "   Currency unit - Costa Rican Colon
+     77   "CUP     "   Currency unit - Cuban Peso
+     78   "CVE     "   Currency unit - Cabo Verde Escudo
+     79   "CYP     "   Currency unit - Cyprus pound
+     80   "DEM     "   Currency unit - Deutsche mark
+     81   "DJF     "   Currency unit - Djibouti Franc
+     82   "DOP     "   Currency unit - Dominican Peso
+     83   "DZD     "   Currency unit - Algerian Dinar
+     84   "ECS     "   Currency unit - Ecuador sucre
+     85   "ECU     "   Currency unit - European Currency Unit
+     86   "ECV     "   Currency unit - Ecuador Unidad de Valor Constante
+     87   "EEK     "   Currency unit - Estonian kroon
+     88   "EGP     "   Currency unit - Egyptian Pound
+     89   "ERN     "   Currency unit - Nakfa
+     90   "ESP     "   Currency unit - Spanish peseta
+     91   "ETB     "   Currency unit - Ethiopian Birr
+     92   "FIM     "   Currency unit - Finnish markka
+     93   "FJD     "   Currency unit - Fiji Dollar
+     94   "FKP     "   Currency unit - Falkland Islands Pound
+     95   "FRF     "   Currency unit - French franc
+     96   "GEL     "   Currency unit - Lari
+     97   "GHC     "   Currency unit - Ghanaian cedi
+     98   "GHS     "   Currency unit - Ghana Cedi
+     99   "GIP     "   Currency unit - Gibraltar Pound
+    100   "GMD     "   Currency unit - Dalasi
+    101   "GNF     "   Currency unit - Guinea Franc
+    102   "GRD     "   Currency unit - Greek drachma
+    103   "GTQ     "   Currency unit - Quetzal
+    104   "GWP     "   Currency unit - Guinea-Bissau peso
+    105   "GYD     "   Currency unit - Guyana Dollar
+    106   "HKD     "   Currency unit - Hong Kong Dollar
+    107   "HNL     "   Currency unit - Lempira
+    108   "HRK     "   Currency unit - Kuna
+    109   "HTG     "   Currency unit - Gourde
+    110   "IDR     "   Currency unit - Rupiah
+    111   "IEP     "   Currency unit - Irish pound
+    112   "IMP     "   Currency unit - Isle of Man Pound
+    113   "IQD     "   Currency unit - Iraqi Dinar
+    114   "IRR     "   Currency unit - Iranian Rial
+    115   "ISK     "   Currency unit - Iceland Krona
+    116   "ITL     "   Currency unit - Italian lira
+    117   "JMD     "   Currency unit - Jamaican Dollar
+    118   "JOD     "   Currency unit - Jordanian Dinar
+    119   "KES     "   Currency unit - Kenyan Shilling
+    120   "KGS     "   Currency unit - Som
+    121   "KHR     "   Currency unit - Riel
+    122   "KMF     "   Currency unit - Comoro Franc
+    123   "KPW     "   Currency unit - North Korean Won
+    124   "KRW     "   Currency unit - Won
+    125   "KYD     "   Currency unit - Cayman Islands Dollar
+    126   "KZT     "   Currency unit - Tenge
+    127   "LAK     "   Currency unit - Kip
+    128   "LBP     "   Currency unit - Lebanese Pound
+    129   "LKR     "   Currency unit - Sri Lanka Rupee
+    130   "LRD     "   Currency unit - Liberian Dollar
+    131   "LSL     "   Currency unit - Loti
+    132   "LTL     "   Currency unit - Lithuanian litas
+    133   "LUF     "   Currency unit - Luxembourg franc
+    134   "LVL     "   Currency unit - Latvian Lats
+    135   "LYD     "   Currency unit - Libyan Dinar
+    136   "MAD     "   Currency unit - Moroccan Dirham
+    137   "MDL     "   Currency unit - Moldovan Leu
+    138   "MGA     "   Currency unit - Malagasy Ariary
+    139   "MGF     "   Currency unit - Malgasy Franc
+    140   "MKD     "   Currency unit - Denar
+    141   "MMK     "   Currency unit - Kyat
+    142   "MNT     "   Currency unit - Tugrik
+    143   "MOP     "   Currency unit - Pataca
+    144   "MRO     "   Currency unit - Ouguiya
+    145   "MTL     "   Currency unit - Maltese lira
+    146   "MUR     "   Currency unit - Mauritius Rupee
+    147   "MVR     "   Currency unit - Rufiyaa
+    148   "MWK     "   Currency unit - Malawi Kwacha
+    149   "MXV     "   Currency unit - Mexican Unidad de Inversion (UDI)
+    150   "MZM     "   Currency unit - Mozambique metical
+    151   "NAD     "   Currency unit - Namibia Dollar
+    152   "NIO     "   Currency unit - Cordoba Oro
+    153   "NLG     "   Currency unit - Netherlands guilder
+    154   "NPR     "   Currency unit - Nepalese Rupee
+    155   "PAB     "   Currency unit - Balboa
+    156   "PEN     "   Currency unit - Sol
+    157   "PGK     "   Currency unit - Kina
+    158   "PKR     "   Currency unit - Pakistan Rupee
+    159   "PLN     "   Currency unit - Zloty
+    160   "PRB     "   Currency unit - Transinistrian Ruble
+    161   "PTE     "   Currency unit - Portuguese escudo
+    162   "PYG     "   Currency unit - Guarani
+    163   "QAR     "   Currency unit - Qatari Rial
+    164   "ROL     "   Currency unit - Romanian leu
+    165   "RSD     "   Currency unit - Serbian Dinar
+    166   "RUB     "   Currency unit - Russian Ruble
+    167   "RWF     "   Currency unit - Rwanda Franc
+    168   "SAR     "   Currency unit - Saudi Riyal
+    169   "SBD     "   Currency unit - Solomon Islands Dollar
+    170   "SCR     "   Currency unit - Seychelles Rupee
+    171   "SDD     "   Currency unit - Sudanese dinar
+    172   "SDG     "   Currency unit - Sudanese Pound
+    173   "SHP     "   Currency unit - Saint Helena Pound
+    174   "SIT     "   Currency unit - Slovenian tolar
+    175   "SKK     "   Currency unit - Slovak Koruna
+    176   "SLL     "   Currency unit - Leone
+    177   "SOS     "   Currency unit - Somali Shilling
+    178   "SRD     "   Currency unit - Surinam Dollar
+    179   "SSP     "   Currency unit - South Sudanese Pound
+    180   "STD     "   Currency unit - Dobra
+    181   "SVC     "   Currency unit - El Salvador Colon
+    182   "SYP     "   Currency unit - Syrian Pound
+    183   "SZL     "   Currency unit - Lilangeni
+    184   "THB     "   Currency unit - Baht
+    185   "TJS     "   Currency unit - Somoni
+    186   "TMM     "   Currency unit - Turkmenistan manat
+    187   "TMT     "   Currency unit - Turkmenistan New Manat
+    188   "TND     "   Currency unit - Tunisian Dinar
+    189   "TOP     "   Currency unit - Pa'anga
+    190   "TRL     "   Currency unit - Old Turkish lira
+    191   "TTD     "   Currency unit - Trinidad and Tobago Dollar
+    192   "TWD     "   Currency unit - New Taiwan Dollar
+    193   "TZS     "   Currency unit - Tanzanian Shilling
+    194   "UAK     "   Currency unit - Ukrainian karbovanet
+    195   "UGX     "   Currency unit - Uganda Shilling
+    196   "USc     "   Currency unit - US cents
+    197   "UYU     "   Currency unit - Peso Uruguayo
+    198   "UZS     "   Currency unit - Uzbekistan Sum
+    199   "VEB     "   Currency unit - Old Venezuelan bolivar
+    200   "VEF     "   Currency unit - Bolivar
+    201   "VND     "   Currency unit - Dong
+    202   "VUV     "   Currency unit - Vatu
+    203   "WST     "   Currency unit - Tala
+    204   "XAF     "   Currency unit - CFA Franc BEAC
+    205   "XCD     "   Currency unit - East Caribbean Dollar
+    206   "XDR     "   Currency unit - SDR (Special Drawing Right)
+    207   "XOF     "   Currency unit - CFA Franc BCEAO
+    208   "XPF     "   Currency unit - CFP Franc
+    209   "YER     "   Currency unit - Yemeni Rial
+    210   "ZMK     "   Currency unit - Zambian kwacha
+    211   "ZWL     "   Currency unit - Zimbabwe Dollar
+    212   "ZWN     "   Currency unit - 'new' Zimbabwe Dollar
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -10863,6 +11101,7 @@ CORR_ACT    4034
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0   "        "   undefined
+      1   "!       "   Corrected
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -10872,6 +11111,7 @@ CORR_REV    4035
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0   "        "   undefined
+      1   "!       "   Corrected
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -10881,8 +11121,18 @@ PR_FREQ     4236
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0     "      "   undefined
-      1     "once  "   once a day
-      2     "cont  "   continuous trading
+      1     "once  "   once a day (Do not use for future implementation)
+      2     "cont  "   continuous trading (Do not use for future implementation)
+      3     "Intra "   Intraday Update
+      4     "Daily "   Daily Updates
+      5     "Weekly"   Weekly Updates
+      6     "FortN "   Fortnightly Updates
+      7     "Mthly "   Monthly Updates
+      8     "Qtrly "   Quarterly Updates
+      9     "Season"   Seasonal Updates
+     10     "H-Year"   Half Yearly Updates
+     11     "Annual"   Annual Updates
+     12     "Irregu"   Erratic / Irregular Updates
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12031,6 +12281,7 @@ TRD_STATUS  6614
       3         "S "   Suspended
       4         "OD"   Opening Delay
       5         "R "   Restricted
+      6         "CD"   Closing Delay
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12503,6 +12754,12 @@ IDX_SIZE    8943
       5   "MIC     "   Micro-Cap
       6   "NANO    "   Nano-Cap
       7   "SMID    "   Mid+Small Cap
+      8   "LMID    "   Large + Mid Cap
+      9   "LMSMA   "   Large + Mid + Small Cap
+     10   "LSMA    "   Large + Small Cap
+     11   "SMIC    "   Small  + Micro Cap
+     12   "MSMIC   "   Mid + Small + Micro Cap
+     13   "LMSMIC  "   Large + Mid + Small + Micro Cap
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12907,6 +13164,8 @@ WRNT_TYPE   8987
       1   "Perpet  "   Perpetual Warrant
       2   "Institut"   Institutional Warrant
       3   "Perp-Ins"   Perpetual and Institutional Warrant
+      4   "Plain   "   Plain Warrant
+      5   "Certif  "   Certificate
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13038,7 +13297,7 @@ STRGY_TYPE  8989
     120   "FENCEP  "   Fence (to the put)
     121   "FENCECU "   Hedged Fence (to the call)
     122   "FENCEPU "   Hedged Fence (to the put)
-    123   "DIFF    "   Platts Diff Spread
+    123   "DIFF    "   Diff Spread
     124   "PLATT   "   Platts Spread
     125   "BALMO   "   Balmo over Month
     126   "RATIO   "   Ratio Spread
@@ -13113,6 +13372,13 @@ STRGY_TYPE  8989
     195   "SA      "   energy strip
     196   "IN      "   invoice swap
     197   "TL      "   treasury tail spread
+    198   "EWSP    "   East-West Spread
+    199   "HILO    "   High-Low Spread
+    200   "LOCSP   "   Location Spread
+    201   "EFS     "   Exchange of Futures for Swap
+    202   "CFD     "   Contract for Difference
+    203   "CALSTRP "   Calendar Strip
+    204   "CNTRSTRP"   Contract Strip
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13215,6 +13481,7 @@ SEC_STATUS  9000
      27   "  RES   "   Restructured
      28   "  RMK   "   Remarketed
      29   "  TBB   "   To Be Repurchased/Bought Back
+     30   "  IBL   "   Pre-issued - Issued before Local Issue Date
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -14330,6 +14597,8 @@ SENIOR_CD   9014
      15   "  SUB   "   Subordinated Unsecured
      16   " SUBSEC "   Subordinated Secured
      17   "   UN   "   Unsecured
+     18   "1STLIEN "   First Lien
+     19   "2NDLIEN "   Second Lien
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -14796,6 +15065,7 @@ EVAL_FRQ_U 12793
       6   "Months  "   Months
       7   "Quarters"   Quarters
       8   "Years   "   Years
+      9   "Ticks   "   Tick by Tick
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -15785,6 +16055,12 @@ DATBLK_TYP 12939
      35   "STS PHA "   The phase or status an instrument or market is in
      36   "REF     "   Static Reference update
      37   "STAT    "   Economic rates
+     38   "TRD CNT "   Total moves
+     39   "PCT CHG "   Percentage Change
+     40   "NET CHG "   Net Change
+     41   "TIC DIR "   Tick Direction
+     42   "MID PRC "   MID Price
+     43   "ANLYS   "   Analytics update
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -15813,13 +16089,87 @@ ORDER_SETL 12941
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET241 12942
-PRE_1ET242 12943
-PRE_1ET243 12944
-PRE_1ET244 12945
-PRE_1ET245 12946
-PRE_1ET246 12947
-PRE_1ET247 12948
+SRCUPD_TYP 12942
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   undefined
+      1        "ADD"   Addition
+      2        "CHG"   Change
+      3        "DEL"   Delete
+!
+! ACRONYM    FID
+! -------    ---
+!
+LAT_REL_FG 12943
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   undefined
+      1        "Y  "   Yes
+!
+! ACRONYM    FID
+! -------    ---
+!
+VAL_DS_SN  12944
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   undefined
+      1        "+  "   Positive
+!
+! ACRONYM    FID
+! -------    ---
+!
+CCY_CIR_TP 12945
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0      "     "   undefined
+      1      "ON   "   Onshore
+      2      "OFF  "   Offshore
+!
+! ACRONYM    FID
+! -------    ---
+!
+PAYF_STYLE 12946
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "LOOKBACK"   Lookback - The right to receive the lowest (highest) price over a predefined preceding time period
+      2   "RUSSIAN "   Russian - A variant of Lookback payoff style where the "lookback" period is perpetual
+      3   "ASIAN   "   Asian - Payoff determined by an average price reference of a predefined period of time
+      4   "BINARY  "   Binary - Payoff is either a fixed amount or nothing depending on the underlying security at expiry.  Also known as Digital Option.
+      5   "CHOOSER "   Chooser - Gives the option holder the right to decide to enter into either a call or put side of the option contract
+      6   "FWDSTA  "   Forward Start - The strike price is determined in a future date, hence, also the pay off.
+!
+! ACRONYM    FID
+! -------    ---
+!
+ACT_REL_ST 12947
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "TENT    "   Tentative
+      2   "CONF    "   Confirmed
+!
+! ACRONYM    FID
+! -------    ---
+!
+DEF_FC_TP  12948
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "MEDIAN  "   Median
+      2   "TRIMMEAN"   Trimmed Mean
+      3   "MEAN    "   Mean
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_1ET248 12949
 PRE_1ET249 12950
 PRE_1ET250 12951
@@ -16575,6 +16925,7 @@ OWNER      13414
 LOTSZUNIT2 13416
 MIN_AQT_UT 13420
 MIN_BQT_UT 13421
+MET_UNIT   13564
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -16870,6 +17221,9 @@ MIN_BQT_UT 13421
     289      "NIKEL"   1% nickel content in NPI.
     290      "FLASK"   1 flask (mercury) appox. 76 lb
     291      "1BWP "   Botswana Pula
+    292      "PHD  "   PER HEAD
+    293      " CLP "   Chilean Peso
+    294      "GRAM1"   One gram
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17008,6 +17362,10 @@ TRD_MD_ELG 13440
       0   "        "   undefined
       1   "CO      "   Central Limit Order Book + Off Book
       2   "CBO     "   Central Limit Order Book + Central Limit Order Book Block Trade + Off Book
+      3   "CLOB    "   Central Limit Order Book only
+      4   "COD     "   Central Limit Order Book + Off Book + Dark Book
+      5   "COP     "   Central Limit Orderbook + Off Book + Periodic Auction Book
+      6   "CODP    "   Central Limit Orderbook + Off Book + Dark Book + Periodic Auction Book
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17347,6 +17705,7 @@ ORDBK_DEPH 13490
      11     "20_OL "   20 Order Levels
      12     "25_OL "   25 Order Levels
      13     "30_OL "   30 Order Levels
+     14     "3_PL  "   3 Price Levels
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17933,10 +18292,83 @@ PRPTY_CD   13550
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET242 13563
-PRE_2ET243 13564
-PRE_2ET244 13565
-PRE_2ET245 13566
+SHS_PR_RUL 13563
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "None    "   Any price is accepted
+      2   "=>LTRD  "   Equal or above the last traded price
+      3   "=>HCLS  "   Equal or above the historical close price
+      4   "=>CHGH  "   Equal or above current highest bid price
+      5   "=>CLOW  "   Equal or above the current lowest ask price
+!
+! ACRONYM    FID
+! -------    ---
+!
+UNIT_PREFX 13565
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0      "     "   undefined
+      1      "One  "   One
+      2      "Ten  "   Ten
+      3      "Hund "   Hundred
+      4      "Thou "   Thousands
+      5      "Mln  "   Million
+      6      "Bln  "   Billion
+      7      "Trl  "   Trillion
+      8      "Lakh "   Lakhs
+      9      "Crore"   Crore
+     10      "Arab "   Arab
+     11      "da   "   Deca
+     12      "h    "   Hecto
+     13      "k    "   Kilo
+     14      "M    "   Mega
+     15      "G    "   Giga
+     16      "T    "   Tera
+     17      "P    "   Peta
+     18      "E    "   Exa
+     19      "Z    "   Zetta
+     20      "Y    "   Yotta
+     21      "d    "   Deci
+     22      "c    "   Centi
+     23      "m    "   Milli
+     24      "u    "   Micro
+     25      "n    "   Nano
+     26      "p    "   Pico
+     27      "f    "   Femto
+     28      "a    "   Atto
+     29      "z    "   Zepto
+     30      "y    "   Yocto
+!
+! ACRONYM    FID
+! -------    ---
+!
+LMT_LV_TG  13566
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0     "      "   Undefined
+      1     "U1    "   Upper Price Limit Level 1 is triggered
+      2     "L1    "   Lower Price Limit Level 1 is triggered
+      3     "U1L1  "   Upper Price Limit Level 1 & Lower Limit Price Level 1 are triggered
+      4     "U1L2  "   Upper Price Limit Level 1 & Lower Limit Price Level 2 are triggered
+      5     "U1L3  "   Upper Price Limit Level 1 & Lower Limit Price Level 3 are triggered
+      6     "U2    "   Upper Price Limit Level 2 is triggered
+      7     "L2    "   Lower Price Limit Level 2 is triggered
+      8     "U2L1  "   Upper Price Limit Level 2 & Lower Price Limit Level 1 are triggered
+      9     "U2L2  "   Upper Price Limit Level 2 & Lower Price Limit Level 2 are triggered
+     10     "U2L3  "   Upper Price Limit Level 2 & Lower Price Limit Level 3 are triggered
+     11     "U3    "   Upper Price Limit Level 3 is triggered
+     12     "L3    "   Lower Price Limit Level 3 is triggered
+     13     "U3L1  "   Upper Price Limit Level 3 & Lower Limit Price Level 1 are triggered
+     14     "U3L2  "   Upper Price Limit Level 3 & Lower Limit Price Level 2 are triggered
+     15     "U3L3  "   Upper Price Limit Level 3 & Lower Limit Price Level 3 are triggered
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_2ET246 13567
 PRE_2ET247 13568
 PRE_2ET248 13569

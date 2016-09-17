@@ -1,7 +1,9 @@
 package com.thomsonreuters.upa.valueadd.common;
 
 /**
- * Represents a Node in a Queue. Used with VaConcurrentQueue or VaQueue.
+ * Represents a Node in a Queue. Used with VaConcurrentQueue or VaQueue. Note that a node
+ * can only be in one queue at a time. It cannot be in more than one queue at the same time.
+ * Remove the node from one queue before adding it to another queue.
  */
 public class VaNode
 {

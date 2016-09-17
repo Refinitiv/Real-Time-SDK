@@ -3,7 +3,7 @@
 mkdir -p bin
 JAVAC="$JAVA_HOME/bin/javac"
 export JAVAC
-CLASSPATH=./:../../Libs/upa.jar:../../Libs/jdacsUpalib.jar:../../Libs/upaValueAdd.jar:../../Libs/upaValueAddCache.jar:../../Libs/ansipage.jar
+CLASSPATH=./:../../Libs/upa.jar:../../Libs/jdacsUpalib.jar:../../Libs/upaValueAdd.jar:../../Libs/upaValueAddCache.jar:../../Libs/ansipage.jar:../../../../Elektron-SDK-BinaryPack/Java/Eta/Libs/upa.jar:../../../../Elektron-SDK-BinaryPack/Java/Eta/Libs/upaValueAddCache.jar:../../../../Elektron-SDK-BinaryPack/Java/Eta/Libs/jdacsUpalib.jar:../../../../Elektron-SDK-BinaryPack/Java/Eta/Libs/ansipage.jar
 export CLASSPATH
 EXAMPLE_PATH=com/thomsonreuters/upa/examples
 export EXAMPLE_PATH
@@ -33,12 +33,22 @@ $JAVAC -version -target 1.7 -source 1.7 -d bin $VAEXAMPLE_PATH/watchlistconsumer
 if [ -f ../../Libs/ansipage.jar ]; then
 	$JAVAC -version -target 1.7 -source 1.7 -d bin $EXAMPLE_PATH/ansipage/*.java
 else
-	echo "Warning: ansipage.jar not found; not building AnsiPageExample."
+	if [ -f ../../../../Elektron-SDK-BinaryPack/Java/Eta/Libs/ansipage.jar ]; then
+		$JAVAC -version -target 1.7 -source 1.7 -d bin $EXAMPLE_PATH/ansipage/*.java
+	else
+		echo "Warning: ansipage.jar not found; not building AnsiPageExample."
+	fi
 fi
+
 
 if [ -f ../../Libs/jdacsUpalib.jar ]; then
 	$JAVAC -version -target 1.7 -source 1.7 -d bin $EXAMPLE_PATH/authlock/*.java
 else
-	echo "Warning: jdacsUpalib.jar not found; not building AuthLockExample."
+	if [ -f ../../../../Elektron-SDK-BinaryPack/Java/Eta/Libs/jdacsUpalib.jar ]; then
+		$JAVAC -version -target 1.7 -source 1.7 -d bin $EXAMPLE_PATH/authlock/*.java
+	else
+		echo "Warning: jdacsUpalib.jar not found; not building AuthLockExample."
+	fi
 fi
+
 

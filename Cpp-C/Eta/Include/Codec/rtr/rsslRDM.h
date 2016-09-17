@@ -44,6 +44,8 @@ typedef enum {
 	RSSL_DMT_NEWS_TEXT_ANALYTICS		= 33,	/*!< (33) News Text Analytics domain for machine readable news content */
 	RSSL_DMT_ECONOMIC_INDICATOR			= 34,	/*!< (34) Economic Indicator content */
 	RSSL_DMT_POLL						= 35,   /*!< (35) Poll content */
+	RSSL_DMT_FORECAST					= 36,	/*!< (36) Forecast content */
+	RSSL_DMT_MARKET_BY_TIME				= 37,	/*!< Market By Time content */
 	RSSL_DMT_SYSTEM						= 127,  /*!< (127) System domain for use with domain netural content (e.g. tunnel stream creation) */
 	RSSL_DMT_MAX_RESERVED				= 127,	/*!< (127) Maximum reserved message type value */
 	RSSL_DMT_MAX_VALUE					= 255	/*!< (255) Maximum value for a message type */
@@ -389,7 +391,9 @@ static const RsslBuffer RSSL_ENAME_SUPPS_QOS_RANGE = { 16 , (char*)"SupportsQoSR
 static const RsslBuffer RSSL_ENAME_ITEM_LIST = { 8 , (char*)"ItemList" };
 static const RsslBuffer RSSL_ENAME_SUPPS_OOB_SNAPSHOTS = { 26 , (char*)"SupportsOutOfBandSnapshots" };
 static const RsslBuffer RSSL_ENAME_ACCEPTING_CONS_STATUS = { 23 , (char*)"AcceptingConsumerStatus" };
+/* SOURCE_MIROR deprecated, use SOURCE_MIRROR */
 static const RsslBuffer RSSL_ENAME_SOURCE_MIROR_MODE = { 19 , (char*)"SourceMirroringMode" };
+static const RsslBuffer RSSL_ENAME_SOURCE_MIRROR_MODE = { 19 , (char*)"SourceMirroringMode" };
 static const RsslBuffer RSSL_ENAME_CONS_STATUS = { 14 , (char*)"ConsumerStatus" };
 static const RsslBuffer RSSL_ENAME_SVC_STATE = { 12 , (char*)"ServiceState" };
 static const RsslBuffer RSSL_ENAME_ACCEPTING_REQS = { 17 , (char*)"AcceptingRequests" };

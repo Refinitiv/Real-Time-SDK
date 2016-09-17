@@ -28,11 +28,16 @@
  * Detailed Descriptions:
  * The first step of any UPA consumer application is to establish a 
  * network connection with its peer component (i.e., another application 
- * with which to interact). An OMM consumer typically creates an outbound 
+ * with which to interact). User must start a interactive provider (server) or a non-interactive provider which connects to an ADH. 
+ * There are training examples available for Providers and NIProviders.
+ * An OMM consumer typically creates an outbound
  * connection to the well-known hostname and port of a server (Interactive 
  * Provider or ADS). The consumer uses the rsslConnect() function to initiate 
  * the connection and then uses the rsslInitChannel() function to complete 
- * channel initialization.
+ * channel initialization.(rssl stands for Reuters Source Sink Library.
+ * UPA stands for “Ultra Performance API.” It was the previous name of the product, 
+ * before it was re-branded as ETA “Elektron Transport API”.)
+ *
  *
  */
 
@@ -57,9 +62,12 @@
 int main(int argc, char **argv)
 {
 	/* For this simple training app, only a single channel/connection is used for the entire life of this app. */
+	/* This example uses Unix I/O contents and basic TCP/IP like file descriptor and socket.*/
 
 	/* This example suite uses write descriptor in our client/consumer type examples in mainly 2 areas with
 	 * the I/O notification mechanism being used:
+	 * Details of those functions could be found in API development guide.
+
 	 * 1) rsslInitChannel() function which exchanges various messages to perform necessary UPA transport
 	 *    negotiations and handshakes to complete channel initialization.
 	 * 2) rsslFlush() calls used throughout the application (after module 1a), together with rsslWrite() calls, such

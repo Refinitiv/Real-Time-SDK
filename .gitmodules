@@ -1,0 +1,3 @@
+[submodule "Elektron-SDK-BinaryPack"]
+	path = Elektron-SDK-BinaryPack
+	url = ../Elektron-SDK-BinaryPack

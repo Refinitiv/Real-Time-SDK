@@ -5,9 +5,11 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.thomsonreuters.upa.transport.Channel;
 import com.thomsonreuters.upa.transport.ChannelState;
@@ -20,6 +22,8 @@ import com.thomsonreuters.upa.transport.TransportFactory;
 import com.thomsonreuters.upa.transport.TransportReturnCodes;
 import com.thomsonreuters.upa.transport.WriteArgs;
 import com.thomsonreuters.upa.transport.WritePriorities;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.perftools.upajprovperf.IProviderThread;
 
 /**
@@ -28,26 +32,33 @@ import com.thomsonreuters.upa.perftools.upajprovperf.IProviderThread;
  */
 public class ChannelHandler
 {
-    private List<ClientChannelInfo> _activeChannelList;       // List of channels that are active.
-    private List<ClientChannelInfo> _initializingChannelList; // List of initializing channels.
+    private Queue<ClientChannelInfo> _activeChannelList;       // List of channels that are active.
+    private Queue<ClientChannelInfo> _initializingChannelList; // List of initializing channels.
     private IProviderThread _providerThread;                   // Reference to application-specified data.
 
     public Selector _selector;
+    
+    long _divisor = 1;
 
     private Error _error;
     private ReadArgs _readArgs;
     private InProgInfo _inProgInfo;
     private WriteArgs _writeArgs;
     
+    private ReactorErrorInfo _errorInfo; // Used for when application uses VA Reactor instead of UPA Channel.
+    
+	private Lock _channelLock = new ReentrantLock();
+    
     public ChannelHandler(ProviderThread providerThread)
     {
-        _activeChannelList = new LinkedList<>();
-        _initializingChannelList = new LinkedList<>();
+        _activeChannelList = new ConcurrentLinkedQueue<>();
+        _initializingChannelList = new ConcurrentLinkedQueue<>();
         _error = TransportFactory.createError();
         _readArgs = TransportFactory.createReadArgs();
         _writeArgs = TransportFactory.createWriteArgs();
         _inProgInfo = TransportFactory.createInProgInfo();
         _providerThread = (IProviderThread) providerThread;
+        _errorInfo = ReactorFactory.createReactorErrorInfo();
         try
         {
             _selector = Selector.open();
@@ -56,6 +67,10 @@ public class ChannelHandler
         {
             System.err.println("Error initializing application: Unable to open selector: " + exception.getMessage());
             System.exit(-1);
+        }
+        if (ProviderPerfConfig.ticksPerSec() > 1000)
+        {
+            _divisor = 1000000;
         }
      }
 
@@ -79,10 +94,20 @@ public class ChannelHandler
      */
     public void closeChannel(ClientChannelInfo clientChannelInfo, Error error)
     {
-        _providerThread.processInactiveChannel(this, clientChannelInfo, error);
-        clientChannelInfo.channel.close(_error);
-        clientChannelInfo.parentQueue.remove(clientChannelInfo);
-    }
+        if (clientChannelInfo.reactorChannel == null) // use UPA Channel
+        {
+            _providerThread.processInactiveChannel(this, clientChannelInfo, error);
+            clientChannelInfo.channel.close(_error);
+            clientChannelInfo.parentQueue.remove(clientChannelInfo);
+        }
+        else // use UPA VA Reactor
+        {
+            clientChannelInfo.reactorChannel.close(_errorInfo);
+            clientChannelInfo.parentQueue.remove(clientChannelInfo);
+            System.out.println("Channel Closed.");
+        }
+	}
+
 
     /**
      * Adds a connected or accepted channel to the ChannelHandler.
@@ -110,7 +135,6 @@ public class ChannelHandler
         }
         
         return channelInfo;
-
     }
 
     /**
@@ -177,7 +201,7 @@ public class ChannelHandler
     	return readReturn;
     }
     
-    private int readFromChannel(ClientChannelInfo clientChannelInfo, long stopTimeNsec, Error error)
+    private int readFromChannel(ClientChannelInfo clientChannelInfo, long stopTime, Error error)
     {
         int ret = 1;
         boolean channelClosed = false;
@@ -189,9 +213,11 @@ public class ChannelHandler
         // the queue.
         do
         {
+            long currentTime = currentTime();
+            
             if (readCount % 10 == 0)
             {
-                if (System.nanoTime() >= stopTimeNsec)
+                if (currentTime >= stopTime)
                     return ret;
             }
 
@@ -236,14 +262,14 @@ public class ChannelHandler
     }
 
     /**
-     * Tries to read data from channels until stopTimeNsec is
-     * reached(stopTimeNsec should be based on System.nanoTime()).
+     * Tries to read data from channels until stopTime is
+     * reached.
      * 
-     * @param stopTimeNsec - stop time in nano seconds
+     * @param stopTime - stop time in milliseconds or nanoseconds
      * @param error Gives detailed information about error if any occurred
      *            during socket operations.
      */
-    public void readChannels(long stopTimeNsec, Error error)
+    public void readChannels(long stopTime, Error error)
     {
         long currentTime;
         int selRet = 0;
@@ -262,7 +288,7 @@ public class ChannelHandler
             			removeOption(channelInfo.channel, SelectionKey.OP_WRITE, channelInfo);
 
             		if (channelInfo.needRead)
-            			readChannel(channelInfo, stopTimeNsec, error);
+            			readChannel(channelInfo, stopTime, error);
             	}
 
             }
@@ -273,10 +299,10 @@ public class ChannelHandler
         	return;
         }
 
-        currentTime = System.nanoTime();
+        currentTime = currentTime();
         try
         {
-        	long selTime = (long)((stopTimeNsec - currentTime) / 1000000);
+        	long selTime = (long)((stopTime - currentTime) / _divisor);
         	if (selTime <= 0)
         		selRet = _selector.selectNow();
         	else
@@ -305,7 +331,7 @@ public class ChannelHandler
         		// active channel
         		if (key.isReadable())
         		{
-        			if (readChannel(channelInfo, stopTimeNsec, error) < TransportReturnCodes.SUCCESS)
+        			if (readChannel(channelInfo, stopTime, error) < TransportReturnCodes.SUCCESS)
         				continue;
         		}
         		if (key.isWritable())
@@ -325,10 +351,6 @@ public class ChannelHandler
         		}
         	}
         }
-        else
-        {
-        	return;
-        }
     }
 
     /**
@@ -337,23 +359,22 @@ public class ChannelHandler
      */
     public void processNewChannels()
     {
-    	if (_initializingChannelList.size() > 0)
-    		for (ClientChannelInfo channelInfo : _initializingChannelList)
-    		{
-    			initializeChannel(channelInfo, _error);
-    			if (channelInfo.channel.state() == ChannelState.ACTIVE)
-    			{
-    				try
-    				{
-    					addOption(channelInfo.channel, SelectionKey.OP_READ, channelInfo);
-    				}
-    				catch (ClosedChannelException e)
-    				{
-    					System.err.println(e.getMessage());
-    					System.exit(-1);
-    				}
-    			}
-    		}
+		for (ClientChannelInfo channelInfo : _initializingChannelList)
+		{
+			initializeChannel(channelInfo, _error);
+			if (channelInfo.channel.state() == ChannelState.ACTIVE)
+			{
+				try
+				{
+					addOption(channelInfo.channel, SelectionKey.OP_READ, channelInfo);
+				}
+				catch (ClosedChannelException e)
+				{
+					System.err.println(e.getMessage());
+					System.exit(-1);
+				}
+			}
+		}
     }
 
     /**
@@ -536,7 +557,7 @@ public class ChannelHandler
     /**
      * @return List of channels that are active.
      */
-    public List<ClientChannelInfo> activeChannelList()
+    public Queue<ClientChannelInfo> activeChannelList()
     {
         return _activeChannelList;
     }
@@ -544,8 +565,29 @@ public class ChannelHandler
     /**
      * @return List of initializing channels.
      */
-    public List<ClientChannelInfo> initializingChannelList()
+    public Queue<ClientChannelInfo> initializingChannelList()
     {
         return _initializingChannelList;
+    }
+
+    private long currentTime()
+    {
+        long currentTime;
+        
+        if (ProviderPerfConfig.ticksPerSec() <= 1000) // use millisecond timer for tickRate of 1000 and below
+        {
+            currentTime = System.currentTimeMillis(); 
+        }
+        else // use nanosecond timer for tickRate of greater than 1000
+        {
+            currentTime = System.nanoTime();
+        }
+        
+        return currentTime;
+    }
+    
+    public Lock handlerLock()
+    {
+    	return _channelLock;
     }
 }

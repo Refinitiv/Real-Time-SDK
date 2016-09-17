@@ -6,7 +6,8 @@ public class VaQueue
     VaNode _head = null;
     VaNode _tail = null;
     volatile int _size = 0;
-
+    private static final boolean DEBUG = false; // for turning on debug
+    
     /**
      * Adds to the tail of the queue.
      * 
@@ -14,6 +15,9 @@ public class VaQueue
      */
     public void add(VaNode node)
     {
+        if (DEBUG)
+            verifyQueue();
+        
         if (node == null)
             return;
         
@@ -33,6 +37,9 @@ public class VaQueue
         _tail = node;
         _tail.next(null);
         _size++;
+
+        if (DEBUG)
+            verifyQueue();
     }
     
     /**
@@ -42,6 +49,9 @@ public class VaQueue
      */
     public VaNode poll()
     {
+        if (DEBUG)
+            verifyQueue();
+
         if (_head == null)
         {
             return (VaNode)null;
@@ -63,6 +73,9 @@ public class VaQueue
             _head = _head.next();
         }
         
+        if (DEBUG)
+            verifyQueue();
+
         return node;
     }
     
@@ -138,5 +151,19 @@ public class VaQueue
     public int size()
     {
         return _size;
+    }
+
+    void verifyQueue()
+    {
+        int i = 0;
+        assert (_size >= 0);
+        for(VaNode node = _head; node != null; node = node.next())
+        {
+            ++i;
+            if (node.next() == null)
+                assert(node == _tail);
+        }
+
+        assert(i == _size);
     }
 }

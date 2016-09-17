@@ -130,6 +130,8 @@ char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="st
 <tr class="memitem:a557492fdd1c30a17c14871e85c214d5c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a557492fdd1c30a17c14871e85c214d5c"></a>
 <a class="el" href="group__RSSLTransportStructs.html#ga40f64dd102ebf4b77e35816ec763d783">RsslConnectionTypes</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structRsslConnectOptions.html#a557492fdd1c30a17c14871e85c214d5c">connectionType</a></td></tr>
 <tr class="memdesc:a557492fdd1c30a17c14871e85c214d5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">If <a class="el" href="group__RSSLTransportStructs.html#gga40f64dd102ebf4b77e35816ec763d783a6269f0d4742f5acdce78ae2f5c0a4f3c">RSSL_CONN_TYPE_ENCRYPTED</a> this will use encryption, if <a class="el" href="group__RSSLTransportStructs.html#gga40f64dd102ebf4b77e35816ec763d783a00ab6bd2dc8f66d2b44bf2a6ff6c9221">RSSL_CONN_TYPE_HTTP</a> this will use unencrypted http tunneling, if <a class="el" href="group__RSSLTransportStructs.html#gga40f64dd102ebf4b77e35816ec763d783a61b966f254bc65dac5d0da57c93e80ea">RSSL_CONN_TYPE_UNIDIR_SHMEM</a> this will use server to client shared memory. <br/></td></tr>
+<tr class="memitem:ad4e9d5f870c44992b42f69fa88bf193b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad4e9d5f870c44992b42f69fa88bf193b"></a>
+<a class="el" href="structRsslEncryptionOpts.html">RsslEncryptionOpts</a>&#160;</td><td class="memItemRight" valign="bottom"><b>encryptionOpts</b></td></tr>
 <tr class="memitem:adb015029d246ff1aeb40abce1484ce61"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adb015029d246ff1aeb40abce1484ce61"></a>
 <a class="el" href="group__DataPrimitive.html#ga47f95b5b1b1733b6ce969d7193223f8f">RsslUInt32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structRsslConnectOptions.html#adb015029d246ff1aeb40abce1484ce61">guaranteedOutputBuffers</a></td></tr>
 <tr class="memdesc:adb015029d246ff1aeb40abce1484ce61"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of output buffers guaranteed to this <a class="el" href="structRsslChannel.html" title="RSSL Channel structure returned via rsslAccept() or rsslConnect() calls.">RsslChannel</a>. <br/></td></tr>
@@ -185,7 +187,7 @@ void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="st
 <dd>
 <a class="el" href="unionRsslConnectionInfo.html" title="Options used for configuring the network connection.">RsslConnectionInfo</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="rsslTransport_8h_source.html#l00504">504</a> of file <a class="el" href="rsslTransport_8h_source.html">rsslTransport.h</a>.</p>
+<p>Definition at line <a class="el" href="rsslTransport_8h_source.html#l00524">524</a> of file <a class="el" href="rsslTransport_8h_source.html">rsslTransport.h</a>.</p>
 </div><hr/><h2>Field Documentation</h2>
 <a class="anchor" id="a4517d315424791962360f6718ab6ffa6"></a>
 <div class="memitem">
@@ -199,7 +201,7 @@ void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="st
 <div class="memdoc">
 <dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000003">Deprecated:</a></b></dt><dd>DEPRECATED: Hostname to connect to/join. All data is exchanged on this hostName:serviceName combination. This option will only function for the SOCKET, HTTP, and ENCRYPTED connection types. Users should migrate to the RsslConnectOptions::connectionInfo::unified::address configuration for the same behavior with current and future connection types </dd></dl>
 
-<p>Definition at line <a class="el" href="rsslTransport_8h_source.html#l00505">505</a> of file <a class="el" href="rsslTransport_8h_source.html">rsslTransport.h</a>.</p>
+<p>Definition at line <a class="el" href="rsslTransport_8h_source.html#l00525">525</a> of file <a class="el" href="rsslTransport_8h_source.html">rsslTransport.h</a>.</p>
 
 </div>
 </div>
@@ -215,7 +217,7 @@ void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="st
 <div class="memdoc">
 <dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000004">Deprecated:</a></b></dt><dd>DEPRECATED: Port number or service name to connect to/join. All data is exchanged on this hostName:serviceName combination. This option will only function for the SOCKET, HTTP, and ENCRYPTED connection types. Users should migrate to the RsslConnectOptions::connectionInfo::unified::serviceName configuration for the same behavior with current and future connection types </dd></dl>
 
-<p>Definition at line <a class="el" href="rsslTransport_8h_source.html#l00506">506</a> of file <a class="el" href="rsslTransport_8h_source.html">rsslTransport.h</a>.</p>
+<p>Definition at line <a class="el" href="rsslTransport_8h_source.html#l00526">526</a> of file <a class="el" href="rsslTransport_8h_source.html">rsslTransport.h</a>.</p>
 
 </div>
 </div>
@@ -231,7 +233,7 @@ void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="st
 <div class="memdoc">
 <dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000005">Deprecated:</a></b></dt><dd>DEPRECATED: Only used with connectionType of SOCKET. If RSSL_TRUE, disables Nagle's Algorithm. Users should migrate to the RsslConnectOptions::tcpOpts::tcp_nodelay configuration for the same behavior with current and future connection types </dd></dl>
 
-<p>Definition at line <a class="el" href="rsslTransport_8h_source.html#l00512">512</a> of file <a class="el" href="rsslTransport_8h_source.html">rsslTransport.h</a>.</p>
+<p>Definition at line <a class="el" href="rsslTransport_8h_source.html#l00532">532</a> of file <a class="el" href="rsslTransport_8h_source.html">rsslTransport.h</a>.</p>
 
 </div>
 </div>
@@ -251,7 +253,7 @@ void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="st
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-            <td><p class="smallfont">Fri Apr 29 2016</td>
+            <td><p class="smallfont">Fri Sep 16 2016</td>
           </tr>
         </table>
         <p class="smallfont">&nbsp;</td>

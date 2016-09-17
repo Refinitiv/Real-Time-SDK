@@ -6,12 +6,14 @@
 
 	<property name="bin.dir"           value="bin"/>
 	<property name="libs.dir"          value="../../Libs"/>	
+	<property name="submodule.dir" value="../../../../Elektron-SDK-BinaryPack/Java/Eta/Libs"/>
 	
 	<path id="perfTools.classpath">
 		<pathelement location="${libs.dir}/upa.jar"/>
 		<pathelement location="./xpp3-1.1.3_8.jar"/>
 		<pathelement location="./xpp3_min-1.1.3_8.jar"/>
 		<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+		<pathelement location="${submodule.dir}/upa.jar"/>
     </path>
 
 	<target name="init">

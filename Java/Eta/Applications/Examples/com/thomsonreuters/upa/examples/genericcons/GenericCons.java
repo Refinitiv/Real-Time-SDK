@@ -68,10 +68,10 @@ import com.thomsonreuters.upa.transport.TransportReturnCodes;
  * <p>
  * <H2>Running the application:</H2>
  * <p>
- * Change directory to the <i>Examples</i> directory and run <i>ant</i> to
+ * Change directory to the <i>Applications/Examples</i> directory and run <i>ant</i> to
  * build.
  * <p>
- * java -cp ./bin;../ValueAdd/Libs/upaValueAdd.jar;../Libs/upa.jar
+ * java -cp ./bin;../../Libs/upaValueAdd.jar;../../Libs/upa.jar
  * com.thomsonreuters.upa.examples.genericcons.GenericCons [-h srvrHostName] [-p srvrPortNo]
  * [-i interfaceName] [-uname loginUserName] [-s serviceName] [-x] [-runtime runTime]
  * <p>

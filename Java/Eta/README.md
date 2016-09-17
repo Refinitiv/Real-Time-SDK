@@ -5,9 +5,9 @@ This is the **Elektron Transport API (ETA)**, the high performance, low latency,
 The Transport API is the re-branding of the Ultra Performance API (UPA), which is used by the Thomson Reuters Enterprise Platform for Real Time and Elektron for the optimal distribution of OMM/RWF data.  All interfaces in ETA are the same as their corresponding interfaces in UPA (same name, same parameter sets) and the transport and codec are fully wire compatible.  
 
 
-ETA contains both closed source and open source components.  The transport, decoder, encoder, and cache components are closed source and is proprietary to Thomson Reuters.  As a result, the the source code is not included on GitHub. Instead, source code for stub libraries are provided.  The stub libraries provide base implementation of the ETA closed source binaries, which are intended 
-to allow users to build the open source portions hosted in this repository.  This 'stub' library will allow you to build and run, but will not provide implementation for connectivity or data handling. 
-To get a fully functioning ETA library please see "Obtaining the Transort API Binary Package" below.
+ETA contains both closed source and open source components.  The transport, decoder, encoder, and cache components are closed source and is proprietary to Thomson Reuters.  As a result, the source code is not included on GitHub. 
+This repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/thomsonreuters/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location.  That repository contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.The `Libs` location in this package contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.
+This repository uses submodules for this cross-dependency, so users should add the `--recursive` option to their git clone command.  In addition, any classpaths should be updated to also include jars from the submodule library location, which will be your clone location followed by `Elektron-SDK-BinaryPack/Java/Eta/Libs`
 
 
 # Building the Transport API
@@ -25,11 +25,10 @@ users understand how to develop to this API.
 Ant can be downloaded from http://ant.apache.org
 
 Navigate to `Eta/Source` 
--	Run `ant all` to build Stub libraries and Reactor and its dependencies
--	Run `ant build-stubs` to build only the Stub libraries
--	Run `ant build` or `ant build-valueadd` to build only Reactor and its dependencies.  This is the default build to avoid clobbering any binary pack libraries.
+-	Run `ant all` to build Reactor and its dependencies.  This will link to the fully functional libraries provided in the `Libs` location.
+-	Run `ant build-stubs` to build only the Stub libraries. This will build to a `bin` location.
+-	Run `ant build` or `ant build-valueadd` to build only Reactor and its dependencies.  This will link to the fully functional libraries provided in the `Libs` location.  This is the same as the `ant all` target.
 
-**NOTE:** You must build the stub libraries prior to building the Reactor and its dependencies.
 
 ####2) Build the Transport API Examples
 
@@ -41,40 +40,9 @@ The Performance Tools are located in `Eta/Applications/PerfTools`
 
 ####3) Run the ETA Examples
 
-If you have only built the 'stub' library from above, the examples run but fail.  
-In order to get full functioning behaviour of ETA you will need to get the official binaries from the Thomson Reuters Customer Zone (http://customers.thomsonreuters.com). 
-Please see "Obtaining the ETA Binary Package" below.
+Run the application from the command line using the appropriate execution commands.  Most applications have a help menu that can be viewed with a -? option.
 
-
-# Obtaining the ETA Binary Package
-
-To get the full functionality of the Transport API, please get the official ETA libraries from the following.
-
-
-**Developer Community:**
-
-https://developers.thomsonreuters.com/
-
-Then select the following options:
-
-- **APIs by Product**: Elektron
-- **APIs in this Family**: Elektron SDK - Java Edition
-- **Downloads**: ETA - Java - BINARY PACKS
-
-**Customer Zone:**
-
-https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
-
-- **Category**: MDS - API
-- **Products**: Elektron SDK
-
-Then select the following release
-
-    etaj3.0.0.L1.all-binaries.lib
-	
-Once you have downloaded these libraries, copy them to the corresponding directories under `Eta/Libs`
-Additional information about the contents of the closed source ETA libraries are available in the README contained in that distribution package.
-
+**NOTE** If you have built using the 'stub' libraries, the examples run but fail. 
 
 ####Supported Platforms
 ETA Java can be used with a J2SE7 or J2SE8 compilant JVM.  
@@ -92,6 +60,8 @@ At the current time, the JNI libraries support the following platform/compiler c
 - Solaris 10 X86 64-bit (SunStudio12)
 - Solaris 11 X86 64-bit (SunStudio12)
 
+Users are welcome to migrate open source code to the platforms they prefer, however support for the included ETA libraries are only provided on platforms captured in the README file.
+
 # Obtaining the Thomson Reuters Field Dictionaries
 
 The Thomson Reuters `RDMFieldDictionary` and `enumtype.def` files are present in the GitHub repo under `Eta/etc` and also distributed with the ETA Binary Package.  
@@ -107,7 +77,7 @@ If these are not present when building some of the applications, their build wil
 
 # Documentation
 
-Elektron Transport API Documentation is available online at https://docs-developers.thomsonreuters.com/4721/Docs/WebDocs/index.html 
+Elektron Transport API Documentation is available online at https://developers.thomsonreuters.com/elektron/elektron-sdk-java/docs 
 
 These are also available as part of the full Elektron SDK package that can be downloaded from the the following locations. 
 
@@ -128,7 +98,6 @@ https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
 
 - **Category**: MDS - API
 - **Products**: Elektron SDK
-
 
 
 https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx

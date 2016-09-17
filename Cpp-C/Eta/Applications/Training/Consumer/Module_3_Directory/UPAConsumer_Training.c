@@ -28,11 +28,16 @@
  * Detailed Descriptions:
  * The first step of any UPA consumer application is to establish a 
  * network connection with its peer component (i.e., another application 
- * with which to interact). An OMM consumer typically creates an outbound 
+ * with which to interact). User must start a interactive provider (server) or a 
+ * non-interactive provider which connects to an ADH. 
+ * There are training examples available for Providers and NIProviders.
+ * An OMM consumer typically creates an outbound 
  * connection to the well-known hostname and port of a server (Interactive 
  * Provider or ADS). The consumer uses the rsslConnect() function to initiate 
  * the connection and then uses the rsslInitChannel() function to complete 
- * channel initialization.
+ * channel initialization.(rssl stands for Reuters Source Sink Library.
+ * UPA stands for “Ultra Performance API.” It was the previous name of the product, 
+ * before it was re-branded as ETA “Elektron Transport API”.)
  * 
  *
  ************************************************************************
@@ -65,7 +70,7 @@
  * Summary:
  * When channel initialization is complete, the state of the channel 
  * (RsslChannel.state) is RSSL_CH_STATE_ACTIVE, and applications can send 
- * and receive data.
+ * and receive data.(Read and Write)
  *
  * Detailed Descriptions:
  * When a client or server RsslChannel.state is RSSL_CH_STATE_ACTIVE, it is 
@@ -76,6 +81,7 @@
  * which it determines RsslBuffer boundaries and returns each buffer one by 
  * one.
  * 
+ * (Buffer is used since Ping module and all the latter examples.)
  * When a client or server RsslChannel.state is RSSL_CH_STATE_ACTIVE, it is 
  * possible for an application to write data to the connection. Writing 
  * involves a several step process. Because the UPA Transport provides 
@@ -89,6 +95,7 @@
  * mechanism can be used to help with determining when the network is able 
  * to accept additional bytes for writing. The UPA Transport can continue to
  * queue data, even if the network is unable to write. 
+ * 
  * 
  *
  ************************************************************************
@@ -114,7 +121,7 @@
  * and the use of Dynamic Views. The consumer application can use this 
  * information to tailor its interaction with the provider.
  *
- * Content is encoded and decoded using the UPA Message Package and the UPA 
+ * Content is encoded and decoded using the UPA Message Package and the UPA  
  * Data Package. 
  * 
  *
@@ -181,6 +188,7 @@ int main(int argc, char **argv)
 
 	/* This example suite uses write descriptor in our client/consumer type examples in mainly 2 areas with
 	 * the I/O notification mechanism being used:
+	 * Details of those functions could be found in API development guide.
 	 * 1) rsslInitChannel() function which exchanges various messages to perform necessary UPA transport
 	 *    negotiations and handshakes to complete channel initialization.
 	 * 2) rsslFlush() calls used throughout the application (after module 1a), together with rsslWrite() calls, such
@@ -820,6 +828,8 @@ int main(int argc, char **argv)
 									printf("UPA Consumer application is granted access and has logged in successfully.\n\n");
 
 									snprintf(upaChannelManagementInfo.serviceDiscoveryInfo.serviceName, 128, "%s", serviceName);
+									/* After it is granted access, those common daily activities and requesting could be done here.
+									* But first we need the source directory.*/
 
 									/* Send Source Directory request message */
 									if ((retval = sendSourceDirectoryRequest(&upaChannelManagementInfo)) > RSSL_RET_SUCCESS)
@@ -1974,7 +1984,9 @@ RsslBuffer* upaGetBuffer(RsslChannel *upaChannel, RsslUInt32 size, RsslError *rs
  * domain model conveys information about all available services in the system. An OMM consumer typically requests a
  * Source Directory to retrieve information about available services and their capabilities.
  * upaChannelInfo - The channel management information including the channel to send the Source Directory request message buffer to
+ * This has some similarities with previous one sendLoginRequest()
  */
+
 RsslRet sendSourceDirectoryRequest(UpaChannelManagementInfo *upaChannelManagementInfo)
 {
 	RsslRet retval;

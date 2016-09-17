@@ -20,3 +20,6 @@ com.thomsonreuters.upa.perftools.upajconsperf
 com.thomsonreuters.upa.perftools.upajniprovperf
 com.thomsonreuters.upa.perftools.upajprovperf
 com.thomsonreuters.upa.perftools.upajtransportperf
+com.thomsonreuters.upa.training.consumer
+com.thomsonreuters.upa.training.niprovider
+com.thomsonreuters.upa.training.provider

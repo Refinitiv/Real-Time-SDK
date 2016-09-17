@@ -22,6 +22,9 @@ import com.thomsonreuters.upa.transport.Server;
 import com.thomsonreuters.upa.transport.Transport;
 import com.thomsonreuters.upa.transport.TransportFactory;
 import com.thomsonreuters.upa.transport.TransportReturnCodes;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 
 /**
  * The upajProvPerf application. Implements an interactive provider, which
@@ -69,12 +72,12 @@ import com.thomsonreuters.upa.transport.TransportReturnCodes;
  * </ul>
  * <p>
  * <H2>Running the application:</H2>
- * From the <i>PerfTools</i> directory run <i>ant</i> or <i>buildPerfTools.bat/ksh</i> script to
+ * From the <i>Applications/PerfTools</i> directory run <i>ant</i> or <i>buildPerfTools.bat/ksh</i> script to
  * build performance examples.
  * <p>
  * Run example with the following command:
  * <p>
- * java -cp ../Libs/upa.jar;../ValueAdd/Libs/upaValueAdd.jar;./xpp3-1.1.3_8.jar;./xpp3_min-1.1.3_8.jar;bin
+ * java -cp ../../Libs/upa.jar;../../Libs/upaValueAdd.jar;./xpp3-1.1.3_8.jar;./xpp3_min-1.1.3_8.jar;bin
  *  com.thomsonreuters.upa.perftools.upajprovperf.upajProvPerf
  * <p>
  * <i>-help</i> displays command line options, with a brief description of each option
@@ -133,7 +136,14 @@ public class upajProvPerf
         _provider.startThreads();
 
         _initArgs.clear();
-        _initArgs.globalLocking(ProviderPerfConfig.threadCount() > 1 ? true : false);
+        if (!ProviderPerfConfig.useReactor()) // use UPA Channel for sending and receiving
+        {
+            _initArgs.globalLocking(ProviderPerfConfig.threadCount() > 1 ? true : false);
+        }
+        else // use UPA VA Reactor
+        {
+            _initArgs.globalLocking(true);
+        }
         if (Transport.initialize(_initArgs, _error) != TransportReturnCodes.SUCCESS)
         {
             System.err.println("Error: Transport failed to initialize: " + _error.text());
@@ -199,6 +209,7 @@ public class upajProvPerf
         int writeStatsInterval = ProviderPerfConfig.writeStatsInterval();
         int runTime = ProviderPerfConfig.runTime();
         boolean displayStats = ProviderPerfConfig.displayStats();
+        ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
 
         // this is the main loop
         while (!_shutdownApp)
@@ -236,6 +247,8 @@ public class upajProvPerf
         			if (key.isAcceptable())
         			{
         				Server upajServer = (Server)key.attachment();
+                        if (!ProviderPerfConfig.useReactor()) // use UPA Channel
+                        {
         				Channel clientChannel = upajServer.accept(_acceptOptions, _error);
         				if (clientChannel == null)
         				{
@@ -245,6 +258,14 @@ public class upajProvPerf
         				{
         					System.err.printf("Server accepting new channel '%s'.\n\n", clientChannel.selectableChannel());
         					sendToLeastLoadedThread(clientChannel);
+        				}
+        			}
+        				else // use UPA VA Reactor
+        				{
+                            if (acceptReactorConnection(upajServer, errorInfo) != ReactorReturnCodes.SUCCESS)
+                            {
+                                System.err.printf("acceptReactorConnection: failed <%s>\n", errorInfo.error().text());
+                            }
         				}
         			}
         		}
@@ -292,12 +313,14 @@ public class upajProvPerf
 
         for (int i = 0; i < ProviderPerfConfig.threadCount(); i++)
         {
+            int shutdownCount = 0;
             // wait for provider thread cleanup or timeout
-            while (!_provider.providerThreadList()[i].shutdownAck())
+            while (!_provider.providerThreadList()[i].shutdownAck() && shutdownCount < 3)
             {
                 try
                 {
                     Thread.sleep(1000);
+                    shutdownCount++;
                 }
                 catch (InterruptedException e)
                 {
@@ -322,6 +345,31 @@ public class upajProvPerf
         for (int i = 0; i < ProviderPerfConfig.threadCount(); ++i)
         {
         	IProviderThread tmpProvThread = (IProviderThread) _provider.providerThreadList()[i];
+        	tmpProvThread.handlerLock().lock();
+            int connCount = tmpProvThread.connectionCount();
+            if (connCount < minProvConnCount)
+            {
+                minProvConnCount = connCount;
+                provThread = tmpProvThread;
+            }
+            tmpProvThread.handlerLock().unlock();
+        }
+
+        provThread.handlerLock().lock();
+        provThread.acceptNewChannel(channel);
+        provThread.handlerLock().unlock();
+    }
+
+    private int acceptReactorConnection(Server server, ReactorErrorInfo errorInfo)
+    {   
+        IProviderThread provThread = null;
+
+        int minProvConnCount = 0x7fffffff;
+
+        // find least loaded thread
+        for (int i = 0; i < ProviderPerfConfig.threadCount(); ++i)
+        {
+            IProviderThread tmpProvThread = (IProviderThread) _provider.providerThreadList()[i];
             int connCount = tmpProvThread.connectionCount();
             if (connCount < minProvConnCount)
             {
@@ -330,7 +378,8 @@ public class upajProvPerf
             }
         }
 
-        provThread.acceptNewChannel(channel);
+        // accept new reactor channel
+        return provThread.acceptNewReactorChannel(server, errorInfo);
     }
 
     /*

@@ -56,6 +56,14 @@ public class DomainTypes
 	public static final int REFERENCE = 31;
 	/** News Text Analytics */
 	public static final int NEWS_TEXT_ANALYTICS = 33;
+	/** Economic Indicator domain */
+	public static final int ECONOMIC_INDICATOR = 34;
+	/** Poll domain */
+	public static final int POLL = 35;
+	/** Forecast domain */
+	public static final int FORECAST = 36;
+	/** Market By Time domain */
+	public static final int MARKET_BY_TIME = 37;
 	/** System domain for use with domain neutral content (e.g. tunnel stream creation) */
 	public static final int SYSTEM = 127;
     /* Maximum reserved message type value */
@@ -138,6 +146,18 @@ public class DomainTypes
 				break;
 			case NEWS_TEXT_ANALYTICS:
 				ret = "NEWS_TEXT_ANALYTICS";
+				break;
+			case ECONOMIC_INDICATOR:
+				ret = "ECONOMIC_INDICATOR";
+				break;
+			case POLL:
+				ret = "POLL";
+				break;
+			case FORECAST:
+				ret = "FORECAST";
+				break;
+			case MARKET_BY_TIME:
+				ret = "MARKET_BY_TIME";
 				break;
             case SYSTEM:
                 ret = "SYSTEM";
@@ -244,6 +264,22 @@ public class DomainTypes
 		else if (domainTypeString.equals("NEWS_TEXT_ANALYTICS"))
 		{
 			ret = NEWS_TEXT_ANALYTICS;
+		}
+		else if (domainTypeString.equals("ECONOMIC_INDICATOR"))
+		{
+			ret = ECONOMIC_INDICATOR;
+		}
+		else if (domainTypeString.equals("POLL"))
+		{
+			ret = POLL;
+		}
+		else if (domainTypeString.equals("FORECAST"))
+		{
+			ret = FORECAST;
+		}
+		else if (domainTypeString.equals("MARKET_BY_TIME"))
+		{
+			ret = MARKET_BY_TIME;
 		}
 		else if (domainTypeString.equals("SYSTEM"))
 		{

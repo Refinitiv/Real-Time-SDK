@@ -165,7 +165,7 @@
       <AdditionalDependencies>msvcprt.lib;msvcrt.lib; librssl.lib;  ws2_32.lib;  wininet.lib; %(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)NIProvMod3.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>../../../Libs/WIN_64_VS110/Release_MD;../../../../Libs/WIN_64_VS110/Release_MD;/WIN_64_VS110/Release_MD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../../Libs/WIN_64_VS110/Release_MD;../../../../Libs/WIN_64_VS110/Release_MD;../../../../../../Elektron-SDK-BinaryPack/Cpp-C/Eta/Libs/WIN_64_VS110/Release_MD;/WIN_64_VS110/Release_MD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries> libcmt;;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
@@ -214,7 +214,7 @@
       <AdditionalDependencies>msvcprt.lib;msvcrt.lib; librssl.lib;  ws2_32.lib;  wininet.lib; %(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)NIProvMod3.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>../../../Libs/WIN_64_VS110/Release_MD/Shared;../../../../Libs/WIN_64_VS110/Release_MD/Shared;../../../Libs/WIN_64_VS110/Release_MD;../../../../Libs/WIN_64_VS110/Release_MD;/WIN_64_VS110/Release_MD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../../Libs/WIN_64_VS110/Release_MD/Shared;../../../../Libs/WIN_64_VS110/Release_MD/Shared;../../../Libs/WIN_64_VS110/Release_MD;../../../../Libs/WIN_64_VS110/Release_MD;../../../../../../Elektron-SDK-BinaryPack/Cpp-C/Eta/Libs/WIN_64_VS110/Release_MD/Shared;../../../../../../Elektron-SDK-BinaryPack/Cpp-C/Eta/Libs/WIN_64_VS110/Release_MD;/WIN_64_VS110/Release_MD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries> libcmt;;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
@@ -263,7 +263,7 @@
       <AdditionalDependencies>msvcprt.lib;msvcrt.lib; librssl.lib;  ws2_32.lib;  wininet.lib; %(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)NIProvMod3.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>../../../Libs/WIN_64_VS110/Release_MD_Assert;../../../../Libs/WIN_64_VS110/Release_MD_Assert;/WIN_64_VS110/Release_MD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../../Libs/WIN_64_VS110/Release_MD_Assert;../../../../Libs/WIN_64_VS110/Release_MD_Assert;../../../../../../Elektron-SDK-BinaryPack/Cpp-C/Eta/Libs/WIN_64_VS110/Release_MD_Assert;/WIN_64_VS110/Release_MD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries> libcmt;;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
@@ -312,7 +312,7 @@
       <AdditionalDependencies>msvcprt.lib;msvcrt.lib; librssl.lib;  ws2_32.lib;  wininet.lib; %(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)NIProvMod3.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>../../../Libs/WIN_64_VS110/Release_MD_Assert/Shared;../../../../Libs/WIN_64_VS110/Release_MD_Assert/Shared;../../../Libs/WIN_64_VS110/Release_MD_Assert;../../../../Libs/WIN_64_VS110/Release_MD_Assert;/WIN_64_VS110/Release_MD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../../Libs/WIN_64_VS110/Release_MD_Assert/Shared;../../../../Libs/WIN_64_VS110/Release_MD_Assert/Shared;../../../Libs/WIN_64_VS110/Release_MD_Assert;../../../../Libs/WIN_64_VS110/Release_MD_Assert;../../../../../../Elektron-SDK-BinaryPack/Cpp-C/Eta/Libs/WIN_64_VS110/Release_MD_Assert/Shared;../../../../../../Elektron-SDK-BinaryPack/Cpp-C/Eta/Libs/WIN_64_VS110/Release_MD_Assert;/WIN_64_VS110/Release_MD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries> libcmt;;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
@@ -361,7 +361,7 @@
       <AdditionalDependencies>msvcprtd.lib;msvcrtd.lib; librssl.lib;  ws2_32.lib;  wininet.lib; %(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)NIProvMod3.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>../../../Libs/WIN_64_VS110/Debug_MDd;../../../../Libs/WIN_64_VS110/Debug_MDd;/WIN_64_VS110/Debug_MDd;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../../Libs/WIN_64_VS110/Debug_MDd;../../../../Libs/WIN_64_VS110/Debug_MDd;../../../../../../Elektron-SDK-BinaryPack/Cpp-C/Eta/Libs/WIN_64_VS110/Debug_MDd;/WIN_64_VS110/Debug_MDd;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries> libcmt;;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
@@ -410,7 +410,7 @@
       <AdditionalDependencies>msvcprtd.lib;msvcrtd.lib; librssl.lib;  ws2_32.lib;  wininet.lib; %(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)NIProvMod3.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>../../../Libs/WIN_64_VS110/Debug_MDd/Shared;../../../../Libs/WIN_64_VS110/Debug_MDd/Shared;../../../Libs/WIN_64_VS110/Debug_MDd;../../../../Libs/WIN_64_VS110/Debug_MDd;/WIN_64_VS110/Debug_MDd;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../../Libs/WIN_64_VS110/Debug_MDd/Shared;../../../../Libs/WIN_64_VS110/Debug_MDd/Shared;../../../Libs/WIN_64_VS110/Debug_MDd;../../../../Libs/WIN_64_VS110/Debug_MDd;../../../../../../Elektron-SDK-BinaryPack/Cpp-C/Eta/Libs/WIN_64_VS110/Debug_MDd/Shared;../../../../../../Elektron-SDK-BinaryPack/Cpp-C/Eta/Libs/WIN_64_VS110/Debug_MDd;/WIN_64_VS110/Debug_MDd;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries> libcmt;;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>

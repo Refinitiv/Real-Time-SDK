@@ -24,6 +24,7 @@ var searchData=
   ['rsslenciterator',['RsslEncIterator',['../structRsslEncIterator.html',1,'']]],
   ['rsslenclevel',['RsslEncLevel',['../structRsslEncLevel.html',1,'']]],
   ['rsslencodesizemark',['RsslEncodeSizeMark',['../structRsslEncodeSizeMark.html',1,'']]],
+  ['rsslencryptionopts',['RsslEncryptionOpts',['../structRsslEncryptionOpts.html',1,'']]],
   ['rsslenumtype',['RsslEnumType',['../structRsslEnumType.html',1,'']]],
   ['rsslenumtypetable',['RsslEnumTypeTable',['../structRsslEnumTypeTable.html',1,'']]],
   ['rsslerror',['RsslError',['../structRsslError.html',1,'']]],

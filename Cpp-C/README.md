@@ -8,47 +8,56 @@ Transport and OMM encoder/decoder API.  It is used by the Thomson Reuters Enterp
 
 # Supported Platforms and Compilers
 
-The Elektron-SDK has support for Linux, Windows and Solaris.  Please see the individual API README.md files for further details on supported platforms and compilers.
+The Elektron-SDK has support for Linux and Windows.  Please see the individual API README.md files for further details on supported platforms and compilers.
 
 # Building the APIs
 
 ## Common Setup
 This section shows the required setup needed before you can build any of the APIs within this package.
 
-Firstly, obtain the source from this repository. It will contain all of the required source to build EMA and ETA libraries as detailed below.
+Firstly, obtain the source from this repository. It will contain all of the required source to build EMA and ETA as detailed below.  
+In addition, this repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/thomsonreuters/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location.  That repository contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product. 
 
 
 ## Building ETA
 
 #### ETA Special Instructions
-The ETA package contains transport, decoder, encoder, and cache components.  The transport, decoder and encoder components are closed source and is proprietary to Thomson Reuters and the source code is not included in this package. To facilitate the ability to build all APIs of this Elektron-SDK package a 'stub' library is provided for the closed portion of the ETA.   This 'stub' library will allow you to build and run, but will not provide implementation for connectivity or data handling. To get a fully functioning ETA library please see "Obtaining the ETA Binary Package" below.
+The ETA package contains transport, decoder, encoder, and cache components.  
+The transport, decoder, encoder, and cache components are closed source and is proprietary to Thomson Reuters and the source code is not included on GitHub. 
+This repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/thomsonreuters/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location.  That repository contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.
+This repository uses submodules for this cross-dependency, so users should add the `--recursive` option to their git clone command.
 
 ####1) Build the ETA 
 
 **For Linux/Solaris**:
-Navigate to `Eta/Impl` 
--	Run `make all` to build Stub libraries and Reactor and its dependencies
--	Run `make stubs` to build only the Stub libraries
--	Run `make rsslVA` to build only Reactor and its dependencies
 
-This will build both static and shared versions of the libraries.
+Navigate to `Eta/Impl` 
+-	Run `make all` to build Reactor and its dependencies.  This will link to the fully functional libraries provided in the `Libs` location of the `Elektron-SDK-BinaryPack` repository.
+-	Run `make stubs` to build only the Stub libraries.  **WARNING** This will overwrite libraries in the `Libs` location with the compiled Stub libraries.
+-	Run `make rsslVA` to build only Reactor and its dependencies.  This will link to the fully functional libraries provided in the `Libs` location.  This is the same as the `make all` target.
+
+This will build both static and shared versions of the libraries and will build Optimized libraries by default.  
+If Optimized_Assert libraries are preferred, this can be modified from within the makefiles.
+
+**NOTE:** If you are using shared libraries, you will need to run the LinuxSoLink or SolarisSoLink to properly soft link for versioned libraries. These are located in the submodule folder under your clone location and then `Elektron-SDK-BinaryPack/Cpp-C/Eta`
 
 **For Windows**:
+
 Navigate to `Eta/Impl` 
-Select the specific vcxproj for the specific library you want to build, or use the provided solution file to build in Visual Studio. When building via the solution, select the configuration combination you want (Static, Shared, Debug, Release, etc) and select `Build -> Build Solution` this will create both static and shared libraries for all targets. 
+Select the `vcxproj` for the specific library you want to build, or use the provided solution (or `sln`) file to build in **Visual Studio**.  
 
-NOTE: You must build the Stub libaries before building the ValueAdd libraries.
-
-If you have the corresponding ETA Binary Package you will not need to build the stubs. Please see "Obtaining the ETA Binary Package" below.
+When building via the solution, select the configuration combination you want (Static, Shared, Debug, Release, etc) and select `Build -> Build Solution` this will create both static and shared libraries for all targets.  
 
 
-####2) Build the ETA Examples
+####2) Build the Transport API Examples
 
 Navigate to `Eta/Applications`, locate the example, performance tool, or training suite you would like to build. Run the makefile or open and build the windows solution file (when applicable) or the vcxproj.
 
 ####3) Run the ETA Examples
-If you have only built the 'stub' library from above, the examples will not do much.  In order to get full functioning behavior of ETA you will need to get the official binaries from the customer zone. Please see "Obtaining the ETA Binary Package" below.
 
+Run the application from the command line using the appropriate execution commands.  Most applications have a help menu that can be viewed with a -? option.
+
+**NOTE** If you have built using the 'stub' libraries, the examples run but fail.  
 
 ## Building EMA
 
@@ -81,33 +90,6 @@ That should do it!
 ### Windows Solution Files
 
 As an alternative, after you build ETA as described above, you can build using the windows solution files.  Solutions files can be found in the `.../Ema/Examples/Training` directory or the `.../Ema/Src/Access`.  
-
-
-
-
-# Obtaining the ETA Binary Package
-
-If you wish to have the full functionality of ETA, please get the official ETA libraries from the following.
-
-**NOTE: Access to this download requires TRDC membership.****Developer Community:**
-
-https://developers.thomsonreuters.com/
-
-Then select the following options:
-
-- **APIs by Product**: Elektron
-- **APIs in this Family**: Elektron SDK - C/C++ Edition
-- **Downloads**: ETA - C - BINARY PACKS
-
-Customer Zone:
-https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
-
-- **Category**: MDS - API
-- **Products**: Elektron SDK
-
-Then select the following release, where `<platform>` is linux, win, or solaris based on your preferred platform.
-
-Once you have downloaded these libraries, copy them to the corresponding directories under `.../Eta/Libs`. Next, for Windows, build the `ValueAdd_VSXXX.sln`. For Linux, build `make all`  .  Note that if you are using the static library you will need to rebuild your application.  For linux, if you are using the shared libraries, you may need to remove the library links and rerun the LinuxSoLink script before rebuilding.
 
 
 # Developing 

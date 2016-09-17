@@ -5,19 +5,23 @@
     <property name="source" value="1.7"/>
 	
 	<property name="dist.dir" value="../"/>
+	<property name="submodule.dir" value="../../../Elektron-SDK-BinaryPack/Java/Eta/Libs"/>
 	<property name="libs.dir" value="${dist.dir}/Libs"/>
 	<property name="bin.dir" value="${dist.dir}/Source/bin"/>	
+	<property name="stubs.dir" value="${bin.dir}/stubs"/>
 	<property name="valueadd.src.dir" value="${dist.dir}/Source" />
 	
 	<path id="valueadd.classpath">
         <pathelement location="${libs.dir}/upa.jar"/>
+		<pathelement location="${submodule.dir}/upa.jar"/>
     </path>
 
 	<target name="init">
 		<echo message="Creating a directory for the compiler output" />
         <mkdir dir="${bin.dir}"/>
+		<mkdir dir="${stubs.dir}"/>
     </target>
-
+	
 	<target name="clean">
 		<echo message="Cleaning up old build output" />
         <delete dir="${bin.dir}"/>
@@ -47,7 +51,7 @@
 		<echo message="Building the ETAJ Stubs" />		
 		<echo message="${ant.project.name}: ${ant.file}" />
 		<echo message="Compiling the project" />
-        <javac debug="false" debuglevel="${debuglevel}" destdir="${bin.dir}" source="${source}" target="${target}" includeantruntime="false">
+        <javac debug="false" debuglevel="${debuglevel}" destdir="${stubs.dir}" source="${source}" target="${target}" includeantruntime="false">
 			<compilerarg value="-Werror" />
 			<compilerarg value="-Xlint:-options" />
 			<!-- treat warnings as errors -->
@@ -59,7 +63,7 @@
 			<src path="${valueadd.src.dir}/Stubs/external" />
         </javac>
 		<echo message="Creating the ETAJ Stubs jar file"/>
-		<jar destfile="${libs.dir}/upa.jar" basedir="${bin.dir}" includes="**/upa/codec/**/*.class,**/upa/rdm/**/*.class,**/transport/**/*.class">
+		<jar destfile="${stubs.dir}/upa.jar" basedir="${stubs.dir}" includes="**/upa/codec/**/*.class,**/upa/rdm/**/*.class,**/transport/**/*.class">
 			<manifest>
 				<attribute name="Sealed" value="true" />
 				<attribute name="Specification-Title" value="Elektron Transport API (ETA) Java Edition" />
@@ -70,7 +74,7 @@
 				<attribute name="Implementation-Vendor" value="${date} Thomson Reuters" />
 			</manifest>
 		</jar>
-		<jar destfile="${libs.dir}/upaValueAddCache.jar" basedir="${bin.dir}" includes="**/upa/valueadd/cache/**/*.class">
+		<jar destfile="${stubs.dir}/upaValueAddCache.jar" basedir="${stubs.dir}" includes="**/upa/valueadd/cache/**/*.class">
 			<manifest>
 				<attribute name="Sealed" value="true" />
 				<attribute name="Specification-Title" value="Elektron Transport API (ETA) Java Edition ValueAdd Cache Classes" />
@@ -83,7 +87,7 @@
 		</jar>
     </target>
 	
-	<target depends="clean,build-stubs,build-valueadd" name="all"/>
+	<target depends="clean,build-valueadd" name="all"/>
 
 	<target depends="clean,build-valueadd" name="build"/>
 	

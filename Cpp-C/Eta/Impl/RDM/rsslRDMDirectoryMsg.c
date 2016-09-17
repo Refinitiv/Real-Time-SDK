@@ -98,7 +98,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMDirectoryMsg(RsslEncodeIterator *pEncodeIter, R
 					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListInit(pEncodeIter, &elementList, 0, 0)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
 
 					rsslClearElementEntry(&elementEntry);
-					elementEntry.name = RSSL_ENAME_SOURCE_MIROR_MODE;
+					elementEntry.name = RSSL_ENAME_SOURCE_MIRROR_MODE;
 					elementEntry.dataType = RSSL_DT_UINT;
 					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pConsumerStatus->consumerServiceStatusList[i].sourceMirroringMode)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
 
@@ -1748,7 +1748,7 @@ RSSL_VA_API RsslRet rsslDecodeRDMDirectoryMsg(RsslDecodeIterator *pIter, RsslMsg
 							{
 								if (!RSSL_ERROR_INFO_CHECK(ret == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
 
-								if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_SOURCE_MIROR_MODE))
+								if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_SOURCE_MIRROR_MODE))
 								{
 									if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pServiceStatus->sourceMirroringMode)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
