@@ -1,207 +1,120 @@
+# Elektron SDK - C/C++ Edition
+This is the Elektron SDK. This SDK is an all encompassing package of all Elektron APIs. This currently includes the Elektron Message API (EMA) and the Elektron Transport API (ETA).
+
+The **Elektron Message API (EMA)** is an ease of use, open source, OMM API. EMA is designed to provide clients rapid development of applications, minimizing lines of code and providing a broad range of flexibility. It provides flexible configuration with default values to simplify use and deployment.  EMA is written on top of the Elektron Transport API (ETA) utilizing the Value Added Reactor and Watchlist. 
+
+The **Elektron Transport API (ETA)** is the re-branded Ultra Performance API (UPA). ETA is Thomson Reuters low-level 
+Transport and OMM encoder/decoder API.  It is used by the Thomson Reuters Enterprise Platform for Real Time and Elektron for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. 
+
+# Supported Platforms and Compilers
+
+The Elektron-SDK has support for Linux and Windows.  Please see the individual API README.md files for further details on supported platforms and compilers.
+
+# Building the APIs
+
+## Common Setup
+This section shows the required setup needed before you can build any of the APIs within this package.
+
+Firstly, obtain the source from this repository. It will contain all of the required source to build EMA and ETA as detailed below.  
+In addition, this repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/thomsonreuters/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location.  That repository contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product. 
 
 
-# Elektron Message API
+## Building ETA
+
+#### ETA Special Instructions
+The ETA package contains transport, decoder, encoder, and cache components.  
+The transport, decoder, encoder, and cache components are closed source and is proprietary to Thomson Reuters and the source code is not included on GitHub. 
+This repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/thomsonreuters/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location.  That repository contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.
+This repository uses submodules for this cross-dependency, so users should add the `--recursive` option to their git clone command.
+
+####1) Build the ETA 
+
+**For Linux/Solaris**:
+
+Navigate to `Eta/Impl` 
+-	Run `make all` to build Reactor and its dependencies.  This will link to the fully functional libraries provided in the `Libs` location of the `Elektron-SDK-BinaryPack` repository.
+-	Run `make stubs` to build only the Stub libraries.  **WARNING** This will overwrite libraries in the `Libs` location with the compiled Stub libraries.
+-	Run `make rsslVA` to build only Reactor and its dependencies.  This will link to the fully functional libraries provided in the `Libs` location.  This is the same as the `make all` target.
+
+This will build both static and shared versions of the libraries and will build Optimized libraries by default.  
+If Optimized_Assert libraries are preferred, this can be modified from within the makefiles.
+
+**NOTE:** If you are using shared libraries, you will need to run the LinuxSoLink or SolarisSoLink to properly soft link for versioned libraries. These are located in the submodule folder under your clone location and then `Elektron-SDK-BinaryPack/Cpp-C/Eta`
+
+**For Windows**:
+
+Navigate to `Eta/Impl` 
+Select the `vcxproj` for the specific library you want to build, or use the provided solution (or `sln`) file to build in **Visual Studio**.  
+
+When building via the solution, select the configuration combination you want (Static, Shared, Debug, Release, etc) and select `Build -> Build Solution` this will create both static and shared libraries for all targets.  
 
 
-The Elektron Message API: This is an easy-to-use, performant, open source message layer API. The Elektron Message API helps developers by allowing them to develop applications with significantly less code. It is new and will be enhanced by collaboration with customers (through GitHub) and Thomson Reuters based on customer feedback.
+####2) Build the Transport API Examples
 
-EMA is written on top of the Elektron Transport API (ETA) utilizing    the Value Added Reactor and Watchlist.  
+Navigate to `Eta/Applications`, locate the example, performance tool, or training suite you would like to build. Run the makefile or open and build the windows solution file (when applicable) or the vcxproj.
 
-(C) Copyright 2016 Thomson Reuters Limited. All rights reserved,
-Reuters Oak Brook, IL USA
-  
+####3) Run the ETA Examples
 
+Run the application from the command line using the appropriate execution commands.  Most applications have a help menu that can be viewed with a -? option.
 
-# Message API Features and Functionality
+**NOTE** If you have built using the 'stub' libraries, the examples run but fail.  
 
+## Building EMA
 
-
-##Consumer Features:
-
-- ADS Multicast: Applications can connect to the ADS Multicast 
-	  component by specifying the connection type RSSL_RELIABLE_MCAST.  
-	  
-- RSSL Encrypted and HTTP Connectivity
-
-- Connection Failover: EMA can be configured to specify a 
-	  list of failover servers via ChannelSet configuration.  In the event that the
-	  consumer's connection attempt fails, EMA will utilize the next channel in 
-	  the ChannelSet list.
-
-- Default Admin Domain Requests: EMA uses default login, directory and 
-      dictionary request while connecting to server. This provides minimum 
-      configuration for applications to get up and running. 
-	  
-- Configurable Admin Domain Requests:  EMA provides means for modifying the
-      default admin domain requests. 
-      
-- Tunnel Streams: EMA supports private streams, with additional associated 
-      behaviors (e.g., end-to-end authentication, guaranteed delivery, and
-      flow control).
-	  
-- Batch Request: Application may use a single request message to specify 
-      interest in multiple items via the item list
-	  
-- Dynamic View:	Application may specify a subset of fields or elements of a 
-      particular item
-	  
-- Optimized Pause and Resume: Application may request server to pause and 
-      resume item stream
-	
-- Single Open: EMA supports application selected single open functionality
-	  
-	
-- Programmatic Config	Enables application to programmatically specify and 
-      overwrite EMA configuration
-	
-
-		
-		
-##Non-Interactive Provider Features:
-
-- Default Admin Domains: EMA uses default login and directory messages while connecting to server. This provides minimum configuration for applications to get up and running.
- 
-- Configurable Admin Domains:  EMA provides means for modifying the default admin domain messages. 	
+EMA is built upon ETA.  Before you can build EMA you must build ETA as described above. Once you have the ETA libraries in place you can then build the EMA libraries and the examples.
 
 
+####1) Get or build the libxml2 library.
+If your system does not already have libxml2 available, you can build the version that is contained in this release. Just navigate to `Eta/Utils/libxml2` and run the makefile or build the windows project file. 
 
-##Common Features:
+####2) Obtain the ETA library (Windows Only)
+Copy the appropriate platform directory (recursively) to the `...\Eta\Libs` directory. You can find the libraries from the contained `Elektron-SDK-BinaryPack`.  For example, if you are interested in windows Visual Studio 2012, copy the entire directory `...\Elektron-SDK-BinaryPack\Cpp-C\Eta\Libs\WIN_64_VS120` to `...\Eta\Libs`.
 
-- TCP/IP Connectivity
-
-- RMTES Decoder	EMA provides a built in RMTES decoder. IF desired, application
-      may cache RmtesBuffer objects and apply all the received changes to them.
-	
-- Data::toString()	All OMM containers, primitives and messages may simply be
-      printed out to screen in a standardized output format. 
-	
-- Data::getAsHex()	Applications may obtain binary representations of all OMM 
-      containers, primitives and messages.
-
-- File Config:	Enables applications to specify EMA configuration in an EmaConfig.xml file
+This step is only for Windows.  
 
 
-# Product Content
+####3) Build the EMA library
 
-- Makefile/Windows project files to build EMA library
-- EMA Examples
-- TREP Dictionary
-- Documentation 
-	
-			
-# Documentation
+To build the EMA library, navigate to the `Ema/Src/Access` folder and run the makefile or build the windows project. Note that when building the shared object version of the EMA library, libxml2 is statically linked into it.  
 
-- EMA Developers Guide
-- EMA Configuration Guide
-- EMA Reference Manual
-- EMA RDM Usage Guide
-- EMA Examples Cross Reference
-- Readme (This File)
-- License File
-- Test Results
-	
-Elektron Message API Documentation is also available online at https://customers.reuters.com/a/ODL/EMA_C/3.0/HTML_Documentation/index.html 
+####4) Build the EMA examples
 
+After that, you can build any of the EMA examples. Navigate to the example you wish to build and you will find both a makefile and windows project file.
 
-# Hardware/OS Requirements
+####5) Get access to a providing application. 
 
-      (Linux)
-      - HP Intel PC or AMD Opteron (64-bit)
-      - AMD Opteron (64-bit)
-      - Red Hat Enterprise Linux Advanced Server 6.0 64-bit 
-      - Oracle Linux Server 6.0 64-bit (Qualified on RHAS 6.0)
-      - Oracle Linux Server 7.0 64-bit
-	  - CentOS 7 64-bit (Qualified on OL7)
+You will need a provider component to connect the EMA consumer applications to.  This can be an ADS or API provider application from ETA or RFA.
 
-      (Windows)
-      - Intel compatible PC and AMD Opteron for 64-bit
-      - CPUs must have high resolution timer frequencies greater than 1GHz.
-      - Microsoft Windows Server 2008 (SP1 or greater) 64-bit 
-      - Microsoft Windows 7 Professional 64-bit
-      - Microsoft Windows 8 Professional 64-bit
-      - Microsoft Windows 8.1 Professional 64-bit 
+####6) Run the EMA Examples
+
+Once the provider is running and accessible, you can run the EMA examples.  When running examples build using shared libraries you will need to make sure that the ETA libraries are local or in your path.
+
+That should do it!  
+
+### Windows Solution Files
+
+As an alternative, after you build ETA as described above, you can build using the windows solution files.  Solutions files can be found in the `.../Ema/Examples/Training` directory or the `.../Ema/Src/Access`.  
 
 
+# Developing 
 
-# Software Requirements
-	
-      (Linux)
-      - GCC compiler suite version 4.4.4 or higher for RHAS 6.0 (64-bit)
-      - GCC compiler suite version 4.4.4 or higher for OLS 6.0 (64-bit)
-      - GCC compiler suite version 4.8.2 or higher for OLS 7.0 (64-bit)
-      - GCC compiler suite version 4.8.2 or higher for CentOS 7.0 (64-bit)
+If you have discover any issues with regards to this project, please feel free to create an Issue.
 
-      (Windows)
-      - Microsoft Visual C++ 10.0 64-bit (visual Studio 2010)
-      - Microsoft Visual C++ 11.0 64-bit (Visual Studio 2012)
-      - Microsoft Visual C++ 12.0 64-bit (Visual Studio 2013)
-	  
-      ---------------------------------------------------------
-      Enterprise Platform for Real-Time - RSSL/RWF connections
-      ---------------------------------------------------------
-      - ADS 2.5 or higher
-      - ADH 2.5 or higher
-	  
-       --------
-       Elektron
-       --------
-      - Elektron Deployed
-      - Elektron Hosted
-      
-# Installation and Use
+If you have coding suggestions that you would like to provide for review, please create a Pull Request.
 
-See the top level Elektron-SDK README.md for details.
+We will review issues and pull requests to determine any appropriate changes.
 
-
-	  
-# Issues and Workarounds
-
-- EMA-9 (EMACPP-100): Generic Message is not currently supported on login stream.
-- EMA-42 logMsg has some extra characters in Error Location when configured for HTTP type connection on Linux. 
-- EMA-34 (EMACPP-354): Source directory reissue and genmsg on source directory is not currently supported.
-- EMA-43 (EMACPP-407): Consumer does not exit on reaching reconnectAttemplLimit
-- EMA-45 If CompressionType is set to "None", the CompressionThreshold range check still occurs
-- EMA-48 (EMACPP-422): Tunnel Streams: If the provider messages exceeds the recvWindowSize no message are received.
-- EMA-57 need infinite timeout support for PostAckTimeout and RequestTimeout in EMA
-- EMA-77 EMA is using the incorrect attribute info when sending Generic Messages
-- EMA-90 EMA InitializationTimeout per channel may not work correctly
-- EMA-417: Shared windows solution file doesn't build ema if the libxml2 library in eta doesn't already exist. 
-- EMA-491 XmlTracePing, XmlTraceHex default to true when XmlTraceRead , XmlTracePing, XmlTraceHex and XmlTraceWrite set to invalid value. 
-- EMA-532 XMLTrace may not flush all information to trace file 
-- EMA-533 ChannelSet with two multicast channels userQLimit set incorrectly 
-- EMA-575 NiProvider360 application uses 100% CPU when CTRL-C pressed while publishing data
-- EMA-691 Random exit issue with NiProvider, application does not exit.
-
- 
-
-# Obtaining the Thomson Reuters Field Dictionaries
-
-
-The Thomson Reuters `RDMFieldDictionary` and `enumtype.def` files are present in the GitHub repo under `Ema/Etc`.
-
-In addition, the most current version can be downloaded from the Customer Zone from the following location.
-
-https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
-
-- **Category**: MDS - General
-- **Products**: TREP Templates Service Pack
-
-Place the downloaded `enumtype.def` and `RDMFieldDictionary` under `/Ema/Etc` If these are not present when building some of the applications, their build will fail when they reach the step to copy these. The executable will still be built properly. 
 
 # Contributing
-Please see the top level **README.md** file for details.
+In the event you would like to contribute to this repository, it is required that you read and sign the following:
+
+- [Individual Contributor License Agreement](../Elektron API Individual Contributor License Agreement.pdf)
+- [Entity Contributor License Agreement](../Elektron API Entity Contributor License Agreement.pdf)
+
+Please email a signed and scanned copy to sdkagreement@thomsonreuters.com.  If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
 
 
-# Reference Information
-
-    I-COS Questionnaire: 6032
-    Reuters Item Number: N/A
-    Product Name: Elektron Message API - C++ Edition
-    US ECCN: EAR99
-    EU ECCN: None
-    Export Code: NL
-    Security Compliance: Thomson Reuters Security Compliant
-	  
-
-# Notes
-- Please make sure to review the **LICENSE.md** file.
+# Notes:
+- For more details on each API, please see the corresponding readme file in their top level directory.
+- This package contains APIs that are subject to proprietary and open source licenses.  Please make sure to read the readme files within each package for clarification.
+- Please make sure to review the LICENSE.md file.
