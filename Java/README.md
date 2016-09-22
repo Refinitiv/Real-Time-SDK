@@ -60,15 +60,19 @@ Follow the steps below to build EMA library and examples.
 
 
 
+
 ####1) Build the EMA library
 
 **Using Apache Ant**:
 
 To build EMA library (`ema.jar`), navigate to `Src` and run the `ant` command. 
-The `ant` script first builds the underlying ETA libraries (`upa.jar` and `upaValueAdd.jar`) and then builds the EMA library.
+The `ant` script first builds the underlying ETA libraries (`upaValueAdd.jar`) and then builds the EMA library.
+
+####2) Obtain the ETA library (upa.jar) 
+Copy the `Elektron-SDK-BinaryPack/Java/Eta/Libs/upa.jar` from the binary pack to the `...\Eta\Libs\` directory.
 
 
-####2) Build the EMA examples
+####3) Build the EMA examples
 To build EMA examples, navigate to `Src/examples` and run the `ant` command. The `ant` script will build all of the examples.
 
 
