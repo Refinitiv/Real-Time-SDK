@@ -24,10 +24,11 @@ echo .................................................
 
 # application class
 export APPNAME=com.thomsonreuters.ema.perftools.emajconsperf.emajConsPerf
+export ETA_SUBPATH=../../../../Elektron-SDK-BinaryPack/Java/Eta/Libs
 
 # classpath
 export APP_DEPENDENTPATH="./xpp3-1.1.3_8.jar:./xpp3_min-1.1.3_8.jar:../../Libs/apache/org.apache.commons.collections.jar:../../Libs/apache/commons-configuration-1.10.jar:../../Libs/apache/commons-lang-2.6.jar:../../Libs/apache/commons-logging-1.2.jar:../../Libs/SLF4J/slf4j-1.7.12/slf4j-api-1.7.12.jar:../../Libs/SLF4J/slf4j-1.7.12/slf4j-jdk14-1.7.12.jar"
-export APP_CLASSPATH="./java:../../Libs/ema.jar:../../../Eta/Libs/upa.jar:../../../Eta/Libs/upaValueAdd.jar:$APP_DEPENDENTPATH"
+export APP_CLASSPATH="./java:../../Libs/ema.jar:../../../Eta/Libs/upa.jar:../../../Eta/Libs/upaValueAdd.jar:$ETA_SUBPATH/upa.jar:$APP_DEPENDENTPATH"
 
 # command
 export RUN_CMD="$JAVA_BIN  $JVM_OPTIONS -cp $APP_CLASSPATH $APPNAME $APP_ARGS"

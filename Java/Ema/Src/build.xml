@@ -15,13 +15,14 @@
     <property name="load.version" value="emaj3.0.3.all.rrg"/>
 	
 	<path id="emaj.classpath">
-        <pathelement path="${etaj.binary.dir}/upa.jar"/>
+        <pathelement path="${etaj.dist.dir}/Libs/upa.jar"/>
         <pathelement path="${etaj.dist.dir}/Libs/upaValueAdd.jar"/>
         <pathelement path="${libs.dir}/apache/commons-lang-2.6.jar"/>
         <pathelement path="${libs.dir}/apache/commons-configuration-1.10.jar"/>
         <pathelement path="${libs.dir}/apache/commons-logging-1.2.jar"/>
     	<pathelement path="${libs.dir}/apache/org.apache.commons.collections.jar"/>
         <pathelement path="${libs.dir}/SLF4J/slf4j-1.7.12/slf4j-api-1.7.12.jar"/>
+		<pathelement path="${etaj.binary.dir}/upa.jar"/>
     </path>
 
 	<target name="init">
