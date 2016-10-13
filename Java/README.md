@@ -69,7 +69,7 @@ To build EMA library (`ema.jar`), navigate to `Src` and run the `ant` command.
 The `ant` script first builds the underlying ETA libraries (`upaValueAdd.jar`) and then builds the EMA library.
 
 ####2) Obtain the ETA library (upa.jar) 
-Copy the `Elektron-SDK-BinaryPack/Java/Eta/Libs/upa.jar` from the binary pack to the `...\Eta\Libs\` directory.
+Copy the `Elektron-SDK-BinaryPack/Java/Eta/Libs/upa.jar` from the binary pack to the `...\Eta\Libs\` directory. Alternatively, specify the Java CLASSPATH to point to `Elektron-SDK-BinaryPack/Java/Eta/Libs/upa.jar`. 
 
 
 ####3) Build the EMA examples

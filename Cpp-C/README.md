@@ -67,25 +67,20 @@ EMA is built upon ETA.  Before you can build EMA you must build ETA as described
 ####1) Get or build the libxml2 library.
 If your system does not already have libxml2 available, you can build the version that is contained in this release. Just navigate to `Eta/Utils/libxml2` and run the makefile or build the windows project file. 
 
-####2) Obtain the ETA library (Windows Only)
-Copy the appropriate platform directory (recursively) to the `...\Eta\Libs` directory. You can find the libraries from the contained `Elektron-SDK-BinaryPack`.  For example, if you are interested in windows Visual Studio 2012, copy the entire directory `...\Elektron-SDK-BinaryPack\Cpp-C\Eta\Libs\WIN_64_VS120` to `...\Eta\Libs`.
 
-This step is only for Windows.  
-
-
-####3) Build the EMA library
+####2) Build the EMA library
 
 To build the EMA library, navigate to the `Ema/Src/Access` folder and run the makefile or build the windows project. Note that when building the shared object version of the EMA library, libxml2 is statically linked into it.  
 
-####4) Build the EMA examples
+####3) Build the EMA examples
 
 After that, you can build any of the EMA examples. Navigate to the example you wish to build and you will find both a makefile and windows project file.
 
-####5) Get access to a providing application. 
+####4) Get access to a providing application. 
 
 You will need a provider component to connect the EMA consumer applications to.  This can be an ADS or API provider application from ETA or RFA.
 
-####6) Run the EMA Examples
+####5) Run the EMA Examples
 
 Once the provider is running and accessible, you can run the EMA examples.  When running examples build using shared libraries you will need to make sure that the ETA libraries are local or in your path.
 
