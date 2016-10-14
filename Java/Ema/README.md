@@ -1,115 +1,194 @@
-# Elektron SDK - Java Edition
-This is the Elektron SDK. This SDK is an all encompassing package of all Elektron APIs. This currently includes the Elektron Message API (EMA) and the Elektron Transport API (ETA).
-
-The **Elektron Message API (EMA)** is an ease of use, open source, OMM API. EMA is designed to provide clients rapid development of applications, minimizing lines of code and providing a broad range of flexibility. It provides flexible configuration with default values to simplify use and deployment.  EMA is written on top of the Elektron Transport API (ETA) utilizing the Value Added Reactor and Watchlist. 
-
-The **Elektron Transport API (ETA)** is the re-branded Ultra Performance API (UPA). ETA is Thomson Reuters low-level 
-Transport and OMM encoder/decoder API.  It is used by the Thomson Reuters Enterprise Platform for Real Time and Elektron for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. 
-
-# Supported Platforms and Compilers
-
-The Elektron-SDK has support for JDK 1.7 and JDK 1.8.  Please see the individual API README.md files for further details.
-
-# Building the APIs
-
-## Common Setup
-This section shows the required setup needed before you can build any of the APIs within this package.
-
-Firstly, obtain the source from this repository. It will contain all of the required source to build EMA and ETA as detailed below.
-In addition, this repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/thomsonreuters/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location.  That repository contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product. 
-This repository uses submodules for this cross-dependency, so users should add the `--recursive` option to their git clone command.  In addition, any classpaths should be updated to also include jars from the submodule library location, which will be your clone location followed by `Elektron-SDK-BinaryPack/Java/Eta/Libs`
 
 
-## Building ETA
-
-#### ETA Special Instructions
-The ETA package contains transport, decoder, encoder, and cache components.  
-The transport, decoder, encoder, and cache components are closed source and is proprietary to Thomson Reuters and the source code is not included on GitHub. 
-This repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/thomsonreuters/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location.  That repository contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.
+# Elektron Message API - Java Edition
 
 
-####1) Build the ETA API 
+The Elektron Message API: This is an easy-to-use, performant, open source message layer API. The Elektron Message API helps developers by allowing them to develop applications with significantly less code. It is new and will be enhanced by collaboration with customers (through GitHub) and Thomson Reuters based on customer feedback.
 
-**Using Apache Ant**:
+EMA is written on top of the Elektron Transport API (ETA) utilizing    the Value Added Reactor and Watchlist.  
 
-Ant can be downloaded from http://ant.apache.org
-
-Navigate to `Eta/Source` 
--	Run `ant all` to build Reactor and its dependencies.  This will use the fully functional JAR files and libraries provided in the `Libs` location of the `Elektron-SDK-BinaryPack` repository.
--	Run `ant build-stubs` to build only the Stub libraries.  This will build to a `bin` location. 
--	Run `ant build` or `ant build-valueadd` to build only Reactor and its dependencies.  This will link to the fully functional JAR files and libraries provided in the `Libs` location.  This is the same as the `ant all` target.
+(C) Copyright 2016 Thomson Reuters Limited. All rights reserved,
+Reuters Oak Brook, IL USA
+  
 
 
-####2) Build the ETA API Examples
+# Message API Features and Functionality
 
-Navigate to `Eta/Applications`, locate the example or performance tool you would like to build. 
-The Example applications are located in `Eta/Applications/Examples`
-The Performance Tools are located in `Eta/Applications/PerfTools`
--	Run `ant` to build all examples/performance tools or select the target from inside the build.xml file to built a specific example or performance tool.
--	Optionally, these can be built using the bat or ksh script files if preferred over ant.
+##Consumer Features:
+- Default Admin Domain Requests: EMA uses default login, directory and 
+      dictionary request while connecting to server. This provides minimum 
+      configuration for applications to get up and running.   
 
-####3) Run the ETA Examples
+- Connection Failover: EMA can be configured to specify a list of failover servers via ChannelSet configuration.  In the event that the consumer's connection attempt fails, EMA will utilize the next channel in the ChannelSet list.
 
-Run the application from the command line using the appropriate execution commands.  Most applications have a help menu that can be viewed with a -? option.
+- Configurable Admin Domain Requests:  EMA provides means for modifying the default admin domain requests
 
-**NOTE** If you have built using the 'stub' libraries, the examples run but fail.  
+- Batch Request: Application may use a single request message to specify interest in multiple items via the item list
 
-## Building EMA
+- Dynamic View:	Application may specify a subset of fields or elements of a particular item
 
-Follow the steps below to build EMA library and examples.
+- Optimized Pause and Resume: Application may request server to pause and resume item stream
+
+- Single Open: EMA supports application selected single open functionality
+	  
 
 
 
+##Non-Interactive Provider Features:
 
-####1) Build the EMA library
+- Default Admin Domains: EMA uses default login and directory messages while connecting to server. This provides minimum configuration for applications to get up and running.
 
-**Using Apache Ant**:
+- Configurable Admin Domains:  EMA provides means for modifying the default admin domain messages. 		
 
-To build EMA library (`ema.jar`), navigate to `Src` and run the `ant` command. 
-The `ant` script first builds the underlying ETA libraries (`upaValueAdd.jar`) and then builds the EMA library.
+##Common Features:
 
-####2) Obtain the ETA library (upa.jar) 
-Copy the `Elektron-SDK-BinaryPack/Java/Eta/Libs/upa.jar` from the binary pack to the `...\Eta\Libs\` directory.
+- TCP/IP Connectivity
 
+- Component Versioning: This feature sends information about itself to the connected component.
 
-####3) Build the EMA examples
-To build EMA examples, navigate to `Src/examples` and run the `ant` command. The `ant` script will build all of the examples.
+- RMTES Decoder	EMA provides a built in RMTES decoder. If desired, application may cache RmtesBuffer objects and apply all the received changes to them.
 
+- Data::toString()	All OMM containers, primitives and messages may simply be printed out to screen in a standardized output format. 
 
-####4) Get access to a providing application. 
+- Data::asHex()	Applications may obtain binary representations of all OMM containers, primitives and messages.
 
-You will need a provider component to connect the EMA consumer applications to.  This can be an ADS or API provider application from ETA or RFA.
+- File Config:	Enables applications to specify EMA configuration in an      EmaConfig.xml file
 
-####5) Run the EMA Examples
+- Direct Write setting on socket channel
 
-Once the provider is running and accessible, you can run the EMA examples. 
-
-Set the `CLASSPATH` to include the required jars.
-
-See `.../Src/examples/example100__MarketPrice__Streaming.bat` for an example of setting the `CLASSPATH` and running an example
-
-That should do it!  
+- High Water Mark setting on socket channel
+		
 
 
-# Developing 
+# Product Content
 
-If you have discover any issues with regards to this project, please feel free to create an Issue.
+- EMA libraries [binaries not included in GitHub distribution]
+- Ant script files to build EMA library
+- EMA Examples
+- TREP Dictionary
+- Documentation 
+- SLF4J logging API libraries
+- Apache Commons Configuration libraries 
+	
+			
+# Documentation
 
-If you have coding suggestions that you would like to provide for review, please create a Pull Request.
+- API Concepts Guide
+- EMA Developers Guide
+- EMA Configuration Guide
+- EMA Reference Manual
+- EMA RDM Usage Guide
+- EMA Examples Cross Reference
+- HTML Documentation
+- Readme (This File)
+- License File
+- Test Results
+	
 
-We will review issues and pull requests to determine any appropriate changes.
 
+# Hardware/OS Requirements
+
+      (Linux)
+      - HP Intel PC or AMD Opteron (64-bit)
+      - AMD Opteron (64-bit)
+      - Red Hat Enterprise Linux Advanced Server 6.0 64-bit 
+      - Oracle Linux Server 6.0 64-bit (Qualified on RHAS 6.0)
+      - Oracle Linux Server 7.0 64-bit
+	  - CentOS 7 64-bit (Qualified on OL7)
+
+      (Windows)
+      - Intel compatible PC and AMD Opteron for 64-bit
+      - CPUs must have high resolution timer frequencies greater than 1GHz.
+      - Microsoft Windows Server 2008 (SP1 or greater) 64-bit 
+      - Microsoft Windows 7 Professional 64-bit
+      - Microsoft Windows 8 Professional 64-bit
+      - Microsoft Windows 8.1 Professional 64-bit 
+      - Microsoft Windows 10 Professional 64-bit
+
+
+
+# Software Requirements
+	
+    ----------------- 
+    Core OS Platforms
+    ----------------- 
+    - Microsoft Windows Server 2008 (SP1 or greater) 64-bit
+    - Microsoft Windows Server 2012 Standard 64-bit
+    - Microsoft Windows 7 Professional 64-bit
+    - Microsoft Windows 8 Professional 64-bit
+    - Microsoft Windows 8.1 Professional 64-bit   
+    - Microsoft Windows 10 Professional 64-bit   
+
+    - Red Hat Enterprise Linux Advanced Server 6.0 (or grater) 64-bit 
+    - Oracle Linux Server 6.0 (or greater) 64-bit 
+    - Oracle Linux Server 7.0 (or greater) 64-bit
+    - CentOS Linux 7.0 (or greater) 64-bit
+
+    
+	-------------
+    Core Java VMs  
+    -------------
+    - Java SE 7 (JDK1.7)
+    - Java SE 8 (JDK1.8)
+
+		  
+    ---------------------------------------------------------
+    Enterprise Platform for Real-Time - RSSL/RWF connections
+    ---------------------------------------------------------
+    - ADS 2.4 or higher
+    - ADH 2.4 or higher
+	  
+    --------
+    EleKtron
+    --------
+    - EleKtron Deployed
+    - EleKtron Hosted
+      
+      
+# Installation and Use
+
+See the top level Elektron-SDK README.md for details.
+
+
+	  
+# Issues and Workarounds
+ 
+- EMA-9 Generic Message is not currently supported on login stream.
+- EMA-401 Source directory reissue may internally request on invalid handle
+- EMA-437 Batch Request status message itemName not correct.
+- EMA-622 Invalid value of compressionThreshold give error and could not connect
+- EMA-624 Invalid config for tcpNodelay and REconnectMaxDelay defaults to incorrect defaults.
+- EMA-719 CaseId: 04883420 EMA Java throws ClassCastException when configured for HTTP Connection type
+- EMA-720 CaseId: 04883420 Broken links in EMA Java ConfigGuide 
+
+# Obtaining the Thomson Reuters Field Dictionaries
+
+
+The Thomson Reuters `RDMFieldDictionary` and `enumtype.def` files are present in the GitHub repo under `Ema/Etc`.
+
+In addition, the most current version can be downloaded from the Customer Zone from the following location.
+
+https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
+
+- **Category**: MDS - General
+- **Products**: TREP Templates Service Pack
+
+Place the downloaded `enumtype.def` and `RDMFieldDictionary` under `/Ema/Etc` If these are not present when building some of the applications, their build will fail when they reach the step to copy these. The executable will still be built properly. 
 
 # Contributing
-In the event you would like to contribute to this repository, it is required that you read and sign the following:
-
-- [Individual Contributor License Agreement](../Elektron API Individual Contributor License Agreement.pdf)
-- [Entity Contributor License Agreement](../Elektron API Entity Contributor License Agreement.pdf)
-
-Please email a signed and scanned copy to sdkagreement@thomsonreuters.com.  If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
+Please see the top level **README.md** file for details.
 
 
-# Notes:
-- For more details on each API, please see the corresponding readme file in their top level directory.
-- This package contains APIs that are subject to proprietary and open source licenses.  Please make sure to read the readme files within each package for clarification.
-- Please make sure to review the LICENSE.md file.
+# Reference Information
+
+    I-COS Questionnaire: 6313
+    Reuters Item Number: N/A
+    Product Name: Elektron Message API - Java Edition
+    US ECCN: EAR99
+    EU ECCN: None
+    Export Code: NL
+    Security Compliance: Thomson Reuters Security Compliant
+	  
+
+# Notes
+- Please make sure to review the **LICENSE.md** file.
