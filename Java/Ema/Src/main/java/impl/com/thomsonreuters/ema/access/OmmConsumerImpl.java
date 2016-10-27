@@ -17,11 +17,14 @@ import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
 import com.thomsonreuters.upa.transport.WritePriorities;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEvent;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
+import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamSubmitOptions;
 
 class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsumer
 {
 	private OmmConsumerErrorClient _consumerErrorClient;
 	private OmmConsumerActiveConfig _activeConfig;
+	private TunnelStreamSubmitOptions _rsslTunnelStreamSubmitOptions;
 
 	OmmConsumerImpl(OmmConsumerConfig config)
 	{
@@ -376,5 +379,13 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 			_consumerErrorClient.onInvalidHandle(handle, text);
 		else
 			throw (ommIHExcept().message(text, handle));
+	}
+
+	TunnelStreamSubmitOptions rsslTunnelStreamSubmitOptions()
+	{
+		if (_rsslTunnelStreamSubmitOptions == null)
+			_rsslTunnelStreamSubmitOptions = ReactorFactory.createTunnelStreamSubmitOptions();
+
+		return _rsslTunnelStreamSubmitOptions;
 	}
 }

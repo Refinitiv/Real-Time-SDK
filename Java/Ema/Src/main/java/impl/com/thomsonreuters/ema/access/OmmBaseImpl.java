@@ -10,6 +10,7 @@ package com.thomsonreuters.ema.access;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.CancelledKeyException;
+import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.Pipe;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -23,7 +24,6 @@ import org.slf4j.Logger;
 
 import com.thomsonreuters.ema.access.ConfigManager.ConfigAttributes;
 import com.thomsonreuters.ema.access.ConfigManager.ConfigElement;
-import com.thomsonreuters.ema.access.OmmBaseImpl.OmmImplState;
 import com.thomsonreuters.ema.access.OmmConsumer.DispatchReturn;
 import com.thomsonreuters.ema.access.OmmConsumer.DispatchTimeout;
 import com.thomsonreuters.ema.access.OmmConsumerConfig.OperationModel;
@@ -42,6 +42,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
+import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamSubmitOptions;
 
 abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 {
@@ -1070,6 +1071,17 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 
 			return true;
 		} 
+		catch (ClosedSelectorException e)
+		{
+			if (_loggerClient.isTraceEnabled())
+			{
+				strBuilder().append("Call to rsslReactorDispatchLoop() received closed selector exception.");
+
+				_loggerClient.trace(formatLogMessage(_activeConfig.instanceName, _strBuilder.toString(), Severity.TRACE));
+			}
+
+			return true;
+		} 
 		catch (IOException e)
 		{
 			if (_loggerClient.isErrorEnabled())
@@ -1122,6 +1134,11 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 		return _rsslSubmitOptions;
 	}
 	
+	TunnelStreamSubmitOptions rsslTunnelStreamSubmitOptions()
+	{
+		return null;
+	}
+
 	abstract String formatLogMessage(String clientName, String temp, int level);
 	
 	abstract String instanceName();

@@ -312,4 +312,67 @@ public class EmaFactory
 	{
 		return new OmmXmlImpl();
 	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.ClassOfService}.
+	 * @return {@link com.thomsonreuters.ema.access.ClassOfService}
+	 */
+	public static ClassOfService createClassOfService()
+	{
+		return new ClassOfServiceImpl();
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.CosAuthentication}.
+	 * @return {@link com.thomsonreuters.ema.access.CosAuthentication}
+	 */
+	public static CosAuthentication createCosAuthentication()
+	{
+		return new CosAuthenticationImpl();
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.CosCommon}.
+	 * @return {@link com.thomsonreuters.ema.access.CosCommon}
+	 */
+	public static CosCommon createCosCommon()
+	{
+		return new CosCommonImpl();
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.CosDataIntegrity}.
+	 * @return {@link com.thomsonreuters.ema.access.CosDataIntegrity}
+	 */
+	public static CosDataIntegrity createCosDataIntegrity()
+	{
+		return new CosDataIntegrityImpl();
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.CosFlowControl}.
+	 * @return {@link com.thomsonreuters.ema.access.CosFlowControl}
+	 */
+	public static CosFlowControl createCosFlowControl()
+	{
+		return new CosFlowControlImpl();
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.CosGuarantee}.
+	 * @return {@link com.thomsonreuters.ema.access.CosGuarantee}
+	 */
+	public static CosGuarantee createCosGuarantee()
+	{
+		return new CosGuaranteeImpl();
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.TunnelStreamRequest}.
+	 * @return {@link com.thomsonreuters.ema.access.TunnelStreamRequest}
+	 */
+	public static TunnelStreamRequest createTunnelStreamRequest()
+	{
+		return new TunnelStreamRequestImpl();
+	}	
 }
