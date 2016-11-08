@@ -98,6 +98,7 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 	private byte[] _pipeWriteByte = new byte[]{0x00};
 	private ByteBuffer _pipeReadByte = ByteBuffer.allocate(1);
 	private boolean _eventReceived;
+	private SelectionKey _pipeSelectKey;
 	
 	abstract Logger createLoggerClient();
 	
@@ -200,7 +201,8 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 				_rsslReactor.reactorChannel().selectableChannel().register(_selector, SelectionKey.OP_READ,
 						_rsslReactor.reactorChannel());
 				_pipe.source().configureBlocking(false);
-				_pipe.source().register(_selector, SelectionKey.OP_READ, _rsslReactor.reactorChannel());
+				_pipeSelectKey = _pipe.source().register(_selector, SelectionKey.OP_READ, _rsslReactor.reactorChannel());
+
 			} catch (IOException e)
 			{
 				_threadRunning = false;
@@ -989,7 +991,11 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 							if (!key.isValid())
 								continue;
 							if (key.isReadable())
-									ret = ((ReactorChannel) key.attachment()).dispatch(_rsslDispatchOptions, _rsslErrorInfo);
+							{
+								if (_pipeSelectKey == key) 	pipeRead();
+
+								ret = ((ReactorChannel) key.attachment()).dispatch(_rsslDispatchOptions, _rsslErrorInfo);
+							}
 						}
 						 catch (CancelledKeyException e)
 						{
@@ -997,8 +1003,7 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 						}
 					}
 					
-					if (_pipeWriteCount == 1)
-						pipeRead();
+					if ( _eventReceived ) 	return true;
 					
 					if (_state >= OmmImplState.RSSLCHANNEL_UP)
 					{
