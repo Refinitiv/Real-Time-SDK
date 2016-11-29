@@ -547,7 +547,11 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback
                 loginHandler.sendCloseStatus(reactorChannel, errorInfo);
                 
                 // close the tunnel stream
-                _tunnelStreamHandlerHashMap.get(reactorChannel).closeStream(_finalStatusEvent, errorInfo);
+                TunnelStreamHandler tunnelStreamHandler = _tunnelStreamHandlerHashMap.get(reactorChannel);
+                if (tunnelStreamHandler != null)
+                {
+                	tunnelStreamHandler.closeStream(_finalStatusEvent, errorInfo);
+                }
 
 				/* It is important to make sure that no more interface calls are made using the channel after
 				 * calling ReactorChannel.close(). Because this application is single-threaded, it is safe 
@@ -855,8 +859,12 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback
                     System.out.println("Error sending item close: " + errorInfo.error().text());
                 
                 // close tunnel stream
-                if (_tunnelStreamHandlerHashMap.get(reactorChnl).closeStream(_finalStatusEvent, errorInfo) != CodecReturnCodes.SUCCESS)
-                    System.out.println("Error closing tunnel stream: " + errorInfo.error().text());
+                TunnelStreamHandler tunnelStreamHandler = _tunnelStreamHandlerHashMap.get(reactorChnl);
+                if (tunnelStreamHandler != null)
+                {
+                	if (tunnelStreamHandler.closeStream(_finalStatusEvent, errorInfo) != CodecReturnCodes.SUCCESS)
+                		System.out.println("Error closing tunnel stream: " + errorInfo.error().text());
+                }
 
                 // send close status message to source directory stream
                 if (directoryHandler.sendCloseStatus(reactorChnl, errorInfo) != CodecReturnCodes.SUCCESS)
