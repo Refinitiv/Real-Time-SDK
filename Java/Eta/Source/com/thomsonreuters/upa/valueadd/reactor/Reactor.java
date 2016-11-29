@@ -1378,9 +1378,8 @@ public class Reactor
                 
                 if (!isReactorChannelReady(reactorChannel))
                 {
-                    sendAndHandleChannelEventCallback("Reactor.performChannelRead",
-                                                      ReactorChannelEventTypes.CHANNEL_DOWN,
-                                                      reactorChannel, errorInfo);
+                    return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                            "Reactor.dispatchChannel", "ReactorChannel is not active, aborting.");
                 }
                 else
                 {
@@ -3111,7 +3110,13 @@ public class Reactor
 
         try
         {
-	        // handle Reactor's channel before individual channels
+            if (!_reactorActive)
+            {
+                return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                                         "Reactor.dispatchAll", "Reactor is not active, aborting.");
+            }
+
+            // handle Reactor's channel before individual channels
 	        while (msgCount < maxMessages && _workerQueue.readQueueSize() > 0)
 	        {
 	            msgCount++;
@@ -3153,11 +3158,8 @@ public class Reactor
 
 			                    if (!isReactorChannelReady(reactorChnl))
 			                    {
-			                        sendAndHandleChannelEventCallback("Reactor.performChannelRead",
-			                                                          ReactorChannelEventTypes.CHANNEL_DOWN,
-			                                                          reactorChnl, errorInfo);
-			                        
-			                        return ReactorReturnCodes.SUCCESS;
+			                        return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+	                                         "Reactor.dispatchAll", "ReactorChannel is not active, aborting.");
 			                    }
 			                    
 			                    while (isReactorChannelReady(reactorChnl) && msgCount < maxMessages && retval > 0)
