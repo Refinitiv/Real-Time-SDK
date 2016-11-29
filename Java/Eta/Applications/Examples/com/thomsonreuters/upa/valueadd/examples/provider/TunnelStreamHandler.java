@@ -311,15 +311,15 @@ class TunnelStreamHandler implements TunnelStreamListenerCallback, TunnelStreamS
 
     int closeStream(boolean finalStatusEvent, ReactorErrorInfo errorInfo)
     {
+    	int ret = ReactorReturnCodes.SUCCESS;
     	_finalStatusEvent = finalStatusEvent; 
     	
         if (_tunnelStream != null)
         {
-            return _tunnelStream.close(finalStatusEvent, errorInfo);
+            ret = _tunnelStream.close(finalStatusEvent, errorInfo);
+            _tunnelStream = null;
         }
-        else
-        {
-            return ReactorReturnCodes.SUCCESS;
-        }
+        
+        return ret;
     }
 }

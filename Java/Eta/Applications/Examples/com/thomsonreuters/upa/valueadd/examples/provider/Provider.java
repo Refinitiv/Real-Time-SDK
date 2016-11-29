@@ -543,6 +543,9 @@ public class Provider implements ProviderCallback
                 
                 // send close status message to login stream 
                 loginHandler.sendCloseStatus(reactorChannel, errorInfo);
+                
+                // close the tunnel stream
+                tunnelStreamHandler.closeStream(_finalStatusEvent, errorInfo);
 
 				/* It is important to make sure that no more interface calls are made using the channel after
 				 * calling ReactorChannel.close(). Because this application is single-threaded, it is safe 
