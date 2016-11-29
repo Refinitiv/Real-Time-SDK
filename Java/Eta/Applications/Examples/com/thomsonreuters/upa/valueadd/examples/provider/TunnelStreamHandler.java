@@ -27,7 +27,6 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 import com.thomsonreuters.upa.valueadd.reactor.TunnelStream;
 import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamAcceptOptions;
 import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamDefaultMsgCallback;
-import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamListenerCallback;
 import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamMsgEvent;
 import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamRejectOptions;
 import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamRequestEvent;
@@ -36,7 +35,7 @@ import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamStatusEventCallback;
 import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamSubmitOptions;
 
 /* Handles TunnelStream connections for the VA Provider. */
-class TunnelStreamHandler implements TunnelStreamListenerCallback, TunnelStreamStatusEventCallback, TunnelStreamDefaultMsgCallback
+class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStreamDefaultMsgCallback
 {
     TunnelStream _tunnelStream;
     private TunnelStreamAcceptOptions _tunnelStreamAcceptOptions = ReactorFactory.createTunnelStreamAcceptOptions();
@@ -64,15 +63,12 @@ class TunnelStreamHandler implements TunnelStreamListenerCallback, TunnelStreamS
     // application name
     private static String applicationName = "UPA TunnelStream Provider";
 
-    
-    @Override
-    public int listenerCallback(TunnelStreamRequestEvent event)
+    void processNewStream(TunnelStreamRequestEvent event)
     {
-        int ret;
-
+    	int ret;
+    	
         if (isFilterValid(event.classOfServiceFilter()) &&
-            isClassOfServiceValid(event.classOfService()) &&
-            _tunnelStream == null)
+                isClassOfServiceValid(event.classOfService()))
         {
             _tunnelStreamAcceptOptions.clear();
             
@@ -94,31 +90,20 @@ class TunnelStreamHandler implements TunnelStreamListenerCallback, TunnelStreamS
         else // invalid tunnel stream request
         {
             _tunnelStreamRejectOptions.clear();
-            if (_tunnelStream == null) // no tunnel stream yet
-            {
-				// Since we're rejecting due to a Class-of-Service mismatch,
-				// send a redirect to the consumer.
-				_tunnelStreamRejectOptions.expectedClassOfService(_expectedClassOfService);
-				_tunnelStreamRejectOptions.state().streamState(StreamStates.REDIRECTED);
-				_tunnelStreamRejectOptions.state().dataState(DataStates.SUSPECT);
-				_tunnelStreamRejectOptions.state().code(StateCodes.NONE);
-                _tunnelStreamRejectOptions.state().text().data("Unsupported TunnelStream class of service");
-            }
-            else // we already have a tunnel stream
-            {
-				_tunnelStreamRejectOptions.state().streamState(StreamStates.CLOSED);
-				_tunnelStreamRejectOptions.state().dataState(DataStates.SUSPECT);
-				_tunnelStreamRejectOptions.state().code(StateCodes.NONE);
-                _tunnelStreamRejectOptions.state().text().data("Provider only allows one tunnel stream connection");
-            }
+            
+			// Since we're rejecting due to a Class-of-Service mismatch,
+			// send a redirect to the consumer.
+			_tunnelStreamRejectOptions.expectedClassOfService(_expectedClassOfService);
+			_tunnelStreamRejectOptions.state().streamState(StreamStates.REDIRECTED);
+			_tunnelStreamRejectOptions.state().dataState(DataStates.SUSPECT);
+			_tunnelStreamRejectOptions.state().code(StateCodes.NONE);
+            _tunnelStreamRejectOptions.state().text().data("Unsupported TunnelStream class of service");
 
             if ((ret = event.reactorChannel().rejectTunnelStream(event, _tunnelStreamRejectOptions, event.errorInfo())) < ReactorReturnCodes.SUCCESS)
             {
                 System.out.println("rejectTunnelStream() failed with return code: " + ret + " <" + event.errorInfo().error().text() + ">");
             }            
         }
-
-        return ReactorCallbackReturnCodes.SUCCESS;
     }
 
     private boolean isClassOfServiceValid(ClassOfService classOfService)
@@ -321,5 +306,10 @@ class TunnelStreamHandler implements TunnelStreamListenerCallback, TunnelStreamS
         }
         
         return ret;
+    }
+    
+    boolean isStreamClosed()
+    {
+    	return _tunnelStream == null;
     }
 }

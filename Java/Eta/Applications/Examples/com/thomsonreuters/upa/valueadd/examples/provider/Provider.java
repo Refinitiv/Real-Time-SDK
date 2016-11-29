@@ -5,6 +5,7 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -51,6 +52,8 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorMsgEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
+import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamListenerCallback;
+import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamRequestEvent;
 
 /**
  * <p>
@@ -126,7 +129,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
  * </ul>
  * </p>
  */
-public class Provider implements ProviderCallback
+public class Provider implements ProviderCallback, TunnelStreamListenerCallback
 {
     // client sessions over this limit gets rejected with NAK mount
     static final int NUM_CLIENT_SESSIONS = 5;
@@ -148,7 +151,7 @@ public class Provider implements ProviderCallback
     private DirectoryHandler directoryHandler;
     private LoginHandler loginHandler;
     private ItemHandler itemHandler;
-    private TunnelStreamHandler tunnelStreamHandler;
+    private HashMap<ReactorChannel, TunnelStreamHandler> _tunnelStreamHandlerHashMap = new HashMap<ReactorChannel, TunnelStreamHandler>();
     
     private int clientSessionCount = 0;
 	ArrayList<ReactorChannel> reactorChannelList = new ArrayList<ReactorChannel>();
@@ -181,13 +184,12 @@ public class Provider implements ProviderCallback
         directoryHandler = new DirectoryHandler();
         loginHandler = new LoginHandler();
         itemHandler = new ItemHandler(dictionaryHandler, loginHandler);
-        tunnelStreamHandler = new TunnelStreamHandler();
         providerRole.channelEventCallback(this);
         providerRole.defaultMsgCallback(this);
         providerRole.dictionaryMsgCallback(this);
         providerRole.directoryMsgCallback(this);
         providerRole.loginMsgCallback(this);
-        providerRole.tunnelStreamListenerCallback(tunnelStreamHandler);
+        providerRole.tunnelStreamListenerCallback(this);
         _finalStatusEvent = true;
         closetime = 10;
     }
@@ -438,7 +440,7 @@ public class Provider implements ProviderCallback
             	System.out.println("Provider run-time expired...");
             	break;
             }
-	        if(closeHandled && tunnelStreamHandler._tunnelStream == null) 
+	        if(closeHandled && allTunnelStreamsClosed()) 
 	        {
 	        	break;
 	        }                        
@@ -545,7 +547,7 @@ public class Provider implements ProviderCallback
                 loginHandler.sendCloseStatus(reactorChannel, errorInfo);
                 
                 // close the tunnel stream
-                tunnelStreamHandler.closeStream(_finalStatusEvent, errorInfo);
+                _tunnelStreamHandlerHashMap.get(reactorChannel).closeStream(_finalStatusEvent, errorInfo);
 
 				/* It is important to make sure that no more interface calls are made using the channel after
 				 * calling ReactorChannel.close(). Because this application is single-threaded, it is safe 
@@ -826,6 +828,18 @@ public class Provider implements ProviderCallback
 		return ReactorCallbackReturnCodes.SUCCESS;
 	}
 	
+    @Override
+    public int listenerCallback(TunnelStreamRequestEvent event)
+    {
+        TunnelStreamHandler tunnelStreamHandler = new TunnelStreamHandler();
+   
+        _tunnelStreamHandlerHashMap.put(event.reactorChannel(), tunnelStreamHandler);
+        
+        tunnelStreamHandler.processNewStream(event);
+
+        return ReactorCallbackReturnCodes.SUCCESS;
+    }
+	
     /*
      * Sends close status messages to all streams on all channels.
      */
@@ -841,7 +855,7 @@ public class Provider implements ProviderCallback
                     System.out.println("Error sending item close: " + errorInfo.error().text());
                 
                 // close tunnel stream
-                if (tunnelStreamHandler.closeStream(_finalStatusEvent, errorInfo) != CodecReturnCodes.SUCCESS)
+                if (_tunnelStreamHandlerHashMap.get(reactorChnl).closeStream(_finalStatusEvent, errorInfo) != CodecReturnCodes.SUCCESS)
                     System.out.println("Error closing tunnel stream: " + errorInfo.error().text());
 
                 // send close status message to source directory stream
@@ -941,6 +955,22 @@ public class Provider implements ProviderCallback
 			cacheInfo.useCache = false;
 		}
     }
+    
+	private boolean allTunnelStreamsClosed()
+	{
+		boolean ret = true;
+		
+		for (TunnelStreamHandler tunnelStreamHandler : _tunnelStreamHandlerHashMap.values())
+		{
+			if (tunnelStreamHandler.isStreamClosed() != true)
+			{
+				ret = false;
+				break;
+			}
+		}
+
+		return ret;
+	}
     
     /*
      * Cleans up and exits.
