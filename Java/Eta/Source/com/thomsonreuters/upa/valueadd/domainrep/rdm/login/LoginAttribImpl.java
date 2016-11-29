@@ -337,12 +337,12 @@ class LoginAttribImpl implements LoginAttrib
     
     public void applyHasProviderSupportDictionaryDownload()
     {
-    	flags |= LoginRequestFlags.HAS_PROVIDER_SUPPORT_DICTIONARY_DOWNLOAD;
+    	flags |= LoginAttribFlags.HAS_PROVIDER_SUPPORT_DICTIONARY_DOWNLOAD;
     }
     
     public boolean checkHasProviderSupportDictionaryDownload()
     {
-        return (flags & LoginRequestFlags.HAS_PROVIDER_SUPPORT_DICTIONARY_DOWNLOAD) != 0;
+        return (flags & LoginAttribFlags.HAS_PROVIDER_SUPPORT_DICTIONARY_DOWNLOAD) != 0;
     }
     
     public void supportProviderDictionaryDownload(long supportProviderDictionaryDownload)

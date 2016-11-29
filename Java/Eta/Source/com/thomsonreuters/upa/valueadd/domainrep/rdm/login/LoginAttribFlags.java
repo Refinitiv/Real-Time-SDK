@@ -31,6 +31,13 @@ public class LoginAttribFlags
     /** (0x0080) Indicates presence of the singleOpen member */
     public static final int HAS_SINGLE_OPEN = 0x0080;
 
+    /**
+     * (0x0100) Inform a Provider that it can request dictionary.
+     * Support for this request is indicated by the
+     * supportProviderDictionaryDownload member of the {@link LoginAttrib}
+     */
+    public static final int HAS_PROVIDER_SUPPORT_DICTIONARY_DOWNLOAD = 0x0100;
+    
     private LoginAttribFlags()
     {
         throw new AssertionError();
