@@ -13,20 +13,19 @@ public class Login
      * Indicates the role of the application logging onto the system.
      */
     public static class RoleTypes
-	{
-	    // RoleTypes class cannot be instantiated
-	    private RoleTypes()
-	    {
-	        throw new AssertionError();
-	    }
+    {
+        // RoleTypes class cannot be instantiated
+        private RoleTypes()
+        {
+            throw new AssertionError();
+        }
 
-	    /** Application logs in as a consumer */
-	    public static final int CONS = 0;
+        /** Application logs in as a consumer */
+        public static final int CONS = 0;
 
-	    /** Application logs in as a provider */
-	    public static final int PROV = 1;
-
-	}
+        /** Application logs in as a provider */
+        public static final int PROV = 1;
+    }
 
     /**
      * RDM Login Server Types.
@@ -71,10 +70,9 @@ public class Login
         public static final int TOKEN = 3;
 
         /**
-         * This indicates user information is specified in a cookie. If
-         * msgKey.name is present it contains cookie file information. If not
-         * present, cookie information may be well known or externally
-         * specified.
+         * This indicates user information is specified in a cookie.
+         * If msgKey.name is present it contains cookie file information.
+         * If not present, cookie information may be well known or externally specified.
          */
         public static final int COOKIE = 4;
     }

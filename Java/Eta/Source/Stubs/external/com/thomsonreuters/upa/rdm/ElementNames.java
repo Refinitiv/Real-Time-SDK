@@ -188,9 +188,7 @@ public class ElementNames
     public static final Buffer SET_TYPES = CodecFactory.createBuffer();
     /** NAMES */
     public static final Buffer SET_NAMES = CodecFactory.createBuffer();
-    
 
-    
     // Multicast info
     /** ReferenceDataServerHost */
     public static final Buffer REFERENCE_DATA_SERVER_HOST = CodecFactory.createBuffer();
@@ -429,12 +427,10 @@ public class ElementNames
          /** Channel ID */
          CHANNEL_ID.data("ChannelId");
 
-
         // Request Message Payload - Well known Element Names
         // Because these span domains, they are namespaced
         // <namespace>:<element name>
-        // Thomson Reuters claims empty namespace (e.g. :ItemList is TR
-        // namespace)
+        // Thomson Reuters claims empty namespace (e.g. :ItemList is TR namespace)
         // Customers can define and namespace using other values as they need
         /** :ItemList */
         BATCH_ITEM_LIST.data(":ItemList");
@@ -442,6 +438,5 @@ public class ElementNames
         VIEW_TYPE.data(":ViewType");
         /** :ViewData */
         VIEW_DATA.data(":ViewData");
-
     }
 }

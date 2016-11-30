@@ -70,8 +70,7 @@ public interface Buffer
 
     /**
      * Copies this Buffer's data starting at this Buffer's position, for this
-     * Buffer's length, into the destBuffer starting at the destBuffer's
-     * position.
+     * Buffer's length, into the destBuffer starting at the destBuffer's position.
      * 
      * @param destBuffer A {@link java.nio.ByteBuffer ByteBuffer} large enough
      *            to hold the contents of this {@link Buffer}.
@@ -89,8 +88,7 @@ public interface Buffer
      * Copies this Buffer's data starting at this Buffer's position, for this
      * Buffer's length, into the destBuffer.
      * 
-     * @param destBuffer A byte[] large enough to hold the contents of this
-     *            Buffer.
+     * @param destBuffer A byte[] large enough to hold the contents of this Buffer.
      * 
      * @return {@link CodecReturnCodes#SUCCESS} on success,
      *         {@link CodecReturnCodes#INVALID_ARGUMENT} if the destBuffer is
@@ -105,8 +103,7 @@ public interface Buffer
      * Copies this Buffer's data starting at this Buffer's position, for this
      * Buffer's length, into the destBuffer.
      * 
-     * @param destBuffer A byte[] large enough to hold the contents of this
-     *            Buffer.
+     * @param destBuffer A byte[] large enough to hold the contents of this Buffer.
      * 
      * @return {@link CodecReturnCodes#SUCCESS} on success,
      *         {@link CodecReturnCodes#INVALID_ARGUMENT} if the destBuffer is
@@ -158,8 +155,7 @@ public interface Buffer
 
     /**
      * Sets the Buffer data to the contents of the string. This buffer's
-     * position will be set to zero and length will be set to the specified
-     * string's length.
+     * position will be set to zero and length will be set to the specified string's length.
      * 
      * @param str the string to set
      * 
@@ -236,8 +232,7 @@ public interface Buffer
     /**
      * Returns the capacity of this buffer. If underlying data is backed by
      * ByteBuffer, capacity is the difference between limit and initial position
-     * of the backing ByteBuffer. For String backed buffer, capacity is the
-     * string length.
+     * of the backing ByteBuffer. For String backed buffer, capacity is the string length.
      * 
      * @return the capacity. Number of bytes that this buffer can hold.
      */

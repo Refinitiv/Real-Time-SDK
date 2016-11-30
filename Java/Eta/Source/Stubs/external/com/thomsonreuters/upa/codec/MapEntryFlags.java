@@ -1,8 +1,7 @@
 package com.thomsonreuters.upa.codec;
 
 /**
- * Combination of bit values to indicate the presence of any optional
- * {@link MapEntry} content.
+ * Combination of bit values to indicate the presence of any optional {@link MapEntry} content.
  */
 public class MapEntryFlags
 {

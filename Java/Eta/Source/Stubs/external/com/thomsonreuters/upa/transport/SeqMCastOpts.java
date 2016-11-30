@@ -1,8 +1,7 @@
 package com.thomsonreuters.upa.transport;
 
 /**
- * Options used for configuring Sequenced Multicast specific transport options
- * (ConnectionTypes.SEQUENCED_MULTICAST).
+ * Options used for configuring Sequenced Multicast specific transport options (ConnectionTypes.SEQUENCED_MULTICAST).
  * 
  * @see ConnectOptions
  */

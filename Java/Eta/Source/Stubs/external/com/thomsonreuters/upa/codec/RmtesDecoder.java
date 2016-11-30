@@ -3,8 +3,7 @@ package com.thomsonreuters.upa.codec;
 import com.thomsonreuters.upa.codec.Buffer;
 
 /**
- * Used to decode RMTES data from a Buffer using RmtesBuffer and
- * RmtesCacheBuffer.
+ * Used to decode RMTES data from a Buffer using RmtesBuffer and RmtesCacheBuffer.
  * 
  * @see RmtesBuffer
  * @see RmtesCacheBuffer
@@ -25,9 +24,9 @@ public interface RmtesDecoder
      * 
      * @param rmtesBuffer Buffer used to store decoded RMTES data
      * @param cacheBuffer Buffer containing encoded RMTES data
+     * 
      * @return {@link CodecReturnCodes}
      */
-
     public int RMTESToUCS2(RmtesBuffer rmtesBuffer, RmtesCacheBuffer cacheBuffer);
 
     /**
@@ -37,9 +36,9 @@ public interface RmtesDecoder
      * update command, return false
      * 
      * @param inBuffer Buffer containing encoded RMTES Data.
+     * 
      * @return Boolean whether the RMTES Data contains a partial RMTES Update
      */
-
     public boolean hasPartialRMTESUpdate(Buffer inBuffer);
 
     /**
@@ -51,9 +50,9 @@ public interface RmtesDecoder
      * @param inBuffer Buffer containing encoded RMTES data
      * @param cacheBuffer Buffer used to store encoded RMTES data and for
      *            finding any partial RMTES updates
+     *            
      * @return {@link CodecReturnCodes}
      */
-
     public int RMTESApplyToCache(Buffer inBuffer, RmtesCacheBuffer cacheBuffer);
 
 }

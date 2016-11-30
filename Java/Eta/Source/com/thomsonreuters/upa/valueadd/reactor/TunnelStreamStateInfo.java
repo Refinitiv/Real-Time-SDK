@@ -40,7 +40,7 @@ class TunnelStreamStateInfo
 		/* Stream is to be closed **/	
 		WAIT_FINAL_FIN_ACK
 		
-	};
+	}
 	
 	TunnelStreamState _tunnelStreamState;
 	int _outboundMsgsQueued;

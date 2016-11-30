@@ -20,32 +20,32 @@ public interface CredentialsInfo
 {
     /**
      * The username to authenticate.
-	 * Needed for all authentication protocols
-	 * 
+     * Needed for all authentication protocols
+     * 
      * @param HTTPproxyUsername
      */
     public void HTTPproxyUsername(String HTTPproxyUsername);
 
     /**
      * The username to authenticate.
-	 * Needed for all authentication protocols.
-	 * 
+     * Needed for all authentication protocols.
+     * 
      * @return the HTTPproxyUsername
      */
     public String HTTPproxyUsername();
 
     /**
-	 * The password to authenticate.
-	 * Needed for all authentication protocols.
-	 * 
+     * The password to authenticate.
+     * Needed for all authentication protocols.
+     * 
      * @param HTTPproxyPasswd
      */
     public void HTTPproxyPasswd(String HTTPproxyPasswd);
 
     /**
-	 * The password to authenticate.
-	 * Needed for all authentication protocols.
-	 * 
+     * The password to authenticate.
+     * Needed for all authentication protocols.
+     * 
      * @return the HTTPproxyPasswd
      */
     public String HTTPproxyPasswd();
@@ -79,8 +79,8 @@ public interface CredentialsInfo
     /**
      * 
      * The local hostname of the client.
-	 * Needed for NTLM authentication protocol only.
-	 * 
+     * Needed for NTLM authentication protocol only.
+     * 
      * @param HTTPproxyLocalHostname
      */
     public void HTTPproxyLocalHostname(String HTTPproxyLocalHostname);
@@ -88,8 +88,8 @@ public interface CredentialsInfo
     /**
      * 
      * The local hostname of the client.
-	 * Needed for NTLM authentication protocol only.
-	 * 
+     * Needed for NTLM authentication protocol only.
+     * 
      * @return the HTTPproxyLocalHostname
      */
     public String HTTPproxyLocalHostname();
@@ -97,13 +97,13 @@ public interface CredentialsInfo
     /**
      * 
      * The complete path of the Kerberos5 configuration file (krb5.ini or krb5.conf, or custom file).
-	 * Needed for Negotiate/Kerberos and Kerberos authentications.
-	 * 
-	 * The default locations could be the following:
-	 * Windows:    c:\winnt\krb5.ini or c:\windows\krb5.ini
-	 * Linux:      /etc/krb5.conf
-	 * Other Unix: /etc/krb5/krb5.conf
-	 * 
+     * Needed for Negotiate/Kerberos and Kerberos authentications.
+     * 
+     * The default locations could be the following:
+     * Windows: c:\winnt\krb5.ini or c:\windows\krb5.ini
+     * Linux: /etc/krb5.conf 
+     * Other Unix: /etc/krb5/krb5.conf
+     * 
      * @param HTTPproxyKRB5configFile
      */
     public void HTTPproxyKRB5configFile(String HTTPproxyKRB5configFile);
@@ -111,13 +111,13 @@ public interface CredentialsInfo
     /**
      * 
      * The complete path of the Kerberos5 configuration file (krb5.ini or krb5.conf, or custom file).
-	 * Needed for Negotiate/Kerberos and Kerberos authentications.
-	 * 
-	 * The default locations could be the following:
-	 * Windows:    c:\winnt\krb5.ini or c:\windows\krb5.ini
-	 * Linux:      /etc/krb5.conf
-	 * Other Unix: /etc/krb5/krb5.conf
-	 * 
+     * Needed for Negotiate/Kerberos and Kerberos authentications.
+     * 
+     * The default locations could be the following:
+     * Windows: c:\winnt\krb5.ini or c:\windows\krb5.ini
+     * Linux: /etc/krb5.conf
+     * Other Unix: /etc/krb5/krb5.conf
+     * 
      * @return the HTTPproxyKRB5configFile
      */
     public String HTTPproxyKRB5configFile();

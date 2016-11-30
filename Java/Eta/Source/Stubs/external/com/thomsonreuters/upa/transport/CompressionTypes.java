@@ -23,9 +23,8 @@ public class CompressionTypes
     
     /**
      * Use of lz4 compression is desired on the connection. Lz4 is a lossless 
-     * data compression algorithm that is focused on compression and 
-     * decompression speed. It belongs to the LZ77 family of byte-oriented 
-     * compression schemes.
+     * data compression algorithm that is focused on compression and decompression speed.
+     * It belongs to the LZ77 family of byte-oriented compression schemes.
      */
     public static final int LZ4 = 2;
     
@@ -46,7 +45,7 @@ public class CompressionTypes
             case ZLIB:
                 return "zlib";
             case LZ4:
-            	return "lz4";
+                return "lz4";
             default:
                 return Integer.toString(type);
         }

@@ -212,7 +212,6 @@ import com.thomsonreuters.upa.codec.Buffer;
 public interface Map extends XMLDecoder
 {
     /**
-     * 
      * Sets all members in {@link Map} to an initial value. Useful for object
      * reuse during encoding. While decoding, {@link Map} object can be reused
      * without using {@link #clear()}.
@@ -241,12 +240,10 @@ public interface Map extends XMLDecoder
 
     /**
      * Complete set data encoding for a map. If both encodeSetDefsComplete() and
-     * encodeSummaryDataComplete() are called, encodeSetDefsComplete() must be
-     * called first.
+     * encodeSummaryDataComplete() are called, encodeSetDefsComplete() must be called first.
      * 
      * @param iter Encoding iterator
-     * @param success True if encoding of set data was successful, false for
-     *            rollback
+     * @param success True if encoding of set data was successful, false for rollback
      * 
      * @return {@link CodecReturnCodes}
      * 
@@ -256,12 +253,10 @@ public interface Map extends XMLDecoder
 
     /**
      * Complete summary data encoding for a map. If both encodeSetDefsComplete()
-     * and encodeSummaryDataComplete() are called, encodeSetDefsComplete() must
-     * be called first.
+     * and encodeSummaryDataComplete() are called, encodeSetDefsComplete() must be called first.
      * 
      * @param iter Encoding iterator
-     * @param success True if encoding of summary data was successful, false for
-     *            rollback
+     * @param success True if encoding of summary data was successful, false for rollback
      * 
      * @return {@link CodecReturnCodes}
      * 
@@ -275,13 +270,12 @@ public interface Map extends XMLDecoder
      * Typical use:<BR>
      * 1. Call Map.encodeInit()<BR>
      * 2. Call MapEntry.encode() or
-     * MapEntry.encodeInit()..MapEntry.encodeComplete() for each map entry in
-     * the list using the same buffer<BR>
+     * MapEntry.encodeInit()..MapEntry.encodeComplete() for each map entry in the list using the same buffer<BR>
      * 3. Call Map.encodeComplete()<BR>
      * 
      * @param iter The encoder iterator.
-     * @param success If true - successfully complete the aggregate, if false -
-     *            remove the aggregate from the buffer.
+     * @param success If true - successfully complete the aggregate,
+     *                if false - remove the aggregate from the buffer.
      * 
      * @return {@link CodecReturnCodes}
      * 
@@ -473,8 +467,7 @@ public interface Map extends XMLDecoder
     /**
      * The encoded local set definitions, if any, contained in the message. If
      * populated, these definitions correspond to data contained within the
-     * {@link Map}'s entries and are used for encoding or decoding their
-     * contents.
+     * {@link Map}'s entries and are used for encoding or decoding their contents.
      * 
      * @return encodedSetDefs
      */
@@ -491,8 +484,8 @@ public interface Map extends XMLDecoder
      * The encoded summary data, if any, contained in the message. If populated,
      * summary data contains information that applies to every entry encoded in
      * the {@link Map} (e.g. currency type). The container type of summary data
-     * should match the containerType specified on the {@link Map}. If
-     * encSummaryData is populated while encoding, contents are used as
+     * should match the containerType specified on the {@link Map}.
+     * If encSummaryData is populated while encoding, contents are used as
      * pre-encoded summary data.
      * 
      * @return encodedSummaryData
@@ -519,7 +512,6 @@ public interface Map extends XMLDecoder
      * message. This information is useful when determining the amount of resources to
      * allocate for caching or displaying all expected entries.
      * 
-     * 
      * @return totalCountHint
      */
     public int totalCountHint();
@@ -530,8 +522,8 @@ public interface Map extends XMLDecoder
      * multiple parts of a refresh message.). totalCountHint provides an approximation
      * of the total number of entries sent across all maps on all parts of the refresh
      * message. This information is useful when determining the amount of resources to
-     * allocate for caching or displaying all expected entries. Must be in the range of
-     * 0 - 1073741823.
+     * allocate for caching or displaying all expected entries.
+     * Must be in the range of 0 - 1073741823.
      * 
      * @param totalCountHint the totalCountHint to set
      */

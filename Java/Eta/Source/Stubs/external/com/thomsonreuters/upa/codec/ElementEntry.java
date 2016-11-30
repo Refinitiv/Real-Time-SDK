@@ -2,10 +2,10 @@ package com.thomsonreuters.upa.codec;
 
 /**
  * An entry for UPA {@link ElementList} that can house any {@link DataTypes},
- * including primitive types, set-defined types, or container types. If
- * {@link ElementEntry} is a part of updating information and contains a
- * primitive type, any previously stored or displayed data is replaced. If the
- * {@link ElementEntry} contains another container type, action values
+ * including primitive types, set-defined types, or container types.
+ * If {@link ElementEntry} is a part of updating information and contains a
+ * primitive type, any previously stored or displayed data is replaced.
+ * If the {@link ElementEntry} contains another container type, action values
  * associated with that type indicate how to modify data.
  * 
  * @see ElementList
@@ -74,7 +74,6 @@ public interface ElementEntry
      */
     public int encode(EncodeIterator iter, UInt data);
 
-    
     /**
      * Encode a single element as {@link Float}.
      *
@@ -88,7 +87,6 @@ public interface ElementEntry
      */
      public int encode(EncodeIterator iter, Float data);
 
-    
      /**
      * Encode a single element as Double.
      *
@@ -207,8 +205,7 @@ public interface ElementEntry
     public int encode(EncodeIterator iter, Buffer data);
 
     /**
-     * Encodes an {@link ElementEntry} from a complex type, such as a container
-     * type or an array.
+     * Encodes an {@link ElementEntry} from a complex type, such as a container type or an array.
      * 
      * Used for aggregate elements, such as element lists.
      * 
@@ -322,8 +319,8 @@ public interface ElementEntry
     public void encodedData(Buffer encodedData);
 
     /**
-     * Encoded content in this {@link ElementEntry}. While decoding, this refers
-     * to the encoded ElementEntry's payload.
+     * Encoded content in this {@link ElementEntry}.
+     * While decoding, this refers to the encoded ElementEntry's payload.
      * 
      * @return the encodedData
      */

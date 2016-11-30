@@ -66,8 +66,8 @@ public interface SeriesEntry
      * 3. Call Series.encodeComplete()<BR>
      * 
      * @param iter The encoder iterator.
-     * @param success If true - successfully complete the aggregate, if false -
-     *            remove the aggregate from the buffer.
+     * @param success If true - successfully complete the aggregate,
+     *                if false - remove the aggregate from the buffer.
      * 
      * @return {@link CodecReturnCodes}
      * 
@@ -87,8 +87,8 @@ public interface SeriesEntry
     public int decode(DecodeIterator iter);
 
     /**
-     * Encoded content of this SeriesEntry. This refers to this encoded
-     * SeriesEntry's payload data.
+     * Encoded content of this SeriesEntry.
+     * This refers to this encoded SeriesEntry's payload data.
      * 
      * @return encodedData
      */

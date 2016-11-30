@@ -1,8 +1,7 @@
 package com.thomsonreuters.upa.codec;
 
 /**
- * The Ack Message nakCodes, used to indicate a reason for a negative
- * acknowledgment.
+ * The Ack Message nakCodes, used to indicate a reason for a negative acknowledgment.
  * 
  * @see AckMsg
  */
@@ -20,14 +19,12 @@ public class NakCodes
     public static final int NONE = 0;
 
     /**
-     * Access Denied (user not properly permissioned for posting on the item or
-     * service)
+     * Access Denied (user not properly permissioned for posting on the item or service)
      */
     public static final int ACCESS_DENIED = 1;
 
     /**
-     * Denied by source (source being posted to has denied accepting this post
-     * message)
+     * Denied by source (source being posted to has denied accepting this post message)
      */
     public static final int DENIED_BY_SRC = 2;
 
@@ -67,15 +64,13 @@ public class NakCodes
     public static final int SYMBOL_UNKNOWN = 10;
 
     /**
-     * Item not open (item being posted to does not have an available stream
-     * open)
+     * Item not open (item being posted to does not have an available stream open)
      */
     public static final int NOT_OPEN = 11;
 
     /**
      * Nak being sent due to invalid content (content of the post message is
-     * invalid and cannot be posted, it does not match the expected formatting
-     * for this post)
+     * invalid and cannot be posted, it does not match the expected formatting for this post)
      */
     public static final int INVALID_CONTENT = 12;
 

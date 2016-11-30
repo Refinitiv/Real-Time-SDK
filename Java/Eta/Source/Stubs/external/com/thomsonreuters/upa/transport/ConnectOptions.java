@@ -8,17 +8,19 @@ package com.thomsonreuters.upa.transport;
  */
 public interface ConnectOptions
 {
-	/**
-	 * A character representation of component version information.
-	 * @param componentVersion
-	 */
-	public void componentVersion(String componentVersion);
-	
-	/**
-	 * * A character representation of component version information.
-	 * @return the componentVersion
-	 */
-	public String componentVersion();
+    /**
+     * A character representation of component version information.
+     * 
+     * @param componentVersion
+     */
+    public void componentVersion(String componentVersion);
+
+    /**
+     * A character representation of component version information.
+     * 
+     * @return the componentVersion
+     */
+    public String componentVersion();
 	
     /**
      * Type of connection to establish. Must be in the range of
@@ -53,8 +55,7 @@ public interface ConnectOptions
     /**
      * Connection parameters when sending and receiving on different networks.
      * This is typically used with multicast networks that have different groups
-     * of senders and receivers (e.g., NIProvider can send network and ADH on
-     * receive network).
+     * of senders and receivers (e.g., NIProvider can send network and ADH on receive network).
      * 
      * @return the SegmentedNetworkInfo
      * 
@@ -185,8 +186,7 @@ public interface ConnectOptions
      * A guaranteed number of buffers made available for this {@link Channel} to
      * use while writing data. Guaranteed output buffers are allocated at
      * initialization time. Must be in the range of 0 - 2,147,483,647. If the
-     * argument value is less then 5, the guaranteed number of buffers will be
-     * set to 5.
+     * argument value is less then 5, the guaranteed number of buffers will be set to 5.
      * 
      * @param guaranteedOutputBuffers the guaranteedOutputBuffers to set
      */
@@ -271,8 +271,7 @@ public interface ConnectOptions
      * information becomes available via the protocolType on the {@link Channel}.
      * The transport layer is data neutral and does not change nor depend on any
      * information in content being distributed. This information is provided to
-     * help client and server applications manage the information they are
-     * communicating.<BR>
+     * help client and server applications manage the information they are communicating.<BR>
      * <BR>
      * If the UPA Codec package is being used, this should be set to
      * {@link com.thomsonreuters.upa.codec.Codec#protocolType()}.
@@ -289,8 +288,7 @@ public interface ConnectOptions
      * information becomes available via the protocolType on the {@link Channel}.
      * The transport layer is data neutral and does not change nor depend on any
      * information in content being distributed. This information is provided to
-     * help client and server applications manage the information they are
-     * communicating.
+     * help client and server applications manage the information they are communicating.
      * 
      * @return the protocolType
      */
@@ -335,16 +333,18 @@ public interface ConnectOptions
      * 
      * @see MCastOpts
      * */
-	public MCastOpts multicastOpts();
+    public MCastOpts multicastOpts();
 	
-	/** Shared memory transport specific options (used by {@link ConnectionTypes#UNIDIR_SHMEM}). */
-	public ShmemOpts shmemOpts();
+    /**
+     * Shared memory transport specific options (used by {@link ConnectionTypes#UNIDIR_SHMEM}).
+     */
+    public ShmemOpts shmemOpts();
 
     /**
      * The size (in kilobytes) of the system's send buffer used for this connection,
      * where applicable.  Setting of 0 indicates to use default sizes. This can also
-     * be set or changed via {@link Channel#ioctl(int, int, Error)}. Must be in
-     * the range of 0 - 2,147,483,647.
+     * be set or changed via {@link Channel#ioctl(int, int, Error)}.
+     * Must be in the range of 0 - 2,147,483,647.
      * 
      * @param sysSendBufSize the sysSendBufSize to set
      */
@@ -365,8 +365,8 @@ public interface ConnectOptions
      * sizes. This can also be set or changed via
      * {@link Channel#ioctl(int, int, Error)} for values less than or equal
      * to 64K. For values larger than 64K, you must use this method so that
-     * sysRecvBufSize will be set prior to the connect system call. Must be in
-     * the range of 0 - 2,147,483,647.
+     * sysRecvBufSize will be set prior to the connect system call.
+     * Must be in the range of 0 - 2,147,483,647.
      * 
      * @param sysRecvBufSize the sysRecvBufSize to set
      */
@@ -376,8 +376,7 @@ public interface ConnectOptions
      * The size (in kilobytes) of the system's receive buffer used for this
      * connection, where applicable. Setting of 0 indicates to use default
      * sizes. This can also be set or changed via
-     * {@link Channel#ioctl(int, int, Error)} for values less than or equal
-     * to 64K.
+     * {@link Channel#ioctl(int, int, Error)} for values less than or equal to 64K.
      * 
      * @return the sysRecvBufSize
      */

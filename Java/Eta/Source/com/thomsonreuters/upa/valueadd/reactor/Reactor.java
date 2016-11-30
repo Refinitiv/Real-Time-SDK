@@ -717,7 +717,7 @@ public class Reactor
         reactorChannelEvent.reactorChannel(reactorChannel);
         reactorChannelEvent.eventType(eventType);
         populateErrorInfo(reactorChannelEvent.errorInfo(), errorInfo.code(), errorInfo.location(), errorInfo.error().text());
-
+        
         int retval = reactorChannel.role().channelEventCallback().reactorChannelEventCallback(reactorChannelEvent);
         reactorChannelEvent.returnToPool();
 

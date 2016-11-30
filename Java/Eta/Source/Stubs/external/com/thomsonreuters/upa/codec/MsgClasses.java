@@ -1,8 +1,7 @@
 package com.thomsonreuters.upa.codec;
 
 /**
- * Identifies the specific type of a message (For example, {@link UpdateMsg},
- * {@link RequestMsg} etc).
+ * Identifies the specific type of a message (For example, {@link UpdateMsg}, {@link RequestMsg} etc).
  * 
  * @see Msg
  */
@@ -35,8 +34,8 @@ public class MsgClasses
     /**
      * Indicates changes to the stream or data properties. A provider uses
      * {@link StatusMsg} to close streams and to indicate successful
-     * establishment of a stream when there is no data to convey. This message
-     * can indicate changes:
+     * establishment of a stream when there is no data to convey.
+     * This message can indicate changes:
      * <ul>
      * <li>In streamState or dataState</li>
      * <li>In a stream's permissioning information</li>
@@ -46,9 +45,8 @@ public class MsgClasses
     public static final int STATUS = 3;
 
     /**
-     * Interactive or NIPs use {@link UpdateMsg} to convey changes to
-     * information on a stream. Update messages typically flow on a stream after
-     * delivery of a refresh
+     * Interactive or NIPs use {@link UpdateMsg} to convey changes to information on a stream.
+     * Update messages typically flow on a stream after delivery of a refresh
      */
     public static final int UPDATE = 4;
 

@@ -88,7 +88,7 @@ public class ReactorChannel extends VaNode
         DOWN_RECONNECTING,
         /** The ReactorChannel connection is closed and the channel is no longer usable. */
         CLOSED
-    };
+    }
 
     State _state = State.UNKNOWN;
     

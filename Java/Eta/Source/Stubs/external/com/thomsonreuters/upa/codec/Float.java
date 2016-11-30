@@ -14,8 +14,7 @@ public interface Float
      * Sets Float to blank.
      */
     public void blank();
-     
-    
+ 
     /**
      * Is Float blank.
      */
@@ -31,8 +30,7 @@ public interface Float
      *         {@link CodecReturnCodes#INVALID_ARGUMENT} if the destFloat is null. 
      */
     public int copy(Float destFloat);
-    
-  
+
     /**
      * Check equality of two Float types.
      * 

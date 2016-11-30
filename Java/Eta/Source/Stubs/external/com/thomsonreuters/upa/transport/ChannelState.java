@@ -15,13 +15,12 @@ public class ChannelState
      * Channel has been CLOSED. 
      * Channel is set in this state when any socket related operation failed
      * because the far end connection has been closed.
-     * 
-     * */
+     */
     public static final int CLOSED = -1;
 
     /**
-     * Indicates that a {@link Channel} is inactive. This channel cannot be
-     * used. This state typically occurs after a channel is closed by the user.
+     * Indicates that a {@link Channel} is inactive. This channel cannot be used.
+     * This state typically occurs after a channel is closed by the user.
      */
     public static final int INACTIVE = 0;
 
@@ -39,8 +38,6 @@ public class ChannelState
      * connection related actions, such as reading or writing.
      */
     public static final int ACTIVE = 2;
-
-    // TODO: !!! IF YOU ADD A NEW STATE, UPDATE toString() BELOW !!!
 
     /**
      * Returns a string representation of the specified state

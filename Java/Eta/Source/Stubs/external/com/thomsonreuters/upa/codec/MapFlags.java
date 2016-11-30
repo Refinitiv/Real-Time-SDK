@@ -1,8 +1,7 @@
 package com.thomsonreuters.upa.codec;
 
 /**
- * Combination of bit values to indicate the presence of optional {@link Map}
- * content.
+ * Combination of bit values to indicate the presence of optional {@link Map} content.
  * 
  * @see Map
  */

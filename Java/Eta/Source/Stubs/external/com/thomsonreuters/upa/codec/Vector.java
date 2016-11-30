@@ -220,12 +220,10 @@ public interface Vector extends XMLDecoder
 
     /**
      * Complete set data encoding for a vector. If both encodeSetDefsComplete()
-     * and encodeSummaryDataComplete() are called, encodeSetDefsComplete() must
-     * be called first.
+     * and encodeSummaryDataComplete() are called, encodeSetDefsComplete() must be called first.
      * 
      * @param iter Encoding iterator
-     * @param success True if encoding of set data was successful, false for
-     *            rollback
+     * @param success True if encoding of set data was successful, false for rollback
      * 
      * @return {@link CodecReturnCodes}
      * 
@@ -234,13 +232,12 @@ public interface Vector extends XMLDecoder
     public int encodeSetDefsComplete(EncodeIterator iter, boolean success);
 
     /**
-     * Complete summary data encoding for a vector. If both
-     * encodeSetDefsComplete() and encodeSummaryDataComplete() are called,
+     * Complete summary data encoding for a vector.
+     * If both encodeSetDefsComplete() and encodeSummaryDataComplete() are called,
      * encodeSetDefsComplete() must be called first.
      * 
      * @param iter Encoding iterator
-     * @param success True if encoding of summary data was successful, false for
-     *            rollback
+     * @param success True if encoding of summary data was successful, false for rollback
      * 
      * @return {@link CodecReturnCodes}
      * 
@@ -259,8 +256,8 @@ public interface Vector extends XMLDecoder
      * 3. Call Vector.encodeComplete()<BR>
      * 
      * @param iter The encoder iterator.
-     * @param success If true - successfully complete the aggregate, if false -
-     *            remove the aggregate from the buffer.
+     * @param success If true - successfully complete the aggregate,
+     *                if false - remove the aggregate from the buffer.
      * 
      * @return {@link CodecReturnCodes}
      * 
@@ -390,8 +387,7 @@ public interface Vector extends XMLDecoder
     /**
      * A {@link DataTypes} enumeration value that describes the container type
      * of each {@link VectorEntry}'s payload. containerType must be from the
-     * {@link DataTypes} enumeration in the range {@link DataTypes#CONTAINER_TYPE_MIN}
-     * to 255.
+     * {@link DataTypes} enumeration in the range {@link DataTypes#CONTAINER_TYPE_MIN} to 255.
      * 
      * @param containerType the containerType to set
      */
@@ -453,27 +449,26 @@ public interface Vector extends XMLDecoder
      * on all parts of the refresh message. totalCountHint is typically used when
      * multiple {@link Vector} containers are spread across multiple parts of a
      * refresh message.Such information helps in determining the amount of resources
-     * to allocate for caching or displaying all expected entries. Must be in the
-     * range of 0 - 1073741823.
+     * to allocate for caching or displaying all expected entries.
+     * Must be in the range of 0 - 1073741823.
      * 
      * @param totalCountHint the totalCountHint to set
      */
     public void totalCountHint(int totalCountHint);
 
     /**
-     * Encoded index-value pair encoded data contained in the message. This
-     * would refer to encoded {@link Vector} payload.
+     * Encoded index-value pair encoded data contained in the message.
+     * This would refer to encoded {@link Vector} payload.
      * 
      * @return encodedEntries
      */
     public Buffer encodedEntries();
 
     /**
-     * Sets all the flags applicable to this vector. Must be in the range of
-     * 0 - 255.
+     * Sets all the flags applicable to this vector.
+     * Must be in the range of 0 - 255.
      * 
-     * @param flags An integer containing all the flags applicable to this
-     * vector
+     * @param flags An integer containing all the flags applicable to this vector
      * 
      * @see VectorFlags
      */

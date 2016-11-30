@@ -27,8 +27,7 @@ public class PostMsgFlags
     /**
      * (0x004) Indicates that the {@link PostMsg} contains a populated msgKey that
      * identifies the stream on which the information is posted. A msgKey is
-     * typically required for off-stream posting and is not necessary when
-     * on-stream posting.
+     * typically required for off-stream posting and is not necessary when on-stream posting.
      */
     public static final int HAS_MSG_KEY = 0x004;
 

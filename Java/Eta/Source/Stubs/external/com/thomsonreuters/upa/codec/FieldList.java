@@ -194,8 +194,7 @@ public interface FieldList extends XMLDecoder
 {
     /**
      * Clears {@link FieldList} object. Useful for object reuse during encoding.
-     * While decoding, {@link FieldList} object can be reused without using
-     * {@link #clear()}.
+     * While decoding, {@link FieldList} object can be reused without using {@link #clear()}.
      */
     public void clear();
 
@@ -210,10 +209,8 @@ public interface FieldList extends XMLDecoder
      * 3. Call FieldList.encodeComplete()<BR>
      * 
      * @param iter The encoder iterator.
-     * @param setDb The set definition database to be used, if encoding set
-     *            data.
-     * @param setEncodingMaxSize Max encoding size for field list (If Unknown
-     *            set to zero).
+     * @param setDb The set definition database to be used, if encoding set data.
+     * @param setEncodingMaxSize Max encoding size for field list (If Unknown set to zero).
      * 
      * @return {@link CodecReturnCodes}
      * 
@@ -233,8 +230,8 @@ public interface FieldList extends XMLDecoder
      * 3. Call FieldList.encodeComplete()<BR>
      * 
      * @param iter The encoder iterator.
-     * @param success If true - successfully complete the aggregate, if false -
-     *            remove the aggregate from the buffer.
+     * @param success If true - successfully complete the aggregate,
+     *                if false - remove the aggregate from the buffer.
      * 
      * @return {@link CodecReturnCodes}
      * 
@@ -358,8 +355,7 @@ public interface FieldList extends XMLDecoder
     /**
      * Refers to an external fieldlist template, also known as a record template.
      * The record template contains information about all possible fields in a
-     * stream and is typically used by caching implementations to pre-allocate
-     * storage.
+     * stream and is typically used by caching implementations to pre-allocate storage.
      * 
      * @return the fieldListNum
      */
@@ -385,8 +381,7 @@ public interface FieldList extends XMLDecoder
 
     /**
      * Set id. Corresponds to the Set Definition used for encoding or decoding
-     * the set defined data in this {@link FieldList}. Must be in the range of
-     * 0 - 32767.
+     * the set defined data in this {@link FieldList}. Must be in the range of 0 - 32767.
      * 
      * @param setId the setId to set
      */
@@ -417,19 +412,11 @@ public interface FieldList extends XMLDecoder
      */
     public Buffer encodedEntries();
 
-    // /**
-    // * Raw encoded field list data.
-    // *
-    // * @param encodedEntries the encodedEntries to set
-    // */
-    // public void encodedEntries(Buffer encodedEntries);
-
     /**
-     * Sets all the flags applicable to this field list. Must be in
-     * the range of 0 - 255.
+     * Sets all the flags applicable to this field list.
+     * Must be in the range of 0 - 255.
      * 
-     * @param flags An integer containing all the flags applicable to
-     * this field list
+     * @param flags An integer containing all the flags applicable to this field list
      * 
      * @see FieldListFlags
      */

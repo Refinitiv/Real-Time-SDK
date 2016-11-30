@@ -1,8 +1,7 @@
 package com.thomsonreuters.upa.transport;
 
 /**
- * UPA Accept Options used in the {@link Server#accept(AcceptOptions, Error)}
- * call.
+ * UPA Accept Options used in the {@link Server#accept(AcceptOptions, Error)} call.
  * 
  * @see Server
  */
@@ -61,8 +60,7 @@ public interface AcceptOptions
      * will be preserved and stored in the userSpecObject of the {@link Channel}
      * returned from {@link Server#accept(AcceptOptions, Error)}. If this value
      * is not set, the {@link Channel#userSpecObject()} will be set to the
-     * userSpecObject associated with the Server that is accepting this
-     * connection.
+     * userSpecObject associated with the Server that is accepting this connection.
      * 
      * @param userSpecObject the userSpecObject to set
      */
@@ -73,8 +71,7 @@ public interface AcceptOptions
      * will be preserved and stored in the userSpecObject of the {@link Channel}
      * returned from {@link Server#accept(AcceptOptions, Error)}. If this value
      * is not set, the {@link Channel#userSpecObject()} will be set to the
-     * userSpecObject associated with the Server that is accepting this
-     * connection.
+     * userSpecObject associated with the Server that is accepting this connection.
      * 
      * @return the userSpecObject
      */
@@ -83,8 +80,8 @@ public interface AcceptOptions
     /**
      * The size (in kilobytes) of the system's send buffer used for this connection,
      * where applicable.  Setting of 0 indicates to use default sizes. This can also
-     * be set or changed via {@link Channel#ioctl(int, int, Error)}. Must be in
-     * the range of 0 - 2,147,483,647.
+     * be set or changed via {@link Channel#ioctl(int, int, Error)}.
+     * Must be in the range of 0 - 2,147,483,647.
      * 
      * @param sysSendBufSize the sysSendBufSize to set
      */
@@ -92,8 +89,8 @@ public interface AcceptOptions
 
     /**
      * The size (in kilobytes) of the system's send buffer used for this connection,
-     * where applicable.  Setting of 0 indicates to use default sizes. This can also
-     * be set or changed via {@link Channel#ioctl(int, int, Error)}.
+     * where applicable.  Setting of 0 indicates to use default sizes.
+     * This can also be set or changed via {@link Channel#ioctl(int, int, Error)}.
      * 
      * @return the sysSendBufSize
      */

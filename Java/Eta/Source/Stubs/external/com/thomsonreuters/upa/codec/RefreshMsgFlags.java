@@ -64,15 +64,14 @@ public class RefreshMsgFlags
 
     /**
      * (0x0200) Indicates that the message's payload information should not be
-     * cached. This flag value only applies to the message on which it is
-     * present.
+     * cached. This flag value only applies to the message on which it is present.
      */
     public static final int DO_NOT_CACHE = 0x0200;
 
     /**
      * (0x0400) Acknowledges the initial establishment of a private stream or,
-     * when combined with a streamState value of {@link StreamStates#REDIRECTED}
-     * , indicates that a stream can only be opened as private.
+     * when combined with a streamState value of {@link StreamStates#REDIRECTED},
+     * indicates that a stream can only be opened as private.
      */
     public static final int PRIVATE_STREAM = 0x0400;
 

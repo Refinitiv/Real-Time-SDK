@@ -4,8 +4,8 @@ import com.thomsonreuters.upa.codec.Buffer;
 
 /**
  * An entry for a UPA {@link FieldList} that can house any {@link DataTypes}
- * including primitive types, set-defined types, or container types. If updating
- * information, when the {@link FieldEntry} contains a primitive type, it
+ * including primitive types, set-defined types, or container types.
+ * If updating information, when the {@link FieldEntry} contains a primitive type, it
  * replaces any previously stored or displayed data associated with the same
  * fieldId. If the {@link FieldEntry} contains another container type, action
  * values associated with that type indicate how to modify the information.
@@ -22,11 +22,10 @@ public interface FieldEntry
     public void clear();
 
     /**
-     * Encodes a {@link FieldEntry} from pre-encoded data. This method
-     * expects the same {@link EncodeIterator} that was used with
+     * Encodes a {@link FieldEntry} from pre-encoded data.
+     * This method expects the same {@link EncodeIterator} that was used with
      * {@link FieldList#encodeInit(EncodeIterator, LocalFieldSetDefDb, int)}.
-     * You must properly populate {@link FieldEntry#fieldId()} and
-     * {@link FieldEntry#dataType()}
+     * You must properly populate {@link FieldEntry#fieldId()} and {@link FieldEntry#dataType()}
      * 
      * Set encodedData with pre-encoded data before calling this method.
      * 
@@ -49,8 +48,7 @@ public interface FieldEntry
      * 
      * Typical use:<BR>
      * 1. Call FieldList.encodeInit()<BR>
-     * 2. Call FieldEntry.encodeBlank() for each field in the list using the
-     * same buffer<BR>
+     * 2. Call FieldEntry.encodeBlank() for each field in the list using the same buffer<BR>
      * 3. Call FieldList.encodeComplete()<BR>
      * 
      * @param iter The encoder iterator.
@@ -66,8 +64,7 @@ public interface FieldEntry
      * 
      * Typical use:<BR>
      * 1. Call FieldList.encodeInit()<BR>
-     * 2. Call FieldEntry.encode() for each field in the list using the same
-     * buffer<BR>
+     * 2. Call FieldEntry.encode() for each field in the list using the same buffer<BR>
      * 3. Call FieldList.encodeComplete()<BR>
      * 
      * @param iter The encoder iterator.
@@ -86,8 +83,7 @@ public interface FieldEntry
      * 
      * Typical use:<BR>
      * 1. Call FieldList.encodeInit()<BR>
-     * 2. Call FieldEntry.encode() for each field in the list using the same
-     * buffer<BR>
+     * 2. Call FieldEntry.encode() for each field in the list using the same buffer<BR>
      * 3. Call FieldList.encodeComplete()<BR>
      * 
      * @param iter The encoder iterator.
@@ -105,8 +101,7 @@ public interface FieldEntry
      * 
      * Typical use:<BR>
      * 1. Call FieldList.encodeInit()<BR>
-     * 2. Call FieldEntry.encode() for each field in the list using the same
-     * buffer<BR>
+     * 2. Call FieldEntry.encode() for each field in the list using the same buffer<BR>
      * 3. Call FieldList.encodeComplete()<BR>
      * 
      * @param iter The encoder iterator.
@@ -124,8 +119,7 @@ public interface FieldEntry
      * 
      * Typical use:<BR>
      * 1. Call FieldList.encodeInit()<BR>
-     * 2. Call FieldEntry.encode() for each field in the list using the same
-     * buffer<BR>
+     * 2. Call FieldEntry.encode() for each field in the list using the same buffer<BR>
      * 3. Call FieldList.encodeComplete()<BR>
      * 
      * @param iter The encoder iterator.
@@ -143,8 +137,7 @@ public interface FieldEntry
      * 
      * Typical use:<BR>
      * 1. Call FieldList.encodeInit()<BR>
-     * 2. Call FieldEntry.encode() for each field in the list using the same
-     * buffer<BR>
+     * 2. Call FieldEntry.encode() for each field in the list using the same buffer<BR>
      * 3. Call FieldList.encodeComplete()<BR>
      * 
      * @param iter The encoder iterator.
@@ -162,8 +155,7 @@ public interface FieldEntry
      * 
      * Typical use:<BR>
      * 1. Call FieldList.encodeInit()<BR>
-     * 2. Call FieldEntry.encode() for each field in the list using the same
-     * buffer<BR>
+     * 2. Call FieldEntry.encode() for each field in the list using the same buffer<BR>
      * 3. Call FieldList.encodeComplete()<BR>
      * 
      * @param iter The encoder iterator.
@@ -181,8 +173,7 @@ public interface FieldEntry
      * 
      * Typical use:<BR>
      * 1. Call FieldList.encodeInit()<BR>
-     * 2. Call FieldEntry.encode() for each field in the list using the same
-     * buffer<BR>
+     * 2. Call FieldEntry.encode() for each field in the list using the same buffer<BR>
      * 3. Call FieldList.encodeComplete()<BR>
      * 
      * @param iter The encoder iterator.
@@ -200,8 +191,7 @@ public interface FieldEntry
      * 
      * Typical use:<BR>
      * 1. Call FieldList.encodeInit()<BR>
-     * 2. Call FieldEntry.encode() for each field in the list using the same
-     * buffer<BR>
+     * 2. Call FieldEntry.encode() for each field in the list using the same buffer<BR>
      * 3. Call FieldList.encodeComplete()<BR>
      * 
      * @param iter The encoder iterator.
@@ -219,8 +209,7 @@ public interface FieldEntry
      * 
      * Typical use:<BR>
      * 1. Call FieldList.encodeInit()<BR>
-     * 2. Call FieldEntry.encode() for each field in the list using the same
-     * buffer<BR>
+     * 2. Call FieldEntry.encode() for each field in the list using the same buffer<BR>
      * 3. Call FieldList.encodeComplete()<BR>
      * 
      * @param iter The encoder iterator.
@@ -238,8 +227,7 @@ public interface FieldEntry
      * 
      * Typical use:<BR>
      * 1. Call FieldList.encodeInit()<BR>
-     * 2. Call FieldEntry.encode() for each field in the list using the same
-     * buffer<BR>
+     * 2. Call FieldEntry.encode() for each field in the list using the same buffer<BR>
      * 3. Call FieldList.encodeComplete()<BR>
      * 
      * @param iter The encoder iterator.
@@ -257,8 +245,7 @@ public interface FieldEntry
      * 
      * Typical use:<BR>
      * 1. Call FieldList.encodeInit()<BR>
-     * 2. Call FieldEntry.encode() for each field in the list using the same
-     * buffer<BR>
+     * 2. Call FieldEntry.encode() for each field in the list using the same buffer<BR>
      * 3. Call FieldList.encodeComplete()<BR>
      * 
      * @param iter The encoder iterator.
@@ -276,8 +263,7 @@ public interface FieldEntry
      * 
      * Typical use:<BR>
      * 1. Call FieldList.encodeInit()<BR>
-     * 2. Call FieldEntry.encode() for each field in the list using the same
-     * buffer<BR>
+     * 2. Call FieldEntry.encode() for each field in the list using the same buffer<BR>
      * 3. Call FieldList.encodeComplete()<BR>
      * 
      * @param iter The encoder iterator.
@@ -289,15 +275,13 @@ public interface FieldEntry
      * @see Float
      */
     public int encode(EncodeIterator iter, Float data);
-    
-    
+
     /**
      * Encodes a {@link Double} field within a list.
      * 
      * Typical use:<BR>
      * 1. Call FieldList.encodeInit()<BR>
-     * 2. Call FieldEntry.encode() for each field in the list using the same
-     * buffer<BR>
+     * 2. Call FieldEntry.encode() for each field in the list using the same buffer<BR>
      * 3. Call FieldList.encodeComplete()<BR>
      * 
      * @param iter The encoder iterator.
@@ -322,8 +306,7 @@ public interface FieldEntry
      * 3. Call encodeComplete()<BR>
      * 
      * @param iter The encoder iterator.
-     * @param encodingMaxSize Max encoding size for field entry (If Unknown set
-     *            to zero).
+     * @param encodingMaxSize Max encoding size for field entry (If Unknown set to zero).
      * 
      * @return {@link CodecReturnCodes}
      * 
@@ -336,8 +319,7 @@ public interface FieldEntry
      * 
      * Typical use:<BR>
      * 1. Call encodeInit()<BR>
-     * 2. Call one or more encoding methods for the complex type using the
-     * same buffer<BR>
+     * 2. Call one or more encoding methods for the complex type using the same buffer<BR>
      * 3. Call encodeComplete()<BR>
      * 
      * @param iter The encoder iterator.
@@ -363,10 +345,10 @@ public interface FieldEntry
 
     /**
      * The field identifier. Refers to specific name and type information defined
-     * by an external field dictionary, such as the RDMFieldDictionary. Negative
-     * fieldId values typically refer to user defined values while positive fieldId
-     * values typically refer to Thomson Reuters defined values. Must be in the 
-     * range of -32768 - 32767.
+     * by an external field dictionary, such as the RDMFieldDictionary.
+     * Negative fieldId values typically refer to user defined values while positive fieldId
+     * values typically refer to Thomson Reuters defined values.
+     * Must be in the range of -32768 - 32767.
      * 
      * @param fieldId the fieldId to set
      */
@@ -384,8 +366,7 @@ public interface FieldEntry
 
     /**
      * The field's data type. dataType must be from the {@link DataTypes}
-     * enumeration. Must be in the range of {@link DataTypes#INT}
-     * - 255.
+     * enumeration. Must be in the range of {@link DataTypes#INT} - 255.
      * 
      * @param dataType the dataType to set
      */

@@ -54,7 +54,8 @@ public interface Priority
     public void clear();
 
     /**
-     * The class of a stream's priority. Must be in the range of 0 - 255.
+     * The class of a stream's priority.
+     * Must be in the range of 0 - 255.
      * 
      * @param priorityClass the priorityClass to set
      */
@@ -68,8 +69,8 @@ public interface Priority
     public int priorityClass();
 
     /**
-     * The count associated with a stream's priority. Must be in the range
-     * of 0 - 65535.
+     * The count associated with a stream's priority.
+     * Must be in the range of 0 - 65535.
      * 
      * @param count the count to set
      */

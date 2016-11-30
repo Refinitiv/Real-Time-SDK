@@ -15,8 +15,8 @@ package com.thomsonreuters.upa.codec;
 public interface FieldSetDefDb
 {
     /**
-     * Clears {@link FieldSetDefDb} and all entries in it. Useful for
-     * object reuse.
+     * Clears {@link FieldSetDefDb} and all entries in it.
+     * Useful for object reuse.
      */
     public void clear();
 
@@ -40,5 +40,4 @@ public interface FieldSetDefDb
      * @param setMaxSetId set maxSetId
      */
     void maxSetId(int setMaxSetId);
-
 }

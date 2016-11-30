@@ -5,26 +5,26 @@ package com.thomsonreuters.upa.codec;
  */
 public class DataTypes
 {
-	private static final int __RSZVAR = 0xFF; /* Variable length size */
+    private static final int __RSZVAR = 0xFF; /* Variable length size */
 
-	private static final int __RSZI8 = 1;
-	private static final int __RSZUI8 = 1;
-	private static final int __RSZI16 = 2;
-	private static final int __RSZUI16 = 2;
-	private static final int __RSZI32 = 4;
-	private static final int __RSZUI32 = 4;
-	private static final int __RSZI64 = 8;
-	private static final int __RSZUI64 = 8;
-	private static final int __RSZFLT = 4;
-	private static final int __RSZDBL = 8;
-	private static final int __RSZDT = 4;
-	private static final int __RSZTM = 5;
-	private static final int __RSZDTM = __RSZDT + __RSZTM;
-	private static final int __RSZTM3 = 3;
-	private static final int __RSZDTM7 = __RSZDT + __RSZTM3;
-	private static final int __RSZQOS = 5;
-	private static final int __RSZRL32 = 5;
-	private static final int __RSZRL64 = 9;
+    private static final int __RSZI8 = 1;
+    private static final int __RSZUI8 = 1;
+    private static final int __RSZI16 = 2;
+    private static final int __RSZUI16 = 2;
+    private static final int __RSZI32 = 4;
+    private static final int __RSZUI32 = 4;
+    private static final int __RSZI64 = 8;
+    private static final int __RSZUI64 = 8;
+    private static final int __RSZFLT = 4;
+    private static final int __RSZDBL = 8;
+    private static final int __RSZDT = 4;
+    private static final int __RSZTM = 5;
+    private static final int __RSZDTM = __RSZDT + __RSZTM;
+    private static final int __RSZTM3 = 3;
+    private static final int __RSZDTM7 = __RSZDT + __RSZTM3;
+    private static final int __RSZQOS = 5;
+    private static final int __RSZRL32 = 5;
+    private static final int __RSZRL64 = 9;
 
     // DataTypes class cannot be instantiated
     private DataTypes()
@@ -33,7 +33,7 @@ public class DataTypes
     }
 
     /* Minimum allowed value for primitive types - used for internal UPA range checking */
-	static final int PRIMITIVE_MIN	= 0;
+    static final int PRIMITIVE_MIN = 0;
 	
     /**
      * Indicates that type is unknown. Only valid when decoding a Field List
@@ -88,8 +88,7 @@ public class DataTypes
     public static final int DATE = 9;
 
     /**
-     * Defines a time with hour, minute, second, and millisecond values. For
-     * more details on this type.
+     * Defines a time with hour, minute, second, and millisecond values.
      */
     public static final int TIME = 10;
 
@@ -321,6 +320,7 @@ public class DataTypes
     
     /** Maximum allowed value for set defined primitive types */
     public static final int SET_PRIMITIVE_MAX = 127;
+    
     /** Minimum allowed value for container types */
     public static final int CONTAINER_TYPE_MIN = 128;
 
@@ -453,8 +453,10 @@ public class DataTypes
     
     /** Maximum supported container type value for this release. */
     public static final int CONTAINER_TYPE_MAX = 142;
+    
     /* Maximum reserved value. Values beyond this can be user defined types */
     static final int MAX_RESERVED = 224;
+    
     /* Last Value */
     static final int LAST = 255;
 
@@ -606,9 +608,9 @@ public class DataTypes
             case MSG:
                 ret = "MSG";
                 break;
-            case JSON: 
-            	ret = "JSON";
-            	break;
+            case JSON:
+                ret = "JSON";
+                break;
             default:
                 break;
         }
@@ -625,8 +627,8 @@ public class DataTypes
      */
     public static boolean isPrimitiveType(int dataType)
     {
-    	return((PRIMITIVE_MIN <= dataType) &&
-    		   (dataType <= SET_PRIMITIVE_MAX));
+        return ((PRIMITIVE_MIN <= dataType) &&
+                (dataType <= SET_PRIMITIVE_MAX));
     }
     
     /**
@@ -638,8 +640,7 @@ public class DataTypes
      */
     public static boolean isContainerType(int dataType)
     {
-    	return((CONTAINER_TYPE_MIN <= dataType) &&
-    		   (dataType <= LAST));
+        return ((CONTAINER_TYPE_MIN <= dataType) && (dataType <= LAST));
     }
     
     /**
@@ -653,40 +654,40 @@ public class DataTypes
      */
     public static int primitiveTypeSize(int dataType)
     {
-    	int retVal = 0;
-    	
-    	switch (dataType)
-    	{
-	    	case INT:
-	    		retVal = __RSZI64 + 1;
-	    		break;
-	    	case UINT:
-	    		retVal = __RSZUI64 + 1;
-	    		break;
-	    	case FLOAT:
-	    		retVal = __RSZFLT + 1;
-	    		break;
-	    	case DOUBLE:
-	    		retVal = __RSZDBL + 1;
-	    		break;
-	    	case REAL:
-	    		retVal = __RSZRL64 + 1;
-	    		break;
-	    	case DATE:
-	    		retVal = __RSZDT + 1;
-	    		break;
-	    	case TIME:
-	    		retVal = __RSZTM + 1;
-	    		break;
-	    	case DATETIME:
-	    		retVal = __RSZDTM + 1;
-	    		break;
-	    	case QOS:
-	    		retVal = __RSZQOS + 1;
-	    		break;
-	    	case ENUM:
-	    		retVal = __RSZUI16 + 1;
-	    		break;
+        int retVal = 0;
+
+        switch (dataType)
+        {
+            case INT:
+                retVal = __RSZI64 + 1;
+                break;
+            case UINT:
+                retVal = __RSZUI64 + 1;
+                break;
+            case FLOAT:
+                retVal = __RSZFLT + 1;
+                break;
+            case DOUBLE:
+                retVal = __RSZDBL + 1;
+                break;
+            case REAL:
+                retVal = __RSZRL64 + 1;
+                break;
+            case DATE:
+                retVal = __RSZDT + 1;
+                break;
+            case TIME:
+                retVal = __RSZTM + 1;
+                break;
+            case DATETIME:
+                retVal = __RSZDTM + 1;
+                break;
+            case QOS:
+                retVal = __RSZQOS + 1;
+                break;
+            case ENUM:
+                retVal = __RSZUI16 + 1;
+                break;
             case INT_1:
                 retVal = __RSZI8;
                 break;
@@ -738,18 +739,18 @@ public class DataTypes
             case DATETIME_9:
                 retVal = __RSZDTM;
                 break;
-	    	case STATE:
-	    	case ARRAY:
-	    	case BUFFER:
-	    	case ASCII_STRING:
-	    	case UTF8_STRING:
-	    	case RMTES_STRING:
-	    		retVal = __RSZVAR;
-	    		break;
-	    	default:
-	    		break;
-    	}
-    	
-    	return retVal;
+            case STATE:
+            case ARRAY:
+            case BUFFER:
+            case ASCII_STRING:
+            case UTF8_STRING:
+            case RMTES_STRING:
+                retVal = __RSZVAR;
+                break;
+            default:
+                break;
+        }
+
+        return retVal;
     }
 }

@@ -49,8 +49,7 @@ public class Dictionary
 
         /**
          * Set Data Definition type, contains data definitions that would apply
-         * globally to any messages sent or received from the provider of the
-         * dictionary
+         * globally to any messages sent or received from the provider of the dictionary
          */
         public static final int DATA_DEFINITIONS = 5;
 
@@ -67,8 +66,8 @@ public class Dictionary
     /**
      * Enumerations describing how much information about a particular dictionary is
      * desired. These values are typically set in a {@link RequestMsg}'s
-     * {@link MsgKey} filter when the request for the dictionary is made. See the
-     * UPA RDM Usage Guide for details.
+     * {@link MsgKey} filter when the request for the dictionary is made.
+     * See the UPA RDM Usage Guide for details.
      * 
      * @see com.thomsonreuters.upa.codec.DataDictionary
      * @see com.thomsonreuters.upa.codec.MsgKey

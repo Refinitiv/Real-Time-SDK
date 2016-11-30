@@ -17,16 +17,16 @@ public class IoctlCodes
     }
 
     /**
-     * Allows a {@link Channel} to change its maxOutputBuffers setting. Value
-     * is an int. Default is 50. Refer to
-     * {@link BindOptions#maxOutputBuffers(int)} for more information.
+     * Allows a {@link Channel} to change its maxOutputBuffers setting.
+     * Value is an int. Default is 50.
+     * Refer to {@link BindOptions#maxOutputBuffers(int)} for more information.
      */
     public static final int MAX_NUM_BUFFERS = 1;
 
     /**
      * Allows a {@link Channel} to change its guaranteedOutputBuffers setting.
-     * Value is an int. Default is 50. Refer to
-     * {@link BindOptions#guaranteedOutputBuffers(int)} or
+     * Value is an int. Default is 50.
+     * Refer to {@link BindOptions#guaranteedOutputBuffers(int)} or
      * {@link ConnectOptions#guaranteedOutputBuffers(int)} for more information.
      */
     public static final int NUM_GUARANTEED_BUFFERS = 2;
@@ -35,8 +35,8 @@ public class IoctlCodes
      * Allows a {@link Channel} to change the internal UPA output queue depth
      * water mark, which has a default value of 6,144 bytes. When the UPA output
      * queue exceeds this number of bytes, the write method internally
-     * attempts to flush content to the network. Value is an int. Default is
-     * 6144.
+     * attempts to flush content to the network.
+     * Value is an int. Default is 6144.
      */
     public static final int HIGH_WATER_MARK = 3;
 
@@ -93,20 +93,19 @@ public class IoctlCodes
     public static final int COMPRESSION_THRESHOLD = 9;
 
     /**
-     * Allows a {@link Server} to change its sharedPoolSize setting. Value
-     * is an int.
+     * Allows a {@link Server} to change its sharedPoolSize setting.
+     * Value is an int.
      */
     public static final int SERVER_NUM_POOL_BUFFERS = 8;
 
     /**
-     * Allows a {@link Server} to reset the peakBufferUsage statistic. Value is
-     * not required.
+     * Allows a {@link Server} to reset the peakBufferUsage statistic.
+     * Value is not required.
      */
     public static final int SERVER_PEAK_BUF_RESET = 10;
     
     /*
-     * This is for internal client use only. Not exposed on public interface and
-     * javadoc.
+     * This is for internal client use only. Not exposed on public interface and javadoc.
      */
     static final int COMPONENT_INFO = 13;
     

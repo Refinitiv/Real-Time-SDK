@@ -18,8 +18,8 @@ import com.thomsonreuters.upa.transport.Error;
 public interface GlobalFieldSetDefDb extends FieldSetDefDb
 {
     /**
-     * Clears {@link GlobalFieldSetDefDb} and all entries in it. Useful for
-     * object reuse.
+     * Clears {@link GlobalFieldSetDefDb} and all entries in it.
+     * Useful for object reuse.
      */
     public void clear();
 
@@ -37,7 +37,6 @@ public interface GlobalFieldSetDefDb extends FieldSetDefDb
      * @see com.thomsonreuters.upa.rdm.Dictionary.VerbosityValues
      */
     public int decode(DecodeIterator iter, int verbosity, Error error);
-    
 
     /**
      * Encode FieldList set definitions database.
@@ -50,12 +49,12 @@ public interface GlobalFieldSetDefDb extends FieldSetDefDb
      */
     public int encode(EncodeIterator iter, Int currentSetDef, int verbosity, Error error);
 
-    
     /**
      * Deep copies the given set definition into the database.
      * 
      * @param setDef    Set Defininition to be copied in.
      * @param error
+     * 
      * @return {@link CodecReturnCodes}
      */
     public int addSetDef(FieldSetDef setDef, Error error);

@@ -430,7 +430,7 @@ public class FieldListCodec
 						/* error condition - switch our success value to false so we can roll back */
 						success = false;
 						System.out.printf("Error %s (%d) encountered with EncodeArrayEntry.  Error Text: %s\n", 
-							CodecReturnCodes.toString(retVal), retVal, CodecReturnCodes.info(retVal)); ;
+							CodecReturnCodes.toString(retVal), retVal, CodecReturnCodes.info(retVal));
 					}
 					System.out.printf(" %d ", uInt4.toLong());
 
@@ -497,7 +497,7 @@ public class FieldListCodec
 		   since set data is not supported yet, there is nothing to put 
 		   here except the count of the number of fields encoded in this 
 		   message*/
-		FieldList fieldList = CodecFactory.createFieldList();;
+		FieldList fieldList = CodecFactory.createFieldList();
 
 		/* create field entry to decode into */
 		FieldEntry fieldEntry = CodecFactory.createFieldEntry();

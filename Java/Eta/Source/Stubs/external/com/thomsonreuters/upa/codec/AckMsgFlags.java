@@ -26,8 +26,7 @@ public class AckMsgFlags
     public static final int HAS_TEXT = 0x02;
 
     /**
-     * (0x04) Indicates that Ack message acknowledges private stream
-     * establishment.
+     * (0x04) Indicates that Ack message acknowledges private stream establishment.
      */
     public static final int PRIVATE_STREAM = 0x04;
 
@@ -44,8 +43,7 @@ public class AckMsgFlags
     public static final int HAS_NAK_CODE = 0x20;
 
     /**
-     * (0x40) Indicates that Ack message acknowledges qualified stream
-     * establishment.
+     * (0x40) Indicates that Ack message acknowledges qualified stream establishment.
      */
     public static final int QUALIFIED_STREAM = 0x40;
 }

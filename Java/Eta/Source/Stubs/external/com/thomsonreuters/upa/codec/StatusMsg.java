@@ -12,8 +12,7 @@ import com.thomsonreuters.upa.codec.State;
  * initial request or at some point after the stream has been established. A
  * {@link StatusMsg} can also be used to indicate successful establishment of a
  * stream, even though the message may not contain any data - this can be useful
- * when establishing a stream solely to exchange bi-directional
- * {@link GenericMsg}.
+ * when establishing a stream solely to exchange bi-directional {@link GenericMsg}.
  * 
  * @see Msg
  * @see StatusMsgFlags
@@ -240,7 +239,6 @@ public interface StatusMsg extends Msg
      * permData indicates authorization information for only the content within
      * this message, though this can be overridden for specific content within
      * the message (e.g. MapEntry.permData).
-     * 
      * 
      * @param permData the permData to set
      */

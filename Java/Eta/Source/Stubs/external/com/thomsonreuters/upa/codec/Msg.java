@@ -31,10 +31,8 @@ public interface Msg extends XMLDecoder
      * passed in.<BR>
      * Typical use:<BR>
      * 1. Set Msg structure members.<BR>
-     * 2. Encode key(s) in separate buffer(s) and set Msg key members
-     * appropriately.<BR>
-     * 3. Encode message body in separate buffer and set Msg encodedDataBody
-     * member appropriately.<BR>
+     * 2. Encode key(s) in separate buffer(s) and set Msg key members appropriately.<BR>
+     * 3. Encode message body in separate buffer and set Msg encodedDataBody member appropriately.<BR>
      * 4. Call Msg.encode().<BR>
      * 
      * @param iter Encoding iterator
@@ -74,12 +72,11 @@ public interface Msg extends XMLDecoder
      * 4. Encode the message data body as needed.<BR>
      * 5. Call Msg.encodeComplete().<BR>
      * Note, step 2 and 3 are optional, instead the application can set the
-     * respective key members of the {@link Msg} structure using pre-encoded
-     * buffers.
+     * respective key members of the {@link Msg} structure using pre-encoded buffers.
      * 
      * @param iter Encoding iterator
-     * @param success If true - successfully complete the key, if false - remove
-     *            the key from the buffer.
+     * @param success If true - successfully complete the key,
+     *                if false - remove the key from the buffer.
      * 
      * @return {@link CodecReturnCodes}
      * 
@@ -91,21 +88,17 @@ public interface Msg extends XMLDecoder
     /**
      * Complete Encoding of msgKey.opaque data.
      * 
-     * Typically used when user calls Msg.encodeInit using a msgKey indicating
-     * that <BR>
-     * the msgKey.encodedAttrib should be encoded and the encodedAttrib.length
-     * and <BR>
+     * Typically used when user calls Msg.encodeInit using a msgKey indicating that <BR>
+     * the msgKey.encodedAttrib should be encoded and the encodedAttrib.length and <BR>
      * encodedAttrib.data are not populated with pre-encoded
      * msgKey.encodedAttrib data. <BR>
-     * Msg.encodeInit will return {@link CodecReturnCodes#ENCODE_MSG_KEY_ATTRIB}
-     * , the user will <BR>
-     * invoke the container encoders for their msgKey.encodedAttrib, and after
-     * it is complete call <BR>
+     * Msg.encodeInit will return {@link CodecReturnCodes#ENCODE_MSG_KEY_ATTRIB}, the user will <BR>
+     * invoke the container encoders for their msgKey.encodedAttrib, and after it is complete call <BR>
      * encodeKeyAttribComplete.<BR>
      * 
      * @param iter Encoding iterator
-     * @param success If true, msgKey.encodedAttrib was encoded successfully so
-     *            finish. If not, rollback to last successful part.
+     * @param success If true, msgKey.encodedAttrib was encoded successfully so finish.
+     *                If not, rollback to last successful part.
      * 
      * @return {@link CodecReturnCodes}
      * 
@@ -115,8 +108,7 @@ public interface Msg extends XMLDecoder
     public int encodeKeyAttribComplete(EncodeIterator iter, boolean success);
 
     /**
-     * Complete encoding of an Extended Header. Encodes the extended header, the
-     * data is passed in.<BR>
+     * Complete encoding of an Extended Header. Encodes the extended header, the data is passed in.<BR>
      * Typical use:<BR>
      * 1. Call Msg.encodeInit().<BR>
      * 2. Call extended header encoding methods.<BR>
@@ -168,8 +160,7 @@ public interface Msg extends XMLDecoder
      * are not provided, they will be created.
      * 
      * @param destMsg Msg to copy Msg structure into. It cannot be null.
-     * @param copyMsgFlags controls which parameters of message are copied to
-     * destination message
+     * @param copyMsgFlags controls which parameters of message are copied to destination message
      * 
      * @return {@link CodecReturnCodes#SUCCESS}, if the message is copied successfully,
      *         {@link CodecReturnCodes#FAILURE} if the source message is invalid
@@ -182,32 +173,31 @@ public interface Msg extends XMLDecoder
     /**
      * Is {@link Msg} in final state.
      * 
-     * @return true - if this is a final message for the request, false
-     *         otherwise
+     * @return true - if this is a final message for the request, false otherwise
      */
     public boolean isFinalMsg();
 
     /**
      * Validates {@link Msg}.
      * 
-     * Validates fully populated {@link Msg} structure to ensure validity of its
-     * data members.
+     * Validates fully populated {@link Msg} structure to ensure validity of its data members.
      * 
      * @return true - if valid; false if not valid
      */
     public boolean validateMsg();
 
     /**
-     * Class of this message (Update, Refresh, Status, etc). Populated from
-     * {@link MsgClasses} enumeration. Must be in the range of 1 - 31.
+     * Class of this message (Update, Refresh, Status, etc).
+     * Populated from {@link MsgClasses} enumeration.
+     * Must be in the range of 1 - 31.
      * 
      * @param msgClass the msgClass to set
      */
     public void msgClass(int msgClass);
 
     /**
-     * Class of this message (Update, Refresh, Status, etc). Populated from
-     * {@link MsgClasses} enumeration.
+     * Class of this message (Update, Refresh, Status, etc).
+     * Populated from {@link MsgClasses} enumeration.
      * 
      * @return the msgClass
      */
@@ -216,8 +206,8 @@ public interface Msg extends XMLDecoder
     /**
      * Domain Type of this message, corresponds to a domain model definition
      * (values less than 128 are Thomson Reuters defined domain models, values
-     * between 128 - 255 are user defined domain models). Must be in the range
-     * of 1 - 255.
+     * between 128 - 255 are user defined domain models).
+     * Must be in the range of 1 - 255.
      * 
      * @param domainType the domainType to set
      */
@@ -238,6 +228,7 @@ public interface Msg extends XMLDecoder
      * {@link DataTypes#CONTAINER_TYPE_MIN} to 255.
      * 
      * @param containerType the container type
+     * 
      * @see DataTypes
      */
     public void containerType(int containerType);
@@ -252,8 +243,8 @@ public interface Msg extends XMLDecoder
     /**
      * Unique identifier associated with all messages flowing within a stream
      * (positive values indicate a consumer instantiated stream, negative values
-     * indicate a provider instantiated stream often associated with non-interactive
-     * providers). Must be in the range of -2147483648 - 2147483647.
+     * indicate a provider instantiated stream often associated with non-interactive providers). 
+     * Must be in the range of -2147483648 - 2147483647.
      * 
      * @param streamId the streamId to set
      */
@@ -262,8 +253,7 @@ public interface Msg extends XMLDecoder
     /**
      * Unique identifier associated with all messages flowing within a stream
      * (positive values indicate a consumer instantiated stream, negative values
-     * indicate a provider instantiated stream often associated with non-interactive
-     * providers).
+     * indicate a provider instantiated stream often associated with non-interactive providers).
      * 
      * @return the streamId
      */
@@ -306,19 +296,17 @@ public interface Msg extends XMLDecoder
     public Buffer encodedDataBody();
 
     /**
-     * Buffer that contains the entire encoded message, typically only populated
-     * during decode.
+     * Buffer that contains the entire encoded message, typically only populated during decode.
      * 
      * @return the encodedMsgBuffer
      */
     public Buffer encodedMsgBuffer();
 
     /**
-     * Sets all the flags applicable to this message. Must be in the range
-     * of 0 - 32767.
+     * Sets all the flags applicable to this message.
+     * Must be in the range of 0 - 32767.
      * 
-     * @param flags An integer containing all the flags applicable to
-     * this message
+     * @param flags An integer containing all the flags applicable to this message
      */
     public void flags(int flags);
 

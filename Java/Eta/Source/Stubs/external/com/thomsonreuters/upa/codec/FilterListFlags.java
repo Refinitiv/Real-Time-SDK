@@ -18,8 +18,7 @@ public class FilterListFlags
     public static final int NONE = 0x00;
 
     /**
-     * (0x01) Indicates that the Filter Entries in the Filter List contain
-     * Permission Data.
+     * (0x01) Indicates that the Filter Entries in the Filter List contain Permission Data.
      */
     public static final int HAS_PER_ENTRY_PERM_DATA = 0x01;
 

@@ -181,8 +181,7 @@ public interface ElementList extends XMLDecoder
 {
     /**
      * Clears {@link ElementList} object. Useful for object reuse during encoding.
-     * While decoding, {@link ElementList} object can be reused without using
-     * {@link #clear()}.
+     * While decoding, {@link ElementList} object can be reused without using {@link #clear()}.
      */
     public void clear();
 
@@ -195,10 +194,8 @@ public interface ElementList extends XMLDecoder
      * 3. Call encodeComplete()<BR>
      * 
      * @param iter The encoder iterator.
-     * @param setDb A set definition database to refer use, if encoding set data
-     *            in the list.
-     * @param setEncodingMaxSize Maximum amount of space for the set definition
-     *            database.
+     * @param setDb A set definition database to refer use, if encoding set data in the list.
+     * @param setEncodingMaxSize Maximum amount of space for the set definition database.
      * 
      * @return {@link CodecReturnCodes}
      * 
@@ -211,8 +208,8 @@ public interface ElementList extends XMLDecoder
      * Completes elementList encoding.
      * 
      * @param iter The encoder iterator.
-     * @param success If true - successfully complete the aggregate, if false -
-     *            remove the aggregate from the buffer.
+     * @param success If true - successfully complete the aggregate,
+     *                if false - remove the aggregate from the buffer.
      * 
      * @return {@link CodecReturnCodes}
      * 
@@ -330,8 +327,7 @@ public interface ElementList extends XMLDecoder
     /**
      * Refers to an external element-list template, also known as a record template.
      * A record template contains information about all possible entries contained
-     * in the stream and is typically used by caching mechanisms to pre-allocate
-     * storage.
+     * in the stream and is typically used by caching mechanisms to pre-allocate storage.
      * 
      * @return the elementListNum
      */
@@ -372,8 +368,7 @@ public interface ElementList extends XMLDecoder
 
     /**
      * Length and pointer to the encoded set-defined data, if any, contained in
-     * the message. Contents are described by the set definition associated with
-     * the setId member.
+     * the message. Contents are described by the set definition associated with the setId member.
      * 
      * @return the encodedSetData
      */
@@ -382,8 +377,7 @@ public interface ElementList extends XMLDecoder
 
     /**
      * All encoded element name, dataType, value encoded data, if any, contained
-     * in the message. This would refer to encoded {@link ElementList} payload
-     * and length information.
+     * in the message. This would refer to encoded {@link ElementList} payload and length information.
      * 
      * @return the encodedEntries
      */
@@ -394,8 +388,7 @@ public interface ElementList extends XMLDecoder
      * content is present. For more information about flag values see
      * {@link ElementListFlags}. Must be in the range of 0 - 255.
      * 
-     * @param flags An integer containing all the flags applicable to this
-     * element list
+     * @param flags An integer containing all the flags applicable to this element list
      * 
      * @see ElementListFlags
      */
@@ -403,8 +396,7 @@ public interface ElementList extends XMLDecoder
 
     /**
      * Combination of bit values that indicate whether optional, element-list
-     * content is present. For more information about flag values see
-     * {@link ElementListFlags}.
+     * content is present. For more information about flag values see {@link ElementListFlags}.
      * 
      * @return All the flags applicable to this element list
      * 

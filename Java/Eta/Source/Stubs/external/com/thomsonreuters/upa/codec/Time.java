@@ -12,8 +12,7 @@ public interface Time
      * Clears {@link Time}.
      */
     public void clear();
-    
-    
+
     /**
      *  This method will perform a deep copy of this Object to destTime.
      *          
@@ -24,12 +23,10 @@ public interface Time
      * 
      */
     public int copy(Time destTime);
-    
-    
+
     /**
      * Sets all members in {@link Time} to the values used to signify blank. A blank
-     * {@link Time} contains hour, minute, and second values of 255 and a millisecond
-     * value of 65535.
+     * {@link Time} contains hour, minute, and second values of 255 and a millisecond value of 65535.
      */
     public void blank();
 
@@ -44,8 +41,8 @@ public interface Time
 
     /**
      * Verifies contents of populated {@link Time} structure. Validates the ranges
-     * of the hour, minute, second, and millisecond members. If {@link Time} is blank
-     * or valid, true is returned; false otherwise.
+     * of the hour, minute, second, and millisecond members.
+     * If {@link Time} is blank or valid, true is returned; false otherwise.
      * 
      * @return true if valid, false otherwise
      */
@@ -61,19 +58,17 @@ public interface Time
     public boolean equals(Time thatTime);
 
     /**
-     * Convert {@link Time} to a string. Returns a string in "hour:minute:second:milli"
-     * format (e.g. 15:24:54:627).
+     * Convert {@link Time} to a string.
+     * Returns a string in "hour:minute:second:milli" format (e.g. 15:24:54:627).
      * 
      * @return the string representation of this {@link Time}
      */
     public String toString();
 
     /**
-     * Converts string time from "HH:MM" (13:01) or "HH:MM:SS" (15:23:54) format
-     * to {@link Time}.
+     * Converts string time from "HH:MM" (13:01) or "HH:MM:SS" (15:23:54) format to {@link Time}.
      * 
-     * @param value string containing an appropriately formatted string to
-     *            convert from
+     * @param value string containing an appropriately formatted string to convert from
      * 
      * @return {@link CodecReturnCodes#SUCCESS} on success,
      *         {@link CodecReturnCodes#INVALID_ARGUMENT} if value is invalid. 
@@ -88,8 +83,7 @@ public interface Time
      * 
      * @return {@link CodecReturnCodes#SUCCESS} if success,
      *         {@link CodecReturnCodes#FAILURE} if failure,
-     *         {@link CodecReturnCodes#BUFFER_TOO_SMALL} if the encode buffer is
-     *         too small
+     *         {@link CodecReturnCodes#BUFFER_TOO_SMALL} if the encode buffer is too small
      * 
      * @see EncodeIterator
      * @see CodecReturnCodes

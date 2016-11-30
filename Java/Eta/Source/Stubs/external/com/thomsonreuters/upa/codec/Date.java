@@ -1,8 +1,7 @@
 package com.thomsonreuters.upa.codec;
 
 /**
- * Represents bandwidth optimized date value containing month, day, and year
- * information.
+ * Represents bandwidth optimized date value containing month, day, and year information.
  */
 public interface Date
 {
@@ -11,8 +10,7 @@ public interface Date
      * this performs the same functionality as #{@link Date#blank()}.
      */
     public void clear();
-    
-    
+
     /**
      *  This method will perform a deep copy of this Object to destDate.
      *          
@@ -41,8 +39,7 @@ public interface Date
      * Verifies the contents of a populated {@link Date} object. Determines
      * whether the specified day is valid within the specified month (e.g., a
      * day greater than 31 is considered invalid for any month). This method
-     * uses the year member to determine leap year validity of day numbers for
-     * February.
+     * uses the year member to determine leap year validity of day numbers for February.
      * 
      * @return true if {@link Date} is blank or valid, false otherwise
      */
@@ -65,8 +62,7 @@ public interface Date
     public String toString();
 
     /**
-     * Converts string date from "DD MMM YYYY" (01 JUN 2003) or "MM/DD/YYYY"
-     * (6/1/2003) format to Date.
+     * Converts string date from "DD MMM YYYY" (01 JUN 2003) or "MM/DD/YYYY" (6/1/2003) format to Date.
      * 
      * @param value string containing an appropriately formatted string to
      *            convert from
@@ -109,8 +105,7 @@ public interface Date
 
     /**
      * Represents the day of the month, where 0 indicates a blank entry. day
-     * allows for a range of 0 to 255, though the value typically does not
-     * exceed 31.
+     * allows for a range of 0 to 255, though the value typically does not exceed 31.
      * 
      * @param day the day to set
      * 
@@ -121,8 +116,7 @@ public interface Date
 
     /**
      * Represents the day of the month, where 0 indicates a blank entry. day
-     * allows for a range of 0 to 255, though the value typically does not
-     * exceed 31.
+     * allows for a range of 0 to 255, though the value typically does not exceed 31.
      * 
      * @return the day
      */
@@ -130,8 +124,7 @@ public interface Date
 
     /**
      * Represents the month of the year, where 0 indicates a blank entry. month
-     * allows for a range of 0 to 255, though the value typically does not
-     * exceed 12.
+     * allows for a range of 0 to 255, though the value typically does not exceed 12.
      * 
      * @param month the month to set
      * 
@@ -142,8 +135,7 @@ public interface Date
 
     /**
      * Represents the month of the year, where 0 indicates a blank entry. month
-     * allows for a range of 0 to 255, though the value typically does not
-     * exceed 12.
+     * allows for a range of 0 to 255, though the value typically does not exceed 12.
      * 
      * @return the month
      */

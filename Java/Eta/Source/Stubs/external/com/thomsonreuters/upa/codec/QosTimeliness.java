@@ -20,8 +20,7 @@ public class QosTimeliness
     /**
      * timeliness is Real Time: data is updated as soon as new data becomes
      * available. This is the highest-quality timeliness value. Real Time in
-     * conjunction with a rate of {@link QosRates#TICK_BY_TICK} is the best
-     * overall QoS.
+     * conjunction with a rate of {@link QosRates#TICK_BY_TICK} is the best overall QoS.
      */
     public static final int REALTIME = 1;
 

@@ -5,8 +5,7 @@ import com.thomsonreuters.upa.codec.Buffer;
 /**
  * State conveys data and stream health information. When present in a message
  * header, {@link State} applies to the state of the stream and data. When
- * present in a data payload, the meaning of {@link State} should be defined by
- * the DMM.
+ * present in a data payload, the meaning of {@link State} should be defined by the DMM.
  * 
  * @see DataStates
  * @see StreamStates
@@ -14,7 +13,6 @@ import com.thomsonreuters.upa.codec.Buffer;
  */
 public interface State
 {
-
     /**
      * Clears {@link State}. Useful for object reuse.
      */
@@ -28,11 +26,10 @@ public interface State
     /**
      * Perform a deep copy into destState
      * 
-     * @param destState the value getting populated with the values of the 
-     *         calling Object.  If Copying destState.text, the user must provide
-     *         a {@link java.nio.ByteBuffer ByteBuffer} large enough to the hold
-     *          the contents of this.text 
-     *      * 
+     * @param destState the value getting populated with the values of the calling Object.
+     *         If Copying destState.text, the user must provide a {@link java.nio.ByteBuffer ByteBuffer}
+     *         large enough to the hold the contents of this.text 
+     *
      * @return {@link CodecReturnCodes#SUCCESS} on success,
      *         {@link CodecReturnCodes#INVALID_ARGUMENT} if the destState is null. 
      *         {@link CodecReturnCodes#BUFFER_TOO_SMALL} if destination buffer is too small
@@ -44,8 +41,8 @@ public interface State
     /**
      * Used to encode State into a buffer.
      * 
-     * @param iter {@link EncodeIterator} with buffer to encode into. Iterator
-     *            should also have appropriate version information set
+     * @param iter {@link EncodeIterator} with buffer to encode into.
+     *            Iterator should also have appropriate version information set
      * 
      * @return {@link CodecReturnCodes}
      * 
@@ -68,8 +65,7 @@ public interface State
     public int decode(DecodeIterator iter);
 
     /**
-     * Provides string representation for a {@link State} value, using the
-     * state info methods.
+     * Provides string representation for a {@link State} value, using the state info methods.
      * 
      * @return string representation for a {@link State} value
      */
@@ -92,8 +88,8 @@ public interface State
     public boolean isFinal();
 
     /**
-     * An enumerated value providing information about the state of the stream,
-     * populated from {@link StreamStates}. Must be in the range of 0 - 31.
+     * An enumerated value providing information about the state of the stream, populated from {@link StreamStates}.
+     * Must be in the range of 0 - 31.
      * 
      * @param streamState the streamState to set
      * 
@@ -111,8 +107,8 @@ public interface State
     public int streamState();
 
     /**
-     * An enumerated value providing information about the state of data,
-     * populated from {@link DataStates}. Must be in the range of 0 - 7.
+     * An enumerated value providing information about the state of data, populated from {@link DataStates}.
+     * Must be in the range of 0 - 7.
      * 
      * @param dataState the dataState to set
      * 
@@ -122,8 +118,7 @@ public interface State
     public int dataState(int dataState);
 
     /**
-     * An enumerated value providing information about the state of data,
-     * populated from {@link DataStates}.
+     * An enumerated value providing information about the state of data, populated from {@link DataStates}.
      * 
      * @return the dataState
      */
@@ -132,10 +127,10 @@ public interface State
     /**
      * An enumerated code providing additional state information. Typically
      * indicates more specific information (e.g., pertaining to a condition
-     * occurring upstream causing current data and stream states). code is
-     * typically used for informational purposes. Populated from
-     * {@link StateCodes}. Must be in the range of {@link StateCodes#NONE}
-     * - 127.
+     * occurring upstream causing current data and stream states).
+     * code is typically used for informational purposes.
+     * Populated from {@link StateCodes}.
+     * Must be in the range of {@link StateCodes#NONE} - 127.
      * 
      * @param code the code to set
      * 
@@ -147,17 +142,16 @@ public interface State
     /**
      * An enumerated code providing additional state information. Typically
      * indicates more specific information (e.g., pertaining to a condition
-     * occurring upstream causing current data and stream states). code is
-     * typically used for informational purposes. Populated from
-     * {@link StateCodes}.
+     * occurring upstream causing current data and stream states).
+     * code is typically used for informational purposes.
+     * Populated from * {@link StateCodes}.
      * 
      * @return the code
      */
     public int code();
 
     /**
-     * Text describing the state or state code.Typically used for informational
-     * purposes.
+     * Text describing the state or state code.Typically used for informational purposes.
      * 
      * @param text the text to set
      * 
@@ -167,8 +161,7 @@ public interface State
     public int text(Buffer text);
 
     /**
-     * Text describing the state or state code.Typically used for informational
-     * purposes.
+     * Text describing the state or state code.Typically used for informational purposes.
      * 
      * @return the text
      */

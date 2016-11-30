@@ -9,8 +9,8 @@ import com.thomsonreuters.upa.transport.Channel;
  * The UPA Server class is used to represent a server that is listening for
  * incoming connection requests. Any memory associated with a {@link Server}
  * class is internally managed by the UPA Transport Package, and the application
- * does not need to create nor destroy this type. The {@link Server} is
- * typically used to accept or reject incoming connection attempts.
+ * does not need to create nor destroy this type.
+ * The {@link Server} is typically used to accept or reject incoming connection attempts.
  */
 public interface Server
 {
@@ -19,8 +19,7 @@ public interface Server
      * 
      * Typical use:<BR>
      * If information about the {@link Server} is needed, such as
-     * peakBufferUsage, this method can be called to retrieve this
-     * information.
+     * peakBufferUsage, this method can be called to retrieve this information.
      * 
      * @param info UPA Server Info structure to be populated
      * @param error UPA Error, to be populated in event of an error
@@ -79,8 +78,7 @@ public interface Server
      * @param value Value to change Option to
      * @param error {@link Error} to be populated in event of an error
      * 
-     * @return {@link TransportReturnCodes} or a positive number specific to the
-     *         specified code.
+     * @return {@link TransportReturnCodes} or a positive number specific to the specified code.
      * 
      * @see BindOptions
      */
@@ -92,8 +90,7 @@ public interface Server
      * Typical use: <BR>
      * This method can be called to find out the number of used buffers for
      * the server. This, in combination with the bufferPoolSize used as input to
-     * the Bind call, can be used to monitor and potentially throttle buffer
-     * usage.
+     * the Bind call, can be used to monitor and potentially throttle buffer usage.
      * 
      * @param error UPA Error, to be populated in event of an error
      * 

@@ -57,10 +57,10 @@ public class SymbolList
             throw new AssertionError();
         }
         
-        /** :SymbolListData Behavior */    
-    	public static final Buffer SYMBOL_LIST_BEHAVIORS = CodecFactory.createBuffer();
+        /** :SymbolListData Behavior */
+        public static final Buffer SYMBOL_LIST_BEHAVIORS = CodecFactory.createBuffer();
         /** :SymbolListDataStream */
-    	public static final Buffer SYMBOL_LIST_DATA_STREAMS = CodecFactory.createBuffer();    
+        public static final Buffer SYMBOL_LIST_DATA_STREAMS = CodecFactory.createBuffer();
         
         static
         {

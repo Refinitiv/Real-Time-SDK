@@ -1,8 +1,7 @@
 package com.thomsonreuters.upa.codec;
 
 /**
- * Quality of service rates enumerations convey information about the data's
- * period of change.
+ * Quality of service rates enumerations convey information about the data's period of change.
  */
 public class QosRates
 {
@@ -13,8 +12,7 @@ public class QosRates
     }
 
     /**
-     * Qos Unspecified, indicates initialized structure and not intended to be
-     * encoded
+     * Qos Unspecified, indicates initialized structure and not intended to be encoded
      */
     public static final int UNSPECIFIED = 0;
 
@@ -22,8 +20,7 @@ public class QosRates
     public static final int TICK_BY_TICK = 1;
 
     /**
-     * Just In Time Conflation, indicates extreme bursts of data may be
-     * conflated
+     * Just In Time Conflation, indicates extreme bursts of data may be conflated
      */
     public static final int JIT_CONFLATED = 2;
 

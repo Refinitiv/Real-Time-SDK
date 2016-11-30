@@ -24,18 +24,16 @@ public interface UnifiedNetworkInfo
     public String address();
 
     /**
-     * Port number or service name to connect to/join for all inbound and
-     * outbound data. All data is exchanged on this hostName:serviceName
-     * combination.
+     * Port number or service name to connect to/join for all inbound and outbound data.
+     * All data is exchanged on this hostName:serviceName combination.
      * 
      * @param serviceName the serviceName to set
      */
     public void serviceName(String serviceName);
 
     /**
-     * Port number or service name to connect to/join for all inbound and
-     * outbound data. All data is exchanged on this hostName:serviceName
-     * combination.
+     * Port number or service name to connect to/join for all inbound and outbound data.
+     * All data is exchanged on this hostName:serviceName combination.
      * 
      * @return the serviceName
      */
@@ -45,8 +43,7 @@ public interface UnifiedNetworkInfo
      * A character representation of an IP address or hostname associated with
      * the local network interface to use for sending and receiving content.
      * This value is intended for use in systems which have multiple network
-     * interface cards, and if not specified the default network interface will
-     * be used.
+     * interface cards, and if not specified the default network interface will be used.
      * 
      * @param interfaceName the interfaceName to set
      */
@@ -56,8 +53,7 @@ public interface UnifiedNetworkInfo
      * A character representation of an IP address or hostname associated with
      * the local network interface to use for sending and receiving content.
      * This value is intended for use in systems which have multiple network
-     * interface cards, and if not specified the default network interface will
-     * be used.
+     * interface cards, and if not specified the default network interface will be used.
      * 
      * @return the interfaceName
      */
@@ -65,8 +61,8 @@ public interface UnifiedNetworkInfo
     
     /**
      * Port number or service name for any unicast messages such as ACK/NAK
-     * traffic or retransmit requests. Only used with connectionType of
-     * {@link ConnectionTypes#RELIABLE_MCAST}.
+     * traffic or retransmit requests.
+     * Only used with connectionType of {@link ConnectionTypes#RELIABLE_MCAST}.
      * 
      * @param unicastServiceName the unicastServiceName to set
      */
@@ -74,8 +70,8 @@ public interface UnifiedNetworkInfo
 
     /**
      * Port number or service name for any unicast messages such as ACK/NAK
-     * traffic or retransmit requests. Only used with connectionType of
-     * {@link ConnectionTypes#RELIABLE_MCAST}.
+     * traffic or retransmit requests.
+     * Only used with connectionType of {@link ConnectionTypes#RELIABLE_MCAST}.
      * 
      * @return the unicastServiceName
      */

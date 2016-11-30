@@ -70,7 +70,7 @@ class MarketByOrderHandler
         this.domainType = domainType;
         marketByOrderRefresh = createMarketByOrderRefresh();
         marketByOrderRefresh.dictionary(dictionary);
-        marketByOrderUpdate = createMarketByOrderUpdate();;
+        marketByOrderUpdate = createMarketByOrderUpdate();
         marketByOrderUpdate.dictionary(dictionary);
         closeMessage = new MarketByOrderClose();
     }

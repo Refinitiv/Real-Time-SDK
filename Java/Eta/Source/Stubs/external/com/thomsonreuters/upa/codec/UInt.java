@@ -3,8 +3,7 @@ package com.thomsonreuters.upa.codec;
 import java.math.BigInteger;
 
 /**
- * UPA Unsigned Integer type. Can currently represent an unsigned value with
- * precision of up to 64 bits.
+ * UPA Unsigned Integer type. Can currently represent an unsigned value with precision of up to 64 bits.
  */
 public interface UInt
 {
@@ -39,9 +38,9 @@ public interface UInt
     public long toLong();
 
     /**
-     * Returns value as unsigned BigInteger. This method may introduce garbage
-     * collection, as it creates BigInteger. To avoid it, user may instead call
-     * the toLong method and implement the conversion.
+     * Returns value as unsigned BigInteger.
+     * This method may introduce garbage collection, as it creates BigInteger.
+     * To avoid it, user may instead call the toLong method and implement the conversion.
      * 
      * @return the value as BigInteger
      */

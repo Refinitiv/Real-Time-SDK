@@ -15,5 +15,5 @@ class TunnelStreamTraceFlags
 
 	/* Print full XML traces of messages (requires TunnelStreamTraceFlags.MSGS) */
 	static final int MSG_XML		= 0x4;
-};
+}
 

@@ -11,18 +11,18 @@ public class TransportReturnCodes
         throw new AssertionError();
     }
 
-	/* Multicast Transport Specific Return Codes */
-	/* -70 through -61 */
+    /* Multicast Transport Specific Return Codes */
+    /* -70 through -61 */
     /** Transport Warning: Network congestion detected. Gaps are likely. */
-	public static final int CONGESTION_DETECTED = -63;
-	/** Transport Warning: Application is consuming more slowly than data
-	 * is being provided. Gaps are likely. */
-	public static final int SLOW_READER = -62;
-	/** Transport Warning: An unrecoverable packet gap was detected and some
-	 * content may have been lost. */
-	public static final int PACKET_GAP_DETECTED = -61;
+    public static final int CONGESTION_DETECTED = -63;
+    /** Transport Warning: Application is consuming more slowly than data
+     * is being provided. Gaps are likely. */
+    public static final int SLOW_READER = -62;
+    /** Transport Warning: An unrecoverable packet gap was detected and some
+     * content may have been lost. */
+    public static final int PACKET_GAP_DETECTED = -61;
 
-	/* -35 through -60 reserved */
+    /* -35 through -60 reserved */
 
     /* -20 through -16 reserved */
 
@@ -86,8 +86,7 @@ public class TransportReturnCodes
 
     /**
      * Transport Failure: Not initialized failure code, returned from transport
-     * methods when {@link Transport#initialize(InitArgs, Error)} did not
-     * succeed.
+     * methods when {@link Transport#initialize(InitArgs, Error)} did not succeed.
      */
     public static final int INIT_NOT_INITIALIZED = -3;
 

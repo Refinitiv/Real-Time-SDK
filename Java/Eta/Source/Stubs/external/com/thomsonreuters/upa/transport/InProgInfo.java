@@ -2,8 +2,8 @@ package com.thomsonreuters.upa.transport;
 
 /**
  * Information for the In Progress Connection State of {@link Channel#init(InProgInfo, Error)}.<BR>
- * If a backward compatibility reconnection occurs, the socket channel may
- * change. This is how that information is relayed.
+ * If a backward compatibility reconnection occurs, the socket channel may change.
+ * This is how that information is relayed.
  * 
  * @see InProgFlags
  * @see Channel
@@ -21,8 +21,7 @@ public interface InProgInfo
     public int flags();
 
     /**
-     * Old java.nio.channels.SocketChannel of this UPA channel - used in Read
-     * Channel Change events.
+     * Old java.nio.channels.SocketChannel of this UPA channel - used in Read Channel Change events.
      * 
      * @return the oldScktChannel
      * 
@@ -42,8 +41,7 @@ public interface InProgInfo
     public java.nio.channels.SelectableChannel newScktChannel();
 
     /**
-     * Old java.nio.channels.SelectableChannel of this UPA channel - used in Read
-     * Channel Change events.
+     * Old java.nio.channels.SelectableChannel of this UPA channel - used in Read Channel Change events.
      * 
      * @return the oldSelectableChannel
      */

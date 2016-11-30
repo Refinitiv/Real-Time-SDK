@@ -1,8 +1,7 @@
 package com.thomsonreuters.upa.codec;
 
 /**
- * Specifies a combination of bit values indicating special behaviors and the
- * presence of optional content.
+ * Specifies a combination of bit values indicating special behaviors and the presence of optional content.
  * 
  * @see GenericMsg
  */

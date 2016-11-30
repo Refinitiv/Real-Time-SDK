@@ -7,17 +7,20 @@ package com.thomsonreuters.upa.transport;
  */
 public interface BindOptions
 {
-	/**
-	 * A character representation of a component version information.
-	 * @param componentVersion
-	 */
-	public void componentVersion(String componentVersion);
+    /**
+     * A character representation of a component version information.
+     * 
+     * @param componentVersion
+     */
+    public void componentVersion(String componentVersion);
 	
-	/**
-	 * A character representation of a component version information.
-	 * @return the componentVersion
-	 */
-	public String componentVersion();
+    /**
+     * A character representation of a component version information.
+     * 
+     * @return the componentVersion
+     */
+    public String componentVersion();
+
     /**
      * A character representation of a numeric port number or service name (as
      * defined in etc/services file) to bind and open a listening socket on.
@@ -40,8 +43,7 @@ public interface BindOptions
      * connections on the specified interface. This value is intended for use in
      * systems which have multiple network interface cards. If not populated,
      * connection can be accepted on all interfaces. If the loopback address is
-     * specified, connections can be accepted only when instantiating from the
-     * local machine.
+     * specified, connections can be accepted only when instantiating from the local machine.
      * 
      * @param interfaceName the interfaceName to set
      */
@@ -53,8 +55,7 @@ public interface BindOptions
      * connections on the specified interface. This value is intended for use in
      * systems which have multiple network interface cards. If not populated,
      * connection can be accepted on all interfaces. If the loopback address is
-     * specified, connections can be accepted only when instantiating from the
-     * local machine.
+     * specified, connections can be accepted only when instantiating from the local machine.
      * 
      * @return the interfaceName
      */
@@ -65,8 +66,8 @@ public interface BindOptions
      * connection. Compression is negotiated between the client and server and
      * may not be performed if only the server has this enabled. The server can
      * force compression, regardless of client settings, by using the
-     * forceCompression option. Must be in the range of
-     * {@link CompressionTypes#NONE} - {@link CompressionTypes#LZ4}.
+     * forceCompression option
+     * Must be in the range of {@link CompressionTypes#NONE} - {@link CompressionTypes#LZ4}.
      * 
      * @param compressionType the compressionType to set
      * 
@@ -88,11 +89,12 @@ public interface BindOptions
     public int compressionType();
 
     /**
-     * Determines the level of compression to apply. Allowable compressionLevel
-     * values are 0 to 9. A compressionLevel of 1 results in the fastest
-     * compression. A compressionLevel of 9 results in the best compression. A
-     * compressionLevel of 6 is a compromise between speed and compression. A
-     * compressionLevel of 0 will copy the data with no compression applied.
+     * Determines the level of compression to apply.
+     * Allowable compressionLevel values are 0 to 9.
+     * A compressionLevel of 1 results in the fastest compression.
+     * A compressionLevel of 9 results in the best compression.
+     * A compressionLevel of 6 is a compromise between speed and compression.
+     * A compressionLevel of 0 will copy the data with no compression applied.
      * Compression level must be in the range of 0 - 9.
      * 
      * @param compressionLevel the compressionLevel to set
@@ -125,8 +127,7 @@ public interface BindOptions
      * If true, force compression is enabled, regardless of clients desire for
      * compression. When enabled, compression will use the compressionType and
      * compressionLevel specified by the server. If set to false, the
-     * compression negotiation algorithm will be used to determine compression
-     * setting.
+     * compression negotiation algorithm will be used to determine compression setting.
      * 
      * @return the forceCompression
      */
@@ -141,7 +142,6 @@ public interface BindOptions
      * typically not recommended. An application can leverage an I/O
      * notification mechanism to allow efficient use, while using other cycles
      * to perform other necessary work in the application.
-     * 
      * 
      * @param serverBlocking the serverBlocking to set
      */
@@ -172,7 +172,6 @@ public interface BindOptions
      * using other cycles to perform other necessary work in the application. An
      * I/O notification mechanism enables the application to read when data is
      * available, and write when output space is available.
-     * 
      * 
      * @param channelsBlocking the channelsBlocking to set
      */
@@ -246,8 +245,7 @@ public interface BindOptions
     public void connectionType(int connectionType);
 
     /**
-     * An enumerated value that indicates the type of underlying connection
-     * being used.
+     * An enumerated value that indicates the type of underlying connection being used.
      * 
      * @return the connectionType
      * 
@@ -288,8 +286,9 @@ public interface BindOptions
      * negotiated value becomes available through the pingTimeout value on the
      * {@link Channel}. When determining the desired ping timeout, the typically
      * used rule of thumb is to send a heartbeat every pingTimeout/3 seconds.
-     * Must be in the range of 1 - 255. If the value is 0, it will be adjusted
-     * to 1, and if the value is greater than 255, it will be set to 255.
+     * Must be in the range of 1 - 255.
+     * If the value is 0, it will be adjusted to 1, 
+     * and if the value is greater than 255, it will be set to 255.
      * 
      * @param minPingTimeout the minPingTimeout to set
      */
@@ -314,9 +313,9 @@ public interface BindOptions
      * application level message fragmentation done via the Message Package. Any
      * guaranteed, shared, or input buffers created will use this size. This
      * value is passed to all connected client applications and enforces a
-     * common message size between components. Must be in the range of 20 -
-     * 2,147,483,647. If the value is outside of this range, it will be set
-     * to default value of 6144.
+     * common message size between components.
+     * Must be in the range of 20 - 2,147,483,647.
+     * If the value is outside of this range, it will be set to default value of 6144.
      * 
      * @param maxFragmentSize the maxFragmentSize to set
      */
@@ -341,7 +340,8 @@ public interface BindOptions
      * the number of shared pool buffers that each {@link Channel} is allowed to
      * use. Shared pool buffers are only used if all guaranteedOutputBuffers are
      * unavailable. If equal to the guaranteedOutputBuffers value, no shared
-     * pool buffers are available. Must be in the range of 0 - 2,147,483,647.
+     * pool buffers are available.
+     * Must be in the range of 0 - 2,147,483,647.
      * 
      * @param maxOutputBuffers the maxOutputBuffers to set
      */
@@ -362,10 +362,9 @@ public interface BindOptions
     /**
      * A guaranteed number of buffers made available for each {@link Channel} to
      * use while writing data. Each buffer will be created to contain
-     * maxFragmentSize bytes. Guaranteed output buffers are allocated at
-     * initialization time. Must be in the range of 0 - 2,147,483,647. If the
-     * argument value is less then 5, the guaranteed number of buffers will be
-     * set to 5.
+     * maxFragmentSize bytes. Guaranteed output buffers are allocated at initialization time.
+     * Must be in the range of 0 - 2,147,483,647.
+     * If the argument value is less then 5, the guaranteed number of buffers will be set to 5.
      * 
      * @param guaranteedOutputBuffers the guaranteedOutputBuffers to set
      */
@@ -382,8 +381,8 @@ public interface BindOptions
     public int guaranteedOutputBuffers();
 
     /**
-     * Sets the number of input buffers (of maxFragmentSize) for reading data
-     * into. Must be in the range of 0 - 2,147,483,647.
+     * Sets the number of input buffers (of maxFragmentSize) for reading data into.
+     * Must be in the range of 0 - 2,147,483,647.
      * 
      * @param numInputBuffers the numInputBuffers to set
      */
@@ -538,11 +537,9 @@ public interface BindOptions
      * userSpecObject of the {@link Server} returned from bind() if a
      * userSpecObject was not specified in the {@link AcceptOptions}. This
      * information can be useful for coupling this {@link Server} with other
-     * user created information, such as a list of connected {@link Channel}
-     * structures.
+     * user created information, such as a list of connected {@link Channel} structures.
      * 
-     * @param userSpecObject the userSpecObject to set. User specific object must
-     * be non null.
+     * @param userSpecObject the userSpecObject to set. User specific object must be non null.
      */
     public void userSpecObject(Object userSpecObject);
 
@@ -552,8 +549,7 @@ public interface BindOptions
      * userSpecObject of the {@link Server} returned from bind() if a
      * userSpecObject was not specified in the {@link AcceptOptions}. This
      * information can be useful for coupling this {@link Server} with other
-     * user created information, such as a list of connected {@link Channel}
-     * structures..
+     * user created information, such as a list of connected {@link Channel} structures.
      * 
      * @return the userSpecObject
      */
@@ -561,8 +557,7 @@ public interface BindOptions
 
     /**
      * A substructure containing TCP based connection type specific options.
-     * These settings are used for {@link ConnectionTypes#SOCKET} and
-     * ConnectionTypes.HTTP.
+     * These settings are used for {@link ConnectionTypes#SOCKET} and ConnectionTypes.HTTP.
      * 
      * @return the tcpOpts
      * 
@@ -574,10 +569,10 @@ public interface BindOptions
      * The size (in kilobytes) of the system's receive buffer used for this
      * connection, where applicable. Setting of 0 indicates to use default
      * sizes. This can also be set or changed via
-     * {@link Channel#ioctl(int, int, Error)} for values less than or equal
-     * to 64K. For values larger than 64K, you must use this method so that
-     * sysRecvBufSize will be set prior to the bind system call. Must be in
-     * the range of 0 - 2,147,483,647.
+     * {@link Channel#ioctl(int, int, Error)} for values less than or equal to 64K.
+     * For values larger than 64K, you must use this method so that
+     * sysRecvBufSize will be set prior to the bind system call.
+     * Must be in the range of 0 - 2,147,483,647.
      * 
      * @param sysRecvBufSize the sysRecvBufSize to set
      * 
@@ -589,8 +584,7 @@ public interface BindOptions
      * The size (in kilobytes) of the system's receive buffer used for this
      * connection, where applicable. Setting of 0 indicates to use default
      * sizes. This can also be set or changed via
-     * {@link Channel#ioctl(int, int, Error)} for values less than or equal
-     * to 64K.
+     * {@link Channel#ioctl(int, int, Error)} for values less than or equal to 64K.
      * 
      * @return the sysRecvBufSize
      */

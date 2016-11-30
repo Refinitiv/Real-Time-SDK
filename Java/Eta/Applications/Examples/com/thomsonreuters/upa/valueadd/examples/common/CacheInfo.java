@@ -14,9 +14,9 @@ import com.thomsonreuters.upa.valueadd.cache.PayloadCursor;
 public class CacheInfo
 {
 	public boolean useCache = false;
-	public PayloadCacheConfigOptions cacheOptions = null;;
-	public PayloadCache cache = null;;
-	public PayloadCursor cursor = null;;
+	public PayloadCacheConfigOptions cacheOptions = null;
+	public PayloadCache cache = null;
+	public PayloadCursor cursor = null;
 	public Buffer cacheDictionaryKey = null;
 	public CacheError cacheError = null;
 	

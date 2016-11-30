@@ -4,8 +4,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 
 /**
- * This buffer is used by the RMTES Decoding interface to store and display the
- * decoded strings.
+ * This buffer is used by the RMTES Decoding interface to store and display the decoded strings.
  * 
  * @see RmtesCacheBuffer
  * @see RmtesDecoder
@@ -13,7 +12,6 @@ import java.nio.CharBuffer;
 
 public interface RmtesBuffer
 {
-
     /**
      * Return length of RmtesBuffer
      * 
@@ -91,8 +89,7 @@ public interface RmtesBuffer
     public String toString();
     
     /**
-     * Clears an RmtesBuffer of info in its data, keeps allocatedLength and
-     * resets length to zero.
+     * Clears an RmtesBuffer of info in its data, keeps allocatedLength and resets length to zero.
      * 
      */
     public void clear();

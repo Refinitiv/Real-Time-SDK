@@ -2,8 +2,7 @@ package com.thomsonreuters.upa.codec;
 
 /**
  * Action to perform on a {@link FilterList} for the given filter item. Each
- * entry has an associated action which informs the user of how to apply the
- * entry's contents.
+ * entry has an associated action which informs the user of how to apply the entry's contents.
  * 
  * @see FilterEntry
  */

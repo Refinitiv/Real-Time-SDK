@@ -20,7 +20,7 @@ public interface TunnelingInfo
      * Tunneling type.
      * Possible values are "None", http", or "encrypted"
      * For HTTP Tunneling, tunnelingType has to be set to "http" or "encrypted"
-
+     * 
      * @return the tunnelingType
      */
     public String tunnelingType();

@@ -69,8 +69,8 @@ import com.thomsonreuters.upa.transport.TransportBuffer;
 public interface EncodeIterator
 {
     /**
-     * Clears EncodeIterator, defaults to use current version of RWF. After
-     * clearing an iterator, the buffer needs to be set using
+     * Clears EncodeIterator, defaults to use current version of RWF.
+     * After clearing an iterator, the buffer needs to be set using
      * {@link #setBufferAndRWFVersion(Buffer, int, int)}
      * 
      * <dl style='border-left:4px solid;padding: 0 0 0 6px; border-color: #D0C000'>
@@ -92,10 +92,8 @@ public interface EncodeIterator
      * transport.
      * 
      * @param buffer Buffer to use for encoding
-     * @param rwfMajorVersion - this is the major version of the wire format to
-     *            encode
-     * @param rwfMinorVersion - this is the minor version of the wire format to
-     *            encode
+     * @param rwfMajorVersion - this is the major version of the wire format to encode
+     * @param rwfMinorVersion - this is the minor version of the wire format to encode
      * 
      * @return {@link CodecReturnCodes#SUCCESS} if {@code Buffer} is
      *         successfully associated with iterator and RWF version is set,
@@ -111,14 +109,11 @@ public interface EncodeIterator
      * iterator. When used for encoding, the iterator will then use that version
      * of the RWF to encode.
      * 
-     * Use this method when you want to encode into RWF and use UPAJ's
-     * transport.
+     * Use this method when you want to encode into RWF and use UPAJ's transport.
      * 
      * @param buffer {@link TransportBuffer} to use for encoding
-     * @param rwfMajorVersion - this is the major version of the wire format to
-     *            encode
-     * @param rwfMinorVersion - this is the minor version of the wire format to
-     *            encode
+     * @param rwfMajorVersion - this is the major version of the wire format to encode
+     * @param rwfMinorVersion - this is the minor version of the wire format to encode
      * 
      * @return {@link CodecReturnCodes#SUCCESS} if {@link TransportBuffer}
      *         successfully associated with iterator and RWF version is set,
@@ -130,8 +125,8 @@ public interface EncodeIterator
     public int setBufferAndRWFVersion(TransportBuffer buffer, int rwfMajorVersion, int rwfMinorVersion);
 
     /**
-     * Sets the Global Field Set Definition Database on the iterator. When used for 
-     * encoding, the iterator will use that database to encode any field lists that
+     * Sets the Global Field Set Definition Database on the iterator.
+     * When used for encoding, the iterator will use that database to encode any field lists that
      * contain set definitions.
      * 
      * @param setDefDb - this is the database that will be used for encode.
@@ -144,8 +139,7 @@ public interface EncodeIterator
     
     /**
      * Sets the Global Element Set Definition Database on the iterator. When used for 
-     * encoding, the iterator will use that database to encode any field lists that
-     * contain set definitions.
+     * encoding, the iterator will use that database to encode any field lists that contain set definitions.
      * 
      * @param setDefDb - this is the database that will be used for encode.
      * 
@@ -156,8 +150,7 @@ public interface EncodeIterator
     public int setGlobalElementSetDefDb(GlobalElementSetDefDb setDefDb);
     
     /**
-     * Realigns Buffer's Iterator with buffer when new, larger buffer is needed
-     * to complete encoding.
+     * Realigns Buffer's Iterator with buffer when new, larger buffer is needed to complete encoding.
      * 
      * Typical use:<BR>
      * 1. Call realignBuffer() with the current iterator, and the new larger
@@ -179,8 +172,7 @@ public interface EncodeIterator
     public int realignBuffer(Buffer newEncodeBuffer);
 
     /**
-     * Realigns Transport Buffer's Iterator with buffer when new, larger buffer is needed
-     * to complete encoding.
+     * Realigns Transport Buffer's Iterator with buffer when new, larger buffer is needed to complete encoding.
      * 
      * Typical use:<BR>
      * 1. Call realignBuffer() with the current iterator, and the new larger
@@ -218,8 +210,8 @@ public interface EncodeIterator
      * Complete encoding of non-RWF data into the encode iterator's buffer.
      * 
      * @param buffer {@link Buffer} to encode into the iterator buffer
-     * @param success If true - successfully complete the aggregate, if false -
-     *            remove the aggregate from the buffer.
+     * @param success If true - successfully complete the aggregate,
+     *                if false - remove the aggregate from the buffer.
      * 
      * @return {@link CodecReturnCodes#SUCCESS} for successful completion, 
      * non-success code from {@link CodecReturnCodes} if not.
@@ -232,8 +224,7 @@ public interface EncodeIterator
      * Major version number of the encode iterator. Valid only after
      * {@link #setBufferAndRWFVersion(Buffer, int, int)} call.
      * 
-     * @return Encode iterator major version when valid or {@link CodecReturnCodes#FAILURE}
-     * when invalid.
+     * @return Encode iterator major version when valid or {@link CodecReturnCodes#FAILURE} when invalid.
      */
     public int majorVersion();
     
@@ -241,8 +232,7 @@ public interface EncodeIterator
      * Minor version number of the encode iterator. Valid only after
      * {@link #setBufferAndRWFVersion(Buffer, int, int)} call.
      * 
-     * @return Encode iterator minor version when valid or {@link CodecReturnCodes#FAILURE}
-     * when invalid.
+     * @return Encode iterator minor version when valid or {@link CodecReturnCodes#FAILURE} when invalid.
      */
     public int minorVersion();
     
@@ -271,8 +261,7 @@ public interface EncodeIterator
     
     /**
      * Convenience method that replaces the stream state on an encoded UPA
-     * message. This only works if there is a state already encoded in the
-     * message.
+     * message. This only works if there is a state already encoded in the message.
      * 
      * @param streamState the new stream state
      * 
@@ -286,8 +275,7 @@ public interface EncodeIterator
     
     /**
      * Convenience method that replaces the data state on an encoded UPA
-     * message. This only works if there is a state already encoded in the
-     * message.
+     * message. This only works if there is a state already encoded in the message.
      * 
      * @param dataState the new data state
      * 
@@ -301,8 +289,7 @@ public interface EncodeIterator
 
     /**
      * Convenience method that replaces the state code on an encoded UPA
-     * message. This only works if there is a state already encoded in the
-     * message.
+     * message. This only works if there is a state already encoded in the message.
      * 
      * @param stateCode the state code
      * 
@@ -384,7 +371,7 @@ public interface EncodeIterator
      * 
      * @see RefreshMsgFlags
      */
-	int unsetRefreshCompleteFlag();
+    int unsetRefreshCompleteFlag();
 
     /**
      * Set the RefreshMsgFlags.STREAMING flag on an encoded buffer.
@@ -395,7 +382,7 @@ public interface EncodeIterator
      * 
      * @see RefreshMsgFlags
      */
-	int setStreamingFlag();
+    int setStreamingFlag();
 
     /**
      * Unset the RefreshMsgFlags.STREAMING flag on an encoded buffer.
@@ -406,7 +393,7 @@ public interface EncodeIterator
      * 
      * @see RefreshMsgFlags
      */
-	int unsetStreamingFlag();
+    int unsetStreamingFlag();
 
     /**
      * Set the RefreshMsgFlags.NO_REFRESH flag on an encoded buffer.
@@ -417,7 +404,7 @@ public interface EncodeIterator
      * 
      * @see RefreshMsgFlags
      */
-	int setNoRefreshFlag();
+    int setNoRefreshFlag();
 
     /**
      * Unset the RefreshMsgFlags.NO_REFRESH flag on an encoded buffer.
@@ -428,7 +415,7 @@ public interface EncodeIterator
      * 
      * @see RefreshMsgFlags
      */
-	int unsetNoRefreshFlag();
+    int unsetNoRefreshFlag();
 
     /**
      * Set the RefreshMsgFlags.MSG_KEY_IN_UPDATES flag on an encoded buffer.
@@ -439,7 +426,7 @@ public interface EncodeIterator
      * 
      * @see RefreshMsgFlags
      */
-	int setMsgKeyInUpdatesFlag();
+    int setMsgKeyInUpdatesFlag();
 
     /**
      * Unset the RefreshMsgFlags.MSG_KEY_IN_UPDATES flag on an encoded buffer.
@@ -450,7 +437,7 @@ public interface EncodeIterator
      * 
      * @see RefreshMsgFlags
      */
-	int unsetMsgKeyInUpdatesFlag();
+    int unsetMsgKeyInUpdatesFlag();
 
     /**
      * Set the RefreshMsgFlags.CONF_INFO_IN_UPDATES flag on an encoded buffer.
@@ -461,7 +448,7 @@ public interface EncodeIterator
      * 
      * @see RefreshMsgFlags
      */
-	int setConfInfoInUpdatesFlag();
+    int setConfInfoInUpdatesFlag();
 
     /**
      * Unset the RefreshMsgFlags.CONF_INFO_IN_UPDATES flag on an encoded buffer.
@@ -472,20 +459,20 @@ public interface EncodeIterator
      * 
      * @see RefreshMsgFlags
      */
-	int unsetConfInfoInUpdatesFlag();
+    int unsetConfInfoInUpdatesFlag();
 	
-	/**
+    /**
      * buffer {@link Buffer} to use for encoding
      * 
      * @return buffer to use for encoding
      */
-	public Buffer buffer();
+    public Buffer buffer();
 	
-	/**
+    /**
      * buffer {@link TransportBuffer} to use for encoding
      * 
      * @return transport buffer to use for encoding
      */
-	public TransportBuffer transportBuffer();
+    public TransportBuffer transportBuffer();
 
 }

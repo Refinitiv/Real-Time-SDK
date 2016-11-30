@@ -1,8 +1,7 @@
 package com.thomsonreuters.upa.transport;
 
 /**
- * UPA Write Arguments used in the
- * {@link Channel#write(TransportBuffer, WriteArgs, Error)} call.
+ * UPA Write Arguments used in the {@link Channel#write(TransportBuffer, WriteArgs, Error)} call.
  * 
  * @see Channel
  * @see WritePriorities
@@ -11,10 +10,8 @@ package com.thomsonreuters.upa.transport;
 public interface WriteArgs
 {
     /**
-     * Priority to flush the message for
-     * {@link Channel#write(TransportBuffer, WriteArgs, Error)}.
-     * Must be in the range of {@link WritePriorities#HIGH}
-     * - {@link WritePriorities#LOW}.
+     * Priority to flush the message for {@link Channel#write(TransportBuffer, WriteArgs, Error)}.
+     * Must be in the range of {@link WritePriorities#HIGH} - {@link WritePriorities#LOW}.
      * 
      * @param priority the priority to set
      * 
@@ -23,8 +20,7 @@ public interface WriteArgs
     public void priority(int priority);
 
     /**
-     * Priority to flush the message for
-     * {@link Channel#write(TransportBuffer, WriteArgs, Error)}.
+     * Priority to flush the message for {@link Channel#write(TransportBuffer, WriteArgs, Error)}.
      * 
      * @return the priority
      * 
@@ -33,10 +29,8 @@ public interface WriteArgs
     public int priority();
 
     /**
-     * Write flags used for
-     * {@link Channel#write(TransportBuffer, WriteArgs, Error)}.
-     * Must be in the range of {@link WriteFlags#NO_FLAGS}
-     * - {@link WriteFlags#DIRECT_SOCKET_WRITE}.
+     * Write flags used for {@link Channel#write(TransportBuffer, WriteArgs, Error)}.
+     * Must be in the range of {@link WriteFlags#NO_FLAGS} - {@link WriteFlags#DIRECT_SOCKET_WRITE}.
      * 
      * @param flags the flags to set
      * 
@@ -45,8 +39,7 @@ public interface WriteArgs
     public void flags(int flags);
 
     /**
-     * Write flags used for
-     * {@link Channel#write(TransportBuffer, WriteArgs, Error)}.
+     * Write flags used for {@link Channel#write(TransportBuffer, WriteArgs, Error)}.
      * 
      * @return the flags
      * 
@@ -70,24 +63,19 @@ public interface WriteArgs
      */
     public int uncompressedBytesWritten();
 
-    
     /**
-     * Specifies the sequence number of the message
-     * {@link Channel#write(TransportBuffer, WriteArgs, Error)}.
-     * @param seqNum the sequence number to set
+     * Specifies the sequence number of the message {@link Channel#write(TransportBuffer, WriteArgs, Error)}.
      * 
+     * @param seqNum the sequence number to set
      */
     public void seqNum(long seqNum);
 
     /**
-     * sequence number of the message for
-     * {@link Channel#write(TransportBuffer, WriteArgs, Error)}.
+     * The sequence number of the message for {@link Channel#write(TransportBuffer, WriteArgs, Error)}.
      * 
      * @return the seqNum
-     * 
      */
     public long seqNum();
-    
     
     /**
      * Clears UPA Write Arguments.

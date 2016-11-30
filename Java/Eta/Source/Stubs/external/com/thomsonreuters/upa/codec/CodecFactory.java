@@ -42,6 +42,7 @@ public class CodecFactory
      * Creates {@link MsgKey}.
      * 
      * @return MsgKey object
+     * 
      * @see MsgKey
      */
     public static MsgKey createMsgKey()
@@ -532,7 +533,7 @@ public class CodecFactory
      */
     public static RmtesDecoder createRmtesDecoder()
     {
-    	return new RmtesDecoderImpl();
+        return new RmtesDecoderImpl();
     }
     
     /**
@@ -541,11 +542,12 @@ public class CodecFactory
      * @return RmtesBuffer object
      * 
      * @param x - allocated length of RmtesBuffer
+     * 
      * @see RmtesBuffer
      */
     public static RmtesBuffer createRmtesBuffer(int x)
     {
-    	return new RmtesBufferImpl(x);
+        return new RmtesBufferImpl(x);
     }
     
     /**
@@ -556,11 +558,12 @@ public class CodecFactory
      * @param dataLength - length of data being stored
      * @param byteBuffer - ByteBuffer to store into RmtesBuffer
      * @param allocLength - allocated length set for RmtesBuffer
+     * 
      * @see RmtesBuffer
      */
     public static RmtesBuffer createRmtesBuffer(int dataLength, ByteBuffer byteBuffer, int allocLength)
     {
-    	return new RmtesBufferImpl(dataLength, byteBuffer, allocLength);
+        return new RmtesBufferImpl(dataLength, byteBuffer, allocLength);
     }
     
     /**
@@ -568,12 +571,13 @@ public class CodecFactory
      * 
      * @return RmtesCacheBuffer object
      * 
-	 * @param x - allocated length of RmtesBuffer
+     * @param x - allocated length of RmtesBuffer
+     * 
      * @see RmtesCacheBuffer
      */
     public static RmtesCacheBuffer createRmtesCacheBuffer(int x)
     {
-    	return new RmtesCacheBufferImpl(x);
+        return new RmtesCacheBufferImpl(x);
     }
     
     /**
@@ -584,11 +588,12 @@ public class CodecFactory
      * @param dataLength - length of data being stored
      * @param byteBuffer - ByteBuffer to store into RmtesCacheBuffer
      * @param allocLength - allocated length set for RmtesCacheBuffer
+     * 
      * @see RmtesCacheBuffer
      */
     public static RmtesCacheBuffer createRmtesCacheBuffer(int dataLength, ByteBuffer byteBuffer, int allocLength)
     {
-    	return new RmtesCacheBufferImpl(dataLength, byteBuffer, allocLength);
+        return new RmtesCacheBufferImpl(dataLength, byteBuffer, allocLength);
     }
     
     /**

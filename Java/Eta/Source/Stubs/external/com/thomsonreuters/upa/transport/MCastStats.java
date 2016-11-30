@@ -36,10 +36,9 @@ public interface MCastStats
     public long unicastRcvd();
 
     /**
-     * This is the number of unrecoverable gaps that have been detected on this
-     * channel. This value includes gaps detected for both multicast and unicast
-     * data. Positive values indicate a possible network problem, more severe as
-     * value is larger
+     * This is the number of unrecoverable gaps that have been detected on this channel.
+     * This value includes gaps detected for both multicast and unicast data.
+     * Positive values indicate a possible network problem, more severe as value is larger
      * 
      * @return the gapsDetected
      */
@@ -47,10 +46,9 @@ public interface MCastStats
 
     /**
      * This is the number of retransmission requests sent by this channel,
-     * populated only for reliable multicast connection types. This value
-     * includes retransmit requests for both multicast and unicast data.
-     * Positive values indicate a possible network problem, more severe as value
-     * is larger
+     * populated only for reliable multicast connection types.
+     * This value includes retransmit requests for both multicast and unicast data.
+     * Positive values indicate a possible network problem, more severe as value is larger
      * 
      * @return the retransReqSent
      */
@@ -58,10 +56,9 @@ public interface MCastStats
 
     /**
      * This is the number of retransmission requests received by this channel,
-     * populated only for reliable multicast connection types. This value
-     * includes retransmit requests for both multicast and unicast data.
-     * Positive values indicate a possible network problem, more severe as value
-     * is larger
+     * populated only for reliable multicast connection types.
+     * This value includes retransmit requests for both multicast and unicast data.
+     * Positive values indicate a possible network problem, more severe as value is larger
      * 
      * @return the retransReqRcvd
      */
@@ -69,10 +66,9 @@ public interface MCastStats
 
     /**
      * This is the number of retransmitted packets sent by this channel,
-     * populated only for reliable multicast connection types. This value
-     * includes retransmit packets for both multicast and unicast data. Positive
-     * values indicate a possible network problem, more severe as value is
-     * larger
+     * populated only for reliable multicast connection types.
+     * This value includes retransmit packets for both multicast and unicast data.
+     * Positive values indicate a possible network problem, more severe as value is larger
      * 
      * @return the retransPktsSent
      */
@@ -80,10 +76,9 @@ public interface MCastStats
 
     /**
      * This is the number of retransmitted packets received by this channel,
-     * populated only for reliable multicast connection types. This value
-     * includes retransmit packets for both multicast and unicast data. Positive
-     * values indicate a possible network problem, more severe as value is
-     * larger
+     * populated only for reliable multicast connection types.
+     * This value includes retransmit packets for both multicast and unicast data.
+     * Positive values indicate a possible network problem, more severe as value is larger
      * 
      * @return the retransPktsRcvd
      */

@@ -1,8 +1,7 @@
 package com.thomsonreuters.upa.codec;
 
 /**
- * A combination of bit values that indicates the presence of optional
- * {@link Series} content.
+ * A combination of bit values that indicates the presence of optional {@link Series} content.
  * 
  * @see Series
  */
@@ -39,8 +38,7 @@ public class SeriesFlags
      * (0x04) Indicates the presence of the totalCountHint member, which can
      * provide an approximation of the total number of entries sent across maps
      * on all parts of the refresh message. Such information is useful when
-     * determining resource allocation for caching or displaying all expected
-     * entries.
+     * determining resource allocation for caching or displaying all expected entries.
      */
     public static final int HAS_TOTAL_COUNT_HINT = 0x04;
 }

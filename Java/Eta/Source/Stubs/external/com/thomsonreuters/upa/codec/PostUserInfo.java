@@ -18,8 +18,8 @@ public interface PostUserInfo
     public void clear();
 
     /**
-     * IP Address of user that posted this data. Must be in the range of
-     * 0 - 4294967296 (2^32).
+     * IP Address of user that posted this data.
+     * Must be in the range of 0 - 4294967295 (2^32).
      * 
      * @param userAddr the userAddr to set
      */
@@ -28,8 +28,7 @@ public interface PostUserInfo
     /**
      * IP Address of user that posted this data.
      * 
-     * Converts dotted-decimal IP address string(e.g. "127.0.0.1") to integer
-     * equivalent.
+     * Converts dotted-decimal IP address string(e.g. "127.0.0.1") to integer equivalent.
      * 
      * @param userAddrString The IP address string
      */
@@ -43,8 +42,8 @@ public interface PostUserInfo
     public long userAddr();
 
     /**
-     * Identifier of the specific user that posted this data. Must be in the
-     * range of 0 - 4294967296 (2^32).
+     * Identifier of the specific user that posted this data.
+     * Must be in the range of 0 - 4294967295 (2^32).
      * 
      * @param userId the userId to set
      */
@@ -58,8 +57,8 @@ public interface PostUserInfo
     public long userId();
 
     /**
-     * Converts IP address in integer format to string equivalent. Must be
-     * in the range of 0 - 4294967296 (2^32).
+     * Converts IP address in integer format to string equivalent.
+     * Must be in the range of 0 - 4294967295 (2^32).
      * 
      * @param addrInt The input integer value
      * 

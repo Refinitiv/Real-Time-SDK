@@ -26,8 +26,7 @@ public class CloseMsgFlags
      * (0x02) If present, the consumer wants the provider to send an
      * {@link AckMsg} to indicate that the {@link CloseMsg} has been processed
      * properly and the stream is properly closed. This functionality might not
-     * be available with some components; for details, refer to the component's
-     * documentation.
+     * be available with some components; for details, refer to the component's documentation.
      */
     public static final int ACK = 0x02;
 }

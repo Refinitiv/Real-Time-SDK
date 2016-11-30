@@ -2,8 +2,7 @@ package com.thomsonreuters.upa.transport;
 
 
 /**
- * UPA Read Flags passed into the
- * {@link Channel#read(ReadArgs, Error)} method call.
+ * UPA Read Flags passed into the {@link Channel#read(ReadArgs, Error)} method call.
  * 
  * @see Channel
  */

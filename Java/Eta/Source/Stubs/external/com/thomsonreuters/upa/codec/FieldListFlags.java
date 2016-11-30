@@ -1,8 +1,7 @@
 package com.thomsonreuters.upa.codec;
 
 /**
- * Combination of bit values that indicates the presence
- * of optional field list content.
+ * Combination of bit values that indicates the presence of optional field list content.
  * 
  * @see FieldList
  */
@@ -19,8 +18,7 @@ public class FieldListFlags
     /**
      * (0x01) Indicates that dictionaryId and fieldListNum members are present,
      * which should be provided as part of the initial refresh message on a
-     * stream or on the first refresh message after issuance of a CLEAR_CACHE
-     * command.
+     * stream or on the first refresh message after issuance of a CLEAR_CACHE command.
      */
     public static final int HAS_FIELD_LIST_INFO = 0x01;
 
@@ -28,15 +26,13 @@ public class FieldListFlags
      * (0x02) Indicates that the {@link FieldList} contains set-defined data.
      * This value can be set in addition to {@link #HAS_STANDARD_DATA} if both
      * standard and set-defined data are present in this {@link FieldList}. If
-     * no entries are present in the {@link FieldList}, this flag value should
-     * not be set.
+     * no entries are present in the {@link FieldList}, this flag value should not be set.
      */
     public static final int HAS_SET_DATA = 0x02;
 
     /**
      * (0x04) Indicates the presence of a setId, used to determine the set
-     * definition used for encoding or decoding the set data on this
-     * {@link FieldList}.
+     * definition used for encoding or decoding the set data on this {@link FieldList}.
      */
     public static final int HAS_SET_ID = 0x04;
 

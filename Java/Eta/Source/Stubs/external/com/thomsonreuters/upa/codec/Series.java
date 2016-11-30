@@ -182,9 +182,8 @@ public interface Series extends XMLDecoder
      * 
      * Typical use:<BR>
      * 1. Call Series.encodeInit()<BR>
-     * 2. Call SeriesEntry.encode() or
-     * SeriesEntry.encodeInit()..SeriesEntry.encodeComplete() for each entry
-     * using the same buffer<BR>
+     * 2. Call SeriesEntry.encode() or SeriesEntry.encodeInit()..SeriesEntry.encodeComplete()
+     *    for each entry using the same buffer<BR>
      * 3. Call Series.encodeComplete()<BR>
      * 
      * @param iter The encoder iterator.
@@ -199,12 +198,10 @@ public interface Series extends XMLDecoder
 
     /**
      * Complete set data encoding for a series. If both encodeSetDefsComplete()
-     * and encodeSummaryDataComplete() are called, encodeSetDefsComplete() must
-     * be called first.
+     * and encodeSummaryDataComplete() are called, encodeSetDefsComplete() must be called first.
      * 
      * @param iter Encoding iterator
-     * @param success True if encoding of set data was successful, false for
-     *            rollback
+     * @param success True if encoding of set data was successful, false for rollback
      * 
      * @return {@link CodecReturnCodes}
      * 
@@ -213,13 +210,12 @@ public interface Series extends XMLDecoder
     public int encodeSetDefsComplete(EncodeIterator iter, boolean success);
 
     /**
-     * Complete summary data encoding for a series. If both
-     * encodeSetDefsComplete() and encodeSummaryDataComplete() are called,
+     * Complete summary data encoding for a series.
+     * If both encodeSetDefsComplete() and encodeSummaryDataComplete() are called,
      * encodeSetDefsComplete() must be called first.
      * 
      * @param iter Encoding iterator
-     * @param success True if encoding of summary data was successful, false for
-     *            rollback
+     * @param success True if encoding of summary data was successful, false for rollback
      * 
      * @return {@link CodecReturnCodes}
      * 
@@ -232,14 +228,13 @@ public interface Series extends XMLDecoder
      * 
      * Typical use:<BR>
      * 1. Call Series.encodeInit()<BR>
-     * 2. Call SeriesEntry.encode() or
-     * SeriesEntry.encodeInit()..SeriesEntry.encodeComplete() for each entry
-     * using the same buffer<BR>
+     * 2. Call SeriesEntry.encode() or SeriesEntry.encodeInit()..SeriesEntry.encodeComplete()
+     *    for each entry using the same buffer<BR>
      * 3. Call Series.encodeComplete()<BR>
      * 
      * @param iter The encoder iterator.
-     * @param success If true - successfully complete the aggregate, if false -
-     *            remove the aggregate from the buffer.
+     * @param success If true - successfully complete the aggregate,
+     *                if false - remove the aggregate from the buffer.
      * 
      * @return {@link CodecReturnCodes}
      * 
@@ -400,19 +395,18 @@ public interface Series extends XMLDecoder
     public void totalCountHint(int totalCountHint);
 
     /**
-     * All encoded key-value pair encoded data, if any, contained in the
-     * message. This refers to encoded {@link Series} payload data.
+     * All encoded key-value pair encoded data, if any, contained in the message.
+     * This refers to encoded {@link Series} payload data.
      * 
      * @return encodedEntries
      */
     public Buffer encodedEntries();
 
     /**
-     * Sets all the flags applicable to this series. Must be in the range
-     * of 0 - 255.
+     * Sets all the flags applicable to this series.
+     * Must be in the range of 0 - 255.
      * 
-     * @param flags An integer containing all the flags applicable to\
-     * this series
+     * @param flags An integer containing all the flags applicable to this series
      * 
      * @see SeriesFlags
      */

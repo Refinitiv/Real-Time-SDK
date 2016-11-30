@@ -1,8 +1,7 @@
 package com.thomsonreuters.upa.codec;
 
 /**
- * Message Field List Set Definitions Database that can groups ElementListSet
- * definitions together.
+ * Message Field List Set Definitions Database that can groups ElementListSet definitions together.
  * <p>
  * Using a database can be helpful when the content leverages multiple
  * definitions; the database provides an easy way to pass around all set
@@ -16,8 +15,7 @@ package com.thomsonreuters.upa.codec;
 public interface ElementSetDefDb
 {
     /**
-     * Clears {@link ElementSetDefDb} and all entries in it. Useful for
-     * object reuse.
+     * Clears {@link ElementSetDefDb} and all entries in it. Useful for object reuse.
      */
     public void clear();
 

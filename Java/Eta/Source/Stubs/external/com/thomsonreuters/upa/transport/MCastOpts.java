@@ -1,8 +1,7 @@
 package com.thomsonreuters.upa.transport;
 
 /**
- * Options used for configuring multicast specific transport options
- * ({@link ConnectionTypes#RELIABLE_MCAST}).
+ * Options used for configuring multicast specific transport options ({@link ConnectionTypes#RELIABLE_MCAST}).
  * 
  * @see ConnectOptions
  */
@@ -13,9 +12,8 @@ public interface MCastOpts
      * <dl style='border-left:4px solid;padding: 0 0 0 6px; border-color: #D0C000'>
      * <dt><b>Note:</b></dt>
      * <dd>Enabling this will stop communication with all devices communicating
-     * with this connection, even though all may not be affected by detected
-     * gaps. If application can recover only impacted data above transport
-     * layer, this is ideal.</dd>
+     * with this connection, even though all may not be affected by detected gaps.
+     * If application can recover only impacted data above transport layer, this is ideal.</dd>
      * </dl>
      * 
      * @param disconnectOnGaps the disconnectOnGaps to set
@@ -27,9 +25,8 @@ public interface MCastOpts
      * <dl style='border-left:4px solid;padding: 0 0 0 6px; border-color: #D0C000'>
      * <dt><b>Note:</b></dt>
      * <dd>Enabling this will stop communication with all devices communicating
-     * with this connection, even though all may not be affected by detected
-     * gaps. If application can recover only impacted data above transport
-     * layer, this is ideal.</dd>
+     * with this connection, even though all may not be affected by detected gaps.
+     * If application can recover only impacted data above transport layer, this is ideal.</dd>
      * </dl>
      * 
      * @return the disconnectOnGaps
@@ -57,26 +54,26 @@ public interface MCastOpts
      * 
      * @param tcpControlPort the tcpControlPort to set
      */
-	public void tcpControlPort(String tcpControlPort);
+    public void tcpControlPort(String tcpControlPort);
 
     /**
      * The RRCP tcpControlPort, used for troubleshooting RRCP using the rrdump tool.
      * 
      * @return the tcpControlPort
      */
-	public String tcpControlPort();
+    public String tcpControlPort();
 	
     /**
      * The RRCP portRoamRange.
      * 
      * @param portRoamRange the portRoamRange to set
      */
-	public void portRoamRange(int portRoamRange);
+    public void portRoamRange(int portRoamRange);
 
     /**
      * The RRCP portRoamRange.
      * 
      * @return the portRoamRange
      */
-	public int portRoamRange();
+    public int portRoamRange();
 }

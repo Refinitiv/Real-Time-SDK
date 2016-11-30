@@ -24,8 +24,7 @@ public class Codec
 
     /**
      * Protocol type definition. This can be used in conjunction transport layer
-     * to indicate protocol being used on the connection. Codec only supports RWF
-     * protocol type.
+     * to indicate protocol being used on the connection. Codec only supports RWF protocol type.
      * 
      * @return protocol type.
      */
@@ -58,8 +57,7 @@ public class Codec
      * Programmatically extracts library and product version information that is
      * compiled into this library.<BR>
      * 
-     * User can call this method to programmatically extract version
-     * information.<BR>
+     * User can call this method to programmatically extract version information.<BR>
      * 
      * @see com.thomsonreuters.upa.transport.LibraryVersionInfo
      */

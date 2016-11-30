@@ -65,14 +65,8 @@ public interface ReadArgs
     public int instanceId();
     
     /**
-     * Clears UPA Read Arguments.
-     */
-    
-    /**
-     * Read flags used for
-     * {@link Channel#read(ReadArgs, Error)}.
-     * Must be in the range of {@link ReadFlags#NO_FLAGS}
-     * - {@link ReadFlags#READ_SEQNUM}.
+     * Read flags used for {@link Channel#read(ReadArgs, Error)}.
+     * Must be in the range of {@link ReadFlags#NO_FLAGS} - {@link ReadFlags#READ_SEQNUM}.
      * 
      * @param flags the flags to set
      * 
@@ -81,8 +75,7 @@ public interface ReadArgs
     public void flags(int flags);
 
     /**
-     * Read flags used for
-     * {@link Channel#read(ReadArgs, Error)}.
+     * Read flags used for {@link Channel#read(ReadArgs, Error)}.
      * 
      * @return the flags
      * 

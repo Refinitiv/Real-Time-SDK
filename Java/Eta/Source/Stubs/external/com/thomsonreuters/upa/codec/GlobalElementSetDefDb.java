@@ -3,8 +3,7 @@ package com.thomsonreuters.upa.codec;
 import com.thomsonreuters.upa.transport.Error;
 
 /**
- * Global Message Field List Set Definitions Database that can groups ElementListSet
- * definitions together.
+ * Global Message Field List Set Definitions Database that can groups ElementListSet definitions together.
  * <p>
  * Using a database can be helpful when the content leverages multiple
  * definitions; the database provides an easy way to pass around all set
@@ -17,10 +16,8 @@ import com.thomsonreuters.upa.transport.Error;
  */
 public interface GlobalElementSetDefDb extends ElementSetDefDb
 {
-    
     /**
-     * Clears {@link GlobalElementSetDefDb} and all entries in it. Useful for
-     * object reuse.
+     * Clears {@link GlobalElementSetDefDb} and all entries in it. Useful for object reuse.
      */
     public void clear();
 
@@ -38,7 +35,6 @@ public interface GlobalElementSetDefDb extends ElementSetDefDb
      * @see com.thomsonreuters.upa.rdm.Dictionary.VerbosityValues
      */
     public int decode(DecodeIterator iter, int verbosity, Error error);
-    
 
     /**
      * Encode Element List set definitions database.
@@ -51,12 +47,12 @@ public interface GlobalElementSetDefDb extends ElementSetDefDb
      */
     public int encode(EncodeIterator iter, Int currentSetDef, int verbosity, Error error);
 
-    
     /**
      * Deep copies the given set definition into the database.
      * 
      * @param setDef    Set Defininition to be copied in.
      * @param error
+     * 
      * @return {@link CodecReturnCodes}
      */
     public int addSetDef(ElementSetDef setDef, Error error);

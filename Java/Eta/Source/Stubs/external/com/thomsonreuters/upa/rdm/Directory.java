@@ -90,8 +90,7 @@ public class Directory
 	}
 	
 	/**
-	 * Combination of bit values to indicate specific information about a RDM
-	 * directory service.
+	 * Combination of bit values to indicate specific information about a RDM directory service.
 	 */
 	public static class ServiceFilterFlags
 	{

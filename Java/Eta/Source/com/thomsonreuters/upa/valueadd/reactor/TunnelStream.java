@@ -1823,7 +1823,7 @@ public class TunnelStream
                         ackHeader.clearAck();
                         /* Use channel-facing stream ID (so message can go directly to the channel even if watchlist is enabled. */
                         _tunnelStreamMsg.streamId(_channelStreamId);
-                        _tunnelStreamMsg.domainType(_domainType);;
+                        _tunnelStreamMsg.domainType(_domainType);
                         ackHeader.seqNum(_recvLastSeqNum);
                         ackHeader.recvWindow(_classOfService.flowControl().recvWindowSize());
     

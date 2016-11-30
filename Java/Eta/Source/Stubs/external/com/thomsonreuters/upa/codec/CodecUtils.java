@@ -18,8 +18,7 @@ public class CodecUtils
      * 
      * @param groupId {@link Buffer} with any existing groupID information and
      *            space to append groupIdToAdd
-     * @param groupIdToAdd two byte ID to append to the groupID contained in
-     *            groupId buffer
+     * @param groupIdToAdd two byte ID to append to the groupID contained in groupId buffer
      * 
      * @return {@link CodecReturnCodes#INCOMPLETE_DATA} if length of
      *         groupIdToAdd is less than 2 bytes or

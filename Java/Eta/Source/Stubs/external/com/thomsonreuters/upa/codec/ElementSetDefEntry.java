@@ -10,8 +10,7 @@ import com.thomsonreuters.upa.codec.Buffer;
 public interface ElementSetDefEntry
 {
     /**
-     * Clears members from an {@link ElementSetDefEntry}. Useful for object
-     * reuse.
+     * Clears members from an {@link ElementSetDefEntry}. Useful for object reuse.
      */
     public void clear();
 

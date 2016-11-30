@@ -5,12 +5,11 @@ import com.thomsonreuters.upa.transport.Error;
 
 /**
  * A class that houses all known fields loaded from an RDM field dictionary and
- * their corresponding enum types loaded from an enum type dictionary. The
- * dictionary also saves general information about the dictionary itself - this
- * is found in the "!tag" comments of the file or in the summary data of
+ * their corresponding enum types loaded from an enum type dictionary.
+ * The dictionary also saves general information about the dictionary itself
+ * This is found in the "!tag" comments of the file or in the summary data of
  * dictionaries encoded via the official domain model.
- * The data dictionary must be loaded prior to using the methods to access
- * dictionary entries.
+ * The data dictionary must be loaded prior to using the methods to access dictionary entries.
  * 
  * @see DictionaryEntry
  * @see EnumType
@@ -25,8 +24,7 @@ public interface DataDictionary
     public void clear();
 
     /**
-     * Returns the entry in the dictionary corresponding to the given fieldId,
-     * if the entry exists.
+     * Returns the entry in the dictionary corresponding to the given fieldId, if the entry exists.
      * 
      * @param fieldId the fieldId to get the dictionary entry for
      * 
@@ -94,13 +92,11 @@ public interface DataDictionary
      * method, each producing the next segment of fields.
      * 
      * @param iter Iterator to be used for encoding. Prior to each call, the
-     *            iterator must be cleared and initialized to the buffer to be
-     *            used for encoding.
+     *            iterator must be cleared and initialized to the buffer to be used for encoding.
      * 
      * @param currentFid Tracks which fields have been encoded in case of
      *            multi-part encoding. Must be initialized to dictionary->minFid
-     *            on the first call and is updated with each successfully
-     *            encoded part.
+     *            on the first call and is updated with each successfully encoded part.
      * 
      * @param verbosity The desired verbosity to encode.
      * @param error UPA error, to be populated in event of an error.
@@ -136,8 +132,7 @@ public interface DataDictionary
     /**
      * Encode the enumerated types dictionary according the domain model, using
      * the information from the tables and referencing fields present in this
-     * dictionary. Note: This method will use the type ASCII_STRING for the
-     * DISPLAY array.
+     * dictionary. Note: This method will use the type ASCII_STRING for the DISPLAY array.
      * 
      * @param iter Iterator to be used for encoding.
      * @param verbosity The desired verbosity to encode.
@@ -202,8 +197,7 @@ public interface DataDictionary
     public int enumTableCount();
 
     /**
-     * DictionaryId Tag. All dictionaries loaded using this object will have
-     * this tag matched if found.
+     * DictionaryId Tag. All dictionaries loaded using this object will have this tag matched if found.
      * 
      * @return the infoDictionaryId
      */

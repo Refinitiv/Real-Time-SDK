@@ -79,7 +79,7 @@ class TunnelSubstream
 
         /* Substream is established and messages can be exchanged. */
         OPEN,
-    };
+    }
 
 	TunnelSubstream(Buffer queueName, int streamId, int domainType, int serviceId, TunnelStream tunnelStreamHandler, Error error)
 	{

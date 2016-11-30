@@ -301,8 +301,7 @@ public interface RequestMsg extends Msg
      * QoS for the requested stream.
      * <ul>
      * <li>When specified without a worstQos member, this is the only allowable
-     * QoS for the requested stream. If this QoS is unavailable, the stream is
-     * not opened.</li>
+     * QoS for the requested stream. If this QoS is unavailable, the stream is not opened.</li>
      * <li>When specified with a worstQos, this is the best in the range of
      * allowable QoSs. When a QoS range is specified, any QoS within the range
      * is acceptable for servicing the stream.</li>
@@ -319,8 +318,7 @@ public interface RequestMsg extends Msg
     /**
      * The least acceptable QoS for the requested stream. When specified with a
      * qos value, this is the worst in the range of allowable QoSs. When a QoS
-     * range is specified, any QoS within the range is acceptable for servicing
-     * the stream.
+     * range is specified, any QoS within the range is acceptable for servicing the stream.
      * 
      * @return the worstQos
      */

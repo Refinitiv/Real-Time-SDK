@@ -45,7 +45,8 @@ public interface FilterEntry
      * Typical use:<BR>
      * 1. Call FilterList.encodeInit()<BR>
      * For each row in the FilterEntry using the same buffer perform steps 2, 3,
-     * and 4 below: 2. Call FilterEntry.encodeInit() <BR>
+     * and 4 below:
+     * 2. Call FilterEntry.encodeInit() <BR>
      * 3. Encode FilterEntry contents <BR>
      * 4. Call FilterEntry.encodeComplete() <BR>
      * 5. Call FilterList.encodeComplete()<BR>
@@ -65,7 +66,8 @@ public interface FilterEntry
      * Typical use:<BR>
      * 1. Call FilterList.encodeInit()<BR>
      * For each row in the FilterEntry using the same buffer perform steps 2, 3,
-     * and 4 below 2. Call FilterEntry.encodeInit() <BR>
+     * and 4 below
+     * 2. Call FilterEntry.encodeInit() <BR>
      * 3. Encode FilterEntry contents <BR>
      * 4. Call FilterEntry.encodeComplete() <BR>
      * 5. Call FilterList.encodeComplete()<BR>
@@ -164,8 +166,8 @@ public interface FilterEntry
      * possible id corresponds to a bit-value that can be used with the message
      * key's filter member. This bit-value can be specified on the filter to
      * indicate interest in the id when present in a {@link RequestMsg} or to
-     * indicate presence of the id when present in other messages. Must be in
-     * the range of 0 - 255.
+     * indicate presence of the id when present in other messages.
+     * Must be in the range of 0 - 255.
      * 
      * @param id the id to set
      */
@@ -198,8 +200,7 @@ public interface FilterEntry
     public Buffer permData();
 
     /**
-     * Permission expression data. Specifies authorization information for this
-     * entry.
+     * Permission expression data. Specifies authorization information for this entry.
      * 
      * @param permData the permData to set
      */
@@ -220,11 +221,9 @@ public interface FilterEntry
     public void encodedData(Buffer encodedData);
 
     /**
-     * Sets all the flags applicable to this filter entry. Must be in the
-     * range of 0 - 15.
+     * Sets all the flags applicable to this filter entry. Must be in the range of 0 - 15.
      * 
-     * @param flags An integer containing all the flags applicable to this
-     * filter entry
+     * @param flags An integer containing all the flags applicable to this filter entry
      * 
      * @see FilterEntryFlags
      */

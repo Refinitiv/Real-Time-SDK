@@ -304,7 +304,7 @@ public class GenericProv implements ReceivedMsgCallback
         if (ret != CodecReturnCodes.SUCCESS)
         {
             System.out.println("DecodeIterator.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
-            cleanupAndExit();;
+            cleanupAndExit();
         }
         
         ret = _requestMsg.decode(_dIter);

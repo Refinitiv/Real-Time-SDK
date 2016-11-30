@@ -8,8 +8,8 @@ import com.thomsonreuters.upa.codec.Buffer;
  * or routed further upstream to the source of data. Once received, the upstream
  * components can republish data to downstream consumers. Post messages can be
  * routed along a specific item stream, referred to as on-stream posting, or
- * along a user's Login stream, referred to as off-stream posting. A
- * {@link PostMsg} can contain any UPA container type, including other messages.
+ * along a user's Login stream, referred to as off-stream posting.
+ * A {@link PostMsg} can contain any UPA container type, including other messages.
  * User identification information can be associated with a post message and can
  * be provided along with the content that was posted.
  * 
@@ -289,8 +289,7 @@ public interface PostMsg extends Msg
      * <ul>
      * <li>Create items in the cache of record. (0x01)</li>
      * <li>Delete items from the cache of record. (0x02)</li>
-     * <li>Modify the permData on items already present in the cache of record.
-     * (0x03)</li>
+     * <li>Modify the permData on items already present in the cache of record. (0x03)</li>
      * </ul>
      * Must be in the range of 0 - 32767.
      * 
@@ -306,8 +305,7 @@ public interface PostMsg extends Msg
      * <ul>
      * <li>Create items in the cache of record. (0x01)</li>
      * <li>Delete items from the cache of record. (0x02)</li>
-     * <li>Modify the permData on items already present in the cache of record.
-     * (0x03)</li>
+     * <li>Modify the permData on items already present in the cache of record. (0x03)</li>
      * </ul>
      * 
      * @return the postUserRights

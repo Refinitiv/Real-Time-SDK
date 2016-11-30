@@ -115,10 +115,10 @@ public interface ChannelInfo
 
     /**
      * The currently priority level order used when flushing buffers to the
-     * connection, where H = High priority, M = Medium priority, and L = Low
-     * priority. When passed to {@link Channel#write(TransportBuffer, WriteArgs, Error)}, each buffer is also associated with
-     * the priority level it should be written at. The default
-     * priorityFlushStrategy will write buffers in the order High, Medium, High,
+     * connection, where H = High priority, M = Medium priority, and L = Low priority.
+     * When passed to {@link Channel#write(TransportBuffer, WriteArgs, Error)},
+     * each buffer is also associated with the priority level it should be written at.
+     * The default priorityFlushStrategy will write buffers in the order High, Medium, High,
      * Low, High, Medium. This provides a slight advantage to the medium
      * priority level and a greater advantage to high priority data. Data order
      * is preserved within each priority level and if all buffers are written
@@ -131,8 +131,7 @@ public interface ChannelInfo
     public String priorityFlushStrategy();
     
     /**
-     * This substructure will report information about the componentInfo received
-     * for each connection.
+     * This substructure will report information about the componentInfo received for each connection.
      * 
      * @return a List of {@link ComponentInfo}
      */
@@ -158,8 +157,7 @@ public interface ChannelInfo
     public String clientHostname();
     
     /**
-     * When using a multicast connection type, this will be
-     * populated with information about the multicast protocol.
+     * When using a multicast connection type, this will be populated with information about the multicast protocol.
      * 
      * @return the multicastStats
      */

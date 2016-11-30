@@ -11,26 +11,26 @@ public interface EnumTypeTable
      * 
      * @return the maxValue
      */
-	public int maxValue();
+    public int maxValue();
 	
-	/**
-	 * The list of enumerated types.
-	 * 
-	 * @return the enumTypes
-	 */
-	public EnumType[] enumTypes();
+    /**
+     * The list of enumerated types.
+     * 
+     * @return the enumTypes
+     */
+    public EnumType[] enumTypes();
 	
-	/**
-	 * The number of fields in the fidReferences list.
-	 * 
-	 * @return fidReferenceCount
-	 */
-	public int fidReferenceCount();
+    /**
+     * The number of fields in the fidReferences list.
+     * 
+     * @return fidReferenceCount
+     */
+    public int fidReferenceCount();
 	
-	/**
-	 * A list of fieldId's representing fields that reference this table.
-	 * 
-	 * @return fidReferences
-	 */
-	public int[] fidReferences();
+    /**
+     * A list of fieldId's representing fields that reference this table.
+     * 
+     * @return fidReferences
+     */
+    public int[] fidReferences();
 }

@@ -59,8 +59,7 @@ public interface DateTime
 
     /**
      * Convert DateTime to a String. Returns a String as "%d %b %Y
-     * hour:minute:second:milli:micro:nano"  
-     * (e.g., 30 NOV 2010 15:24:54:627:529:436).
+     * hour:minute:second:milli:micro:nano" (e.g., 30 NOV 2010 15:24:54:627:529:436).
      * 
      * @return the string representation of this {@link DateTime}
      */
@@ -73,8 +72,7 @@ public interface DateTime
      * "%H:%M" (e.g., 15:24) or "%H:%M:%S" (e.g., 15:24:54) formats as well as
      * "hour:minute:second:milli:micro:nano" format (e.g., 15:24:54:627:529:436).
      * 
-     * @param value string containing an appropriately formatted string to
-     *            convert from
+     * @param value string containing an appropriately formatted string to convert from
      * 
      * @return {@link CodecReturnCodes#SUCCESS} on success,
      *         {@link CodecReturnCodes#INVALID_ARGUMENT} if value is invalid. 
@@ -82,8 +80,8 @@ public interface DateTime
     public int value(String value);
 
     /**
-     * Sets date time from a number equal to milliseconds since the January 1,
-     * 1970 (midnight UTC/GMT) epoch. Must be a positive number.
+     * Sets date time from a number equal to milliseconds since the January 1, 1970 (midnight UTC/GMT) epoch.
+     * Must be a positive number.
      * 
      * @param value number equal to milliseconds since epoch
      * 
@@ -100,8 +98,7 @@ public interface DateTime
      * 
      * @return {@link CodecReturnCodes#SUCCESS} if success,
      *         {@link CodecReturnCodes#FAILURE} if failure,
-     *         {@link CodecReturnCodes#BUFFER_TOO_SMALL} if the encode buffer is
-     *         too small
+     *         {@link CodecReturnCodes#BUFFER_TOO_SMALL} if the encode buffer is too small
      * 
      * @see EncodeIterator
      * @see CodecReturnCodes
@@ -303,7 +300,6 @@ public interface DateTime
      *           
      *  @return {@link CodecReturnCodes#SUCCESS} on success,
      *         {@link CodecReturnCodes#INVALID_ARGUMENT} if the destDateTime is null. 
-     * 
      */
     public int copy(DateTime destDateTime);
     
@@ -313,8 +309,7 @@ public interface DateTime
     public void gmtTime();
     
     /**
-     * Returns this date time value as milliseconds since the January 1,
-     * 1970 (midnight UTC/GMT) epoch.
+     * Returns this date time value as milliseconds since the January 1, 1970 (midnight UTC/GMT) epoch.
      * 
      * @return milliseconds since epoch
      */

@@ -174,8 +174,8 @@ public interface MsgKey
     /**
      * Numeric value, typically enumerated, that indicates the type of the name
      * member. Examples are User Name or RIC (i.e., the Reuters Instrument
-     * Code). name types are defined on a per-domain model basis. Must be in the
-     * range of 0 - 255.
+     * Code). name types are defined on a per-domain model basis.
+     * Must be in the range of 0 - 255.
      * 
      * @param nameType the nameType to set
      */
@@ -192,8 +192,7 @@ public interface MsgKey
 
     /**
      * The name associated with the contents of the stream. Specific name type
-     * and contents should comply with the rules associated with the nameType
-     * member.
+     * and contents should comply with the rules associated with the nameType member.
      * 
      * @param name the name to set
      */
@@ -201,8 +200,7 @@ public interface MsgKey
 
     /**
      * The name associated with the contents of the stream. Specific name type
-     * and contents should comply with the rules associated with the nameType
-     * member.
+     * and contents should comply with the rules associated with the nameType member.
      * 
      * @return the name
      */
@@ -248,8 +246,7 @@ public interface MsgKey
     public void identifier(int identifier);
 
     /**
-     * User specified numeric identifier, is defined on a per-domain
-     * model basis.
+     * User specified numeric identifier, is defined on a per-domain model basis.
      * 
      * @return the identifier
      */

@@ -66,15 +66,14 @@ import com.thomsonreuters.upa.transport.TransportBuffer;
 public interface DecodeIterator
 {
     /**
-     * Clears DecodeIterator, defaults to use current version of RWF. After
-     * clearing an iterator, the buffer needs to be set using
+     * Clears DecodeIterator, defaults to use current version of RWF.
+     * After clearing an iterator, the buffer needs to be set using
      * {@link #setBufferAndRWFVersion(Buffer, int, int)}
      * 
      * <dl style='border-left:4px solid;padding: 0 0 0 6px; border-color: #D0C000'>
      * <dt><b>Note:</b></dt>
      * <dd>
-     * This should be used to achieve the best performance while clearing
-     * the iterator
+     * This should be used to achieve the best performance while clearing the iterator
      * </dd>
      * </dl>
      */
@@ -86,10 +85,8 @@ public interface DecodeIterator
      * of the RWF to Decode.
      * 
      * @param buffer {@link Buffer} to use for decoding
-     * @param rwfMajorVersion - this is the major version of the wire format to
-     *            Decode
-     * @param rwfMinorVersion - this is the minor version of the wire format to
-     *            Decode
+     * @param rwfMajorVersion - this is the major version of the wire format to Decode
+     * @param rwfMinorVersion - this is the minor version of the wire format to Decode
      * 
      * @return {@link CodecReturnCodes#SUCCESS} if {@code Buffer} is
      *         successfully associated with iterator and RWF version is set,
@@ -101,15 +98,12 @@ public interface DecodeIterator
     public int setBufferAndRWFVersion(Buffer buffer, int rwfMajorVersion, int rwfMinorVersion);
 
     /**
-     * Sets the Decode iterator's buffer and the desired RWF Version on the
-     * iterator. When used for decoding, the iterator will then use that version
-     * of the RWF to Decode.
+     * Sets the Decode iterator's buffer and the desired RWF Version on the iterator.
+     * When used for decoding, the iterator will then use that version of the RWF to Decode.
      * 
      * @param buffer Buffer to use for decoding
-     * @param rwfMajorVersion - this is the major version of the wire format to
-     *            Decode
-     * @param rwfMinorVersion - this is the minor version of the wire format to
-     *            Decode
+     * @param rwfMajorVersion - this is the major version of the wire format to Decode
+     * @param rwfMinorVersion - this is the minor version of the wire format to Decode
      * 
      * @return {@link CodecReturnCodes#SUCCESS} if {@code TransportBuffer} is
      *         successfully associated with iterator and RWF version is set,
@@ -136,8 +130,7 @@ public interface DecodeIterator
     
     /**
      * Sets the Global Element Set Definition Database on the iterator. When used for 
-     * decoding, the iterator will use that database to decode any field lists that
-     * contain set definitions.
+     * decoding, the iterator will use that database to decode any field lists that contain set definitions.
      * 
      * @param setDefDb - this is the database that will be used for decoding.
      * 

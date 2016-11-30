@@ -13,8 +13,7 @@ import com.thomsonreuters.upa.transport.TransportBuffer;
  * object is internally managed by the UPA Transport Package, and the
  * application does not need to create nor destroy any memory associated with a
  * {@link Channel}. The {@link Channel} is typically used to perform any action
- * on the connection that it represents (e.g. reading, writing, disconnecting,
- * etc).
+ * on the connection that it represents (e.g. reading, writing, disconnecting, * etc).
  */
 public interface Channel
 {
@@ -23,10 +22,8 @@ public interface Channel
      * 
      * Typical use:<br>
      * If information about the {@link Channel} is needed, such as
-     * maxFragmentSize or maxOutputBuffers, this method can be called to
-     * retrieve this information. If the channel is closed
-     * by the far end, this method returns error and the channel state
-     * is set to CLOSED.
+     * maxFragmentSize or maxOutputBuffers, this method can be called to retrieve this information.
+     * If the channel is closed by the far end, this method returns error and the channel state is set to CLOSED.
      * 
      * @param info Channel Info structure to be populated
      * @param error Error, to be populated in event of an error
@@ -91,8 +88,7 @@ public interface Channel
      * @param value Value to change Option to
      * @param error {@link Error} to be populated in event of an error
      * 
-     * @return {@link TransportReturnCodes} or a positive number specific to the
-     *         specified code.
+     * @return {@link TransportReturnCodes} or a positive number specific to the specified code.
      * 
      * @see IoctlCodes ChannelInfo
      */
@@ -102,16 +98,14 @@ public interface Channel
      * Returns the total number of used buffers for this channel.<BR>
      * 
      * Typical use: <br>
-     * This method can be called to find out the number of used buffers for
-     * the calling channel. This, in combination with the maxOutputBuffers
-     * obtained from the getInfo call, can be used to monitor and potentially
-     * throttle buffer usage.
+     * This method can be called to find out the number of used buffers for the calling channel.
+     * This, in combination with the maxOutputBuffers obtained from the getInfo call,
+     * can be used to monitor and potentially throttle buffer usage.
      * 
      * @param error Error, to be populated in event of an error
      * 
      * @return If less than 0, this is a {@link TransportReturnCodes},
-     *         otherwise it is the total number of buffers in use by this
-     *         channel
+     *         otherwise it is the total number of buffers in use by this channel
      */
     public int bufferUsage(Error error);
 
@@ -165,8 +159,7 @@ public interface Channel
      * assign {@link ReadArgs#readRetVal()} a positive value if there is more
      * data to read, {@link TransportReturnCodes#READ_WOULD_BLOCK} if the read
      * call is blocked, or a failure code. If the socket of the channel is closed
-     * by the far end, this method returns error and the channel state
-     * is set to CLOSED.
+     * by the far end, this method returns error and the channel state is set to CLOSED.
      * 
      * @param readArgs read arguments
      * @param error Error, to be populated in event of an error
@@ -182,16 +175,13 @@ public interface Channel
      * 
      * Typical use: <br>
      * This is called when a buffer is needed to write data to. Generally, the
-     * user will populate the {@link TransportBuffer} structure and then pass it
-     * to the write method.
+     * user will populate the {@link TransportBuffer} structure and then pass it to the write method.
      * 
      * @param size Size of the requested buffer
-     * @param packedBuffer Set to true if you plan on packing multiple messages
-     *            into the same buffer
+     * @param packedBuffer Set to true if you plan on packing multiple messages into the same buffer
      * @param error Error, to be populated in event of an error
      * 
-     * @return buffer to be filled in with valid memory (null returned for no more
-     *         buffers or error condition) 
+     * @return buffer to be filled in with valid memory (null returned for no more buffers or error condition) 
      * 
      * @see TransportBuffer
      */
@@ -204,8 +194,7 @@ public interface Channel
      * by write() method or releaseBuffer() method. In successful scenarios this 
      * method is not used since the buffers are returned to pool in write().
      * This method must be called when write returned error. It also must be called 
-     * for each buffer that has not been written before the channel is closed
-     * (i.e. by calling close() method.)
+     * for each buffer that has not been written before the channel is closed (i.e. by calling close() method.)
      * 
      * @param buffer buffer to be released
      * @param error Error, to be populated in event of an error
@@ -217,16 +206,14 @@ public interface Channel
     public int releaseBuffer(TransportBuffer buffer, Error error);
 
     /**
-     * Allows user to pack multiple UPA encoded messages into the same UPA
-     * Buffer.<br>
+     * Allows user to pack multiple UPA encoded messages into the same UPA Buffer.<br>
      * 
      * Typical use: <br>
      * This is called when the application wants to perform message packing.
      * <ul>
      * <li>Call getBuffer (with packedBuffer set to true) to get a new buffer.
      * <li>Call necessary encode methods.
-     * <li>Call this method to write size of packed buffer and prepare for next
-     * packed buffer.
+     * <li>Call this method to write size of packed buffer and prepare for next packed buffer.
      * <li>Repeat above two steps until ready to write, or until there is not
      * enough available bytes remaining to continue packing into the buffer.
      * <li>Call write with the packed buffer.
@@ -236,8 +223,7 @@ public interface Channel
      * @param buffer buffer to be packed
      * @param error Error, to be populated in event of an error
      * 
-     * @return {@link TransportReturnCodes} or the amount of available bytes remaining
-     *         in the buffer for packing.
+     * @return {@link TransportReturnCodes} or the amount of available bytes remaining in the buffer for packing.
      * 
      * @see TransportBuffer
      */

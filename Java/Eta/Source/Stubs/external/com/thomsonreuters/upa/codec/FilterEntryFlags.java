@@ -1,8 +1,7 @@
 package com.thomsonreuters.upa.codec;
 
 /**
- * A combination of bit values that indicate the presence of optional
- * {@link FilterEntry} content.
+ * A combination of bit values that indicate the presence of optional {@link FilterEntry} content.
  * 
  * @see FilterEntry
  */

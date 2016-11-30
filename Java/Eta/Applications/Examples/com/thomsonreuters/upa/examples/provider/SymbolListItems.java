@@ -368,7 +368,7 @@ public class SymbolListItems
         ret = _tempMap.encodeComplete(_encodeIter, true);
         if (ret != CodecReturnCodes.SUCCESS)
         {
-            error.text("mapEntry.encodeComplete() failed with return code: " + CodecReturnCodes.toString(ret));;
+            error.text("mapEntry.encodeComplete() failed with return code: " + CodecReturnCodes.toString(ret));
             return ret;
         }
 

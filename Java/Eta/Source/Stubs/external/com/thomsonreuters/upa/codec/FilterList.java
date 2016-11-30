@@ -20,8 +20,7 @@ import com.thomsonreuters.upa.codec.Buffer;
  * {@link FilterEntry} values:
  * <ul>
  * <li>The first is encoded from an unencoded element list.</li>
- * <li>The second is encoded from a buffer containing a pre-encoded element
- * list.</li>
+ * <li>The second is encoded from a buffer containing a pre-encoded element list.</li>
  * <li>The third is encoded from an unencoded map value.</li>
  * </ul>
  * <p>
@@ -206,9 +205,8 @@ import com.thomsonreuters.upa.codec.Buffer;
 public interface FilterList extends XMLDecoder
 {
     /**
-     * Clears {@link FilterList} object. Useful for object reuse during
-     * encoding. While decoding, {@link FilterList} object can be reused without
-     * using {@link #clear()}.
+     * Clears {@link FilterList} object. Useful for object reuse during encoding.
+     * While decoding, {@link FilterList} object can be reused without using {@link #clear()}.
      */
     public void clear();
 
@@ -237,8 +235,8 @@ public interface FilterList extends XMLDecoder
      * 3. Call FilterList.encodeComplete()<BR>
      * 
      * @param iter The encoder iterator
-     * @param success If true - successfully complete the aggregate, if false -
-     *            remove the aggregate from the buffer.
+     * @param success If true - successfully complete the aggregate,
+     *                if false - remove the aggregate from the buffer.
      * 
      * @return {@link CodecReturnCodes}
      * 
@@ -347,13 +345,6 @@ public interface FilterList extends XMLDecoder
      */
     public Buffer encodedEntries();
 
-    // /**
-    // * Raw data contents of filter list.
-    // *
-    // * @param encodedEntries the encodedEntries to set
-    // */
-    // public void encodedEntries(Buffer encodedEntries);
-
     /**
      * Returns all the flags applicable to this filter list.
      * 
@@ -364,11 +355,9 @@ public interface FilterList extends XMLDecoder
     public int flags();
 
     /**
-     * Sets all the flags applicable to this filter list. Must be in the
-     * range of 0 - 255.
+     * Sets all the flags applicable to this filter list. Must be in the range of 0 - 255.
      * 
-     * @param flags An integer containing all the flags applicable to this
-     * filter list
+     * @param flags An integer containing all the flags applicable to this filter list
      * 
      * @see FilterListFlags
      */

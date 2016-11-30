@@ -48,8 +48,7 @@ public class StreamStates
     /**
      * Closed and Redirected. Indicates that the current stream has been closed
      * and has new identifying information, the user can issue a new request for
-     * the data using the new message key information contained in the redirect
-     * message.
+     * the data using the new message key information contained in the redirect message.
      */
     public static final int REDIRECTED = 5;
 

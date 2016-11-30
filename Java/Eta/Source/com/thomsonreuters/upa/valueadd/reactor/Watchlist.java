@@ -140,12 +140,11 @@ class Watchlist extends VaNode
                 }
     
                 // set reissue flag
-                    isReissue = true;
+                    isReissue = true;                    
             }
             
             // submit request
             int ret  = wlRequest.handler().submitRequest(wlRequest, (RequestMsg)msg, isReissue, submitOptions, errorInfo);
-            
             // if successful, put in table and save necessary information
             if (ret >= ReactorReturnCodes.SUCCESS)
             {

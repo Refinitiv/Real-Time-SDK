@@ -1,8 +1,7 @@
 package com.thomsonreuters.upa.codec;
 
 /**
- * Represents a single field set definition and can define the contents of
- * multiple entries in a {@link FieldList}.
+ * Represents a single field set definition and can define the contents of multiple entries in a {@link FieldList}.
  * 
  * @see LocalFieldSetDefDb
  * @see FieldSetDefEntry
@@ -18,8 +17,7 @@ public interface FieldSetDef
      * The set id. The identifier value associated with this field set
      * definition. Any field list content that leverages this definition should
      * have {@link FieldList#setId()} match this identifier. Only values 0 - 15
-     * are valid for local set definition content. Values can be higher for
-     * global set definition content.
+     * are valid for local set definition content. Values can be higher for global set definition content.
      * 
      * @return the setId
      */

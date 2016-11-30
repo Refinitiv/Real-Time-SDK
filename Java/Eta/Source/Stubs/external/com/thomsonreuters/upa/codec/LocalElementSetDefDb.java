@@ -16,8 +16,8 @@ package com.thomsonreuters.upa.codec;
 public interface LocalElementSetDefDb extends ElementSetDefDb
 {
     /**
-     * Clears {@link LocalElementSetDefDb} and all entries in it. Useful for
-     * object reuse.
+     * Clears {@link LocalElementSetDefDb} and all entries in it.
+     * Useful for object reuse.
      */
     public void clear();
 

@@ -2,8 +2,7 @@ package com.thomsonreuters.upa.codec;
 
 /**
  * 
- * Combination of bit values that indicate whether optional {@link VectorEntry}
- * content is present.
+ * Combination of bit values that indicate whether optional {@link VectorEntry} content is present.
  * 
  * @see VectorEntry
  */

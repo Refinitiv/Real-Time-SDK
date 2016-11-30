@@ -155,8 +155,8 @@ public interface Array extends XMLDecoder
      * 3. Call Array.encodeComplete()<BR>
      * 
      * @param iter The encoder iterator.
-     * @param success If true - successfully complete the aggregate, if false -
-     *            remove the aggregate from the buffer.
+     * @param success If true - successfully complete the aggregate,
+     *                if false - remove the aggregate from the buffer.
      * 
      * @return {@link CodecReturnCodes}
      * 
@@ -167,7 +167,6 @@ public interface Array extends XMLDecoder
     /**
      * Decode an array.
      * 
-     * 
      * @param iter The decoder iterator.
      * 
      * @return {@link CodecReturnCodes}
@@ -177,8 +176,8 @@ public interface Array extends XMLDecoder
     public int decode(DecodeIterator iter);
 
     /**
-     * Primitive type for all items in the array. primitiveType must be from the
-     * {@link DataTypes} enumeration.
+     * Primitive type for all items in the array.
+     * primitiveType must be from the {@link DataTypes} enumeration.
      * 
      * @return the primitiveType
      * 
@@ -189,8 +188,8 @@ public interface Array extends XMLDecoder
     /**
      * Primitive type for all items in the array. primitiveType must be from the
      * {@link DataTypes} enumeration and must be greater than {@link DataTypes#UNKNOWN}
-     * and less than or equals to {@link DataTypes#BASE_PRIMITIVE_MAX}. primitiveType
-     * cannot be {@link DataTypes#ARRAY}.
+     * and less than or equals to {@link DataTypes#BASE_PRIMITIVE_MAX}.
+     * primitiveType cannot be {@link DataTypes#ARRAY}.
      * 
      * @param primitiveType the primitiveType to set
      * 

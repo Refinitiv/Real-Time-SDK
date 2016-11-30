@@ -10,8 +10,7 @@ public interface ArrayEntry
 {
     /**
      * Clears {@link ArrayEntry} object. Useful for object reuse during encoding.
-     * While decoding, {@link ArrayEntry} object can be reused without using
-     * {@link #clear()}.
+     * While decoding, {@link ArrayEntry} object can be reused without using {@link #clear()}.
      */
     public void clear();
 
@@ -190,10 +189,9 @@ public interface ArrayEntry
     /**
      * Perform array item encoding of a {@link Buffer}.<BR>
      * 
-     * The length of the buffer should be the same as the itemLength of the
-     * array; only the shorter of the two will be copied.
-     * The entry is encoded as blank when the data is null
-     * or when the data length is 0.
+     * The length of the buffer should be the same as the itemLength of the array;
+     * only the shorter of the two will be copied.
+     * The entry is encoded as blank when the data is null or when the data length is 0.
      * 
      * @param iter The encoder iterator.
      * @param data The {@link Buffer}.
@@ -218,8 +216,7 @@ public interface ArrayEntry
 
     /**
      * Raw data contents of the array entry. Set by decode() method during
-     * decode or set with encoded content and used with the encode(iter)
-     * method.
+     * decode or set with encoded content and used with the encode(iter) method.
      * 
      * @return encodedData
      */

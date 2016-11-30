@@ -38,8 +38,7 @@ public interface ElementSetDef
 
     /**
      * The number of {@link ElementSetDefEntry} structures contained in this
-     * definition. Each entry defines how to encode or decode an
-     * {@link ElementEntry}.
+     * definition. Each entry defines how to encode or decode an {@link ElementEntry}.
      * 
      * @return the count
      */

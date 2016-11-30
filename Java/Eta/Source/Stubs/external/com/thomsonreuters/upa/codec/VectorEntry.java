@@ -68,8 +68,8 @@ public interface VectorEntry
      * 3. Call Vector.encodeComplete()<BR>
      * 
      * @param iter The encoder iterator.
-     * @param success If true - successfully complete the aggregate, if false -
-     *            remove the aggregate from the buffer.
+     * @param success If true - successfully complete the aggregate,
+     *                if false - remove the aggregate from the buffer.
      * 
      * @return {@link CodecReturnCodes}
      * 
@@ -170,8 +170,7 @@ public interface VectorEntry
     /**
      * Sets all the flags applicable to this vector entry
      * 
-     * @param flags An integer containing all the flags applicable to this
-     *            vector entry
+     * @param flags An integer containing all the flags applicable to this vector entry
      * 
      * @see VectorEntryFlags
      */

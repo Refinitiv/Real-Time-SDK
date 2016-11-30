@@ -58,8 +58,7 @@ public interface Real
      * 
      * @return {@link CodecReturnCodes#SUCCESS} if success,
      *         {@link CodecReturnCodes#INCOMPLETE_DATA} if failure,
-     *         {@link CodecReturnCodes#BLANK_DATA} if
-     *         data is blank value.
+     *         {@link CodecReturnCodes#BLANK_DATA} if data is blank value.
      * 
      * @see DecodeIterator
      */
@@ -106,8 +105,7 @@ public interface Real
      * {@link RealHints#EXPONENT_14} - {@link RealHints#MAX_DIVISOR}.
      * 
      * @param value double to convert to {@link Real}
-     * @param hint {@link RealHints} enumeration hint value to use for converting
-     *            double
+     * @param hint {@link RealHints} enumeration hint value to use for converting double
      * 
      * @return {@link CodecReturnCodes#SUCCESS} on success,
      *         {@link CodecReturnCodes#INVALID_ARGUMENT} if value or hint is invalid. 
@@ -119,8 +117,7 @@ public interface Real
      * {@link RealHints#EXPONENT_14} - {@link RealHints#MAX_DIVISOR}.
      * 
      * @param value float to convert to {@link Real}
-     * @param hint  {@link RealHints} enumeration hint value to use for converting
-     *            float
+     * @param hint  {@link RealHints} enumeration hint value to use for converting float
      * 
      * @return {@link CodecReturnCodes#SUCCESS} on success,
      *         {@link CodecReturnCodes#INVALID_ARGUMENT} if value or hint is invalid. 

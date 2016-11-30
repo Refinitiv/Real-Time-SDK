@@ -12,7 +12,7 @@ public interface EnumType
      * 
      * @return the value
      */
-	public int value();
+    public int value();
 
     /**
      * A brief string representation describing what the type means (For example,
@@ -20,7 +20,7 @@ public interface EnumType
      * 
      * @return the display
      */
-	public Buffer display();
+    public Buffer display();
 
     /**
      * A more elaborate description of what the value means. This information is
@@ -28,5 +28,5 @@ public interface EnumType
      * 
      * @return the meaning
      */
-	public Buffer meaning();
+    public Buffer meaning();
 }

@@ -7,18 +7,18 @@ package com.thomsonreuters.upa.transport;
  */
 public class WritePriorities
 {
-	// WritePriorities class cannot be instantiated
-	private WritePriorities()
-	{
-		throw new AssertionError();
-	}
+    // WritePriorities class cannot be instantiated
+    private WritePriorities()
+    {
+        throw new AssertionError();
+    }
 
-	/** Assigns message to the high priority flush, if not directly written to the socket. */
-	public static final int HIGH = 0;
+    /** Assigns message to the high priority flush, if not directly written to the socket. */
+    public static final int HIGH = 0;
 	
-	/** Assigns message to the medium priority flush, if not directly written to the socket. */
-	public static final int MEDIUM = 1;
+    /** Assigns message to the medium priority flush, if not directly written to the socket. */
+    public static final int MEDIUM = 1;
 	
-	/** Assigns message to the low priority flush, if not directly written to the socket. */
-	public static final int LOW = 2;
+    /** Assigns message to the low priority flush, if not directly written to the socket. */
+    public static final int LOW = 2;
 }

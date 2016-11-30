@@ -224,8 +224,8 @@ public interface UpdateMsg extends Msg
 
     /**
      * Specifies the type of data in the {@link UpdateMsg}. Examples of possible
-     * update types include: Trade, Quote, or Closing Run. Must be in the range
-     * of 0 - 255.
+     * update types include: Trade, Quote, or Closing Run.
+     * Must be in the range of 0 - 255.
      * <ul>
      * <li>
      * Domain message model specifications define available update types</li>
@@ -245,8 +245,7 @@ public interface UpdateMsg extends Msg
      * <li>
      * Domain message model specifications define available update types</li>
      * <li>
-     * For Thomson Reuters's provided domain models, see
-     * {@link UpdateEventTypes}</li>
+     * For Thomson Reuters's provided domain models, see {@link UpdateEventTypes}</li>
      * </ul>
      * 
      * @return the updateType
@@ -258,8 +257,8 @@ public interface UpdateMsg extends Msg
      * seqNum should increase across messages, but can have gaps depending on
      * the sequencing algorithm in use. Details about sequence number use should
      * be defined within the domain model specification or any documentation for
-     * products which require the use of seqNum. Must be in the range of 0 -
-     * 4294967296 (2^32).
+     * products which require the use of seqNum.
+     * Must be in the range of 0 - 4294967296 (2^32).
      * 
      * @param seqNum the seqNum to set
      */
@@ -278,8 +277,8 @@ public interface UpdateMsg extends Msg
 
     /**
      * When conflation is used, this value indicates the number of updates
-     * conflated or aggregated into this {@link UpdateMsg}. Must be in the
-     * range of 0 - 32767.
+     * conflated or aggregated into this {@link UpdateMsg}.
+     * Must be in the range of 0 - 32767.
      * 
      * @param conflationCount the conflationCount to set
      */
@@ -296,8 +295,8 @@ public interface UpdateMsg extends Msg
     /**
      * When conflation is used, this value indicates the period of time over
      * which individual updates were conflated or aggregated into this
-     * {@link UpdateMsg} (typically in milliseconds). Must be in the
-     * range of 0 - 65535.
+     * {@link UpdateMsg} (typically in milliseconds).
+     * Must be in the range of 0 - 65535.
      * 
      * @param conflationTime the conflationTime to set
      */

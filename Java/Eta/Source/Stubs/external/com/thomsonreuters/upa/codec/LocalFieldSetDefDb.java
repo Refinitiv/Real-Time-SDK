@@ -16,8 +16,8 @@ package com.thomsonreuters.upa.codec;
 public interface LocalFieldSetDefDb extends FieldSetDefDb
 {
     /**
-     * Clears {@link LocalFieldSetDefDb} and all entries in it. Useful for
-     * object reuse.
+     * Clears {@link LocalFieldSetDefDb} and all entries in it.
+     * Useful for object reuse.
      */
     public void clear();
     

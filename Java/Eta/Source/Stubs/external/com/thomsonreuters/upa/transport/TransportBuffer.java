@@ -34,8 +34,7 @@ public interface TransportBuffer
      * 
      * @param destBuffer destination buffer to copy into
      * 
-     * @return {@link TransportReturnCodes} (FAILURE returned for insufficient
-     *         memory)
+     * @return {@link TransportReturnCodes} (FAILURE returned for insufficient memory)
      */
     public int copy(ByteBuffer destBuffer);
     
@@ -54,5 +53,5 @@ public interface TransportBuffer
      * 
      * @return the position where content starts in this buffer. 
      */
-	public int dataStartPosition();
+    public int dataStartPosition();
 }
