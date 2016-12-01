@@ -11,10 +11,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.25
-!tag Build_RDMD  4.20.25
-!tag DT_Version  16.71
-!tag Date        30-Aug-2016
+!tag RT_Version  4.20.26
+!tag Build_RDMD  4.20.26
+!tag DT_Version  16.81
+!tag Date        10-Oct-2016
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -305,11 +305,11 @@ BAS_PRCTCK 12762
       1         #DE#   up tick or zero uptick
       2         #FE#   down tick or zero downtick
       3          " "   unchanged tick
-      4          "0"   Trade price no variation
-      5          "U"   Trade price no variation but higher than the previous different price
-      6          "D"   Trade price no variation but lower than the previous different price
-      7          "+"   Trade price goes up
-      8          "-"   Trade price goes down
+      4          "0"   Trade price no variation (NO LONGER IN USE)
+      5          "U"   Trade price no variation but higher than the previous different price (NO LONGER IN USE)
+      6          "D"   Trade price no variation but lower than the previous different price (NO LONGER IN USE)
+      7          "+"   Trade price goes up (NO LONGER IN USE)
+      8          "-"   Trade price goes down (NO LONGER IN USE)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -931,6 +931,7 @@ BIDXID      3298
      27        "NBZ"   NASDAQ OMX BX Options Exchange
      28        "ISZ"   ISE Second Options Exchange
      29        "ISJ"   ISE Mercury
+     30        "MPO"   MIAX Pearl Options Exchange
      37        "ISS"   Intl Securities Exch Equities
      40        "DEA"   Direct Edge Holdings - EDGA (CTA)
      42        "BTY"   BATS Y Exchange (CTA)
@@ -4855,6 +4856,8 @@ PAY_FREQ     868
 RESET_FREQ  1472
 PAY_FREQ2  12798
 U_PAY_FREQ 12878
+LEG1_PAYFQ 12960
+LEG2_PAYFQ 12961
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -8413,6 +8416,9 @@ BLK_EXID   13552
    1447        "CXD"   Nasdaq CXD
    1448        "ICQ"   Consolidated Issues Listed By IEX Exchange
    1449        "IEB"   IRISH SE BONDS & FUNDS
+   1450        "GAZ"   Gazenergoset
+   1451        "MPO"   MIAX Pearl Options Exchange
+   1452        "AIP"   Australian Institute of Petroleum
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11279,6 +11285,7 @@ PRICE_METH  4396
      22        "IXG"   Inflation adjusted Gross Price (percentage of par)
      23        "IXC"   Inflation adjusted Clean Price (percentage of par)
      24        "ILD"   Inflation Adjusted Yield
+     25        "PRM"   Option Premium (price)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11374,6 +11381,11 @@ THRESH_IND  4760
       0          "0"   undefined
       1          "1"   Regular trade
       2          "2"   Threshold
+      3          "A"   Suspect ask value
+      4          "B"   Suspect bid value
+      5          "M"   Suspect mid value
+      6          "Q"   Suspect quote
+      7          "T"   Suspect trade
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12134,6 +12146,7 @@ ORD_ENT_ST  6518
       2          "I"   Order Entry Inhibited
       3          "N"   Order Entry Enabled, No Cancelations Allowed
       4          "C"   Order Entry Inhibited, Cancelations Allowed
+      5          "S"   Order Entry Enabled, Sell Orders Only
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -14474,6 +14487,8 @@ CALL_TYPE   9008
       2   "  ECB   "   Equity Clawback Call
       3   "  MKW   "   Make Whole Call
       4   "  SPC   "   Special Call
+      5   "DBC     "   Danish Borrower Call
+      6   "REC     "   Regulatory Call
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -14569,9 +14584,11 @@ SEASONCODE  9013
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0   "        "   Undefined
-      1   "1       "   Not Seasoned
+      1   "1       "   Not Seasoned (DO NOT USE)
       2   "2       "   Seasoning Not Required
       3   "3       "   Does Not Apply
+      4   "Y       "   Instrument is Seasoned
+      5   "N       "   Instrument is Not seasoned
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -15166,6 +15183,11 @@ SRC_BYLD4  12815
 SRC_BYLD5  12816
 SRC_AMRG1  12834
 SRC_BMRG1  12835
+SRC_MMRG1  12968
+SRC_MMRG2  12969
+SRC_MMRG3  12970
+SRC_MMRG4  12971
+SRC_MMRG5  12972
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -16166,37 +16188,333 @@ DEF_FC_TP  12948
       1   "MEDIAN  "   Median
       2   "TRIMMEAN"   Trimmed Mean
       3   "MEAN    "   Mean
+      4   "HIGH    "   Highest
+      5   "LOW     "   Lowest
+      6   "FCASTNUM"   Number of forecasts
+      7   "MODE    "   Mode
 !
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET248 12949
-PRE_1ET249 12950
-PRE_1ET250 12951
-PRE_1ET251 12952
-PRE_1ET252 12953
-PRE_1ET253 12954
-PRE_1ET254 12955
-PRE_1ET255 12956
-PRE_1ET256 12957
-PRE_1ET257 12958
-PRE_1ET258 12959
-PRE_1ET259 12960
-PRE_1ET260 12961
-PRE_1ET261 12962
-PRE_1ET262 12963
-PRE_1ET263 12964
-PRE_1ET264 12965
-PRE_1ET265 12966
-PRE_1ET266 12967
-PRE_1ET267 12968
-PRE_1ET268 12969
-PRE_1ET269 12970
-PRE_1ET270 12971
-PRE_1ET271 12972
-PRE_1ET272 12973
-PRE_1ET273 12974
-PRE_1ET274 12975
+LEG1_CO_FL 12949
+LEG2_CO_FL 12951
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   Undefined
+      1        "Y  "   Collateralised
+      2        "N  "   Not collateralised
+!
+! ACRONYM    FID
+! -------    ---
+!
+LEG1_OTR   12950
+LEG2_OTR   12952
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   Undefined
+      1        "Y  "   On The Run
+      2        "N  "   Not On The Run
+!
+! ACRONYM    FID
+! -------    ---
+!
+DIFFB_ROLL 12953
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   Undefined
+      1        "Jan"   January
+      2        "Feb"   February
+      3        "Mar"   March
+      4        "Apr"   April
+      5        "May"   May
+      6        "Jun"   June
+      7        "Jul"   July
+      8        "Aug"   August
+      9        "Sep"   September
+     10        "Oct"   October
+     11        "Nov"   November
+     12        "Dec"   December
+!
+! ACRONYM    FID
+! -------    ---
+!
+ASMNT_FLG1 12954
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0      "     "   Undefined
+      1      "AS_AM"   Asia AM Assessment
+      2      "AS_ST"   Asia Settlement
+      3      "EU_AM"   Europe AM Assessment
+      4      "EU_ST"   Europe Settlement
+      5      "US_AM"   US AM Assessment
+      6      "US_ST"   US Settlement
+!
+! ACRONYM    FID
+! -------    ---
+!
+ASMNT_FLG2 12955
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0      "     "   Undefined
+      1      "AS_AM"   Asia AM Assessment
+      2      "AS_ST"   Asia Settlement
+      3      "EU_AM"   Europe AM Assessment
+      4      "EU_ST"   Europe Settlement
+      5      "US_AM"   US AM Assessment
+      6      "US_ST"   US Settlement
+!
+! ACRONYM    FID
+! -------    ---
+!
+ASMNT_FLG3 12956
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0      "     "   Undefined
+      1      "AS_AM"   Asia AM Assessment
+      2      "AS_ST"   Asia Settlement
+      3      "EU_AM"   Europe AM Assessment
+      4      "EU_ST"   Europe Settlement
+      5      "US_AM"   US AM Assessment
+      6      "US_ST"   US Settlement
+!
+! ACRONYM    FID
+! -------    ---
+!
+ASMNT_FLG4 12957
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0      "     "   Undefined
+      1      "AS_AM"   Asia AM Assessment
+      2      "AS_ST"   Asia Settlement
+      3      "EU_AM"   Europe AM Assessment
+      4      "EU_ST"   Europe Settlement
+      5      "US_AM"   US AM Assessment
+      6      "US_ST"   US Settlement
+!
+! ACRONYM    FID
+! -------    ---
+!
+ASMNT_FLG5 12958
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0      "     "   Undefined
+      1      "AS_AM"   Asia AM Assessment
+      2      "AS_ST"   Asia Settlement
+      3      "EU_AM"   Europe AM Assessment
+      4      "EU_ST"   Europe Settlement
+      5      "US_AM"   US AM Assessment
+      6      "US_ST"   US Settlement
+!
+! ACRONYM    FID
+! -------    ---
+!
+DLVY_TERMS 12959
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0      "     "   Undefined
+      1      "CIF  "   Cost, Insurance and Freight
+      2      "C+F  "   Cost and Freight
+      3      "CPT  "   Carriage Paid To
+      4      "CIP  "   Carriage and Insurance Paid To
+      5      "DAF  "   Delivered at Frontier
+      6      "DDU  "   Delivery Duty Unpaid
+      7      "DDP  "   Delivery Duty Paid
+      8      "DES  "   Delivered Ex-Ship
+      9      "DEQ  "   Delivered Ex-Quay
+     10      "EXD  "   Ex-Dock
+     11      "EXM  "   Ex-Mill
+     12      "EXW  "   Ex-Works
+     13      "FAS  "   Free Alongside Ship
+     14      "FCA  "   Free Carrier
+     15      "FIP  "   Free in Pipe
+     16      "FIO  "   Free In and Out of a Port
+     17      "FO   "   Free Out
+     18      "FOB  "   Free On Board
+     19      "FOT  "   Free On Truck
+     20      "FOR  "   Free On Road
+     21      "PPT  "   Prompt: A near term delivery
+!
+! ACRONYM    FID
+! -------    ---
+!
+EXP_UP_FRQ 12962
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "RT      "   Intraday Updates - Realtime
+      2   "Snap    "   Intraday Updates - Snapshot
+      3   "Mon-Sun "   Once a day on Monday to Sunday
+      4   "Mon-Fri "   Once a day on Monday to Friday
+      5   "Mon     "   Once a week on Monday
+      6   "Tue     "   Once a week on Tuesday
+      7   "Wed     "   Once a week on Wednesday
+      8   "Thu     "   Once a week on Thursday
+      9   "Fri     "   Once a week on Friday
+     10   "Sat     "   Once a week on Saturday
+     11   "Sun     "   Once a week on Sunday
+     12   "IRG_Day "   Daily Updates - Irregular Snapshot
+     13   "IRG_Week"   Weekly Updates - Irregular day in the week
+     14   "IRG_Mth "   Monthly Updates - Irregular month in the year
+!
+! ACRONYM    FID
+! -------    ---
+!
+DCNT_BAS1  12963
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "00      "   30/360 US
+      2   "05G     "   30/365 German
+      3   "0AG     "   30/Actual German
+      4   "A0      "   Actual/350
+      5   "A0D     "   Actual/360 Day Based
+      6   "A4      "   Actual/364
+      7   "A5      "   Actual/365
+      8   "A5D     "   Actual/365 Day Based
+      9   "A5ISDA  "   Actual/365 (ISDA)
+     10   "AA      "   Actual/Actual
+     11   "A25     "   Actual/365.25
+     12   "E0      "   30E/360 ISMA
+     13   "00G     "   30/360 German
+     14   "W252    "   Actual Business Days/252
+     15   "00ISDA  "   30/360 (ISDA): I0
+     16   "0A      "   30/Actual
+     17   "A25D    "   Actual/365.25 Day Based
+     18   "A252    "   Actual/252
+     19   "NL5     "   (Actual - Leap day) / 365
+     20   "NL0     "   (Actual - Leap day) / 360
+     21   "05      "   30/365
+     22   "AAAFB   "   Actual/Actual AFB
+     23   "A5C     "   Act/365 with Canadian convention
+     24   "A5L     "   Act/365L
+!
+! ACRONYM    FID
+! -------    ---
+!
+DCNT_BAS2  12964
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "00      "   30/360 US
+      2   "05G     "   30/365 German
+      3   "0AG     "   30/Actual German
+      4   "A0      "   Actual/350
+      5   "A0D     "   Actual/360 Day Based
+      6   "A4      "   Actual/364
+      7   "A5      "   Actual/365
+      8   "A5D     "   Actual/365 Day Based
+      9   "A5ISDA  "   Actual/365 (ISDA)
+     10   "AA      "   Actual/Actual
+     11   "A25     "   Actual/365.25
+     12   "E0      "   30E/360 ISMA
+     13   "00G     "   30/360 German
+     14   "W252    "   Actual Business Days/252
+     15   "00ISDA  "   30/360 (ISDA): I0
+     16   "0A      "   30/Actual
+     17   "A25D    "   Actual/365.25 Day Based
+     18   "A252    "   Actual/252
+     19   "NL5     "   (Actual - Leap day) / 365
+     20   "NL0     "   (Actual - Leap day) / 360
+     21   "05      "   30/365
+     22   "AAAFB   "   Actual/Actual AFB
+     23   "A5C     "   Act/365 with Canadian convention
+     24   "A5L     "   Act/365L
+!
+! ACRONYM    FID
+! -------    ---
+!
+BOND_GRCAT 12965
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "AGNC    "   Agency
+      2   "CONV    "   Convertible
+      3   "GOVT    "   Government
+      4   "HYLD    "   High Yield
+      5   "INVG    "   Investment Grade
+!
+! ACRONYM    FID
+! -------    ---
+!
+COV_BND_FL 12966
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "Y       "   security is a Covered bond in European market jumbo issue
+      2   "N       "   Security is not a Covered bond
+!
+! ACRONYM    FID
+! -------    ---
+!
+REDEM_TYPE 12967
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "MAT     "   MATURITY
+      2   "CALL    "   CALL
+      3   "PUT     "   PUT
+      4   "SINK    "   SINK
+      5   "REFU    "   REFUND
+      6   "EARL    "   EARLIEST AL
+      7   "LATE    "   LATEST AL
+      8   "SCHE    "   SCHEDULED AL
+      9   "BEST    "   BEST to PUT
+     10   "WRST    "   WORST
+     11   "WCAL    "   WORST to CALL
+     12   "EFFE    "   EFFECTIVE
+     13   "GIVE    "   GIVEN REDEM
+!
+! ACRONYM    FID
+! -------    ---
+!
+STRIP_FL   12973
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "Y       "   coupon payments may be "stripped" from the security
+      2   "N       "   coupon payments can't be "stripped" from the security
+!
+! ACRONYM    FID
+! -------    ---
+!
+TAP_BND_FL 12974
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "Y       "   Security has been tapped on or after March 1, 2002.
+      2   "N       "   Security has not been tapped
+!
+! ACRONYM    FID
+! -------    ---
+!
+SULPH_UNIT 12975
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "%       "   Percentage
+      2   "ppm     "   Parts-per million
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_1ET275 12976
 PRE_1ET276 12977
 PRE_1ET277 12978
@@ -17371,6 +17689,7 @@ TRD_MD_ELG 13440
 ! -------    ---
 !
 TRDSHM_ELG 13441
+TRDSHM_EL2 13569
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -17381,6 +17700,12 @@ TRDSHM_ELG 13441
       4   "SHHK_BS "   Eligible under SH-HK connect scheme, both buy and sell allowed
       5   "SHHK_NAS"   Ineligible under SH-HK connect scheme, sell only.
       6   "SHHK_BSN"   Eligible under SH-HK connect scheme, but neither buy nor sell allowed
+      7   "SZHK_NA "   Ineligible under SZ-HK connect scheme.
+      8   "SZHK_S  "   Eligible under SZ-HK connect scheme, sell only.
+      9   "SZHK_B  "   Eligible under SZ-HK connect scheme, buy only.
+     10   "SZHK_BS "   Eligible under SZ-HK connect scheme, both buy and sell allowed.
+     11   "SZHK_NAS"   Ineligible under SZ-HK connect scheme, sell only.
+     12   "SZHK_BSN"   Eligible under SZ-HK connect scheme, but neither buy nor sell allowed.
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18369,9 +18694,83 @@ LMT_LV_TG  13566
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET246 13567
-PRE_2ET247 13568
-PRE_2ET248 13569
+ASMNT_TMSP 13567
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "No TimSt"   No time stamp
+      2   "LDN MidD"   London midday
+      3   "HOU Cls "   Houston close
+      4   "LDN Cls "   London close
+      5   "SGP Cls "   Singapore close
+      6   "ExchSett"   Exchange settlement
+      7   "LDN Open"   London open
+      8   "TOCOMCls"   Tocom close
+      9   "PLEleCls"   Polish electricity close
+     10   "WSHTNCls"   Washington close
+     11   "USOptCls"   US day-ahead options close
+     12   "HOU08:00"   Houston 08:00
+     13   "LDN MidN"   London midnight
+     14   "MOS Cls "   Moscow close
+     15   "HOU MidD"   Houston Midday
+     16   "HOU13:30"   Houston 13:30
+     17   "HOU14:30"   Houston 14:30
+!
+! ACRONYM    FID
+! -------    ---
+!
+ASMNT_TYPE 13568
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "chl     "   close/high/low
+      2   "c       "   Close or Mean Price
+      3   "u       "   Index Price or Unspecified
+      4   "cw      "   close/previous-day volume
+      5   "cuw     "   close/index/previous-day volume
+      6   "hl      "   High Price/Low Price
+      7   "lu      "   low/index
+      8   "cl      "   close/low
+      9   "hlu     "   high/low/index
+     10   "w       "   Previous-day Volume
+     11   "uw      "   index/previous-day volume
+     12   "hluw    "   high/low/index/previous-day volume
+     13   "chluw   "   close/high/low/index/previous-day volume
+     14   "cu      "   close/index
+     15   "chlu    "   close/high/low/index
+     16   "abu     "   ask/bid/index
+     17   "cehlow  "   close/previous-day open interest/high/low
+     18   "ew      "   Previous day Open Interest / Volume
+     19   "ab      "   Asked Price / Bid Price
+     20   "VlVhVm  "   Value Low/Value High/Value Midpoint
+     21   "VlVh    "   Value Low/Value High
+     22   "DlDhDm  "   Diff Low/Diff High/Diff Midpoint
+     23   "DlDh    "   Diff Low/Diff High
+     24   "Midpoint"   Midpoint
+     25   "DiffMid "   Diff Midpoint
+     26   "Volume  "   Volume
+     27   "Index   "   Index
+     28   "RGV     "   RGV
+     29   "Rate    "   Rate
+     30   "Margin  "   Margin
+     31   "Open    "   Open
+     32   "Settle  "   Settlement
+     33   "Avearge "   Average
+     34   "Netback "   Netback
+     35   "SysBid  "   System Bid
+     36   "SysAsk  "   System Ask
+     37   "SyBidAsk"   System Bid/system Ask
+     38   "CumIndex"   Cumulative Index
+     39   "CumVo  l"   Cumulative Volume
+     40   "DiffIndx"   Diff Index
+     41   "NbkMrgn "   Netback Margin
+     42   "TrnspCst"   Transport Costs
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_2ET249 13570
 PRE_2ET250 13571
 PRE_2ET251 13572
