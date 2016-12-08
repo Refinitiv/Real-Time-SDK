@@ -64,6 +64,14 @@ Reuters Oak Brook, IL USA
 - Configurable Admin Domains:  EMA provides means for modifying the default admin domain messages. 	
 
 
+##Interactive Provider Features:
+
+- Default Admin Domains: EMA uses default directory messages while sending to the connected client. This provides minimum configuration for applications to get up and running.
+ 
+- Configurable Admin Domains:  EMA provides means for modifying the default admin domain messages. 	
+
+
+
 
 ##Common Features:
 
