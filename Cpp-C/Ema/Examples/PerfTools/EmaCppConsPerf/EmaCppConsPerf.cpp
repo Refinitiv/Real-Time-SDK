@@ -306,7 +306,7 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 		else if (strcmp("-snapshot", argv[iargs]) == 0)
 		{
 			++iargs;
-			consPerfConfig.requestSnapshots = false;
+			consPerfConfig.requestSnapshots = true;
 		}
 		else if(strcmp("-postingRate", argv[iargs]) == 0)
 		{

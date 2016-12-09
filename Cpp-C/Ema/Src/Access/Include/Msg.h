@@ -154,7 +154,9 @@ protected :
 	friend class OmmConsumerConfigImpl;
 	friend class OmmNiProviderConfigImpl;
 	friend class EmaConfigImpl;
+	friend class EmaConfigServerImpl;
 	friend class OmmNiProviderImpl;
+	friend class OmmIProviderImpl;
 	friend class ItemCallbackClient;
 	friend class DirectoryItem;
 	friend class LoginItem;

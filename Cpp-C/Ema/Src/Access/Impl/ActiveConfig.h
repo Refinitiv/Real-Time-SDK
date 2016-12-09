@@ -12,67 +12,80 @@
 #include "OmmLoggerClient.h"
 #include "DictionaryCallbackClient.h"
 #include "EmaConfigImpl.h"
+#include "OmmIProviderConfig.h"
+
 #include "rtr/rsslTransport.h"
 
-#define DEFAULT_COMPRESSION_THRESHOLD				30
-#define DEFAULT_COMPRESSION_TYPE					RSSL_COMP_NONE
-#define DEFAULT_CONNECTION_TYPE						RSSL_CONN_TYPE_SOCKET
-#define DEFAULT_CONNECTION_PINGTIMEOUT				30000
-#define DEFAULT_DICTIONARY_REQUEST_TIMEOUT			45000
-#define DEFAULT_DICTIONARY_TYPE						Dictionary::FileDictionaryEnum
-#define DEFAULT_DIRECTORY_REQUEST_TIMEOUT			45000
-#define DEFAULT_DISPATCH_TIMEOUT_API_THREAD			-1
-#define DEFAULT_GUARANTEED_OUTPUT_BUFFERS			100
-#define DEFAULT_NUM_INPUT_BUFFERS					10
-#define DEFAULT_SYS_SEND_BUFFER_SIZE				0
-#define DEFAULT_SYS_RECEIVE_BUFFER_SIZE				0
-#define DEFAULT_HIGH_WATER_MARK						0
-#define DEFAULT_HANDLE_EXCEPTION					true
-#define DEFAULT_HOST_NAME							EmaString( "localhost" )
-#define DEFAULT_CHANNEL_SET_NAME					EmaString( "" )
-#define DEFAULT_INCLUDE_DATE_IN_LOGGER_OUTPUT		false
-#define DEFAULT_INTERFACE_NAME						EmaString( "" )
-#define DEFAULT_ITEM_COUNT_HINT						100000
-#define DEFAULT_LOGGER_SEVERITY						OmmLoggerClient::SuccessEnum
-#define DEFAULT_LOGGER_TYPE							OmmLoggerClient::StdoutEnum
-#define DEFAULT_LOGIN_REQUEST_TIMEOUT               45000
-#define DEFAULT_MAX_DISPATCH_COUNT_API_THREAD		100
-#define DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD		100
-#define DEFAULT_MAX_OUTSTANDING_POSTS				100000
-#define DEFAULT_MSGKEYINUPDATES						true
-#define DEFAULT_OBEY_OPEN_WINDOW					1
-#define DEFAULT_PIPE_PORT							9001
-#define DEFAULT_POST_ACK_TIMEOUT					15000
-#define DEFAULT_REACTOR_EVENTFD_PORT				55000
-#define DEFAULT_RECONNECT_ATTEMPT_LIMIT				-1
-#define DEFAULT_RECONNECT_MAX_DELAY					5000
-#define DEFAULT_RECONNECT_MIN_DELAY					1000
-#define DEFAULT_REQUEST_TIMEOUT						15000
-#define DEFAULT_SERVICE_COUNT_HINT					513
-#define DEFAULT_OBJECT_NAME							EmaString( "" )
-#define DEFAULT_TCP_NODELAY							RSSL_TRUE
-#define DEFAULT_CONS_MCAST_CFGSTRING				EmaString( "" )
-#define DEFAULT_PACKET_TTL							5
-#define DEFAULT_NDATA								7
-#define DEFAULT_NMISSING							128
-#define DEFAULT_NREQ								3
-#define DEFAULT_PKT_POOLLIMIT_HIGH					190000
-#define DEFAULT_PKT_POOLLIMIT_LOW					180000
-#define DEFAULT_TDATA								1
-#define DEFAULT_TRREQ								4
-#define DEFAULT_TWAIT								3
-#define DEFAULT_TBCHOLD								3
-#define DEFAULT_TPPHOLD								3
-#define DEFAULT_USER_QLIMIT							65535
-#define DEFAULT_XML_TRACE_FILE_NAME					EmaString( "EmaTrace" )
-#define DEFAULT_XML_TRACE_HEX						false
-#define DEFAULT_XML_TRACE_MAX_FILE_SIZE				100000000
-#define DEFAULT_XML_TRACE_PING						false
-#define DEFAULT_XML_TRACE_READ						true
-#define DEFAULT_XML_TRACE_TO_FILE					false
-#define DEFAULT_XML_TRACE_TO_MULTIPLE_FILE			false
-#define DEFAULT_XML_TRACE_TO_STDOUT					false
-#define DEFAULT_XML_TRACE_WRITE						true
+#define DEFAULT_ACCEPT_DIR_MSG_WITHOUT_MIN_FILTERS      false
+#define DEFAULT_ACCEPT_MSG_SAMEKEY_BUT_DIFF_STREAM      false
+#define DEFAULT_ACCEPT_MSG_THAT_CHANGES_SERVICE         false
+#define DEFAULT_ACCEPT_MSG_WITHOUT_ACCEPTING_REQUESTS   false
+#define DEFAULT_ACCEPT_MSG_WITHOUT_BEING_LOGIN          false
+#define DEFAULT_ACCEPT_MSG_WITHOUT_QOS_IN_RANGE         false
+#define DEFAULT_COMPRESSION_THRESHOLD					30
+#define DEFAULT_COMPRESSION_TYPE						RSSL_COMP_NONE
+#define DEFAULT_CONNECTION_TYPE							RSSL_CONN_TYPE_SOCKET
+#define DEFAULT_CONNECTION_PINGTIMEOUT					60000
+#define DEFAULT_CONNECTION_MINPINGTIMEOUT				20000
+#define DEFAULT_DICTIONARY_REQUEST_TIMEOUT				45000
+#define DEFAULT_DICTIONARY_TYPE							Dictionary::FileDictionaryEnum
+#define DEFAULT_DIRECTORY_REQUEST_TIMEOUT				45000
+#define DEFAULT_DISPATCH_TIMEOUT_API_THREAD				-1
+#define DEFAULT_GUARANTEED_OUTPUT_BUFFERS				100
+#define DEFAULT_PROVIDER_GUARANTEED_OUTPUT_BUFFERS		5000
+#define DEFAULT_NUM_INPUT_BUFFERS					    10
+#define DEFAULT_SYS_SEND_BUFFER_SIZE				    0
+#define DEFAULT_SYS_RECEIVE_BUFFER_SIZE				    0
+#define DEFAULT_PROVIDER_SYS_SEND_BUFFER_SIZE	        65535	
+#define DEFAULT_PROVIDER_SYS_RECEIVE_BUFFER_SIZE        65535	
+#define DEFAULT_HIGH_WATER_MARK						    0
+#define DEFAULT_HANDLE_EXCEPTION					    true
+#define DEFAULT_HOST_NAME							    EmaString( "localhost" )
+#define DEFAULT_CHANNEL_SET_NAME					    EmaString( "" )
+#define DEFAULT_INCLUDE_DATE_IN_LOGGER_OUTPUT		    false
+#define DEFAULT_INTERFACE_NAME						    EmaString( "" )
+#define DEFAULT_ITEM_COUNT_HINT						    100000
+#define DEFAULT_LOGGER_SEVERITY						    OmmLoggerClient::SuccessEnum
+#define DEFAULT_LOGGER_TYPE							    OmmLoggerClient::StdoutEnum
+#define DEFAULT_LOGIN_REQUEST_TIMEOUT                   45000
+#define DEFAULT_MAX_DISPATCH_COUNT_API_THREAD		    100
+#define DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD		    100
+#define DEFAULT_MAX_OUTSTANDING_POSTS				    100000
+#define DEFAULT_MSGKEYINUPDATES						    true
+#define DEFAULT_OBEY_OPEN_WINDOW					    1
+#define DEFAULT_PIPE_PORT							    9001
+#define DEFAULT_SERVER_PIPE_PORT					    9009
+#define DEFAULT_POST_ACK_TIMEOUT					    15000
+#define DEFAULT_REACTOR_EVENTFD_PORT				    55000
+#define DEFAULT_RECONNECT_ATTEMPT_LIMIT				    -1
+#define DEFAULT_RECONNECT_MAX_DELAY					    5000
+#define DEFAULT_RECONNECT_MIN_DELAY					    1000
+#define DEFAULT_REQUEST_TIMEOUT						   15000
+#define DEFAULT_SERVICE_COUNT_HINT					   513
+#define DEFAULT_OBJECT_NAME							   EmaString( "" )
+#define DEFAULT_TCP_NODELAY							   RSSL_TRUE
+#define DEFAULT_CONS_MCAST_CFGSTRING				   EmaString( "" )
+#define DEFAULT_PACKET_TTL							  5
+#define DEFAULT_NDATA								  7
+#define DEFAULT_NMISSING							  128
+#define DEFAULT_NREQ								  3
+#define DEFAULT_PKT_POOLLIMIT_HIGH					  190000
+#define DEFAULT_PKT_POOLLIMIT_LOW					  180000
+#define DEFAULT_TDATA								  1
+#define DEFAULT_TRREQ								  4
+#define DEFAULT_TWAIT								  3
+#define DEFAULT_TBCHOLD								  3
+#define DEFAULT_TPPHOLD								  3
+#define DEFAULT_USER_QLIMIT							  65535
+#define DEFAULT_XML_TRACE_FILE_NAME					  EmaString( "EmaTrace" )
+#define DEFAULT_XML_TRACE_HEX						  false
+#define DEFAULT_XML_TRACE_MAX_FILE_SIZE				  100000000
+#define DEFAULT_XML_TRACE_PING						  false
+#define DEFAULT_XML_TRACE_READ						  true
+#define DEFAULT_XML_TRACE_TO_FILE					  false
+#define DEFAULT_XML_TRACE_TO_MULTIPLE_FILE			  false
+#define DEFAULT_XML_TRACE_TO_STDOUT					  false
+#define DEFAULT_XML_TRACE_WRITE						  true
 
 namespace thomsonreuters {
 
@@ -139,7 +152,55 @@ private :
 	ChannelConfig();
 };
 
-class DictionaryConfig
+class ServerConfig
+{
+public:
+
+	enum ServerType
+	{
+		SocketChannelEnum = RSSL_CONN_TYPE_SOCKET
+	};
+
+	ServerConfig(RsslConnectionTypes);
+
+	virtual ~ServerConfig();
+
+	virtual void clear();
+
+	void setGuaranteedOutputBuffers(UInt64 value);
+	void setNumInputBuffers(UInt64 value);
+
+	virtual ServerType getType() const = 0;
+
+	EmaString				name;
+	EmaString				interfaceName;
+	EmaString				xmlTraceFileName;
+	RsslCompTypes			compressionType;
+	UInt32					compressionThreshold;
+	RsslConnectionTypes		connectionType;
+	UInt32					connectionPingTimeout;
+	UInt32					connectionMinPingTimeout;
+	UInt32					guaranteedOutputBuffers;
+	UInt32					numInputBuffers;
+	UInt32					sysRecvBufSize;
+	UInt32					sysSendBufSize;
+	UInt32					highWaterMark;
+	Int64					xmlTraceMaxFileSize;
+	bool					xmlTraceToFile;
+	bool					xmlTraceToStdout;
+	bool					xmlTraceToMultipleFiles;
+	bool					xmlTraceWrite;
+	bool					xmlTraceRead;
+	bool					xmlTracePing;
+	bool					xmlTraceHex;
+	bool					msgKeyInUpdates;
+
+private:
+
+	ServerConfig();
+};
+
+class DictionaryConfig : public ListLinks<DictionaryConfig>
 {
 public:
 
@@ -152,7 +213,34 @@ public:
 	EmaString						dictionaryName;
 	EmaString						rdmfieldDictionaryFileName;
 	EmaString						enumtypeDefFileName;
+	EmaString						rdmFieldDictionaryItemName;
+	EmaString						enumTypeDefItemName;
 	Dictionary::DictionaryType		dictionaryType;
+};
+
+class ServiceDictionaryConfig : public ListLinks<ServiceDictionaryConfig>
+{
+public:
+
+	ServiceDictionaryConfig();
+
+	virtual ~ServiceDictionaryConfig();
+
+	void clear();
+
+	UInt16							serviceId;
+
+	void addDictionaryUsed(DictionaryConfig*);
+
+	void addDictionaryProvided(DictionaryConfig*);
+
+	const EmaList<DictionaryConfig*>& getDictionaryUsedList();
+
+	const EmaList<DictionaryConfig*>& getDictionaryProvidedList();
+
+private:
+	EmaList<DictionaryConfig*>	dictionaryUsedList;
+	EmaList<DictionaryConfig*>	dictionaryProvidedList;
 };
 
 class SocketChannelConfig : public ChannelConfig
@@ -172,6 +260,26 @@ public :
 	RsslBool		tcpNodelay;
 
 private :
+
+	EmaString		defaultServiceName;
+};
+
+class SocketServerConfig : public ServerConfig
+{
+public:
+
+	SocketServerConfig(const EmaString&);
+
+	virtual ~SocketServerConfig();
+
+	void clear();
+
+	ServerType getType() const;
+
+	EmaString		serviceName;
+	RsslBool		tcpNodelay;
+
+private:
 
 	EmaString		defaultServiceName;
 };
@@ -290,7 +398,34 @@ struct LoggerConfig
 	bool							includeDateInLoggerOutput;
 };
 
-class ActiveConfig
+class BaseConfig
+{
+public:
+
+	BaseConfig();
+
+	virtual ~BaseConfig();
+
+	void clear();
+
+	void setItemCountHint(UInt64 value);
+	void setServiceCountHint(UInt64 value);
+	void setCatchUnhandledException(UInt64 value);
+	void setMaxDispatchCountApiThread(UInt64 value);
+	void setMaxDispatchCountUserThread(UInt64 value);
+
+	EmaString				configuredName;
+	EmaString				instanceName;
+	UInt32					itemCountHint;
+	UInt32					serviceCountHint;
+	Int64					dispatchTimeoutApiThread;
+	UInt32					maxDispatchCountApiThread;
+	UInt32					maxDispatchCountUserThread;
+	bool					catchUnhandledException;
+	LoggerConfig			loggerConfig;
+};
+
+class ActiveConfig : public BaseConfig
 {
 public:
 
@@ -300,15 +435,10 @@ public:
 
 	void clear();
 
-	void setItemCountHint( UInt64 value );
-	void setServiceCountHint( UInt64 value );
 	void setObeyOpenWindow( UInt64 value );
 	void setPostAckTimeout( UInt64 value );
 	void setRequestTimeout( UInt64 value );
 	void setMaxOutstandingPosts( UInt64 value );
-	void setCatchUnhandledException( UInt64 value );
-	void setMaxDispatchCountApiThread( UInt64 value );
-	void setMaxDispatchCountUserThread( UInt64 value );
 	void setLoginRequestTimeOut( UInt64 );
 	void setDirectoryRequestTimeOut( UInt64 );
 	void setDictionaryRequestTimeOut( UInt64 );
@@ -317,13 +447,6 @@ public:
 	void clearChannelSet();
 	const EmaString& defaultServiceName() { return _defaultServiceName; }
 
-	EmaString		configuredName;
-	EmaString		instanceName;
-	UInt32			itemCountHint;
-	UInt32			serviceCountHint;
-	Int64			dispatchTimeoutApiThread;
-	UInt32			maxDispatchCountApiThread;
-	UInt32			maxDispatchCountUserThread;
 	Int64			pipePort;
 	UInt32			obeyOpenWindow;
 	UInt32			requestTimeout;
@@ -334,10 +457,10 @@ public:
 	UInt32			dictionaryRequestTimeOut;
 	bool			catchUnhandledException;
 
+	DictionaryConfig		dictionaryConfig;
+
 	EmaVector< ChannelConfig* >		configChannelSet;
 
-	DictionaryConfig		dictionaryConfig;
-	LoggerConfig			loggerConfig;
 	RsslRDMLoginRequest*	pRsslRDMLoginReq;
 	RsslRequestMsg*			pRsslDirectoryRequestMsg;
 	AdminReqMsg*			pRsslRdmFldRequestMsg;
@@ -347,6 +470,69 @@ public:
 protected:
 
 	EmaString				_defaultServiceName;
+};
+
+class ActiveServerConfig : public BaseConfig
+{
+public:
+	ActiveServerConfig(const EmaString&);
+	virtual ~ActiveServerConfig();
+
+	void clear();
+
+	const EmaString& defaultServiceName() { return _defaultServiceName; }
+
+	virtual OmmIProviderConfig::AdminControl getDictionaryAdminControl() = 0;
+
+	virtual OmmIProviderConfig::AdminControl getDirectoryAdminControl() = 0;
+
+	Int64						pipePort;
+	AdminRefreshMsg*			pDirectoryRefreshMsg;
+
+	ServerConfig*				pServerConfig;
+
+	bool                        acceptMessageWithoutBeingLogin;
+
+	bool                        acceptMessageWithoutAcceptingRequests;
+
+	bool                        acceptDirMessageWithoutMinFilters;
+
+	bool                        acceptMessageWithoutQosInRange;
+
+	bool                        acceptMessageSameKeyButDiffStream;
+
+	bool                        acceptMessageThatChangesService;
+
+	ServiceDictionaryConfig*	getServiceDictionaryConfig(UInt16 serviceId);
+
+	void						addServiceDictionaryConfig(ServiceDictionaryConfig*);
+
+	void						removeServiceDictionaryConfig(ServiceDictionaryConfig*);
+
+	const EmaList<ServiceDictionaryConfig*>& getServiceDictionaryConfigList();
+
+	void setServiceDictionaryConfigList(EmaList<ServiceDictionaryConfig*>&);
+
+protected:
+
+	EmaString					_defaultServiceName;
+
+	class UInt16rHasher
+	{
+	public:
+		size_t operator()(const UInt16&) const;
+	};
+
+	class UInt16Equal_To
+	{
+	public:
+		bool operator()(const UInt16&, const UInt16&) const;
+	};
+
+	typedef HashTable< UInt16, ServiceDictionaryConfig*, UInt16rHasher, UInt16Equal_To > ServiceDictionaryConfigHash;
+
+	ServiceDictionaryConfigHash			_serviceDictionaryConfigHash;
+	EmaList<ServiceDictionaryConfig*>	_serviceDictionaryConfigList;
 };
 
 }

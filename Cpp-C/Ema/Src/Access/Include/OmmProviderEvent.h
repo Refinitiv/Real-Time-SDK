@@ -32,6 +32,8 @@ namespace ema {
 namespace access {
 
 class Item;
+class OmmProvider;
+class LoginHandler;
 
 class EMA_ACCESS_API OmmProviderEvent
 {
@@ -50,14 +52,32 @@ public :
 		@return closure value
 	*/
 	void* getClosure() const;
+
+	/** Return OmmProvider instance for this event.
+		@return reference to OmmProvider
+	*/
+	OmmProvider& getProvider() const;
+
+	/** Returns a unique client identifier (a.k.a., client handle) associated by EMA with a connected client.
+		@return client identifier or handle
+	*/
+	UInt64 getClientHandle() const;
+
 	//@}
 
 private :
 
 	friend class NiProviderItem;
+	friend class LoginHandler;
+	friend class DictionaryHandler;
+	friend class DirectoryHandler;
+	friend class MarketItemHandler;
+	friend class OmmServerBaseImpl;
 
 	UInt64			_handle;
+	UInt64			_clientHandle;
 	void*			_closure;
+	OmmProvider*	_provider;
 
 	OmmProviderEvent();
 	virtual ~OmmProviderEvent();

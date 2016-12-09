@@ -9,7 +9,12 @@ else
 	EXAMPLE_NAME=NiProvider$(shell basename $$(pwd) | sed 's/[^0-9]*//g')
 	EXAMPLE_TYPE=NiProvider
 	else
-	EXAMPLE_NAME=Consumer$(shell basename $$(pwd) | sed 's/[^0-9]*//g')
+		ifeq ($(findstring IProvider, $(CURDIR)),IProvider)
+		EXAMPLE_NAME=IProvider$(shell basename $$(pwd) | sed 's/[^0-9]*//g')
+		EXAMPLE_TYPE=IProvider
+		else
+		EXAMPLE_NAME=Consumer$(shell basename $$(pwd) | sed 's/[^0-9]*//g')
+		endif
 	endif
 endif
 
@@ -31,6 +36,9 @@ $(OUTPUT_DIR)/$(EXAMPLE_NAME):		$(OBJ)
 	    	 ( [ $(EXAMPLE_NUMBER) -ge 300 ] && [ $(EXAMPLE_NUMBER) -ne 421 ] );		\
 		 	then $(LNCMD) $(ROOTNODE)/Ema/Examples/EmaConfig.xml $(EXE_DIR);fi	\
 	 elif [ "$(EXAMPLE_TYPE)" = "NiProvider" ];then					\
+	    if [ $(EXAMPLE_NUMBER) -ge 200 ];							\
+	     	then $(LNCMD) $(ROOTNODE)/Ema/Examples/EmaConfig.xml $(EXE_DIR);fi	\
+	 elif [ "$(EXAMPLE_TYPE)" = "IProvider" ];then					\
 	    if [ $(EXAMPLE_NUMBER) -ge 200 ];							\
 	     	then $(LNCMD) $(ROOTNODE)/Ema/Examples/EmaConfig.xml $(EXE_DIR);fi;fi
 

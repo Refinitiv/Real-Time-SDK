@@ -7,6 +7,7 @@
  */
 
 #include "OmmNiProviderConfigImpl.h"
+#include "ExceptionTranslator.h"
 
 using namespace thomsonreuters::ema::access;
 

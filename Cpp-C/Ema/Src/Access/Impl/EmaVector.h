@@ -20,39 +20,108 @@ namespace ema {
 
 namespace access {
 
+/**
+\class EmaVector
+\brief
+EmaVector class provides template vector implementation.
+*/
+
 template< class T > class EmaVector
 {
 public :
 
+	///@name Constructor
+	//@{
+	/** default constructor
+	\remark sets initial vector capacity to zero
+	*/
 	EmaVector( UInt32 capacity = 0 );
+	//@}
 
+	///@name Copy Constructor
+	//@{
+	/** copy constructor
+	*/
 	EmaVector( const EmaVector< T >& other );
+	//@}
 
+	///@name Assignment Operator
+	//@{
+	/** assignment operator
+	*/
 	EmaVector< T >& operator=( const EmaVector< T >& other );
+	//@}
 
+	///@name Destructor
+	//@{
+	/** destructor
+	*/
 	virtual ~EmaVector();
+	//@}
 
+	///@name Accessors
+	//@{
+	/** method to check if the vector is empty
+	*/
 	bool empty() const;
 
+	/** method to obtain current size of the vector
+	\return number of elements on the vector
+	*/
 	UInt32 size() const;
 
+	/** method to obtain current capacity of the vector
+	\returns the size of the storage space currently allocated for the vector, expressed in terms of elements
+	*/
 	UInt32 capacity() const;
 
+	/** index operator
+	\remark allows read only access to the i-th element of the vector
+	*/
 	const T& operator[]( UInt32 index ) const;
 
+	/** index operator
+	\remark allows read & write access to the i-th element of the vector
+	*/
 	T& operator[]( UInt32 index );
 
+	/** returns position of the first encountered element on the vector
+	that matches passed in value
+	\param value - value of the element to be found
+	\return -1 if no matching element was found and position otherwise
+	*/
 	Int64 getPositionOf( const T& value ) const;
 
+	/** comparison operator for the entire list
+	*/
 	bool operator==( const EmaVector< T >& other ) const;
+	//@}
 
+	///@name Operations
+	//@{
+	/** clear the vector
+	*/
 	void clear();
 
+	/** method to push new entries on to the back of the vector
+	\remark will automatically resize if needed
+	*/
 	void push_back( const T& entry );
 
+	/** Removes position specified element from the vector
+	\param pos position of the element to be removed
+	\return true if this element was removed, false otherwise
+	*/
 	bool removePosition( UInt32 pos );
 
+	/** Removes value specified element from the vector
+	\param value - value of the element to be removed
+	\return true if this element was found and removed, false otherwise
+	\remark will remove the very first encountered element (e.g., with lowest position)
+	matching passed in value
+	*/
 	bool removeValue( const T& value );
+	//@}
 
 private :
 
@@ -62,7 +131,7 @@ private :
 };
 
 template< class T >
-EmaVector< T >::EmaVector( UInt32 capacity ) :
+EmaVector< T >::EmaVector(UInt32 capacity) :
 	_size( 0 ),
 	_capacity( capacity ),
 	_list( 0 )
@@ -73,7 +142,7 @@ EmaVector< T >::EmaVector( UInt32 capacity ) :
 }
 
 template< class T >
-EmaVector< T >::EmaVector( const EmaVector< T >& other ) :
+EmaVector< T >::EmaVector(const EmaVector< T >& other) :
 	_capacity( other._capacity ),
 	_size( 0 ),
 	_list( 0 )
@@ -91,7 +160,7 @@ EmaVector< T >::EmaVector( const EmaVector< T >& other ) :
 }
 
 template< class T >
-EmaVector< T >& EmaVector< T >::operator=( const EmaVector< T >& other )
+EmaVector< T >& EmaVector< T >::operator=(const EmaVector< T >& other)
 {
 	if ( this == &other ) return *this;
 
@@ -123,7 +192,7 @@ EmaVector< T >& EmaVector< T >::operator=( const EmaVector< T >& other )
 }
 
 template< class T >
-bool EmaVector< T >::operator==( const EmaVector< T >& other ) const
+bool EmaVector< T >::operator==(const EmaVector< T >& other) const
 {
 	if ( _size != other._size ) return false;
 
@@ -200,8 +269,10 @@ UInt32 EmaVector< T >::capacity() const
 template < class T >
 T& EmaVector< T >::operator[]( UInt32 position ) 
 {
-	if ( position >= _size )
-		throwOorException( EmaString( "Passed in position is out of range." ) );
+	if (position >= _size)
+	{
+		throwOorException(EmaString("Passed in position is out of range."));
+	}
 
 	return _list[position];
 }
@@ -209,8 +280,10 @@ T& EmaVector< T >::operator[]( UInt32 position )
 template < class T >
 const T& EmaVector< T >::operator[]( UInt32 position ) const
 {
-	if ( position >= _size )
-		throwOorException( EmaString( "Passed in position is out of range." ) );
+	if (position >= _size)
+	{
+		throwOorException(EmaString("Passed in position is out of range."));
+	}
 
 	return _list[position];
 }

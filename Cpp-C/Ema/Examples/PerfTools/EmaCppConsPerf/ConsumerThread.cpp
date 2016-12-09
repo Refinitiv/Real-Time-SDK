@@ -326,6 +326,11 @@ void ConsumerThread::run()
 		
 		if( isDesiredServiceUp )
 				break;
+		if(!running || stopThread)
+		{
+			break;
+		}
+
 		AppUtil::sleep( 10 );
 	}
 

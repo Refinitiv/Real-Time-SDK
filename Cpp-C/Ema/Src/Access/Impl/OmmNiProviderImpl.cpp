@@ -18,70 +18,79 @@
 #include "Utilities.h"
 #include "EmaRdm.h"
 #include "OmmQosDecoder.h"
+#include "DirectoryServiceStore.h"
 
-#include <ctype.h>
 #include <new>
 
 using namespace thomsonreuters::ema::access;
 using namespace thomsonreuters::ema::rdm;
 
-OmmNiProviderImpl::OmmNiProviderImpl( const OmmNiProviderConfig& config ) :
+OmmNiProviderImpl::OmmNiProviderImpl( OmmProvider* ommProvider, const OmmNiProviderConfig& config ) :
 	_activeConfig(),
+	OmmProviderImpl( ommProvider ),
 	OmmBaseImpl( _activeConfig ),
 	_handleToStreamInfo(),
-	_serviceNameToServiceId(),
-	_serviceIdToServiceName(),
-	_serviceNameList(),
 	_streamInfoList(),
-	_bIsStreamIdZeroRefreshSubmitted( false )
+	_bIsStreamIdZeroRefreshSubmitted( false ),
+	_ommNiProviderDirectoryStore(*this, _activeConfig)
 {
 	_activeConfig.operationModel = config._pImpl->getOperationModel();
+
+	_activeConfig.directoryAdminControl = config.getConfigImpl()->getAdminControlDirectory();
+
+	_rsslDirectoryMsgBuffer.length = 2048;
+	_rsslDirectoryMsgBuffer.data = (char*)malloc(_rsslDirectoryMsgBuffer.length * sizeof(char));
+	if (!_rsslDirectoryMsgBuffer.data)
+	{
+		handleMee("Failed to allocate memory in OmmNiProviderImpl::OmmNiProviderImpl()");
+		return;
+	}
+
 	initialize( config._pImpl );
 
 	_handleToStreamInfo.rehash( _activeConfig.itemCountHint );
-	_serviceNameToServiceId.rehash( _activeConfig.serviceCountHint );
-	_serviceIdToServiceName.rehash( _activeConfig.serviceCountHint );
 }
 
-OmmNiProviderImpl::OmmNiProviderImpl( const OmmNiProviderConfig& config, OmmProviderErrorClient& client ) :
+OmmNiProviderImpl::OmmNiProviderImpl(OmmProvider* ommProvider, const OmmNiProviderConfig& config, OmmProviderErrorClient& client) :
 	_activeConfig(),
+	OmmProviderImpl(ommProvider),
 	OmmBaseImpl( _activeConfig, client ),
 	_handleToStreamInfo(),
-	_serviceNameToServiceId(),
-	_serviceIdToServiceName(),
-	_serviceNameList(),
 	_streamInfoList(),
-	_bIsStreamIdZeroRefreshSubmitted( false )
+	_bIsStreamIdZeroRefreshSubmitted( false ),
+	_ommNiProviderDirectoryStore(*this, _activeConfig)
 {
 	_activeConfig.operationModel = config._pImpl->getOperationModel();
-	initialize( config._pImpl );
+
+	_activeConfig.directoryAdminControl = config.getConfigImpl()->getAdminControlDirectory();
+
+	_rsslDirectoryMsgBuffer.length = 2048;
+	_rsslDirectoryMsgBuffer.data = (char*)malloc(_rsslDirectoryMsgBuffer.length * sizeof(char));
+	if (!_rsslDirectoryMsgBuffer.data)
+	{
+		handleMee("Failed to allocate memory in OmmNiProviderImpl::OmmNiProviderImpl()");
+		return;
+	}
+
+	initialize(config._pImpl);
 
 	_handleToStreamInfo.rehash( _activeConfig.itemCountHint );
-	_serviceNameToServiceId.rehash( _activeConfig.serviceCountHint );
-	_serviceIdToServiceName.rehash( _activeConfig.serviceCountHint );
 }
 
 OmmNiProviderImpl::~OmmNiProviderImpl()
 {
-	OmmBaseImpl::uninitialize( false, false );
+	free(_rsslDirectoryMsgBuffer.data);
 
-	removeItems();
+	OmmBaseImpl::uninitialize( false, false );
 }
 
 void OmmNiProviderImpl::removeItems()
 {
 	_bIsStreamIdZeroRefreshSubmitted = false;
 
-	_serviceIdToServiceName.clear();
-	_serviceNameToServiceId.clear();
-
 	_handleToStreamInfo.clear();
 
-	for ( UInt32 idx = 0; idx < _serviceNameList.size(); ++idx )
-		if ( _serviceNameList[idx] )
-			delete _serviceNameList[idx];
-
-	_serviceNameList.clear();
+	_ommNiProviderDirectoryStore.clearServiceNamePair();
 
 	for ( UInt32 idx = 0; idx < _streamInfoList.size(); ++idx )
 		if ( _streamInfoList[idx] )
@@ -90,594 +99,37 @@ void OmmNiProviderImpl::removeItems()
 	_streamInfoList.clear();
 }
 
-void OmmNiProviderImpl::populateDefaultService( ServiceConfig& service ) const
-{
-	service.infoFilter.acceptingConsumerStatus = 0;
-	service.infoFilter.capabilities.push_back( 6 );
-	service.infoFilter.capabilities.push_back( 7 );
-	service.infoFilter.capabilities.push_back( 8 );
-	service.infoFilter.capabilities.push_back( 9 );
-	service.infoFilter.dictionariesUsed.push_back( "RWFFld" );
-	service.infoFilter.dictionariesUsed.push_back( "RWFEnum" );
-	service.infoFilter.dictionariesProvided.clear();
-	service.infoFilter.isSource = 0;
-	RsslQos rsslQos;
-	rsslClearQos( &rsslQos );
-	rsslQos.rate = RSSL_QOS_RATE_TICK_BY_TICK;
-	rsslQos.timeliness = RSSL_QOS_TIME_REALTIME;
-	service.infoFilter.qos.push_back( rsslQos );
-	service.infoFilter.serviceId = 0;
-	service.infoFilter.supportsOutOfBandSnapshots = 0;
-	service.infoFilter.supportsQosRange = 0;
-	service.infoFilter.vendorName.clear();
-	service.infoFilter.itemList.clear();
-	service.serviceName = "NI_PUB";
-	service.stateFilter.acceptingRequests = 0;
-	service.stateFilter.isStatusConfigured = false;
-	service.stateFilter.serviceState = 1;
-}
-
 void OmmNiProviderImpl::readCustomConfig( EmaConfigImpl* pConfigImpl )
 {
-	pConfigImpl->getDirectoryName( _activeConfig.configuredName, _activeConfig.directoryConfig.directoryName );
+	_activeConfig.pDirectoryRefreshMsg = pConfigImpl->getDirectoryRefreshMsg();
 
-	if ( _activeConfig.directoryConfig.directoryName.empty() )
-		pConfigImpl->get<EmaString>( "DirectoryGroup|DefaultDirectory", _activeConfig.directoryConfig.directoryName );
-
-	if ( _activeConfig.directoryConfig.directoryName.empty() )
-		pConfigImpl->get< EmaString >( "DirectoryGroup|DirectoryList|Directory|Name", _activeConfig.directoryConfig.directoryName );
-
-	if ( _activeConfig.directoryConfig.directoryName.empty() )
+	try
 	{
-		ServiceConfig service;
-		populateDefaultService( service );
-		_activeConfig.directoryConfig.addService( service );
-	}
-	else
-	{
-		EmaString directoryNodeName( "DirectoryGroup|DirectoryList|Directory." );
-		directoryNodeName.append( _activeConfig.directoryConfig.directoryName ).append( "|" );
-
-		EmaString name;
-		if ( !pConfigImpl->get< EmaString >( directoryNodeName + "Name", name ) )
+		if ((_activeConfig.directoryAdminControl == OmmNiProviderConfig::ApiControlEnum) && _activeConfig.pDirectoryRefreshMsg)
 		{
-			EmaString errorMsg( "no configuration exists for ni provider directory [" );
-			errorMsg.append( directoryNodeName ).append( "]. Will use directory defaults" );
-			pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::WarningEnum );
+			RsslMsg rsslMsg;
+			rsslMsg.refreshMsg = *_activeConfig.pDirectoryRefreshMsg->get();
 
-			ServiceConfig service;
-			populateDefaultService( service );
-			_activeConfig.directoryConfig.addService( service );
+			EmaString text;
+			if (_ommNiProviderDirectoryStore.decodeSourceDirectory(&rsslMsg.refreshMsg.msgBase.encDataBody, text) == false)
+			{
+				handleIue(text);
+				return;
+			}
+
+			if (_ommNiProviderDirectoryStore.submitSourceDirectory(0, &rsslMsg, _rsslDirectoryMsg, _rsslDirectoryMsgBuffer, false) == false)
+			{
+				return;
+			}
 		}
 		else
 		{
-			EmaVector< EmaString > serviceNames;
-
-			pConfigImpl->getServiceNames( _activeConfig.directoryConfig.directoryName, serviceNames );
-
-			if ( serviceNames.empty() )
-			{
-				EmaString errorMsg( "specified ni provider directory [" );
-				errorMsg.append( directoryNodeName ).append( "] contains no services. Will use directory defaults" );
-				pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::WarningEnum );
-
-				ServiceConfig service;
-				populateDefaultService( service );
-				_activeConfig.directoryConfig.addService( service );
-			}
-			else
-			{
-				const UInt16 maxUInt16 = 0xFFFF;
-
-				if ( serviceNames.size() > maxUInt16 )
-				{
-					EmaString errorMsg( "Number of configured services is greater than allowed maximum. Some services will be dropped." );
-					pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::ErrorEnum );
-				}
-
-				EmaVector< UInt16 > validConfiguredServiceIds;
-				for ( UInt32 idx = 0; idx < serviceNames.size() && idx < maxUInt16; ++idx )
-				{
-					UInt64 tempUInt64 = 0;
-					EmaString serviceNodeName( directoryNodeName + "Service." + serviceNames[idx] + "|" );
-					if ( pConfigImpl->get< UInt64 >( serviceNodeName + "InfoFilter|ServiceId", tempUInt64 ) )
-						if ( tempUInt64 <= maxUInt16 )
-						{
-							if ( -1 == validConfiguredServiceIds.getPositionOf( (UInt16) tempUInt64 ) )
-								validConfiguredServiceIds.push_back( (UInt16) tempUInt64 );
-						}
-				}
-
-				EmaVector< UInt16 > usedServiceIds;
-				UInt32 emaAssignedServiceId = 0;
-				for ( UInt32 idx = 0; idx < serviceNames.size() && idx < maxUInt16; ++idx )
-				{
-					ServiceConfig service;
-
-					service.serviceName = serviceNames[idx];
-
-					EmaString serviceNodeName( directoryNodeName + "Service." + serviceNames[idx] + "|" );
-
-					UInt64 tempUInt64 = 0;
-					if ( pConfigImpl->get< UInt64 >( serviceNodeName + "StateFilter|ServiceState", tempUInt64 ) )
-						service.stateFilter.serviceState = tempUInt64 > 0 ? 1 : 0;
-					else
-						service.stateFilter.serviceState = 1;
-
-					if ( pConfigImpl->get< UInt64 >( serviceNodeName + "StateFilter|AcceptingRequests", tempUInt64 ) )
-						service.stateFilter.acceptingRequests = tempUInt64 > 0 ? 1 : 0;
-					else
-						service.stateFilter.acceptingRequests = 1;
-
-					service.stateFilter.isStatusConfigured = false;
-
-					OmmState::StreamState tempStreamState;
-					if ( pConfigImpl->get< OmmState::StreamState >( serviceNodeName + "StateFilter|Status|StreamState", tempStreamState ) )
-					{
-						service.stateFilter.status.streamState = tempStreamState;
-						service.stateFilter.isStatusConfigured = true;
-					}
-					else
-						service.stateFilter.status.streamState = OmmState::OpenEnum;
-
-					OmmState::DataState tempDataState;
-					if ( pConfigImpl->get< OmmState::DataState >( serviceNodeName + "StateFilter|Status|DataState", tempDataState ) )
-					{
-						service.stateFilter.status.dataState = tempDataState;
-						service.stateFilter.isStatusConfigured = true;
-					}
-					else
-						service.stateFilter.status.dataState = OmmState::OkEnum;
-
-					OmmState::StatusCode tempStatusCode;
-					if ( pConfigImpl->get< OmmState::StatusCode >( serviceNodeName + "StateFilter|Status|StatusCode", tempStatusCode ) )
-					{
-						service.stateFilter.status.code = tempStatusCode;
-						service.stateFilter.isStatusConfigured = true;
-					}
-					else
-						service.stateFilter.status.code = OmmState::NoneEnum;
-
-					if ( pConfigImpl->get< EmaString >( serviceNodeName + "StateFilter|Status|StatusText", service.stateFilter.statusText ) )
-					{
-						service.stateFilter.status.text.data = (char*) service.stateFilter.statusText.c_str();
-						service.stateFilter.status.text.length = service.stateFilter.statusText.length();
-						service.stateFilter.isStatusConfigured = true;
-					}
-					else
-						rsslClearBuffer( &service.stateFilter.status.text );
-
-					if ( pConfigImpl->get< UInt64 >( serviceNodeName + "InfoFilter|ServiceId", tempUInt64 ) )
-					{
-						if ( tempUInt64 > maxUInt16 )
-						{
-							EmaString errorMsg( "service [" );
-							errorMsg.append( serviceNodeName ).append( "] specifies out of range ServiceId (value of " ).append( tempUInt64 ).append( "). Will drop this service." );
-							pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::ErrorEnum );
-							continue;
-						}
-
-						service.infoFilter.serviceId = (UInt16) tempUInt64;
-						if ( usedServiceIds.getPositionOf( service.infoFilter.serviceId ) > -1 )
-						{
-							EmaString errorMsg( "service [" );
-							errorMsg.append( serviceNodeName ).append( "] specifies the same ServiceId (value of " ).append( tempUInt64 ).append( ") as already specified by another service. Will drop this service." );
-							pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::ErrorEnum );
-							continue;
-						}
-
-						usedServiceIds.push_back( service.infoFilter.serviceId );
-					}
-					else
-					{
-						while ( emaAssignedServiceId <= maxUInt16 &&
-							validConfiguredServiceIds.getPositionOf( emaAssignedServiceId ) > -1 )
-							++emaAssignedServiceId;
-
-						if ( emaAssignedServiceId > maxUInt16 )
-						{
-							EmaString errorMsg( "EMA ran out of assignable service ids. Will drop rest of the services" );
-							pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::ErrorEnum );
-							break;
-						}
-
-						EmaString errorMsg( "service [" );
-						errorMsg.append( serviceNodeName ).append( "] contains no ServiceId. EMA will assign a value of " ).append( emaAssignedServiceId );
-						pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::WarningEnum );
-
-						service.infoFilter.serviceId = (UInt16) emaAssignedServiceId;
-						usedServiceIds.push_back( service.infoFilter.serviceId );
-					}
-
-					if ( !pConfigImpl->get< EmaString >( serviceNodeName + "InfoFilter|Vendor", service.infoFilter.vendorName ) )
-						service.infoFilter.vendorName.clear();
-
-					if ( !pConfigImpl->get< EmaString >( serviceNodeName + "InfoFilter|ItemList", service.infoFilter.itemList ) )
-						service.infoFilter.itemList.clear();
-
-					if ( pConfigImpl->get< UInt64 >( serviceNodeName + "InfoFilter|IsSource", tempUInt64 ) )
-						service.infoFilter.isSource = tempUInt64 > 0 ? 1 : 0;
-					else
-						service.infoFilter.isSource = 0;
-
-					if ( pConfigImpl->get< UInt64 >( serviceNodeName + "InfoFilter|SupportsQoSRange", tempUInt64 ) )
-						service.infoFilter.supportsQosRange = tempUInt64 > 0 ? 1 : 0;
-					else
-						service.infoFilter.supportsQosRange = 0;
-
-					if ( pConfigImpl->get< UInt64 >( serviceNodeName + "InfoFilter|SupportsOutOfBandSnapshots", tempUInt64 ) )
-						service.infoFilter.supportsOutOfBandSnapshots = tempUInt64 > 0 ? 1 : 0;
-					else
-						service.infoFilter.supportsOutOfBandSnapshots = 0;
-
-					if ( pConfigImpl->get< UInt64 >( serviceNodeName + "InfoFilter|AcceptingConsumerStatus", tempUInt64 ) )
-						service.infoFilter.acceptingConsumerStatus = tempUInt64 > 0 ? 1 : 0;
-					else
-						service.infoFilter.acceptingConsumerStatus = 0;
-
-					EmaVector< EmaString > valueList;
-					pConfigImpl->getAsciiAttributeValueList( serviceNodeName + "InfoFilter|DictionariesProvided", "DictionariesProvidedEntry", valueList );
-
-					for ( UInt32 idx = 0; idx < valueList.size(); ++idx )
-					{
-						EmaString dictionaryNodeName( "DictionaryGroup|DictionaryList|Dictionary." );
-						dictionaryNodeName.append( valueList[idx] ).append( "|" );
-
-						EmaString name;
-						if ( !pConfigImpl->get< EmaString >( dictionaryNodeName + "Name", name ) )
-						{
-							EmaString errorMsg( "no configuration exists for dictionary [" );
-							errorMsg.append( dictionaryNodeName ).append( "]. Will use dictionary defaults" );
-							pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::WarningEnum );
-						}
-
-						EmaString dictionaryItemName;
-						if ( !pConfigImpl->get<EmaString>( dictionaryNodeName + "RdmFieldDictionaryItemName", dictionaryItemName ) )
-						{
-							dictionaryItemName.set( "RWFFld" );
-
-							EmaString errorMsg( "no configuration exists for RdmFieldDictionaryItemName in dictionary [" );
-							errorMsg.append( dictionaryNodeName ).append( "]. Will use default value of RWFFld" );
-							pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::WarningEnum );
-						}
-
-						service.infoFilter.dictionariesProvided.push_back( dictionaryItemName );
-
-						if ( !pConfigImpl->get<EmaString>( dictionaryNodeName + "EnumTypeDefItemName", dictionaryItemName ) )
-						{
-							dictionaryItemName.set( "RWFEnum" );
-
-							EmaString errorMsg( "no configuration exists for EnumTypeDefItemName in dictionary [" );
-							errorMsg.append( dictionaryNodeName ).append( "]. Will use default value of RWFEnum" );
-							pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::WarningEnum );
-						}
-
-						service.infoFilter.dictionariesProvided.push_back( dictionaryItemName );
-					}
-
-					pConfigImpl->getAsciiAttributeValueList( serviceNodeName + "InfoFilter|DictionariesUsed", "DictionariesUsedEntry", valueList );
-
-					for ( UInt32 idx = 0; idx < valueList.size(); ++idx )
-					{
-						EmaString dictionaryNodeName( "DictionaryGroup|DictionaryList|Dictionary." );
-						dictionaryNodeName.append( valueList[idx] ).append( "|" );
-
-						EmaString name;
-						if ( !pConfigImpl->get< EmaString >( dictionaryNodeName + "Name", name ) )
-						{
-							EmaString errorMsg( "no configuration exists for consumer dictionary [" );
-							errorMsg.append( dictionaryNodeName ).append( "]. Will use dictionary defaults" );
-							pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::WarningEnum );
-						}
-
-						EmaString dictionaryItemName;
-						if ( !pConfigImpl->get<EmaString>( dictionaryNodeName + "RdmFieldDictionaryItemName", dictionaryItemName ) )
-						{
-							dictionaryItemName.set( "RWFFld" );
-
-							EmaString errorMsg( "no configuration exists for RdmFieldDictionaryItemName in dictionary [" );
-							errorMsg.append( dictionaryNodeName ).append( "]. Will use default value of RWFFld" );
-							pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::WarningEnum );
-						}
-
-						service.infoFilter.dictionariesUsed.push_back( dictionaryItemName );
-
-						if ( !pConfigImpl->get<EmaString>( dictionaryNodeName + "EnumTypeDefItemName", dictionaryItemName ) )
-						{
-							dictionaryItemName.set( "RWFEnum" );
-
-							EmaString errorMsg( "no configuration exists for EnumTypeDefItemName in dictionary [" );
-							errorMsg.append( dictionaryNodeName ).append( "]. Will use default value of RWFEnum" );
-							pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::WarningEnum );
-						}
-
-						service.infoFilter.dictionariesUsed.push_back( dictionaryItemName );
-					}
-
-					pConfigImpl->getAsciiAttributeValueList( serviceNodeName + "InfoFilter|Capabilities", "CapabilitiesEntry", valueList );
-
-					for ( UInt32 idx = 0; idx < valueList.size(); ++idx )
-					{
-						if ( isdigit( valueList[idx].c_str()[0] ) )
-						{
-							UInt64 domainType;
-							if ( sscanf( valueList[idx].c_str(), "%llu", &domainType ) == 1 )
-							{
-								if ( domainType > maxUInt16 )
-								{
-									EmaString errorMsg( "specified service [" );
-									errorMsg.append( serviceNodeName ).append( "] contains out of range capability = " ).append( domainType ).append( ". Will drop this capability." );
-									pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::ErrorEnum );
-									continue;
-								}
-								else
-								{
-									if ( service.infoFilter.capabilities.getPositionOf( (UInt16) domainType ) == -1 )
-										service.infoFilter.capabilities.push_back( (UInt16) domainType );
-								}
-							}
-							else
-							{
-								EmaString errorMsg( "failed to read or convert a capability from the specified service [" );
-								errorMsg.append( serviceNodeName ).append( "]. Will drop this capability. Its value is = " ).append( valueList[idx] );
-								pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::ErrorEnum );
-								continue;
-							}
-						}
-						else
-						{
-							static struct
-							{
-								const char* configInput;
-								UInt16 convertedValue;
-							} converter[] =
-							{
-								{ "MMT_LOGIN", MMT_LOGIN },
-								{ "MMT_DIRECTORY", MMT_DIRECTORY },
-								{ "MMT_DICTIONARY", MMT_DICTIONARY },
-								{ "MMT_MARKET_PRICE", MMT_MARKET_PRICE },
-								{ "MMT_MARKET_BY_ORDER", MMT_MARKET_BY_ORDER },
-								{ "MMT_MARKET_BY_PRICE", MMT_MARKET_BY_PRICE },
-								{ "MMT_MARKET_MAKER", MMT_MARKET_MAKER },
-								{ "MMT_SYMBOL_LIST", MMT_SYMBOL_LIST },
-								{ "MMT_SERVICE_PROVIDER_STATUS", MMT_SERVICE_PROVIDER_STATUS },
-								{ "MMT_HISTORY", MMT_HISTORY },
-								{ "MMT_HEADLINE", MMT_HEADLINE },
-								{ "MMT_REPLAYHEADLINE", MMT_REPLAYHEADLINE },
-								{ "MMT_REPLAYSTORY", MMT_REPLAYSTORY },
-								{ "MMT_TRANSACTION", MMT_TRANSACTION },
-								{ "MMT_YIELD_CURVE", MMT_YIELD_CURVE },
-								{ "MMT_CONTRIBUTION", MMT_CONTRIBUTION },
-								{ "MMT_PROVIDER_ADMIN", MMT_PROVIDER_ADMIN },
-								{ "MMT_ANALYTICS", MMT_ANALYTICS },
-								{ "MMT_REFERENCE", MMT_REFERENCE },
-								{ "MMT_NEWS_TEXT_ANALYTICS", MMT_NEWS_TEXT_ANALYTICS },
-								{ "MMT_SYSTEM", MMT_SYSTEM },
-							};
-
-							bool found = false;
-							for ( int i = 0; i < sizeof converter / sizeof converter[0]; ++i )
-							{
-								if ( !strcmp( converter[i].configInput, valueList[idx] ) )
-								{
-									found = true;
-									if ( service.infoFilter.capabilities.getPositionOf( converter[i].convertedValue ) == -1 )
-										service.infoFilter.capabilities.push_back( converter[i].convertedValue );
-									break;
-								}
-							}
-
-							if ( !found )
-							{
-								EmaString errorMsg( "failed to read or convert a capability from the specified service [" );
-								errorMsg.append( serviceNodeName ).append( "]. Will drop this capability. Its value is = " ).append( valueList[idx] );
-								pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::ErrorEnum );
-								continue;
-							}
-						}
-					}
-
-					if ( service.infoFilter.capabilities.empty() )
-					{
-						EmaString errorMsg( "specified service [" );
-						errorMsg.append( serviceNodeName ).append( "] contains no capabilities. Will drop this service." );
-						pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::ErrorEnum );
-						continue;
-					}
-
-					for ( UInt32 idx = 0; idx < service.infoFilter.capabilities.size() - 1; ++idx )
-					{
-						if ( service.infoFilter.capabilities[idx] > service.infoFilter.capabilities[idx + 1] )
-						{
-							UInt16 temp = service.infoFilter.capabilities[idx];
-							service.infoFilter.capabilities[idx] = service.infoFilter.capabilities[idx + 1];
-							service.infoFilter.capabilities[idx + 1] = temp;
-							idx = 0;
-						}
-					}
-
-					RsslQos rsslQos;
-					EmaVector< XMLnode* > entryNodeList;
-					pConfigImpl->getEntryNodeList( serviceNodeName + "InfoFilter|QoS", "QoSEntry", entryNodeList );
-
-					if ( entryNodeList.empty() )
-					{
-						EmaString errorMsg( "no configuration exists for service QoS [" );
-						errorMsg.append( serviceNodeName + "InfoFilter|QoS" ).append( "]. Will use default QoS" );
-						pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::WarningEnum );
-
-						rsslClearQos( &rsslQos );
-						rsslQos.rate = RSSL_QOS_RATE_TICK_BY_TICK;
-						rsslQos.timeliness = RSSL_QOS_TIME_REALTIME;
-						service.infoFilter.qos.push_back( rsslQos );
-					}
-					else
-					{
-						const UInt32 maxUInt32 = 0xFFFFFFFF;
-
-						for ( UInt32 idx = 0; idx < entryNodeList.size(); ++idx )
-						{
-							EmaString rateString;
-							if ( !entryNodeList[idx]->get< EmaString >( "Rate", rateString ) )
-							{
-								EmaString errorMsg( "no configuration exists for service QoS Rate [" );
-								errorMsg.append( serviceNodeName + "InfoFilter|QoS|QoSEntry|Rate" ).append( "]. Will use default Rate" );
-								pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::WarningEnum );
-
-								rateString.set( "Rate:TickByTick" );
-							}
-
-							UInt32 rate;
-							if ( isdigit( rateString.c_str()[0] ) )
-							{
-								UInt64 temp;
-								if ( sscanf( rateString.c_str(), "%llu", &temp ) == 1 )
-								{
-									if ( temp > maxUInt32 )
-									{
-										EmaString errorMsg( "specified service QoS::Rate [" );
-										errorMsg.append( serviceNodeName + "InfoFilter|QoS|QoSEntry|Rate" ).append( "] is greater than allowed maximum. Will use maximum Rate." );
-										errorMsg.append( " Suspect Rate value is " ).append( rateString );
-										pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::WarningEnum );
-
-										rate = maxUInt32;
-									}
-									else
-										rate = (UInt32) temp;
-								}
-								else
-								{
-									EmaString errorMsg( "failed to read or convert a QoS Rate from the specified service [" );
-									errorMsg.append( serviceNodeName + "InfoFilter|QoS|QoSEntry|Rate" ).append( "]. Will use default Rate." );
-									errorMsg.append( " Suspect Rate value is " ).append( rateString );
-									pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::ErrorEnum );
-
-									rate = 0;
-								}
-							}
-							else
-							{
-								static struct
-								{
-									const char* configInput;
-									UInt32 convertedValue;
-								} converter[] =
-								{
-									{ "Rate::TickByTick", 0 },
-									{ "Rate::JustInTimeConflated", 0xFFFFFF00 },
-								};
-
-								bool found = false;
-								for ( int i = 0; i < sizeof converter / sizeof converter[0]; ++i )
-								{
-									if ( !strcmp( converter[i].configInput, rateString ) )
-									{
-										found = true;
-										rate = converter[i].convertedValue;
-										break;
-									}
-								}
-
-								if ( !found )
-								{
-									EmaString errorMsg( "failed to read or convert a QoS Rate from the specified service [" );
-									errorMsg.append( serviceNodeName + "InfoFilter|QoS|QoSEntry|Rate" ).append( "]. Will use default Rate." );
-									errorMsg.append( " Suspect Rate value is " ).append( rateString );
-									pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::ErrorEnum );
-
-									rate = 0;
-								}
-							}
-
-							EmaString timelinessString;
-							if ( !entryNodeList[idx]->get< EmaString >( "Timeliness", timelinessString ) )
-							{
-								EmaString errorMsg( "no configuration exists for service QoS Timeliness [" );
-								errorMsg.append( serviceNodeName + "InfoFilter|QoS|QoSEntry|Timeliness" ).append( "]. Will use default Timeliness" );
-								pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::WarningEnum );
-
-								timelinessString.set( "Timeliness:RealTime" );
-							}
-
-							UInt32 timeliness;
-							if ( isdigit( timelinessString.c_str()[0] ) )
-							{
-								UInt64 temp;
-								if ( sscanf( timelinessString.c_str(), "%llu", &temp ) == 1 )
-								{
-									if ( temp > maxUInt32 )
-									{
-										EmaString errorMsg( "specified service QoS::Timeliness [" );
-										errorMsg.append( serviceNodeName + "InfoFilter|QoS|QoSEntry|Timeliness" ).append( "] is greater than allowed maximum. Will use maximum Timeliness." );
-										errorMsg.append( " Suspect Timeliness value is " ).append( timelinessString );
-										pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::WarningEnum );
-
-										timeliness = maxUInt32;
-									}
-									else
-										timeliness = (UInt32) temp;
-								}
-								else
-								{
-									EmaString errorMsg( "failed to read or convert a QoS Timeliness from the specified service [" );
-									errorMsg.append( serviceNodeName + "InfoFilter|QoS|QoSEntry|Timeliness" ).append( "]. Will use default Timeliness." );
-									errorMsg.append( " Suspect Timeliness value is " ).append( timelinessString );
-									pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::ErrorEnum );
-
-									timeliness = 0;
-								}
-							}
-							else
-							{
-								static struct
-								{
-									const char* configInput;
-									UInt32 convertedValue;
-								} converter[] =
-								{
-									{ "Timeliness::RealTime", 0 },
-									{ "Timeliness::InexactDelayed", 0xFFFFFFFF },
-								};
-
-								bool found = false;
-								for ( int i = 0; i < sizeof converter / sizeof converter[0]; ++i )
-								{
-									if ( !strcmp( converter[i].configInput, timelinessString ) )
-									{
-										found = true;
-										timeliness = converter[i].convertedValue;
-										break;
-									}
-								}
-
-								if ( !found )
-								{
-									EmaString errorMsg( "failed to read or convert a QoS Timeliness from the specified service [" );
-									errorMsg.append( serviceNodeName + "InfoFilter|QoS|QoSEntry|Timeliness" ).append( "]. Will use default Timeliness." );
-									errorMsg.append( " Suspect Timeliness value is " ).append( timelinessString );
-									pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::ErrorEnum );
-
-									timeliness = 0;
-								}
-							}
-
-							rsslClearQos( &rsslQos );
-							OmmQosDecoder::convertToRssl( &rsslQos, timeliness, rate );
-							service.infoFilter.qos.push_back( rsslQos );
-						}
-					}
-
-					_activeConfig.directoryConfig.addService( service );
-				}
-			}
+			_ommNiProviderDirectoryStore.loadConfigDirectory(pConfigImpl);
 		}
 	}
-
-	_activeConfig.pDirectoryRefreshMsg = pConfigImpl->getDirectoryRefreshMsg();
-
-	if ( ProgrammaticConfigure* ppc = pConfigImpl->getProgrammaticConfigure() )
+	catch (std::bad_alloc)
 	{
-		ppc->retrieveDirectoryConfig( _activeConfig.directoryConfig.directoryName, _activeConfig );
+		throwMeeException("Failed to allocate memory in OmmNiProviderImpl::readCustomConfig()");
 	}
 
 	EmaString instanceNodeName( pConfigImpl->getInstanceNodeName() );
@@ -712,29 +164,14 @@ const EmaString& OmmNiProviderImpl::getInstanceName() const
 	return OmmBaseImpl::getInstanceName();
 }
 
-void OmmNiProviderImpl::freeMemory( RsslRDMDirectoryRefresh& directoryRefresh, RsslBuffer& rsslMsgBuffer )
+OmmProviderConfig::ProviderRole OmmNiProviderImpl::getProviderRole() const
 {
-	for ( UInt32 temp = 0; temp < directoryRefresh.serviceCount; ++temp )
-		if ( directoryRefresh.serviceList[temp].info.qosList )
-			delete[] directoryRefresh.serviceList[temp].info.qosList;
+	return OmmProviderConfig::NonInteractiveEnum;
+}
 
-	for ( UInt32 temp = 0; temp < directoryRefresh.serviceCount; ++temp )
-		if ( directoryRefresh.serviceList[temp].info.dictionariesUsedList )
-			delete[] directoryRefresh.serviceList[temp].info.dictionariesUsedList;
-
-	for ( UInt32 temp = 0; temp < directoryRefresh.serviceCount; ++temp )
-		if ( directoryRefresh.serviceList[temp].info.dictionariesProvidedList )
-			delete[] directoryRefresh.serviceList[temp].info.dictionariesProvidedList;
-
-	for ( UInt32 temp = 0; temp < directoryRefresh.serviceCount; ++temp )
-		if ( directoryRefresh.serviceList[temp].info.capabilitiesList )
-			delete[] directoryRefresh.serviceList[temp].info.capabilitiesList;
-
-	if ( directoryRefresh.serviceList )
-		delete[] directoryRefresh.serviceList;
-
-	if ( rsslMsgBuffer.data )
-		free( rsslMsgBuffer.data );
+OmmProvider* OmmNiProviderImpl::getProvider() const
+{
+	return _pOmmProvider;
 }
 
 void OmmNiProviderImpl::loadDirectory()
@@ -782,163 +219,14 @@ void OmmNiProviderImpl::loadDirectory()
 		rsslClearRDMDirectoryRefresh( &directoryRefresh );
 
 		directoryRefresh.flags = RDM_DR_RFF_CLEAR_CACHE;
-
-		directoryRefresh.filter = RDM_DIRECTORY_SERVICE_INFO_FILTER | RDM_DIRECTORY_SERVICE_STATE_FILTER;
-
-		directoryRefresh.state.text.data = ( char* )"Refresh Complete";
+		directoryRefresh.state.text.data = (char*)"Refresh Complete";
 		directoryRefresh.state.text.length = 16;
 
-		directoryRefresh.serviceCount = _activeConfig.directoryConfig.getServiceList().size();
-
-		try
+		if (!DirectoryServiceStore::encodeDirectoryRefreshMsg(_ommNiProviderDirectoryStore.getApiControlDirectory(), directoryRefresh))
 		{
-			directoryRefresh.serviceList = new RsslRDMService[directoryRefresh.serviceCount];
-		}
-		catch ( std::bad_alloc )
-		{
-			freeMemory( directoryRefresh, rsslMsgBuffer );
-			handleMee( "Failed to allocate memory in OmmNiProviderImpl::loadDirectory()" );
+			DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
+			handleMee("Failed to allocate memory in OmmNiProviderImpl::loadDirectory()");
 			return;
-		}
-
-		for ( UInt32 idx = 0; idx < directoryRefresh.serviceCount; ++idx )
-		{
-			rsslClearRDMService( &directoryRefresh.serviceList[idx] );
-
-			directoryRefresh.serviceList[idx].action = RSSL_MPEA_ADD_ENTRY;
-			directoryRefresh.serviceList[idx].flags = RDM_SVCF_HAS_INFO | RDM_SVCF_HAS_STATE;
-			directoryRefresh.serviceList[idx].serviceId = _activeConfig.directoryConfig.getServiceList()[idx]->infoFilter.serviceId;
-
-			directoryRefresh.serviceList[idx].info.action = RSSL_FTEA_SET_ENTRY;
-
-			if ( !_activeConfig.directoryConfig.getServiceList()[idx]->infoFilter.vendorName.empty() )
-			{
-				directoryRefresh.serviceList[idx].info.vendor.data = (char*) _activeConfig.directoryConfig.getServiceList()[idx]->infoFilter.vendorName.c_str();
-				directoryRefresh.serviceList[idx].info.vendor.length = _activeConfig.directoryConfig.getServiceList()[idx]->infoFilter.vendorName.length();
-				directoryRefresh.serviceList[idx].info.flags |= RDM_SVC_IFF_HAS_VENDOR;
-			}
-
-			if ( !_activeConfig.directoryConfig.getServiceList()[idx]->infoFilter.itemList.empty() )
-			{
-				directoryRefresh.serviceList[idx].info.itemList.data = (char*) _activeConfig.directoryConfig.getServiceList()[idx]->infoFilter.itemList.c_str();
-				directoryRefresh.serviceList[idx].info.itemList.length = _activeConfig.directoryConfig.getServiceList()[idx]->infoFilter.itemList.length();
-				directoryRefresh.serviceList[idx].info.flags |= RDM_SVC_IFF_HAS_ITEM_LIST;
-			}
-
-			directoryRefresh.serviceList[idx].info.acceptingConsumerStatus = _activeConfig.directoryConfig.getServiceList()[idx]->infoFilter.acceptingConsumerStatus;
-			directoryRefresh.serviceList[idx].info.flags |= RDM_SVC_IFF_HAS_ACCEPTING_CONS_STATUS;
-
-			directoryRefresh.serviceList[idx].info.isSource = _activeConfig.directoryConfig.getServiceList()[idx]->infoFilter.isSource;
-			directoryRefresh.serviceList[idx].info.flags |= RDM_SVC_IFF_HAS_IS_SOURCE;
-
-			directoryRefresh.serviceList[idx].info.supportsOutOfBandSnapshots = _activeConfig.directoryConfig.getServiceList()[idx]->infoFilter.supportsOutOfBandSnapshots;
-			directoryRefresh.serviceList[idx].info.flags |= RDM_SVC_IFF_HAS_SUPPORT_OOB_SNAPSHOTS;
-
-			directoryRefresh.serviceList[idx].info.supportsQosRange = _activeConfig.directoryConfig.getServiceList()[idx]->infoFilter.supportsQosRange;
-			directoryRefresh.serviceList[idx].info.flags |= RDM_SVC_IFF_HAS_SUPPORT_QOS_RANGE;
-
-			directoryRefresh.serviceList[idx].info.capabilitiesCount = _activeConfig.directoryConfig.getServiceList()[idx]->infoFilter.capabilities.size();
-
-			try
-			{
-				directoryRefresh.serviceList[idx].info.capabilitiesList = new UInt64[directoryRefresh.serviceList[idx].info.capabilitiesCount];
-			}
-			catch ( std::bad_alloc )
-			{
-				freeMemory( directoryRefresh, rsslMsgBuffer );
-				handleMee( "Failed to allocate memory in OmmNiProviderImpl::loadDirectory()" );
-				return;
-			}
-
-			for ( UInt32 jdx = 0; jdx < directoryRefresh.serviceList[idx].info.capabilitiesCount; ++jdx )
-				directoryRefresh.serviceList[idx].info.capabilitiesList[jdx] = _activeConfig.directoryConfig.getServiceList()[idx]->infoFilter.capabilities[jdx];
-
-			directoryRefresh.serviceList[idx].info.dictionariesProvidedCount = _activeConfig.directoryConfig.getServiceList()[idx]->infoFilter.dictionariesProvided.size();
-
-			if ( directoryRefresh.serviceList[idx].info.dictionariesProvidedCount )
-			{
-				try
-				{
-					directoryRefresh.serviceList[idx].info.dictionariesProvidedList = new RsslBuffer[directoryRefresh.serviceList[idx].info.dictionariesProvidedCount];
-				}
-				catch ( std::bad_alloc )
-				{
-					freeMemory( directoryRefresh, rsslMsgBuffer );
-					handleMee( "Failed to allocate memory in OmmNiProviderImpl::loadDirectory()" );
-					return;
-				}
-
-
-				for ( UInt32 jdx = 0; jdx < directoryRefresh.serviceList[idx].info.dictionariesProvidedCount; ++jdx )
-				{
-					directoryRefresh.serviceList[idx].info.dictionariesProvidedList[jdx].data = (char*) _activeConfig.directoryConfig.getServiceList()[idx]->infoFilter.dictionariesProvided[jdx].c_str();
-					directoryRefresh.serviceList[idx].info.dictionariesProvidedList[jdx].length = _activeConfig.directoryConfig.getServiceList()[idx]->infoFilter.dictionariesProvided[jdx].length();
-				}
-
-				directoryRefresh.serviceList[idx].info.flags |= RDM_SVC_IFF_HAS_DICTS_PROVIDED;
-			}
-
-			directoryRefresh.serviceList[idx].info.dictionariesUsedCount = _activeConfig.directoryConfig.getServiceList()[idx]->infoFilter.dictionariesUsed.size();
-
-			if ( directoryRefresh.serviceList[idx].info.dictionariesUsedCount )
-			{
-				try
-				{
-					directoryRefresh.serviceList[idx].info.dictionariesUsedList = new RsslBuffer[directoryRefresh.serviceList[idx].info.dictionariesUsedCount];
-				}
-				catch ( std::bad_alloc )
-				{
-					freeMemory( directoryRefresh, rsslMsgBuffer );
-					handleMee( "Failed to allocate memory in OmmNiProviderImpl::loadDirectory()" );
-					return;
-				}
-
-				for ( UInt32 jdx = 0; jdx < directoryRefresh.serviceList[idx].info.dictionariesUsedCount; ++jdx )
-				{
-					directoryRefresh.serviceList[idx].info.dictionariesUsedList[jdx].data = (char*) _activeConfig.directoryConfig.getServiceList()[idx]->infoFilter.dictionariesUsed[jdx].c_str();
-					directoryRefresh.serviceList[idx].info.dictionariesUsedList[jdx].length = _activeConfig.directoryConfig.getServiceList()[idx]->infoFilter.dictionariesUsed[jdx].length();
-				}
-
-				directoryRefresh.serviceList[idx].info.flags |= RDM_SVC_IFF_HAS_DICTS_USED;
-			}
-
-			directoryRefresh.serviceList[idx].info.qosCount = _activeConfig.directoryConfig.getServiceList()[idx]->infoFilter.qos.size();
-
-			if ( directoryRefresh.serviceList[idx].info.qosCount )
-			{
-				try
-				{
-					directoryRefresh.serviceList[idx].info.qosList = new RsslQos[directoryRefresh.serviceList[idx].info.qosCount];
-				}
-				catch ( std::bad_alloc )
-				{
-					freeMemory( directoryRefresh, rsslMsgBuffer );
-					handleMee( "Failed to allocate memory in OmmNiProviderImpl::loadDirectory()" );
-					return;
-				}
-
-				for ( UInt32 jdx = 0; jdx < directoryRefresh.serviceList[idx].info.qosCount; ++jdx )
-					directoryRefresh.serviceList[idx].info.qosList[jdx] = _activeConfig.directoryConfig.getServiceList()[idx]->infoFilter.qos[jdx];
-
-				directoryRefresh.serviceList[idx].info.flags |= RDM_SVC_IFF_HAS_QOS;
-			}
-
-			directoryRefresh.serviceList[idx].info.serviceName.data = (char*) _activeConfig.directoryConfig.getServiceList()[idx]->serviceName.c_str();
-			directoryRefresh.serviceList[idx].info.serviceName.length = _activeConfig.directoryConfig.getServiceList()[idx]->serviceName.length();
-
-			directoryRefresh.serviceList[idx].state.acceptingRequests = _activeConfig.directoryConfig.getServiceList()[idx]->stateFilter.acceptingRequests;
-			directoryRefresh.serviceList[idx].state.flags |= RDM_SVC_STF_HAS_ACCEPTING_REQS;
-			directoryRefresh.serviceList[idx].state.action = RSSL_FTEA_SET_ENTRY;
-			directoryRefresh.serviceList[idx].state.serviceState = _activeConfig.directoryConfig.getServiceList()[idx]->stateFilter.serviceState;
-
-			if ( _activeConfig.directoryConfig.getServiceList()[idx]->stateFilter.isStatusConfigured )
-			{
-				directoryRefresh.serviceList[idx].state.flags |= RDM_SVC_STF_HAS_STATUS;
-				directoryRefresh.serviceList[idx].state.status.streamState = _activeConfig.directoryConfig.getServiceList()[idx]->stateFilter.status.streamState;
-				directoryRefresh.serviceList[idx].state.status.dataState = _activeConfig.directoryConfig.getServiceList()[idx]->stateFilter.status.dataState;
-				directoryRefresh.serviceList[idx].state.status.code = _activeConfig.directoryConfig.getServiceList()[idx]->stateFilter.status.code;
-				directoryRefresh.serviceList[idx].state.status.text = _activeConfig.directoryConfig.getServiceList()[idx]->stateFilter.status.text;
-			}
 		}
 
 		RsslErrorInfo rsslErrorInfo;
@@ -954,7 +242,7 @@ void OmmNiProviderImpl::loadDirectory()
 
 			if ( !rsslMsgBuffer.data )
 			{
-				freeMemory( directoryRefresh, rsslMsgBuffer );
+				DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
 				handleMee( "Failed to allocate memory in OmmNiProviderImpl::loadDirectory()" );
 				return;
 			}
@@ -965,7 +253,7 @@ void OmmNiProviderImpl::loadDirectory()
 
 		if ( retCode != RSSL_RET_SUCCESS )
 		{
-			freeMemory( directoryRefresh, rsslMsgBuffer );
+			DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
 
 			EmaString temp( "Internal error: failed to encode RsslRDMDirectoryMsg in OmmNiProviderImpl::loadDirectory()" );
 			temp.append( CR )
@@ -985,7 +273,7 @@ void OmmNiProviderImpl::loadDirectory()
 		}
 		catch ( std::bad_alloc )
 		{
-			freeMemory( directoryRefresh, rsslMsgBuffer );
+			DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
 			handleMee( "Failed to allocate memory in OmmNiProviderImpl::loadDirectory()" );
 			return;
 		}
@@ -995,14 +283,14 @@ void OmmNiProviderImpl::loadDirectory()
 
 		if ( rsslSetDecodeIteratorRWFVersion( &decIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION ) != RSSL_RET_SUCCESS )
 		{
-			freeMemory( directoryRefresh, rsslMsgBuffer );
+			DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
 			handleIue( "Internal error. Failed to set decode iterator version in OmmNiProviderImpl::loadDirectory()" );
 			return;
 		}
 
 		if ( rsslSetDecodeIteratorBuffer( &decIter, &rsslMsgBuffer ) != RSSL_RET_SUCCESS )
 		{
-			freeMemory( directoryRefresh, rsslMsgBuffer );
+			DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
 			handleIue( "Internal error. Failed to set decode iterator buffer in OmmNiProviderImpl::loadDirectory()" );
 			return;
 		}
@@ -1011,14 +299,14 @@ void OmmNiProviderImpl::loadDirectory()
 		rsslClearRefreshMsg( &rsslRefreshMsg );
 		if ( rsslDecodeMsg( &decIter, (RsslMsg*) &rsslRefreshMsg ) != RSSL_RET_SUCCESS )
 		{
-			freeMemory( directoryRefresh, rsslMsgBuffer );
+			DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
 			handleIue( "Internal error. Failed to decode message in OmmNiProviderImpl::loadDirectory()" );
 			return;
 		}
 
 		_activeConfig.pDirectoryRefreshMsg->set( &rsslRefreshMsg );
 
-		freeMemory( directoryRefresh, rsslMsgBuffer );
+		DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
 	}
 	else
 	{
@@ -1041,36 +329,11 @@ void OmmNiProviderImpl::loadDirectory()
 
 	submitMsgOpts.pRsslMsg = (RsslMsg*) _activeConfig.pDirectoryRefreshMsg->get();
 
-	EmaString temp;
-	RsslBuffer swapBuffer;
-	rsslClearBuffer( &swapBuffer );
-
-	if ( !decodeSourceDirectory( &submitMsgOpts.pRsslMsg->msgBase.encDataBody, &swapBuffer, temp ) )
-	{
-		if ( swapBuffer.data ) free( swapBuffer.data );
-		handleIue( temp );
-		return;
-	}
-
-	RsslBuffer origPayload;
-
-	if ( swapBuffer.data )
-	{
-		origPayload = submitMsgOpts.pRsslMsg->msgBase.encDataBody;
-		submitMsgOpts.pRsslMsg->msgBase.encDataBody = swapBuffer;
-	}
-
 	RsslErrorInfo rsslErrorInfo;
 	clearRsslErrorInfo( &rsslErrorInfo );
 	Channel* pChannel = getChannelCallbackClient().getChannelList().front();
 	if ( rsslReactorSubmitMsg( pChannel->getRsslReactor(), pChannel->getRsslChannel(), &submitMsgOpts, &rsslErrorInfo ) != RSSL_RET_SUCCESS )
 	{
-		if ( swapBuffer.data )
-		{
-			submitMsgOpts.pRsslMsg->msgBase.encDataBody = origPayload;
-			free( swapBuffer.data );
-		}
-
 		EmaString temp( "Internal error: rsslReactorSubmitMsg() failed in OmmNiProviderImpl::loadDirectory()." );
 		temp.append( CR ).append( pChannel->toString() ).append( CR )
 			.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
@@ -1089,16 +352,6 @@ void OmmNiProviderImpl::loadDirectory()
 		if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
 			getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::VerboseEnum, "Configured source directory was sent out on the wire." );
 	}
-
-	if ( swapBuffer.data )
-	{
-		AdminRefreshMsg temp( 0 );
-		temp.set( (RsslRefreshMsg*) submitMsgOpts.pRsslMsg );
-		*_activeConfig.pDirectoryRefreshMsg = temp;
-
-		submitMsgOpts.pRsslMsg->msgBase.encDataBody = origPayload;
-		free( swapBuffer.data );
-	}
 }
 
 void OmmNiProviderImpl::reLoadDirectory()
@@ -1112,7 +365,9 @@ void OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()
 	if ( !_activeConfig.recoverUserSubmitSourceDirectory )
 		return;
 
-	if ( _activeConfig.userSubmittedDirectoryConfig.getServiceList().size() == 0 )
+	const DirectoryCache& userSubmittedDirectory = _ommNiProviderDirectoryStore.getDirectory();
+
+	if ( userSubmittedDirectory.getServiceList().size() == 0 )
 		return;
 
 	if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
@@ -1153,157 +408,11 @@ void OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()
 	directoryRefresh.state.text.data = ( char* )"Refresh Complete";
 	directoryRefresh.state.text.length = 16;
 
-	directoryRefresh.serviceCount = _activeConfig.userSubmittedDirectoryConfig.getServiceList().size();
-
-	try
+	if (!DirectoryServiceStore::encodeDirectoryRefreshMsg(_ommNiProviderDirectoryStore.getDirectory(), directoryRefresh))
 	{
-		directoryRefresh.serviceList = new RsslRDMService[directoryRefresh.serviceCount];
-	}
-	catch ( std::bad_alloc )
-	{
-		freeMemory( directoryRefresh, rsslMsgBuffer );
-		handleMee( "Failed to allocate memory in OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()" );
+		DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
+		handleMee("Failed to allocate memory in OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()");
 		return;
-	}
-
-	for ( UInt32 idx = 0; idx < directoryRefresh.serviceCount; ++idx )
-	{
-		rsslClearRDMService( &directoryRefresh.serviceList[idx] );
-
-		directoryRefresh.serviceList[idx].action = RSSL_MPEA_ADD_ENTRY;
-		directoryRefresh.serviceList[idx].flags = RDM_SVCF_HAS_INFO | RDM_SVCF_HAS_STATE;
-		directoryRefresh.serviceList[idx].serviceId = _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->infoFilter.serviceId;
-
-		directoryRefresh.serviceList[idx].info.action = RSSL_FTEA_SET_ENTRY;
-
-		if ( !_activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->infoFilter.vendorName.empty() )
-		{
-			directoryRefresh.serviceList[idx].info.vendor.data = (char*) _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->infoFilter.vendorName.c_str();
-			directoryRefresh.serviceList[idx].info.vendor.length = _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->infoFilter.vendorName.length();
-			directoryRefresh.serviceList[idx].info.flags |= RDM_SVC_IFF_HAS_VENDOR;
-		}
-
-		if ( !_activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->infoFilter.itemList.empty() )
-		{
-			directoryRefresh.serviceList[idx].info.itemList.data = (char*) _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->infoFilter.itemList.c_str();
-			directoryRefresh.serviceList[idx].info.itemList.length = _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->infoFilter.itemList.length();
-			directoryRefresh.serviceList[idx].info.flags |= RDM_SVC_IFF_HAS_ITEM_LIST;
-		}
-
-		directoryRefresh.serviceList[idx].info.acceptingConsumerStatus = _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->infoFilter.acceptingConsumerStatus;
-		directoryRefresh.serviceList[idx].info.flags |= RDM_SVC_IFF_HAS_ACCEPTING_CONS_STATUS;
-
-		directoryRefresh.serviceList[idx].info.isSource = _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->infoFilter.isSource;
-		directoryRefresh.serviceList[idx].info.flags |= RDM_SVC_IFF_HAS_IS_SOURCE;
-
-		directoryRefresh.serviceList[idx].info.supportsOutOfBandSnapshots = _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->infoFilter.supportsOutOfBandSnapshots;
-		directoryRefresh.serviceList[idx].info.flags |= RDM_SVC_IFF_HAS_SUPPORT_OOB_SNAPSHOTS;
-
-		directoryRefresh.serviceList[idx].info.supportsQosRange = _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->infoFilter.supportsQosRange;
-		directoryRefresh.serviceList[idx].info.flags |= RDM_SVC_IFF_HAS_SUPPORT_QOS_RANGE;
-
-		directoryRefresh.serviceList[idx].info.capabilitiesCount = _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->infoFilter.capabilities.size();
-
-		try
-		{
-			directoryRefresh.serviceList[idx].info.capabilitiesList = new UInt64[directoryRefresh.serviceList[idx].info.capabilitiesCount];
-		}
-		catch ( std::bad_alloc )
-		{
-			freeMemory( directoryRefresh, rsslMsgBuffer );
-			handleMee( "Failed to allocate memory in OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()" );
-			return;
-		}
-
-		for ( UInt32 jdx = 0; jdx < directoryRefresh.serviceList[idx].info.capabilitiesCount; ++jdx )
-			directoryRefresh.serviceList[idx].info.capabilitiesList[jdx] = _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->infoFilter.capabilities[jdx];
-
-		directoryRefresh.serviceList[idx].info.dictionariesProvidedCount = _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->infoFilter.dictionariesProvided.size();
-
-		if ( directoryRefresh.serviceList[idx].info.dictionariesProvidedCount )
-		{
-			try
-			{
-				directoryRefresh.serviceList[idx].info.dictionariesProvidedList = new RsslBuffer[directoryRefresh.serviceList[idx].info.dictionariesProvidedCount];
-			}
-			catch ( std::bad_alloc )
-			{
-				freeMemory( directoryRefresh, rsslMsgBuffer );
-				handleMee( "Failed to allocate memory in OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()" );
-				return;
-			}
-
-
-			for ( UInt32 jdx = 0; jdx < directoryRefresh.serviceList[idx].info.dictionariesProvidedCount; ++jdx )
-			{
-				directoryRefresh.serviceList[idx].info.dictionariesProvidedList[jdx].data = (char*) _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->infoFilter.dictionariesProvided[jdx].c_str();
-				directoryRefresh.serviceList[idx].info.dictionariesProvidedList[jdx].length = _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->infoFilter.dictionariesProvided[jdx].length();
-			}
-
-			directoryRefresh.serviceList[idx].info.flags |= RDM_SVC_IFF_HAS_DICTS_PROVIDED;
-		}
-
-		directoryRefresh.serviceList[idx].info.dictionariesUsedCount = _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->infoFilter.dictionariesUsed.size();
-
-		if ( directoryRefresh.serviceList[idx].info.dictionariesUsedCount )
-		{
-			try
-			{
-				directoryRefresh.serviceList[idx].info.dictionariesUsedList = new RsslBuffer[directoryRefresh.serviceList[idx].info.dictionariesUsedCount];
-			}
-			catch ( std::bad_alloc )
-			{
-				freeMemory( directoryRefresh, rsslMsgBuffer );
-				handleMee( "Failed to allocate memory in OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()" );
-				return;
-			}
-
-			for ( UInt32 jdx = 0; jdx < directoryRefresh.serviceList[idx].info.dictionariesUsedCount; ++jdx )
-			{
-				directoryRefresh.serviceList[idx].info.dictionariesUsedList[jdx].data = (char*) _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->infoFilter.dictionariesUsed[jdx].c_str();
-				directoryRefresh.serviceList[idx].info.dictionariesUsedList[jdx].length = _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->infoFilter.dictionariesUsed[jdx].length();
-			}
-
-			directoryRefresh.serviceList[idx].info.flags |= RDM_SVC_IFF_HAS_DICTS_USED;
-		}
-
-		directoryRefresh.serviceList[idx].info.qosCount = _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->infoFilter.qos.size();
-
-		if ( directoryRefresh.serviceList[idx].info.qosCount )
-		{
-			try
-			{
-				directoryRefresh.serviceList[idx].info.qosList = new RsslQos[directoryRefresh.serviceList[idx].info.qosCount];
-			}
-			catch ( std::bad_alloc )
-			{
-				freeMemory( directoryRefresh, rsslMsgBuffer );
-				handleMee( "Failed to allocate memory in OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()" );
-				return;
-			}
-
-			for ( UInt32 jdx = 0; jdx < directoryRefresh.serviceList[idx].info.qosCount; ++jdx )
-				directoryRefresh.serviceList[idx].info.qosList[jdx] = _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->infoFilter.qos[jdx];
-
-			directoryRefresh.serviceList[idx].info.flags |= RDM_SVC_IFF_HAS_QOS;
-		}
-
-		directoryRefresh.serviceList[idx].info.serviceName.data = (char*) _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->serviceName.c_str();
-		directoryRefresh.serviceList[idx].info.serviceName.length = _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->serviceName.length();
-
-		directoryRefresh.serviceList[idx].state.acceptingRequests = _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->stateFilter.acceptingRequests;
-		directoryRefresh.serviceList[idx].state.flags |= RDM_SVC_STF_HAS_ACCEPTING_REQS;
-		directoryRefresh.serviceList[idx].state.action = RSSL_FTEA_SET_ENTRY;
-		directoryRefresh.serviceList[idx].state.serviceState = _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->stateFilter.serviceState;
-
-		if ( _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->stateFilter.isStatusConfigured )
-		{
-			directoryRefresh.serviceList[idx].state.flags |= RDM_SVC_STF_HAS_STATUS;
-			directoryRefresh.serviceList[idx].state.status.streamState = _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->stateFilter.status.streamState;
-			directoryRefresh.serviceList[idx].state.status.dataState = _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->stateFilter.status.dataState;
-			directoryRefresh.serviceList[idx].state.status.code = _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->stateFilter.status.code;
-			directoryRefresh.serviceList[idx].state.status.text = _activeConfig.userSubmittedDirectoryConfig.getServiceList()[idx]->stateFilter.status.text;
-		}
 	}
 
 	RsslErrorInfo rsslErrorInfo;
@@ -1319,7 +428,7 @@ void OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()
 
 		if ( !rsslMsgBuffer.data )
 		{
-			freeMemory( directoryRefresh, rsslMsgBuffer );
+			DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
 			handleMee( "Failed to allocate memory in OmmNiProviderImpl::loadDirectory()" );
 			return;
 		}
@@ -1330,7 +439,7 @@ void OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()
 
 	if ( retCode != RSSL_RET_SUCCESS )
 	{
-		freeMemory( directoryRefresh, rsslMsgBuffer );
+		DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
 
 		EmaString temp( "Internal error: failed to encode RsslRDMDirectoryMsg in OmmNiProviderImpl::loadDirectory()" );
 		temp.append( CR )
@@ -1349,14 +458,14 @@ void OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()
 
 	if ( rsslSetDecodeIteratorRWFVersion( &decIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION ) != RSSL_RET_SUCCESS )
 	{
-		freeMemory( directoryRefresh, rsslMsgBuffer );
+		DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
 		handleIue( "Internal error. Failed to set decode iterator version in OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()" );
 		return;
 	}
 
 	if ( rsslSetDecodeIteratorBuffer( &decIter, &rsslMsgBuffer ) != RSSL_RET_SUCCESS )
 	{
-		freeMemory( directoryRefresh, rsslMsgBuffer );
+		DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
 		handleIue( "Internal error. Failed to set decode iterator buffer in OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()" );
 		return;
 	}
@@ -1365,7 +474,7 @@ void OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()
 	rsslClearRefreshMsg( &rsslRefreshMsg );
 	if ( rsslDecodeMsg( &decIter, (RsslMsg*) &rsslRefreshMsg ) != RSSL_RET_SUCCESS )
 	{
-		freeMemory( directoryRefresh, rsslMsgBuffer );
+		DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
 		handleIue( "Internal error. Failed to decode message in OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()" );
 		return;
 	}
@@ -1376,37 +485,19 @@ void OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()
 	submitMsgOpts.pRsslMsg = (RsslMsg*) &rsslRefreshMsg;
 
 	EmaString temp;
-	RsslBuffer swapBuffer;
-	rsslClearBuffer( &swapBuffer );
 
-	if ( _activeConfig.removeItemsOnDisconnect && !decodeSourceDirectory( &submitMsgOpts.pRsslMsg->msgBase.encDataBody, &swapBuffer, temp ) )
+	if (_activeConfig.removeItemsOnDisconnect && !_ommNiProviderDirectoryStore.decodeSourceDirectory(&submitMsgOpts.pRsslMsg->msgBase.encDataBody, temp))
 	{
-		freeMemory( directoryRefresh, rsslMsgBuffer );
-
-		if ( swapBuffer.data ) free( swapBuffer.data );
+		DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
 		handleIue( temp );
 		return;
-	}
-
-	RsslBuffer origPayload;
-
-	if ( swapBuffer.data )
-	{
-		origPayload = submitMsgOpts.pRsslMsg->msgBase.encDataBody;
-		submitMsgOpts.pRsslMsg->msgBase.encDataBody = swapBuffer;
 	}
 
 	clearRsslErrorInfo( &rsslErrorInfo );
 	Channel* pChannel = getChannelCallbackClient().getChannelList().front();
 	if ( rsslReactorSubmitMsg( pChannel->getRsslReactor(), pChannel->getRsslChannel(), &submitMsgOpts, &rsslErrorInfo ) != RSSL_RET_SUCCESS )
 	{
-		freeMemory( directoryRefresh, rsslMsgBuffer );
-
-		if ( swapBuffer.data )
-		{
-			submitMsgOpts.pRsslMsg->msgBase.encDataBody = origPayload;
-			free( swapBuffer.data );
-		}
+		DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
 
 		EmaString temp( "Internal error: rsslReactorSubmitMsg() failed in OmmNiProviderImpl::loadDirectory()." );
 		temp.append( CR ).append( pChannel->toString() ).append( CR )
@@ -1427,209 +518,23 @@ void OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()
 			getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::VerboseEnum, "User submitted source directoies were sent out on the wire after reconnect." );
 	}
 
-	if ( swapBuffer.data )
-	{
-		submitMsgOpts.pRsslMsg->msgBase.encDataBody = origPayload;
-		free( swapBuffer.data );
-	}
-
-	freeMemory( directoryRefresh, rsslMsgBuffer );
+	DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
 }
 
-void OmmNiProviderImpl::storeUserSubmitSourceDirectory( RsslMsg* pMsg )
+bool OmmNiProviderImpl::storeUserSubmitSourceDirectory( RsslMsg* pMsg )
 {
-	if ( !_activeConfig.recoverUserSubmitSourceDirectory )
-		return;
-
-	if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
-		getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::VerboseEnum, "Storing user submitted source directories for connection recovery." );
-
-	RsslDecodeIterator decIter;
-	rsslClearDecodeIterator( &decIter );
-
-	if ( rsslSetDecodeIteratorRWFVersion( &decIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION ) != RSSL_RET_SUCCESS )
+	if (_activeConfig.recoverUserSubmitSourceDirectory)
 	{
-		handleIue( "Internal error. Failed to set decode iterator version in OmmNiProviderImpl::storeUserSubmitSourceDirectory()" );
-		return;
-	}
 
-	if ( rsslSetDecodeIteratorBuffer( &decIter, &pMsg->msgBase.encDataBody ) != RSSL_RET_SUCCESS )
+		if (OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity)
+			getOmmLoggerClient().log(_activeConfig.instanceName, OmmLoggerClient::VerboseEnum, "Storing user submitted source directories for connection recovery.");
+
+		return _ommNiProviderDirectoryStore.submitSourceDirectory(0, pMsg, _rsslDirectoryMsg, _rsslDirectoryMsgBuffer, true);
+	}
+	else
 	{
-		handleIue( "Internal error. Failed to set decode iterator buffer in OmmNiProviderImpl::storeUserSubmitSourceDirectory()" );
-		return;
+		return _ommNiProviderDirectoryStore.submitSourceDirectory(0, pMsg, _rsslDirectoryMsg, _rsslDirectoryMsgBuffer, false);
 	}
-
-	RsslErrorInfo rsslErrorInfo;
-	clearRsslErrorInfo( &rsslErrorInfo );
-	RsslRDMDirectoryMsg userSubmitSourceDirectory;
-
-	RsslBuffer tempBuffer, tempBufferOrig;
-	tempBufferOrig.length = 4096;
-	tempBufferOrig.data = (char*) malloc( tempBufferOrig.length * sizeof( char ) );
-	if ( !tempBufferOrig.data )
-	{
-		handleMee( "Failed to allocate memory in OmmNiProviderImpl::storeUserSubmitSourceDirectory()" );
-		return;
-	}
-
-	tempBuffer = tempBufferOrig;
-
-	RsslRet retCode;
-
-	while ( RSSL_RET_BUFFER_TOO_SMALL == ( retCode = rsslDecodeRDMDirectoryMsg( &decIter, pMsg, &userSubmitSourceDirectory, &tempBuffer, &rsslErrorInfo ) ) )
-	{
-		free( tempBufferOrig.data );
-		tempBufferOrig.length += tempBufferOrig.length;
-		tempBufferOrig.data = (char*) malloc( tempBufferOrig.length * sizeof( char ) );
-		if ( !tempBufferOrig.data )
-		{
-			handleMee( "Failed to allocate memory in OmmNiProviderImpl::storeUserSubmitSourceDirectory()" );
-			return;
-		}
-
-		tempBuffer = tempBufferOrig;
-	}
-
-	if ( retCode < RSSL_RET_SUCCESS )
-	{
-		free( tempBufferOrig.data );
-
-		EmaString temp( "Internal error: failed to decode RsslRDMDirectoryMsg in OmmNiProviderImpl::storeUserSubmitSourceDirectory()" );
-		temp.append( CR )
-			.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
-			.append( "Error Id " ).append( rsslErrorInfo.rsslError.rsslErrorId ).append( CR )
-			.append( "Internal sysError " ).append( rsslErrorInfo.rsslError.sysError ).append( CR )
-			.append( "Error Location " ).append( rsslErrorInfo.errorLocation ).append( CR )
-			.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
-
-		handleIue( temp );
-		return;
-	}
-
-	UInt32 serviceCount = 0;
-	RsslRDMService* pServiceList = 0;
-
-	switch ( pMsg->msgBase.msgClass )
-	{
-	case RSSL_MC_REFRESH:
-		serviceCount = userSubmitSourceDirectory.refresh.serviceCount;
-		pServiceList = userSubmitSourceDirectory.refresh.serviceList;
-		break;
-	case RSSL_MC_UPDATE:
-		serviceCount = userSubmitSourceDirectory.update.serviceCount;
-		pServiceList = userSubmitSourceDirectory.update.serviceList;
-		break;
-	default:
-		break;
-	}
-
-	for ( UInt32 idx = 0; idx < serviceCount; ++idx )
-	{
-		switch ( ( *pServiceList ).action )
-		{
-		case RSSL_MPEA_ADD_ENTRY:
-		{
-			ServiceConfig service;
-
-			if ( pServiceList->flags & RDM_SVCF_HAS_STATE )
-			{
-				if ( pServiceList->state.flags & RDM_SVC_STF_HAS_ACCEPTING_REQS )
-					service.stateFilter.acceptingRequests = pServiceList->state.acceptingRequests;
-
-				service.stateFilter.serviceState = pServiceList->state.serviceState;
-
-				if ( pServiceList->state.flags & RDM_SVC_STF_HAS_STATUS )
-				{
-					service.stateFilter.isStatusConfigured = true;
-					service.stateFilter.status = pServiceList->state.status;
-					service.stateFilter.statusText.set( pServiceList->state.status.text.data, pServiceList->state.status.text.length );
-					service.stateFilter.status.text.data = (char*) service.stateFilter.statusText.c_str();
-					service.stateFilter.status.text.length = service.stateFilter.statusText.length();
-				}
-			}
-
-			if ( pServiceList->flags & RDM_SVCF_HAS_INFO )
-			{
-				if ( pServiceList->info.flags & RDM_SVC_IFF_HAS_ACCEPTING_CONS_STATUS )
-					service.infoFilter.acceptingConsumerStatus = pServiceList->info.acceptingConsumerStatus;
-
-				if ( pServiceList->info.flags & RDM_SVC_IFF_HAS_IS_SOURCE )
-					service.infoFilter.isSource = pServiceList->info.isSource;
-
-				for ( UInt32 i = 0; i < pServiceList->info.capabilitiesCount; ++i )
-					service.infoFilter.capabilities.push_back( *( pServiceList->info.capabilitiesList++ ) );
-
-				for ( UInt32 i = 0; i < pServiceList->info.dictionariesProvidedCount; ++i )
-				{
-					service.infoFilter.dictionariesProvided.push_back( EmaString( pServiceList->info.dictionariesProvidedList->data, pServiceList->info.dictionariesProvidedList->length ) );
-					pServiceList->info.dictionariesProvidedList++;
-				}
-
-				for ( UInt32 i = 0; i < pServiceList->info.dictionariesUsedCount; ++i )
-				{
-					service.infoFilter.dictionariesUsed.push_back( EmaString( pServiceList->info.dictionariesUsedList->data, pServiceList->info.dictionariesUsedList->length ) );
-					pServiceList->info.dictionariesUsedList++;
-				}
-
-				if ( pServiceList->info.flags & RDM_SVC_IFF_HAS_ITEM_LIST )
-					service.infoFilter.itemList.set( pServiceList->info.itemList.data, pServiceList->info.itemList.length );
-
-				service.infoFilter.serviceId = pServiceList->serviceId;
-
-				if ( pServiceList->info.flags & RDM_SVC_IFF_HAS_QOS )
-					for ( UInt32 i = 0; i < pServiceList->info.qosCount; ++i )
-						service.infoFilter.qos.push_back( *( pServiceList->info.qosList++ ) );
-
-				if ( pServiceList->info.flags & RDM_SVC_IFF_HAS_SUPPORT_OOB_SNAPSHOTS )
-					service.infoFilter.supportsOutOfBandSnapshots = pServiceList->info.supportsOutOfBandSnapshots;
-
-				if ( pServiceList->info.flags & RDM_SVC_IFF_HAS_SUPPORT_QOS_RANGE )
-					service.infoFilter.supportsQosRange = pServiceList->info.supportsQosRange;
-
-				if ( pServiceList->info.flags & RDM_SVC_IFF_HAS_VENDOR )
-					service.infoFilter.vendorName.set( pServiceList->info.vendor.data, pServiceList->info.vendor.length );
-
-				service.serviceName.set( pServiceList->info.serviceName.data, pServiceList->info.serviceName.length );
-			}
-
-			_activeConfig.userSubmittedDirectoryConfig.addService( service );
-		}
-		break;
-		case RSSL_MPEA_DELETE_ENTRY:
-			_activeConfig.userSubmittedDirectoryConfig.removeService( ( *pServiceList ).serviceId );
-			break;
-		case RSSL_MPEA_UPDATE_ENTRY:
-		{
-			ServiceConfig* pService = _activeConfig.userSubmittedDirectoryConfig.getService( ( *pServiceList ).serviceId );
-			if ( pService )
-			{
-				if ( pServiceList->flags & RDM_SVCF_HAS_STATE )
-				{
-					if ( pServiceList->state.flags & RDM_SVC_STF_HAS_ACCEPTING_REQS )
-						pService->stateFilter.acceptingRequests = pServiceList->state.acceptingRequests;
-
-					pService->stateFilter.serviceState = pServiceList->state.serviceState;
-
-					if ( pServiceList->state.flags & RDM_SVC_STF_HAS_STATUS )
-					{
-						pService->stateFilter.isStatusConfigured = true;
-						pService->stateFilter.status = pServiceList->state.status;
-						pService->stateFilter.statusText.set( pServiceList->state.status.text.data, pServiceList->state.status.text.length );
-						pService->stateFilter.status.text.data = (char*) pService->stateFilter.statusText.c_str();
-						pService->stateFilter.status.text.length = pService->stateFilter.statusText.length();
-					}
-				}
-			}
-		}
-		break;
-		default:
-			break;
-		}
-
-		++pServiceList;
-	}
-
-	free( tempBufferOrig.data );
 }
 
 void OmmNiProviderImpl::reLoadConfigSourceDirectory()
@@ -1646,22 +551,11 @@ void OmmNiProviderImpl::reLoadConfigSourceDirectory()
 	submitMsgOpts.pRsslMsg = (RsslMsg*) _activeConfig.pDirectoryRefreshMsg->get();
 
 	EmaString temp;
-	RsslBuffer swapBuffer;
-	rsslClearBuffer( &swapBuffer );
 
-	if ( _activeConfig.removeItemsOnDisconnect && !decodeSourceDirectory( &submitMsgOpts.pRsslMsg->msgBase.encDataBody, &swapBuffer, temp ) )
+	if (_activeConfig.removeItemsOnDisconnect && !_ommNiProviderDirectoryStore.decodeSourceDirectory(&submitMsgOpts.pRsslMsg->msgBase.encDataBody, temp))
 	{
-		if ( swapBuffer.data ) free( swapBuffer.data );
 		handleIue( temp );
 		return;
-	}
-
-	RsslBuffer origPayload;
-
-	if ( swapBuffer.data )
-	{
-		origPayload = submitMsgOpts.pRsslMsg->msgBase.encDataBody;
-		submitMsgOpts.pRsslMsg->msgBase.encDataBody = swapBuffer;
 	}
 
 	RsslErrorInfo rsslErrorInfo;
@@ -1669,12 +563,6 @@ void OmmNiProviderImpl::reLoadConfigSourceDirectory()
 	Channel* pChannel = getChannelCallbackClient().getChannelList().front();
 	if ( rsslReactorSubmitMsg( pChannel->getRsslReactor(), pChannel->getRsslChannel(), &submitMsgOpts, &rsslErrorInfo ) != RSSL_RET_SUCCESS )
 	{
-		if ( swapBuffer.data )
-		{
-			submitMsgOpts.pRsslMsg->msgBase.encDataBody = origPayload;
-			free( swapBuffer.data );
-		}
-
 		EmaString temp( "Internal error: rsslReactorSubmitMsg() failed in OmmNiProviderImpl::reLoadConfigSourceDirectory()." );
 		temp.append( CR ).append( pChannel->toString() ).append( CR )
 			.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
@@ -1691,12 +579,6 @@ void OmmNiProviderImpl::reLoadConfigSourceDirectory()
 
 		if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
 			getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::VerboseEnum, "Configured source directoies were sent out on the wire after reconnect." );
-	}
-
-	if ( swapBuffer.data )
-	{
-		submitMsgOpts.pRsslMsg->msgBase.encDataBody = origPayload;
-		free( swapBuffer.data );
 	}
 }
 
@@ -1820,10 +702,6 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 
 	bool bHandleAdded = false;
 
-	RsslBuffer swapBuffer;
-	RsslBuffer origPayload;
-	rsslClearBuffer( &swapBuffer );
-
 	_userLock.lock();
 
 	if ( !_pChannelCallbackClient )
@@ -1843,75 +721,79 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 
 	Channel* pChannel = getChannelCallbackClient().getChannelList().front();
 
-	if ( submitMsgOpts.pRsslMsg->msgBase.domainType == ema::rdm::MMT_DIRECTORY )
+	if (submitMsgOpts.pRsslMsg->msgBase.domainType == ema::rdm::MMT_DIRECTORY)
 	{
-		if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
+		if (OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity)
 		{
-			EmaString temp( "Received RefreshMsg with SourceDirectory domain; Handle = " );
-			temp.append( handle ).append( ", user assigned streamId = " ).append( submitMsgOpts.pRsslMsg->msgBase.streamId ).append( "." );
+			EmaString temp("Received RefreshMsg with SourceDirectory domain; Handle = ");
+			temp.append(handle).append(", user assigned streamId = ").append(submitMsgOpts.pRsslMsg->msgBase.streamId).append(".");
 
-			getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::VerboseEnum, temp );
+			getOmmLoggerClient().log(_activeConfig.instanceName, OmmLoggerClient::VerboseEnum, temp);
 		}
 
-		if ( submitMsgOpts.pRsslMsg->msgBase.containerType != RSSL_DT_MAP )
+		if (submitMsgOpts.pRsslMsg->msgBase.containerType != RSSL_DT_MAP)
 		{
 			_userLock.unlock();
-			EmaString temp( "Attempt to submit RefreshMsg with SourceDirectory domain using container with wrong data type. Expected container data type is Map. Passed in is " );
-			temp += DataType( dataType[submitMsgOpts.pRsslMsg->msgBase.containerType] ).toString();
-			handleIue( temp );
+			EmaString temp("Attempt to submit RefreshMsg with SourceDirectory domain using container with wrong data type. Expected container data type is Map. Passed in is ");
+			temp += DataType(dataType[submitMsgOpts.pRsslMsg->msgBase.containerType]).toString();
+			handleIue(temp);
 			return;
 		}
 
 		EmaString temp;
 
-		if ( !decodeSourceDirectory( &submitMsgOpts.pRsslMsg->msgBase.encDataBody, &swapBuffer, temp ) )
+		if (!_ommNiProviderDirectoryStore.decodeSourceDirectory(&submitMsgOpts.pRsslMsg->msgBase.encDataBody, temp))
 		{
-			if ( swapBuffer.data ) free( swapBuffer.data );
-
 			_userLock.unlock();
-			handleIue( temp );
+			handleIue(temp);
 			return;
 		}
 
 		submitMsgOpts.pRsslMsg->refreshMsg.flags &= ~RSSL_RFMF_SOLICITED;
 
-		if ( _activeConfig.mergeSourceDirectoryStreams )
+		if (_activeConfig.mergeSourceDirectoryStreams)
 		{
 			submitMsgOpts.pRsslMsg->msgBase.streamId = 0;
 		}
 		else
 		{
-			if ( pStreamInfoPtr )
+			if (pStreamInfoPtr)
 			{
-				submitMsgOpts.pRsslMsg->msgBase.streamId = ( *pStreamInfoPtr )->_streamId;
+				submitMsgOpts.pRsslMsg->msgBase.streamId = (*pStreamInfoPtr)->_streamId;
 			}
 			else
 			{
 				try
 				{
 					submitMsgOpts.pRsslMsg->msgBase.streamId = -pChannel->getNextStreamId();
-					StreamInfoPtr pTemp = new StreamInfo( submitMsgOpts.pRsslMsg->msgBase.streamId );
-					_handleToStreamInfo.insert( handle, pTemp );
-					_streamInfoList.push_back( pTemp );
+					StreamInfoPtr pTemp = new StreamInfo(submitMsgOpts.pRsslMsg->msgBase.streamId);
+					_handleToStreamInfo.insert(handle, pTemp);
+					_streamInfoList.push_back(pTemp);
 					bHandleAdded = true;
 				}
-				catch ( std::bad_alloc )
+				catch (std::bad_alloc)
 				{
-					pChannel->returnStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
+					pChannel->returnStreamId(submitMsgOpts.pRsslMsg->msgBase.streamId);
 					_userLock.unlock();
-					handleMee( "Failed to allocate memory in OmmNiProviderImpl::submit( const RefreshMsg& )" );
+					handleMee("Failed to allocate memory in OmmNiProviderImpl::submit( const RefreshMsg& )");
 					return;
 				}
 			}
 		}
 
-		if ( swapBuffer.data )
+		try
 		{
-			origPayload = submitMsgOpts.pRsslMsg->msgBase.encDataBody;
-			submitMsgOpts.pRsslMsg->msgBase.encDataBody = swapBuffer;
+			if (!storeUserSubmitSourceDirectory(submitMsgOpts.pRsslMsg))
+			{
+				_userLock.unlock();
+				return;
+			}
 		}
-
-		storeUserSubmitSourceDirectory( submitMsgOpts.pRsslMsg );
+		catch (OmmException&)
+		{
+			_userLock.unlock();
+			throw;
+		}
 	}
 	else
 	{
@@ -1937,7 +819,7 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 		else if ( enc.hasServiceName() )
 		{
 			const EmaString& serviceName = enc.getServiceName();
-			RsslUInt64* pServiceId = _serviceNameToServiceId.find( &serviceName );
+			RsslUInt64* pServiceId = _ommNiProviderDirectoryStore.getServiceIdByName(&serviceName);
 			if ( !pServiceId )
 			{
 				_userLock.unlock();
@@ -1965,7 +847,9 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 
 			try
 			{
-				StreamInfoPtr pTemp = new StreamInfo( submitMsgOpts.pRsslMsg->msgBase.streamId, submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId );
+				StreamInfoPtr pTemp = new StreamInfo( submitMsgOpts.pRsslMsg->msgBase.streamId,
+										submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId,
+										submitMsgOpts.pRsslMsg->msgBase.domainType);
 				_handleToStreamInfo.insert( handle, pTemp );
 				_streamInfoList.push_back( pTemp );
 				bHandleAdded = true;
@@ -1980,7 +864,7 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 		}
 		else if ( enc.hasServiceId() )
 		{
-			EmaStringPtr* pServiceNamePtr = _serviceIdToServiceName.find( submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId );
+			EmaStringPtr* pServiceNamePtr = _ommNiProviderDirectoryStore.getServiceNameById(submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId);
 
 			if ( !pServiceNamePtr )
 			{
@@ -1997,7 +881,8 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 
 			try
 			{
-				StreamInfoPtr pTemp = new StreamInfo( submitMsgOpts.pRsslMsg->msgBase.streamId, submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId );
+				StreamInfoPtr pTemp = new StreamInfo( submitMsgOpts.pRsslMsg->msgBase.streamId, submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId,
+														submitMsgOpts.pRsslMsg->msgBase.domainType);
 				_handleToStreamInfo.insert( handle, pTemp );
 				_streamInfoList.push_back( pTemp );
 				bHandleAdded = true;
@@ -2033,12 +918,6 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 
 		_userLock.unlock();
 
-		if ( swapBuffer.data )
-		{
-			submitMsgOpts.pRsslMsg->msgBase.encDataBody = origPayload;
-			free( swapBuffer.data );
-		}
-
 		EmaString temp( "Internal error: rsslReactorSubmitMsg() failed in OmmNiProviderImpl::submit( const RefreshMsg& )." );
 		temp.append( CR ).append( pChannel->toString() ).append( CR )
 			.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
@@ -2050,12 +929,6 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 		handleIue( temp );
 
 		return;
-	}
-
-	if ( swapBuffer.data )
-	{
-		submitMsgOpts.pRsslMsg->msgBase.encDataBody = origPayload;
-		free( swapBuffer.data );
 	}
 
 	if ( submitMsgOpts.pRsslMsg->refreshMsg.state.streamState == OmmState::ClosedEnum ||
@@ -2082,10 +955,6 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 	submitMsgOpts.pRsslMsg = ( RsslMsg* )static_cast<const UpdateMsgEncoder&>( msg.getEncoder() ).getRsslUpdateMsg();
 
 	bool bHandleAdded = false;
-
-	RsslBuffer swapBuffer;
-	RsslBuffer origPayload;
-	rsslClearBuffer( &swapBuffer );
 
 	_userLock.lock();
 
@@ -2127,10 +996,8 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 
 		EmaString temp;
 
-		if ( !decodeSourceDirectory( &submitMsgOpts.pRsslMsg->msgBase.encDataBody, &swapBuffer, temp ) )
+		if ( !_ommNiProviderDirectoryStore.decodeSourceDirectory( &submitMsgOpts.pRsslMsg->msgBase.encDataBody, temp ) )
 		{
-			if ( swapBuffer.data ) free( swapBuffer.data );
-
 			_userLock.unlock();
 			handleIue( temp );
 			return;
@@ -2184,13 +1051,19 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 			}
 		}
 
-		if ( swapBuffer.data )
+		try
 		{
-			origPayload = submitMsgOpts.pRsslMsg->msgBase.encDataBody;
-			submitMsgOpts.pRsslMsg->msgBase.encDataBody = swapBuffer;
+			if (!storeUserSubmitSourceDirectory(submitMsgOpts.pRsslMsg))
+			{
+				_userLock.unlock();
+				return;
+			}
 		}
-
-		storeUserSubmitSourceDirectory( submitMsgOpts.pRsslMsg );
+		catch (OmmException&)
+		{
+			_userLock.unlock();
+			throw;
+		}
 	}
 	else
 	{
@@ -2224,7 +1097,7 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 		else if ( enc.hasServiceName() )
 		{
 			const EmaString& serviceName = enc.getServiceName();
-			RsslUInt64* pServiceId = _serviceNameToServiceId.find( &serviceName );
+			RsslUInt64* pServiceId = _ommNiProviderDirectoryStore.getServiceIdByName(&serviceName);
 			if ( !pServiceId )
 			{
 				_userLock.unlock();
@@ -2249,7 +1122,8 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 
 			try
 			{
-				StreamInfoPtr pTemp = new StreamInfo( submitMsgOpts.pRsslMsg->msgBase.streamId, submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId );
+				StreamInfoPtr pTemp = new StreamInfo( submitMsgOpts.pRsslMsg->msgBase.streamId, submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId,
+														submitMsgOpts.pRsslMsg->msgBase.domainType);
 				_handleToStreamInfo.insert( handle, pTemp );
 				_streamInfoList.push_back( pTemp );
 				bHandleAdded = true;
@@ -2264,7 +1138,7 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 		}
 		else if ( enc.hasServiceId() )
 		{
-			EmaStringPtr* pServiceNamePtr = _serviceIdToServiceName.find( submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId );
+			EmaStringPtr* pServiceNamePtr = _ommNiProviderDirectoryStore.getServiceNameById(submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId);
 
 			if ( !pServiceNamePtr )
 			{
@@ -2279,7 +1153,8 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 
 			try
 			{
-				StreamInfoPtr pTemp = new StreamInfo( submitMsgOpts.pRsslMsg->msgBase.streamId, submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId );
+				StreamInfoPtr pTemp = new StreamInfo( submitMsgOpts.pRsslMsg->msgBase.streamId, submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId,
+														submitMsgOpts.pRsslMsg->msgBase.domainType);
 				_handleToStreamInfo.insert( handle, pTemp );
 				_streamInfoList.push_back( pTemp );
 				bHandleAdded = true;
@@ -2315,12 +1190,6 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 
 		_userLock.unlock();
 
-		if ( swapBuffer.data )
-		{
-			submitMsgOpts.pRsslMsg->msgBase.encDataBody = origPayload;
-			free( swapBuffer.data );
-		}
-
 		EmaString temp( "Internal error: rsslReactorSubmitMsg() failed in OmmNiProviderImpl::submit( const UpdateMsg& )." );
 		temp.append( CR ).append( pChannel->toString() ).append( CR )
 			.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
@@ -2331,12 +1200,6 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 
 		handleIue( temp );
 		return;
-	}
-
-	if ( swapBuffer.data )
-	{
-		submitMsgOpts.pRsslMsg->msgBase.encDataBody = origPayload;
-		free( swapBuffer.data );
 	}
 
 	_userLock.unlock();
@@ -2459,7 +1322,7 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 		else if ( enc.hasServiceName() )
 		{
 			const EmaString& serviceName = enc.getServiceName();
-			RsslUInt64* pServiceId = _serviceNameToServiceId.find( &serviceName );
+			RsslUInt64* pServiceId = _ommNiProviderDirectoryStore.getServiceIdByName(&serviceName);
 			if ( !pServiceId )
 			{
 				_userLock.unlock();
@@ -2484,7 +1347,8 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 
 			try
 			{
-				StreamInfoPtr pTemp = new StreamInfo( submitMsgOpts.pRsslMsg->msgBase.streamId, submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId );
+				StreamInfoPtr pTemp = new StreamInfo( submitMsgOpts.pRsslMsg->msgBase.streamId, submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId,
+														submitMsgOpts.pRsslMsg->msgBase.domainType);
 				_handleToStreamInfo.insert( handle, pTemp );
 				_streamInfoList.push_back( pTemp );
 				bHandleAdded = true;
@@ -2499,7 +1363,7 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 		}
 		else if ( enc.hasServiceId() )
 		{
-			EmaStringPtr* pServiceNamePtr = _serviceIdToServiceName.find( submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId );
+			EmaStringPtr* pServiceNamePtr = _ommNiProviderDirectoryStore.getServiceNameById(submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId);
 
 			if ( !pServiceNamePtr )
 			{
@@ -2515,7 +1379,8 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 
 			try
 			{
-				StreamInfoPtr pTemp = new StreamInfo( submitMsgOpts.pRsslMsg->msgBase.streamId, submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId );
+				StreamInfoPtr pTemp = new StreamInfo( submitMsgOpts.pRsslMsg->msgBase.streamId, submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId,
+														submitMsgOpts.pRsslMsg->msgBase.domainType);
 				_handleToStreamInfo.insert( handle, pTemp );
 				_streamInfoList.push_back( pTemp );
 				bHandleAdded = true;
@@ -2614,6 +1479,8 @@ void OmmNiProviderImpl::submit( const GenericMsg& msg, UInt64 handle )
 		}
 
 		submitMsgOpts.pRsslMsg->msgBase.streamId = ( *pStreamInfoPtr )->_streamId;
+		if (submitMsgOpts.pRsslMsg->msgBase.domainType == 0)
+			submitMsgOpts.pRsslMsg->msgBase.domainType = (*pStreamInfoPtr)->_domainType;
 	}
 	else
 	{
@@ -2644,6 +1511,11 @@ void OmmNiProviderImpl::submit( const GenericMsg& msg, UInt64 handle )
 	_userLock.unlock();
 }
 
+void OmmNiProviderImpl::submit(const AckMsg&, UInt64)
+{
+	handleIue("Non-interactive provider does not support submmiting AckMsg.");
+}
+
 void OmmNiProviderImpl::setRsslReactorChannelRole( RsslReactorChannelRole& role )
 {
 	RsslReactorOMMNIProviderRole& niProviderRole = role.ommNIProviderRole;
@@ -2653,337 +1525,6 @@ void OmmNiProviderImpl::setRsslReactorChannelRole( RsslReactorChannelRole& role 
 	niProviderRole.loginMsgCallback = OmmBaseImpl::loginCallback;
 	niProviderRole.base.defaultMsgCallback = OmmBaseImpl::itemCallback;
 	niProviderRole.base.channelEventCallback = OmmBaseImpl::channelCallback;
-}
-
-bool OmmNiProviderImpl::decodeSourceDirectory( RwfBuffer* pInBuffer, RsslBuffer* pOutBuffer, EmaString& errorText )
-{
-	if ( !pOutBuffer )
-	{
-		errorText.set( "Internal error: pOutBuffer was not assigned in OmmNiProviderImpl::decodeSourceDirectory()." );
-		return false;
-	}
-
-	RsslRet retCode = RSSL_RET_SUCCESS;
-	RsslDecodeIterator dIter;
-	rsslClearDecodeIterator( &dIter );
-
-	retCode = rsslSetDecodeIteratorRWFVersion( &dIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION );
-	if ( retCode != RSSL_RET_SUCCESS )
-	{
-		errorText.set( "Internal error. Failed to set decode iterator version in OmmNiProviderImpl::decodeServiceNameAndId(). Reason = " );
-		errorText.append( rsslRetCodeToString( retCode ) ).append( ". " );
-		return false;
-	}
-
-	retCode = rsslSetDecodeIteratorBuffer( &dIter, pInBuffer );
-	if ( retCode != RSSL_RET_SUCCESS )
-	{
-		errorText.set( "Internal error. Failed to set decode iterator buffer in OmmNiProviderImpl::decodeServiceNameAndId(). Reason = " );
-		errorText.append( rsslRetCodeToString( retCode ) ).append( ". " );
-		return false;
-	}
-
-	RsslMap rsslMap;
-	rsslClearMap( &rsslMap );
-
-	if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
-		getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::VerboseEnum, "Begin decoding of SourceDirectory." );
-
-	retCode = rsslDecodeMap( &dIter, &rsslMap );
-
-	if ( retCode < RSSL_RET_SUCCESS )
-	{
-		errorText.set( "Internal error. Failed to decode rsslMap in OmmNiProviderImpl::decodeServiceNameAndId(). Reason = " );
-		errorText.append( rsslRetCodeToString( retCode ) ).append( ". " );
-		return false;
-	}
-	else if ( retCode == RSSL_RET_NO_DATA )
-	{
-		if ( OmmLoggerClient::WarningEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
-			getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::WarningEnum, "Passed in SourceDirectory map contains no entries (e.g. there is no service specified)." );
-
-		if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
-			getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::VerboseEnum, "End decoding of SourceDirectory." );
-
-		return true;
-	}
-
-	switch ( rsslMap.keyPrimitiveType )
-	{
-	case RSSL_DT_UINT:
-		if ( !decodeSourceDirectoryKeyUInt( rsslMap, dIter, errorText ) )
-			return false;
-		break;
-	default:
-		errorText.set( "Attempt to specify SourceDirectory info with a Map using key DataType of " );
-		errorText += DataType( dataType[rsslMap.keyPrimitiveType] ).toString();
-		errorText += EmaString( " while the expected key DataType is " );
-		errorText += DataType( DataType::UIntEnum ).toString();
-		return false;
-	}
-
-	if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
-		getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::VerboseEnum, "End decoding of SourceDirectory." );
-
-	return true;
-}
-
-bool OmmNiProviderImpl::decodeSourceDirectoryKeyUInt( RsslMap& rsslMap, RsslDecodeIterator& dIter, EmaString& errorText )
-{
-	RsslRet retCode = RSSL_RET_SUCCESS;
-	RsslUInt64 serviceId = 0;
-	RsslMapEntry rsslMapEntry;
-	rsslClearMapEntry( &rsslMapEntry );
-	while ( ( retCode = rsslDecodeMapEntry( &dIter, &rsslMapEntry, &serviceId ) ) != RSSL_RET_END_OF_CONTAINER )
-	{
-		if ( retCode != RSSL_RET_SUCCESS )
-		{
-			errorText.set( "Internal error: Failed to Decode Map Entry. Reason = " );
-			errorText.append( rsslRetCodeToString( retCode ) ).append( ". " );
-			return false;
-		}
-
-		if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
-		{
-			EmaString temp( "Begin decoding of Service with id of " );
-			temp.append( serviceId ).append( ". Action = " );
-			switch ( rsslMapEntry.action )
-			{
-			case RSSL_MPEA_UPDATE_ENTRY:
-				temp.append( "Update" );
-				break;
-			case RSSL_MPEA_ADD_ENTRY:
-				temp.append( "Add" );
-				break;
-			case RSSL_MPEA_DELETE_ENTRY:
-				temp.append( "Delete" );
-				break;
-			}
-
-			getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::VerboseEnum, temp );
-		}
-
-		if ( rsslMapEntry.action == RSSL_MPEA_DELETE_ENTRY )
-		{
-			EmaStringPtr* pServiceNamePtr = _serviceIdToServiceName.find( serviceId );
-
-			if ( pServiceNamePtr )
-			{
-				UInt64* pServiceId = _serviceNameToServiceId.find( *pServiceNamePtr );
-				if ( !pServiceId )
-				{
-					errorText.set( "Internal error: mismatch between _serviceIdToServiceName and _serviceNameToServiceId tables." )
-						.append( " ServiceName = " ).append( **pServiceNamePtr ).append( " serviceId = " ).append( serviceId );
-					return false;
-				}
-
-				EmaStringPtr pTemp = *pServiceNamePtr;
-				_serviceNameToServiceId.erase( pTemp );
-				_serviceIdToServiceName.erase( serviceId );
-				_serviceNameList.removeValue( pTemp );
-				delete pTemp;
-			}
-
-			if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
-			{
-				EmaString temp( "End decoding of Service with id of " );
-				temp.append( serviceId );
-				getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::VerboseEnum, temp );
-			}
-
-			continue;
-		}
-		else if ( rsslMapEntry.action == RSSL_MPEA_ADD_ENTRY )
-		{
-			EmaStringPtr* pServiceNamePtr = _serviceIdToServiceName.find( serviceId );
-
-			if ( pServiceNamePtr )
-			{
-				errorText.set( "Attempt to add a service with name of " );
-				errorText.append( **pServiceNamePtr ).append( " and id of " ).append( serviceId ).append( " while a service with the same id is already added." );
-				return false;
-			}
-		}
-
-		if ( rsslMap.containerType != RSSL_DT_FILTER_LIST )
-		{
-			errorText.set( "Attempt to specify Service with a container of " );
-			errorText += DataType( dataType[rsslMap.containerType] ).toString();
-			errorText += EmaString( " rather than the expected " );
-			errorText += DataType( DataType::FilterListEnum ).toString();
-			return false;
-		}
-
-		RsslFilterList rsslFilterList;
-		RsslFilterEntry rsslFilterEntry;
-		rsslClearFilterList( &rsslFilterList );
-		rsslClearFilterEntry( &rsslFilterEntry );
-
-		retCode = rsslDecodeFilterList( &dIter, &rsslFilterList );
-
-		if ( retCode < RSSL_RET_SUCCESS )
-		{
-			errorText.set( "Internal error: Failed to Decode FilterList. Reason = " );
-			errorText.append( rsslRetCodeToString( retCode ) ).append( ". " );
-			return false;
-		}
-		else if ( retCode == RSSL_RET_NO_DATA )
-		{
-			if ( OmmLoggerClient::WarningEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
-			{
-				EmaString temp( "Service with id of " );
-				temp.append( serviceId ).append( " contains no FilterEntries. Skipping this service." );
-				getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::WarningEnum, temp );
-			}
-
-			if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
-			{
-				EmaString temp( "End decoding of Service with id of " );
-				temp.append( serviceId );
-				getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::VerboseEnum, temp );
-			}
-
-			continue;
-		}
-
-		while ( ( retCode = rsslDecodeFilterEntry( &dIter, &rsslFilterEntry ) ) != RSSL_RET_END_OF_CONTAINER )
-		{
-			if ( retCode < RSSL_RET_SUCCESS )
-			{
-				errorText.set( "Internal error: Failed to Decode Filter Entry. Reason = " );
-				errorText.append( rsslRetCodeToString( retCode ) ).append( ". " );
-				return false;
-			}
-
-			if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
-			{
-				EmaString temp( "Begin decoding of FilterEntry with id of " );
-				temp.append( rsslFilterEntry.id );
-				getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::VerboseEnum, temp );
-			}
-
-			if ( rsslFilterEntry.id == RDM_DIRECTORY_SERVICE_INFO_ID )
-			{
-				if ( rsslMapEntry.action == RSSL_MPEA_UPDATE_ENTRY )
-				{
-					errorText.set( "Attempt to update Infofilter of service with id of " );
-					errorText.append( serviceId ).append( " while this is not allowed." );
-					return false;
-				}
-
-				if ( ( ( rsslFilterEntry.flags & RSSL_FTEF_HAS_CONTAINER_TYPE ) && rsslFilterEntry.containerType != RSSL_DT_ELEMENT_LIST ) ||
-					rsslFilterList.containerType != RSSL_DT_ELEMENT_LIST )
-				{
-					RsslContainerType type = ( rsslFilterEntry.flags & RSSL_FTEF_HAS_CONTAINER_TYPE ) ? rsslFilterEntry.containerType : rsslFilterList.containerType;
-					errorText.set( "Attempt to specify Service InfoFilter with a container of " );
-					errorText += DataType( dataType[type] ).toString();
-					errorText += EmaString( " rather than the expected " );
-					errorText += DataType( DataType::ElementListEnum ).toString();
-					return false;
-				}
-
-				RsslElementList	rsslElementList;
-				RsslElementEntry rsslElementEntry;
-				rsslClearElementList( &rsslElementList );
-				rsslClearElementEntry( &rsslElementEntry );
-
-				if ( ( retCode = rsslDecodeElementList( &dIter, &rsslElementList, NULL ) ) < RSSL_RET_SUCCESS )
-				{
-					errorText.set( "Internal error: Failed to Decode Element List. Reason = " );
-					errorText.append( rsslRetCodeToString( retCode ) ).append( ". " );
-					return false;
-				}
-
-				bool bServiceNameEntryFound = false;
-
-				while ( ( retCode = rsslDecodeElementEntry( &dIter, &rsslElementEntry ) ) != RSSL_RET_END_OF_CONTAINER )
-				{
-					if ( retCode < RSSL_RET_SUCCESS )
-					{
-						errorText.set( "Internal error: Failed to Decode ElementEntry. Reason = " );
-						errorText.append( rsslRetCodeToString( retCode ) ).append( ". " );
-						return false;
-					}
-
-					if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
-					{
-						EmaString temp( "Decoding of ElementEntry with name of " );
-						temp.append( EmaString( rsslElementEntry.name.data, rsslElementEntry.name.length ) );
-						getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::VerboseEnum, temp );
-					}
-
-					if ( !bServiceNameEntryFound && rsslBufferIsEqual( &rsslElementEntry.name, &RSSL_ENAME_NAME ) )
-					{
-						if ( rsslElementEntry.dataType != RSSL_DT_ASCII_STRING )
-						{
-							errorText.set( "Attempt to specify Service Name with a " );
-							errorText += DataType( dataType[rsslElementEntry.dataType] ).toString();
-							errorText += EmaString( " rather than the expected " );
-							errorText += DataType( DataType::AsciiEnum ).toString();
-							return false;
-						}
-
-						RsslBuffer serviceNameBuffer;
-						rsslClearBuffer( &serviceNameBuffer );
-
-						retCode = rsslDecodeBuffer( &dIter, &serviceNameBuffer );
-						if ( retCode < RSSL_RET_SUCCESS )
-						{
-							errorText.set( "Internal error: Failed to Decode Buffer. Reason = " );
-							errorText.append( rsslRetCodeToString( retCode ) ).append( ". " );
-							return false;
-						}
-						else if ( retCode == RSSL_RET_BLANK_DATA )
-						{
-							errorText.set( "Attempt to specify Service Name with a blank ascii string for service id of " );
-							errorText.append( serviceId );
-							return false;
-						}
-
-						bServiceNameEntryFound = true;
-
-						EmaStringPtr pServiceName = new EmaString( serviceNameBuffer.data, serviceNameBuffer.length );
-
-						if ( _serviceNameToServiceId.find( pServiceName ) )
-						{
-							errorText.set( "Attempt to add a service with name of " );
-							errorText.append( *pServiceName ).append( " and id of " ).append( serviceId ).append( " while a service with the same id is already added." );
-
-							delete pServiceName;
-							return false;
-						}
-
-						_serviceNameToServiceId.insert( pServiceName, serviceId );
-						_serviceIdToServiceName.insert( serviceId, pServiceName );
-						_serviceNameList.push_back( pServiceName );
-
-						if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
-						{
-							EmaString temp( "Detected Service with name of " );
-							temp.append( *pServiceName ).append( " and Id of " ).append( serviceId );
-							getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::VerboseEnum, temp );
-						}
-					}
-				}
-
-				if ( !bServiceNameEntryFound )
-				{
-					errorText.set( "Attempt to specify service InfoFilter without required Service Name for service id of " );
-					errorText.append( serviceId );
-					return false;
-				}
-			}
-
-			if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
-			{
-				EmaString temp( "End decoding of FilterEntry with id of " );
-				temp.append( rsslFilterEntry.id );
-				getOmmLoggerClient().log( _activeConfig.instanceName, OmmLoggerClient::VerboseEnum, temp );
-			}
-		}
-	}
-
-	return true;
 }
 
 bool OmmNiProviderImpl::realocateBuffer( RsslBuffer* pBuffer1, RsslBuffer* pBuffer2, RsslEncodeIterator* pEncIter, EmaString& errorText )
@@ -3021,23 +1562,6 @@ bool OmmNiProviderImpl::UInt64Equal_To::operator()( const UInt64& x, const UInt6
 	return x == y;
 }
 
-size_t OmmNiProviderImpl::EmaStringPtrHasher::operator()( const EmaStringPtr& value ) const
-{
-	size_t result = 0;
-	size_t magic = 8388593;
-
-	const char* s = value->c_str();
-	UInt32 n = value->length();
-	while ( n-- )
-		result = ( ( result % magic ) << 8 ) + (size_t) * s++;
-	return result;
-}
-
-bool OmmNiProviderImpl::EmaStringPtrEqual_To::operator()( const EmaStringPtr& x, const EmaStringPtr& y ) const
-{
-	return *x == *y;
-}
-
 bool OmmNiProviderImpl::isApiDispatching() const
 {
 	return _activeConfig.operationModel == OmmNiProviderConfig::ApiDispatchEnum ? true : false;
@@ -3047,7 +1571,7 @@ bool OmmNiProviderImpl::getServiceId( const EmaString& serviceName, UInt64& serv
 {
 	bool retCode = false;
 
-	UInt64* pServiceId = _serviceNameToServiceId.find( &serviceName );
+	UInt64* pServiceId = _ommNiProviderDirectoryStore.getServiceIdByName(&serviceName);
 
 	if ( pServiceId )
 	{
@@ -3062,7 +1586,7 @@ bool OmmNiProviderImpl::getServiceName( UInt64 serviceId, EmaString& serviceName
 {
 	bool retCode = false;
 
-	EmaStringPtr* pServiceName = _serviceIdToServiceName.find( serviceId );
+	EmaStringPtr* pServiceName = _ommNiProviderDirectoryStore.getServiceNameById(serviceId);
 
 	if ( pServiceName )
 	{

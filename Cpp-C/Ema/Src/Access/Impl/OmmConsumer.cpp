@@ -9,6 +9,7 @@
 #include "OmmConsumer.h"
 #include "OmmConsumerConfig.h"
 #include "OmmConsumerImpl.h"
+#include "ExceptionTranslator.h"
 
 #include <new>
 

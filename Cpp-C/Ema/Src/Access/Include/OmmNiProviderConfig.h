@@ -76,6 +76,14 @@ public :
 	virtual ~OmmNiProviderConfig();
 	//@}
 
+	///@name Accessors
+	//@{
+	/** Retrieve Provider's role
+		@return role of this OmmNiProviderConfig instance
+	*/
+	ProviderRole getProviderRole() const;
+	//@}
+
 	///@name Operations
 	//@{
 	/** Clears the OmmNiProviderConfig and sets all the defaults.

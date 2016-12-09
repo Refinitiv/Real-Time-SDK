@@ -32,28 +32,669 @@ using namespace thomsonreuters::ema::access;
 
 extern const EmaString& getDTypeAsString( DataType::DataTypeEnum dType );
 
+EmaConfigBaseImpl::EmaConfigBaseImpl() :
+	_pEmaConfig(new XMLnode("EmaConfig", 0, 0)),
+	_pProgrammaticConfigure(0),
+	_instanceNodeName()
+{
+	createNameToValueHashTable();
+
+	EmaString tmp("EmaConfig.xml");
+	OmmLoggerClient::Severity result(readXMLconfiguration(tmp));
+	if (result == OmmLoggerClient::ErrorEnum || result == OmmLoggerClient::VerboseEnum)
+	{
+		EmaString errorMsg("failed to extract configuration from [");
+		errorMsg.append(tmp).append("]");
+		_pEmaConfig->appendErrorMessage(errorMsg, result);
+	}
+}
+
+EmaConfigBaseImpl::~EmaConfigBaseImpl()
+{
+	delete _pEmaConfig;
+
+	xmlCleanupParser();
+}
+
+void EmaConfigBaseImpl::clear()
+{
+	_instanceNodeName.clear();
+}
+
+const XMLnode* EmaConfigBaseImpl::getNode(const EmaString& itemToRetrieve) const
+{
+	if (itemToRetrieve.empty())
+		return 0;
+
+	EmaString remainingPart;
+	EmaString currentPart;
+	EmaString name;
+	const char* nodeSeparator("|");
+	const char* nameSeparator(".");
+
+	Int32 pos(itemToRetrieve.find(nodeSeparator, 0));
+	if (pos == -1)
+		currentPart = itemToRetrieve;
+	else
+	{
+		currentPart = itemToRetrieve.substr(0, pos);
+		remainingPart = itemToRetrieve.substr(pos + 1, EmaString::npos);
+	}
+
+	Int32 dotPos(currentPart.find(nameSeparator, 0));
+	if (dotPos != -1)
+	{
+		currentPart = currentPart.substr(0, dotPos);
+		name = currentPart.substr(dotPos + 1, EmaString::npos);
+	}
+
+	xmlList<XMLnode>* children(_pEmaConfig->getChildren());
+	if (children->empty())
+		return 0;
+
+	const XMLnode* node = children->getFirst();
+
+	while (node)
+	{
+		bool match(false);
+
+		if (name.empty())
+			match = (node->name() == currentPart);
+		else
+		{
+			if (node->name() == currentPart)
+			{
+				ConfigElementList* attributes = node->attributes();
+				ConfigElement* attribute = attributes->first();
+				while (attribute)
+				{
+					if (attribute->name() == "Name" &&
+						*static_cast<XMLConfigElement<EmaString>*>(attribute)->value() == name)
+					{
+						match = true;
+						break;
+					}
+					attribute = attributes->next(attribute);
+				}
+			}
+		}
+
+		if (match)
+		{
+			if (remainingPart.empty())
+				return node;
+
+			children = node->getChildren();
+			if (!children)
+				return 0;
+			node = children->getFirst();
+
+			pos = remainingPart.find(nodeSeparator, 0);
+			if (pos == -1)
+			{
+				currentPart = remainingPart;
+				remainingPart.clear();
+			}
+			else
+			{
+				currentPart = remainingPart.substr(0, pos);
+				remainingPart = remainingPart.substr(pos + 1, EmaString::npos);
+			}
+
+			dotPos = currentPart.find(nameSeparator, 0);
+			if (dotPos == -1)
+				name.clear();
+			else
+			{
+				name = currentPart.substr(dotPos + 1, EmaString::npos);
+				currentPart = currentPart.substr(0, dotPos);
+			}
+		}
+		else
+			node = children->getNext(node);
+	}
+	return 0;
+}
+
+OmmLoggerClient::Severity EmaConfigBaseImpl::readXMLconfiguration(const EmaString& fileName)
+{
+#ifdef WIN32
+	char* fileLocation = _getcwd(0, 0);
+#else
+	char* fileLocation = getcwd(0, 0);
+#endif
+	EmaString message("reading configuration file [");
+	message.append(fileName).append("] from [").append(fileLocation).append("]");
+	_pEmaConfig->appendErrorMessage(message, OmmLoggerClient::VerboseEnum);
+	free(fileLocation);
+
+#ifdef WIN32
+	struct _stat statBuffer;
+	int statResult(_stat(fileName, &statBuffer));
+#else
+	struct stat statBuffer;
+	int statResult(stat(fileName.c_str(), &statBuffer));
+#endif
+	if (statResult)
+	{
+		EmaString errorMsg("error reading configuration file [");
+		errorMsg.append(fileName).append("]; system error message [").append(strerror(errno)).append("]");
+		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::VerboseEnum);
+		return OmmLoggerClient::VerboseEnum;
+	}
+	if (!statBuffer.st_size)
+	{
+		EmaString errorMsg("error reading configuration file [");
+		errorMsg.append(fileName).append("]; file is empty");
+		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
+		return OmmLoggerClient::ErrorEnum;
+	}
+	FILE* fp;
+	fp = fopen(fileName.c_str(), "r");
+	if (!fp)
+	{
+		EmaString errorMsg("error reading configuration file [");
+		errorMsg.append(fileName).append("]; could not open file; system error message [").append(strerror(errno)).append("]");
+		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
+		return OmmLoggerClient::ErrorEnum;
+	}
+
+	char* xmlData = reinterpret_cast<char*>(malloc(statBuffer.st_size + 1));
+	size_t bytesRead(fread(reinterpret_cast<void*>(xmlData), sizeof(char), statBuffer.st_size, fp));
+	if (!bytesRead)
+	{
+		EmaString errorMsg("error reading configuration file [");
+		errorMsg.append(fileName).append("]; fread failed; system error message [").append(strerror(errno)).append("]");
+		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
+		free(xmlData);
+		return OmmLoggerClient::ErrorEnum;
+	}
+	fclose(fp);
+	xmlData[bytesRead] = 0;
+	bool retVal(extractXMLdataFromCharBuffer(fileName, xmlData, static_cast<int>(bytesRead)));
+	free(xmlData);
+	return (retVal == true ? OmmLoggerClient::SuccessEnum : OmmLoggerClient::ErrorEnum);
+}
+
+bool EmaConfigBaseImpl::extractXMLdataFromCharBuffer(const EmaString& what, const char* xmlData, int length)
+{
+	LIBXML_TEST_VERSION
+
+		EmaString note("extracting XML data from ");
+	note.append(what);
+	_pEmaConfig->appendErrorMessage(note, OmmLoggerClient::VerboseEnum);
+
+	xmlDocPtr xmlDoc = xmlReadMemory(xmlData, length, NULL, "notnamed.xml", XML_PARSE_HUGE);
+	if (xmlDoc == NULL)
+	{
+		EmaString errorMsg("extractXMLdataFromCharBuffer: xmlReadMemory failed while processing ");
+		errorMsg.append(what);
+		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
+		xmlFreeDoc(xmlDoc);
+		return false;
+	}
+
+	xmlNodePtr _xmlNodePtr = xmlDocGetRootElement(xmlDoc);
+	if (_xmlNodePtr == NULL)
+	{
+		EmaString errorMsg("extractXMLdataFromCharBuffer: xmlDocGetRootElement failed while processing ");
+		errorMsg.append(what);
+		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
+		xmlFreeDoc(xmlDoc);
+		return false;
+	}
+
+	processXMLnodePtr(_pEmaConfig, _xmlNodePtr);
+	_pEmaConfig->name(reinterpret_cast<const char*>(_xmlNodePtr->name));
+	xmlFreeDoc(xmlDoc);
+	return true;
+}
+
+void EmaConfigBaseImpl::processXMLnodePtr(XMLnode* theNode, const xmlNodePtr& nodePtr)
+{
+	// add attibutes
+	if (nodePtr->properties)
+	{
+		xmlChar* value(0);
+		for (xmlAttrPtr attrPtr = nodePtr->properties; attrPtr != NULL; attrPtr = attrPtr->next)
+		{
+			if (!xmlStrcmp(attrPtr->name, reinterpret_cast<const xmlChar*>("value")))
+				value = xmlNodeListGetString(attrPtr->doc, attrPtr->children, 1);
+			else
+			{
+				EmaString errorMsg("got unexpected name [");
+				errorMsg.append(reinterpret_cast<const char*>(attrPtr->name)).append("] while processing XML data; ignored");
+				theNode->appendErrorMessage(errorMsg, OmmLoggerClient::VerboseEnum);
+			}
+		}
+
+		static EmaString errorMsg;
+		ConfigElement* e(createConfigElement(reinterpret_cast<const char*>(nodePtr->name), theNode->parent(),
+			reinterpret_cast<const char*>(value), errorMsg));
+		if (e)
+			theNode->addAttribute(e);
+		else if (!errorMsg.empty())
+		{
+			theNode->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
+			errorMsg.clear();
+		}
+
+		if (value)
+			xmlFree(value);
+	}
+
+	for (xmlNodePtr childNodePtr = nodePtr->children; childNodePtr; childNodePtr = childNodePtr->next)
+	{
+		if (xmlIsBlankNode(childNodePtr))
+			continue;
+		if (childNodePtr->type == XML_COMMENT_NODE)
+			continue;
+
+		switch (childNodePtr->type)
+		{
+		case XML_TEXT_NODE:
+		case XML_PI_NODE:
+			break;
+		case XML_ELEMENT_NODE:
+		{
+			XMLnode* child(new XMLnode(reinterpret_cast<const char*>(childNodePtr->name), theNode->level() + 1, theNode));
+			static int instance(0);
+			++instance;
+			processXMLnodePtr(child, childNodePtr);
+			if (child->errorCount())
+			{
+				theNode->errors().add(child->errors());
+				child->errors().clear();
+			}
+			--instance;
+
+			if (childNodePtr->properties && !childNodePtr->children)
+			{
+				theNode->appendAttributes(child->attributes(), true);
+				delete child;
+			}
+			else if (!childNodePtr->properties && childNodePtr->children)
+			{
+				if (theNode->addChild(child))
+				{
+					delete child;
+				}
+			}
+			else if (!childNodePtr->properties && !childNodePtr->children)
+			{
+				EmaString errorMsg("node [");
+				errorMsg.append(reinterpret_cast<const char*>(childNodePtr->name)).append("has neither children nor attributes");
+				theNode->appendErrorMessage(errorMsg, OmmLoggerClient::VerboseEnum);
+			}
+			else
+			{
+				EmaString errorMsg("node [");
+				errorMsg.append(reinterpret_cast<const char*>(childNodePtr->name)).append("has both children and attributes; node was ignored");
+				theNode->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
+			}
+			break;
+		}
+		default:
+			EmaString errorMsg("childNodePtr has unhandled type [");
+			errorMsg.append(childNodePtr->type).append("]");
+			theNode->appendErrorMessage(errorMsg, OmmLoggerClient::VerboseEnum);
+		}
+	}
+}
+
+void EmaConfigBaseImpl::createNameToValueHashTable()
+{
+	for (int i = 0; i < sizeof AsciiValues / sizeof(EmaString); ++i)
+		nameToValueHashTable.insert(AsciiValues[i], ConfigElement::ConfigElementTypeAscii);
+
+	for (int i = 0; i < sizeof EnumeratedValues / sizeof(EmaString); ++i)
+		nameToValueHashTable.insert(EnumeratedValues[i], ConfigElement::ConfigElementTypeEnum);
+
+	for (int i = 0; i < sizeof Int64Values / sizeof(EmaString); ++i)
+		nameToValueHashTable.insert(Int64Values[i], ConfigElement::ConfigElementTypeInt64);
+
+	for (int i = 0; i < sizeof UInt64Values / sizeof(EmaString); ++i)
+		nameToValueHashTable.insert(UInt64Values[i], ConfigElement::ConfigElementTypeUInt64);
+}
+
+ConfigElement* EmaConfigBaseImpl::createConfigElement(const char* name, XMLnode* parent, const char* value, EmaString& errorMsg)
+{
+	ConfigElement* e(0);
+	ConfigElement::ConfigElementType* elementType = nameToValueHashTable.find(name);
+	if (elementType == 0)
+		errorMsg.append("unsupported configuration element [").append(name).append("]; element ignored");
+	else switch (*elementType)
+	{
+	case ConfigElement::ConfigElementTypeAscii:
+		e = new XMLConfigElement<EmaString>(name, parent, ConfigElement::ConfigElementTypeAscii, value);
+		break;
+	case ConfigElement::ConfigElementTypeEnum:
+		e = convertEnum(name, parent, value, errorMsg);
+		break;
+	case ConfigElement::ConfigElementTypeInt64:
+	{
+		if (!validateConfigElement(value, ConfigElement::ConfigElementTypeInt64))
+		{
+			errorMsg.append("value [").append(value).append("] for config element [").append(name).append("] is not a signed integer; element ignored");
+			break;
+		}
+		Int64 converted;
+#ifdef WIN32
+		converted = _strtoi64(value, 0, 0);
+#else
+		converted = strtoll(value, 0, 0);
+#endif
+		e = new XMLConfigElement<Int64>(name, parent, ConfigElement::ConfigElementTypeInt64, converted);
+	}
+	break;
+	case ConfigElement::ConfigElementTypeUInt64:
+	{
+		if (!validateConfigElement(value, ConfigElement::ConfigElementTypeUInt64))
+		{
+			errorMsg.append("value [").append(value).append("] for config element [").append(name).append("] is not an unsigned integer; element ignored");
+			break;
+		}
+		UInt64 converted;
+#ifdef WIN32
+		converted = _strtoui64(value, 0, 0);
+#else
+		converted = strtoull(value, 0, 0);
+#endif
+		e = new XMLConfigElement<UInt64>(name, parent, ConfigElement::ConfigElementTypeUInt64, converted);
+	}
+	break;
+	default:
+		errorMsg.append("config element [").append(name).append("] had unexpected elementType [").append(*elementType).append("; element ignored");
+		break;
+	}
+	return e;
+}
+
+bool EmaConfigBaseImpl::validateConfigElement(const char* value, ConfigElement::ConfigElementType valueType) const
+{
+	if (valueType == ConfigElement::ConfigElementTypeInt64 || valueType == ConfigElement::ConfigElementTypeUInt64)
+	{
+		if (!strlen(value))
+			return false;
+		const char* p = value;
+		if (valueType == ConfigElement::ConfigElementTypeInt64 && !isdigit(*p))
+		{
+			if (*p++ != '-')
+				return false;
+			if (!*p)
+				return false;
+		}
+		for (; *p; ++p)
+			if (!isdigit(*p))
+				return false;
+		return true;
+	}
+
+	return false;
+}
+
+ConfigElement* EmaConfigBaseImpl::convertEnum(const char* name, XMLnode* parent, const char* value, EmaString& errorMsg)
+{
+	EmaString enumValue(value);
+	int colonPosition(enumValue.find("::"));
+	if (colonPosition == -1)
+	{
+		errorMsg.append("configuration attribute [").append(name)
+			.append("] has an invalid Enum value format [").append(value)
+			.append("]; expected typename::value (e.g., OperationModel::ApiDispatch)");
+		return 0;
+	}
+
+	EmaString enumType(enumValue.substr(0, colonPosition));
+	enumValue = enumValue.substr(colonPosition + 2, enumValue.length() - colonPosition - 2);
+
+	if (!strcmp(enumType, "LoggerSeverity"))
+	{
+		static struct
+		{
+			const char* configInput;
+			OmmLoggerClient::Severity convertedValue;
+		} converter[] =
+		{
+			{ "Verbose", OmmLoggerClient::VerboseEnum },
+			{ "Success", OmmLoggerClient::SuccessEnum },
+			{ "Warning", OmmLoggerClient::WarningEnum },
+			{ "Error", OmmLoggerClient::ErrorEnum },
+			{ "NoLogMsg", OmmLoggerClient::NoLogMsgEnum }
+		};
+
+		for (int i = 0; i < sizeof converter / sizeof converter[0]; ++i)
+			if (!strcmp(converter[i].configInput, enumValue))
+				return new XMLConfigElement<OmmLoggerClient::Severity>(name, parent, ConfigElement::ConfigElementTypeEnum, converter[i].convertedValue);
+	}
+	else if (!strcmp(enumType, "LoggerType"))
+	{
+		static struct
+		{
+			const char* configInput;
+			OmmLoggerClient::LoggerType convertedValue;
+		} converter[] =
+		{
+			{ "File", OmmLoggerClient::FileEnum },
+			{ "Stdout", OmmLoggerClient::StdoutEnum },
+		};
+		for (int i = 0; i < sizeof converter / sizeof converter[0]; i++)
+			if (!strcmp(converter[i].configInput, enumValue))
+				return new XMLConfigElement<OmmLoggerClient::LoggerType>(name, parent, ConfigElement::ConfigElementTypeEnum, converter[i].convertedValue);
+	}
+	else if (!strcmp(enumType, "DictionaryType"))
+	{
+		static struct
+		{
+			const char* configInput;
+			Dictionary::DictionaryType convertedValue;
+		} converter[] =
+		{
+			{ "FileDictionary", Dictionary::FileDictionaryEnum },
+			{ "ChannelDictionary", Dictionary::ChannelDictionaryEnum },
+		};
+
+		for (int i = 0; i < sizeof converter / sizeof converter[0]; i++)
+			if (!strcmp(converter[i].configInput, enumValue))
+				return new XMLConfigElement<Dictionary::DictionaryType>(name, parent, ConfigElement::ConfigElementTypeEnum, converter[i].convertedValue);
+	}
+	else if (!strcmp(enumType, "ChannelType"))
+	{
+		static struct
+		{
+			const char* configInput;
+			RsslConnectionTypes convertedValue;
+		} converter[] =
+		{
+			{ "RSSL_SOCKET", RSSL_CONN_TYPE_SOCKET },
+			{ "RSSL_HTTP", RSSL_CONN_TYPE_HTTP },
+			{ "RSSL_ENCRYPTED", RSSL_CONN_TYPE_ENCRYPTED },
+			{ "RSSL_RELIABLE_MCAST", RSSL_CONN_TYPE_RELIABLE_MCAST },
+		};
+
+		for (int i = 0; i < sizeof converter / sizeof converter[0]; i++)
+			if (!strcmp(converter[i].configInput, enumValue))
+				return new XMLConfigElement<RsslConnectionTypes>(name, parent, ConfigElement::ConfigElementTypeEnum, converter[i].convertedValue);
+	}
+	else if (!strcmp(enumType, "ServerType"))
+	{
+		static struct
+		{
+			const char* configInput;
+			RsslConnectionTypes convertedValue;
+		} converter[] =
+		{
+			{ "RSSL_SOCKET", RSSL_CONN_TYPE_SOCKET },
+		};
+
+		for (int i = 0; i < sizeof converter / sizeof converter[0]; i++)
+			if (!strcmp(converter[i].configInput, enumValue))
+				return new XMLConfigElement<RsslConnectionTypes>(name, parent, ConfigElement::ConfigElementTypeEnum, converter[i].convertedValue);
+	}
+	else if (!strcmp(enumType, "CompressionType"))
+	{
+		static struct
+		{
+			const char* configInput;
+			RsslCompTypes convertedValue;
+		} converter[] =
+		{
+			{ "None", RSSL_COMP_NONE },
+			{ "ZLib", RSSL_COMP_ZLIB },
+			{ "LZ4", RSSL_COMP_LZ4 },
+		};
+
+		for (int i = 0; i < sizeof converter / sizeof converter[0]; i++)
+			if (!strcmp(converter[i].configInput, enumValue))
+				return new XMLConfigElement<RsslCompTypes>(name, parent, ConfigElement::ConfigElementTypeEnum, converter[i].convertedValue);
+	}
+	else if (!strcmp(enumType, "StreamState"))
+	{
+		static struct
+		{
+			const char* configInput;
+			OmmState::StreamState convertedValue;
+		} converter[] =
+		{
+			{ "Open", OmmState::OpenEnum },
+			{ "NonStreaming", OmmState::NonStreamingEnum },
+			{ "ClosedRecover", OmmState::ClosedRecoverEnum },
+			{ "Closed", OmmState::ClosedEnum },
+			{ "ClosedRedirected", OmmState::ClosedRedirectedEnum },
+		};
+
+		for (int i = 0; i < sizeof converter / sizeof converter[0]; i++)
+			if (!strcmp(converter[i].configInput, enumValue))
+				return new XMLConfigElement<OmmState::StreamState>(name, parent, ConfigElement::ConfigElementTypeEnum, converter[i].convertedValue);
+	}
+	else if (!strcmp(enumType, "DataState"))
+	{
+		static struct
+		{
+			const char* configInput;
+			OmmState::DataState convertedValue;
+		} converter[] =
+		{
+			{ "NoChange", OmmState::NoChangeEnum },
+			{ "Ok", OmmState::OkEnum },
+			{ "Suspect", OmmState::SuspectEnum },
+		};
+
+		for (int i = 0; i < sizeof converter / sizeof converter[0]; i++)
+			if (!strcmp(converter[i].configInput, enumValue))
+				return new XMLConfigElement<OmmState::DataState>(name, parent, ConfigElement::ConfigElementTypeEnum, converter[i].convertedValue);
+	}
+	else if (!strcmp(enumType, "StatusCode"))
+	{
+		static struct
+		{
+			const char* configInput;
+			OmmState::StatusCode convertedValue;
+		} converter[] =
+		{
+			{ "None", OmmState::NoneEnum },
+			{ "NotFound", OmmState::NotFoundEnum },
+			{ "Timeout", OmmState::TimeoutEnum },
+			{ "NotAuthorized", OmmState::NotAuthorizedEnum },
+			{ "InvalidArgument", OmmState::InvalidArgumentEnum },
+			{ "UsageError", OmmState::UsageErrorEnum },
+			{ "Preempted", OmmState::PreemptedEnum },
+			{ "JustInTimeConflationStarted", OmmState::JustInTimeConflationStartedEnum },
+			{ "TickByTickResumed", OmmState::TickByTickResumedEnum },
+			{ "FailoverStarted", OmmState::FailoverStartedEnum },
+			{ "FailoverCompleted", OmmState::FailoverCompletedEnum },
+			{ "GapDetected", OmmState::GapDetectedEnum },
+			{ "NoResources", OmmState::NoResourcesEnum },
+			{ "TooManyItems", OmmState::TooManyItemsEnum },
+			{ "AlreadyOpen", OmmState::AlreadyOpenEnum },
+			{ "SourceUnknown", OmmState::SourceUnknownEnum },
+			{ "NotOpen", OmmState::NotOpenEnum },
+			{ "NonUpdatingItem", OmmState::NonUpdatingItemEnum },
+			{ "UnsupportedViewType", OmmState::UnsupportedViewTypeEnum },
+			{ "InvalidView", OmmState::InvalidViewEnum },
+			{ "FullViewProvided", OmmState::FullViewProvidedEnum },
+			{ "UnableToRequestAsBatch", OmmState::UnableToRequestAsBatchEnum },
+			{ "NoBatchViewSupportInReq", OmmState::NoBatchViewSupportInReqEnum },
+			{ "ExceededMaxMountsPerUser", OmmState::ExceededMaxMountsPerUserEnum },
+			{ "Error", OmmState::ErrorEnum },
+			{ "DacsDown", OmmState::DacsDownEnum },
+			{ "UserUnknownToPermSys", OmmState::UserUnknownToPermSysEnum },
+			{ "DacsMaxLoginsReached", OmmState::DacsMaxLoginsReachedEnum },
+			{ "DacsUserAccessToAppDenied", OmmState::DacsUserAccessToAppDeniedEnum },
+		};
+
+		for (int i = 0; i < sizeof converter / sizeof converter[0]; i++)
+			if (!strcmp(converter[i].configInput, enumValue))
+				return new XMLConfigElement<OmmState::StatusCode>(name, parent, ConfigElement::ConfigElementTypeEnum, converter[i].convertedValue);
+	}
+	else
+	{
+		errorMsg.append("no implementation in convertEnum for enumType [").append(enumType.c_str()).append("]");
+		return 0;
+	}
+
+	errorMsg.append("convertEnum has an implementation for enumType [").append(enumType.c_str()).append("] but no appropriate conversion for value [").append(enumValue.c_str()).append("]");
+	return 0;
+}
+
+void EmaConfigBaseImpl::config(const Data& config)
+{
+	if (config.getDataType() == DataType::MapEnum)
+	{
+		if (!_pProgrammaticConfigure)
+		{
+			_pProgrammaticConfigure = new ProgrammaticConfigure(static_cast<const Map&>(config), _pEmaConfig->errors());
+		}
+		else
+		{
+			_pProgrammaticConfigure->addConfigure(static_cast<const Map&>(config));
+		}
+	}
+	else
+	{
+		EmaString temp("Invalid Data type='");
+		temp.append(getDTypeAsString(config.getDataType())).append("' for Programmatic Configure.");
+		EmaConfigError* mce(new EmaConfigError(temp, OmmLoggerClient::ErrorEnum));
+		_pEmaConfig->errors().add(mce);
+	}
+}
+
+void EmaConfigBaseImpl::getLoggerName(const EmaString& instanceName, EmaString& retVal) const
+{
+	if (_pProgrammaticConfigure && _pProgrammaticConfigure->getActiveLoggerName(instanceName, retVal))
+		return;
+
+	EmaString nodeName(_instanceNodeName);
+	nodeName.append(instanceName).append("|Logger");
+
+	get<EmaString>(nodeName, retVal);
+}
+
+void EmaConfigBaseImpl::getAsciiAttributeValueList(const EmaString& nodeName, const EmaString& attributeName, EmaVector< EmaString >& entryValues)
+{
+	_pEmaConfig->getAsciiAttributeValueList(nodeName, attributeName, entryValues);
+}
+
+void EmaConfigBaseImpl::getEntryNodeList(const EmaString& nodeName, const EmaString& entryName, EmaVector< XMLnode* >& entryNodeList)
+{
+	_pEmaConfig->getEntryNodeList(nodeName, entryName, entryNodeList);
+}
+
+void EmaConfigBaseImpl::getServiceNames(const EmaString& directoryName, EmaVector< EmaString >& serviceNames)
+{
+	_pEmaConfig->getServiceNameList(directoryName, serviceNames);
+}
+
+
 EmaConfigImpl::EmaConfigImpl() :
-	_pEmaConfig( new XMLnode( "EmaConfig", 0, 0 ) ),
 	_loginRdmReqMsg( *this ),
 	_pDirectoryRsslRequestMsg( 0 ),
 	_pRdmFldRsslRequestMsg( 0 ),
 	_pEnumDefRsslRequestMsg( 0 ),
 	_pDirectoryRsslRefreshMsg( 0 ),
 	_hostnameSetViaFunctionCall(),
-	_portSetViaFunctionCall(),
-	_pProgrammaticConfigure( 0 ),
-	_instanceNodeName()
+	_portSetViaFunctionCall()
 {
-	createNameToValueHashTable();
-
-	EmaString tmp( "EmaConfig.xml" );
-	OmmLoggerClient::Severity result( readXMLconfiguration( tmp ) );
-	if ( result == OmmLoggerClient::ErrorEnum || result == OmmLoggerClient::VerboseEnum )
-	{
-		EmaString errorMsg( "failed to extract configuration from [" );
-		errorMsg.append( tmp ).append( "]" );
-		_pEmaConfig->appendErrorMessage( errorMsg, result );
-	}
 }
 
 EmaConfigImpl::~EmaConfigImpl()
@@ -72,10 +713,6 @@ EmaConfigImpl::~EmaConfigImpl()
 
 	if ( _pProgrammaticConfigure )
 		delete _pProgrammaticConfigure;
-
-	delete _pEmaConfig;
-
-	xmlCleanupParser();
 }
 
 void EmaConfigImpl::clear()
@@ -158,28 +795,6 @@ void EmaConfigImpl::host( const EmaString& host )
 	}
 }
 
-void EmaConfigImpl::config( const Data& config )
-{
-	if ( config.getDataType() == DataType::MapEnum )
-	{
-		if ( !_pProgrammaticConfigure )
-		{
-			_pProgrammaticConfigure = new ProgrammaticConfigure( static_cast<const Map&>( config ), _pEmaConfig->errors() );
-		}
-		else
-		{
-			_pProgrammaticConfigure->addConfigure( static_cast<const Map&>( config ) );
-		}
-	}
-	else
-	{
-		EmaString temp( "Invalid Data type='" );
-		temp.append( getDTypeAsString( config.getDataType() ) ).append( "' for Programmatic Configure." );
-		EmaConfigError* mce( new EmaConfigError( temp, OmmLoggerClient::ErrorEnum ) );
-		_pEmaConfig->errors().add( mce );
-	}
-}
-
 void EmaConfigImpl::addAdminMsg( const ReqMsg& reqMsg )
 {
 	RsslRequestMsg* pRsslRequestMsg = static_cast<const ReqMsgEncoder&>( reqMsg.getEncoder() ).getRsslRequestMsg();
@@ -259,17 +874,6 @@ void EmaConfigImpl::getChannelName( const EmaString& instanceName, EmaString& re
 	EmaString nodeName( _instanceNodeName );
 	nodeName.append( instanceName );
 	nodeName.append( "|Channel" );
-
-	get<EmaString>( nodeName, retVal );
-}
-
-void EmaConfigImpl::getLoggerName( const EmaString& instanceName, EmaString& retVal ) const
-{
-	if ( _pProgrammaticConfigure && _pProgrammaticConfigure->getActiveLoggerName( instanceName, retVal ) )
-		return;
-
-	EmaString nodeName( _instanceNodeName );
-	nodeName.append( instanceName ).append( "|Logger" );
 
 	get<EmaString>( nodeName, retVal );
 }
@@ -387,580 +991,116 @@ AdminRefreshMsg* EmaConfigImpl::getDirectoryRefreshMsg()
 	return pTemp;
 }
 
-const XMLnode* EmaConfigImpl::getNode( const EmaString& itemToRetrieve ) const
+EmaConfigServerImpl::EmaConfigServerImpl() :
+	_portSetViaFunctionCall(),
+	_pDirectoryRsslRefreshMsg(0)
 {
-	if ( itemToRetrieve.empty() )
-		return 0;
-
-	EmaString remainingPart;
-	EmaString currentPart;
-	EmaString name;
-	const char* nodeSeparator( "|" );
-	const char* nameSeparator( "." );
-
-	Int32 pos( itemToRetrieve.find( nodeSeparator, 0 ) );
-	if ( pos == -1 )
-		currentPart = itemToRetrieve;
-	else
-	{
-		currentPart = itemToRetrieve.substr( 0, pos );
-		remainingPart = itemToRetrieve.substr( pos + 1, EmaString::npos );
-	}
-
-	Int32 dotPos( currentPart.find( nameSeparator, 0 ) );
-	if ( dotPos != -1 )
-	{
-		currentPart = currentPart.substr( 0, dotPos );
-		name = currentPart.substr( dotPos + 1, EmaString::npos );
-	}
-
-	xmlList<XMLnode>* children( _pEmaConfig->getChildren() );
-	if ( children->empty() )
-		return 0;
-
-	const XMLnode* node = children->getFirst();
-
-	while ( node )
-	{
-		bool match( false );
-
-		if ( name.empty() )
-			match = ( node->name() == currentPart );
-		else
-		{
-			if ( node->name() == currentPart )
-			{
-				ConfigElementList* attributes = node->attributes();
-				ConfigElement* attribute = attributes->first();
-				while ( attribute )
-				{
-					if ( attribute->name() == "Name" &&
-						*static_cast<XMLConfigElement<EmaString>*>( attribute )->value() == name )
-					{
-						match = true;
-						break;
-					}
-					attribute = attributes->next( attribute );
-				}
-			}
-		}
-
-		if ( match )
-		{
-			if ( remainingPart.empty() )
-				return node;
-
-			children = node->getChildren();
-			if ( !children )
-				return 0;
-			node = children->getFirst();
-
-			pos = remainingPart.find( nodeSeparator, 0 );
-			if ( pos == -1 )
-			{
-				currentPart = remainingPart;
-				remainingPart.clear();
-			}
-			else
-			{
-				currentPart = remainingPart.substr( 0, pos );
-				remainingPart = remainingPart.substr( pos + 1, EmaString::npos );
-			}
-
-			dotPos = currentPart.find( nameSeparator, 0 );
-			if ( dotPos == -1 )
-				name.clear();
-			else
-			{
-				name = currentPart.substr( dotPos + 1, EmaString::npos );
-				currentPart = currentPart.substr( 0, dotPos );
-			}
-		}
-		else
-			node = children->getNext( node );
-	}
-	return 0;
 }
 
-OmmLoggerClient::Severity EmaConfigImpl::readXMLconfiguration( const EmaString& fileName )
+EmaConfigServerImpl::~EmaConfigServerImpl()
 {
-#ifdef WIN32
-	char* fileLocation = _getcwd( 0, 0 );
-#else
-	char* fileLocation = getcwd( 0, 0 );
-#endif
-	EmaString message( "reading configuration file [" );
-	message.append( fileName ).append( "] from [" ).append( fileLocation ).append( "]" );
-	_pEmaConfig->appendErrorMessage( message, OmmLoggerClient::VerboseEnum );
-	free( fileLocation );
-
-#ifdef WIN32
-	struct _stat statBuffer;
-	int statResult( _stat( fileName, &statBuffer ) );
-#else
-	struct stat statBuffer;
-	int statResult( stat( fileName.c_str(), &statBuffer ) );
-#endif
-	if ( statResult )
-	{
-		EmaString errorMsg( "error reading configuration file [" );
-		errorMsg.append( fileName ).append( "]; system error message [" ).append( strerror( errno ) ).append( "]" );
-		_pEmaConfig->appendErrorMessage( errorMsg, OmmLoggerClient::VerboseEnum );
-		return OmmLoggerClient::VerboseEnum;
-	}
-	if ( !statBuffer.st_size )
-	{
-		EmaString errorMsg( "error reading configuration file [" );
-		errorMsg.append( fileName ).append( "]; file is empty" );
-		_pEmaConfig->appendErrorMessage( errorMsg, OmmLoggerClient::ErrorEnum );
-		return OmmLoggerClient::ErrorEnum;
-	}
-	FILE* fp;
-	fp = fopen( fileName.c_str(), "r" );
-	if ( !fp )
-	{
-		EmaString errorMsg( "error reading configuration file [" );
-		errorMsg.append( fileName ).append( "]; could not open file; system error message [" ).append( strerror( errno ) ).append( "]" );
-		_pEmaConfig->appendErrorMessage( errorMsg, OmmLoggerClient::ErrorEnum );
-		return OmmLoggerClient::ErrorEnum;
-	}
-
-	char* xmlData = reinterpret_cast<char*>( malloc( statBuffer.st_size + 1 ) );
-	size_t bytesRead( fread( reinterpret_cast<void*>( xmlData ), sizeof( char ), statBuffer.st_size, fp ) );
-	if ( !bytesRead )
-	{
-		EmaString errorMsg( "error reading configuration file [" );
-		errorMsg.append( fileName ).append( "]; fread failed; system error message [" ).append( strerror( errno ) ).append( "]" );
-		_pEmaConfig->appendErrorMessage( errorMsg, OmmLoggerClient::ErrorEnum );
-		free( xmlData );
-		return OmmLoggerClient::ErrorEnum;
-	}
-	fclose( fp );
-	xmlData[bytesRead] = 0;
-	bool retVal( extractXMLdataFromCharBuffer( fileName, xmlData, static_cast<int>( bytesRead ) ) );
-	free( xmlData );
-	return ( retVal == true ? OmmLoggerClient::SuccessEnum : OmmLoggerClient::ErrorEnum );
 }
 
-bool EmaConfigImpl::extractXMLdataFromCharBuffer( const EmaString& what, const char* xmlData, int length )
+void EmaConfigServerImpl::clear()
 {
-	LIBXML_TEST_VERSION
+	EmaConfigBaseImpl::clear();
+}
 
-		EmaString note( "extracting XML data from " );
-	note.append( what );
-	_pEmaConfig->appendErrorMessage( note, OmmLoggerClient::VerboseEnum );
+void EmaConfigServerImpl::addAdminMsg( const RefreshMsg& refreshMsg )
+{
+	RsslRefreshMsg* pRsslRefreshMsg = static_cast<const RefreshMsgEncoder&>(refreshMsg.getEncoder()).getRsslRefreshMsg();
 
-	xmlDocPtr xmlDoc = xmlReadMemory( xmlData, length, NULL, "notnamed.xml", XML_PARSE_HUGE );
-	if ( xmlDoc == NULL )
+	switch ( pRsslRefreshMsg->msgBase.domainType )
 	{
-		EmaString errorMsg( "extractXMLdataFromCharBuffer: xmlReadMemory failed while processing " );
-		errorMsg.append( what );
-		_pEmaConfig->appendErrorMessage( errorMsg, OmmLoggerClient::ErrorEnum );
-		xmlFreeDoc( xmlDoc );
-		return false;
+		case RSSL_DMT_LOGIN:
+			break;
+		case RSSL_DMT_DICTIONARY:
+		{
+			// Todo: add code to handle to store dictionary message
+		}
+		break;
+		case RSSL_DMT_SOURCE:
+		{
+			if (pRsslRefreshMsg->msgBase.streamId > 0)
+			{
+				EmaString temp("Refresh passed into addAdminMsg( const RefreshMsg& ) contains unhandled stream id. StreamId='");
+				temp.append(pRsslRefreshMsg->msgBase.streamId).append("'. ");
+				EmaConfigError* mce(new EmaConfigError(temp, OmmLoggerClient::ErrorEnum));
+				_pEmaConfig->errors().add(mce);
+				return;
+			}
+
+			if (pRsslRefreshMsg->msgBase.containerType != RSSL_DT_MAP)
+			{
+				EmaString temp("RefreshMsg with SourceDirectory passed into addAdminMsg( const RefreshMsg& ) contains a container with wrong data type. Expected container data type is Map. Passed in is ");
+				temp += DataType(dataType[pRsslRefreshMsg->msgBase.containerType]).toString();
+				EmaConfigError* mce(new EmaConfigError(temp, OmmLoggerClient::ErrorEnum));
+				_pEmaConfig->errors().add(mce);
+				return;
+			}
+
+			addDirectoryRefreshMsg(pRsslRefreshMsg);
+		}
+		break;
+		default:
+		{
+			EmaString temp("Refresh message passed into addAdminMsg( const RefreshMsg& ) contains unhandled domain type. Domain type='");
+			temp.append(pRsslRefreshMsg->msgBase.domainType).append("'. ");
+			EmaConfigError* mce(new EmaConfigError(temp, OmmLoggerClient::ErrorEnum));
+			_pEmaConfig->errors().add(mce);
+		}
+		break;
+	}
+}
+
+void EmaConfigServerImpl::port(const EmaString& port)
+{
+	_portSetViaFunctionCall.userSet = true;
+	_portSetViaFunctionCall.userSpecifiedValue = port;
+}
+
+const PortSetViaFunctionCall& EmaConfigServerImpl::getUserSpecifiedPort() const
+{
+	return _portSetViaFunctionCall;
+}
+
+void EmaConfigServerImpl::getServerName( const EmaString& instanceName, EmaString& retVal) const
+{
+	// Todo: add implementation to query from programmatic configuration
+
+	EmaString nodeName(_instanceNodeName);
+	nodeName.append(instanceName);
+	nodeName.append("|Server");
+
+	get<EmaString>(nodeName, retVal);
+}
+
+bool EmaConfigServerImpl::getDictionaryName(const EmaString& instanceName, EmaString& retVal) const
+{
+	if (!_pProgrammaticConfigure || !_pProgrammaticConfigure->getActiveDictionaryName(instanceName, retVal))
+	{
+		EmaString nodeName(_instanceNodeName);
+		nodeName.append(instanceName);
+		nodeName.append("|Dictionary");
+		get<EmaString>(nodeName, retVal);
 	}
 
-	xmlNodePtr _xmlNodePtr = xmlDocGetRootElement( xmlDoc );
-	if ( _xmlNodePtr == NULL )
-	{
-		EmaString errorMsg( "extractXMLdataFromCharBuffer: xmlDocGetRootElement failed while processing " );
-		errorMsg.append( what );
-		_pEmaConfig->appendErrorMessage( errorMsg, OmmLoggerClient::ErrorEnum );
-		xmlFreeDoc( xmlDoc );
-		return false;
-	}
-
-	processXMLnodePtr( _pEmaConfig, _xmlNodePtr );
-	_pEmaConfig->name( reinterpret_cast<const char*>( _xmlNodePtr->name ) );
-	xmlFreeDoc( xmlDoc );
 	return true;
 }
 
-void EmaConfigImpl::processXMLnodePtr( XMLnode* theNode, const xmlNodePtr& nodePtr )
+void EmaConfigServerImpl::addDirectoryRefreshMsg(RsslRefreshMsg* pRsslRefreshMsg)
 {
-	// add attibutes
-	if ( nodePtr->properties )
-	{
-		xmlChar* value( 0 );
-		for ( xmlAttrPtr attrPtr = nodePtr->properties; attrPtr != NULL; attrPtr = attrPtr->next )
-		{
-			if ( !xmlStrcmp( attrPtr->name, reinterpret_cast<const xmlChar*>( "value" ) ) )
-				value = xmlNodeListGetString( attrPtr->doc, attrPtr->children, 1 );
-			else
-			{
-				EmaString errorMsg( "got unexpected name [" );
-				errorMsg.append( reinterpret_cast<const char*>( attrPtr->name ) ).append( "] while processing XML data; ignored" );
-				theNode->appendErrorMessage( errorMsg, OmmLoggerClient::VerboseEnum );
-			}
-		}
+	if (!_pDirectoryRsslRefreshMsg)
+		_pDirectoryRsslRefreshMsg = new AdminRefreshMsg(this);
 
-		static EmaString errorMsg;
-		ConfigElement* e( createConfigElement( reinterpret_cast<const char*>( nodePtr->name ), theNode->parent(),
-			reinterpret_cast<const char*>( value ), errorMsg ) );
-		if ( e )
-			theNode->addAttribute( e );
-		else if ( !errorMsg.empty() )
-		{
-			theNode->appendErrorMessage( errorMsg, OmmLoggerClient::ErrorEnum );
-			errorMsg.clear();
-		}
-
-		if ( value )
-			xmlFree( value );
-	}
-
-	for ( xmlNodePtr childNodePtr = nodePtr->children; childNodePtr; childNodePtr = childNodePtr->next )
-	{
-		if ( xmlIsBlankNode( childNodePtr ) )
-			continue;
-		if ( childNodePtr->type == XML_COMMENT_NODE )
-			continue;
-
-		switch ( childNodePtr->type )
-		{
-		case XML_TEXT_NODE:
-		case XML_PI_NODE:
-			break;
-		case XML_ELEMENT_NODE:
-		{
-			XMLnode* child( new XMLnode( reinterpret_cast<const char*>( childNodePtr->name ), theNode->level() + 1, theNode ) );
-			static int instance( 0 );
-			++instance;
-			processXMLnodePtr( child, childNodePtr );
-			if ( child->errorCount() )
-			{
-				theNode->errors().add( child->errors() );
-				child->errors().clear();
-			}
-			--instance;
-
-			if ( childNodePtr->properties && !childNodePtr->children )
-			{
-				theNode->appendAttributes( child->attributes(), true );
-				delete child;
-			}
-			else if ( !childNodePtr->properties && childNodePtr->children )
-			{
-				if ( theNode->addChild( child ) )
-				{
-					delete child;
-				}
-			}
-			else if ( !childNodePtr->properties && !childNodePtr->children )
-			{
-				EmaString errorMsg( "node [" );
-				errorMsg.append( reinterpret_cast<const char*>( childNodePtr->name ) ).append( "has neither children nor attributes" );
-				theNode->appendErrorMessage( errorMsg, OmmLoggerClient::VerboseEnum );
-			}
-			else
-			{
-				EmaString errorMsg( "node [" );
-				errorMsg.append( reinterpret_cast<const char*>( childNodePtr->name ) ).append( "has both children and attributes; node was ignored" );
-				theNode->appendErrorMessage( errorMsg, OmmLoggerClient::ErrorEnum );
-			}
-			break;
-		}
-		default:
-			EmaString errorMsg( "childNodePtr has unhandled type [" );
-			errorMsg.append( childNodePtr->type ).append( "]" );
-			theNode->appendErrorMessage( errorMsg, OmmLoggerClient::VerboseEnum );
-		}
-	}
+	_pDirectoryRsslRefreshMsg->set(pRsslRefreshMsg);
 }
 
-void EmaConfigImpl::createNameToValueHashTable()
+AdminRefreshMsg* EmaConfigServerImpl::getDirectoryRefreshMsg()
 {
-	for ( int i = 0; i < sizeof AsciiValues / sizeof( EmaString ); ++i )
-		nameToValueHashTable.insert( AsciiValues[i], ConfigElement::ConfigElementTypeAscii );
-
-	for ( int i = 0; i < sizeof EnumeratedValues / sizeof( EmaString ); ++i )
-		nameToValueHashTable.insert( EnumeratedValues[i], ConfigElement::ConfigElementTypeEnum );
-
-	for ( int i = 0; i < sizeof Int64Values / sizeof( EmaString ); ++i )
-		nameToValueHashTable.insert( Int64Values[i], ConfigElement::ConfigElementTypeInt64 );
-
-	for ( int i = 0; i < sizeof UInt64Values / sizeof( EmaString ); ++i )
-		nameToValueHashTable.insert( UInt64Values[i], ConfigElement::ConfigElementTypeUInt64 );
-}
-
-ConfigElement* EmaConfigImpl::createConfigElement( const char* name, XMLnode* parent, const char* value, EmaString& errorMsg )
-{
-	ConfigElement* e( 0 );
-	ConfigElement::ConfigElementType* elementType = nameToValueHashTable.find( name );
-	if ( elementType == 0 )
-		errorMsg.append( "unsupported configuration element [" ).append( name ).append( "]; element ignored" );
-	else switch ( *elementType )
-	{
-	case ConfigElement::ConfigElementTypeAscii:
-		e = new XMLConfigElement<EmaString>( name, parent, ConfigElement::ConfigElementTypeAscii, value );
-		break;
-	case ConfigElement::ConfigElementTypeEnum:
-		e = convertEnum( name, parent, value, errorMsg );
-		break;
-	case ConfigElement::ConfigElementTypeInt64:
-	{
-		if ( !validateConfigElement( value, ConfigElement::ConfigElementTypeInt64 ) )
-		{
-			errorMsg.append( "value [" ).append( value ).append( "] for config element [" ).append( name ).append( "] is not a signed integer; element ignored" );
-			break;
-		}
-		Int64 converted;
-#ifdef WIN32
-		converted = _strtoi64( value, 0, 0 );
-#else
-		converted = strtoll( value, 0, 0 );
-#endif
-		e = new XMLConfigElement<Int64>( name, parent, ConfigElement::ConfigElementTypeInt64, converted );
-	}
-	break;
-	case ConfigElement::ConfigElementTypeUInt64:
-	{
-		if ( !validateConfigElement( value, ConfigElement::ConfigElementTypeUInt64 ) )
-		{
-			errorMsg.append( "value [" ).append( value ).append( "] for config element [" ).append( name ).append( "] is not an unsigned integer; element ignored" );
-			break;
-		}
-		UInt64 converted;
-#ifdef WIN32
-		converted = _strtoui64( value, 0, 0 );
-#else
-		converted = strtoull( value, 0, 0 );
-#endif
-		e = new XMLConfigElement<UInt64>( name, parent, ConfigElement::ConfigElementTypeUInt64, converted );
-	}
-	break;
-	default:
-		errorMsg.append( "config element [" ).append( name ).append( "] had unexpected elementType [" ).append( *elementType ).append( "; element ignored" );
-		break;
-	}
-	return e;
-}
-
-bool EmaConfigImpl::validateConfigElement( const char* value, ConfigElement::ConfigElementType valueType ) const
-{
-	if ( valueType == ConfigElement::ConfigElementTypeInt64 || valueType == ConfigElement::ConfigElementTypeUInt64 )
-	{
-		if ( !strlen( value ) )
-			return false;
-		const char* p = value;
-		if ( valueType == ConfigElement::ConfigElementTypeInt64 && !isdigit( *p ) )
-		{
-			if ( *p++ != '-' )
-				return false;
-			if ( !*p )
-				return false;
-		}
-		for ( ; *p; ++p )
-			if ( !isdigit( *p ) )
-				return false;
-		return true;
-	}
-
-	return false;
-}
-
-ConfigElement* EmaConfigImpl::convertEnum( const char* name, XMLnode* parent, const char* value, EmaString& errorMsg )
-{
-	EmaString enumValue( value );
-	int colonPosition( enumValue.find( "::" ) );
-	if ( colonPosition == -1 )
-	{
-		errorMsg.append( "configuration attribute [" ).append( name )
-			.append( "] has an invalid Enum value format [" ).append( value )
-			.append( "]; expected typename::value (e.g., OperationModel::ApiDispatch)" );
-		return 0;
-	}
-
-	EmaString enumType( enumValue.substr( 0, colonPosition ) );
-	enumValue = enumValue.substr( colonPosition + 2, enumValue.length() - colonPosition - 2 );
-
-	if ( !strcmp( enumType, "LoggerSeverity" ) )
-	{
-		static struct
-		{
-			const char* configInput;
-			OmmLoggerClient::Severity convertedValue;
-		} converter[] =
-		{
-			{ "Verbose", OmmLoggerClient::VerboseEnum },
-			{ "Success", OmmLoggerClient::SuccessEnum },
-			{ "Warning", OmmLoggerClient::WarningEnum },
-			{ "Error", OmmLoggerClient::ErrorEnum },
-			{ "NoLogMsg", OmmLoggerClient::NoLogMsgEnum }
-		};
-
-		for ( int i = 0; i < sizeof converter / sizeof converter[0]; ++i )
-			if ( !strcmp( converter[i].configInput, enumValue ) )
-				return new XMLConfigElement<OmmLoggerClient::Severity>( name, parent, ConfigElement::ConfigElementTypeEnum, converter[i].convertedValue );
-	}
-	else if ( !strcmp( enumType, "LoggerType" ) )
-	{
-		static struct
-		{
-			const char* configInput;
-			OmmLoggerClient::LoggerType convertedValue;
-		} converter[] =
-		{
-			{ "File", OmmLoggerClient::FileEnum },
-			{ "Stdout", OmmLoggerClient::StdoutEnum },
-		};
-		for ( int i = 0; i < sizeof converter / sizeof converter[0]; i++ )
-			if ( !strcmp( converter[i].configInput, enumValue ) )
-				return new XMLConfigElement<OmmLoggerClient::LoggerType>( name, parent, ConfigElement::ConfigElementTypeEnum, converter[i].convertedValue );
-	}
-	else if ( !strcmp( enumType, "DictionaryType" ) )
-	{
-		static struct
-		{
-			const char* configInput;
-			Dictionary::DictionaryType convertedValue;
-		} converter[] =
-		{
-			{ "FileDictionary", Dictionary::FileDictionaryEnum },
-			{ "ChannelDictionary", Dictionary::ChannelDictionaryEnum },
-		};
-
-		for ( int i = 0; i < sizeof converter / sizeof converter[0]; i++ )
-			if ( !strcmp( converter[i].configInput, enumValue ) )
-				return new XMLConfigElement<Dictionary::DictionaryType>( name, parent, ConfigElement::ConfigElementTypeEnum, converter[i].convertedValue );
-	}
-	else if ( !strcmp( enumType, "ChannelType" ) )
-	{
-		static struct
-		{
-			const char* configInput;
-			RsslConnectionTypes convertedValue;
-		} converter[] =
-		{
-			{ "RSSL_SOCKET", RSSL_CONN_TYPE_SOCKET },
-			{ "RSSL_HTTP", RSSL_CONN_TYPE_HTTP },
-			{ "RSSL_ENCRYPTED", RSSL_CONN_TYPE_ENCRYPTED },
-			{ "RSSL_RELIABLE_MCAST", RSSL_CONN_TYPE_RELIABLE_MCAST },
-		};
-
-		for ( int i = 0; i < sizeof converter / sizeof converter[0]; i++ )
-			if ( !strcmp( converter[i].configInput, enumValue ) )
-				return new XMLConfigElement<RsslConnectionTypes>( name, parent, ConfigElement::ConfigElementTypeEnum, converter[i].convertedValue );
-	}
-	else if ( !strcmp( enumType, "CompressionType" ) )
-	{
-		static struct
-		{
-			const char* configInput;
-			RsslCompTypes convertedValue;
-		} converter[] =
-		{
-			{ "None", RSSL_COMP_NONE },
-			{ "ZLib", RSSL_COMP_ZLIB },
-			{ "LZ4", RSSL_COMP_LZ4 },
-		};
-
-		for ( int i = 0; i < sizeof converter / sizeof converter[0]; i++ )
-			if ( !strcmp( converter[i].configInput, enumValue ) )
-				return new XMLConfigElement<RsslCompTypes>( name, parent, ConfigElement::ConfigElementTypeEnum, converter[i].convertedValue );
-	}
-	else if ( !strcmp( enumType, "StreamState" ) )
-	{
-		static struct
-		{
-			const char* configInput;
-			OmmState::StreamState convertedValue;
-		} converter[] =
-		{
-			{ "Open", OmmState::OpenEnum },
-			{ "NonStreaming", OmmState::NonStreamingEnum },
-			{ "ClosedRecover", OmmState::ClosedRecoverEnum },
-			{ "Closed", OmmState::ClosedEnum },
-			{ "ClosedRedirected", OmmState::ClosedRedirectedEnum },
-		};
-
-		for ( int i = 0; i < sizeof converter / sizeof converter[0]; i++ )
-			if ( !strcmp( converter[i].configInput, enumValue ) )
-				return new XMLConfigElement<OmmState::StreamState>( name, parent, ConfigElement::ConfigElementTypeEnum, converter[i].convertedValue );
-	}
-	else if ( !strcmp( enumType, "DataState" ) )
-	{
-		static struct
-		{
-			const char* configInput;
-			OmmState::DataState convertedValue;
-		} converter[] =
-		{
-			{ "NoChange", OmmState::NoChangeEnum },
-			{ "Ok", OmmState::OkEnum },
-			{ "Suspect", OmmState::SuspectEnum },
-		};
-
-		for ( int i = 0; i < sizeof converter / sizeof converter[0]; i++ )
-			if ( !strcmp( converter[i].configInput, enumValue ) )
-				return new XMLConfigElement<OmmState::DataState>( name, parent, ConfigElement::ConfigElementTypeEnum, converter[i].convertedValue );
-	}
-	else if ( !strcmp( enumType, "StatusCode" ) )
-	{
-		static struct
-		{
-			const char* configInput;
-			OmmState::StatusCode convertedValue;
-		} converter[] =
-		{
-			{ "None", OmmState::NoneEnum },
-			{ "NotFound", OmmState::NotFoundEnum },
-			{ "Timeout", OmmState::TimeoutEnum },
-			{ "NotAuthorized", OmmState::NotAuthorizedEnum },
-			{ "InvalidArgument", OmmState::InvalidArgumentEnum },
-			{ "UsageError", OmmState::UsageErrorEnum },
-			{ "Preempted", OmmState::PreemptedEnum },
-			{ "JustInTimeConflationStarted", OmmState::JustInTimeConflationStartedEnum },
-			{ "TickByTickResumed", OmmState::TickByTickResumedEnum },
-			{ "FailoverStarted", OmmState::FailoverStartedEnum },
-			{ "FailoverCompleted", OmmState::FailoverCompletedEnum },
-			{ "GapDetected", OmmState::GapDetectedEnum },
-			{ "NoResources", OmmState::NoResourcesEnum },
-			{ "TooManyItems", OmmState::TooManyItemsEnum },
-			{ "AlreadyOpen", OmmState::AlreadyOpenEnum },
-			{ "SourceUnknown", OmmState::SourceUnknownEnum },
-			{ "NotOpen", OmmState::NotOpenEnum },
-			{ "NonUpdatingItem", OmmState::NonUpdatingItemEnum },
-			{ "UnsupportedViewType", OmmState::UnsupportedViewTypeEnum },
-			{ "InvalidView", OmmState::InvalidViewEnum },
-			{ "FullViewProvided", OmmState::FullViewProvidedEnum },
-			{ "UnableToRequestAsBatch", OmmState::UnableToRequestAsBatchEnum },
-			{ "NoBatchViewSupportInReq", OmmState::NoBatchViewSupportInReqEnum },
-			{ "ExceededMaxMountsPerUser", OmmState::ExceededMaxMountsPerUserEnum },
-			{ "Error", OmmState::ErrorEnum },
-			{ "DacsDown", OmmState::DacsDownEnum },
-			{ "UserUnknownToPermSys", OmmState::UserUnknownToPermSysEnum },
-			{ "DacsMaxLoginsReached", OmmState::DacsMaxLoginsReachedEnum },
-			{ "DacsUserAccessToAppDenied", OmmState::DacsUserAccessToAppDeniedEnum },
-		};
-
-		for ( int i = 0; i < sizeof converter / sizeof converter[0]; i++ )
-			if ( !strcmp( converter[i].configInput, enumValue ) )
-				return new XMLConfigElement<OmmState::StatusCode>( name, parent, ConfigElement::ConfigElementTypeEnum, converter[i].convertedValue );
-	}
-	else
-	{
-		errorMsg.append( "no implementation in convertEnum for enumType [" ).append( enumType.c_str() ).append( "]" );
-		return 0;
-	}
-
-	errorMsg.append( "convertEnum has an implementation for enumType [" ).append( enumType.c_str() ).append( "] but no appropriate conversion for value [" ).append( enumValue.c_str() ).append( "]" );
-	return 0;
-}
-
-void EmaConfigImpl::getServiceNames( const EmaString& directoryName, EmaVector< EmaString >& serviceNames )
-{
-	_pEmaConfig->getServiceNameList( directoryName, serviceNames );
-}
-
-void EmaConfigImpl::getAsciiAttributeValueList( const EmaString& nodeName, const EmaString& attributeName, EmaVector< EmaString >& entryValues )
-{
-	_pEmaConfig->getAsciiAttributeValueList( nodeName, attributeName, entryValues );
-}
-
-void EmaConfigImpl::getEntryNodeList( const EmaString& nodeName, const EmaString& entryName, EmaVector< XMLnode* >& entryNodeList )
-{
-	_pEmaConfig->getEntryNodeList( nodeName, entryName, entryNodeList );
+	AdminRefreshMsg* pTemp = _pDirectoryRsslRefreshMsg;
+	_pDirectoryRsslRefreshMsg = 0;
+	return pTemp;
 }
 
 void XMLnode::print( int tabs )
@@ -1562,7 +1702,7 @@ const EmaString& AdminReqMsg::getServiceName()
 	return _serviceName;
 }
 
-AdminRefreshMsg::AdminRefreshMsg( EmaConfigImpl* pConfigImpl ) :
+AdminRefreshMsg::AdminRefreshMsg( EmaConfigBaseImpl* pConfigImpl ) :
 	_pEmaConfigImpl( pConfigImpl )
 {
 	rsslClearRefreshMsg( &_rsslMsg );

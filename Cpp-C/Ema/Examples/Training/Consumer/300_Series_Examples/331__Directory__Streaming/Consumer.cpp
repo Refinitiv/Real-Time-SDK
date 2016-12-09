@@ -101,6 +101,10 @@ void AppClient::decode( const ElementList& el )
 			case DataType::EnumEnum:
 				cout << ee.getEnum() << endl;
 				break;
+			case DataType::ArrayEnum:
+				cout << endl;
+				decode(ee.getArray());
+				break;
 			default:
 				cout << endl;
 				break;
@@ -202,6 +206,50 @@ void AppClient::decode( const FieldList& fl )
 				cout << endl;
 				break;
 		}
+	}
+}
+
+void AppClient::decode(const OmmArray& ommArray)
+{
+	while (ommArray.forth())
+	{
+		const OmmArrayEntry& ae = ommArray.getEntry();
+
+		cout << "DataType: " << DataType(ae.getLoad().getDataType()) << " Value: ";
+
+		if (ae.getCode() == Data::BlankEnum)
+			cout << " blank" << endl;
+		else
+			switch (ae.getLoadType())
+			{
+			case DataType::RealEnum:
+				cout << ae.getReal().getAsDouble() << endl;
+				break;
+			case DataType::DateEnum:
+				cout << (UInt64)ae.getDate().getDay() << " / " << (UInt64)ae.getDate().getMonth() << " / " << (UInt64)ae.getDate().getYear() << endl;
+				break;
+			case DataType::TimeEnum:
+				cout << (UInt64)ae.getTime().getHour() << ":" << (UInt64)ae.getTime().getMinute() << ":" << (UInt64)ae.getTime().getSecond() << ":" << (UInt64)ae.getTime().getMillisecond() << endl;
+				break;
+			case DataType::IntEnum:
+				cout << ae.getInt() << endl;
+				break;
+			case DataType::UIntEnum:
+				cout << ae.getUInt() << endl;
+				break;
+			case DataType::AsciiEnum:
+				cout << ae.getAscii() << endl;
+				break;
+			case DataType::ErrorEnum:
+				cout << ae.getError().getErrorCode() << "( " << ae.getError().getErrorCodeAsString() << " )" << endl;
+				break;
+			case DataType::EnumEnum:
+				cout << ae.getEnum() << endl;
+				break;
+			default:
+				cout << endl;
+				break;
+			}
 	}
 }
 

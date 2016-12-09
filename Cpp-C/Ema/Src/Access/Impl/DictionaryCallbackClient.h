@@ -21,11 +21,12 @@ namespace ema {
 
 namespace access {
 
-class OmmBaseImpl;
+class OmmCommonImpl;
 class OmmConsumerClient;
 class Channel;
 class Directory;
 class DictionaryItem;
+class BaseConfig;
 
 class Dictionary
 {
@@ -64,7 +65,7 @@ class LocalDictionary : public Dictionary
 {
 public :
 
-	static LocalDictionary* create( OmmBaseImpl& );
+	static LocalDictionary* create( OmmCommonImpl&, BaseConfig& );
 
 	static void destroy( LocalDictionary*& );
 
@@ -78,11 +79,12 @@ public :
 
 private :
 
-	LocalDictionary( OmmBaseImpl& );
+	LocalDictionary( OmmCommonImpl&, BaseConfig& );
 	virtual ~LocalDictionary();
 
 	static const EmaString		_clientName;
-	OmmBaseImpl&				_ommBaseImpl;
+	OmmCommonImpl&				_ommCommonImpl;
+	BaseConfig&					_baseConfig;
 	RsslDataDictionary			_rsslDictionary;
 	bool						_isLoaded;
 

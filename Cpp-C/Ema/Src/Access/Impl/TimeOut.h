@@ -16,6 +16,7 @@
 #endif
 
 #include "EmaList.h"
+#include "Mutex.h"
 
 namespace thomsonreuters {
 
@@ -29,17 +30,17 @@ namespace access {
 #define TimeOutTimeType Int64
 #endif
 
-class OmmBaseImpl;
+class TimeOutClient;
 
 class TimeOut : public ListLinks< TimeOut >
 {
 public:
 
-	static bool getTimeOutInMicroSeconds( OmmBaseImpl&, Int64& );
+	static bool getTimeOutInMicroSeconds(TimeOutClient&, Int64&);
 
-	static void execute( OmmBaseImpl& );
+	static void execute(TimeOutClient&);
 
-	TimeOut( OmmBaseImpl&, Int64, void( *functor )( void * ), void* args, bool allocatedOnHeap );
+	TimeOut(TimeOutClient&, Int64, void(*functor)(void *), void* args, bool allocatedOnHeap);
 
 	virtual ~TimeOut();
 
@@ -59,8 +60,26 @@ private:
 	TimeOutTimeType		_timeoutTime;
 	bool				_canceled;
 	bool				_allocatedOnHeap;
-	OmmBaseImpl&		_ommBaseImpl;
+	TimeOutClient&		_timeOutClient;
 };
+
+class TimeOutClient
+{
+public:
+	TimeOutClient();
+	virtual ~TimeOutClient();
+
+	virtual EmaList< TimeOut* >& getTimeOutList() = 0;
+	virtual void installTimeOut() = 0;
+	virtual Mutex& getTimeOutMutex() = 0;
+
+
+private:
+	TimeOutClient(const TimeOutClient&);
+	TimeOutClient& operator=(const TimeOutClient&);
+
+};
+
 
 }
 

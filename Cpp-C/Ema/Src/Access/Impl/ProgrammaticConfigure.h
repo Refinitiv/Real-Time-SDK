@@ -23,6 +23,7 @@ namespace access {
 class ActiveConfig;
 class ReliableMcastChannelConfig;
 class ChannelConfig;
+class DirectoryCache;
 
 class ProgrammaticConfigure
 {
@@ -36,9 +37,13 @@ public:
 
 	bool getDefaultNiProvider( EmaString& );
 
+	bool getDefaultIProvider( EmaString& );
+
 	bool specifyConsumerName( const EmaString& consumerName );
 
 	bool specifyNiProviderName( const EmaString& );
+
+	bool specifyIProviderName( const EmaString& );
 
 	bool getActiveChannelName( const EmaString&, EmaString& );
 
@@ -60,7 +65,7 @@ public:
 
 	void retrieveDictionaryConfig( const EmaString&, ActiveConfig& );
 
-	void retrieveDirectoryConfig( const EmaString&, ActiveConfig& );
+	void retrieveDirectoryConfig( const EmaString&, DirectoryCache& );
 
 	void clear();
 
@@ -71,6 +76,8 @@ private:
 	bool retrieveDefaultConsumer( const Map&, EmaString& );
 
 	bool retrieveDefaultNiProvider( const Map&, EmaString& );
+
+	bool retrieveDefaultIProvider( const Map&, EmaString& );
 
 	void retrieveDependencyNames( const Map&, const EmaString&, UInt8& flags, EmaString&, EmaString&, EmaString&, EmaString& , EmaString& );
 
@@ -88,18 +95,19 @@ private:
 
 	void retrieveDictionary( const Map&, const EmaString&, EmaConfigErrorList&, ActiveConfig& );
 
-	void retrieveDirectory( const Map&, const EmaString&, EmaConfigErrorList&, ActiveConfig& );
+	void retrieveDirectory( const Map&, const EmaString&, EmaConfigErrorList&, DirectoryCache& );
 
 	bool validateConsumerName( const Map&, const EmaString& );
 
 	bool validateNiProviderName( const Map&, const EmaString& );
 
-	ProgrammaticConfigure( const ProgrammaticConfigure& );
+	bool validateIProviderName( const Map&, const EmaString& );
 
-	ProgrammaticConfigure& operator=( const ProgrammaticConfigure& );
+	ProgrammaticConfigure( const ProgrammaticConfigure& );
 
 	EmaString	_consumerName;
 	EmaString	_niProviderName;
+	EmaString	_iProviderName;
 	EmaString	_channelName;
 	EmaString	_loggerName;
 	EmaString	_dictionaryName;
@@ -108,6 +116,7 @@ private:
 
 	bool		_overrideConsName;
 	bool		_overrideNiProvName;
+	bool		_overrideIProvName;
 	bool		_dependencyNamesLoaded;
 	UInt8		_nameflags;
 

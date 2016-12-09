@@ -32,6 +32,11 @@ OmmNiProviderConfig::~OmmNiProviderConfig()
 		delete _pImpl;
 }
 
+OmmProviderConfig::ProviderRole OmmNiProviderConfig::getProviderRole() const
+{
+	return OmmProviderConfig::NonInteractiveEnum;
+}
+
 OmmNiProviderConfigImpl* OmmNiProviderConfig::getConfigImpl() const
 {
 	return _pImpl;

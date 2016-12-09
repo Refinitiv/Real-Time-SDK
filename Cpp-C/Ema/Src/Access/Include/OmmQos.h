@@ -57,12 +57,12 @@ public :
 	};
 
 	///@name Accessors
-	//@{	
+	//@{
 	/** Returns the QosRate value as a string format.
 		@return string representation of this object Rate
 	*/
 	const EmaString& getRateAsString() const;
-		
+
 	/** Returns the QosTimeliness value as a string format.
 		@return string representation of this object timeliness
 	*/

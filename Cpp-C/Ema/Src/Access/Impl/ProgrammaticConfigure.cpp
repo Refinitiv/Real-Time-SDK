@@ -10,12 +10,15 @@
 #include "EmaConfigImpl.h"
 #include "Common.h"
 #include "StaticDecoder.h"
+#include "DirectoryServiceStore.h"
+#include "ExceptionTranslator.h"
 
 using namespace thomsonreuters::ema::access;
 
 ProgrammaticConfigure::ProgrammaticConfigure( const Map& map, EmaConfigErrorList& emaConfigErrList ) :
 	_consumerName(),
 	_niProviderName(),
+	_iProviderName(),
 	_channelName(),
 	_loggerName(),
 	_dictionaryName(),
@@ -23,6 +26,7 @@ ProgrammaticConfigure::ProgrammaticConfigure( const Map& map, EmaConfigErrorList
 	_channelSet(),
 	_overrideConsName( false ),
 	_overrideNiProvName( false ),
+	_overrideIProvName( false ),
 	_dependencyNamesLoaded( false ),
 	_nameflags( 0 ),
 	_emaConfigErrList( emaConfigErrList ),
@@ -35,12 +39,14 @@ void ProgrammaticConfigure::clear()
 {
 	_consumerName.clear();
 	_niProviderName.clear();
+	_iProviderName.clear();
 	_channelName.clear();
 	_loggerName.clear();
 	_dictionaryName.clear();
 	_directoryName.clear();
 	_overrideConsName = false;
 	_overrideNiProvName = false;
+	_overrideIProvName = false;
 	_dependencyNamesLoaded = false;
 	_nameflags = 0;
 }
@@ -96,6 +102,26 @@ bool ProgrammaticConfigure::getDefaultNiProvider( EmaString& defaultNiProvider )
 	return found;
 }
 
+bool ProgrammaticConfigure::getDefaultIProvider( EmaString& defaultIProvider )
+{
+	bool found = false;
+
+	if ( _overrideIProvName )
+	{
+		defaultIProvider = _iProviderName;
+		found = true;
+	}
+	else
+	{
+		clear();
+
+		for ( UInt32 i = 0; i < _configList.size(); i++ )
+			found = retrieveDefaultIProvider( *_configList[i], defaultIProvider );
+	}
+
+	return found;
+}
+
 bool ProgrammaticConfigure::specifyConsumerName( const EmaString& consumerName )
 {
 	for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
@@ -119,6 +145,21 @@ bool ProgrammaticConfigure::specifyNiProviderName( const EmaString& niProviderNa
 		{
 			_overrideNiProvName = true;
 			_niProviderName = niProviderName;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool ProgrammaticConfigure::specifyIProviderName( const EmaString& iProviderName )
+{
+	for ( UInt32 i = 0; i < _configList.size(); i++ )
+	{
+		if ( validateIProviderName( *_configList[i], iProviderName ) )
+		{
+			_overrideIProvName = true;
+			_iProviderName = iProviderName;
 			return true;
 		}
 	}
@@ -396,6 +437,40 @@ bool ProgrammaticConfigure::retrieveDefaultNiProvider( const Map& map, EmaString
 	return foundDefaultNiProvider;
 }
 
+bool ProgrammaticConfigure::retrieveDefaultIProvider( const Map& map, EmaString& defaultIProvider )
+{
+	bool foundDefaultIProvider = false;
+
+	StaticDecoder::setData( &const_cast<Map&>( map ), 0 );
+
+	while ( map.forth() )
+	{
+		const MapEntry& mapEntry = map.getEntry();
+
+		if ( ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == "IProviderGroup" )
+			&& ( mapEntry.getLoad().getDataType() == DataType::ElementListEnum ) )
+		{
+			const ElementList& elementList = mapEntry.getElementList();
+
+			while ( elementList.forth() )
+			{
+				const ElementEntry& elementEntry = elementList.getEntry();
+
+				if ( elementEntry.getLoadType() == DataType::AsciiEnum )
+				{
+					if ( elementEntry.getName() == "DefaultIProvider" )
+					{
+						defaultIProvider = elementEntry.getAscii();
+						foundDefaultIProvider = true;
+					}
+				}
+			}
+		}
+	}
+
+	return foundDefaultIProvider;
+}
+
 bool ProgrammaticConfigure::validateConsumerName( const Map& map, const EmaString& consumerName )
 {
 	StaticDecoder::setData( &const_cast<Map&>( map ), 0 );
@@ -468,6 +543,42 @@ bool ProgrammaticConfigure::validateNiProviderName( const Map& map, const EmaStr
 	return false;
 }
 
+bool ProgrammaticConfigure::validateIProviderName( const Map& map, const EmaString& iProviderName )
+{
+	StaticDecoder::setData( &const_cast<Map&>( map ), 0 );
+
+	while ( map.forth() )
+	{
+		const MapEntry& mapEntry = map.getEntry();
+
+		if ( ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == "IProviderGroup" )
+			&& ( mapEntry.getLoad().getDataType() == DataType::ElementListEnum ) )
+		{
+			const ElementList& elementList = mapEntry.getElementList();
+
+			while ( elementList.forth() )
+			{
+				const ElementEntry& elementEntry = elementList.getEntry();
+
+				if ( ( elementEntry.getName() == "IProviderList" ) && ( elementEntry.getLoad().getDataType() == DataType::MapEnum ) )
+				{
+					const Map& niProviderMap = elementEntry.getMap();
+
+					while ( niProviderMap.forth() )
+					{
+						const MapEntry& niProviderMapEntry = niProviderMap.getEntry();
+
+						if ( ( niProviderMapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( niProviderMapEntry.getKey().getAscii() == iProviderName ) )
+							return true;
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
 void  ProgrammaticConfigure::retrieveCommonConfig( const EmaString& instanceName, ActiveConfig& activeConfig )
 {
 	for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
@@ -498,10 +609,10 @@ void  ProgrammaticConfigure::retrieveDictionaryConfig( const EmaString& dictiona
 		retrieveDictionary( *_configList[i], dictionaryName, _emaConfigErrList, activeConfig );
 }
 
-void  ProgrammaticConfigure::retrieveDirectoryConfig( const EmaString& directoryName, ActiveConfig& activeConfig )
+void  ProgrammaticConfigure::retrieveDirectoryConfig( const EmaString& directoryName, DirectoryCache& directoryCahce )
 {
 	for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
-		retrieveDirectory( *_configList[i], directoryName, _emaConfigErrList, activeConfig );
+		retrieveDirectory( *_configList[i], directoryName, _emaConfigErrList, directoryCahce );
 }
 
 void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const EmaString& instanceName, EmaConfigErrorList& emaConfigErrList, ActiveConfig& activeConfig )
@@ -1663,7 +1774,7 @@ void ProgrammaticConfigure::retrieveDictionary( const Map& map, const EmaString&
 }
 
 void ProgrammaticConfigure::retrieveDirectory( const Map& map, const EmaString& directoryName, EmaConfigErrorList& emaConfigErrList,
-    ActiveConfig& activeConfig )
+    DirectoryCache& directoryCache )
 {
 	map.reset();
 	while ( map.forth() )

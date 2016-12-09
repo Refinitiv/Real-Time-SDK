@@ -162,7 +162,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\..\..\..\Libs\WIN_64_VS140\Release_MD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>
@@ -172,7 +172,9 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <PostBuildEvent>
-    <Command>if not exist WIN_64_VS140\Release_MD\EmaConfig.xml mklink /h WIN_64_VS140\Release_MD\EmaConfig.xml EmaConfig.xml</Command>
+    <Command>@echo on
+if not exist WIN_64_VS140\Release_MD\EmaConfig.xml mklink /h WIN_64_VS140\Release_MD\EmaConfig.xml EmaConfig.xml
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Shared MD|x64'">
@@ -209,7 +211,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\..\..\..\Libs\WIN_64_VS140\Release_MD\Shared;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>
@@ -220,7 +222,9 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
-    <Command>if not exist WIN_64_VS140\Release_MD\Shared\EmaConfig.xml mklink /h WIN_64_VS140\Release_MD\Shared\EmaConfig.xml EmaConfig.xml</Command>
+    <Command>@echo on
+if not exist WIN_64_VS140\Release_MD\Shared\EmaConfig.xml mklink /h WIN_64_VS140\Release_MD\Shared\EmaConfig.xml EmaConfig.xml
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release MD Assert|x64'">
@@ -255,7 +259,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\..\..\..\Libs\WIN_64_VS140\Release_MD_Assert;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>
@@ -265,7 +269,9 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <PostBuildEvent>
-    <Command>if not exist WIN_64_VS140\Release_MD_Assert\EmaConfig.xml mklink /h WIN_64_VS140\Release_MD_Assert\EmaConfig.xml EmaConfig.xml</Command>
+    <Command>@echo on
+if not exist WIN_64_VS140\Release_MD_Assert\EmaConfig.xml mklink /h WIN_64_VS140\Release_MD_Assert\EmaConfig.xml EmaConfig.xml
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Shared MD Assert|x64'">
@@ -302,7 +308,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\..\..\..\Libs\WIN_64_VS140\Release_MD_Assert\Shared;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>
@@ -313,7 +319,9 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
-    <Command>if not exist WIN_64_VS140\Release_MD_Assert\Shared\EmaConfig.xml mklink /h WIN_64_VS140\Release_MD_Assert\Shared\EmaConfig.xml EmaConfig.xml</Command>
+    <Command>@echo on
+if not exist WIN_64_VS140\Release_MD_Assert\Shared\EmaConfig.xml mklink /h WIN_64_VS140\Release_MD_Assert\Shared\EmaConfig.xml EmaConfig.xml
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug MDd|x64'">
@@ -358,7 +366,9 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <PostBuildEvent>
-    <Command>if not exist WIN_64_VS140\Debug_MDd\EmaConfig.xml mklink /h WIN_64_VS140\Debug_MDd\EmaConfig.xml EmaConfig.xml</Command>
+    <Command>@echo on
+if not exist WIN_64_VS140\Debug_MDd\EmaConfig.xml mklink /h WIN_64_VS140\Debug_MDd\EmaConfig.xml EmaConfig.xml
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug Shared MDd|x64'">
@@ -406,17 +416,21 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
-    <Command>if not exist WIN_64_VS140\Debug_MDd\Shared\EmaConfig.xml mklink /h WIN_64_VS140\Debug_MDd\Shared\EmaConfig.xml EmaConfig.xml</Command>
+    <Command>@echo on
+if not exist WIN_64_VS140\Debug_MDd\Shared\EmaConfig.xml mklink /h WIN_64_VS140\Debug_MDd\Shared\EmaConfig.xml EmaConfig.xml
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Consumer.cpp" />
     <ClCompile Include="ConsumerManager.cpp" />
 
+
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Consumer.h" />
     <ClInclude Include="ConsumerManager.h" />
+
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
