@@ -179,6 +179,7 @@ See the top level Elektron-SDK README.md for details.
 - EMA-533 ChannelSet with two multicast channels userQLimit set incorrectly 
 - EMA-575 NiProvider360 application uses 100% CPU when CTRL-C pressed while publishing data
 - EMA-691 Random exit issue with NiProvider, application does not exit.
+- ETA-2682 CaseId: 05089450 Cannot build EMA from GitHub with Oracle Linux 6.
 
  
 

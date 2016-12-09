@@ -165,7 +165,6 @@ See the top level Elektron-SDK README.md for details.
 - EMA-437 Batch Request status message itemName not correct.
 - EMA-622 Invalid value of compressionThreshold give error and could not connect
 - EMA-624 Invalid config for tcpNodelay and REconnectMaxDelay defaults to incorrect defaults.
-- EMA-719 CaseId: 04883420 EMA Java throws ClassCastException when configured for HTTP Connection type
 - EMA-720 CaseId: 04883420 Broken links in EMA Java ConfigGuide 
 
 # Obtaining the Thomson Reuters Field Dictionaries
