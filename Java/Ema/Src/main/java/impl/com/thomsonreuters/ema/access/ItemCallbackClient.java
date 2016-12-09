@@ -877,6 +877,9 @@ class SubItem<T> extends Item<T>
 	boolean submit(GenericMsg genericMsg)
 	{
 		genericMsg.streamId(_streamId);
+		if (genericMsg.domainType() == 0)
+			genericMsg.domainType(_domainType);
+
 		return ((TunnelItem<T>) (_parent)).submitSubItemMsg(((GenericMsgImpl) genericMsg).rsslMsg());
 	}
 
@@ -2618,7 +2621,8 @@ class SingleItem<T> extends Item<T>
 		rsslSubmitOptions.requestMsgOptions().clear();
 		
 		rsslGenericMsg.streamId(_streamId);
-		rsslGenericMsg.domainType(_domainType);
+		if (rsslGenericMsg.domainType() == 0)
+			rsslGenericMsg.domainType(_domainType);
 		
 	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();

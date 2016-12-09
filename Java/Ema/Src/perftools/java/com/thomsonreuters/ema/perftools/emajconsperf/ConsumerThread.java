@@ -206,15 +206,15 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
 
 	    int currentTicks = 0;
 	    long nextTickTime = System.nanoTime() + _nsecPerTick;
-	    long dispatchTime;
 	    
 	    if (_consPerfConfig.useUserDispatch())
 	    {
+	    	long dispatchTime;
+	    	
 	    	while (!_consThreadInfo.shutdown())
 	        {
 	            // read until no more to read and then write leftover from previous burst
-	    		dispatchTime = nextTickTime-System.nanoTime(); 
-	    		dispatchTime /= 1000;
+	    		dispatchTime =  (nextTickTime - System.nanoTime())/1000;
 	            if (dispatchTime > 0)
 	            	_consumer.dispatch(dispatchTime);
 	            else
@@ -239,10 +239,13 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
 	    }
 	    else
 	    {
+	    	long currentTime;
+	    	
 	    	while (!_consThreadInfo.shutdown())
 	        {
+	    		currentTime = System.nanoTime();
 	            // read until no more to read and then write leftover from previous burst
-	            if (System.nanoTime() >= nextTickTime)
+	            if (currentTime >= nextTickTime)
 	            {
 	                nextTickTime += _nsecPerTick;
 
@@ -256,6 +259,18 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
 
 	                if (++currentTicks == _consPerfConfig.ticksPerSec())
 	                    currentTicks = 0;
+	            }
+	            else
+	            {
+						try
+						{
+							long sleepTime = (nextTickTime - currentTime)/1000000;
+							Thread.sleep( (sleepTime > 0 ? sleepTime : 10));
+							 
+						} catch (InterruptedException e)
+						{
+							e.printStackTrace();
+						} 
 	            }
 	        }   // end of run loop
 	    }

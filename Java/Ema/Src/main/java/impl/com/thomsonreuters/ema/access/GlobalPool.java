@@ -1,3 +1,10 @@
+///*|-----------------------------------------------------------------------------
+// *|            This source code is provided under the Apache 2.0 license      --
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+// *|                See the project's LICENSE.md for details.                  --
+// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+///*|-----------------------------------------------------------------------------
+
 package com.thomsonreuters.ema.access;
 
 import java.util.ArrayDeque;
@@ -17,11 +24,11 @@ import com.thomsonreuters.upa.codec.State;
 import com.thomsonreuters.upa.codec.Time;
 import com.thomsonreuters.upa.codec.UInt;
 
-public class GlobalPool
+class GlobalPool
 {
 	private final static int DATA_POOL_INITIAL_SIZE = 40;
 
-	 static ReentrantLock _globalLock = new java.util.concurrent.locks.ReentrantLock();
+	static ReentrantLock _globalLock = new java.util.concurrent.locks.ReentrantLock();
 	
 	private static ArrayDeque<Date> _DatePool = new ArrayDeque<>(DATA_POOL_INITIAL_SIZE); 
 	private static ArrayDeque<DateTime> _DateTimePool = new ArrayDeque<>(DATA_POOL_INITIAL_SIZE);

@@ -11,31 +11,32 @@ import com.thomsonreuters.ema.access.OmmProviderClient;
 import com.thomsonreuters.ema.access.OmmProviderEvent;
 import com.thomsonreuters.ema.access.OmmReal;
 import com.thomsonreuters.ema.access.OmmState;
+import com.thomsonreuters.ema.access.PostMsg;
 import com.thomsonreuters.ema.access.RefreshMsg;
+import com.thomsonreuters.ema.access.ReqMsg;
 import com.thomsonreuters.ema.access.StatusMsg;
 import com.thomsonreuters.ema.rdm.EmaRdm;
 
 class AppClient implements OmmProviderClient
 {
-    @Override
     public void onRefreshMsg(RefreshMsg refreshMsg, OmmProviderEvent providerEvent)
     {
         System.out.println("Received Refresh. Handle: " + providerEvent.handle() + " Closure: " + providerEvent.closure());
         System.out.println(refreshMsg.toString());
     }
 
-    @Override
     public void onStatusMsg(StatusMsg statusMsg, OmmProviderEvent providerEvent)
     {
         System.out.println("Received Status. Handle: " + providerEvent.handle() + " Closure: " + providerEvent.closure());
         System.out.println(statusMsg.toString());
     }
 
-    @Override
     public void onGenericMsg(GenericMsg genericMsg, OmmProviderEvent providerEvent) {}
-
-    @Override
     public void onAllMsg(Msg msg, OmmProviderEvent providerEvent) {}
+	public void onPostMsg(PostMsg postMsg, OmmProviderEvent providerEvent) {}
+	public void onReqMsg(ReqMsg reqMsg, OmmProviderEvent providerEvent) {}
+	public void onReissue(ReqMsg reqMsg, OmmProviderEvent providerEvent) {}
+	public void onClose(ReqMsg reqMsg, OmmProviderEvent providerEvent) {}
 }
 public class NiProvider
 {

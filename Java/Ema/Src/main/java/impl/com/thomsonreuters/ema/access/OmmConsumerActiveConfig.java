@@ -10,19 +10,16 @@ package com.thomsonreuters.ema.access;
 class OmmConsumerActiveConfig extends ActiveConfig
 {
 	static final String DEFAULT_CONSUMER_SERVICE_NAME = "14002";
-	private static final int DEFAULT_USER_DISPATCH = OmmConsumerConfig.OperationModel.API_DISPATCH;
 
 	OmmConsumerActiveConfig()
 	{
 		super(DEFAULT_CONSUMER_SERVICE_NAME);
-		operationModel = DEFAULT_USER_DISPATCH;
 	}
 	
 	@Override
 	void clear()
 	{
 		super.clear();
-		operationModel = DEFAULT_USER_DISPATCH;
 	}
 
 }

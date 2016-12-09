@@ -105,7 +105,7 @@ class ConfigErrorTracker
 		System.out.println("==============================================");
 	}
 	
-	<T> void log(OmmBaseImpl<T> ommBaseImpl, Logger loggerClient)
+	void log(OmmCommonImpl logMessage, Logger loggerClient)
 	{
 		if(_errorList.size() == 0 )
 			return;
@@ -116,27 +116,27 @@ class ConfigErrorTracker
 			{
 			case OmmLoggerClient.Severity.DEBUG:
 				if (loggerClient.isDebugEnabled())
-					loggerClient.debug(ommBaseImpl.formatLogMessage("EmaConfig", error.text, Severity.DEBUG));
+					loggerClient.debug(logMessage.formatLogMessage("EmaConfig", error.text, Severity.DEBUG));
 				break;
 			case OmmLoggerClient.Severity.TRACE:
 				if (loggerClient.isTraceEnabled())
-					loggerClient.trace(ommBaseImpl.formatLogMessage("EmaConfig", error.text, Severity.TRACE));
+					loggerClient.trace(logMessage.formatLogMessage("EmaConfig", error.text, Severity.TRACE));
 				break;
 			case OmmLoggerClient.Severity.INFO:
 				if (loggerClient.isInfoEnabled())
-					loggerClient.info(ommBaseImpl.formatLogMessage("EmaConfig", error.text, Severity.INFO));
+					loggerClient.info(logMessage.formatLogMessage("EmaConfig", error.text, Severity.INFO));
 				break;
 			case OmmLoggerClient.Severity.WARNING:
 				if (loggerClient.isWarnEnabled())
-					loggerClient.warn(ommBaseImpl.formatLogMessage("EmaConfig", error.text, Severity.WARNING));
+					loggerClient.warn(logMessage.formatLogMessage("EmaConfig", error.text, Severity.WARNING));
 				break;
 			case OmmLoggerClient.Severity.ERROR:
 				if (loggerClient.isErrorEnabled())
-					loggerClient.error(ommBaseImpl.formatLogMessage("EmaConfig", error.text, Severity.ERROR));
+					loggerClient.error(logMessage.formatLogMessage("EmaConfig", error.text, Severity.ERROR));
 				break;
 			default:
 				if (loggerClient.isErrorEnabled())
-					loggerClient.error(ommBaseImpl.formatLogMessage("EmaConfig", "Invalid error level", Severity.ERROR));
+					loggerClient.error(logMessage.formatLogMessage("EmaConfig", "Invalid error level", Severity.ERROR));
 			}
 		}
 	}

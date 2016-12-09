@@ -724,7 +724,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 			temp.append("Attempt to connect using ");
 		
 		StringBuilder errorStrUnsupportedConnectionType = new StringBuilder();		
-		errorStrUnsupportedConnectionType.append( "Unknown connection type. Passed in type is ");
+		errorStrUnsupportedConnectionType.append( "Unsupported connection type. Passed in type is ");
 
 		
 		_rsslReactorConnOptions.reconnectAttemptLimit(activeConfigChannelSet.get(channelCfgSetLastIndex).reconnectAttemptLimit);
@@ -856,8 +856,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 			}
 			else
 			{
-				errorStrUnsupportedConnectionType.append( com.thomsonreuters.upa.transport.ConnectionTypes.toString(channelConfig.rsslConnectionType))
-				.append( " for " )
+				errorStrUnsupportedConnectionType.append( ConnectionTypes.toString(channelConfig.rsslConnectionType)).append( " for " )
 				.append( activeConfigChannelSet.get(i).name );
 				if ( i < channelCfgSetLastIndex )
 					errorStrUnsupportedConnectionType.append( ", " );				
@@ -909,7 +908,10 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		}
 		else
 		{
-			throw _baseImpl.ommIUExcept().message( errorStrUnsupportedConnectionType.toString() );
+			 if (_baseImpl.loggerClient().isErrorEnabled())
+			        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, errorStrUnsupportedConnectionType.toString(), Severity.ERROR));
+
+			 throw _baseImpl.ommIUExcept().message( errorStrUnsupportedConnectionType.toString() );
 		}
 	}
 	

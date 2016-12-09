@@ -37,7 +37,55 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequestFlags;
 
-abstract class EmaConfigImpl
+abstract class  EmaConfigBaseImpl
+{	
+	private ConfigErrorTracker 					_errorTracker;
+	protected XMLConfigReader						_xmlConfig;
+	
+	private OmmInvalidConfigurationExceptionImpl _oommICExcept;
+	
+	protected StringBuilder 						_configStrBuilder;
+	
+	EmaConfigBaseImpl()
+	{
+		_errorTracker = new ConfigErrorTracker();
+	}
+	
+	ConfigErrorTracker errorTracker()
+	{
+		return _errorTracker;
+	}
+	
+	XMLConfigReader xmlConfig()
+	{
+		return _xmlConfig;
+	}
+	
+	protected OmmInvalidConfigurationExceptionImpl oommICExcept()
+	{
+		if (_oommICExcept == null)
+			_oommICExcept = new OmmInvalidConfigurationExceptionImpl();
+		
+		return _oommICExcept;
+	}
+	
+	protected StringBuilder configStrBuilder()
+	{
+		if (_configStrBuilder == null)
+			_configStrBuilder = new StringBuilder();
+		else
+			_configStrBuilder.setLength(0);
+		
+		return _configStrBuilder;
+	}
+	
+	abstract void configInt(Data config);
+	abstract String configuredName();
+	abstract int operationModel();
+	abstract void readConfiguration(); 
+}
+
+abstract class EmaConfigImpl extends EmaConfigBaseImpl
 {
 	private LoginRequest						_rsslLoginReq = (LoginRequest) LoginMsgFactory.createMsg();
 	private DirectoryRequest					_rsslDirectoryReq; 
@@ -54,32 +102,14 @@ abstract class EmaConfigImpl
 	private boolean 							_fidDictReqServiceIdSet;
 	private boolean 							_enumDictReqServiceIdSet;
 	
-	private ConfigErrorTracker 					_errorTracker;
-	private XMLConfigReader						_xmlConfig;
-	
-	private OmmInvalidConfigurationExceptionImpl _oommICExcept;
-	
-	protected StringBuilder 						_configStrBuilder;
-	
-	protected List<Integer> channelOrChannelSet = new ArrayList<Integer>();
-
-	abstract int operationModel();
+    	protected List<Integer> channelOrChannelSet = new ArrayList<Integer>();
 	
 	EmaConfigImpl()
 	{
+		super();
+		
 		clearInt();
-		_errorTracker = new ConfigErrorTracker();
 		readConfiguration();
-	}
-	
-	protected ConfigErrorTracker errorTracker() 
-	{
-		return _errorTracker;
-	}
-	
-	protected XMLConfigReader xmlConfig()
-	{
-		return _xmlConfig;
 	}
 	
 	void readConfiguration() 
@@ -262,8 +292,6 @@ abstract class EmaConfigImpl
 				break;
 		}
 	}
-	
-	abstract String configuredName();
 	
 	abstract String channelName(String instanceName);
 	
@@ -688,14 +716,6 @@ abstract class EmaConfigImpl
 		return true;
 	}
 	
-	protected OmmInvalidConfigurationExceptionImpl oommICExcept()
-	{
-		if (_oommICExcept == null)
-			_oommICExcept = new OmmInvalidConfigurationExceptionImpl();
-		
-		return _oommICExcept;
-	}
-	
 	DecodeIterator rsslDecodeIterator()
 	{
 		if (_rsslDecIter == null)
@@ -706,16 +726,6 @@ abstract class EmaConfigImpl
 		return _rsslDecIter;
 	}
 	
-	protected StringBuilder configStrBuilder()
-	{
-		if (_configStrBuilder == null)
-			_configStrBuilder = new StringBuilder();
-		else
-			_configStrBuilder.setLength(0);
-		
-		return _configStrBuilder;
-	}
-	
 	public String getUserSpecifiedHostname() 
 	{
 		return _hostnameSetViaFunctionCall;
@@ -724,5 +734,76 @@ abstract class EmaConfigImpl
 	public String getUserSpecifiedPort() 
 	{
 		return _portSetViaFunctionCall; 
+	}
+}
+
+abstract class EmaConfigServerImpl extends EmaConfigBaseImpl
+{	
+	private DirectoryRefresh 					_rsslDirectoryRefresh;
+	
+	private DecodeIterator    					_rsslDecIter;
+	private String              				_portSetViaFunctionCall;
+	
+	EmaConfigServerImpl()
+	{
+		super();
+		readConfiguration();
+	}
+	
+	void readConfiguration() 
+	{
+		_xmlConfig = (XMLConfigReader) ConfigReader.createXMLConfigReader(this);
+		_xmlConfig.loadFile();
+	}
+	
+	protected void addAdminMsgInt(RefreshMsg refreshMsg)
+	{	
+		com.thomsonreuters.upa.codec.RefreshMsg rsslRefreshMsg = ((RefreshMsgImpl)refreshMsg).rsslMsg();
+		
+		switch( rsslRefreshMsg.domainType() )
+		{
+			case com.thomsonreuters.upa.rdm.DomainTypes.DICTIONARY :
+				// TODO : add implementation to decode and store dictionary refresh message
+				break;
+			case com.thomsonreuters.upa.rdm.DomainTypes.SOURCE :
+				// TODO: add implementation to decode and store source directory refresh message
+				break;
+			default:
+				errorTracker().append("Refresh message passed into addAdminMsg(RefreshMsg refreshMsg) contains unhandled domain type. Domain type='")
+				.append(rsslRefreshMsg.domainType())
+				.append( "'. ")
+				.create(Severity.ERROR);
+				break;
+		}
+	}
+	
+	protected void portInt(String port, String defaultService)
+	{
+		if ( ( port == null ) || ( port.isEmpty() ) )
+		{
+			_portSetViaFunctionCall = defaultService;
+		}
+		
+		_portSetViaFunctionCall = port;
+	}
+	
+	public String getUserSpecifiedPort() 
+	{
+		return _portSetViaFunctionCall; 
+	}
+	
+	void configInt(Data config)
+	{
+		throw new UnsupportedOperationException("Programmatic configuration is not supported yet.");
+	}
+	
+	DecodeIterator rsslDecodeIterator()
+	{
+		if (_rsslDecIter == null)
+			_rsslDecIter = CodecFactory.createDecodeIterator();
+		else 
+			_rsslDecIter.clear();
+		
+		return _rsslDecIter;
 	}
 }

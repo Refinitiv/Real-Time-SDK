@@ -11,17 +11,27 @@ package com.thomsonreuters.ema.access;
 class OmmEventImpl<T> implements OmmConsumerEvent, OmmProviderEvent
 {
 	Item<T> _item;
+	OmmProvider _ommProvider;
+	LongObject _clientHandle;
+	Object 	_closure;
+	LongObject _handle;
 	
 	@Override
 	public long handle()
 	{
-		return _item.itemId();
+		if(_item == null)
+			return _handle.value();
+		else
+			return _item.itemId();
 	}
 
 	@Override
 	public Object closure()
 	{
-		return _item.closure();
+		if(_item == null )
+			return _closure;
+		else
+			return _item.closure();
 	}
 
 	@Override
@@ -31,5 +41,17 @@ class OmmEventImpl<T> implements OmmConsumerEvent, OmmProviderEvent
 			return _item.parent().itemId();
 		else
 			return 0;
+	}
+
+	@Override
+	public OmmProvider provider()
+	{
+		return _ommProvider;
+	}
+
+	@Override
+	public long clientHandle()
+	{
+		return _clientHandle.value();
 	}
 }

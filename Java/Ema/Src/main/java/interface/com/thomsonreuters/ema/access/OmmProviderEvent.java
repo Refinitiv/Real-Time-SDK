@@ -10,7 +10,7 @@ package com.thomsonreuters.ema.access;
 /**
  * OmmProviderEvent encapsulates item identifiers.
  * 
- * <p>OmmProviderEvent is used to convey item identifiers to application.<br>
+ * <p>OmmProviderEvent is used to convey item identifiers and OmmProvider to application.<br>
  * OmmProviderEvent is returned through OmmProviderClient callback methods.</p>
  * 
  * <p>OmmProviderEvent is read only interface. It is used for item identification only.</p>
@@ -37,4 +37,18 @@ public interface OmmProviderEvent
 	 * @return closure value
 	 */
 	public Object closure();
+	
+	/**
+	 * Returns OmmProvider instance for this event.
+	 * 
+	 * @return reference to OmmProvider
+	 */
+	public OmmProvider provider();
+	
+	/**
+	 * Returns a unique client identifier (a.k.a., client handle) associated by EMA with a connected client.
+	 * 
+	 * @return client identifier or handle
+	 */
+	public long clientHandle();
 }

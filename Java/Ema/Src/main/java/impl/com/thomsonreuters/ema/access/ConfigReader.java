@@ -30,14 +30,14 @@ class ConfigReader
 {
 	static ConfigReader configReaderFactory;
 	
-	EmaConfigImpl _parent;
+	EmaConfigBaseImpl _parent;
 	
 	ConfigReader() 
 	{
 
 	}
 
-	ConfigReader(EmaConfigImpl parent)
+	ConfigReader(EmaConfigBaseImpl parent)
 	{
 		this._parent = parent;
 	}
@@ -62,7 +62,7 @@ class ConfigReader
 		return configReaderFactory;
 	}
 
-	static ConfigReader createXMLConfigReader(EmaConfigImpl emaConfigImpl)
+	static ConfigReader createXMLConfigReader(EmaConfigBaseImpl emaConfigImpl)
 	{
 		return(ConfigReader.acquire().new XMLConfigReader(emaConfigImpl));
 	}
@@ -214,7 +214,7 @@ class ConfigReader
 			int endIdx = branch.size();
 			Object attributeValue = null;
 			
-			for( int i = startIdx; i < endIdx; i++)
+			for( int i = startIdx; i < endIdx; )
 			{
 				int nodeId = branch.get(i);
 				xmlChildNode = xmlChildNode.getChild(nodeId);
@@ -243,6 +243,7 @@ class ConfigReader
 				{
 					errorTracker().append("Unable to find child node for ").append(branch.toString()).create(Severity.ERROR);
 				}
+				
 				return nextNode;
 			}
 
@@ -289,8 +290,10 @@ class ConfigReader
 
 		private String _defaultConsumerName;
 		private String _defaultNiProviderName;
+		private String _defaultIProviderName;
 		private XMLnode _defaultConsumerNode;
 		private XMLnode	_defaultNiProviderNode;
+		private XMLnode	_defaultIProviderNode;
 		private boolean _getDefaultName = false;
 
 		boolean _debugDump = false;
@@ -305,7 +308,7 @@ class ConfigReader
 			}
 		}
 
-		XMLConfigReader(EmaConfigImpl emaConfigImpl)
+		XMLConfigReader(EmaConfigBaseImpl emaConfigImpl)
 		{
 			super(emaConfigImpl);
 		}
@@ -332,10 +335,21 @@ class ConfigReader
 			return _defaultNiProviderName;
 		}
 		
-		XMLnode getRootNode()
+		String defaultIProviderName()
+		{
+			if(!_getDefaultName)
+			{
+				verifyAndGetDefaultIProvider();
+				_getDefaultName = true;
+			}
+			
+			return _defaultIProviderName;
+		}
+
+        	XMLnode getRootNode()
 		{
 			return xmlRoot;
-		}
+        	}
 
 		private ConfigElement convertEnum(XMLnode parent, String enumValue)
 		{
@@ -400,6 +414,23 @@ class ConfigReader
 				
 				if( channelType != -1 )
 					return ConfigManager.acquire().new IntConfigElement( parent, ConfigElement.Type.Enum,channelType);
+			}
+			else if ( enumType.equals("ServerType" ) )
+			{
+				int serverType = -1;
+
+				if(enumValue.equals("RSSL_SOCKET"))
+					serverType = ConnectionTypes.SOCKET;
+				else
+				{
+					errorTracker().append( "no implementation in convertEnum for enumType [" )
+					.append( enumValue )
+					.append( "]")
+					.create(Severity.ERROR);
+				}
+				
+				if( serverType != -1 )
+					return ConfigManager.acquire().new IntConfigElement( parent, ConfigElement.Type.Enum,serverType);
 			}
 			else if (enumType.equals("CompressionType") )
 			{
@@ -738,6 +769,10 @@ class ConfigReader
 						{
 							tagDict = ConfigManager.ConsumerTagDict;
 						}
+						if( configNodeChild.getName().equals("IProviderGroup"))
+						{
+							tagDict = ConfigManager.IProviderTagDict;
+						}
 						else if ( configNodeChild.getName().equals("NiProviderGroup") )
 						{
 							tagDict = ConfigManager.NiProviderTagDict;
@@ -745,6 +780,10 @@ class ConfigReader
 						else if( configNodeChild.getName().equals("ChannelGroup"))
 						{
 							tagDict = ConfigManager.ChannelTagDict;
+						}
+						else if( configNodeChild.getName().equals("ServerGroup"))
+						{
+							tagDict = ConfigManager.ServerTagDict;
 						}
 						else if( configNodeChild.getName().equals("LoggerGroup"))
 						{
@@ -963,6 +1002,51 @@ class ConfigReader
 			}
 		}
 		
+		void verifyAndGetDefaultIProvider()
+		{
+			if ( xmlRoot == null )
+				return;
+			
+			_defaultIProviderName = (String) xmlRoot.getNode(ConfigManager.DEFAULT_IPROVIDER,0);
+			if ( _defaultIProviderName == null ) 
+				return;
+
+			XMLnode iProviderList = (XMLnode) xmlRoot.getChildren(ConfigManager.IPROVIDER_LIST,0);
+			if ( iProviderList != null )
+			{
+				for( int i = 0; i < iProviderList.children().size(); i++)
+				{
+					XMLnode child = iProviderList.children().get(i);
+
+					// debugging 
+					// child._attributeNode.dump("**");
+
+					String childName = (String) child.attributeList().getValue(ConfigManager.IProviderName);
+
+					if( childName != null && childName.equals(_defaultIProviderName) )
+					{
+						_defaultIProviderNode = child;
+						break;
+					}
+				}
+
+				if( _defaultIProviderNode != null ) 
+					return;
+
+				if( _defaultIProviderName.equals("EmaIProvider") ) 
+					return;
+
+				String errorMsg = String.format("specified default iprovider name [%s] was not found in the configured iproviders",_defaultIProviderName);
+			    errorTracker().append(errorMsg).create(Severity.TRACE);
+			    _defaultIProviderName = null;
+			}
+			else if ( _defaultIProviderName.equals("EmaIProvider") == false )
+			{
+				String errorMsg = String.format("default iprovider name [%s] was specified, but no iproviders were configured",_defaultIProviderName);
+				throw _parent.oommICExcept().message( errorMsg );
+			}
+		}
+		
 		String getDefaultDirectoryName()
 		{
 			if ( xmlRoot != null )
@@ -1005,6 +1089,24 @@ class ConfigReader
 			if(bSetAttribute)
 			{
 				_defaultNiProviderName = niproviderName;
+			}
+
+			return bSetAttribute;
+		}
+		
+		boolean setDefaultIProvider(String iproviderName) 
+		{
+			XMLnode theNode = (XMLnode) xmlRoot.getChildren(ConfigManager.IPROVIDER_GROUP, 0);
+			if( theNode == null )
+			{
+				return false;
+			}
+
+			int elementType = configkeyTypePair.get("DefaultIProvider");
+			boolean bSetAttribute = theNode.attributeList().setValue(ConfigManager.DefaultIProvider, iproviderName, elementType);
+			if(bSetAttribute)
+			{
+				_defaultIProviderName = iproviderName;
 			}
 
 			return bSetAttribute;
@@ -1072,6 +1174,11 @@ class ConfigReader
 		Object getNiProviderAttributeValue( String forNiProviderName, int findAttributeKey )
 		{
 			return(getAttributeValue(ConfigManager.NIPROVIDER_LIST,ConfigManager.NiProviderName,forNiProviderName,findAttributeKey));
+		}
+		
+		Object getIProviderAttributeValue( String forIProviderName, int findAttributeKey )
+		{
+			return(getAttributeValue(ConfigManager.IPROVIDER_LIST,ConfigManager.IProviderName,forIProviderName,findAttributeKey));
 		}
 
 		Object getDictionaryAttributeValue( String consumerName, int attributeKey )
@@ -1262,6 +1369,38 @@ class ConfigReader
 			return attributeValue;		
 		}
 		
+		Object getFirstIProvider()
+		{
+			if( xmlRoot == null )
+			{
+				return null;
+			}
+			
+			XMLnode list = (XMLnode) xmlRoot.getChildren(ConfigManager.IPROVIDER_LIST,0);
+
+			if( list == null )
+			{
+				errorTracker().append("could not get IProviderList").create(Severity.TRACE);
+				return null;
+			}
+
+			if( list.children().size() == 0 )
+			{
+				errorTracker().append("could not get iprovider nodes for IProviderList").create(Severity.TRACE);
+				return null;
+			}
+
+			String attributeValue = null;
+			XMLnode child = list.children().get(0);
+
+			attributeValue = (String) child.attributeList().getValue(ConfigManager.IProviderName);
+			if( attributeValue == null )
+			{
+				errorTracker().append("could not get the first iprovider node for IProviderList").create(Severity.TRACE);
+			}
+			return attributeValue;		
+		}
+		
 		Object getFirstDirectory()
 		{
 			if( xmlRoot == null )
@@ -1358,6 +1497,16 @@ class ConfigReader
 
 			return(xmlRoot.getNodeWithAttributeList(ConfigManager.NIPROVIDER_LIST, niProviderName, ConfigManager.NiProviderName));
 		}
+		
+		ConfigAttributes getIProviderAttributes(String iProviderName) 
+		{
+			if( xmlRoot == null )
+			{
+				return null;
+			}
+
+			return(xmlRoot.getNodeWithAttributeList(ConfigManager.IPROVIDER_LIST, iProviderName, ConfigManager.IProviderName));
+		}
 
 		ConfigAttributes getDictionaryAttributes(String dictionaryName) 
 		{
@@ -1377,6 +1526,16 @@ class ConfigReader
 			}
 
 			return(xmlRoot.getNodeWithAttributeList(ConfigManager.CHANNEL_LIST,channelName,ConfigManager.ChannelName));
+		}
+		
+		ConfigAttributes getServerAttributes(String serverName) 
+		{
+			if( xmlRoot == null )
+			{
+				return null;
+			}
+
+			return(xmlRoot.getNodeWithAttributeList(ConfigManager.SERVER_LIST,serverName,ConfigManager.ServerName));
 		}
 
 		void debugDump(String txt)

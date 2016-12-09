@@ -7,22 +7,8 @@
 
 package com.thomsonreuters.ema.access;
 
-import java.util.List;
-
-import com.thomsonreuters.upa.codec.Buffer;
-import com.thomsonreuters.upa.codec.CodecFactory;
-import com.thomsonreuters.upa.codec.DataStates;
-import com.thomsonreuters.upa.codec.StateCodes;
-import com.thomsonreuters.upa.codec.StreamStates;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgType;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRefresh;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
-
 class OmmNiProviderActiveConfig extends ActiveConfig
 {
-
-	static final int DEFAULT_USER_DISPATCH 								=   OmmNiProviderConfig.OperationModel.API_DISPATCH;
 	static final int DEFAULT_SERVICE_STATE								=	1;
 	static final int DEFAULT_ACCEPTING_REQUESTS							=	1;
 	static final boolean DEFAULT_IS_STATUS_CONFIGURED					=	false;
@@ -44,98 +30,15 @@ class OmmNiProviderActiveConfig extends ActiveConfig
 	boolean						mergeSourceDirectoryStreams;
 	boolean						recoverUserSubmitSourceDirectory;
 	boolean						removeItemsOnDisconnect;
-	DirectoryConfig				directoryConfig;
-	DirectoryConfig				userSubmittedDirectoryConfig;
 
 	OmmNiProviderActiveConfig()
 	{
 		super(DEFAULT_NIPROVIDER_SERVICE_NAME);
-		operationModel = DEFAULT_USER_DISPATCH;
 		directoryAdminControl = DEFAULT_DIRECTORY_ADMIN_CONTROL;
 		refreshFirstRequired = DEFAULT_REFRESH_FIRST_REQUIRED;
 		mergeSourceDirectoryStreams = DEFAULT_MERGE_SOURCE_DIRECTORY_STREAMS;
 		recoverUserSubmitSourceDirectory = DEFAULT_RECOVER_USER_SUBMIT_SOURCEDIRECTORY;
 		removeItemsOnDisconnect = DEFAULT_REMOVE_ITEMS_ON_DISCONNECT;
-		directoryConfig = new DirectoryConfig();
-		userSubmittedDirectoryConfig = new DirectoryConfig();
-	}
-}
-
-class DirectoryConfig
-{
-	String						directoryName;
-	private DirectoryRefresh 	directoryRefresh;
-	private int					streamId;
-	
-	DirectoryConfig()
-	{
-		directoryName = "";
-		directoryRefresh = (DirectoryRefresh)DirectoryMsgFactory.createMsg();
-		clear();
-	}
-	
-	void clear()
-	{
-		directoryName = "";
-		directoryRefresh.clear();
-	    streamId = 0;
-	
-	    directoryRefresh.rdmMsgType(DirectoryMsgType.REFRESH);
-	       
-	    directoryRefresh.streamId(streamId);
-	    
-	    Buffer stateText = CodecFactory.createBuffer();
-	    stateText.data("Source Directory Refresh Completed");
-	        
-	    directoryRefresh.state().streamState(StreamStates.OPEN);
-	    directoryRefresh.state().dataState(DataStates.OK);
-	    directoryRefresh.state().code(StateCodes.NONE);
-	    directoryRefresh.state().text(stateText);
-	        
-	    directoryRefresh.applyClearCache();
-
-	    directoryRefresh.filter( com.thomsonreuters.upa.rdm.Directory.ServiceFilterFlags.INFO |
-				 com.thomsonreuters.upa.rdm.Directory.ServiceFilterFlags.STATE);
-	}
-	
-	void addService(Service service)
-	{
-		directoryRefresh.serviceList().add(service);
-	}
-	
-	Service getService(int serviceId)
-	{
-		for(int index = 0; index < directoryRefresh.serviceList().size(); index++ )
-		{
-			if ( directoryRefresh.serviceList().get(index).serviceId() == serviceId )
-			{
-				return directoryRefresh.serviceList().get(index);
-			}
-		}
-		
-		return null;
-	}
-	
-	void removeService(int serviceId)
-	{
-		for(int index = 0; index < directoryRefresh.serviceList().size(); index++ )
-		{
-			if ( directoryRefresh.serviceList().get(index).serviceId() == serviceId )
-			{
-				directoryRefresh.serviceList().remove(index);
-				break;
-			}
-		}
-	}
-	
-	List<Service> serviceList()
-	{
-		return directoryRefresh.serviceList();
-	}
-	
-	DirectoryRefresh getDirectoryRefresh()
-	{		
-		return directoryRefresh;
 	}
 }
 

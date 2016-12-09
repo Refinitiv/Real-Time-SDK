@@ -22,6 +22,7 @@ class GenericMsgImpl extends MsgImpl implements GenericMsg
 	GenericMsgImpl()
 	{
 		super(DataTypes.GENERIC_MSG, null);
+		_rsslMsg.domainType(0);
 	}
 
 	GenericMsgImpl(EmaObjectManager objManager)
@@ -33,6 +34,7 @@ class GenericMsgImpl extends MsgImpl implements GenericMsg
 	public GenericMsg clear()
 	{
 		msgClear();
+		_rsslMsg.domainType(0);
 		return this;
 	}
 	
