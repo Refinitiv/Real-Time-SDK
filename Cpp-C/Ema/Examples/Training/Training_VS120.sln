@@ -223,11 +223,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IProvider160", "IProvider\1
                 {DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
         EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IProvider161", "IProvider\100_Series_Examples\161__Login__AcceptDeny__Helper\IProvider161_VS120.vcxproj", "{2F207300-017C-0AE2-1D54-010126A84C81}"
-        ProjectSection(ProjectDependencies) = postProject
-                {DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
-        EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IProvider200", "IProvider\200_Series_Examples\200__MarketPrice__Streaming\IProvider200_VS120.vcxproj", "{2F207300-017C-0AE2-1D54-010126A84C82}"
         ProjectSection(ProjectDependencies) = postProject
                 {DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
@@ -254,6 +249,31 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IProvider260", "IProvider\2
         EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IProvider280", "IProvider\200_Series_Examples\280__MarketPrice__Performance\IProvider280_VS120.vcxproj", "{2F207300-017C-0AE2-1D54-010126A84C87}"
+        ProjectSection(ProjectDependencies) = postProject
+                {DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
+        EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IProvider300", "IProvider\300_Series_Examples\300__MarketPrice__Close\IProvider300_VS120.vcxproj", "{2F207300-017C-0AE2-1D54-010126A84C88}"
+        ProjectSection(ProjectDependencies) = postProject
+                {DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
+        EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IProvider301", "IProvider\300_Series_Examples\301__MarketPrice__PriorityChange\IProvider301_VS120.vcxproj", "{2F207300-017C-0AE2-1D54-010126A84C89}"
+        ProjectSection(ProjectDependencies) = postProject
+                {DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
+        EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IProvider320", "IProvider\300_Series_Examples\320__Custom__GenericMsg\IProvider320_VS120.vcxproj", "{2F207300-017C-0AE2-1D54-010126A84C8A}"
+        ProjectSection(ProjectDependencies) = postProject
+                {DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
+        EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IProvider331", "IProvider\300_Series_Examples\331__Directory__UserControl\IProvider331_VS120.vcxproj", "{2F207300-017C-0AE2-1D54-010126A84C8B}"
+        ProjectSection(ProjectDependencies) = postProject
+                {DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
+        EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IProvider380", "IProvider\300_Series_Examples\380__MarketPrice__ConnectionLost\IProvider380_VS120.vcxproj", "{2F207300-017C-0AE2-1D54-010126A84C8C}"
         ProjectSection(ProjectDependencies) = postProject
                 {DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
         EndProjectSection
@@ -958,18 +978,6 @@ Global
                 {2F207300-017C-0AE2-1D54-010126A84C80}.Release Shared MD Assert|x64.Build.0 = Release MD Assert|x64
                 {2F207300-017C-0AE2-1D54-010126A84C80}.Release Shared MD|x64.ActiveCfg = Release MD|x64
                 {2F207300-017C-0AE2-1D54-010126A84C80}.Release Shared MD|x64.Build.0 = Release MD|x64
-                {2F207300-017C-0AE2-1D54-010126A84C81}.Debug MDd|x64.ActiveCfg = Debug MDd|x64
-                {2F207300-017C-0AE2-1D54-010126A84C81}.Debug MDd|x64.Build.0 = Debug MDd|x64
-                {2F207300-017C-0AE2-1D54-010126A84C81}.Debug Shared MDd|x64.ActiveCfg = Debug MDd|x64
-                {2F207300-017C-0AE2-1D54-010126A84C81}.Debug Shared MDd|x64.Build.0 = Debug MDd|x64
-                {2F207300-017C-0AE2-1D54-010126A84C81}.Release MD Assert|x64.ActiveCfg = Release MD Assert|x64
-                {2F207300-017C-0AE2-1D54-010126A84C81}.Release MD Assert|x64.Build.0 = Release MD Assert|x64
-                {2F207300-017C-0AE2-1D54-010126A84C81}.Release MD|x64.ActiveCfg = Release MD|x64
-                {2F207300-017C-0AE2-1D54-010126A84C81}.Release MD|x64.Build.0 = Release MD|x64
-                {2F207300-017C-0AE2-1D54-010126A84C81}.Release Shared MD Assert|x64.ActiveCfg = Release MD Assert|x64
-                {2F207300-017C-0AE2-1D54-010126A84C81}.Release Shared MD Assert|x64.Build.0 = Release MD Assert|x64
-                {2F207300-017C-0AE2-1D54-010126A84C81}.Release Shared MD|x64.ActiveCfg = Release MD|x64
-                {2F207300-017C-0AE2-1D54-010126A84C81}.Release Shared MD|x64.Build.0 = Release MD|x64
                 {2F207300-017C-0AE2-1D54-010126A84C82}.Debug MDd|x64.ActiveCfg = Debug MDd|x64
                 {2F207300-017C-0AE2-1D54-010126A84C82}.Debug MDd|x64.Build.0 = Debug MDd|x64
                 {2F207300-017C-0AE2-1D54-010126A84C82}.Debug Shared MDd|x64.ActiveCfg = Debug MDd|x64
@@ -1042,6 +1050,66 @@ Global
                 {2F207300-017C-0AE2-1D54-010126A84C87}.Release Shared MD Assert|x64.Build.0 = Release MD Assert|x64
                 {2F207300-017C-0AE2-1D54-010126A84C87}.Release Shared MD|x64.ActiveCfg = Release MD|x64
                 {2F207300-017C-0AE2-1D54-010126A84C87}.Release Shared MD|x64.Build.0 = Release MD|x64
+                {2F207300-017C-0AE2-1D54-010126A84C88}.Debug MDd|x64.ActiveCfg = Debug MDd|x64
+                {2F207300-017C-0AE2-1D54-010126A84C88}.Debug MDd|x64.Build.0 = Debug MDd|x64
+                {2F207300-017C-0AE2-1D54-010126A84C88}.Debug Shared MDd|x64.ActiveCfg = Debug MDd|x64
+                {2F207300-017C-0AE2-1D54-010126A84C88}.Debug Shared MDd|x64.Build.0 = Debug MDd|x64
+                {2F207300-017C-0AE2-1D54-010126A84C88}.Release MD Assert|x64.ActiveCfg = Release MD Assert|x64
+                {2F207300-017C-0AE2-1D54-010126A84C88}.Release MD Assert|x64.Build.0 = Release MD Assert|x64
+                {2F207300-017C-0AE2-1D54-010126A84C88}.Release MD|x64.ActiveCfg = Release MD|x64
+                {2F207300-017C-0AE2-1D54-010126A84C88}.Release MD|x64.Build.0 = Release MD|x64
+                {2F207300-017C-0AE2-1D54-010126A84C88}.Release Shared MD Assert|x64.ActiveCfg = Release MD Assert|x64
+                {2F207300-017C-0AE2-1D54-010126A84C88}.Release Shared MD Assert|x64.Build.0 = Release MD Assert|x64
+                {2F207300-017C-0AE2-1D54-010126A84C88}.Release Shared MD|x64.ActiveCfg = Release MD|x64
+                {2F207300-017C-0AE2-1D54-010126A84C88}.Release Shared MD|x64.Build.0 = Release MD|x64
+                {2F207300-017C-0AE2-1D54-010126A84C89}.Debug MDd|x64.ActiveCfg = Debug MDd|x64
+                {2F207300-017C-0AE2-1D54-010126A84C89}.Debug MDd|x64.Build.0 = Debug MDd|x64
+                {2F207300-017C-0AE2-1D54-010126A84C89}.Debug Shared MDd|x64.ActiveCfg = Debug MDd|x64
+                {2F207300-017C-0AE2-1D54-010126A84C89}.Debug Shared MDd|x64.Build.0 = Debug MDd|x64
+                {2F207300-017C-0AE2-1D54-010126A84C89}.Release MD Assert|x64.ActiveCfg = Release MD Assert|x64
+                {2F207300-017C-0AE2-1D54-010126A84C89}.Release MD Assert|x64.Build.0 = Release MD Assert|x64
+                {2F207300-017C-0AE2-1D54-010126A84C89}.Release MD|x64.ActiveCfg = Release MD|x64
+                {2F207300-017C-0AE2-1D54-010126A84C89}.Release MD|x64.Build.0 = Release MD|x64
+                {2F207300-017C-0AE2-1D54-010126A84C89}.Release Shared MD Assert|x64.ActiveCfg = Release MD Assert|x64
+                {2F207300-017C-0AE2-1D54-010126A84C89}.Release Shared MD Assert|x64.Build.0 = Release MD Assert|x64
+                {2F207300-017C-0AE2-1D54-010126A84C89}.Release Shared MD|x64.ActiveCfg = Release MD|x64
+                {2F207300-017C-0AE2-1D54-010126A84C89}.Release Shared MD|x64.Build.0 = Release MD|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8A}.Debug MDd|x64.ActiveCfg = Debug MDd|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8A}.Debug MDd|x64.Build.0 = Debug MDd|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8A}.Debug Shared MDd|x64.ActiveCfg = Debug MDd|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8A}.Debug Shared MDd|x64.Build.0 = Debug MDd|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8A}.Release MD Assert|x64.ActiveCfg = Release MD Assert|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8A}.Release MD Assert|x64.Build.0 = Release MD Assert|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8A}.Release MD|x64.ActiveCfg = Release MD|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8A}.Release MD|x64.Build.0 = Release MD|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8A}.Release Shared MD Assert|x64.ActiveCfg = Release MD Assert|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8A}.Release Shared MD Assert|x64.Build.0 = Release MD Assert|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8A}.Release Shared MD|x64.ActiveCfg = Release MD|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8A}.Release Shared MD|x64.Build.0 = Release MD|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8B}.Debug MDd|x64.ActiveCfg = Debug MDd|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8B}.Debug MDd|x64.Build.0 = Debug MDd|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8B}.Debug Shared MDd|x64.ActiveCfg = Debug MDd|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8B}.Debug Shared MDd|x64.Build.0 = Debug MDd|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8B}.Release MD Assert|x64.ActiveCfg = Release MD Assert|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8B}.Release MD Assert|x64.Build.0 = Release MD Assert|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8B}.Release MD|x64.ActiveCfg = Release MD|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8B}.Release MD|x64.Build.0 = Release MD|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8B}.Release Shared MD Assert|x64.ActiveCfg = Release MD Assert|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8B}.Release Shared MD Assert|x64.Build.0 = Release MD Assert|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8B}.Release Shared MD|x64.ActiveCfg = Release MD|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8B}.Release Shared MD|x64.Build.0 = Release MD|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8C}.Debug MDd|x64.ActiveCfg = Debug MDd|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8C}.Debug MDd|x64.Build.0 = Debug MDd|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8C}.Debug Shared MDd|x64.ActiveCfg = Debug MDd|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8C}.Debug Shared MDd|x64.Build.0 = Debug MDd|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8C}.Release MD Assert|x64.ActiveCfg = Release MD Assert|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8C}.Release MD Assert|x64.Build.0 = Release MD Assert|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8C}.Release MD|x64.ActiveCfg = Release MD|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8C}.Release MD|x64.Build.0 = Release MD|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8C}.Release Shared MD Assert|x64.ActiveCfg = Release MD Assert|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8C}.Release Shared MD Assert|x64.Build.0 = Release MD Assert|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8C}.Release Shared MD|x64.ActiveCfg = Release MD|x64
+                {2F207300-017C-0AE2-1D54-010126A84C8C}.Release Shared MD|x64.Build.0 = Release MD|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
