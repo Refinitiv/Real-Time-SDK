@@ -56,45 +56,45 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1017485">100__MarketPrice__Streaming</a></div>
-      <div class="Body"><a name="1032315">Summary</a></div>
-      <div class="Body"><a name="1032316">=======</a></div>
-      <div class="Body"><a name="1032317">&nbsp;</a></div>
-      <div class="Body"><a name="1032318">example100__MarketPrice__Streaming is an example of an OMM Consumer application </a></div>
-      <div class="Body"><a name="1032319">written to the EMA library.</a></div>
-      <div class="Body"><a name="1032320">&nbsp;</a></div>
-      <div class="Body"><a name="1032321">This application demonstrates the basic usage of the EMA library in accessing and</a></div>
-      <div class="Body"><a name="1032322">parsing OMM MarketPrice data from either Reuters Data Feed Direct (RDF-D), directly</a></div>
-      <div class="Body"><a name="1032323">from an OMM Provider application, or from the Thomson Reuters Advanced Distribution</a></div>
-      <div class="Body"><a name="1032324">Server.</a></div>
-      <div class="Body"><a name="1032325">&nbsp;</a></div>
-      <div class="Body"><a name="1032326">example100__MarketPrice__Streaming illustrates how to open and process a single OMM</a></div>
-      <div class="Body"><a name="1032327">item. While processing received messages, the application prints them</a></div>
-      <div class="Body"><a name="1032328">to the screen.</a></div>
-      <div class="Body"><a name="1032329">&nbsp;</a></div>
-      <div class="Body"><a name="1032330">&nbsp;</a></div>
-      <div class="Body"><a name="1032331">Detailed Description</a></div>
-      <div class="Body"><a name="1032332">====================</a></div>
-      <div class="Body"><a name="1032333">&nbsp;</a></div>
-      <div class="Body"><a name="1032334">example100__MarketPrice__Streaming implements the following high-level steps:</a></div>
-      <div class="Body"><a name="1032335">&nbsp;</a></div>
-      <div class="Body"><a name="1032336">+ Implements the OmmConsumerClient class in the AppClient</a></div>
-      <div class="Body"><a name="1032337">  - Overrides desired methods</a></div>
-      <div class="Body"><a name="1032338">+ Instantiates an AppClient object to receive and process item messages</a></div>
-      <div class="Body"><a name="1032339">+ Instantiates and modifies an OmmConsumerConfig object:</a></div>
-      <div class="Body"><a name="1032340">  - Sets the username to “user”</a></div>
-      <div class="Body"><a name="1032341">  - Sets the hostname on the preconfigured connection to “localhost”</a></div>
-      <div class="Body"><a name="1032342">  - Sets the port on the preconfigured connection to “14002”</a></div>
-      <div class="Body"><a name="1032343">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1032344">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1032345">+ Opens streaming item interest</a></div>
-      <div class="Body"><a name="1032346">  - MarketPrice IBM.N item from the DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1032347">+ Processes data received from the API for 60 seconds.</a></div>
-      <div class="Body"><a name="1032348">  - Received messages are processed on the API thread of control</a></div>
-      <div class="Body"><a name="1032349">+ Exits</a></div>
-      <div class="Body"><a name="1032350">&nbsp;</a></div>
-      <div class="Body"><a name="1032351">Note: If needed, these and other details may be modified to fit your local</a></div>
-      <div class="Body"><a name="1032352">      environment. For details on standard configuration, refer to the EMA library</a></div>
-      <div class="Body"><a name="1032353">      ReadMe.txt file and EMA Configuration Guide.</a></div>
+      <div class="Body"><a name="1036793">Summary</a></div>
+      <div class="Body"><a name="1036794">=======</a></div>
+      <div class="Body"><a name="1036795">&nbsp;</a></div>
+      <div class="Body"><a name="1036796">example100__MarketPrice__Streaming is an example of an OMM Consumer application </a></div>
+      <div class="Body"><a name="1036797">written to the EMA library.</a></div>
+      <div class="Body"><a name="1036798">&nbsp;</a></div>
+      <div class="Body"><a name="1036799">This application demonstrates the basic usage of the EMA library in accessing and</a></div>
+      <div class="Body"><a name="1036800">parsing OMM MarketPrice data from either Reuters Data Feed Direct (RDF-D), directly</a></div>
+      <div class="Body"><a name="1036801">from an OMM Provider application, or from the Thomson Reuters Advanced Distribution</a></div>
+      <div class="Body"><a name="1036802">Server.</a></div>
+      <div class="Body"><a name="1036803">&nbsp;</a></div>
+      <div class="Body"><a name="1036804">example100__MarketPrice__Streaming illustrates how to open and process a single OMM</a></div>
+      <div class="Body"><a name="1036805">item. While processing received messages, the application prints them</a></div>
+      <div class="Body"><a name="1036806">to the screen.</a></div>
+      <div class="Body"><a name="1036807">&nbsp;</a></div>
+      <div class="Body"><a name="1036808">&nbsp;</a></div>
+      <div class="Body"><a name="1036809">Detailed Description</a></div>
+      <div class="Body"><a name="1036810">====================</a></div>
+      <div class="Body"><a name="1036811">&nbsp;</a></div>
+      <div class="Body"><a name="1036812">example100__MarketPrice__Streaming implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1036813">&nbsp;</a></div>
+      <div class="Body"><a name="1036814">+ Implements the OmmConsumerClient class in the AppClient</a></div>
+      <div class="Body"><a name="1036815">  - Overrides desired methods</a></div>
+      <div class="Body"><a name="1036816">+ Instantiates an AppClient object to receive and process item messages</a></div>
+      <div class="Body"><a name="1036817">+ Instantiates and modifies an OmmConsumerConfig object:</a></div>
+      <div class="Body"><a name="1036818">  - Sets the username to “user”</a></div>
+      <div class="Body"><a name="1036819">  - Sets the hostname on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1036820">  - Sets the port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1036821">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1036822">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1036823">+ Opens streaming item interest</a></div>
+      <div class="Body"><a name="1036824">  - MarketPrice IBM.N item from the DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1036825">+ Processes data received from the API for 60 seconds.</a></div>
+      <div class="Body"><a name="1036826">  - Received messages are processed on the API thread of control</a></div>
+      <div class="Body"><a name="1036827">+ Exits</a></div>
+      <div class="Body"><a name="1036828">&nbsp;</a></div>
+      <div class="Body"><a name="1036829">Note: If needed, these and other details may be modified to fit your local</a></div>
+      <div class="Body"><a name="1036830">      environment. For details on standard configuration, refer to the EMA library</a></div>
+      <div class="Body"><a name="1036831">      ReadMe.txt file and EMA Configuration Guide.</a></div>
       <div class="Body"><a name="1030911">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--

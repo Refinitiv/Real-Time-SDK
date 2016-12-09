@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EMA: thomsonreuters::ema::access::ReqMsg Class Reference</title>
+<title>EMA: thomsonreuters::ema::access::RefreshMsg Class Reference</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -104,200 +104,147 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
   <div id="nav-path" class="navpath">
     <ul>
-      <li class="navelem"><a class="el" href="a00162.html">thomsonreuters</a>      </li>
+      <li class="navelem"><a class="el" href="a00164.html">thomsonreuters</a>      </li>
       <li class="navelem"><b>ema</b>      </li>
       <li class="navelem"><b>access</b>      </li>
-      <li class="navelem"><a class="el" href="a00073.html">ReqMsg</a>      </li>
+      <li class="navelem"><a class="el" href="a00073.html">RefreshMsg</a>      </li>
     </ul>
   </div>
 </div>
 <div class="header">
   <div class="summary">
-<a href="#pub-types">Public Types</a>  </div>
+<a href="#friends">Friends</a>  </div>
   <div class="headertitle">
-<div class="title">thomsonreuters::ema::access::ReqMsg Class Reference</div>  </div>
+<div class="title">thomsonreuters::ema::access::RefreshMsg Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> allows consumer application to express its interest in an item.  
+<p><a class="el" href="a00073.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a> conveys item image, state, permission and group information.  
  <a href="a00073.html#details">More...</a></p>
 <div class="dynheader">
-Inheritance diagram for thomsonreuters::ema::access::ReqMsg:</div>
+Inheritance diagram for thomsonreuters::ema::access::RefreshMsg:</div>
 <div class="dyncontent">
  <div class="center">
-  <img src="a00073.png" usemap="#thomsonreuters::ema::access::ReqMsg_map" alt=""/>
-  <map id="thomsonreuters::ema::access::ReqMsg_map" name="thomsonreuters::ema::access::ReqMsg_map">
+  <img src="a00073.png" usemap="#thomsonreuters::ema::access::RefreshMsg_map" alt=""/>
+  <map id="thomsonreuters::ema::access::RefreshMsg_map" name="thomsonreuters::ema::access::RefreshMsg_map">
 <area href="a00027.html" title="Msg class is a parent class for all message representing classes." alt="thomsonreuters::ema::access::Msg" shape="rect" coords="0,112,255,136"/>
 <area href="a00005.html" title="ComplexType class is a parent class from whom all complex data types inherit." alt="thomsonreuters::ema::access::ComplexType" shape="rect" coords="0,56,255,80"/>
 <area href="a00011.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes..." alt="thomsonreuters::ema::access::Data" shape="rect" coords="0,0,255,24"/>
 </map>
  </div></div>
 
-<p><a href="a00236.html">List of all members.</a></p>
+<p><a href="a00238.html">List of all members.</a></p>
 <table class="memberdecls">
-<tr><td colspan="2"><h2><a name="pub-types"></a>
-Public Types</h2></td></tr>
-<tr class="memitem:afc9b74001773a196ea5d4050899deb15"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#afc9b74001773a196ea5d4050899deb15">Rate</a> { <br/>
-&#160;&#160;<a class="el" href="a00073.html#afc9b74001773a196ea5d4050899deb15a22a38a7e1833a432d3e0c120ad93a77d">TickByTickEnum</a> =  0, 
-<br/>
-&#160;&#160;<a class="el" href="a00073.html#afc9b74001773a196ea5d4050899deb15ae7d33fb530b426af254512e5e230bb57">JustInTimeConflatedEnum</a> =  0xFFFFFF00, 
-<br/>
-&#160;&#160;<a class="el" href="a00073.html#afc9b74001773a196ea5d4050899deb15a086c31d946d5d225430d61f5629fdf76">BestConflatedRateEnum</a> =  0xFFFFFFFF, 
-<br/>
-&#160;&#160;<a class="el" href="a00073.html#afc9b74001773a196ea5d4050899deb15ace40103fd873fc047732f9d84693a436">BestRateEnum</a> =  0xFFFFFFFE
-<br/>
- }</td></tr>
-<tr class="memitem:a65ec7c5d05b4fc39f50da081e571f531"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a65ec7c5d05b4fc39f50da081e571f531">Timeliness</a> { <br/>
-&#160;&#160;<a class="el" href="a00073.html#a65ec7c5d05b4fc39f50da081e571f531a36fc3dc7403a23022016c795083c7919">RealTimeEnum</a> =  0, 
-<br/>
-&#160;&#160;<a class="el" href="a00073.html#a65ec7c5d05b4fc39f50da081e571f531aa3eaf4ff5f8e6ad08e482d60b49b0a00">BestDelayedTimelinessEnum</a> =  0xFFFFFFFF, 
-<br/>
-&#160;&#160;<a class="el" href="a00073.html#a65ec7c5d05b4fc39f50da081e571f531aabe7300b3e1de644352bc54da42f3ce6">BestTimelinessEnum</a> =  0xFFFFFFFE
-<br/>
- }</td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Constructor</div></td></tr>
-<tr class="memitem:a8f58e0332e18fc2c072da503e750b29b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a8f58e0332e18fc2c072da503e750b29b">ReqMsg</a> ()</td></tr>
-<tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
-<tr class="memitem:ab678e0b649d46517bcc3bea757d76c98"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#ab678e0b649d46517bcc3bea757d76c98">~ReqMsg</a> ()</td></tr>
+<tr class="memitem:a581038cb45d0776416f79704572fa84f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a581038cb45d0776416f79704572fa84f">RefreshMsg</a> ()</td></tr>
+<tr class="memitem:a7d5b07547012598774b3aab37c6904bd"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a7d5b07547012598774b3aab37c6904bd">~RefreshMsg</a> ()</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Accessors</div></td></tr>
-<tr class="memitem:a858d95d3dc10e65808dbcbdf1e315f75"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a858d95d3dc10e65808dbcbdf1e315f75">getRateAsString</a> () const </td></tr>
-<tr class="memitem:a679b96c6f11cb8a28ca9fc375365fd58"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a679b96c6f11cb8a28ca9fc375365fd58">getTimelinessAsString</a> () const </td></tr>
-<tr class="memitem:a20bd218cb8a52618a0c03d43612fabce"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0">DataType::DataTypeEnum</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a20bd218cb8a52618a0c03d43612fabce">getDataType</a> () const </td></tr>
-<tr class="memitem:a660517cab4fc5bdb0c450689b8dedad4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00011.html#abe4fa6d2527b42396246aad6aa66d8b4">Data::DataCode</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a660517cab4fc5bdb0c450689b8dedad4">getCode</a> () const </td></tr>
-<tr class="memitem:a9f59f7881635c07437b27bcfc6de3013"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00015.html">EmaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a9f59f7881635c07437b27bcfc6de3013">getAsHex</a> () const </td></tr>
-<tr class="memitem:a56573d5690ed4217fe562bb4fd2e2f4d"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a56573d5690ed4217fe562bb4fd2e2f4d">toString</a> () const </td></tr>
-<tr class="memitem:ac79db40704c8099313836f8c05b62d13"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#ac79db40704c8099313836f8c05b62d13">hasPriority</a> () const </td></tr>
-<tr class="memitem:a5c52d0ce74e32ece32152367944f1714"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a5c52d0ce74e32ece32152367944f1714">hasQos</a> () const </td></tr>
-<tr class="memitem:aa6c7936422ee3d0f862b08301219d7eb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#aa6c7936422ee3d0f862b08301219d7eb">hasView</a> () const </td></tr>
-<tr class="memitem:a05532e4d5171e5f82db50ee56903ae62"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a05532e4d5171e5f82db50ee56903ae62">hasBatch</a> () const </td></tr>
-<tr class="memitem:a55a0e32c3d92a852fcc5eff883545bd3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a55a0e32c3d92a852fcc5eff883545bd3">hasServiceName</a> () const </td></tr>
-<tr class="memitem:ac7413f94981a550fb72ed606a600129d"><td class="memItemLeft" align="right" valign="top">UInt8&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#ac7413f94981a550fb72ed606a600129d">getPriorityClass</a> () const </td></tr>
-<tr class="memitem:af9aebd6bfa5df997d4b99d3c18279950"><td class="memItemLeft" align="right" valign="top">UInt16&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#af9aebd6bfa5df997d4b99d3c18279950">getPriorityCount</a> () const </td></tr>
-<tr class="memitem:a7a85ba830b11f4e21cf6666ecf6b35e1"><td class="memItemLeft" align="right" valign="top">UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a7a85ba830b11f4e21cf6666ecf6b35e1">getQosTimeliness</a> () const </td></tr>
-<tr class="memitem:a131084803c7f9692df3ab4e780e0b3ff"><td class="memItemLeft" align="right" valign="top">UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a131084803c7f9692df3ab4e780e0b3ff">getQosRate</a> () const </td></tr>
-<tr class="memitem:a1168a68bd5e25488373fe37f55b17cfd"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a1168a68bd5e25488373fe37f55b17cfd">getInitialImage</a> () const </td></tr>
-<tr class="memitem:a67169fea176205cb85c9a62ba15f57b3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a67169fea176205cb85c9a62ba15f57b3">getInterestAfterRefresh</a> () const </td></tr>
-<tr class="memitem:a11a0a918e21fe28cd8f62b6ad83994be"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a11a0a918e21fe28cd8f62b6ad83994be">getConflatedInUpdates</a> () const </td></tr>
-<tr class="memitem:afaffd8c2f9338fd555b531dae86fee7e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#afaffd8c2f9338fd555b531dae86fee7e">getPause</a> () const </td></tr>
-<tr class="memitem:a7238f2d1260e5b04074930e1183220b8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a7238f2d1260e5b04074930e1183220b8">getPrivateStream</a> () const </td></tr>
-<tr class="memitem:aa892e8a53f88a876be27de522378b2ea"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#aa892e8a53f88a876be27de522378b2ea">getServiceName</a> () const </td></tr>
+<tr class="memitem:abde6b174709ac566b9eb1c7e0d2686ef"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0">DataType::DataTypeEnum</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#abde6b174709ac566b9eb1c7e0d2686ef">getDataType</a> () const </td></tr>
+<tr class="memitem:a0c5c0ab1d610f553563f266eb1d6aaf8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00011.html#abe4fa6d2527b42396246aad6aa66d8b4">Data::DataCode</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a0c5c0ab1d610f553563f266eb1d6aaf8">getCode</a> () const </td></tr>
+<tr class="memitem:a07f5dc699b2ef2bc57175d2819cf22d1"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00015.html">EmaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a07f5dc699b2ef2bc57175d2819cf22d1">getAsHex</a> () const </td></tr>
+<tr class="memitem:a150146273e63d57bd33f6bafe36d3e48"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a150146273e63d57bd33f6bafe36d3e48">toString</a> () const </td></tr>
+<tr class="memitem:ae243aee9519aa0096abe0b0579378f04"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#ae243aee9519aa0096abe0b0579378f04">hasQos</a> () const </td></tr>
+<tr class="memitem:aaa8fdfa01badf39de36494999e70e99b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#aaa8fdfa01badf39de36494999e70e99b">hasSeqNum</a> () const </td></tr>
+<tr class="memitem:a05a06e48ced7dd63ffc11cd83ff13eb8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a05a06e48ced7dd63ffc11cd83ff13eb8">hasPartNum</a> () const </td></tr>
+<tr class="memitem:a15922bab3efde1d3fd2daab3a63ac412"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a15922bab3efde1d3fd2daab3a63ac412">hasPermissionData</a> () const </td></tr>
+<tr class="memitem:aa55d857133305375992aee48008272bc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#aa55d857133305375992aee48008272bc">hasPublisherId</a> () const </td></tr>
+<tr class="memitem:ab23c12c901229df28fd18396236bd5a2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#ab23c12c901229df28fd18396236bd5a2">hasServiceName</a> () const </td></tr>
+<tr class="memitem:ad01d6268a8f7f67b8914613030266e12"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00063.html">OmmState</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#ad01d6268a8f7f67b8914613030266e12">getState</a> () const </td></tr>
+<tr class="memitem:aa736997634162a456ebacc5f57e5392f"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00060.html">OmmQos</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#aa736997634162a456ebacc5f57e5392f">getQos</a> () const </td></tr>
+<tr class="memitem:a961c8dc690c06e00f15ccbdf7e110852"><td class="memItemLeft" align="right" valign="top">UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a961c8dc690c06e00f15ccbdf7e110852">getSeqNum</a> () const </td></tr>
+<tr class="memitem:aba61750d7c35a2d3666c98f7bba15f30"><td class="memItemLeft" align="right" valign="top">UInt16&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#aba61750d7c35a2d3666c98f7bba15f30">getPartNum</a> () const </td></tr>
+<tr class="memitem:a8503902b3dfcf4b3dae450b0cec1990c"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00015.html">EmaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a8503902b3dfcf4b3dae450b0cec1990c">getItemGroup</a> () const </td></tr>
+<tr class="memitem:a88ddd0eb885e8561ac6e8b1ba3ff9caa"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00015.html">EmaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a88ddd0eb885e8561ac6e8b1ba3ff9caa">getPermissionData</a> () const </td></tr>
+<tr class="memitem:a28d18c3d4cfa51dce4258a6de478d584"><td class="memItemLeft" align="right" valign="top">UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a28d18c3d4cfa51dce4258a6de478d584">getPublisherIdUserId</a> () const </td></tr>
+<tr class="memitem:ab7d235898a336a256d6de7dd01acf92d"><td class="memItemLeft" align="right" valign="top">UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#ab7d235898a336a256d6de7dd01acf92d">getPublisherIdUserAddress</a> () const </td></tr>
+<tr class="memitem:a5e5b19a2076245c7f365780f87b045cb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a5e5b19a2076245c7f365780f87b045cb">getSolicited</a> () const </td></tr>
+<tr class="memitem:a003347e25f89eef4eb2d7f7907b1917f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a003347e25f89eef4eb2d7f7907b1917f">getDoNotCache</a> () const </td></tr>
+<tr class="memitem:a82ed6069fa8e4af866870d92d0863fcf"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a82ed6069fa8e4af866870d92d0863fcf">getComplete</a> () const </td></tr>
+<tr class="memitem:a026601166bfc35e4e8dfecac76c22d29"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a026601166bfc35e4e8dfecac76c22d29">getClearCache</a> () const </td></tr>
+<tr class="memitem:ace3b9ca7999f9b59238a6f36a7919442"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#ace3b9ca7999f9b59238a6f36a7919442">getPrivateStream</a> () const </td></tr>
+<tr class="memitem:ae68405aa260f95e29fd965910b67cbb5"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#ae68405aa260f95e29fd965910b67cbb5">getServiceName</a> () const </td></tr>
 <tr><td colspan="2"><div class="groupHeader">Operations</div></td></tr>
-<tr class="memitem:a5bd160a8a89881f3ab85b679394635ad"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a5bd160a8a89881f3ab85b679394635ad">clear</a> ()</td></tr>
-<tr class="memitem:ac9ba0b6e1ed468cb8002f381e4412f9a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#ac9ba0b6e1ed468cb8002f381e4412f9a">streamId</a> (Int32 <a class="el" href="a00073.html#ac9ba0b6e1ed468cb8002f381e4412f9a">streamId</a>)</td></tr>
-<tr class="memitem:a6a8adc8c9ee9f830263c4c017f041a32"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a6a8adc8c9ee9f830263c4c017f041a32">domainType</a> (UInt16 <a class="el" href="a00073.html#a6a8adc8c9ee9f830263c4c017f041a32">domainType</a>=rdm::MMT_MARKET_PRICE)</td></tr>
-<tr class="memitem:a708d7a300ee4f9a4437d1b0ecd19882a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a708d7a300ee4f9a4437d1b0ecd19882a">name</a> (const <a class="el" href="a00017.html">EmaString</a> &amp;<a class="el" href="a00073.html#a708d7a300ee4f9a4437d1b0ecd19882a">name</a>)</td></tr>
-<tr class="memitem:a4cbf02c1e5876eef69321789e741bbb0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a4cbf02c1e5876eef69321789e741bbb0">nameType</a> (UInt8 <a class="el" href="a00073.html#a4cbf02c1e5876eef69321789e741bbb0">nameType</a>=rdm::INSTRUMENT_NAME_RIC)</td></tr>
-<tr class="memitem:aa9feac83336de46549a99e804695e85d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#aa9feac83336de46549a99e804695e85d">serviceName</a> (const <a class="el" href="a00017.html">EmaString</a> &amp;<a class="el" href="a00073.html#aa9feac83336de46549a99e804695e85d">serviceName</a>)</td></tr>
-<tr class="memitem:a73b2e268bdabde4a70cc1e54f43e55b0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a73b2e268bdabde4a70cc1e54f43e55b0">serviceId</a> (UInt32 <a class="el" href="a00073.html#a73b2e268bdabde4a70cc1e54f43e55b0">serviceId</a>)</td></tr>
-<tr class="memitem:ab0d09bad02ab1578542dfff0a222cea9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#ab0d09bad02ab1578542dfff0a222cea9">id</a> (Int32 <a class="el" href="a00073.html#ab0d09bad02ab1578542dfff0a222cea9">id</a>)</td></tr>
-<tr class="memitem:a6766a76bcf66d188c065e1daf5c22bf5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a6766a76bcf66d188c065e1daf5c22bf5">filter</a> (UInt32 <a class="el" href="a00073.html#a6766a76bcf66d188c065e1daf5c22bf5">filter</a>)</td></tr>
-<tr class="memitem:a3bf74f699643d589d5a2e27bfe88e24d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a3bf74f699643d589d5a2e27bfe88e24d">priority</a> (UInt8 priorityClass=1, UInt16 priorityCount=1)</td></tr>
-<tr class="memitem:a2d2f0f1e0718bdfe5349fe9cd85e30db"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a2d2f0f1e0718bdfe5349fe9cd85e30db">qos</a> (UInt32 timeliness=<a class="el" href="a00073.html#a65ec7c5d05b4fc39f50da081e571f531aabe7300b3e1de644352bc54da42f3ce6">BestTimelinessEnum</a>, UInt32 rate=<a class="el" href="a00073.html#afc9b74001773a196ea5d4050899deb15ace40103fd873fc047732f9d84693a436">BestRateEnum</a>)</td></tr>
-<tr class="memitem:aa8000b9b4192d47f45f5ee42d4522874"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#aa8000b9b4192d47f45f5ee42d4522874">attrib</a> (const <a class="el" href="a00005.html">ComplexType</a> &amp;data)</td></tr>
-<tr class="memitem:a2e0ddb1cca8ea05c27096966c710924c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a2e0ddb1cca8ea05c27096966c710924c">payload</a> (const <a class="el" href="a00005.html">ComplexType</a> &amp;data)</td></tr>
-<tr class="memitem:a3783a455e0448b012e87e5490c1359dc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a3783a455e0448b012e87e5490c1359dc">extendedHeader</a> (const <a class="el" href="a00015.html">EmaBuffer</a> &amp;Buffer)</td></tr>
-<tr class="memitem:a9cda17f7383cac5ff5e7ba1eedaca613"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a9cda17f7383cac5ff5e7ba1eedaca613">initialImage</a> (bool <a class="el" href="a00073.html#a9cda17f7383cac5ff5e7ba1eedaca613">initialImage</a>=true)</td></tr>
-<tr class="memitem:a1d4cabad14e0151f209bf182594334ee"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a1d4cabad14e0151f209bf182594334ee">interestAfterRefresh</a> (bool <a class="el" href="a00073.html#a1d4cabad14e0151f209bf182594334ee">interestAfterRefresh</a>=true)</td></tr>
-<tr class="memitem:a0a10d1183b98aee643c208c096446535"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a0a10d1183b98aee643c208c096446535">pause</a> (bool <a class="el" href="a00073.html#a0a10d1183b98aee643c208c096446535">pause</a>=false)</td></tr>
-<tr class="memitem:a5adf76184cdfcb4d75d4ad2215dbba73"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a5adf76184cdfcb4d75d4ad2215dbba73">conflatedInUpdates</a> (bool <a class="el" href="a00073.html#a5adf76184cdfcb4d75d4ad2215dbba73">conflatedInUpdates</a>=false)</td></tr>
-<tr class="memitem:a908495a929cf6aa2216aced9e45d55f3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a908495a929cf6aa2216aced9e45d55f3">privateStream</a> (bool <a class="el" href="a00073.html#a908495a929cf6aa2216aced9e45d55f3">privateStream</a>=false)</td></tr>
+<tr class="memitem:a195dcf1dffacad73e1ff0dbaed32d5ce"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a195dcf1dffacad73e1ff0dbaed32d5ce">clear</a> ()</td></tr>
+<tr class="memitem:a80746040724cbd7516bba6edf7a31a36"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a80746040724cbd7516bba6edf7a31a36">streamId</a> (Int32 <a class="el" href="a00073.html#a80746040724cbd7516bba6edf7a31a36">streamId</a>)</td></tr>
+<tr class="memitem:a5ad0e6f2f8cb2a22a81aedfe6c178a58"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a5ad0e6f2f8cb2a22a81aedfe6c178a58">domainType</a> (UInt16 <a class="el" href="a00073.html#a5ad0e6f2f8cb2a22a81aedfe6c178a58">domainType</a>=rdm::MMT_MARKET_PRICE)</td></tr>
+<tr class="memitem:a3fe22ae0da3d17c61be9289ff0f2029a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a3fe22ae0da3d17c61be9289ff0f2029a">name</a> (const <a class="el" href="a00017.html">EmaString</a> &amp;<a class="el" href="a00073.html#a3fe22ae0da3d17c61be9289ff0f2029a">name</a>)</td></tr>
+<tr class="memitem:acdeed3469335983abf1cfd34b9ac71fd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#acdeed3469335983abf1cfd34b9ac71fd">nameType</a> (UInt8 <a class="el" href="a00073.html#acdeed3469335983abf1cfd34b9ac71fd">nameType</a>=rdm::INSTRUMENT_NAME_RIC)</td></tr>
+<tr class="memitem:a1b27fa296fe142030e333df3f9656270"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a1b27fa296fe142030e333df3f9656270">serviceName</a> (const <a class="el" href="a00017.html">EmaString</a> &amp;<a class="el" href="a00073.html#a1b27fa296fe142030e333df3f9656270">serviceName</a>)</td></tr>
+<tr class="memitem:a61db3a861f13b39095a9dac3ebc3136e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a61db3a861f13b39095a9dac3ebc3136e">serviceId</a> (UInt32 <a class="el" href="a00073.html#a61db3a861f13b39095a9dac3ebc3136e">serviceId</a>)</td></tr>
+<tr class="memitem:abd320ba3710a1f5c209a12d2ee9051ff"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#abd320ba3710a1f5c209a12d2ee9051ff">id</a> (Int32 <a class="el" href="a00073.html#abd320ba3710a1f5c209a12d2ee9051ff">id</a>)</td></tr>
+<tr class="memitem:af068b26e842db64674a77457816a7d35"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#af068b26e842db64674a77457816a7d35">filter</a> (UInt32 <a class="el" href="a00073.html#af068b26e842db64674a77457816a7d35">filter</a>)</td></tr>
+<tr class="memitem:a8aa69d2deff54dd0f7eabc2ba5a2f9a1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a8aa69d2deff54dd0f7eabc2ba5a2f9a1">qos</a> (UInt32 timeliness=<a class="el" href="a00060.html#a7d7bfc20e70e935a6b78dff2489d622babba9e3f37170fa00fad925c914e88fc5">OmmQos::RealTimeEnum</a>, UInt32 rate=<a class="el" href="a00060.html#a0a340509ce3302fe7dbf32956cfbde45ad9a6438864234cae282ef523055ba14c">OmmQos::TickByTickEnum</a>)</td></tr>
+<tr class="memitem:a5d31e9f29181e77b237d58e36d667288"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a5d31e9f29181e77b237d58e36d667288">state</a> (<a class="el" href="a00063.html#aa0f397a957db7a8586be45196be547b3">OmmState::StreamState</a> streamState=<a class="el" href="a00063.html#aa0f397a957db7a8586be45196be547b3ab441e77966326f785f26139b455e3300">OmmState::OpenEnum</a>, <a class="el" href="a00063.html#a9f8ea3a1a30c5db53e5af94e4b90cf9f">OmmState::DataState</a> dataState=<a class="el" href="a00063.html#a9f8ea3a1a30c5db53e5af94e4b90cf9fa44f92aca1d4df5ec64044f99ffd14f3e">OmmState::OkEnum</a>, UInt8 statusCode=0, const <a class="el" href="a00017.html">EmaString</a> &amp;statusText=<a class="el" href="a00017.html">EmaString</a>())</td></tr>
+<tr class="memitem:afab176d1298692dc2b673f14d9e3f8bc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#afab176d1298692dc2b673f14d9e3f8bc">seqNum</a> (UInt32 <a class="el" href="a00073.html#afab176d1298692dc2b673f14d9e3f8bc">seqNum</a>)</td></tr>
+<tr class="memitem:aa262597dbe5315cae0e8cd2d849f174d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#aa262597dbe5315cae0e8cd2d849f174d">partNum</a> (UInt16 <a class="el" href="a00073.html#aa262597dbe5315cae0e8cd2d849f174d">partNum</a>)</td></tr>
+<tr class="memitem:a767be4eca369e01fae52a4ad222d779d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a767be4eca369e01fae52a4ad222d779d">itemGroup</a> (const <a class="el" href="a00015.html">EmaBuffer</a> &amp;<a class="el" href="a00073.html#a767be4eca369e01fae52a4ad222d779d">itemGroup</a>)</td></tr>
+<tr class="memitem:a0c7a51aa50a8f287cbc4ae3d27176213"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a0c7a51aa50a8f287cbc4ae3d27176213">permissionData</a> (const <a class="el" href="a00015.html">EmaBuffer</a> &amp;<a class="el" href="a00073.html#a0c7a51aa50a8f287cbc4ae3d27176213">permissionData</a>)</td></tr>
+<tr class="memitem:ac5444dc9680d0bf025c0c51b72bf38df"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#ac5444dc9680d0bf025c0c51b72bf38df">publisherId</a> (UInt32 userId, UInt32 userAddress)</td></tr>
+<tr class="memitem:a19d8641f0420cf09a4fcd40c35db9c74"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a19d8641f0420cf09a4fcd40c35db9c74">attrib</a> (const <a class="el" href="a00005.html">ComplexType</a> &amp;data)</td></tr>
+<tr class="memitem:adeab8aaa3fdd122fd49fb1f5821771f3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#adeab8aaa3fdd122fd49fb1f5821771f3">payload</a> (const <a class="el" href="a00005.html">ComplexType</a> &amp;data)</td></tr>
+<tr class="memitem:abd6d7bbba4aa33844c28c4352936cbeb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#abd6d7bbba4aa33844c28c4352936cbeb">extendedHeader</a> (const <a class="el" href="a00015.html">EmaBuffer</a> &amp;buffer)</td></tr>
+<tr class="memitem:a41d5292ce8a3ba37c9f9988a35a22724"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a41d5292ce8a3ba37c9f9988a35a22724">solicited</a> (bool <a class="el" href="a00073.html#a41d5292ce8a3ba37c9f9988a35a22724">solicited</a>=false)</td></tr>
+<tr class="memitem:a67a969adb5fa694630cbff5e13b41d0b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a67a969adb5fa694630cbff5e13b41d0b">doNotCache</a> (bool <a class="el" href="a00073.html#a67a969adb5fa694630cbff5e13b41d0b">doNotCache</a>=false)</td></tr>
+<tr class="memitem:a49121ed208f56d341c682e523c3da712"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a49121ed208f56d341c682e523c3da712">clearCache</a> (bool <a class="el" href="a00073.html#a49121ed208f56d341c682e523c3da712">clearCache</a>=false)</td></tr>
+<tr class="memitem:aa0609138dfe5c6adb6ca705bd796cda1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#aa0609138dfe5c6adb6ca705bd796cda1">complete</a> (bool <a class="el" href="a00073.html#aa0609138dfe5c6adb6ca705bd796cda1">complete</a>=true)</td></tr>
+<tr class="memitem:a143d6df5527f7859b8aaca26d806a6de"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00073.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#a143d6df5527f7859b8aaca26d806a6de">privateStream</a> (bool <a class="el" href="a00073.html#a143d6df5527f7859b8aaca26d806a6de">privateStream</a>=false)</td></tr>
+<tr><td colspan="2"><h2><a name="friends"></a>
+Friends</h2></td></tr>
+<tr class="memitem:a2d17cf4fb054d2ceef456e505fc45972"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2d17cf4fb054d2ceef456e505fc45972"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>ItemCallbackClient</b></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p>Among other attributes, <a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> conveys item's name, service, domain type, and desired quality of service. <a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> may also be used to: specify application interest in a dynamic view, open a batch of items, or request a symbol list item with its data.</p>
-<p>The following code snippet shows specification of <a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> and registration of interest in this item.</p>
-<div class="fragment"><pre class="fragment">    <span class="keyword">class </span>AppClient : <span class="keyword">public</span> OmmConsumerClient { ... }
+<div class="textblock"><p><a class="el" href="a00073.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a> is sent when item data needs to be synchronized. This happens as a response to received <a class="el" href="a00074.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> or when upstream source requires it. <a class="el" href="a00073.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a> sent as a response to <a class="el" href="a00074.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> is called solicited refresh while unsolicited refresh is sent when upstream source requires synchronization of downstream consumers.</p>
+<p>The following code snippet shows receiving and processing of <a class="el" href="a00073.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a>.</p>
+<div class="fragment"><pre class="fragment">    <span class="keyword">class </span>AppClient ; <span class="keyword">public</span> OmmConsumerClient
+    {
+        ...
 
-    AppClient client;
-    OmmConsumer consumer( OmmConsumerConfig().host( <span class="stringliteral">&quot;1.1.1.1:14002&quot;</span> ) );
-    <a class="code" href="a00073.html#a8f58e0332e18fc2c072da503e750b29b">ReqMsg</a> reqMsg;
-    reqMsg.name( <span class="stringliteral">&quot;IBM.N&quot;</span> ).serviceName( <span class="stringliteral">&quot;DIRECT_FEED&quot;</span> ).priority( 2, 1 );
+        <span class="keywordtype">void</span> onRefreshMsg( <span class="keyword">const</span> <a class="code" href="a00073.html#a581038cb45d0776416f79704572fa84f">RefreshMsg</a>&amp; , <span class="keyword">const</span> OmmConsumerEvent&amp; );
+    };
 
-    UInt64 itemHandle = consumer.registerClient( reqMsg, appClient );
-</pre></div><dl class="section remark"><dt>Remarks:</dt><dd>Calling get***() method on an optional member of <a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> must be preceded by a call to respective has***() method. </dd>
+    <span class="keywordtype">void</span> AppClient::onRefreshMsg( <span class="keyword">const</span> <a class="code" href="a00073.html#a581038cb45d0776416f79704572fa84f">RefreshMsg</a>&amp; refreshMsg, <span class="keyword">const</span> OmmConsumerEvent&amp; event )
+    {
+        cout &lt;&lt; <span class="stringliteral">&quot;Item&#39;s handle = &quot;</span> &lt;&lt; <span class="keyword">event</span>.getHandle() &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;
+
+        <span class="keywordflow">if</span> ( refreshMsg.hasName() )
+            cout &lt;&lt; <span class="stringliteral">&quot;Item&#39;s name = &quot;</span> &lt;&lt; refreshMsg.getName() &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;
+
+        <span class="keywordflow">if</span> ( refreshMsg.hasServiceName() )
+            cout &lt;&lt; <span class="stringliteral">&quot;Item&#39;s name = &quot;</span> &lt;&lt; refreshMsg.getServiceName() &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;
+
+        <span class="keywordflow">switch</span> ( refreshMsg.getPayload().getDataTyoe() )
+        {
+            <span class="keywordflow">case</span> <a class="code" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0a1960065e8455c9fdd53c2f2b42fcdb64">DataType::FieldListEnum</a> :
+                decode( refreshMsg.getPayload().getFieldList() );
+                <span class="keywordflow">break</span>;
+            <span class="keywordflow">case</span> <a class="code" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0ae1fc1137764a910645a904928e322107">DataType::NoDataEnum</a> :
+                <span class="keywordflow">break</span>;
+        }
+    }
+</pre></div><dl class="section remark"><dt>Remarks:</dt><dd>Calling get***() method on an optional member of <a class="el" href="a00073.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a> must be preceded by a call to respective has***() method. </dd>
 <dd>
 Objects of this class are intended to be short lived or rather transitional. </dd>
 <dd>
-This class is designed to efficiently perform setting and getting of information from <a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a>. </dd>
+This class is designed to efficiently perform setting and getting of information from <a class="el" href="a00073.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a>. </dd>
 <dd>
 Objects of this class are not cache-able. </dd>
 <dd>
-Decoding of just encoded <a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> in the same application is not supported. </dd>
+Decoding of just encoded <a class="el" href="a00073.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a> in the same application is not supported. </dd>
 <dd>
 All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free Method</a>.</dd></dl>
 <dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00011.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a>, <a class="el" href="a00027.html" title="Msg class is a parent class for all message representing classes.">Msg</a>, <a class="el" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>, <a class="el" href="a00015.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="a00147_source.html#l00058">58</a> of file <a class="el" href="a00147_source.html">ReqMsg.h</a>.</p>
-</div><hr/><h2>Member Enumeration Documentation</h2>
-<a class="anchor" id="afc9b74001773a196ea5d4050899deb15"></a>
+<p>Definition at line <a class="el" href="a00148_source.html#l00078">78</a> of file <a class="el" href="a00148_source.html">RefreshMsg.h</a>.</p>
+</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a581038cb45d0776416f79704572fa84f"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">enum <a class="el" href="a00073.html#afc9b74001773a196ea5d4050899deb15">thomsonreuters::ema::access::ReqMsg::Rate</a></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>An enumeration representing <a class="el" href="a00071.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> Rate. </p>
-<dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
-<tr><td valign="top"><em><a class="anchor" id="afc9b74001773a196ea5d4050899deb15a22a38a7e1833a432d3e0c120ad93a77d"></a>TickByTickEnum</em>&nbsp;</td><td>
-<p>Rate is Tick By Tick, indicates every change to information is conveyed </p>
-</td></tr>
-<tr><td valign="top"><em><a class="anchor" id="afc9b74001773a196ea5d4050899deb15ae7d33fb530b426af254512e5e230bb57"></a>JustInTimeConflatedEnum</em>&nbsp;</td><td>
-<p>Rate is Just In Time Conflated, indicates extreme bursts of data may be conflated </p>
-</td></tr>
-<tr><td valign="top"><em><a class="anchor" id="afc9b74001773a196ea5d4050899deb15a086c31d946d5d225430d61f5629fdf76"></a>BestConflatedRateEnum</em>&nbsp;</td><td>
-<p>Request Rate with range from 1 millisecond conflation to maximum conflation. </p>
-</td></tr>
-<tr><td valign="top"><em><a class="anchor" id="afc9b74001773a196ea5d4050899deb15ace40103fd873fc047732f9d84693a436"></a>BestRateEnum</em>&nbsp;</td><td>
-<p>Request Rate with range from tick-by-tick to maximum conflation. </p>
-</td></tr>
-</table>
-</dd>
-</dl>
-
-<p>Definition at line <a class="el" href="a00147_source.html#l00065">65</a> of file <a class="el" href="a00147_source.html">ReqMsg.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a65ec7c5d05b4fc39f50da081e571f531"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum <a class="el" href="a00073.html#a65ec7c5d05b4fc39f50da081e571f531">thomsonreuters::ema::access::ReqMsg::Timeliness</a></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>An enumeration representing <a class="el" href="a00071.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> Timeliness. </p>
-<dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
-<tr><td valign="top"><em><a class="anchor" id="a65ec7c5d05b4fc39f50da081e571f531a36fc3dc7403a23022016c795083c7919"></a>RealTimeEnum</em>&nbsp;</td><td>
-<p>Timeliness is RealTime, indicates information is updated as soon as new information becomes available </p>
-</td></tr>
-<tr><td valign="top"><em><a class="anchor" id="a65ec7c5d05b4fc39f50da081e571f531aa3eaf4ff5f8e6ad08e482d60b49b0a00"></a>BestDelayedTimelinessEnum</em>&nbsp;</td><td>
-<p>Request Timeliness with range from one second delay to maximum delay. </p>
-</td></tr>
-<tr><td valign="top"><em><a class="anchor" id="a65ec7c5d05b4fc39f50da081e571f531aabe7300b3e1de644352bc54da42f3ce6"></a>BestTimelinessEnum</em>&nbsp;</td><td>
-<p>Request Timeliness with range from real-time to maximum delay. </p>
-</td></tr>
-</table>
-</dd>
-</dl>
-
-<p>Definition at line <a class="el" href="a00147_source.html#l00081">81</a> of file <a class="el" href="a00147_source.html">ReqMsg.h</a>.</p>
-
-</div>
-</div>
-<hr/><h2>Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="a8f58e0332e18fc2c072da503e750b29b"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="a00073.html#a8f58e0332e18fc2c072da503e750b29b">thomsonreuters::ema::access::ReqMsg::ReqMsg</a> </td>
+          <td class="memname"><a class="el" href="a00073.html#a581038cb45d0776416f79704572fa84f">thomsonreuters::ema::access::RefreshMsg::RefreshMsg</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -305,16 +252,16 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
       </table>
 </div>
 <div class="memdoc">
-<p>Constructs <a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a>. </p>
+<p>Constructs <a class="el" href="a00073.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a>. </p>
 
 </div>
 </div>
-<a class="anchor" id="ab678e0b649d46517bcc3bea757d76c98"></a>
+<a class="anchor" id="a7d5b07547012598774b3aab37c6904bd"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual <a class="el" href="a00073.html#ab678e0b649d46517bcc3bea757d76c98">thomsonreuters::ema::access::ReqMsg::~ReqMsg</a> </td>
+          <td class="memname">virtual <a class="el" href="a00073.html#a7d5b07547012598774b3aab37c6904bd">thomsonreuters::ema::access::RefreshMsg::~RefreshMsg</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td><code> [virtual]</code></td>
@@ -327,12 +274,12 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 </div>
 </div>
 <hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="aa8000b9b4192d47f45f5ee42d4522874"></a>
+<a class="anchor" id="a19d8641f0420cf09a4fcd40c35db9c74"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#aa8000b9b4192d47f45f5ee42d4522874">thomsonreuters::ema::access::ReqMsg::attrib</a> </td>
+          <td class="memname"><a class="el" href="a00073.html">RefreshMsg</a>&amp; <a class="el" href="a00073.html#a19d8641f0420cf09a4fcd40c35db9c74">thomsonreuters::ema::access::RefreshMsg::attrib</a> </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="a00005.html">ComplexType</a> &amp;&#160;</td>
           <td class="paramname"><em>data</em></td><td>)</td>
@@ -352,12 +299,12 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 
 </div>
 </div>
-<a class="anchor" id="a5bd160a8a89881f3ab85b679394635ad"></a>
+<a class="anchor" id="a195dcf1dffacad73e1ff0dbaed32d5ce"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a5bd160a8a89881f3ab85b679394635ad">thomsonreuters::ema::access::ReqMsg::clear</a> </td>
+          <td class="memname"><a class="el" href="a00073.html">RefreshMsg</a>&amp; <a class="el" href="a00073.html#a195dcf1dffacad73e1ff0dbaed32d5ce">thomsonreuters::ema::access::RefreshMsg::clear</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -365,30 +312,30 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
       </table>
 </div>
 <div class="memdoc">
-<p>Clears the <a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a>. </p>
-<dl class="section remark"><dt>Remarks:</dt><dd>Invoking <a class="el" href="a00073.html#a5bd160a8a89881f3ab85b679394635ad">clear()</a> method clears all the values and resets all the defaults </dd></dl>
+<p>Clears the <a class="el" href="a00073.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a>. </p>
+<dl class="section remark"><dt>Remarks:</dt><dd>Invoking <a class="el" href="a00073.html#a195dcf1dffacad73e1ff0dbaed32d5ce">clear()</a> method clears all the values and resets all the defaults </dd></dl>
 <dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a5adf76184cdfcb4d75d4ad2215dbba73"></a>
+<a class="anchor" id="a49121ed208f56d341c682e523c3da712"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a5adf76184cdfcb4d75d4ad2215dbba73">thomsonreuters::ema::access::ReqMsg::conflatedInUpdates</a> </td>
+          <td class="memname"><a class="el" href="a00073.html">RefreshMsg</a>&amp; <a class="el" href="a00073.html#a49121ed208f56d341c682e523c3da712">thomsonreuters::ema::access::RefreshMsg::clearCache</a> </td>
           <td>(</td>
           <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>conflatedInUpdates</em> = <code>false</code></td><td>)</td>
+          <td class="paramname"><em>clearCache</em> = <code>false</code></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Specifies ConflatedInUpdates. </p>
+<p>Specifies ClearCache. </p>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">conflatedInUpdates</td><td>specifies if conflated update is requested (default value is false) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">clearCache</td><td>true if cache needs to be cleared; false otherwise (default value is false) </td></tr>
   </table>
   </dd>
 </dl>
@@ -396,12 +343,37 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 
 </div>
 </div>
-<a class="anchor" id="a6a8adc8c9ee9f830263c4c017f041a32"></a>
+<a class="anchor" id="aa0609138dfe5c6adb6ca705bd796cda1"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a6a8adc8c9ee9f830263c4c017f041a32">thomsonreuters::ema::access::ReqMsg::domainType</a> </td>
+          <td class="memname"><a class="el" href="a00073.html">RefreshMsg</a>&amp; <a class="el" href="a00073.html#aa0609138dfe5c6adb6ca705bd796cda1">thomsonreuters::ema::access::RefreshMsg::complete</a> </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>complete</em> = <code>true</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Specifies RefreshComplete. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">complete</td><td>true if this is the last part of multi part refresh or single part refresh; false otherwise (default value is true) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a5ad0e6f2f8cb2a22a81aedfe6c178a58"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00073.html">RefreshMsg</a>&amp; <a class="el" href="a00073.html#a5ad0e6f2f8cb2a22a81aedfe6c178a58">thomsonreuters::ema::access::RefreshMsg::domainType</a> </td>
           <td>(</td>
           <td class="paramtype">UInt16&#160;</td>
           <td class="paramname"><em>domainType</em> = <code>rdm::MMT_MARKET_PRICE</code></td><td>)</td>
@@ -413,7 +385,7 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 <p>Specifies DomainType. </p>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00066.html" title="OmmUnsupportedDomainTypeException is thrown when a domain type value is greater than 255...">OmmUnsupportedDomainTypeException</a></td><td>if domainType is greater than 255 </td></tr>
+    <tr><td class="paramname">OmmUnsupportedDomainType</td><td>if domainType is greater than 255 </td></tr>
   </table>
   </dd>
 </dl>
@@ -427,15 +399,40 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 
 </div>
 </div>
-<a class="anchor" id="a3783a455e0448b012e87e5490c1359dc"></a>
+<a class="anchor" id="a67a969adb5fa694630cbff5e13b41d0b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a3783a455e0448b012e87e5490c1359dc">thomsonreuters::ema::access::ReqMsg::extendedHeader</a> </td>
+          <td class="memname"><a class="el" href="a00073.html">RefreshMsg</a>&amp; <a class="el" href="a00073.html#a67a969adb5fa694630cbff5e13b41d0b">thomsonreuters::ema::access::RefreshMsg::doNotCache</a> </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>doNotCache</em> = <code>false</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Specifies DoNotCache. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">doNotCache</td><td>true if this refresh must not be cached; false otherwise (default value is false) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="abd6d7bbba4aa33844c28c4352936cbeb"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00073.html">RefreshMsg</a>&amp; <a class="el" href="a00073.html#abd6d7bbba4aa33844c28c4352936cbeb">thomsonreuters::ema::access::RefreshMsg::extendedHeader</a> </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="a00015.html">EmaBuffer</a> &amp;&#160;</td>
-          <td class="paramname"><em>Buffer</em></td><td>)</td>
+          <td class="paramname"><em>buffer</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -452,12 +449,12 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 
 </div>
 </div>
-<a class="anchor" id="a6766a76bcf66d188c065e1daf5c22bf5"></a>
+<a class="anchor" id="af068b26e842db64674a77457816a7d35"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a6766a76bcf66d188c065e1daf5c22bf5">thomsonreuters::ema::access::ReqMsg::filter</a> </td>
+          <td class="memname"><a class="el" href="a00073.html">RefreshMsg</a>&amp; <a class="el" href="a00073.html#af068b26e842db64674a77457816a7d35">thomsonreuters::ema::access::RefreshMsg::filter</a> </td>
           <td>(</td>
           <td class="paramtype">UInt32&#160;</td>
           <td class="paramname"><em>filter</em></td><td>)</td>
@@ -469,7 +466,7 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 <p>Specifies Filter. </p>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">filter</td><td>specifies filter </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">filter</td><td>specifies Filter </td></tr>
   </table>
   </dd>
 </dl>
@@ -477,12 +474,12 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 
 </div>
 </div>
-<a class="anchor" id="a9f59f7881635c07437b27bcfc6de3013"></a>
+<a class="anchor" id="a07f5dc699b2ef2bc57175d2819cf22d1"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="a00015.html">EmaBuffer</a>&amp; <a class="el" href="a00073.html#a9f59f7881635c07437b27bcfc6de3013">thomsonreuters::ema::access::ReqMsg::getAsHex</a> </td>
+          <td class="memname">const <a class="el" href="a00015.html">EmaBuffer</a>&amp; <a class="el" href="a00073.html#a07f5dc699b2ef2bc57175d2819cf22d1">thomsonreuters::ema::access::RefreshMsg::getAsHex</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const<code> [virtual]</code></td>
@@ -497,12 +494,30 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 
 </div>
 </div>
-<a class="anchor" id="a660517cab4fc5bdb0c450689b8dedad4"></a>
+<a class="anchor" id="a026601166bfc35e4e8dfecac76c22d29"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00011.html#abe4fa6d2527b42396246aad6aa66d8b4">Data::DataCode</a> <a class="el" href="a00073.html#a660517cab4fc5bdb0c450689b8dedad4">thomsonreuters::ema::access::ReqMsg::getCode</a> </td>
+          <td class="memname">bool <a class="el" href="a00073.html#a026601166bfc35e4e8dfecac76c22d29">thomsonreuters::ema::access::RefreshMsg::getClearCache</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns ClearCache. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if cache needs to be cleared before applying this refresh; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a0c5c0ab1d610f553563f266eb1d6aaf8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00011.html#abe4fa6d2527b42396246aad6aa66d8b4">Data::DataCode</a> <a class="el" href="a00073.html#a0c5c0ab1d610f553563f266eb1d6aaf8">thomsonreuters::ema::access::RefreshMsg::getCode</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const<code> [virtual]</code></td>
@@ -517,12 +532,12 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 
 </div>
 </div>
-<a class="anchor" id="a11a0a918e21fe28cd8f62b6ad83994be"></a>
+<a class="anchor" id="a82ed6069fa8e4af866870d92d0863fcf"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="a00073.html#a11a0a918e21fe28cd8f62b6ad83994be">thomsonreuters::ema::access::ReqMsg::getConflatedInUpdates</a> </td>
+          <td class="memname">bool <a class="el" href="a00073.html#a82ed6069fa8e4af866870d92d0863fcf">thomsonreuters::ema::access::RefreshMsg::getComplete</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -530,17 +545,17 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
       </table>
 </div>
 <div class="memdoc">
-<p>Returns ConflatedInUpdates. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if conflation is requested; false otherwise </dd></dl>
+<p>Returns Complete. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if this is the last part of the multi part refresh message </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a20bd218cb8a52618a0c03d43612fabce"></a>
+<a class="anchor" id="abde6b174709ac566b9eb1c7e0d2686ef"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0">DataType::DataTypeEnum</a> <a class="el" href="a00073.html#a20bd218cb8a52618a0c03d43612fabce">thomsonreuters::ema::access::ReqMsg::getDataType</a> </td>
+          <td class="memname"><a class="el" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0">DataType::DataTypeEnum</a> <a class="el" href="a00073.html#abde6b174709ac566b9eb1c7e0d2686ef">thomsonreuters::ema::access::RefreshMsg::getDataType</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const<code> [virtual]</code></td>
@@ -549,18 +564,18 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 </div>
 <div class="memdoc">
 <p>Returns the <a class="el" href="a00012.html" title="DataType class provides enumeration representing Omm data types.">DataType</a>, which is the type of Omm data. Results in this class type. </p>
-<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0a88b598329adb0448ea529dfae0bc85f0">DataType::ReqMsgEnum</a> </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd>DataType::RefeshMsgEnum </dd></dl>
 
 <p>Implements <a class="el" href="a00011.html#a361e280aecab30c47386a3e08ce325da">thomsonreuters::ema::access::Data</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a1168a68bd5e25488373fe37f55b17cfd"></a>
+<a class="anchor" id="a003347e25f89eef4eb2d7f7907b1917f"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="a00073.html#a1168a68bd5e25488373fe37f55b17cfd">thomsonreuters::ema::access::ReqMsg::getInitialImage</a> </td>
+          <td class="memname">bool <a class="el" href="a00073.html#a003347e25f89eef4eb2d7f7907b1917f">thomsonreuters::ema::access::RefreshMsg::getDoNotCache</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -568,17 +583,17 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
       </table>
 </div>
 <div class="memdoc">
-<p>Returns InitialImage. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if an initial image is requested; false otherwise </dd></dl>
+<p>Returns DoNotCache. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if this refresh must not be cached; false otherwise </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a67169fea176205cb85c9a62ba15f57b3"></a>
+<a class="anchor" id="a8503902b3dfcf4b3dae450b0cec1990c"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="a00073.html#a67169fea176205cb85c9a62ba15f57b3">thomsonreuters::ema::access::ReqMsg::getInterestAfterRefresh</a> </td>
+          <td class="memname">const <a class="el" href="a00015.html">EmaBuffer</a>&amp; <a class="el" href="a00073.html#a8503902b3dfcf4b3dae450b0cec1990c">thomsonreuters::ema::access::RefreshMsg::getItemGroup</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -586,17 +601,17 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
       </table>
 </div>
 <div class="memdoc">
-<p>Returns InterestAfterRefresh. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if an interest after refresh is requested; false otherwise </dd></dl>
+<p>Returns ItemGroup. </p>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00015.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> containing item group information </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="afaffd8c2f9338fd555b531dae86fee7e"></a>
+<a class="anchor" id="aba61750d7c35a2d3666c98f7bba15f30"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="a00073.html#afaffd8c2f9338fd555b531dae86fee7e">thomsonreuters::ema::access::ReqMsg::getPause</a> </td>
+          <td class="memname">UInt16 <a class="el" href="a00073.html#aba61750d7c35a2d3666c98f7bba15f30">thomsonreuters::ema::access::RefreshMsg::getPartNum</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -604,41 +619,23 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
       </table>
 </div>
 <div class="memdoc">
-<p>Returns Pause. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if pause is requested; false otherwise </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="ac7413f94981a550fb72ed606a600129d"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">UInt8 <a class="el" href="a00073.html#ac7413f94981a550fb72ed606a600129d">thomsonreuters::ema::access::ReqMsg::getPriorityClass</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns PriorityClass. </p>
+<p>Returns PartNum. </p>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00073.html#ac79db40704c8099313836f8c05b62d13">hasPriority()</a> returns false </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00073.html#a05a06e48ced7dd63ffc11cd83ff13eb8">hasPartNum()</a> returns false </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns:</dt><dd>priority class </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd>part number </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="af9aebd6bfa5df997d4b99d3c18279950"></a>
+<a class="anchor" id="a88ddd0eb885e8561ac6e8b1ba3ff9caa"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">UInt16 <a class="el" href="a00073.html#af9aebd6bfa5df997d4b99d3c18279950">thomsonreuters::ema::access::ReqMsg::getPriorityCount</a> </td>
+          <td class="memname">const <a class="el" href="a00015.html">EmaBuffer</a>&amp; <a class="el" href="a00073.html#a88ddd0eb885e8561ac6e8b1ba3ff9caa">thomsonreuters::ema::access::RefreshMsg::getPermissionData</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -646,23 +643,23 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
       </table>
 </div>
 <div class="memdoc">
-<p>Returns PriorityCount. </p>
+<p>Returns PermissionData. </p>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00073.html#ac79db40704c8099313836f8c05b62d13">hasPriority()</a> returns false </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00073.html#a15922bab3efde1d3fd2daab3a63ac412">hasPermissionData()</a> returns false </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns:</dt><dd>priority count </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00015.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> containing permission data </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a7238f2d1260e5b04074930e1183220b8"></a>
+<a class="anchor" id="ace3b9ca7999f9b59238a6f36a7919442"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="a00073.html#a7238f2d1260e5b04074930e1183220b8">thomsonreuters::ema::access::ReqMsg::getPrivateStream</a> </td>
+          <td class="memname">bool <a class="el" href="a00073.html#ace3b9ca7999f9b59238a6f36a7919442">thomsonreuters::ema::access::RefreshMsg::getPrivateStream</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -670,17 +667,16 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
       </table>
 </div>
 <div class="memdoc">
-<p>Returns PrivateStream. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if private stream is requested; false otherwise </dd></dl>
+<p>Returns PrivateStream.  true if this is private stream item </p>
 
 </div>
 </div>
-<a class="anchor" id="a131084803c7f9692df3ab4e780e0b3ff"></a>
+<a class="anchor" id="ab7d235898a336a256d6de7dd01acf92d"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">UInt32 <a class="el" href="a00073.html#a131084803c7f9692df3ab4e780e0b3ff">thomsonreuters::ema::access::ReqMsg::getQosRate</a> </td>
+          <td class="memname">UInt32 <a class="el" href="a00073.html#ab7d235898a336a256d6de7dd01acf92d">thomsonreuters::ema::access::RefreshMsg::getPublisherIdUserAddress</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -688,23 +684,23 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
       </table>
 </div>
 <div class="memdoc">
-<p>Returns QosRate. </p>
+<p>Returns PublisherIdUserAddress. </p>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00073.html#a5c52d0ce74e32ece32152367944f1714">hasQos()</a> returns false </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00073.html#aa55d857133305375992aee48008272bc">hasPublisherId()</a> returns false </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00071.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> Rate </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd>publisher's user address </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a7a85ba830b11f4e21cf6666ecf6b35e1"></a>
+<a class="anchor" id="a28d18c3d4cfa51dce4258a6de478d584"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">UInt32 <a class="el" href="a00073.html#a7a85ba830b11f4e21cf6666ecf6b35e1">thomsonreuters::ema::access::ReqMsg::getQosTimeliness</a> </td>
+          <td class="memname">UInt32 <a class="el" href="a00073.html#a28d18c3d4cfa51dce4258a6de478d584">thomsonreuters::ema::access::RefreshMsg::getPublisherIdUserId</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -712,23 +708,23 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
       </table>
 </div>
 <div class="memdoc">
-<p>Returns QosTimeliness. </p>
+<p>Returns PublisherIdUserId. </p>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00073.html#a5c52d0ce74e32ece32152367944f1714">hasQos()</a> returns false </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00073.html#aa55d857133305375992aee48008272bc">hasPublisherId()</a> returns false </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00071.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> Timeliness </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd>publisher's user Id </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a858d95d3dc10e65808dbcbdf1e315f75"></a>
+<a class="anchor" id="aa736997634162a456ebacc5f57e5392f"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="a00017.html">EmaString</a>&amp; <a class="el" href="a00073.html#a858d95d3dc10e65808dbcbdf1e315f75">thomsonreuters::ema::access::ReqMsg::getRateAsString</a> </td>
+          <td class="memname">const <a class="el" href="a00060.html">OmmQos</a>&amp; <a class="el" href="a00073.html#aa736997634162a456ebacc5f57e5392f">thomsonreuters::ema::access::RefreshMsg::getQos</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -736,17 +732,47 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
       </table>
 </div>
 <div class="memdoc">
-<p>Returns the Rate value as a string format. </p>
-<dl class="section return"><dt>Returns:</dt><dd>string representation of <a class="el" href="a00071.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> Rate </dd></dl>
+<p>Returns <a class="el" href="a00072.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a>. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00073.html#ae243aee9519aa0096abe0b0579378f04">hasQos()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00072.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> of item </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="aa892e8a53f88a876be27de522378b2ea"></a>
+<a class="anchor" id="a961c8dc690c06e00f15ccbdf7e110852"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="a00017.html">EmaString</a>&amp; <a class="el" href="a00073.html#aa892e8a53f88a876be27de522378b2ea">thomsonreuters::ema::access::ReqMsg::getServiceName</a> </td>
+          <td class="memname">UInt32 <a class="el" href="a00073.html#a961c8dc690c06e00f15ccbdf7e110852">thomsonreuters::ema::access::RefreshMsg::getSeqNum</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns SeqNum. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00073.html#aaa8fdfa01badf39de36494999e70e99b">hasSeqNum()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>sequence number </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ae68405aa260f95e29fd965910b67cbb5"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00017.html">EmaString</a>&amp; <a class="el" href="a00073.html#ae68405aa260f95e29fd965910b67cbb5">thomsonreuters::ema::access::RefreshMsg::getServiceName</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -757,20 +783,20 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 <p>Returns the ServiceName within the MsgKey. </p>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00073.html#a55a0e32c3d92a852fcc5eff883545bd3">hasServiceName()</a> returns false </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00073.html#ab23c12c901229df28fd18396236bd5a2">hasServiceName()</a> returns false </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns:</dt><dd>service name </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a> containing service name </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a679b96c6f11cb8a28ca9fc375365fd58"></a>
+<a class="anchor" id="a5e5b19a2076245c7f365780f87b045cb"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="a00017.html">EmaString</a>&amp; <a class="el" href="a00073.html#a679b96c6f11cb8a28ca9fc375365fd58">thomsonreuters::ema::access::ReqMsg::getTimelinessAsString</a> </td>
+          <td class="memname">bool <a class="el" href="a00073.html#a5e5b19a2076245c7f365780f87b045cb">thomsonreuters::ema::access::RefreshMsg::getSolicited</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -778,17 +804,17 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
       </table>
 </div>
 <div class="memdoc">
-<p>Returns the Timeliness value as a string format. </p>
-<dl class="section return"><dt>Returns:</dt><dd>string representation of <a class="el" href="a00071.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> Timeliness </dd></dl>
+<p>Returns Solicited. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if this is solicited refresh; false otherwise </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a05532e4d5171e5f82db50ee56903ae62"></a>
+<a class="anchor" id="ad01d6268a8f7f67b8914613030266e12"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="a00073.html#a05532e4d5171e5f82db50ee56903ae62">thomsonreuters::ema::access::ReqMsg::hasBatch</a> </td>
+          <td class="memname">const <a class="el" href="a00063.html">OmmState</a>&amp; <a class="el" href="a00073.html#ad01d6268a8f7f67b8914613030266e12">thomsonreuters::ema::access::RefreshMsg::getState</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -796,18 +822,17 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
       </table>
 </div>
 <div class="memdoc">
-<p>Indicates presence of Batch. </p>
-<dl class="section remark"><dt>Remarks:</dt><dd>Batch specification is an optional member of <a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> </dd></dl>
-<dl class="section return"><dt>Returns:</dt><dd>true if Batch specification is set; false otherwise </dd></dl>
+<p>Returns State. </p>
+<dl class="section return"><dt>Returns:</dt><dd>state of item (e.g. Open / Ok) </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="ac79db40704c8099313836f8c05b62d13"></a>
+<a class="anchor" id="a05a06e48ced7dd63ffc11cd83ff13eb8"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="a00073.html#ac79db40704c8099313836f8c05b62d13">thomsonreuters::ema::access::ReqMsg::hasPriority</a> </td>
+          <td class="memname">bool <a class="el" href="a00073.html#a05a06e48ced7dd63ffc11cd83ff13eb8">thomsonreuters::ema::access::RefreshMsg::hasPartNum</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -815,18 +840,18 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
       </table>
 </div>
 <div class="memdoc">
-<p>Indicates presence of Priority. </p>
-<dl class="section remark"><dt>Remarks:</dt><dd>Priority is an optional member of <a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> </dd></dl>
-<dl class="section return"><dt>Returns:</dt><dd>true if priority is set; false otherwise </dd></dl>
+<p>Indicates presence of PartNum. </p>
+<dl class="section remark"><dt>Remarks:</dt><dd>part number is an optional member of <a class="el" href="a00073.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a> </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd>true if part number is set; false otherwise </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a5c52d0ce74e32ece32152367944f1714"></a>
+<a class="anchor" id="a15922bab3efde1d3fd2daab3a63ac412"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="a00073.html#a5c52d0ce74e32ece32152367944f1714">thomsonreuters::ema::access::ReqMsg::hasQos</a> </td>
+          <td class="memname">bool <a class="el" href="a00073.html#a15922bab3efde1d3fd2daab3a63ac412">thomsonreuters::ema::access::RefreshMsg::hasPermissionData</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -834,18 +859,75 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
       </table>
 </div>
 <div class="memdoc">
-<p>Indicates presence of <a class="el" href="a00071.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a>. </p>
-<dl class="section remark"><dt>Remarks:</dt><dd><a class="el" href="a00071.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> is an optional member of <a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> </dd></dl>
-<dl class="section return"><dt>Returns:</dt><dd>true if <a class="el" href="a00071.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> is set; false otherwise </dd></dl>
+<p>Indicates presence of PermissionData. </p>
+<dl class="section remark"><dt>Remarks:</dt><dd>permission data is optional member of <a class="el" href="a00073.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a> </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd>true if permission data is set; false otherwise </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a55a0e32c3d92a852fcc5eff883545bd3"></a>
+<a class="anchor" id="aa55d857133305375992aee48008272bc"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="a00073.html#a55a0e32c3d92a852fcc5eff883545bd3">thomsonreuters::ema::access::ReqMsg::hasServiceName</a> </td>
+          <td class="memname">bool <a class="el" href="a00073.html#aa55d857133305375992aee48008272bc">thomsonreuters::ema::access::RefreshMsg::hasPublisherId</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of PublisherId. </p>
+<dl class="section remark"><dt>Remarks:</dt><dd>publisher id is an optional member of <a class="el" href="a00073.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a> </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd>true if publisher id is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ae243aee9519aa0096abe0b0579378f04"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00073.html#ae243aee9519aa0096abe0b0579378f04">thomsonreuters::ema::access::RefreshMsg::hasQos</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of <a class="el" href="a00072.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a>. </p>
+<dl class="section remark"><dt>Remarks:</dt><dd><a class="el" href="a00072.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> is an optional member of <a class="el" href="a00073.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a> </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd>true if <a class="el" href="a00072.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aaa8fdfa01badf39de36494999e70e99b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00073.html#aaa8fdfa01badf39de36494999e70e99b">thomsonreuters::ema::access::RefreshMsg::hasSeqNum</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of SeqNum. </p>
+<dl class="section remark"><dt>Remarks:</dt><dd>sequence number (SeqNum) is an optional member of <a class="el" href="a00073.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a> </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd>true if sequence number is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ab23c12c901229df28fd18396236bd5a2"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00073.html#ab23c12c901229df28fd18396236bd5a2">thomsonreuters::ema::access::RefreshMsg::hasServiceName</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -854,36 +936,17 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 </div>
 <div class="memdoc">
 <p>Indicates presence of the ServiceName within the MsgKey. </p>
-<dl class="section remark"><dt>Remarks:</dt><dd>ServiceName is an optional member of <a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a>. </dd></dl>
+<dl class="section remark"><dt>Remarks:</dt><dd>service name is an optional member of <a class="el" href="a00073.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a> </dd></dl>
 <dl class="section return"><dt>Returns:</dt><dd>true if service name is set; false otherwise </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="aa6c7936422ee3d0f862b08301219d7eb"></a>
+<a class="anchor" id="abd320ba3710a1f5c209a12d2ee9051ff"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="a00073.html#aa6c7936422ee3d0f862b08301219d7eb">thomsonreuters::ema::access::ReqMsg::hasView</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Indicates presence of View. </p>
-<dl class="section remark"><dt>Remarks:</dt><dd>View specification is an optional member of <a class="el" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> </dd></dl>
-<dl class="section return"><dt>Returns:</dt><dd>true if View is set; false otherwise </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="ab0d09bad02ab1578542dfff0a222cea9"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#ab0d09bad02ab1578542dfff0a222cea9">thomsonreuters::ema::access::ReqMsg::id</a> </td>
+          <td class="memname"><a class="el" href="a00073.html">RefreshMsg</a>&amp; <a class="el" href="a00073.html#abd320ba3710a1f5c209a12d2ee9051ff">thomsonreuters::ema::access::RefreshMsg::id</a> </td>
           <td>(</td>
           <td class="paramtype">Int32&#160;</td>
           <td class="paramname"><em>id</em></td><td>)</td>
@@ -903,24 +966,24 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 
 </div>
 </div>
-<a class="anchor" id="a9cda17f7383cac5ff5e7ba1eedaca613"></a>
+<a class="anchor" id="a767be4eca369e01fae52a4ad222d779d"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a9cda17f7383cac5ff5e7ba1eedaca613">thomsonreuters::ema::access::ReqMsg::initialImage</a> </td>
+          <td class="memname"><a class="el" href="a00073.html">RefreshMsg</a>&amp; <a class="el" href="a00073.html#a767be4eca369e01fae52a4ad222d779d">thomsonreuters::ema::access::RefreshMsg::itemGroup</a> </td>
           <td>(</td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>initialImage</em> = <code>true</code></td><td>)</td>
+          <td class="paramtype">const <a class="el" href="a00015.html">EmaBuffer</a> &amp;&#160;</td>
+          <td class="paramname"><em>itemGroup</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Specifies InitialImage. </p>
+<p>Specifies ItemGroup. </p>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">initialImage</td><td>specifies if initial image / refresh is requested (default value is true) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">itemGroup</td><td>an <a class="el" href="a00015.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> object with item group information </td></tr>
   </table>
   </dd>
 </dl>
@@ -928,37 +991,12 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 
 </div>
 </div>
-<a class="anchor" id="a1d4cabad14e0151f209bf182594334ee"></a>
+<a class="anchor" id="a3fe22ae0da3d17c61be9289ff0f2029a"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a1d4cabad14e0151f209bf182594334ee">thomsonreuters::ema::access::ReqMsg::interestAfterRefresh</a> </td>
-          <td>(</td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>interestAfterRefresh</em> = <code>true</code></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Specifies InterestAfterRefresh. </p>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">interestAfterRefresh</td><td>specifies if streaming or snapshot item is requested default value is true / streaming item) </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a708d7a300ee4f9a4437d1b0ecd19882a"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a708d7a300ee4f9a4437d1b0ecd19882a">thomsonreuters::ema::access::ReqMsg::name</a> </td>
+          <td class="memname"><a class="el" href="a00073.html">RefreshMsg</a>&amp; <a class="el" href="a00073.html#a3fe22ae0da3d17c61be9289ff0f2029a">thomsonreuters::ema::access::RefreshMsg::name</a> </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td>
           <td class="paramname"><em>name</em></td><td>)</td>
@@ -970,7 +1008,7 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 <p>Specifies Name. </p>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>specifies item name </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>an <a class="el" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a> object containing item name </td></tr>
   </table>
   </dd>
 </dl>
@@ -978,12 +1016,12 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 
 </div>
 </div>
-<a class="anchor" id="a4cbf02c1e5876eef69321789e741bbb0"></a>
+<a class="anchor" id="acdeed3469335983abf1cfd34b9ac71fd"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a4cbf02c1e5876eef69321789e741bbb0">thomsonreuters::ema::access::ReqMsg::nameType</a> </td>
+          <td class="memname"><a class="el" href="a00073.html">RefreshMsg</a>&amp; <a class="el" href="a00073.html#acdeed3469335983abf1cfd34b9ac71fd">thomsonreuters::ema::access::RefreshMsg::nameType</a> </td>
           <td>(</td>
           <td class="paramtype">UInt8&#160;</td>
           <td class="paramname"><em>nameType</em> = <code>rdm::INSTRUMENT_NAME_RIC</code></td><td>)</td>
@@ -1003,24 +1041,24 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 
 </div>
 </div>
-<a class="anchor" id="a0a10d1183b98aee643c208c096446535"></a>
+<a class="anchor" id="aa262597dbe5315cae0e8cd2d849f174d"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a0a10d1183b98aee643c208c096446535">thomsonreuters::ema::access::ReqMsg::pause</a> </td>
+          <td class="memname"><a class="el" href="a00073.html">RefreshMsg</a>&amp; <a class="el" href="a00073.html#aa262597dbe5315cae0e8cd2d849f174d">thomsonreuters::ema::access::RefreshMsg::partNum</a> </td>
           <td>(</td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>pause</em> = <code>false</code></td><td>)</td>
+          <td class="paramtype">UInt16&#160;</td>
+          <td class="paramname"><em>partNum</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Specifies Pause. </p>
+<p>Specifies PartNum. </p>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">pause</td><td>specifies if pause is requested (default value is false) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">partNum</td><td>specifies part number </td></tr>
   </table>
   </dd>
 </dl>
@@ -1028,12 +1066,12 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 
 </div>
 </div>
-<a class="anchor" id="a2e0ddb1cca8ea05c27096966c710924c"></a>
+<a class="anchor" id="adeab8aaa3fdd122fd49fb1f5821771f3"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a2e0ddb1cca8ea05c27096966c710924c">thomsonreuters::ema::access::ReqMsg::payload</a> </td>
+          <td class="memname"><a class="el" href="a00073.html">RefreshMsg</a>&amp; <a class="el" href="a00073.html#adeab8aaa3fdd122fd49fb1f5821771f3">thomsonreuters::ema::access::RefreshMsg::payload</a> </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="a00005.html">ComplexType</a> &amp;&#160;</td>
           <td class="paramname"><em>data</em></td><td>)</td>
@@ -1042,7 +1080,7 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
       </table>
 </div>
 <div class="memdoc">
-<p>Specifies <a class="el" href="a00069.html" title="Payload conveys the data part of item image.">Payload</a>. </p>
+<p>Specifies <a class="el" href="a00070.html" title="Payload conveys the data part of item image.">Payload</a>. </p>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">payload</td><td>an object of <a class="el" href="a00005.html" title="ComplexType class is a parent class from whom all complex data types inherit.">ComplexType</a> </td></tr>
@@ -1053,35 +1091,24 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 
 </div>
 </div>
-<a class="anchor" id="a3bf74f699643d589d5a2e27bfe88e24d"></a>
+<a class="anchor" id="a0c7a51aa50a8f287cbc4ae3d27176213"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a3bf74f699643d589d5a2e27bfe88e24d">thomsonreuters::ema::access::ReqMsg::priority</a> </td>
+          <td class="memname"><a class="el" href="a00073.html">RefreshMsg</a>&amp; <a class="el" href="a00073.html#a0c7a51aa50a8f287cbc4ae3d27176213">thomsonreuters::ema::access::RefreshMsg::permissionData</a> </td>
           <td>(</td>
-          <td class="paramtype">UInt8&#160;</td>
-          <td class="paramname"><em>priorityClass</em> = <code>1</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
+          <td class="paramtype">const <a class="el" href="a00015.html">EmaBuffer</a> &amp;&#160;</td>
+          <td class="paramname"><em>permissionData</em></td><td>)</td>
           <td></td>
-          <td class="paramtype">UInt16&#160;</td>
-          <td class="paramname"><em>priorityCount</em> = <code>1</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Specifies Priority. </p>
+<p>Specifies PermissionData. </p>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">priorityClass</td><td>specifies priority class </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">priorityCount</td><td>specifies priority count within priority class </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">permissionData</td><td>an <a class="el" href="a00015.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> object with permission data information </td></tr>
   </table>
   </dd>
 </dl>
@@ -1089,12 +1116,12 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 
 </div>
 </div>
-<a class="anchor" id="a908495a929cf6aa2216aced9e45d55f3"></a>
+<a class="anchor" id="a143d6df5527f7859b8aaca26d806a6de"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a908495a929cf6aa2216aced9e45d55f3">thomsonreuters::ema::access::ReqMsg::privateStream</a> </td>
+          <td class="memname"><a class="el" href="a00073.html">RefreshMsg</a>&amp; <a class="el" href="a00073.html#a143d6df5527f7859b8aaca26d806a6de">thomsonreuters::ema::access::RefreshMsg::privateStream</a> </td>
           <td>(</td>
           <td class="paramtype">bool&#160;</td>
           <td class="paramname"><em>privateStream</em> = <code>false</code></td><td>)</td>
@@ -1106,7 +1133,7 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 <p>Specifies PrivateStream. </p>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">privateStream</td><td>specifies if private stream is requested (default value is false) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">privateStream</td><td>true if private stream; false otherwise (default value is false) </td></tr>
   </table>
   </dd>
 </dl>
@@ -1114,21 +1141,21 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 
 </div>
 </div>
-<a class="anchor" id="a2d2f0f1e0718bdfe5349fe9cd85e30db"></a>
+<a class="anchor" id="ac5444dc9680d0bf025c0c51b72bf38df"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a2d2f0f1e0718bdfe5349fe9cd85e30db">thomsonreuters::ema::access::ReqMsg::qos</a> </td>
+          <td class="memname"><a class="el" href="a00073.html">RefreshMsg</a>&amp; <a class="el" href="a00073.html#ac5444dc9680d0bf025c0c51b72bf38df">thomsonreuters::ema::access::RefreshMsg::publisherId</a> </td>
           <td>(</td>
           <td class="paramtype">UInt32&#160;</td>
-          <td class="paramname"><em>timeliness</em> = <code><a class="el" href="a00073.html#a65ec7c5d05b4fc39f50da081e571f531aabe7300b3e1de644352bc54da42f3ce6">BestTimelinessEnum</a></code>, </td>
+          <td class="paramname"><em>userId</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">UInt32&#160;</td>
-          <td class="paramname"><em>rate</em> = <code><a class="el" href="a00073.html#afc9b74001773a196ea5d4050899deb15ace40103fd873fc047732f9d84693a436">BestRateEnum</a></code>&#160;</td>
+          <td class="paramname"><em>userAddress</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1138,11 +1165,11 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
       </table>
 </div>
 <div class="memdoc">
-<p>Specifies <a class="el" href="a00071.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> as timeliness and rate. </p>
+<p>Specifies PublisherId. </p>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">timeliness</td><td>specifies <a class="el" href="a00071.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> Timeliness (default value is BestTimelinessEnum) </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">rate</td><td>specifies <a class="el" href="a00071.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> rate (default value is BestRateEnum) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">UserId</td><td>specifies publisher's user id </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">UserAddress</td><td>specifies publisher's user address </td></tr>
   </table>
   </dd>
 </dl>
@@ -1150,12 +1177,73 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 
 </div>
 </div>
-<a class="anchor" id="a73b2e268bdabde4a70cc1e54f43e55b0"></a>
+<a class="anchor" id="a8aa69d2deff54dd0f7eabc2ba5a2f9a1"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#a73b2e268bdabde4a70cc1e54f43e55b0">thomsonreuters::ema::access::ReqMsg::serviceId</a> </td>
+          <td class="memname"><a class="el" href="a00073.html">RefreshMsg</a>&amp; <a class="el" href="a00073.html#a8aa69d2deff54dd0f7eabc2ba5a2f9a1">thomsonreuters::ema::access::RefreshMsg::qos</a> </td>
+          <td>(</td>
+          <td class="paramtype">UInt32&#160;</td>
+          <td class="paramname"><em>timeliness</em> = <code><a class="el" href="a00060.html#a7d7bfc20e70e935a6b78dff2489d622babba9e3f37170fa00fad925c914e88fc5">OmmQos::RealTimeEnum</a></code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">UInt32&#160;</td>
+          <td class="paramname"><em>rate</em> = <code><a class="el" href="a00060.html#a0a340509ce3302fe7dbf32956cfbde45ad9a6438864234cae282ef523055ba14c">OmmQos::TickByTickEnum</a></code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Specifies <a class="el" href="a00072.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a>. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">timeliness</td><td>specifies <a class="el" href="a00072.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> Timeliness (default value is <a class="el" href="a00060.html#a7d7bfc20e70e935a6b78dff2489d622babba9e3f37170fa00fad925c914e88fc5">OmmQos::RealTimeEnum</a>) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">rate</td><td>specifies <a class="el" href="a00072.html" title="OmmQos represents Quality Of Service information in Omm.">Qos</a> rate (default value is <a class="el" href="a00060.html#a0a340509ce3302fe7dbf32956cfbde45ad9a6438864234cae282ef523055ba14c">OmmQos::TickByTickEnum</a>) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="afab176d1298692dc2b673f14d9e3f8bc"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00073.html">RefreshMsg</a>&amp; <a class="el" href="a00073.html#afab176d1298692dc2b673f14d9e3f8bc">thomsonreuters::ema::access::RefreshMsg::seqNum</a> </td>
+          <td>(</td>
+          <td class="paramtype">UInt32&#160;</td>
+          <td class="paramname"><em>seqNum</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Specifies SeqNum. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">seqNum</td><td>specifies sequence number </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a61db3a861f13b39095a9dac3ebc3136e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00073.html">RefreshMsg</a>&amp; <a class="el" href="a00073.html#a61db3a861f13b39095a9dac3ebc3136e">thomsonreuters::ema::access::RefreshMsg::serviceId</a> </td>
           <td>(</td>
           <td class="paramtype">UInt32&#160;</td>
           <td class="paramname"><em>serviceId</em></td><td>)</td>
@@ -1165,7 +1253,6 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 </div>
 <div class="memdoc">
 <p>Specifies ServiceId. </p>
-<dl class="section remark"><dt>Remarks:</dt><dd>One service identification must be set, either id or name. </dd></dl>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
     <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if service name is already set </td></tr>
@@ -1174,7 +1261,7 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 </dl>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">serviceId</td><td>specifies service id </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">serviceId</td><td>service identifier </td></tr>
   </table>
   </dd>
 </dl>
@@ -1182,12 +1269,12 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 
 </div>
 </div>
-<a class="anchor" id="aa9feac83336de46549a99e804695e85d"></a>
+<a class="anchor" id="a1b27fa296fe142030e333df3f9656270"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#aa9feac83336de46549a99e804695e85d">thomsonreuters::ema::access::ReqMsg::serviceName</a> </td>
+          <td class="memname"><a class="el" href="a00073.html">RefreshMsg</a>&amp; <a class="el" href="a00073.html#a1b27fa296fe142030e333df3f9656270">thomsonreuters::ema::access::RefreshMsg::serviceName</a> </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td>
           <td class="paramname"><em>serviceName</em></td><td>)</td>
@@ -1197,7 +1284,6 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 </div>
 <div class="memdoc">
 <p>Specifies ServiceName. </p>
-<dl class="section remark"><dt>Remarks:</dt><dd>One service identification must be set, either id or name. </dd></dl>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
     <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if service id is already set </td></tr>
@@ -1206,7 +1292,7 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 </dl>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">serviceName</td><td>specifies service name </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">serviceName</td><td>an <a class="el" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a> object containing service name </td></tr>
   </table>
   </dd>
 </dl>
@@ -1214,12 +1300,87 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 
 </div>
 </div>
-<a class="anchor" id="ac9ba0b6e1ed468cb8002f381e4412f9a"></a>
+<a class="anchor" id="a41d5292ce8a3ba37c9f9988a35a22724"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00073.html">ReqMsg</a>&amp; <a class="el" href="a00073.html#ac9ba0b6e1ed468cb8002f381e4412f9a">thomsonreuters::ema::access::ReqMsg::streamId</a> </td>
+          <td class="memname"><a class="el" href="a00073.html">RefreshMsg</a>&amp; <a class="el" href="a00073.html#a41d5292ce8a3ba37c9f9988a35a22724">thomsonreuters::ema::access::RefreshMsg::solicited</a> </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>solicited</em> = <code>false</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Specifies Solicited. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">solicited</td><td>true if this refresh is solicited; false otherwise (default value is false) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a5d31e9f29181e77b237d58e36d667288"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00073.html">RefreshMsg</a>&amp; <a class="el" href="a00073.html#a5d31e9f29181e77b237d58e36d667288">thomsonreuters::ema::access::RefreshMsg::state</a> </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="a00063.html#aa0f397a957db7a8586be45196be547b3">OmmState::StreamState</a>&#160;</td>
+          <td class="paramname"><em>streamState</em> = <code><a class="el" href="a00063.html#aa0f397a957db7a8586be45196be547b3ab441e77966326f785f26139b455e3300">OmmState::OpenEnum</a></code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="a00063.html#a9f8ea3a1a30c5db53e5af94e4b90cf9f">OmmState::DataState</a>&#160;</td>
+          <td class="paramname"><em>dataState</em> = <code><a class="el" href="a00063.html#a9f8ea3a1a30c5db53e5af94e4b90cf9fa44f92aca1d4df5ec64044f99ffd14f3e">OmmState::OkEnum</a></code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">UInt8&#160;</td>
+          <td class="paramname"><em>statusCode</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td>
+          <td class="paramname"><em>statusText</em> = <code><a class="el" href="a00017.html">EmaString</a>()</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Specifies State. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">streamState</td><td>conveys item stream state value (default value is <a class="el" href="a00063.html#aa0f397a957db7a8586be45196be547b3ab441e77966326f785f26139b455e3300">OmmState::OpenEnum</a>) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">dataState</td><td>conveys item data state value (default value is <a class="el" href="a00063.html#a9f8ea3a1a30c5db53e5af94e4b90cf9fa9355e79cfdd99d9814728071dc7a657f">OmmState::SuspectEnum</a>) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">statusCode</td><td>conveys specific item state code (default value is <a class="el" href="a00063.html#a516cce074e98a557efe8dc1db5e7be5da842b302b594ee1b7be086f3522385404">OmmState::NoneEnum</a>) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">statusText</td><td>conveys item status explanation (default value is 'empty string') </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a80746040724cbd7516bba6edf7a31a36"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00073.html">RefreshMsg</a>&amp; <a class="el" href="a00073.html#a80746040724cbd7516bba6edf7a31a36">thomsonreuters::ema::access::RefreshMsg::streamId</a> </td>
           <td>(</td>
           <td class="paramtype">Int32&#160;</td>
           <td class="paramname"><em>streamId</em></td><td>)</td>
@@ -1231,7 +1392,7 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 <p>Specifies StreamId. </p>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">streamId</td><td>specifies stream id </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">id</td><td>stream id </td></tr>
   </table>
   </dd>
 </dl>
@@ -1239,12 +1400,12 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
 
 </div>
 </div>
-<a class="anchor" id="a56573d5690ed4217fe562bb4fd2e2f4d"></a>
+<a class="anchor" id="a150146273e63d57bd33f6bafe36d3e48"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="a00017.html">EmaString</a>&amp; <a class="el" href="a00073.html#a56573d5690ed4217fe562bb4fd2e2f4d">thomsonreuters::ema::access::ReqMsg::toString</a> </td>
+          <td class="memname">const <a class="el" href="a00017.html">EmaString</a>&amp; <a class="el" href="a00073.html#a150146273e63d57bd33f6bafe36d3e48">thomsonreuters::ema::access::RefreshMsg::toString</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const<code> [virtual]</code></td>
@@ -1276,7 +1437,7 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Fri Aug 19 2016</td>
+			<td><p class="smallfont">Fri Dec 9 2016</td>
           </tr>
         </table>
         </td>

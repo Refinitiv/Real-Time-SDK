@@ -66,7 +66,32 @@
       <i t="360__MarketPrice__ConnectionRecovery" l="56" />
     </i>
   </i>
-  <i t="EMA C++ Performance Tools Example" l="57">
-    <i t="EmaCppConsPerf" l="58" />
+  <i t="EMA C++ Interactive Provider Examples" l="57">
+    <i t="100 Series Examples" l="58">
+      <i t="100__MarketPrice__Streaming" l="59" />
+      <i t="102__MarketPrice__Snapshot" l="60" />
+      <i t="130__MarketPrice__UserDispatch" l="61" />
+      <i t="140__MarketByOrder__Streaming" l="62" />
+      <i t="150__MarketByOrder__Snapshot" l="63" />
+      <i t="160__Login__AcceptDeny" l="64" />
+    </i>
+    <i t="200 Series Examples" l="65">
+      <i t="200__MarketPrice__Streaming" l="66" />
+      <i t="210__MarketByPrice__Streaming" l="67" />
+      <i t="240__SourceDirectory__Fanout" l="68" />
+      <i t="250__GroupStatus__Fanout" l="69" />
+      <i t="260__Custom__NestedMsg" l="70" />
+      <i t="280__MarketPrice__Performance" l="71" />
+    </i>
+    <i t="300 Series Examples" l="72">
+      <i t="300__MarketPrice__Close" l="73" />
+      <i t="301__MarketPrice__PriorityChange" l="74" />
+      <i t="320__Custom__GenericMsg" l="75" />
+      <i t="331__Directory__UserControl" l="76" />
+      <i t="380__MarketPrice__ConnectionLost" l="77" />
+    </i>
+  </i>
+  <i t="EMA C++ Performance Tools Example" l="78">
+    <i t="EmaCppConsPerf" l="79" />
   </i>
 </WebWorksHelpTOC>

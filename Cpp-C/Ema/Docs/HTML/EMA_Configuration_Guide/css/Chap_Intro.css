@@ -490,11 +490,11 @@ div.FigTitle
   font-variant: normal;
   font-weight: bold;
   margin-bottom: 14.0pt;
-  margin-left: 54pt;
+  margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 7.0pt;
   text-align: left;
-  text-indent: -36pt;
+  text-indent: 18pt;
   text-transform: none;
   vertical-align: baseline;
 }
@@ -1669,6 +1669,54 @@ div.Title
   font-weight: normal;
   text-align: left;
   text-transform: uppercase;
+  vertical-align: baseline;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.Title_WhiteFont
+{
+  color: #ffffff;
+  direction: ltr;
+  font-family: Arial;
+  font-size: 45.0pt;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  margin-bottom: 0.0pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0.0pt;
+  text-align: justify;
+  text-indent: 0pt;
+  text-transform: none;
+  vertical-align: baseline;
+}
+
+.Title_WhiteFont_outer
+{
+  margin-bottom: 0.0pt;
+  margin-right: 0pt;
+  margin-top: 0.0pt;
+}
+
+.Title_WhiteFont_inner
+{
+  color: #ffffff;
+  direction: ltr;
+  font-family: Arial;
+  font-size: 45.0pt;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  text-align: justify;
+  text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
   margin-right: 0pt;

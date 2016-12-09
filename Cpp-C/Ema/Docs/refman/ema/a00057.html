@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EMA: thomsonreuters::ema::access::OmmProviderErrorClient Class Reference</title>
+<title>EMA: thomsonreuters::ema::access::OmmProviderConfig Class Reference</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -104,215 +104,138 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
   <div id="nav-path" class="navpath">
     <ul>
-      <li class="navelem"><a class="el" href="a00162.html">thomsonreuters</a>      </li>
+      <li class="navelem"><a class="el" href="a00164.html">thomsonreuters</a>      </li>
       <li class="navelem"><b>ema</b>      </li>
       <li class="navelem"><b>access</b>      </li>
-      <li class="navelem"><a class="el" href="a00057.html">OmmProviderErrorClient</a>      </li>
+      <li class="navelem"><a class="el" href="a00057.html">OmmProviderConfig</a>      </li>
     </ul>
   </div>
 </div>
 <div class="header">
+  <div class="summary">
+<a href="#pub-types">Public Types</a>  </div>
   <div class="headertitle">
-<div class="title">thomsonreuters::ema::access::OmmProviderErrorClient Class Reference</div>  </div>
+<div class="title">thomsonreuters::ema::access::OmmProviderConfig Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="a00057.html" title="OmmProviderErrorClient class provides callback mechanism used in place of exceptions.">OmmProviderErrorClient</a> class provides callback mechanism used in place of exceptions.  
+<p><a class="el" href="a00057.html" title="OmmProviderConfig is a base class for the OmmNiProviderConfig.">OmmProviderConfig</a> is a base class for the <a class="el" href="a00052.html" title="OmmNiProviderConfig is used to specify configuration and behaviour of NonInteractive OmmProvider...">OmmNiProviderConfig</a>.  
  <a href="a00057.html#details">More...</a></p>
+<div class="dynheader">
+Inheritance diagram for thomsonreuters::ema::access::OmmProviderConfig:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="a00057.png" usemap="#thomsonreuters::ema::access::OmmProviderConfig_map" alt=""/>
+  <map id="thomsonreuters::ema::access::OmmProviderConfig_map" name="thomsonreuters::ema::access::OmmProviderConfig_map">
+<area href="a00050.html" title="OmmIProviderConfig is used to specify configuration and behaviour of Interactive OmmProvider." alt="thomsonreuters::ema::access::OmmIProviderConfig" shape="rect" coords="0,56,305,80"/>
+<area href="a00052.html" title="OmmNiProviderConfig is used to specify configuration and behaviour of NonInteractive OmmProvider..." alt="thomsonreuters::ema::access::OmmNiProviderConfig" shape="rect" coords="315,56,620,80"/>
+</map>
+ </div></div>
 
-<p><a href="a00221.html">List of all members.</a></p>
+<p><a href="a00223.html">List of all members.</a></p>
 <table class="memberdecls">
+<tr><td colspan="2"><h2><a name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a03254857ec373e67536be72f7198c777"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a03254857ec373e67536be72f7198c777">ProviderRole</a> { <br/>
+&#160;&#160;<a class="el" href="a00057.html#a03254857ec373e67536be72f7198c777a5c3faef91496d38e5b0b4d52975184eb">NonInteractiveEnum</a>, 
+<br/>
+&#160;&#160;<a class="el" href="a00057.html#a03254857ec373e67536be72f7198c777a81bda620a1896f4c0af21618eacce38b">InteractiveEnum</a>
+<br/>
+ }</td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr><td colspan="2"><div class="groupHeader">Callbacks</div></td></tr>
-<tr class="memitem:a7b1ee0c3a07a2f6f3c5ef58f58b031d6"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a7b1ee0c3a07a2f6f3c5ef58f58b031d6">onInvalidHandle</a> (UInt64 handle, const <a class="el" href="a00017.html">EmaString</a> &amp;text)</td></tr>
-<tr class="memitem:a4984898807b4ef197d227c3033101f01"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a4984898807b4ef197d227c3033101f01">onInaccessibleLogFile</a> (const <a class="el" href="a00017.html">EmaString</a> &amp;filename, const <a class="el" href="a00017.html">EmaString</a> &amp;text)</td></tr>
-<tr class="memitem:a0a08bdfecad2836ca7e7b22c6d18c564"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a0a08bdfecad2836ca7e7b22c6d18c564">onMemoryExhaustion</a> (const <a class="el" href="a00017.html">EmaString</a> &amp;text)</td></tr>
-<tr class="memitem:aceff9889c8f6b86937517d108219e6e5"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#aceff9889c8f6b86937517d108219e6e5">onInvalidUsage</a> (const <a class="el" href="a00017.html">EmaString</a> &amp;text)</td></tr>
-<tr class="memitem:a7f5d98212db9fef2b77326adf1ed38c1"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a7f5d98212db9fef2b77326adf1ed38c1">onSystemError</a> (Int64 code, void *ptr, const <a class="el" href="a00017.html">EmaString</a> &amp;text)</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Accessors</div></td></tr>
+<tr class="memitem:a77cf5ba3d065caa17fb2118629d19b22"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="a00057.html#a03254857ec373e67536be72f7198c777">ProviderRole</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a77cf5ba3d065caa17fb2118629d19b22">getProviderRole</a> () const =0</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
-<tr class="memitem:a781a8f830ab37a295383e1f8894e7763"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a781a8f830ab37a295383e1f8894e7763"></a>
-virtual&#160;</td><td class="memItemRight" valign="bottom"><b>~OmmProviderErrorClient</b> ()</td></tr>
+<tr class="memitem:a7a4a624b6d0450b5fa4fa71d4ffc1a8a"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a7a4a624b6d0450b5fa4fa71d4ffc1a8a">~OmmProviderConfig</a> ()</td></tr>
+<tr><td colspan="2"><h2><a name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Constructor</div></td></tr>
+<tr class="memitem:a15065f08d0f8b049a11e96c2879ab245"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00057.html#a15065f08d0f8b049a11e96c2879ab245">OmmProviderConfig</a> ()</td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p>By default <a class="el" href="a00054.html" title="OmmProvider class encapsulates functionality of a NonInteractive OmmProvider application.">OmmProvider</a> class throws exceptions if usage errors occur. Specifying <a class="el" href="a00057.html" title="OmmProviderErrorClient class provides callback mechanism used in place of exceptions.">OmmProviderErrorClient</a> on the constructor of <a class="el" href="a00054.html" title="OmmProvider class encapsulates functionality of a NonInteractive OmmProvider application.">OmmProvider</a> overwrites this behaviour. Instead of throwing exceptions, respective callback methods on <a class="el" href="a00057.html" title="OmmProviderErrorClient class provides callback mechanism used in place of exceptions.">OmmProviderErrorClient</a> will be invoked.</p>
-<dl class="section remark"><dt>Remarks:</dt><dd>Thread safety of all the methods in this class depends on user's implementation.</dd></dl>
-<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00054.html" title="OmmProvider class encapsulates functionality of a NonInteractive OmmProvider application.">OmmProvider</a>, <a class="el" href="a00043.html" title="OmmException is a parent class for all exception types thrown by EMA.">OmmException</a>, <a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a>, OmmInvalidHandleExeption, <a class="el" href="a00050.html" title="OmmMemoryExhaustionException represents out of memory exceptions.">OmmMemoryExhaustionException</a>, OmmInaccessibleLogFile, <a class="el" href="a00063.html" title="OmmSystemException represents exceptions thrown by operating system.">OmmSystemException</a>, <a class="el" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a> </dd></dl>
+<div class="textblock"><dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a>, <a class="el" href="a00052.html" title="OmmNiProviderConfig is used to specify configuration and behaviour of NonInteractive OmmProvider...">OmmNiProviderConfig</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="a00132_source.html#l00042">42</a> of file <a class="el" href="a00132_source.html">OmmProviderErrorClient.h</a>.</p>
-</div><hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="a4984898807b4ef197d227c3033101f01"></a>
+<p>Definition at line <a class="el" href="a00133_source.html#l00028">28</a> of file <a class="el" href="a00133_source.html">OmmProviderConfig.h</a>.</p>
+</div><hr/><h2>Member Enumeration Documentation</h2>
+<a class="anchor" id="a03254857ec373e67536be72f7198c777"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void <a class="el" href="a00057.html#a4984898807b4ef197d227c3033101f01">thomsonreuters::ema::access::OmmProviderErrorClient::onInaccessibleLogFile</a> </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td>
-          <td class="paramname"><em>filename</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td>
-          <td class="paramname"><em>text</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td><code> [inline, virtual]</code></td>
+          <td class="memname">enum <a class="el" href="a00057.html#a03254857ec373e67536be72f7198c777">thomsonreuters::ema::access::OmmProviderConfig::ProviderRole</a></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Invoked when log file is inaccessible. Requires <a class="el" href="a00054.html" title="OmmProvider class encapsulates functionality of a NonInteractive OmmProvider application.">OmmProvider</a> constructor to have an <a class="el" href="a00057.html" title="OmmProviderErrorClient class provides callback mechanism used in place of exceptions.">OmmProviderErrorClient</a>. </p>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[out]</td><td class="paramname">filename</td><td>identifies file name that was not able to b open </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">text</td><td>specifies associated error text </td></tr>
-  </table>
-  </dd>
+<dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em><a class="anchor" id="a03254857ec373e67536be72f7198c777a5c3faef91496d38e5b0b4d52975184eb"></a>NonInteractiveEnum</em>&nbsp;</td><td>
+<p>indicates a non interactive provider config </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a03254857ec373e67536be72f7198c777a81bda620a1896f4c0af21618eacce38b"></a>InteractiveEnum</em>&nbsp;</td><td>
+<p>indicates interactive provider config </p>
+</td></tr>
+</table>
+</dd>
 </dl>
-<dl class="section return"><dt>Returns:</dt><dd>void </dd></dl>
 
-<p>Definition at line <a class="el" href="a00132_source.html#l00060">60</a> of file <a class="el" href="a00132_source.html">OmmProviderErrorClient.h</a>.</p>
+<p>Definition at line <a class="el" href="a00133_source.html#l00034">34</a> of file <a class="el" href="a00133_source.html">OmmProviderConfig.h</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a7b1ee0c3a07a2f6f3c5ef58f58b031d6"></a>
+<hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a7a4a624b6d0450b5fa4fa71d4ffc1a8a"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void <a class="el" href="a00057.html#a7b1ee0c3a07a2f6f3c5ef58f58b031d6">thomsonreuters::ema::access::OmmProviderErrorClient::onInvalidHandle</a> </td>
+          <td class="memname">virtual <a class="el" href="a00057.html#a7a4a624b6d0450b5fa4fa71d4ffc1a8a">thomsonreuters::ema::access::OmmProviderConfig::~OmmProviderConfig</a> </td>
           <td>(</td>
-          <td class="paramtype">UInt64&#160;</td>
-          <td class="paramname"><em>handle</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td>
-          <td class="paramname"><em>text</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td><code> [inline, virtual]</code></td>
+          <td class="paramname"></td><td>)</td>
+          <td><code> [virtual]</code></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Invoked upon receiving an invalid handle. Requires <a class="el" href="a00054.html" title="OmmProvider class encapsulates functionality of a NonInteractive OmmProvider application.">OmmProvider</a> constructor to have an <a class="el" href="a00057.html" title="OmmProviderErrorClient class provides callback mechanism used in place of exceptions.">OmmProviderErrorClient</a>. </p>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[out]</td><td class="paramname">handle</td><td>value of the handle that is invalid </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">text</td><td>specifies associated error text </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns:</dt><dd>void </dd></dl>
-
-<p>Definition at line <a class="el" href="a00132_source.html#l00053">53</a> of file <a class="el" href="a00132_source.html">OmmProviderErrorClient.h</a>.</p>
+<p>Destructor. </p>
 
 </div>
 </div>
-<a class="anchor" id="aceff9889c8f6b86937517d108219e6e5"></a>
+<a class="anchor" id="a15065f08d0f8b049a11e96c2879ab245"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void <a class="el" href="a00057.html#aceff9889c8f6b86937517d108219e6e5">thomsonreuters::ema::access::OmmProviderErrorClient::onInvalidUsage</a> </td>
+          <td class="memname"><a class="el" href="a00057.html#a15065f08d0f8b049a11e96c2879ab245">thomsonreuters::ema::access::OmmProviderConfig::OmmProviderConfig</a> </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td>
-          <td class="paramname"><em>text</em></td><td>)</td>
-          <td><code> [inline, virtual]</code></td>
+          <td class="paramname"></td><td>)</td>
+          <td><code> [protected]</code></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Invoked in the case of invalid usage. Requires <a class="el" href="a00054.html" title="OmmProvider class encapsulates functionality of a NonInteractive OmmProvider application.">OmmProvider</a> constructor to have an <a class="el" href="a00057.html" title="OmmProviderErrorClient class provides callback mechanism used in place of exceptions.">OmmProviderErrorClient</a>. </p>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[out]</td><td class="paramname">text</td><td>specifies associated error text </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns:</dt><dd>void </dd></dl>
-
-<p>Definition at line <a class="el" href="a00132_source.html#l00072">72</a> of file <a class="el" href="a00132_source.html">OmmProviderErrorClient.h</a>.</p>
+<p>Constructs <a class="el" href="a00057.html" title="OmmProviderConfig is a base class for the OmmNiProviderConfig.">OmmProviderConfig</a> </p>
 
 </div>
 </div>
-<a class="anchor" id="a0a08bdfecad2836ca7e7b22c6d18c564"></a>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="a77cf5ba3d065caa17fb2118629d19b22"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void <a class="el" href="a00057.html#a0a08bdfecad2836ca7e7b22c6d18c564">thomsonreuters::ema::access::OmmProviderErrorClient::onMemoryExhaustion</a> </td>
+          <td class="memname">virtual <a class="el" href="a00057.html#a03254857ec373e67536be72f7198c777">ProviderRole</a> <a class="el" href="a00057.html#a77cf5ba3d065caa17fb2118629d19b22">thomsonreuters::ema::access::OmmProviderConfig::getProviderRole</a> </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td>
-          <td class="paramname"><em>text</em></td><td>)</td>
-          <td><code> [inline, virtual]</code></td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Invoked in the case of memory exhaustion. Requires <a class="el" href="a00054.html" title="OmmProvider class encapsulates functionality of a NonInteractive OmmProvider application.">OmmProvider</a> constructor to have an <a class="el" href="a00057.html" title="OmmProviderErrorClient class provides callback mechanism used in place of exceptions.">OmmProviderErrorClient</a>. </p>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[out]</td><td class="paramname">text</td><td>specifies associated error text </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns:</dt><dd>void </dd></dl>
+<p>Retrieve Provider's role </p>
+<dl class="section return"><dt>Returns:</dt><dd>role of this <a class="el" href="a00057.html" title="OmmProviderConfig is a base class for the OmmNiProviderConfig.">OmmProviderConfig</a> instance </dd></dl>
 
-<p>Definition at line <a class="el" href="a00132_source.html#l00066">66</a> of file <a class="el" href="a00132_source.html">OmmProviderErrorClient.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a7f5d98212db9fef2b77326adf1ed38c1"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual void <a class="el" href="a00057.html#a7f5d98212db9fef2b77326adf1ed38c1">thomsonreuters::ema::access::OmmProviderErrorClient::onSystemError</a> </td>
-          <td>(</td>
-          <td class="paramtype">Int64&#160;</td>
-          <td class="paramname"><em>code</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>ptr</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td>
-          <td class="paramname"><em>text</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td><code> [inline, virtual]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Invoked in the case of an underlying system error. Requires <a class="el" href="a00054.html" title="OmmProvider class encapsulates functionality of a NonInteractive OmmProvider application.">OmmProvider</a> constructor to have an <a class="el" href="a00057.html" title="OmmProviderErrorClient class provides callback mechanism used in place of exceptions.">OmmProviderErrorClient</a>. </p>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[out]</td><td class="paramname">code</td><td>specifies system exception code </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">specifies</td><td>system exception pointer </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">text</td><td>specifies associated error text </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns:</dt><dd>void </dd></dl>
-
-<p>Definition at line <a class="el" href="a00132_source.html#l00080">80</a> of file <a class="el" href="a00132_source.html">OmmProviderErrorClient.h</a>.</p>
+<p>Implemented in <a class="el" href="a00052.html#a3866b3e248bf43e24f79520846f688c8">thomsonreuters::ema::access::OmmNiProviderConfig</a>, and <a class="el" href="a00050.html#aa25df7f23980f724a4cad7b076e089a3">thomsonreuters::ema::access::OmmIProviderConfig</a>.</p>
 
 </div>
 </div>
@@ -333,7 +256,7 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><b>~OmmProviderErrorC
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Fri Aug 19 2016</td>
+			<td><p class="smallfont">Fri Dec 9 2016</td>
           </tr>
         </table>
         </td>

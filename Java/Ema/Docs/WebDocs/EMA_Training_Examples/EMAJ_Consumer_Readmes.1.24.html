@@ -56,45 +56,45 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1019291">310__MarketPrice__Rmtes</a></div>
-      <div class="Body"><a name="1033208">Summary</a></div>
-      <div class="Body"><a name="1033209">=======</a></div>
-      <div class="Body"><a name="1033210">&nbsp;</a></div>
-      <div class="Body"><a name="1033211">The example310__MarketPrice__Rmtes application is provided as an example of OMM Consumer</a></div>
-      <div class="Body"><a name="1033212">application written to the EMA library showcasing RWF RMTES_STRING processing.</a></div>
-      <div class="Body"><a name="1033213">&nbsp;</a></div>
-      <div class="Body"><a name="1033214">This application demonstrates basic usage of the EMA library for accessing and</a></div>
-      <div class="Body"><a name="1033215">parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D), directly</a></div>
-      <div class="Body"><a name="1033216">from an OMM Provider application, or from Thomson Reuters Advanced DistributionServer.</a></div>
-      <div class="Body"><a name="1033217">&nbsp;</a></div>
-      <div class="Body"><a name="1033218">example310__MarketPrice__Rmtes showcases processing of RWF RMTES_STRING data</a></div>
-      <div class="Body"><a name="1033219">type.</a></div>
-      <div class="Body"><a name="1033220">&nbsp;</a></div>
-      <div class="Body"><a name="1033221"> </a></div>
-      <div class="Body"><a name="1033222">Detailed Description</a></div>
-      <div class="Body"><a name="1033223">====================</a></div>
-      <div class="Body"><a name="1033224">&nbsp;</a></div>
-      <div class="Body"><a name="1033225">example310__MarketPrice__Rmtes implements the following high level steps:</a></div>
-      <div class="Body"><a name="1033226">&nbsp;</a></div>
-      <div class="Body"><a name="1033227">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1033228">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1033229">  - provides own methods as needed, e.g. decode( FieldList )</a></div>
-      <div class="Body"><a name="1033230">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1033231">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1033232">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1033233">  - sets operationModel to OperationModel.USER_DISPATCH</a></div>
-      <div class="Body"><a name="1033234">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1033235">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1033236">+ Opens a streaming item interest</a></div>
-      <div class="Body"><a name="1033237">  - MarketPrice N2_UBMS item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1033238">+ Processes data received from API for 60 seconds</a></div>
-      <div class="Body"><a name="1033239">  - all received messages are processed on API thread of control</a></div>
-      <div class="Body"><a name="1033240">+ Exits</a></div>
-      <div class="Body"><a name="1033241">&nbsp;</a></div>
-      <div class="Body"><a name="1033242">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1033243">      environment using EmaConfig.xml file..</a></div>
-      <div class="Body"><a name="1033244">	  </a></div>
-      <div class="Body"><a name="1033245">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1033246">      standard configuration.</a></div>
+      <div class="Body"><a name="1037686">Summary</a></div>
+      <div class="Body"><a name="1037687">=======</a></div>
+      <div class="Body"><a name="1037688">&nbsp;</a></div>
+      <div class="Body"><a name="1037689">The example310__MarketPrice__Rmtes application is provided as an example of OMM Consumer</a></div>
+      <div class="Body"><a name="1037690">application written to the EMA library showcasing RWF RMTES_STRING processing.</a></div>
+      <div class="Body"><a name="1037691">&nbsp;</a></div>
+      <div class="Body"><a name="1037692">This application demonstrates basic usage of the EMA library for accessing and</a></div>
+      <div class="Body"><a name="1037693">parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D), directly</a></div>
+      <div class="Body"><a name="1037694">from an OMM Provider application, or from Thomson Reuters Advanced DistributionServer.</a></div>
+      <div class="Body"><a name="1037695">&nbsp;</a></div>
+      <div class="Body"><a name="1037696">example310__MarketPrice__Rmtes showcases processing of RWF RMTES_STRING data</a></div>
+      <div class="Body"><a name="1037697">type.</a></div>
+      <div class="Body"><a name="1037698">&nbsp;</a></div>
+      <div class="Body"><a name="1037699"> </a></div>
+      <div class="Body"><a name="1037700">Detailed Description</a></div>
+      <div class="Body"><a name="1037701">====================</a></div>
+      <div class="Body"><a name="1037702">&nbsp;</a></div>
+      <div class="Body"><a name="1037703">example310__MarketPrice__Rmtes implements the following high level steps:</a></div>
+      <div class="Body"><a name="1037704">&nbsp;</a></div>
+      <div class="Body"><a name="1037705">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1037706">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1037707">  - provides own methods as needed, e.g. decode( FieldList )</a></div>
+      <div class="Body"><a name="1037708">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1037709">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1037710">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1037711">  - sets operationModel to OperationModel.USER_DISPATCH</a></div>
+      <div class="Body"><a name="1037712">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1037713">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1037714">+ Opens a streaming item interest</a></div>
+      <div class="Body"><a name="1037715">  - MarketPrice N2_UBMS item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1037716">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1037717">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1037718">+ Exits</a></div>
+      <div class="Body"><a name="1037719">&nbsp;</a></div>
+      <div class="Body"><a name="1037720">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1037721">      environment using EmaConfig.xml file..</a></div>
+      <div class="Body"><a name="1037722">	  </a></div>
+      <div class="Body"><a name="1037723">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1037724">      standard configuration.</a></div>
       <div class="Body"><a name="1031664">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--

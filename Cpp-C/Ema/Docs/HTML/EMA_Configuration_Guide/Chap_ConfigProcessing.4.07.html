@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>4.2.3 Processing the NiProvider “Name”</title>
+    <title>4.2.1 Use of the Correct Order in the XML Schema</title>
     <link rel="StyleSheet" href="css/Chap_ConfigProcessing.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -50,16 +50,137 @@
           <tr style="vertical-align: baseline">
             <td>
               <div class="H3_inner" style="width: 54pt; white-space: nowrap">
-                <span class="bold">4.2.3	</span>
+                <span class="bold">4.2.1	</span>
               </div>
             </td>
             <td width="100%">
-              <div class="H3_inner"><a name="1058576">Processing the NiProvider “Name”</a></div>
+              <div class="H3_inner"><a name="1051973">Use of the Correct Order in the XML Schema</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1062275">The EMA is hard-coded to use a default non-interactive provider of </a><span class="Parameter">EmaNiProvider</span>. However, you can change this by using <span class="Parameter">EmaConfig.xml</span>. When you use the XML file, the default <span class="Parameter">NiProvider Name</span> is either specified by the <span class="Parameter">DefaultNiProvider</span> element, or if this parameter is not set, then the EMA application will default to the name of the first non-interactive provider component.</div>
+      <div class="Body"><a name="1062626">Consider the following snippet from an </a><span class="Parameter">EmaConfig.xml</span> (only those parts needed for the example are included). In this snippet, the application creates a consumer with a <span class="Parameter">Name</span> of <span class="Parameter">Consumer_1</span> which logs to a file named <span class="FileOrDirectory">emaLogfile</span>.</div>
+      <div class="Blank_Line"><a name="1062666">&nbsp;</a></div>
+      <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
+        <caption></caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
+            <div class="command"><a name="1062629">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062631">&lt;ConsumerGroup&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062633">&nbsp;&nbsp;&nbsp;&nbsp;&lt;ConsumerList&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062635">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Consumer&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062637">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Name value="Consumer_1"/&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062639">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Logger value="Logger_2"/&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062641">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/Consumer&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062643">&nbsp;&nbsp;&nbsp;&nbsp;&lt;/ConsumerList&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062645">&lt;/ConsumerGroup&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062647">&lt;LoggerGroup&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062649">&nbsp;&nbsp;&nbsp;&nbsp;&lt;LoggerList&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062651">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Logger&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062653">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Name value="Logger_2"/&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062655">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;LoggerType value="LoggerType::File"/&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062657">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FileName value="emaLogfile"/&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062659">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/Logger&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062661">&nbsp;&nbsp;&nbsp;&nbsp;&lt;/LoggerList&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062663">&lt;/LoggerGroup&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062665">&nbsp;</a></div>
+          </td>
+        </tr>
+      </table>
+      <div class="Body"><a name="1062667">Now assume that the following was not included in </a><span class="FileOrDirectory">EmaConfig.xml</span>:</div>
+      <div class="Blank_Line"><a name="1062679">&nbsp;</a></div>
+      <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
+        <caption></caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
+            <div class="command"><a name="1062670">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062672">&lt;FileName value="emaLogfile"/&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062678">&nbsp;</a></div>
+          </td>
+        </tr>
+      </table>
+      <div class="Body"><a name="1062680">In this case, the EMA application relies on its hard-coded behavior</a> and uses the filename <span class="FileOrDirectory">emaLog_</span><span class="VariableValue" style="font-weight: bold">pid.</span><span class="FileOrDirectory" style="font-style: normal">log</span>.</div>
+      <div class="Body"><a name="1062681">However, if the snippet were configured in either of the following configurations, the EMA application would revert to its default behaviors because its parameters are not in the correct order (i.e., the </a><span class="Parameter">File</span><span class="Parameter">Name</span> parameter needs to be contained in a <span class="Parameter">Logger</span> component entry):</div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -69,11 +190,45 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1062276">If </a><span class="Parameter">DefaultNiProvider</span> uses an invalid name (i.e., no <span class="Parameter">NiProvider</span> components in the XML file use that name), the EMA throws an exception indicating that <span class="Parameter">DefaultNiProvider</span> is invalid.</div>
+              <div class="Bullet_inner"><a name="1062682">Configuration 1:</a></div>
             </td>
           </tr>
         </table>
       </div>
+      <div class="Blank_Line"><a name="1062702">&nbsp;</a></div>
+      <table class="Commands__25" style="width: 537.07536pt" cellspacing="0" summary="">
+        <caption></caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top; width: 537.07536pt">
+            <div class="command"><a name="1062685">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062687">&lt;LoggerGroup&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062689">&nbsp;&nbsp;&nbsp;&nbsp;&lt;FileName value="</a><span class="VariableValue">Name</span>"/&gt;</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062691">&nbsp;&nbsp;&nbsp;&nbsp;&lt;LoggerList&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062699">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062701">&nbsp;</a></div>
+          </td>
+        </tr>
+      </table>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -83,11 +238,45 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1062277">If the </a><span class="FileOrDirectory">EmaConfig.xml</span> has no <span class="Parameter">NiProvider</span> components, the EMA application uses <span class="Parameter">EmaNiProvider</span>.</div>
+              <div class="Bullet_inner"><a name="1062703">Configuration 2:</a></div>
             </td>
           </tr>
         </table>
       </div>
+      <div class="Blank_Line"><a name="1062725">&nbsp;</a></div>
+      <table class="Commands__25" style="width: 537.07536pt" cellspacing="0" summary="">
+        <caption></caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top; width: 537.07536pt">
+            <div class="command"><a name="1062706">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062708">&lt;LoggerGroup&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062710">&nbsp;&nbsp;&nbsp;&nbsp;&lt;LoggerList&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062712">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FileName value="</a><span class="VariableValue">Name</span>"/&gt;</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062722">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062724">&nbsp;</a></div>
+          </td>
+        </tr>
+      </table>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -99,7 +288,7 @@
       </script>
     </blockquote>
     <hr align="left" />
-    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 4	EMA Configuration Processing : <a class="WebWorks_Breadcrumb_Link" href="Chap_ConfigProcessing.4.04.html">4.2	Processing EmaConfig.xml</a> : 4.2.3	Processing the NiProvider “Name”</div>
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 4	EMA Configuration Processing : <a class="WebWorks_Breadcrumb_Link" href="Chap_ConfigProcessing.4.06.html">4.2	Processing EmaConfig.xml</a> : 4.2.1	Use of the Correct Order in the XML Schema</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

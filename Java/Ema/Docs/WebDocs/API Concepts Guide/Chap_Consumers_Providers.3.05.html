@@ -72,18 +72,7 @@
       <div class="Body"><a name="1046103">The system reduces the amount of data flowing across the network by means of </a><span class="Concept">Filtering</span>. To improve performance and maximize bandwidth, you can configure the TREP to filter out certain fields to downstream users. When filtering, all consumer applications see the same subset of fields for a given item.</div>
       <div class="Body"><a name="1046104">Another way of controlling filtering is to configure the consumer application to use </a><span class="Concept">Views</span>. Using a view, a consumer requests a subset of fields with a single, client-based request (refer to <a href="javascript:WWHClickedPopup('API_Concepts_Guide', 'Chap_Consumers_Providers.3.05.html#1046116', '');" title="3.2.3 Views">Figure 8</a>). The API then requests (from the ADS/Elektron) only the fields of interest. When the API receives the requested fields, it sends the subset back to the consumer. This is also called consumer-side (or request-side) filtering.</div>
       <div class="Body"><a name="1046111"><img class="Default" src="images/ViewRequests.jpg" width="617" height="314" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></div>
-      <div class="FigTitle_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="FigTitle_inner" style="width: 36pt; white-space: nowrap">Figure 8.  </div>
-            </td>
-            <td width="100%">
-              <div class="FigTitle_inner"><a name="1046116">View Request Diagram</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
+      <div class="FigTitle">Figure 8.  <a name="1046116">View Request Diagram</a></div>
       <div class="Body"><a name="1046117">Views were designed to provide the same filtering functionality as the Legacy STIC device and SFC (based on its own internal cache) while optimizing network traffic.</a></div>
       <div class="Body"><a name="1046118">Views, in conjunction with server-side filtering, can be a powerful tool for bandwidth optimization on a network. Users can combine a view with a batch request to send a single request to open multiple items using the same view.</a></div>
       <script type="text/javascript" language="JavaScript1.2">

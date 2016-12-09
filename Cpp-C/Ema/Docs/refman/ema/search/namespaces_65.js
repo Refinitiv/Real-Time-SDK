@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['ema',['ema',['../a00160.html',1,'']]]
+  ['ema',['ema',['../a00162.html',1,'']]]
 ];

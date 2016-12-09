@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>260__Custom__NestedMsg</title>
+    <link rel="StyleSheet" href="css/EMAJ_IP_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3_NoNum"><a name="1031569">260__Custom__NestedMsg</a></div>
+      <div class="Body"><a name="1032990">Summary</a></div>
+      <div class="Body"><a name="1032991">=======</a></div>
+      <div class="Body"><a name="1032992">&nbsp;</a></div>
+      <div class="Body"><a name="1032993">260__Custom__NestedMsg is an example of an OMM Interactive Provider application </a></div>
+      <div class="Body"><a name="1032994">written to the EMA library.</a></div>
+      <div class="Body"><a name="1032995">&nbsp;</a></div>
+      <div class="Body"><a name="1032996">This application demonstrates the basic usage of the EMA library in providing</a></div>
+      <div class="Body"><a name="1032997">of OMM nested message with custom domain type(200) defined by user</a></div>
+      <div class="Body"><a name="1032998">&nbsp;</a></div>
+      <div class="Body"><a name="1032999">260__Custom__NestedMsg illustrates how to create and publish a single OMM</a></div>
+      <div class="Body"><a name="1033000">streaming item. This application uses source directory configured in the EmaConfig.xml</a></div>
+      <div class="Body"><a name="1033001">file.</a></div>
+      <div class="Body"><a name="1033002">&nbsp;</a></div>
+      <div class="Body"><a name="1033003">&nbsp;</a></div>
+      <div class="Body"><a name="1033004">Detailed Description</a></div>
+      <div class="Body"><a name="1033005">====================</a></div>
+      <div class="Body"><a name="1033006">&nbsp;</a></div>
+      <div class="Body"><a name="1033007">260__Custom__NestedMsg implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1033008">&nbsp;</a></div>
+      <div class="Body"><a name="1033009">+ Instantiates and modifies an OmmIProviderConfig object:</a></div>
+      <div class="Body"><a name="1033010">  - Set the operation model to use user dispatch</a></div>
+      <div class="Body"><a name="1033011">+ Instantiates an OmmProvider object which:</a></div>
+      <div class="Body"><a name="1033012">  - listens on the port from the EmaConfig.xml file</a></div>
+      <div class="Body"><a name="1033013">+ Accepts a login request</a></div>
+      <div class="Body"><a name="1033014">+ Processes an item request for Custom domain.</a></div>
+      <div class="Body"><a name="1033015"> - Publishes a generic message with a refresh message to the requesting stream.</a></div>
+      <div class="Body"><a name="1033016"> - Publishes generic messages with update messages 1 per second for 60 seconds.</a></div>
+      <div class="Body"><a name="1033017">+ Rejects subsequent item requests.</a></div>
+      <div class="Body"><a name="1033018">+ Exits</a></div>
+      <div class="Body"><a name="1033019">&nbsp;</a></div>
+      <div class="Body"><a name="1033020">Note: If needed, these and other details may be modified to fit your local</a></div>
+      <div class="Body"><a name="1033021">      environment. For details on standard configuration, refer to the EMA library</a></div>
+      <div class="Body"><a name="1033022">      ReadMe.txt file and EMA Configuration Guide.</a></div>
+      <div class="Body"><a name="1032230">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_IP_Readmes.3.01.html">EMA Java Interactive Provider Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAJ_IP_Readmes.3.09.html">200 Series Examples</a> : 260__Custom__NestedMsg</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

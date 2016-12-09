@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>3.4 Dictionary Group</title>
+    <title>3.4 Server Group</title>
     <link rel="StyleSheet" href="css/Chap_ConfigGroups.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -64,12 +64,70 @@
               </div>
             </td>
             <td width="100%">
-              <div class="H2_inner"><a name="1045505">Dictionary Group</a></div>
+              <div class="H2_inner"><a name="1103620">Server Group</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1104385">The </a><span class="Parameter">DictionaryGroup</span> contains a <span class="Parameter">DictionaryList</span>, which contains one or more <span class="Parameter">Dictionary</span> components (each uniquely identified by a <span class="Parameter">&lt;Name …/&gt;</span> entry). Each <span class="Parameter">Dictionary</span> component defines parameters relating to how the dictionary is accessed.</div>
+      <div class="Body"><span class="Parameter"><a name="1115510">ServerGroup</a></span> is used only with an <span class="Parameter">IProvider</span>.</div>
+      <div class="Body"><a name="1115511">The </a><span class="Parameter">ServerGroup</span> contains a <span class="Parameter">ServerList</span>, which contains one or more <span class="Parameter">Server</span> entries (each uniquely identified by a <br /><span class="Parameter">&lt;Name …/&gt;</span> entry). Each channel includes a set of connection parameters for a specific connection or connection type.</div>
+      <div class="Body"><a name="1115512">There is no default server. If an EMA application needs a specific server, you need to specify this in the appropriate </a><span class="Parameter">Consumer</span> or <span class="Parameter">IProvider</span> section.</div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1115519">For details on the parameters you can use to configure the </a><span class="Parameter">Consumer</span> component, refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.05.html', '');" title="3.1.4 Consumer Entry Parameters">Section 3.1.4</a>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1115526">For details on the parameters you can use to configure the </a><span class="Parameter">IProvider</span> component, refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.10.html', '');" title="3.2.4 Provider Entry Parameters">Section 3.2.4</a>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1115533">For a generic </a><span class="Parameter">ServerGroup</span> XML schema, refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.18.html', '');" title="3.4.1 Generic XML Schema for ServerGroup">Section 3.4.1</a>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1115540">For a list of parameters you can use in configuring </a><span class="Parameter">Server</span>, refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.19.html', '');" title="3.4.2 Server Entry Parameters">Section 3.4.2</a>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -81,7 +139,7 @@
       </script>
     </blockquote>
     <hr align="left" />
-    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	Configuration Groups : 3.4	Dictionary Group</div>
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	Configuration Groups : 3.4	Server Group</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

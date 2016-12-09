@@ -25,11 +25,11 @@
       <i t="3.1.3 Configuring Consumers in a ConsumerGroup" l="16" />
       <i t="3.1.4 Consumer Entry Parameters" l="17" />
     </i>
-    <i t="3.2 Non-interactive Provider Group" l="18">
-      <i t="3.2.1 Generic XML Schema for Non-interactive Provider Group" l="19" />
-      <i t="3.2.2 Setting a Default Non-interactive Provider" l="20" />
-      <i t="3.2.3 Configuring a Non-interactive Provider in a NiProviderGroup" l="21" />
-      <i t="3.2.4 Non-interactive Provider Entry Parameters" l="22" />
+    <i t="3.2 Provider Groups" l="18">
+      <i t="3.2.1 Generic XML Schema for Provider Group" l="19" />
+      <i t="3.2.2 Setting a Default Provider" l="20" />
+      <i t="3.2.3 Configuring a Provider in a ProviderGroup" l="21" />
+      <i t="3.2.4 Provider Entry Parameters" l="22" />
     </i>
     <i t="3.3 Channel Group" l="23">
       <i t="3.3.1 Generic XML Schema for ChannelGroup" l="24" />
@@ -40,51 +40,58 @@
       <i t="3.3.6 Example XML Schema for Configuring ChannelSet" l="29" />
       <i t="3.3.7 Example Programmatic Configuration for ChannelSet" l="30" />
     </i>
-    <i t="3.4 Logger Group" l="31">
-      <i t="3.4.1 Generic XML Schema for LoggerGroup" l="32" />
-      <i t="3.4.2 Logger Entry Parameters" l="33" />
+    <i t="3.4 Server Group" l="31">
+      <i t="3.4.1 Generic XML Schema for ServerGroup" l="32" />
+      <i t="3.4.2 Server Entry Parameters" l="33" />
     </i>
-    <i t="3.5 Dictionary Group" l="34">
-      <i t="3.5.1 Generic XML Schema for DictionaryGroup" l="35" />
-      <i t="3.5.2 Dictionary Entry Parameters" l="36" />
+    <i t="3.5 Logger Group" l="34">
+      <i t="3.5.1 Generic XML Schema for LoggerGroup" l="35" />
+      <i t="3.5.2 Logger Entry Parameters" l="36" />
     </i>
-    <i t="3.6 Directory Group" l="37">
-      <i t="3.6.1 Generic XML Schema for Directory Entry" l="38" />
-      <i t="3.6.2 Setting Default Directory" l="39" />
-      <i t="3.6.3 Configuring a Directory in a DirectoryGroup" l="40" />
-      <i t="3.6.4 Service Entry Parameters" l="41" />
-      <i t="3.6.5 InfoFilter Entry Parameters" l="42">
-        <i t="3.6.5.1 Capabilities Entry Parameter" l="43" />
-        <i t="3.6.5.2 DictionariesProvided Entry Parameter" l="44" />
-        <i t="3.6.5.3 DictionariesUsed Entry Parameter" l="45" />
-        <i t="3.6.5.4 QoSEntry Section and Associated Parameters" l="46" />
+    <i t="3.6 Dictionary Group" l="37">
+      <i t="3.6.1 Generic XML Schema for DictionaryGroup" l="38" />
+      <i t="3.6.2 Dictionary Entry Parameters" l="39" />
+    </i>
+    <i t="3.7 Directory Group" l="40">
+      <i t="3.7.1 Generic XML Schema for Directory Entry" l="41" />
+      <i t="3.7.2 Setting Default Directory" l="42" />
+      <i t="3.7.3 Configuring a Directory in a DirectoryGroup" l="43" />
+      <i t="3.7.4 Service Entry Parameters" l="44" />
+      <i t="3.7.5 InfoFilter Entry Parameters" l="45">
+        <i t="3.7.5.1 Capabilities Entry Parameter" l="46" />
+        <i t="3.7.5.2 DictionariesProvided Entry Parameter" l="47" />
+        <i t="3.7.5.3 DictionariesUsed Entry Parameter" l="48" />
+        <i t="3.7.5.4 QoSEntry Section and Associated Parameters" l="49" />
       </i>
-      <i t="3.6.6 StateFilter Entry Parameters" l="47" />
-      <i t="3.6.7 Status Entry Parameters" l="48" />
+      <i t="3.7.6 StateFilter Entry Parameters" l="50" />
+      <i t="3.7.7 Status Entry Parameters" l="51" />
     </i>
   </i>
   <i t="Chapter 4 EMA Configuration Processing">
-    <i t="4.1 Default Configuration" l="49">
-      <i t="4.1.1 Default Consumer Configuration" l="50" />
-      <i t="4.1.2 Default NiProvider Configuration" l="51" />
-    </i>
-    <i t="4.2 Processing EmaConfig.xml" l="52">
-      <i t="4.2.1 Use of the Correct Order in the XML Schema" l="53" />
-      <i t="4.2.2 Processing the Consumer “Name”" l="54" />
-      <i t="4.2.3 Processing the NiProvider “Name”" l="55" />
-    </i>
-    <i t="4.3 Configuring EMA Using Function Calls" l="56">
-      <i t="4.3.1 EMA Configuration Function Calls" l="57">
-        <i t="4.3.1.1 OmmConsumerConfig Class Function Calls" l="57#1058733" />
-        <i t="4.3.1.2 OmmNiProviderConfig Class Function Calls" l="58" />
+    <i t="4.1 Default Configuration" l="52">
+      <i t="4.1.1 Default Consumer Configuration" l="53" />
+      <i t="4.1.2 Default Provider Configurations" l="54">
+        <i t="4.1.2.1 Example: Default Channel Behavior (NiProvider)" l="55" />
+        <i t="4.1.2.2 Example: Default Server Behavior (IProvider)" l="56" />
       </i>
-      <i t="4.3.2 Using the host() Function: How “Host” and “Port” are Processed" l="59" />
     </i>
-    <i t="4.4 Programmatic Configuration" l="60">
-      <i t="4.4.1 OMM Data Structure" l="61" />
-      <i t="4.4.2 Creating the Configuration" l="62" />
-      <i t="4.4.3 Example: Programmatic Configuration" l="63" />
+    <i t="4.2 Processing EmaConfig.xml" l="57">
+      <i t="4.2.1 Use of the Correct Order in the XML Schema" l="58" />
+      <i t="4.2.2 Processing the Consumer “Name”" l="59" />
+      <i t="4.2.3 Processing the Provider “Name”" l="60" />
+    </i>
+    <i t="4.3 Configuring EMA Using Function Calls" l="61">
+      <i t="4.3.1 EMA Configuration Function Calls" l="62">
+        <i t="4.3.1.1 OmmConsumerConfig Class Function Calls" l="62#1058733" />
+        <i t="4.3.1.2 OmmNiProviderConfig Class Function Calls" l="63" />
+      </i>
+      <i t="4.3.2 Using the host() Function: How “Host” and “Port” are Processed" l="64" />
+    </i>
+    <i t="4.4 Programmatic Configuration" l="65">
+      <i t="4.4.1 OMM Data Structure" l="66" />
+      <i t="4.4.2 Creating the Configuration" l="67" />
+      <i t="4.4.3 Example: Programmatic Configuration" l="68" />
     </i>
   </i>
-  <i t="Appendix A EmaConfig.xml Configuration File" l="64" />
+  <i t="Appendix A EmaConfig.xml Configuration File" l="69" />
 </WebWorksHelpTOC>

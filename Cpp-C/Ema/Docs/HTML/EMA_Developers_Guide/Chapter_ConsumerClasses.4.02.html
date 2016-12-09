@@ -59,7 +59,7 @@
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1024063">Applications observe the following steps to connect to a server and open items:</a></div>
+      <div class="Body"><a name="1024189">Applications observe the following steps to connect to a server and open items:</a></div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -69,12 +69,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><span class="Bold"><a name="1024064">(Optional)</a></span> Specify a configuration using the <span class="FileOrDirectory">EmaConfig.xml</span> file.</div>
+              <div class="bullet_ind_inner"><span class="Bold"><a name="1024190">(Optional)</a></span> Specify a configuration using the <span class="FileOrDirectory">EmaConfig.xml</span> file.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="indent_5"><a name="1024065">This step is optional because the EMA provides a default configuration which is usually sufficient in simple application cases.</a></div>
+      <div class="indent_5"><a name="1024191">This step is optional because the EMA provides a default configuration which is usually sufficient in simple application cases.</a></div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -84,66 +84,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1024072">Create </a><span class="CodeOrCommand">OmmConsumerConfig</span> object (for details, refer to <a href="javascript:WWHClickedPopup('EMA_Developers_Guide', 'Chapter_ConsumerClasses.4.10.html', '');" title="4.3 OmmConsumerConfig Class">Section 4.3</a>).</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><span class="Bold"><a name="1024073">(Optional)</a></span> Change EMA configuration using methods on the <span class="CodeOrCommand">OmmConsumerConfig</span> class.</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="indent_5"><a name="1024074">If an </a><span class="FileOrDirectory">EmaConfig.xml</span> file is not used, then at a minimum, applications might need to modify the default host address and port.</div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><a name="1024075">Implement an application callback client class that inherits from the </a><span class="CodeOrCommand">OmmConsumerClient</span> class (for details, refer to <a href="javascript:WWHClickedPopup('EMA_Developers_Guide', 'Chapter_ConsumerClasses.4.08.html', '');" title="4.2 OmmConsumerClient Class">Section 4.2</a>).</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="indent_5"><a name="1024082">An application needs to override the default implementation of callback methods and provide its own business logic.</a> Not all methods need to be overridden; only methods required for the application’s business logic.</div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><span class="Bold"><a name="1024083">(Optional)</a></span> Implement an application error client class that inherits from the <span class="CodeOrCommand">OmmConsumerErrorClient</span> class (for details, refer to <a href="javascript:WWHClickedPopup('EMA_Developers_Guide', 'Chapter_Troubleshooting.6.2.html', '');" title="6.2 Omm Error Client Classes">Section 6.2</a>).</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="indent_5"><a name="1024090">The application needs to override default error call back methods to be effectively notified about error conditions.</a></div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><a name="1024091">Create an </a><span class="CodeOrCommand">OmmConsumer</span> object and pass the <span class="CodeOrCommand">OmmConsumerConfig</span> object (and if needed, also pass in the application error client object).</div>
+              <div class="bullet_ind_inner"><a name="1024198">Create </a><span class="CodeOrCommand" style="font-size: 10.0pt">OmmConsumerConfig</span> object (for details, refer to <a href="javascript:WWHClickedPopup('EMA_Developers_Guide', 'Chapter_ConsumerClasses.4.10.html', '');" title="4.3 OmmConsumerConfig Class">Section 4.3</a>).</div>
             </td>
           </tr>
         </table>
@@ -157,7 +98,52 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1024092">Open items of interest using the </a><span class="CodeOrCommand">OmmConsumer::registerClient()</span> method.</div>
+              <div class="bullet_ind_inner"><span class="Bold"><a name="1024199">(Optional)</a></span> Change EMA configuration using methods on the <span class="CodeOrCommand" style="font-size: 10.0pt">OmmConsumerConfig</span> class.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="indent_5"><a name="1024200">If an </a><span class="FileOrDirectory">EmaConfig.xml</span> file is not used, then at a minimum, applications might need to modify the default host address and port.</div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1024201">Implement an application callback client class that inherits from the </a><span class="CodeOrCommand" style="font-size: 10.0pt">OmmConsumerClient</span> class (for details, refer to <a href="javascript:WWHClickedPopup('EMA_Developers_Guide', 'Chapter_ConsumerClasses.4.08.html', '');" title="4.2 OmmConsumerClient Class">Section 4.2</a>).</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="indent_5"><a name="1024208">An application needs to override the default implementation of callback methods and provide its own business logic.</a> Not all methods need to be overridden; only methods required for the application’s business logic.</div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><span class="Bold"><a name="1024209">(Optional)</a></span> Implement an application error client class that inherits from the <span class="CodeOrCommand" style="font-size: 10.0pt">OmmConsumerErrorClient</span> class (for details, refer to <a href="javascript:WWHClickedPopup('EMA_Developers_Guide', 'Chapter_Troubleshooting.6.2.html', '');" title="6.2 Omm Error Client Classes">Section 6.2</a>).</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="indent_5"><a name="1024216">The application needs to override default error call back methods to be effectively notified about error conditions.</a></div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1024217">Create an </a><span class="CodeOrCommand" style="font-size: 10.0pt">OmmConsumer</span> object and pass the <span class="CodeOrCommand" style="font-size: 10.0pt">OmmConsumerConfig</span> object (and if needed, also pass in the application error client object).</div>
             </td>
           </tr>
         </table>
@@ -171,7 +157,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1024093">Process received messages.</a></div>
+              <div class="bullet_ind_inner"><a name="1024218">Open items of interest using the </a><span class="CodeOrCommand" style="font-size: 10.0pt">OmmConsumer::registerClient()</span> method.</div>
             </td>
           </tr>
         </table>
@@ -185,7 +171,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><span class="Bold"><a name="1024094">(Optional)</a></span> Submit <span class="CodeOrCommand">PostMsg</span> and <span class="CodeOrCommand">GenericMsg</span> messages and modify / close items using appropriate <span class="CodeOrCommand">OmmConsumer</span> class methods.</div>
+              <div class="bullet_ind_inner"><a name="1024219">Process received messages.</a></div>
             </td>
           </tr>
         </table>
@@ -199,7 +185,21 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1024095">Exit.</a></div>
+              <div class="bullet_ind_inner"><span class="Bold"><a name="1024220">(Optional)</a></span> Submit <span class="CodeOrCommand" style="font-size: 10.0pt">PostMsg</span> and <span class="CodeOrCommand" style="font-size: 10.0pt">GenericMsg</span> messages and modify / close items using appropriate <span class="CodeOrCommand" style="font-size: 10.0pt">OmmConsumer</span> class methods.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1024221">Exit.</a></div>
             </td>
           </tr>
         </table>

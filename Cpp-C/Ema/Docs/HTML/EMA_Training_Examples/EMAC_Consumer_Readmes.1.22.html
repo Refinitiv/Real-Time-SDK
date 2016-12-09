@@ -46,52 +46,52 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1019514">291__Custom__DownCast</a></div>
-      <div class="Body"><a name="1030923">Summary</a></div>
-      <div class="Body"><a name="1030924">=======</a></div>
-      <div class="Body"><a name="1030925">&nbsp;</a></div>
-      <div class="Body"><a name="1030926">The 291__Custom__DownCast application provides a custom down casting</a></div>
-      <div class="Body"><a name="1030927">example of OMM Consumer application written to the EMA library.</a></div>
-      <div class="Body"><a name="1030928">&nbsp;</a></div>
-      <div class="Body"><a name="1030929">This application demonstrates basic usage of the EMA library for accessing</a></div>
-      <div class="Body"><a name="1030930">and parsing of OMM Custom data from Reuters Data Feed Direct (RDF-D),</a></div>
-      <div class="Body"><a name="1030931">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
-      <div class="Body"><a name="1030932">Distribution Server.</a></div>
-      <div class="Body"><a name="1030933">&nbsp;</a></div>
-      <div class="Body"><a name="1030934">The 291__Custom__DownCast showcases usage of the so called downcast decoding</a></div>
-      <div class="Body"><a name="1030935">method. In this method, application extracts a reference to a Data class object</a></div>
-      <div class="Body"><a name="1030936">and casts it down to the appropriate data class type based on its data type.</a></div>
-      <div class="Body"><a name="1030937">&nbsp;</a></div>
-      <div class="Body"><a name="1030938">&nbsp;</a></div>
-      <div class="Body"><a name="1030939">&nbsp;</a></div>
-      <div class="Body"><a name="1030940">Detailed Description</a></div>
-      <div class="Body"><a name="1030941">====================s</a></div>
-      <div class="Body"><a name="1030942">&nbsp;</a></div>
-      <div class="Body"><a name="1030943">The 291__Custom__DownCast implements the following high level steps:</a></div>
-      <div class="Body"><a name="1030944">&nbsp;</a></div>
-      <div class="Body"><a name="1030945">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1030946">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1030947">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
-      <div class="Body"><a name="1030948">    - each of the method provided in this example use the ease of use</a></div>
-      <div class="Body"><a name="1030949">	  data extraction methods that are data type specific</a></div>
-      <div class="Body"><a name="1030950">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1030951">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1030952">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1030953">  - sets host name on the preconfigured connection to “localhost”</a></div>
-      <div class="Body"><a name="1030954">  - sets port on the preconfigured connection to “14002”</a></div>
-      <div class="Body"><a name="1030955">  - sets operationModel to UserDispatchEnum</a></div>
-      <div class="Body"><a name="1030956">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1030957">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1030958">+ Opens a streaming item interest</a></div>
-      <div class="Body"><a name="1030959">  - Custom Domain (133) IBM.XYZ item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1030960">+ Processes data received from API for 60 seconds</a></div>
-      <div class="Body"><a name="1030961">  - all received messages are processed on main application thread of control</a></div>
-      <div class="Body"><a name="1030962">+ Exits</a></div>
-      <div class="Body"><a name="1030963">&nbsp;</a></div>
-      <div class="Body"><a name="1030964">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1030965">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1030966">&nbsp;</a></div>
-      <div class="Body"><a name="1030967">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1030968">      standard configuration.</a></div>
+      <div class="Body"><a name="1040977">Summary</a></div>
+      <div class="Body"><a name="1040978">=======</a></div>
+      <div class="Body"><a name="1040979">&nbsp;</a></div>
+      <div class="Body"><a name="1040980">The 291__Custom__DownCast application provides a custom down casting</a></div>
+      <div class="Body"><a name="1040981">example of OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1040982">&nbsp;</a></div>
+      <div class="Body"><a name="1040983">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1040984">and parsing of OMM Custom data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1040985">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1040986">Distribution Server.</a></div>
+      <div class="Body"><a name="1040987">&nbsp;</a></div>
+      <div class="Body"><a name="1040988">The 291__Custom__DownCast showcases usage of the so called downcast decoding</a></div>
+      <div class="Body"><a name="1040989">method. In this method, application extracts a reference to a Data class object</a></div>
+      <div class="Body"><a name="1040990">and casts it down to the appropriate data class type based on its data type.</a></div>
+      <div class="Body"><a name="1040991">&nbsp;</a></div>
+      <div class="Body"><a name="1040992">&nbsp;</a></div>
+      <div class="Body"><a name="1040993">&nbsp;</a></div>
+      <div class="Body"><a name="1040994">Detailed Description</a></div>
+      <div class="Body"><a name="1040995">====================s</a></div>
+      <div class="Body"><a name="1040996">&nbsp;</a></div>
+      <div class="Body"><a name="1040997">The 291__Custom__DownCast implements the following high level steps:</a></div>
+      <div class="Body"><a name="1040998">&nbsp;</a></div>
+      <div class="Body"><a name="1040999">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1041000">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1041001">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1041002">    - each of the method provided in this example use the ease of use</a></div>
+      <div class="Body"><a name="1041003">	  data extraction methods that are data type specific</a></div>
+      <div class="Body"><a name="1041004">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1041005">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1041006">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1041007">  - sets host name on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1041008">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1041009">  - sets operationModel to UserDispatchEnum</a></div>
+      <div class="Body"><a name="1041010">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1041011">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1041012">+ Opens a streaming item interest</a></div>
+      <div class="Body"><a name="1041013">  - Custom Domain (133) IBM.XYZ item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1041014">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1041015">  - all received messages are processed on main application thread of control</a></div>
+      <div class="Body"><a name="1041016">+ Exits</a></div>
+      <div class="Body"><a name="1041017">&nbsp;</a></div>
+      <div class="Body"><a name="1041018">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1041019">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1041020">&nbsp;</a></div>
+      <div class="Body"><a name="1041021">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1041022">      standard configuration.</a></div>
       <div class="Body"><a name="1028710">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--

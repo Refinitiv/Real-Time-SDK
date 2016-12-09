@@ -1,6 +1,7 @@
 function FileData_Pairs(x)
 {
 x.t("m.parentnode.insertbefore","window");
+x.t("360__marketprice__connectionrecovery","ema");
 x.t(".l=1","new");
 x.t("create","ua-55718642-4");
 x.t("a=s.createelement","(o)");
@@ -10,10 +11,13 @@ x.t("pageview","elektron");
 x.t("api","java");
 x.t("provider","examples");
 x.t("window","document");
+x.t("320__marketprice__streaming__statusclosed","340__login__streaming");
 x.t("300","series");
 x.t("(o)","m=s.getelementsbytagname");
 x.t("(o)","[0]");
 x.t("auto","send");
+x.t("310__marketbyorder__streaming","320__marketprice__streaming__statusclosed");
+x.t("300__marketprice__streaming","310__marketbyorder__streaming");
 x.t("function","[r]");
 x.t("function","googleanalyticsobject");
 x.t("message","api");
@@ -27,9 +31,10 @@ x.t("elektron","message");
 x.t("script","//www.google-analytics.com/analytics.js");
 x.t(".push","(arguments)");
 x.t("ua-55718642-4","auto");
+x.t("340__login__streaming","360__marketprice__connectionrecovery");
 x.t("examples","300");
+x.t("examples","300__marketprice__streaming");
 x.t("examples","function");
-x.t("examples","ema");
 x.t("date","a=s.createelement");
 x.t("//www.google-analytics.com/analytics.js","create");
 x.t("edition","300");

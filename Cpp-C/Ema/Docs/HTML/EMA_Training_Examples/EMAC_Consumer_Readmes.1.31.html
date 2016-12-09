@@ -46,49 +46,49 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1020352">340__MarketPrice__OnStreamPost</a></div>
-      <div class="Body"><a name="1031299">Summary</a></div>
-      <div class="Body"><a name="1031300">=======</a></div>
-      <div class="Body"><a name="1031301">&nbsp;</a></div>
-      <div class="Body"><a name="1031302">The 340__MarketPrice__OnStreamPost application is provided as an example of</a></div>
-      <div class="Body"><a name="1031303">OMM Consumer application written to the EMA library.</a></div>
-      <div class="Body"><a name="1031304">&nbsp;</a></div>
-      <div class="Body"><a name="1031305">This application demonstrates basic usage of the EMA library for accessing,</a></div>
-      <div class="Body"><a name="1031306">posting and parsing of MarketPrice data directly directly from and to an OMM</a></div>
-      <div class="Body"><a name="1031307">Provider application, or to Thomson Reuters Advanced Distribution Server.</a></div>
-      <div class="Body"><a name="1031308">&nbsp;</a></div>
-      <div class="Body"><a name="1031309">The 340__MarketPrice__OnStreamPost showcases the usage of on stream posting</a></div>
-      <div class="Body"><a name="1031310">feature in OMM Consumer. It submits OMM Data for the open item and processes</a></div>
-      <div class="Body"><a name="1031311">a requested AckMsg when received.</a></div>
-      <div class="Body"><a name="1031312">&nbsp;</a></div>
-      <div class="Body"><a name="1031313">&nbsp;</a></div>
-      <div class="Body"><a name="1031314">Detailed Description</a></div>
-      <div class="Body"><a name="1031315">====================</a></div>
-      <div class="Body"><a name="1031316">&nbsp;</a></div>
-      <div class="Body"><a name="1031317">The 340__MarketPrice__OnStreamPost implements the following high level steps:</a></div>
-      <div class="Body"><a name="1031318">&nbsp;</a></div>
-      <div class="Body"><a name="1031319">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1031320">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1031321">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
-      <div class="Body"><a name="1031322">    - each of the method provided in this example use the ease of use</a></div>
-      <div class="Body"><a name="1031323">	  data extraction methods that are data type specific</a></div>
-      <div class="Body"><a name="1031324">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1031325">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1031326">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1031327">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1031328">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1031329">+ Opens a streaming item interests</a></div>
-      <div class="Body"><a name="1031330">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1031331">+ Sends a PostMsg with FieldList as payload on this stream</a></div>
-      <div class="Body"><a name="1031332">+ Processes data received from API for 60 seconds</a></div>
-      <div class="Body"><a name="1031333">  - all received messages are processed on API thread of control</a></div>
-      <div class="Body"><a name="1031334">  - application may receive RespMsg as well as AckMsg</a></div>
-      <div class="Body"><a name="1031335">+ Exits</a></div>
-      <div class="Body"><a name="1031336">&nbsp;</a></div>
-      <div class="Body"><a name="1031337">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1031338">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1031339">	  </a></div>
-      <div class="Body"><a name="1031340">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1031341">      standard configuration.</a></div>
+      <div class="Body"><a name="1041353">Summary</a></div>
+      <div class="Body"><a name="1041354">=======</a></div>
+      <div class="Body"><a name="1041355">&nbsp;</a></div>
+      <div class="Body"><a name="1041356">The 340__MarketPrice__OnStreamPost application is provided as an example of</a></div>
+      <div class="Body"><a name="1041357">OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1041358">&nbsp;</a></div>
+      <div class="Body"><a name="1041359">This application demonstrates basic usage of the EMA library for accessing,</a></div>
+      <div class="Body"><a name="1041360">posting and parsing of MarketPrice data directly directly from and to an OMM</a></div>
+      <div class="Body"><a name="1041361">Provider application, or to Thomson Reuters Advanced Distribution Server.</a></div>
+      <div class="Body"><a name="1041362">&nbsp;</a></div>
+      <div class="Body"><a name="1041363">The 340__MarketPrice__OnStreamPost showcases the usage of on stream posting</a></div>
+      <div class="Body"><a name="1041364">feature in OMM Consumer. It submits OMM Data for the open item and processes</a></div>
+      <div class="Body"><a name="1041365">a requested AckMsg when received.</a></div>
+      <div class="Body"><a name="1041366">&nbsp;</a></div>
+      <div class="Body"><a name="1041367">&nbsp;</a></div>
+      <div class="Body"><a name="1041368">Detailed Description</a></div>
+      <div class="Body"><a name="1041369">====================</a></div>
+      <div class="Body"><a name="1041370">&nbsp;</a></div>
+      <div class="Body"><a name="1041371">The 340__MarketPrice__OnStreamPost implements the following high level steps:</a></div>
+      <div class="Body"><a name="1041372">&nbsp;</a></div>
+      <div class="Body"><a name="1041373">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1041374">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1041375">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1041376">    - each of the method provided in this example use the ease of use</a></div>
+      <div class="Body"><a name="1041377">	  data extraction methods that are data type specific</a></div>
+      <div class="Body"><a name="1041378">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1041379">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1041380">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1041381">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1041382">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1041383">+ Opens a streaming item interests</a></div>
+      <div class="Body"><a name="1041384">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1041385">+ Sends a PostMsg with FieldList as payload on this stream</a></div>
+      <div class="Body"><a name="1041386">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1041387">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1041388">  - application may receive RespMsg as well as AckMsg</a></div>
+      <div class="Body"><a name="1041389">+ Exits</a></div>
+      <div class="Body"><a name="1041390">&nbsp;</a></div>
+      <div class="Body"><a name="1041391">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1041392">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1041393">	  </a></div>
+      <div class="Body"><a name="1041394">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1041395">      standard configuration.</a></div>
       <div class="Body"><a name="1029279">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--

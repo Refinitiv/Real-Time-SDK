@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>5.3 OmmNiProviderConfig Class</title>
+    <link rel="StyleSheet" href="css/Chapter_ProviderClasses.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H2_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="H2_inner" style="width: 54pt; white-space: nowrap">
+                <span class="bold">5.3	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="H2_inner"><a name="1025329">OmmNiProviderConfig Class</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1030641">In the following section, the value for </a><span class="VariableValue" style="color: #f2960c; font-family: &quot;Courier New&quot;; font-weight: bold">ProviderType</span> is dependent on the type of provider with which you are dealing:</div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1030642">For non-interactive providers, </a><span class="VariableValue" style="color: #f2960c; font-family: &quot;Courier New&quot;; font-weight: bold">ProviderType</span> is <span class="CodeOrCommand" style="font-size: 10.0pt">NiProvider</span>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1030643">For interactive providers, </a><span class="VariableValue" style="color: #f2960c; font-family: &quot;Courier New&quot;; font-weight: bold">ProviderType</span> is <span class="CodeOrCommand" style="font-size: 10.0pt">IProvider</span>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1030644">You can use the </a><span class="CodeOrCommand" style="font-size: 10.0pt">Omm</span><span class="VariableValue" style="color: #f2960c; font-family: &quot;Courier New&quot;; font-size: 10pt; font-weight: bold">ProviderType</span><span class="CodeOrCommand" style="font-size: 10.0pt; font-style: normal">Config</span> class to customize the functionality of the <span class="CodeOrCommand" style="font-size: 10.0pt">OmmProvider</span> class. The default behavior of <span class="CodeOrCommand" style="font-size: 10.0pt">OmmProvider</span> is hard coded in the <span class="CodeOrCommand" style="font-size: 10.0pt">Omm</span><span class="VariableValue" style="color: #f2960c; font-family: &quot;Courier New&quot;; font-size: 10pt; font-weight: bold">ProviderType</span><span class="CodeOrCommand" style="font-size: 10.0pt; font-style: normal">Config</span> class. You can configure <span class="CodeOrCommand" style="font-size: 10.0pt">OmmProvider</span> in any of the following ways:</div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1030645">Using the </a><span class="FileOrDirectory">EmaConfig.xml</span> file</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1030646">Using interface methods on the </a><span class="CodeOrCommand" style="font-size: 10.0pt">Omm</span><span class="VariableValue" style="color: #f2960c; font-family: &quot;Courier New&quot;; font-size: 10pt; font-weight: bold">ProviderType</span><span class="CodeOrCommand" style="font-size: 10.0pt; font-style: normal">Config</span> class </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1030647">Passing OMM-formatted configuration data through the </a><span class="CodeOrCommand" style="font-size: 10.0pt">Omm</span><span class="VariableValue" style="color: #f2960c; font-family: &quot;Courier New&quot;; font-size: 10pt; font-weight: bold">ProviderType</span><span class="CodeOrCommand" style="font-size: 10.0pt; font-style: normal">Config::config( const Data&amp; )</span> method.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1030649">For more details on using the </a><span class="CodeOrCommand" style="font-size: 10.0pt">Omm</span><span class="VariableValue" style="color: #f2960c; font-family: &quot;Courier New&quot;; font-size: 10pt; font-weight: bold">ProviderType</span><span class="CodeOrCommand" style="font-size: 10.0pt; font-style: normal">Config</span> class and associated configuration parameters, refer to the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;ECONG&quot;), (document.all||document.getElementById||document.layers)?event:null);">EMA Configuration Guide</a></span>.</div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 5	Provider Classes : 5.3	OmmNiProviderConfig Class</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

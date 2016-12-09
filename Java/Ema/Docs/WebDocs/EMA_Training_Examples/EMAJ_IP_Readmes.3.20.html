@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>331__Directory__UserControl</title>
+    <link rel="StyleSheet" href="css/EMAJ_IP_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3_NoNum"><a name="1031580">331__Directory__UserControl</a></div>
+      <div class="Body"><a name="1033179">Summary</a></div>
+      <div class="Body"><a name="1033180">=======</a></div>
+      <div class="Body"><a name="1033181">&nbsp;</a></div>
+      <div class="Body"><a name="1033182">331__Directory_UserControl is an example of an OMM Interactive Provider application </a></div>
+      <div class="Body"><a name="1033183">written to the EMA library.</a></div>
+      <div class="Body"><a name="1033184">&nbsp;</a></div>
+      <div class="Body"><a name="1033185">This application demonstrates the basic usage of the EMA library in providing</a></div>
+      <div class="Body"><a name="1033186">of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.</a></div>
+      <div class="Body"><a name="1033187">&nbsp;</a></div>
+      <div class="Body"><a name="1033188">331__Directory_UserControl illustrates how to create and publish a single OMM</a></div>
+      <div class="Body"><a name="1033189">streaming item. This application will push source directory refresh message.</a></div>
+      <div class="Body"><a name="1033190">&nbsp;</a></div>
+      <div class="Body"><a name="1033191">&nbsp;</a></div>
+      <div class="Body"><a name="1033192">Detailed Description</a></div>
+      <div class="Body"><a name="1033193">====================</a></div>
+      <div class="Body"><a name="1033194">&nbsp;</a></div>
+      <div class="Body"><a name="1033195">331__Directory_UserControl implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1033196">&nbsp;</a></div>
+      <div class="Body"><a name="1033197">+ Instantiates and modifies an OmmIProviderConfig object.</a></div>
+      <div class="Body"><a name="1033198">  - Set the admin control to use user control</a></div>
+      <div class="Body"><a name="1033199">+ Instantiates an OmmProvider object which:</a></div>
+      <div class="Body"><a name="1033200">  - listens on the port from the EmaConfig.xml file</a></div>
+      <div class="Body"><a name="1033201">+ Accepts a login request</a></div>
+      <div class="Body"><a name="1033202">+ Processes a source directory request.</a></div>
+      <div class="Body"><a name="1033203"> - Pulishes a source directory refresh message</a></div>
+      <div class="Body"><a name="1033204">+ Processes an item request for MarketPrice domain.</a></div>
+      <div class="Body"><a name="1033205"> - Creates streaming item (refresh and updates) and publishes them</a></div>
+      <div class="Body"><a name="1033206"> - Publishes updates 1 per second for total 60 updates.</a></div>
+      <div class="Body"><a name="1033207">+ Rejects subsequent item requests.</a></div>
+      <div class="Body"><a name="1033208">+ Exits</a></div>
+      <div class="Body"><a name="1033209">&nbsp;</a></div>
+      <div class="Body"><a name="1033210">Note: If needed, these and other details may be modified to fit your local</a></div>
+      <div class="Body"><a name="1033211">      environment. For details on standard configuration, refer to the EMA library</a></div>
+      <div class="Body"><a name="1033212">      ReadMe.txt file and EMA Configuration Guide.</a></div>
+      <div class="Body"><a name="1032539">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_IP_Readmes.3.01.html">EMA Java Interactive Provider Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAJ_IP_Readmes.3.16.html">300 Series Examples</a> : 331__Directory__UserControl</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

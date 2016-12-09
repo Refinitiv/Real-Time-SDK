@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>3.2 Non-interactive Provider Group</title>
+    <title>3.2 Provider Groups</title>
     <link rel="StyleSheet" href="css/Chap_ConfigGroups.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -54,12 +54,41 @@
               </div>
             </td>
             <td width="100%">
-              <div class="H2_inner"><a name="1080827">Non-interactive Provider Group</a></div>
+              <div class="H2_inner"><a name="1080827">Provider Groups</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1099138">A </a><span class="Parameter">NiProviderGroup</span> contains two elements:</div>
+      <div class="Body"><a name="1108103">The EMA supports both interactive and non-interactive provider groups. The type of provider you configure will determine the group names and parameters that you use. To simplify the content in this guide, parameters and names use the variable </a><span class="VariableValue" style="font-weight: bold">Provider</span>. Throughout this section (and the remainder of the manual), the value for <span class="VariableValue" style="font-weight: bold">Provider</span> is dependent on the type of provider which you configure:</div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1108104">For non-interactive providers, </a><span class="VariableValue" style="font-weight: bold">Provider</span> is <span class="Parameter">NiProvider</span>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1108105">For interactive providers, </a><span class="VariableValue" style="font-weight: bold">Provider</span> is <span class="Parameter">IProvider</span>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1108106">A </a><span class="VariableValue" style="font-weight: bold">Provider</span><span class="Parameter" style="font-style: normal">Group</span> contains two elements:</div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -69,7 +98,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1099139">A </a><span class="Parameter">DefaultNiProvider</span> element, which you can use to specify a default <span class="Parameter">NiProvider</span> component. If a default <span class="Parameter">NiProvider</span> is not specified in the <span class="Parameter">NiProviderGroup</span>, EMA uses the first non-interactive provider listed in the <span class="Parameter">NiProviderList</span>. For details on configuring a default <span class="Parameter">NiProvider</span>, refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.08.html', '');" title="3.2.2 Setting a Default Non-interactive Provider">Section 3.2.2</a>.</div>
+              <div class="Bullet_inner"><a name="1108107">A </a><span class="Parameter">Default</span><span class="VariableValue" style="font-weight: bold">Provider</span> element, which you can use to specify a default <span class="Parameter">NiProvider</span> component. If a default <span class="VariableValue" style="font-weight: bold">Provider</span> is not specified in the <span class="VariableValue" style="font-weight: bold">Provider</span><span class="Parameter" style="font-style: normal">Group</span>, EMA uses the first non-interactive provider listed in the <span class="VariableValue" style="font-weight: bold">Provider</span><span class="Parameter" style="font-style: normal">List</span>. For details on configuring a default <span class="VariableValue" style="font-weight: bold">Provider</span>, refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.08.html', '');" title="3.2.2 Setting a Default Provider">Section 3.2.2</a>.</div>
             </td>
           </tr>
         </table>
@@ -83,14 +112,14 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1099146">A </a><span class="Parameter">NiProviderList</span> element, which contains one or more <span class="Parameter">NiProvider</span> components (each should be uniquely identified by a <span class="Parameter">&lt;Name …/&gt;</span> entry). The non-interactive provider component is the highest-level abstraction within an application and typically refers to <span class="Parameter">Channel</span>, <span class="Parameter">Logger</span>, and/or <span class="Parameter">Directory</span> components which specify non-interactive provider capabilities.</div>
+              <div class="Bullet_inner"><a name="1108114">A </a><span class="VariableValue" style="font-weight: bold">Provider</span><span class="Parameter" style="font-style: normal">List</span> element, which contains one or more <span class="VariableValue" style="font-weight: bold">Provider</span> components (each should be uniquely identified by a <span class="Parameter">&lt;Name …/&gt;</span> entry). The non-interactive provider component is the highest-level abstraction within an application and typically refers to <span class="Parameter">Channel</span> (used by non-interactive providers), <span class="Parameter">Server</span> (used by interactive providers), <span class="Parameter">Logger</span>, and/or <span class="Parameter">Directory</span> components which specify provider capabilities.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1099153">For a generic </a><span class="Parameter">NiProviderGroup</span> XML schema, refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.07.html', '');" title="3.2.1 Generic XML Schema for Non-interactive Provider Group">Section 3.2.1</a>.</div>
-      <div class="Body"><a name="1099160">For details on configuring a </a><span class="Parameter">NiProviderGroup</span>, refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.09.html', '');" title="3.2.3 Configuring a Non-interactive Provider in a NiProviderGroup">Section 3.2.3</a>.</div>
-      <div class="Body"><a name="1099167">For a list of parameters you can use in configuring a </a><span class="Parameter">NiProvider</span>, refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.10.html', '');" title="3.2.4 Non-interactive Provider Entry Parameters">Section 3.2.4</a>.</div>
+      <div class="Body"><a name="1108121">For a generic </a><span class="VariableValue" style="font-weight: bold">Provider</span><span class="Parameter" style="font-style: normal">Group</span> XML schema, refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.07.html', '');" title="3.2.1 Generic XML Schema for Provider Group">Section 3.2.1</a>.</div>
+      <div class="Body"><a name="1108128">For details on configuring a </a><span class="VariableValue" style="font-weight: bold">Provider</span><span class="Parameter" style="font-style: normal">Group</span>, refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.09.html', '');" title="3.2.3 Configuring a Provider in a ProviderGroup">Section 3.2.3</a>.</div>
+      <div class="Body"><a name="1108135">For a list of parameters you can use in configuring a </a><span class="VariableValue" style="font-weight: bold">Provider</span>, refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.10.html', '');" title="3.2.4 Provider Entry Parameters">Section 3.2.4</a>.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -102,7 +131,7 @@
       </script>
     </blockquote>
     <hr align="left" />
-    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	Configuration Groups : 3.2	Non-interactive Provider Group</div>
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	Configuration Groups : 3.2	Provider Groups</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

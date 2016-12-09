@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>250__GroupStatus__Fanout</title>
+    <link rel="StyleSheet" href="css/EMAJ_IP_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3_NoNum"><a name="1031567">250__GroupStatus__Fanout</a></div>
+      <div class="Body"><a name="1032953">Summary</a></div>
+      <div class="Body"><a name="1032954">=======</a></div>
+      <div class="Body"><a name="1032955">&nbsp;</a></div>
+      <div class="Body"><a name="1032956">250__GroupStatus__Fanout is an example of an OMM Interactive Provider application </a></div>
+      <div class="Body"><a name="1032957">written to the EMA library.</a></div>
+      <div class="Body"><a name="1032958">&nbsp;</a></div>
+      <div class="Body"><a name="1032959">This application demonstrates the basic usage of the EMA library in providing</a></div>
+      <div class="Body"><a name="1032960">of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.</a></div>
+      <div class="Body"><a name="1032961">&nbsp;</a></div>
+      <div class="Body"><a name="1032962">250__GroupStatus__Fanout illustrates how to create and publish a single OMM</a></div>
+      <div class="Body"><a name="1032963">streaming item. This application uses hardcoded source directory configuration.</a></div>
+      <div class="Body"><a name="1032964">&nbsp;</a></div>
+      <div class="Body"><a name="1032965">&nbsp;</a></div>
+      <div class="Body"><a name="1032966">Detailed Description</a></div>
+      <div class="Body"><a name="1032967">====================</a></div>
+      <div class="Body"><a name="1032968">&nbsp;</a></div>
+      <div class="Body"><a name="1032969">250__GroupStatus__Fanout implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1032970">&nbsp;</a></div>
+      <div class="Body"><a name="1032971">+ Instantiates and modifies an OmmIProviderConfig object:</a></div>
+      <div class="Body"><a name="1032972">  - Sets the listening  port to “14002”</a></div>
+      <div class="Body"><a name="1032973">+ Instantiates an OmmProvider object which:</a></div>
+      <div class="Body"><a name="1032974">  - listens on the above port</a></div>
+      <div class="Body"><a name="1032975">+ Accepts a login request</a></div>
+      <div class="Body"><a name="1032976">+ Processes an item request (MarketPrice) and creates requested item (streaming refresh)</a></div>
+      <div class="Body"><a name="1032977">  and publishes it on requested service</a></div>
+      <div class="Body"><a name="1032978">+ After submitting refresh and 10 updates,</a></div>
+      <div class="Body"><a name="1032979">  sends a directory update with group status</a></div>
+      <div class="Body"><a name="1032980">- all other domains are status closed</a></div>
+      <div class="Body"><a name="1032981">  </a></div>
+      <div class="Body"><a name="1032982">+ Exits</a></div>
+      <div class="Body"><a name="1032983">&nbsp;</a></div>
+      <div class="Body"><a name="1032984">Note: If needed, these and other details may be modified to fit your local</a></div>
+      <div class="Body"><a name="1032985">      environment. For details on standard configuration, refer to the EMA library</a></div>
+      <div class="Body"><a name="1032986">      ReadMe.txt file and EMA Configuration Guide.</a></div>
+      <div class="Body"><a name="1032171">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_IP_Readmes.3.01.html">EMA Java Interactive Provider Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAJ_IP_Readmes.3.09.html">200 Series Examples</a> : 250__GroupStatus__Fanout</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>3.6.5.4 QoSEntry Section and Associated Parameters</title>
+    <title>3.7.5.1 Capabilities Entry Parameter</title>
     <link rel="StyleSheet" href="css/Chap_ConfigGroups.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -50,87 +50,54 @@
           <tr style="vertical-align: baseline">
             <td>
               <div class="H4_inner" style="width: 54pt; white-space: nowrap">
-                <span class="bold">3.6.5.4	</span>
+                <span class="bold">3.7.5.1	</span>
               </div>
             </td>
             <td width="100%">
-              <div class="H4_inner"><a name="1086903">QoSEntry Section and Associated Parameters</a></div>
+              <div class="H4_inner"><a name="1086673">Capabilities Entry Parameter</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1099944">Use a </a><span class="Parameter">QoSEntry</span> section to configure a specific QoS supported by the <span class="Parameter">Service</span>’s <span class="Parameter">InfoFilter</span>. You can include multiple QoSEntry sections in a parent <span class="Parameter">QoS</span> section. For an example of how to structure QoS entries in the <span class="FileOrDirectory">EmaConfig.xml</span>, refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Appendix_XMLConfigFile.html', '');" title="Appendix A EmaConfig.xml Configuration File">Appendix A</a>.</div>
-      <div class="Blank_Line"><a name="1100020">&nbsp;</a></div>
-      <table class="Two_Column" style="width: 555.74712pt" cellspacing="0" summary="">
+      <div class="Body"><a name="1108910">Use the </a><span class="Parameter">CapabilitiesEntry</span> parameter to configure the message domain type supported by the <span class="Parameter">Service</span> component:</div>
+      <div class="Blank_Line"><a name="1108954">&nbsp;</a></div>
+      <table class="Two_Column" style="width: 555.74784pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 19: <a name="1100013">QoSEntry Section and Associated Parameters &nbsp;</a></div>
+          <div class="TableTitle">Table 17: <a name="1108947">CapabilitiesEntry Parameter &nbsp;</a></div>
         </caption>
         <tr style="vertical-align: top">
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: middle; width: 109.49976pt">
-            <div class="CellHeading"><a name="1099950">PARAMETER</a></div>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: middle; width: 144.75024pt">
+            <div class="CellHeading"><a name="1108913">PARAMETER</a></div>
           </td>
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: middle; width: 67.49856pt">
-            <div class="CellHeading"><a name="1099952">TYPE</a></div>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: middle; width: 66.74904pt">
+            <div class="CellHeading"><a name="1108915">TYPE</a></div>
           </td>
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: middle; width: 100.49904pt">
-            <div class="CellHeading"><a name="1099954">DEFAULT</a></div>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: middle; width: 65.9988pt">
+            <div class="CellHeading"><a name="1108917">DEFAULT</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: middle; width: 278.24976pt">
-            <div class="CellHeading"><a name="1099956">DESCRIPTION</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
-            <div class="CellBody"><a name="1099958">QoSEntry</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
-            <div class="CellBody"><a name="1099960">&nbsp;</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
-            <div class="CellBody"><a name="1099962">N/A</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
-            <div class="CellBody"><span class="Parameter"><a name="1099964">QoSEntry</a></span> is the name of a section that contains parameters specifying the <span class="Parameter">Timeliness</span> and <span class="Parameter">Rate</span> parameters for a given QoS. You can use multiple <span class="Parameter">QoSEntry</span> sections for a <span class="Parameter">Service</span>’s <span class="Parameter">InfoFilter</span>.</div>
+            <div class="CellHeading"><a name="1108919">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top" rowspan="2">
-            <div class="CellBody"><a name="1099966">Timeliness</a></div>
+            <div class="CellBody"><a name="1108921">CapabilitiesEntry</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top" rowspan="2">
-            <div class="CellBody"><a name="1099971">UInt64 or EmaString</a></div>
+            <div class="CellBody"><a name="1108926">UInt64 or EmaString</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top" rowspan="2">
-            <div class="CellBody"><a name="1099976">Timeliness::Realtime</a></div>
+            <div class="CellBody"><a name="1108931">N/A</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
-            <div class="CellBody"><a name="1099978">Specifies the QoS timeliness, which describes the age of the data (e.g., real time).</a></div>
+            <div class="CellBody"><a name="1108933">Specifies the message domain type supported by the </a><span class="Parameter">Service</span> component.</div>
+            <div class="CellBody"><a name="1108934">Accepted names are listed in the</a> <span class="FileOrDirectory">emaRdm.h</span> file.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
             <div class="Note">
-              <span class="Bold">Note: </span><a name="1099986">You can use numbers or names. Accepted names are listed in the</a> <span class="FileOrDirectory">OmmQos.h</span> file.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top" rowspan="2">
-            <div class="CellBody"><a name="1099988">Rate</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top" rowspan="2">
-            <div class="CellBody"><a name="1099993">UInt64 or EmaString</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top" rowspan="2">
-            <div class="CellBody"><a name="1099998">Rate:</a>:tickByTick</div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
-            <div class="CellBody"><a name="1100000">Specifies the QoS rate, which is the rate of change for data sent over the </a><span class="Parameter">Service</span>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
-            <div class="Note">
-              <span class="Bold">Note: </span><a name="1100008">You can use numbers or names. Accepted names are listed in the</a> <span class="FileOrDirectory">OmmQos.h</span> file.</div>
+              <span class="Bold">Note: </span><a name="1108942">You can set </a><span class="CodeOrCommand">CapabilitiesEntry</span> to be an RDM domain number or name (e.g. 6 or MMT_MARKET_PRICE).</div>
           </td>
         </tr>
       </table>
@@ -145,7 +112,7 @@
       </script>
     </blockquote>
     <hr align="left" />
-    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	Configuration Groups : <a class="WebWorks_Breadcrumb_Link" href="Chap_ConfigGroups.3.25.html">3.6	Directory Group</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_ConfigGroups.3.30.html">3.6.5	InfoFilter Entry Parameters</a> : 3.6.5.4	QoSEntry Section and Associated Parameters</div>
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	Configuration Groups : <a class="WebWorks_Breadcrumb_Link" href="Chap_ConfigGroups.3.28.html">3.7	Directory Group</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_ConfigGroups.3.33.html">3.7.5	InfoFilter Entry Parameters</a> : 3.7.5.1	Capabilities Entry Parameter</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

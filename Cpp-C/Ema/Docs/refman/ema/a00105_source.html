@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EMA: OmmArrayEntry.h Source File</title>
+<title>EMA: OmmArray.h Source File</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -102,7 +102,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div class="header">
   <div class="headertitle">
-<div class="title">OmmArrayEntry.h</div>  </div>
+<div class="title">OmmArray.h</div>  </div>
 </div><!--header-->
 <div class="contents">
 <div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 <span class="comment">/*|-----------------------------------------------------------------------------</span>
@@ -113,97 +113,158 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00006"></a>00006 <span class="comment"> *|-----------------------------------------------------------------------------</span>
 <a name="l00007"></a>00007 <span class="comment"> */</span>
 <a name="l00008"></a>00008 
-<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_ema_access_OmmArrayEntry_h</span>
-<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_ema_access_OmmArrayEntry_h</span>
+<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_ema_access_OmmArray_h</span>
+<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_ema_access_OmmArray_h</span>
 <a name="l00011"></a>00011 <span class="preprocessor"></span>
-<a name="l00058"></a>00058 <span class="preprocessor">#include &quot;Access/Include/Data.h&quot;</span>
-<a name="l00059"></a>00059 
-<a name="l00060"></a>00060 <span class="keyword">namespace </span>thomsonreuters {
-<a name="l00061"></a>00061 
-<a name="l00062"></a>00062 <span class="keyword">namespace </span>ema {
-<a name="l00063"></a>00063 
-<a name="l00064"></a>00064 <span class="keyword">namespace </span>access {
-<a name="l00065"></a>00065 
-<a name="l00066"></a>00066 <span class="keyword">class </span>OmmReal;
-<a name="l00067"></a>00067 <span class="keyword">class </span>OmmDate;
-<a name="l00068"></a>00068 <span class="keyword">class </span>OmmTime;
-<a name="l00069"></a>00069 <span class="keyword">class </span>OmmDateTime;
-<a name="l00070"></a>00070 <span class="keyword">class </span>OmmQos;
-<a name="l00071"></a>00071 <span class="keyword">class </span>OmmState;
-<a name="l00072"></a>00072 <span class="keyword">class </span>OmmError;
-<a name="l00073"></a>00073 <span class="keyword">class </span>RmtesBuffer;
-<a name="l00074"></a>00074 
-<a name="l00075"></a>00075 <span class="keyword">class </span>OmmArrayDecoder;
-<a name="l00076"></a>00076 
-<a name="l00077"></a><a class="code" href="a00030.html">00077</a> <span class="keyword">class </span>EMA_ACCESS_API <a class="code" href="a00030.html" title="OmmArrayEntry represents an entry of OmmArray.">OmmArrayEntry</a>
-<a name="l00078"></a>00078 {
-<a name="l00079"></a>00079 <span class="keyword">public</span> :
-<a name="l00080"></a>00080 
-<a name="l00082"></a>00082 
-<a name="l00083"></a>00083 
-<a name="l00087"></a>00087     <a class="code" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0">DataType::DataTypeEnum</a> getLoadType() <span class="keyword">const</span>;
+<a name="l00070"></a>00070 <span class="preprocessor">#include &quot;Access/Include/Data.h&quot;</span>
+<a name="l00071"></a>00071 <span class="preprocessor">#include &quot;Access/Include/OmmReal.h&quot;</span>
+<a name="l00072"></a>00072 <span class="preprocessor">#include &quot;Access/Include/OmmState.h&quot;</span>
+<a name="l00073"></a>00073 <span class="preprocessor">#include &quot;Access/Include/OmmQos.h&quot;</span>
+<a name="l00074"></a>00074 <span class="preprocessor">#include &quot;Access/Include/OmmArrayEntry.h&quot;</span>
+<a name="l00075"></a>00075 
+<a name="l00076"></a>00076 <span class="keyword">namespace </span>thomsonreuters {
+<a name="l00077"></a>00077 
+<a name="l00078"></a>00078 <span class="keyword">namespace </span>ema {
+<a name="l00079"></a>00079 
+<a name="l00080"></a>00080 <span class="keyword">namespace </span>access {
+<a name="l00081"></a>00081 
+<a name="l00082"></a>00082 <span class="keyword">class </span>OmmArrayDecoder;
+<a name="l00083"></a>00083 <span class="keyword">class </span>OmmArrayEncoder;
+<a name="l00084"></a>00084 
+<a name="l00085"></a><a class="code" href="a00029.html">00085</a> <span class="keyword">class </span>EMA_ACCESS_API <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a> : <span class="keyword">public</span> <a class="code" href="a00011.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a>
+<a name="l00086"></a>00086 {
+<a name="l00087"></a>00087 <span class="keyword">public</span> :
 <a name="l00088"></a>00088 
-<a name="l00093"></a>00093     <a class="code" href="a00011.html#abe4fa6d2527b42396246aad6aa66d8b4">Data::DataCode</a> getCode() <span class="keyword">const</span>;
-<a name="l00094"></a>00094         
-<a name="l00098"></a>00098     <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; toString() <span class="keyword">const</span>;
-<a name="l00099"></a>00099 
-<a name="l00103"></a>00103     <span class="keyword">const</span> <a class="code" href="a00011.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a>&amp; getLoad() <span class="keyword">const</span>;
+<a name="l00090"></a>00090 
+<a name="l00091"></a>00091 
+<a name="l00093"></a>00093     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>();
+<a name="l00095"></a>00095 
+<a name="l00097"></a>00097 
+<a name="l00098"></a>00098 
+<a name="l00100"></a>00100     <span class="keyword">virtual</span> ~<a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>();
+<a name="l00102"></a>00102 
 <a name="l00104"></a>00104 
-<a name="l00110"></a>00110     Int64 getInt() <span class="keyword">const</span>;
-<a name="l00111"></a>00111 
-<a name="l00117"></a>00117     UInt64 getUInt() <span class="keyword">const</span>;
-<a name="l00118"></a>00118 
-<a name="l00124"></a>00124     <span class="keyword">const</span> <a class="code" href="a00060.html" title="OmmReal represents Real number in Omm.">OmmReal</a>&amp; getReal() <span class="keyword">const</span>;
-<a name="l00125"></a>00125 
-<a name="l00131"></a>00131     <span class="keywordtype">float</span> getFloat() <span class="keyword">const</span>;
-<a name="l00132"></a>00132 
-<a name="l00138"></a>00138     <span class="keywordtype">double</span> getDouble() <span class="keyword">const</span>;
-<a name="l00139"></a>00139 
-<a name="l00145"></a>00145     <span class="keyword">const</span> <a class="code" href="a00038.html" title="OmmDate represents Date info in Omm.">OmmDate</a>&amp; getDate() <span class="keyword">const</span>;
+<a name="l00105"></a>00105 
+<a name="l00108"></a>00108     <a class="code" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0">DataType::DataTypeEnum</a> getDataType() <span class="keyword">const</span>;
+<a name="l00109"></a>00109 
+<a name="l00113"></a>00113     <a class="code" href="a00011.html#abe4fa6d2527b42396246aad6aa66d8b4">Data::DataCode</a> getCode() <span class="keyword">const</span>;
+<a name="l00114"></a>00114 
+<a name="l00118"></a>00118     <span class="keyword">const</span> <a class="code" href="a00015.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a>&amp; getAsHex() <span class="keyword">const</span>;
+<a name="l00119"></a>00119 
+<a name="l00123"></a>00123     <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; toString() <span class="keyword">const</span>;
+<a name="l00124"></a>00124 
+<a name="l00128"></a>00128     <span class="keywordtype">bool</span> hasFixedWidth() <span class="keyword">const</span>;
+<a name="l00129"></a>00129 
+<a name="l00133"></a>00133     UInt16 getFixedWidth() <span class="keyword">const</span>;
+<a name="l00134"></a>00134 
+<a name="l00139"></a>00139     <span class="keywordtype">bool</span> forth() <span class="keyword">const</span>;
+<a name="l00140"></a>00140 
+<a name="l00145"></a>00145     <span class="keyword">const</span> <a class="code" href="a00030.html" title="OmmArrayEntry represents an entry of OmmArray.">OmmArrayEntry</a>&amp; getEntry() <span class="keyword">const</span>;
 <a name="l00146"></a>00146 
-<a name="l00152"></a>00152     <span class="keyword">const</span> <a class="code" href="a00064.html" title="OmmTime represents Time info in Omm.">OmmTime</a>&amp; getTime() <span class="keyword">const</span>;
+<a name="l00149"></a>00149     <span class="keywordtype">void</span> reset() <span class="keyword">const</span>; 
+<a name="l00151"></a>00151 
 <a name="l00153"></a>00153 
-<a name="l00159"></a>00159     <span class="keyword">const</span> <a class="code" href="a00039.html" title="OmmDateTime represents DateTime info in Omm.">OmmDateTime</a>&amp; getDateTime() <span class="keyword">const</span>;
-<a name="l00160"></a>00160 
-<a name="l00166"></a>00166     <span class="keyword">const</span> <a class="code" href="a00059.html">OmmQos</a>&amp; getQos() <span class="keyword">const</span>;
-<a name="l00167"></a>00167 
-<a name="l00173"></a>00173     <span class="keyword">const</span> <a class="code" href="a00062.html" title="OmmState represents State information in Omm.">OmmState</a>&amp; getState() <span class="keyword">const</span>;
-<a name="l00174"></a>00174 
-<a name="l00180"></a>00180     UInt16 getEnum() <span class="keyword">const</span>;
-<a name="l00181"></a>00181 
-<a name="l00187"></a>00187     <span class="keyword">const</span> <a class="code" href="a00015.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a>&amp; getBuffer() <span class="keyword">const</span>;
+<a name="l00154"></a>00154 
+<a name="l00158"></a>00158     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; clear();
+<a name="l00159"></a>00159 
+<a name="l00165"></a>00165     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; fixedWidth( UInt16 width );
+<a name="l00166"></a>00166 
+<a name="l00172"></a>00172     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addInt( Int64 value );
+<a name="l00173"></a>00173 
+<a name="l00179"></a>00179     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addUInt( UInt64 value );
+<a name="l00180"></a>00180 
+<a name="l00187"></a>00187     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addReal( Int64 mantissa, <a class="code" href="a00061.html#a5cb7e63e3e809fc496624eeee7ab6fdc">OmmReal::MagnitudeType</a> magnitudeType );
 <a name="l00188"></a>00188 
-<a name="l00194"></a>00194     <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; getAscii() <span class="keyword">const</span>;
-<a name="l00195"></a>00195 
-<a name="l00201"></a>00201     <span class="keyword">const</span> <a class="code" href="a00015.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a>&amp; getUtf8() <span class="keyword">const</span>;
-<a name="l00202"></a>00202 
-<a name="l00208"></a>00208     <span class="keyword">const</span> <a class="code" href="a00074.html" title="RmtesBuffer represents RMTES data.">RmtesBuffer</a>&amp; getRmtes() <span class="keyword">const</span>;
-<a name="l00209"></a>00209 
-<a name="l00214"></a>00214     <span class="keyword">const</span> <a class="code" href="a00042.html" title="OmmError represents received Omm data who fails to process properly.">OmmError</a>&amp; getError() <span class="keyword">const</span>;
-<a name="l00216"></a>00216 
-<a name="l00217"></a>00217 <span class="keyword">private</span> :
-<a name="l00218"></a>00218 
-<a name="l00219"></a>00219     <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>;
+<a name="l00195"></a>00195     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addRealFromDouble( <span class="keywordtype">double</span> value, <a class="code" href="a00061.html#a5cb7e63e3e809fc496624eeee7ab6fdc">OmmReal::MagnitudeType</a> magnitudeType = <a class="code" href="a00061.html#a5cb7e63e3e809fc496624eeee7ab6fdcac99a9c508dde01164eaa569fff3a75c1">OmmReal::Exponent0Enum</a> );
+<a name="l00196"></a>00196 
+<a name="l00202"></a>00202     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addFloat( <span class="keywordtype">float</span> value );
+<a name="l00203"></a>00203 
+<a name="l00209"></a>00209     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addDouble( <span class="keywordtype">double</span> value );
+<a name="l00210"></a>00210 
+<a name="l00219"></a>00219     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addDate( UInt16 year, UInt8 month, UInt8 day );
 <a name="l00220"></a>00220 
-<a name="l00221"></a>00221     OmmArrayDecoder*        _pDecoder;
-<a name="l00222"></a>00222     <span class="keyword">const</span> <a class="code" href="a00011.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a>*             _pLoad;
-<a name="l00223"></a>00223 
-<a name="l00224"></a>00224     <span class="keyword">mutable</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>       _toString;
-<a name="l00225"></a>00225 
-<a name="l00226"></a>00226     <a class="code" href="a00030.html" title="OmmArrayEntry represents an entry of OmmArray.">OmmArrayEntry</a>();
-<a name="l00227"></a>00227     <span class="keyword">virtual</span> ~<a class="code" href="a00030.html" title="OmmArrayEntry represents an entry of OmmArray.">OmmArrayEntry</a>();
-<a name="l00228"></a>00228 
-<a name="l00229"></a>00229     <a class="code" href="a00030.html" title="OmmArrayEntry represents an entry of OmmArray.">OmmArrayEntry</a>( <span class="keyword">const</span> <a class="code" href="a00030.html" title="OmmArrayEntry represents an entry of OmmArray.">OmmArrayEntry</a>&amp; );
-<a name="l00230"></a>00230     <a class="code" href="a00030.html" title="OmmArrayEntry represents an entry of OmmArray.">OmmArrayEntry</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00030.html" title="OmmArrayEntry represents an entry of OmmArray.">OmmArrayEntry</a>&amp; );
-<a name="l00231"></a>00231 };
-<a name="l00232"></a>00232 
-<a name="l00233"></a>00233 }
+<a name="l00232"></a>00232     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addTime( UInt8 hour = 0, UInt8 minute = 0, UInt8 second = 0,
+<a name="l00233"></a>00233                     UInt16 millisecond = 0, UInt16 microsecond = 0, UInt16 nanosecond = 0 );
 <a name="l00234"></a>00234 
-<a name="l00235"></a>00235 }
-<a name="l00236"></a>00236 
-<a name="l00237"></a>00237 }
-<a name="l00238"></a>00238 
-<a name="l00239"></a>00239 <span class="preprocessor">#endif //__thomsonreuters_ema_access_OmmArrayEntry_h</span>
+<a name="l00249"></a>00249     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addDateTime( UInt16 year, UInt8 month, UInt8 day,
+<a name="l00250"></a>00250                        UInt8 hour = 0, UInt8 minute = 0, UInt8 second = 0,
+<a name="l00251"></a>00251                        UInt16 millisecond = 0, UInt16 microsecond = 0, UInt16 nanosecond = 0 );
+<a name="l00252"></a>00252 
+<a name="l00259"></a>00259     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addQos( UInt32 timeliness = <a class="code" href="a00060.html#a7d7bfc20e70e935a6b78dff2489d622babba9e3f37170fa00fad925c914e88fc5">OmmQos::RealTimeEnum</a>, UInt32 rate = <a class="code" href="a00060.html#a0a340509ce3302fe7dbf32956cfbde45ad9a6438864234cae282ef523055ba14c">OmmQos::TickByTickEnum</a> );
+<a name="l00260"></a>00260 
+<a name="l00269"></a>00269     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addState( <a class="code" href="a00063.html#aa0f397a957db7a8586be45196be547b3">OmmState::StreamState</a> streamState = <a class="code" href="a00063.html#aa0f397a957db7a8586be45196be547b3ab441e77966326f785f26139b455e3300">OmmState::OpenEnum</a>,
+<a name="l00270"></a>00270                     <a class="code" href="a00063.html#a9f8ea3a1a30c5db53e5af94e4b90cf9f">OmmState::DataState</a> dataState = <a class="code" href="a00063.html#a9f8ea3a1a30c5db53e5af94e4b90cf9fa44f92aca1d4df5ec64044f99ffd14f3e">OmmState::OkEnum</a>,
+<a name="l00271"></a>00271                     UInt8 statusCode = <a class="code" href="a00063.html#a516cce074e98a557efe8dc1db5e7be5da842b302b594ee1b7be086f3522385404">OmmState::NoneEnum</a>,
+<a name="l00272"></a>00272                     <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; statusText = <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>() );
+<a name="l00273"></a>00273 
+<a name="l00279"></a>00279     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addEnum( UInt16 value );
+<a name="l00280"></a>00280 
+<a name="l00286"></a>00286     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addBuffer( <span class="keyword">const</span> <a class="code" href="a00015.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a>&amp; value );
+<a name="l00287"></a>00287 
+<a name="l00293"></a>00293     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addAscii( <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; value );
+<a name="l00294"></a>00294 
+<a name="l00300"></a>00300     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addUtf8( <span class="keyword">const</span> <a class="code" href="a00015.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a>&amp; value );
+<a name="l00301"></a>00301 
+<a name="l00307"></a>00307     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addRmtes( <span class="keyword">const</span> <a class="code" href="a00015.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a>&amp; value );
+<a name="l00308"></a>00308 
+<a name="l00313"></a>00313     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addCodeInt();
+<a name="l00314"></a>00314 
+<a name="l00319"></a>00319     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addCodeUInt();
+<a name="l00320"></a>00320 
+<a name="l00325"></a>00325     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addCodeReal();
+<a name="l00326"></a>00326 
+<a name="l00331"></a>00331     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addCodeFloat();
+<a name="l00332"></a>00332 
+<a name="l00337"></a>00337     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addCodeDouble();
+<a name="l00338"></a>00338 
+<a name="l00343"></a>00343     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addCodeDate();
+<a name="l00344"></a>00344 
+<a name="l00349"></a>00349     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addCodeTime();
+<a name="l00350"></a>00350 
+<a name="l00355"></a>00355     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addCodeDateTime();
+<a name="l00356"></a>00356 
+<a name="l00361"></a>00361     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addCodeQos();
+<a name="l00362"></a>00362 
+<a name="l00367"></a>00367     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addCodeState();
+<a name="l00368"></a>00368 
+<a name="l00373"></a>00373     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addCodeEnum();
+<a name="l00374"></a>00374 
+<a name="l00379"></a>00379     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addCodeBuffer();
+<a name="l00380"></a>00380 
+<a name="l00385"></a>00385     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addCodeAscii();
+<a name="l00386"></a>00386 
+<a name="l00391"></a>00391     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addCodeUtf8();
+<a name="l00392"></a>00392 
+<a name="l00397"></a>00397     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; addCodeRmtes();
+<a name="l00398"></a>00398 
+<a name="l00402"></a>00402     <span class="keyword">const</span> <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; complete();
+<a name="l00404"></a>00404 
+<a name="l00405"></a>00405 <span class="keyword">private</span> :
+<a name="l00406"></a>00406 
+<a name="l00407"></a>00407     Decoder&amp; getDecoder();
+<a name="l00408"></a>00408     <span class="keywordtype">bool</span> hasDecoder() <span class="keyword">const</span>;
+<a name="l00409"></a>00409 
+<a name="l00410"></a>00410     <span class="keyword">const</span> Encoder&amp; getEncoder() <span class="keyword">const</span>;
+<a name="l00411"></a>00411     <span class="keywordtype">bool</span> hasEncoder() <span class="keyword">const</span>;
+<a name="l00412"></a>00412 
+<a name="l00413"></a>00413     <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; toString( UInt64 indent ) <span class="keyword">const</span>;
+<a name="l00414"></a>00414 
+<a name="l00415"></a>00415     <span class="keyword">mutable</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>           _toString;
+<a name="l00416"></a>00416     <a class="code" href="a00030.html" title="OmmArrayEntry represents an entry of OmmArray.">OmmArrayEntry</a>               _entry;
+<a name="l00417"></a>00417     OmmArrayDecoder*            _pDecoder;
+<a name="l00418"></a>00418     <span class="keyword">mutable</span> OmmArrayEncoder*    _pEncoder;
+<a name="l00419"></a>00419 
+<a name="l00420"></a>00420     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>( <span class="keyword">const</span> <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; );
+<a name="l00421"></a>00421     <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00029.html" title="OmmArray is a homogeneous container of primitive data type entries.">OmmArray</a>&amp; );
+<a name="l00422"></a>00422 };
+<a name="l00423"></a>00423 
+<a name="l00424"></a>00424 }
+<a name="l00425"></a>00425 
+<a name="l00426"></a>00426 }
+<a name="l00427"></a>00427 
+<a name="l00428"></a>00428 }
+<a name="l00429"></a>00429 
+<a name="l00430"></a>00430 <span class="preprocessor">#endif // __thomsonreuters_ema_access_OmmArray_h</span>
 </pre></div></div><!-- contents -->
 
 <hr class="footer"/><address class="footer"><small>
@@ -221,7 +282,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Fri Aug 19 2016</td>
+			<td><p class="smallfont">Fri Dec 9 2016</td>
           </tr>
         </table>
         </td>

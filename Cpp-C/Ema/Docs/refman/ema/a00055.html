@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EMA: thomsonreuters::ema::access::OmmProviderClient Class Reference</title>
+<title>EMA: thomsonreuters::ema::access::OmmProvider Class Reference</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -104,104 +104,510 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
   <div id="nav-path" class="navpath">
     <ul>
-      <li class="navelem"><a class="el" href="a00162.html">thomsonreuters</a>      </li>
+      <li class="navelem"><a class="el" href="a00164.html">thomsonreuters</a>      </li>
       <li class="navelem"><b>ema</b>      </li>
       <li class="navelem"><b>access</b>      </li>
-      <li class="navelem"><a class="el" href="a00055.html">OmmProviderClient</a>      </li>
+      <li class="navelem"><a class="el" href="a00055.html">OmmProvider</a>      </li>
     </ul>
   </div>
 </div>
 <div class="header">
+  <div class="summary">
+<a href="#pub-types">Public Types</a>  </div>
   <div class="headertitle">
-<div class="title">thomsonreuters::ema::access::OmmProviderClient Class Reference</div>  </div>
+<div class="title">thomsonreuters::ema::access::OmmProvider Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="a00055.html" title="OmmProviderClient class provides callback interfaces to pass received messages.">OmmProviderClient</a> class provides callback interfaces to pass received messages.  
+<p><a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a> class encapsulates functionality of an Interactive and NonInteractive <a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a> application.  
  <a href="a00055.html#details">More...</a></p>
 
-<p><a href="a00219.html">List of all members.</a></p>
+<p><a href="a00221.html">List of all members.</a></p>
 <table class="memberdecls">
+<tr><td colspan="2"><h2><a name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a3b863d5e0577257135e274ec0f725daa"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00055.html#a3b863d5e0577257135e274ec0f725daa">DispatchReturn</a> { <br/>
+&#160;&#160;<a class="el" href="a00055.html#a3b863d5e0577257135e274ec0f725daaa4b448f8f1ef791f7669353de690edcf0">TimeoutEnum</a> =  -1, 
+<br/>
+&#160;&#160;<a class="el" href="a00055.html#a3b863d5e0577257135e274ec0f725daaab3b732a303a93a0d7dd44abce3862500">DispatchedEnum</a> =  0
+<br/>
+ }</td></tr>
+<tr class="memitem:a335144c2c5f0802ca83b265b348804b8"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00055.html#a335144c2c5f0802ca83b265b348804b8">DispatchTimeout</a> { <br/>
+&#160;&#160;<a class="el" href="a00055.html#a335144c2c5f0802ca83b265b348804b8afad3a0acd330bcc95b51e4aa19257f8f">InfiniteWaitEnum</a> =  -1, 
+<br/>
+&#160;&#160;<a class="el" href="a00055.html#a335144c2c5f0802ca83b265b348804b8a4b932bdbe47618c0a31af7091868215e">NoWaitEnum</a> =  0
+<br/>
+ }</td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr><td colspan="2"><div class="groupHeader">Callbacks</div></td></tr>
-<tr class="memitem:a3f71b1c2de235af527ab0710aedf400d"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00055.html#a3f71b1c2de235af527ab0710aedf400d">onRefreshMsg</a> (const <a class="el" href="a00072.html">RefreshMsg</a> &amp;refreshMsg, const <a class="el" href="a00058.html">OmmProviderEvent</a> &amp;event)</td></tr>
-<tr class="memitem:a1e3512e7c048733ad255db29fd26d5f3"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00055.html#a1e3512e7c048733ad255db29fd26d5f3">onStatusMsg</a> (const <a class="el" href="a00077.html">StatusMsg</a> &amp;statusMsg, const <a class="el" href="a00058.html">OmmProviderEvent</a> &amp;event)</td></tr>
-<tr class="memitem:a75970865791043c2d0825d9e962ee6fe"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00055.html#a75970865791043c2d0825d9e962ee6fe">onGenericMsg</a> (const <a class="el" href="a00023.html">GenericMsg</a> &amp;genericMsg, const <a class="el" href="a00058.html">OmmProviderEvent</a> &amp;event)</td></tr>
-<tr class="memitem:a1920466c1b3f7927efe1d056cb41cb69"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00055.html#a1920466c1b3f7927efe1d056cb41cb69">onAllMsg</a> (const <a class="el" href="a00027.html">Msg</a> &amp;msg, const <a class="el" href="a00058.html">OmmProviderEvent</a> &amp;event)</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Constructor</div></td></tr>
+<tr class="memitem:ad08895a0de720e2969239a8b87e7a140"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00055.html#ad08895a0de720e2969239a8b87e7a140">OmmProvider</a> (const <a class="el" href="a00057.html">OmmProviderConfig</a> &amp;config)</td></tr>
+<tr class="memitem:a912c8c8f3f21b4184dda845fb354c807"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00055.html#a912c8c8f3f21b4184dda845fb354c807">OmmProvider</a> (const <a class="el" href="a00057.html">OmmProviderConfig</a> &amp;config, <a class="el" href="a00056.html">OmmProviderClient</a> &amp;client, void *closure=0)</td></tr>
+<tr class="memitem:a0c7593d0c9c58c50fa2111e826c9bf7e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00055.html#a0c7593d0c9c58c50fa2111e826c9bf7e">OmmProvider</a> (const <a class="el" href="a00057.html">OmmProviderConfig</a> &amp;config, <a class="el" href="a00058.html">OmmProviderErrorClient</a> &amp;errorclient)</td></tr>
+<tr class="memitem:abef5a3a7cd00c815b8cd050f73f62c6f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00055.html#abef5a3a7cd00c815b8cd050f73f62c6f">OmmProvider</a> (const <a class="el" href="a00057.html">OmmProviderConfig</a> &amp;config, <a class="el" href="a00056.html">OmmProviderClient</a> &amp;client, <a class="el" href="a00058.html">OmmProviderErrorClient</a> &amp;errorclient, void *closure=0)</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
+<tr class="memitem:adf4ea39a94143bd804ed6dca133b6188"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00055.html#adf4ea39a94143bd804ed6dca133b6188">~OmmProvider</a> ()</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Accessors</div></td></tr>
+<tr class="memitem:ae1c86c050d9515c4b9622d9f10c1892f"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00055.html#ae1c86c050d9515c4b9622d9f10c1892f">getProviderName</a> () const </td></tr>
+<tr class="memitem:a3b5becde083b92a434348bc5199abe2d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00057.html#a03254857ec373e67536be72f7198c777">OmmProviderConfig::ProviderRole</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00055.html#a3b5becde083b92a434348bc5199abe2d">getProviderRole</a> () const </td></tr>
+<tr><td colspan="2"><div class="groupHeader">Operations</div></td></tr>
+<tr class="memitem:a38e62c925e2bda676ac92b406f36b24a"><td class="memItemLeft" align="right" valign="top">UInt64&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00055.html#a38e62c925e2bda676ac92b406f36b24a">registerClient</a> (const <a class="el" href="a00074.html">ReqMsg</a> &amp;reqMsg, <a class="el" href="a00056.html">OmmProviderClient</a> &amp;client, void *closure=0)</td></tr>
+<tr class="memitem:a8288ae1632279d566bcfa7c4572dce50"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00055.html#a8288ae1632279d566bcfa7c4572dce50">submit</a> (const <a class="el" href="a00023.html">GenericMsg</a> &amp;genericMsg, UInt64 handle)</td></tr>
+<tr class="memitem:a4d7bc2648e602228fd35588dc7dbb66f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00055.html#a4d7bc2648e602228fd35588dc7dbb66f">submit</a> (const <a class="el" href="a00073.html">RefreshMsg</a> &amp;refreshMsg, UInt64 handle)</td></tr>
+<tr class="memitem:a8b246db9a2da442a188de6e5652c9844"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00055.html#a8b246db9a2da442a188de6e5652c9844">submit</a> (const <a class="el" href="a00081.html">UpdateMsg</a> &amp;updateMsg, UInt64 handle)</td></tr>
+<tr class="memitem:a82d48223a2e5b1319a193ed639ee9e0d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00055.html#a82d48223a2e5b1319a193ed639ee9e0d">submit</a> (const <a class="el" href="a00078.html">StatusMsg</a> &amp;statusMsg, UInt64 handle)</td></tr>
+<tr class="memitem:aacc00f0651fc18fe95e5c90bfbe1e31d"><td class="memItemLeft" align="right" valign="top">Int64&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00055.html#aacc00f0651fc18fe95e5c90bfbe1e31d">dispatch</a> (Int64 timeOut=<a class="el" href="a00055.html#a335144c2c5f0802ca83b265b348804b8a4b932bdbe47618c0a31af7091868215e">NoWaitEnum</a>)</td></tr>
+<tr class="memitem:acb2c33b461ff9001bf1929698dfb3fc1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00055.html#acb2c33b461ff9001bf1929698dfb3fc1">unregister</a> (UInt64 handle)</td></tr>
+<tr class="memitem:af27c2216c9fbaf9ed1f44236e48001b0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00055.html#af27c2216c9fbaf9ed1f44236e48001b0">submit</a> (const <a class="el" href="a00002.html">AckMsg</a> &amp;ackMsg, UInt64 handle)</td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p>Application needs to implement an application client class inheriting from <a class="el" href="a00055.html" title="OmmProviderClient class provides callback interfaces to pass received messages.">OmmProviderClient</a>. In its own class, application needs to override callback methods it desires to use for item processing. Default empty callback methods are implemented by <a class="el" href="a00055.html" title="OmmProviderClient class provides callback interfaces to pass received messages.">OmmProviderClient</a> class.</p>
-<p>Application may chose to implement specific callbacks (e.g., <a class="el" href="a00055.html#a3f71b1c2de235af527ab0710aedf400d">onRefreshMsg()</a>) or a general callback (e.g., <a class="el" href="a00055.html#a1920466c1b3f7927efe1d056cb41cb69">onAllMsg()</a>).</p>
-<dl class="section remark"><dt>Remarks:</dt><dd>Thread safety of all the methods in this class depends on the user's implementation.</dd></dl>
-<p>The following code snippet shows basic usage of <a class="el" href="a00055.html" title="OmmProviderClient class provides callback interfaces to pass received messages.">OmmProviderClient</a> class to print recevied messages to screen.</p>
-<div class="fragment"><pre class="fragment">    <span class="keyword">class </span>AppClient : <span class="keyword">public</span> OmmProviderClient
+<div class="textblock"><p><a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a> class provides interfaces for interactive and non interactive <a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a> application use cases. The specific use case is determined through the usage of the respective <a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a> class constructor.</p>
+<p>The non interactive use case allows applications to publish items without any item request. In this case <a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a> establishes and maintains the configured connection to ADH. Right after the connection is established, the application may start publishing item specific data while the app assigns unique handles or identifiers to each item.</p>
+<p>The interactive use case works based on the item requests received from client applications. In this case <a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a> establishes a server port to which clients connect. After clients login request is accepted, the provider application may receive item requests from the connected client application. The requested items are identified by the EMA with a unique handle or identifier. Provider application uses this handle to respond to the item requests.</p>
+<p><a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a> provides a default behaviour / functionality. This may be tuned / modified by application when using <a class="el" href="a00052.html" title="OmmNiProviderConfig is used to specify configuration and behaviour of NonInteractive OmmProvider...">OmmNiProviderConfig</a> or <a class="el" href="a00050.html" title="OmmIProviderConfig is used to specify configuration and behaviour of Interactive OmmProvider.">OmmIProviderConfig</a>.</p>
+<p>Application interacts with ADH or clients through the <a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a> interface methods. The results of these interactions are communicated back to application through <a class="el" href="a00056.html" title="OmmProviderClient class provides callback interfaces to pass received messages.">OmmProviderClient</a> and <a class="el" href="a00058.html" title="OmmProviderErrorClient class provides callback mechanism used in place of exceptions.">OmmProviderErrorClient</a>.</p>
+<p>The following code snippet shows basic usage of <a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a> class in a simple non-interactive provider application.</p>
+<div class="fragment"><pre class="fragment">    <span class="comment">// create an implementation for OmmProviderClient to process received Login and Dictionary messages</span>
+    <span class="keyword">class </span>AppClient : <span class="keyword">public</span> OmmProviderClient
     {
-        <span class="keywordtype">void</span> <a class="code" href="a00055.html#a3f71b1c2de235af527ab0710aedf400d">onRefreshMsg</a>( <span class="keyword">const</span> RefreshMsg&amp; , <span class="keyword">const</span> OmmProviderEvent&amp; );
-        <span class="keywordtype">void</span> <a class="code" href="a00055.html#a1e3512e7c048733ad255db29fd26d5f3">onStatusMsg</a>( <span class="keyword">const</span> StatusMsg&amp; , <span class="keyword">const</span> OmmProviderEvent&amp; );
+        <span class="keywordtype">void</span> onRefreshMsg( <span class="keyword">const</span> RefreshMsg&amp; , <span class="keyword">const</span> OmmProviderEvent&amp; );
+        <span class="keywordtype">void</span> onStatusMsg( <span class="keyword">const</span> StatusMsg&amp; , <span class="keyword">const</span> OmmProviderEvent&amp; );
     };
 
-    <span class="keywordtype">void</span> <a class="code" href="a00055.html#a3f71b1c2de235af527ab0710aedf400d">AppClient::onRefreshMsg</a>( <span class="keyword">const</span> RefreshMsg&amp; refreshMsg, <span class="keyword">const</span> OmmProviderEvent&amp; event ) 
+    AppClient appClient;
+
+    <span class="comment">// instantiate OmmProvider object and connect it to a host</span>
+    <a class="code" href="a00055.html#ad08895a0de720e2969239a8b87e7a140">OmmProvider</a> provider( OmmNiProviderConfig().host( <span class="stringliteral">&quot;...&quot;</span> ).user( <span class="stringliteral">&quot;...&quot;</span> ) );
+
+    UInt64 itemHandle = 5;
+
+    provider.submit( RefreshMsg().serviceName( <span class="stringliteral">&quot;NI_PUB&quot;</span> ).name( <span class="stringliteral">&quot;IBM.N&quot;</span> )
+        .state( <a class="code" href="a00063.html#aa0f397a957db7a8586be45196be547b3ab441e77966326f785f26139b455e3300">OmmState::OpenEnum</a>, <a class="code" href="a00063.html#a9f8ea3a1a30c5db53e5af94e4b90cf9fa44f92aca1d4df5ec64044f99ffd14f3e">OmmState::OkEnum</a>, <a class="code" href="a00063.html#a516cce074e98a557efe8dc1db5e7be5da842b302b594ee1b7be086f3522385404">OmmState::NoneEnum</a>, <span class="stringliteral">&quot;UnSolicited Refresh Completed&quot;</span> )
+        .payload( FieldList()
+            .addReal( 22, 3990, <a class="code" href="a00061.html#a5cb7e63e3e809fc496624eeee7ab6fdca69a0ba642eeb1a19580ed0103e648ae9">OmmReal::ExponentNeg2Enum</a> )
+            .addReal( 25, 3994, <a class="code" href="a00061.html#a5cb7e63e3e809fc496624eeee7ab6fdca69a0ba642eeb1a19580ed0103e648ae9">OmmReal::ExponentNeg2Enum</a> )
+            .addReal( 30, 9, <a class="code" href="a00061.html#a5cb7e63e3e809fc496624eeee7ab6fdcac99a9c508dde01164eaa569fff3a75c1">OmmReal::Exponent0Enum</a> )
+            .addReal( 31, 19, <a class="code" href="a00061.html#a5cb7e63e3e809fc496624eeee7ab6fdcac99a9c508dde01164eaa569fff3a75c1">OmmReal::Exponent0Enum</a> )
+            .complete() )
+        .complete(), itemHandle );  
+</pre></div><p>The following code snippet shows basic usage of <a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a> class in a simple interactive provider application.</p>
+<div class="fragment"><pre class="fragment">    <span class="comment">// create an implementation for OmmProviderClient to process request messages for login and market price domains</span>
+    <span class="keywordtype">void</span> AppClient::onReqMsg( <span class="keyword">const</span> ReqMsg&amp; reqMsg, <span class="keyword">const</span> OmmProviderEvent&amp; event )
     {
-        cout &lt;&lt; <span class="stringliteral">&quot;Handle &quot;</span> &lt;&lt; <span class="keyword">event</span>.getHandle() &lt;&lt; endl
-            &lt;&lt; <span class="stringliteral">&quot;Closure &quot;</span> &lt;&lt; <span class="keyword">event</span>.getClosure() &lt;&lt; endl
-            &lt;&lt; refreshMsg &lt;&lt; endl;
+        <span class="keywordflow">switch</span> ( reqMsg.getDomainType() )
+        {
+        <span class="keywordflow">case</span> MMT_LOGIN:
+            processLoginRequest( reqMsg, event );
+        <span class="keywordflow">break</span>;
+        <span class="keywordflow">case</span> MMT_MARKET_PRICE:
+            processMarketPriceRequest( reqMsg, event );
+        <span class="keywordflow">break</span>;
+        }
     }
 
-    <span class="keywordtype">void</span> <a class="code" href="a00055.html#a1e3512e7c048733ad255db29fd26d5f3">AppClient::onStatusMsg</a>( <span class="keyword">const</span> StatusMsg&amp; statusMsg, <span class="keyword">const</span> OmmProviderEvent&amp; event ) 
+    <span class="keywordtype">void</span> AppClient::processLoginRequest( <span class="keyword">const</span> ReqMsg&amp; reqMsg, <span class="keyword">const</span> OmmProviderEvent&amp; event )
     {
-        cout &lt;&lt; <span class="stringliteral">&quot;Handle &quot;</span> &lt;&lt; <span class="keyword">event</span>.getHandle() &lt;&lt; endl
-            &lt;&lt; <span class="stringliteral">&quot;Closure &quot;</span> &lt;&lt; <span class="keyword">event</span>.getClosure() &lt;&lt; endl
-            &lt;&lt; statusMsg &lt;&lt; endl;
+            <span class="keyword">event</span>.getProvider().submit(RefreshMsg().domainType(MMT_LOGIN).name(reqMsg.getName()).nameType(USER_NAME).complete().
+                attrib( ElementList().complete() ).solicited( <span class="keyword">true</span> ).
+                state( <a class="code" href="a00063.html#aa0f397a957db7a8586be45196be547b3ab441e77966326f785f26139b455e3300">OmmState::OpenEnum</a>, <a class="code" href="a00063.html#a9f8ea3a1a30c5db53e5af94e4b90cf9fa44f92aca1d4df5ec64044f99ffd14f3e">OmmState::OkEnum</a>, <a class="code" href="a00063.html#a516cce074e98a557efe8dc1db5e7be5da842b302b594ee1b7be086f3522385404">OmmState::NoneEnum</a>, <span class="stringliteral">&quot;Login accepted&quot;</span> ) ,
+                <span class="keyword">event</span>.getHandle() );
     }
-</pre></div><dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00054.html" title="OmmProvider class encapsulates functionality of a NonInteractive OmmProvider application.">OmmProvider</a>, <a class="el" href="a00027.html" title="Msg class is a parent class for all message representing classes.">Msg</a>, <a class="el" href="a00002.html" title="AckMsg indicates success or failure of PostMsg.">AckMsg</a>, <a class="el" href="a00023.html" title="GenericMsg allows applications to bidirectionally send messages without any implied message semantics...">GenericMsg</a>, <a class="el" href="a00072.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a>, <a class="el" href="a00077.html" title="StatusMsg conveys item state information.">StatusMsg</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="a00130_source.html#l00073">73</a> of file <a class="el" href="a00130_source.html">OmmProviderClient.h</a>.</p>
-</div><hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="a1920466c1b3f7927efe1d056cb41cb69"></a>
+    <span class="keywordtype">void</span> AppClient::processMarketPriceRequest( <span class="keyword">const</span> ReqMsg&amp; reqMsg, <span class="keyword">const</span> OmmProviderEvent&amp; event )
+    {
+            <span class="keyword">event</span>.getProvider().submit( RefreshMsg().name( reqMsg.getName() ).serviceName( reqMsg.getServiceName() ).
+                solicited( <span class="keyword">true</span> ).state( <a class="code" href="a00063.html#aa0f397a957db7a8586be45196be547b3ab441e77966326f785f26139b455e3300">OmmState::OpenEnum</a>, <a class="code" href="a00063.html#a9f8ea3a1a30c5db53e5af94e4b90cf9fa44f92aca1d4df5ec64044f99ffd14f3e">OmmState::OkEnum</a>, <a class="code" href="a00063.html#a516cce074e98a557efe8dc1db5e7be5da842b302b594ee1b7be086f3522385404">OmmState::NoneEnum</a>, <span class="stringliteral">&quot;Refresh Completed&quot;</span> ).
+                    payload( FieldList().
+                    addReal( 22, 3990, <a class="code" href="a00061.html#a5cb7e63e3e809fc496624eeee7ab6fdca69a0ba642eeb1a19580ed0103e648ae9">OmmReal::ExponentNeg2Enum</a> ).
+                    addReal( 25, 3994, <a class="code" href="a00061.html#a5cb7e63e3e809fc496624eeee7ab6fdca69a0ba642eeb1a19580ed0103e648ae9">OmmReal::ExponentNeg2Enum</a> ).
+                    addReal( 30, 9, <a class="code" href="a00061.html#a5cb7e63e3e809fc496624eeee7ab6fdcac99a9c508dde01164eaa569fff3a75c1">OmmReal::Exponent0Enum</a> ).
+                    addReal( 31, 19, <a class="code" href="a00061.html#a5cb7e63e3e809fc496624eeee7ab6fdcac99a9c508dde01164eaa569fff3a75c1">OmmReal::Exponent0Enum</a> ).
+                    complete() ).
+                complete(), <span class="keyword">event</span>.getHandle() );
+
+            itemHandle = <span class="keyword">event</span>.getHandle();
+    }
+
+    AppClient appClient;
+
+    <span class="comment">// instantiate OmmProvider object and bind a server port on 14002</span>
+    <a class="code" href="a00055.html#ad08895a0de720e2969239a8b87e7a140">OmmProvider</a> provider( OmmIProviderConfig().port( <span class="stringliteral">&quot;14002&quot;</span> ), appClient );
+
+    <span class="keywordflow">while</span> ( itemHandle == 0 ) sleep(1000);
+
+    <span class="keywordflow">for</span> ( Int32 i = 0; i &lt; 60; i++ )
+    {
+        provider.submit( UpdateMsg().payload( FieldList().
+            addReal( 22, 3391 + i, <a class="code" href="a00061.html#a5cb7e63e3e809fc496624eeee7ab6fdca69a0ba642eeb1a19580ed0103e648ae9">OmmReal::ExponentNeg2Enum</a> ).
+            addReal( 30, 10 + i, <a class="code" href="a00061.html#a5cb7e63e3e809fc496624eeee7ab6fdcac99a9c508dde01164eaa569fff3a75c1">OmmReal::Exponent0Enum</a> ).
+            complete() ), itemHandle );
+
+        sleep( 1000 );
+    }
+</pre></div><dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00057.html" title="OmmProviderConfig is a base class for the OmmNiProviderConfig.">OmmProviderConfig</a>, <a class="el" href="a00050.html" title="OmmIProviderConfig is used to specify configuration and behaviour of Interactive OmmProvider.">OmmIProviderConfig</a>, <a class="el" href="a00052.html" title="OmmNiProviderConfig is used to specify configuration and behaviour of NonInteractive OmmProvider...">OmmNiProviderConfig</a>, <a class="el" href="a00056.html" title="OmmProviderClient class provides callback interfaces to pass received messages.">OmmProviderClient</a>, <a class="el" href="a00058.html" title="OmmProviderErrorClient class provides callback mechanism used in place of exceptions.">OmmProviderErrorClient</a>, <a class="el" href="a00043.html" title="OmmException is a parent class for all exception types thrown by EMA.">OmmException</a> </dd></dl>
+
+<p>Definition at line <a class="el" href="a00131_source.html#l00157">157</a> of file <a class="el" href="a00131_source.html">OmmProvider.h</a>.</p>
+</div><hr/><h2>Member Enumeration Documentation</h2>
+<a class="anchor" id="a3b863d5e0577257135e274ec0f725daa"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void <a class="el" href="a00055.html#a1920466c1b3f7927efe1d056cb41cb69">thomsonreuters::ema::access::OmmProviderClient::onAllMsg</a> </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="a00027.html">Msg</a> &amp;&#160;</td>
-          <td class="paramname"><em>msg</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="a00058.html">OmmProviderEvent</a> &amp;&#160;</td>
-          <td class="paramname"><em>event</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td><code> [inline, virtual]</code></td>
+          <td class="memname">enum <a class="el" href="a00055.html#a3b863d5e0577257135e274ec0f725daa">thomsonreuters::ema::access::OmmProvider::DispatchReturn</a></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Invoked upon receiving any message. Application need only implement this method if a desire to process all message types. </p>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[out]</td><td class="paramname">msg</td><td>received message </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">event</td><td>identifies open item for which this message is received </td></tr>
-  </table>
-  </dd>
+<dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em><a class="anchor" id="a3b863d5e0577257135e274ec0f725daaa4b448f8f1ef791f7669353de690edcf0"></a>TimeoutEnum</em>&nbsp;</td><td>
+<p>no message was dispatch on this dispatch call </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a3b863d5e0577257135e274ec0f725daaab3b732a303a93a0d7dd44abce3862500"></a>DispatchedEnum</em>&nbsp;</td><td>
+<p>a message was dispatched on this dispatch call </p>
+</td></tr>
+</table>
+</dd>
 </dl>
-<dl class="section return"><dt>Returns:</dt><dd>void </dd></dl>
 
-<p>Definition at line <a class="el" href="a00130_source.html#l00108">108</a> of file <a class="el" href="a00130_source.html">OmmProviderClient.h</a>.</p>
+<p>Definition at line <a class="el" href="a00131_source.html#l00171">171</a> of file <a class="el" href="a00131_source.html">OmmProvider.h</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a75970865791043c2d0825d9e962ee6fe"></a>
+<a class="anchor" id="a335144c2c5f0802ca83b265b348804b8"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void <a class="el" href="a00055.html#a75970865791043c2d0825d9e962ee6fe">thomsonreuters::ema::access::OmmProviderClient::onGenericMsg</a> </td>
+          <td class="memname">enum <a class="el" href="a00055.html#a335144c2c5f0802ca83b265b348804b8">thomsonreuters::ema::access::OmmProvider::DispatchTimeout</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em><a class="anchor" id="a335144c2c5f0802ca83b265b348804b8afad3a0acd330bcc95b51e4aa19257f8f"></a>InfiniteWaitEnum</em>&nbsp;</td><td>
+<p>dispatch blocks till a message arrives </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a335144c2c5f0802ca83b265b348804b8a4b932bdbe47618c0a31af7091868215e"></a>NoWaitEnum</em>&nbsp;</td><td>
+<p>dispatch exits immediately even if there is no message </p>
+</td></tr>
+</table>
+</dd>
+</dl>
+
+<p>Definition at line <a class="el" href="a00131_source.html#l00163">163</a> of file <a class="el" href="a00131_source.html">OmmProvider.h</a>.</p>
+
+</div>
+</div>
+<hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="ad08895a0de720e2969239a8b87e7a140"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00055.html#ad08895a0de720e2969239a8b87e7a140">thomsonreuters::ema::access::OmmProvider::OmmProvider</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00057.html">OmmProviderConfig</a> &amp;&#160;</td>
+          <td class="paramname"><em>config</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create an <a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a> with <a class="el" href="a00052.html" title="OmmNiProviderConfig is used to specify configuration and behaviour of NonInteractive OmmProvider...">OmmNiProviderConfig</a>. The <a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a> enables functionality that includes non interactive distribution of item refresh, update, status and generic messages. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">config</td><td>specifies instance of <a class="el" href="a00052.html" title="OmmNiProviderConfig is used to specify configuration and behaviour of NonInteractive OmmProvider...">OmmNiProviderConfig</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section remark"><dt>Remarks:</dt><dd>Enables exception throwing as means of error reporting. </dd>
+<dd>
+This affects exceptions thrown from <a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a> methods </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a912c8c8f3f21b4184dda845fb354c807"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00055.html#ad08895a0de720e2969239a8b87e7a140">thomsonreuters::ema::access::OmmProvider::OmmProvider</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00057.html">OmmProviderConfig</a> &amp;&#160;</td>
+          <td class="paramname"><em>config</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="a00056.html">OmmProviderClient</a> &amp;&#160;</td>
+          <td class="paramname"><em>client</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>closure</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create an <a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a> with <a class="el" href="a00050.html" title="OmmIProviderConfig is used to specify configuration and behaviour of Interactive OmmProvider.">OmmIProviderConfig</a>. The <a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a> enables functionality that includes interactive distribution of item refresh, update, status, generic and ack messages. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">config</td><td>specifies instance of <a class="el" href="a00050.html" title="OmmIProviderConfig is used to specify configuration and behaviour of Interactive OmmProvider.">OmmIProviderConfig</a> </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">client</td><td>specifies instance of <a class="el" href="a00056.html" title="OmmProviderClient class provides callback interfaces to pass received messages.">OmmProviderClient</a> </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">closure</td><td>specifies application defined identification </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section remark"><dt>Remarks:</dt><dd>Enables exception throwing as means of error reporting. </dd>
+<dd>
+This affects exceptions thrown from <a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a> methods </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a0c7593d0c9c58c50fa2111e826c9bf7e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00055.html#ad08895a0de720e2969239a8b87e7a140">thomsonreuters::ema::access::OmmProvider::OmmProvider</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00057.html">OmmProviderConfig</a> &amp;&#160;</td>
+          <td class="paramname"><em>config</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="a00058.html">OmmProviderErrorClient</a> &amp;&#160;</td>
+          <td class="paramname"><em>errorclient</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create an <a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a> with <a class="el" href="a00052.html" title="OmmNiProviderConfig is used to specify configuration and behaviour of NonInteractive OmmProvider...">OmmNiProviderConfig</a> with an <a class="el" href="a00058.html" title="OmmProviderErrorClient class provides callback mechanism used in place of exceptions.">OmmProviderErrorClient</a> that provides select global errors via callbacks instead of via exceptions.The <a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a> enables functionality that includes non interactive distribution of item refresh, update, status and generic messages. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">config</td><td>specifies instance of <a class="el" href="a00052.html" title="OmmNiProviderConfig is used to specify configuration and behaviour of NonInteractive OmmProvider...">OmmNiProviderConfig</a> </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">errorClient</td><td>specifies instance of <a class="el" href="a00058.html" title="OmmProviderErrorClient class provides callback mechanism used in place of exceptions.">OmmProviderErrorClient</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section remark"><dt>Remarks:</dt><dd>Enables <a class="el" href="a00058.html" title="OmmProviderErrorClient class provides callback mechanism used in place of exceptions.">OmmProviderErrorClient</a>'s callbacks as means of error reporting. </dd>
+<dd>
+This affects <a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a> methods that would throw exceptions otherwise. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="abef5a3a7cd00c815b8cd050f73f62c6f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00055.html#ad08895a0de720e2969239a8b87e7a140">thomsonreuters::ema::access::OmmProvider::OmmProvider</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00057.html">OmmProviderConfig</a> &amp;&#160;</td>
+          <td class="paramname"><em>config</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="a00056.html">OmmProviderClient</a> &amp;&#160;</td>
+          <td class="paramname"><em>client</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="a00058.html">OmmProviderErrorClient</a> &amp;&#160;</td>
+          <td class="paramname"><em>errorclient</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>closure</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create an <a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a> with <a class="el" href="a00050.html" title="OmmIProviderConfig is used to specify configuration and behaviour of Interactive OmmProvider.">OmmIProviderConfig</a> with an <a class="el" href="a00058.html" title="OmmProviderErrorClient class provides callback mechanism used in place of exceptions.">OmmProviderErrorClient</a> that provides select global errors via callbacks instead of via exceptions.The <a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a> enables functionality that includes interactive distribution of item refresh, update, status, generic and ack messages. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">config</td><td>specifies instance of <a class="el" href="a00050.html" title="OmmIProviderConfig is used to specify configuration and behaviour of Interactive OmmProvider.">OmmIProviderConfig</a> </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">client</td><td>specifies instance of <a class="el" href="a00056.html" title="OmmProviderClient class provides callback interfaces to pass received messages.">OmmProviderClient</a> </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">errorClient</td><td>specifies instance of <a class="el" href="a00058.html" title="OmmProviderErrorClient class provides callback mechanism used in place of exceptions.">OmmProviderErrorClient</a> </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">closure</td><td>specifies application defined identification </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section remark"><dt>Remarks:</dt><dd>Enables <a class="el" href="a00058.html" title="OmmProviderErrorClient class provides callback mechanism used in place of exceptions.">OmmProviderErrorClient</a>'s callbacks as means of error reporting. </dd>
+<dd>
+This affects <a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a> methods that would throw exceptions otherwise. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="adf4ea39a94143bd804ed6dca133b6188"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual <a class="el" href="a00055.html#adf4ea39a94143bd804ed6dca133b6188">thomsonreuters::ema::access::OmmProvider::~OmmProvider</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td><code> [virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Destructor. </p>
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="aacc00f0651fc18fe95e5c90bfbe1e31d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Int64 <a class="el" href="a00055.html#aacc00f0651fc18fe95e5c90bfbe1e31d">thomsonreuters::ema::access::OmmProvider::dispatch</a> </td>
+          <td>(</td>
+          <td class="paramtype">Int64&#160;</td>
+          <td class="paramname"><em>timeOut</em> = <code><a class="el" href="a00055.html#a335144c2c5f0802ca83b265b348804b8a4b932bdbe47618c0a31af7091868215e">NoWaitEnum</a></code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Relinquish application thread of control to receive callbacks via <a class="el" href="a00056.html" title="OmmProviderClient class provides callback interfaces to pass received messages.">OmmProviderClient</a> descendant. </p>
+<dl class="section remark"><dt>Remarks:</dt><dd>Requires OperationalModel to be set to UserDispatchEnum. </dd></dl>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">time-out</td><td>specifies time in microseconds to wait in <a class="el" href="a00055.html#aacc00f0651fc18fe95e5c90bfbe1e31d">dispatch()</a> for a message to dispatch </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>TimeoutEnum if nothing was dispatched; DispatchedEnum otherwise </dd></dl>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if OperationalModel is not set to UserDispatchEnum </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section remark"><dt>Remarks:</dt><dd>This method is <a class="el" href="a00001.html#ObjectLevelSafe">Object Level Thread Safe Method</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ae1c86c050d9515c4b9622d9f10c1892f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00017.html">EmaString</a>&amp; <a class="el" href="a00055.html#ae1c86c050d9515c4b9622d9f10c1892f">thomsonreuters::ema::access::OmmProvider::getProviderName</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Retrieve internally generated <a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a> instance name. </p>
+<dl class="section return"><dt>Returns:</dt><dd>name of this <a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a> instance </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a3b5becde083b92a434348bc5199abe2d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00057.html#a03254857ec373e67536be72f7198c777">OmmProviderConfig::ProviderRole</a> <a class="el" href="a00055.html#a3b5becde083b92a434348bc5199abe2d">thomsonreuters::ema::access::OmmProvider::getProviderRole</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Retrieve Provider's role </p>
+<dl class="section return"><dt>Returns:</dt><dd>role of this <a class="el" href="a00055.html" title="OmmProvider class encapsulates functionality of an Interactive and NonInteractive OmmProvider applica...">OmmProvider</a> instance </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a38e62c925e2bda676ac92b406f36b24a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">UInt64 <a class="el" href="a00055.html#a38e62c925e2bda676ac92b406f36b24a">thomsonreuters::ema::access::OmmProvider::registerClient</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00074.html">ReqMsg</a> &amp;&#160;</td>
+          <td class="paramname"><em>reqMsg</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="a00056.html">OmmProviderClient</a> &amp;&#160;</td>
+          <td class="paramname"><em>client</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>closure</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Opens an item stream (i.e. login stream and dictionary stream) </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">reqMsg</td><td>specifies item and its unique attributes </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">client</td><td>specifies <a class="el" href="a00056.html" title="OmmProviderClient class provides callback interfaces to pass received messages.">OmmProviderClient</a> instance receiving notifications about this item </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">closure</td><td>specifies application defined item identification </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>item identifier (a.k.a. handle) </dd></dl>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00051.html" title="OmmMemoryExhaustionException represents out of memory exceptions.">OmmMemoryExhaustionException</a></td><td>if system runs out of memory </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if application passes invalid <a class="el" href="a00074.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> </td></tr>
+    <tr><td class="paramname">OmmInvalidHandlException</td><td>if application passes invalid parent item handle </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section remark"><dt>Remarks:</dt><dd>This method is <a class="el" href="a00001.html#ObjectLevelSafe">Object Level Thread Safe Method</a> </dd>
+<dd>
+if <a class="el" href="a00058.html" title="OmmProviderErrorClient class provides callback mechanism used in place of exceptions.">OmmProviderErrorClient</a> is used and an error condition is encountered, then null handle is returned </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a8288ae1632279d566bcfa7c4572dce50"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="a00055.html#a8288ae1632279d566bcfa7c4572dce50">thomsonreuters::ema::access::OmmProvider::submit</a> </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="a00023.html">GenericMsg</a> &amp;&#160;</td>
           <td class="paramname"><em>genericMsg</em>, </td>
@@ -209,104 +615,231 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="a00058.html">OmmProviderEvent</a> &amp;&#160;</td>
-          <td class="paramname"><em>event</em>&#160;</td>
+          <td class="paramtype">UInt64&#160;</td>
+          <td class="paramname"><em>handle</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td><code> [inline, virtual]</code></td>
+          <td></td><td></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Invoked upon receiving a generic message. Application need only implement this method if a desire to process messages of type <a class="el" href="a00023.html" title="GenericMsg allows applications to bidirectionally send messages without any implied message semantics...">GenericMsg</a>. </p>
+<p>Sends a <a class="el" href="a00023.html" title="GenericMsg allows applications to bidirectionally send messages without any implied message semantics...">GenericMsg</a>. </p>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[out]</td><td class="paramname">genericMsg</td><td>received genericMsg </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">event</td><td>identifies open item for which this message is received </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">genericMsg</td><td>specifies <a class="el" href="a00023.html" title="GenericMsg allows applications to bidirectionally send messages without any implied message semantics...">GenericMsg</a> to be sent on the open item stream </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">identifies</td><td>handle associated with an item stream on which to send the <a class="el" href="a00023.html" title="GenericMsg allows applications to bidirectionally send messages without any implied message semantics...">GenericMsg</a> </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns:</dt><dd>void </dd></dl>
-
-<p>Definition at line <a class="el" href="a00130_source.html#l00100">100</a> of file <a class="el" href="a00130_source.html">OmmProviderClient.h</a>.</p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00048.html" title="OmmInvalidHandleException is thrown when application passes in an invalid handle to OmmConsumer...">OmmInvalidHandleException</a></td><td>if passed in handle does not refer to an open stream </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section remark"><dt>Remarks:</dt><dd>This method is <a class="el" href="a00001.html#ObjectLevelSafe">Object Level Thread Safe Method</a> </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a3f71b1c2de235af527ab0710aedf400d"></a>
+<a class="anchor" id="a4d7bc2648e602228fd35588dc7dbb66f"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void <a class="el" href="a00055.html#a3f71b1c2de235af527ab0710aedf400d">thomsonreuters::ema::access::OmmProviderClient::onRefreshMsg</a> </td>
+          <td class="memname">void <a class="el" href="a00055.html#a8288ae1632279d566bcfa7c4572dce50">thomsonreuters::ema::access::OmmProvider::submit</a> </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="a00072.html">RefreshMsg</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="a00073.html">RefreshMsg</a> &amp;&#160;</td>
           <td class="paramname"><em>refreshMsg</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="a00058.html">OmmProviderEvent</a> &amp;&#160;</td>
-          <td class="paramname"><em>event</em>&#160;</td>
+          <td class="paramtype">UInt64&#160;</td>
+          <td class="paramname"><em>handle</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td><code> [inline, virtual]</code></td>
+          <td></td><td></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Invoked upon receiving a refresh message. Refresh message may be a start, interim or final part. </p>
+<p>Sends a <a class="el" href="a00073.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a>. </p>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[out]</td><td class="paramname">refreshMsg</td><td>received refreshMsg </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">event</td><td>identifies open item for which this message is received </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">refreshMsg</td><td>specifies <a class="el" href="a00073.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a> to be sent </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">identifies</td><td>handle associated with an item stream on which to send the <a class="el" href="a00073.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a> </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns:</dt><dd>void </dd></dl>
-
-<p>Definition at line <a class="el" href="a00130_source.html#l00085">85</a> of file <a class="el" href="a00130_source.html">OmmProviderClient.h</a>.</p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00048.html" title="OmmInvalidHandleException is thrown when application passes in an invalid handle to OmmConsumer...">OmmInvalidHandleException</a></td><td>if passed in handle does not refer to an open stream </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section remark"><dt>Remarks:</dt><dd>This method is <a class="el" href="a00001.html#ObjectLevelSafe">Object Level Thread Safe Method</a> </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a1e3512e7c048733ad255db29fd26d5f3"></a>
+<a class="anchor" id="a8b246db9a2da442a188de6e5652c9844"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void <a class="el" href="a00055.html#a1e3512e7c048733ad255db29fd26d5f3">thomsonreuters::ema::access::OmmProviderClient::onStatusMsg</a> </td>
+          <td class="memname">void <a class="el" href="a00055.html#a8288ae1632279d566bcfa7c4572dce50">thomsonreuters::ema::access::OmmProvider::submit</a> </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="a00077.html">StatusMsg</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="a00081.html">UpdateMsg</a> &amp;&#160;</td>
+          <td class="paramname"><em>updateMsg</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">UInt64&#160;</td>
+          <td class="paramname"><em>handle</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Sends a <a class="el" href="a00081.html" title="UpdateMsg conveys changes to item data.">UpdateMsg</a>. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">updateMsg</td><td>specifies <a class="el" href="a00081.html" title="UpdateMsg conveys changes to item data.">UpdateMsg</a> to be sent </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">identifies</td><td>handle associated with an item stream on which to send the <a class="el" href="a00081.html" title="UpdateMsg conveys changes to item data.">UpdateMsg</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>void </dd></dl>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00048.html" title="OmmInvalidHandleException is thrown when application passes in an invalid handle to OmmConsumer...">OmmInvalidHandleException</a></td><td>if passed in handle does not refer to an open stream </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section remark"><dt>Remarks:</dt><dd>This method is <a class="el" href="a00001.html#ObjectLevelSafe">Object Level Thread Safe Method</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a82d48223a2e5b1319a193ed639ee9e0d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="a00055.html#a8288ae1632279d566bcfa7c4572dce50">thomsonreuters::ema::access::OmmProvider::submit</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00078.html">StatusMsg</a> &amp;&#160;</td>
           <td class="paramname"><em>statusMsg</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="a00058.html">OmmProviderEvent</a> &amp;&#160;</td>
-          <td class="paramname"><em>event</em>&#160;</td>
+          <td class="paramtype">UInt64&#160;</td>
+          <td class="paramname"><em>handle</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td><code> [inline, virtual]</code></td>
+          <td></td><td></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Invoked upon receiving a status message. </p>
+<p>Sends a <a class="el" href="a00078.html" title="StatusMsg conveys item state information.">StatusMsg</a>. </p>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[out]</td><td class="paramname">statusMsg</td><td>received statusMsg </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">event</td><td>identifies open item for which this message is received </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">statusMsg</td><td>specifies <a class="el" href="a00078.html" title="StatusMsg conveys item state information.">StatusMsg</a> to be sent </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">identifies</td><td>handle associated with an item stream on which to send the <a class="el" href="a00078.html" title="StatusMsg conveys item state information.">StatusMsg</a> </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns:</dt><dd>void </dd></dl>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00048.html" title="OmmInvalidHandleException is thrown when application passes in an invalid handle to OmmConsumer...">OmmInvalidHandleException</a></td><td>if passed in handle does not refer to an open stream </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section remark"><dt>Remarks:</dt><dd>This method is <a class="el" href="a00001.html#ObjectLevelSafe">Object Level Thread Safe Method</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="a00130_source.html#l00092">92</a> of file <a class="el" href="a00130_source.html">OmmProviderClient.h</a>.</p>
+</div>
+</div>
+<a class="anchor" id="af27c2216c9fbaf9ed1f44236e48001b0"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="a00055.html#a8288ae1632279d566bcfa7c4572dce50">thomsonreuters::ema::access::OmmProvider::submit</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00002.html">AckMsg</a> &amp;&#160;</td>
+          <td class="paramname"><em>ackMsg</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">UInt64&#160;</td>
+          <td class="paramname"><em>handle</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Sends an <a class="el" href="a00002.html" title="AckMsg indicates success or failure of PostMsg.">AckMsg</a>. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">ackMsg</td><td>specifies <a class="el" href="a00002.html" title="AckMsg indicates success or failure of PostMsg.">AckMsg</a> to be sent on the open item stream </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">identifies</td><td>handle associated with an item stream on which to send the <a class="el" href="a00002.html" title="AckMsg indicates success or failure of PostMsg.">AckMsg</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>void </dd></dl>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00048.html" title="OmmInvalidHandleException is thrown when application passes in an invalid handle to OmmConsumer...">OmmInvalidHandleException</a></td><td>if passed in handle does not refer to an open stream </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section remark"><dt>Remarks:</dt><dd>This method is <a class="el" href="a00001.html#ObjectLevelSafe">Object Level Thread Safe Method</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="acb2c33b461ff9001bf1929698dfb3fc1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="a00055.html#acb2c33b461ff9001bf1929698dfb3fc1">thomsonreuters::ema::access::OmmProvider::unregister</a> </td>
+          <td>(</td>
+          <td class="paramtype">UInt64&#160;</td>
+          <td class="paramname"><em>handle</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Relinquishes interest in an open item stream if item handle is passed in. Closes server port if listener handle is passed in. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">handle</td><td>identifies item or listener to close </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>void </dd></dl>
+<dl class="section remark"><dt>Remarks:</dt><dd>This method is <a class="el" href="a00001.html#ObjectLevelSafe">Object Level Thread Safe Method</a> </dd></dl>
 
 </div>
 </div>
@@ -327,7 +860,7 @@ Public Member Functions</h2></td></tr>
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Fri Aug 19 2016</td>
+			<td><p class="smallfont">Fri Dec 9 2016</td>
           </tr>
         </table>
         </td>

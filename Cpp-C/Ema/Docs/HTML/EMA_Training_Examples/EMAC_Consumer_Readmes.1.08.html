@@ -46,47 +46,47 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1017948">121__MarketPrice__FieldListSearchByName</a></div>
-      <div class="Body"><a name="1030287">Summary</a></div>
-      <div class="Body"><a name="1030288">=======</a></div>
-      <div class="Body"><a name="1030289">&nbsp;</a></div>
-      <div class="Body"><a name="1030290">121__MarketPrice__FieldListSearchByName is an example of an OMM Consumer </a></div>
-      <div class="Body"><a name="1030291">application and demonstrates basic usage of the EMA library in accessing and parsing</a></div>
-      <div class="Body"><a name="1030292">OMM MarketPrice data from Reuters Data Feed Direct (RDF-D), directly from an OMM </a></div>
-      <div class="Body"><a name="1030293">Provider application, or from an Advanced Distribution Server.</a></div>
-      <div class="Body"><a name="1030294">&nbsp;</a></div>
-      <div class="Body"><a name="1030295">121__MarketPrice__FieldListSearchByName illustrates how to selectively extract data </a></div>
-      <div class="Body"><a name="1030296">from a field entry whose name is specified on the call to forth().</a></div>
-      <div class="Body"><a name="1030297">&nbsp;</a></div>
-      <div class="Body"><a name="1030298">&nbsp;</a></div>
-      <div class="Body"><a name="1030299">Detailed Description</a></div>
-      <div class="Body"><a name="1030300">====================</a></div>
-      <div class="Body"><a name="1030301">&nbsp;</a></div>
-      <div class="Body"><a name="1030302">121__MarketPrice__FieldListSearchByName implements the following high-level steps:</a></div>
-      <div class="Body"><a name="1030303">&nbsp;</a></div>
-      <div class="Body"><a name="1030304">+ Implements an OmmConsumerClient class in an AppClient</a></div>
-      <div class="Body"><a name="1030305">  - Overrides desired methods</a></div>
-      <div class="Body"><a name="1030306">  - Provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
-      <div class="Body"><a name="1030307">    + The decode( const FieldList&amp; ) iterates through the received FieldList and</a></div>
-      <div class="Body"><a name="1030308">	  searches for a FieldEntry that matches the passed-in name. If found, the </a></div>
-      <div class="Body"><a name="1030309">	  decode extracts the FieldEntry reference from the current position on the </a></div>
-      <div class="Body"><a name="1030310">	  FieldList and extracts its field id, name, and value.</a></div>
-      <div class="Body"><a name="1030311">+ Instantiates an AppClient object to receive and process item messages</a></div>
-      <div class="Body"><a name="1030312">+ Instantiates and modifies an OmmConsumerConfig object:</a></div>
-      <div class="Body"><a name="1030313">  - Sets the username to “user”</a></div>
-      <div class="Body"><a name="1030314">  - Sets the hostname on the preconfigured connection to “localhost”</a></div>
-      <div class="Body"><a name="1030315">  - Sets the port on the preconfigured connection to “14002”</a></div>
-      <div class="Body"><a name="1030316">+ Instantiates an OmmConsumer object which initializes the connection and logs into</a></div>
-      <div class="Body"><a name="1030317">  the specified serve.</a></div>
-      <div class="Body"><a name="1030318">+ Opens a streaming item interest for MarketPrice IBM.N item from the DIRECT_FEED </a></div>
-      <div class="Body"><a name="1030319">  service</a></div>
-      <div class="Body"><a name="1030320">+ Processes data received from the API for 60 seconds</a></div>
-      <div class="Body"><a name="1030321">  - All received messages are processed on the API’s thread of control</a></div>
-      <div class="Body"><a name="1030322">  - Decodes a FieldList container by searching for a field named “BID”</a></div>
-      <div class="Body"><a name="1030323">+ Exits</a></div>
-      <div class="Body"><a name="1030324">&nbsp;</a></div>
-      <div class="Body"><a name="1030325">Note: If needed, you can modify these and other details to fit your local</a></div>
-      <div class="Body"><a name="1030326">      environment. for details on standard configuration, refer to the EMA library </a></div>
-      <div class="Body"><a name="1030327">      ReadMe.txt file or the EMA Configuration Guide.</a></div>
+      <div class="Body"><a name="1040341">Summary</a></div>
+      <div class="Body"><a name="1040342">=======</a></div>
+      <div class="Body"><a name="1040343">&nbsp;</a></div>
+      <div class="Body"><a name="1040344">121__MarketPrice__FieldListSearchByName is an example of an OMM Consumer </a></div>
+      <div class="Body"><a name="1040345">application and demonstrates basic usage of the EMA library in accessing and parsing</a></div>
+      <div class="Body"><a name="1040346">OMM MarketPrice data from Reuters Data Feed Direct (RDF-D), directly from an OMM </a></div>
+      <div class="Body"><a name="1040347">Provider application, or from an Advanced Distribution Server.</a></div>
+      <div class="Body"><a name="1040348">&nbsp;</a></div>
+      <div class="Body"><a name="1040349">121__MarketPrice__FieldListSearchByName illustrates how to selectively extract data </a></div>
+      <div class="Body"><a name="1040350">from a field entry whose name is specified on the call to forth().</a></div>
+      <div class="Body"><a name="1040351">&nbsp;</a></div>
+      <div class="Body"><a name="1040352">&nbsp;</a></div>
+      <div class="Body"><a name="1040353">Detailed Description</a></div>
+      <div class="Body"><a name="1040354">====================</a></div>
+      <div class="Body"><a name="1040355">&nbsp;</a></div>
+      <div class="Body"><a name="1040356">121__MarketPrice__FieldListSearchByName implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1040357">&nbsp;</a></div>
+      <div class="Body"><a name="1040358">+ Implements an OmmConsumerClient class in an AppClient</a></div>
+      <div class="Body"><a name="1040359">  - Overrides desired methods</a></div>
+      <div class="Body"><a name="1040360">  - Provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1040361">    + The decode( const FieldList&amp; ) iterates through the received FieldList and</a></div>
+      <div class="Body"><a name="1040362">	  searches for a FieldEntry that matches the passed-in name. If found, the </a></div>
+      <div class="Body"><a name="1040363">	  decode extracts the FieldEntry reference from the current position on the </a></div>
+      <div class="Body"><a name="1040364">	  FieldList and extracts its field id, name, and value.</a></div>
+      <div class="Body"><a name="1040365">+ Instantiates an AppClient object to receive and process item messages</a></div>
+      <div class="Body"><a name="1040366">+ Instantiates and modifies an OmmConsumerConfig object:</a></div>
+      <div class="Body"><a name="1040367">  - Sets the username to “user”</a></div>
+      <div class="Body"><a name="1040368">  - Sets the hostname on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1040369">  - Sets the port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1040370">+ Instantiates an OmmConsumer object which initializes the connection and logs into</a></div>
+      <div class="Body"><a name="1040371">  the specified serve.</a></div>
+      <div class="Body"><a name="1040372">+ Opens a streaming item interest for MarketPrice IBM.N item from the DIRECT_FEED </a></div>
+      <div class="Body"><a name="1040373">  service</a></div>
+      <div class="Body"><a name="1040374">+ Processes data received from the API for 60 seconds</a></div>
+      <div class="Body"><a name="1040375">  - All received messages are processed on the API’s thread of control</a></div>
+      <div class="Body"><a name="1040376">  - Decodes a FieldList container by searching for a field named “BID”</a></div>
+      <div class="Body"><a name="1040377">+ Exits</a></div>
+      <div class="Body"><a name="1040378">&nbsp;</a></div>
+      <div class="Body"><a name="1040379">Note: If needed, you can modify these and other details to fit your local</a></div>
+      <div class="Body"><a name="1040380">      environment. for details on standard configuration, refer to the EMA library </a></div>
+      <div class="Body"><a name="1040381">      ReadMe.txt file or the EMA Configuration Guide.</a></div>
       <div class="Body"><a name="1027750">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--

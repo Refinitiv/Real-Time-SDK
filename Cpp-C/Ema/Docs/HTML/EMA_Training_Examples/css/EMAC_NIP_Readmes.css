@@ -493,7 +493,7 @@ div.CellHeading
   margin-top: 0.0pt;
   text-align: center;
   text-indent: 0pt;
-  text-transform: none;
+  text-transform: uppercase;
   vertical-align: baseline;
 }
 
@@ -514,6 +514,54 @@ div.CellHeading
   font-variant: normal;
   font-weight: bold;
   text-align: center;
+  text-transform: uppercase;
+  vertical-align: baseline;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.CodeTitle
+{
+  color: #666666;
+  direction: ltr;
+  font-family: Arial;
+  font-size: 10.0pt;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: bold;
+  margin-bottom: 14.0pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0.0pt;
+  text-align: left;
+  text-indent: 18pt;
+  text-transform: none;
+  vertical-align: baseline;
+}
+
+.CodeTitle_outer
+{
+  margin-bottom: 14.0pt;
+  margin-right: 0pt;
+  margin-top: 0.0pt;
+}
+
+.CodeTitle_inner
+{
+  color: #666666;
+  direction: ltr;
+  font-family: Arial;
+  font-size: 10.0pt;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: bold;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -535,10 +583,10 @@ div.command
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  margin-bottom: 1.0pt;
+  margin-bottom: 0.0pt;
   margin-left: 18pt;
   margin-right: 0pt;
-  margin-top: 1.0pt;
+  margin-top: 0.0pt;
   text-align: left;
   text-indent: -18pt;
   text-transform: none;
@@ -548,9 +596,9 @@ div.command
 
 .command_outer
 {
-  margin-bottom: 1.0pt;
+  margin-bottom: 0.0pt;
   margin-right: 0pt;
-  margin-top: 1.0pt;
+  margin-top: 0.0pt;
 }
 
 .command_inner
@@ -634,11 +682,11 @@ div.FigTitle
   font-variant: normal;
   font-weight: bold;
   margin-bottom: 14.0pt;
-  margin-left: 68.4pt;
+  margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 7.0pt;
   text-align: left;
-  text-indent: -46.800000000000004pt;
+  text-indent: 18pt;
   text-transform: none;
   vertical-align: baseline;
 }
@@ -1428,6 +1476,104 @@ div.Note_Dash
   font-variant: normal;
   font-weight: normal;
   text-align: left;
+  text-transform: none;
+  vertical-align: baseline;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.Pop_Open_End
+{
+  color: #666666;
+  direction: ltr;
+  font-family: Arial;
+  font-size: 3.0pt;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  margin-bottom: 1.0pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 1.0pt;
+  text-align: left;
+  text-indent: 0pt;
+  text-transform: none;
+  vertical-align: baseline;
+}
+
+.Pop_Open_End_outer
+{
+  margin-bottom: 1.0pt;
+  margin-right: 0pt;
+  margin-top: 1.0pt;
+}
+
+.Pop_Open_End_inner
+{
+  color: #666666;
+  direction: ltr;
+  font-family: Arial;
+  font-size: 3.0pt;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  text-align: left;
+  text-transform: none;
+  vertical-align: baseline;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 0pt;
+  margin-bottom: 0pt;
+  padding-left: 0pt;
+  padding-right: 0pt;
+  padding-top: 0pt;
+  padding-bottom: 0pt;
+}
+
+div.Pop_Open_Start
+{
+  color: #f2960c;
+  direction: ltr;
+  font-family: Arial;
+  font-size: 10.0pt;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: bold;
+  margin-bottom: 7.0pt;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  margin-top: 7.0pt;
+  text-align: left;
+  text-decoration: underline;
+  text-indent: 0pt;
+  text-transform: none;
+  vertical-align: baseline;
+}
+
+.Pop_Open_Start_outer
+{
+  margin-bottom: 7.0pt;
+  margin-right: 0pt;
+  margin-top: 7.0pt;
+}
+
+.Pop_Open_Start_inner
+{
+  color: #f2960c;
+  direction: ltr;
+  font-family: Arial;
+  font-size: 10.0pt;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: bold;
+  text-align: left;
+  text-decoration: underline;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;

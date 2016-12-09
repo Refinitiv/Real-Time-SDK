@@ -8,6 +8,7 @@ B=A.fN("Navigating Topics in the Contents Tab","4");
 B=A.fN("Image Resolution","5");
 B=A.fN("Links to Figures","6");
 B=A.fN("Setting Bookmarks (Firefox Browser Only)","7");
-A=P.fN("About this Library","8");
-A=P.fN("Legal Notices and Software License","9");
+A=P.fN("Documentation Feedback","8");
+A=P.fN("About this Library","9");
+A=P.fN("Legal Notices and Software License","10");
 }

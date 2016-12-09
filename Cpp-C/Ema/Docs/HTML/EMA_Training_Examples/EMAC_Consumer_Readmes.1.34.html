@@ -46,48 +46,48 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1020434">360__MarketPrice__View</a></div>
-      <div class="Body"><a name="1031439">Summary</a></div>
-      <div class="Body"><a name="1031440">=======</a></div>
-      <div class="Body"><a name="1031441">&nbsp;</a></div>
-      <div class="Body"><a name="1031442">The 360__MarketPrice__View application is provided as an example of OMM Consumer</a></div>
-      <div class="Body"><a name="1031443">application written to the EMA library.</a></div>
-      <div class="Body"><a name="1031444">&nbsp;</a></div>
-      <div class="Body"><a name="1031445">This application demonstrates basic usage of the EMA library for opening item</a></div>
-      <div class="Body"><a name="1031446">stream with a list of field IDs called “View” and parsing of OMM MarketPrice</a></div>
-      <div class="Body"><a name="1031447">data from Reuters Data Feed Direct (RDF-D), directly from an OMM Provider</a></div>
-      <div class="Body"><a name="1031448">application, or from Thomson Reuters Advanced Distribution Server.</a></div>
-      <div class="Body"><a name="1031449">&nbsp;</a></div>
-      <div class="Body"><a name="1031450">The 360__MarketPrice__View showcases usage of view request feature supported</a></div>
-      <div class="Body"><a name="1031451">by OMM Consumer and server.</a></div>
-      <div class="Body"><a name="1031452">&nbsp;</a></div>
-      <div class="Body"><a name="1031453">&nbsp;</a></div>
-      <div class="Body"><a name="1031454">Detailed Description</a></div>
-      <div class="Body"><a name="1031455">====================</a></div>
-      <div class="Body"><a name="1031456">&nbsp;</a></div>
-      <div class="Body"><a name="1031457">The 360__MarketPrice__View implements the following high level steps:</a></div>
-      <div class="Body"><a name="1031458">&nbsp;</a></div>
-      <div class="Body"><a name="1031459">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1031460">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1031461">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
-      <div class="Body"><a name="1031462">    - each of the method provided in this example use the ease of use</a></div>
-      <div class="Body"><a name="1031463">	  data extraction methods that are data type specific</a></div>
-      <div class="Body"><a name="1031464">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1031465">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1031466">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1031467">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1031468">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1031469">+ Opens one streaming item interest</a></div>
-      <div class="Body"><a name="1031470">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1031471">    - the view definition is added to the request with the payload() method</a></div>
-      <div class="Body"><a name="1031472">+ Processes data received from API for 60 seconds</a></div>
-      <div class="Body"><a name="1031473">  - all received messages are processed on API thread of control</a></div>
-      <div class="Body"><a name="1031474">+ Exits</a></div>
-      <div class="Body"><a name="1031475">&nbsp;</a></div>
-      <div class="Body"><a name="1031476">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1031477">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1031478">	  </a></div>
-      <div class="Body"><a name="1031479">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1031480">      standard configuration.</a></div>
+      <div class="Body"><a name="1041493">Summary</a></div>
+      <div class="Body"><a name="1041494">=======</a></div>
+      <div class="Body"><a name="1041495">&nbsp;</a></div>
+      <div class="Body"><a name="1041496">The 360__MarketPrice__View application is provided as an example of OMM Consumer</a></div>
+      <div class="Body"><a name="1041497">application written to the EMA library.</a></div>
+      <div class="Body"><a name="1041498">&nbsp;</a></div>
+      <div class="Body"><a name="1041499">This application demonstrates basic usage of the EMA library for opening item</a></div>
+      <div class="Body"><a name="1041500">stream with a list of field IDs called “View” and parsing of OMM MarketPrice</a></div>
+      <div class="Body"><a name="1041501">data from Reuters Data Feed Direct (RDF-D), directly from an OMM Provider</a></div>
+      <div class="Body"><a name="1041502">application, or from Thomson Reuters Advanced Distribution Server.</a></div>
+      <div class="Body"><a name="1041503">&nbsp;</a></div>
+      <div class="Body"><a name="1041504">The 360__MarketPrice__View showcases usage of view request feature supported</a></div>
+      <div class="Body"><a name="1041505">by OMM Consumer and server.</a></div>
+      <div class="Body"><a name="1041506">&nbsp;</a></div>
+      <div class="Body"><a name="1041507">&nbsp;</a></div>
+      <div class="Body"><a name="1041508">Detailed Description</a></div>
+      <div class="Body"><a name="1041509">====================</a></div>
+      <div class="Body"><a name="1041510">&nbsp;</a></div>
+      <div class="Body"><a name="1041511">The 360__MarketPrice__View implements the following high level steps:</a></div>
+      <div class="Body"><a name="1041512">&nbsp;</a></div>
+      <div class="Body"><a name="1041513">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1041514">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1041515">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1041516">    - each of the method provided in this example use the ease of use</a></div>
+      <div class="Body"><a name="1041517">	  data extraction methods that are data type specific</a></div>
+      <div class="Body"><a name="1041518">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1041519">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1041520">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1041521">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1041522">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1041523">+ Opens one streaming item interest</a></div>
+      <div class="Body"><a name="1041524">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1041525">    - the view definition is added to the request with the payload() method</a></div>
+      <div class="Body"><a name="1041526">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1041527">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1041528">+ Exits</a></div>
+      <div class="Body"><a name="1041529">&nbsp;</a></div>
+      <div class="Body"><a name="1041530">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1041531">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1041532">	  </a></div>
+      <div class="Body"><a name="1041533">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1041534">      standard configuration.</a></div>
       <div class="Body"><a name="1029487">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
