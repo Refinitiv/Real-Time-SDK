@@ -39,6 +39,10 @@ package com.thomsonreuters.ema.access;
  * 
  *    public void onGenericMsg(GenericMsg genericMsg, OmmProviderEvent consumerEvent){}
  *    public void onAllMsg(Msg msg, OmmProviderEvent consumerEvent){}
+ *    public void onPostMsg(PostMsg postMsg, OmmProviderEvent providerEvent) {}
+ *	  public void onReqMsg(ReqMsg reqMsg, OmmProviderEvent providerEvent) {}
+ *	  public void onReissue(ReqMsg reqMsg, OmmProviderEvent providerEvent) {}
+ *    public void onClose(OmmProviderEvent providerEvent) {}
  * }
  * </pre>
  * 
@@ -48,7 +52,9 @@ package com.thomsonreuters.ema.access;
  * @see Msg
  * @see GenericMsg
  * @see RefreshMsg
- * @see StatusMsg
+ * @see PostMsg
+ * @see ReqMsg 
+ * 
  */
 
 public interface OmmProviderClient {
@@ -77,6 +83,38 @@ public interface OmmProviderClient {
 	 * @param providerEvent identifies open item for which this message is received
 	 */
 	public void onGenericMsg(GenericMsg genericMsg,	OmmProviderEvent providerEvent);
+	
+	/**
+	 * This callback is invoked upon receiving any post message.<br>
+	 * 
+	 * @param postMsg received PostMsg ({@link com.thomsonreuters.ema.access.PostMsg})
+	 * @param providerEvent identifies open item for which this message is received
+	 */
+	public void onPostMsg(PostMsg postMsg, OmmProviderEvent providerEvent);
+	
+	/**
+	 * This callback is invoked upon receiving an initial item request message.<br>
+	 * 
+	 * @param reqMsg received ReqMsg ({@link com.thomsonreuters.ema.access.ReqMsg})
+	 * @param providerEvent identifies open item for which this message is received
+	 */
+	public void onReqMsg(ReqMsg reqMsg, OmmProviderEvent providerEvent);
+	
+	/**
+	 * This callback is invoked upon receiving a reissue request.<br>
+	 * 
+	 * @param reqMsg received ReqMsg ({@link com.thomsonreuters.ema.access.ReqMsg})
+	 * @param providerEvent identifies open item for which this message is received
+	 */
+	public void onReissue(ReqMsg reqMsg, OmmProviderEvent providerEvent);
+	
+	/**
+	 * This callback is invoked upon receiving a close request message.<br>
+	 *
+	 * @param reqMsg received ReqMsg ({@link com.thomsonreuters.ema.access.ReqMsg})
+	 * @param providerEvent identifies open item for which this message is received
+	 */
+	public void onClose(ReqMsg reqMsg, OmmProviderEvent providerEvent );
 
 	/**
 	 * This callback is invoked upon receiving any message.

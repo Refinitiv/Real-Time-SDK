@@ -10,7 +10,8 @@
 
 using namespace thomsonreuters::ema::access;
 
-OmmProviderImpl::OmmProviderImpl()
+OmmProviderImpl::OmmProviderImpl(OmmProvider* ommProvider) :
+	_pOmmProvider(ommProvider)
 {
 }
 

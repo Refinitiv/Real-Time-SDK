@@ -181,7 +181,7 @@ public class EmaFactory
 	}
 	
 	/**
-	 * Creates a {@link com.thomsonreuters.ema.access.OmmProvider}.<br>
+	 * Creates a {@link com.thomsonreuters.ema.access.OmmProvider} for Non-Interactive provider role.<br>
 	 * Enables exception throwing as means of error reporting.
 	 * 
 	 * @param config OmmProviderConfig providing configuration
@@ -193,16 +193,72 @@ public class EmaFactory
 	}
 	
 	/**
-	 * Creates a {@link com.thomsonreuters.ema.access.OmmProvider}.
+	 * Creates a {@link com.thomsonreuters.ema.access.OmmProvider} for Interactive provider role.<br>
+	 * Enables exception throwing as means of error reporting.
 	 * 
 	 * @param config OmmProviderConfig providing configuration
-	 * @param client OmmProviderErrorClient that provides callback interfaces to be used for error reporting
+	 * @param client OmmProviderClient providing provider client
+	 * @return {@link com.thomsonreuters.ema.access.OmmProvider}
+	 */
+	public static OmmProvider createOmmProvider(OmmProviderConfig config, OmmProviderClient client)
+	{
+		return new OmmIProviderImpl(config, client, null);
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.OmmProvider} for Interactive provider role.<br>
+	 * Enables exception throwing as means of error reporting.
+	 * 
+	 * @param config OmmProviderConfig providing configuration
+	 * @param client OmmProviderClient providing provider client
+	 * @param closure specifies application defined identification 
+	 * @return {@link com.thomsonreuters.ema.access.OmmProvider}
+	 */
+	public static OmmProvider createOmmProvider(OmmProviderConfig config, OmmProviderClient client, Object closure)
+	{
+		return new OmmIProviderImpl(config, client, closure);
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.OmmProvider} for Non-Interactive provider role..
+	 * 
+	 * @param config OmmProviderConfig providing configuration
+	 * @param errorClient OmmProviderErrorClient that provides callback interfaces to be used for error reporting
 	 * 
 	 * @return {@link com.thomsonreuters.ema.access.OmmProvider}
 	 */
-	public static OmmProvider createOmmProvider(OmmProviderConfig config, OmmProviderErrorClient client)
+	public static OmmProvider createOmmProvider(OmmProviderConfig config, OmmProviderErrorClient errorClient)
 	{
-		return new OmmNiProviderImpl(config, client);
+		return new OmmNiProviderImpl(config, errorClient);
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.OmmProvider}.
+	 * 
+	 * @param config OmmProviderConfig providing configuration
+	 * @param client OmmProviderClient providing provider client
+	 * @param errorClient OmmProviderErrorClient that provides callback interfaces to be used for error reporting
+	 * 
+	 * @return {@link com.thomsonreuters.ema.access.OmmProvider}
+	 */
+	public static OmmProvider createOmmProvider(OmmProviderConfig config, OmmProviderClient client, OmmProviderErrorClient errorClient)
+	{
+		return new OmmIProviderImpl(config, client, errorClient, null);
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.OmmProvider}.
+	 * 
+	 * @param config OmmProviderConfig providing configuration
+	 * @param client OmmProviderClient providing provider client
+	 * @param errorClient OmmProviderErrorClient that provides callback interfaces to be used for error reporting
+	 * @param closure specifies application defined identification
+	 * 
+	 * @return {@link com.thomsonreuters.ema.access.OmmProvider}
+	 */
+	public static OmmProvider createOmmProvider(OmmProviderConfig config, OmmProviderClient client, OmmProviderErrorClient errorClient, Object closure)
+	{
+		return new OmmIProviderImpl(config, client, errorClient, closure);
 	}
 	
 	/**
@@ -212,6 +268,15 @@ public class EmaFactory
 	public static OmmNiProviderConfig createOmmNiProviderConfig()
 	{
 		return new OmmNiProviderConfigImpl();
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.OmmIProviderConfig}.
+	 * @return {@link com.thomsonreuters.ema.access.OmmIProviderConfig}
+	 */
+	public static OmmIProviderConfig createOmmIProviderConfig()
+	{
+		return new OmmIProviderConfigImpl();
 	}
 	
 	/**
@@ -312,4 +377,67 @@ public class EmaFactory
 	{
 		return new OmmXmlImpl();
 	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.ClassOfService}.
+	 * @return {@link com.thomsonreuters.ema.access.ClassOfService}
+	 */
+	public static ClassOfService createClassOfService()
+	{
+		return new ClassOfServiceImpl();
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.CosAuthentication}.
+	 * @return {@link com.thomsonreuters.ema.access.CosAuthentication}
+	 */
+	public static CosAuthentication createCosAuthentication()
+	{
+		return new CosAuthenticationImpl();
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.CosCommon}.
+	 * @return {@link com.thomsonreuters.ema.access.CosCommon}
+	 */
+	public static CosCommon createCosCommon()
+	{
+		return new CosCommonImpl();
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.CosDataIntegrity}.
+	 * @return {@link com.thomsonreuters.ema.access.CosDataIntegrity}
+	 */
+	public static CosDataIntegrity createCosDataIntegrity()
+	{
+		return new CosDataIntegrityImpl();
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.CosFlowControl}.
+	 * @return {@link com.thomsonreuters.ema.access.CosFlowControl}
+	 */
+	public static CosFlowControl createCosFlowControl()
+	{
+		return new CosFlowControlImpl();
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.CosGuarantee}.
+	 * @return {@link com.thomsonreuters.ema.access.CosGuarantee}
+	 */
+	public static CosGuarantee createCosGuarantee()
+	{
+		return new CosGuaranteeImpl();
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.TunnelStreamRequest}.
+	 * @return {@link com.thomsonreuters.ema.access.TunnelStreamRequest}
+	 */
+	public static TunnelStreamRequest createTunnelStreamRequest()
+	{
+		return new TunnelStreamRequestImpl();
+	}	
 }

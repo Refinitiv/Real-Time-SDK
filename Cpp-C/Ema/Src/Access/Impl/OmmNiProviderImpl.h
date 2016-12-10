@@ -12,6 +12,7 @@
 #include "OmmBaseImpl.h"
 #include "OmmNiProviderActiveConfig.h"
 #include "OmmProviderImpl.h"
+#include "DirectoryServiceStore.h"
 
 namespace thomsonreuters {
 
@@ -20,16 +21,15 @@ namespace ema {
 namespace access {
 
 class OmmProviderErrorClient;
-
-typedef const EmaString* EmaStringPtr;
+class OmmProvider;
 
 class OmmNiProviderImpl : public OmmProviderImpl, public OmmBaseImpl
 {
 public :
 
-	OmmNiProviderImpl( const OmmNiProviderConfig& );
+	OmmNiProviderImpl( OmmProvider*, const OmmNiProviderConfig& );
 
-	OmmNiProviderImpl( const OmmNiProviderConfig&, OmmProviderErrorClient& );
+	OmmNiProviderImpl( OmmProvider*, const OmmNiProviderConfig&, OmmProviderErrorClient& );
 
 	virtual ~OmmNiProviderImpl();
 
@@ -53,11 +53,13 @@ public :
 
 	void submit( const GenericMsg&, UInt64 );
 
+	void submit( const AckMsg&, UInt64 );
+
 	void loadDirectory();
 
 	void reLoadDirectory();
 
-	void storeUserSubmitSourceDirectory( RsslMsg* );
+	bool storeUserSubmitSourceDirectory( RsslMsg* );
 
 	void loadDictionary();
 
@@ -68,6 +70,10 @@ public :
 	void processChannelEvent( RsslReactorChannelEvent* );
 
 	const EmaString& getInstanceName() const;
+
+	OmmProviderConfig::ProviderRole getProviderRole() const;
+
+	OmmProvider* getProvider() const;
 
 	bool getServiceId( const EmaString& , UInt64& );
 
@@ -82,14 +88,6 @@ private :
 	void removeItems();
 
 	void readCustomConfig( EmaConfigImpl* );
-
-	void populateDefaultService( ServiceConfig& ) const;
-
-	void freeMemory( RsslRDMDirectoryRefresh& , RsslBuffer& );
-
-	bool decodeSourceDirectory( RwfBuffer* , RsslBuffer* , EmaString& );
-
-	bool decodeSourceDirectoryKeyUInt( RsslMap& , RsslDecodeIterator& , EmaString& );
 
 	bool realocateBuffer( RsslBuffer* , RsslBuffer* , RsslEncodeIterator* , EmaString& );
 
@@ -111,25 +109,13 @@ private :
 		bool operator()( const UInt64&, const UInt64& ) const;
 	};
 
-	class EmaStringPtrHasher
-	{
-	public:
-		size_t operator()( const EmaStringPtr& ) const;
-	};
-
-	class EmaStringPtrEqual_To
-	{
-	public:
-		bool operator()( const EmaStringPtr&, const EmaStringPtr& ) const;
-	};
-
 	class StreamInfo
 	{
 	public :
 
-		StreamInfo( Int32 streamId = 0, UInt16 serviceId = 0 ) : _streamId( streamId ), _serviceId( serviceId ) {}
+		StreamInfo( Int32 streamId = 0, UInt16 serviceId = 0, UInt8 domainType = 0) : _streamId( streamId ), _serviceId( serviceId ), _domainType(domainType) {}
 
-		StreamInfo( const StreamInfo& other ) : _streamId( other._streamId ), _serviceId( other._serviceId ) {}
+		StreamInfo( const StreamInfo& other ) : _streamId( other._streamId ), _serviceId( other._serviceId ), _domainType(other._domainType) {}
 
 		StreamInfo& operator=( const StreamInfo& other )
 		{
@@ -137,6 +123,7 @@ private :
 
 			_streamId = other._streamId;
 			_serviceId = other._serviceId;
+			_domainType = other._domainType;
 
 			return *this;
 		}
@@ -145,23 +132,21 @@ private :
 
 		Int32		_streamId;
 		UInt16		_serviceId;
+		UInt8		_domainType;
 	};
 
 	typedef const StreamInfo* StreamInfoPtr;
 
 	typedef HashTable< UInt64 , StreamInfoPtr , UInt64rHasher , UInt64Equal_To > HandleToStreamInfo;
-	typedef HashTable< EmaStringPtr , UInt64 , EmaStringPtrHasher , EmaStringPtrEqual_To > ServiceNameToServiceId;
-	typedef HashTable< UInt64 , EmaStringPtr , UInt64rHasher , UInt64Equal_To > ServiceIdToServiceName;
-	typedef EmaVector< EmaStringPtr > ServiceNameList;
 	typedef EmaVector< StreamInfoPtr > StreamInfoList;
 
-	OmmNiProviderActiveConfig		_activeConfig;
-	HandleToStreamInfo				_handleToStreamInfo;
-	ServiceNameToServiceId			_serviceNameToServiceId;
-	ServiceIdToServiceName			_serviceIdToServiceName;
-	ServiceNameList					_serviceNameList;
-	StreamInfoList					_streamInfoList;
-	bool							_bIsStreamIdZeroRefreshSubmitted;
+	OmmNiProviderActiveConfig						_activeConfig;
+	HandleToStreamInfo								_handleToStreamInfo;
+	StreamInfoList									_streamInfoList;
+	OmmNiProviderDirectoryStore						_ommNiProviderDirectoryStore;
+	bool											_bIsStreamIdZeroRefreshSubmitted;
+	RsslRDMDirectoryMsg								_rsslDirectoryMsg;
+	RsslBuffer										_rsslDirectoryMsgBuffer;
 };
 
 }

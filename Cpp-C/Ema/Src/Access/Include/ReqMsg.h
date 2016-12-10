@@ -346,6 +346,10 @@ public :
 
 private :
 
+	friend class MarketItemHandler;
+	friend class DirectoryHandler;
+	friend class DictionaryHandler;
+
 	const EmaString& toString( UInt64 ) const;
 
 	Decoder& getDecoder();

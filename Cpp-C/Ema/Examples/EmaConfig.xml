@@ -80,6 +80,47 @@
 	</NiProviderList>
 </NiProviderGroup>
 
+<!-- IProviderGroup provides set of detailed configurations to be used by named providers                -->
+<!-- Application specifies which configuration to use by setting OmmIProviderConfig::providerName()      -->
+<IProviderGroup>
+    <!-- DefaultIProvider parameter defines which provider configuration is used by OmmProvider          -->
+    <!-- if application does not specify it through OmmIProviderConfig::providerName()                   -->
+    <!-- first provider on the IProviderList is a default provider if this parameter is not specified    -->
+    <DefaultIProvider value="Provider_1"/>
+    <IProviderList>
+        <IProvider>
+            <!-- Name is mandatory                                                                       -->
+            <Name value="Provider_1"/>
+            <!-- Server is optional: defaulted to "RSSL_SOCKET + 14002"                                  -->
+            <Server value="Server_1"/>
+            <!-- Directory is optional: defaulted to AdminControl::UserControlEnum                       -->
+            <!-- source directory configuration to use if OmmIProviderConfig::adminModel()               -->
+            <!-- was set to ApiControlEnum                                                               -->
+            <!-- this configuration also decides which dictionaries will be loaded at startup            -->
+            <!-- this configuration may be overwritten by OmmIProviderConfig::addAdminMsg()              -->
+            <Directory value="Directory_2"/>
+            <Logger value="Logger_1"/>
+			
+			<ItemCountHint value="10000"/>
+			
+			<ServiceCountHint value="10000" />
+			
+			<DispatchTimeoutApiThread value="500" />
+			
+			<CatchUnhandledException value="0" />
+
+			<MaxDispatchCountApiThread value="500" />
+			
+			<MaxDispatchCountUserThread value="500" />
+			
+			<PipePort value="9009" />
+			
+			<RefreshFirstRequired value="1" />
+		
+        </IProvider>
+    </IProviderList>
+</IProviderGroup>
+
 <ChannelGroup>
 	<ChannelList>
 		<Channel>
@@ -105,7 +146,7 @@
 			<TcpNodelay value="1"/>
 			<Host value="localhost"/>
 			<Port value="14002"/>
-			<XmlTraceToStdout value="1"/>
+			<XmlTraceToStdout value="0"/>
 		</Channel>
 		<Channel>
 			<Name value="Channel_2"/>
@@ -153,10 +194,29 @@
 			<TcpNodelay value="1"/>
 			<Host value="localhost"/>
 			<Port value="14003"/>
-			<XmlTraceToStdout value="1"/>
+			<XmlTraceToStdout value="0"/>
 		</Channel>
 	</ChannelList>
 </ChannelGroup>
+
+<ServerGroup>
+    <ServerList>
+        <Server>
+            <Name value="Server_1"/>
+            <ServerType value="ServerType::RSSL_SOCKET"/>
+            <!-- CompressionType is optional: defaulted to None -->
+            <!-- possible values: None, ZLib, LZ4 -->
+            <CompressionType value="CompressionType::None"/>
+            <GuaranteedOutputBuffers value="5000"/>
+            <!-- ConnectionPingTimeout is optional: defaulted to 30000 -->
+            <ConnectionPingTimeout value="30000"/>
+            <!-- TcpNodelay is optional: defaulted to 1 -->
+            <!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set) -->
+            <TcpNodelay value="1"/>
+            <Port value="14002"/>
+        </Server>
+    </ServerList>
+</ServerGroup>
 
 <LoggerGroup>
 	<LoggerList>
@@ -328,23 +388,25 @@
 		<Directory>
 			<Name value="Directory_2"/>
 			<Service>
-				<Name value="DF_1"/>
+				<Name value="DIRECT_FEED"/>
 				<InfoFilter>
+					<ServiceId value="1"/>
 					<DictionariesProvided>
 						<DictionariesProvidedEntry value="Dictionary_3"/>
-						<DictionariesProvidedEntry value="Dictionary_4"/>
 					</DictionariesProvided>
 
 					<DictionariesUsed>
 						<DictionariesUsedEntry value="Dictionary_3"/>
-						<DictionariesUsedEntry value="Dictionary_4"/>
 					</DictionariesUsed>
 
 					<Vendor value="company name"/>
 					<IsSource value="0"/>
 					<Capabilities>
-						<CapabilitiesEntry value="6"/>
+						<CapabilitiesEntry value="MMT_DICTIONARY"/>
+						<CapabilitiesEntry value="MMT_MARKET_PRICE"/>
 						<CapabilitiesEntry value="MMT_MARKET_BY_ORDER"/>
+						<CapabilitiesEntry value="MMT_MARKET_BY_PRICE"/>
+						<CapabilitiesEntry value="200"/>
 					</Capabilities>
 
 					<QoS>
@@ -403,15 +465,15 @@
 			<DictionaryType value="DictionaryType::FileDictionary"/>
 
 			<!-- dictionary file names are optional: defaulted to ./RDMFieldDictionary and ./enumtype.def -->
-			<RdmFieldDictionaryFileName value="./RDMFieldDictionary_ID3"/>
-			<EnumTypeDefFileName value="./enumtype_ID3.def"/>
+			<RdmFieldDictionaryFileName value="./RDMFieldDictionary"/>
+			<EnumTypeDefFileName value="./enumtype.def"/>
 			
 			<!-- <dictionary>ItemName represents the names shown in DictionariesProvided and DictionariesUsed
 				elements of the Directory InfoFilter -->
 			<!-- <dictionary>ItemName is optional; default values are "RWFFld" for the RdmFieldDictionary
 				and "RWFEnum" for the enumtype.def -->
-			<RdmFieldDictionaryItemName value="RWFFld_ID3"/>
-			<EnumTypeDefItemName value="RWFEnum_ID3"/>
+			<RdmFieldDictionaryItemName value="RWFFld"/>
+			<EnumTypeDefItemName value="RWFEnum"/>
 		</Dictionary>
 
 		<Dictionary>

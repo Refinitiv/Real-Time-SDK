@@ -10,11 +10,22 @@ package com.thomsonreuters.ema.access;
 /**
  * OmmProvider class encapsulates functionality of an OmmProvider application.
  * 
- * <p>OmmProvider provides interfaces to publish items.<br>
- * It establishes and maintains connection to ADH.
+ * OmmProvider class provides interfaces for interactive and non interactive OmmProvider application use cases.
+ * 
+ * <p>The non interactive use case allows applications to publish items without any item request.
+ * In this case OmmProvider establishes and maintains the configured connection to ADH. Right after the connection
+ * is established, the application may start publishing item specific data while the app assigns unique handles 
+ * or identifiers to each item.</p>
+ *
+ * <p>The interactive use case works based on the item requests received from client applications.
+ * In this case OmmProvider establishes a server port to which clients connect. After clients login request
+ * is accepted, the provider application may receive item requests from the connected client application.
+ * The requested items are identified by the EMA with a unique handle or identifier. Provider application
+ * uses this handle to respond to the item requests.</p>
  * 
  * <p>OmmProvider provides a default behavior / functionality.<br>
- * This may be tuned / modified by application when using OmmNiProviderConfig for non-interactive provider.</p>
+ * This may be tuned / modified by application when using OmmNiProviderConfig for non-interactive provider and 
+ * OmmIProviderConfig for interactive provider.</p>
  * 
  * <p>Application interacts with ADH through the OmmProvider interface methods.<br>
  * The results of these interactions are communicated back to application through
@@ -44,6 +55,10 @@ package com.thomsonreuters.ema.access;
  * 
  *    public void onGenericMsg(GenericMsg genericMsg, OmmProviderEvent consumerEvent){}
  *    public void onAllMsg(Msg msg, OmmProviderEvent consumerEvent){}
+ *    public void onPostMsg(PostMsg postMsg, OmmProviderEvent providerEvent) {}
+ *	  public void onReqMsg(ReqMsg reqMsg, OmmProviderEvent providerEvent) {}
+ *	  public void onReissue(ReqMsg reqMsg, OmmProviderEvent providerEvent) {}
+ *    public void onClose(OmmProviderEvent providerEvent) {}
  * }
  * 
  * public class NIProvider 
@@ -75,7 +90,102 @@ package com.thomsonreuters.ema.access;
  * }
  * </pre>
  * 
+ * The following code snippet shows basic usage of OmmProvider interface in a simple interactive<br>
+ * provider application.
+ * 
+ * <pre>
+ * // create an implementation for OmmProviderClient to process request messages for login and market price domains
+ * class AppClient implements OmmProviderClient
+ * {
+ *	public long itemHandle = 0;
+ *	
+ *	public void onReqMsg(ReqMsg reqMsg, OmmProviderEvent event)
+ *	{
+ *		switch (reqMsg.domainType())
+ *		{
+ *			case EmaRdm.MMT_LOGIN :
+ *				processLoginRequest(reqMsg, event);
+ *				break;
+ *			case EmaRdm.MMT_MARKET_PRICE :
+ *				processMarketPriceRequest(reqMsg, event);
+ *				break;
+ *		}
+ *	}
+ *	
+ *	public void onRefreshMsg(RefreshMsg refreshMsg,	OmmProviderEvent event){}
+ *	public void onStatusMsg(StatusMsg statusMsg, OmmProviderEvent event){}
+ *	public void onGenericMsg(GenericMsg genericMsg, OmmProviderEvent event){}
+ *	public void onPostMsg(PostMsg postMsg, OmmProviderEvent event){}
+ *	public void onReissue(ReqMsg reqMsg, OmmProviderEvent event){}
+ *	public void onClose(ReqMsg reqMsg, OmmProviderEvent event){}
+ *	public void onAllMsg(Msg msg, OmmProviderEvent event){}
+ *	
+ *	void processLoginRequest(ReqMsg reqMsg, OmmProviderEvent event)
+ *	{
+ *		event.provider().submit( EmaFactory.createRefreshMsg().domainType(EmaRdm.MMT_LOGIN).name(reqMsg.name()).
+ *				nameType(EmaRdm.USER_NAME).complete(true).solicited(true).
+ *				state(OmmState.StreamState.OPEN, OmmState.DataState.OK, OmmState.StatusCode.NONE, "Login accepted"),
+ *				event.handle() );
+ *	}
+ *	
+ *	void processMarketPriceRequest(ReqMsg reqMsg, OmmProviderEvent event)
+ *	{		
+ *		FieldList fieldList = EmaFactory.createFieldList();
+ *		fieldList.add( EmaFactory.createFieldEntry().real(22, 3990, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+ *		fieldList.add( EmaFactory.createFieldEntry().real(25, 3994, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+ *		fieldList.add( EmaFactory.createFieldEntry().real(30, 9,  OmmReal.MagnitudeType.EXPONENT_0));
+ *		fieldList.add( EmaFactory.createFieldEntry().real(31, 19, OmmReal.MagnitudeType.EXPONENT_0));
+ *		
+ *		event.provider().submit( EmaFactory.createRefreshMsg().name(reqMsg.name()).serviceId(reqMsg.serviceId()).solicited(true).
+ *				state(OmmState.StreamState.OPEN, OmmState.DataState.OK, OmmState.StatusCode.NONE, "Refresh Completed").
+ *				payload(fieldList).complete(true),
+ *				event.handle() );
+ *
+ *		itemHandle = event.handle();
+ *	}
+ *	
+ *	public class IProvider
+ *	{
+ *		public static void main(String[] args)
+ *		{
+ *			OmmProvider provider = null;
+ *			try
+ *			{
+ *				AppClient appClient = new AppClient();
+ *				FieldList fieldList = EmaFactory.createFieldList();
+ *	
+ *				OmmIProviderConfig config = EmaFactory.createOmmIProviderConfig();
+ *				
+ *				// instantiate OmmProvider object and bind a server port on 14002
+ *				provider = EmaFactory.createOmmProvider(config.port("14002"), appClient);
+ *				
+ *				while( appClient.itemHandle == 0 ) Thread.sleep(1000);
+ *					
+ *				for( int i = 0; i &lt; 60; i++ )
+ *				{
+ *					fieldList.clear();
+ *					fieldList.add(EmaFactory.createFieldEntry().real(22, 3991 + i, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+ *					fieldList.add(EmaFactory.createFieldEntry().real(30, 10 + i, OmmReal.MagnitudeType.EXPONENT_0));
+ *					
+ *					provider.submit( EmaFactory.createUpdateMsg().payload( fieldList ), appClient.itemHandle );
+ *					
+ *					Thread.sleep(1000);
+ *				}
+ *			} 
+ *			catch (InterruptedException | OmmException excp)
+ *			{
+ *				System.out.println(excp.getMessage());
+ *			}
+ *			finally 
+ *			{
+ *				if (provider != null) provider.uninitialize();
+ *			}
+ *		}
+ *	}
+ * </pre>
+ * 
  * @see OmmNiProviderConfig
+ * @see OmmIProviderConfig
  * @see OmmProviderClient
  * @see OmmProviderErrorClient
  * @see	EmaFactory
@@ -115,6 +225,13 @@ public interface OmmProvider
 	 * @return name of this OmmProvider instance
 	 */
 	public String providerName();
+	
+	/**
+	 * Returns Provider's role
+	 * 
+	 * @return role of this OmmProvider instance
+	 */
+	public int providerRole();
 
 	/** 
 	 * Opens an item stream.
@@ -188,6 +305,17 @@ public interface OmmProvider
 	 * @param handle identifies item stream on which to send the StatusMsg
 	 */
 	public void submit(StatusMsg statusMsg, long handle);
+	
+	/**
+	 * Sends a AckMsg.
+	 * <p>This method is ObjectLevelSafe.</p>
+	 * 
+	 * @throws OmmInvalidHandleException if passed in handle does not refer to an open stream
+	 * 
+	 * @param ackMsg specifies AckMsg to be sent on the open item stream
+	 * @param handle identifies item stream on which to send the AckMsg
+	 */
+	public void submit(AckMsg ackMsg, long handle);
 	
 	/**
 	 * Relinquishes application thread of control to receive callbacks via OmmProviderClient descendant.

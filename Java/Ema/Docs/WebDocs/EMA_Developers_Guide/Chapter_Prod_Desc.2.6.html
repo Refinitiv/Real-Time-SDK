@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>2.5 Product Architecture</title>
+    <title>2.4 Product Architecture</title>
     <link rel="StyleSheet" href="css/Chapter_Prod_Desc.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -60,7 +60,7 @@
           <tr style="vertical-align: baseline">
             <td>
               <div class="H2_inner" style="width: 54pt; white-space: nowrap">
-                <span class="bold">2.5	</span>
+                <span class="bold">2.4	</span>
               </div>
             </td>
             <td width="100%">
@@ -69,7 +69,37 @@
           </tr>
         </table>
       </div>
-      <div class="Blank_Line"><a name="1029825">&nbsp;</a></div>
+      <div class="H3_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="H3_inner" style="width: 54pt; white-space: nowrap">
+                <span class="bold">2.4.1	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="H3_inner"><a name="1031293">EMA Consumer Architecture</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1031294">The EMA incorporates the ValueAdded Reactor component (called the Transport API VA Reactor) from the Transport API, which provides the watchlist and transport-level functionality. The EMA wraps up the reactor component in its own class of </a><span class="CodeOrCommand" style="font-size: 10.0pt">OmmConsumer</span>. <span class="CodeOrCommand" style="font-size: 10.0pt">OmmConsumer</span> provides interfaces to open, modify, and close market items or instruments, as well as submit Post and Generic messages. To complete the set of consumer application functionalities, the <span class="CodeOrCommand" style="font-size: 10.0pt">OmmConsumer</span> class provides the <span class="CodeOrCommand" style="font-size: 10.0pt">dispatch()</span> method. Depending on its design and configuration, an application might need to call this method to dispatch received messages. The <span class="CodeOrCommand" style="font-size: 10.0pt">OmmConsumerConfig</span> class configures the reactor and <span class="CodeOrCommand" style="font-size: 10.0pt">OmmConsumer</span>.</div>
+      <div class="Body"><a name="1031295">The </a><span class="CodeOrCommand" style="font-size: 10.0pt">OmmConsumerClient</span> class provides the callback mechanism for EMA to send incoming messages to the application. The application needs to implement a class inheriting from the <span class="CodeOrCommand" style="font-size: 10.0pt">OmmConsumerClient</span> class to receive and process messages. By default, <span class="CodeOrCommand" style="font-size: 10.0pt">OmmConsumerClient</span> callback methods are executed in EMA's thread of control. However, you can use the <span class="CodeOrCommand" style="font-size: 10.0pt">OmmConsumerConfig::operationModel()</span> interface to execute callback methods on the application thread. If you choose to execute callback methods in this manner, the application must also call the <span class="CodeOrCommand" style="font-size: 10.0pt">OmmConsumer::dispatch()</span> method to dispatch received messages.</div>
+      <div class="Body"><a name="1031296">While the </a><span class="CodeOrCommand" style="font-size: 10.0pt">OmmConsumer</span> class throws an <span class="CodeOrCommand" style="font-size: 10.0pt">OmmException</span> to report error conditions, the <span class="CodeOrCommand" style="font-size: 10.0pt">OmmConsumerErrorClient</span> class provides an alternate reporting mechanism via callbacks. To use the alternate error reporting, pass the <span class="CodeOrCommand" style="font-size: 10.0pt">OmmConsumerErrorClient</span> on the constructor of the <span class="CodeOrCommand" style="font-size: 10.0pt">OmmConsumer</span> class, which switches the error reporting from exception throwing to callbacks. In addition to its error reporting mechanisms, EMA provides a logger mechanism which is useful in monitoring EMA behavior and debugging any issues that might arise.</div>
+      <div class="Body"><a name="1031297">The EMA consumer will always have at least one thread, which is implemented by the VA Reactor and runs the internal, VA Reactor logic. For details on this thread, refer to the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCVACG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> Java</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> Edition Value Added Component Developers Guide</a></span>. Additionally, you can configure the EMA to create a second, internal thread to dispatch received messages. To create a second thread, set the <span class="CodeOrCommand" style="font-size: 10.0pt">OmmConsumerConfig</span> operation model to <span class="CodeOrCommand" style="font-size: 10.0pt">OmmConsumerConfig.OperationModel.API_DISPATCH</span>. If the <span class="CodeOrCommand" style="font-size: 10.0pt">OmmConsumerConfig</span> operation model is set to the <span class="CodeOrCommand" style="font-size: 10.0pt">OmmConsumerConfig.OperationModel.USER_DISPATCH</span>, the EMA will not run a second thread. Without running a second thread, the application is responsible for calling the <span class="CodeOrCommand" style="font-size: 10.0pt">Ommconsumer::dispatch()</span> method to dispatch all received messages.</div>
+      <div class="Blank_Line"><a name="1031313">&nbsp;</a></div>
+      <table class="Warning" style="width: 554.99976pt" cellspacing="0" summary="">
+        <caption></caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 30.74904pt">
+            <div class="Body" style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1031310"><img class="Default" src="images/Chapter_Prod_Desc.2.6.1.jpg" width="34" height="33" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></span></div>
+          </td>
+          <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 524.25072pt">
+            <div class="Warning">
+              <span class="Bold">Warning! </span><a name="1031312">If the application delays in dispatching messages, it can result in slow consumer behavior.</a></div>
+          </td>
+        </tr>
+      </table>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -81,7 +111,7 @@
       </script>
     </blockquote>
     <hr align="left" />
-    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 2	Product Overview : 2.5	Product Architecture</div>
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 2	Product Overview : 2.4	Product Architecture</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

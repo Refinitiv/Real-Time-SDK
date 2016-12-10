@@ -15,6 +15,8 @@ DictionaryConfig::DictionaryConfig() :
 	dictionaryName(),
 	rdmfieldDictionaryFileName(),
 	enumtypeDefFileName(),
+	rdmFieldDictionaryItemName(),
+	enumTypeDefItemName(),
 	dictionaryType( DEFAULT_DICTIONARY_TYPE )
 {
 }
@@ -28,7 +30,60 @@ void DictionaryConfig::clear()
 	dictionaryName.clear();
 	rdmfieldDictionaryFileName.clear();
 	enumtypeDefFileName.clear();
+	rdmFieldDictionaryItemName.clear();
+	enumTypeDefItemName.clear();
 	dictionaryType = DEFAULT_DICTIONARY_TYPE;
+}
+
+ServiceDictionaryConfig::ServiceDictionaryConfig() :
+	serviceId(0)
+{
+}
+
+ServiceDictionaryConfig::~ServiceDictionaryConfig()
+{
+	clear();
+}
+
+void ServiceDictionaryConfig::clear()
+{
+	serviceId = 0;
+
+	DictionaryConfig* dictionaryConfig = dictionaryUsedList.pop_back();
+
+	while (dictionaryConfig)
+	{
+		delete dictionaryConfig;
+		dictionaryConfig = dictionaryUsedList.pop_back();
+	}
+
+	dictionaryConfig = dictionaryProvidedList.pop_back();
+
+	while (dictionaryConfig)
+	{
+		delete dictionaryConfig;
+		dictionaryConfig = dictionaryProvidedList.pop_back();
+	}
+}
+
+void ServiceDictionaryConfig::addDictionaryUsed(DictionaryConfig* dictionaryUsed)
+{
+	dictionaryUsedList.push_back(dictionaryUsed);
+}
+
+void ServiceDictionaryConfig::addDictionaryProvided(DictionaryConfig* dictionaryProvided)
+{
+	dictionaryProvidedList.push_back(dictionaryProvided);
+}
+
+const EmaList<DictionaryConfig*>& ServiceDictionaryConfig::getDictionaryUsedList()
+{
+	return dictionaryUsedList;
+}
+
+const EmaList<DictionaryConfig*>& ServiceDictionaryConfig::getDictionaryProvidedList()
+{
+	return dictionaryProvidedList;
 }
 
 LoggerConfig::LoggerConfig() :
@@ -52,15 +107,80 @@ void LoggerConfig::clear()
 	loggerType = OmmLoggerClient::StdoutEnum;
 }
 
-ActiveConfig::ActiveConfig( const EmaString& defaultServiceName ) :
+BaseConfig::BaseConfig() :
 	configuredName(),
 	instanceName(),
-	itemCountHint( DEFAULT_ITEM_COUNT_HINT ),
-	serviceCountHint( DEFAULT_SERVICE_COUNT_HINT ),
-	dispatchTimeoutApiThread( DEFAULT_DISPATCH_TIMEOUT_API_THREAD ),
-	maxDispatchCountApiThread( DEFAULT_MAX_DISPATCH_COUNT_API_THREAD ),
-	maxDispatchCountUserThread( DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD ),
-	pipePort( DEFAULT_PIPE_PORT ),
+	itemCountHint(DEFAULT_ITEM_COUNT_HINT),
+	serviceCountHint(DEFAULT_SERVICE_COUNT_HINT),
+	dispatchTimeoutApiThread(DEFAULT_DISPATCH_TIMEOUT_API_THREAD),
+	maxDispatchCountApiThread(DEFAULT_MAX_DISPATCH_COUNT_API_THREAD),
+	maxDispatchCountUserThread(DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD),
+	loggerConfig(),
+	catchUnhandledException(DEFAULT_HANDLE_EXCEPTION)
+{
+}
+
+BaseConfig::~BaseConfig()
+{
+}
+
+void BaseConfig::clear()
+{
+	configuredName.clear();
+	instanceName.clear();
+	itemCountHint = DEFAULT_ITEM_COUNT_HINT;
+	serviceCountHint = DEFAULT_SERVICE_COUNT_HINT;
+	dispatchTimeoutApiThread = DEFAULT_DISPATCH_TIMEOUT_API_THREAD;
+	maxDispatchCountApiThread = DEFAULT_MAX_DISPATCH_COUNT_API_THREAD;
+	maxDispatchCountUserThread = DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD;
+	loggerConfig.clear();
+}
+
+void BaseConfig::setItemCountHint(UInt64 value)
+{
+	if (value <= 0) {}
+	else if (value > 0xFFFFFFFF)
+		itemCountHint = 0xFFFFFFFF;
+	else
+		itemCountHint = (UInt32)value;
+}
+
+void BaseConfig::setServiceCountHint(UInt64 value)
+{
+	if (value <= 0) {}
+	else if (value > 0xFFFFFFFF)
+		serviceCountHint = 0xFFFFFFFF;
+	else
+		serviceCountHint = (UInt32)value;
+}
+
+void BaseConfig::setCatchUnhandledException(UInt64 value)
+{
+	if (value > 0)
+		catchUnhandledException = true;
+	else
+		catchUnhandledException = false;
+}
+
+void BaseConfig::setMaxDispatchCountApiThread(UInt64 value)
+{
+	if (value <= 0) {}
+	else if (value > 0xFFFFFFFF)
+		maxDispatchCountApiThread = 0xFFFFFFFF;
+	else
+		maxDispatchCountApiThread = (UInt32)value;
+}
+
+void BaseConfig::setMaxDispatchCountUserThread(UInt64 value)
+{
+	if (value <= 0) {}
+	else if (value > 0xFFFFFFFF)
+		maxDispatchCountUserThread = 0xFFFFFFFF;
+	else
+		maxDispatchCountUserThread = (UInt32)value;
+}
+
+ActiveConfig::ActiveConfig( const EmaString& defaultServiceName ) :
 	obeyOpenWindow( DEFAULT_OBEY_OPEN_WINDOW ),
 	requestTimeout( DEFAULT_REQUEST_TIMEOUT ),
 	postAckTimeout( DEFAULT_POST_ACK_TIMEOUT ),
@@ -68,15 +188,14 @@ ActiveConfig::ActiveConfig( const EmaString& defaultServiceName ) :
 	loginRequestTimeOut( DEFAULT_LOGIN_REQUEST_TIMEOUT ),
 	directoryRequestTimeOut( DEFAULT_DIRECTORY_REQUEST_TIMEOUT ),
 	dictionaryRequestTimeOut( DEFAULT_DICTIONARY_REQUEST_TIMEOUT ),
-	dictionaryConfig(),
-	loggerConfig(),
+	pipePort(DEFAULT_PIPE_PORT),
 	pRsslRDMLoginReq( 0 ),
 	pRsslDirectoryRequestMsg( 0 ),
 	pRsslRdmFldRequestMsg( 0 ),
 	pRsslEnumDefRequestMsg( 0 ),
 	pDirectoryRefreshMsg( 0 ),
-	catchUnhandledException( DEFAULT_HANDLE_EXCEPTION ),
-	_defaultServiceName( defaultServiceName )
+	_defaultServiceName( defaultServiceName ),
+	dictionaryConfig()
 {
 }
 
@@ -103,21 +222,12 @@ void ActiveConfig::clearChannelSet()
 
 void ActiveConfig::clear()
 {
-	configuredName.clear();
-	instanceName.clear();
-	itemCountHint = DEFAULT_ITEM_COUNT_HINT;
-	serviceCountHint = DEFAULT_SERVICE_COUNT_HINT;
-	dispatchTimeoutApiThread = DEFAULT_DISPATCH_TIMEOUT_API_THREAD;
-	maxDispatchCountApiThread = DEFAULT_MAX_DISPATCH_COUNT_API_THREAD;
-	maxDispatchCountUserThread = DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD;
 	pipePort = DEFAULT_PIPE_PORT;
 	obeyOpenWindow = DEFAULT_OBEY_OPEN_WINDOW;
 	requestTimeout = DEFAULT_REQUEST_TIMEOUT;
 	postAckTimeout = DEFAULT_POST_ACK_TIMEOUT;
 	maxOutstandingPosts = DEFAULT_MAX_OUTSTANDING_POSTS;
-	clearChannelSet();
 	dictionaryConfig.clear();
-	loggerConfig.clear();
 	pRsslRDMLoginReq = 0;
 	pRsslDirectoryRequestMsg = 0;
 	pRsslRdmFldRequestMsg = 0;
@@ -126,24 +236,6 @@ void ActiveConfig::clear()
 	if ( pDirectoryRefreshMsg )
 		delete pDirectoryRefreshMsg;
 	pDirectoryRefreshMsg = 0;
-}
-
-void ActiveConfig::setItemCountHint( UInt64 value )
-{
-	if ( value <= 0 ) {}
-	else if ( value > 0xFFFFFFFF )
-		itemCountHint = 0xFFFFFFFF;
-	else
-		itemCountHint = ( UInt32 )value;
-}
-
-void ActiveConfig::setServiceCountHint( UInt64 value )
-{
-	if ( value <= 0 ) {}
-	else if ( value > 0xFFFFFFFF )
-		serviceCountHint = 0xFFFFFFFF;
-	else
-		serviceCountHint = ( UInt32 )value;
 }
 
 void ActiveConfig::setObeyOpenWindow( UInt64 value )
@@ -205,32 +297,6 @@ void ActiveConfig::setMaxOutstandingPosts( UInt64 value )
 		maxOutstandingPosts = ( UInt32 )value;
 }
 
-void ActiveConfig::setCatchUnhandledException( UInt64 value )
-{
-	if ( value > 0 )
-		catchUnhandledException = true;
-	else
-		catchUnhandledException = false;
-}
-
-void ActiveConfig::setMaxDispatchCountApiThread( UInt64 value )
-{
-	if ( value <= 0 ) {}
-	else if ( value > 0xFFFFFFFF )
-		maxDispatchCountApiThread = 0xFFFFFFFF;
-	else
-		maxDispatchCountApiThread = ( UInt32 )value;
-}
-
-void ActiveConfig::setMaxDispatchCountUserThread( UInt64 value )
-{
-	if ( value <= 0 ) {}
-	else if ( value > 0xFFFFFFFF )
-		maxDispatchCountUserThread = 0xFFFFFFFF;
-	else
-		maxDispatchCountUserThread = ( UInt32 )value;
-}
-
 ChannelConfig* ActiveConfig::findChannelConfig( const Channel* pChannel )
 {
 	ChannelConfig* retChannelCfg = 0;
@@ -260,6 +326,88 @@ bool ActiveConfig::findChannelConfig( EmaVector< ChannelConfig* >& cfgChannelSet
 		}
 	}
 	return channelFound;
+}
+
+ActiveServerConfig::ActiveServerConfig(const EmaString& defaultServiceName) :
+	pipePort(DEFAULT_SERVER_PIPE_PORT),
+	acceptMessageWithoutBeingLogin(DEFAULT_ACCEPT_MSG_WITHOUT_BEING_LOGIN),
+	acceptMessageWithoutAcceptingRequests(DEFAULT_ACCEPT_MSG_WITHOUT_ACCEPTING_REQUESTS),
+	acceptDirMessageWithoutMinFilters(DEFAULT_ACCEPT_DIR_MSG_WITHOUT_MIN_FILTERS),
+	acceptMessageWithoutQosInRange(DEFAULT_ACCEPT_MSG_WITHOUT_QOS_IN_RANGE),
+	acceptMessageSameKeyButDiffStream(DEFAULT_ACCEPT_MSG_SAMEKEY_BUT_DIFF_STREAM),
+	acceptMessageThatChangesService(DEFAULT_ACCEPT_MSG_THAT_CHANGES_SERVICE),
+	_defaultServiceName(defaultServiceName),
+	pDirectoryRefreshMsg(0)
+{
+	pServerConfig = new SocketServerConfig(defaultServiceName);
+}
+
+ActiveServerConfig::~ActiveServerConfig()
+{
+	ServiceDictionaryConfig* serviceDictionaryConfig = _serviceDictionaryConfigList.pop_back();
+
+	while (serviceDictionaryConfig)
+	{
+		delete serviceDictionaryConfig;
+		serviceDictionaryConfig = _serviceDictionaryConfigList.pop_back();
+	}
+}
+
+void ActiveServerConfig::clear()
+{
+	pipePort = DEFAULT_SERVER_PIPE_PORT;
+
+	if (pDirectoryRefreshMsg)
+		delete pDirectoryRefreshMsg;
+	pDirectoryRefreshMsg = 0;
+}
+
+ServiceDictionaryConfig*	ActiveServerConfig::getServiceDictionaryConfig(UInt16 serviceId)
+{
+	ServiceDictionaryConfig** serviceDictionaryConfigPtr = _serviceDictionaryConfigHash.find(serviceId);
+
+	return serviceDictionaryConfigPtr ? *serviceDictionaryConfigPtr : 0;
+}
+
+void ActiveServerConfig::addServiceDictionaryConfig(ServiceDictionaryConfig* serviceDictionaryConfig)
+{
+	_serviceDictionaryConfigHash.insert(serviceDictionaryConfig->serviceId, serviceDictionaryConfig);
+	_serviceDictionaryConfigList.push_back(serviceDictionaryConfig);
+}
+
+void ActiveServerConfig::removeServiceDictionaryConfig(ServiceDictionaryConfig* serviceDictionaryConfig)
+{
+	_serviceDictionaryConfigHash.erase(serviceDictionaryConfig->serviceId);
+	_serviceDictionaryConfigList.remove(serviceDictionaryConfig);
+
+	delete serviceDictionaryConfig;
+}
+
+void ActiveServerConfig::setServiceDictionaryConfigList(EmaList<ServiceDictionaryConfig*>& serviceDictionaryConfigList)
+{
+	ServiceDictionaryConfig* serviceDictionaryConfig = serviceDictionaryConfigList.pop_back();
+
+	while (serviceDictionaryConfig)
+	{
+		addServiceDictionaryConfig(serviceDictionaryConfig);
+
+		serviceDictionaryConfig = serviceDictionaryConfigList.pop_back();
+	}
+}
+
+const EmaList<ServiceDictionaryConfig*>& ActiveServerConfig::getServiceDictionaryConfigList()
+{
+	return _serviceDictionaryConfigList;
+}
+
+size_t ActiveServerConfig::UInt16rHasher::operator()(const UInt16& value) const
+{
+	return value;
+}
+
+bool ActiveServerConfig::UInt16Equal_To::operator()(const UInt16& x, const UInt16& y) const
+{
+	return x == y ? true : false;
 }
 
 ChannelConfig::ChannelConfig()
@@ -368,6 +516,58 @@ void ChannelConfig::setReconnectMaxDelay( Int64 value )
 	}
 }
 
+ServerConfig::ServerConfig( RsslConnectionTypes type ) :
+	name(),
+	interfaceName(DEFAULT_INTERFACE_NAME),
+	xmlTraceFileName(DEFAULT_XML_TRACE_FILE_NAME),
+	compressionType(DEFAULT_COMPRESSION_TYPE),
+	compressionThreshold(DEFAULT_COMPRESSION_THRESHOLD),
+	connectionType(type),
+	connectionPingTimeout(DEFAULT_CONNECTION_PINGTIMEOUT),
+	connectionMinPingTimeout(DEFAULT_CONNECTION_MINPINGTIMEOUT),
+	guaranteedOutputBuffers(DEFAULT_PROVIDER_GUARANTEED_OUTPUT_BUFFERS),
+	numInputBuffers(DEFAULT_NUM_INPUT_BUFFERS),
+	sysSendBufSize(DEFAULT_PROVIDER_SYS_SEND_BUFFER_SIZE),
+	sysRecvBufSize(DEFAULT_PROVIDER_SYS_RECEIVE_BUFFER_SIZE),
+	highWaterMark(DEFAULT_HIGH_WATER_MARK),
+	xmlTraceMaxFileSize(DEFAULT_XML_TRACE_MAX_FILE_SIZE),
+	xmlTraceToFile(DEFAULT_XML_TRACE_TO_FILE),
+	xmlTraceToStdout(DEFAULT_XML_TRACE_TO_STDOUT),
+	xmlTraceToMultipleFiles(DEFAULT_XML_TRACE_TO_MULTIPLE_FILE),
+	xmlTraceWrite(DEFAULT_XML_TRACE_WRITE),
+	xmlTraceRead(DEFAULT_XML_TRACE_READ),
+	xmlTracePing(DEFAULT_XML_TRACE_PING),
+	xmlTraceHex(DEFAULT_XML_TRACE_HEX),
+	msgKeyInUpdates(DEFAULT_MSGKEYINUPDATES)
+{
+
+}
+
+ServerConfig::~ServerConfig()
+{
+
+}
+
+void ServerConfig::clear()
+{
+}
+
+void ServerConfig::setGuaranteedOutputBuffers(UInt64 value)
+{
+	if (value != 0)
+	{
+		guaranteedOutputBuffers = value > 0xFFFFFFFF ? 0xFFFFFFFF : (UInt32)value;
+	}
+}
+
+void ServerConfig::setNumInputBuffers(UInt64 value)
+{
+	if (value != 0)
+	{
+		numInputBuffers = value > 0xFFFFFFFF ? 0xFFFFFFFF : (UInt32)value;
+	}
+}
+
 SocketChannelConfig::SocketChannelConfig( const EmaString& defaultServiceName ) :
 	ChannelConfig( RSSL_CONN_TYPE_SOCKET ),
 	hostName( DEFAULT_HOST_NAME ),
@@ -393,6 +593,27 @@ void SocketChannelConfig::clear()
 ChannelConfig::ChannelType SocketChannelConfig::getType() const
 {
 	return ChannelConfig::SocketChannelEnum;
+}
+
+SocketServerConfig::SocketServerConfig(const EmaString& defaultServiceName) :
+ServerConfig(RSSL_CONN_TYPE_SOCKET),
+serviceName(defaultServiceName),
+tcpNodelay(DEFAULT_TCP_NODELAY)
+{
+}
+
+SocketServerConfig::~SocketServerConfig()
+{
+}
+
+void SocketServerConfig::clear()
+{
+	tcpNodelay = DEFAULT_TCP_NODELAY;
+}
+
+ServerConfig::ServerType SocketServerConfig::getType() const
+{
+	return ServerConfig::SocketChannelEnum;
 }
 
 ReliableMcastChannelConfig::ReliableMcastChannelConfig() :

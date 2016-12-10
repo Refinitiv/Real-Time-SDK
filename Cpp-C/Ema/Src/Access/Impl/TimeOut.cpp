@@ -16,18 +16,18 @@ using namespace thomsonreuters::ema::access;
 TimeOutTimeType TimeOut::frequency = { 0, 0 };
 #endif
 
-TimeOut::TimeOut( OmmBaseImpl& ommBaseImpl, Int64 lengthInMicroSeconds, void( *functor )( void* ), void* args, bool allocatedOnHeap ) :
+TimeOut::TimeOut( TimeOutClient& timeOutClient, Int64 lengthInMicroSeconds, void( *functor )( void* ), void* args, bool allocatedOnHeap ) :
 	_functor( functor ),
 	_lengthInMicroSeconds( lengthInMicroSeconds ),
 	_args( args ),
 	_timeoutTime(),
 	_canceled( false ),
 	_allocatedOnHeap( allocatedOnHeap ),
-	_ommBaseImpl( ommBaseImpl )
+	_timeOutClient(timeOutClient)
 {
 	if ( lengthInMicroSeconds == 0 )
 	{
-		_ommBaseImpl.getTimeOutList().insert( this );
+		timeOutClient.getTimeOutList().insert(this);
 		_canceled = true;
 		return;
 	}
@@ -47,9 +47,9 @@ TimeOut::TimeOut( OmmBaseImpl& ommBaseImpl, Int64 lengthInMicroSeconds, void( *f
 	_timeoutTime = setAt + lengthInMicroSeconds * 1000;
 #endif				
 
-	_ommBaseImpl.getTimeOutList().insert( this );
+	_timeOutClient.getTimeOutList().insert(this);
 
-	_ommBaseImpl.installTimeOut();
+	_timeOutClient.installTimeOut();
 }
 
 TimeOut::~TimeOut()
@@ -65,11 +65,11 @@ bool TimeOut::operator<( const TimeOut& rhs ) const
 #endif
 }
 
-bool TimeOut::getTimeOutInMicroSeconds( OmmBaseImpl& ommBaseImpl, Int64& value )
+bool TimeOut::getTimeOutInMicroSeconds(TimeOutClient& timeOutClient, Int64& value)
 {
-	MutexLocker ml( ommBaseImpl.getTimeOutMutex() );
+	MutexLocker ml(timeOutClient.getTimeOutMutex());
 
-	EmaList< TimeOut* >& _theTimeOuts( ommBaseImpl.getTimeOutList() );
+	EmaList< TimeOut* >& _theTimeOuts(timeOutClient.getTimeOutList());
 
 	if ( _theTimeOuts.empty() )
 		return false;
@@ -116,20 +116,20 @@ bool TimeOut::getTimeOutInMicroSeconds( OmmBaseImpl& ommBaseImpl, Int64& value )
 
 void TimeOut::cancel()
 {
-	MutexLocker ml( _ommBaseImpl.getTimeOutMutex() );
+	MutexLocker ml(_timeOutClient.getTimeOutMutex());
 
 	_canceled = true;
 
-	EmaList< TimeOut* > & _theTimeOuts( _ommBaseImpl.getTimeOutList() );
+	EmaList< TimeOut* > & _theTimeOuts(_timeOutClient.getTimeOutList());
 
 	_theTimeOuts.remove( this );
 
 	if ( _allocatedOnHeap ) delete this;
 }
 
-void TimeOut::execute( OmmBaseImpl& baseImpl )
+void TimeOut::execute( TimeOutClient& timeOutClient )
 {
-	MutexLocker ml( baseImpl.getTimeOutMutex() );
+	MutexLocker ml(timeOutClient.getTimeOutMutex());
 
 	TimeOutTimeType current;
 #ifdef WIN32
@@ -140,7 +140,7 @@ void TimeOut::execute( OmmBaseImpl& baseImpl )
 	current = ts.tv_sec * static_cast<int>( 1E9 ) + ts.tv_nsec;
 #endif
 
-	TimeOut * p( baseImpl.getTimeOutList().front() );
+	TimeOut * p(timeOutClient.getTimeOutList().front());
 	while ( p )
 	{
 #ifdef WIN32
@@ -152,12 +152,20 @@ void TimeOut::execute( OmmBaseImpl& baseImpl )
 			if ( !p->_canceled )
 				( *p )( );
 			if ( p->_allocatedOnHeap )
-				delete baseImpl.getTimeOutList().pop_front();
+				delete timeOutClient.getTimeOutList().pop_front();
 			else
-				baseImpl.getTimeOutList().pop_front();
-			p = baseImpl.getTimeOutList().front();
+				timeOutClient.getTimeOutList().pop_front();
+			p = timeOutClient.getTimeOutList().front();
 		}
 		else
 			return;
 	}
+}
+
+TimeOutClient::TimeOutClient()
+{
+
+}
+TimeOutClient::~TimeOutClient()
+{
 }

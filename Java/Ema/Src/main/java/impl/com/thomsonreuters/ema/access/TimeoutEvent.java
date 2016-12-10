@@ -55,19 +55,19 @@ class TimeoutEvent extends VaNode
 		return _client;
 	}
 	
-	static <T> long userTimeOutExist(OmmBaseImpl<T> ommBaseImpl)
+	static <T> long userTimeOutExist(VaIteratableQueue timeoutEventQueue)
 	{
-		if (ommBaseImpl._timeoutEventQueue.size() == 0)
+		if (timeoutEventQueue.size() == 0)
 			return -1;
 		
-		ommBaseImpl._timeoutEventQueue.rewind();
+		timeoutEventQueue.rewind();
 		
-		while (ommBaseImpl._timeoutEventQueue.hasNext())
+		while (timeoutEventQueue.hasNext())
         {
-        	TimeoutEvent event = (TimeoutEvent)ommBaseImpl._timeoutEventQueue.next();
+        	TimeoutEvent event = (TimeoutEvent)timeoutEventQueue.next();
         	if (event.cancelled())
         	{
-        		ommBaseImpl._timeoutEventQueue.remove(event);
+        		timeoutEventQueue.remove(event);
         		event.returnToPool();
         		continue;
         	}
@@ -82,12 +82,12 @@ class TimeoutEvent extends VaNode
         return -1;
 	}
 	
-	static <T> void execute(OmmBaseImpl<T> ommBaseImpl)
+	static <T> void execute(VaIteratableQueue timeoutEventQueue)
 	{
-		if ( ommBaseImpl.timerEventQueue().size() == 0)
+		if ( timeoutEventQueue.size() == 0)
 			return; 
 		
-		VaIteratableQueue timerEventQueue = ommBaseImpl.timerEventQueue();
+		VaIteratableQueue timerEventQueue = timeoutEventQueue;
 		timerEventQueue.rewind();
 
 		while (timerEventQueue.hasNext())

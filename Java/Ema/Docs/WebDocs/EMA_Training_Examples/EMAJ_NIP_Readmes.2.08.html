@@ -56,42 +56,42 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1019378">250__MarketPrice__Performance</a></div>
-      <div class="Body"><a name="1030352">Summary</a></div>
-      <div class="Body"><a name="1030353">=======</a></div>
-      <div class="Body"><a name="1030354">&nbsp;</a></div>
-      <div class="Body"><a name="1030355">250__MarketPrice__Performance is an example of an OMM NiProvider application written</a></div>
-      <div class="Body"><a name="1030356">to the EMA library.</a></div>
-      <div class="Body"><a name="1030357">&nbsp;</a></div>
-      <div class="Body"><a name="1030358">This application demonstrates the performance usage of the EMA library in providing</a></div>
-      <div class="Body"><a name="1030359">of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.</a></div>
-      <div class="Body"><a name="1030360">&nbsp;</a></div>
-      <div class="Body"><a name="1030361">250__MarketPrice__Performance illustrates how to efficiently create and publish a number</a></div>
-      <div class="Body"><a name="1030362">of OMM streaming items. This application uses source directory configured in the EmaConfig.xml</a></div>
-      <div class="Body"><a name="1030363">file.</a></div>
-      <div class="Body"><a name="1030364">&nbsp;</a></div>
-      <div class="Body"><a name="1030365">&nbsp;</a></div>
-      <div class="Body"><a name="1030366">Detailed Description</a></div>
-      <div class="Body"><a name="1030367">====================</a></div>
-      <div class="Body"><a name="1030368">&nbsp;</a></div>
-      <div class="Body"><a name="1030369">250__MarketPrice__Performance implements the following high-level steps:</a></div>
-      <div class="Body"><a name="1030370">&nbsp;</a></div>
-      <div class="Body"><a name="1030371">+ Instantiates and modifies an OmmNiProviderConfig object:</a></div>
-      <div class="Body"><a name="1030372">  - which reads in the EmaConfig.xml file with:</a></div>
-      <div class="Body"><a name="1030373">    - specified SourceDirectory of TEST_NI_PUB</a></div>
-      <div class="Body"><a name="1030374">	- specified Channel’s host and port</a></div>
-      <div class="Body"><a name="1030375">  - Sets the username to “user”</a></div>
-      <div class="Body"><a name="1030376">+ Instantiates an OmmProvider object which:</a></div>
-      <div class="Body"><a name="1030377">  - initializes the connection and logs into the configured ADH</a></div>
-      <div class="Body"><a name="1030378">  - sends down the source directory refresh message with TEST_NI_PUB service info</a></div>
-      <div class="Body"><a name="1030379">+ Creates a number of streaming items (refresh and updates) and publishes them</a></div>
-      <div class="Body"><a name="1030380">  - refresh messages use ServiceName.</a></div>
-      <div class="Body"><a name="1030381">+ Publishes a number of updates for 300 seconds.</a></div>
-      <div class="Body"><a name="1030382">+ Prints out approximate rates of refreshes and updates every second or so</a></div>
-      <div class="Body"><a name="1030383">+ Exits</a></div>
-      <div class="Body"><a name="1030384">&nbsp;</a></div>
-      <div class="Body"><a name="1030385">Note: If needed, these and other details may be modified to fit your local</a></div>
-      <div class="Body"><a name="1030386">      environment. For details on standard configuration, refer to the EMA library</a></div>
-      <div class="Body"><a name="1030387">      ReadMe.txt file and EMA Configuration Guide.</a></div>
+      <div class="Body"><a name="1031656">Summary</a></div>
+      <div class="Body"><a name="1031657">=======</a></div>
+      <div class="Body"><a name="1031658">&nbsp;</a></div>
+      <div class="Body"><a name="1031659">250__MarketPrice__Performance is an example of an OMM NiProvider application written</a></div>
+      <div class="Body"><a name="1031660">to the EMA library.</a></div>
+      <div class="Body"><a name="1031661">&nbsp;</a></div>
+      <div class="Body"><a name="1031662">This application demonstrates the performance usage of the EMA library in providing</a></div>
+      <div class="Body"><a name="1031663">of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.</a></div>
+      <div class="Body"><a name="1031664">&nbsp;</a></div>
+      <div class="Body"><a name="1031665">250__MarketPrice__Performance illustrates how to efficiently create and publish a number</a></div>
+      <div class="Body"><a name="1031666">of OMM streaming items. This application uses source directory configured in the EmaConfig.xml</a></div>
+      <div class="Body"><a name="1031667">file.</a></div>
+      <div class="Body"><a name="1031668">&nbsp;</a></div>
+      <div class="Body"><a name="1031669">&nbsp;</a></div>
+      <div class="Body"><a name="1031670">Detailed Description</a></div>
+      <div class="Body"><a name="1031671">====================</a></div>
+      <div class="Body"><a name="1031672">&nbsp;</a></div>
+      <div class="Body"><a name="1031673">250__MarketPrice__Performance implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1031674">&nbsp;</a></div>
+      <div class="Body"><a name="1031675">+ Instantiates and modifies an OmmNiProviderConfig object:</a></div>
+      <div class="Body"><a name="1031676">  - which reads in the EmaConfig.xml file with:</a></div>
+      <div class="Body"><a name="1031677">    - specified SourceDirectory of TEST_NI_PUB</a></div>
+      <div class="Body"><a name="1031678">	- specified Channel’s host and port</a></div>
+      <div class="Body"><a name="1031679">  - Sets the username to “user”</a></div>
+      <div class="Body"><a name="1031680">+ Instantiates an OmmProvider object which:</a></div>
+      <div class="Body"><a name="1031681">  - initializes the connection and logs into the configured ADH</a></div>
+      <div class="Body"><a name="1031682">  - sends down the source directory refresh message with TEST_NI_PUB service info</a></div>
+      <div class="Body"><a name="1031683">+ Creates a number of streaming items (refresh and updates) and publishes them</a></div>
+      <div class="Body"><a name="1031684">  - refresh messages use ServiceName.</a></div>
+      <div class="Body"><a name="1031685">+ Publishes a number of updates for 300 seconds.</a></div>
+      <div class="Body"><a name="1031686">+ Prints out approximate rates of refreshes and updates every second or so</a></div>
+      <div class="Body"><a name="1031687">+ Exits</a></div>
+      <div class="Body"><a name="1031688">&nbsp;</a></div>
+      <div class="Body"><a name="1031689">Note: If needed, these and other details may be modified to fit your local</a></div>
+      <div class="Body"><a name="1031690">      environment. For details on standard configuration, refer to the EMA library</a></div>
+      <div class="Body"><a name="1031691">      ReadMe.txt file and EMA Configuration Guide.</a></div>
       <div class="Body"><a name="1029921">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--

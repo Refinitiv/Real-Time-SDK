@@ -17,11 +17,14 @@ import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
 import com.thomsonreuters.upa.transport.WritePriorities;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEvent;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
+import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamSubmitOptions;
 
 class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsumer
 {
 	private OmmConsumerErrorClient _consumerErrorClient;
 	private OmmConsumerActiveConfig _activeConfig;
+	private TunnelStreamSubmitOptions _rsslTunnelStreamSubmitOptions;
 
 	OmmConsumerImpl(OmmConsumerConfig config)
 	{
@@ -145,7 +148,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 	}
 
 	@Override
-	String formatLogMessage(String clientName, String temp, int level) {
+	public String formatLogMessage(String clientName, String temp, int level) {
 		strBuilder().append("loggerMsg\n").append("    ClientName: ").append(clientName).append("\n")
         .append("    Severity: ").append(OmmLoggerClient.loggerSeverityAsString(level)).append("\n")
         .append("    Text:    ").append(temp).append("\n").append("loggerMsgEnd\n\n");
@@ -360,7 +363,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 	}
 	
 	@Override
-	void handleInvalidUsage(String text)
+	public void handleInvalidUsage(String text)
 	{
 		if ( hasErrorClient() )
 			_consumerErrorClient.onInvalidUsage(text);
@@ -370,11 +373,19 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 	}
 
 	@Override
-	void handleInvalidHandle(long handle, String text)
+	public void handleInvalidHandle(long handle, String text)
 	{	
 		if ( hasErrorClient() )
 			_consumerErrorClient.onInvalidHandle(handle, text);
 		else
 			throw (ommIHExcept().message(text, handle));
+	}
+
+	TunnelStreamSubmitOptions rsslTunnelStreamSubmitOptions()
+	{
+		if (_rsslTunnelStreamSubmitOptions == null)
+			_rsslTunnelStreamSubmitOptions = ReactorFactory.createTunnelStreamSubmitOptions();
+
+		return _rsslTunnelStreamSubmitOptions;
 	}
 }

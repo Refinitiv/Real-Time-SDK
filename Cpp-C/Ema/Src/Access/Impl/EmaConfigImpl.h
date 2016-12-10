@@ -34,6 +34,7 @@ namespace access {
 
 class XMLnode;
 class ProgrammaticConfigure;
+class EmaConfigBaseImpl;
 
 class ConfigElement
 {
@@ -848,7 +849,7 @@ class AdminRefreshMsg
 {
 public :
 
-	AdminRefreshMsg( EmaConfigImpl* );
+	AdminRefreshMsg( EmaConfigBaseImpl* );
 	AdminRefreshMsg( const AdminRefreshMsg & );
 	AdminRefreshMsg& operator=( const AdminRefreshMsg& );
 
@@ -862,7 +863,7 @@ public :
 
 private :
 
-	EmaConfigImpl*		_pEmaConfigImpl;
+	EmaConfigBaseImpl*		_pEmaConfigImpl;
 	RsslRefreshMsg		_rsslMsg;
 	RsslBuffer			_name;
 	RsslBuffer			_header;
@@ -923,7 +924,152 @@ struct PortSetViaFunctionCall
 	}
 };
 
-class EmaConfigImpl
+class EmaConfigBaseImpl
+{
+public:
+
+	EmaConfigBaseImpl();
+	~EmaConfigBaseImpl();
+
+	void clear();
+
+	const XMLnode* getNode(const EmaString& itemToRetrieve) const;
+
+	template<typename T>
+	bool get(const EmaString& itemToRetrieve, T& retrievedItem) const
+	{
+		int pos;
+		for (pos = itemToRetrieve.length() - 1; pos >= 0; --pos)
+			if ('|' == itemToRetrieve[pos])
+				break;
+		if (pos >= 0)
+		{
+			const XMLnode* node(getNode(itemToRetrieve.substr(0, pos)));
+			if (node)
+			{
+				EmaVector< T > tmp;
+				node->getValues(itemToRetrieve.substr(pos + 1, EmaString::npos), tmp);
+				if (!tmp.empty())
+				{
+					retrievedItem = tmp[tmp.size() - 1];
+					return true;
+				}
+			}
+		}
+
+		EmaString errorMsg("could not get value for item [");
+		errorMsg.append(itemToRetrieve).append("]; will use default value if available");
+		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::VerboseEnum);
+		return false;
+	}
+
+	template<typename S>
+	bool get(const EmaString& itemToRetrieve, EmaVector< S >& retrievedItem) const
+	{
+		int pos;
+		for (pos = itemToRetrieve.length() - 1; pos >= 0; --pos)
+			if ('|' == itemToRetrieve[pos])
+				break;
+		if (pos >= 0)
+		{
+			const XMLnode* node(getNode(itemToRetrieve.substr(0, pos)));
+			if (node)
+			{
+				node->getValues(itemToRetrieve.substr(pos + 1, EmaString::npos), retrievedItem);
+				if (!retrievedItem.empty())
+					return true;
+			}
+		}
+
+		EmaString errorMsg("could not get values for item [");
+		errorMsg.append(itemToRetrieve).append("]; will use default value if available");
+		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::VerboseEnum);
+		return false;
+	}
+
+	template<typename T>
+	bool set(const EmaString& itemToSet, const T& newValue) const
+	{
+		T* item(_pEmaConfig->find<T>(itemToSet));
+		if (item)
+		{
+			*item = newValue;
+			return true;
+		}
+		EmaString errorMsg("could not set value for item [");
+		errorMsg.append(itemToSet).append("] - item not found in configuration");
+		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::VerboseEnum);
+		return false;
+	}
+
+	EmaConfigErrorList& configErrors()
+	{
+		return _pEmaConfig->errors();
+	}
+
+	void print()
+	{
+		_pEmaConfig->print();
+		fflush(stdout);
+	}
+
+	void appendConfigError(const EmaString& text, OmmLoggerClient::Severity severityLevel)
+	{
+		_pEmaConfig->appendErrorMessage(text, severityLevel);
+	}
+
+	virtual void config(const Data&);
+
+	void getLoggerName(const EmaString&, EmaString&) const;
+
+	OmmLoggerClient::Severity readXMLconfiguration(const EmaString&);
+
+	bool extractXMLdataFromCharBuffer(const EmaString&, const char*, int);
+
+	void processXMLnodePtr(XMLnode*, const xmlNodePtr&);
+
+	ConfigElement* convertEnum(const char* name, XMLnode*, const char* value, EmaString&);
+
+	ConfigElement* createConfigElement(const char* name, XMLnode*, const char* value, EmaString&);
+
+	bool validateConfigElement(const char*, ConfigElement::ConfigElementType) const;
+
+	void createNameToValueHashTable();
+
+	void getAsciiAttributeValueList(const EmaString&, const EmaString&, EmaVector< EmaString >&);
+
+	void getEntryNodeList(const EmaString&, const EmaString&, EmaVector< XMLnode* >&);
+
+	ProgrammaticConfigure* getProgrammaticConfigure()
+	{
+		return _pProgrammaticConfigure;
+	}
+
+	const EmaString& getInstanceNodeName() const
+	{
+		return _instanceNodeName;
+	}
+
+	void getServiceNames(const EmaString&, EmaVector< EmaString >&);
+
+	virtual EmaString getConfiguredName() = 0;
+
+	virtual bool getDirectoryName(const EmaString&, EmaString&) const = 0;
+
+protected:
+
+	XMLnode*				_pEmaConfig;
+	ProgrammaticConfigure*	_pProgrammaticConfigure;
+
+	EmaString				_instanceNodeName;
+
+private:
+
+	HashTable< EmaString, ConfigElement::ConfigElementType> nameToValueHashTable;
+
+};
+
+class EmaConfigImpl : public EmaConfigBaseImpl
 {
 public:
 
@@ -943,106 +1089,11 @@ public:
 
 	void addAdminMsg( const RefreshMsg& );
 
-	void config( const Data& );
-
-	OmmConsumerConfig::OperationModel getOperationModel() const;
-
-	virtual EmaString getConfiguredName() = 0;
-
 	void getChannelName( const EmaString&, EmaString& ) const;
-
-	void getLoggerName( const EmaString&, EmaString& ) const;
 
 	virtual bool getDictionaryName( const EmaString&, EmaString& ) const = 0;
 
-	virtual bool getDirectoryName( const EmaString&, EmaString& ) const = 0;
-
 	void host( const EmaString& );
-
-	const XMLnode* getNode( const EmaString& itemToRetrieve ) const;
-
-	template<typename T>
-	bool get( const EmaString& itemToRetrieve, T& retrievedItem ) const
-	{
-		int pos;
-		for ( pos = itemToRetrieve.length() - 1; pos >= 0; --pos )
-			if ( '|' == itemToRetrieve[pos] )
-				break;
-		if ( pos >= 0 )
-		{
-			const XMLnode* node( getNode( itemToRetrieve.substr( 0, pos ) ) );
-			if ( node )
-			{
-				EmaVector< T > tmp;
-				node->getValues( itemToRetrieve.substr( pos + 1, EmaString::npos ), tmp );
-				if ( ! tmp.empty() )
-				{
-					retrievedItem = tmp[ tmp.size() - 1 ];
-					return true;
-				}
-			}
-		}
-
-		EmaString errorMsg("could not get value for item [");
-		errorMsg.append(itemToRetrieve).append("]; will use default value if available");
-		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::VerboseEnum);
-		return false;
-	}
-
-	template<typename S>
-	bool get( const EmaString& itemToRetrieve, EmaVector< S >& retrievedItem ) const
-	{
-		int pos;
-		for ( pos = itemToRetrieve.length() - 1; pos >= 0; --pos )
-			if ( '|' == itemToRetrieve[pos] )
-				break;
-		if ( pos >= 0 )
-		{
-			const XMLnode* node( getNode( itemToRetrieve.substr( 0, pos ) ) );
-			if ( node )
-			{
-				node->getValues( itemToRetrieve.substr( pos + 1, EmaString::npos ), retrievedItem );
-				if ( ! retrievedItem.empty() )
-					return true;
-			}
-		}
-
-		EmaString errorMsg("could not get values for item [");
-		errorMsg.append(itemToRetrieve).append("]; will use default value if available");
-		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::VerboseEnum);
-		return false;
-	}
-
-	template<typename T>
-	bool set( const EmaString& itemToSet, const T& newValue ) const
-	{
-		T* item( _pEmaConfig->find<T>( itemToSet ) );
-		if ( item )
-		{
-			*item = newValue;
-			return true;
-		}
-		EmaString errorMsg( "could not set value for item [" );
-		errorMsg.append( itemToSet ).append( "] - item not found in configuration" );
-		_pEmaConfig->appendErrorMessage( errorMsg, OmmLoggerClient::VerboseEnum );
-		return false;
-	}
-
-	EmaConfigErrorList& configErrors()
-	{
-		return _pEmaConfig->errors();
-	}
-
-	void print()
-	{
-		_pEmaConfig->print();
-		fflush( stdout );
-	}
-
-	void appendConfigError( const EmaString& text, OmmLoggerClient::Severity severityLevel )
-	{
-		_pEmaConfig->appendErrorMessage( text, severityLevel );
-	}
 
 	RsslRDMLoginRequest* getLoginReq();
 
@@ -1064,39 +1115,7 @@ public:
 		return _portSetViaFunctionCall;
 	}
 
-	ProgrammaticConfigure* getProgrammaticConfigure()
-	{
-		return _pProgrammaticConfigure;
-	}
-
-	OmmLoggerClient::Severity readXMLconfiguration( const EmaString& );
-
-	bool extractXMLdataFromCharBuffer( const EmaString&, const char*, int );
-
-	void processXMLnodePtr( XMLnode*, const xmlNodePtr& );
-
-	ConfigElement* convertEnum( const char* name, XMLnode*, const char* value, EmaString& );
-
-	ConfigElement* createConfigElement( const char* name, XMLnode*, const char* value, EmaString& );
-
-	bool validateConfigElement( const char*, ConfigElement::ConfigElementType ) const;
-
-	void createNameToValueHashTable();
-
-	const EmaString& getInstanceNodeName() const
-	{
-		return _instanceNodeName;
-	}
-
-	void getServiceNames( const EmaString&, EmaVector< EmaString >& );
-
-	void getAsciiAttributeValueList( const EmaString&, const EmaString&, EmaVector< EmaString >& );
-
-	void getEntryNodeList( const EmaString& , const EmaString& , EmaVector< XMLnode* >& );
-
 protected:
-
-	XMLnode*				_pEmaConfig;
 
 	LoginRdmReqMsg			_loginRdmReqMsg;
 
@@ -1107,11 +1126,6 @@ protected:
 	AdminRefreshMsg*		_pDirectoryRsslRefreshMsg;
 
 	EmaString				_hostnameSetViaFunctionCall;
-	PortSetViaFunctionCall		_portSetViaFunctionCall;
-
-	ProgrammaticConfigure*	_pProgrammaticConfigure;
-
-	EmaString				_instanceNodeName;
 
 	void addLoginReqMsg( RsslRequestMsg* );
 
@@ -1121,9 +1135,38 @@ protected:
 
 	void addDirectoryRefreshMsg( RsslRefreshMsg* );
 
-private:
+	PortSetViaFunctionCall		_portSetViaFunctionCall;
 
-	HashTable< EmaString, ConfigElement::ConfigElementType> nameToValueHashTable;
+};
+
+class EmaConfigServerImpl : public EmaConfigBaseImpl
+{
+public:
+
+	EmaConfigServerImpl();
+	virtual ~EmaConfigServerImpl();
+
+	void clear();
+
+	void addAdminMsg(const RefreshMsg&);
+
+	void port(const EmaString&);
+
+	void getServerName(const EmaString&, EmaString&) const;
+
+	virtual bool getDictionaryName(const EmaString&, EmaString&) const = 0;
+
+	const PortSetViaFunctionCall& getUserSpecifiedPort() const;
+
+	AdminRefreshMsg* getDirectoryRefreshMsg();
+
+protected:
+
+	void addDirectoryRefreshMsg(RsslRefreshMsg*);
+
+	PortSetViaFunctionCall		_portSetViaFunctionCall;
+	AdminRefreshMsg*			_pDirectoryRsslRefreshMsg;
+
 };
 
 }

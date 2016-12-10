@@ -64,6 +64,14 @@ Reuters Oak Brook, IL USA
 - Configurable Admin Domains:  EMA provides means for modifying the default admin domain messages. 	
 
 
+##Interactive Provider Features:
+
+- Default Admin Domains: EMA uses default directory messages while sending to the connected client. This provides minimum configuration for applications to get up and running.
+ 
+- Configurable Admin Domains:  EMA provides means for modifying the default admin domain messages. 	
+
+
+
 
 ##Common Features:
 
@@ -171,6 +179,7 @@ See the top level Elektron-SDK README.md for details.
 - EMA-533 ChannelSet with two multicast channels userQLimit set incorrectly 
 - EMA-575 NiProvider360 application uses 100% CPU when CTRL-C pressed while publishing data
 - EMA-691 Random exit issue with NiProvider, application does not exit.
+- ETA-2682 CaseId: 05089450 Cannot build EMA from GitHub with Oracle Linux 6.
 
  
 

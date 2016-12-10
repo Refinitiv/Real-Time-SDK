@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>3.6.5.1 Capabilities Entry Parameter</title>
+    <title>3.7.3 Configuring a Directory in a DirectoryGroup</title>
     <link rel="StyleSheet" href="css/Chap_ConfigGroups.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -45,59 +45,72 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H4_outer" style="margin-left: 0pt">
+      <div class="H3_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
             <td>
-              <div class="H4_inner" style="width: 54pt; white-space: nowrap">
-                <span class="bold">3.6.5.1	</span>
+              <div class="H3_inner" style="width: 54pt; white-space: nowrap">
+                <span class="bold">3.7.3	</span>
               </div>
             </td>
             <td width="100%">
-              <div class="H4_inner"><a name="1086673">Capabilities Entry Parameter</a></div>
+              <div class="H3_inner"><a name="1086210">Configuring a Directory in a DirectoryGroup</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1099822">Use the </a><span class="Parameter">CapabilitiesEntry</span> parameter to configure the message domain type supported by the <span class="Parameter">Service</span> component:</div>
-      <div class="Blank_Line"><a name="1099866">&nbsp;</a></div>
+      <div class="Body"><a name="1108624">To configure a </a><span class="Parameter">Directory</span> component, add the following parameters (as appropriate) to the target directory in the XML Schema, each on a separate line:</div>
+      <div class="Blank_Line"><a name="1108672">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.74784pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 16: <a name="1099859">CapabilitiesEntry Parameter &nbsp;</a></div>
+          <div class="TableTitle">Table 14: <a name="1108665">Directory Entry Parameters &nbsp;</a></div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: middle; width: 144.75024pt">
-            <div class="CellHeading"><a name="1099825">PARAMETER</a></div>
+            <div class="CellHeading"><a name="1108627">PARAMETER</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: middle; width: 66.74904pt">
-            <div class="CellHeading"><a name="1099827">TYPE</a></div>
+            <div class="CellHeading"><a name="1108629">TYPE</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: middle; width: 65.9988pt">
-            <div class="CellHeading"><a name="1099829">DEFAULT</a></div>
+            <div class="CellHeading"><a name="1108631">DEFAULT</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: middle; width: 278.24976pt">
-            <div class="CellHeading"><a name="1099831">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1108633">DESCRIPTION</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
+            <div class="CellBody"><a name="1108635">Name</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
+            <div class="CellBody"><a name="1108640">EmaString</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
+            <div class="CellBody"><a name="1108642">N/A</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
+            <div class="CellBody"><a name="1108644">Specifies the name of this </a><span class="Parameter">Directory</span> component. Name is required when creating a <span class="Parameter">Directory</span> component. You can use any value for <span class="Parameter">Name</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top" rowspan="2">
-            <div class="CellBody"><a name="1099833">CapabilitiesEntry</a></div>
+            <div class="CellBody"><a name="1108646">Service</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top" rowspan="2">
-            <div class="CellBody"><a name="1099838">UInt64 or EmaString</a></div>
+            <div class="CellBody"><a name="1108648">Component Name</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top" rowspan="2">
-            <div class="CellBody"><a name="1099843">N/A</a></div>
+            <div class="CellBody"><a name="1108650">N/A</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
-            <div class="CellBody"><a name="1099845">Specifies the message domain type supported by the </a><span class="Parameter">Service</span> component.</div>
-            <div class="CellBody"><a name="1099846">Accepted names are listed in the</a> <span class="FileOrDirectory">emaRdm.h</span> file.</div>
+            <div class="CellBody"><a name="1108652">Specifies </a><span class="Parameter">InfoFilter</span> and <span class="Parameter">StateFilter</span> values for the given <span class="Parameter">Service</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 3pt; padding-left: 4pt; padding-right: 4pt; padding-top: 3pt; vertical-align: top">
             <div class="Note">
-              <span class="Bold">Note: </span><a name="1099854">You can set </a><span class="CodeOrCommand">CapabilitiesEntry</span> to be an RDM domain number or name (e.g. 6 or MMT_MARKET_PRICE).</div>
+              <span class="Bold">Note: </span><a name="1108660">A </a><span class="Parameter">Directory</span> may contain several Service components.</div>
           </td>
         </tr>
       </table>
@@ -112,7 +125,7 @@
       </script>
     </blockquote>
     <hr align="left" />
-    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	Configuration Groups : <a class="WebWorks_Breadcrumb_Link" href="Chap_ConfigGroups.3.25.html">3.6	Directory Group</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_ConfigGroups.3.30.html">3.6.5	InfoFilter Entry Parameters</a> : 3.6.5.1	Capabilities Entry Parameter</div>
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	Configuration Groups : <a class="WebWorks_Breadcrumb_Link" href="Chap_ConfigGroups.3.28.html">3.7	Directory Group</a> : 3.7.3	Configuring a Directory in a DirectoryGroup</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

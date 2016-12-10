@@ -2,15 +2,15 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{6400C331-5FE5-451E-A152-09EA48A3570F}</UniqueIdentifier>
+      <UniqueIdentifier>{8E4B6A15-F1CC-46A0-BF33-CC542368F564}</UniqueIdentifier>
       <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{AD9AE70E-ADFF-45C8-9063-D4C97A808CD2}</UniqueIdentifier>
+      <UniqueIdentifier>{E4CE1336-7C00-4AA1-AE1E-EE4052AD0AEA}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
     <Filter Include="Resource Files">
-      <UniqueIdentifier>{DB231145-0E70-43D0-8E06-42027269D867}</UniqueIdentifier>
+      <UniqueIdentifier>{B9D88EFA-36B4-41BB-B05C-8A08B13DEE50}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
     </Filter>
   </ItemGroup>

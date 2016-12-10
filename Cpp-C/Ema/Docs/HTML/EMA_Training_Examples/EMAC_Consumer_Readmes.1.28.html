@@ -46,51 +46,51 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1020346">330__Login__Streaming</a></div>
-      <div class="Body"><a name="1031157">Summary</a></div>
-      <div class="Body"><a name="1031158">=======</a></div>
-      <div class="Body"><a name="1031159">&nbsp;</a></div>
-      <div class="Body"><a name="1031160">The 330__Login__Streaming application is provided as an example of OMM Consumer</a></div>
-      <div class="Body"><a name="1031161">application written to the EMA library.</a></div>
-      <div class="Body"><a name="1031162">&nbsp;</a></div>
-      <div class="Body"><a name="1031163">This application demonstrates basic usage of the EMA library for accessing</a></div>
-      <div class="Body"><a name="1031164">and parsing of OMM Login and MarketPrice data from Reuters Data Feed Direct</a></div>
-      <div class="Body"><a name="1031165">(RDF-D), directly from an OMM Provider application, or from Thomson Reuters</a></div>
-      <div class="Body"><a name="1031166">Advanced Distribution Server.</a></div>
-      <div class="Body"><a name="1031167">&nbsp;</a></div>
-      <div class="Body"><a name="1031168">The 330__Login__Streaming showcases usage of login stream in OMM Consumer.</a></div>
-      <div class="Body"><a name="1031169">It demonstrates opening of login stream as well as its processing. Having</a></div>
-      <div class="Body"><a name="1031170">a login stream open is useful for consumer applications willing to do</a></div>
-      <div class="Body"><a name="1031171">Off Stream Posting and or knowing the state of its connectivity to server.</a></div>
-      <div class="Body"><a name="1031172">&nbsp;</a></div>
-      <div class="Body"><a name="1031173">&nbsp;</a></div>
-      <div class="Body"><a name="1031174">Detailed Description</a></div>
-      <div class="Body"><a name="1031175">====================</a></div>
-      <div class="Body"><a name="1031176">&nbsp;</a></div>
-      <div class="Body"><a name="1031177">The 330__Login__Streaming implements the following high level steps:</a></div>
-      <div class="Body"><a name="1031178">&nbsp;</a></div>
-      <div class="Body"><a name="1031179">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1031180">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1031181">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
-      <div class="Body"><a name="1031182">    - each of the method provided in this example use the ease of use</a></div>
-      <div class="Body"><a name="1031183">	  data extraction methods that are data type specific</a></div>
-      <div class="Body"><a name="1031184">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1031185">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1031186">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1031187">  - sets operationModel to UserDispatchEnum</a></div>
-      <div class="Body"><a name="1031188">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1031189">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1031190">+ Opens two streaming item interests</a></div>
-      <div class="Body"><a name="1031191">  - Login Domain stream</a></div>
-      <div class="Body"><a name="1031192">  - MarketPrice Domain IBM.N item DIRECT_FEED </a></div>
-      <div class="Body"><a name="1031193">+ Processes data received from user thread for 60 seconds</a></div>
-      <div class="Body"><a name="1031194">  - all received messages are processed on main thread of control</a></div>
-      <div class="Body"><a name="1031195">+ Exits</a></div>
-      <div class="Body"><a name="1031196">&nbsp;</a></div>
-      <div class="Body"><a name="1031197">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1031198">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1031199">	  </a></div>
-      <div class="Body"><a name="1031200">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1031201">      standard configuration.</a></div>
+      <div class="Body"><a name="1041211">Summary</a></div>
+      <div class="Body"><a name="1041212">=======</a></div>
+      <div class="Body"><a name="1041213">&nbsp;</a></div>
+      <div class="Body"><a name="1041214">The 330__Login__Streaming application is provided as an example of OMM Consumer</a></div>
+      <div class="Body"><a name="1041215">application written to the EMA library.</a></div>
+      <div class="Body"><a name="1041216">&nbsp;</a></div>
+      <div class="Body"><a name="1041217">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1041218">and parsing of OMM Login and MarketPrice data from Reuters Data Feed Direct</a></div>
+      <div class="Body"><a name="1041219">(RDF-D), directly from an OMM Provider application, or from Thomson Reuters</a></div>
+      <div class="Body"><a name="1041220">Advanced Distribution Server.</a></div>
+      <div class="Body"><a name="1041221">&nbsp;</a></div>
+      <div class="Body"><a name="1041222">The 330__Login__Streaming showcases usage of login stream in OMM Consumer.</a></div>
+      <div class="Body"><a name="1041223">It demonstrates opening of login stream as well as its processing. Having</a></div>
+      <div class="Body"><a name="1041224">a login stream open is useful for consumer applications willing to do</a></div>
+      <div class="Body"><a name="1041225">Off Stream Posting and or knowing the state of its connectivity to server.</a></div>
+      <div class="Body"><a name="1041226">&nbsp;</a></div>
+      <div class="Body"><a name="1041227">&nbsp;</a></div>
+      <div class="Body"><a name="1041228">Detailed Description</a></div>
+      <div class="Body"><a name="1041229">====================</a></div>
+      <div class="Body"><a name="1041230">&nbsp;</a></div>
+      <div class="Body"><a name="1041231">The 330__Login__Streaming implements the following high level steps:</a></div>
+      <div class="Body"><a name="1041232">&nbsp;</a></div>
+      <div class="Body"><a name="1041233">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1041234">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1041235">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1041236">    - each of the method provided in this example use the ease of use</a></div>
+      <div class="Body"><a name="1041237">	  data extraction methods that are data type specific</a></div>
+      <div class="Body"><a name="1041238">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1041239">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1041240">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1041241">  - sets operationModel to UserDispatchEnum</a></div>
+      <div class="Body"><a name="1041242">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1041243">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1041244">+ Opens two streaming item interests</a></div>
+      <div class="Body"><a name="1041245">  - Login Domain stream</a></div>
+      <div class="Body"><a name="1041246">  - MarketPrice Domain IBM.N item DIRECT_FEED </a></div>
+      <div class="Body"><a name="1041247">+ Processes data received from user thread for 60 seconds</a></div>
+      <div class="Body"><a name="1041248">  - all received messages are processed on main thread of control</a></div>
+      <div class="Body"><a name="1041249">+ Exits</a></div>
+      <div class="Body"><a name="1041250">&nbsp;</a></div>
+      <div class="Body"><a name="1041251">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1041252">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1041253">	  </a></div>
+      <div class="Body"><a name="1041254">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1041255">      standard configuration.</a></div>
       <div class="Body"><a name="1029066">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--

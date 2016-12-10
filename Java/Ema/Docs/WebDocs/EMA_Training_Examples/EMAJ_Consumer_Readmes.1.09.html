@@ -56,50 +56,50 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1017952">140__MarketByOrder__Streaming</a></div>
-      <div class="Body"><a name="1032574">Summary</a></div>
-      <div class="Body"><a name="1032575">=======</a></div>
-      <div class="Body"><a name="1032576">&nbsp;</a></div>
-      <div class="Body"><a name="1032577">example140__MarketByOrder__Streaming is an example of an OMM Consumer application</a></div>
-      <div class="Body"><a name="1032578">that demonstrates basic usage of the EMA library to access and parse OMM </a></div>
-      <div class="Body"><a name="1032579">MarketByOrder data from the Reuters Data Feed Direct (RDF-D), directly from </a></div>
-      <div class="Body"><a name="1032580">an OMM Provider application, or from an Advanced Distribution Server.</a></div>
-      <div class="Body"><a name="1032581">&nbsp;</a></div>
-      <div class="Body"><a name="1032582">example140__MarketByOrder__Streaming illustrates how to open and process a</a></div>
-      <div class="Body"><a name="1032583">MarketByOrder item. While processing received messages, the application </a></div>
-      <div class="Body"><a name="1032584">iterates through the received Map and FieldList and prints the content</a></div>
-      <div class="Body"><a name="1032585">of their entries to the screen.</a></div>
-      <div class="Body"><a name="1032586">&nbsp;</a></div>
-      <div class="Body"><a name="1032587">&nbsp;</a></div>
-      <div class="Body"><a name="1032588">Detailed Description</a></div>
-      <div class="Body"><a name="1032589">====================</a></div>
-      <div class="Body"><a name="1032590">&nbsp;</a></div>
-      <div class="Body"><a name="1032591">example140__MarketByOrder__Streaming implements the following high-level steps:</a></div>
-      <div class="Body"><a name="1032592">&nbsp;</a></div>
-      <div class="Body"><a name="1032593">+ Implements an OmmConsumerClient class in an AppClient:</a></div>
-      <div class="Body"><a name="1032594">  - Overrides desired methods.</a></div>
-      <div class="Body"><a name="1032595">  - Provides its own methods as needed (e.g.: decode( FieldList ))</a></div>
-      <div class="Body"><a name="1032596">    + The decode method iterates through the received FieldList, extracts each</a></div>
-      <div class="Body"><a name="1032597">	  FieldEntry reference from its current position on the FieldList, and</a></div>
-      <div class="Body"><a name="1032598">	  extracts the current FieldEntry’s field id, name, and value.</a></div>
-      <div class="Body"><a name="1032599">    + The decode method iterates through the received Map, extracts the Summary</a></div>
-      <div class="Body"><a name="1032600">	  (if present), extracts the MapEntry and the MapEntry’s key and load </a></div>
-      <div class="Body"><a name="1032601">	  values.</a></div>
-      <div class="Body"><a name="1032602">+ Instantiates AppClient object that receives and processes item messages.</a></div>
-      <div class="Body"><a name="1032603">+ Instantiates and modifies OmmConsumerConfig object:</a></div>
-      <div class="Body"><a name="1032604">  - Sets the username to “user”.</a></div>
-      <div class="Body"><a name="1032605">  - Sets the hostname on the preconfigured connection to “localhost”.</a></div>
-      <div class="Body"><a name="1032606">  - Sets the port on the preconfigured connection to “14002”.</a></div>
-      <div class="Body"><a name="1032607">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1032608">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1032609">+ Opens a streaming item interest for a MarketByOrder AAO.V item from the DIRECT_FEED</a></div>
-      <div class="Body"><a name="1032610">  service</a></div>
-      <div class="Body"><a name="1032611">+ Processes data received from the API for 60 seconds. All received messages are </a></div>
-      <div class="Body"><a name="1032612">  processed on the API’s thread of control.</a></div>
-      <div class="Body"><a name="1032613">+ Exits.</a></div>
-      <div class="Body"><a name="1032614">&nbsp;</a></div>
-      <div class="Body"><a name="1032615">Note: If needed, you can modify these and other details to fit your local environment.</a></div>
-      <div class="Body"><a name="1032616">      For details on standard configuration, refer to the EMA library ReadMe.txt file</a></div>
-      <div class="Body"><a name="1032617">      or to the EMA Configuration Guide.</a></div>
+      <div class="Body"><a name="1037052">Summary</a></div>
+      <div class="Body"><a name="1037053">=======</a></div>
+      <div class="Body"><a name="1037054">&nbsp;</a></div>
+      <div class="Body"><a name="1037055">example140__MarketByOrder__Streaming is an example of an OMM Consumer application</a></div>
+      <div class="Body"><a name="1037056">that demonstrates basic usage of the EMA library to access and parse OMM </a></div>
+      <div class="Body"><a name="1037057">MarketByOrder data from the Reuters Data Feed Direct (RDF-D), directly from </a></div>
+      <div class="Body"><a name="1037058">an OMM Provider application, or from an Advanced Distribution Server.</a></div>
+      <div class="Body"><a name="1037059">&nbsp;</a></div>
+      <div class="Body"><a name="1037060">example140__MarketByOrder__Streaming illustrates how to open and process a</a></div>
+      <div class="Body"><a name="1037061">MarketByOrder item. While processing received messages, the application </a></div>
+      <div class="Body"><a name="1037062">iterates through the received Map and FieldList and prints the content</a></div>
+      <div class="Body"><a name="1037063">of their entries to the screen.</a></div>
+      <div class="Body"><a name="1037064">&nbsp;</a></div>
+      <div class="Body"><a name="1037065">&nbsp;</a></div>
+      <div class="Body"><a name="1037066">Detailed Description</a></div>
+      <div class="Body"><a name="1037067">====================</a></div>
+      <div class="Body"><a name="1037068">&nbsp;</a></div>
+      <div class="Body"><a name="1037069">example140__MarketByOrder__Streaming implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1037070">&nbsp;</a></div>
+      <div class="Body"><a name="1037071">+ Implements an OmmConsumerClient class in an AppClient:</a></div>
+      <div class="Body"><a name="1037072">  - Overrides desired methods.</a></div>
+      <div class="Body"><a name="1037073">  - Provides its own methods as needed (e.g.: decode( FieldList ))</a></div>
+      <div class="Body"><a name="1037074">    + The decode method iterates through the received FieldList, extracts each</a></div>
+      <div class="Body"><a name="1037075">	  FieldEntry reference from its current position on the FieldList, and</a></div>
+      <div class="Body"><a name="1037076">	  extracts the current FieldEntry’s field id, name, and value.</a></div>
+      <div class="Body"><a name="1037077">    + The decode method iterates through the received Map, extracts the Summary</a></div>
+      <div class="Body"><a name="1037078">	  (if present), extracts the MapEntry and the MapEntry’s key and load </a></div>
+      <div class="Body"><a name="1037079">	  values.</a></div>
+      <div class="Body"><a name="1037080">+ Instantiates AppClient object that receives and processes item messages.</a></div>
+      <div class="Body"><a name="1037081">+ Instantiates and modifies OmmConsumerConfig object:</a></div>
+      <div class="Body"><a name="1037082">  - Sets the username to “user”.</a></div>
+      <div class="Body"><a name="1037083">  - Sets the hostname on the preconfigured connection to “localhost”.</a></div>
+      <div class="Body"><a name="1037084">  - Sets the port on the preconfigured connection to “14002”.</a></div>
+      <div class="Body"><a name="1037085">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1037086">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1037087">+ Opens a streaming item interest for a MarketByOrder AAO.V item from the DIRECT_FEED</a></div>
+      <div class="Body"><a name="1037088">  service</a></div>
+      <div class="Body"><a name="1037089">+ Processes data received from the API for 60 seconds. All received messages are </a></div>
+      <div class="Body"><a name="1037090">  processed on the API’s thread of control.</a></div>
+      <div class="Body"><a name="1037091">+ Exits.</a></div>
+      <div class="Body"><a name="1037092">&nbsp;</a></div>
+      <div class="Body"><a name="1037093">Note: If needed, you can modify these and other details to fit your local environment.</a></div>
+      <div class="Body"><a name="1037094">      For details on standard configuration, refer to the EMA library ReadMe.txt file</a></div>
+      <div class="Body"><a name="1037095">      or to the EMA Configuration Guide.</a></div>
       <div class="Body"><a name="1031009">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--

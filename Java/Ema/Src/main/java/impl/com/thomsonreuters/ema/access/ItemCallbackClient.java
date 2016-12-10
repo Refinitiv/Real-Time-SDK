@@ -9,19 +9,24 @@ package com.thomsonreuters.ema.access;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
+import com.thomsonreuters.ema.access.OmmState.StreamState;
 import com.thomsonreuters.upa.codec.AckMsgFlags;
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.CloseMsg;
 import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
+import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.codec.DataStates;
 import com.thomsonreuters.upa.codec.DataTypes;
+import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.codec.MsgKey;
+import com.thomsonreuters.upa.codec.MsgKeyFlags;
 import com.thomsonreuters.upa.codec.QosRates;
 import com.thomsonreuters.upa.codec.QosTimeliness;
 import com.thomsonreuters.upa.codec.RefreshMsg;
@@ -34,14 +39,29 @@ import com.thomsonreuters.upa.codec.StatusMsgFlags;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.rdm.InstrumentNameTypes;
+import com.thomsonreuters.upa.transport.TransportBuffer;
 import com.thomsonreuters.upa.valueadd.common.VaNode;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsg;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
 import com.thomsonreuters.upa.valueadd.reactor.DefaultMsgCallback;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorCallbackReturnCodes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorMsgEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
+import com.thomsonreuters.upa.valueadd.reactor.TunnelStream;
+import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamDefaultMsgCallback;
+import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamMsgEvent;
+import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamOpenOptions;
+import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamQueueMsgCallback;
+import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamQueueMsgEvent;
+import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamStatusEvent;
+import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamStatusEventCallback;
+import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamSubmitOptions;
 
 class CallbackClient<T>
 {
@@ -124,12 +144,815 @@ class CallbackClient<T>
 	void notifyOnAckMsg() {}
 }
 
-class ItemCallbackClient<T> extends CallbackClient<T> implements DefaultMsgCallback
+class TunnelItem<T> extends Item<T> {
+
+	private static final String CLIENT_NAME = "TunnelItem";
+	private int _nextSubItemStreamId;
+	private LinkedList<IntObject> _returnedSubItemStreamIds;
+	private Directory _directory;
+	private TunnelStream _rsslTunnelStream;
+	private ClosedStatusClient<T> _closedStatusClient;
+	private ArrayList<Item<T>> _subItems;
+	private static final int STARTING_SUBITEM_STREAMID = 5;
+
+	TunnelItem()
+	{
+	}
+
+	TunnelItem(OmmBaseImpl<T> baseImpl, T consumerClient, Object closure, Item<T> parent)
+	{
+		super((OmmBaseImpl<T>) baseImpl, consumerClient, closure, null);
+
+		_directory = null;
+		_rsslTunnelStream = null;
+		_closedStatusClient = null;
+		_nextSubItemStreamId = STARTING_SUBITEM_STREAMID;
+		_subItems = new ArrayList<Item<T>>(32);
+		while (STARTING_SUBITEM_STREAMID >= _subItems.size())
+			_subItems.add(null);
+		_returnedSubItemStreamIds = new LinkedList<IntObject>();
+	}
+
+	void reset(OmmBaseImpl<T> baseImpl, T consumerClient, Object closure, Item<T> parent)
+	{
+		super.reset((OmmBaseImpl<T>) baseImpl, consumerClient, closure, null);
+
+		_directory = null;
+		_rsslTunnelStream = null;
+		_closedStatusClient = null;
+		_nextSubItemStreamId = STARTING_SUBITEM_STREAMID;
+		_subItems = new ArrayList<Item<T>>(32);
+		while (STARTING_SUBITEM_STREAMID >= _subItems.size())
+			_subItems.add(null);
+		_returnedSubItemStreamIds = new LinkedList<IntObject>();
+	}
+
+	void returnStreamId()
+	{
+		if (_directory != null && _streamId != 0)
+			_directory.channelInfo().returnStreamId(_streamId);
+	}
+
+	int subItemStreamId()
+	{
+		if (_returnedSubItemStreamIds.isEmpty())
+		{
+			return ++_nextSubItemStreamId;
+		}
+
+		IntObject streamId = _returnedSubItemStreamIds.pop();
+		streamId.returnToPool();
+		return streamId.value();
+	}
+
+	void returnSubItemStreamId(int subItemStreamId)
+	{
+		IntObject streamId = _baseImpl._objManager.createIntObject().value(subItemStreamId);
+		_returnedSubItemStreamIds.push(streamId);
+	}
+
+	int addSubItem(Item<T> subItem, int streamId)
+	{
+
+		if (streamId == 0)
+		{
+			streamId = subItemStreamId();
+		} else
+		{
+			if (streamId < STARTING_SUBITEM_STREAMID)
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+				temp.append(
+						"Invalid attempt to open a sub stream with streamId smaller than starting stream id. Passed in stream id is ")
+						.append(streamId);
+
+				if (_baseImpl.loggerClient().isErrorEnabled())
+					_baseImpl.loggerClient()
+							.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+				_baseImpl.handleInvalidUsage(temp.toString());
+
+			}
+
+			Boolean foundReturnedStreamId = false;
+			for (int i = 0; i < _returnedSubItemStreamIds.size(); i++)
+			{
+				IntObject subItemStreamId = _returnedSubItemStreamIds.get(i);
+				if (subItemStreamId.value() == streamId)
+				{
+					_returnedSubItemStreamIds.remove(i);
+					subItemStreamId.returnToPool();
+					foundReturnedStreamId = true;
+					break;
+				}
+			}
+
+			if (!foundReturnedStreamId)
+			{
+				if ((streamId < _subItems.size()) && (_subItems.get(streamId).streamId() > 0))
+				{
+					StringBuilder temp = _baseImpl.strBuilder();
+					temp.append("Invalid attempt to open a substream: substream streamId (").append(streamId)
+							.append(") is already in use");
+
+					if (_baseImpl.loggerClient().isErrorEnabled())
+						_baseImpl.loggerClient().error(
+								_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+					_baseImpl.handleInvalidUsage(temp.toString());
+				}
+			}
+		}
+
+		while (streamId >= _subItems.size())
+			_subItems.add(null);
+
+		_subItems.set(streamId, subItem);
+
+		return streamId;
+	}
+
+	void removeSubItem(int streamId)
+	{
+		if (streamId < STARTING_SUBITEM_STREAMID)
+		{
+			StringBuilder temp = _baseImpl.strBuilder();
+			temp.append("Internal error. Current stream Id in removeSubItem is less than the starting stream id.");
+
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient()
+						.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+			_baseImpl.handleInvalidUsage(temp.toString());
+		}
+
+		if (streamId >= _subItems.size())
+		{
+			StringBuilder temp = _baseImpl.strBuilder();
+			temp.append("Internal error. Current stream Id in removeSubItem is greater than the starting stream id.");
+
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient()
+						.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+			_baseImpl.handleInvalidUsage(temp.toString());
+		}
+
+		if (_subItems.get(streamId) != null)
+			_subItems.set(streamId, null);
+	}
+
+	Item<T> getSubItem(int streamId)
+	{
+		if (streamId < STARTING_SUBITEM_STREAMID)
+		{
+			StringBuilder temp = _baseImpl.strBuilder();
+			temp.append("Internal error. Current stream Id in getSubItem is less than the starting stream id.");
+
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient()
+						.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+			_baseImpl.handleInvalidUsage(temp.toString());
+
+			return null;
+		}
+
+		if (streamId >= _subItems.size())
+		{
+			StringBuilder temp = _baseImpl.strBuilder();
+			temp.append("Internal error. Current stream Id in getSubItem is greater than the starting stream id.");
+
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient()
+						.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+			_baseImpl.handleInvalidUsage(temp.toString());
+
+			return null;
+		}
+
+		return _subItems.get(streamId);
+
+	}
+
+	void scheduleItemClosedStatus(TunnelStreamRequest tunnelStreamRequest, String text)
+	{
+		if (_closedStatusClient != null)
+		{
+			return;
+		}
+
+		_closedStatusClient = new ClosedStatusClient<T>(_baseImpl.itemCallbackClient(), this, tunnelStreamRequest,
+				text);
+
+		_baseImpl.addTimeoutEvent(1000, _closedStatusClient);
+
+	}
+
+	void rsslTunnelStream(TunnelStream rsslTunnelStream)
+	{
+		_rsslTunnelStream = rsslTunnelStream;
+	}
+
+	boolean open(TunnelStreamRequest tunnelStreamRequest)
+	{
+		Directory directory = null;
+
+		if (tunnelStreamRequest.hasServiceName())
+		{
+			directory = _baseImpl.directoryCallbackClient().directory(tunnelStreamRequest.serviceName());
+			if (directory == null)
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+				temp.append("Service name of  ").append("tunnelStreamRequest.getServiceName()")
+						.append(" is not found.");
+
+				if (_baseImpl.loggerClient().isErrorEnabled())
+					_baseImpl.loggerClient()
+							.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+				_baseImpl.handleInvalidUsage(temp.toString());
+
+				scheduleItemClosedStatus(tunnelStreamRequest, temp.toString());
+
+				return true;
+			}
+		} else if (tunnelStreamRequest.hasServiceId())
+		{
+			directory = _baseImpl.directoryCallbackClient().directory(tunnelStreamRequest.serviceId());
+			if (directory == null)
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+				temp.append("Service id of  ").append(tunnelStreamRequest.serviceId()).append(" is not found.");
+
+				if (_baseImpl.loggerClient().isErrorEnabled())
+					_baseImpl.loggerClient()
+							.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+				_baseImpl.handleInvalidUsage(temp.toString());
+			}
+		}
+
+		_directory = directory;
+
+		return submit(tunnelStreamRequest);
+	}
+
+	@Override
+	boolean open(ReqMsg reqMsg)
+	{
+
+		StringBuilder temp = _baseImpl.strBuilder();
+		temp.append("Invalid attempt to open tunnel stream using ReqMsg.");
+
+		if (_baseImpl.loggerClient().isErrorEnabled())
+			_baseImpl.loggerClient()
+					.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+		_baseImpl.handleInvalidUsage(temp.toString());
+
+		return false;
+	}
+
+	@Override
+	boolean modify(ReqMsg reqMsg)
+	{
+		StringBuilder temp = _baseImpl.strBuilder();
+		temp.append("Invalid attempt to reissue tunnel stream using ReqMsg.");
+
+		if (_baseImpl.loggerClient().isErrorEnabled())
+			_baseImpl.loggerClient()
+					.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+		_baseImpl.handleInvalidUsage(temp.toString());
+
+		return false;
+	}
+
+	@Override
+	boolean submit(PostMsg postMsg)
+	{
+		StringBuilder temp = _baseImpl.strBuilder();
+		temp.append("Invalid attempt to submit PostMsg on tunnel stream.");
+
+		if (_baseImpl.loggerClient().isErrorEnabled())
+			_baseImpl.loggerClient()
+					.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+		_baseImpl.handleInvalidUsage(temp.toString());
+
+		return false;
+	}
+
+	@Override
+	boolean submit(GenericMsg genericMsg)
+	{
+		StringBuilder temp = _baseImpl.strBuilder();
+		temp.append("Invalid attempt to submit GenericMsg on tunnel stream.");
+
+		if (_baseImpl.loggerClient().isErrorEnabled())
+			_baseImpl.loggerClient()
+					.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+		_baseImpl.handleInvalidUsage(temp.toString());
+
+		return false;
+	}
+
+	boolean submit(TunnelStreamRequest tunnelStreamRequest)
+	{
+		_domainType = tunnelStreamRequest.domainType();
+		_streamId = _directory.channelInfo().nextStreamId(0);
+
+		_baseImpl.rsslErrorInfo().clear();
+
+		TunnelStreamOpenOptions tsOpenOptions = ReactorFactory.createTunnelStreamOpenOptions();
+		;
+		tsOpenOptions.clear();
+
+		tsOpenOptions.domainType(_domainType);
+		tsOpenOptions.name(tunnelStreamRequest.name());
+
+		if (tunnelStreamRequest.hasLoginReqMsg())
+		{
+
+			DecodeIterator dIter = _baseImpl.rsslDecIter();
+			dIter.clear();
+
+			if (ReactorReturnCodes.SUCCESS > (dIter.setBufferAndRWFVersion(
+					((TunnelStreamRequestImpl) tunnelStreamRequest).tunnelStreamLoginReqMsg().buffer(),
+					_directory.channelInfo()._majorVersion, _directory.channelInfo()._minorVersion)))
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+				temp.append("Internal Error. Failed to set decode iterator version in TunnelItem.submit");
+
+				if (_baseImpl.loggerClient().isErrorEnabled())
+					_baseImpl.loggerClient()
+							.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+				_baseImpl.handleInvalidUsage(temp.toString());
+
+				return false;
+			}
+
+			if (_baseImpl._itemCallbackClient._rsslRDMLoginMsg == null)
+				_baseImpl._itemCallbackClient._rsslRDMLoginMsg = (LoginRequest) LoginMsgFactory.createMsg();
+			else
+				_baseImpl._itemCallbackClient._rsslRDMLoginMsg.clear();
+
+			_baseImpl._itemCallbackClient._rsslRDMLoginMsg.rdmMsgType(LoginMsgType.REQUEST);
+
+			if (ReactorReturnCodes.SUCCESS > _baseImpl._itemCallbackClient._rsslRDMLoginMsg.decode(dIter,
+					((TunnelStreamRequestImpl) tunnelStreamRequest).tunnelStreamLoginReqMsg().rsslMsg()))
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+				temp.append("Internal Error. Failed to decode login request in TunnelItem.submit");
+
+				if (_baseImpl.loggerClient().isErrorEnabled())
+					_baseImpl.loggerClient()
+							.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+				_baseImpl.handleInvalidUsage(temp.toString());
+
+				return false;
+			}
+
+			tsOpenOptions.authLoginRequest((LoginRequest) _baseImpl._itemCallbackClient._rsslRDMLoginMsg);
+		}
+
+		tsOpenOptions.guaranteedOutputBuffers(tunnelStreamRequest.guaranteedOutputBuffers());
+		tsOpenOptions.responseTimeout(tunnelStreamRequest.responseTimeOut());
+		tsOpenOptions.serviceId(_directory.service().serviceId());
+		tsOpenOptions.streamId(_streamId);
+
+		tsOpenOptions.userSpecObject(this);
+
+		tsOpenOptions.defaultMsgCallback(_baseImpl.itemCallbackClient());
+		tsOpenOptions.queueMsgCallback(_baseImpl.itemCallbackClient());
+		tsOpenOptions.statusEventCallback(_baseImpl.itemCallbackClient());
+
+		ClassOfService cos = tunnelStreamRequest.classOfService();
+		tsOpenOptions.classOfService().common().maxMsgSize(cos.common().maxMsgSize());
+
+		tsOpenOptions.classOfService().authentication().type(cos.authentication().type());
+
+		tsOpenOptions.classOfService().dataIntegrity().type(cos.dataIntegrity().type());
+
+		tsOpenOptions.classOfService().flowControl().recvWindowSize(cos.flowControl().recvWindowSize());
+		tsOpenOptions.classOfService().flowControl().type(cos.flowControl().type());
+
+		tsOpenOptions.classOfService().guarantee().type(cos.guarantee().type());
+		tsOpenOptions.classOfService().guarantee().persistLocally(cos.guarantee().persistedLocally());
+		tsOpenOptions.classOfService().guarantee().persistenceFilePath(cos.guarantee().persistenceFilePath());
+
+		if (_directory.channelInfo().rsslReactorChannel().openTunnelStream(tsOpenOptions,
+				_baseImpl.rsslErrorInfo()) != ReactorCallbackReturnCodes.SUCCESS)
+		{
+			StringBuilder temp = _baseImpl.strBuilder();
+			temp.append(
+					"Failed to open tunnel stream request in TunnelItem.submit(TunnelStreamRequest ")
+					.append(_baseImpl.rsslErrorInfo().toString());
+
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient()
+						.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+			_baseImpl.handleInvalidUsage(temp.toString());
+
+			return false;
+		}
+
+		return true;
+	}
+
+	@Override
+	boolean close()
+	{
+		_baseImpl.rsslErrorInfo().clear();
+
+		if (_rsslTunnelStream.close(false, _baseImpl.rsslErrorInfo()) != ReactorReturnCodes.SUCCESS)
+		{
+			StringBuilder temp = _baseImpl.strBuilder();
+			temp.append("Internal Error. TunnelStream.close() failed in TunnelItem.close()").append(OmmLoggerClient.CR)
+					.append("Error Id").append(_baseImpl.rsslErrorInfo().error().errorId()).append(OmmLoggerClient.CR)
+					.append("Internal sysError").append(_baseImpl.rsslErrorInfo().error().sysError())
+					.append(OmmLoggerClient.CR).append("Error Text").append(_baseImpl.rsslErrorInfo().error().text())
+					.append(OmmLoggerClient.CR);
+
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient()
+						.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+			_baseImpl.handleInvalidUsage(temp.toString());
+
+			return false;
+		}
+
+		remove();
+		return true;
+
+	}
+
+	boolean submitSubItemMsg(Msg msg)
+	{
+		int bufSize = 256;
+		int retCode = 0;
+		_baseImpl.rsslErrorInfo().clear();
+
+		TransportBuffer tunnelStreamBuf = _rsslTunnelStream.getBuffer(bufSize, _baseImpl.rsslErrorInfo());
+
+		if (tunnelStreamBuf == null)
+		{
+			StringBuilder temp = _baseImpl.strBuilder();
+			temp.append("Internal Error. Failed to allocated TransportBuffer in TunnelItem.submitSubItemMsg");
+
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient()
+						.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+			_baseImpl.handleInvalidUsage(temp.toString());
+
+			return false;
+		}
+
+		_baseImpl.rsslEncIter().clear();
+		if (ReactorReturnCodes.SUCCESS > _baseImpl.rsslEncIter().setBufferAndRWFVersion(tunnelStreamBuf,
+				_directory.channelInfo()._majorVersion, _directory.channelInfo()._minorVersion))
+		{
+			StringBuilder temp = _baseImpl.strBuilder();
+			temp.append("Internal Error. Failed to set encode iterator in TunnelItem.submitSubItemMsg");
+
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient()
+						.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+			_baseImpl.handleInvalidUsage(temp.toString());
+
+			return false;
+		}
+
+		while ((retCode = msg.encode(_baseImpl.rsslEncIter())) == CodecReturnCodes.BUFFER_TOO_SMALL)
+		{
+			_rsslTunnelStream.releaseBuffer(tunnelStreamBuf, _baseImpl.rsslErrorInfo());
+
+			bufSize += bufSize;
+			tunnelStreamBuf = _rsslTunnelStream.getBuffer(bufSize, _baseImpl.rsslErrorInfo());
+			if (tunnelStreamBuf == null)
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+				temp.append("Internal Error. Failed to allocated TransportBuffer in TunnelItem.submitSubItemMsg");
+
+				if (_baseImpl.loggerClient().isErrorEnabled())
+					_baseImpl.loggerClient()
+							.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+				_baseImpl.handleInvalidUsage(temp.toString());
+
+				return false;
+			}
+			_baseImpl.rsslEncIter().clear();
+			if (ReactorReturnCodes.SUCCESS > _baseImpl.rsslEncIter().setBufferAndRWFVersion(tunnelStreamBuf,
+					_directory.channelInfo()._majorVersion, _directory.channelInfo()._minorVersion))
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+				temp.append("Internal Error. Failed to set encode iterator in in TunnelItem.submitSubItemMsg");
+
+				if (_baseImpl.loggerClient().isErrorEnabled())
+					_baseImpl.loggerClient()
+							.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+				_baseImpl.handleInvalidUsage(temp.toString());
+
+				return false;
+			}
+
+		}
+
+		if (retCode != ReactorReturnCodes.SUCCESS)
+		{
+			StringBuilder temp = _baseImpl.strBuilder();
+			temp.append("Internal Error. Failed to encode message in TunnelItem.submitSubItemMsg");
+
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient()
+						.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+			_baseImpl.handleInvalidUsage(temp.toString());
+
+			return false;
+		}
+
+		TunnelStreamSubmitOptions tunnelStreamSubmitOptions = _baseImpl.rsslTunnelStreamSubmitOptions();
+		tunnelStreamSubmitOptions.containerType(DataTypes.MSG);
+
+		retCode = _rsslTunnelStream.submit(tunnelStreamBuf, tunnelStreamSubmitOptions, _baseImpl.rsslErrorInfo());
+		if (retCode != ReactorReturnCodes.SUCCESS)
+		{
+			StringBuilder temp = _baseImpl.strBuilder();
+			temp.append("Internal Error. Failed to submit message in TunnelItem.submitSubItemMsg");
+
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient()
+						.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+			_baseImpl.handleInvalidUsage(temp.toString());
+
+			return false;
+		}
+
+		return true;
+	}
+
+	@Override
+	void remove()
+	{
+		int subItemSize = _subItems.size();
+		SubItem<T> item;
+		for (int i = 0; i < subItemSize; i++)
+		{
+			item = ((SubItem<T>) _subItems.get(i));
+			if (item != null)
+				item.remove();
+		}
+		_subItems.clear();
+
+		_baseImpl.itemCallbackClient().removeFromMap(this);
+		this.itemIdObj().returnToPool();
+		this.returnToPool();
+	}
+
+	@Override
+	int type()
+	{
+		return Item.ItemType.TUNNEL_ITEM;
+	}
+
+	@Override
+	Directory directory()
+	{
+		return _directory;
+	}
+
+	@Override
+	boolean submit(com.thomsonreuters.ema.access.RefreshMsg refreshMsg)
+	{
+		StringBuilder temp = _baseImpl.strBuilder();
+		temp.append("Invalid attempt to submit RefreshMsg on tunnel stream.");
+
+		if (_baseImpl.loggerClient().isErrorEnabled())
+			_baseImpl.loggerClient()
+					.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+		_baseImpl.handleInvalidUsage(temp.toString());
+
+		return false;
+	}
+
+	@Override
+	boolean submit(UpdateMsg updateMsg)
+	{
+		StringBuilder temp = _baseImpl.strBuilder();
+		temp.append("Invalid attempt to submit UpdateMsg on tunnel stream.");
+
+		if (_baseImpl.loggerClient().isErrorEnabled())
+			_baseImpl.loggerClient()
+					.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+		_baseImpl.handleInvalidUsage(temp.toString());
+
+		return false;
+	}
+
+	@Override
+	boolean submit(com.thomsonreuters.ema.access.StatusMsg statusMsg)
+	{
+		StringBuilder temp = _baseImpl.strBuilder();
+		temp.append("Invalid attempt to submit StatusMsg on tunnel stream.");
+
+		if (_baseImpl.loggerClient().isErrorEnabled())
+			_baseImpl.loggerClient()
+					.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+		_baseImpl.handleInvalidUsage(temp.toString());
+
+		return false;
+	}
+
+}
+
+class SubItem<T> extends Item<T>
+{
+
+	private static final String CLIENT_NAME = "SubItem";
+	ClosedStatusClient<T> _closedStatusClient;
+	Directory _directory;
+
+	SubItem()
+	{
+	}
+
+	SubItem(OmmBaseImpl<T> baseImpl, T consumerClient, Object closure, Item<T> parent)
+	{
+		super((OmmBaseImpl<T>) baseImpl, consumerClient, closure, parent);
+		_directory = null;
+		_closedStatusClient = null;
+	}
+
+	@Override
+	void reset(OmmBaseImpl<T> baseImpl, T consumerClient, Object closure, Item<T> parent)
+	{
+		super.reset((OmmBaseImpl<T>) baseImpl, consumerClient, closure, parent);
+		_directory = null;
+		_closedStatusClient = null;
+	}
+
+	void scheduleItemClosedStatus(CallbackClient<T> client, Item<T> item, Msg rsslMsg, String statusText,
+			String serviceName)
+	{
+		if (_closedStatusClient != null)
+			return;
+
+		_closedStatusClient = new ClosedStatusClient<T>(client, item, rsslMsg, statusText, serviceName);
+		_baseImpl.addTimeoutEvent(1000, _closedStatusClient);
+	}
+
+	@Override
+	boolean open(ReqMsg reqMsg)
+	{
+		if (reqMsg.hasServiceName())
+		{
+			StringBuilder temp = _baseImpl.strBuilder();
+			temp.append("Invalid attempt to open sub stream using serviceName.");
+
+			scheduleItemClosedStatus(_baseImpl.itemCallbackClient(), this, ((ReqMsgImpl) reqMsg).rsslMsg(),
+					temp.toString(), reqMsg.serviceName());
+
+			return true;
+		}
+		if (reqMsg.streamId() == 0)
+		{
+			_streamId = ((TunnelItem<T>) (_parent)).addSubItem(this, 0);
+			reqMsg.streamId(_streamId);
+		} else
+		{
+			if (reqMsg.streamId() < 0)
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+				temp.append("Invalid attempt to assign negative streamid to a substream.");
+
+				if (_baseImpl.loggerClient().isErrorEnabled())
+					_baseImpl.loggerClient()
+							.error(_baseImpl.formatLogMessage(SubItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+				_baseImpl.handleInvalidUsage(temp.toString());
+
+				return false;
+			} else
+			{
+				_streamId = ((TunnelItem<T>) (_parent)).addSubItem(this, reqMsg.streamId());
+			}
+		}
+
+		_domainType = reqMsg.domainType();
+
+		return ((TunnelItem<T>) (_parent)).submitSubItemMsg(((ReqMsgImpl) reqMsg).rsslMsg());
+	}
+
+	@Override
+	boolean modify(ReqMsg reqMsg)
+	{
+		reqMsg.streamId(_streamId);
+		return ((TunnelItem<T>) (_parent)).submitSubItemMsg(((ReqMsgImpl) reqMsg).rsslMsg());
+	}
+
+	@Override
+	boolean submit(PostMsg postMsg)
+	{
+		postMsg.streamId(_streamId);
+		return ((TunnelItem<T>) (_parent)).submitSubItemMsg(((PostMsgImpl) postMsg).rsslMsg());
+	}
+
+	@Override
+	boolean submit(GenericMsg genericMsg)
+	{
+		genericMsg.streamId(_streamId);
+		if (genericMsg.domainType() == 0)
+			genericMsg.domainType(_domainType);
+
+		return ((TunnelItem<T>) (_parent)).submitSubItemMsg(((GenericMsgImpl) genericMsg).rsslMsg());
+	}
+
+	@Override
+	boolean close()
+	{
+		CloseMsg rsslCloseMsg = _baseImpl.itemCallbackClient().rsslCloseMsg();
+		rsslCloseMsg.containerType(DataTypes.NO_DATA);
+		rsslCloseMsg.domainType(_domainType);
+		rsslCloseMsg.streamId(_streamId);
+		rsslCloseMsg.streamId(_streamId);
+
+		boolean retCode = ((TunnelItem<T>) (_parent)).submitSubItemMsg((Msg) (rsslCloseMsg));
+
+		remove();
+
+		return retCode;
+
+	}
+
+	@Override
+	void remove()
+	{
+		((TunnelItem<T>) (_parent)).removeSubItem(_streamId);
+		((TunnelItem<T>) (_parent)).returnSubItemStreamId(_streamId);
+		_baseImpl.itemCallbackClient().removeFromMap(this);
+		this.itemIdObj().returnToPool();
+		this.returnToPool();
+	}
+
+	@Override
+	int type()
+	{
+		return ItemType.SUB_ITEM;
+	}
+
+	@Override
+	Directory directory()
+	{
+		return _directory;
+	}
+
+	@Override
+	boolean submit(com.thomsonreuters.ema.access.RefreshMsg refreshMsg)
+	{
+		refreshMsg.streamId(_streamId);
+		return ((TunnelItem<T>) (_parent)).submitSubItemMsg((Msg) refreshMsg);
+	}
+
+	@Override
+	boolean submit(UpdateMsg updateMsg)
+	{
+		updateMsg.streamId(_streamId);
+		return ((TunnelItem<T>) (_parent)).submitSubItemMsg((Msg) updateMsg);
+	}
+
+	@Override
+	boolean submit(com.thomsonreuters.ema.access.StatusMsg statusMsg)
+	{
+		statusMsg.streamId(_streamId);
+		return ((TunnelItem<T>) (_parent)).submitSubItemMsg((Msg) statusMsg);
+	}
+
+}
+
+class ItemCallbackClient<T> extends CallbackClient<T> implements DefaultMsgCallback, TunnelStreamDefaultMsgCallback, TunnelStreamQueueMsgCallback, 
+TunnelStreamStatusEventCallback
 {
 	private static final String CLIENT_NAME = "ItemCallbackClient";
 	
 	private HashMap<LongObject, Item<T>>	_itemMap;
 	private LongObject _longObjHolder;
+	protected LoginMsg _rsslRDMLoginMsg;
 
 	ItemCallbackClient(OmmBaseImpl<T> baseImpl)
 	{
@@ -143,6 +966,383 @@ class ItemCallbackClient<T> extends CallbackClient<T> implements DefaultMsgCallb
 	}
 
 	void initialize() {}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public int statusEventCallback(TunnelStreamStatusEvent tunnelStreamStatusEvent)
+	{
+		_baseImpl.eventReceived();
+
+		if (tunnelStreamStatusEvent.tunnelStream() == null)
+		{
+			if (_baseImpl.loggerClient().isErrorEnabled())
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+				temp.append(
+						"Received a tunnel stream message event without the tunnel stream object in ItemCallbackClient.statusEventCallback")
+						.append(OmmLoggerClient.CR).append("Instance Name ").append(_baseImpl.instanceName())
+						.append(OmmLoggerClient.CR).append("RsslReactor ")
+						.append(Integer.toHexString(tunnelStreamStatusEvent.reactorChannel().reactor().hashCode()));
+
+				_baseImpl.loggerClient().error(
+						_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+			}
+
+			return ReactorCallbackReturnCodes.SUCCESS;
+		}
+
+		ChannelInfo channelInfo = (ChannelInfo) tunnelStreamStatusEvent.reactorChannel().userSpecObj();
+		_eventImpl._item = (Item<T>) (tunnelStreamStatusEvent.tunnelStream().userSpecObject());
+		if (_eventImpl._item == null)
+		{
+			if (_baseImpl.loggerClient().isErrorEnabled())
+			{
+				com.thomsonreuters.upa.transport.Error error = tunnelStreamStatusEvent.errorInfo().error();
+
+				StringBuilder temp = _baseImpl.strBuilder();
+				temp.append(
+						"Received a tunnel stream status event without the userSpecObject ItemCallbackClient.statusEventCallback")
+						.append(OmmLoggerClient.CR).append("Instance Name ").append(_baseImpl.instanceName())
+						.append(OmmLoggerClient.CR).append("RsslReactor ")
+						.append(Integer.toHexString(channelInfo.rsslReactor().hashCode())).append(OmmLoggerClient.CR)
+						.append("RsslChannel ")
+						.append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0))
+						.append(OmmLoggerClient.CR).append("Error Id ").append(error.errorId())
+						.append(OmmLoggerClient.CR).append("Internal sysError ").append(error.sysError())
+						.append(OmmLoggerClient.CR).append("Error Location ")
+						.append(tunnelStreamStatusEvent.errorInfo().location()).append(OmmLoggerClient.CR)
+						.append("Error Text ").append(error.text());
+
+				_baseImpl.loggerClient().error(
+						_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+			}
+
+			return ReactorCallbackReturnCodes.SUCCESS;
+		}
+
+		StatusMsg rsslStatusMsg = rsslStatusMsg();
+		rsslStatusMsg.flags(StatusMsgFlags.PRIVATE_STREAM | StatusMsgFlags.CLEAR_CACHE | StatusMsgFlags.HAS_MSG_KEY);
+		rsslStatusMsg.containerType(DataTypes.NO_DATA);
+		rsslStatusMsg.domainType(tunnelStreamStatusEvent.tunnelStream().domainType());
+		rsslStatusMsg.streamId(tunnelStreamStatusEvent.tunnelStream().streamId());
+
+		if (tunnelStreamStatusEvent.state() != null)
+		{
+			rsslStatusMsg.state(tunnelStreamStatusEvent.state());
+			rsslStatusMsg.flags(rsslStatusMsg.flags() | StatusMsgFlags.HAS_STATE);
+		}
+
+		rsslStatusMsg.msgKey().flags(MsgKeyFlags.HAS_NAME);
+		rsslStatusMsg.msgKey().name().data(tunnelStreamStatusEvent.tunnelStream().name());
+
+		rsslStatusMsg.msgKey().flags(rsslStatusMsg.msgKey().flags() | MsgKeyFlags.HAS_SERVICE_ID);
+		rsslStatusMsg.msgKey().serviceId(tunnelStreamStatusEvent.tunnelStream().serviceId());
+
+		if (_statusMsg == null)
+			_statusMsg = new StatusMsgImpl(_baseImpl._objManager);
+
+		_statusMsg.decode(rsslStatusMsg, tunnelStreamStatusEvent.reactorChannel().majorVersion(),
+				tunnelStreamStatusEvent.reactorChannel().minorVersion(), channelInfo.rsslDictionary());
+
+		((TunnelItem<T>) (_eventImpl._item)).rsslTunnelStream(tunnelStreamStatusEvent.tunnelStream());
+		_statusMsg.service(_eventImpl._item.directory().serviceName());
+
+		notifyOnAllMsg(_statusMsg);
+		notifyOnStatusMsg();
+
+		if (tunnelStreamStatusEvent.state() != null)
+		{
+			if (_statusMsg.state().streamState() != StreamState.OPEN)
+			{
+				_eventImpl._item.remove();
+			}
+		}
+
+		return ReactorCallbackReturnCodes.SUCCESS;
+
+	};
+
+	@Override
+	public int queueMsgCallback(TunnelStreamQueueMsgEvent tunnelStreamQueueMsgEvent)
+	{
+		_baseImpl.eventReceived();
+
+		if (tunnelStreamQueueMsgEvent.tunnelStream() == null)
+		{
+			if (_baseImpl.loggerClient().isErrorEnabled())
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+				temp.append(
+						"Received a tunnel stream queueMsg event without the tunnel stream object in ItemCallbackClient.queueEventCallback")
+						.append(OmmLoggerClient.CR).append("Instance Name ").append(_baseImpl.instanceName())
+						.append(OmmLoggerClient.CR).append("RsslReactor ")
+						.append(Integer.toHexString(tunnelStreamQueueMsgEvent.reactorChannel().reactor().hashCode()));
+
+				_baseImpl.loggerClient().error(
+						_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+			}
+
+			return ReactorCallbackReturnCodes.SUCCESS;
+		}
+
+		ChannelInfo channelInfo = (ChannelInfo) tunnelStreamQueueMsgEvent.reactorChannel().userSpecObj();
+		if (tunnelStreamQueueMsgEvent.tunnelStream().userSpecObject() == null)
+		{
+			if (_baseImpl.loggerClient().isErrorEnabled())
+			{
+				com.thomsonreuters.upa.transport.Error error = tunnelStreamQueueMsgEvent.errorInfo().error();
+
+				StringBuilder temp = _baseImpl.strBuilder();
+				temp.append(
+						"Received a tunnel stream queueMsg event without the userSpecObject  in ItemCallbackClient.queueMsgCallback")
+						.append(OmmLoggerClient.CR).append("Instance Name ").append(_baseImpl.instanceName())
+						.append(OmmLoggerClient.CR).append("RsslReactor ")
+						.append(Integer.toHexString(channelInfo.rsslReactor().hashCode())).append(OmmLoggerClient.CR)
+						.append("RsslChannel ")
+						.append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0))
+						.append(OmmLoggerClient.CR).append("Error Id ").append(error.errorId())
+						.append(OmmLoggerClient.CR).append("Internal sysError ").append(error.sysError())
+						.append(OmmLoggerClient.CR).append("Error Location ")
+						.append(tunnelStreamQueueMsgEvent.errorInfo().location()).append(OmmLoggerClient.CR)
+						.append("Error Text ").append(error.text());
+
+				_baseImpl.loggerClient().error(
+						_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+			}
+
+			return ReactorCallbackReturnCodes.SUCCESS;
+		}
+
+		return ReactorCallbackReturnCodes.SUCCESS;
+	}
+
+	@Override
+	public int defaultMsgCallback(TunnelStreamMsgEvent tunnelStreamMsgEvent)
+	{
+		_baseImpl.eventReceived();
+
+		TunnelStream tunnelStream = tunnelStreamMsgEvent.tunnelStream();
+		if (tunnelStream == null)
+		{
+			if (_baseImpl.loggerClient().isErrorEnabled())
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+				temp.append(
+						"Received a null tunnel stream defaultMsg event without the tunnel stream object in ItemCallbackClient.defaultMsgCallback")
+						.append(OmmLoggerClient.CR).append("Instance Name ").append(_baseImpl.instanceName())
+						.append(OmmLoggerClient.CR).append("RsslReactor ")
+						.append(Integer.toHexString(tunnelStreamMsgEvent.reactorChannel().reactor().hashCode()));
+
+				_baseImpl.loggerClient().error(
+						_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+			}
+
+			return ReactorCallbackReturnCodes.SUCCESS;
+		}
+
+		ChannelInfo channelInfo = (ChannelInfo) tunnelStreamMsgEvent.reactorChannel().userSpecObj();
+		if (tunnelStream.userSpecObject() == null)
+		{
+			if (_baseImpl.loggerClient().isErrorEnabled())
+			{
+				com.thomsonreuters.upa.transport.Error error = tunnelStreamMsgEvent.errorInfo().error();
+				StringBuilder temp = _baseImpl.strBuilder();
+				temp.append(
+						"Received a tunnel stream message event without the userSpecObject in ItemCallbackClient.defaultMsgCallback")
+						.append(OmmLoggerClient.CR).append("Instance Name ").append(_baseImpl.instanceName())
+						.append(OmmLoggerClient.CR).append("RsslReactor ")
+						.append(Integer.toHexString(channelInfo.rsslReactor().hashCode())).append(OmmLoggerClient.CR)
+						.append("RsslChannel ")
+						.append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0))
+						.append(OmmLoggerClient.CR).append("Error Id ").append(error.errorId())
+						.append(OmmLoggerClient.CR).append("Internal sysError ").append(error.sysError())
+						.append(OmmLoggerClient.CR).append("Error Location ")
+						.append(tunnelStreamMsgEvent.errorInfo().location()).append(OmmLoggerClient.CR)
+						.append("Error Text ").append(error.text());
+
+				_baseImpl.loggerClient().error(
+						_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+			}
+
+			return ReactorCallbackReturnCodes.SUCCESS;
+		}
+
+		if (tunnelStreamMsgEvent.containerType() != DataTypes.MSG)
+		{
+			if (_baseImpl.loggerClient().isErrorEnabled())
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+				temp.append("Received a tunnel stream message event containing an unsupported data type of")
+						.append(DataTypes.toString(Utilities.toEmaDataType[tunnelStreamMsgEvent.containerType()]))
+						.append(OmmLoggerClient.CR).append("Instance Name ").append(_baseImpl.instanceName())
+						.append(OmmLoggerClient.CR).append("RsslReactor ")
+						.append(Integer.toHexString(channelInfo.rsslReactor().hashCode()))
+						.append("Tunnel Stream Handle ")
+						.append(Integer.toHexString(tunnelStream.userSpecObject().hashCode()))
+						.append(OmmLoggerClient.CR).append("Tunnel Stream name ").append(tunnelStream.name())
+						.append(OmmLoggerClient.CR).append("Tunnel Stream serviceId ").append(tunnelStream.serviceId())
+						.append(OmmLoggerClient.CR).append("Tunnel Stream streamId ").append(tunnelStream.streamId());
+
+				_baseImpl.loggerClient().error(
+						_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+			}
+
+			return ReactorCallbackReturnCodes.SUCCESS;
+		}
+
+		if (tunnelStreamMsgEvent.msg() == null)
+		{
+			if (_baseImpl.loggerClient().isErrorEnabled())
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+				temp.append(
+						"Received a tunnel stream message event containing no sub stream message in ItemCallbackClient.defaultMsgCallback")
+						.append(OmmLoggerClient.CR).append("Instance Name ").append(_baseImpl.instanceName())
+						.append(OmmLoggerClient.CR).append("RsslReactor ")
+						.append(Integer.toHexString(channelInfo.rsslReactor().hashCode()))
+						.append("Tunnel Stream Handle ")
+						.append(Integer.toHexString(tunnelStream.userSpecObject().hashCode()))
+						.append(OmmLoggerClient.CR).append("Tunnel Stream name ").append(tunnelStream.name())
+						.append(OmmLoggerClient.CR).append("Tunnel Stream serviceId ").append(tunnelStream.serviceId())
+						.append(OmmLoggerClient.CR).append("Tunnel Stream streamId ").append(tunnelStream.streamId());
+
+				_baseImpl.loggerClient().error(
+						_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+			}
+
+			return ReactorCallbackReturnCodes.SUCCESS;
+		}
+
+		_eventImpl._item = ((TunnelItem<T>) (tunnelStream.userSpecObject()))
+				.getSubItem(tunnelStreamMsgEvent.msg().streamId());
+
+		if (_eventImpl._item == null)
+		{
+			if (_baseImpl.loggerClient().isErrorEnabled())
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+				temp.append(
+						"Received a tunnel stream message event containing sub stream message with unknown streamId ")
+						.append(tunnelStreamMsgEvent.msg().streamId()).append(".  Message is dropped.")
+						.append(OmmLoggerClient.CR).append("Instance Name ").append(_baseImpl.instanceName())
+						.append(OmmLoggerClient.CR).append("RsslReactor ")
+						.append(Integer.toHexString(channelInfo.rsslReactor().hashCode()))
+						.append("Tunnel Stream Handle ")
+						.append(Integer.toHexString(tunnelStream.userSpecObject().hashCode()))
+						.append(OmmLoggerClient.CR).append("Tunnel Stream name ").append(tunnelStream.name())
+						.append(OmmLoggerClient.CR).append("Tunnel Stream serviceId ").append(tunnelStream.serviceId())
+						.append(OmmLoggerClient.CR).append("Tunnel Stream streamId ").append(tunnelStream.streamId());
+
+				_baseImpl.loggerClient().error(
+						_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+			}
+
+			return ReactorCallbackReturnCodes.SUCCESS;
+		}
+
+		switch (tunnelStreamMsgEvent.msg().msgClass())
+		{
+		case MsgClasses.GENERIC:
+			return processTunnelStreamGenericMsg(tunnelStreamMsgEvent.msg(), channelInfo);
+		case MsgClasses.ACK:
+			return processTunnelStreamAckMsg(tunnelStreamMsgEvent.msg(), channelInfo);
+		case MsgClasses.REFRESH:
+			return processTunnelStreamRefreshMsg(tunnelStreamMsgEvent.msg(), channelInfo);
+		case MsgClasses.UPDATE:
+			return processTunnelStreamUpdateMsg(tunnelStreamMsgEvent.msg(), channelInfo);
+		case MsgClasses.STATUS:
+			return processTunnelStreamStatusMsg(tunnelStreamMsgEvent.msg(), channelInfo);
+		default:
+			if (_baseImpl.loggerClient().isErrorEnabled())
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+				temp.append("Received a tunnel stream message event containing an unsupported message type of ")
+						.append(DataType.asString(Utilities.toEmaMsgClass[tunnelStreamMsgEvent.msg().msgClass()]))
+						.append(OmmLoggerClient.CR).append("Instance Name ").append(_baseImpl.instanceName())
+						.append(OmmLoggerClient.CR).append("RsslReactor ")
+						.append(Integer.toHexString(channelInfo.rsslReactor().hashCode()));
+
+				_baseImpl.loggerClient().error(
+						_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+			}
+		}
+
+		return ReactorCallbackReturnCodes.SUCCESS;
+
+	}
+
+	int processTunnelStreamAckMsg(Msg rsslMsg, ChannelInfo channelInfo)
+	{
+		if (_ackMsg == null)
+			_ackMsg = new AckMsgImpl(_baseImpl._objManager);
+
+		_ackMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
+
+		notifyOnAllMsg(_ackMsg);
+		notifyOnAckMsg();
+
+		return ReactorCallbackReturnCodes.SUCCESS;
+	}
+
+	int processTunnelStreamGenericMsg(Msg rsslMsg, ChannelInfo channelInfo)
+	{
+		if (_genericMsg == null)
+			_genericMsg = new GenericMsgImpl(_baseImpl._objManager);
+
+		_genericMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
+
+		notifyOnAllMsg(_genericMsg);
+		notifyOnGenericMsg();
+
+		return ReactorCallbackReturnCodes.SUCCESS;
+	}
+
+	int processTunnelStreamStatusMsg(Msg rsslMsg, ChannelInfo channelInfo)
+	{
+		if (_statusMsg == null)
+			_statusMsg = new StatusMsgImpl(_baseImpl._objManager);
+
+		_statusMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
+
+		notifyOnAllMsg(_statusMsg);
+		notifyOnStatusMsg();
+
+		if (((com.thomsonreuters.upa.codec.StatusMsg) rsslMsg).checkHasState()
+				&& ((com.thomsonreuters.upa.codec.StatusMsg) rsslMsg).state().streamState() != StreamStates.OPEN)
+			_eventImpl._item.remove();
+
+		return ReactorCallbackReturnCodes.SUCCESS;
+	}
+
+	int processTunnelStreamRefreshMsg(Msg rsslMsg, ChannelInfo channelInfo)
+	{
+		_refreshMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
+
+		notifyOnAllMsg(_refreshMsg);
+		notifyOnRefreshMsg();
+
+		int rsslStreamState = ((com.thomsonreuters.upa.codec.RefreshMsg) rsslMsg).state().streamState();
+		if (rsslStreamState == StreamStates.NON_STREAMING)
+		{
+			if (((com.thomsonreuters.upa.codec.RefreshMsg) rsslMsg).checkRefreshComplete())
+				_eventImpl._item.remove();
+		} else if (rsslStreamState != StreamStates.OPEN)
+		{
+			_eventImpl._item.remove();
+		}
+
+		return ReactorCallbackReturnCodes.SUCCESS;
+	}
+
+	int processTunnelStreamUpdateMsg(Msg rsslMsg, ChannelInfo channelInfo)
+	{
+		_updateMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
+
+		notifyOnAllMsg(_updateMsg);
+		notifyOnUpdateMsg();
+
+		return ReactorCallbackReturnCodes.SUCCESS;
+	}
 
 	@SuppressWarnings("unchecked")
 	public int defaultMsgCallback(ReactorMsgEvent event)
@@ -250,8 +1450,26 @@ class ItemCallbackClient<T> extends CallbackClient<T> implements DefaultMsgCallb
 		_refreshMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
 	
 		if (_eventImpl._item.type() == Item.ItemType.BATCH_ITEM)
-			_eventImpl._item = ((BatchItem<T>)_eventImpl._item).singleItem(rsslMsg.streamId());
-		
+		{
+			_eventImpl._item = ((BatchItem<T>) _eventImpl._item).singleItem(rsslMsg.streamId());
+			if (_eventImpl._item == null)
+			{
+				if (_baseImpl.loggerClient().isErrorEnabled())
+				{
+					StringBuilder temp = _baseImpl.strBuilder();
+					temp.append("Received an item event with invalid message stream").append(OmmLoggerClient.CR)
+							.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR)
+							.append("RsslReactor ").append(Integer.toHexString(channelInfo.rsslReactor().hashCode()))
+							.append(OmmLoggerClient.CR);
+
+					_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME,
+							temp.toString(), Severity.ERROR));
+				}
+
+				return ReactorCallbackReturnCodes.FAILURE;
+			}
+		}
+
 		_refreshMsg.service(_eventImpl._item.directory().serviceName());
 		
 		notifyOnAllMsg(_refreshMsg);
@@ -276,8 +1494,26 @@ class ItemCallbackClient<T> extends CallbackClient<T> implements DefaultMsgCallb
 		_updateMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
 		
 		if (_eventImpl._item.type() == Item.ItemType.BATCH_ITEM)
-			_eventImpl._item = ((BatchItem<T>)_eventImpl._item).singleItem(rsslMsg.streamId());
-	
+		{
+			_eventImpl._item = ((BatchItem<T>) _eventImpl._item).singleItem(rsslMsg.streamId());
+			if (_eventImpl._item == null)
+			{
+				if (_baseImpl.loggerClient().isErrorEnabled())
+				{
+					StringBuilder temp = _baseImpl.strBuilder();
+					temp.append("Received an item event with invalid message stream").append(OmmLoggerClient.CR)
+							.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR)
+							.append("RsslReactor ").append(Integer.toHexString(channelInfo.rsslReactor().hashCode()))
+							.append(OmmLoggerClient.CR);
+
+					_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME,
+							temp.toString(), Severity.ERROR));
+				}
+
+				return ReactorCallbackReturnCodes.FAILURE;
+			}
+		}
+
 		_updateMsg.service(_eventImpl._item.directory().serviceName());
 
 		notifyOnAllMsg(_updateMsg);
@@ -299,18 +1535,17 @@ class ItemCallbackClient<T> extends CallbackClient<T> implements DefaultMsgCallb
 			if  (_eventImpl._item == null)
 			{
 				if (_baseImpl.loggerClient().isErrorEnabled())
-	        	{
-		        	StringBuilder temp = _baseImpl.strBuilder();
-		        	temp.append("Received an item event with invalid message stream")
-		        		.append(OmmLoggerClient.CR)
-		        		.append("Instance Name ").append(_baseImpl.instanceName())
-		        		.append(OmmLoggerClient.CR)
-		        		.append("RsslReactor ").append(Integer.toHexString(channelInfo.rsslReactor().hashCode()))
-		        		.append(OmmLoggerClient.CR);
-		        	
-			        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
-	        	}
-				
+				{
+					StringBuilder temp = _baseImpl.strBuilder();
+					temp.append("Received an item event with invalid message stream").append(OmmLoggerClient.CR)
+							.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR)
+							.append("RsslReactor ").append(Integer.toHexString(channelInfo.rsslReactor().hashCode()))
+							.append(OmmLoggerClient.CR);
+
+					_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME,
+							temp.toString(), Severity.ERROR));
+				}
+
 				return ReactorCallbackReturnCodes.FAILURE;
 			}
 		}
@@ -335,8 +1570,26 @@ class ItemCallbackClient<T> extends CallbackClient<T> implements DefaultMsgCallb
 		_genericMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
 		
 		if (_eventImpl._item.type() == Item.ItemType.BATCH_ITEM)
-			_eventImpl._item = ((BatchItem<T>)_eventImpl._item).singleItem(rsslMsg.streamId());
-		
+		{
+			_eventImpl._item = ((BatchItem<T>) _eventImpl._item).singleItem(rsslMsg.streamId());
+			if (_eventImpl._item == null)
+			{
+				if (_baseImpl.loggerClient().isErrorEnabled())
+				{
+					StringBuilder temp = _baseImpl.strBuilder();
+					temp.append("Received an item event with invalid message stream").append(OmmLoggerClient.CR)
+							.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR)
+							.append("RsslReactor ").append(Integer.toHexString(channelInfo.rsslReactor().hashCode()))
+							.append(OmmLoggerClient.CR);
+
+					_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME,
+							temp.toString(), Severity.ERROR));
+				}
+
+				return ReactorCallbackReturnCodes.FAILURE;
+			}
+		}
+
 		notifyOnAllMsg(_genericMsg);
 		notifyOnGenericMsg();
 
@@ -351,8 +1604,26 @@ class ItemCallbackClient<T> extends CallbackClient<T> implements DefaultMsgCallb
 		_ackMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
 
 		if (_eventImpl._item.type() == Item.ItemType.BATCH_ITEM)
-			_eventImpl._item = ((BatchItem<T>)_eventImpl._item).singleItem(rsslMsg.streamId());
-				
+		{
+			_eventImpl._item = ((BatchItem<T>) _eventImpl._item).singleItem(rsslMsg.streamId());
+			if (_eventImpl._item == null)
+			{
+				if (_baseImpl.loggerClient().isErrorEnabled())
+				{
+					StringBuilder temp = _baseImpl.strBuilder();
+					temp.append("Received an item event with invalid message stream").append(OmmLoggerClient.CR)
+							.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR)
+							.append("RsslReactor ").append(Integer.toHexString(channelInfo.rsslReactor().hashCode()))
+							.append(OmmLoggerClient.CR);
+
+					_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME,
+							temp.toString(), Severity.ERROR));
+				}
+
+				return ReactorCallbackReturnCodes.FAILURE;
+			}
+		}
+
 		_ackMsg.service(_eventImpl._item.directory().serviceName());
 
 		notifyOnAllMsg(_ackMsg);
@@ -553,15 +1824,82 @@ class ItemCallbackClient<T> extends CallbackClient<T> implements DefaultMsgCallb
 		}
 		else 
 		{
-			//TODO ParentHandle
+			Item<T> parent = _itemMap.get(_longObjHolder.value(parentHandle));
+			if (parent == null)
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+
+				temp.append("Attempt to get item from itemMap failed in registerClient(). ");
+
+				if (_baseImpl.loggerClient().isErrorEnabled())
+				{
+					_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME,
+							temp.toString(), Severity.ERROR));
+				}
+
+				_baseImpl.handleInvalidUsage(temp.toString());
+
+				return 0;
+			}
+			if (parent.type() != Item.ItemType.TUNNEL_ITEM)
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+
+				temp.append("Attempt to invalid type as parentHandle on registerClient(). ");
+
+				if (_baseImpl.loggerClient().isErrorEnabled())
+				{
+					_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME,
+							temp.toString(), Severity.ERROR));
+				}
+
+				_baseImpl.handleInvalidUsage(temp.toString());
+
+				return 0;
+			}
+
+			SubItem<T> subItem;
+			if ((subItem = (SubItem<T>) _baseImpl._objManager._subItemPool.poll()) == null)
+			{
+				subItem = new SubItem<T>(_baseImpl, (T) client, closure, parent);
+				_baseImpl._objManager._subItemPool.updatePool(subItem);
+			} else
+				subItem.reset(_baseImpl, (T) client, closure, parent);
+
+			if (!subItem.open(reqMsg))
+			{
+				if (subItem.streamId() > 0)
+				{
+					((TunnelItem<T>) (parent)).removeSubItem(subItem.streamId());
+					((TunnelItem<T>) (parent)).returnSubItemStreamId(subItem.streamId());
+				}
+				subItem.returnToPool();
+
+				return 0;
+			}
+
+			return addToMap(LongIdGenerator.nextLongId(), subItem);
 		}
-		
-		return 0;
 	}
 	
 	long registerClient(TunnelStreamRequest tunnelStreamReq, T client, Object closure)
 	{
-		return 0;
+		TunnelItem<T> item;
+		if ((item = (TunnelItem<T>) _baseImpl._objManager._tunnelItemPool.poll()) == null)
+		{
+			item = new TunnelItem<T>(_baseImpl, client, closure, null);
+			_baseImpl._objManager._tunnelItemPool.updatePool(item);
+		} 
+		else
+			item.reset(_baseImpl, client, closure, null);
+
+		if (!item.open(tunnelStreamReq))
+		{
+			item.returnStreamId();
+			item.returnToPool();
+			return 0;
+		}
+		return addToMap(LongIdGenerator.nextLongId(), item);
 	}
 	
 	void reissue(com.thomsonreuters.ema.access.ReqMsg reqMsg, long handle)
@@ -697,12 +2035,6 @@ class ItemCallbackClient<T> extends CallbackClient<T> implements DefaultMsgCallb
 		found.submit( genericMsg );
 	}
 
-	
-	//TODO TunnelStream
-	//	int processCallback(TunnelStream , TunnelStreamStatusEvent)
-	//	int processCallback(TunnelStream , TunnelStreamMsgEvent)
-	//	int processCallback(TunnelStream , TunnelStreamQueueMsgEvent)
-
 	long addToMap(long itemId, Item<T> item)
 	{
 		LongObject itemIdObj = _baseImpl._objManager.createLongObject().value(itemId);
@@ -821,6 +2153,8 @@ abstract class Item<T> extends VaNode
 	{
 		final static int SINGLE_ITEM = 0;
 		final static int BATCH_ITEM  = 1;
+		final static int TUNNEL_ITEM = 5;
+		final static int SUB_ITEM	 = 6;
 	}
 	
 	int						_domainType;
@@ -1287,7 +2621,8 @@ class SingleItem<T> extends Item<T>
 		rsslSubmitOptions.requestMsgOptions().clear();
 		
 		rsslGenericMsg.streamId(_streamId);
-		rsslGenericMsg.domainType(_domainType);
+		if (rsslGenericMsg.domainType() == 0)
+			rsslGenericMsg.domainType(_domainType);
 		
 	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();
@@ -1649,8 +2984,6 @@ class BatchItem<T> extends SingleItem<T>
 	}
 }
 
-//TODO TunnelItem
-//TODO SubItem
 
 class ClosedStatusClient<T> implements TimeoutClient
 {
@@ -1666,6 +2999,35 @@ class ClosedStatusClient<T> implements TimeoutClient
 	ClosedStatusClient(CallbackClient<T> client, Item<T> item, Msg rsslMsg, String statusText, String serviceName)
 	{
 		reset(client, item, rsslMsg, statusText, serviceName);
+	}
+	
+	ClosedStatusClient(CallbackClient<T> client, Item<T> item, TunnelStreamRequest tunnelStreamRequest, String text)
+	{
+		_client = client;
+		_item = item;
+		_statusText.data(text);
+		_domainType = tunnelStreamRequest.domainType();
+		
+		_rsslMsgKey.clear();
+		
+		
+		if(tunnelStreamRequest.hasName())
+		{
+			Buffer tunnelStreamNameBuf = CodecFactory.createBuffer();
+			tunnelStreamNameBuf.data(tunnelStreamRequest.name());
+			_rsslMsgKey.name(tunnelStreamNameBuf);
+		}
+		
+		if(tunnelStreamRequest.hasServiceId() == true)
+		{
+			_rsslMsgKey.serviceId(tunnelStreamRequest.serviceId());
+			_rsslMsgKey.applyHasServiceId();
+		}
+		
+		if(tunnelStreamRequest.hasServiceName())
+		{
+			_serviceName = tunnelStreamRequest.serviceName();
+		}
 	}
 	
 	void reset(CallbackClient<T> client, Item<T> item, Msg rsslMsg, String statusText, String serviceName)

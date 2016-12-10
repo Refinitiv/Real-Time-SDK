@@ -10,7 +10,7 @@ package com.thomsonreuters.ema.access;
 
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
 
-public class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProviderConfig
+class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProviderConfig
 {
 	private int 					_operationModel;
 	private int                     _adminControlDirectory;
@@ -194,5 +194,11 @@ public class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProvi
 
 		directoryName = (String)xmlConfig().getNiProviderAttributeValue(instanceName,ConfigManager.NiProviderDirectoryName);
 		return directoryName;
+	}
+
+	@Override
+	public int providerRole()
+	{
+		return OmmProviderConfig.ProviderRole.NON_INTERACTIVE;
 	}
 }

@@ -11,7 +11,7 @@
 
 /**
 	@class thomsonreuters::ema::access::OmmProviderErrorClient OmmProviderErrorClient.h "Access/Include/OmmProviderErrorClient.h"
-	@brief OmmProviderErrorclient class provides callback mechanism used in place of exceptions.
+	@brief OmmProviderErrorClient class provides callback mechanism used in place of exceptions.
 
 	By default OmmProvider class throws exceptions if usage errors occur. Specifying OmmProviderErrorClient
 	on the constructor of OmmProvider overwrites this behaviour. Instead of throwing exceptions, respective

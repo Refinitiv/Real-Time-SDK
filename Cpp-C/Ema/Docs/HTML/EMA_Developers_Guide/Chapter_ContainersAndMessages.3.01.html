@@ -59,7 +59,7 @@
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1034334">The EMA supports a full set of OMM containers, messages, and primitives (e.g. </a><span class="CodeOrCommand">FieldList</span>, <span class="CodeOrCommand">Map</span>, <span class="CodeOrCommand">RefreshMsg</span>, <span class="CodeOrCommand">Int</span>). For simplicity, EMA uses:</div>
+      <div class="Body"><a name="1035330">The EMA supports a full set of OMM containers, messages, and primitives (e.g. </a><span class="CodeOrCommand" style="font-size: 10.0pt">FieldList</span>, <span class="CodeOrCommand" style="font-size: 10.0pt">Map</span>, <span class="CodeOrCommand" style="font-size: 10.0pt">RefreshMsg</span>, <span class="CodeOrCommand" style="font-size: 10.0pt">Int</span>). For simplicity, EMA uses:</div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -69,7 +69,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1034335">The “set / add” type of functionality to populate OMM containers, messages, and primitives</a></div>
+              <div class="Bullet_inner"><a name="1035331">The “set / add” type of functionality to populate OMM containers, messages, and primitives</a></div>
             </td>
           </tr>
         </table>
@@ -83,7 +83,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1034336">Set functionality is used to specify variables that occur once in an OMM container or message.</a></div>
+              <div class="bullet_ind_inner"><a name="1035332">Set functionality is used to specify variables that occur once in an OMM container or message.</a></div>
             </td>
           </tr>
         </table>
@@ -97,7 +97,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1034337">Add functionality is used to populate entries in OMM containers.</a></div>
+              <div class="bullet_ind_inner"><a name="1035333">Add functionality is used to populate entries in OMM containers.</a></div>
             </td>
           </tr>
         </table>
@@ -111,7 +111,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1034338">Set and add type methods return a reference to the modified object (for fluid interface usage).</a></div>
+              <div class="bullet_ind_inner"><a name="1035334">Set and add type methods return a reference to the modified object (for fluid interface usage).</a></div>
             </td>
           </tr>
         </table>
@@ -125,12 +125,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1034339">The “get” type of functionality to read and extract data from OMM containers, messages, and primitives.EMA uses a simple iterative approach to extract entries from OMM containers, one at a time. Applications iterate over every OMM container type in the same way. </a></div>
+              <div class="Bullet_inner"><a name="1035335">The “get” type of functionality to read and extract data from OMM containers, messages, and primitives.EMA uses a simple iterative approach to extract entries from OMM containers, one at a time. Applications iterate over every OMM container type in the same way. </a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1034340">While iterating, an application can apply a filtering mechanism. For example, while iterating over a </a><span class="CodeOrCommand">FieldList</span>, the application can specify a field ID or field name in which it is interested; the EMA skips entries without matching identification. Individual container entries are extracted during iteration. Depending on the container type, the entry may contain:</div>
+      <div class="Body"><a name="1035336">While iterating, an application can apply a filtering mechanism. For example, while iterating over a </a><span class="CodeOrCommand" style="font-size: 10.0pt">FieldList</span>, the application can specify a field ID or field name in which it is interested; the EMA skips entries without matching identification. Individual container entries are extracted during iteration. Depending on the container type, the entry may contain:</div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -140,21 +140,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1034341">Its own identity (e.g., field id)</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><a name="1034342">An action to be applied to the received data (e.g., add action)</a></div>
+              <div class="Bullet_inner"><a name="1035337">Its own identity (e.g., field id)</a></div>
             </td>
           </tr>
         </table>
@@ -168,7 +154,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1034343">Permission information associated with the received data</a></div>
+              <div class="Bullet_inner"><a name="1035338">An action to be applied to the received data (e.g., add action)</a></div>
             </td>
           </tr>
         </table>
@@ -182,22 +168,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1034344">An entry’s load and its </a><span class="CodeOrCommand">data</span> type.</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Body"><a name="1034345">The EMA has two different ways of extracting an entry’s load:</a></div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><a name="1034346">Use ease-of-use interfaces to return references to contained objects (with reference type being based on the load’s data type)</a></div>
+              <div class="Bullet_inner"><a name="1035339">Permission information associated with the received data</a></div>
             </td>
           </tr>
         </table>
@@ -211,13 +182,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1034353">Use the </a><span class="CodeOrCommand">getLoad</span> interface to return a reference to the base <span class="CodeOrCommand">Data</span> class. The <span class="CodeOrCommand">getLoad</span> interface enables more advanced applications to use the down-cast operation (if desired).</div>
+              <div class="Bullet_inner"><a name="1035340">An entry’s load and its </a><span class="CodeOrCommand" style="font-size: 10.0pt">data</span> type.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1034360">For details on ease of use interfaces and the down-cast operation, refer to</a> <a href="javascript:WWHClickedPopup('EMA_Developers_Guide', 'Chapter_ContainersAndMessages.3.08.html', '');" title="3.3 Working with OMM Containers">Section 3.3</a>.</div>
-      <div class="Body"><a name="1034361">To provide compile time-type safety on the set-type interfaces, EMA provides the following, deeper inheritance structure:</a></div>
+      <div class="Body"><a name="1035341">The EMA has two different ways of extracting an entry’s load:</a></div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -227,21 +197,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1034362">All classes representing primitive / intrinsic data types inherit from the </a><span class="CodeOrCommand">Data</span> class (e.g. <span class="CodeOrCommand">OmmInt</span>, <span class="CodeOrCommand">OmmBuffer</span>, <span class="CodeOrCommand">OmmRmtes</span>, etc.).</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><span class="CodeOrCommand"><a name="1034363">OmmArray</a></span> class inherits from the <span class="CodeOrCommand">Data</span> class. The <span class="CodeOrCommand">OmmArray</span> is treated as a primitive instead of a container, because it represents a set of primitives.</div>
+              <div class="Bullet_inner"><a name="1035342">Use ease-of-use interfaces to return references to contained objects (with reference type being based on the load’s data type)</a></div>
             </td>
           </tr>
         </table>
@@ -255,7 +211,23 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><span class="CodeOrCommand"><a name="1034364">OmmError</a></span> class inherits from the <span class="CodeOrCommand">Data</span> class. <span class="CodeOrCommand">OmmError</span> class is not an OMM data type.</div>
+              <div class="Bullet_inner"><a name="1035349">Use the </a><span class="CodeOrCommand" style="font-size: 10.0pt">getLoad</span> interface to return a reference to the base <span class="CodeOrCommand" style="font-size: 10.0pt">Data</span> class. The <span class="CodeOrCommand" style="font-size: 10.0pt">getLoad</span> interface enables more advanced applications to use the down-cast operation (if desired).</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1035356">For details on ease of use interfaces and the down-cast operation, refer to</a> <a href="javascript:WWHClickedPopup('EMA_Developers_Guide', 'Chapter_ContainersAndMessages.3.08.html', '');" title="3.3 Working with OMM Containers">Section 3.3</a>.</div>
+      <div class="Body"><a name="1035357">To provide compile time-type safety on the set-type interfaces, EMA provides the following, deeper inheritance structure:</a></div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1035358">All classes representing primitive / intrinsic data types inherit from the </a><span class="CodeOrCommand" style="font-size: 10.0pt">Data</span> class (e.g. <span class="CodeOrCommand" style="font-size: 10.0pt">OmmInt</span>, <span class="CodeOrCommand" style="font-size: 10.0pt">OmmBuffer</span>, <span class="CodeOrCommand" style="font-size: 10.0pt">OmmRmtes</span>, etc.).</div>
             </td>
           </tr>
         </table>
@@ -269,7 +241,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1034365">All classes representing OMM containers (except </a><span class="CodeOrCommand">OmmArray</span>) inherit from the <span class="CodeOrCommand">ComplexType</span> class, which in turn inherits from the <span class="CodeOrCommand">Data</span> class (e.g., <span class="CodeOrCommand">OmmXml</span>, <span class="CodeOrCommand">OmmOpaque</span>, <span class="CodeOrCommand">Map</span>, <span class="CodeOrCommand">Series</span>, or <span class="CodeOrCommand">Vector</span>).</div>
+              <div class="Bullet_inner"><span class="CodeOrCommand" style="font-size: 10.0pt"><a name="1035359">OmmArray</a></span> class inherits from the <span class="CodeOrCommand" style="font-size: 10.0pt">Data</span> class. The <span class="CodeOrCommand" style="font-size: 10.0pt">OmmArray</span> is treated as a primitive instead of a container, because it represents a set of primitives.</div>
             </td>
           </tr>
         </table>
@@ -283,7 +255,35 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1034366">All classes representing OMM messages inherit from the </a><span class="CodeOrCommand">Msg</span> class, which in turn inherits from the <span class="CodeOrCommand">ComplexType</span> class (e.g., <span class="CodeOrCommand">RefreshMsg</span>, <span class="CodeOrCommand">GenericMsg</span>, or <span class="CodeOrCommand">PostMsg</span>).</div>
+              <div class="Bullet_inner"><span class="CodeOrCommand" style="font-size: 10.0pt"><a name="1035360">OmmError</a></span> class inherits from the <span class="CodeOrCommand" style="font-size: 10.0pt">Data</span> class. <span class="CodeOrCommand" style="font-size: 10.0pt">OmmError</span> class is not an OMM data type.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1035361">All classes representing OMM containers (except </a><span class="CodeOrCommand" style="font-size: 10.0pt">OmmArray</span>) inherit from the <span class="CodeOrCommand" style="font-size: 10.0pt">ComplexType</span> class, which in turn inherits from the <span class="CodeOrCommand" style="font-size: 10.0pt">Data</span> class (e.g., <span class="CodeOrCommand" style="font-size: 10.0pt">OmmXml</span>, <span class="CodeOrCommand" style="font-size: 10.0pt">OmmOpaque</span>, <span class="CodeOrCommand" style="font-size: 10.0pt">Map</span>, <span class="CodeOrCommand" style="font-size: 10.0pt">Series</span>, or <span class="CodeOrCommand" style="font-size: 10.0pt">Vector</span>).</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1035362">All classes representing OMM messages inherit from the </a><span class="CodeOrCommand" style="font-size: 10.0pt">Msg</span> class, which in turn inherits from the <span class="CodeOrCommand" style="font-size: 10.0pt">ComplexType</span> class (e.g., <span class="CodeOrCommand" style="font-size: 10.0pt">RefreshMsg</span>, <span class="CodeOrCommand" style="font-size: 10.0pt">GenericMsg</span>, or <span class="CodeOrCommand" style="font-size: 10.0pt">PostMsg</span>).</div>
             </td>
           </tr>
         </table>

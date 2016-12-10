@@ -13,7 +13,9 @@ using namespace thomsonreuters::ema::access;
 
 OmmProviderEvent::OmmProviderEvent() :
 	_handle( 0 ),
-	_closure( 0 )
+	_closure( 0 ),
+	_clientHandle( 0 ),
+	_provider( 0 )
 {
 }
 
@@ -29,4 +31,14 @@ UInt64 OmmProviderEvent::getHandle() const
 void* OmmProviderEvent::getClosure() const
 {
 	return _closure;
+}
+
+OmmProvider& OmmProviderEvent::getProvider() const
+{
+	return *_provider;
+}
+
+UInt64 OmmProviderEvent::getClientHandle() const
+{
+	return _clientHandle;
 }

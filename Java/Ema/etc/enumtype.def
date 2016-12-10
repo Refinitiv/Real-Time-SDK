@@ -11,10 +11,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.25
-!tag Build_RDMD  4.20.25
-!tag DT_Version  16.71
-!tag Date        30-Aug-2016
+!tag RT_Version  4.20.27
+!tag Build_RDMD  4.20.27
+!tag DT_Version  16.91
+!tag Date        15-Nov-2016
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -305,11 +305,11 @@ BAS_PRCTCK 12762
       1         #DE#   up tick or zero uptick
       2         #FE#   down tick or zero downtick
       3          " "   unchanged tick
-      4          "0"   Trade price no variation
-      5          "U"   Trade price no variation but higher than the previous different price
-      6          "D"   Trade price no variation but lower than the previous different price
-      7          "+"   Trade price goes up
-      8          "-"   Trade price goes down
+      4          "0"   Trade price no variation (NO LONGER IN USE)
+      5          "U"   Trade price no variation but higher than the previous different price (NO LONGER IN USE)
+      6          "D"   Trade price no variation but lower than the previous different price (NO LONGER IN USE)
+      7          "+"   Trade price goes up (NO LONGER IN USE)
+      8          "-"   Trade price goes down (NO LONGER IN USE)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -351,6 +351,8 @@ TI_CCY      9053
 ORIG_CCY   13419
 LEG1_CURR  13445
 LEG2_CURR  13446
+LEG3_CURR  13571
+LEG4_CURR  13573
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -931,6 +933,7 @@ BIDXID      3298
      27        "NBZ"   NASDAQ OMX BX Options Exchange
      28        "ISZ"   ISE Second Options Exchange
      29        "ISJ"   ISE Mercury
+     30        "MPO"   MIAX Pearl Options Exchange
      37        "ISS"   Intl Securities Exch Equities
      40        "DEA"   Direct Edge Holdings - EDGA (CTA)
      42        "BTY"   BATS Y Exchange (CTA)
@@ -1835,6 +1838,10 @@ BID_TICK3  12923
 ASK_TICK1  12924
 ASK_TICK2  12925
 ASK_TICK3  12926
+ASK_TICK4  13009
+ASK_TICK5  13010
+BID_TICK4  13011
+BID_TICK5  13012
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -4855,6 +4862,8 @@ PAY_FREQ     868
 RESET_FREQ  1472
 PAY_FREQ2  12798
 U_PAY_FREQ 12878
+LEG1_PAYFQ 12960
+LEG2_PAYFQ 12961
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -6654,6 +6663,8 @@ CTRY_ISSUE  1652
 CTRY_ISSR   1653
 COUNTRY     4036
 DOMICILE    4037
+INPUT_ORGN 13570
+CLR_CTRY   13580
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -6960,6 +6971,8 @@ COR_EXID   13402
 ODD_EXID   13495
 CRS_EXID   13551
 BLK_EXID   13552
+LEG3_EXCH  13572
+LEG4_EXCH  13574
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -8413,6 +8426,10 @@ BLK_EXID   13552
    1447        "CXD"   Nasdaq CXD
    1448        "ICQ"   Consolidated Issues Listed By IEX Exchange
    1449        "IEB"   IRISH SE BONDS & FUNDS
+   1450        "GAZ"   Gazenergoset
+   1451        "MPO"   MIAX Pearl Options Exchange
+   1452        "AIP"   Australian Institute of Petroleum
+   1453        "SMC"   SMC-SOMA CORRETORA
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11279,6 +11296,7 @@ PRICE_METH  4396
      22        "IXG"   Inflation adjusted Gross Price (percentage of par)
      23        "IXC"   Inflation adjusted Clean Price (percentage of par)
      24        "ILD"   Inflation Adjusted Yield
+     25        "PRM"   Option Premium (price)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11374,6 +11392,11 @@ THRESH_IND  4760
       0          "0"   undefined
       1          "1"   Regular trade
       2          "2"   Threshold
+      3          "A"   Suspect ask value
+      4          "B"   Suspect bid value
+      5          "M"   Suspect mid value
+      6          "Q"   Suspect quote
+      7          "T"   Suspect trade
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12134,6 +12157,7 @@ ORD_ENT_ST  6518
       2          "I"   Order Entry Inhibited
       3          "N"   Order Entry Enabled, No Cancelations Allowed
       4          "C"   Order Entry Inhibited, Cancelations Allowed
+      5          "S"   Order Entry Enabled, Sell Orders Only
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -14474,6 +14498,8 @@ CALL_TYPE   9008
       2   "  ECB   "   Equity Clawback Call
       3   "  MKW   "   Make Whole Call
       4   "  SPC   "   Special Call
+      5   "DBC     "   Danish Borrower Call
+      6   "REC     "   Regulatory Call
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -14569,9 +14595,11 @@ SEASONCODE  9013
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0   "        "   Undefined
-      1   "1       "   Not Seasoned
+      1   "1       "   Not Seasoned (DO NOT USE)
       2   "2       "   Seasoning Not Required
       3   "3       "   Does Not Apply
+      4   "Y       "   Instrument is Seasoned
+      5   "N       "   Instrument is Not seasoned
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -14740,6 +14768,22 @@ OFFBK_COND  9049
      17   "EXCUM   "   Ex-div or cumulative dividend trade
      18   "COND    "   Trade with conditions outside normal market
      19   "OTH     "   Other Trade Type
+     20   "BAS     "   Basis Trade
+     21   "BLKP    "   Large in Scale package trade
+     22   "ACT     "   Against Actual Trade
+     23   "AAL     "   Asset Allocation Trade
+     24   "ESW     "   Exchange for Swap Trade
+     25   "EFP     "   Exchange for Physical Trade
+     26   "SBLK    "   Strategy Leg Large in Scale (LiS) trade
+     27   "SBAS    "   Strategy Leg Basis Trade
+     28   "SACT    "   Strategy Leg Against Actual Trade
+     29   "SAAL    "   Strategy Leg Asset Allocation Trade
+     30   "SESW    "   Strategy Leg Exchange For Swap Trade
+     31   "SEFP    "   Strategy Leg Exchange For Physical Trade
+     32   "OFFEX   "   Off exchange reported trade
+     33   "DNT     "   Delta Neutral Trade - Underlying Future Leg
+     34   "RFCT    "   Request for Cross Trade
+     35   "SRFCT   "   Request for Cross Strategy Leg Trade
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -15166,6 +15210,11 @@ SRC_BYLD4  12815
 SRC_BYLD5  12816
 SRC_AMRG1  12834
 SRC_BMRG1  12835
+SRC_MMRG1  12968
+SRC_MMRG2  12969
+SRC_MMRG3  12970
+SRC_MMRG4  12971
+SRC_MMRG5  12972
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -16166,74 +16215,466 @@ DEF_FC_TP  12948
       1   "MEDIAN  "   Median
       2   "TRIMMEAN"   Trimmed Mean
       3   "MEAN    "   Mean
+      4   "HIGH    "   Highest
+      5   "LOW     "   Lowest
+      6   "FCASTNUM"   Number of forecasts
+      7   "MODE    "   Mode
 !
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET248 12949
-PRE_1ET249 12950
-PRE_1ET250 12951
-PRE_1ET251 12952
-PRE_1ET252 12953
-PRE_1ET253 12954
-PRE_1ET254 12955
-PRE_1ET255 12956
-PRE_1ET256 12957
-PRE_1ET257 12958
-PRE_1ET258 12959
-PRE_1ET259 12960
-PRE_1ET260 12961
-PRE_1ET261 12962
-PRE_1ET262 12963
-PRE_1ET263 12964
-PRE_1ET264 12965
-PRE_1ET265 12966
-PRE_1ET266 12967
-PRE_1ET267 12968
-PRE_1ET268 12969
-PRE_1ET269 12970
-PRE_1ET270 12971
-PRE_1ET271 12972
-PRE_1ET272 12973
-PRE_1ET273 12974
-PRE_1ET274 12975
-PRE_1ET275 12976
-PRE_1ET276 12977
-PRE_1ET277 12978
-PRE_1ET278 12979
-PRE_1ET279 12980
-PRE_1ET280 12981
-PRE_1ET281 12982
-PRE_1ET282 12983
-PRE_1ET283 12984
-PRE_1ET284 12985
-PRE_1ET285 12986
-PRE_1ET286 12987
-PRE_1ET287 12988
-PRE_1ET288 12989
-PRE_1ET289 12990
-PRE_1ET290 12991
-PRE_1ET291 12992
-PRE_1ET292 12993
-PRE_1ET293 12994
-PRE_1ET294 12995
-PRE_1ET295 12996
-PRE_1ET296 12997
-PRE_1ET297 12998
-PRE_1ET298 12999
-PRE_1ET299 13000
-PRE_1ET300 13001
-PRE_1ET301 13002
-PRE_1ET302 13003
-PRE_1ET303 13004
-PRE_1ET304 13005
-PRE_1ET305 13006
-PRE_1ET306 13007
-PRE_1ET307 13008
-PRE_1ET308 13009
-PRE_1ET309 13010
-PRE_1ET310 13011
-PRE_1ET311 13012
+LEG1_CO_FL 12949
+LEG2_CO_FL 12951
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   Undefined
+      1        "Y  "   Collateralised
+      2        "N  "   Not collateralised
+!
+! ACRONYM    FID
+! -------    ---
+!
+LEG1_OTR   12950
+LEG2_OTR   12952
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   Undefined
+      1        "Y  "   On The Run
+      2        "N  "   Not On The Run
+!
+! ACRONYM    FID
+! -------    ---
+!
+DIFFB_ROLL 12953
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   Undefined
+      1        "Jan"   January
+      2        "Feb"   February
+      3        "Mar"   March
+      4        "Apr"   April
+      5        "May"   May
+      6        "Jun"   June
+      7        "Jul"   July
+      8        "Aug"   August
+      9        "Sep"   September
+     10        "Oct"   October
+     11        "Nov"   November
+     12        "Dec"   December
+!
+! ACRONYM    FID
+! -------    ---
+!
+ASMNT_FLG1 12954
+ASMNT_FLG2 12955
+ASMNT_FLG3 12956
+ASMNT_FLG4 12957
+ASMNT_FLG5 12958
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0      "     "   Undefined
+      1      "AS_AM"   Asia AM Assessment
+      2      "AS_ST"   Asia Settlement
+      3      "EU_AM"   Europe AM Assessment
+      4      "EU_ST"   Europe Settlement
+      5      "US_AM"   US AM Assessment
+      6      "US_ST"   US Settlement
+!
+! ACRONYM    FID
+! -------    ---
+!
+DLVY_TERMS 12959
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0      "     "   Undefined
+      1      "CIF  "   Cost, Insurance and Freight
+      2      "C+F  "   Cost and Freight
+      3      "CPT  "   Carriage Paid To
+      4      "CIP  "   Carriage and Insurance Paid To
+      5      "DAF  "   Delivered at Frontier
+      6      "DDU  "   Delivery Duty Unpaid
+      7      "DDP  "   Delivery Duty Paid
+      8      "DES  "   Delivered Ex-Ship
+      9      "DEQ  "   Delivered Ex-Quay
+     10      "EXD  "   Ex-Dock
+     11      "EXM  "   Ex-Mill
+     12      "EXW  "   Ex-Works
+     13      "FAS  "   Free Alongside Ship
+     14      "FCA  "   Free Carrier
+     15      "FIP  "   Free in Pipe
+     16      "FIO  "   Free In and Out of a Port
+     17      "FO   "   Free Out
+     18      "FOB  "   Free On Board
+     19      "FOT  "   Free On Truck
+     20      "FOR  "   Free On Road
+     21      "PPT  "   Prompt: A near term delivery
+!
+! ACRONYM    FID
+! -------    ---
+!
+EXP_UP_FRQ 12962
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "RT      "   Intraday Updates - Realtime
+      2   "Snap    "   Intraday Updates - Snapshot
+      3   "Mon-Sun "   Once a day on Monday to Sunday
+      4   "Mon-Fri "   Once a day on Monday to Friday
+      5   "Mon     "   Once a week on Monday
+      6   "Tue     "   Once a week on Tuesday
+      7   "Wed     "   Once a week on Wednesday
+      8   "Thu     "   Once a week on Thursday
+      9   "Fri     "   Once a week on Friday
+     10   "Sat     "   Once a week on Saturday
+     11   "Sun     "   Once a week on Sunday
+     12   "IRG_Day "   Daily Updates - Irregular Snapshot
+     13   "IRG_Week"   Weekly Updates - Irregular day in the week
+     14   "IRG_Mth "   Monthly Updates - Irregular month in the year
+!
+! ACRONYM    FID
+! -------    ---
+!
+DCNT_BAS1  12963
+DCNT_BAS2  12964
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "00      "   30/360 US
+      2   "05G     "   30/365 German
+      3   "0AG     "   30/Actual German
+      4   "A0      "   Actual/350
+      5   "A0D     "   Actual/360 Day Based
+      6   "A4      "   Actual/364
+      7   "A5      "   Actual/365
+      8   "A5D     "   Actual/365 Day Based
+      9   "A5ISDA  "   Actual/365 (ISDA)
+     10   "AA      "   Actual/Actual
+     11   "A25     "   Actual/365.25
+     12   "E0      "   30E/360 ISMA
+     13   "00G     "   30/360 German
+     14   "W252    "   Actual Business Days/252
+     15   "00ISDA  "   30/360 (ISDA): I0
+     16   "0A      "   30/Actual
+     17   "A25D    "   Actual/365.25 Day Based
+     18   "A252    "   Actual/252
+     19   "NL5     "   (Actual - Leap day) / 365
+     20   "NL0     "   (Actual - Leap day) / 360
+     21   "05      "   30/365
+     22   "AAAFB   "   Actual/Actual AFB
+     23   "A5C     "   Act/365 with Canadian convention
+     24   "A5L     "   Act/365L
+!
+! ACRONYM    FID
+! -------    ---
+!
+BOND_GRCAT 12965
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "AGNC    "   Agency
+      2   "CONV    "   Convertible
+      3   "GOVT    "   Government
+      4   "HYLD    "   High Yield
+      5   "INVG    "   Investment Grade
+!
+! ACRONYM    FID
+! -------    ---
+!
+COV_BND_FL 12966
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "Y       "   security is a Covered bond in European market jumbo issue
+      2   "N       "   Security is not a Covered bond
+!
+! ACRONYM    FID
+! -------    ---
+!
+REDEM_TYPE 12967
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "MAT     "   MATURITY
+      2   "CALL    "   CALL
+      3   "PUT     "   PUT
+      4   "SINK    "   SINK
+      5   "REFU    "   REFUND
+      6   "EARL    "   EARLIEST AL
+      7   "LATE    "   LATEST AL
+      8   "SCHE    "   SCHEDULED AL
+      9   "BEST    "   BEST to PUT
+     10   "WRST    "   WORST
+     11   "WCAL    "   WORST to CALL
+     12   "EFFE    "   EFFECTIVE
+     13   "GIVE    "   GIVEN REDEM
+!
+! ACRONYM    FID
+! -------    ---
+!
+STRIP_FL   12973
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "Y       "   coupon payments may be "stripped" from the security
+      2   "N       "   coupon payments can't be "stripped" from the security
+!
+! ACRONYM    FID
+! -------    ---
+!
+TAP_BND_FL 12974
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "Y       "   Security has been tapped on or after March 1, 2002.
+      2   "N       "   Security has not been tapped
+!
+! ACRONYM    FID
+! -------    ---
+!
+SULPH_UNIT 12975
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "%       "   Percentage
+      2   "ppm     "   Parts-per million
+!
+! ACRONYM    FID
+! -------    ---
+!
+CARGO_TYPE 12976
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "CRDOIL  "   Crude Oil
+      2   "FUELOIL "   Fuel Oil
+      3   "REFPROD "   Refined Petroleum Product
+      4   "LPG     "   Liquefied Petroleum Gas
+      5   "LNG     "   Liquefied Natural Gas
+      6   "AMMONIA "   Ammonia
+      7   "CHLORINE"   Chlorine
+      8   "WINE    "   Wine
+      9   "PALMOIL "   Palm Oil
+     10   "VEG OIL "   Vegetable Oil
+     11   "IRONORE "   Ore
+     12   "COAL    "   Coal
+     13   "GRAIN   "   Grain
+     14   "SUGAR   "   Sugar
+     15   "RICE    "   Rice
+     16   "MEAT    "   Meat
+     17   "VEGTABLE"   Vegetables
+     18   "FRUIT   "   Fruits
+     19   "BAUXITE "   Bauxite
+!
+! ACRONYM    FID
+! -------    ---
+!
+ROUTE_INDX 12977
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "TD1     "   Middle East Gulf to US Gulf
+      2   "TD2     "   Middle East Gulf to Singapore
+      3   "TD3     "   Middle East Gulf to Japan
+      4   "TD4     "   West Africa to US Gulf
+      5   "TD5     "   West Africa to USAC
+      6   "TD6     "   Cross Mediterranean
+      7   "TD7     "   North Sea to Continental Europe
+      8   "TD8     "   Kuwait to Singapore
+      9   "TD9     "   Caribbean to US Gulf
+     10   "TD10D   "   Caribbean to USAC - Double Hull Vessel
+     11   "TD11    "   Cross Mediterranean
+     12   "TD12    "   Amsterdam-Rotterdam-Antwerp to US Gulf
+     13   "TD14    "   South East Asia to East Coast Australia
+     14   "TD15    "   West Africa to China
+     15   "TD16    "   Black Sea to Mediterranean
+     16   "TD17    "   Baltic to UK-Continental Europe
+     17   "TD18    "   Baltic to UKC
+     18   "TD19    "   80000mt Cross Med
+     19   "VLCC-TCE"   VLCC TCE (Uses: TD1 & TD3)
+     20   "Suez-TCE"   Suezmax TCE (Uses: TD5 & TD6)
+     21   "Afra-TCE"   Aframax TCE (Uses: TD7, TD8, TD9, TD11, TD14 & TD17)
+     22   "TC1     "   Middle East Gulf to Japan
+     23   "TC2     "   Continent to USAC
+     24   "TC3     "   Caribbean to USAC
+     25   "TC4     "   Singapore to Japan
+     26   "TC5     "   Middle East to Japan
+     27   "TC6     "   Algeria Euromed
+     28   "TC7     "   Singapore to East Coast Australia
+     29   "TC8     "   Algeria to UK Continent
+     30   "TC9     "   Baltic to UK Continent
+     31   "TC10    "   South Korea to NOPAC West Coast
+     32   "TC12    "   Sikka (WCI) to Japan
+     33   "TC14    "   US Gulf to Continent
+     34   "MR-TCE  "   MR TCE (Uses: TC2_37, TC3_38 & TC10)
+     35   "MRAtlBsk"   MR Atlantic Basket (Uses: TC2 TCE & TC14 TCE)
+     36   "C2      "   Tubarao to Rotterdam
+     37   "C3      "   Tubarao to Beilun and Baoshan
+     38   "C4      "   Richards Bay to Rotterdam
+     39   "C5      "   West Australia to Beilun-Baoshan
+     40   "C7      "   Bolivar to Rotterdam
+     41   "C8_14   "   Gibraltar-Hamburg Trans Atlantic Round Voyage
+     42   "C9_14   "   Continent/Mediterranean trip China-Japan
+     43   "C10_14  "   China-Japan trans pacific round voyage
+     44   "C11     "   China/Japan trip Continent/Med
+     45   "C14     "   China-Brazil round voyage
+     46   "C15     "   Richards Bay to Fangcheng
+     47   "C16     "   Revised backhaul
+     48   "P1A     "   Trans Atlantic Round
+     49   "P2A     "   Skaw Passero - Taiwan/Japan
+     50   "P3A     "   Trans Pacific Round
+     51   "P4      "   Far East - Europe
+     52   "P3A-IV  "   Implied Voyage Newcastle - Qingdao
+     53   "P5      "   74000mt S China/HongKong range Indo Round Voyage
+     54   "S1A     "   Antwerp-Skaw Trip
+     55   "S1B     "   Canakkale Trip
+     56   "S2      "   Delivery South Korea / Japan for Australia or Trans Pacific Round Voyage
+     57   "S3      "   Delivery South Korea / Japan. Redelivery Gibraltar / Skaw
+     58   "S4A     "   Delivery US Gulf. Redelivery Skaw / Passero
+     59   "S4B     "   Delivery Skaw / Passero. Redelivery US Gulf
+     60   "S5      "   Delivery Dakar / Douala. Redelivery Singapore/Japan
+     61   "S6      "   Delivery South Korea / Japan. Redelivery India
+     62   "S7      "   Delivery Cape Comorin / Haldia. Redelivery China
+     63   "S8      "   Delivery China/Hong Kong/Shanghai. Redelivery East Coast India Chennai/Paradip
+     64   "S9      "   Delivery Dakar / Douala
+     65   "S10     "   North China via Indo / South China
+     66   "S11     "   Mid China/Australia or Nopac Round Voyage
+     67   "HS1     "   Delivery Skaw - Passero. Redelivery Recalada - Rio de Janeiro
+     68   "HS2     "   Delivery Skaw - Passero. Redelivery Boston - Galveston
+     69   "HS3     "   Delivery Recalada - Rio de Janeiro. Redelivery Skaw - Passero
+     70   "HS4     "   Delivery US Gulf. Redelivery Skaw / Passero
+     71   "HS5     "   Delivery South East Asia via Australia. Redelivery Singapore - Japan
+     72   "HS6     "   Delivery South Korea - Japan via NOPAC. Redelivery Singapore - Japan
+!
+! ACRONYM    FID
+! -------    ---
+!
+VESSEL_TYP 12978
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "Aframax "   Aframax are medium-sized oil tankers with a dead weight tonnage (DWT) between 80,000 and 119,999
+      2   "Capesize"   They are very large and ultra large cargo vessels with a capacity over 150,000 DWT
+      3   "Chinamax"   The deadweight tonnage of these vessels is 380,000 - 400,000 DWT.
+      4   "Handymax"   Handymax are small-sized cargo ships with a size less than 60,000 DWT
+      5   "Supramax"   Supramax vessels have capacity between 50,000 to 60,000 DWT.
+      6   "Handysz "   Handysize are small-sized ships with a capacity ranging between 15,000 and 35,000 DWT.
+      7   "Panamax "   Ships travelling through the Panama Canal. average capacity of 65,000 DWT
+      8   "Suezmax "   Suezmax are named after the famous Suez Canal. capacity ranging between 120,000 to 200,000 DWT
+      9   "VLCC    "   Very Large Crude Carriers. They have a size ranging between 180,000 to 320,000 DWT
+     10   "ULCC    "   Ultra Large Crude Carriers. size more than 320,000 DWT.
+     11   "Laker   "   Ship capable of transiting the St. Lawrence Seaway locks to trade in the Great Lakes between USA and Canada; the maximum beam and draught allowed is approx. 23.15 m and 26 feet fresh water
+     12   "Malacca "   Ship with maximum hull form capable of transiting the Straits of Malacca fully loaded; the maximum draught and beam allowed in the strait is approx. 21 metres and 60 metres
+     13   "MiniBulk"   a smaller sized bulk carrier of about 3000 tons deadweight
+     14   "Med Rng "   Medium Range Tankers. 25,000 - 54,999 DWT
+     15   "LargeRng"   Large Range Tankers. 55,000 - 79,999 DWT
+     16   "Barge   "   A long flat-bottomed boat for carrying freight on canals and rivers, either under its own power or towed by another.
+!
+! ACRONYM    FID
+! -------    ---
+!
+CS_API_IND 12979
+CS_EHVY_IN 12980
+CS_ELGT_IN 12981
+CS_HSUL_IN 12982
+CS_HVY_IN  12983
+CS_LGT_IN  12984
+CS_LSUL_IN 12985
+CS_MED_IN  12986
+CS_MSUL_IN 12987
+CS_SPG_IND 12988
+CS_SUL_IND 12989
+CS_TAN_IND 12990
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   undefined
+      1        "N  "   New
+      2        "C  "   Changed
+      3        "U  "   Unchanged
+!
+! ACRONYM    FID
+! -------    ---
+!
+PCTVOL_IND 12991
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   undefined
+      1        "N  "   New
+      2        "C  "   Changed
+      3        "U  "   Unchanged
+!
+! ACRONYM    FID
+! -------    ---
+!
+COMPLX_IND 12992
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "TOPPING "   Topping
+      2   "CRACKING"   Cracking
+      3   "COKING  "   Coking
+      4   "HYDROSKM"   Hydro Skimming
+      5   "VISBREAK"   Vis Breaking
+      6   "HYDROCOK"   Hydro Coking
+!
+! ACRONYM    FID
+! -------    ---
+!
+OUT_PROD1  12993
+OUT_PROD2  12994
+OUT_PROD3  12995
+OUT_PROD4  12996
+OUT_PROD5  12997
+OUT_PROD6  12998
+OUT_PROD7  12999
+OUT_PROD8  13000
+OUT_PROD9  13001
+OUT_PROD10 13002
+OUT_PROD11 13003
+OUT_PROD12 13004
+OUT_PROD13 13005
+OUT_PROD14 13006
+OUT_PROD15 13007
+OUT_PROD16 13008
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "GSL REG "   Regular Gasoline
+      2   "GSL PREM"   Premium Gasoline
+      3   "ULSD    "   Ultra Low Sulphur Diesel
+      4   "HO      "   Heating Oil
+      5   "JET KERO"   Jet Kerosene
+      6   "HSFO 3% "   High Sulphur Fuel Oil
+      7   "LSFO 1% "   Low Sulphur Fuel Oil
+      8   "ETHANE  "   Ethane
+      9   "BUTANE  "   Butane
+     10   "ISOBUT  "   Iso Butane
+     11   "PROPAN  "   Propane
+     12   "PROPYL  "   Propylene
+     13   "PETCOK  "   Petroleum Coke
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_1ET312 13013
 PRE_1ET313 13014
 PRE_1ET314 13015
@@ -17122,7 +17563,7 @@ MET_UNIT   13564
     190      " MCF "   Million Cubic Feet
     191      " TF  "   Thousand Feet
     192      " CF  "   Cubic Foot
-    193      "TOLAS"   10grams
+    193      "TOLAS"   Tolas
     194      "B KHW"   Billion Kilowatthours
     195      "MPUO "   Million Pounds U3O8 (Uranium Oxide Concentrate)
     196      " MF  "   Million Feet
@@ -17224,6 +17665,111 @@ MET_UNIT   13564
     292      "PHD  "   PER HEAD
     293      " CLP "   Chilean Peso
     294      "GRAM1"   One gram
+    295      "230kV"   230 kilo volt
+    296      "480pB"   480 pound bales
+    297      "af   "   Acre foot
+    298      "BL/ac"   Bales per acre
+    299      "Bar  "   Bar
+    300      "bbl/a"   Barrels per acre
+    301      "bbl/m"   Barrels per Month
+    302      "bbl/t"   bbl/tonne
+    303      "bx/ac"   Boxes per acre
+    304      "Bu/d "   Bushel per day
+    305      "Bu/ac"   Bushels per acre
+    306      "cd   "   Circular degrees
+    307      "cfs  "   cubic feet per second
+    308      "hm3  "   Cubic Hectometre
+    309      "m3/s "   cubic meter per second
+    310      "m3/h "   cubic metre per hour
+    311      "Dth  "   Deca Therms
+    312      "DegF "   Degree Fahrenheit
+    313      "EUAu "   EU Allowance Unit for CO2 emission
+    314      "ft   "   Foot
+    315      "gl/bx"   Gallons per box
+    316      "gl/tp"   Gallons per tap
+    317      "GJ/d "   Gigajoules per day
+    318      "GW   "   GigaWatt
+    319      "GWh/h"   Gigawatt hours per week
+    320      "g/t  "   gram per tonne
+    321      "g/kWh"   Grams per kilowatt hours
+    322      "hPa  "   Hecto Pascal
+    323      "c/ac "   Hundredweight per acre
+    324      "in   "   inch
+    325      "in Hg"   inches of Mercury
+    326      "J    "   Joules
+    327      "J/cm2"   Joules per square centimeter
+    328      "kJm2h"   Kilo Joule per square meter per hour
+    329      "koz  "   Kilo Troy Ounces
+    330      "kV   "   Kilo Volt
+    331      "kc/m3"   kilocalorie per cubic metre
+    332      "kg/ha"   Kilogram per hectare
+    333      "kJ   "   Kilojoules
+    334      "Km/h "   Kilometers per hour
+    335      "kWh/t"   Kilowatt hours per metric tonne
+    336      "kWp  "   KiloWatt Peak
+    337      "kn   "   Knot
+    338      "kWhmy"   kWh per square meter per year
+    339      "Lt/s "   liter per second
+    340      "l/t  "   Liters per tonne
+    341      "Ml   "   Mega Litres
+    342      "MJ/m3"   Megajoules per cubic metre
+    343      "MJSm3"   Megajoules per standard cubic metre
+    344      "MVAr "   Megavolt Ampere Reactive
+    345      "MWp  "   MegaWatt Peak
+    346      "m/s  "   Metres per second
+    347      "mph  "   miles per hour
+    348      "mm6hr"   Millimeters per 6 hours
+    349      "m480B"   Million 480 pound bales
+    350      "mAc  "   Million acres
+    351      "mbblm"   Million Barrels per Month
+    352      "mBU  "   Million Bushels
+    353      "Mm3/s"   Million cubic meter per second
+    354      "mDoz "   Million Dozen
+    355      "mGl/y"   Million gallons per year
+    356      "mCwt "   Million Hundredweight
+    357      "MtCO2"   Million Tonnes CO2 equivalents
+    358      "mU   "   Million Units
+    359      "MIN  "   Minutes
+    360      "mn/hr"   Minutes per hour
+    361      "NW   "   Newton
+    362      "WKSC "   No. of Weeks Consumption
+    363      "octt "   octant - measure of cloudiness
+    364      "PDI  "   Palmer Drought Index
+    365      "Pa   "   Pascal
+    366      "PJ   "   Peta Joules
+    367      "Lb/ac"   Pounds per acre
+    368      "lb/f2"   Pounds per square foot
+    369      "sec  "   Seconds
+    370      "st/Ac"   Short tons per acre
+    371      "m2   "   Square meter
+    372      "atm  "   Standard Atmosphere
+    373      "Sm3  "   Standard Cubic Metre
+    374      "10PWh"   Ten billion kilowatt hours
+    375      "10kM3"   Ten thousand cubic meters
+    376      "10km "   Ten thousand meters
+    377      "10kPr"   Ten thousand pairs
+    378      "td   "   Tens of circular degrees
+    379      "Thm  "   Therms
+    380      "kac  "   Thousand acres
+    381      "kBls "   Thousand Bales
+    382      "Kcfs "   Thousand cubic feet per second
+    383      "Km3/d"   Thousand Cubic Metres per day
+    384      "Km3/h"   Thousand Cubic Metres per hour
+    385      "kHd  "   Thousand Heads
+    386      "kCwt "   Thousand Hundredweight
+    387      "KST  "   Thousand Short Tons
+    388      "Km2  "   Thousand Square meter
+    389      "ksm3 "   Thousand Standard Cubic Metre
+    390      "kt/y "   Thousand Tonnes per annum
+    391      "kU   "   Thousand Units
+    392      "t/d  "   Tonnes per day
+    393      "t/hr "   Tonnes per hour
+    394      "t/ha "   Tons per hectare
+    395      "Trans"   Transactions
+    396      "OzAue"   troy ounces gold equivalent
+    397      "W/sr "   W/sr - unit of global radiation
+    398      "W    "   Watt
+    399      "W/m2 "   Watts per square meter
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17371,6 +17917,7 @@ TRD_MD_ELG 13440
 ! -------    ---
 !
 TRDSHM_ELG 13441
+TRDSHM_EL2 13569
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -17381,6 +17928,12 @@ TRDSHM_ELG 13441
       4   "SHHK_BS "   Eligible under SH-HK connect scheme, both buy and sell allowed
       5   "SHHK_NAS"   Ineligible under SH-HK connect scheme, sell only.
       6   "SHHK_BSN"   Eligible under SH-HK connect scheme, but neither buy nor sell allowed
+      7   "SZHK_NA "   Ineligible under SZ-HK connect scheme.
+      8   "SZHK_S  "   Eligible under SZ-HK connect scheme, sell only.
+      9   "SZHK_B  "   Eligible under SZ-HK connect scheme, buy only.
+     10   "SZHK_BS "   Eligible under SZ-HK connect scheme, both buy and sell allowed.
+     11   "SZHK_NAS"   Ineligible under SZ-HK connect scheme, sell only.
+     12   "SZHK_BSN"   Eligible under SZ-HK connect scheme, but neither buy nor sell allowed.
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18369,21 +18922,708 @@ LMT_LV_TG  13566
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET246 13567
-PRE_2ET247 13568
-PRE_2ET248 13569
-PRE_2ET249 13570
-PRE_2ET250 13571
-PRE_2ET251 13572
-PRE_2ET252 13573
-PRE_2ET253 13574
-PRE_2ET254 13575
-PRE_2ET255 13576
-PRE_2ET256 13577
-PRE_2ET257 13578
-PRE_2ET258 13579
-PRE_2ET259 13580
-PRE_2ET260 13581
+ASMNT_TMSP 13567
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "No TimSt"   No time stamp
+      2   "LDN MidD"   London midday
+      3   "HOU Cls "   Houston close
+      4   "LDN Cls "   London close
+      5   "SGP Cls "   Singapore close
+      6   "ExchSett"   Exchange settlement
+      7   "LDN Open"   London open
+      8   "TOCOMCls"   Tocom close
+      9   "PLEleCls"   Polish electricity close
+     10   "WSHTNCls"   Washington close
+     11   "USOptCls"   US day-ahead options close
+     12   "HOU08:00"   Houston 08:00
+     13   "LDN MidN"   London midnight
+     14   "MOS Cls "   Moscow close
+     15   "HOU MidD"   Houston Midday
+     16   "HOU13:30"   Houston 13:30
+     17   "HOU14:30"   Houston 14:30
+!
+! ACRONYM    FID
+! -------    ---
+!
+ASMNT_TYPE 13568
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "chl     "   close/high/low
+      2   "c       "   Close or Mean Price
+      3   "u       "   Index Price or Unspecified
+      4   "cw      "   close/previous-day volume
+      5   "cuw     "   close/index/previous-day volume
+      6   "hl      "   High Price/Low Price
+      7   "lu      "   low/index
+      8   "cl      "   close/low
+      9   "hlu     "   high/low/index
+     10   "w       "   Previous-day Volume
+     11   "uw      "   index/previous-day volume
+     12   "hluw    "   high/low/index/previous-day volume
+     13   "chluw   "   close/high/low/index/previous-day volume
+     14   "cu      "   close/index
+     15   "chlu    "   close/high/low/index
+     16   "abu     "   ask/bid/index
+     17   "cehlow  "   close/previous-day open interest/high/low
+     18   "ew      "   Previous day Open Interest / Volume
+     19   "ab      "   Asked Price / Bid Price
+     20   "VlVhVm  "   Value Low/Value High/Value Midpoint
+     21   "VlVh    "   Value Low/Value High
+     22   "DlDhDm  "   Diff Low/Diff High/Diff Midpoint
+     23   "DlDh    "   Diff Low/Diff High
+     24   "Midpoint"   Midpoint
+     25   "DiffMid "   Diff Midpoint
+     26   "Volume  "   Volume
+     27   "Index   "   Index
+     28   "RGV     "   RGV
+     29   "Rate    "   Rate
+     30   "Margin  "   Margin
+     31   "Open    "   Open
+     32   "Settle  "   Settlement
+     33   "Avearge "   Average
+     34   "Netback "   Netback
+     35   "SysBid  "   System Bid
+     36   "SysAsk  "   System Ask
+     37   "SyBidAsk"   System Bid/system Ask
+     38   "CumIndex"   Cumulative Index
+     39   "CumVo  l"   Cumulative Volume
+     40   "DiffIndx"   Diff Index
+     41   "NbkMrgn "   Netback Margin
+     42   "TrnspCst"   Transport Costs
+!
+! ACRONYM    FID
+! -------    ---
+!
+DSCG_PORT  13575
+LOAD_PORT  13577
+ORGN_PORT  13579
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "CI ABJ  "   Abidjan
+      2   "AE AUH  "   Abu Dhabi
+      3   "GR AGT  "   Agio Theodoroi
+      4   "SA JUB  "   Jubail
+      5   "AU AXL  "   Alexandria
+      6   "ES ALG  "   Algeciras
+      7   "US UAY  "   Algiers
+      8   "TR ALI  "   Aliaga
+      9   "NL AMS  "   Amsterdam
+     10   "VE AMY  "   Amuay
+     11   "US ANQ  "   Angola
+     12   "BE ANR  "   Antwerp
+     13   "NG APP  "   Apapa
+     14   "JO AQJ  "   Aqaba
+     15   "AW AUA  "   Aruba
+     16   "DZ AZW  "   Arzew
+     17   "IL ASH  "   Ashdod
+     18   "IT AUG  "   Augusta
+     19   "BH BAH  "   Bahrain
+     20   "HR BAK  "   Bakar
+     21   "PA BLB  "   Balboa
+     22   "ID BPN  "   Balikpapan
+     23   "ID BAL  "   Balongan
+     24   "IR BND  "   Bandar Abbas
+     25   "IR MRX  "   Bandar Mahshahr
+     26   "GE BUS  "   Batumi
+     27   "US BPT  "   Beaumont
+     28   "DZ BJA  "   Bejaia
+     29   "ID BLW  "   Belawan
+     30   "ES BIO  "   Bilbao
+     31   "TN BIZ  "   Bizerte
+     32   "FR BOD  "   Bordeaux
+     33   "GB BOS  "   Boston
+     34   "IT BDS  "   Brindisi
+     35   "AU BNE  "   Brisbane
+     36   "SE BRO  "   Brofjorden
+     37   "KR PUS  "   Busan
+     38   "MY BWH  "   Butterworth
+     39   "AO CAB  "   Cabinda
+     40   "AU CLT  "   Cape Lambert
+     41   "ZA CPT  "   Cape Town
+     42   "VE CCS  "   Caracas
+     43   "CO CTG  "   Cartagena
+     44   "CL CAS  "   Casablanca
+     45   "ES CDR  "   Castellon
+     46   "TR CEY  "   Ceyhan
+     47   "IN MAA  "   Chennai
+     48   "JP CHB  "   Chiba
+     49   "PA CHG  "   Chiriqui Grande Terminal
+     50   "BD CGP  "   Chittagong
+     51   "CO CIE  "   Cienaga
+     52   "ID CXP  "   Cilacap
+     53   "MX COA  "   Coatzacoalcos
+     54   "IN COK  "   Cochin
+     55   "LK CMB  "   Colombo
+     56   "US CEN  "   Convent
+     57   "DK CPH  "   Copenhagen
+     58   "US CRP  "   Corpus Christi
+     59   "CO CVE  "   Covenas Offshore Terminal
+     60   "SN DKR  "   Dakar
+     61   "CN DLC  "   Dalian
+     62   "AU PTD  "   Dalrymple Bay
+     63   "EG DAM  "   Damietta
+     64   "AU DAM  "   Dampier
+     65   "TZ DAR  "   Dar Es Salaam
+     66   "GB DTM  "   Dartmouth
+     67   "US DVT  "   Davant
+     68   "DJ JIB  "   Djibouti
+     69   "ID DUM  "   Dumai
+     70   "US DKK  "   Dunkirk
+     71   "ZA DUR  "   Durban
+     72   "US EPR  "   East Providence
+     73   "EG EDK  "   El Dekheila
+     74   "GR EEU  "   Eleusis
+     75   "IN ENR  "   Ennore
+     76   "TR ELI  "   Eregli
+     77   "NG ESC  "   Escravos Oil Terminal
+     78   "EC ESM  "   Esmeraldas
+     79   "AU EPR  "   Esperance
+     80   "US EVT  "   Everett
+     81   "AE FAT  "   Fateh Terminal
+     82   "GB FAW  "   Fawley
+     83   "GB FNT  "   Finnart
+     84   "FR FOS  "   Fos-sur-Mer
+     85   "AE FJR  "   Fujairah
+     86   "LK GAL  "   Galle
+     87   "AU GEX  "   Geelong
+     88   "IT GOA  "   Genoa
+     89   "BE GNE  "   Ghent
+     90   "ES GIJ  "   Gijon
+     91   "SA GIZ  "   Gizan
+     92   "AU GLT  "   Gladstone
+     93   "SE GOT  "   Goteborg
+     94   "VE GUB  "   Guaranao
+     95   "IL HAD  "   Hadera
+     96   "IN HAL  "   Haldia
+     97   "DE HAM  "   Hamburg
+     98   "AE HAM  "   Hamriyah LPG Terminal
+     99   "AU HAS  "   Hastings
+    100   "VN SGN  "   Ho Chi Minh City
+    101   "HK HKG  "   Hong Kong
+    102   "US HSO  "   Houston
+    103   "TW HUN  "   Hualien
+    104   "CL HSO  "   Huasco
+    105   "NL IJM  "   Ijmuiden
+    106   "GB IMM  "   Immingham
+    107   "KR INC  "   Inchon
+    108   "ID JKT  "   Jakarta
+    109   "US UJV  "   Jamaica
+    110   "IN JGA  "   Jamnagar
+    111   "AE JEA  "   Jebel Ali
+    112   "AE JED  "   Jebel Dhanna
+    113   "SA JED  "   Jeddah
+    114   "JP KGA  "   Kakogawa
+    115   "IN IXY  "   Kandla
+    116   "TW KHH  "   Kaohsiung
+    117   "PK KHI  "   Karachi
+    118   "IQ KAZ  "   Khor Al Zubair
+    119   "IR KHO  "   Khorramshahr
+    120   "LT KLJ  "   Klaipeda
+    121   "SI KOP  "   Koper
+    122   "CM KBI  "   Kribi
+    123   "IN KRI  "   Krishnapatnam
+    124   "JP KUE  "   Kure
+    125   "KW KWI  "   Kuwait City
+    126   "KR KAN  "   Kwangyang
+    127   "AU KWI  "   Kwinana
+    128   "UY LAP  "   La Paloma
+    129   "IT SPE  "   La Spezia
+    130   "MY LBU  "   Labuan
+    131   "MX LOM  "   Lagos
+    132   "US LCH  "   Lake Charles
+    133   "SY LTK  "   Latakia
+    134   "FR LAV  "   Lavera
+    135   "MX LZC  "   Lazaro cardenas
+    136   "FR LEH  "   Le Havre
+    137   "US LBM  "   Lebanon
+    138   "PT LEI  "   Leixoes
+    139   "FR LMY  "   Limay
+    140   "MY LGG  "   Lingga
+    141   "TG LFW  "   Lome
+    142   "US LPP  "   Loop
+    143   "CL LSQ  "   Los Angeles
+    144   "SE LYS  "   Lysekil (Brofjorden)
+    145   "BR MCZ  "   Maceio
+    146   "MY MKZ  "   Malacca
+    147   "AO MAL  "   Malongo Terminal (Nemba-Cabinda)
+    148   "IN IXE  "   Mangalore
+    149   "MZ MPM  "   Maputo
+    150   "VE MAR  "   Maracaibo
+    151   "LY MHR  "   Marsa el Hariga
+    152   "LY LMQ  "   Marsa Brega
+    153   "ER MSW  "   Massawa
+    154   "RO MID  "   Midia
+    155   "IT MLZ  "   Milazzo
+    156   "KW MEA  "   Mina Al Ahmadi
+    157   "OM MFH  "   Min Al Fahal
+    158   "KW MIS  "   Mina Saud
+    159   "SO MGQ  "   Mogadishu
+    160   "MA MOH  "   Mohammedia
+    161   "KE MBA  "   Mombasa
+    162   "NO MON  "   Mongstad
+    163   "CA MTR  "   Montreal
+    164   "IN MRM  "   Marmugoa
+    165   "IN BOM  "   Mumbai
+    166   "IN MUN  "   Mundra
+    167   "RU MMK  "   Murmansk
+    168   "AE MUB  "   Mubarek Terminal
+    169   "RU NJK  "   Nakhodka
+    170   "CN NTG  "   Nantong
+    171   "NO NVK  "   Narvik
+    172   "IN NAV  "   Navlakhi
+    173   "IN NML  "   New Mangalore
+    174   "GB NWY  "   New York
+    175   "AU NTL  "   Newcastle
+    176   "GB NGG  "   Nigg Oil Terminal
+    177   "CN NGB  "   Ningbo
+    178   "CN ZOS  "   Ningbo-Zhoushan
+    179   "MR NDB  "   Nouadhibou
+    180   "RU NVS  "   Novorossiysk
+    181   "UA ODS  "   Odessa
+    182   "HR OMI  "   Omisalj
+    183   "KR ONS  "   Onsan
+    184   "JP OSA  "   Osaka
+    185   "PH PLW  "   Palawan
+    186   "IN PRT  "   Paradeep
+    187   "BR PNG  "   Paranagua
+    188   "CA PEM  "   Pembroke
+    189   "US VYS  "   Peru
+    190   "US PHL  "   Philadelphia
+    191   "IT PIO  "   Piombino
+    192   "PE PIO  "   Pisco
+    193   "KR KPO  "   Pohang
+    194   "BR PMA  "   Ponta da Madeira
+    195   "BR POU  "   Ponta do Ubu
+    196   "ID PNK  "   Pontianak
+    197   "CA PCA  "   Port Cartier
+    198   "AU PHE  "   Port Hedland
+    199   "FR PJE  "   Port Jerome
+    200   "MY PKG  "   Port Kelang
+    201   "SD PZU  "   Port Sudan
+    202   "AU PTJ  "   Portland
+    203   "IT PTO  "   Porto Torres
+    204   "FI PRV  "   Porvoo
+    205   "MY PRA  "   Prai
+    206   "RU PRI  "   Primorsk
+    207   "MX PGO  "   Progreso
+    208   "AU PBY  "   Port Bonython
+    209   "CO PBO  "   Puerto Bolivar
+    210   "VE PCZ  "   Puerto La Cruz
+    211   "VE MIV  "   Puerto Miranda
+    212   "GT PRQ  "   Puerto Quetzal
+    213   "KR PTK  "   Pyongtaek
+    214   "CN TAO  "   Qingdao
+    215   "CN QZH  "   Qinzhou
+    216   "SA RAB  "   Rabigh
+    217   "EG RAG  "   Ras Gharib
+    218   "SA RTA  "   Ras Tanura
+    219   "IT RAN  "   Ravenna
+    220   "GB RER  "   Redcar
+    221   "ZA RCB  "   Richards Bay
+    222   "HR RIJ  "   Rijeka
+    223   "BR RIO  "   Rio de Janeiro
+    224   "CN RZH  "   Rizhao
+    225   "NL RTM  "   Rotterdam
+    226   "FR URO  "   Rouen
+    227   "AE RUW  "   Ar Ruwais
+    228   "ZA SDB  "   Saldanha Bay
+    229   "MX SCX  "   Salina Cruz
+    230   "AR UAQ  "   San Juan
+    231   "BR SSZ  "   Santos
+    232   "IT PFX  "   Sarroch
+    233   "GB SFW  "   Scapa Flow
+    234   "KR SEL  "   Seoul
+    235   "BR SPB  "   Sepetiba Bay
+    236   "BN SER  "   Seria Oil Terminal (SBM)
+    237   "CA SEB  "   Seven Islands
+    238   "IQ SBA  "   Shuaiba
+    239   "EG SKT  "   Sidi Kerir
+    240   "IN SIK  "   Sikka
+    241   "PT SIE  "   Sines
+    242   "SG SIN  "   Singapore
+    243   "BH SIT  "   Sitra
+    244   "DZ SKI  "   Skikda
+    245   "NO SGE  "   Slagen
+    246   "OM SOH  "   Sohar
+    247   "AN EUX  "   St Eustatius
+    248   "LC SLU  "   St Lucia
+    249   "PH SFS  "   Subic Bay
+    250   "EG SUZ  "   Suez
+    251   "GB SUL  "   Sullom Voe
+    252   "AU SYD  "   Sydney
+    253   "PE TYL  "   Talara
+    254   "EE TLL  "   Tallinn
+    255   "MX TAM  "   Tampico
+    256   "ID TBA  "   Tanjung Bara Coal Terminal
+    257   "ES TAR  "   Tarragona
+    258   "GB TEE  "   Teesport
+    259   "GH TEM  "   Tema
+    260   "US TXT  "   Texas city
+    261   "GB TDT  "   Thames
+    262   "GR SKG  "   Thessaloniki
+    263   "LY TOB  "   Tobruk
+    264   "JP TYO  "   Tokyo
+    265   "IT TRS  "   Trieste
+    266   "RU TUA  "   Tuapse
+    267   "BR TUB  "   Tubarao
+    268   "AU TKY  "   Turkey
+    269   "IN TUT  "   Tuticorin
+    270   "TR TUT  "   Tutunciftlik
+    271   "MX TUX  "   Tuxpan
+    272   "KR USN  "   Ulsan
+    273   "IN VAD  "   Vadinar
+    274   "IT VDL  "   Vado Ligure
+    275   "CL VAP  "   Valparaiso
+    276   "CA VAN  "   Vancouver
+    277   "CY VAS  "   Vassiliko
+    278   "LV VNT  "   Ventspils
+    279   "MX VER  "   Veracruz
+    280   "IN VTZ  "   Vizag
+    281   "RU VVO  "   Vladivostok
+    282   "DE WVN  "   Wilhelmshaven
+    283   "CN YPG  "   Yangpu
+    284   "KR YOS  "   Yeosu (Yosu)
+    285   "JP YOK  "   Yokohama
+    286   "UA YUZ  "   Yuzhnyy
+    287   "LY ZAW  "   Zawia Terminal
+    288   "LY ZUE  "   Zueitina
+!
+! ACRONYM    FID
+! -------    ---
+!
+DSCG_ZONE  13576
+LOAD_ZONE  13578
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      4   "AFG     "   AFGHANISTAN
+      8   "ALB     "   Albania
+     10   "ATA     "   ANTARCTICA
+     12   "DZA     "   Algeria
+     16   "ASM     "   AMERICAN SAMOA
+     20   "AND     "   Andorra
+     24   "AGO     "   Angola
+     28   "ATG     "   Antigua and Barbuda
+     31   "AZE     "   Azerbaijan
+     32   "ARG     "   Argentina
+     36   "AUS     "   Australia
+     40   "AUT     "   Austria
+     44   "BHS     "   Bahamas
+     48   "BHR     "   Bahrain
+     50   "BGD     "   Bangladesh
+     51   "ARM     "   Armenia
+     52   "BRB     "   Barbados
+     56   "BEL     "   Belgium
+     60   "BMU     "   Bermuda
+     64   "BTN     "   BHUTAN
+     68   "BOL     "   Bolivia
+     70   "BIH     "   Bosnia and Herzegovina
+     72   "BWA     "   Botswana
+     74   "BVT     "   BOUVET ISLAND
+     76   "BRA     "   Brazil
+     84   "BLZ     "   Belize
+     86   "IOT     "   British Indian Ocean Territory (the)
+     90   "SLB     "   SOLOMON ISLANDS
+     92   "VGB     "   Virgin Islands, British
+     96   "BRN     "   BRUNEI DARUSSALAM
+    100   "BGR     "   Bulgaria
+    104   "MMR     "   MYANMAR
+    108   "BDI     "   Burundi
+    112   "BLR     "   Belarus
+    116   "KHM     "   CAMBODIA
+    120   "CMR     "   Cameroon
+    124   "CAN     "   Canada
+    132   "CPV     "   CAPE VERDE
+    136   "CYM     "   Cayman Islands
+    140   "CAF     "   Central African Republic
+    144   "LKA     "   Sri Lanka
+    148   "TCD     "   Chad
+    152   "CHL     "   Chile
+    156   "CHN     "   China
+    158   "TWN     "   Taiwan
+    162   "CXR     "   CHRISTMAS ISLAND
+    166   "CCK     "   COCOS (KEELING) ISLANDS
+    170   "COL     "   Colombia
+    174   "COM     "   COMOROS
+    175   "MYT     "   MAYOTTE
+    178   "COG     "   Congo
+    180   "COD     "   CONGO, THE DEMOCRATIC REPUBLIC OF THE
+    184   "COK     "   Cook Islands
+    188   "CRI     "   Costa Rica
+    191   "HRV     "   Croatia
+    192   "CUB     "   Cuba
+    196   "CYP     "   Cyprus
+    200   "CSK     "   Czechoslovakia
+    203   "CZE     "   Czech Republic
+    204   "BEN     "   Benin
+    208   "DNK     "   Denmark
+    212   "DMA     "   DOMINICA
+    214   "DOM     "   Dominican Republic
+    218   "ECU     "   Ecuador
+    222   "SLV     "   El Salvador
+    226   "GNQ     "   EQUATORIAL GUINEA
+    231   "ETH     "   ETHIOPIA
+    232   "ERI     "   ERITREA
+    233   "EST     "   Estonia
+    234   "FRO     "   Faroe Islands
+    238   "FLK     "   FALKLAND ISLANDS (MALVINAS)
+    239   "SGS     "   SOUTH GEORGIA AND THE SOUTH SANDWICH ISLANDS
+    242   "FJI     "   Fiji
+    246   "FIN     "   Finland
+    248   "ALA     "   ALAND ISLANDS
+    250   "FRA     "   France
+    254   "GUF     "   FRENCH GUIANA
+    258   "PYF     "   FRENCH POLYNESIA
+    260   "ATF     "   FRENCH SOUTHERN TERRITORIES
+    262   "DJI     "   DJIBOUTI
+    266   "GAB     "   Gabon
+    268   "GEO     "   Georgia
+    270   "GMB     "   GAMBIA
+    275   "PSE     "   PALESTINE, STATE OF
+    280   "DEU     "   Germany
+    288   "GHA     "   Ghana
+    292   "GIB     "   Gibraltar
+    296   "KIR     "   KIRIBATI
+    300   "GRC     "   Greece
+    304   "GRL     "   GREENLAND
+    308   "GRD     "   Grenada
+    312   "GLP     "   GUADELOUPE
+    316   "GUM     "   GUAM
+    320   "GTM     "   Guatemala
+    324   "GIN     "   GUINEA
+    328   "GUY     "   Guyana
+    332   "HTI     "   HAITI
+    334   "HMD     "   HEARD ISLAND AND MCDONALD ISLANDS
+    336   "VAT     "   HOLY SEE (VATICAN CITY STATE)
+    340   "HND     "   Honduras
+    344   "HKG     "   Hong Kong
+    348   "HUN     "   Hungary
+    352   "ISL     "   Iceland
+    356   "IND     "   India
+    360   "IDN     "   Indonesia
+    364   "IRN     "   IRAN, ISLAMIC REPUBLIC OF
+    368   "IRQ     "   Iraq
+    372   "IRL     "   Ireland
+    376   "ISR     "   Israel
+    380   "ITA     "   Italy
+    384   "CIV     "   Cote dIvoire
+    388   "JAM     "   Jamaica
+    392   "JPN     "   Japan
+    398   "KAZ     "   Kazakhstan
+    400   "JOR     "   Jordan
+    404   "KEN     "   Kenya
+    408   "KOR     "   Korea (South)
+    414   "KWT     "   Kuwait
+    417   "KGZ     "   Kyrgyzstan
+    418   "LAO     "   Lao People's Democratic Republic (the)
+    422   "LBN     "   Lebanon
+    426   "LSO     "   LESOTHO
+    428   "LVA     "   Latvia
+    430   "LBR     "   Liberia
+    434   "LBY     "   LIBYA
+    438   "LIE     "   Liechtenstein
+    440   "LTU     "   Lithuania
+    442   "LUX     "   Luxembourg
+    446   "MAC     "   Macau
+    450   "MDG     "   MADAGASCAR
+    454   "MWI     "   Malawi
+    458   "MYS     "   Malaysia
+    462   "MDV     "   MALDIVES
+    466   "MLI     "   Mali
+    470   "MLT     "   Malta
+    474   "MTQ     "   MARTINIQUE
+    478   "MRT     "   MAURITANIA
+    480   "MUS     "   Mauritius
+    484   "MEX     "   Mexico
+    492   "MCO     "   Monaco
+    496   "MNG     "   Mongolia
+    498   "MDA     "   Moldova
+    499   "MNE     "   Montenegro
+    500   "MSR     "   MONTSERRAT
+    504   "MOR     "   Morocco
+    508   "MOZ     "   Mozambique
+    512   "OMN     "   Oman
+    516   "NAM     "   Namibia
+    520   "NRU     "   NAURU
+    524   "NPL     "   NEPAL
+    528   "NLD     "   Netherlands
+    531   "CUW     "   Curacao
+    533   "ABW     "   Aruba
+    534   "SXM     "   Sint Maarten (Dutch Part)
+    535   "BES     "   BONAIRE, SINT EUSTATIUS AND SABA
+    540   "NCL     "   NEW CALEDONIA
+    548   "VUT     "   VANUATU
+    554   "NZL     "   New Zealand
+    558   "NIC     "   Nicaragua
+    562   "NER     "   Niger
+    566   "NGA     "   Nigeria
+    570   "NIU     "   NIUE
+    574   "NFK     "   NORFOLK ISLAND
+    578   "NOR     "   Norway
+    580   "MNP     "   NORTHERN MARIANA ISLANDS
+    581   "UMI     "   UNITED STATES MINOR OUTLYING ISLANDS
+    583   "FSM     "   MICRONESIA, FEDERATED STATES OF
+    584   "MHL     "   Marshall Islands
+    585   "PLW     "   PALAU
+    586   "PAK     "   Pakistan
+    590   "PAN     "   Panama
+    598   "PNG     "   Papua New Guinea
+    600   "PRY     "   Paraguay
+    604   "PER     "   Peru
+    608   "PHL     "   Philippines
+    612   "PCN     "   PITCAIRN
+    616   "POL     "   Poland
+    620   "PRT     "   Portugal
+    624   "GNB     "   Guinea-Bissau
+    626   "TLS     "   TIMOR-LESTE
+    630   "PRI     "   Puerto Rico
+    634   "QAT     "   Qatar
+    638   "REU     "   REUNION
+    642   "ROM     "   Romania
+    643   "RUS     "   Russian Federation
+    646   "RWA     "   Rwanda
+    652   "BLM     "   SAINT BARTHELEMY
+    654   "SHN     "   SAINT HELENA, ASCENSION AND TRISTAN DA CUNHA
+    659   "KNA     "   SAINT KITTS AND NEVIS
+    660   "AIA     "   ANGUILLA
+    662   "LCA     "   Saint Lucia
+    663   "MAF     "   SAINT MARTIN (FRENCH PART)
+    666   "SPM     "   SAINT PIERRE AND MIQUELON
+    670   "VCT     "   Saint Vincent and the Grenadines
+    674   "SMR     "   SAN MARINO
+    678   "STP     "   SAO TOME AND PRINCIPE
+    682   "SAU     "   Saudi Arabia
+    686   "SEN     "   Senegal
+    688   "SRB     "   Serbia
+    690   "SYC     "   Seychelles
+    694   "SLE     "   SIERRA LEONE
+    702   "SGP     "   Singapore
+    703   "SVK     "   Slovakia
+    704   "VNM     "   Viet Nam
+    705   "SVN     "   Slovenia
+    706   "SOM     "   SOMALIA
+    710   "ZAF     "   South Africa
+    716   "ZWE     "   Zimbabwe
+    724   "ESP     "   Spain
+    728   "SSD     "   SOUTH SUDAN
+    729   "SDN     "   Sudan (the)
+    732   "ESH     "   WESTERN SAHARA
+    740   "SUR     "   SURINAME
+    744   "SJM     "   SVALBARD AND JAN MAYEN
+    748   "SWZ     "   Swaziland
+    752   "SWE     "   Sweden
+    756   "CHE     "   Switzerland
+    760   "SYR     "   SYRIAN ARAB REPUBLIC
+    762   "TJK     "   TAJIKISTAN
+    764   "THA     "   Thailand
+    768   "TGO     "   Togo
+    772   "TKL     "   TOKELAU
+    776   "TON     "   TONGA
+    780   "TTO     "   Trinidad and Tobago
+    784   "ARE     "   United Arab Emirates
+    788   "TUN     "   Tunisia
+    792   "TUR     "   Turkey
+    795   "TKM     "   TURKMENISTAN
+    796   "TCA     "   Turks and Caicos Islands (the)
+    798   "TUV     "   TUVALU
+    800   "UGA     "   Uganda
+    804   "UKR     "   Ukraine
+    807   "MKD     "   Macedonia
+    810   "SUN     "   USSR
+    818   "EGY     "   Egypt
+    826   "GBR     "   United Kingdom
+    831   "GGY     "   Guernsey
+    832   "JEY     "   Jersey
+    833   "IMN     "   Isle of Man
+    834   "TZA     "   Tanzania
+    840   "USA     "   United States
+    850   "VIR     "   Virgin Islands (U.S.)
+    854   "BFA     "   Burkina Faso
+    858   "URY     "   Uruguay
+    860   "UZB     "   Uzbekistan
+    862   "VEN     "   Venezuela
+    876   "WLF     "   WALLIS AND FUTUNA
+    882   "WSM     "   SAMOA
+    887   "YEM     "   YEMEN
+    894   "ZMB     "   Zambia
+    900   "ADE     "   Aden
+    901   "ADR SEA "   Adriatic Sea
+    902   "ARA     "   Amsterdam-Rotterdam-Antwerp
+    903   "ARAG    "   Arabian Gulf
+    904   "BLK SEA "   Black Sea
+    905   "BLT     "   Baltics
+    906   "BRS     "   Brisbane
+    907   "CARIB   "   Caribbean
+    908   "EC CAN  "   East Coast Canada
+    909   "EC IND  "   East Coast India
+    910   "EC MEX  "   East Coast Mexico
+    911   "ECSA    "   East Coast South America
+    912   "EST AF  "   East Africa
+    913   "EST AUS "   East Australia
+    914   "EST MED "   East Mediterranean
+    915   "EST MEX "   East Mexico
+    916   "FAR EST "   Far East
+    917   "FRAC    "   French Atlantic Coast
+    918   "MED     "   Mediterranean
+    919   "MEG     "   Middle East Gulf
+    920   "MEL     "   Melbourne
+    921   "MNL     "   Manila
+    922   "NOR AS  "   North Asia
+    923   "NOR CHN "   North China
+    924   "NOR CON "   North Continent
+    925   "NOR PAC "   North Pacific
+    926   "NOR SEA "   North Sea
+    927   "NWE     "   North West Europe
+    928   "RED SEA "   Red Sea
+    929   "SEA     "   South East Asia
+    930   "SHA     "   Shanghai
+    931   "SOU IND "   South India
+    932   "SPN MED "   Spanish Mediterranean
+    933   "SUEZ    "   Suez Canal
+    934   "USAC    "   US Atlantic Coast
+    935   "USGC    "   US Gulf Coast
+    936   "USWC    "   US West Coast
+    937   "WC CAN  "   West Coast Canada
+    938   "WC IND  "   West Coast India
+    939   "WC ITA  "   West Coast Italy
+    940   "WCCA    "   West Coast Central America
+    941   "WST AF  "   West Africa
+    942   "WST AUS "   West Australia
+    943   "WST MED "   West Mediterranean
+    944   "WST MEX "   West Mexico
+   2000   "MUL     "   Multinational
+   2001   "SUP     "   Supra-National
+   2002   "EUZ     "   Euro Zone
+   2003   "EUS     "   EU-27
+   2004   "EUT     "   EU-25
+   2005   "EUF     "   EU-15
+   2006   "WOL     "   World
+!
+! ACRONYM    FID
+! -------    ---
+!
+PRC_QULFTN 13581
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "INTRADAY"   Intraday fixing Quote
+      2   "DUPLQTE "   Duplicate Quote to be Flagged for BMKs only
+      3   "LOCURQTE"   Local Currency Quote
+      4   "QTEFORMT"   Security quoted in different format
+      5   "ONCEADAY"   Security priced once a day
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_2ET261 13582
 PRE_2ET262 13583
 PRE_2ET263 13584

@@ -46,47 +46,47 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1017940">421__MarketPrice__ProgrammaticConfig</a></div>
-      <div class="Body"><a name="1031674">Summary</a></div>
-      <div class="Body"><a name="1031675">=======</a></div>
-      <div class="Body"><a name="1031676">&nbsp;</a></div>
-      <div class="Body"><a name="1031677">The 421__MarketPrice__ProgrammaticConfig application is provided as an example</a></div>
-      <div class="Body"><a name="1031678">of OMM Consumer application written to the EMA library.</a></div>
-      <div class="Body"><a name="1031679">&nbsp;</a></div>
-      <div class="Body"><a name="1031680">This application demonstrates basic usage of the EMA library for accessing and</a></div>
-      <div class="Body"><a name="1031681">parsing of OMM MarketPrice Domain data from Reuters Data Feed Direct (RDF-D),</a></div>
-      <div class="Body"><a name="1031682">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
-      <div class="Body"><a name="1031683">Distribution Server.</a></div>
-      <div class="Body"><a name="1031684">&nbsp;</a></div>
-      <div class="Body"><a name="1031685">The 421__MarketPrice__ProgrammaticConfig showcases creation and usage of the </a></div>
-      <div class="Body"><a name="1031686">programmatic configuration feature of EMA. In addition to file configuration,</a></div>
-      <div class="Body"><a name="1031687">EMA allows users to grammatically configure Omm Consumer instances.</a></div>
-      <div class="Body"><a name="1031688">&nbsp;</a></div>
-      <div class="Body"><a name="1031689">&nbsp;</a></div>
-      <div class="Body"><a name="1031690">Detailed Description</a></div>
-      <div class="Body"><a name="1031691">====================</a></div>
-      <div class="Body"><a name="1031692">&nbsp;</a></div>
-      <div class="Body"><a name="1031693">The 421__MarketPrice__ProgrammaticConfig implements the following high level steps:</a></div>
-      <div class="Body"><a name="1031694">&nbsp;</a></div>
-      <div class="Body"><a name="1031695">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1031696">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1031697">  - provides own methods as needed</a></div>
-      <div class="Body"><a name="1031698">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1031699">+ Instantiates a Map (configMap object) and populates it with configuration info</a></div>
-      <div class="Body"><a name="1031700">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1031701">  - sets Omm Consumer configuration with data from the programmatic configuration</a></div>
-      <div class="Body"><a name="1031702">+ Instantiates OmmConsumer object which initializes connection and logins into</a></div>
-      <div class="Body"><a name="1031703">  the specified server</a></div>
-      <div class="Body"><a name="1031704">+ Opens a streaming item interest</a></div>
-      <div class="Body"><a name="1031705">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1031706">+ Processes data received from API for 60 seconds</a></div>
-      <div class="Body"><a name="1031707">  - all received messages are processed on API thread of control</a></div>
-      <div class="Body"><a name="1031708">+ Exits</a></div>
-      <div class="Body"><a name="1031709">&nbsp;</a></div>
-      <div class="Body"><a name="1031710">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1031711">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1031712">	  </a></div>
-      <div class="Body"><a name="1031713">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1031714">      standard configuration.</a></div>
+      <div class="Body"><a name="1041728">Summary</a></div>
+      <div class="Body"><a name="1041729">=======</a></div>
+      <div class="Body"><a name="1041730">&nbsp;</a></div>
+      <div class="Body"><a name="1041731">The 421__MarketPrice__ProgrammaticConfig application is provided as an example</a></div>
+      <div class="Body"><a name="1041732">of OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1041733">&nbsp;</a></div>
+      <div class="Body"><a name="1041734">This application demonstrates basic usage of the EMA library for accessing and</a></div>
+      <div class="Body"><a name="1041735">parsing of OMM MarketPrice Domain data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1041736">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1041737">Distribution Server.</a></div>
+      <div class="Body"><a name="1041738">&nbsp;</a></div>
+      <div class="Body"><a name="1041739">The 421__MarketPrice__ProgrammaticConfig showcases creation and usage of the </a></div>
+      <div class="Body"><a name="1041740">programmatic configuration feature of EMA. In addition to file configuration,</a></div>
+      <div class="Body"><a name="1041741">EMA allows users to grammatically configure Omm Consumer instances.</a></div>
+      <div class="Body"><a name="1041742">&nbsp;</a></div>
+      <div class="Body"><a name="1041743">&nbsp;</a></div>
+      <div class="Body"><a name="1041744">Detailed Description</a></div>
+      <div class="Body"><a name="1041745">====================</a></div>
+      <div class="Body"><a name="1041746">&nbsp;</a></div>
+      <div class="Body"><a name="1041747">The 421__MarketPrice__ProgrammaticConfig implements the following high level steps:</a></div>
+      <div class="Body"><a name="1041748">&nbsp;</a></div>
+      <div class="Body"><a name="1041749">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1041750">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1041751">  - provides own methods as needed</a></div>
+      <div class="Body"><a name="1041752">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1041753">+ Instantiates a Map (configMap object) and populates it with configuration info</a></div>
+      <div class="Body"><a name="1041754">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1041755">  - sets Omm Consumer configuration with data from the programmatic configuration</a></div>
+      <div class="Body"><a name="1041756">+ Instantiates OmmConsumer object which initializes connection and logins into</a></div>
+      <div class="Body"><a name="1041757">  the specified server</a></div>
+      <div class="Body"><a name="1041758">+ Opens a streaming item interest</a></div>
+      <div class="Body"><a name="1041759">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1041760">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1041761">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1041762">+ Exits</a></div>
+      <div class="Body"><a name="1041763">&nbsp;</a></div>
+      <div class="Body"><a name="1041764">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1041765">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1041766">	  </a></div>
+      <div class="Body"><a name="1041767">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1041768">      standard configuration.</a></div>
       <div class="Body"><a name="1029855">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--

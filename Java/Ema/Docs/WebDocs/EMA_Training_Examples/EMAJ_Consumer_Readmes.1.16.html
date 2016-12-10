@@ -56,51 +56,51 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1019497">250__Custom__Opaque</a></div>
-      <div class="Body"><a name="1032873">Summary</a></div>
-      <div class="Body"><a name="1032874">=======</a></div>
-      <div class="Body"><a name="1032875">&nbsp;</a></div>
-      <div class="Body"><a name="1032876">The example250__Custom__Opaque application is provided as an example of OMM Consumer</a></div>
-      <div class="Body"><a name="1032877">application written to the EMA library.</a></div>
-      <div class="Body"><a name="1032878">&nbsp;</a></div>
-      <div class="Body"><a name="1032879">This application demonstrates basic usage of the EMA library for accessing</a></div>
-      <div class="Body"><a name="1032880">and parsing of OMM Custom Domain data from Reuters Data Feed Direct (RDF-D),</a></div>
-      <div class="Body"><a name="1032881">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
-      <div class="Body"><a name="1032882">Distribution Server.</a></div>
-      <div class="Body"><a name="1032883">&nbsp;</a></div>
-      <div class="Body"><a name="1032884">example250__Custom__Opaque showcases opening and processing of a custom domain</a></div>
-      <div class="Body"><a name="1032885">OMM item whose payload is specified as Opaque. While processing the received</a></div>
-      <div class="Body"><a name="1032886">messages, this application simply prints out the received opaque data to the</a></div>
-      <div class="Body"><a name="1032887">screen in a hexadecimal format.</a></div>
-      <div class="Body"><a name="1032888">&nbsp;</a></div>
-      <div class="Body"><a name="1032889">&nbsp;</a></div>
-      <div class="Body"><a name="1032890">Detailed Description</a></div>
-      <div class="Body"><a name="1032891">====================</a></div>
-      <div class="Body"><a name="1032892">&nbsp;</a></div>
-      <div class="Body"><a name="1032893">example250__Custom__Opaque implements the following high level steps:</a></div>
-      <div class="Body"><a name="1032894">&nbsp;</a></div>
-      <div class="Body"><a name="1032895">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1032896">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1032897">  - provides own methods as needed, e.g. decode( OmmOpaque )</a></div>
-      <div class="Body"><a name="1032898">    - the method decode( OmmOpaque ) just simply prints the received opaque data</a></div>
-      <div class="Body"><a name="1032899">	  to the screen using hexadecimal format</a></div>
-      <div class="Body"><a name="1032900">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1032901">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1032902">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1032903">  - sets host name on the preconfigured connection to “localhost”</a></div>
-      <div class="Body"><a name="1032904">  - sets port on the preconfigured connection to “14002”</a></div>
-      <div class="Body"><a name="1032905">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1032906">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1032907">+ Opens streaming item interest</a></div>
-      <div class="Body"><a name="1032908">  - Custom Domain IBM.XYZ item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1032909">+ Processes data received from API for 60 seconds</a></div>
-      <div class="Body"><a name="1032910">  - all received messages are processed on API thread of control</a></div>
-      <div class="Body"><a name="1032911">+ Exits</a></div>
-      <div class="Body"><a name="1032912">&nbsp;</a></div>
-      <div class="Body"><a name="1032913">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1032914">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1032915">	  </a></div>
-      <div class="Body"><a name="1032916">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1032917">      standard configuration.</a></div>
+      <div class="Body"><a name="1037351">Summary</a></div>
+      <div class="Body"><a name="1037352">=======</a></div>
+      <div class="Body"><a name="1037353">&nbsp;</a></div>
+      <div class="Body"><a name="1037354">The example250__Custom__Opaque application is provided as an example of OMM Consumer</a></div>
+      <div class="Body"><a name="1037355">application written to the EMA library.</a></div>
+      <div class="Body"><a name="1037356">&nbsp;</a></div>
+      <div class="Body"><a name="1037357">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1037358">and parsing of OMM Custom Domain data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1037359">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1037360">Distribution Server.</a></div>
+      <div class="Body"><a name="1037361">&nbsp;</a></div>
+      <div class="Body"><a name="1037362">example250__Custom__Opaque showcases opening and processing of a custom domain</a></div>
+      <div class="Body"><a name="1037363">OMM item whose payload is specified as Opaque. While processing the received</a></div>
+      <div class="Body"><a name="1037364">messages, this application simply prints out the received opaque data to the</a></div>
+      <div class="Body"><a name="1037365">screen in a hexadecimal format.</a></div>
+      <div class="Body"><a name="1037366">&nbsp;</a></div>
+      <div class="Body"><a name="1037367">&nbsp;</a></div>
+      <div class="Body"><a name="1037368">Detailed Description</a></div>
+      <div class="Body"><a name="1037369">====================</a></div>
+      <div class="Body"><a name="1037370">&nbsp;</a></div>
+      <div class="Body"><a name="1037371">example250__Custom__Opaque implements the following high level steps:</a></div>
+      <div class="Body"><a name="1037372">&nbsp;</a></div>
+      <div class="Body"><a name="1037373">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1037374">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1037375">  - provides own methods as needed, e.g. decode( OmmOpaque )</a></div>
+      <div class="Body"><a name="1037376">    - the method decode( OmmOpaque ) just simply prints the received opaque data</a></div>
+      <div class="Body"><a name="1037377">	  to the screen using hexadecimal format</a></div>
+      <div class="Body"><a name="1037378">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1037379">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1037380">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1037381">  - sets host name on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1037382">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1037383">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1037384">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1037385">+ Opens streaming item interest</a></div>
+      <div class="Body"><a name="1037386">  - Custom Domain IBM.XYZ item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1037387">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1037388">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1037389">+ Exits</a></div>
+      <div class="Body"><a name="1037390">&nbsp;</a></div>
+      <div class="Body"><a name="1037391">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1037392">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1037393">	  </a></div>
+      <div class="Body"><a name="1037394">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1037395">      standard configuration.</a></div>
       <div class="Body"><a name="1031321">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--

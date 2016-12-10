@@ -13,7 +13,7 @@
 	@class thomsonreuters::ema::access::OmmProviderClient OmmProviderClient.h "Access/Include/OmmProviderClient.h"
 	@brief OmmProviderClient class provides callback interfaces to pass received messages.
 
-	Application needs to implement an application client class inheriting from OmmProviderClient.
+	Application may need to implement an application client class inheriting from OmmProviderClient.
 	In its own class, application needs to override callback methods it desires to use for item processing.
 	Default empty callback methods are implemented by OmmProviderClient class.
 
@@ -69,6 +69,8 @@ class Msg;
 class RefreshMsg;
 class StatusMsg;
 class GenericMsg;
+class PostMsg;
+class ReqMsg;
 
 class EMA_ACCESS_API OmmProviderClient
 {
@@ -106,6 +108,39 @@ public :
 		@return void
 	*/
 	virtual void onAllMsg( const Msg& msg, const OmmProviderEvent& event ) {}
+
+	// IProv
+
+	/** invoked upon receiving a post message.
+		Application need only implement this method if a desire to process messages of type PostMsg.
+		@param[out] postMsg received postcMsg
+		@param[out] event identifies open item for which this message is received
+		@return void
+	*/
+	virtual void onPostMsg( const PostMsg& postMsg, const OmmProviderEvent& event ) {}
+
+	/** invoked upon receiving an initial item request message.
+		Application need only implement this method if a desire to process intial messages of type ReqMsg.
+		@param[out] reqMsg received reqMsg
+		@param[out] event identifies open item for which this message is received
+		@return void
+	*/
+	virtual void onReqMsg( const ReqMsg& reqMsg, const OmmProviderEvent& event ) {}
+
+	/** invoked upon receiving a reissue request.
+		Application need only implement this method if a desire to process reissue messages of type ReqMsg.
+		@param[out] reqMsg received reqMsg
+		@param[out] event identifies open item for which this message is received
+		@return void
+	*/
+	virtual void onReissue( const ReqMsg& reqMsg, const OmmProviderEvent& event ) {}
+
+	/** invoked upon receiving a close request message.
+		Application need only implement this method if a desire to process item close messages.
+		@param[out] event identifies open item for which this message is received
+		@return void
+	*/
+	virtual void onClose(const ReqMsg& reqMsg, const OmmProviderEvent& event) {}
 	//@}
 
 protected :

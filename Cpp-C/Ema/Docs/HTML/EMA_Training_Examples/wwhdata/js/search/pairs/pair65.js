@@ -1,0 +1,21 @@
+function FileData_Pairs(x)
+{
+x.t("240__sourcedirectory__fanout","250__groupstatus__fanout");
+x.t("200","series");
+x.t("210__marketbyprice__streaming","240__sourcedirectory__fanout");
+x.t("260__custom__nestedmsg","280__marketprice__performance");
+x.t("api","edition");
+x.t("250__groupstatus__fanout","260__custom__nestedmsg");
+x.t("provider","examples");
+x.t("interactive","provider");
+x.t("280__marketprice__performance","ema");
+x.t("200__marketprice__streaming","210__marketbyprice__streaming");
+x.t("message","api");
+x.t("elektron","message");
+x.t("examples","200");
+x.t("examples","200__marketprice__streaming");
+x.t("examples","elektron");
+x.t("edition","200");
+x.t("series","examples");
+x.t("ema","interactive");
+}

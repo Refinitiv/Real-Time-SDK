@@ -9,7 +9,7 @@ package com.thomsonreuters.ema.access;
 
 import com.thomsonreuters.upa.valueadd.common.VaNode;
 
-public class LongObject extends VaNode
+class LongObject extends VaNode
 {
     long _value;
     

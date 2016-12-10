@@ -102,6 +102,7 @@
 #include "Access/Include/OmmProviderConfig.h"
 #include "Access/Include/OmmProviderErrorClient.h"
 #include "Access/Include/OmmProviderEvent.h"
+#include "Access/Include/OmmIProviderConfig.h"
 #include "Access/Include/OmmNiProviderConfig.h"
 
 #include "Access/Include/TunnelStreamRequest.h"

@@ -26,6 +26,7 @@
 
 #if defined(WIN32)
 #include <Winsock2.h>
+#include <WS2tcpip.h>
 #endif
 
 using namespace perftool::common;
@@ -176,8 +177,8 @@ void AppUtil::sleep(UInt64 millisecs)
 Int32 AppUtil::getHostAddress(UInt32* address)
 {
 	char				hostName[256];
-	struct hostent*		hep;
 #if defined(Linux)
+	struct hostent*		hep;
 	struct hostent		hostEntry;
 	int					h_errnop;
 	char*				hostBuff = (char*)malloc(sizeof(hostName));
@@ -203,24 +204,36 @@ Int32 AppUtil::getHostAddress(UInt32* address)
 		else
 			break;
 	}
-#else
-	hep = gethostbyname(hostName);
-#endif
-
 	if (hep)
 	{
 		*address = *((UInt32*)(hep->h_addr));
 		*address = ntohl(*address);
-#if defined(Linux)
+
 		free(hostBuff);
 		hostBuff = NULL;
-#endif
 		return(0);
 	}
 
-#if defined(Linux)
 	free(hostBuff);
 	hostBuff = NULL;
+#else
+	struct addrinfo hints,*res;
+	struct sockaddr_in *addr;
+	memset(&hints,0,sizeof(hints));
+    hints.ai_family = AF_UNSPEC; 
+    hints.ai_socktype = SOCK_DGRAM;
+	DWORD dwRetval = getaddrinfo(hostName, NULL, &hints, &res );
+
+	if( dwRetval != 0 )
+		return (-1);	
+ 
+	if( res != NULL )
+	{
+		addr = (struct sockaddr_in *)res->ai_addr; 
+		*address = ntohl(addr->sin_addr.s_addr);
+		freeaddrinfo(res);
+		return(0);
+	}
 #endif
 	return(-1);
 }
@@ -234,17 +247,15 @@ void AppUtil::getDefPosition(EmaString& pos)
 		pos.set("127.0.0.1/net");
 		return;
 	}
-	struct hostent *hep;
+	
+#if !defined(_WIN32)
 	char* szLocalIP = 0;
-
-#ifndef _WIN32
+	struct hostent *hep;
 	struct hostent	hostEntry;
 	int				h_errnop;
 	char			*hostBuff;
 	int				buflen = 255;
-#endif
 
-#if !defined(_WIN32)
 	hostBuff = (char*)malloc(255);
 #if !defined(Linux)
 	while(!(hep = gethostbyname_r(hostname, &hostEntry, hostBuff, buflen, &h_errnop)))
@@ -270,22 +281,44 @@ void AppUtil::getDefPosition(EmaString& pos)
 	}
 #endif
 
-#else
-	hep = gethostbyname(hostname);
-#endif
 	if(hep)
 	{
 		szLocalIP = inet_ntoa(*(struct in_addr*)*hep->h_addr_list);
 		pos.set(szLocalIP);
 		pos.append("/net");
-#if !defined(_WIN32)
 		free(hostBuff);
-#endif
 		return;
 	}
-#if !defined(_WIN32)
 	free(hostBuff);
+
+#else
+	struct addrinfo hints,*res;
+	struct sockaddr_in *addr;
+	memset(&hints,0,sizeof(hints));
+    hints.ai_family = AF_UNSPEC; 
+    hints.ai_socktype = SOCK_DGRAM;
+
+	DWORD dwRetval = getaddrinfo(hostname, NULL, &hints, &res );
+	if( dwRetval != 0 )
+		return;
+
+	if( res != NULL )
+	{
+		char *szLocalIP;
+        addr = (struct sockaddr_in *)res->ai_addr; 
+#if ( _MSC_VER >= 1800 ) 
+		char szLocalIPBuff[256];
+		InetNtop(res->ai_family, &(addr->sin_addr), szLocalIPBuff, 256);
+		szLocalIP = &(szLocalIPBuff[0]);
+#else
+		szLocalIP = inet_ntoa((struct in_addr) addr->sin_addr);
 #endif
+		pos.set(szLocalIP);
+		pos.append("/net");
+   		freeaddrinfo(res);
+   }
+#endif
+
 }
 
 void AppUtil::formatNameValue(EmaString& str, const EmaString& name, Int32 max, const EmaString& value)

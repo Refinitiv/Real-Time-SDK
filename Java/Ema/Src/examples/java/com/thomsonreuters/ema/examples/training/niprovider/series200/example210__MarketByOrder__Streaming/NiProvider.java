@@ -43,7 +43,7 @@ public class NiProvider
             
             map.summaryData(summary);
             
-            entryLoad.add(EmaFactory.createFieldEntry().realFromDouble(3427, 7.76));
+            entryLoad.add(EmaFactory.createFieldEntry().realFromDouble(3427, 7.76, OmmReal.MagnitudeType.EXPONENT_NEG_2));
             entryLoad.add(EmaFactory.createFieldEntry().realFromDouble(3429, 9600));
             entryLoad.add(EmaFactory.createFieldEntry().enumValue(3428, 2));
             entryLoad.add(EmaFactory.createFieldEntry().rmtes(212, ByteBuffer.wrap("Market Maker".getBytes())));
@@ -67,7 +67,7 @@ public class NiProvider
 
             entryLoad.clear();
             
-            entryLoad.add(EmaFactory.createFieldEntry().realFromDouble(3427, 9.92));
+            entryLoad.add(EmaFactory.createFieldEntry().realFromDouble(3427, 9.92, OmmReal.MagnitudeType.EXPONENT_NEG_2));
             entryLoad.add(EmaFactory.createFieldEntry().realFromDouble(3429, 1200));
             entryLoad.add(EmaFactory.createFieldEntry().enumValue(3428, 2));
             entryLoad.add(EmaFactory.createFieldEntry().rmtes(212, ByteBuffer.wrap("Market Maker".getBytes())));

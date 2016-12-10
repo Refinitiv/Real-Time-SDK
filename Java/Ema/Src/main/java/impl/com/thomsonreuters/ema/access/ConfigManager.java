@@ -1,3 +1,10 @@
+///*|-----------------------------------------------------------------------------
+// *|            This source code is provided under the Apache 2.0 license      --
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+// *|                See the project's LICENSE.md for details.                  --
+// *|           Copyright Thomson Reuters 2016. All rights reserved.            --
+///*|-----------------------------------------------------------------------------
+
 package com.thomsonreuters.ema.access;
 
 import java.util.ArrayList;
@@ -10,7 +17,7 @@ import java.util.Set;
 import com.thomsonreuters.ema.access.ConfigReader.XMLnode;
 import com.thomsonreuters.ema.rdm.EmaRdm;
 
-public class ConfigManager
+class ConfigManager
 {
 	private static ConfigManager _configManager;
 	static Hashtable<Integer, String> _nodeAsText;
@@ -21,17 +28,24 @@ public class ConfigManager
 	static TagDictionary NiProviderTagDict;
 	static TagDictionary DirectoryTagDict;
 	static TagDictionary ServiceTagDict;
+	static TagDictionary IProviderTagDict;
+	static TagDictionary ServerTagDict;
 	
 	static Branch DEFAULT_CONSUMER;
 	static Branch DEFAULT_NIPROVIDER;
+	static Branch DEFAULT_IPROVIDER;
 	static Branch DEFAULT_DIRECTORY;
 	static Branch CONSUMER_GROUP;
 	static Branch CONSUMER_LIST;
 	static Branch NIPROVIDER_GROUP;
 	static Branch NIPROVIDER_LIST;
+	static Branch IPROVIDER_GROUP;
+	static Branch IPROVIDER_LIST;
 	static Branch DICTIONARY_LIST;
 	static Branch CHANNEL_LIST;
+	static Branch SERVER_LIST;
 	static Branch DIRECTORY_LIST;
+	
 	
 	private static StringBuilder _stringMaker;
 	
@@ -67,6 +81,23 @@ public class ConfigManager
 	public static int RequestTimeout = 22;
 	public static int ServiceCountHint = 23;
 	
+	public static int ConnectionPingTimeout = 24;
+	public static int GuaranteedOutputBuffers = 25;
+	public static int InterfaceName = 26;
+	public static int NumInputBuffers = 27;
+	public static int SysRecvBufSize = 28;
+	public static int SysSendBufSize = 29;
+	public static int XmlTraceFileName = 30;
+	public static int XmlTraceHex = 31;
+	public static int XmlTraceMaxFileSize = 32;
+	public static int XmlTracePing = 33;
+	public static int XmlTraceRead = 34;
+	public static int XmlTraceToFile = 35;
+	public static int XmlTraceToMultipleFiles = 36;
+	public static int XmlTraceToStdout = 37;
+	public static int XmlTraceWrite = 38;
+	public static int HighWaterMark = 39;
+	public static int ConnectionMinPingTimeout = 40;
 
 	// Channel: Global
 	public static int ChannelGroup = 100;
@@ -74,26 +105,13 @@ public class ConfigManager
 	public static int Channel = 102;
 	public static int ChannelName = 103;
 	public static int ChannelType = 104;
-	public static int ChannelConnectionPingTimeout = 105;
-	public static int ChannelGuaranteedOutputBuffers = 106;
-	public static int ChannelInterfaceName = 107;
-	public static int ChannelMsgKeyInUpdates = 108;
-	public static int ChannelNumInputBuffers = 109;
-	public static int ChannelReconnectAttemptLimit = 110;
-	public static int ChannelReconnectMaxDelay = 111;	
-	public static int ChannelReconnectMinDelay = 112;
-	public static int ChannelSysRecvBufSize = 113;
-	public static int ChannelSysSendBufSize = 114;
-	public static int ChannelXmlTraceFileName = 115;
-	public static int ChannelXmlTraceHex = 116;
-	public static int ChannelXmlTraceMaxFileSize = 117;
-	public static int ChannelXmlTracePing = 118;
-	public static int ChannelXmlTraceRead = 119;
-	public static int ChannelXmlTraceToFile = 120;
-	public static int ChannelXmlTraceToMultipleFiles = 121;
-	public static int ChannelXmlTraceToStdout = 122;
-	public static int ChannelXmlTraceWrite = 123;
-	public static int ChannelHighWaterMark = 124;
+	
+	public static int ChannelMsgKeyInUpdates = 105;
+	
+	public static int ChannelReconnectAttemptLimit = 106;
+	public static int ChannelReconnectMaxDelay = 107;	
+	public static int ChannelReconnectMinDelay = 108;
+
 	
 	// Channel: Socket, HTTP, Encrypted
 	public static int ChannelCompressionThreshold = 200;
@@ -141,6 +159,8 @@ public class ConfigManager
 	public static int DictionaryDictionaryID = 408;
 	public static int DictionaryRdmFieldDictionaryItemName = 409;
 	public static int DictionaryEnumTypeDefItemName = 410;
+	public static int DictionaryFieldDictFragmentSize = 411;
+	public static int DictionaryEnumTypeFragmentSize = 412;
 	
 	// NIProvider
 	public static int NiProviderGroup = 500;
@@ -193,6 +213,37 @@ public class ConfigManager
 	public static int ServiceStateFilterStatusStatusCode = 631;
 	public static int ServiceStateFilterStatusStatusText = 632;
 	
+	// IProvider
+	public static int IProviderGroup = 800;
+	public static int DefaultIProvider = 801;
+	public static int IProviderList = 802;
+	public static int IProvider = 803;
+	
+	public static int IProviderName = 804;
+	public static int IProviderServerName = 805;
+	public static int IProviderDirectoryName = 806;
+	public static int IProviderRefreshFirstRequired = 807;
+	public static int IProviderAcceptMessageWithoutAcceptingRequests = 808;
+	public static int IProviderAcceptDirMessageWithoutMinFilters = 809;
+	public static int IProviderAcceptMessageWithoutBeingLogin = 810;
+	public static int IProviderAcceptMessageSameKeyButDiffStream = 811;
+	public static int IProviderAcceptMessageThatChangesService = 812;
+	public static int IProviderAcceptMessageWithoutQosInRange = 813;
+	
+	// Server: Global
+	public static int ServerGroup = 900;
+	public static int ServerList = 901;
+	public static int Server = 902;
+	public static int ServerName = 903;
+	public static int ServerType = 904;
+	
+	// Server: Socket
+	public static int ServerCompressionThreshold = 1000;
+	public static int ServerCompressionType = 1001;
+	public static int ServerPort = 1002;
+	public static int ServerTcpNodelay = 1003;
+	public static int ServerDirectSocketWrite = 1004;
+	
 	public static int MAX_UINT16 = 0xFFFF;
 	
 	static
@@ -206,6 +257,8 @@ public class ConfigManager
 		NiProviderTagDict = acquire().new TagDictionary();
 		DirectoryTagDict = acquire().new TagDictionary();
 		ServiceTagDict = acquire().new TagDictionary();
+		IProviderTagDict = acquire().new TagDictionary();
+		ServerTagDict = acquire().new TagDictionary();
 		
 		ConsumerTagDict.add( "ConsumerGroup",ConsumerGroup );
 		ConsumerTagDict.add( "DefaultConsumer",DefaultConsumer );
@@ -237,26 +290,26 @@ public class ConfigManager
 		ChannelTagDict.add( "Channel",Channel );
 		ChannelTagDict.add( "Name",ChannelName );
 		ChannelTagDict.add( "ChannelType",ChannelType );
-		ChannelTagDict.add( "ConnectionPingTimeout",ChannelConnectionPingTimeout );
-		ChannelTagDict.add( "GuaranteedOutputBuffers",ChannelGuaranteedOutputBuffers );
-		ChannelTagDict.add( "InterfaceName",ChannelInterfaceName );
+		ChannelTagDict.add( "ConnectionPingTimeout",ConnectionPingTimeout );
+		ChannelTagDict.add( "GuaranteedOutputBuffers",GuaranteedOutputBuffers );
+		ChannelTagDict.add( "InterfaceName",InterfaceName );
 		ChannelTagDict.add( "MsgKeyInUpdates",ChannelMsgKeyInUpdates );
-		ChannelTagDict.add( "NumInputBuffers",ChannelNumInputBuffers );		
+		ChannelTagDict.add( "NumInputBuffers",NumInputBuffers );		
 		ChannelTagDict.add( "ReconnectAttemptLimit",ChannelReconnectAttemptLimit );		
 		ChannelTagDict.add( "ReconnectMaxDelay",ChannelReconnectMaxDelay );
 		ChannelTagDict.add( "ReconnectMinDelay",ChannelReconnectMinDelay );
-		ChannelTagDict.add( "SysRecvBufSize",ChannelSysRecvBufSize );
-		ChannelTagDict.add( "SysSendBufSize",ChannelSysSendBufSize );
-		ChannelTagDict.add( "HighWaterMark",ChannelHighWaterMark );
-		ChannelTagDict.add( "XmlTraceFileName",ChannelXmlTraceFileName );		
-		ChannelTagDict.add( "XmlTraceHex", ChannelXmlTraceHex );
-		ChannelTagDict.add( "XmlTraceMaxFileSize", ChannelXmlTraceMaxFileSize );
-		ChannelTagDict.add( "XmlTracePing", ChannelXmlTracePing );
-		ChannelTagDict.add( "XmlTraceRead",ChannelXmlTraceRead );
-		ChannelTagDict.add( "XmlTraceToFile",ChannelXmlTraceToFile );
-		ChannelTagDict.add( "XmlTraceToMultipleFiles",ChannelXmlTraceToMultipleFiles );
-		ChannelTagDict.add( "XmlTraceToStdout",ChannelXmlTraceToStdout );
-		ChannelTagDict.add( "XmlTraceWrite",ChannelXmlTraceWrite );
+		ChannelTagDict.add( "SysRecvBufSize",SysRecvBufSize );
+		ChannelTagDict.add( "SysSendBufSize",SysSendBufSize );
+		ChannelTagDict.add( "HighWaterMark",HighWaterMark );
+		ChannelTagDict.add( "XmlTraceFileName",XmlTraceFileName );		
+		ChannelTagDict.add( "XmlTraceHex", XmlTraceHex );
+		ChannelTagDict.add( "XmlTraceMaxFileSize", XmlTraceMaxFileSize );
+		ChannelTagDict.add( "XmlTracePing", XmlTracePing );
+		ChannelTagDict.add( "XmlTraceRead",XmlTraceRead );
+		ChannelTagDict.add( "XmlTraceToFile",XmlTraceToFile );
+		ChannelTagDict.add( "XmlTraceToMultipleFiles",XmlTraceToMultipleFiles );
+		ChannelTagDict.add( "XmlTraceToStdout",XmlTraceToStdout );
+		ChannelTagDict.add( "XmlTraceWrite",XmlTraceWrite );
 		
 		// ConnectionTypes.SOCKET, ConnectionTypes.HTTP, ConnectionTypes.ENCRYPTED 
 		ChannelTagDict.add( "CompressionThreshold",ChannelCompressionThreshold );
@@ -359,6 +412,59 @@ public class ConfigManager
 		ServiceTagDict.add( "StatusCode", ServiceStateFilterStatusStatusCode);
 		ServiceTagDict.add( "StatusText", ServiceStateFilterStatusStatusText);
 		
+		IProviderTagDict.add("IProviderGroup", IProviderGroup);
+		IProviderTagDict.add("DefaultIProvider", DefaultIProvider);
+		IProviderTagDict.add("IProviderList", IProviderList);
+		IProviderTagDict.add("IProvider", IProvider);
+		IProviderTagDict.add("Name", IProviderName);
+		IProviderTagDict.add("Server", IProviderServerName);
+		IProviderTagDict.add("Directory", IProviderDirectoryName );
+		IProviderTagDict.add( "CatchUnhandledException",CatchUnhandledException );
+		IProviderTagDict.add( "DictionaryRequestTimeOut",DictionaryRequestTimeOut );
+		IProviderTagDict.add( "DispatchTimeoutApiThread",DispatchTimeoutApiThread );
+		IProviderTagDict.add( "ItemCountHint",ItemCountHint );
+		IProviderTagDict.add( "MaxDispatchCountApiThread",MaxDispatchCountApiThread );
+		IProviderTagDict.add( "MaxDispatchCountUserThread",MaxDispatchCountUserThread );
+		IProviderTagDict.add( "PostAckTimeout",PostAckTimeout );
+		IProviderTagDict.add( "ServiceCountHint",ServiceCountHint );
+		IProviderTagDict.add( "RefreshFirstRequired", IProviderRefreshFirstRequired);
+		IProviderTagDict.add( "AcceptMessageWithoutAcceptingRequests", IProviderAcceptMessageWithoutAcceptingRequests);
+		IProviderTagDict.add( "AcceptDirMessageWithoutMinFilters", IProviderAcceptDirMessageWithoutMinFilters);
+		IProviderTagDict.add( "AcceptMessageWithoutBeingLogin", IProviderAcceptMessageWithoutBeingLogin);
+		IProviderTagDict.add( "AcceptMessageSameKeyButDiffStream", IProviderAcceptMessageSameKeyButDiffStream);
+		IProviderTagDict.add( "AcceptMessageThatChangesService", IProviderAcceptMessageThatChangesService);
+		IProviderTagDict.add( "AcceptMessageWithoutQosInRange", IProviderAcceptMessageWithoutQosInRange);
+		IProviderTagDict.add( "FieldDictionaryFragmentSize", DictionaryFieldDictFragmentSize);
+		IProviderTagDict.add( "EnumTypeFragmentSize", DictionaryEnumTypeFragmentSize);
+		
+		ServerTagDict.add( "ServerGroup", ServerGroup );
+		ServerTagDict.add( "ServerList" , ServerList );
+		ServerTagDict.add( "Server", Server );
+		ServerTagDict.add( "Name", ServerName );
+		ServerTagDict.add( "ServerType", ServerType );
+		ServerTagDict.add( "CompressionThreshold", ServerCompressionThreshold);
+		ServerTagDict.add( "CompressionType", ServerCompressionType);
+		ServerTagDict.add( "ConnectionPingTimeout",ConnectionPingTimeout );
+		ServerTagDict.add( "GuaranteedOutputBuffers",GuaranteedOutputBuffers );
+		ServerTagDict.add( "InterfaceName",InterfaceName );
+		ServerTagDict.add( "NumInputBuffers",NumInputBuffers );		
+		ServerTagDict.add( "SysRecvBufSize",SysRecvBufSize );
+		ServerTagDict.add( "SysSendBufSize",SysSendBufSize );
+		ServerTagDict.add( "HighWaterMark",HighWaterMark );
+		ServerTagDict.add( "XmlTraceFileName",XmlTraceFileName );		
+		ServerTagDict.add( "XmlTraceHex", XmlTraceHex );
+		ServerTagDict.add( "XmlTraceMaxFileSize", XmlTraceMaxFileSize );
+		ServerTagDict.add( "XmlTracePing", XmlTracePing );
+		ServerTagDict.add( "XmlTraceRead", XmlTraceRead );
+		ServerTagDict.add( "XmlTraceToFile", XmlTraceToFile );
+		ServerTagDict.add( "XmlTraceToMultipleFiles", XmlTraceToMultipleFiles );
+		ServerTagDict.add( "XmlTraceToStdout", XmlTraceToStdout );
+		ServerTagDict.add( "CompressionThreshold",ServerCompressionThreshold );
+		ServerTagDict.add( "Port", ServerPort );
+		ServerTagDict.add( "TcpNodelay",ServerTcpNodelay );
+		ServerTagDict.add( "DirectWrite",ServerDirectSocketWrite );
+		ServerTagDict.add( "ConnectionMinPingTimeout", ConnectionMinPingTimeout);
+		
 		CONSUMER_GROUP = ConfigManager.acquire().new Branch();
 		CONSUMER_GROUP.add(ConfigManager.ConsumerGroup,ConfigManager.ConsumerTagDict);
 		CONSUMER_GROUP.complete();
@@ -407,6 +513,24 @@ public class ConfigManager
 		DIRECTORY_LIST.add(ConfigManager.DirectoryList,ConfigManager.DirectoryTagDict);
 		DIRECTORY_LIST.complete();
 		
+		IPROVIDER_GROUP = ConfigManager.acquire().new Branch();
+		IPROVIDER_GROUP.add(ConfigManager.IProviderGroup,ConfigManager.IProviderTagDict);
+		IPROVIDER_GROUP.complete();
+		
+		DEFAULT_IPROVIDER = ConfigManager.acquire().new Branch();
+		DEFAULT_IPROVIDER.add(ConfigManager.IProviderGroup,ConfigManager.IProviderTagDict);
+		DEFAULT_IPROVIDER.add(ConfigManager.DefaultIProvider,ConfigManager.IProviderTagDict);
+		DEFAULT_IPROVIDER.complete();
+		
+		IPROVIDER_LIST = ConfigManager.acquire().new Branch();
+		IPROVIDER_LIST.add(ConfigManager.IProviderGroup,ConfigManager.IProviderTagDict);
+		IPROVIDER_LIST.add(ConfigManager.IProviderList,ConfigManager.IProviderTagDict);
+		IPROVIDER_LIST.complete();
+		
+		SERVER_LIST = ConfigManager.acquire().new Branch();
+		SERVER_LIST.add(ConfigManager.ServerGroup,ConfigManager.ServerTagDict);
+		SERVER_LIST.add(ConfigManager.ServerList,ConfigManager.ServerTagDict);
+		SERVER_LIST.complete();
 	}
 
 	public static String AsciiValues[] = {
@@ -416,6 +540,7 @@ public class ConfigManager
 			"DefaultConsumer",
 			"DefaultDictionary",
 			"DefaultDirectory",
+			"DefaultIProvider",
 			"DefaultNiProvider",
 			"DictionariesProvidedEntry",
 			"DictionariesUsedEntry",
@@ -441,6 +566,7 @@ public class ConfigManager
 			"RecvPort",
 			"SendAddress",
 			"SendPort",
+			"Server",
 			"StatusText",
 			"tcpControlPort",
 			"Timeliness",
@@ -454,6 +580,7 @@ public class ConfigManager
 		"CompressionType",
 		"DataState",
 		"DictionaryType",
+		"ServerType",
 		"StatusCode",
 		"StreamState"
 	};
@@ -468,13 +595,22 @@ public class ConfigManager
 	};
 
 	public static String UInt64Values[] = {
+	    "AcceptDirMessageWithoutMinFilters",
 		"AcceptingConsumerStatus",
 		"AcceptingRequests",
+		"AcceptMessageSameKeyButDiffStream",
+		"AcceptMessageThatChangesService",
+		"AcceptMessageWithoutAcceptingRequests",
+		"AcceptMessageWithoutBeingLogin",
+		"AcceptMessageWithoutQosInRange",
 		"CompressionThreshold",
 		"ConnectionPingTimeout",
+		"ConnectionMinPingTimeout",
 		"DictionaryRequestTimeOut",
 		"DirectoryRequestTimeOut",
 		"DisconnectOnGap",
+		"EnumTypeFragmentSize",
+		"FieldDictionaryFragmentSize",
 		"GuaranteedOutputBuffers",
 		"HsmInterval",
 		"IncludeDateInLoggerOutput",
@@ -529,8 +665,10 @@ public class ConfigManager
 		"Consumer",
 		"Dictionary",
 		"Directory",
+		"IProvider",
 		"NiProvider",
-		"Service"
+		"Service",
+		"Server"
 	};
 	
 	static ConfigManager acquire() 

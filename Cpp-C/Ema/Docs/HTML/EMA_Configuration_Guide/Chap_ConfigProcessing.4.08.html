@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>4.3 Configuring EMA Using Function Calls</title>
+    <title>4.2.2 Processing the Consumer “Name”</title>
     <link rel="StyleSheet" href="css/Chap_ConfigProcessing.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -45,31 +45,49 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H2_outer" style="margin-left: 0pt">
+      <div class="H3_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
             <td>
-              <div class="H2_inner" style="width: 54pt; white-space: nowrap">
-                <span class="bold">4.3	</span>
+              <div class="H3_inner" style="width: 54pt; white-space: nowrap">
+                <span class="bold">4.2.2	</span>
               </div>
             </td>
             <td width="100%">
-              <div class="H2_inner"><a name="1045591">Configuring EMA Using Function Calls</a></div>
+              <div class="H3_inner"><a name="1045542">Processing the Consumer “Name”</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1062119">From an application standpoint, instantiating </a><span class="CodeOrCommand">OmmConsumerConfig</span> and <span class="CodeOrCommand">OmmNiProviderConfig</span> objects creates the initial configuration from the <span class="FileOrDirectory">DefaultXML.h</span> and <span class="FileOrDirectory">EmaConfig.xml</span> files. Certain variables can then be altered via function calls on the <span class="CodeOrCommand">OmmConsumerConfig</span> and <span class="CodeOrCommand">OmmNiProviderConfig</span> objects.</div>
-      <div class="Blank_Line"><a name="1062123">&nbsp;</a></div>
-      <table class="Note" style="width: 555.75pt" cellspacing="0" summary="">
-        <caption></caption>
-        <tr style="vertical-align: top">
-          <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 555.75pt">
-            <div class="Note">
-              <span class="Bold">Note: </span><a name="1062122">Function calls override any settings in the </a><span class="FileOrDirectory">EmaConfig.xml</span> file.</div>
-          </td>
-        </tr>
-      </table>
+      <div class="Body"><a name="1062729">The EMA is hard-coded to use a default consumer of </a><span class="Parameter">EmaConsumer</span>. However, you can change this by using <span class="Parameter">EmaConfig.xml</span>. When you use the XML file, the default <span class="Parameter">Consumer Name</span> is either specified by the <span class="Parameter">DefaultConsumer</span> element, or if this parameter is not set, then the EMA application will default to the name of the first Consumer component.</div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1062730">If </a><span class="Parameter">DefaultConsumer</span> uses an invalid name (i.e., no <span class="Parameter">Consumer</span> components in the XML file use that name), the EMA throws an exception indicating that <span class="Parameter">DefaultConsumer</span> is invalid.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1062731">If the </a><span class="FileOrDirectory">EmaConfig.xml</span> has no <span class="Parameter">Consumer</span> components, the EMA application uses <span class="Parameter">EmaConsumer</span>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -81,7 +99,7 @@
       </script>
     </blockquote>
     <hr align="left" />
-    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 4	EMA Configuration Processing : 4.3	Configuring EMA Using Function Calls</div>
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 4	EMA Configuration Processing : <a class="WebWorks_Breadcrumb_Link" href="Chap_ConfigProcessing.4.06.html">4.2	Processing EmaConfig.xml</a> : 4.2.2	Processing the Consumer “Name”</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

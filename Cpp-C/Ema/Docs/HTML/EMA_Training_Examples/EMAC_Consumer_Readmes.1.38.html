@@ -46,51 +46,51 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1019302">410__MarketPrice__HorizontalScaling</a></div>
-      <div class="Body"><a name="1031577">Summary</a></div>
-      <div class="Body"><a name="1031578">=======</a></div>
-      <div class="Body"><a name="1031579">&nbsp;</a></div>
-      <div class="Body"><a name="1031580">The 410__MarketPrice__HorizontalScaling application is provided as an example</a></div>
-      <div class="Body"><a name="1031581">of OMM Consumer application written to the EMA library.</a></div>
-      <div class="Body"><a name="1031582">&nbsp;</a></div>
-      <div class="Body"><a name="1031583">This application demonstrates basic usage of the EMA library for accessing</a></div>
-      <div class="Body"><a name="1031584">and parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
-      <div class="Body"><a name="1031585">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
-      <div class="Body"><a name="1031586">Distribution Server.</a></div>
-      <div class="Body"><a name="1031587">&nbsp;</a></div>
-      <div class="Body"><a name="1031588">The 410__MarketPrice__HorizontalScaling showcases horizontal scaling capability</a></div>
-      <div class="Body"><a name="1031589">of OMM Consumer to take advantage of multiple core processors.</a></div>
-      <div class="Body"><a name="1031590">&nbsp;</a></div>
-      <div class="Body"><a name="1031591">&nbsp;</a></div>
-      <div class="Body"><a name="1031592">Detailed Description</a></div>
-      <div class="Body"><a name="1031593">====================</a></div>
-      <div class="Body"><a name="1031594">&nbsp;</a></div>
-      <div class="Body"><a name="1031595">The 410__MarketPrice__HorizontalScaling implements the following high level steps:</a></div>
-      <div class="Body"><a name="1031596">&nbsp;</a></div>
-      <div class="Body"><a name="1031597">+ Implements ConsumerManager to manage OmmConsumer and control user dispatch thread</a></div>
-      <div class="Body"><a name="1031598">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1031599">  - provides own methods as needed</a></div>
-      <div class="Body"><a name="1031600">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1031601">+ Instantiates two ConsumerManager to create OmmConsumer and user threads with the </a></div>
-      <div class="Body"><a name="1031602">  following configuration</a></div>
-      <div class="Body"><a name="1031603">  - sets user name to “user1” and “user2” for each ConsumerManager respectively</a></div>
-      <div class="Body"><a name="1031604">  - sets host name on the preconfigured connection to “localhost”</a></div>
-      <div class="Body"><a name="1031605">  - sets port on the preconfigured connection to “14002”</a></div>
-      <div class="Body"><a name="1031606">  - sets operationModel to UserDispatchEnum</a></div>
-      <div class="Body"><a name="1031607">+ ConsumerManager instantiates OmmConsumer object which</a></div>
-      <div class="Body"><a name="1031608">  - initializes connection and logins into specified server</a></div>
-      <div class="Body"><a name="1031609">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1031610">+ Opens streaming item interests from each ConsumerManager </a></div>
-      <div class="Body"><a name="1031611">  - MarketPrice IBM.N item from DIRECT_FEED service for first ConsumerManager</a></div>
-      <div class="Body"><a name="1031612">  - MarketPrice TRI.N item from DIRECT_FEED service for second ConsumerManager</a></div>
-      <div class="Body"><a name="1031613">+ Processes data received from user thread in ConsumerManager for 60 seconds</a></div>
-      <div class="Body"><a name="1031614">  - all received messages are processed on user thread of control  </a></div>
-      <div class="Body"><a name="1031615">+ Exits</a></div>
-      <div class="Body"><a name="1031616">&nbsp;</a></div>
-      <div class="Body"><a name="1031617">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1031618">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1031619">	  </a></div>
-      <div class="Body"><a name="1031620">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1031621">      standard configuration.</a></div>
+      <div class="Body"><a name="1041631">Summary</a></div>
+      <div class="Body"><a name="1041632">=======</a></div>
+      <div class="Body"><a name="1041633">&nbsp;</a></div>
+      <div class="Body"><a name="1041634">The 410__MarketPrice__HorizontalScaling application is provided as an example</a></div>
+      <div class="Body"><a name="1041635">of OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1041636">&nbsp;</a></div>
+      <div class="Body"><a name="1041637">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1041638">and parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1041639">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1041640">Distribution Server.</a></div>
+      <div class="Body"><a name="1041641">&nbsp;</a></div>
+      <div class="Body"><a name="1041642">The 410__MarketPrice__HorizontalScaling showcases horizontal scaling capability</a></div>
+      <div class="Body"><a name="1041643">of OMM Consumer to take advantage of multiple core processors.</a></div>
+      <div class="Body"><a name="1041644">&nbsp;</a></div>
+      <div class="Body"><a name="1041645">&nbsp;</a></div>
+      <div class="Body"><a name="1041646">Detailed Description</a></div>
+      <div class="Body"><a name="1041647">====================</a></div>
+      <div class="Body"><a name="1041648">&nbsp;</a></div>
+      <div class="Body"><a name="1041649">The 410__MarketPrice__HorizontalScaling implements the following high level steps:</a></div>
+      <div class="Body"><a name="1041650">&nbsp;</a></div>
+      <div class="Body"><a name="1041651">+ Implements ConsumerManager to manage OmmConsumer and control user dispatch thread</a></div>
+      <div class="Body"><a name="1041652">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1041653">  - provides own methods as needed</a></div>
+      <div class="Body"><a name="1041654">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1041655">+ Instantiates two ConsumerManager to create OmmConsumer and user threads with the </a></div>
+      <div class="Body"><a name="1041656">  following configuration</a></div>
+      <div class="Body"><a name="1041657">  - sets user name to “user1” and “user2” for each ConsumerManager respectively</a></div>
+      <div class="Body"><a name="1041658">  - sets host name on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1041659">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1041660">  - sets operationModel to UserDispatchEnum</a></div>
+      <div class="Body"><a name="1041661">+ ConsumerManager instantiates OmmConsumer object which</a></div>
+      <div class="Body"><a name="1041662">  - initializes connection and logins into specified server</a></div>
+      <div class="Body"><a name="1041663">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1041664">+ Opens streaming item interests from each ConsumerManager </a></div>
+      <div class="Body"><a name="1041665">  - MarketPrice IBM.N item from DIRECT_FEED service for first ConsumerManager</a></div>
+      <div class="Body"><a name="1041666">  - MarketPrice TRI.N item from DIRECT_FEED service for second ConsumerManager</a></div>
+      <div class="Body"><a name="1041667">+ Processes data received from user thread in ConsumerManager for 60 seconds</a></div>
+      <div class="Body"><a name="1041668">  - all received messages are processed on user thread of control  </a></div>
+      <div class="Body"><a name="1041669">+ Exits</a></div>
+      <div class="Body"><a name="1041670">&nbsp;</a></div>
+      <div class="Body"><a name="1041671">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1041672">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1041673">	  </a></div>
+      <div class="Body"><a name="1041674">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1041675">      standard configuration.</a></div>
       <div class="Body"><a name="1029707">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--

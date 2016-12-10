@@ -91,6 +91,8 @@ class MsgImpl extends DataImpl implements Msg
                 return ((_rsslMsg.flags() & PostMsgFlags.HAS_MSG_KEY) > 0 ? true : false);
             case DataTypes.ACK_MSG :
                 return ((_rsslMsg.flags() & AckMsgFlags.HAS_MSG_KEY) > 0 ? true : false);
+            case DataTypes.REQ_MSG :
+                return true;
             default :
                 return false;
         }

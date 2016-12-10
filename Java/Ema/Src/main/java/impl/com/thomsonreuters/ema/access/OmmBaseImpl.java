@@ -10,6 +10,7 @@ package com.thomsonreuters.ema.access;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.CancelledKeyException;
+import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.Pipe;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -23,7 +24,6 @@ import org.slf4j.Logger;
 
 import com.thomsonreuters.ema.access.ConfigManager.ConfigAttributes;
 import com.thomsonreuters.ema.access.ConfigManager.ConfigElement;
-import com.thomsonreuters.ema.access.OmmBaseImpl.OmmImplState;
 import com.thomsonreuters.ema.access.OmmConsumer.DispatchReturn;
 import com.thomsonreuters.ema.access.OmmConsumer.DispatchTimeout;
 import com.thomsonreuters.ema.access.OmmConsumerConfig.OperationModel;
@@ -42,8 +42,20 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
+import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamSubmitOptions;
 
-abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
+interface OmmCommonImpl
+{
+	void handleInvalidUsage(String text);
+	
+	void handleInvalidHandle(long handle, String text);
+	
+	Logger loggerClient();
+	
+	String formatLogMessage(String clientName, String temp, int level);
+}
+
+abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 {
 	private final static int SHUTDOWN_TIMEOUT_IN_SECONDS = 3;
 
@@ -97,6 +109,7 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 	private byte[] _pipeWriteByte = new byte[]{0x00};
 	private ByteBuffer _pipeReadByte = ByteBuffer.allocate(1);
 	private boolean _eventReceived;
+	private SelectionKey _pipeSelectKey;
 	
 	abstract Logger createLoggerClient();
 	
@@ -105,10 +118,6 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 	abstract boolean hasErrorClient();
 	
 	abstract void notifyErrorClient(OmmException ommException);
-	
-	abstract void handleInvalidUsage(String text);
-	
-	abstract void handleInvalidHandle(long handle, String text);
 	
 	abstract ConfigAttributes getAttributes(EmaConfigImpl config);
 	
@@ -199,7 +208,8 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 				_rsslReactor.reactorChannel().selectableChannel().register(_selector, SelectionKey.OP_READ,
 						_rsslReactor.reactorChannel());
 				_pipe.source().configureBlocking(false);
-				_pipe.source().register(_selector, SelectionKey.OP_READ, _rsslReactor.reactorChannel());
+				_pipeSelectKey = _pipe.source().register(_selector, SelectionKey.OP_READ, _rsslReactor.reactorChannel());
+
 			} catch (IOException e)
 			{
 				_threadRunning = false;
@@ -700,69 +710,69 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 			break;
 		}
 		case ConnectionTypes.HTTP:
-		{
-			HttpChannelConfig httpChannelCfg = new HttpChannelConfig();
-			
-			String tempHost = configImpl.getUserSpecifiedHostname();
-			if (tempHost == null)
-			{
-				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
-					httpChannelCfg.hostName = ce.asciiValue();
-			}
-			else
-				httpChannelCfg.hostName = tempHost;
-
-			String tempService = configImpl.getUserSpecifiedPort();
-			if (tempService == null)
-			{
-				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelPort)) != null)
-					httpChannelCfg.serviceName = ce.asciiValue();
-			}
-			else
-				httpChannelCfg.serviceName = tempService;
-
-			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
-				httpChannelCfg.tcpNodelay = ce.booleanValue();
-
-			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelObjectName)) != null)
-				httpChannelCfg.objectName = ce.asciiValue();
-			
-			currentChannelConfig =  httpChannelCfg;
-			
-			break;
-		}
+//		{
+//			HttpChannelConfig httpChannelCfg = new HttpChannelConfig();
+//			
+//			String tempHost = configImpl.getUserSpecifiedHostname();
+//			if (tempHost == null)
+//			{
+//				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
+//					httpChannelCfg.hostName = ce.asciiValue();
+//			}
+//			else
+//				httpChannelCfg.hostName = tempHost;
+//
+//			String tempService = configImpl.getUserSpecifiedPort();
+//			if (tempService == null)
+//			{
+//				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelPort)) != null)
+//					httpChannelCfg.serviceName = ce.asciiValue();
+//			}
+//			else
+//				httpChannelCfg.serviceName = tempService;
+//
+//			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
+//				httpChannelCfg.tcpNodelay = ce.booleanValue();
+//
+//			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelObjectName)) != null)
+//				httpChannelCfg.objectName = ce.asciiValue();
+//			
+//			currentChannelConfig =  httpChannelCfg;
+//			
+//			break;
+//		}
 		case ConnectionTypes.ENCRYPTED:
-		{
-			EncryptedChannelConfig encryptedChannelCfg = new EncryptedChannelConfig();
-
-			String tempHost = configImpl.getUserSpecifiedHostname();
-			if (tempHost == null)
-			{
-				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
-					encryptedChannelCfg.hostName = ce.asciiValue();
-			}
-			else
-				encryptedChannelCfg.hostName = tempHost;
-
-			String tempService = configImpl.getUserSpecifiedPort();
-			if (tempService == null)
-			{
-				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelPort)) != null)
-					encryptedChannelCfg.serviceName = ce.asciiValue();
-			}
-			else
-				encryptedChannelCfg.serviceName = tempService;
-
-			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
-				encryptedChannelCfg.tcpNodelay = ce.booleanValue();
-
-			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelObjectName)) != null)
-				encryptedChannelCfg.objectName = ce.asciiValue();
-
-			currentChannelConfig =  encryptedChannelCfg;
-			
-			break;
-		}
+//		{
+//			EncryptedChannelConfig encryptedChannelCfg = new EncryptedChannelConfig();
+//
+//			String tempHost = configImpl.getUserSpecifiedHostname();
+//			if (tempHost == null)
+//			{
+//				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
+//					encryptedChannelCfg.hostName = ce.asciiValue();
+//			}
+//			else
+//				encryptedChannelCfg.hostName = tempHost;
+//
+//			String tempService = configImpl.getUserSpecifiedPort();
+//			if (tempService == null)
+//			{
+//				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelPort)) != null)
+//					encryptedChannelCfg.serviceName = ce.asciiValue();
+//			}
+//			else
+//				encryptedChannelCfg.serviceName = tempService;
+//
+//			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
+//				encryptedChannelCfg.tcpNodelay = ce.booleanValue();
+//
+//			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelObjectName)) != null)
+//				encryptedChannelCfg.objectName = ce.asciiValue();
+//
+//			currentChannelConfig =  encryptedChannelCfg;
+//			
+//			break;
+//		}
 		default:
 		{
 			configImpl.errorTracker().append("Not supported channel type. Type = ")
@@ -775,16 +785,16 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 
 		if (attributes != null)
 		{
-			if((ce = attributes.getPrimitiveValue(ConfigManager.ChannelInterfaceName)) != null)
+			if((ce = attributes.getPrimitiveValue(ConfigManager.InterfaceName)) != null)
 				currentChannelConfig.interfaceName = ce.asciiValue();
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelCompressionType)) != null)
 				currentChannelConfig.compressionType = ce.intValue() < 0 ? ActiveConfig.DEFAULT_COMPRESSION_TYPE : ce.intValue();
 	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelGuaranteedOutputBuffers)) != null)
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.GuaranteedOutputBuffers)) != null)
 				currentChannelConfig.guaranteedOutputBuffers = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_GUARANTEED_OUTPUT_BUFFERS : ce.intLongValue();
 	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelNumInputBuffers)) != null)
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.NumInputBuffers)) != null)
 				currentChannelConfig.numInputBuffers = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_NUM_INPUT_BUFFERS : ce.intLongValue();
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelCompressionThreshold)) != null)
@@ -795,7 +805,7 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 					currentChannelConfig.compressionThreshold = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_COMPRESSION_THRESHOLD : ce.intLongValue();
 			}
 			
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelConnectionPingTimeout)) != null)
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.ConnectionPingTimeout)) != null)
 			{
 				if ( ce.intLongValue()  > maxInt )
 					currentChannelConfig.connectionPingTimeout = maxInt;
@@ -803,7 +813,7 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 					currentChannelConfig.connectionPingTimeout = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_CONNECTION_PINGTIMEOUT : ce.intLongValue();
 			}
 	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelSysRecvBufSize)) != null)
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.SysRecvBufSize)) != null)
 			{
 				if ( ce.intLongValue()  > maxInt )
 					currentChannelConfig.sysRecvBufSize = maxInt;
@@ -811,7 +821,7 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 					currentChannelConfig.sysRecvBufSize = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_SYS_RECEIVE_BUFFER_SIZE : ce.intLongValue();
 			}
 	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelSysSendBufSize)) != null)
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.SysSendBufSize)) != null)
 			{
 				if ( ce.intLongValue()  > maxInt )
 					currentChannelConfig.sysSendBufSize = maxInt;
@@ -819,7 +829,7 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 					currentChannelConfig.sysSendBufSize = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_SYS_SEND_BUFFER_SIZE : ce.intLongValue();
 			}
 			
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelHighWaterMark)) != null)
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.HighWaterMark)) != null)
 			{
 				if ( ce.intLongValue()  > maxInt )
 					currentChannelConfig.highWaterMark = maxInt;
@@ -839,7 +849,7 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelMsgKeyInUpdates)) != null)
 				currentChannelConfig.msgKeyInUpdates = ce.booleanValue();
 	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelXmlTraceToStdout)) != null)
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToStdout)) != null)
 				currentChannelConfig.xmlTraceEnable = ce.booleanValue();
 		}
 		
@@ -909,11 +919,8 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 		long startTime = System.nanoTime();
 		long endTime = 0;
 		
-		if (_selector == null)
-			return false;
-
 		timeOut = timeOut*1000;
-		long userTimeout = TimeoutEvent.userTimeOutExist(this);
+		long userTimeout = TimeoutEvent.userTimeOutExist(_timeoutEventQueue);
 		boolean userTimeoutExist = false;
 		if (userTimeout >= 0)
 		{
@@ -934,9 +941,9 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 				{
 					ret = _rsslReactor.reactorChannel()  != null  ? _rsslReactor.dispatchAll(null, _rsslDispatchOptions, _rsslErrorInfo) : ReactorReturnCodes.SUCCESS;
 				}
-				while ( ret > ReactorReturnCodes.SUCCESS && !_eventReceived && ++loopCount < 15 );
+				while (ret > ReactorReturnCodes.SUCCESS && !_eventReceived && loopCount++ < 5);
 				
-				if (ret < ReactorReturnCodes.SUCCESS)//
+				if (ret < ReactorReturnCodes.SUCCESS)
 				{
 						if (_loggerClient.isErrorEnabled())
 						{
@@ -951,8 +958,7 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 						return false;
 				} 
 			
-				if ( _eventReceived )
-					return true;
+				if ( _eventReceived ) return true;
 				
 				endTime = System.nanoTime();
 	
@@ -962,14 +968,16 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 					if ( timeOut <=0 )
 					{
 						if (userTimeoutExist)
-							TimeoutEvent.execute(this);
+							TimeoutEvent.execute(_timeoutEventQueue);
 		
 						return _eventReceived ? true : false;
 					}
 					else if ( timeOut < 1000000  )
 							timeOut = 1000000;
 				}
-			}
+			} // end if (_state >= OmmImplState.RSSLCHANNEL_UP)
+
+			if (_selector == null) return false;
 
 			do
 			{
@@ -985,54 +993,30 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 						iter.remove();
 						try
 						{
-							if (!key.isValid())
-								continue;
+							if (!key.isValid()) continue;
+							
 							if (key.isReadable())
-									ret = ((ReactorChannel) key.attachment()).dispatch(_rsslDispatchOptions, _rsslErrorInfo);
+							{
+								if (_pipeSelectKey == key) pipeRead();
+
+								ret = ((ReactorChannel) key.attachment()).dispatch(_rsslDispatchOptions,	_rsslErrorInfo);
+							}
 						}
-						 catch (CancelledKeyException e)
+						catch (CancelledKeyException e)
 						{
 							continue;
 						}
 					}
 					
-					if (_pipeWriteCount == 1)
-						pipeRead();
-					
-					if (_state >= OmmImplState.RSSLCHANNEL_UP)
-					{
-						loopCount = 0;
-						do
-						{
-							ret = _rsslReactor.reactorChannel()  != null  ? _rsslReactor.dispatchAll(null, _rsslDispatchOptions, _rsslErrorInfo) : ReactorReturnCodes.SUCCESS;
-						}
-						while ( ret > ReactorReturnCodes.SUCCESS && !_eventReceived && ++loopCount < 15 );
-						
-						if (ret < ReactorReturnCodes.SUCCESS)
-						{
-								if (_loggerClient.isErrorEnabled())
-								{
-									strBuilder().append("Call to rsslReactorDispatchLoop() failed. Internal sysError='")
-												.append(_rsslErrorInfo.error().sysError()).append("' Error text='")
-												.append(_rsslErrorInfo.error().text()).append("'. ");
-	
-									if (_loggerClient.isErrorEnabled())
-										_loggerClient.error(formatLogMessage(_activeConfig.instanceName, _strBuilder.toString(), Severity.ERROR));
-								}
-	
-								return false;
-						} 
-						
-						if ( _eventReceived ) return true;
-	
-						TimeoutEvent.execute(this);
-						
-						if ( _eventReceived ) 	return true;
-					}
+					if (_eventReceived) return true;
+
+					TimeoutEvent.execute(_timeoutEventQueue);
+
+					if (_eventReceived) return true;
 				} //selectCount > 0
 				else if (selectCount == 0)
 				{
-					TimeoutEvent.execute(this);
+					TimeoutEvent.execute(_timeoutEventQueue);
 						
 					if ( _eventReceived ) return true;
 				}
@@ -1064,6 +1048,17 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 			if (_loggerClient.isTraceEnabled())
 			{
 				strBuilder().append("Call to rsslReactorDispatchLoop() received cancelled key exception.");
+
+				_loggerClient.trace(formatLogMessage(_activeConfig.instanceName, _strBuilder.toString(), Severity.TRACE));
+			}
+
+			return true;
+		} 
+		catch (ClosedSelectorException e)
+		{
+			if (_loggerClient.isTraceEnabled())
+			{
+				strBuilder().append("Call to rsslReactorDispatchLoop() received closed selector exception.");
 
 				_loggerClient.trace(formatLogMessage(_activeConfig.instanceName, _strBuilder.toString(), Severity.TRACE));
 			}
@@ -1122,8 +1117,11 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 		return _rsslSubmitOptions;
 	}
 	
-	abstract String formatLogMessage(String clientName, String temp, int level);
-	
+	TunnelStreamSubmitOptions rsslTunnelStreamSubmitOptions()
+	{
+		return null;
+	}
+
 	abstract String instanceName();
 
 	@Override
@@ -1143,8 +1141,9 @@ abstract class OmmBaseImpl<T> implements Runnable, TimeoutClient
 	{
 		return _activeConfig;
 	}
-
-	Logger loggerClient()
+	
+	@Override
+	public Logger loggerClient()
 	{
 		return _loggerClient;
 	}

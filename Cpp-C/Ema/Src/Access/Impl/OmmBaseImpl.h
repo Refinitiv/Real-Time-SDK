@@ -31,6 +31,7 @@
 #include "ActiveConfig.h"
 #include "ErrorClientHandler.h"
 #include "OmmException.h"
+#include "OmmBaseImplMap.h"
 
 namespace thomsonreuters {
 
@@ -47,39 +48,8 @@ class OmmLoggerClient;
 class TimeOut;
 class TunnelStreamRequest;
 class EmaConfigImpl;
-class OmmBaseImpl;
 
-class OmmBaseImplMap
-{
-public:
-
-	static UInt64 add( OmmBaseImpl* );
-	static void remove( OmmBaseImpl* );
-
-#ifdef WIN32
-	static BOOL WINAPI TermHandlerRoutine( DWORD dwCtrlType );
-#else
-	static void sigAction( int sig, siginfo_t* pSiginfo, void* pv );
-#endif
-
-private:
-
-	static void init();
-	static void atExit();
-	static void sleep( UInt32 );
-
-	static Mutex						_listLock;
-	static EmaVector< OmmBaseImpl* >	_clientList;
-	static UInt64						_id;
-	static bool							_clearSigHandler;
-
-#ifndef WIN32
-	static struct sigaction _sigAction;
-	static struct sigaction _oldSigAction;
-#endif
-};
-
-class OmmBaseImpl : public Thread
+class OmmBaseImpl : public OmmCommonImpl, public Thread, public TimeOutClient
 {
 public :
 
@@ -182,7 +152,7 @@ public :
 
 protected:
 
-	friend class OmmBaseImplMap;
+	friend class OmmBaseImplMap<OmmBaseImpl>;
 	friend class LoginItem;
 	friend class NiProviderLoginItem;
 

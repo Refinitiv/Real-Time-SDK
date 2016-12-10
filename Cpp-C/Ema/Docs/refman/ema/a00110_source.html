@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EMA: OmmConsumerConfig.h Source File</title>
+<title>EMA: OmmConsumerClient.h Source File</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -102,7 +102,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div class="header">
   <div class="headertitle">
-<div class="title">OmmConsumerConfig.h</div>  </div>
+<div class="title">OmmConsumerClient.h</div>  </div>
 </div><!--header-->
 <div class="contents">
 <div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 <span class="comment">/*|-----------------------------------------------------------------------------</span>
@@ -113,80 +113,61 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00006"></a>00006 <span class="comment"> *|-----------------------------------------------------------------------------</span>
 <a name="l00007"></a>00007 <span class="comment"> */</span>
 <a name="l00008"></a>00008 
-<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_ema_access_OmmConsumerConfig_h</span>
-<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_ema_access_OmmConsumerConfig_h</span>
+<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_ema_access_OmmConsumerClient_h</span>
+<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_ema_access_OmmConsumerClient_h</span>
 <a name="l00011"></a>00011 <span class="preprocessor"></span>
-<a name="l00030"></a>00030 <span class="preprocessor">#include &quot;Access/Include/EmaString.h&quot;</span>
-<a name="l00031"></a>00031 
-<a name="l00032"></a>00032 <span class="keyword">namespace </span>thomsonreuters {
-<a name="l00033"></a>00033 
-<a name="l00034"></a>00034 <span class="keyword">namespace </span>ema {
-<a name="l00035"></a>00035 
-<a name="l00036"></a>00036 <span class="keyword">namespace </span>access {
-<a name="l00037"></a>00037 
-<a name="l00038"></a>00038 <span class="keyword">class </span>Data;
-<a name="l00039"></a>00039 <span class="keyword">class </span>ReqMsg;
-<a name="l00040"></a>00040 <span class="keyword">class </span>OmmConsumerConfigImpl;
-<a name="l00041"></a>00041 
-<a name="l00042"></a><a class="code" href="a00035.html">00042</a> <span class="keyword">class </span>EMA_ACCESS_API <a class="code" href="a00035.html" title="OmmConsumerConfig is used to modify configuration and behaviour of OmmConsumer.">OmmConsumerConfig</a>
-<a name="l00043"></a>00043 {
-<a name="l00044"></a>00044 <span class="keyword">public</span> :
-<a name="l00045"></a>00045 
-<a name="l00048"></a><a class="code" href="a00035.html#a484aefe89db79049ac441b6ad916506b">00048</a>     <span class="keyword">enum</span> <a class="code" href="a00035.html#a484aefe89db79049ac441b6ad916506b">OperationModel</a>
-<a name="l00049"></a>00049     {
-<a name="l00050"></a><a class="code" href="a00035.html#a484aefe89db79049ac441b6ad916506ba94aefe9b68800cac27859544a27864c8">00050</a>         <a class="code" href="a00035.html#a484aefe89db79049ac441b6ad916506ba94aefe9b68800cac27859544a27864c8">UserDispatchEnum</a>,       
-<a name="l00051"></a><a class="code" href="a00035.html#a484aefe89db79049ac441b6ad916506babe46e499025ad4f3ea787f8724770870">00051</a>         ApiDispatchEnum         
-<a name="l00052"></a>00052     };
-<a name="l00053"></a>00053 
-<a name="l00055"></a>00055 
-<a name="l00056"></a>00056 
-<a name="l00058"></a>00058     <a class="code" href="a00035.html" title="OmmConsumerConfig is used to modify configuration and behaviour of OmmConsumer.">OmmConsumerConfig</a>();
-<a name="l00060"></a>00060 
-<a name="l00062"></a>00062 
-<a name="l00063"></a>00063 
-<a name="l00065"></a>00065     <span class="keyword">virtual</span> ~<a class="code" href="a00035.html" title="OmmConsumerConfig is used to modify configuration and behaviour of OmmConsumer.">OmmConsumerConfig</a>();
-<a name="l00067"></a>00067 
+<a name="l00068"></a>00068 <span class="preprocessor">#include &quot;<a class="code" href="a00086.html" title="Common.h file provides definitions of common variable types used in EMA.">Access/Include/Common.h</a>&quot;</span>
 <a name="l00069"></a>00069 
-<a name="l00070"></a>00070 
-<a name="l00074"></a>00074     <a class="code" href="a00035.html" title="OmmConsumerConfig is used to modify configuration and behaviour of OmmConsumer.">OmmConsumerConfig</a>&amp; clear();
+<a name="l00070"></a>00070 <span class="keyword">namespace </span>thomsonreuters {
+<a name="l00071"></a>00071 
+<a name="l00072"></a>00072 <span class="keyword">namespace </span>ema {
+<a name="l00073"></a>00073 
+<a name="l00074"></a>00074 <span class="keyword">namespace </span>access {
 <a name="l00075"></a>00075 
-<a name="l00080"></a>00080     <a class="code" href="a00035.html" title="OmmConsumerConfig is used to modify configuration and behaviour of OmmConsumer.">OmmConsumerConfig</a>&amp; username( <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; username );
-<a name="l00081"></a>00081 
-<a name="l00086"></a>00086     <a class="code" href="a00035.html" title="OmmConsumerConfig is used to modify configuration and behaviour of OmmConsumer.">OmmConsumerConfig</a>&amp; password( <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; password );
+<a name="l00076"></a>00076 <span class="keyword">class </span>OmmConsumerEvent;
+<a name="l00077"></a>00077 <span class="keyword">class </span>Msg;
+<a name="l00078"></a>00078 <span class="keyword">class </span>RefreshMsg;
+<a name="l00079"></a>00079 <span class="keyword">class </span>UpdateMsg;
+<a name="l00080"></a>00080 <span class="keyword">class </span>StatusMsg;
+<a name="l00081"></a>00081 <span class="keyword">class </span>GenericMsg;
+<a name="l00082"></a>00082 <span class="keyword">class </span>AckMsg;
+<a name="l00083"></a>00083 
+<a name="l00084"></a><a class="code" href="a00034.html">00084</a> <span class="keyword">class </span>EMA_ACCESS_API <a class="code" href="a00034.html" title="OmmConsumerClient class provides callback interfaces to pass received messages.">OmmConsumerClient</a>
+<a name="l00085"></a>00085 {
+<a name="l00086"></a>00086 <span class="keyword">public</span> :
 <a name="l00087"></a>00087 
-<a name="l00092"></a>00092     <a class="code" href="a00035.html" title="OmmConsumerConfig is used to modify configuration and behaviour of OmmConsumer.">OmmConsumerConfig</a>&amp; position( <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; position );
-<a name="l00093"></a>00093 
-<a name="l00099"></a>00099     <a class="code" href="a00035.html" title="OmmConsumerConfig is used to modify configuration and behaviour of OmmConsumer.">OmmConsumerConfig</a>&amp; applicationId( <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; applicationId );
-<a name="l00100"></a>00100 
-<a name="l00112"></a>00112     <a class="code" href="a00035.html" title="OmmConsumerConfig is used to modify configuration and behaviour of OmmConsumer.">OmmConsumerConfig</a>&amp; host( <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; host = <span class="stringliteral">&quot;localhost:14002&quot;</span> );
-<a name="l00113"></a>00113 
-<a name="l00119"></a>00119     <a class="code" href="a00035.html" title="OmmConsumerConfig is used to modify configuration and behaviour of OmmConsumer.">OmmConsumerConfig</a>&amp; operationModel( OperationModel operationModel = ApiDispatchEnum );
+<a name="l00089"></a>00089 
+<a name="l00090"></a>00090 
+<a name="l00096"></a><a class="code" href="a00034.html#ae33d2beb1da474af4035346dc00cc70b">00096</a>     <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="a00034.html#ae33d2beb1da474af4035346dc00cc70b">onRefreshMsg</a>( <span class="keyword">const</span> <a class="code" href="a00073.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a>&amp; refreshMsg, <span class="keyword">const</span> <a class="code" href="a00037.html" title="OmmConsumerEvent encapsulates item identifiers.">OmmConsumerEvent</a>&amp; consumerEvent ) {}
+<a name="l00097"></a>00097 
+<a name="l00104"></a><a class="code" href="a00034.html#a60e980bf7800212516f3d4124bc9736f">00104</a>     <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="a00034.html#a60e980bf7800212516f3d4124bc9736f">onUpdateMsg</a>( <span class="keyword">const</span> <a class="code" href="a00081.html" title="UpdateMsg conveys changes to item data.">UpdateMsg</a>&amp; updateMsg, <span class="keyword">const</span> <a class="code" href="a00037.html" title="OmmConsumerEvent encapsulates item identifiers.">OmmConsumerEvent</a>&amp; consumerEvent ) {}
+<a name="l00105"></a>00105 
+<a name="l00111"></a><a class="code" href="a00034.html#aa2294d598374ef190dc6af7fd1f4aa87">00111</a>     <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="a00034.html#aa2294d598374ef190dc6af7fd1f4aa87">onStatusMsg</a>( <span class="keyword">const</span> <a class="code" href="a00078.html" title="StatusMsg conveys item state information.">StatusMsg</a>&amp; statusMsg, <span class="keyword">const</span> <a class="code" href="a00037.html" title="OmmConsumerEvent encapsulates item identifiers.">OmmConsumerEvent</a>&amp; consumerEvent ) {}
+<a name="l00112"></a>00112 
+<a name="l00119"></a><a class="code" href="a00034.html#acb0ef5d9605f536f42cbbdc997b5fd13">00119</a>     <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="a00034.html#acb0ef5d9605f536f42cbbdc997b5fd13">onGenericMsg</a>( <span class="keyword">const</span> <a class="code" href="a00023.html" title="GenericMsg allows applications to bidirectionally send messages without any implied message semantics...">GenericMsg</a>&amp; genericMsg, <span class="keyword">const</span> <a class="code" href="a00037.html" title="OmmConsumerEvent encapsulates item identifiers.">OmmConsumerEvent</a>&amp; consumerEvent ) {}
 <a name="l00120"></a>00120 
-<a name="l00127"></a>00127     <a class="code" href="a00035.html" title="OmmConsumerConfig is used to modify configuration and behaviour of OmmConsumer.">OmmConsumerConfig</a>&amp; consumerName( <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; consumerName );
+<a name="l00127"></a><a class="code" href="a00034.html#a4c5f1cdc2120c70a3bed8f5cbe106253">00127</a>     <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="a00034.html#a4c5f1cdc2120c70a3bed8f5cbe106253">onAckMsg</a>( <span class="keyword">const</span> <a class="code" href="a00002.html" title="AckMsg indicates success or failure of PostMsg.">AckMsg</a>&amp; ackMsg, <span class="keyword">const</span> <a class="code" href="a00037.html" title="OmmConsumerEvent encapsulates item identifiers.">OmmConsumerEvent</a>&amp; consumerEvent ) {}
 <a name="l00128"></a>00128 
-<a name="l00133"></a>00133     <a class="code" href="a00035.html" title="OmmConsumerConfig is used to modify configuration and behaviour of OmmConsumer.">OmmConsumerConfig</a>&amp; config( <span class="keyword">const</span> <a class="code" href="a00011.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a>&amp; config );
-<a name="l00134"></a>00134 
-<a name="l00141"></a>00141     <a class="code" href="a00035.html" title="OmmConsumerConfig is used to modify configuration and behaviour of OmmConsumer.">OmmConsumerConfig</a>&amp; addAdminMsg( <span class="keyword">const</span> <a class="code" href="a00073.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a>&amp; reqMsg );
-<a name="l00143"></a>00143 
-<a name="l00144"></a>00144 <span class="keyword">private</span> :
-<a name="l00145"></a>00145 
-<a name="l00146"></a>00146     <span class="keyword">friend</span> <span class="keyword">class </span>OmmConsumerImpl;
-<a name="l00147"></a>00147 
-<a name="l00148"></a>00148     OmmConsumerConfigImpl* getConfigImpl() <span class="keyword">const</span>;
-<a name="l00149"></a>00149 
-<a name="l00150"></a>00150     OmmConsumerConfigImpl* _pImpl;
-<a name="l00151"></a>00151 
-<a name="l00152"></a>00152     <a class="code" href="a00035.html" title="OmmConsumerConfig is used to modify configuration and behaviour of OmmConsumer.">OmmConsumerConfig</a>( <span class="keyword">const</span> <a class="code" href="a00035.html" title="OmmConsumerConfig is used to modify configuration and behaviour of OmmConsumer.">OmmConsumerConfig</a>&amp; );
-<a name="l00153"></a>00153     <a class="code" href="a00035.html" title="OmmConsumerConfig is used to modify configuration and behaviour of OmmConsumer.">OmmConsumerConfig</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00035.html" title="OmmConsumerConfig is used to modify configuration and behaviour of OmmConsumer.">OmmConsumerConfig</a>&amp; );
-<a name="l00154"></a>00154 };
-<a name="l00155"></a>00155 
-<a name="l00156"></a>00156 }
-<a name="l00157"></a>00157 
-<a name="l00158"></a>00158 }
-<a name="l00159"></a>00159 
-<a name="l00160"></a>00160 }
-<a name="l00161"></a>00161 
-<a name="l00162"></a>00162 <span class="preprocessor">#endif // __thomsonreuters_ema_access_OmmConsumerConfig_h</span>
+<a name="l00135"></a><a class="code" href="a00034.html#a931b539abae335dc6769278ccdba1609">00135</a>     <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="a00034.html#a931b539abae335dc6769278ccdba1609">onAllMsg</a>( <span class="keyword">const</span> <a class="code" href="a00027.html" title="Msg class is a parent class for all message representing classes.">Msg</a>&amp; msg, <span class="keyword">const</span> <a class="code" href="a00037.html" title="OmmConsumerEvent encapsulates item identifiers.">OmmConsumerEvent</a>&amp; consumerEvent ) {}
+<a name="l00137"></a>00137 
+<a name="l00138"></a>00138 <span class="keyword">protected</span> :
+<a name="l00139"></a>00139 
+<a name="l00140"></a>00140     <a class="code" href="a00034.html" title="OmmConsumerClient class provides callback interfaces to pass received messages.">OmmConsumerClient</a>();
+<a name="l00141"></a>00141     <span class="keyword">virtual</span> ~<a class="code" href="a00034.html" title="OmmConsumerClient class provides callback interfaces to pass received messages.">OmmConsumerClient</a>();
+<a name="l00142"></a>00142 
+<a name="l00143"></a>00143 <span class="keyword">private</span> :
+<a name="l00144"></a>00144 
+<a name="l00145"></a>00145     <a class="code" href="a00034.html" title="OmmConsumerClient class provides callback interfaces to pass received messages.">OmmConsumerClient</a>( <span class="keyword">const</span> <a class="code" href="a00034.html" title="OmmConsumerClient class provides callback interfaces to pass received messages.">OmmConsumerClient</a>&amp; );
+<a name="l00146"></a>00146     <a class="code" href="a00034.html" title="OmmConsumerClient class provides callback interfaces to pass received messages.">OmmConsumerClient</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00034.html" title="OmmConsumerClient class provides callback interfaces to pass received messages.">OmmConsumerClient</a>&amp; );
+<a name="l00147"></a>00147 };
+<a name="l00148"></a>00148 
+<a name="l00149"></a>00149 }
+<a name="l00150"></a>00150 
+<a name="l00151"></a>00151 }
+<a name="l00152"></a>00152 
+<a name="l00153"></a>00153 }
+<a name="l00154"></a>00154 
+<a name="l00155"></a>00155 <span class="preprocessor">#endif // __thomsonreuters_ema_access_OmmConsumerClient_h</span>
 </pre></div></div><!-- contents -->
 
 <hr class="footer"/><address class="footer"><small>
@@ -204,7 +185,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Fri Aug 19 2016</td>
+			<td><p class="smallfont">Fri Dec 9 2016</td>
           </tr>
         </table>
         </td>

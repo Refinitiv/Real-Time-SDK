@@ -95,8 +95,29 @@
     <Document title="320__MarketPrice__Streaming__StatusClosed" href="EMAC_NIP_Readmes.2.13.html" />
     <Document title="340__Login__Streaming" href="EMAC_NIP_Readmes.2.14.html" />
     <Document title="360__MarketPrice__ConnectionRecovery" href="EMAC_NIP_Readmes.2.15.html" />
-    <Document title="EMA C++ Performance Tools Example" href="EMAC_PerfTools_Readmes.3.1.html" />
-    <Document title="EmaCppConsPerf" href="EMAC_PerfTools_Readmes.3.2.html" />
+    <Document title="EMA C++ Interactive Provider Examples" href="EMAC_IP_Readmes.3.01.html" />
+    <Document title="100 Series Examples" href="EMAC_IP_Readmes.3.02.html" />
+    <Document title="100__MarketPrice__Streaming" href="EMAC_IP_Readmes.3.03.html" />
+    <Document title="102__MarketPrice__Snapshot" href="EMAC_IP_Readmes.3.04.html" />
+    <Document title="130__MarketPrice__UserDispatch" href="EMAC_IP_Readmes.3.05.html" />
+    <Document title="140__MarketByOrder__Streaming" href="EMAC_IP_Readmes.3.06.html" />
+    <Document title="150__MarketByOrder__Snapshot" href="EMAC_IP_Readmes.3.07.html" />
+    <Document title="160__Login__AcceptDeny" href="EMAC_IP_Readmes.3.08.html" />
+    <Document title="200 Series Examples" href="EMAC_IP_Readmes.3.09.html" />
+    <Document title="200__MarketPrice__Streaming" href="EMAC_IP_Readmes.3.10.html" />
+    <Document title="210__MarketByPrice__Streaming" href="EMAC_IP_Readmes.3.11.html" />
+    <Document title="240__SourceDirectory__Fanout" href="EMAC_IP_Readmes.3.12.html" />
+    <Document title="250__GroupStatus__Fanout" href="EMAC_IP_Readmes.3.13.html" />
+    <Document title="260__Custom__NestedMsg" href="EMAC_IP_Readmes.3.14.html" />
+    <Document title="280__MarketPrice__Performance" href="EMAC_IP_Readmes.3.15.html" />
+    <Document title="300 Series Examples" href="EMAC_IP_Readmes.3.16.html" />
+    <Document title="300__MarketPrice__Close" href="EMAC_IP_Readmes.3.17.html" />
+    <Document title="301__MarketPrice__PriorityChange" href="EMAC_IP_Readmes.3.18.html" />
+    <Document title="320__Custom__GenericMsg" href="EMAC_IP_Readmes.3.19.html" />
+    <Document title="331__Directory__UserControl" href="EMAC_IP_Readmes.3.20.html" />
+    <Document title="380__MarketPrice__ConnectionLost" href="EMAC_IP_Readmes.3.21.html" />
+    <Document title="EMA C++ Performance Tools Example" href="EMAC_PerfTools_Readmes.4.1.html" />
+    <Document title="EmaCppConsPerf" href="EMAC_PerfTools_Readmes.4.2.html" />
   </DocumentInfo>
   <TopicMap />
 </WebWorksHelpBook>

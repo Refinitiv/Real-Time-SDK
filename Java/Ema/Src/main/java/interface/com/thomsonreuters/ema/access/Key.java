@@ -7,8 +7,6 @@
 
 package com.thomsonreuters.ema.access;
 
-import com.thomsonreuters.ema.access.DataType.DataTypes;
-
 /**
  * Key conveys MapEntry key information.
  * <p>Key contains objects of primitive type (e.g. they are not complex type).</p>

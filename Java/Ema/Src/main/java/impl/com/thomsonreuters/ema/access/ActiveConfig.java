@@ -9,6 +9,9 @@ package com.thomsonreuters.ema.access;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import com.thomsonreuters.ema.access.OmmConsumerConfig.OperationModel;
@@ -19,7 +22,48 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
 
-class ActiveConfig
+abstract class BaseConfig
+{
+	final static int DEFAULT_ITEM_COUNT_HINT					= 100000;
+	final static int DEFAULT_SERVICE_COUNT_HINT				    = 513;
+	final static int DEFAULT_MAX_DISPATCH_COUNT_API_THREAD		= 100;
+	final static int DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD	    = 100;
+	final static int DEFAULT_DISPATCH_TIMEOUT_API_THREAD		= 0;
+	final static int DEFAULT_USER_DISPATCH						= OperationModel.API_DISPATCH;
+	
+	BaseConfig()
+	{
+		itemCountHint = DEFAULT_ITEM_COUNT_HINT;
+		serviceCountHint = DEFAULT_SERVICE_COUNT_HINT;
+		dispatchTimeoutApiThread = DEFAULT_DISPATCH_TIMEOUT_API_THREAD;
+		maxDispatchCountApiThread = DEFAULT_MAX_DISPATCH_COUNT_API_THREAD;
+		maxDispatchCountUserThread = DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD;
+		userDispatch = DEFAULT_USER_DISPATCH;
+	}
+	
+	void clear()
+	{
+		itemCountHint = DEFAULT_ITEM_COUNT_HINT;
+		serviceCountHint = DEFAULT_SERVICE_COUNT_HINT;
+		dispatchTimeoutApiThread = DEFAULT_DISPATCH_TIMEOUT_API_THREAD;
+		maxDispatchCountApiThread = DEFAULT_MAX_DISPATCH_COUNT_API_THREAD;
+		maxDispatchCountUserThread = DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD;
+		userDispatch = DEFAULT_USER_DISPATCH;
+		configuredName = null;
+		instanceName = null;
+	}
+	
+	String					configuredName;
+	String      			instanceName;
+	int						itemCountHint;
+	int		    			serviceCountHint;
+	int						dispatchTimeoutApiThread;
+	int						maxDispatchCountApiThread;
+	int						maxDispatchCountUserThread;
+	int		    			userDispatch;
+}
+
+abstract class ActiveConfig extends BaseConfig
 {
 	final static int DEFAULT_COMPRESSION_THRESHOLD				= 30;
 	final static int DEFAULT_COMPRESSION_TYPE					= CompressionTypes.NONE;
@@ -27,7 +71,6 @@ class ActiveConfig
 	final static int DEFAULT_CONNECTION_PINGTIMEOUT				= 30000;
 	final static int DEFAULT_DICTIONARY_REQUEST_TIMEOUT			= 45000;
 	final static int DEFAULT_DIRECTORY_REQUEST_TIMEOUT			= 45000;
-	final static int DEFAULT_DISPATCH_TIMEOUT_API_THREAD		= 0;
 	final static int DEFAULT_GUARANTEED_OUTPUT_BUFFERS			= 100;
 	final static int DEFAULT_NUM_INPUT_BUFFERS					= 10;
 	final static int DEFAULT_SYS_SEND_BUFFER_SIZE				= 0;
@@ -38,10 +81,7 @@ class ActiveConfig
 	final static String DEFAULT_CHANNEL_SET_NAME				= ""; 
 	final static boolean DEFAULT_INCLUDE_DATE_IN_LOGGER_OUTPUT	= false;
 	final static String DEFAULT_INTERFACE_NAME					= "" ;
-	final static int DEFAULT_ITEM_COUNT_HINT					= 100000;
 	final static int DEFAULT_LOGIN_REQUEST_TIMEOUT              = 45000;
-	final static int DEFAULT_MAX_DISPATCH_COUNT_API_THREAD		= 100;
-	final static int DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD	    = 100;
 	final static int DEFAULT_MAX_OUTSTANDING_POSTS				= 100000;
 	final static boolean DEFAULT_MSGKEYINUPDATES				= true;
 	final static int DEFAULT_OBEY_OPEN_WINDOW					= 1;
@@ -52,7 +92,6 @@ class ActiveConfig
 	final static int DEFAULT_RECONNECT_MAX_DELAY				= 5000;
 	final static int DEFAULT_RECONNECT_MIN_DELAY				= 1000;
 	final static int DEFAULT_REQUEST_TIMEOUT					= 15000;
-	final static int DEFAULT_SERVICE_COUNT_HINT				    = 513;
 	final static String DEFAULT_OBJECT_NAME						= "";
 	final static boolean DEFAULT_TCP_NODELAY					= true;
 	final static String DEFAULT_CONS_MCAST_CFGSTRING			= "";
@@ -68,17 +107,9 @@ class ActiveConfig
 	final static int DEFAULT_TBCHOLD							= 3;
 	final static int DEFAULT_TPPHOLD							= 3;
 	final static int DEFAULT_USER_QLIMIT						= 65535;
-	final static int DEFAULT_USER_DISPATCH						= OperationModel.API_DISPATCH;
 	final static boolean DEFAULT_XML_TRACE_ENABLE				= false;
 	final static boolean DEFAULT_DIRECT_SOCKET_WRITE			= false;
 	
-	String					configuredName;
-	String      			instanceName;
-	int						itemCountHint;
-	int		    			serviceCountHint;
-	int						dispatchTimeoutApiThread;
-	int						maxDispatchCountApiThread;
-	int						maxDispatchCountUserThread;
 	int						obeyOpenWindow;
 	int						requestTimeout;
 	int						postAckTimeout;
@@ -86,9 +117,7 @@ class ActiveConfig
 	int						loginRequestTimeOut;
 	int						directoryRequestTimeOut;
 	int						dictionaryRequestTimeOut;
-	int		    			userDispatch;
 	List<ChannelConfig>		channelConfigSet;
-	DictionaryConfig		dictionaryConfig;
 	LoginRequest			rsslRDMLoginRequest;
 	DirectoryRequest		rsslDirectoryRequest;
 	DirectoryRefresh		rsslDirectoryRefresh;
@@ -96,16 +125,13 @@ class ActiveConfig
 	DictionaryRequest		rsslEnumDictRequest;
 	String 					fldDictReqServiceName;
 	String 					enumDictReqServiceName;
+	DictionaryConfig		dictionaryConfig;
 	static String		    defaultServiceName;
-	int						operationModel;
 	
 	ActiveConfig(String defaultServiceName)
 	{
-		 itemCountHint = DEFAULT_ITEM_COUNT_HINT;
-		 serviceCountHint = DEFAULT_SERVICE_COUNT_HINT;
-		 dispatchTimeoutApiThread = DEFAULT_DISPATCH_TIMEOUT_API_THREAD;
-		 maxDispatchCountApiThread = DEFAULT_MAX_DISPATCH_COUNT_API_THREAD;
-		 maxDispatchCountUserThread = DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD;
+		super();
+		
 		 obeyOpenWindow = DEFAULT_OBEY_OPEN_WINDOW;
 		 requestTimeout = DEFAULT_REQUEST_TIMEOUT;
 		 postAckTimeout = DEFAULT_POST_ACK_TIMEOUT;
@@ -120,25 +146,102 @@ class ActiveConfig
 
 	void clear()
 	{
-		configuredName = null;
-		instanceName = null;
-		itemCountHint = DEFAULT_ITEM_COUNT_HINT;
-		serviceCountHint = DEFAULT_SERVICE_COUNT_HINT;
-		dispatchTimeoutApiThread = DEFAULT_DISPATCH_TIMEOUT_API_THREAD;
-		maxDispatchCountApiThread = DEFAULT_MAX_DISPATCH_COUNT_API_THREAD;
-		maxDispatchCountUserThread = DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD;
+		super.clear();
+		
 		obeyOpenWindow = DEFAULT_OBEY_OPEN_WINDOW;
 		requestTimeout = DEFAULT_REQUEST_TIMEOUT;
 		postAckTimeout = DEFAULT_POST_ACK_TIMEOUT;
 		maxOutstandingPosts = DEFAULT_MAX_OUTSTANDING_POSTS;
 		userDispatch = DEFAULT_USER_DISPATCH;
-		
 		dictionaryConfig.clear();
 
 		rsslRDMLoginRequest = null;
 		rsslDirectoryRequest = null;
 		rsslFldDictRequest = null;
 		rsslEnumDictRequest = null;
+	}
+}
+
+abstract class ActiveServerConfig extends BaseConfig
+{
+	final static boolean DEFAULT_ACCEPT_MSG_WITHOUT_ACCEPTING_REQUESTS   = false;
+	final static boolean DEFAULT_ACCEPT_DIR_MSG_WITHOUT_MIN_FILTERS       = false;
+	final static boolean DEFAULT_ACCEPT_MSG_WITHOUT_BEING_LOGIN        = false;
+	final static boolean DEFAULT_ACCEPT_MSG_SAMEKEY_BUT_DIFF_STREAM            = false;
+	final static boolean DEFAULT_ACCEPT_MSG_THAT_CHANGES_SERVICE    = false;
+	final static boolean DEFAULT_ACCEPT_MSG_WITHOUT_QOS_IN_RANGE          = false;
+	final static int DEFAULT_CONNECTION_PINGTIMEOUT				  = 60000;
+	final static int DEFAULT_CONNECTION_MINPINGTIMEOUT            = 20000;
+	final static int DEFAULT_SERVER_SYS_SEND_BUFFER_SIZE		  = 65535;
+	final static int DEFAULT_SERVER_SYS_RECEIVE_BUFFER_SIZE		  = 65535;
+	
+	ServerConfig                           serverConfig;
+	static String                          defaultServiceName;
+	int                                    operationModel;
+	boolean                                acceptMessageWithoutAcceptingRequests;
+	boolean                                acceptDirMessageWithoutMinFilters;
+	boolean                                acceptMessageWithoutBeingLogin;
+	boolean                                acceptMessageSameKeyButDiffStream;
+	boolean                                acceptMessageThatChangesService;
+	boolean                                acceptMessageWithoutQosInRange;
+	
+	private LongObject							         serviceId = new LongObject();
+	private HashMap<LongObject, ServiceDictionaryConfig> serviceDictionaryConfigMap;
+
+	ActiveServerConfig(String defaultServiceName)
+	{
+		super();
+		ActiveServerConfig.defaultServiceName = defaultServiceName;
+		serviceDictionaryConfigMap = new HashMap<>();
+		
+		acceptMessageWithoutAcceptingRequests = DEFAULT_ACCEPT_MSG_WITHOUT_ACCEPTING_REQUESTS;
+		acceptDirMessageWithoutMinFilters = DEFAULT_ACCEPT_DIR_MSG_WITHOUT_MIN_FILTERS;
+		acceptMessageWithoutBeingLogin = DEFAULT_ACCEPT_MSG_WITHOUT_BEING_LOGIN;
+		acceptMessageSameKeyButDiffStream = DEFAULT_ACCEPT_MSG_SAMEKEY_BUT_DIFF_STREAM;
+		acceptMessageThatChangesService = DEFAULT_ACCEPT_MSG_THAT_CHANGES_SERVICE;
+		acceptMessageWithoutQosInRange = DEFAULT_ACCEPT_MSG_WITHOUT_QOS_IN_RANGE;
+	}
+	
+	void clear()
+	{
+		super.clear();
+		serviceDictionaryConfigMap.clear();
+	}
+	
+	abstract int dictionaryAdminControl();
+	abstract int directoryAdminControl();
+	
+	ServiceDictionaryConfig getServiceDictionaryConfig(int id)
+	{
+		return serviceDictionaryConfigMap.get(serviceId.value(id));
+	}
+	
+	void addServiceDictionaryConfig(int id, ServiceDictionaryConfig serviceDictionaryConfig)
+	{
+		serviceDictionaryConfigMap.put( new LongObject().value(id) , serviceDictionaryConfig);
+	}
+
+	void removeServiceDictionaryConfig(int id)
+	{
+		serviceDictionaryConfigMap.remove(serviceId.value(id));
+	}
+	
+	Collection<ServiceDictionaryConfig> getServiceDictionaryConfigCollection()
+	{
+		return serviceDictionaryConfigMap.values();
+	}
+	
+	void setServiceDictionaryConfigCollection(Collection<ServiceDictionaryConfig> serviceDictionaryConfigCollection)
+	{
+		Iterator<ServiceDictionaryConfig> iterator = serviceDictionaryConfigCollection.iterator();
+		
+		while(iterator.hasNext())
+		{
+			ServiceDictionaryConfig serviceDictionaryConfig = iterator.next();
+			
+			if( ( serviceDictionaryConfig.dictionaryProvidedList.size() != 0 ) || ( serviceDictionaryConfig.dictionaryUsedList.size() != 0 ) )
+			serviceDictionaryConfigMap.put( new LongObject().value(serviceDictionaryConfig.serviceId), serviceDictionaryConfig);
+		}
 	}
 }
 
@@ -193,6 +296,48 @@ class ChannelConfig
 	void reconnectMaxDelay(long value) { }
 }
 
+class ServerConfig
+{
+	String				name;
+	String				interfaceName;
+	boolean				xmlTraceEnable;
+	int					compressionType;
+	int					compressionThreshold;
+	int					rsslConnectionType;
+	int					connectionPingTimeout;
+	int					guaranteedOutputBuffers;
+	int					numInputBuffers;
+	int					sysRecvBufSize;
+	int					sysSendBufSize;
+	int 				highWaterMark;
+	int                connectionMinPingTimeout;
+	
+	ServerConfig()
+	{
+		clear();
+	}
+	
+	void clear()
+	{
+		interfaceName =  ActiveConfig.DEFAULT_INTERFACE_NAME;
+		compressionType = ActiveConfig.DEFAULT_COMPRESSION_TYPE;
+		compressionThreshold = ActiveConfig.DEFAULT_COMPRESSION_THRESHOLD;
+		guaranteedOutputBuffers = ActiveConfig.DEFAULT_GUARANTEED_OUTPUT_BUFFERS;
+		numInputBuffers = ActiveConfig.DEFAULT_NUM_INPUT_BUFFERS;
+		sysSendBufSize = ActiveServerConfig.DEFAULT_SERVER_SYS_SEND_BUFFER_SIZE;
+		sysRecvBufSize = ActiveServerConfig.DEFAULT_SERVER_SYS_RECEIVE_BUFFER_SIZE;
+		highWaterMark = ActiveConfig.DEFAULT_HIGH_WATER_MARK;
+		xmlTraceEnable = ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
+		rsslConnectionType = ActiveConfig.DEFAULT_CONNECTION_TYPE;
+		
+		connectionPingTimeout = ActiveServerConfig.DEFAULT_CONNECTION_PINGTIMEOUT;
+		connectionMinPingTimeout = ActiveServerConfig.DEFAULT_CONNECTION_MINPINGTIMEOUT;
+	}
+	
+	void guaranteedOutputBuffers(long value) { }
+	void numInputBuffers(long value) { }
+}
+
 class SocketChannelConfig extends ChannelConfig
 {
 	String				hostName;
@@ -216,6 +361,30 @@ class SocketChannelConfig extends ChannelConfig
 		tcpNodelay = ActiveConfig.DEFAULT_TCP_NODELAY;
 		directWrite = ActiveConfig.DEFAULT_DIRECT_SOCKET_WRITE;
 	}
+}
+
+class SocketServerConfig extends ServerConfig
+{
+	String serviceName;
+	boolean tcpNodelay;
+	boolean directWrite;
+	
+	SocketServerConfig()
+	{
+		clear();
+	}
+	
+	@Override
+	void clear() 
+	{
+		super.clear();
+		
+		rsslConnectionType = ConnectionTypes.SOCKET;	
+		serviceName = ActiveServerConfig.defaultServiceName;
+		tcpNodelay = ActiveConfig.DEFAULT_TCP_NODELAY;
+		directWrite = ActiveConfig.DEFAULT_DIRECT_SOCKET_WRITE;
+	}
+	
 }
 
 class ReliableMcastChannelConfig extends ChannelConfig
@@ -336,6 +505,8 @@ class DictionaryConfig
 	String		dictionaryName;
 	String		rdmfieldDictionaryFileName;
 	String		enumtypeDefFileName;
+	String		rdmFieldDictionaryItemName;
+	String		enumTypeDefItemName;
 	boolean     isLocalDictionary;
 
 	DictionaryConfig(boolean localDictionary)
@@ -348,5 +519,24 @@ class DictionaryConfig
 		dictionaryName = null;
 		rdmfieldDictionaryFileName = null;
 		enumtypeDefFileName = null;
+	}
+}
+
+class ServiceDictionaryConfig
+{
+	int						serviceId;
+	List<DictionaryConfig>	dictionaryUsedList;
+	List<DictionaryConfig>	dictionaryProvidedList;
+	
+	ServiceDictionaryConfig()
+	{
+		dictionaryUsedList = new ArrayList<>();
+		dictionaryProvidedList = new ArrayList<>();
+	}
+	
+	void clear()
+	{
+		dictionaryUsedList.clear();
+		dictionaryProvidedList.clear();
 	}
 }

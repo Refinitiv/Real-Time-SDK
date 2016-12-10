@@ -8,9 +8,7 @@
 package com.thomsonreuters.ema.access;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -20,8 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import com.thomsonreuters.ema.access.ConfigManager.ConfigAttributes;
 import com.thomsonreuters.ema.access.ConfigManager.ConfigElement;
-import com.thomsonreuters.ema.access.ConfigReader.XMLnode;
-import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.DirectoryServiceStore.ServiceIdInteger;
 import com.thomsonreuters.ema.access.OmmException.ExceptionType;
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
@@ -32,18 +28,9 @@ import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.EncodeIterator;
-import com.thomsonreuters.upa.codec.FilterEntryActions;
-import com.thomsonreuters.upa.codec.MapEntryActions;
-import com.thomsonreuters.upa.codec.Qos;
-import com.thomsonreuters.upa.codec.QosRates;
-import com.thomsonreuters.upa.codec.QosTimeliness;
 import com.thomsonreuters.upa.codec.RefreshMsgFlags;
-import com.thomsonreuters.upa.codec.UInt;
-import com.thomsonreuters.upa.transport.ConnectionTypes;
-import com.thomsonreuters.upa.transport.WriteFlags;
 import com.thomsonreuters.upa.transport.WritePriorities;
 import com.thomsonreuters.upa.valueadd.common.VaNode;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
@@ -51,28 +38,40 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEventTypes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 
-public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmProvider {
+class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmProvider {
 	
 	private OmmProviderErrorClient _providerErrorClient = null;
 	private OmmNiProviderActiveConfig _activeConfig = null;
 	private HashMap<Long, StreamInfo> _handleToStreamInfo = new HashMap<>();
 	private boolean _bIsStreamIdZeroRefreshSubmitted = false;
-	private DirectoryServiceStore directoryServiceStore = new DirectoryServiceStore(_objManager);
-	private DecodeIterator userStoreDecodeIt = null;
-	HashMap<String, UInt> _deletedServicesNameAndIdTable = new HashMap<>();
 	
+	private OmmNiProviderDirectoryStore _ommNiProviderDirectoryStore;
+    
 	OmmNiProviderImpl(OmmProviderConfig config)
 	{
 		super();
 		_activeConfig = new OmmNiProviderActiveConfig();
+		
+		_activeConfig.directoryAdminControl = ((OmmNiProviderConfigImpl)config).adminControlDirectory();
+		
+		_ommNiProviderDirectoryStore = new OmmNiProviderDirectoryStore(_objManager, this, _activeConfig);
+		
 		super.initialize(_activeConfig, (OmmNiProviderConfigImpl)config);
+		
+		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
 	}
 
 	OmmNiProviderImpl(OmmProviderConfig config, OmmProviderErrorClient client)
 	{
 		super();
 		_activeConfig = new OmmNiProviderActiveConfig();
+		
+		_activeConfig.directoryAdminControl = ((OmmNiProviderConfigImpl)config).adminControlDirectory();
+		
+		_ommNiProviderDirectoryStore = new OmmNiProviderDirectoryStore(_objManager, this, _activeConfig);
+		
 		super.initialize(_activeConfig, (OmmNiProviderConfigImpl)config);
+		
 		_providerErrorClient = client;
 		
 		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
@@ -186,15 +185,24 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 			{
 				userLock().unlock();
 				handleInvalidUsage(strBuilder().append("Attempt to submit RefreshMsg with SourceDirectory domain using container with wrong data type. Expected container data type is Map. Passed in is ")
-						.append(  DataType.asString(Utilities.toEmaDataType[refreshMsgImpl.payload().dataType()])).toString());
+						.append(DataType.asString(refreshMsgImpl.payload().dataType())).toString());
+				return;
 			}
 			
-			Buffer outputBuffer = CodecFactory.createBuffer();
-			
-			if ( !decodeSourceDirectory(refreshMsgImpl._rsslMsg, outputBuffer, strBuilder()) )
+			if ( !_ommNiProviderDirectoryStore.decodeSourceDirectory(refreshMsgImpl._rsslMsg, strBuilder() ) )
 			{
 				userLock().unlock();
 				handleInvalidUsage(_strBuilder.toString());
+				return;
+			}
+			
+			if ( !_ommNiProviderDirectoryStore.submitSourceDirectory(null, refreshMsgImpl._rsslMsg, strBuilder(), _activeConfig.recoverUserSubmitSourceDirectory) )
+			{
+				userLock().unlock();
+				StringBuilder text = new StringBuilder();
+				text.append("Attempt to submit invalid source directory domain message.").append(OmmLoggerClient.CR)
+				.append("Reason = ").append(_strBuilder);
+				handleInvalidUsage(text.toString());
 				return;
 			}
 			
@@ -258,7 +266,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 			{
 				String serviceName = refreshMsgImpl.serviceName();
 				
-				ServiceIdInteger serviceId = directoryServiceStore.serviceId(serviceName);
+				ServiceIdInteger serviceId = _ommNiProviderDirectoryStore.serviceId(serviceName);
 				
 				if ( serviceId == null )
 				{
@@ -280,7 +288,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 				streamInfo = (StreamInfo)_objManager._streamInfoPool.poll();
 		    	if (streamInfo == null)
 		    	{
-		    		streamInfo = new StreamInfo(channel.nextProviderStreamId(),serviceId.value());
+		    		streamInfo = new StreamInfo(channel.nextProviderStreamId(),serviceId.value(), refreshMsgImpl.domainType());
 		    		_objManager._streamInfoPool.updatePool(streamInfo);
 		    	}
 		    	else
@@ -298,7 +306,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 			else if ( refreshMsgImpl.hasServiceId())
 			{
 				int serviceId = refreshMsgImpl.serviceId();
-				String serviceName = directoryServiceStore.serviceName(serviceId);
+				String serviceName = _ommNiProviderDirectoryStore.serviceName(serviceId);
 				
 				if ( serviceName == null )
 				{
@@ -315,7 +323,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 				streamInfo = (StreamInfo)_objManager._streamInfoPool.poll();
 		    	if (streamInfo == null)
 		    	{
-		    		streamInfo = new StreamInfo(channel.nextProviderStreamId(),serviceId);
+					streamInfo = new StreamInfo(channel.nextProviderStreamId(), serviceId, refreshMsgImpl.domainType());
 		    		_objManager._streamInfoPool.updatePool(streamInfo);
 		    	}
 		    	else
@@ -418,16 +426,24 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 			{
 				userLock().unlock();
 				handleInvalidUsage(strBuilder().append("Attempt to submit UpdateMsg with SourceDirectory domain using container with wrong data type. Expected container data type is Map. Passed in is ")
-						.append(  DataType.asString(Utilities.toEmaDataType[updateMsgImpl.payload().dataType()])).toString());
+						.append(  DataType.asString(updateMsgImpl.payload().dataType())).toString());
 				return;
 			}
 			
-			Buffer outputBuffer = CodecFactory.createBuffer();
-			
-			if ( !decodeSourceDirectory(updateMsgImpl._rsslMsg, outputBuffer, strBuilder()) )
+			if ( !_ommNiProviderDirectoryStore.decodeSourceDirectory(updateMsgImpl._rsslMsg, strBuilder()) )
 			{
 				userLock().unlock();
 				handleInvalidUsage(_strBuilder.toString());
+				return;
+			}
+			
+			if ( !_ommNiProviderDirectoryStore.submitSourceDirectory( null, updateMsgImpl._rsslMsg, strBuilder(), _activeConfig.recoverUserSubmitSourceDirectory) )
+			{
+				userLock().unlock();
+				StringBuilder text = new StringBuilder();
+				text.append("Attempt to submit invalid source directory domain message.").append(OmmLoggerClient.CR)
+				.append("Reason = ").append(_strBuilder);
+				handleInvalidUsage(text.toString());
 				return;
 			}
 			
@@ -496,7 +512,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 			{
 				String serviceName = updateMsgImpl.serviceName();
 				
-				ServiceIdInteger serviceId = directoryServiceStore.serviceId(serviceName);
+				ServiceIdInteger serviceId = _ommNiProviderDirectoryStore.serviceId(serviceName);
 				
 				if ( serviceId == null )
 				{
@@ -514,7 +530,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 				streamInfo = (StreamInfo)_objManager._streamInfoPool.poll();
 		    	if (streamInfo == null)
 		    	{
-		    		streamInfo = new StreamInfo(channel.nextProviderStreamId(),serviceId.value());
+		    		streamInfo = new StreamInfo(channel.nextProviderStreamId(),serviceId.value(), updateMsgImpl.domainType());
 		    		_objManager._streamInfoPool.updatePool(streamInfo);
 		    	}
 		    	else
@@ -532,7 +548,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 			else if ( updateMsgImpl.hasServiceId())
 			{
 				int serviceId = updateMsgImpl.serviceId();
-				String serviceName = directoryServiceStore.serviceName(serviceId);
+				String serviceName = _ommNiProviderDirectoryStore.serviceName(serviceId);
 				
 				if ( serviceName == null )
 				{
@@ -546,7 +562,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 				streamInfo = (StreamInfo)_objManager._streamInfoPool.poll();
 		    	if (streamInfo == null)
 		    	{
-		    		streamInfo = new StreamInfo(channel.nextProviderStreamId(),serviceId);
+					streamInfo = new StreamInfo(channel.nextProviderStreamId(), serviceId, updateMsgImpl.domainType());
 		    		_objManager._streamInfoPool.updatePool(streamInfo);
 		    	}
 		    	else
@@ -636,12 +652,10 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 			{
 				userLock().unlock();
 				handleInvalidUsage(strBuilder().append("Attempt to submit StatusMsg with SourceDirectory domain using container with wrong data type. Expected container data type is Map. Passed in is ")
-						.append(  DataType.asString(Utilities.toEmaDataType[statusMsgImpl.payload().dataType()])).toString());
+						.append(DataType.asString(statusMsgImpl.payload().dataType())).toString());
 			}
 			
-			Buffer outputBuffer = CodecFactory.createBuffer();
-			
-			if ( !decodeSourceDirectory(statusMsgImpl._rsslMsg, outputBuffer, strBuilder()) )
+			if ( !_ommNiProviderDirectoryStore.decodeSourceDirectory(statusMsgImpl._rsslMsg, strBuilder()) )
 			{
 				userLock().unlock();
 				handleInvalidUsage(_strBuilder.toString());
@@ -713,7 +727,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 			{
 				String serviceName = statusMsgImpl.serviceName();
 				
-				ServiceIdInteger serviceId = directoryServiceStore.serviceId(serviceName);
+				ServiceIdInteger serviceId = _ommNiProviderDirectoryStore.serviceId(serviceName);
 				
 				if ( serviceId == null )
 				{
@@ -730,7 +744,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 				streamInfo = (StreamInfo)_objManager._streamInfoPool.poll();
 		    	if (streamInfo == null)
 		    	{
-		    		streamInfo = new StreamInfo(channel.nextProviderStreamId(),serviceId.value());
+		    		streamInfo = new StreamInfo(channel.nextProviderStreamId(),serviceId.value(),  statusMsgImpl.domainType());
 		    		_objManager._streamInfoPool.updatePool(streamInfo);
 		    	}
 		    	else
@@ -748,7 +762,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 			else if ( statusMsgImpl.hasServiceId())
 			{
 				int serviceId = statusMsgImpl.serviceId();
-				String serviceName = directoryServiceStore.serviceName(serviceId);
+				String serviceName = _ommNiProviderDirectoryStore.serviceName(serviceId);
 				
 				if ( serviceName == null )
 				{
@@ -762,7 +776,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 				streamInfo = (StreamInfo)_objManager._streamInfoPool.poll();
 		    	if (streamInfo == null)
 		    	{
-		    		streamInfo = new StreamInfo(channel.nextProviderStreamId(),serviceId);
+		    		streamInfo = new StreamInfo(channel.nextProviderStreamId(),serviceId, statusMsgImpl.domainType());
 		    		_objManager._streamInfoPool.updatePool(streamInfo);
 		    	}
 		    	else
@@ -854,6 +868,8 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 		if ( streamInfo != null )
 		{
 			((GenericMsgImpl)genericMsg).streamId(streamInfo.streamId());
+			if (((GenericMsgImpl) genericMsg)._rsslMsg.domainType() == 0)
+				((GenericMsgImpl) genericMsg)._rsslMsg.domainType(streamInfo.domainType());
 		}
 		else
 		{
@@ -912,7 +928,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 	}
 
 	@Override
-	String formatLogMessage(String clientName, String temp, int level) {
+	public String formatLogMessage(String clientName, String temp, int level) {
 		strBuilder().append("loggerMsg\n").append("    ClientName: ").append(clientName).append("\n")
         .append("    Severity: ").append(OmmLoggerClient.loggerSeverityAsString(level)).append("\n")
         .append("    Text:    ").append(temp).append("\n").append("loggerMsgEnd\n\n");
@@ -938,136 +954,8 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 		
 		_activeConfig.dictionaryConfig.rdmfieldDictionaryFileName = "RDMFieldDictionary";
 		_activeConfig.dictionaryConfig.enumtypeDefFileName = "enumtype.def";
-	
-		_activeConfig.directoryAdminControl = ((OmmNiProviderConfigImpl)config).adminControlDirectory();
 		
-		if ( _activeConfig.directoryAdminControl == OmmNiProviderConfig.AdminControl.API_CONTROL)
-		{
-			_activeConfig.directoryConfig.directoryName = ((OmmNiProviderConfigImpl)config).directoryName(_activeConfig.configuredName);
-			
-			if ( _activeConfig.directoryConfig.directoryName == null || _activeConfig.directoryConfig.directoryName.isEmpty() )
-				_activeConfig.directoryConfig.directoryName = (String)config.xmlConfig().getDefaultDirectoryName();
-			
-			if ( _activeConfig.directoryConfig.directoryName == null || _activeConfig.directoryConfig.directoryName.isEmpty() )
-				_activeConfig.directoryConfig.directoryName = (String)config.xmlConfig().getFirstDirectory();
-			
-			if ( _activeConfig.directoryConfig.directoryName == null || _activeConfig.directoryConfig.directoryName.isEmpty() )
-			{
-				config.errorTracker().append("no configuration exists for ni provider directory [")
-				.append(_activeConfig.instanceName).append("]. Will use directory defaults.").create(Severity.WARNING);
-				
-				useDefaultService(config);
-			}
-			else
-			{
-				XMLnode directoryNode = config.xmlConfig().getDirectory(_activeConfig.directoryConfig.directoryName);
-				
-				if (directoryNode != null)
-				{
-					int numberofservice = 0;
-					Set<String> serviceNameSet = new LinkedHashSet<>();
-					Set<Integer> serviceIdSet = new LinkedHashSet<>();
-					List<Service> unspecifiedIdList = new ArrayList<>();
-					boolean result = false;
-					Service service = null;
-					String serviceName = null;
-					
-					for(int i = 0; i < directoryNode.children().size() ; i++ )
-					{
-						XMLnode childNode = directoryNode.children().get(i);
-						
-						if( childNode != null && childNode.tagId() == ConfigManager.Service )
-						{	
-							if ( childNode.attributeList() != null )
-							{
-								serviceName = (String)childNode.attributeList().getValue(ConfigManager.ServiceName);
-							}
-							
-							if ( serviceName != null && !serviceName.isEmpty() )
-							{
-								if( serviceNameSet.contains(serviceName))
-								{
-									config.errorTracker().append("service[").append(serviceName)
-									.append("] is already specified by another service. Will drop this service.").create(Severity.ERROR);
-									continue;
-								}
-								
-								if ( ++numberofservice > ConfigManager.MAX_UINT16 )
-								{
-									config.errorTracker().append("Number of configured services is greater than allowed maximum(")
-									.append(ConfigManager.MAX_UINT16).append("). Some services will be dropped.").create(Severity.ERROR);
-									break;
-								}
-								
-								service = DirectoryMsgFactory.createService();
-								service.applyHasInfo();
-								service.info().action(FilterEntryActions.SET);
-								service.info().serviceName().data(serviceName);
-								
-								XMLnode infoFilterNode = childNode.getChild(ConfigManager.ServiceInfoFilter);
-								
-								if ( infoFilterNode != null)
-								{
-									result = readServiceInfoFilter(config, serviceIdSet, unspecifiedIdList, service, infoFilterNode);
-								}
-								
-								XMLnode stateFilterNode = childNode.getChild(ConfigManager.ServiceStateFilter);
-								
-								if (result && stateFilterNode != null)
-								{
-									result = readServiceStateFilter(config, service,stateFilterNode);
-								}
-								
-								if ( result )
-								{
-									serviceNameSet.add(serviceName);
-									directoryServiceStore.addToMap(service);
-									_activeConfig.directoryConfig.addService(service);
-								}
-							}
-						}
-					}
-					
-					if ( _activeConfig.directoryConfig.serviceList().size() == 0 )
-					{
-						config.errorTracker().append("specified ni provider directory [ [")
-						.append(_activeConfig.directoryConfig.directoryName).append("] contains no services. Will use directory defaults").create(Severity.WARNING);
-						
-						useDefaultService(config);
-					}
-					
-					if( unspecifiedIdList.size() > 0 )
-					{
-						int serviceId = 0;
-						
-						for(int index = 0; index < unspecifiedIdList.size(); ++index )
-						{
-							while(serviceIdSet.contains(serviceId))
-							{
-								++serviceId;
-							}
-							
-							if( serviceId > ConfigManager.MAX_UINT16 )
-							{
-								config.errorTracker().append("EMA ran out of assignable service ids. Will drop rest of the services").create(Severity.ERROR);
-								break;
-							}
-							
-							unspecifiedIdList.get(index).serviceId(serviceId);
-							serviceIdSet.add(serviceId);
-							serviceId++;
-						}
-					}
-				}
-				else
-				{
-					config.errorTracker().append("specified ni provider directory [ [")
-					.append(_activeConfig.directoryConfig.directoryName).append("] contains no services. Will use directory defaults").create(Severity.WARNING);
-					
-					useDefaultService(config);
-				}
-			}
-		}
+		_ommNiProviderDirectoryStore.loadConfigDirectory(config);
 		
 		ConfigAttributes niProviderAttributes = getAttributes(config);
 		
@@ -1102,444 +990,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 			}
 		}
 		
-		if ( _activeConfig.recoverUserSubmitSourceDirectory )
-		{
-			userStoreDecodeIt = CodecFactory.createDecodeIterator();
-		}
-		
 		// TODO: add handling for programmatic configuration
-	}
-	
-	boolean readServiceInfoFilter(EmaConfigImpl config, Set<Integer> serviceIdSet, List<Service> unspecifiedIdList, Service service, XMLnode infoFilterNode)
-	{
-		ConfigAttributes infoAttributes =  infoFilterNode.attributeList();
-		
-		ConfigElement element = (ConfigElement) infoAttributes.getElement(ConfigManager.ServiceInfoFilterServiceId);
-		
-		if (element != null)
-		{
-			int serviceId = element.intLongValue();
-			
-			if (serviceId > ConfigManager.MAX_UINT16)
-			{
-				config.errorTracker().append("service[").append(service.info().serviceName().toString())
-				.append("] specifies out of range ServiceId (value of ").append(serviceId)
-				.append("). Will drop this service.").create(Severity.ERROR);
-				return false;
-			}
-			
-			if (serviceIdSet.contains(serviceId))
-			{
-				config.errorTracker().append("service[").append(service.info().serviceName().toString())
-				.append("] specifies the same ServiceId (value of ").append(serviceId)
-				.append(") as already specified by another service. Will drop this service.").create(Severity.ERROR);
-				return false;
-			}
-			
-			service.serviceId(serviceId);
-			serviceIdSet.add(serviceId);
-		}
-		else
-		{
-			unspecifiedIdList.add(service);
-		}
-		
-		element = (ConfigElement) infoAttributes.getElement(ConfigManager.ServiceInfoFilterVendor);
-		
-		if (element != null)
-		{
-			service.info().applyHasVendor();
-			service.info().vendor().data(element.asciiValue());
-		}
-		
-		element = (ConfigElement) infoAttributes.getElement(ConfigManager.ServiceInfoFilterIsSource);
-		
-		if (element != null)
-		{			
-			 service.info().applyHasIsSource();
-		     service.info().isSource(element.intLongValue());
-		}
-		
-		element = (ConfigElement) infoAttributes.getElement(ConfigManager.ServiceInfoFilterSupportsQoSRange);
-		
-		if (element != null)
-		{
-			 service.info().applyHasSupportsQosRange();
-		     service.info().supportsQosRange(element.intLongValue());
-		}
-		
-		element = (ConfigElement) infoAttributes.getElement(ConfigManager.ServiceInfoFilterItemList);
-		
-		if (element != null)
-		{			
-			service.info().applyHasItemList();
-		    service.info().itemList().data(element.asciiValue());
-		}
-		
-		element = (ConfigElement) infoAttributes.getElement(ConfigManager.ServiceInfoFilterAcceptingConsumerStatus);
-		
-		if (element != null)
-		{
-		     service.info().applyHasAcceptingConsumerStatus();
-		     service.info().acceptingConsumerStatus(element.intLongValue());
-		}
-		
-		element = (ConfigElement) infoAttributes.getElement(ConfigManager.ServiceInfoFilterSupportsOutOfBandSnapshots);
-		
-		if (element != null)
-		{
-			service.info().applyHasSupportsOutOfBandSnapshots();
-	        service.info().supportsOutOfBandSnapshots(element.intLongValue());
-		}
-		
-		for(int i = 0; i < infoFilterNode.children().size() ; i++ )
-		{
-			XMLnode node = infoFilterNode.children().get(i);
-			
-			List<ConfigElement> configElementList;
-			
-			if ( node.tagId() == ConfigManager.ServiceInfoFilterCapabilities )
-			{
-				Integer domainTypeInt;
-				
-				configElementList =  node.attributeList().getConfigElementList(ConfigManager.ServiceInfoFilterCapabilitiesCapabilitiesEntry);
-				
-				for(int index = 0 ; index < configElementList.size(); ++index )
-				{
-					element = configElementList.get(index);
-					
-					if (element != null)
-					{
-						domainTypeInt = ConfigManager.convertDomainType(element.asciiValue());
-						
-						if ( domainTypeInt != null )
-						{
-							if ( domainTypeInt > ConfigManager.MAX_UINT16 )
-							{
-								config.errorTracker().append("specified service [")
-								.append(service.info().serviceName().toString()).append("] contains out of range capability = ")
-								.append(domainTypeInt).append(". Will drop this capability.").create(Severity.ERROR);
-								continue;
-							}
-							
-							service.info().capabilitiesList().add(domainTypeInt.longValue());
-						}
-						else
-						{
-							config.errorTracker().append("failed to read or convert a capability from the specified service [")
-							.append(service.info().serviceName().toString())
-							.append("]. Will drop this capability. Its value is = ").append(element.asciiValue()).create(Severity.ERROR);
-						}
-					}
-				}
-			}
-			
-		    readServiceInfoFilterDictionary(config, service, node, ConfigManager.ServiceInfoFilterDictionariesProvided, 
-		    		ConfigManager.ServiceInfoFilterDictionariesProvidedDictionariesProvidedEntry);
-		    
-		    readServiceInfoFilterDictionary(config, service, node, ConfigManager.ServiceInfoFilterDictionariesUsed, 
-		    		ConfigManager.ServiceInfoFilterDictionariesUsedDictionariesUsedEntry);
-		    
-		    if ( node.tagId() == ConfigManager.ServiceInfoFilterQoS )
-		    {
-		    	Long timeliness;
-		    	Long rate;
-		    
-		    	if ( node.children().size() == 0 )
-		    	{
-		    		config.errorTracker().append("no configuration QoSEntry exists for service QoS [")
-					.append(service.info().serviceName().toString())
-					.append("|InfoFilter|QoS]. Will use default QoS.").create(Severity.WARNING);
-		    		
-		    		Qos qos = CodecFactory.createQos();
-					Utilities.toRsslQos(OmmQos.Rate.TICK_BY_TICK, OmmQos.Timeliness.REALTIME, qos);
-					service.info().applyHasQos();
-					service.info().qosList().add(qos);
-		    	}
-		    	else
-		    	{
-			    	for(int index = 0; index < node.children().size() ; index++ )
-					{
-			    		timeliness = new Long(OmmQos.Timeliness.REALTIME);
-				    	rate = new Long(OmmQos.Rate.TICK_BY_TICK);
-			    		
-						XMLnode childNode = node.children().get(index);
-						
-						ConfigAttributes qosAttributes = childNode.attributeList();
-						
-						element = (ConfigElement) qosAttributes.getElement(ConfigManager.ServiceInfoFilterQoSEntryTimeliness);
-						
-						if (element != null)
-						{
-							timeliness = ConfigManager.convertQosTimeliness(element.asciiValue());
-							
-							if( timeliness == null )
-							{
-								config.errorTracker().append("failed to read or convert a QoS Timeliness from the specified service [")
-								.append(service.info().serviceName().toString())
-								.append("|InfoFilter|QoS|QoSEntry|Timeliness]. Will use default Timeliness.")
-								.append(" Suspect Timeliness value is ").append(element.asciiValue()).create(Severity.WARNING);
-								
-								timeliness = new Long(OmmQos.Timeliness.REALTIME);
-							}
-							else if ( timeliness > Integer.MAX_VALUE )
-							{
-								config.errorTracker().append("specified service QoS::Timeliness [")
-								.append(service.info().serviceName().toString())
-								.append("|InfoFilter|QoS|QoSEntry|Timeliness] is greater than allowed maximum. Will use maximum Timeliness.")
-								.append(" Suspect Timeliness value is ").append(element.asciiValue()).create(Severity.WARNING);
-								
-								timeliness = new Long(OmmQos.Timeliness.INEXACT_DELAYED);
-							}
-						}
-						else
-						{
-							config.errorTracker().append("no configuration exists for service QoS Timeliness [")
-							.append(service.info().serviceName().toString())
-							.append("|InfoFilter|QoS|QoSEntry|Timeliness]. Will use default Timeliness.").create(Severity.WARNING);
-						}
-						
-						element = (ConfigElement) qosAttributes.getElement(ConfigManager.ServiceInfoFilterQoSEntryRate);
-						
-						if (element != null)
-						{
-							rate = ConfigManager.convertQosRate(element.asciiValue());
-							
-							if( rate == null )
-							{
-								config.errorTracker().append("failed to read or convert a QoS Rate from the specified service [")
-								.append(service.info().serviceName().toString())
-								.append("|InfoFilter|QoS|QoSEntry|Rate]. Will use default Rate.")
-								.append(" Suspect Rate value is ").append(element.asciiValue()).create(Severity.WARNING);
-								
-								rate = new Long(OmmQos.Rate.TICK_BY_TICK);
-							}
-							else if ( rate > Integer.MAX_VALUE )
-							{
-								config.errorTracker().append("specified service QoS::Rate [")
-								.append(service.info().serviceName().toString())
-								.append("|InfoFilter|QoS|QoSEntry|Rate] is greater than allowed maximum. Will use maximum Rate.")
-								.append(" Suspect Rate value is ").append(element.asciiValue()).create(Severity.WARNING);
-								
-								rate = new Long(OmmQos.Rate.JUST_IN_TIME_CONFLATED);
-							}
-						}
-						else
-						{
-							config.errorTracker().append("no configuration exists for service QoS Rate [")
-							.append(service.info().serviceName().toString())
-							.append("|InfoFilter|QoS|QoSEntry|Timeliness]. Will use default Rate").create(Severity.WARNING);
-						}
-						
-						Qos qos = CodecFactory.createQos();
-						Utilities.toRsslQos(rate.intValue(), timeliness.intValue(), qos);
-						service.info().applyHasQos();
-						service.info().qosList().add(qos);
-					}
-		    	}
-		    }
-		}
-		
-		if ( service.info().capabilitiesList().size() == 0 )
-		{
-			config.errorTracker().append("specified service [")
-			.append(service.info().serviceName().toString())
-			.append("] contains no capabilities. Will drop this service.").create(Severity.ERROR);
-			return false;
-		}
-		
-		return true;
-	}
-	
-	void readServiceInfoFilterDictionary(EmaConfigImpl config, Service service, XMLnode node, int nodeId, int entryId)
-	{
-		String dictionaryName = null;
-		List<ConfigElement> configElementList;
-		ConfigElement element;
-		String rdmEnumTypeItemName;
-		String rdmFieldDictItemName;
-		
-		if ( node.tagId() == nodeId )
-		{
-			configElementList =  node.attributeList().getConfigElementList(entryId);
-			
-			for(int index = 0 ; index < configElementList.size(); ++index )
-			{
-				dictionaryName = configElementList.get(index).asciiValue();
-				
-				ConfigAttributes dictionaryAttributes = config.xmlConfig().getDictionaryAttributes(dictionaryName);
-				
-				if ( dictionaryAttributes != null)
-				{
-					element = (ConfigElement) dictionaryAttributes.getElement(ConfigManager.DictionaryEnumTypeDefItemName);
-					
-					if ( element == null || ( rdmEnumTypeItemName = element.asciiValue()).isEmpty() )
-					{
-						rdmEnumTypeItemName = DictionaryCallbackClient.DICTIONARY_RWFENUM;
-						
-						config.errorTracker().append("no configuration exists or unspecified name for EnumTypeDefItemName in dictionary [")
-						.append(dictionaryName).append("]. Will use default value of ").append(rdmEnumTypeItemName)
-						.create(Severity.WARNING);
-					}
-		
-					element = (ConfigElement) dictionaryAttributes.getElement(ConfigManager.DictionaryRdmFieldDictionaryItemName);
-					
-					if ( element == null || ( rdmFieldDictItemName = element.asciiValue()).isEmpty() )
-					{
-						rdmFieldDictItemName = DictionaryCallbackClient.DICTIONARY_RWFFID;
-						
-						config.errorTracker().append("no configuration exists or unspecified name for RdmFieldDictionaryItemName in dictionary [")
-						.append(dictionaryName).append("]. Will use default value of ").append(rdmFieldDictItemName)
-						.create(Severity.WARNING);
-					}
-				}
-				else
-				{
-					config.errorTracker().append("no configuration exists for dictionary [")
-					.append(dictionaryName).append("]. Will use dictionary defaults").create(Severity.WARNING);
-					
-					rdmEnumTypeItemName = DictionaryCallbackClient.DICTIONARY_RWFENUM;
-					rdmFieldDictItemName = DictionaryCallbackClient.DICTIONARY_RWFFID;
-				}
-				
-
-				if ( nodeId == ConfigManager.ServiceInfoFilterDictionariesProvided )
-				{
-					service.info().applyHasDictionariesProvided();
-					service.info().dictionariesProvidedList().add(rdmEnumTypeItemName);
-					service.info().dictionariesProvidedList().add(rdmFieldDictItemName);
-				}
-				else if ( nodeId == ConfigManager.ServiceInfoFilterDictionariesUsed )
-				{
-					service.info().applyHasDictionariesUsed();
-					service.info().dictionariesUsedList().add(rdmEnumTypeItemName);
-					service.info().dictionariesUsedList().add(rdmFieldDictItemName);
-				}
-			}
-		}
-	}
-	
-	boolean readServiceStateFilter(EmaConfigImpl config, Service service, XMLnode stateFilterNode)
-	{
-		ConfigAttributes stateAttributes =  stateFilterNode.attributeList();
-		
-		ConfigElement element = (ConfigElement) stateAttributes.getElement(ConfigManager.ServiceStateFilterServiceState);
-		
-		if (element != null)
-		{
-			service.applyHasState();
-		    service.state().action(FilterEntryActions.SET);
-			service.state().serviceState(element.intLongValue());
-		}
-		
-		element = (ConfigElement) stateAttributes.getElement(ConfigManager.ServiceStateFilterAcceptingRequests);
-		
-		if (element != null)
-		{
-			service.state().applyHasAcceptingRequests();
-			service.state().acceptingRequests(element.intLongValue());
-		}
-		
-		for(int j = 0; j < stateFilterNode.children().size() ; j++ )
-		{
-			XMLnode node = stateFilterNode.children().get(j);
-			
-			ConfigAttributes statusAttributes =  node.attributeList();
-			
-			element = (ConfigElement) statusAttributes.getElement(ConfigManager.ServiceStateFilterStatusStreamState);
-			
-			if (element != null)
-			{			
-				service.state().applyHasStatus();
-	            service.state().status().streamState(element.intValue());
-			}
-			
-			element = (ConfigElement) statusAttributes.getElement(ConfigManager.ServiceStateFilterStatusDataState);
-			
-			if (element != null)
-			{
-				service.state().applyHasStatus();
-				service.state().status().dataState(element.intValue());
-			}
-			
-			element = (ConfigElement) statusAttributes.getElement(ConfigManager.ServiceStateFilterStatusStatusCode);
-			
-			if (element != null)
-			{
-				service.state().applyHasStatus();
-	            service.state().status().code(element.intValue());
-			}
-			
-			element = (ConfigElement) statusAttributes.getElement(ConfigManager.ServiceStateFilterStatusStatusText);
-			
-			if (element != null)
-			{			
-				service.state().applyHasStatus();
-	            service.state().status().text().data(element.asciiValue());
-			}
-		}
-		
-		return true;
-	}
-	
-	void useDefaultService(EmaConfigImpl config)
-	{		
-		Service service = DirectoryMsgFactory.createService();
-		populateDefaultService(service);
-		directoryServiceStore.addToMap(service);
-		_activeConfig.directoryConfig.addService(service);
-	}
-	
-	void populateDefaultService(Service service)
-	{
-		service.clear();
-	    service.action(MapEntryActions.ADD);
-		service.serviceId(OmmNiProviderActiveConfig.DEFAULT_SERVICE_ID);
-		
-		service.applyHasInfo();
-		service.info().action(FilterEntryActions.SET);
-
-		service.info().applyHasVendor();
-		service.info().vendor().data("");
-		
-		service.info().serviceName().data(OmmNiProviderActiveConfig.DEFAULT_SERVICE_NAME);
-
-        service.info().applyHasSupportsQosRange();
-        service.info().supportsQosRange(OmmNiProviderActiveConfig.DEFAULT_SERVICE_SUPPORTS_QOS_RANGE);
-      
-        service.info().capabilitiesList().add((long)com.thomsonreuters.ema.rdm.EmaRdm.MMT_MARKET_PRICE);
-        service.info().capabilitiesList().add((long)com.thomsonreuters.ema.rdm.EmaRdm.MMT_MARKET_BY_ORDER);
-        service.info().capabilitiesList().add((long)com.thomsonreuters.ema.rdm.EmaRdm.MMT_MARKET_BY_PRICE);
-        service.info().capabilitiesList().add((long)com.thomsonreuters.ema.rdm.EmaRdm.MMT_MARKET_MAKER);
-
-        service.info().applyHasQos();
-        Qos qos = CodecFactory.createQos();
-        qos.rate(QosRates.TICK_BY_TICK);
-        qos.timeliness(QosTimeliness.REALTIME);
-        service.info().qosList().add(qos);
-
-        service.info().applyHasDictionariesUsed();
-        service.info().dictionariesUsedList().add(DictionaryCallbackClient.DICTIONARY_RWFFID);
-        service.info().dictionariesUsedList().add(DictionaryCallbackClient.DICTIONARY_RWFENUM);
-
-        service.info().applyHasIsSource();
-        service.info().isSource(OmmNiProviderActiveConfig.DEFAULT_SERVICE_IS_SOURCE);
-        
-        service.info().applyHasItemList();
-        service.info().itemList().data("");
-
-        service.info().applyHasAcceptingConsumerStatus();
-        service.info().acceptingConsumerStatus(OmmNiProviderActiveConfig.DEFAULT_SERVICE_ACCEPTING_CONSUMER_SERVICE);
-        
-        service.info().applyHasSupportsOutOfBandSnapshots();
-        service.info().supportsOutOfBandSnapshots(OmmNiProviderActiveConfig.DEFAULT_SERVICE_SUPPORTS_OUT_OF_BAND_SNAPSHATS);
-  
-        service.applyHasState();
-        service.state().action(FilterEntryActions.SET);
-        service.state().serviceState(OmmNiProviderActiveConfig.DEFAULT_SERVICE_STATE);
-        
-        service.state().applyHasAcceptingRequests();
-        service.state().acceptingRequests(OmmNiProviderActiveConfig.DEFAULT_ACCEPTING_REQUESTS);
 	}
 
 	@Override
@@ -1570,7 +1021,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 		
 		_handleToStreamInfo.clear();
 		
-		directoryServiceStore.clearMap();
+		_ommNiProviderDirectoryStore.clearMap();
 	}
 
 	@Override
@@ -1602,7 +1053,10 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 		_channelCallbackClient = new ChannelCallbackClient<>(this,_rsslReactor);
 		
 		if ( _activeConfig.directoryAdminControl == OmmNiProviderConfig.AdminControl.API_CONTROL)
-			_channelCallbackClient.initializeNiProviderRole(_loginCallbackClient.rsslLoginRequest(), _activeConfig.directoryConfig.getDirectoryRefresh());
+		{
+			_channelCallbackClient.initializeNiProviderRole(_loginCallbackClient.rsslLoginRequest(), 
+					DirectoryServiceStore.getDirectoryRefreshMsg(_ommNiProviderDirectoryStore.getApiControlDirectory(), true ));
+		}
 		else
 		{
 			if (loggerClient().isTraceEnabled())
@@ -1617,7 +1071,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 	}
 
 	@Override
-	void handleInvalidUsage(String text)
+	public void handleInvalidUsage(String text)
 	{
 		if ( hasErrorClient() )
 			_providerErrorClient.onInvalidUsage(text);
@@ -1627,993 +1081,12 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 	}
 
 	@Override
-	void handleInvalidHandle(long handle, String text)
+	public void handleInvalidHandle(long handle, String text)
 	{	
 		if ( hasErrorClient() )
 			_providerErrorClient.onInvalidHandle(handle, text);
 		else
 			throw (ommIHExcept().message(text, handle));
-	}
-	
-	boolean decodeSourceDirectory(com.thomsonreuters.upa.codec.Msg rsslMsg, Buffer outputBuffer, StringBuilder errorText)
-	{
-		int retCode = CodecReturnCodes.SUCCESS;
-		DecodeIterator decodeIt = CodecFactory.createDecodeIterator();
-		decodeIt.clear();
-		
-		Buffer inputBuffer = rsslMsg.encodedDataBody();
-		
-		retCode = decodeIt.setBufferAndRWFVersion(inputBuffer, Codec.majorVersion(), Codec.minorVersion());
-		
-		if( retCode !=  CodecReturnCodes.SUCCESS )
-		{
-			errorText.append("Internal error. Failed to set decode iterator buffer and version in OmmNiProviderImpl.decodeSourceDirectory(). Reason = ")
-			.append( CodecReturnCodes.toString(retCode) ).append(".");
-			return false;
-		}
-		
-		com.thomsonreuters.upa.codec.Map map = CodecFactory.createMap();
-		map.clear();
-		
-		if ( loggerClient().isTraceEnabled() )
-		{
-			loggerClient().trace( formatLogMessage(_activeConfig.instanceName, "Begin decoding of SourceDirectory.", Severity.TRACE) );
-		}
-		
-		retCode = map.decode(decodeIt);
-		
-		if( retCode <  CodecReturnCodes.SUCCESS )
-		{
-			errorText.append("Internal error. Failed to decode Map in OmmNiProviderImpl.decodeSourceDirectory(). Reason = ")
-			.append( CodecReturnCodes.toString(retCode) ).append(".");
-			return false;
-		}
-		else if ( retCode == CodecReturnCodes.NO_DATA )
-		{
-			if ( loggerClient().isWarnEnabled() )
-			{
-				loggerClient().warn( formatLogMessage(_activeConfig.instanceName, "Passed in SourceDirectory map contains no entries"
-						+ " (e.g. there is no service specified).", Severity.WARNING) );
-			}
-			
-			if ( loggerClient().isTraceEnabled() )
-			{
-				loggerClient().trace( formatLogMessage(_activeConfig.instanceName, "End decoding of SourceDirectory.", Severity.TRACE) );
-			}
-			
-			return true;
-		}
-		
-		switch( map.keyPrimitiveType())
-		{
-		case com.thomsonreuters.upa.codec.DataTypes.UINT:
-			if( !decodeSourceDirectoryKeyUInt(map, decodeIt, errorText) )
-				return false;
-			break;
-		case com.thomsonreuters.upa.codec.DataTypes.ASCII_STRING:
-		{
-			errorText.append("Attempt to specify SourceDirectory info with a Map using key DataType of ")
-			.append( DataType.asString(Utilities.toEmaDataType[map.keyPrimitiveType()]))
-			.append(" while the expected key DataType is ")
-			.append( DataType.asString(DataType.DataTypes.UINT));
-			
-			if ( loggerClient().isErrorEnabled() )
-			{
-				loggerClient().error( formatLogMessage(_activeConfig.instanceName, errorText.toString(), Severity.ERROR) );
-			}
-			
-			return false;
-		}
-		default:
-			errorText.append("Attempt to specify SourceDirectory info with a Map using key DataType of  ")
-			.append( DataType.asString(Utilities.toEmaDataType[map.keyPrimitiveType()]))
-			.append(" while the expected key DataType is ")
-			.append( DataType.asString(DataType.DataTypes.UINT) + " or " + DataType.asString(DataType.DataTypes.ASCII) );
-			return false;
-		}
-		
-		if ( loggerClient().isTraceEnabled() )
-		{
-			loggerClient().trace( formatLogMessage(_activeConfig.instanceName, "End decoding of SourceDirectory.", Severity.TRACE) );
-		}
-		
-		return true;
-	}
-	
-	boolean decodeSourceDirectoryKeyUInt(com.thomsonreuters.upa.codec.Map map, DecodeIterator decodeIt, StringBuilder errorText)
-	{
-		int retCode = CodecReturnCodes.SUCCESS;
-		com.thomsonreuters.upa.codec.UInt serviceId = CodecFactory.createUInt();
-		com.thomsonreuters.upa.codec.MapEntry mapEntry = CodecFactory.createMapEntry();
-		StringBuilder text = new StringBuilder();
-		com.thomsonreuters.upa.codec.FilterList filterList = CodecFactory.createFilterList();
-		com.thomsonreuters.upa.codec.FilterEntry filterEntry = CodecFactory.createFilterEntry();
-		com.thomsonreuters.upa.codec.ElementList elementList = CodecFactory.createElementList();
-		com.thomsonreuters.upa.codec.ElementEntry elementEntry = CodecFactory.createElementEntry();
-		Service service = null;
-		
-		while ( ( retCode = mapEntry.decode(decodeIt, serviceId) ) != CodecReturnCodes.END_OF_CONTAINER )
-		{
-			if ( retCode != CodecReturnCodes.SUCCESS )
-			{
-				errorText.append( "Internal error: Failed to Decode Map Entry. Reason = " )
-				.append( CodecReturnCodes.toString(retCode) ).append(".");
-				return false;
-			}
-			
-			text.setLength(0);
-			text.append( "Begin decoding of Service with id of " );
-			text.append( serviceId ).append(". Action= ");
-			switch ( mapEntry.action() )
-			{
-			case com.thomsonreuters.upa.codec.MapEntryActions.UPDATE:
-				text.append("Upate");
-				break;
-			case com.thomsonreuters.upa.codec.MapEntryActions.ADD:
-				text.append("Add");
-				break;
-			case com.thomsonreuters.upa.codec.MapEntryActions.DELETE:
-				text.append("Delete");
-				break;
-			}
-			
-			if ( loggerClient().isTraceEnabled() )
-			{
-				loggerClient().trace( formatLogMessage(_activeConfig.instanceName, text.toString(), Severity.TRACE) );
-			}
-			
-			if ( mapEntry.action() == com.thomsonreuters.upa.codec.MapEntryActions.DELETE )
-			{
-				String serviceName = directoryServiceStore.serviceName(serviceId.toBigInteger().intValue());
-				
-				if ( serviceName != null )
-				{
-					directoryServiceStore.remove(serviceId.toBigInteger().intValue());
-				}
-				
-				text.setLength(0);
-				text.append("End decoding of Service with id of ").append(serviceId);
-				if ( loggerClient().isTraceEnabled() )
-				{
-					loggerClient().trace( formatLogMessage(_activeConfig.instanceName, text.toString(), Severity.TRACE) );
-				}
-				
-				continue;
-			}
-			else if ( mapEntry.action() == com.thomsonreuters.upa.codec.MapEntryActions.ADD )
-			{
-				String serviceName = directoryServiceStore.serviceName(serviceId.toBigInteger().intValue());
-				
-				if ( serviceName != null )
-				{
-					errorText.append("Attempt to add a service with name of ");
-					errorText.append( serviceName ).append( " and id of ").append( serviceId ).append( " while a service with the same id is already added." );
-					return false;
-				}
-			}
-			
-			if( map.containerType() != com.thomsonreuters.upa.codec.DataTypes.FILTER_LIST )
-			{
-				errorText.append( "Attempt to specify Service with a container of " )
-				.append(DataType.asString(Utilities.toEmaDataType[map.containerType()]))
-				.append("  rather than the expected  ").append( DataType.asString(DataTypes.FILTER_LIST));
-				return false;
-			}
-			
-			if ( _activeConfig.recoverUserSubmitSourceDirectory )
-			{
-				if ( service == null )
-				{
-					service = DirectoryMsgFactory.createService();
-				}
-				else
-				{
-					service.clear();
-				}
-				
-				service.serviceId(serviceId.toBigInteger().intValue());
-			}
-			
-			filterList.clear();
-			filterEntry.clear();
-			
-			retCode = filterList.decode(decodeIt);
-			
-			if ( retCode < CodecReturnCodes.SUCCESS )
-			{
-				errorText.append("Internal error: Failed to Decode FilterList. Reason")
-				.append( CodecReturnCodes.toString(retCode) ).append(".");
-				return false;
-			}
-			else if ( retCode == CodecReturnCodes.NO_DATA )
-			{
-				text.setLength(0);
-				text.append("Service with id of ").append(serviceId)
-				.append(" contains no FilterEntries. Skipping this service.");
-				
-				if ( loggerClient().isWarnEnabled() )
-				{
-					loggerClient().trace( formatLogMessage(_activeConfig.instanceName, text.toString(), Severity.WARNING) );
-				}
-				
-				text.setLength(0);
-				text.append("End decoding of Service with id of ").append(serviceId);
-				
-				if ( loggerClient().isTraceEnabled() )
-				{
-					loggerClient().trace( formatLogMessage(_activeConfig.instanceName, text.toString(), Severity.TRACE) );
-				}
-				
-				continue;
-			}
-			
-			while ( ( retCode = filterEntry.decode(decodeIt) ) != CodecReturnCodes.END_OF_CONTAINER )
-			{	
-				if ( retCode < CodecReturnCodes.SUCCESS )
-				{
-					errorText.append("Internal error: Failed to Decode Filter Entry. Reason = ");
-					errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
-					return false;
-				}
-				
-				text.setLength(0);
-				text.append("Begin decoding of FilterEntry with id of ").append(filterEntry.id());
-				
-				if ( loggerClient().isTraceEnabled() )
-				{
-					loggerClient().trace( formatLogMessage(_activeConfig.instanceName, text.toString(), Severity.TRACE) );
-				}
-				
-				if ( filterEntry.id() == com.thomsonreuters.upa.rdm.Directory.ServiceFilterIds.INFO )
-				{
-					if( mapEntry.action() == com.thomsonreuters.upa.codec.MapEntryActions.UPDATE )
-					{
-						errorText.append("Attempt to update Infofilter of service with id of ").append(serviceId)
-						.append("  while this is not allowed.");
-						return false;
-					}
-					
-					if ( filterEntry.checkHasContainerType() && ( filterEntry.containerType() != com.thomsonreuters.upa.codec.DataTypes.ELEMENT_LIST )
-							&& filterList.containerType() != com.thomsonreuters.upa.codec.DataTypes.ELEMENT_LIST )
-					{
-						int containerType = filterEntry.checkHasContainerType() ? filterEntry.containerType() : filterList.containerType();
-						errorText.append("Attempt to specify Service InfoFilter with a container of ");
-						errorText.append(DataType.asString(Utilities.toEmaDataType[containerType]));
-						errorText.append(" rather than the expected ").append(DataType.asString(DataTypes.ELEMENT_LIST));
-						return false;
-					}
-					
-					if ( _activeConfig.recoverUserSubmitSourceDirectory )
-					{
-						userStoreDecodeIt.clear();
-						retCode = userStoreDecodeIt.setBufferAndRWFVersion(filterEntry.encodedData(), Codec.majorVersion(), Codec.minorVersion());
-						
-						if (  ( retCode < CodecReturnCodes.SUCCESS ) || ( ( retCode = service.info().decode(userStoreDecodeIt) ) < CodecReturnCodes.SUCCESS ) ) 
-						{
-							errorText.append("Internal error: Failed to decode ServiceInfo. Reason = ");
-							errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
-							return false;
-						}
-						service.applyHasInfo();
-					}
-					
-					elementList.clear();
-					elementEntry.clear();
-					
-					if ( ( retCode = elementList.decode(decodeIt, null) ) < CodecReturnCodes.SUCCESS )
-					{
-						errorText.append("Internal error: Failed to Decode Element List. Reason = ");
-						errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
-						return false;
-					}
-					
-					boolean bServiceNameEntryFound = false;
-					
-					while ( ( retCode = elementEntry.decode(decodeIt)) != CodecReturnCodes.END_OF_CONTAINER )
-					{
-						if ( retCode < CodecReturnCodes.SUCCESS )
-						{
-							errorText.append("Internal error: Failed to Decode ElementEntry. Reason = ");
-							errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
-							return false;
-						}
-						
-						text.setLength(0);
-						text.append("Decoding of ElementEntry with name of ");
-						text.append(elementEntry.name().toString());
-						
-						if ( loggerClient().isTraceEnabled() )
-						{
-							loggerClient().trace( formatLogMessage(_activeConfig.instanceName, text.toString(), Severity.TRACE) );
-						}
-						
-						if( !bServiceNameEntryFound && elementEntry.name().equals(com.thomsonreuters.upa.rdm.ElementNames.NAME) )
-						{
-							if ( elementEntry.dataType() != com.thomsonreuters.upa.codec.DataTypes.ASCII_STRING )
-							{
-								errorText.append("Attempt to specify Service Name with a ")
-								.append( DataType.asString(Utilities.toEmaDataType[elementEntry.dataType()]) )
-								.append(" rather than the expected ").append( DataType.asString(DataTypes.ASCII));
-								return false;
-							}
-							
-							Buffer serviceNameBuffer = CodecFactory.createBuffer();
-							serviceNameBuffer.clear();
-							
-							retCode = serviceNameBuffer.decode(decodeIt);
-							if( retCode < CodecReturnCodes.SUCCESS)
-							{
-								errorText.append("Internal error: Failed to Decode Buffer. Reason = ");
-								errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
-								return false;
-							}
-							else if ( retCode == CodecReturnCodes.BLANK_DATA )
-							{
-								errorText.append("Attempt to specify Service Name with a blank ascii string for service id of ");
-								errorText.append(serviceId);
-								return false;
-							}
-							
-							bServiceNameEntryFound = true;
-							
-							if ( directoryServiceStore.serviceId(serviceNameBuffer.toString()) != null )
-							{
-								errorText.append("Attempt to add a service with name of ")
-								.append(serviceNameBuffer.toString()).append(" and id of" )
-								.append( serviceId ).append(" while a service with the same id is already added.");
-								return false;
-							}
-							
-							directoryServiceStore.addToMap(serviceId.toBigInteger().intValue(), serviceNameBuffer.toString());
-							
-							text.setLength(0);
-							text.append("Detected Service with name of ")
-							.append(serviceNameBuffer.toString()).append(" and id of ").append( serviceId );
-							
-							if ( loggerClient().isTraceEnabled() )
-							{
-								loggerClient().trace( formatLogMessage(_activeConfig.instanceName, text.toString(), Severity.TRACE) );
-							}
-						}
-					}
-					
-					if( !bServiceNameEntryFound )
-					{
-						errorText.append("Attempt to specify service InfoFilter without required Service Name for service id of ")
-						.append(serviceId);
-						return false;
-					}
-					
-					
-				}
-				else if ( filterEntry.id() == com.thomsonreuters.upa.rdm.Directory.ServiceFilterIds.STATE )
-				{
-					if ( _activeConfig.recoverUserSubmitSourceDirectory )
-					{
-						if ( ( retCode = service.state().decode(decodeIt) ) < CodecReturnCodes.SUCCESS ) 
-						{
-							errorText.append("Internal error: Failed to decode ServiceState. Reason = ");
-							errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
-							return false;
-						}
-						service.applyHasState();
-					}
-				}
-			}
-			
-			text.setLength(0);
-			text.append("End decoding of FilterEntry with id of ");
-			text.append(filterEntry.id());
-			
-			if ( loggerClient().isTraceEnabled() )
-			{
-				loggerClient().trace( formatLogMessage(_activeConfig.instanceName, text.toString(), Severity.TRACE) );
-			}
-			
-			if ( _activeConfig.recoverUserSubmitSourceDirectory )
-			{
-				service = directoryServiceStore.addToStore(service);
-			}
-		}
-		
-		return true;
-	}
-	
-	boolean decodeSourceDirectoryKeyAscii(com.thomsonreuters.upa.codec.Map map, DecodeIterator decodeIt, StringBuilder errorText)
-	{
-		int retCode = CodecReturnCodes.SUCCESS;
-		Buffer serviceNameBuffer = CodecFactory.createBuffer();
-		serviceNameBuffer.clear();
-		StringBuilder text = new StringBuilder();
-		int emaAssignedServiceId = 0;
-		com.thomsonreuters.upa.codec.MapEntry mapEntry = CodecFactory.createMapEntry();
-		com.thomsonreuters.upa.codec.FilterList filterList = CodecFactory.createFilterList();
-		com.thomsonreuters.upa.codec.FilterEntry filterEntry = CodecFactory.createFilterEntry();
-		com.thomsonreuters.upa.codec.ElementList elementList = CodecFactory.createElementList();
-		com.thomsonreuters.upa.codec.ElementEntry elementEntry = CodecFactory.createElementEntry();
-		Service service = null;
-		
-		while ( ( retCode = mapEntry.decode(decodeIt, serviceNameBuffer) ) != CodecReturnCodes.END_OF_CONTAINER)
-		{
-			if ( retCode != CodecReturnCodes.SUCCESS )
-			{
-				errorText.append( "Internal error: Failed to Decode Map Entry. Reason = " )
-				.append( CodecReturnCodes.toString(retCode) ).append(".");
-				return false;
-			}
-			
-			text.setLength(0);
-			text.append("Begin decoding of Service with name of ");
-			text.append(serviceNameBuffer.toString()).append(". Action = ");
-			switch ( mapEntry.action() )
-			{
-			case com.thomsonreuters.upa.codec.MapEntryActions.UPDATE:
-				text.append("Upate");
-				break;
-			case com.thomsonreuters.upa.codec.MapEntryActions.ADD:
-				text.append("Add");
-				
-				break;
-			case com.thomsonreuters.upa.codec.MapEntryActions.DELETE:
-				text.append("Delete");
-				
-				break;
-			}
-			
-			if ( loggerClient().isTraceEnabled() )
-			{
-				loggerClient().trace( formatLogMessage(_activeConfig.instanceName, text.toString(), Severity.TRACE) );
-			}
-			
-			if ( mapEntry.action() == com.thomsonreuters.upa.codec.MapEntryActions.DELETE )
-			{
-				DirectoryServiceStore.ServiceIdInteger serviceIdInteger = directoryServiceStore.serviceId(serviceNameBuffer.toString());
-				
-				if ( serviceIdInteger != null )
-				{
-					directoryServiceStore.remove(serviceIdInteger.value());
-					
-					com.thomsonreuters.upa.codec.UInt serviceId = CodecFactory.createUInt();
-					serviceId.value(serviceIdInteger.value());
-					_deletedServicesNameAndIdTable.put(serviceNameBuffer.toString(), serviceId);
-				}
-				
-				text.setLength(0);
-				text.append("End decoding of Service with name of ").append( serviceNameBuffer.toString());
-				
-				if ( loggerClient().isTraceEnabled() )
-				{
-					loggerClient().trace( formatLogMessage(_activeConfig.instanceName, text.toString(), Severity.TRACE) );
-				}
-				
-				continue;
-			}
-			else if (mapEntry.action() == com.thomsonreuters.upa.codec.MapEntryActions.ADD)
-			{
-				DirectoryServiceStore.ServiceIdInteger serviceIdInteger = directoryServiceStore.serviceId(serviceNameBuffer.toString());
-				
-				if ( serviceIdInteger != null )
-				{
-					errorText.append("Attempt to add a service with name of ")
-					.append( serviceNameBuffer.toString() ).append( " and id of ").append( serviceIdInteger.value() )
-					.append( " while a service with the same name is already added." );
-					return false;
-				}
-			}
-			
-			if( map.containerType() != com.thomsonreuters.upa.codec.DataTypes.FILTER_LIST )
-			{
-				errorText.append( "Attempt to specify Service with a container of " )
-				.append(DataType.asString(Utilities.toEmaDataType[map.containerType()]))
-				.append("  rather than the expected  ").append( DataType.asString(DataTypes.FILTER_LIST));
-				return false;
-			}
-			
-			if ( _activeConfig.recoverUserSubmitSourceDirectory )
-			{
-				if ( service == null )
-					service = DirectoryMsgFactory.createService();
-				else
-					service.clear();
-			}
-			
-			filterList.clear();
-			filterEntry.clear();
-			
-			if ( ( retCode = filterList.decode(decodeIt) ) < CodecReturnCodes.SUCCESS )
-			{
-				errorText.append("Internal error: Failed to Decode FilterList. Reason")
-				.append( CodecReturnCodes.toString(retCode) ).append(".");
-				return false;
-			}
-			else if ( retCode == CodecReturnCodes.NO_DATA )
-			{
-				text.setLength(0);
-				text.append("Service with name of ").append(serviceNameBuffer.toString())
-				.append(" contains no FilterEntries. Skipping this service.");
-		
-				if ( loggerClient().isWarnEnabled() )
-				{
-					loggerClient().trace( formatLogMessage(_activeConfig.instanceName, text.toString(), Severity.WARNING) );
-				}
-				
-				text.setLength(0);
-				text.append("End decoding of Service with name of ").append(serviceNameBuffer.toString());
-				
-				if ( loggerClient().isTraceEnabled() )
-				{
-					loggerClient().trace( formatLogMessage(_activeConfig.instanceName, text.toString(), Severity.TRACE) );
-				}
-				
-				continue;
-			}
-			
-			while ( ( retCode = filterEntry.decode(decodeIt) ) != CodecReturnCodes.END_OF_CONTAINER )
-			{
-				if ( retCode < CodecReturnCodes.SUCCESS )
-				{
-					errorText.append("Internal error: Failed to Decode Filter Entry. Reason = ");
-					errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
-					return false;
-				}
-				
-				text.setLength(0);
-				text.append("Begin decoding of FilterEntry with id of ").append(filterEntry.id());
-				
-				if ( loggerClient().isTraceEnabled() )
-				{
-					loggerClient().trace( formatLogMessage(_activeConfig.instanceName, text.toString(), Severity.TRACE) );
-				}
-				
-				if ( filterEntry.id() == com.thomsonreuters.upa.rdm.Directory.ServiceFilterIds.INFO )
-				{
-					if( mapEntry.action() == com.thomsonreuters.upa.codec.MapEntryActions.UPDATE )
-					{
-						errorText.append("Attempt to update Infofilter of service with name of ").append(serviceNameBuffer.toString())
-						.append("  while this is not allowed.");
-						return false;
-					}
-					
-					if ( filterEntry.checkHasContainerType() && ( filterEntry.containerType() != com.thomsonreuters.upa.codec.DataTypes.ELEMENT_LIST )
-							&& filterList.containerType() != com.thomsonreuters.upa.codec.DataTypes.ELEMENT_LIST )
-					{
-						int containerType = filterEntry.checkHasContainerType() ? filterEntry.containerType() : filterList.containerType();
-						errorText.append("Attempt to specify Service InfoFilter with a container of ");
-						errorText.append(DataType.asString(Utilities.toEmaDataType[containerType]));
-						errorText.append(" rather than the expected ").append(DataType.asString(DataTypes.ELEMENT_LIST));
-						return false;
-					}
-					
-					if ( _activeConfig.recoverUserSubmitSourceDirectory )
-					{
-						userStoreDecodeIt.clear();
-						retCode = userStoreDecodeIt.setBufferAndRWFVersion(filterEntry.encodedData(), Codec.majorVersion(), Codec.minorVersion());
-						
-						if (  ( retCode < CodecReturnCodes.SUCCESS ) || ( ( retCode = service.info().decode(userStoreDecodeIt) ) < CodecReturnCodes.SUCCESS ) ) 
-						{
-							errorText.append("Internal error: Failed to decode ServiceInfo. Reason = ");
-							errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
-							return false;
-						}
-						service.applyHasInfo();
-					}
-					
-					elementList.clear();
-					elementEntry.clear();
-					
-					if ( ( retCode = elementList.decode(decodeIt, null) ) < CodecReturnCodes.SUCCESS )
-					{
-						errorText.append("Internal error: Failed to Decode Element List. Reason = ");
-						errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
-						return false;
-					}
-					
-					boolean bServiceIdEntryFound = false;
-					
-					while ( ( retCode = elementEntry.decode(decodeIt)) != CodecReturnCodes.END_OF_CONTAINER )
-					{
-						if ( retCode < CodecReturnCodes.SUCCESS )
-						{
-							errorText.append("Internal error: Failed to Decode ElementEntry. Reason = ");
-							errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
-							return false;
-						}
-						
-						text.setLength(0);
-						text.append("Decoding of ElementEntry with name of ");
-						text.append(elementEntry.name().toString());
-						
-						if ( loggerClient().isTraceEnabled() )
-						{
-							loggerClient().trace( formatLogMessage(_activeConfig.instanceName, text.toString(), Severity.TRACE) );
-						}
-						
-						if( !bServiceIdEntryFound && elementEntry.name().toString().equals(EmaRdm.ENAME_SERVICE_ID) )
-						{
-							if ( elementEntry.dataType() != com.thomsonreuters.upa.codec.DataTypes.UINT )
-							{
-								errorText.append("Attempt to specify Service Id with a ")
-								.append( DataType.asString(Utilities.toEmaDataType[elementEntry.dataType()]) )
-								.append(" rather than the expected ").append( DataType.asString(DataTypes.UINT));
-								return false;
-							}
-							
-							UInt serviceId = CodecFactory.createUInt();
-							serviceId.clear();
-							
-							retCode = serviceId.decode(decodeIt);
-							if( retCode < CodecReturnCodes.SUCCESS)
-							{
-								errorText.append("Internal error: Failed to Decode UInt. Reason = ");
-								errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
-								return false;
-							}
-							else if ( retCode == CodecReturnCodes.BLANK_DATA )
-							{
-								errorText.append("Attempt to specify Service Id with a blank UInt string for service id of ");
-								errorText.append(serviceId);
-								return false;
-							}
-							
-							bServiceIdEntryFound = true;
-							
-							if ( directoryServiceStore.serviceName(serviceId.toBigInteger().intValue()) != null )
-							{
-								errorText.append("Attempt to add a service with name of ")
-								.append( serviceNameBuffer.toString() ).append( " and id of " ).append( serviceId.toString() )
-								.append( " while a service with the same id is already added." );
-								return false;
-							}
-							
-							directoryServiceStore.addToMap(serviceId.toBigInteger().intValue(), serviceNameBuffer.toString());
-							
-							if ( _activeConfig.recoverUserSubmitSourceDirectory )
-							{
-								service.serviceId(serviceId.toBigInteger().intValue());
-								service.info().serviceName(serviceNameBuffer);
-							}
-						
-							text.setLength(0);
-							text.append("Detected Service with name of ")
-							.append(serviceNameBuffer.toString()).append(" and id of ").append( serviceId );
-							
-							if ( loggerClient().isTraceEnabled() )
-							{
-								loggerClient().trace( formatLogMessage(_activeConfig.instanceName, text.toString(), Severity.TRACE) );
-							}
-						}
-					}
-					
-					if( !bServiceIdEntryFound )
-					{
-						boolean found = true;
-						while ( directoryServiceStore.serviceName(emaAssignedServiceId) != null )
-						{
-							if ( emaAssignedServiceId == ConfigManager.MAX_UINT16 )
-							{
-								found = false;
-								break;
-							}
-							++emaAssignedServiceId;
-						}
-						
-						if ( !found )
-						{
-							errorText.append("All service ids are used.");
-							return false;
-						}
-						
-						directoryServiceStore.addToMap(emaAssignedServiceId, serviceNameBuffer.toString());
-						
-						if ( _activeConfig.recoverUserSubmitSourceDirectory )
-						{
-							service.serviceId(emaAssignedServiceId);
-							service.info().serviceName(serviceNameBuffer);
-						}
-						
-						text.setLength(0);
-						text.append("Assigned service id of ").append(emaAssignedServiceId)
-						.append(" to service with name of ").append(serviceNameBuffer.toString());
-						
-						if ( loggerClient().isTraceEnabled() )
-						{
-							loggerClient().trace( formatLogMessage(_activeConfig.instanceName, text.toString(), Severity.TRACE) );
-						}
-					}
-				}
-				else if ( filterEntry.id() == com.thomsonreuters.upa.rdm.Directory.ServiceFilterIds.STATE )
-				{
-					if ( _activeConfig.recoverUserSubmitSourceDirectory )
-					{
-						if ( ( retCode = service.state().decode(decodeIt) ) < CodecReturnCodes.SUCCESS ) 
-						{
-							errorText.append("Internal error: Failed to decode ServiceState. Reason = ");
-							errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
-							return false;
-						}
-						service.applyHasState();
-					}
-				}
-			}
-			
-			text.setLength(0);
-			text.append("End decoding of FilterEntry with id of ");
-			text.append(filterEntry.id());
-			
-			if ( loggerClient().isTraceEnabled() )
-			{
-				loggerClient().trace( formatLogMessage(_activeConfig.instanceName, text.toString(), Severity.TRACE) );
-			}
-			
-			if ( _activeConfig.recoverUserSubmitSourceDirectory )
-			{
-				service = directoryServiceStore.addToStore(service);
-			}
-		}
-		
-		return true;
-	}
-	
-	boolean swapServiceNameAndId(Buffer inputBuffer, Buffer outputBuffer, StringBuilder errorText)
-	{
-		DecodeIterator decodeIt = CodecFactory.createDecodeIterator();
-		decodeIt.clear();
-		decodeIt.setBufferAndRWFVersion(inputBuffer, Codec.majorVersion(), Codec.minorVersion());
-		
-		com.thomsonreuters.upa.codec.Map inMap = CodecFactory.createMap();
-		inMap.clear();
-		
-		outputBuffer.data(ByteBuffer.allocate(inputBuffer.length() + 512));
-		
-		EncodeIterator encodeIt = CodecFactory.createEncodeIterator();
-		encodeIt.clear();
-		
-		encodeIt.setBufferAndRWFVersion(outputBuffer, Codec.majorVersion(),Codec.minorVersion());
-		
-		com.thomsonreuters.upa.codec.Map outMap = CodecFactory.createMap();
-		outMap.clear();
-		
-		Buffer serviceNameBuffer = CodecFactory.createBuffer();
-		serviceNameBuffer.clear();
-		
-		com.thomsonreuters.upa.codec.MapEntry inMapEntry = CodecFactory.createMapEntry();
-		inMapEntry.clear();
-		
-		com.thomsonreuters.upa.codec.MapEntry outMapEntry = CodecFactory.createMapEntry();
-		
-		com.thomsonreuters.upa.codec.FilterList inFilterList = CodecFactory.createFilterList();
-		inFilterList.clear();
-		
-		com.thomsonreuters.upa.codec.FilterEntry inFilterEntry = CodecFactory.createFilterEntry();
-		inFilterEntry.clear();
-		
-		com.thomsonreuters.upa.codec.FilterList outFilterList = CodecFactory.createFilterList();
-		outFilterList.clear();
-		
-		com.thomsonreuters.upa.codec.FilterEntry outFilterEntry = CodecFactory.createFilterEntry();
-		com.thomsonreuters.upa.codec.ElementList inElementList = CodecFactory.createElementList();
-		com.thomsonreuters.upa.codec.ElementEntry inElementEntry = CodecFactory.createElementEntry();
-		com.thomsonreuters.upa.codec.ElementList outElementList = CodecFactory.createElementList();
-		com.thomsonreuters.upa.codec.ElementEntry outElementEntry = CodecFactory.createElementEntry();
-		
-		outMap.keyPrimitiveType(com.thomsonreuters.upa.codec.DataTypes.UINT);
-		outMap.flags(com.thomsonreuters.upa.codec.MapFlags.NONE);
-		outMap.containerType(com.thomsonreuters.upa.codec.DataTypes.FILTER_LIST);
-		
-		int retCode;
-		
-		if ( ( retCode = outMap.encodeInit(encodeIt, 0, 0) ) != CodecReturnCodes.SUCCESS )
-		{
-			errorText.append("Internal error: Failed to Encode Map. Reason = ");
-			errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
-			return false;
-		}
-		
-		if ( inMap.decode(decodeIt) == CodecReturnCodes.NO_DATA )
-		{
-			if ( ( retCode = outMap.encodeComplete(encodeIt, true) ) < CodecReturnCodes.SUCCESS )
-			{
-				errorText.append("Internal error: Failed to Encode Map. Reason = ");
-				errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
-				return false;
-			}
-			
-			return true;
-		}
-		
-		while ( inMapEntry.decode(decodeIt, serviceNameBuffer)  != CodecReturnCodes.END_OF_CONTAINER )
-		{
-			outMapEntry.clear();
-			outMapEntry.flags(com.thomsonreuters.upa.codec.MapEntryFlags.NONE);
-			outMapEntry.action(inMapEntry.action());
-			String serviceName = serviceNameBuffer.toString();
-			
-			if ( outMapEntry.action() == com.thomsonreuters.upa.codec.MapEntryActions.DELETE )
-			{	
-				while( ( retCode = outMapEntry.encode(encodeIt, _deletedServicesNameAndIdTable.get(serviceName)) ) == CodecReturnCodes.BUFFER_TOO_SMALL )
-				{
-					 outputBuffer = Utilities.realignBuffer(encodeIt, outputBuffer.capacity() * 2);
-				}
-				
-				if ( retCode != CodecReturnCodes.SUCCESS )
-				{
-					errorText.append("Internal error: Failed to Encode MapEntry. Reason = ");
-					errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
-					return false;
-				}
-				
-				continue;
-			}
-			else
-			{
-				DirectoryServiceStore.ServiceIdInteger serviceId = directoryServiceStore.serviceId(serviceName);
-				com.thomsonreuters.upa.codec.UInt serviceIdUInt = CodecFactory.createUInt();
-				serviceIdUInt.value(serviceId.value());
-			
-				outFilterList.containerType(com.thomsonreuters.upa.codec.DataTypes.ELEMENT_LIST);
-				outFilterList.flags(com.thomsonreuters.upa.codec.FilterListFlags.NONE);
-				
-				while( ( retCode = outMapEntry.encodeInit(encodeIt, serviceIdUInt, 0) ) == CodecReturnCodes.BUFFER_TOO_SMALL )
-				{
-					outputBuffer = Utilities.realignBuffer(encodeIt, outputBuffer.capacity() * 2);
-				}
-				
-				if ( retCode != CodecReturnCodes.SUCCESS )
-				{
-					errorText.append("Internal error: Failed to Encode MapEntry. Reason = ");
-					errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
-					return false;
-				}
-				
-				while ( ( retCode = outFilterList.encodeInit(encodeIt)) == CodecReturnCodes.BUFFER_TOO_SMALL )
-				{
-					outputBuffer = Utilities.realignBuffer(encodeIt, outputBuffer.capacity() * 2);
-				}
-				
-				if ( retCode != CodecReturnCodes.SUCCESS )
-				{
-					errorText.append("Internal error: Failed to Encode FilterList. Reason = ");
-					errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
-					return false;
-				}
-				
-				if ( inFilterList.decode(decodeIt) == CodecReturnCodes.NO_DATA )
-				{
-					outFilterList.encodeComplete(encodeIt, true);
-					outMapEntry.encodeComplete(encodeIt, true);
-					continue;
-				}
-				
-				while( inFilterEntry.decode(decodeIt) != CodecReturnCodes.END_OF_CONTAINER )
-				{
-					outFilterEntry.clear();
-					outFilterEntry.action(inFilterEntry.action());
-					outFilterEntry.containerType(inFilterEntry.containerType());
-					outFilterEntry.flags(inFilterEntry.flags());
-					outFilterEntry.id(inFilterEntry.id());
-					
-					if ( inFilterEntry.checkHasPermData() )
-					{
-						outFilterEntry.permData(inFilterEntry.permData());
-					}
-					
-					if ( inFilterEntry.id() == com.thomsonreuters.upa.rdm.Directory.ServiceFilterFlags.INFO )
-					{
-						inElementList.clear();
-						inElementEntry.clear();
-						
-						outElementList.clear();
-						
-						while( ( retCode = outFilterEntry.encodeInit(encodeIt, 0) ) == CodecReturnCodes.BUFFER_TOO_SMALL )
-						{
-							outputBuffer = Utilities.realignBuffer(encodeIt, outputBuffer.capacity() * 2);
-						}
-						
-						if ( retCode != CodecReturnCodes.SUCCESS )
-						{
-							errorText.append("Internal error: Failed to Encode FilterEntry. Reason = ");
-							errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
-							return false;
-						}
-						
-						if( inElementList.decode(decodeIt, null) == CodecReturnCodes.NO_DATA )
-						{
-							if ( ( retCode = outElementList.encodeInit(encodeIt, null, 0) ) < CodecReturnCodes.SUCCESS )
-							{
-								errorText.append("Internal error: Failed to Encode ElementList. Reason = ");
-								errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
-								return false;
-							}
-							
-							outElementList.encodeComplete(encodeIt, true);
-							outFilterEntry.encodeComplete(encodeIt, true);
-							
-							continue;
-						}
-						
-						outElementList.applyHasStandardData();
-						
-						while ( ( retCode = outElementList.encodeInit(encodeIt, null, 0) ) == CodecReturnCodes.BUFFER_TOO_SMALL )
-						{
-							outputBuffer = Utilities.realignBuffer(encodeIt, outputBuffer.capacity() * 2);
-						}
-						
-						if ( retCode != CodecReturnCodes.SUCCESS )
-						{
-							errorText.append("Internal error: Failed to Encode ElementList. Reason = ");
-							errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
-							return false;
-						}
-						
-						outElementEntry.clear();
-						outElementEntry.dataType(com.thomsonreuters.upa.codec.DataTypes.ASCII_STRING);
-						outElementEntry.name(com.thomsonreuters.upa.rdm.ElementNames.NAME);
-						
-						while ( ( retCode = outElementEntry.encode(encodeIt,serviceNameBuffer)) == CodecReturnCodes.BUFFER_TOO_SMALL )
-						{
-							outputBuffer = Utilities.realignBuffer(encodeIt, outputBuffer.capacity() * 2);
-						}
-						
-						if ( retCode != CodecReturnCodes.SUCCESS )
-						{
-							errorText.append("Internal error: Failed to Encode ElementEntry. Reason = ");
-							errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
-							return false;
-						}
-						
-						while ( inElementEntry.decode(decodeIt) != CodecReturnCodes.END_OF_CONTAINER )
-						{	
-							if ( inElementEntry.name().toString().equals( com.thomsonreuters.ema.rdm.EmaRdm.ENAME_SERVICE_ID) == false )
-							{
-								outElementEntry.name(inElementEntry.name());
-								outElementEntry.dataType(inElementEntry.dataType());
-								outElementEntry.encodedData(inElementEntry.encodedData());
-								
-								while ( ( retCode = outElementEntry.encode(encodeIt)) == CodecReturnCodes.BUFFER_TOO_SMALL)
-								{	
-									outputBuffer = Utilities.realignBuffer(encodeIt, outputBuffer.capacity() * 2);
-								}
-								
-								if ( retCode != CodecReturnCodes.SUCCESS)
-								{
-									errorText.append("Internal error: Failed to Encode ElementEntry. Reason = ");
-									errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
-									return false;
-								}
-								
-								inElementEntry.clear();
-							}
-						}
-						
-						outElementList.encodeComplete(encodeIt, true);
-						outFilterEntry.encodeComplete(encodeIt, true);
-					}
-					else
-					{
-						outFilterEntry.encodedData(inFilterEntry.encodedData());
-						
-						while ( ( retCode = outFilterEntry.encode(encodeIt) ) == CodecReturnCodes.BUFFER_TOO_SMALL )
-						{
-							outputBuffer = Utilities.realignBuffer(encodeIt, outputBuffer.capacity() * 2);
-						}
-						
-						if ( retCode != CodecReturnCodes.SUCCESS )
-						{
-							errorText.append("Internal error: Failed to Encode FilterEntry. Reason = ");
-							errorText.append( CodecReturnCodes.toString(retCode) ).append(".");
-							return false;
-						}
-					}
-				}
-				
-				outFilterList.encodeComplete(encodeIt, true);
-				outMapEntry.encodeComplete(encodeIt, true);
-			}
-		}
-		
-		outMap.encodeComplete(encodeIt, true);
-		
-		return true;
 	}
 	
 	void remapServiceIdAndServcieName(DirectoryRefresh directoryRefresh)
@@ -2622,7 +1095,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 		
 		for(int index = 0; index < serviceList.size(); index++ )
 		{
-			directoryServiceStore.addToMap(serviceList.get(index));
+			_ommNiProviderDirectoryStore.addToMap(serviceList.get(index));
 		}	
 	}
 	
@@ -2722,7 +1195,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 		if ( _activeConfig.directoryAdminControl != OmmNiProviderConfig.AdminControl.API_CONTROL )
 			return;
 		
-		DirectoryRefresh directoryRefresh = _activeConfig.directoryConfig.getDirectoryRefresh();
+		DirectoryRefresh directoryRefresh = _ommNiProviderDirectoryStore.getApiControlDirectory().getDirectoryRefresh();
 		
 		if ( directoryRefresh.serviceList().size() == 0 )
 			return;
@@ -2750,7 +1223,7 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 		if ( !_activeConfig.recoverUserSubmitSourceDirectory )
 			return;
 		
-		DirectoryRefresh directoryRefresh = directoryServiceStore.getDirectoryRefreshMsg();
+		DirectoryRefresh directoryRefresh = DirectoryServiceStore.getDirectoryRefreshMsg(_ommNiProviderDirectoryStore.getDirectoryCache(), false );
 		
 		if ( directoryRefresh.serviceList().size() == 0 )
 			return;
@@ -2778,10 +1251,39 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 		reLoadUserSubmitSourceDirectory();
 	}
 	
+	@Override
+	public void submit(AckMsg ackMsg, long handle)
+	{
+		StringBuilder text = strBuilder();
+		
+		if (loggerClient().isErrorEnabled())
+    	{
+			text.append("Non interactive provider role does not support submitting AckMsg on handle =  ")
+			.append(handle);
+			
+			loggerClient().error(formatLogMessage(instanceName() , text.toString(), Severity.ERROR));
+			
+			text.setLength(0);
+    	}
+		
+		text.append("Failed to submit AckMsg. Reason: ")
+		.append("Non interactive provider role does not support submitting AckMsg on handle =  ")
+		.append(handle);
+		
+		handleInvalidUsage(text.toString());
+	}
+
+	@Override
+	public int providerRole()
+	{
+		return OmmProviderConfig.ProviderRole.NON_INTERACTIVE;
+	}
+	
 	class StreamInfo extends VaNode
 	{
 		private int _streamId;
 		private int _serviceId;
+		private int _domainType;
 		
 		StreamInfo(int streamId)
 		{
@@ -2789,10 +1291,11 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 			_serviceId = 0;
 		}
 		
-		StreamInfo(int streamId, int serviceId)
+		StreamInfo(int streamId, int serviceId, int domainType)
 		{
 			_streamId = streamId;
 			_serviceId = serviceId;
+			_domainType = domainType;
 		}
 		
 		void set(int streamId)
@@ -2810,12 +1313,14 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 		{
 			_streamId = 0;
 			_serviceId = 0;
+			_domainType = 0;
 		}
 		
 		StreamInfo(StreamInfo other)
 		{
 			_streamId = other._streamId;
 			_serviceId = other._serviceId;
+			_domainType = other._domainType;
 		}
 		
 		int streamId()
@@ -2826,6 +1331,11 @@ public class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements
 		int serviceId()
 		{
 			return _serviceId;
+		}
+
+		int domainType()
+		{
+			return _domainType;
 		}
 	}
 }

@@ -528,7 +528,8 @@ bool SingleItem::submit( RsslGenericMsg* pRsslGenericMsg )
 	submitMsgOpts.majorVersion = _pDirectory->getChannel()->getRsslChannel()->majorVersion;
 	submitMsgOpts.minorVersion = _pDirectory->getChannel()->getRsslChannel()->minorVersion;
 	submitMsgOpts.pRsslMsg->msgBase.streamId = _streamId;
-	submitMsgOpts.pRsslMsg->msgBase.domainType = _domainType;
+	if (submitMsgOpts.pRsslMsg->msgBase.domainType == 0)
+		submitMsgOpts.pRsslMsg->msgBase.domainType = _domainType;
 
 	RsslErrorInfo rsslErrorInfo;
 	clearRsslErrorInfo( &rsslErrorInfo );
@@ -857,7 +858,8 @@ bool NiProviderSingleItem::submit( RsslGenericMsg* pRsslGenericMsg )
 	submitMsgOpts.majorVersion = pChannel->getRsslChannel()->majorVersion;
 	submitMsgOpts.minorVersion = pChannel->getRsslChannel()->minorVersion;
 	submitMsgOpts.pRsslMsg->msgBase.streamId = _streamId;
-	submitMsgOpts.pRsslMsg->msgBase.domainType = _domainType;
+	if ( submitMsgOpts.pRsslMsg->msgBase.domainType == 0 )
+		submitMsgOpts.pRsslMsg->msgBase.domainType = _domainType;
 
 	RsslErrorInfo rsslErrorInfo;
 	clearRsslErrorInfo( &rsslErrorInfo );
@@ -1124,7 +1126,7 @@ bool BatchItem::addBatchItems( UInt32 batchSize )
 
 	for ( UInt32 i = 0 ; i < batchSize ; ++i )
 	{
-		item = SingleItem::create( _ommBaseImpl, _client, 0, this );
+		item = SingleItem::create( _ommBaseImpl, _client, _event.getClosure(), this );
 
 		if ( item )
 			_singleItemList.push_back( item );
@@ -1823,6 +1825,8 @@ bool SubItem::submit( const GenericMsg& genMsg )
 	const GenericMsgEncoder& genMsgEncoder = static_cast<const GenericMsgEncoder&>( genMsg.getEncoder() );
 
 	genMsgEncoder.getRsslGenericMsg()->msgBase.streamId = _streamId;
+	if (genMsgEncoder.getRsslGenericMsg()->msgBase.domainType == 0)
+		genMsgEncoder.getRsslGenericMsg()->msgBase.domainType = _domainType;
 
 	return reinterpret_cast<TunnelItem*>( _event.getParentHandle() )->submitSubItemMsg( (RsslMsg*)genMsgEncoder.getRsslGenericMsg() );
 }

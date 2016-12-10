@@ -2,15 +2,15 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{E6B29E9E-58F8-4896-A340-957E3027888E}</UniqueIdentifier>
+      <UniqueIdentifier>{23F399AD-F7CA-4C69-A55A-9CC1AADB5D5C}</UniqueIdentifier>
       <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{CFCD4BFF-69C1-4183-8D55-FA1685095E46}</UniqueIdentifier>
+      <UniqueIdentifier>{310D7D65-CE90-424B-AEDF-41C2AC5A3510}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
     <Filter Include="Resource Files">
-      <UniqueIdentifier>{9AE6F876-32D3-4A4A-A3BF-05F0F00F0F9C}</UniqueIdentifier>
+      <UniqueIdentifier>{79819154-E747-4407-A4C2-077889074469}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
     </Filter>
   </ItemGroup>
@@ -39,6 +39,9 @@
 	<ClCompile Include="Impl\ChannelCallbackClient.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+	<ClCompile Include="Impl\ClientSession.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 	<ClCompile Include="Impl\ComplexType.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
@@ -54,7 +57,16 @@
 	<ClCompile Include="Impl\DictionaryCallbackClient.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+	<ClCompile Include="Impl\DictionaryHandler.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 	<ClCompile Include="Impl\DirectoryCallbackClient.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="Impl\DirectoryHandler.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="Impl\DirectoryServiceStore.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
 	<ClCompile Include="Impl\ElementEntry.cpp">
@@ -153,10 +165,16 @@
 	<ClCompile Include="Impl\ItemCallbackClient.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+	<ClCompile Include="Impl\ItemInfo.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 	<ClCompile Include="Impl\Key.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
 	<ClCompile Include="Impl\LoginCallbackClient.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="Impl\LoginHandler.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
 	<ClCompile Include="Impl\Map.cpp">
@@ -169,6 +187,9 @@
 			<Filter>Source Files</Filter>
 		</ClCompile>
 	<ClCompile Include="Impl\MapEntry.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="Impl\MarketItemHandler.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
 	<ClCompile Include="Impl\Msg.cpp">
@@ -312,6 +333,18 @@
 	<ClCompile Include="Impl\OmmInvalidUsageExceptionImpl.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+	<ClCompile Include="Impl\OmmIProviderActiveConfig.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="Impl\OmmIProviderImpl.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="Impl\OmmIProviderConfig.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="Impl\OmmIProviderConfigImpl.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 	<ClCompile Include="Impl\OmmLoggerClient.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
@@ -382,6 +415,9 @@
 			<Filter>Source Files</Filter>
 		</ClCompile>
 	<ClCompile Include="Impl\OmmRmtesDecoder.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="Impl\OmmServerBaseImpl.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
 	<ClCompile Include="Impl\OmmState.cpp">
@@ -483,6 +519,9 @@
 	<ClCompile Include="Impl\SeriesEntry.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+	<ClCompile Include="Impl\ServerChannelHandler.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 	<ClCompile Include="Impl\StaticDecoder.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
@@ -564,6 +603,9 @@
 		<ClInclude Include="Impl\ChannelCallbackClient.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
+		<ClInclude Include="Impl\ClientSession.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
 		<ClInclude Include="Impl\ConfigErrorHandling.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
@@ -576,7 +618,16 @@
 		<ClInclude Include="Impl\DictionaryCallbackClient.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
+		<ClInclude Include="Impl\DictionaryHandler.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
 		<ClInclude Include="Impl\DirectoryCallbackClient.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Impl\DirectoryHandler.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Impl\DirectoryServiceStore.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Impl\ElementListDecoder.h">
@@ -654,13 +705,22 @@
 		<ClInclude Include="Impl\ItemCallbackClient.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
+		<ClInclude Include="Impl\ItemInfo.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
 		<ClInclude Include="Impl\LoginCallbackClient.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Impl\LoginHandler.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Impl\MapDecoder.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Impl\MapEncoder.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Impl\MarketItemHandler.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Impl\MsgDecoder.h">
@@ -738,6 +798,15 @@
 		<ClInclude Include="Impl\OmmInvalidUsageExceptionImpl.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
+		<ClInclude Include="Impl\OmmIProviderActiveConfig.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Impl\OmmIProviderImpl.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Impl\OmmIProviderConfigImpl.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
 		<ClInclude Include="Impl\OmmLoggerClient.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
@@ -778,6 +847,9 @@
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Impl\OmmRmtesDecoder.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Impl\OmmServerBaseImpl.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Impl\OmmStateDecoder.h">
@@ -835,6 +907,9 @@
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Impl\SeriesEncoder.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Impl\ServerChannelHandler.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Impl\StaticDecoder.h">
@@ -1000,6 +1075,9 @@
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Include\OmmInvalidUsageException.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Include\OmmIProviderConfig.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Include\OmmMemoryExhaustionException.h">

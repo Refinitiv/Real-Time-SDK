@@ -29,6 +29,22 @@ class EMA_ACCESS_API OmmProviderConfig
 {
 public :
 
+	/** @enum ProviderRole
+	*/
+	enum ProviderRole
+	{
+		NonInteractiveEnum,			/*!< indicates a non interactive provider config */
+		InteractiveEnum				/*!< indicates interactive provider config */
+	};
+
+	///@name Accessors
+	//@{
+	/** Retrieve Provider's role
+		@return role of this OmmProviderConfig instance
+	*/
+	virtual ProviderRole getProviderRole() const = 0;
+	//@}
+
 	///@name Destructor
 	//@{
 	/** Destructor.

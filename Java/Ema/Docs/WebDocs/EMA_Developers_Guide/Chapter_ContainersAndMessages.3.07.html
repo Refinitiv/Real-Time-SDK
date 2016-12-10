@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>3.3 Working with OMM Containers</title>
+    <title>3.2.6 TunnelStreamRequest and ClassOfService Classes</title>
     <link rel="StyleSheet" href="css/Chapter_ContainersAndMessages.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,33 +55,21 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H2_outer" style="margin-left: 0pt">
+      <div class="H3_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
             <td>
-              <div class="H2_inner" style="width: 54pt; white-space: nowrap">
-                <span class="bold">3.3	</span>
+              <div class="H3_inner" style="width: 54pt; white-space: nowrap">
+                <span class="bold">3.2.6	</span>
               </div>
             </td>
             <td width="100%">
-              <div class="H2_inner"><a name="1019108">Working with OMM Containers</a></div>
+              <div class="H3_inner"><a name="1040292">TunnelStreamRequest and ClassOfService Classes</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1040878">EMA supports the following OMM containers: </a><span class="CodeOrCommand">ElementList</span>, <span class="CodeOrCommand">FieldList</span>, <span class="CodeOrCommand">FilterList</span>, <span class="CodeOrCommand">Map</span>, <span class="CodeOrCommand">Series</span>, and <span class="CodeOrCommand">Vector</span>.</div>
-      <div class="Body"><a name="1040879">Each of these classes</a> extends the Java collections framework and provides set type interfaces for container header information (e.g., dictionary id, element list number, and the add-type interfaces for adding entries). You must set the container header and optional summary before adding the first entry.</div>
-      <div class="Body"><a name="1040880">Though it is treated as an OMM primitive, the </a><span class="CodeOrCommand">OmmArray</span> acts like a container and therefore provides add-type interfaces for adding primitive entries.</div>
-      <div class="Blank_Line"><a name="1040884">&nbsp;</a></div>
-      <table class="Note" style="width: 555.75pt" cellspacing="0" summary="">
-        <caption></caption>
-        <tr style="vertical-align: top">
-          <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 555.75pt">
-            <div class="Note">
-              <span class="Bold">Note: </span><a name="1040883">OMM Container classes do perform some validation of their usage. If a usage error is detected, an appropriate </a><span class="CodeOrCommand">OmmException</span> will be thrown.</div>
-          </td>
-        </tr>
-      </table>
+      <div class="Body"><a name="1042588">The </a><span class="CodeOrCommand" style="font-size: 10.0pt">TunnelStreamRequest</span> class specifies request information for use in establishing a tunnel stream. A tunnel stream is a private stream that provides additional functionalities such as user authentication, end-to-end flow control, guaranteed delivery, and persistency. You can configure these features on a per-tunnel stream basis. The <span class="CodeOrCommand" style="font-size: 10.0pt">ClassOfService</span> class specifies these features and some other related parameters. The identity of the tunnel stream is specified on the <span class="CodeOrCommand" style="font-size: 10.0pt">TunnelStreamRequest</span> class.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -93,7 +81,7 @@
       </script>
     </blockquote>
     <hr align="left" />
-    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	OMM Containers and Messages : 3.3	Working with OMM Containers</div>
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	OMM Containers and Messages : <a class="WebWorks_Breadcrumb_Link" href="Chapter_ContainersAndMessages.3.02.html">3.2	Classes</a> : 3.2.6	TunnelStreamRequest and ClassOfService Classes</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

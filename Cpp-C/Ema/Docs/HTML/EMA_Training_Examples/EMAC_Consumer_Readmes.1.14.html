@@ -46,56 +46,56 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1019288">220__MarketByPrice__PrivateStream</a></div>
-      <div class="Body"><a name="1030527">Summary</a></div>
-      <div class="Body"><a name="1030528">=======</a></div>
-      <div class="Body"><a name="1030529">&nbsp;</a></div>
-      <div class="Body"><a name="1030530">The 220__MarketByPrice__PrivateStream application is provided as an example</a></div>
-      <div class="Body"><a name="1030531">of OMM Consumer application written to the EMA library.</a></div>
-      <div class="Body"><a name="1030532">&nbsp;</a></div>
-      <div class="Body"><a name="1030533">This application demonstrates basic usage of the EMA library for accessing</a></div>
-      <div class="Body"><a name="1030534">and parsing of OMM MarketByPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
-      <div class="Body"><a name="1030535">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
-      <div class="Body"><a name="1030536">Distribution Server.</a></div>
-      <div class="Body"><a name="1030537">&nbsp;</a></div>
-      <div class="Body"><a name="1030538">The 220__MarketByPrice__PrivateStream showcases opening and processing of</a></div>
-      <div class="Body"><a name="1030539">private stream MarketByPrice item. The item is requested as private by</a></div>
-      <div class="Body"><a name="1030540">setting parivateStream( true ) on the ReqMsg.</a></div>
-      <div class="Body"><a name="1030541">&nbsp;</a></div>
-      <div class="Body"><a name="1030542">&nbsp;</a></div>
-      <div class="Body"><a name="1030543">Detailed Description</a></div>
-      <div class="Body"><a name="1030544">====================</a></div>
-      <div class="Body"><a name="1030545">&nbsp;</a></div>
-      <div class="Body"><a name="1030546">The 220__MarketByPrice__PrivateStream implements the following high level steps:</a></div>
-      <div class="Body"><a name="1030547">&nbsp;</a></div>
-      <div class="Body"><a name="1030548">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1030549">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1030550">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
-      <div class="Body"><a name="1030551">    - the decode( const FieldList&amp; ) iterates through the received FieldList,</a></div>
-      <div class="Body"><a name="1030552">	  extracts each FieldEntry reference from the current position on the</a></div>
-      <div class="Body"><a name="1030553">	  FieldList, and extracts field id, name and value of the current FieldEntry</a></div>
-      <div class="Body"><a name="1030554">	- the decode( const Map&amp; ) iterates through the received Map, extracts Summary</a></div>
-      <div class="Body"><a name="1030555">	  if it is present, extracts MapEntry from which it extracts key, and load values</a></div>
-      <div class="Body"><a name="1030556">	- both methods use native / RWF data format while extracting data</a></div>
-      <div class="Body"><a name="1030557">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1030558">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1030559">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1030560">  - sets host name on the preconfigured connection to “localhost”</a></div>
-      <div class="Body"><a name="1030561">  - sets port on the preconfigured connection to “14002”</a></div>
-      <div class="Body"><a name="1030562">  - sets operationModel to UserDispatchEnum</a></div>
-      <div class="Body"><a name="1030563">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1030564">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1030565">+ Opens private streaming item interest</a></div>
-      <div class="Body"><a name="1030566">  - MarketByPrice BBH.ITC item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1030567">  - uses privateStream() interface to mark this item as private</a></div>
-      <div class="Body"><a name="1030568">+ Processes data received with user dispatch loop for 60 seconds</a></div>
-      <div class="Body"><a name="1030569">  - all received messages are processed on main application thread of control</a></div>
-      <div class="Body"><a name="1030570">+ Exits</a></div>
-      <div class="Body"><a name="1030571">&nbsp;</a></div>
-      <div class="Body"><a name="1030572">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1030573">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1030574">	  </a></div>
-      <div class="Body"><a name="1030575">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1030576">      standard configuration.</a></div>
+      <div class="Body"><a name="1040581">Summary</a></div>
+      <div class="Body"><a name="1040582">=======</a></div>
+      <div class="Body"><a name="1040583">&nbsp;</a></div>
+      <div class="Body"><a name="1040584">The 220__MarketByPrice__PrivateStream application is provided as an example</a></div>
+      <div class="Body"><a name="1040585">of OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1040586">&nbsp;</a></div>
+      <div class="Body"><a name="1040587">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1040588">and parsing of OMM MarketByPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1040589">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1040590">Distribution Server.</a></div>
+      <div class="Body"><a name="1040591">&nbsp;</a></div>
+      <div class="Body"><a name="1040592">The 220__MarketByPrice__PrivateStream showcases opening and processing of</a></div>
+      <div class="Body"><a name="1040593">private stream MarketByPrice item. The item is requested as private by</a></div>
+      <div class="Body"><a name="1040594">setting parivateStream( true ) on the ReqMsg.</a></div>
+      <div class="Body"><a name="1040595">&nbsp;</a></div>
+      <div class="Body"><a name="1040596">&nbsp;</a></div>
+      <div class="Body"><a name="1040597">Detailed Description</a></div>
+      <div class="Body"><a name="1040598">====================</a></div>
+      <div class="Body"><a name="1040599">&nbsp;</a></div>
+      <div class="Body"><a name="1040600">The 220__MarketByPrice__PrivateStream implements the following high level steps:</a></div>
+      <div class="Body"><a name="1040601">&nbsp;</a></div>
+      <div class="Body"><a name="1040602">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1040603">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1040604">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1040605">    - the decode( const FieldList&amp; ) iterates through the received FieldList,</a></div>
+      <div class="Body"><a name="1040606">	  extracts each FieldEntry reference from the current position on the</a></div>
+      <div class="Body"><a name="1040607">	  FieldList, and extracts field id, name and value of the current FieldEntry</a></div>
+      <div class="Body"><a name="1040608">	- the decode( const Map&amp; ) iterates through the received Map, extracts Summary</a></div>
+      <div class="Body"><a name="1040609">	  if it is present, extracts MapEntry from which it extracts key, and load values</a></div>
+      <div class="Body"><a name="1040610">	- both methods use native / RWF data format while extracting data</a></div>
+      <div class="Body"><a name="1040611">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1040612">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1040613">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1040614">  - sets host name on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1040615">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1040616">  - sets operationModel to UserDispatchEnum</a></div>
+      <div class="Body"><a name="1040617">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1040618">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1040619">+ Opens private streaming item interest</a></div>
+      <div class="Body"><a name="1040620">  - MarketByPrice BBH.ITC item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1040621">  - uses privateStream() interface to mark this item as private</a></div>
+      <div class="Body"><a name="1040622">+ Processes data received with user dispatch loop for 60 seconds</a></div>
+      <div class="Body"><a name="1040623">  - all received messages are processed on main application thread of control</a></div>
+      <div class="Body"><a name="1040624">+ Exits</a></div>
+      <div class="Body"><a name="1040625">&nbsp;</a></div>
+      <div class="Body"><a name="1040626">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1040627">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1040628">	  </a></div>
+      <div class="Body"><a name="1040629">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1040630">      standard configuration.</a></div>
       <div class="Body"><a name="1028122">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--

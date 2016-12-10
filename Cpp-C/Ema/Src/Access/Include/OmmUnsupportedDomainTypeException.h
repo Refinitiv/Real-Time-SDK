@@ -11,7 +11,7 @@
 
 /**
 	@class thomsonreuters::ema::access::OmmUnsupportedDomainTypeException OmmUnsupportedDomainTypeException.h "Access/Include/OmmUnsupportedDomainTypeException.h"
-	@brief OmmUnsupportedDomainTypeExceptionis thrown when a domain type value is greater than 255.
+	@brief OmmUnsupportedDomainTypeException is thrown when a domain type value is greater than 255.
 
 	\remark All methods in this class are \ref SingleThreaded.
 

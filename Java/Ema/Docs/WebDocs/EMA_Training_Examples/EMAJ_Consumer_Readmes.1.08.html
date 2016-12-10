@@ -56,50 +56,50 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1017950">130__MarketPrice__UserDisp</a></div>
-      <div class="Body"><a name="1032527">Summary</a></div>
-      <div class="Body"><a name="1032528">=======</a></div>
-      <div class="Body"><a name="1032529">&nbsp;</a></div>
-      <div class="Body"><a name="1032530">example130__MarketPrice__UserDisp is provided as an example of an OMM Consumer </a></div>
-      <div class="Body"><a name="1032531">application that demonstrates basic usage of the EMA library in accessing</a></div>
-      <div class="Body"><a name="1032532">and parsing OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
-      <div class="Body"><a name="1032533">directly from an OMM Provider  application, or from an Advanced Distribution</a></div>
-      <div class="Body"><a name="1032534">Server.</a></div>
-      <div class="Body"><a name="1032535">&nbsp;</a></div>
-      <div class="Body"><a name="1032536">example130__MarketPrice__UserDisp illustrates a “user dispatch” mode in which all </a></div>
-      <div class="Body"><a name="1032537">callbacks execute on the application’s thread of control and call the </a></div>
-      <div class="Body"><a name="1032538">dispatch() method.</a></div>
-      <div class="Body"><a name="1032539">&nbsp;</a></div>
-      <div class="Body"><a name="1032540"> </a></div>
-      <div class="Body"><a name="1032541">Detailed Description</a></div>
-      <div class="Body"><a name="1032542">====================</a></div>
-      <div class="Body"><a name="1032543">&nbsp;</a></div>
-      <div class="Body"><a name="1032544">example130__MarketPrice__UserDisp implements the following high-level steps:</a></div>
-      <div class="Body"><a name="1032545">&nbsp;</a></div>
-      <div class="Body"><a name="1032546">+ Implements an OmmConsumerClient class in an AppClient</a></div>
-      <div class="Body"><a name="1032547">  - Overrides desired methods.</a></div>
-      <div class="Body"><a name="1032548">  - Provides its own methods as needed (e.g.: decode( FieldList ))</a></div>
-      <div class="Body"><a name="1032549">    - The method decode( FieldList ) iterates through the received FieldList</a></div>
-      <div class="Body"><a name="1032550">	  extracting each FieldEntry reference from the current position on the</a></div>
-      <div class="Body"><a name="1032551">	  FieldList. The decode method then extracts the fieldentry’s field id, </a></div>
-      <div class="Body"><a name="1032552">	  name, and value.</a></div>
-      <div class="Body"><a name="1032553">+ Instantiates an AppClient object that receives and processes item messages.</a></div>
-      <div class="Body"><a name="1032554">+ Instantiates and modifies an OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1032555">  - Sets the username to “user”.</a></div>
-      <div class="Body"><a name="1032556">  - Sets the hostname on the preconfigured connection to “localhost”.</a></div>
-      <div class="Body"><a name="1032557">  - Sets the port on the preconfigured connection to “14002”.</a></div>
-      <div class="Body"><a name="1032558">  - Sets the operationModel to UserDispatchEnum.</a></div>
-      <div class="Body"><a name="1032559">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1032560">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1032561">  - The application calls dispatch() in a while loop.</a></div>
-      <div class="Body"><a name="1032562">+ Opens a streaming item interest for the MarketPrice IBM.N item from the DIRECT_FEED</a></div>
-      <div class="Body"><a name="1032563">  service</a></div>
-      <div class="Body"><a name="1032564">+ Processes data received with a user dispatch loop for 60 seconds</a></div>
-      <div class="Body"><a name="1032565">  - All messages received are processed on the application’s main thread of control</a></div>
-      <div class="Body"><a name="1032566">+ Exits</a></div>
-      <div class="Body"><a name="1032567">&nbsp;</a></div>
-      <div class="Body"><a name="1032568">Note: If needed, you can modify these and other details to fit your local environment.</a></div>
-      <div class="Body"><a name="1032569">      For details on standard configuration, refer to the EMA library ReadMe.txt file</a></div>
-      <div class="Body"><a name="1032570">      or to the EMA COnfiguration Guide.</a></div>
+      <div class="Body"><a name="1037005">Summary</a></div>
+      <div class="Body"><a name="1037006">=======</a></div>
+      <div class="Body"><a name="1037007">&nbsp;</a></div>
+      <div class="Body"><a name="1037008">example130__MarketPrice__UserDisp is provided as an example of an OMM Consumer </a></div>
+      <div class="Body"><a name="1037009">application that demonstrates basic usage of the EMA library in accessing</a></div>
+      <div class="Body"><a name="1037010">and parsing OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1037011">directly from an OMM Provider  application, or from an Advanced Distribution</a></div>
+      <div class="Body"><a name="1037012">Server.</a></div>
+      <div class="Body"><a name="1037013">&nbsp;</a></div>
+      <div class="Body"><a name="1037014">example130__MarketPrice__UserDisp illustrates a “user dispatch” mode in which all </a></div>
+      <div class="Body"><a name="1037015">callbacks execute on the application’s thread of control and call the </a></div>
+      <div class="Body"><a name="1037016">dispatch() method.</a></div>
+      <div class="Body"><a name="1037017">&nbsp;</a></div>
+      <div class="Body"><a name="1037018"> </a></div>
+      <div class="Body"><a name="1037019">Detailed Description</a></div>
+      <div class="Body"><a name="1037020">====================</a></div>
+      <div class="Body"><a name="1037021">&nbsp;</a></div>
+      <div class="Body"><a name="1037022">example130__MarketPrice__UserDisp implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1037023">&nbsp;</a></div>
+      <div class="Body"><a name="1037024">+ Implements an OmmConsumerClient class in an AppClient</a></div>
+      <div class="Body"><a name="1037025">  - Overrides desired methods.</a></div>
+      <div class="Body"><a name="1037026">  - Provides its own methods as needed (e.g.: decode( FieldList ))</a></div>
+      <div class="Body"><a name="1037027">    - The method decode( FieldList ) iterates through the received FieldList</a></div>
+      <div class="Body"><a name="1037028">	  extracting each FieldEntry reference from the current position on the</a></div>
+      <div class="Body"><a name="1037029">	  FieldList. The decode method then extracts the fieldentry’s field id, </a></div>
+      <div class="Body"><a name="1037030">	  name, and value.</a></div>
+      <div class="Body"><a name="1037031">+ Instantiates an AppClient object that receives and processes item messages.</a></div>
+      <div class="Body"><a name="1037032">+ Instantiates and modifies an OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1037033">  - Sets the username to “user”.</a></div>
+      <div class="Body"><a name="1037034">  - Sets the hostname on the preconfigured connection to “localhost”.</a></div>
+      <div class="Body"><a name="1037035">  - Sets the port on the preconfigured connection to “14002”.</a></div>
+      <div class="Body"><a name="1037036">  - Sets the operationModel to UserDispatchEnum.</a></div>
+      <div class="Body"><a name="1037037">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1037038">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1037039">  - The application calls dispatch() in a while loop.</a></div>
+      <div class="Body"><a name="1037040">+ Opens a streaming item interest for the MarketPrice IBM.N item from the DIRECT_FEED</a></div>
+      <div class="Body"><a name="1037041">  service</a></div>
+      <div class="Body"><a name="1037042">+ Processes data received with a user dispatch loop for 60 seconds</a></div>
+      <div class="Body"><a name="1037043">  - All messages received are processed on the application’s main thread of control</a></div>
+      <div class="Body"><a name="1037044">+ Exits</a></div>
+      <div class="Body"><a name="1037045">&nbsp;</a></div>
+      <div class="Body"><a name="1037046">Note: If needed, you can modify these and other details to fit your local environment.</a></div>
+      <div class="Body"><a name="1037047">      For details on standard configuration, refer to the EMA library ReadMe.txt file</a></div>
+      <div class="Body"><a name="1037048">      or to the EMA COnfiguration Guide.</a></div>
       <div class="Body"><a name="1030960">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--

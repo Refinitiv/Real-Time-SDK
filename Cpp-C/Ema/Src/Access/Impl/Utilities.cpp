@@ -657,7 +657,7 @@ const DataType::DataTypeEnum msgDataType[] = {
 	DataType::RefreshMsgEnum,
 	DataType::StatusMsgEnum,
 	DataType::UpdateMsgEnum,
-	UnknownDT,
+	DataType::ReqMsgEnum,
 	DataType::AckMsgEnum,
 	DataType::GenericMsgEnum,
 	DataType::PostMsgEnum,

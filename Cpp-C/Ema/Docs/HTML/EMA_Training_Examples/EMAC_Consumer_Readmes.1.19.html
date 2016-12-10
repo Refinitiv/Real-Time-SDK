@@ -46,54 +46,54 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1019376">270__SymbolList</a></div>
-      <div class="Body"><a name="1030771">Summary</a></div>
-      <div class="Body"><a name="1030772">=======</a></div>
-      <div class="Body"><a name="1030773">&nbsp;</a></div>
-      <div class="Body"><a name="1030774">The 270__SymbolList application is provided as an example of OMM Consumer</a></div>
-      <div class="Body"><a name="1030775">application written to the EMA library.</a></div>
-      <div class="Body"><a name="1030776">&nbsp;</a></div>
-      <div class="Body"><a name="1030777">This application demonstrates basic usage of the EMA library for accessing</a></div>
-      <div class="Body"><a name="1030778">and parsing of OMM SymbolList data from Reuters Data Feed Direct (RDF-D),</a></div>
-      <div class="Body"><a name="1030779">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
-      <div class="Body"><a name="1030780">Distribution Server.</a></div>
-      <div class="Body"><a name="1030781">&nbsp;</a></div>
-      <div class="Body"><a name="1030782">The 270__SymbolList showcases opening and processing of SymbolList item.</a></div>
-      <div class="Body"><a name="1030783">While processing messages, this application simply prints their content to</a></div>
-      <div class="Body"><a name="1030784">screen using native or RWF decoding methods.</a></div>
-      <div class="Body"><a name="1030785">&nbsp;</a></div>
-      <div class="Body"><a name="1030786">&nbsp;</a></div>
-      <div class="Body"><a name="1030787">Detailed Description</a></div>
-      <div class="Body"><a name="1030788">====================</a></div>
-      <div class="Body"><a name="1030789">&nbsp;</a></div>
-      <div class="Body"><a name="1030790">The 270__SymbolList implements the following high level steps:</a></div>
-      <div class="Body"><a name="1030791">&nbsp;</a></div>
-      <div class="Body"><a name="1030792">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1030793">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1030794">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
-      <div class="Body"><a name="1030795">    - the decode( const FieldList&amp; ) iterates through the received FieldList,</a></div>
-      <div class="Body"><a name="1030796">	  extracts each FieldEntry reference from the current position on the</a></div>
-      <div class="Body"><a name="1030797">	  FieldList, and extracts field id, name and value of the current FieldEntry</a></div>
-      <div class="Body"><a name="1030798">	- the decode( const Map&amp; ) iterates through the received Map, extracts Summary</a></div>
-      <div class="Body"><a name="1030799">	  if it is present, extracts MapEntry from which it extracts key, and load values</a></div>
-      <div class="Body"><a name="1030800">	- both methods use native / RWF data format while extracting data</a></div>
-      <div class="Body"><a name="1030801">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1030802">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1030803">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1030804">  - sets host name on the preconfigured connection to “localhost”</a></div>
-      <div class="Body"><a name="1030805">  - sets port on the preconfigured connection to “14002”</a></div>
-      <div class="Body"><a name="1030806">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1030807">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1030808">+ Opens streaming item interest</a></div>
-      <div class="Body"><a name="1030809">  - SymbolList .AV.N item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1030810">+ Processes data received from API for 60 seconds</a></div>
-      <div class="Body"><a name="1030811">  - all received messages are processed on API thread of control</a></div>
-      <div class="Body"><a name="1030812">+ Exits</a></div>
-      <div class="Body"><a name="1030813">&nbsp;</a></div>
-      <div class="Body"><a name="1030814">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1030815">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1030816">	  </a></div>
-      <div class="Body"><a name="1030817">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1030818">      standard configuration.</a></div>
+      <div class="Body"><a name="1040825">Summary</a></div>
+      <div class="Body"><a name="1040826">=======</a></div>
+      <div class="Body"><a name="1040827">&nbsp;</a></div>
+      <div class="Body"><a name="1040828">The 270__SymbolList application is provided as an example of OMM Consumer</a></div>
+      <div class="Body"><a name="1040829">application written to the EMA library.</a></div>
+      <div class="Body"><a name="1040830">&nbsp;</a></div>
+      <div class="Body"><a name="1040831">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1040832">and parsing of OMM SymbolList data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1040833">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1040834">Distribution Server.</a></div>
+      <div class="Body"><a name="1040835">&nbsp;</a></div>
+      <div class="Body"><a name="1040836">The 270__SymbolList showcases opening and processing of SymbolList item.</a></div>
+      <div class="Body"><a name="1040837">While processing messages, this application simply prints their content to</a></div>
+      <div class="Body"><a name="1040838">screen using native or RWF decoding methods.</a></div>
+      <div class="Body"><a name="1040839">&nbsp;</a></div>
+      <div class="Body"><a name="1040840">&nbsp;</a></div>
+      <div class="Body"><a name="1040841">Detailed Description</a></div>
+      <div class="Body"><a name="1040842">====================</a></div>
+      <div class="Body"><a name="1040843">&nbsp;</a></div>
+      <div class="Body"><a name="1040844">The 270__SymbolList implements the following high level steps:</a></div>
+      <div class="Body"><a name="1040845">&nbsp;</a></div>
+      <div class="Body"><a name="1040846">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1040847">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1040848">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1040849">    - the decode( const FieldList&amp; ) iterates through the received FieldList,</a></div>
+      <div class="Body"><a name="1040850">	  extracts each FieldEntry reference from the current position on the</a></div>
+      <div class="Body"><a name="1040851">	  FieldList, and extracts field id, name and value of the current FieldEntry</a></div>
+      <div class="Body"><a name="1040852">	- the decode( const Map&amp; ) iterates through the received Map, extracts Summary</a></div>
+      <div class="Body"><a name="1040853">	  if it is present, extracts MapEntry from which it extracts key, and load values</a></div>
+      <div class="Body"><a name="1040854">	- both methods use native / RWF data format while extracting data</a></div>
+      <div class="Body"><a name="1040855">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1040856">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1040857">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1040858">  - sets host name on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1040859">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1040860">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1040861">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1040862">+ Opens streaming item interest</a></div>
+      <div class="Body"><a name="1040863">  - SymbolList .AV.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1040864">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1040865">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1040866">+ Exits</a></div>
+      <div class="Body"><a name="1040867">&nbsp;</a></div>
+      <div class="Body"><a name="1040868">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1040869">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1040870">	  </a></div>
+      <div class="Body"><a name="1040871">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1040872">      standard configuration.</a></div>
       <div class="Body"><a name="1028487">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--

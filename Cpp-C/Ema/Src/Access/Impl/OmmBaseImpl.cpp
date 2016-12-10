@@ -14,6 +14,7 @@
 #include "OmmInaccessibleLogFileException.h"
 #include "OmmInvalidHandleException.h"
 #include "OmmSystemException.h"
+#include "ExceptionTranslator.h"
 
 #include "GetTime.h"
 
@@ -28,121 +29,6 @@
 #define	EMA_BIG_STR_BUFF_SIZE (1024*4)
 
 using namespace thomsonreuters::ema::access;
-
-EmaVector< OmmBaseImpl* > OmmBaseImplMap::_clientList;
-Mutex OmmBaseImplMap::_listLock;
-UInt64 OmmBaseImplMap::_id = 0;
-bool OmmBaseImplMap::_clearSigHandler = true;
-
-#ifndef WIN32
-struct sigaction OmmBaseImplMap::_sigAction;
-struct sigaction OmmBaseImplMap::_oldSigAction;
-#endif
-
-void OmmBaseImplMap::init()
-{
-#ifdef WIN32
-	SetConsoleCtrlHandler( &OmmBaseImplMap::TermHandlerRoutine, TRUE );
-#else
-	bzero( &_sigAction, sizeof( _sigAction ) );
-	bzero( &_oldSigAction, sizeof( _oldSigAction ) );
-
-	_sigAction.sa_sigaction = sigAction;
-	_sigAction.sa_flags = SA_SIGINFO;
-
-	sigaction( SIGINT, &_sigAction, &_oldSigAction );
-#endif
-
-	_clearSigHandler = false;
-}
-
-UInt64 OmmBaseImplMap::add( OmmBaseImpl* impl )
-{
-	_listLock.lock();
-	if ( _clientList.empty() )
-		OmmBaseImplMap::init();
-
-	_clientList.push_back( impl );
-	++_id;
-
-	_listLock.unlock();
-
-	return _id;
-}
-
-void OmmBaseImplMap::remove( OmmBaseImpl* impl )
-{
-	_listLock.lock();
-
-	_clientList.removeValue( impl );
-
-	if ( !_clientList.empty() || _clearSigHandler )
-	{
-		_listLock.unlock();
-		return;
-	}
-
-#ifdef WIN32
-	SetConsoleCtrlHandler( &OmmBaseImplMap::TermHandlerRoutine, FALSE );
-#else
-	sigaction( SIGINT, &_oldSigAction, NULL );
-#endif
-
-	_clearSigHandler = true;
-
-	_listLock.unlock();
-}
-
-void OmmBaseImplMap::atExit()
-{
-	_listLock.lock();
-	UInt32 size = _clientList.size();
-	while ( size )
-	{
-		OmmBaseImpl* pTemp = _clientList[size-1];
-		_listLock.unlock();
-		pTemp->setAtExit();
-		pTemp->uninitialize( false, false );
-		_listLock.lock();
-		size = _clientList.size();
-	}
-	_listLock.unlock();
-
-	OmmBaseImplMap::sleep( 100 );
-}
-
-void OmmBaseImplMap::sleep( UInt32 millisecs )
-{
-#if defined WIN32
-	::Sleep( (DWORD) ( millisecs ) );
-#else
-	struct timespec sleeptime;
-	sleeptime.tv_sec = millisecs / 1000;
-	sleeptime.tv_nsec = ( millisecs % 1000 ) * 1000000;
-	nanosleep( &sleeptime, 0 );
-#endif
-}
-
-#ifdef WIN32
-BOOL WINAPI OmmBaseImplMap::TermHandlerRoutine( DWORD dwCtrlType )
-{
-	switch ( dwCtrlType )
-	{
-	case CTRL_CLOSE_EVENT:
-	case CTRL_BREAK_EVENT:
-	case CTRL_SHUTDOWN_EVENT:
-	case CTRL_C_EVENT:
-		OmmBaseImplMap::atExit();
-		break;
-	}
-	return FALSE;
-}
-#else
-void OmmBaseImplMap::sigAction( int, siginfo_t*, void* )
-{
-	OmmBaseImplMap::atExit();
-}
-#endif
 
 #ifdef USING_POLL
 int OmmBaseImpl::addFd( int fd, short events = POLLIN )
@@ -277,7 +163,7 @@ OmmBaseImpl::~OmmBaseImpl()
 
 void OmmBaseImpl::readConfig( EmaConfigImpl* pConfigImpl )
 {
-	UInt64 id = OmmBaseImplMap::add( this );
+	UInt64 id = OmmBaseImplMap<OmmBaseImpl>::add( this );
 
 	_activeConfig.configuredName = pConfigImpl->getConfiguredName();
 	_activeConfig.instanceName = _activeConfig.configuredName;
@@ -856,12 +742,12 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 
 		readConfig( configImpl );
 
-		readCustomConfig( configImpl );
-
 		_pLoggerClient = OmmLoggerClient::create( _activeConfig.loggerConfig.loggerType, _activeConfig.loggerConfig.includeDateInLoggerOutput,
 			_activeConfig.loggerConfig.minLoggerSeverity, _activeConfig.loggerConfig.loggerFileName );
 
-		configImpl->configErrors().log( _pLoggerClient, _activeConfig.loggerConfig.minLoggerSeverity );
+		readCustomConfig(configImpl);
+
+		configImpl->configErrors().log(_pLoggerClient, _activeConfig.loggerConfig.minLoggerSeverity);
 
 		if ( !_pipe.create() )
 		{
@@ -1084,7 +970,7 @@ void OmmBaseImpl::cleanUp()
 
 void OmmBaseImpl::uninitialize( bool caughtExcep, bool calledFromInit )
 {
-	OmmBaseImplMap::remove( this );
+	OmmBaseImplMap<OmmBaseImpl>::remove(this);
 
 	if ( !calledFromInit ) _userLock.lock();
 

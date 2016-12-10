@@ -33,12 +33,19 @@ Reuters Oak Brook, IL USA
 	  
 
 
-
 ##Non-Interactive Provider Features:
 
 - Default Admin Domains: EMA uses default login and directory messages while connecting to server. This provides minimum configuration for applications to get up and running.
 
 - Configurable Admin Domains:  EMA provides means for modifying the default admin domain messages. 		
+
+
+##Interactive Provider Features:
+
+- Default Admin Domains: EMA uses default directory messages while sending to the connected client. This provides minimum configuration for applications to get up and running.
+ 
+- Configurable Admin Domains:  EMA provides means for modifying the default admin domain messages. 
+  		
 
 ##Common Features:
 
@@ -158,7 +165,6 @@ See the top level Elektron-SDK README.md for details.
 - EMA-437 Batch Request status message itemName not correct.
 - EMA-622 Invalid value of compressionThreshold give error and could not connect
 - EMA-624 Invalid config for tcpNodelay and REconnectMaxDelay defaults to incorrect defaults.
-- EMA-719 CaseId: 04883420 EMA Java throws ClassCastException when configured for HTTP Connection type
 - EMA-720 CaseId: 04883420 Broken links in EMA Java ConfigGuide 
 
 # Obtaining the Thomson Reuters Field Dictionaries

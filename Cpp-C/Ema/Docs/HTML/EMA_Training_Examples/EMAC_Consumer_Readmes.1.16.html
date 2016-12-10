@@ -46,49 +46,49 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1019378">240__MarketPrice__RippleFields</a></div>
-      <div class="Body"><a name="1030632">Summary</a></div>
-      <div class="Body"><a name="1030633">=======</a></div>
-      <div class="Body"><a name="1030634">&nbsp;</a></div>
-      <div class="Body"><a name="1030635">The 240__MarketPrice__RippleFields application is provided as an example</a></div>
-      <div class="Body"><a name="1030636">of OMM Consumer application written to the EMA library.</a></div>
-      <div class="Body"><a name="1030637">&nbsp;</a></div>
-      <div class="Body"><a name="1030638">This application demonstrates basic usage of the EMA library for accessing</a></div>
-      <div class="Body"><a name="1030639">and handling ripple fields of OMM MarketPrice data from Reuters Data Feed</a></div>
-      <div class="Body"><a name="1030640">Direct (RDF-D), directly from an OMM Provider application, or from Thomson</a></div>
-      <div class="Body"><a name="1030641">Reuters Advanced Distribution Server.</a></div>
-      <div class="Body"><a name="1030642">&nbsp;</a></div>
-      <div class="Body"><a name="1030643">&nbsp;</a></div>
-      <div class="Body"><a name="1030644">Detailed Description</a></div>
-      <div class="Body"><a name="1030645">====================</a></div>
-      <div class="Body"><a name="1030646">&nbsp;</a></div>
-      <div class="Body"><a name="1030647">The 240__MarketPrice__RippleFields implements the following high level steps:</a></div>
-      <div class="Body"><a name="1030648">&nbsp;</a></div>
-      <div class="Body"><a name="1030649">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1030650">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1030651">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
-      <div class="Body"><a name="1030652">    - the decode( const FieldList&amp; ) iterates through the received FieldList,</a></div>
-      <div class="Body"><a name="1030653">	  extracts each FieldEntry reference from the current position on the</a></div>
-      <div class="Body"><a name="1030654">	  FieldList, and extracts field id, name and value of the current FieldEntry.</a></div>
-      <div class="Body"><a name="1030655">	  In addition to that, it checks the ripple to fields and performs the rippling</a></div>
-      <div class="Body"><a name="1030656">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1030657">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1030658">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1030659">  - sets host name on the preconfigured connection to “localhost”</a></div>
-      <div class="Body"><a name="1030660">  - sets port on the preconfigured connection to “14002”</a></div>
-      <div class="Body"><a name="1030661">  - sets operationModel to UserDispatchEnum</a></div>
-      <div class="Body"><a name="1030662">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1030663">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1030664">+ Opens streaming item interest</a></div>
-      <div class="Body"><a name="1030665">  - MarketPrice IBM.N item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1030666">+ Processes data received with user dispatch loop for 60 seconds</a></div>
-      <div class="Body"><a name="1030667">  - all received messages are processed on main application thread</a></div>
-      <div class="Body"><a name="1030668">+ Exits</a></div>
-      <div class="Body"><a name="1030669">&nbsp;</a></div>
-      <div class="Body"><a name="1030670">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1030671">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1030672">	  </a></div>
-      <div class="Body"><a name="1030673">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1030674">      standard configuration.</a></div>
+      <div class="Body"><a name="1040686">Summary</a></div>
+      <div class="Body"><a name="1040687">=======</a></div>
+      <div class="Body"><a name="1040688">&nbsp;</a></div>
+      <div class="Body"><a name="1040689">The 240__MarketPrice__RippleFields application is provided as an example</a></div>
+      <div class="Body"><a name="1040690">of OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1040691">&nbsp;</a></div>
+      <div class="Body"><a name="1040692">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1040693">and handling ripple fields of OMM MarketPrice data from Reuters Data Feed</a></div>
+      <div class="Body"><a name="1040694">Direct (RDF-D), directly from an OMM Provider application, or from Thomson</a></div>
+      <div class="Body"><a name="1040695">Reuters Advanced Distribution Server.</a></div>
+      <div class="Body"><a name="1040696">&nbsp;</a></div>
+      <div class="Body"><a name="1040697">&nbsp;</a></div>
+      <div class="Body"><a name="1040698">Detailed Description</a></div>
+      <div class="Body"><a name="1040699">====================</a></div>
+      <div class="Body"><a name="1040700">&nbsp;</a></div>
+      <div class="Body"><a name="1040701">The 240__MarketPrice__RippleFields implements the following high level steps:</a></div>
+      <div class="Body"><a name="1040702">&nbsp;</a></div>
+      <div class="Body"><a name="1040703">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1040704">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1040705">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1040706">    - the decode( const FieldList&amp; ) iterates through the received FieldList,</a></div>
+      <div class="Body"><a name="1040707">	  extracts each FieldEntry reference from the current position on the</a></div>
+      <div class="Body"><a name="1040708">	  FieldList, and extracts field id, name and value of the current FieldEntry.</a></div>
+      <div class="Body"><a name="1040709">	  In addition to that, it checks the ripple to fields and performs the rippling</a></div>
+      <div class="Body"><a name="1040710">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1040711">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1040712">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1040713">  - sets host name on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1040714">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1040715">  - sets operationModel to UserDispatchEnum</a></div>
+      <div class="Body"><a name="1040716">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1040717">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1040718">+ Opens streaming item interest</a></div>
+      <div class="Body"><a name="1040719">  - MarketPrice IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1040720">+ Processes data received with user dispatch loop for 60 seconds</a></div>
+      <div class="Body"><a name="1040721">  - all received messages are processed on main application thread</a></div>
+      <div class="Body"><a name="1040722">+ Exits</a></div>
+      <div class="Body"><a name="1040723">&nbsp;</a></div>
+      <div class="Body"><a name="1040724">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1040725">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1040726">	  </a></div>
+      <div class="Body"><a name="1040727">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1040728">      standard configuration.</a></div>
       <div class="Body"><a name="1028270">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--

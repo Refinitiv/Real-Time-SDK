@@ -46,13 +46,13 @@ Int32 Dictionary::getFldStreamId() const
 	return _fldStreamId;
 }
 
-LocalDictionary* LocalDictionary::create( OmmBaseImpl& ommBaseImpl )
+LocalDictionary* LocalDictionary::create( OmmCommonImpl& ommBaseImpl, BaseConfig& baseConfig )
 {
 	LocalDictionary* pDictionary = 0;
 
 	try
 	{
-		pDictionary = new LocalDictionary( ommBaseImpl );
+		pDictionary = new LocalDictionary( ommBaseImpl, baseConfig );
 	}
 	catch ( std::bad_alloc ) {}
 
@@ -76,8 +76,9 @@ Dictionary::DictionaryType LocalDictionary::getType() const
 	return DictionaryType::FileDictionaryEnum;
 }
 
-LocalDictionary::LocalDictionary( OmmBaseImpl& ommBaseImpl ) :
-	_ommBaseImpl( ommBaseImpl ),
+LocalDictionary::LocalDictionary( OmmCommonImpl& ommCommonImpl, BaseConfig& baseConfig ) :
+	_ommCommonImpl(ommCommonImpl),
+	_baseConfig(baseConfig),
 	_rsslDictionary(),
 	_isLoaded( false )
 {
@@ -115,14 +116,14 @@ bool LocalDictionary::load( const EmaString& fldName, const EmaString& enumName 
 
 		rsslDeleteDataDictionary( &_rsslDictionary );
 
-		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		if (OmmLoggerClient::ErrorEnum >= _baseConfig.loggerConfig.minLoggerSeverity)
 		{
 			EmaString errorText, dir;
 			getCurrentDir( dir );
 			errorText.set( "Unable to load RDMFieldDictionary from file named " ).append( fldName ).append( CR )
 			.append( "Current working directory " ).append( dir ).append( CR )
 			.append( "Error text " ).append( errTxt );
-			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, errorText );
+			_ommCommonImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 		}
 		return false;
 	}
@@ -133,25 +134,25 @@ bool LocalDictionary::load( const EmaString& fldName, const EmaString& enumName 
 
 		rsslDeleteDataDictionary( &_rsslDictionary );
 
-		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		if (OmmLoggerClient::ErrorEnum >= _baseConfig.loggerConfig.minLoggerSeverity)
 		{
 			EmaString errorText, dir;
 			getCurrentDir( dir );
 			errorText.set( "Unable to load EnumTypeDef from file named " ).append( fldName ).append( CR )
 			.append( "Current working directory " ).append( dir ).append( CR )
 			.append( "Error text " ).append( errTxt );
-			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, errorText );
+			_ommCommonImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 		}
 		return false;
 	}
 
-	if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+	if (OmmLoggerClient::VerboseEnum >= _baseConfig.loggerConfig.minLoggerSeverity)
 	{
 		EmaString temp( "Successfully loaded local dictionaries: " );
 		temp.append( CR )
 		.append( "RDMFieldDictionary file named " ).append( fldName ).append( CR )
 		.append( "EnumTypeDef file named " ).append( enumName );
-		_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
+		_ommCommonImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::VerboseEnum, temp);
 	}
 
 	_isLoaded = true;
@@ -841,7 +842,7 @@ void DictionaryCallbackClient::initialize()
 
 void DictionaryCallbackClient::loadDictionaryFromFile()
 {
-	_localDictionary = LocalDictionary::create( _ommBaseImpl );
+	_localDictionary = LocalDictionary::create( _ommBaseImpl, _ommBaseImpl.getActiveConfig() );
 
 	_localDictionary->load( _ommBaseImpl.getActiveConfig().dictionaryConfig.rdmfieldDictionaryFileName, _ommBaseImpl.getActiveConfig().dictionaryConfig.enumtypeDefFileName );
 }

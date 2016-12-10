@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>320__Custom__GenericMsg</title>
+    <link rel="StyleSheet" href="css/EMAC_IP_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3_NoNum"><a name="1019291">320__Custom__GenericMsg</a></div>
+      <div class="Body"><a name="1033436">Summary</a></div>
+      <div class="Body"><a name="1033437">=======</a></div>
+      <div class="Body"><a name="1033438">&nbsp;</a></div>
+      <div class="Body"><a name="1033439">320__Custom__GenericMsg is an example of an OMM Interactive Provider application </a></div>
+      <div class="Body"><a name="1033440">written to the EMA library.</a></div>
+      <div class="Body"><a name="1033441">&nbsp;</a></div>
+      <div class="Body"><a name="1033442">This application demonstrates the basic usage of the EMA library in providing</a></div>
+      <div class="Body"><a name="1033443">of custom domain data to the Thomson Reuters Advanced Distribution Hub.</a></div>
+      <div class="Body"><a name="1033444">&nbsp;</a></div>
+      <div class="Body"><a name="1033445">320__Custom__GenericMsg illustrates how to create and publish a single</a></div>
+      <div class="Body"><a name="1033446">streaming item of custom domain. This application uses source directory configured in the EmaConfig.xml</a></div>
+      <div class="Body"><a name="1033447">file.</a></div>
+      <div class="Body"><a name="1033448">&nbsp;</a></div>
+      <div class="Body"><a name="1033449">&nbsp;</a></div>
+      <div class="Body"><a name="1033450">Detailed Description</a></div>
+      <div class="Body"><a name="1033451">====================</a></div>
+      <div class="Body"><a name="1033452">&nbsp;</a></div>
+      <div class="Body"><a name="1033453">320__Custom__GenericMsg implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1033454">&nbsp;</a></div>
+      <div class="Body"><a name="1033455">+ Instantiates and modifies an OmmIProviderConfig object.</a></div>
+      <div class="Body"><a name="1033456">  - Set the operation model to use user dispatch</a></div>
+      <div class="Body"><a name="1033457">+ Instantiates an OmmProvider object which:</a></div>
+      <div class="Body"><a name="1033458">  - listens on the port from the EmaConfig.xml file</a></div>
+      <div class="Body"><a name="1033459">+ Accepts a login request</a></div>
+      <div class="Body"><a name="1033460">+ Processes an item request of custom domain.</a></div>
+      <div class="Body"><a name="1033461"> - Creates streaming item (refresh and updates) and publishes them</a></div>
+      <div class="Body"><a name="1033462"> - Publishes updates 1 per second for 60 seconds</a></div>
+      <div class="Body"><a name="1033463"> - Updates are published with a user dispatch loop</a></div>
+      <div class="Body"><a name="1033464">+ Rejects subsequent item requests.</a></div>
+      <div class="Body"><a name="1033465">+ Receive and pulish generic msg on the custom domain stream.</a></div>
+      <div class="Body"><a name="1033466">+ Exits</a></div>
+      <div class="Body"><a name="1033467">&nbsp;</a></div>
+      <div class="Body"><a name="1033468">Note: If needed, these and other details may be modified to fit your local</a></div>
+      <div class="Body"><a name="1033469">      environment. For details on standard configuration, refer to the EMA library</a></div>
+      <div class="Body"><a name="1033470">      ReadMe.txt file and EMA Configuration Guide.</a></div>
+      <div class="Body"><a name="1032774">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_IP_Readmes.3.01.html">EMA C++ Interactive Provider Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_IP_Readmes.3.16.html">300 Series Examples</a> : 320__Custom__GenericMsg</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

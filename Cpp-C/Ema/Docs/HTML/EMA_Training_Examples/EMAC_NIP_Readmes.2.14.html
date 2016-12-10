@@ -46,47 +46,47 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1020344">340__Login__Streaming</a></div>
-      <div class="Body"><a name="1029166">Summary</a></div>
-      <div class="Body"><a name="1029167">=======</a></div>
-      <div class="Body"><a name="1029168">&nbsp;</a></div>
-      <div class="Body"><a name="1029169">340__Login__Streaming is an example of an OMM NiProvider application written</a></div>
-      <div class="Body"><a name="1029170">to the EMA library.</a></div>
-      <div class="Body"><a name="1029171">&nbsp;</a></div>
-      <div class="Body"><a name="1029172">This application demonstrates the basic usage of the EMA library in providing</a></div>
-      <div class="Body"><a name="1029173">of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.</a></div>
-      <div class="Body"><a name="1029174">&nbsp;</a></div>
-      <div class="Body"><a name="1029175">340__Login__Streaming illustrates how to create and publish one OMM streaming item</a></div>
-      <div class="Body"><a name="1029176">and register for and process received login messages. This application uses source</a></div>
-      <div class="Body"><a name="1029177">directory configured in the EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1029178">&nbsp;</a></div>
-      <div class="Body"><a name="1029179">&nbsp;</a></div>
-      <div class="Body"><a name="1029180">Detailed Description</a></div>
-      <div class="Body"><a name="1029181">====================</a></div>
-      <div class="Body"><a name="1029182">&nbsp;</a></div>
-      <div class="Body"><a name="1029183">340__Login__Streaming implements the following high-level steps:</a></div>
-      <div class="Body"><a name="1029184">&nbsp;</a></div>
-      <div class="Body"><a name="1029185">+ Implements OmmProviderClient class in AppClient</a></div>
-      <div class="Body"><a name="1029186">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1029187">+ Instantiates AppClient object that receives and processes login messages</a></div>
-      <div class="Body"><a name="1029188">+ Instantiates and modifies an OmmNiProviderConfig object:</a></div>
-      <div class="Body"><a name="1029189">  - which reads in the EmaConfig.xml file with:</a></div>
-      <div class="Body"><a name="1029190">    - specified SourceDirectory of TEST_NI_PUB</a></div>
-      <div class="Body"><a name="1029191">	- specified Channel’s host and port</a></div>
-      <div class="Body"><a name="1029192">  - Sets the username to “user”</a></div>
-      <div class="Body"><a name="1029193">+ Instantiates an OmmProvider object which:</a></div>
-      <div class="Body"><a name="1029194">  - initializes the connection and logs into the configured ADH</a></div>
-      <div class="Body"><a name="1029195">  - sends down the source directory refresh message with TEST_NI_PUB service info</a></div>
-      <div class="Body"><a name="1029196">+ Registers for login stream</a></div>
-      <div class="Body"><a name="1029197">+ Creates streaming item (refresh and updates) and publishes it</a></div>
-      <div class="Body"><a name="1029198">  - MarketPrice IBM.N item on the TEST_NI_PUB service</a></div>
-      <div class="Body"><a name="1029199">+ Publishes updates 1 per second</a></div>
-      <div class="Body"><a name="1029200">+ Processes login messages received from the API for 60 seconds</a></div>
-      <div class="Body"><a name="1029201">  - all received messages are processed on the API thread of control</a></div>
-      <div class="Body"><a name="1029202">+ Exits</a></div>
-      <div class="Body"><a name="1029203">&nbsp;</a></div>
-      <div class="Body"><a name="1029204">Note: If needed, these and other details may be modified to fit your local</a></div>
-      <div class="Body"><a name="1029205">      environment. For details on standard configuration, refer to the EMA library</a></div>
-      <div class="Body"><a name="1029206">      ReadMe.txt file and EMA Configuration Guide.</a></div>
+      <div class="Body"><a name="1031780">Summary</a></div>
+      <div class="Body"><a name="1031781">=======</a></div>
+      <div class="Body"><a name="1031782">&nbsp;</a></div>
+      <div class="Body"><a name="1031783">340__Login__Streaming is an example of an OMM NiProvider application written</a></div>
+      <div class="Body"><a name="1031784">to the EMA library.</a></div>
+      <div class="Body"><a name="1031785">&nbsp;</a></div>
+      <div class="Body"><a name="1031786">This application demonstrates the basic usage of the EMA library in providing</a></div>
+      <div class="Body"><a name="1031787">of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.</a></div>
+      <div class="Body"><a name="1031788">&nbsp;</a></div>
+      <div class="Body"><a name="1031789">340__Login__Streaming illustrates how to create and publish one OMM streaming item</a></div>
+      <div class="Body"><a name="1031790">and register for and process received login messages. This application uses source</a></div>
+      <div class="Body"><a name="1031791">directory configured in the EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1031792">&nbsp;</a></div>
+      <div class="Body"><a name="1031793">&nbsp;</a></div>
+      <div class="Body"><a name="1031794">Detailed Description</a></div>
+      <div class="Body"><a name="1031795">====================</a></div>
+      <div class="Body"><a name="1031796">&nbsp;</a></div>
+      <div class="Body"><a name="1031797">340__Login__Streaming implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1031798">&nbsp;</a></div>
+      <div class="Body"><a name="1031799">+ Implements OmmProviderClient class in AppClient</a></div>
+      <div class="Body"><a name="1031800">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1031801">+ Instantiates AppClient object that receives and processes login messages</a></div>
+      <div class="Body"><a name="1031802">+ Instantiates and modifies an OmmNiProviderConfig object:</a></div>
+      <div class="Body"><a name="1031803">  - which reads in the EmaConfig.xml file with:</a></div>
+      <div class="Body"><a name="1031804">    - specified SourceDirectory of TEST_NI_PUB</a></div>
+      <div class="Body"><a name="1031805">	- specified Channel’s host and port</a></div>
+      <div class="Body"><a name="1031806">  - Sets the username to “user”</a></div>
+      <div class="Body"><a name="1031807">+ Instantiates an OmmProvider object which:</a></div>
+      <div class="Body"><a name="1031808">  - initializes the connection and logs into the configured ADH</a></div>
+      <div class="Body"><a name="1031809">  - sends down the source directory refresh message with TEST_NI_PUB service info</a></div>
+      <div class="Body"><a name="1031810">+ Registers for login stream</a></div>
+      <div class="Body"><a name="1031811">+ Creates streaming item (refresh and updates) and publishes it</a></div>
+      <div class="Body"><a name="1031812">  - MarketPrice IBM.N item on the TEST_NI_PUB service</a></div>
+      <div class="Body"><a name="1031813">+ Publishes updates 1 per second</a></div>
+      <div class="Body"><a name="1031814">+ Processes login messages received from the API for 60 seconds</a></div>
+      <div class="Body"><a name="1031815">  - all received messages are processed on the API thread of control</a></div>
+      <div class="Body"><a name="1031816">+ Exits</a></div>
+      <div class="Body"><a name="1031817">&nbsp;</a></div>
+      <div class="Body"><a name="1031818">Note: If needed, these and other details may be modified to fit your local</a></div>
+      <div class="Body"><a name="1031819">      environment. For details on standard configuration, refer to the EMA library</a></div>
+      <div class="Body"><a name="1031820">      ReadMe.txt file and EMA Configuration Guide.</a></div>
       <div class="Body"><a name="1028704">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--

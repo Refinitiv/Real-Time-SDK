@@ -64,10 +64,12 @@ class EmaObjectManager
 	VaPool _singleItemPool = new VaPool(false);
 	VaPool _batchItemPool = new VaPool(false);
 	VaPool _subItemPool = new VaPool(false);
+	VaPool _tunnelItemPool = new VaPool(false);
 	VaPool _dictionaryItemPool = new VaPool(false);
 	VaPool _directoryItemPool = new VaPool(false);
 	VaPool _loginItemPool = new VaPool(false);
 	VaPool _longObjectPool = new VaPool(false);
+	VaPool _intObjectPool = new VaPool(false);
 
 	VaPool _timeoutEventPool = new VaPool(false);
 
@@ -116,7 +118,10 @@ class EmaObjectManager
 			_singleItemPool.add(new SingleItem<T>());
 			_batchItemPool.add(new BatchItem<T>());
 			_longObjectPool.add(new LongObject());
-			
+			_intObjectPool.add(new IntObject());
+			_subItemPool.add(new SubItem<T>());
+			_tunnelItemPool.add(new TunnelItem<T>());
+
 			_timeoutEventPool.add(new TimeoutEvent(0, null));
 			
 			load = new NoDataImpl();
@@ -142,6 +147,19 @@ class EmaObjectManager
         }
         else
         	return longObj.clear();
+    }
+	
+	IntObject createIntObject()
+    {
+		IntObject intObj = (IntObject)_intObjectPool.poll();
+        if (intObj == null)
+        {
+        	intObj = new IntObject();
+            _longObjectPool.updatePool(intObj);
+            return intObj;
+        }
+        else
+        	return intObj.clear();
     }
 	
 	ByteBuffer acquireByteBuffer(int length)

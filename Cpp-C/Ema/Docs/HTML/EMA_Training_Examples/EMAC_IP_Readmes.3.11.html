@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>210__MarketByPrice__Streaming</title>
+    <link rel="StyleSheet" href="css/EMAC_IP_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3_NoNum"><a name="1031645">210__MarketByPrice__Streaming</a></div>
+      <div class="Body"><a name="1033176">Summary</a></div>
+      <div class="Body"><a name="1033177">=======</a></div>
+      <div class="Body"><a name="1033178">&nbsp;</a></div>
+      <div class="Body"><a name="1033179">210__MarketByPrice__Streaming is an example of an OMM Interactive Provider application </a></div>
+      <div class="Body"><a name="1033180">written to the EMA library.</a></div>
+      <div class="Body"><a name="1033181">&nbsp;</a></div>
+      <div class="Body"><a name="1033182">This application demonstrates the basic usage of the EMA library in providing</a></div>
+      <div class="Body"><a name="1033183">of OMM MarketByPrice data to a Consumer application.</a></div>
+      <div class="Body"><a name="1033184">&nbsp;</a></div>
+      <div class="Body"><a name="1033185">210__MarketByPrice__Streaming illustrates how to create and publish a single OMM</a></div>
+      <div class="Body"><a name="1033186">streaming item. This application uses source directory configured in the EmaConfig.xml</a></div>
+      <div class="Body"><a name="1033187">file.</a></div>
+      <div class="Body"><a name="1033188">&nbsp;</a></div>
+      <div class="Body"><a name="1033189">&nbsp;</a></div>
+      <div class="Body"><a name="1033190">Detailed Description</a></div>
+      <div class="Body"><a name="1033191">====================</a></div>
+      <div class="Body"><a name="1033192">&nbsp;</a></div>
+      <div class="Body"><a name="1033193">210__MarketByPrice__Streaming implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1033194">&nbsp;</a></div>
+      <div class="Body"><a name="1033195">+ Instantiates and modifies an OmmIProviderConfig object:</a></div>
+      <div class="Body"><a name="1033196">  - Set the operation model to use user dispatch</a></div>
+      <div class="Body"><a name="1033197">+ Instantiates an OmmProvider object which:</a></div>
+      <div class="Body"><a name="1033198">  - listens on the port from the EmaConfig.xml file </a></div>
+      <div class="Body"><a name="1033199">+ Accepts a login request</a></div>
+      <div class="Body"><a name="1033200">+ Processes an item request for MarketByPrice domain.</a></div>
+      <div class="Body"><a name="1033201"> - Creates streaming item (refresh and updates) and publishes them</a></div>
+      <div class="Body"><a name="1033202"> - Publishes updates 1 per second for 60 seconds.</a></div>
+      <div class="Body"><a name="1033203">+ Rejects subsequent item requests.</a></div>
+      <div class="Body"><a name="1033204">+ Exits</a></div>
+      <div class="Body"><a name="1033205">&nbsp;</a></div>
+      <div class="Body"><a name="1033206">Note: If needed, these and other details may be modified to fit your local</a></div>
+      <div class="Body"><a name="1033207">      environment. For details on standard configuration, refer to the EMA library</a></div>
+      <div class="Body"><a name="1033208">      ReadMe.txt file and EMA Configuration Guide.</a></div>
+      <div class="Body"><a name="1032351">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_IP_Readmes.3.01.html">EMA C++ Interactive Provider Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_IP_Readmes.3.09.html">200 Series Examples</a> : 210__MarketByPrice__Streaming</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

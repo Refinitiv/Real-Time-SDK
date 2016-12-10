@@ -46,6 +46,8 @@ public :
 
 	void decode( const thomsonreuters::ema::access::Map& );					// print content of passed in Map to screen
 
+	void decode( const thomsonreuters::ema::access::OmmArray& );			// print content of passed in Array to screen
+
 protected :
 
 	void onRefreshMsg( const thomsonreuters::ema::access::RefreshMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );

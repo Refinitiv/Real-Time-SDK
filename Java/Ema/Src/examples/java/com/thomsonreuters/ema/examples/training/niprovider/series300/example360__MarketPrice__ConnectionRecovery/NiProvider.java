@@ -11,6 +11,7 @@ import com.thomsonreuters.ema.access.OmmProviderClient;
 import com.thomsonreuters.ema.access.OmmProviderEvent;
 import com.thomsonreuters.ema.access.OmmReal;
 import com.thomsonreuters.ema.access.OmmState;
+import com.thomsonreuters.ema.access.PostMsg;
 import com.thomsonreuters.ema.access.RefreshMsg;
 import com.thomsonreuters.ema.access.ReqMsg;
 import com.thomsonreuters.ema.access.StatusMsg;
@@ -69,9 +70,13 @@ class AppClient implements OmmProviderClient
 				_connectionUp = false;					
 		}
 	}
-		
+	
 	public void onGenericMsg(GenericMsg genericMsg, OmmProviderEvent event){}
 	public void onAllMsg(Msg msg, OmmProviderEvent event){}
+	public void onPostMsg(PostMsg postMsg, OmmProviderEvent providerEvent) {}
+	public void onReqMsg(ReqMsg reqMsg, OmmProviderEvent providerEvent) {}
+	public void onReissue(ReqMsg reqMsg, OmmProviderEvent providerEvent) {}
+	public void onClose(ReqMsg reqMsg, OmmProviderEvent providerEvent) {}
 }
 
 
