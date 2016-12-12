@@ -37,10 +37,19 @@ import com.thomsonreuters.upa.codec.StatusMsgFlags;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.codec.UpdateMsg;
 import com.thomsonreuters.upa.codec.UpdateMsgFlags;
-import com.thomsonreuters.upa.valueadd.examples.common.LoginRequestInfo;
-import com.thomsonreuters.upa.valueadd.examples.common.MarketByPriceItem;
-import com.thomsonreuters.upa.valueadd.examples.common.MarketPriceItem;
-import com.thomsonreuters.upa.valueadd.examples.common.MarketPriceStatus;
+import com.thomsonreuters.upa.shared.provider.ItemInfo;
+import com.thomsonreuters.upa.shared.provider.ItemInfoList;
+import com.thomsonreuters.upa.shared.provider.ItemRejectReason;
+import com.thomsonreuters.upa.shared.provider.ItemRequestInfo;
+import com.thomsonreuters.upa.shared.provider.ItemRequestInfoList;
+import com.thomsonreuters.upa.shared.LoginRequestInfo;
+import com.thomsonreuters.upa.shared.provider.MarketByOrderItems;
+import com.thomsonreuters.upa.shared.provider.MarketByPriceItems;
+import com.thomsonreuters.upa.shared.provider.MarketPriceItems;
+import com.thomsonreuters.upa.shared.provider.SymbolListItems;
+import com.thomsonreuters.upa.shared.rdm.marketbyprice.MarketByPriceItem;
+import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceItem;
+import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceStatus;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.transport.Channel;
 import com.thomsonreuters.upa.transport.ChannelState;
@@ -323,11 +332,13 @@ class ItemHandler
 
                     if (((RequestMsg)msg).checkPrivateStream())
                     {
-                        System.out.println("Received Private Stream Item Request for " + itemReqInfo.itemName() + "(streamId=" + itemStream + ")  on domain " + DomainTypes.toString(itemReqInfo.domainType()));
+                        System.out.println("Received Private Stream Item Request for " + itemReqInfo.itemName() +
+                                           "(streamId=" + itemStream + ")  on domain " + DomainTypes.toString(itemReqInfo.domainType()));
                     }
                     else
                     {
-                        System.out.println("Received Item Request for " + itemReqInfo.itemName() + "(streamId=" + itemStream + ") on domain " + DomainTypes.toString(itemReqInfo.domainType()));
+                        System.out.println("Received Item Request for " + itemReqInfo.itemName() +
+                                           "(streamId=" + itemStream + ") on domain " + DomainTypes.toString(itemReqInfo.domainType()));
                     }
 
                     //send item response/refresh if required
@@ -451,11 +462,13 @@ class ItemHandler
 
         if (((RequestMsg)msg).checkPrivateStream())
         {
-            System.out.println("Received Private Stream Item Request for " + itemReqInfo.itemName() + "(streamId=" + msg.streamId() + ") on domain " + DomainTypes.toString(itemReqInfo.domainType()));
+            System.out.println("Received Private Stream Item Request for " + itemReqInfo.itemName() +
+                               "(streamId=" + msg.streamId() + ") on domain " + DomainTypes.toString(itemReqInfo.domainType()));
         }
         else
         {
-            System.out.println("Received Item Request for " + itemReqInfo.itemName() + "(streamId=" + msg.streamId() + ") on domain " + DomainTypes.toString(itemReqInfo.domainType()));
+            System.out.println("Received Item Request for " + itemReqInfo.itemName() +
+                               "(streamId=" + msg.streamId() + ") on domain " + DomainTypes.toString(itemReqInfo.domainType()));
         }
 
         //send item refresh
@@ -1050,7 +1063,8 @@ class ItemHandler
             return;
         }
 
-        int ret = _symbolListItemWatchList.encodeResponse(chnl, itemReqInfo.itemInfo(), msgBuf, streamId, true, serviceId(), itemReqInfo.isStreamingRequest(), _dictionaryHandler.dictionary(), responseType, _error);
+        int ret = _symbolListItemWatchList.encodeResponse(chnl, itemReqInfo.itemInfo(), msgBuf, streamId, true,
+                                                          serviceId(), itemReqInfo.isStreamingRequest(), _dictionaryHandler.dictionary(), responseType, _error);
         if (ret != CodecReturnCodes.SUCCESS)
         {
             System.out.println("encodeSymbolListResponse() failed");
@@ -1124,7 +1138,9 @@ class ItemHandler
                 //method. symbol list update responses are handled separately
                 if (itemReqInfo.itemInfo().isRefreshRequired())
                 {
-                    ret = _symbolListItemWatchList.encodeResponse(itemReqInfo.channel(), itemReqInfo.itemInfo(), msgBuf, itemReqInfo.streamId(), true, serviceId(), itemReqInfo.isStreamingRequest(), _dictionaryHandler.dictionary(), SymbolListItems.SYMBOL_LIST_REFRESH, errorInfo.error());
+                    ret = _symbolListItemWatchList.encodeResponse(itemReqInfo.channel(), itemReqInfo.itemInfo(), msgBuf, itemReqInfo.streamId(), true,
+                                                                  serviceId(), itemReqInfo.isStreamingRequest(), _dictionaryHandler.dictionary(),
+                                                                  SymbolListItems.SYMBOL_LIST_REFRESH, errorInfo.error());
                     if (ret != CodecReturnCodes.SUCCESS)
                     {
                         return ret;
@@ -1249,12 +1265,10 @@ class ItemHandler
 	        //send an update between each part of the refresh
 	        if (i < MAX_REFRESH_PARTS - 1)
 	        {
-	            mbpItem.priceInfoList.get(0).ORDER_SIZE.value(mbpItem.priceInfoList.get(0).ORDER_SIZE.toDouble() + i + 1, mbpItem.priceInfoList.get(0).ORDER_SIZE.hint()); // change
-	                                                                                                                                                                       // order
+	            mbpItem.priceInfoList.get(0).ORDER_SIZE.value(mbpItem.priceInfoList.get(0).ORDER_SIZE.toDouble() + i + 1, mbpItem.priceInfoList.get(0).ORDER_SIZE.hint()); // change order
 	            //size for update
 	            mbpItem.priceInfoList.get(1).ORDER_SIZE.value(mbpItem.priceInfoList.get(1).ORDER_SIZE.toDouble() + i + 1, mbpItem.priceInfoList.get(1).ORDER_SIZE.hint()); // change
-	            mbpItem.priceInfoList.get(2).ORDER_SIZE.value(mbpItem.priceInfoList.get(2).ORDER_SIZE.toDouble() + i + 1, mbpItem.priceInfoList.get(2).ORDER_SIZE.hint()); // change
-	                                                                                                                                                                       // order
+	            mbpItem.priceInfoList.get(2).ORDER_SIZE.value(mbpItem.priceInfoList.get(2).ORDER_SIZE.toDouble() + i + 1, mbpItem.priceInfoList.get(2).ORDER_SIZE.hint()); // change order
 	            //get a buffer for the response
 	            msgBuf = chnl.getBuffer(ITEM_MSG_SIZE, false, errorInfo);
 	            if (msgBuf == null)
@@ -1274,11 +1288,9 @@ class ItemHandler
 	                return ret;
 	            }
 	
-	            mbpItem.priceInfoList.get(0).ORDER_SIZE.value(mbpItem.priceInfoList.get(0).ORDER_SIZE.toDouble() - (i + 1), mbpItem.priceInfoList.get(0).ORDER_SIZE.hint()); // change
-	                                                                                                                                                                         // order
+	            mbpItem.priceInfoList.get(0).ORDER_SIZE.value(mbpItem.priceInfoList.get(0).ORDER_SIZE.toDouble() - (i + 1), mbpItem.priceInfoList.get(0).ORDER_SIZE.hint()); // change order
 	            // size for update
-	            mbpItem.priceInfoList.get(1).ORDER_SIZE.value(mbpItem.priceInfoList.get(1).ORDER_SIZE.toDouble() - (i + 1), mbpItem.priceInfoList.get(1).ORDER_SIZE.hint()); // change
-	                                                                                                                                                                         // order
+	            mbpItem.priceInfoList.get(1).ORDER_SIZE.value(mbpItem.priceInfoList.get(1).ORDER_SIZE.toDouble() - (i + 1), mbpItem.priceInfoList.get(1).ORDER_SIZE.hint()); // change order
 	            mbpItem.priceInfoList.get(2).ORDER_SIZE.value(mbpItem.priceInfoList.get(2).ORDER_SIZE.toDouble() - (i + 1), mbpItem.priceInfoList.get(2).ORDER_SIZE.hint()); // change
 	        }
 	    }
@@ -1540,8 +1552,7 @@ class ItemHandler
                     if (ret < TransportReturnCodes.SUCCESS)
                         return CodecReturnCodes.FAILURE;
 
-                    // check if its a status close and close any open streams if
-                    // it is
+                    // check if its a status close and close any open streams if it is
                     if (_nestedMsg.msgClass() == MsgClasses.STATUS && ((StatusMsg)_nestedMsg).checkHasState() && ((StatusMsg)_nestedMsg).state().streamState() == StreamStates.CLOSED)
                         closeStream(itemReqInfoL.channel(), _nestedMsg.streamId());
                 }

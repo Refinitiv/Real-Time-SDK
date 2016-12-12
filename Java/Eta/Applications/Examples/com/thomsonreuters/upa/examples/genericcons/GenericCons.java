@@ -17,13 +17,13 @@ import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.codec.RequestMsg;
 import com.thomsonreuters.upa.examples.common.ChannelSession;
-import com.thomsonreuters.upa.examples.common.CommandLine;
-import com.thomsonreuters.upa.examples.common.ConsumerLoginState;
 import com.thomsonreuters.upa.examples.common.GenericResponseStatusFlags;
-import com.thomsonreuters.upa.examples.common.LoginHandler;
-import com.thomsonreuters.upa.examples.common.PingHandler;
 import com.thomsonreuters.upa.examples.common.ResponseCallback;
 import com.thomsonreuters.upa.examples.common.DirectoryHandler;
+import com.thomsonreuters.upa.examples.common.LoginHandler;
+import com.thomsonreuters.upa.shared.CommandLine;
+import com.thomsonreuters.upa.shared.ConsumerLoginState;
+import com.thomsonreuters.upa.shared.PingHandler;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.transport.ChannelInfo;
@@ -309,8 +309,7 @@ public class GenericCons implements ResponseCallback
     }
 
     /*
-     * Wait for channel to become active. This finalizes the three-way
-     * handshake.
+     * Wait for channel to become active. This finalizes the three-way handshake.
      */
     private void waitUntilChannelActive(InProgInfo inProg) throws InterruptedException
     {
@@ -521,11 +520,7 @@ public class GenericCons implements ResponseCallback
         }
         else if (loginState == ConsumerLoginState.SUSPECT)
         {
-            if (!loginHandler.refreshInfo().checkHasAttrib() || // default
-                                                                // behavior when
-                                                                // singleopen
-                                                                // attrib not
-                                                                // set
+            if (!loginHandler.refreshInfo().checkHasAttrib() || // default behavior when singleopen attrib not set
             loginHandler.refreshInfo().attrib().singleOpen() == 0)
             {
                 // reopen directory stream, which in turn reopens other streams

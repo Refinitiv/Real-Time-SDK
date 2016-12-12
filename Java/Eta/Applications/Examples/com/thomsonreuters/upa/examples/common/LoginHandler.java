@@ -10,6 +10,7 @@ import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.codec.State;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.rdm.Login;
+import com.thomsonreuters.upa.shared.ConsumerLoginState;
 import com.thomsonreuters.upa.transport.Error;
 import com.thomsonreuters.upa.transport.TransportBuffer;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginClose;

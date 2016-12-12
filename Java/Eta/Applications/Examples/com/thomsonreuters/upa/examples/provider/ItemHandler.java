@@ -35,13 +35,23 @@ import com.thomsonreuters.upa.codec.StatusMsgFlags;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.codec.UpdateMsg;
 import com.thomsonreuters.upa.codec.UpdateMsgFlags;
-import com.thomsonreuters.upa.examples.common.LoginRequestInfo;
-import com.thomsonreuters.upa.examples.common.ProviderDirectoryHandler;
+import com.thomsonreuters.upa.shared.LoginRequestInfo;
+import com.thomsonreuters.upa.shared.ProviderDirectoryHandler;
+import com.thomsonreuters.upa.shared.ProviderSession;
+import com.thomsonreuters.upa.shared.provider.ItemInfo;
+import com.thomsonreuters.upa.shared.provider.ItemInfoList;
+import com.thomsonreuters.upa.shared.provider.ItemRejectReason;
+import com.thomsonreuters.upa.shared.provider.ItemRequestInfo;
+import com.thomsonreuters.upa.shared.provider.ItemRequestInfoList;
+import com.thomsonreuters.upa.shared.provider.MarketByOrderItems;
+import com.thomsonreuters.upa.shared.provider.MarketByPriceItems;
+import com.thomsonreuters.upa.shared.provider.MarketPriceItems;
+import com.thomsonreuters.upa.shared.provider.SymbolListItems;
+import com.thomsonreuters.upa.shared.rdm.marketbyprice.MarketByPriceItem;
+import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceItem;
+import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceStatus;
+import com.thomsonreuters.upa.examples.common.ProviderDictionaryHandler;
 import com.thomsonreuters.upa.examples.common.ProviderLoginHandler;
-import com.thomsonreuters.upa.examples.common.ProviderSession;
-import com.thomsonreuters.upa.examples.rdm.marketbyprice.MarketByPriceItem;
-import com.thomsonreuters.upa.examples.rdm.marketprice.MarketPriceItem;
-import com.thomsonreuters.upa.examples.rdm.marketprice.MarketPriceStatus;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.transport.Channel;
 import com.thomsonreuters.upa.transport.ChannelState;
@@ -85,7 +95,7 @@ public class ItemHandler
     private ItemInfoList _itemInfoWatchList;
     private ItemRequestInfoList _itemRequestWatchList;
 
-    private DictionaryHandler _dictionaryHandler;
+    private ProviderDictionaryHandler _dictionaryHandler;
     private ProviderLoginHandler _loginHandler;
 
     private int _serviceId;
@@ -103,7 +113,7 @@ public class ItemHandler
     private StatusMsg _statusMsg = (StatusMsg)CodecFactory.createMsg();
     private Qos _providerQos = CodecFactory.createQos();
 
-    public ItemHandler(ProviderSession providerSession, DictionaryHandler dictionaryHandler, ProviderLoginHandler loginHandler)
+    public ItemHandler(ProviderSession providerSession, ProviderDictionaryHandler dictionaryHandler, ProviderLoginHandler loginHandler)
     {
         _providerSession = providerSession;
         _marketByOrderItemWatchList = new MarketByOrderItems();

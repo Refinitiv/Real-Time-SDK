@@ -10,15 +10,16 @@ import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.Qos;
 import com.thomsonreuters.upa.codec.RefreshMsg;
 import com.thomsonreuters.upa.examples.common.ChannelSession;
-import com.thomsonreuters.upa.examples.common.CommandLine;
-import com.thomsonreuters.upa.examples.common.ConsumerLoginState;
-import com.thomsonreuters.upa.examples.common.LoginHandler;
-import com.thomsonreuters.upa.examples.common.PingHandler;
 import com.thomsonreuters.upa.examples.common.ResponseCallback;
+import com.thomsonreuters.upa.examples.common.LoginHandler;
 import com.thomsonreuters.upa.examples.edfexamples.common.DirectoryHandler;
+import com.thomsonreuters.upa.examples.edfexamples.common.EDFDictionaryHandler;
 import com.thomsonreuters.upa.examples.edfexamples.common.EDFChannelSession;
 import com.thomsonreuters.upa.examples.edfexamples.common.EDFWatchList;
-import com.thomsonreuters.upa.examples.edfexamples.edfconsumer.SymbolListHandler.SymbolListEntry;
+import com.thomsonreuters.upa.examples.edfexamples.edfconsumer.EDFSymbolListHandler.SymbolListEntry;
+import com.thomsonreuters.upa.shared.CommandLine;
+import com.thomsonreuters.upa.shared.ConsumerLoginState;
+import com.thomsonreuters.upa.shared.PingHandler;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.transport.ChannelInfo;
@@ -56,7 +57,7 @@ public class SnapshotSession implements ResponseCallback
     private static final int SNAPSHOT_SES_CONNECTION_RETRY_TIME = 15; // seconds
 
     private LoginHandler loginHandler;
-    private DictionaryHandler dictionaryHandler;
+    private EDFDictionaryHandler dictionaryHandler;
     private DirectoryHandler srcDirHandler;
     private Buffer symbolListName;
     private ChannelInfo channelInfo;
@@ -65,12 +66,11 @@ public class SnapshotSession implements ResponseCallback
     private Msg responseMsg = CodecFactory.createMsg();
 
     static EDFChannelSession channelSession = new EDFChannelSession();
-    private static Error error = TransportFactory.createError(); // error
-                                                                 // information
+    private static Error error = TransportFactory.createError(); // error information
 
     private ServiceSeqMcastInfo seqMcastInfo;
     
-    private SymbolListHandler symbolListHandler;
+    private EDFSymbolListHandler symbolListHandler;
     
     private EDFWatchList watchlist;
 
@@ -78,8 +78,8 @@ public class SnapshotSession implements ResponseCallback
     {
         channelInfo = TransportFactory.createChannelInfo();
         loginHandler = new LoginHandler();
-        dictionaryHandler = new DictionaryHandler();
-        symbolListHandler = new SymbolListHandler();
+        dictionaryHandler = new EDFDictionaryHandler();
+        symbolListHandler = new EDFSymbolListHandler();
         srcDirHandler = new DirectoryHandler();
         channelSession = new EDFChannelSession(this);
         symbolListName = CodecFactory.createBuffer();
@@ -369,7 +369,9 @@ public class SnapshotSession implements ResponseCallback
                 {
                     temp.data(CommandLine.values("mp").get(i));
                     if (!watchlist.containsItem(temp))
-                        watchlist.addItem(entry.getId(), temp, DomainTypes.MARKET_PRICE, 0, entry.getGapFillChannelId(DomainTypes.MARKET_PRICE), entry.getRealTimeChannelId(DomainTypes.MARKET_PRICE));
+                        watchlist.addItem(entry.getId(), temp, DomainTypes.MARKET_PRICE, 0,
+                                          entry.getGapFillChannelId(DomainTypes.MARKET_PRICE),
+                                          entry.getRealTimeChannelId(DomainTypes.MARKET_PRICE));
                 }
             }
         if (CommandLine.hasArg("mbo") && CommandLine.values("mbo").size() > 0)
@@ -379,7 +381,9 @@ public class SnapshotSession implements ResponseCallback
                 {
                     temp.data(CommandLine.values("mbo").get(i));
                     if (!watchlist.containsItem(temp))
-                        watchlist.addItem(entry.getId(), temp, DomainTypes.MARKET_BY_ORDER, 0, entry.getGapFillChannelId(DomainTypes.MARKET_BY_ORDER), entry.getRealTimeChannelId(DomainTypes.MARKET_BY_ORDER));
+                        watchlist.addItem(entry.getId(), temp, DomainTypes.MARKET_BY_ORDER, 0,
+                                          entry.getGapFillChannelId(DomainTypes.MARKET_BY_ORDER),
+                                          entry.getRealTimeChannelId(DomainTypes.MARKET_BY_ORDER));
                 }
             }
         if (CommandLine.hasArg("mbp") && CommandLine.values("mbp").size() > 0)
@@ -389,7 +393,9 @@ public class SnapshotSession implements ResponseCallback
                 {
                     temp.data(CommandLine.values("mbp").get(i));
                     if (!watchlist.containsItem(temp))
-                        watchlist.addItem(entry.getId(), temp, DomainTypes.MARKET_BY_PRICE, 0, entry.getGapFillChannelId(DomainTypes.MARKET_BY_PRICE), entry.getRealTimeChannelId(DomainTypes.MARKET_BY_PRICE));
+                        watchlist.addItem(entry.getId(), temp, DomainTypes.MARKET_BY_PRICE, 0,
+                                          entry.getGapFillChannelId(DomainTypes.MARKET_BY_PRICE),
+                                          entry.getRealTimeChannelId(DomainTypes.MARKET_BY_PRICE));
                 }
             }
         }
@@ -440,11 +446,7 @@ public class SnapshotSession implements ResponseCallback
         }
         else if (loginState == ConsumerLoginState.SUSPECT)
         {
-            if (!loginHandler.refreshInfo().checkHasAttrib() || // default
-                                                                // behavior when
-                                                                // singleopen
-                                                                // attrib not
-                                                                // set
+            if (!loginHandler.refreshInfo().checkHasAttrib() || // default behavior when singleopen attrib not set
                     loginHandler.refreshInfo().attrib().singleOpen() == 0)
             {
                 // login suspect from no single-open provider: 1) close source
@@ -509,7 +511,7 @@ public class SnapshotSession implements ResponseCallback
         return channelSession;
     }
     
-    public SymbolListHandler symbolListHandler()
+    public EDFSymbolListHandler symbolListHandler()
     {
         return symbolListHandler;
     }

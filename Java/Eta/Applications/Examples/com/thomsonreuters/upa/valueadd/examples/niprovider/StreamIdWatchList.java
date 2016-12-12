@@ -8,8 +8,8 @@ import java.util.Set;
 
 import com.thomsonreuters.upa.valueadd.cache.PayloadEntry;
 import com.thomsonreuters.upa.valueadd.examples.niprovider.StreamIdWatchList.WatchListEntry;
-import com.thomsonreuters.upa.valueadd.examples.common.MarketByOrderItem;
-import com.thomsonreuters.upa.valueadd.examples.common.MarketPriceItem;
+import com.thomsonreuters.upa.shared.rdm.marketbyorder.MarketByOrderItem;
+import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceItem;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 
 /*

@@ -1,6 +1,6 @@
 package com.thomsonreuters.upa.perftools.common;
 
-import com.thomsonreuters.upa.perftools.common.ConsumerLoginState;
+import com.thomsonreuters.upa.shared.ConsumerLoginState;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.codec.DataStates;
 import com.thomsonreuters.upa.codec.DecodeIterator;

@@ -1,7 +1,7 @@
 package com.thomsonreuters.upa.perftools.common;
 
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.perftools.common.CommandLine;
+import com.thomsonreuters.upa.shared.CommandLine;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
 
 /**

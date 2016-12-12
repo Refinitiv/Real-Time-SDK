@@ -6,20 +6,36 @@
 	
 	<property name="dist.dir" value="../"/>
 	<property name="submodule.dir" value="../../../Elektron-SDK-BinaryPack/Java/Eta/Libs"/>
+
 	<property name="libs.dir" value="${dist.dir}/Libs"/>
-	<property name="bin.dir" value="${dist.dir}/Source/bin"/>	
+	<property name="src.dir" value="${dist.dir}/Source" />
+	<property name="bin.dir" value="${src.dir}/bin"/>	
 	<property name="stubs.dir" value="${bin.dir}/stubs"/>
-	<property name="valueadd.src.dir" value="${dist.dir}/Source" />
 	
-	<path id="valueadd.classpath">
-        <pathelement location="${libs.dir}/upa.jar"/>
-		<pathelement location="${submodule.dir}/upa.jar"/>
-    </path>
+	<property name="docs.dir" value="${dist.dir}/Docs" />
+	<property name="docs.refman.dir" value="${docs.dir}/refman" />
+	<property name="docs.refman.upaj.dir" value="${docs.refman.dir}/upaj" />
+
+	<!-- the root of all build and runtime dependiences -->
+	<property name="ApacheClient.dir" value="${submodule.dir}/ApacheClient" />
+
+	<!-- the path to the http Apache Client runtime -->
+	<path id="ApacheClient.classpath">
+		<pathelement location="${ApacheClient.dir}/commons-codec-1.4.jar" />
+		<pathelement location="${ApacheClient.dir}/commons-logging-1.1.1.jar" />
+		<pathelement location="${ApacheClient.dir}/httpclient-4.1.2.jar" />
+		<pathelement location="${ApacheClient.dir}/httpclient-cache-4.1.2.jar" />
+		<pathelement location="${ApacheClient.dir}/httpcore-4.1.2.jar" />
+		<pathelement location="${ApacheClient.dir}/httpmime-4.1.2.jar" />
+	</path>
+	
+	<!-- marshalling directory (temporary directory for various files) -->
+	<property name="marshall.dir" value="temp" />
 
 	<target name="init">
 		<echo message="Creating a directory for the compiler output" />
         <mkdir dir="${bin.dir}"/>
-		<mkdir dir="${stubs.dir}"/>
+        <mkdir dir="${bin.dir}/stubs"/>
     </target>
 	
 	<target name="clean">
@@ -27,13 +43,29 @@
         <delete dir="${bin.dir}"/>
     </target>
 
-	<target depends="init" name="build-valueadd">
-		<echo message="Building the valueadd" />
+    <target depends="init" name="build-etaj">
+		<echo message="Building the eta source" />
+		<delete dir="${marshall.dir}" />
+		<echo message="Compiling ETAJ source code"/>
         <javac debug="false" debuglevel="${debuglevel}" destdir="${bin.dir}" source="${source}" target="${target}" includeantruntime="false">
-			<exclude name="com/thomsonreuters/upa/valueadd/cache/**" />
-        	<src path="${valueadd.src.dir}"/>
-            <classpath refid="valueadd.classpath"/>
+        	<src path="${src.dir}"/>
+			<exclude name="Stubs/**"/>
+			<classpath refid="ApacheClient.classpath" />
         </javac>
+		<copy file="${src.dir}/impl/com/thomsonreuters/proxy/authentication/kerberos/login.conf" todir="${bin.dir}/com/thomsonreuters/proxy/authentication/kerberos"/>
+
+		<echo message="Creating the ETA jar file"/>
+		<jar destfile="${libs.dir}/upa.jar" basedir="${bin.dir}" includes="**/proxy/**/*.class,**/proxy/**/*.conf,**/upa/codec/**/*.class,**/upa/rdm/**/*.class,**/transport/**/*.class" excludes="**/*Junit*.class,**/*Test*.class">
+			<manifest>
+				<attribute name="Sealed" value="true" />
+				<attribute name="Specification-Title" value="Elektron Transport API (ETA) Java Edition" />
+				<attribute name="Specification-Version" value="${package}" />
+				<attribute name="Specification-Vendor" value="Thomson Reuters" />
+				<attribute name="Implementation-Title" value="com.thomsonreuters.upa" />
+				<attribute name="Implementation-Version" value="${version}" />
+				<attribute name="Implementation-Vendor" value="${date} Thomson Reuters" />
+			</manifest>
+		</jar>
 		<jar destfile="${libs.dir}/upaValueAdd.jar" basedir="${bin.dir}" includes="**/upa/valueadd/common/**/*.class,**/upa/valueadd/domainrep/**/*.class,**/upa/valueadd/reactor/**/*.class">
 			<manifest>
 				<attribute name="Sealed" value="true" />
@@ -46,7 +78,33 @@
 			</manifest>
 		</jar>
     </target>
-	
+
+	<!-- this target creates and packages the javadoc -->
+    <target depends="init" name="package-docs">
+        <echo message="ETA Java API javadoc" />
+        <delete dir="${marshall.dir}" />
+		<copy todir="${marshall.dir}">
+            <fileset dir="${src.dir}/impl">
+                 <include name="**/*.*" />
+            </fileset>
+            <fileset dir="${src.dir}/interface">
+                 <include name="**/*.*" />
+            </fileset>
+            <fileset dir="${src.dir}/test">
+                 <include name="**/*.*" />
+            </fileset>
+        </copy>
+
+		<javadoc sourcepath="${marshall.dir}" classpath="${ApacheClient.dir}/commons-codec-1.4.jar;${ApacheClient.dir}/httpclient-4.1.2.jar;${ApacheClient.dir}/httpclient-cache-4.1.2.jar;${ApacheClient.dir}/httpcore-4.1.2.jar;${ApacheClient.dir}/httpmime-4.1.2.jar" defaultexcludes="yes" destdir="${docs.refman.upaj.dir}" author="true" version="true" use="true" windowtitle="ETAJ API" additionalparam="-Xdoclint:none">
+			<doctitle>
+				<![CDATA[<h1>Elektron Transport API (ETA) 3.0 - Java Edition</h1>]]></doctitle>
+			<bottom>
+				<![CDATA[<i>Copyright &#169; 2016  Thomson Reuters. All Rights Reserved.</i>]]></bottom>
+		</javadoc>
+
+         <delete dir="${marshall.dir}" />
+    </target>
+
 	<target depends="init" name="build-stubs">
 		<echo message="Building the ETAJ Stubs" />		
 		<echo message="${ant.project.name}: ${ant.file}" />
@@ -55,12 +113,9 @@
 			<compilerarg value="-Werror" />
 			<compilerarg value="-Xlint:-options" />
 			<!-- treat warnings as errors -->
-			<exclude name="com/thomsonreuters/upa/valueadd/common/**" />
-			<exclude name="com/thomsonreuters/upa/valueadd/domainrep/**" />
-			<exclude name="com/thomsonreuters/upa/valueadd/reactor/**" />
-			<src path="${valueadd.src.dir}" />
-			<src path="${valueadd.src.dir}/Stubs/internal" />
-			<src path="${valueadd.src.dir}/Stubs/external" />
+			<src path="${src.dir}/interface/com/thomsonreuters/upa/valueadd/cache" />
+			<src path="${src.dir}/Stubs/internal" />
+			<src path="${src.dir}/Stubs/external" />
         </javac>
 		<echo message="Creating the ETAJ Stubs jar file"/>
 		<jar destfile="${stubs.dir}/upa.jar" basedir="${stubs.dir}" includes="**/upa/codec/**/*.class,**/upa/rdm/**/*.class,**/transport/**/*.class">
@@ -86,9 +141,8 @@
 			</manifest>
 		</jar>
     </target>
-	
-	<target depends="clean,build-valueadd" name="all"/>
 
-	<target depends="clean,build-valueadd" name="build"/>
+	<target depends="clean,build-etaj" name="all"/>
+	<target depends="clean,build-etaj" name="build"/>
 	
 </project>

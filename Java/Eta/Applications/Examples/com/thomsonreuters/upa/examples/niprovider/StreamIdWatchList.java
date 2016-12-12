@@ -7,8 +7,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.thomsonreuters.upa.examples.niprovider.StreamIdWatchList.WatchListEntry;
-import com.thomsonreuters.upa.examples.rdm.marketbyorder.MarketByOrderItem;
-import com.thomsonreuters.upa.examples.rdm.marketprice.MarketPriceItem;
+import com.thomsonreuters.upa.shared.rdm.marketbyorder.MarketByOrderItem;
+import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceItem;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 
 /**

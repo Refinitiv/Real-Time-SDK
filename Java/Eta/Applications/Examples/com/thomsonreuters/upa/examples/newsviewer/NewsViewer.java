@@ -7,12 +7,14 @@ import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.examples.common.ChannelSession;
-import com.thomsonreuters.upa.examples.common.CommandLine;
-import com.thomsonreuters.upa.examples.common.ConsumerLoginState;
-import com.thomsonreuters.upa.examples.common.LoginHandler;
 import com.thomsonreuters.upa.examples.common.DirectoryHandler;
-import com.thomsonreuters.upa.examples.common.PingHandler;
+import com.thomsonreuters.upa.examples.common.DictionaryHandler;
+import com.thomsonreuters.upa.examples.common.LoginHandler;
 import com.thomsonreuters.upa.examples.common.ResponseCallback;
+import com.thomsonreuters.upa.examples.common.StreamIdWatchList;
+import com.thomsonreuters.upa.shared.CommandLine;
+import com.thomsonreuters.upa.shared.ConsumerLoginState;
+import com.thomsonreuters.upa.shared.PingHandler;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.transport.ChannelInfo;
@@ -272,8 +274,7 @@ public class NewsViewer implements ResponseCallback
     }
 
     /*
-     * Wait for channel to become active. This finalizes the three-way
-     * handshake.
+     * Wait for channel to become active. This finalizes the three-way handshake.
      */
     private void waitUntilChannelActive(InProgInfo inProg) throws InterruptedException
     {
@@ -411,9 +412,9 @@ public class NewsViewer implements ResponseCallback
     /**
      * Call back method to process responses from channel. Processing responses
      * consists of performing a high level decode of the message and then
-     * calling the applicable specific method for further processing. chnl - The
-     * channel of the response buffer - The message buffer containing the
-     * response.
+     * calling the applicable specific method for further processing.
+     * chnl - The channel of the response
+     * buffer - The message buffer containing the response.
      */
     public void processResponse(ChannelSession chnl, TransportBuffer buffer)
     {
@@ -506,8 +507,7 @@ public class NewsViewer implements ResponseCallback
         }
         else
         {
-            // service not up or
-            // previously up service went down
+            // service not up or previously up service went down
             requestsSent = false;
 
             System.out.println("Requested service '" + CommandLine.value("s")
@@ -601,11 +601,7 @@ public class NewsViewer implements ResponseCallback
         }
         else if (loginState == ConsumerLoginState.SUSPECT)
         {
-            if (!loginHandler.refreshInfo().checkHasAttrib() || // default
-                                                                // behavior when
-                                                                // singleopen
-                                                                // attrib not
-                                                                // set
+            if (!loginHandler.refreshInfo().checkHasAttrib() || // default behavior when singleopen attrib not set
                     loginHandler.refreshInfo().attrib().singleOpen() == 0)
             {
                 // login suspect from no single-open provider: 1) close source

@@ -8,7 +8,7 @@ import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.codec.MsgKey;
 import com.thomsonreuters.upa.codec.MsgKeyFlags;
 import com.thomsonreuters.upa.codec.State;
-import com.thomsonreuters.upa.valueadd.examples.common.CommandLine;
+import com.thomsonreuters.upa.shared.CommandLine;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
 import com.thomsonreuters.upa.valueadd.examples.common.ConnectionArg;

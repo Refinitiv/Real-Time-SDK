@@ -13,6 +13,7 @@ import com.thomsonreuters.upa.codec.QosTimeliness;
 import com.thomsonreuters.upa.codec.StateCodes;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.examples.common.ChannelSession;
+import com.thomsonreuters.upa.examples.common.NIProviderDictionaryHandler;
 import com.thomsonreuters.upa.rdm.Directory;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.transport.TransportBuffer;
@@ -181,8 +182,8 @@ public class DirectoryHandler
 
             //dictionary used
             service.info().applyHasDictionariesUsed();
-            service.info().dictionariesUsedList().add(DictionaryHandler.FIELD_DICTIONARY_DOWNLOAD_NAME);
-            service.info().dictionariesUsedList().add(DictionaryHandler.ENUM_TYPE_DOWNLOAD_NAME);
+            service.info().dictionariesUsedList().add(NIProviderDictionaryHandler.FIELD_DICTIONARY_DOWNLOAD_NAME);
+            service.info().dictionariesUsedList().add(NIProviderDictionaryHandler.ENUM_TYPE_DOWNLOAD_NAME);
 
             //isSource = Service is provided directly from original publisher
             service.info().applyHasIsSource();

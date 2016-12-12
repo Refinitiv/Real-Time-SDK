@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.perftools.common.CommandLine;
+import com.thomsonreuters.upa.shared.CommandLine;
 import com.thomsonreuters.upa.transport.CompressionTypes;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
 import com.thomsonreuters.upa.transport.WriteFlags;

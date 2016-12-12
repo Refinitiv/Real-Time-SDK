@@ -10,14 +10,15 @@ import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.examples.common.ChannelSession;
-import com.thomsonreuters.upa.examples.common.CommandLine;
-import com.thomsonreuters.upa.examples.common.ConsumerLoginState;
-import com.thomsonreuters.upa.examples.common.LoginHandler;
-import com.thomsonreuters.upa.examples.common.PingHandler;
 import com.thomsonreuters.upa.examples.common.ResponseCallback;
+import com.thomsonreuters.upa.examples.common.LoginHandler;
 import com.thomsonreuters.upa.examples.edfexamples.common.DirectoryHandler;
+import com.thomsonreuters.upa.examples.edfexamples.common.EDFDictionaryHandler;
 import com.thomsonreuters.upa.examples.edfexamples.common.EDFChannelSession;
 import com.thomsonreuters.upa.examples.edfexamples.common.EDFWatchList;
+import com.thomsonreuters.upa.shared.CommandLine;
+import com.thomsonreuters.upa.shared.ConsumerLoginState;
+import com.thomsonreuters.upa.shared.PingHandler;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.transport.ChannelInfo;
@@ -60,7 +61,7 @@ public class RefDataSession implements ResponseCallback
     private boolean requestsSent;
     
     private LoginHandler loginHandler;
-    private DictionaryHandler dictionaryHandler;
+    private EDFDictionaryHandler dictionaryHandler;
     private DirectoryHandler srcDirHandler;
     private Buffer symbolListName;
     private ChannelInfo channelInfo;
@@ -87,7 +88,7 @@ public class RefDataSession implements ResponseCallback
         channelInfo = TransportFactory.createChannelInfo();
         loginHandler = new LoginHandler();
         srcDirHandler = new DirectoryHandler();
-        dictionaryHandler = new DictionaryHandler();
+        dictionaryHandler = new EDFDictionaryHandler();
         symbolListName = CodecFactory.createBuffer();
         symbolListName.data(ByteBuffer.allocate(100));
         channelSession = new EDFChannelSession(this);
@@ -528,7 +529,7 @@ public class RefDataSession implements ResponseCallback
         return srcDirHandler.serviceInfo();
     }
     
-    public DictionaryHandler dictionary()
+    public EDFDictionaryHandler dictionary()
     {
         return dictionaryHandler;
     }
@@ -538,7 +539,7 @@ public class RefDataSession implements ResponseCallback
         return channelSession;
     }
     
-    public DictionaryHandler dictionaryHandler()
+    public EDFDictionaryHandler dictionaryHandler()
     {
         return dictionaryHandler;
     }

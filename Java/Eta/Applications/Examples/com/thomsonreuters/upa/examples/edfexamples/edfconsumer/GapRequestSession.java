@@ -15,13 +15,14 @@ import com.thomsonreuters.upa.codec.MsgKeyFlags;
 import com.thomsonreuters.upa.codec.StatusMsg;
 import com.thomsonreuters.upa.codec.UInt;
 import com.thomsonreuters.upa.examples.common.ChannelSession;
-import com.thomsonreuters.upa.examples.common.CommandLine;
-import com.thomsonreuters.upa.examples.common.ConsumerLoginState;
-import com.thomsonreuters.upa.examples.common.LoginHandler;
-import com.thomsonreuters.upa.examples.common.PingHandler;
 import com.thomsonreuters.upa.examples.common.ResponseCallback;
+import com.thomsonreuters.upa.examples.common.LoginHandler;
+import com.thomsonreuters.upa.examples.edfexamples.common.EDFDictionaryHandler;
 import com.thomsonreuters.upa.examples.edfexamples.common.EDFChannelSession;
 import com.thomsonreuters.upa.examples.edfexamples.common.EDFChannelSession.GapInfo;
+import com.thomsonreuters.upa.shared.CommandLine;
+import com.thomsonreuters.upa.shared.ConsumerLoginState;
+import com.thomsonreuters.upa.shared.PingHandler;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.transport.ChannelInfo;
@@ -65,7 +66,7 @@ public class GapRequestSession implements ResponseCallback
     private static final int GAPREQUEST_SES_CONNECTION_RETRY_TIME = 15; // seconds
 
     private LoginHandler loginHandler;
-    private DictionaryHandler dictionaryHandler;
+    private EDFDictionaryHandler dictionaryHandler;
     private ChannelInfo channelInfo;
 
     private DecodeIterator dIter = CodecFactory.createDecodeIterator();
@@ -91,7 +92,7 @@ public class GapRequestSession implements ResponseCallback
     {
         channelInfo = TransportFactory.createChannelInfo();
         loginHandler = new LoginHandler();
-        dictionaryHandler = new DictionaryHandler();
+        dictionaryHandler = new EDFDictionaryHandler();
         channelSession = new EDFChannelSession(this);
         error = TransportFactory.createError();
     }

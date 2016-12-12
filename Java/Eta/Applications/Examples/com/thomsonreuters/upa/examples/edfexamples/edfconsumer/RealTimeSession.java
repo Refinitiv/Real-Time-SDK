@@ -8,13 +8,14 @@ import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.examples.common.ChannelSession;
-import com.thomsonreuters.upa.examples.common.CommandLine;
-import com.thomsonreuters.upa.examples.common.PingHandler;
 import com.thomsonreuters.upa.examples.common.ResponseCallback;
+import com.thomsonreuters.upa.examples.edfexamples.common.EDFDictionaryHandler;
 import com.thomsonreuters.upa.examples.edfexamples.common.EDFChannelSession;
 import com.thomsonreuters.upa.examples.edfexamples.common.EDFChannelSession.ChannelInfo;
 import com.thomsonreuters.upa.examples.edfexamples.common.EDFWatchList;
-import com.thomsonreuters.upa.examples.edfexamples.edfconsumer.SymbolListHandler.SymbolListEntry;
+import com.thomsonreuters.upa.examples.edfexamples.edfconsumer.EDFSymbolListHandler.SymbolListEntry;
+import com.thomsonreuters.upa.shared.CommandLine;
+import com.thomsonreuters.upa.shared.PingHandler;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.transport.ConnectOptions;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
@@ -51,18 +52,17 @@ public class RealTimeSession implements ResponseCallback
     static final int headerSize = 6;
     List<Integer> serversConnectedTo = new ArrayList<Integer>();
 
-    private DictionaryHandler dictionaryHandler;
+    private EDFDictionaryHandler dictionaryHandler;
 
     private DecodeIterator dIter = CodecFactory.createDecodeIterator();
     private Msg responseMsg = CodecFactory.createMsg();
 
     static List<EDFChannelSession> channelSessions = new ArrayList<EDFChannelSession>();
-    private static Error error = TransportFactory.createError(); // error
-                                                                 // information
+    private static Error error = TransportFactory.createError(); // error information
     
     private EDFWatchList watchlist;
 
-    private SymbolListHandler symbolListHandler;
+    private EDFSymbolListHandler symbolListHandler;
     private ServiceSeqMcastInfo seqMcastInfo;
     private SymbolListEntry itemEntry;
 
@@ -73,7 +73,7 @@ public class RealTimeSession implements ResponseCallback
 
     public RealTimeSession(EDFWatchList watchlist)
     {
-        dictionaryHandler = new DictionaryHandler();
+        dictionaryHandler = new EDFDictionaryHandler();
         channelSessions = new ArrayList<EDFChannelSession>();
 
         this.watchlist = watchlist;

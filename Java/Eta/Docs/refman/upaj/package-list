@@ -1,3 +1,17 @@
+com.thomsonreuters.ansi
+com.thomsonreuters.proxy.authentication
+com.thomsonreuters.proxy.authentication.example
+com.thomsonreuters.upa.ansipage
 com.thomsonreuters.upa.codec
 com.thomsonreuters.upa.rdm
+com.thomsonreuters.upa.test.network.replay
+com.thomsonreuters.upa.test.network.replay.util
 com.thomsonreuters.upa.transport
+com.thomsonreuters.upa.valueadd.cache
+com.thomsonreuters.upa.valueadd.common
+com.thomsonreuters.upa.valueadd.domainrep.rdm
+com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary
+com.thomsonreuters.upa.valueadd.domainrep.rdm.directory
+com.thomsonreuters.upa.valueadd.domainrep.rdm.login
+com.thomsonreuters.upa.valueadd.domainrep.rdm.queue
+com.thomsonreuters.upa.valueadd.reactor

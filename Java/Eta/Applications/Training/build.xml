@@ -6,12 +6,10 @@
 
 	<property name="bin.dir" value="bin"/>
 	<property name="libs.dir" value="../../Libs"/>	
-	<property name="submodule.dir" value="../../../../Elektron-SDK-BinaryPack/Java/Eta/Libs"/>
 	
 	<path id="examples.classpath">
-		<pathelement location="${libs.dir}/upa.jar"/>
-		<pathelement location="${libs.dir}/upaValueAdd.jar"/>
-		<pathelement location="${submodule.dir}/upa.jar"/>
+		<pathelement location="${libs.dir}/upa.jar"/> 
+ 		<pathelement location="${libs.dir}/upaValueAdd.jar"/> 
 	</path>
 
 	<target name="init">
@@ -32,8 +30,7 @@
 		<echo message="Building the training examples" />
         <javac debug="false" debuglevel="${debuglevel}" destdir="${bin.dir}" source="${source}" target="${target}" includeantruntime="false">
         	<src path="."/>
-			<src path="../Examples/com/thomsonreuters/upa/examples/common"/>
-			<src path="../Examples/com/thomsonreuters/upa/examples/rdm"/>
+			<src path="../Shared"/>
             <classpath refid="examples.classpath"/>
         </javac>
     </target>
@@ -44,9 +41,8 @@
 			  fork="true">
 			<classpath>
 				<pathelement path="bin" />
-				<pathelement path="${libs.dir}/upa.jar" />
-				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
 			</classpath>
+			<classpath refid="examples.classpath"/>
 		</java>
 	</target>
 	
@@ -56,9 +52,8 @@
 			  fork="true">
 			<classpath>
 				<pathelement path="bin" />
-				<pathelement path="${libs.dir}/upa.jar" />
-				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
 			</classpath>
+			<classpath refid="examples.classpath"/>
 		</java>
 	</target>
 	
@@ -68,9 +63,8 @@
 			  fork="true">
 			<classpath>
 				<pathelement path="bin" />
-				<pathelement path="${libs.dir}/upa.jar" />
-				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
 			</classpath>
+			<classpath refid="examples.classpath"/>
 		</java>
 	</target>
 	
@@ -80,9 +74,8 @@
 			  fork="true">
 			<classpath>
 				<pathelement path="bin" />
-				<pathelement path="${libs.dir}/upa.jar" />
-				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
 			</classpath>
+			<classpath refid="examples.classpath"/>
 		</java>
 	</target>
 	
@@ -92,21 +85,19 @@
 			  fork="true">
 			<classpath>
 				<pathelement path="bin" />
-				<pathelement path="${libs.dir}/upa.jar" />
-				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
 			</classpath>
+			<classpath refid="examples.classpath"/>
 		</java>
 	</target>
 	
 	<!-- this target runs the provider training example module 4 Provide Dictionary -->
 	<target name="run-provider-mod4">
-		<java classname="com.thomsonreuters.upa.training.provider.Module_4_ProvideDictionary"
+		<java classname="com.examples.upa.training.provider.Module_4_ProvideDictionary"
 			  fork="true">
 			<classpath>
 				<pathelement path="bin" />
-				<pathelement path="${libs.dir}/upa.jar" />
-				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
 			</classpath>
+			<classpath refid="examples.classpath"/>
 		</java>
 	</target>
 	
@@ -116,9 +107,8 @@
 			  fork="true">
 			<classpath>
 				<pathelement path="bin" />
-				<pathelement path="${libs.dir}/upa.jar" />
-				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
 			</classpath>
+			<classpath refid="examples.classpath"/>
 		</java>
 	</target>
 
@@ -128,9 +118,8 @@
 			  fork="true">
 			<classpath>
 				<pathelement path="bin" />
-				<pathelement path="${libs.dir}/upa.jar" />
-				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
 			</classpath>
+			<classpath refid="examples.classpath"/>
 		</java>
 	</target>
 	
@@ -140,9 +129,8 @@
 			  fork="true">
 			<classpath>
 				<pathelement path="bin" />
-				<pathelement path="${libs.dir}/upa.jar" />
-				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
 			</classpath>
+			<classpath refid="examples.classpath"/>
 		</java>
 	</target>
 	
@@ -152,9 +140,8 @@
 			  fork="true">
 			<classpath>
 				<pathelement path="bin" />
-				<pathelement path="${libs.dir}/upa.jar" />
-				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
 			</classpath>
+			<classpath refid="examples.classpath"/>
 		</java>
 	</target>
 	
@@ -164,9 +151,8 @@
 			  fork="true">
 			<classpath>
 				<pathelement path="bin" />
-				<pathelement path="${libs.dir}/upa.jar" />
-				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
 			</classpath>
+			<classpath refid="examples.classpath"/>
 		</java>
 	</target>
 	
@@ -176,9 +162,8 @@
 			  fork="true">
 			<classpath>
 				<pathelement path="bin" />
-				<pathelement path="${libs.dir}/upa.jar" />
-				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
 			</classpath>
+			<classpath refid="examples.classpath"/>
 		</java>
 	</target>
 	
@@ -188,9 +173,8 @@
 			  fork="true">
 			<classpath>
 				<pathelement path="bin" />
-				<pathelement path="${libs.dir}/upa.jar" />
-				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
 			</classpath>
+			<classpath refid="examples.classpath"/>
 		</java>
 	</target>
 	<!-- this target runs the consumer training example module 5 Item Request -->
@@ -199,9 +183,8 @@
 			  fork="true">
 			<classpath>
 				<pathelement path="bin" />
-				<pathelement path="${libs.dir}/upa.jar" />
-				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
 			</classpath>
+			<classpath refid="examples.classpath"/>
 		</java>
 	</target>
 	
@@ -211,9 +194,8 @@
 			  fork="true">
 			<classpath>
 				<pathelement path="bin" />
-				<pathelement path="${libs.dir}/upa.jar" />
-				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
 			</classpath>
+			<classpath refid="examples.classpath"/>
 		</java>
 	</target>
 	
@@ -223,9 +205,8 @@
 			  fork="true">
 			<classpath>
 				<pathelement path="bin" />
-				<pathelement path="${libs.dir}/upa.jar" />
-				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
 			</classpath>
+			<classpath refid="examples.classpath"/>
 		</java>
 	</target>
 	
@@ -235,9 +216,8 @@
 			  fork="true">
 			<classpath>
 				<pathelement path="bin" />
-				<pathelement path="${libs.dir}/upa.jar" />
-				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
 			</classpath>
+			<classpath refid="examples.classpath"/>
 		</java>
 	</target>
 	
@@ -247,9 +227,8 @@
 			  fork="true">
 			<classpath>
 				<pathelement path="bin" />
-				<pathelement path="${libs.dir}/upa.jar" />
-				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
 			</classpath>
+			<classpath refid="examples.classpath"/>
 		</java>
 	</target>
 	
@@ -259,9 +238,8 @@
 			  fork="true">
 			<classpath>
 				<pathelement path="bin" />
-				<pathelement path="${libs.dir}/upa.jar" />
-				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
 			</classpath>
+			<classpath refid="examples.classpath"/>
 		</java>
 	</target>
 	
@@ -271,9 +249,8 @@
 			  fork="true">
 			<classpath>
 				<pathelement path="bin" />
-				<pathelement path="${libs.dir}/upa.jar" />
-				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
 			</classpath>
+			<classpath refid="examples.classpath"/>
 		</java>
 	</target>
 	
@@ -283,9 +260,8 @@
 			  fork="true">
 			<classpath>
 				<pathelement path="bin" />
-				<pathelement path="${libs.dir}/upa.jar" />
-				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
 			</classpath>
+			<classpath refid="examples.classpath"/>
 		</java>
 	</target>
 	

@@ -25,10 +25,10 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
-import com.thomsonreuters.upa.valueadd.examples.common.MarketByOrderClose;
-import com.thomsonreuters.upa.valueadd.examples.common.MarketByOrderRefresh;
-import com.thomsonreuters.upa.valueadd.examples.common.MarketByOrderResponseBase;
-import com.thomsonreuters.upa.valueadd.examples.common.MarketByOrderUpdate;
+import com.thomsonreuters.upa.shared.rdm.marketbyorder.MarketByOrderClose;
+import com.thomsonreuters.upa.shared.rdm.marketbyorder.MarketByOrderRefresh;
+import com.thomsonreuters.upa.shared.rdm.marketbyorder.MarketByOrderResponseBase;
+import com.thomsonreuters.upa.shared.rdm.marketbyorder.MarketByOrderUpdate;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.transport.TransportBuffer;
 

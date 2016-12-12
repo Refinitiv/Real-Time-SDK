@@ -7,7 +7,7 @@ import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.examples.edfexamples.common.EDFWatchList.Item;
-import com.thomsonreuters.upa.examples.rdm.marketprice.MarketPriceRequest;
+import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceRequest;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 
 /**

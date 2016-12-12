@@ -9,13 +9,14 @@ import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.Msg;
-import com.thomsonreuters.upa.examples.common.ClientSessionInfo;
-import com.thomsonreuters.upa.examples.common.CommandLine;
-import com.thomsonreuters.upa.examples.common.LoginRequestInfo;
-import com.thomsonreuters.upa.examples.common.ProviderDirectoryHandler;
+import com.thomsonreuters.upa.shared.ClientSessionInfo;
+import com.thomsonreuters.upa.shared.CommandLine;
+import com.thomsonreuters.upa.shared.LoginRequestInfo;
+import com.thomsonreuters.upa.shared.ProviderDirectoryHandler;
+import com.thomsonreuters.upa.shared.ProviderSession;
+import com.thomsonreuters.upa.shared.ReceivedMsgCallback;
+import com.thomsonreuters.upa.examples.common.ProviderDictionaryHandler;
 import com.thomsonreuters.upa.examples.common.ProviderLoginHandler;
-import com.thomsonreuters.upa.examples.common.ProviderSession;
-import com.thomsonreuters.upa.examples.common.ReceivedMsgCallback;
 import com.thomsonreuters.upa.examples.common.UnSupportedMsgHandler;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.transport.BindOptions;
@@ -108,7 +109,7 @@ import com.thomsonreuters.upa.transport.TransportReturnCodes;
  * </ul>
  * 
  * @see ProviderSession
- * @see DictionaryHandler
+ * @see ProviderDictionaryHandler
  * @see ProviderDirectoryHandler
  * @see ProviderLoginHandler
  * @see ItemHandler
@@ -120,7 +121,7 @@ public class Provider implements ReceivedMsgCallback
     private Msg _receivedMsg = CodecFactory.createMsg();
     private Error _error = TransportFactory.createError();
     private UnSupportedMsgHandler _unSupportedMsgHandler;
-    private DictionaryHandler _dictionaryHandler;
+    private ProviderDictionaryHandler _dictionaryHandler;
     private ProviderDirectoryHandler _directoryHandler;
     private ProviderLoginHandler _loginHandler;
     private ItemHandler _itemHandler;
@@ -145,7 +146,7 @@ public class Provider implements ReceivedMsgCallback
     {
         _providerSession = new ProviderSession();
         _unSupportedMsgHandler = new UnSupportedMsgHandler(_providerSession);
-        _dictionaryHandler = new DictionaryHandler(_providerSession);
+        _dictionaryHandler = new ProviderDictionaryHandler(_providerSession);
         _directoryHandler = new ProviderDirectoryHandler(_providerSession);
         _loginHandler = new ProviderLoginHandler(_providerSession);
         _itemHandler = new ItemHandler(_providerSession, _dictionaryHandler, _loginHandler);

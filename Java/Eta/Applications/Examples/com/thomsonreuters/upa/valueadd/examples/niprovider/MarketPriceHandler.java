@@ -25,12 +25,10 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
-
-
-import com.thomsonreuters.upa.valueadd.examples.common.MarketPriceClose;
-import com.thomsonreuters.upa.valueadd.examples.common.MarketPriceRefresh;
-import com.thomsonreuters.upa.valueadd.examples.common.MarketPriceResponseBase;
-import com.thomsonreuters.upa.valueadd.examples.common.MarketPriceUpdate;
+import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceClose;
+import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceRefresh;
+import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceResponseBase;
+import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceUpdate;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.transport.TransportBuffer;
 
@@ -50,8 +48,7 @@ class MarketPriceHandler
     private MarketPriceUpdate marketPriceUpdate;
     private MarketPriceClose closeMessage;
 
-    private final StreamIdWatchList watchList; // stream states based on
-                                               // response
+    private final StreamIdWatchList watchList; // stream states based on response
 
     // reusable variables used for encoding
     protected FieldList fieldList = CodecFactory.createFieldList();
@@ -206,8 +203,7 @@ class MarketPriceHandler
     		CacheInfo cacheInfo, WatchListEntry wle, boolean isRefresh, ReactorErrorInfo errorInfo)
     {
         //get a buffer for the item refresh/update
-        TransportBuffer msgBuf = chnl.getBuffer(TRANSPORT_BUFFER_SIZE_MESSAGE, false,
-                                                         errorInfo);
+        TransportBuffer msgBuf = chnl.getBuffer(TRANSPORT_BUFFER_SIZE_MESSAGE, false, errorInfo);
 
         if (msgBuf == null)
         {

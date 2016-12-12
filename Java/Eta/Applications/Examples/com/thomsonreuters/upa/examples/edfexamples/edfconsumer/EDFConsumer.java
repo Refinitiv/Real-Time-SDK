@@ -1,8 +1,8 @@
 package com.thomsonreuters.upa.examples.edfexamples.edfconsumer;
 
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.examples.common.CommandLine;
-import com.thomsonreuters.upa.examples.common.PingHandler;
+import com.thomsonreuters.upa.shared.CommandLine;
+import com.thomsonreuters.upa.shared.PingHandler;
 import com.thomsonreuters.upa.examples.edfexamples.common.EDFChannelSession;
 import com.thomsonreuters.upa.examples.edfexamples.common.EDFChannelSession.ChannelInfo;
 import com.thomsonreuters.upa.examples.edfexamples.common.EDFWatchList;
@@ -101,13 +101,12 @@ import com.thomsonreuters.upa.transport.TransportFactory;
  * 
  * </ul>
  * 
- * @see DictionaryHandler
  * @see GapFillSession
  * @see GapRequestSession
  * @see RealTimeSession
  * @see RefDataSession
  * @see SnapshotSession
- * @see SymbolListHandler
+ * @see EDFSymbolListHandler
  * @see EDFChannelSession
  */
 
@@ -154,7 +153,7 @@ public class EDFConsumer
         CommandLine.programName("EDFConsumer");
         CommandLine.addOption("mp", "For each occurrence, requests item using Market Price domain.");
         CommandLine.addOption("mbo", "For each occurrence, requests item using Market By Order domain. Default is no market by order requests.");
-         CommandLine.addOption("mbp", "For each occurrence, requests item using Market By Price domain. Default is no market by price requests.");
+        CommandLine.addOption("mbp", "For each occurrence, requests item using Market By Price domain. Default is no market by price requests.");
         CommandLine.addOption("rtda", "specifies the address of the Realtime data feed.");
         CommandLine.addOption("rtdp", "specifies the port of the Realtime data feed.");
         CommandLine.addRequiredOption("rtif", "specifies the network interface address of the Realtime data feed.");

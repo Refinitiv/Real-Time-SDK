@@ -240,7 +240,7 @@ import com.thomsonreuters.upa.codec.StatusMsg;
 import com.thomsonreuters.upa.codec.StatusMsgFlags;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.codec.UInt;
-import com.thomsonreuters.upa.examples.common.DirectoryRejectReason;
+import com.thomsonreuters.upa.shared.DirectoryRejectReason;
 import com.thomsonreuters.upa.rdm.Dictionary;
 import com.thomsonreuters.upa.rdm.Directory;
 import com.thomsonreuters.upa.rdm.DomainTypes;

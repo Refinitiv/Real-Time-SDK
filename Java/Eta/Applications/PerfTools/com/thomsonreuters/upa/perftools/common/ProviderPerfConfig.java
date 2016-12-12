@@ -1,7 +1,7 @@
 package com.thomsonreuters.upa.perftools.common;
 
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.perftools.common.CommandLine;
+import com.thomsonreuters.upa.shared.CommandLine;
 
 /** Provides configuration that is not specific to any particular handler. */
 public class ProviderPerfConfig

@@ -15,6 +15,7 @@ import com.thomsonreuters.upa.transport.Channel;
 import com.thomsonreuters.upa.transport.Error;
 import com.thomsonreuters.upa.transport.TransportBuffer;
 import com.thomsonreuters.upa.transport.TransportReturnCodes;
+import com.thomsonreuters.upa.shared.ProviderSession;
 
 /**
  * This is the implementation of sending unsupported status message for the

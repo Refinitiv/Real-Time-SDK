@@ -18,7 +18,7 @@ import com.thomsonreuters.upa.codec.Qos;
 import com.thomsonreuters.upa.codec.RequestMsg;
 import com.thomsonreuters.upa.codec.RequestMsgFlags;
 import com.thomsonreuters.upa.codec.UInt;
-import com.thomsonreuters.upa.valueadd.examples.common.MarketPriceRequestFlags;
+import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceRequestFlags;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.rdm.ElementNames;
 import com.thomsonreuters.upa.rdm.InstrumentNameTypes;
@@ -357,7 +357,7 @@ public class ItemRequest
          
    /**
     * 
-    * @param viewList list of element names
+    * @param elementNameList list of element names
     */
    public void viewElementNames(List<String> elementNameList)
    {

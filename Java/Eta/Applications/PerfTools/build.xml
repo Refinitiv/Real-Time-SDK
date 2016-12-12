@@ -4,16 +4,22 @@
     <property name="target" value="1.7"/>
     <property name="source" value="1.7"/>
 
-	<property name="bin.dir"           value="bin"/>
-	<property name="libs.dir"          value="../../Libs"/>	
-	<property name="submodule.dir" value="../../../../Elektron-SDK-BinaryPack/Java/Eta/Libs"/>
-	
+	<property name="dist.dir" value="../../"/>
+	<property name="bin.dir"  value="bin"/>
+	<property name="libs.dir" value="../../Libs"/>	
+
+	<property name="docs.dir" value="${dist.dir}/Docs" />
+	<property name="docs.refman.dir" value="${docs.dir}/refman" />
+	<property name="docs.refman.upajperftools.dir" value="${docs.refman.dir}/upajperftools" />
+
+	<!-- marshalling directory (temporary directory for various files) -->
+	<property name="marshall.dir" value="temp" />
+
 	<path id="perfTools.classpath">
 		<pathelement location="${libs.dir}/upa.jar"/>
 		<pathelement location="./xpp3-1.1.3_8.jar"/>
 		<pathelement location="./xpp3_min-1.1.3_8.jar"/>
 		<pathelement location="${libs.dir}/upaValueAdd.jar"/>
-		<pathelement location="${submodule.dir}/upa.jar"/>
     </path>
 
 	<target name="init">
@@ -34,20 +40,44 @@
 		<echo message="Building the PerfTools" />
         <javac debug="false" debuglevel="${debuglevel}" destdir="${bin.dir}" source="${source}" target="${target}" includeantruntime="false">
         	<src path="."/>
+			<src path="../Shared"/>
             <classpath refid="perfTools.classpath"/>
         </javac>
     </target>
 	
+	
+	<!-- this target creates and packages the javadoc -->
+    <target depends="build-perfTools" name="package-docs">
+        <echo message="Packaging ETA Java PerfTools javadoc" />
+        <delete dir="${marshall.dir}" />
+		<copy todir="${marshall.dir}">
+            <fileset dir=".">
+                 <include name="**/*.*" />
+            </fileset>
+            <fileset dir="../Shared">
+                 <include name="**/*.*" />
+            </fileset>
+        </copy>
+
+		<javadoc sourcepath="${marshall.dir}" classpath="${libs.dir}/upa.jar;${libs.dir}/upaValueAdd.jar;./xpp3-1.1.3_8.jar;./xpp3_min-1.1.3_8.jar" defaultexcludes="yes" destdir="${docs.refman.upajperftools.dir}" author="true" version="true" use="true" windowtitle="ETAJ Performance Tools Examples" additionalparam="-Xdoclint:none">
+			<doctitle>
+				<![CDATA[<h1>Elektron Transport API (ETA) 3.0 - Java Edition Performance Tools Examples</h1>]]></doctitle>
+			<bottom>
+				<![CDATA[<i>Copyright &#169; 2016  Thomson Reuters. All Rights Reserved.</i>]]></bottom>
+		</javadoc>
+
+         <delete dir="${marshall.dir}" />
+    </target>
+
 	
     <!-- this target runs the provider PerfTools example -->
 	<target name="run-provider">
 		<java classname="com.thomsonreuters.upa.perftools.upajprovperf.upajProvPerf"
 			  fork="true">
 			<classpath>
-				<pathelement path="bin" />
-				<pathelement path="${libs.dir}/upa.jar" />
-				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+				<pathelement path="bin"/>
 			</classpath>
+			<classpath refid="perfTools.classpath"/>
 		</java>
 	</target>
 
@@ -56,10 +86,9 @@
 		<java classname="com.thomsonreuters.upa.perftools.upajconsperf.upajConsPerf"
 			  fork="true">
 			<classpath>
-				<pathelement path="bin" />
-				<pathelement path="${libs.dir}/upa.jar" />
-				<pathelement location="${libs.dir}/upaValueAdd.jar"/>
+				<pathelement path="bin"/>
 			</classpath>
+			<classpath refid="perfTools.classpath"/>
 		</java>
 	</target>
 

@@ -11,7 +11,7 @@ import com.thomsonreuters.upa.codec.EncodeIterator;
 import com.thomsonreuters.upa.codec.GenericMsg;
 import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.examples.common.GenericResponseStatusFlags;
-import com.thomsonreuters.upa.examples.common.ProviderSession;
+import com.thomsonreuters.upa.shared.ProviderSession;
 import com.thomsonreuters.upa.transport.Channel;
 import com.thomsonreuters.upa.transport.Error;
 import com.thomsonreuters.upa.transport.TransportBuffer;

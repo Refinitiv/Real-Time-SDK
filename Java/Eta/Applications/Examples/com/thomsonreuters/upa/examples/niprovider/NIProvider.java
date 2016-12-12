@@ -14,15 +14,15 @@ import com.thomsonreuters.upa.codec.StatusMsg;
 import com.thomsonreuters.upa.codec.StatusMsgFlags;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.examples.common.ChannelSession;
-import com.thomsonreuters.upa.examples.common.CommandLine;
-import com.thomsonreuters.upa.examples.common.ConsumerLoginState;
-import com.thomsonreuters.upa.examples.common.LoginHandler;
-import com.thomsonreuters.upa.examples.common.PingHandler;
 import com.thomsonreuters.upa.examples.common.ResponseCallback;
+import com.thomsonreuters.upa.examples.common.LoginHandler;
 import com.thomsonreuters.upa.examples.niprovider.DirectoryHandler;
-import com.thomsonreuters.upa.examples.niprovider.DictionaryHandler;
+import com.thomsonreuters.upa.examples.common.NIProviderDictionaryHandler;
 import com.thomsonreuters.upa.examples.niprovider.MarketByOrderHandler;
 import com.thomsonreuters.upa.examples.niprovider.MarketPriceHandler;
+import com.thomsonreuters.upa.shared.CommandLine;
+import com.thomsonreuters.upa.shared.ConsumerLoginState;
+import com.thomsonreuters.upa.shared.PingHandler;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.transport.ChannelInfo;
@@ -116,7 +116,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
  * 
  * @see LoginHandler
  * @see DirectoryHandler
- * @see DictionaryHandler
+ * @see NIProviderDictionaryHandler
  * @see MarketPriceHandler
  * @see MarketByOrderHandler
  * @see StreamIdWatchList
@@ -131,7 +131,7 @@ public class NIProvider implements ResponseCallback
     private ChannelInfo channelInfo;
     private LoginHandler loginHandler;
     private DirectoryHandler srcDirHandler;
-    private DictionaryHandler dictionaryHandler;
+    private NIProviderDictionaryHandler dictionaryHandler;
     private MarketPriceHandler marketPriceHandler;
     private MarketByOrderHandler marketByOrderHandler;
     private long runtime;
@@ -165,7 +165,7 @@ public class NIProvider implements ResponseCallback
         itemWatchList = new StreamIdWatchList();
         loginHandler = new LoginHandler();
         srcDirHandler = new DirectoryHandler();
-        dictionaryHandler = new DictionaryHandler();
+        dictionaryHandler = new NIProviderDictionaryHandler();
         marketPriceHandler = new MarketPriceHandler(itemWatchList, dictionaryHandler.dictionary());
         marketByOrderHandler = new MarketByOrderHandler(itemWatchList,
                 dictionaryHandler.dictionary());

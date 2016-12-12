@@ -9,8 +9,8 @@ import com.thomsonreuters.upa.codec.LocalFieldSetDefDb;
 import com.thomsonreuters.upa.codec.Map;
 import com.thomsonreuters.upa.codec.MapEntry;
 import com.thomsonreuters.upa.codec.MapEntryActions;
-import com.thomsonreuters.upa.valueadd.examples.common.MarketByOrderRequest;
-import com.thomsonreuters.upa.valueadd.examples.common.MarketPriceRequest;
+import com.thomsonreuters.upa.shared.rdm.marketbyorder.MarketByOrderRequest;
+import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceRequest;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 
 /*

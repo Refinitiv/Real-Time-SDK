@@ -23,8 +23,7 @@ class StreamIdWatchList implements Iterable<Map.Entry<StreamIdWatchList.StreamId
 {
     private Map<StreamIdKey, WatchListEntry> watchList = new LinkedHashMap<StreamIdKey, WatchListEntry>();
 
-    private Integer nextStreamId = 5;// stream id for start of market price
-                                     // streams
+    private Integer nextStreamId = 5;// stream id for start of market price streams
 
     // 1 - login, 2- directory, 3-field dictionary, 4 - enum dictionary
 
@@ -118,7 +117,8 @@ class StreamIdWatchList implements Iterable<Map.Entry<StreamIdWatchList.StreamId
         
         public String toString()
         {
-            return "isPrivateStream: " + isPrivateStream + ", itemName: " + itemName + ", itemState: " + itemState + ", domainType:" + DomainTypes.toString(domainType) + "\n";
+            return "isPrivateStream: " + isPrivateStream + ", itemName: " + itemName + 
+                    ", itemState: " + itemState + ", domainType:" + DomainTypes.toString(domainType) + "\n";
         }
     }
     

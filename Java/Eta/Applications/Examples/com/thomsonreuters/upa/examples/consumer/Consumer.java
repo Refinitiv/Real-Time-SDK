@@ -14,12 +14,15 @@ import com.thomsonreuters.upa.codec.Qos;
 import com.thomsonreuters.upa.codec.QosRates;
 import com.thomsonreuters.upa.codec.QosTimeliness;
 import com.thomsonreuters.upa.examples.common.ChannelSession;
-import com.thomsonreuters.upa.examples.common.CommandLine;
-import com.thomsonreuters.upa.examples.common.ConsumerLoginState;
-import com.thomsonreuters.upa.examples.common.LoginHandler;
-import com.thomsonreuters.upa.examples.common.DirectoryHandler;
-import com.thomsonreuters.upa.examples.common.PingHandler;
 import com.thomsonreuters.upa.examples.common.ResponseCallback;
+import com.thomsonreuters.upa.examples.common.DirectoryHandler;
+import com.thomsonreuters.upa.examples.common.DictionaryHandler;
+import com.thomsonreuters.upa.examples.common.LoginHandler;
+import com.thomsonreuters.upa.examples.common.StreamIdWatchList;
+import com.thomsonreuters.upa.examples.common.SymbolListHandler;
+import com.thomsonreuters.upa.shared.CommandLine;
+import com.thomsonreuters.upa.shared.ConsumerLoginState;
+import com.thomsonreuters.upa.shared.PingHandler;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.transport.ChannelInfo;
@@ -211,8 +214,7 @@ public class Consumer implements ResponseCallback
     private DecodeIterator dIter = CodecFactory.createDecodeIterator();
     private Msg responseMsg = CodecFactory.createMsg();
     
-    // private streams items are non-recoverable, it is not sent again after
-    // recovery
+    // private streams items are non-recoverable, it is not sent again after recovery
     private boolean mppsRequestSent = false;
     private boolean mbopsRequestSent = false;
     private boolean mbppsRequestSent = false;
@@ -360,8 +362,7 @@ public class Consumer implements ResponseCallback
     }
 
     /*
-     * Wait for channel to become active. This finalizes the three-way
-     * handshake.
+     * Wait for channel to become active. This finalizes the three-way handshake.
      */
     private void waitUntilChannelActive(InProgInfo inProg) throws InterruptedException
     {
@@ -750,9 +751,9 @@ public class Consumer implements ResponseCallback
     /**
      * Call back method to process responses from channel. Processing responses
      * consists of performing a high level decode of the message and then
-     * calling the applicable specific method for further processing. chnl - The
-     * channel of the response buffer - The message buffer containing the
-     * response.
+     * calling the applicable specific method for further processing.
+     * chnl - The channel of the response
+     * buffer - The message buffer containing the response.
      */
     public void processResponse(ChannelSession chnl, TransportBuffer buffer)
     {
@@ -1129,8 +1130,7 @@ public class Consumer implements ResponseCallback
             return;
         }
 
-        // This sets up our basic timing so post messages will be sent
-        // periodically
+        // This sets up our basic timing so post messages will be sent periodically
         postHandler.initPostHandler();
 
         // posting has been initialized
@@ -1180,11 +1180,7 @@ public class Consumer implements ResponseCallback
         }
         else if (loginState == ConsumerLoginState.SUSPECT)
         {
-            if (!loginHandler.refreshInfo().checkHasAttrib() || // default
-                                                                // behavior when
-                                                                // singleopen
-                                                                // attrib not
-                                                                // set
+            if (!loginHandler.refreshInfo().checkHasAttrib() || // default behavior when singleopen attrib not set
             loginHandler.refreshInfo().attrib().singleOpen() == 0)
             {
                 // login suspect from no single-open provider: 1) close source

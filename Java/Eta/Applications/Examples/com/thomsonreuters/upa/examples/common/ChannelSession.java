@@ -13,6 +13,7 @@ import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.DataDictionary;
 import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.Msg;
+import com.thomsonreuters.upa.shared.PingHandler;
 import com.thomsonreuters.upa.transport.Channel;
 import com.thomsonreuters.upa.transport.ChannelState;
 import com.thomsonreuters.upa.transport.ConnectOptions;

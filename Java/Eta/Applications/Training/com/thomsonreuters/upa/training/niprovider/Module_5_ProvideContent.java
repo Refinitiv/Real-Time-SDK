@@ -260,7 +260,7 @@ import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.codec.UInt;
 import com.thomsonreuters.upa.codec.UpdateMsg;
 import com.thomsonreuters.upa.codec.UpdateMsgFlags;
-import com.thomsonreuters.upa.examples.rdm.marketprice.MarketPriceItem;
+import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceItem;
 
 import com.thomsonreuters.upa.rdm.Directory;
 import com.thomsonreuters.upa.rdm.DomainTypes;

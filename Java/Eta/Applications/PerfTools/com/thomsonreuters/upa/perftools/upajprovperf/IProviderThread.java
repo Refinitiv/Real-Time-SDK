@@ -12,7 +12,7 @@ import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.Msg;
-import com.thomsonreuters.upa.perftools.common.ItemRejectReason;
+import com.thomsonreuters.upa.shared.provider.ItemRejectReason;
 import com.thomsonreuters.upa.perftools.common.ChannelHandler;
 import com.thomsonreuters.upa.perftools.common.ClientChannelInfo;
 import com.thomsonreuters.upa.perftools.common.DictionaryProvider;

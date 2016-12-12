@@ -32,7 +32,7 @@ import com.thomsonreuters.upa.codec.State;
 import com.thomsonreuters.upa.codec.StatusMsg;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.codec.UpdateMsg;
-import com.thomsonreuters.upa.valueadd.examples.common.CommandLine;
+import com.thomsonreuters.upa.shared.CommandLine;
 import com.thomsonreuters.upa.rdm.Dictionary;
 import com.thomsonreuters.upa.rdm.Dictionary.VerbosityValues;
 import com.thomsonreuters.upa.rdm.DomainTypes;

@@ -8,6 +8,9 @@ import com.thomsonreuters.upa.codec.DataStates;
 import com.thomsonreuters.upa.codec.EncodeIterator;
 import com.thomsonreuters.upa.codec.StateCodes;
 import com.thomsonreuters.upa.codec.StreamStates;
+import com.thomsonreuters.upa.shared.DictionaryRejectReason;
+import com.thomsonreuters.upa.shared.DictionaryRequestInfo;
+import com.thomsonreuters.upa.shared.DictionaryRequestInfoList;
 import com.thomsonreuters.upa.rdm.Dictionary;
 import com.thomsonreuters.upa.transport.Error;
 import com.thomsonreuters.upa.transport.TransportBuffer;
@@ -130,7 +133,8 @@ class DictionaryHandler
             if (dictionraryReqInfo.dictionaryRequest().streamId() == streamId && dictionraryReqInfo.isInUse())
             {
                 // clear original request information
-                System.out.println("Closing dictionary stream id " + dictionraryReqInfo.dictionaryRequest().streamId() + " with dictionary name: " + dictionraryReqInfo.dictionaryRequest().dictionaryName());
+                System.out.println("Closing dictionary stream id " + dictionraryReqInfo.dictionaryRequest().streamId() +
+                                   " with dictionary name: " + dictionraryReqInfo.dictionaryRequest().dictionaryName());
                 dictionraryReqInfo.clear();
                 break;
             }
@@ -148,7 +152,8 @@ class DictionaryHandler
             if (dictionraryReqInfo.channel() == chnl.channel() && dictionraryReqInfo.isInUse())
             {
                 // clear original request information
-                System.out.println("Closing dictionary stream id  " + dictionraryReqInfo.dictionaryRequest().streamId() + " with dictionary name: " + dictionraryReqInfo.dictionaryRequest().dictionaryName());
+                System.out.println("Closing dictionary stream id  " + dictionraryReqInfo.dictionaryRequest().streamId() +
+                                   " with dictionary name: " + dictionraryReqInfo.dictionaryRequest().dictionaryName());
                 dictionraryReqInfo.clear();
             }
         }
@@ -318,7 +323,8 @@ class DictionaryHandler
         _dictionaryRefresh.state().code(StateCodes.NONE);
         _dictionaryRefresh.verbosity(dictionaryRequest.verbosity());
         _dictionaryRefresh.serviceId(dictionaryRequest.serviceId());
-        _dictionaryRefresh.dictionaryName().data(dictionaryRequest.dictionaryName().data(), dictionaryRequest.dictionaryName().position(), dictionaryRequest.dictionaryName().length());
+        _dictionaryRefresh.dictionaryName().data(dictionaryRequest.dictionaryName().data(),
+                                                 dictionaryRequest.dictionaryName().position(), dictionaryRequest.dictionaryName().length());
         _dictionaryRefresh.applySolicited();
         
         while (true)
@@ -400,7 +406,8 @@ class DictionaryHandler
         _dictionaryRefresh.state().text().data("Enum Type Dictionary Refresh");
 
         // dictionaryName
-        _dictionaryRefresh.dictionaryName().data(dictionaryRequest.dictionaryName().data(), dictionaryRequest.dictionaryName().position(), dictionaryRequest.dictionaryName().length());
+        _dictionaryRefresh.dictionaryName().data(dictionaryRequest.dictionaryName().data(),
+                                                 dictionaryRequest.dictionaryName().position(), dictionaryRequest.dictionaryName().length());
 
         // clear encode iterator
         _encodeIter.clear();
