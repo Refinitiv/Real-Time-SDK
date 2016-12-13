@@ -3,6 +3,13 @@
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.7"/>
     <property name="source" value="1.7"/>
+
+    <property name="package" value="etaj3.0.3.L1.all.rrg" />
+    <property name="version" value="etaj3.0.3.L1" />
+    <property name="vendor" value="Thomson Reuters"/>
+    <tstamp>
+        <format property="TODAY" pattern=" E MMM dd HH:mm:ss z yyyy" />
+    </tstamp>
 	
 	<property name="dist.dir" value="../"/>
 	<property name="submodule.dir" value="../../../Elektron-SDK-BinaryPack/Java/Eta/Libs"/>
@@ -54,16 +61,16 @@
         </javac>
 		<copy file="${src.dir}/impl/com/thomsonreuters/proxy/authentication/kerberos/login.conf" todir="${bin.dir}/com/thomsonreuters/proxy/authentication/kerberos"/>
 
-		<echo message="Creating the ETA jar file"/>
+		<echo message="Creating the ETA jar files"/>
 		<jar destfile="${libs.dir}/upa.jar" basedir="${bin.dir}" includes="**/proxy/**/*.class,**/proxy/**/*.conf,**/upa/codec/**/*.class,**/upa/rdm/**/*.class,**/transport/**/*.class" excludes="**/*Junit*.class,**/*Test*.class">
 			<manifest>
 				<attribute name="Sealed" value="true" />
 				<attribute name="Specification-Title" value="Elektron Transport API (ETA) Java Edition" />
 				<attribute name="Specification-Version" value="${package}" />
-				<attribute name="Specification-Vendor" value="Thomson Reuters" />
+				<attribute name="Specification-Vendor" value="${vendor}" />
 				<attribute name="Implementation-Title" value="com.thomsonreuters.upa" />
 				<attribute name="Implementation-Version" value="${version}" />
-				<attribute name="Implementation-Vendor" value="${date} Thomson Reuters" />
+				<attribute name="Implementation-Vendor" value="${TODAY} ${vendor}" />
 			</manifest>
 		</jar>
 		<jar destfile="${libs.dir}/upaValueAdd.jar" basedir="${bin.dir}" includes="**/upa/valueadd/common/**/*.class,**/upa/valueadd/domainrep/**/*.class,**/upa/valueadd/reactor/**/*.class">
@@ -71,10 +78,10 @@
 				<attribute name="Sealed" value="true" />
 				<attribute name="Specification-Title" value="Elektron Transport API (ETA) Java Edition ValueAdd Classes" />
 				<attribute name="Specification-Version" value="${package}" />
-				<attribute name="Specification-Vendor" value="Thomson Reuters" />
+				<attribute name="Specification-Vendor" value="${vendor}" />
 				<attribute name="Implementation-Title" value="com.thomsonreuters.upa.valueadd" />
 				<attribute name="Implementation-Version" value="${version}" />
-				<attribute name="Implementation-Vendor" value="${date} Thomson Reuters" />
+				<attribute name="Implementation-Vendor" value="${TODAY} ${vendor}" />
 			</manifest>
 		</jar>
 		<jar destfile="${libs.dir}/ansipage.jar" basedir="${bin.dir}" includes="**/ansi/**/*.class,com/thomsonreuters/upa/ansipage/**/*.class">
@@ -125,10 +132,10 @@
 				<attribute name="Sealed" value="true" />
 				<attribute name="Specification-Title" value="Elektron Transport API (ETA) Java Edition" />
 				<attribute name="Specification-Version" value="${package}" />
-				<attribute name="Specification-Vendor" value="Thomson Reuters" />
+				<attribute name="Specification-Vendor" value="${vendor}" />
 				<attribute name="Implementation-Title" value="com.thomsonreuters.upa" />
 				<attribute name="Implementation-Version" value="${version}" />
-				<attribute name="Implementation-Vendor" value="${date} Thomson Reuters" />
+				<attribute name="Implementation-Vendor" value="${TODAY} ${vendor}" />
 			</manifest>
 		</jar>
 		<jar destfile="${stubs.dir}/upaValueAddCache.jar" basedir="${stubs.dir}" includes="**/upa/valueadd/cache/**/*.class">
@@ -136,10 +143,10 @@
 				<attribute name="Sealed" value="true" />
 				<attribute name="Specification-Title" value="Elektron Transport API (ETA) Java Edition ValueAdd Cache Classes" />
 				<attribute name="Specification-Version" value="${package}" />
-				<attribute name="Specification-Vendor" value="Thomson Reuters" />
+				<attribute name="Specification-Vendor" value="${vendor}" />
 				<attribute name="Implementation-Title" value="com.thomsonreuters.upa.valueadd.cache" />
 				<attribute name="Implementation-Version" value="${version}" />
-				<attribute name="Implementation-Vendor" value="${date} Thomson Reuters" />
+				<attribute name="Implementation-Vendor" value="${TODAY} ${vendor}" />
 			</manifest>
 		</jar>
     </target>
