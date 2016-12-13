@@ -77,6 +77,8 @@
 				<attribute name="Implementation-Vendor" value="${date} Thomson Reuters" />
 			</manifest>
 		</jar>
+		<jar destfile="${libs.dir}/ansipage.jar" basedir="${bin.dir}" includes="**/ansi/**/*.class,com/thomsonreuters/upa/ansipage/**/*.class">
+		</jar>
     </target>
 
 	<!-- this target creates and packages the javadoc -->
