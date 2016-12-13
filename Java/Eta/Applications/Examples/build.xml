@@ -43,7 +43,7 @@
 		<echo message="Building the examples" />
         <javac debug="false" debuglevel="${debuglevel}" destdir="${bin.dir}" source="${source}" target="${target}" includeantruntime="false">
         	<src path="."/>
-        	<src path="../Shared."/>
+        	<src path="../Shared"/>
             <classpath refid="examples.classpath"/>
         </javac>
     </target>
