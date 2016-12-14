@@ -2619,7 +2619,6 @@ public class Module_4_ProvideDictionary
             Buffer tempBuffer = CodecFactory.createBuffer();
 
             filterListItem.clear();
-            ;
             element.clear();
             elementList.clear();
             array.clear();

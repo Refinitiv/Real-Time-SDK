@@ -1880,7 +1880,6 @@ public class Module_3_ProvideDirectory
         /* Encodes the Source Directory refresh. */
 
         refreshMsg.clear();
-        ;
 
         /* provide source directory response information */
 
@@ -2024,7 +2023,6 @@ public class Module_3_ProvideDirectory
             Buffer tempBuffer = CodecFactory.createBuffer();
 
             filterListItem.clear();
-            ;
             element.clear();
             elementList.clear();
             array.clear();

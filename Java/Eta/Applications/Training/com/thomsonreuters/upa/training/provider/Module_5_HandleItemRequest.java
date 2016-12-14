@@ -2746,7 +2746,6 @@ public class Module_5_HandleItemRequest
             Buffer tempBuffer = CodecFactory.createBuffer();
 
             filterListItem.clear();
-            ;
             element.clear();
             elementList.clear();
             array.clear();

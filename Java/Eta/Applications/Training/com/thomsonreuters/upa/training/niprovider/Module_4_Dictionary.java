@@ -2126,11 +2126,9 @@ public class Module_4_Dictionary
 
             List<Long> capabilitiesList = new ArrayList<Long>();
             List<Qos> qosList = new ArrayList<Qos>();
-            ;
             Buffer tempBuffer = CodecFactory.createBuffer();
 
             filterListItem.clear();
-            ;
             element.clear();
             elementList.clear();
             array.clear();

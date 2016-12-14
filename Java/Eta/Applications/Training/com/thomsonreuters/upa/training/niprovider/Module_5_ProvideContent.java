@@ -2080,7 +2080,6 @@ public class Module_5_ProvideContent
          * the clear function when initializing any messages.
          */
         refreshMsg.clear();
-        ;
 
         /* provide source directory response information */
 
@@ -2221,11 +2220,9 @@ public class Module_5_ProvideContent
 
             List<Long> capabilitiesList = new ArrayList<Long>();
             List<Qos> qosList = new ArrayList<Qos>();
-            ;
             Buffer tempBuffer = CodecFactory.createBuffer();
 
             filterListItem.clear();
-            ;
             element.clear();
             elementList.clear();
             array.clear();

@@ -2027,7 +2027,6 @@ public class Module_5_ItemRequest
 
         Qos qoS = CodecFactory.createQos();
         List<Qos> QosBuf = new ArrayList<Qos>();
-        ;
         boolean foundQoS = false;
 
         /* The ServiceState and AcceptingRequests elements in the State filter entry work together

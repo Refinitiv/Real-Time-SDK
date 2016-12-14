@@ -1937,7 +1937,7 @@ public class Module_4_Dictionary
 		String dictionariesProvided;
 
 		Qos	qoS=CodecFactory.createQos();
-		List<Qos> QosBuf=new ArrayList<Qos>();;
+		List<Qos> QosBuf=new ArrayList<Qos>();
 		boolean foundQoS = false;
 
 		/* The ServiceState and AcceptingRequests elements in the State filter entry work together

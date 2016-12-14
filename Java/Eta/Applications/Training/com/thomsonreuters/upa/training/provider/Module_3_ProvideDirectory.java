@@ -2532,7 +2532,6 @@ public class Module_3_ProvideDirectory
             Buffer tempBuffer = CodecFactory.createBuffer();
 
             filterListItem.clear();
-            ;
             element.clear();
             elementList.clear();
             array.clear();
