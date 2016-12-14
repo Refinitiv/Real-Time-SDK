@@ -26,7 +26,7 @@ echo .................................................
 APPNAME=com.thomsonreuters.upa.perftools.upajtransportperf.upajTransportPerf
 
 # classpath
-APP_CLASSPATH=../Shared:../../Libs/upa.jar:../../Libs/upaValueAdd.jar:./xpp3-1.1.3_8.jar:./xpp3_min-1.1.3_8.jar:bin:../../../../Elektron-SDK-BinaryPack/Java/Eta/Libs/upa.jar
+APP_CLASSPATH=../../Libs/upa.jar:../../Libs/upaValueAdd.jar:./xpp3-1.1.3_8.jar:./xpp3_min-1.1.3_8.jar:bin
 
 # command
 RUN_CMD="$JAVA_BIN  $JVM_OPTIONS -cp $APP_CLASSPATH $APPNAME $APP_ARGS"
