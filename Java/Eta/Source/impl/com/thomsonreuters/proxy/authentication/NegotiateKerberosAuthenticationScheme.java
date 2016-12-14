@@ -5,8 +5,6 @@ import javax.security.auth.login.LoginContext;
 
 import java.security.PrivilegedActionException;
 
-
-//import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.util.EncodingUtils;
 
