@@ -187,9 +187,6 @@ public class ProxyAuthViaSocketChannelExample
 
     /* Returns a string containing the "common" HTTP Get request.
      * A suffix (a trailing \r\n) must be appended to the returned value (to make it a valid HTTP request.)
-     * 
-     * Returns a string containing the "common" HTTP Get request.
-     * A suffix (a trailing \r\n) must be appended to the returned value (to make it a valid HTTP request.)
      */
     private final String buildHttpGetRequestPrefix(boolean useHttps)
     {
@@ -228,9 +225,6 @@ public class ProxyAuthViaSocketChannelExample
     }
 
     /* Returns a string containing the "common" HTTP Connect request.
-     * A suffix (a trailing \r\n) must be appended to the returned value (to make it a valid HTTP request.)
-     * 
-     * Returns a string containing the "common" HTTP Connect request.
      * A suffix (a trailing \r\n) must be appended to the returned value (to make it a valid HTTP request.)
      */
     private final String buildHttpConnectRequestPrefix()
@@ -298,7 +292,7 @@ public class ProxyAuthViaSocketChannelExample
         }
         catch (UnknownHostException ignored)
         {
-            return "localhost"; // for the unlikely event we can't get the actual hostanme
+            return "localhost"; // for the unlikely event we can't get the actual hostname
         }
     }
 
@@ -307,17 +301,16 @@ public class ProxyAuthViaSocketChannelExample
         ICredentials credentials = CredentialsFactory.create();
 
         // NTLM example:
-        credentials.set(CredentialName.DOMAIN, "AMERS.IME.REUTERS.COM");
-        credentials.set(CredentialName.USERNAME, "tony.louras");
-        credentials.set(CredentialName.PASSWORD, "Hellas02");
+        credentials.set(CredentialName.DOMAIN, "EXAMPLE.COM");
+        credentials.set(CredentialName.USERNAME, "firstname.lastname");
+        credentials.set(CredentialName.PASSWORD, "abc123");
         credentials.set(CredentialName.LOCAL_HOSTNAME, getLocalHostname());
 
         // Negotiate/Kerberos or Kerberos example:
-        // credentials.set(CredentialName.DOMAIN, "AMERS.IME.REUTERS.COM");
+        // credentials.set(CredentialName.DOMAIN, "EXAMPLE.COM");
         // credentials.set(CredentialName.USERNAME, "firstname.lastname");
         // credentials.set(CredentialName.PASSWORD, "abc123");
-        // credentials.set(CredentialName.KRB5_CONFIG_FILE,
-        // "C:\\WINDOWS\\krb5.ini");
+        // credentials.set(CredentialName.KRB5_CONFIG_FILE, "C:\\WINDOWS\\krb5.ini");
 
         return credentials;
     }
@@ -338,8 +331,8 @@ public class ProxyAuthViaSocketChannelExample
         {
             if (establishConnectionVia.equals(HttpRequestType.GET))
             {
-                actualDestPort = 80;
                 proxyPort = 8080;
+                actualDestPort = 80;
             }
             else
             {
