@@ -21,7 +21,7 @@
 
 	FieldList fList;
 	flist.addReal( 321, 245, OmmReal::ExponentNeg8Enum ).
-		addRealFromDouble( 345, 245.234 ).
+		addRealFromDouble( 345, 245.234, OmmReal::ExponentNeg3Enum ).
 		complete();
 
 	\endcode

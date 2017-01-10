@@ -37,7 +37,7 @@
 
 	fList.addAscii( 235, EmaString( "entry 1" ) )
 		.addUInt( 239, 123 )
-		.addRealFromDouble( 234, 1.2345 )
+		.addRealFromDouble( 234, 1.2345, OmmReal::ExponentNeg4Enum )
 		.complete();
 
 	\endcode

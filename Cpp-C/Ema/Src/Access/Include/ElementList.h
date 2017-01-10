@@ -37,7 +37,7 @@
 	EmaString entryName;
 	eList.addAscii( entryName.set( "string" ), EmaString( "entry 1" ) )
 		.addInt( entryName.set( "int" ), 123 )
-		.addRealFromDouble( entryName.set( "real" ), 1.2345 )
+		.addRealFromDouble( entryName.set( "real" ), 1.2345, OmmReal::ExponentNeg4Enum )
 		.complete();
 
 	\endcode
