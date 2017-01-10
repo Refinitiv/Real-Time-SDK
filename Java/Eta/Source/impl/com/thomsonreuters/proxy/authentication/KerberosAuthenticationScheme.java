@@ -2,18 +2,16 @@ package com.thomsonreuters.proxy.authentication;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivilegedActionException;
-import java.util.Scanner;
+import java.util.HashMap;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 
@@ -56,8 +54,7 @@ public class KerberosAuthenticationScheme implements IAuthenticationScheme
     boolean stopScheme = false;
     String db; // debug env variable
 
-    //JAAS login config file (has LoginModule of LoginContext to be used)
-    private String jaasLoginConfigFile = null;
+    private static HashMap<String, String> loginConfigOptions = new HashMap<String, String>();
 
     
     public KerberosAuthenticationScheme(IProxyAuthenticator proxyAuthenticator) throws NullPointerException
@@ -184,9 +181,6 @@ public class KerberosAuthenticationScheme implements IAuthenticationScheme
         // System.setProperty("sun.security.krb5.debug", true);
         // System.setProperty("javax.security.auth.useSubjectCredsOnly", "false");
 
-        // set corresponding system property java.security.auth.login.config
-        setAuthLoginConfig(module);
-        
         // confirm all the above
         krb5Validate(userName, password, krbfile, module);
 
@@ -226,101 +220,6 @@ public class KerberosAuthenticationScheme implements IAuthenticationScheme
         loginContext.logout();
     }
 	
-
-    public void setAuthLoginConfig(String loginModule) throws Exception
-    {
-        if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
-        {
-            String before = System.getProperty("java.security.auth.login.config");
-            System.out.println("\nbefore: system property java.security.auth.login.config is " + before);
-        }
-  
-        //jaasLoginConfigFile is the name of the JAAS login config file (has LoginModule of LoginContext to be used)
-        String javaSecurityAuthLoginConfig = System.getProperty("java.security.auth.login.config");
-        if(javaSecurityAuthLoginConfig == null)
-        {
-            //get login.conf (JAAS login config file)
-            getJAASloginConfigFile();
-        }
-        else
-        {
-            File f = new File(javaSecurityAuthLoginConfig);
-            if(!f.exists())  //file javaSecurityAuthLoginConfig doesn't exist
-            {
-                //get login.conf (JAAS login config file)
-                getJAASloginConfigFile();
-            }
-            else
-            {
-                if(findUpajKerberosLoginModule(f, loginModule))
-                {
-                    jaasLoginConfigFile = javaSecurityAuthLoginConfig;
-                }
-                else
-                {
-                    //get login.conf (JAAS login config file)
-                    getJAASloginConfigFile();
-                }
-            }
-        }
-        
-        if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
-        {
-            String after = System.getProperty("java.security.auth.login.config");
-            System.out.println("now: system property java.security.auth.login.config is " + after + "\n");
-        }
-    }
-
-    public void getJAASloginConfigFile() throws ProxyAuthenticationException
-    {
-        //set jaasLoginConfigFile accordingly and set system property java.security.auth.login.config
-        
-        //get login.conf URL (most likely from upa.jar)
-        URL jaasConfigURL = this.getClass().getClassLoader().getResource("com/thomsonreuters/proxy/authentication/kerberos/login.conf");
-        if(jaasConfigURL != null)
-        {
-            if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
-                System.out.println("jaasConfigURL is " + jaasConfigURL);
-            jaasLoginConfigFile = jaasConfigURL.toString();
-
-            //OK example:  jaasLoginConfigFile = "jar:file:/C:/Elektron-SDK/Java/Eta/Libs/upa.jar!/com/thomsonreuters/proxy/authentication/kerberos/login.conf";
-            if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
-                System.out.println("jaasLoginConfigFile is " + jaasLoginConfigFile);
-            
-            //could throw SecurityException
-            System.setProperty("java.security.auth.login.config", jaasLoginConfigFile); 
-        }
-        else
-        {
-            //System.out.println("could not get resource login.conf !!!");
-            throw new ProxyAuthenticationException("  Error: Could not get resource login.conf URL");
-        }
-    }
-
-    public static boolean findUpajKerberosLoginModule(File f, String searchModule)
-    {
-        boolean result = false;
-        Scanner scanner = null;
-        try
-        {
-            scanner = new Scanner(new FileReader(f));
-            while(scanner.hasNextLine() && !result)
-            {
-                result = scanner.nextLine().indexOf(searchModule) >= 0;
-            }
-        }
-        catch(IOException e)
-        {
-            e.printStackTrace();
-        }
-        finally
-        {
-            scanner.close();
-        }
-        return result;
-    }
-    
-    
     public static void krb5Validate(final String username, final String password, final String krbfile, final String moduleName)
                     throws FileNotFoundException, NoSuchAlgorithmException
     {
@@ -350,16 +249,45 @@ public class KerberosAuthenticationScheme implements IAuthenticationScheme
             }
         }
 
-        // confirm that runtime loaded the login file
+        // load Kerberos login config manually (not using login.conf)
+        loadLoginConfig();
+
+        // confirm that runtime loaded the Kerberos login config
         final Configuration config = Configuration.getConfiguration();
 
-        // confirm that the module name exists in the file
-        if (null == config.getAppConfigurationEntry(moduleName))
+        // confirm that the login module name exists
+        AppConfigurationEntry[] appConfigurationEntry = config.getAppConfigurationEntry(moduleName);
+        if (null == appConfigurationEntry)
         {
-            throw new IllegalArgumentException("The module name " + moduleName + " was not found in the login file");
+            throw new IllegalArgumentException("The Kerberos login module " + moduleName + " was not loaded");
+        }
+        else
+        {
+            System.out.println("Got Kerberos login config for login module " + moduleName);
         }
     }
     
+    /* Load Kerberos login config manually (not using login.conf) */
+    private static void loadLoginConfig()
+    {
+        Configuration.setConfiguration(new Configuration()
+        {
+            @Override
+            public AppConfigurationEntry[] getAppConfigurationEntry(String cname)
+            {
+                 String name = com.sun.security.auth.module.Krb5LoginModule.class.getName();
+                 
+                 loginConfigOptions.put("com.sun.security.auth.module.Krb5LoginModule", "required");
+                             
+                 AppConfigurationEntry ace = new AppConfigurationEntry(name, 
+                                                                       AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
+                                                                       loginConfigOptions);
+                 AppConfigurationEntry[] entry = {ace};
+                 return entry;
+            }
+        });     
+    }
+ 
     public static CallbackHandler getUsernamePasswordHandler(final String username, final String password)
     {
         final CallbackHandler handler = new CallbackHandler()
