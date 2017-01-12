@@ -92,7 +92,7 @@ extern "C" {
 
 
 /* Platform specific definitions for Linux 32 and 64-bit */
-#ifdef Linux
+#ifdef __linux__
 	#define RTR_I64 long long
 	#define RTR_ULL(___val) (___val##ULL)
 	#define RTR_LL(___val) (___val##LL)
@@ -128,7 +128,7 @@ extern "C" {
 #define rtrLikely(expr) __builtin_expect((expr), 1)
 #define rtrUnlikely(expr) __builtin_expect((expr), 0)
 
-#endif	/* #ifdef Linux */
+#endif	/* #ifdef __linux__ */
 
 
 /* Platform specific definitions for Windows 32 and 64-bit */
