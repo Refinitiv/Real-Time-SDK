@@ -129,7 +129,8 @@ public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, Tun
             TransportBuffer buffer = _chnlInfo.tunnelStream.getBuffer(1024, _errorInfo);
             if (buffer == null)
             {
-                System.out.println("defaultMsgCallback failed: Unable to get a buffer from TunnelStream <" + _errorInfo.error().text() + ">");
+            	 System.out.println("TunnelStream.getBuffer() failed: " + CodecReturnCodes.toString(_errorInfo.error().errorId())
+                 + "(" + _errorInfo.error().text() + ")");
                 return;
             }
             
@@ -203,6 +204,9 @@ public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, Tun
                 _chnlInfo.tunnelStreamOpenSent = false;
                 _chnlInfo.tunnelStream = null;
                 _chnlInfo.isTunnelStreamUp = false;
+                
+                // reset message count
+                _msgCount = 0;
                 
                 break;
         }

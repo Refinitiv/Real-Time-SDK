@@ -826,7 +826,8 @@ public class Consumer implements ConsumerCallback
                         }
                     }
 
-                    if (tunnelStreamHandler != null && !tunnelStreamHandler._chnlInfo.isTunnelStreamUp)
+                    if ((tunnelStreamHandler != null && tunnelStreamHandler._chnlInfo != null && !tunnelStreamHandler._chnlInfo.isTunnelStreamUp) ||
+                    	(tunnelStreamHandler != null && tunnelStreamHandler._chnlInfo == null))
                     {
                         if (tunnelStreamHandler.openStream(chnlInfo, errorInfo) != ReactorReturnCodes.SUCCESS)
                         {

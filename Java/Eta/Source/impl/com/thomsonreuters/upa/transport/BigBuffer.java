@@ -59,6 +59,11 @@ class BigBuffer extends HTTPTransportBufferImpl
     void id()
     {
         _fragmentId = (short)++_ID;
+    	if (_fragmentId == 0)
+    	{
+    		_fragmentId = 1;
+    		_ID = 1;
+    	}
     }
 
     short fragmentId()

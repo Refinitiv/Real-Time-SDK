@@ -15,6 +15,7 @@ import com.thomsonreuters.upa.codec.EncodeIterator;
 import com.thomsonreuters.upa.codec.GenericMsg;
 import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.MsgClasses;
+import com.thomsonreuters.upa.codec.MsgKey;
 import com.thomsonreuters.upa.codec.RequestMsg;
 import com.thomsonreuters.upa.codec.StatusMsg;
 import com.thomsonreuters.upa.codec.StreamStates;
@@ -86,7 +87,7 @@ public class TunnelStream
     WlInteger _tableKey;
     ReactorSubmitOptions _reactorSubmitOptions = ReactorFactory.createReactorSubmitOptions();
 
-    static final int DEFAULT_RECV_WINDOW = CosCommon.DEFAULT_MAX_MSG_SIZE * 2;
+    static final int DEFAULT_RECV_WINDOW = CosCommon.DEFAULT_MAX_FRAGMENT_SIZE * 2;
 
     static final int CONTAINER_TYPE_POSITION = 9; 
 
@@ -195,6 +196,8 @@ public class TunnelStream
 		
 	HashMap<Integer,TunnelSubstream> _streamIdtoQueueSubstreamTable;
 	
+	HashMap<WlInteger, TunnelStreamBigBuffer> _msgIdBigBufferMap;
+	
 	TransportBuffer _writeCallAgainBuffer;
 	
 	long finAckTimeout = 150; // ms
@@ -216,6 +219,25 @@ public class TunnelStream
 	// set to true for QueueMsg tracing
 	boolean _enableQueueMsgTracing = false;
     
+	// big buffer pool
+	TunnelStreamBigBufferPool _bigBufferPool;
+	
+	// message id for fragmented messages
+	int _messageId;
+	final int MAX_MSG_ID = 65535;
+	
+	// pending big buffer list (holds big buffers that weren't fully written during submit)
+	VaDoubleLinkList<TunnelStreamBigBuffer> _pendingBigBufferList;
+	
+	// Junit flag for skipping handleTransmit 
+	boolean _jUnitSkipHandleTransmit;
+	
+	// request retry count
+	int _requestRetryCount;
+	final int MAX_REQUEST_RETRIES = 1;
+    
+    Msg _tempMsg; // temporary message for large re-assembled message callback  
+
     /** Creates a consumer-side tunnel stream. */
     public TunnelStream(ReactorChannel reactorChannel, TunnelStreamOpenOptions options)
     {
@@ -236,6 +258,7 @@ public class TunnelStream
         _name = options.name();
         _userSpecObject = options.userSpecObject();
         _responseTimeout = options.responseTimeout();
+        _bigBufferPool = new TunnelStreamBigBufferPool(options.classOfService().common().maxFragmentSize(), options.guaranteedOutputBuffers());
     }
     
     /** Creates a provider-side tunnel stream. */
@@ -252,6 +275,7 @@ public class TunnelStream
         _name = event.name();
         _userSpecObject = options.userSpecObject();
         _isProvider = true;
+        _bigBufferPool = new TunnelStreamBigBufferPool(options.classOfService().common().maxFragmentSize(), options.guaranteedOutputBuffers());
     }
 
     TunnelStream(ReactorChannel reactorChannel)
@@ -315,11 +339,17 @@ public class TunnelStream
 		
 		_streamIdtoQueueSubstreamTable = new HashMap<Integer,TunnelSubstream>();
 		
+		_msgIdBigBufferMap =  new HashMap<WlInteger,TunnelStreamBigBuffer>();
+		
 		_receivedFinAck = false;
 		_receivedFinalFin = false;	
 		_hasFinSent = false;
 		_receivedLastFinSeqNum = -1;
 		_finalStatusEvent = true;
+		
+		_pendingBigBufferList = new VaDoubleLinkList<TunnelStreamBigBuffer>();
+		
+		_tempMsg = CodecFactory.createMsg();
 	}
     
     /**
@@ -339,6 +369,18 @@ public class TunnelStream
         {
             TunnelStreamBuffer buffer = null;
 
+            if (size > _classOfService.common().maxMsgSize())
+            {
+                _reactor.populateErrorInfo(errorInfo, 
+                		ReactorReturnCodes.INVALID_USAGE,
+                        "TunnelStream.getBuffer",
+                        "Message size is too large.");
+
+                return null;
+            }
+
+            if (size <= _classOfService.common().maxFragmentSize()) // not big buffer
+            {
             buffer = getBuffer(size, true, true, errorInfo.error());
 
             if (buffer != null)
@@ -352,6 +394,11 @@ public class TunnelStream
                         errorInfo.error().errorId(),
                         "TunnelStream.getBuffer",
                         errorInfo.error().text());
+            }
+            }
+            else // big buffer
+            {
+            	return _bigBufferPool.getBuffer(size, errorInfo);
             }
 
             return buffer;
@@ -677,7 +724,7 @@ public class TunnelStream
                                          "TunnelStream.submit", "ReactorChannel is closed, aborting.");
             }
             
-            int bufLength = _reactor.getMaxFragmentSize(reactorChannel, errorInfo);
+            int bufLength = encodedMsgSize(msg);
             TransportBuffer buffer = getBuffer(bufLength, errorInfo);
             
             if (buffer != null)
@@ -1143,7 +1190,7 @@ public class TunnelStream
 
 	void setupBufferPool()
 	{	
-		_bufferPool = new SlicedBufferPool(_classOfService.common().maxMsgSize(), guaranteedOutputBuffers());
+		_bufferPool = new SlicedBufferPool(_classOfService.common().maxFragmentSize(), guaranteedOutputBuffers());
 	}
 	
     // For testing only
@@ -1218,13 +1265,13 @@ public class TunnelStream
         catch (Exception e)
         {
             error.errorId(ReactorReturnCodes.FAILURE);
-            error.text(e.getLocalizedMessage());
+            error.text("TunnelStream.openSubstream() Exception: " + e.getLocalizedMessage());
             return ReactorReturnCodes.FAILURE;
         }
         catch (InternalError e)
         {
             error.errorId(ReactorReturnCodes.FAILURE);
-            error.text(e.getLocalizedMessage());
+            error.text("TunnelStream.openSubstream() InternalError: " + e.getLocalizedMessage());
             return ReactorReturnCodes.FAILURE;          
         }
 
@@ -1267,13 +1314,13 @@ public class TunnelStream
         catch (Exception e)
         {
             error.errorId(ReactorReturnCodes.FAILURE);
-            error.text(e.getLocalizedMessage());
+            error.text("TunnelStream.streamClosed() Exception: " + e.getLocalizedMessage());
             return ReactorReturnCodes.FAILURE;
         }
         catch (InternalError e)
         {
             error.errorId(ReactorReturnCodes.FAILURE);
-            error.text(e.getLocalizedMessage());
+            error.text("TunnelStream.streamClosed() InternalError: " + e.getLocalizedMessage());
             return ReactorReturnCodes.FAILURE;          
         }
 
@@ -1295,7 +1342,10 @@ public class TunnelStream
 		_tunnelStreamState = TunnelStreamState.SEND_FIN;
 		_sendFinSeqNum = -1;
 		_hasFinSent = false;
+		_messageId = 0;
 
+		_requestRetryCount = 0;
+		_classOfService.common().streamVersion(CosCommon.CURRENT_STREAM_VERSION);
                 
 		return ReactorReturnCodes.SUCCESS;
 	}
@@ -1322,13 +1372,13 @@ public class TunnelStream
         catch (Exception e)
         {
             error.errorId(ReactorReturnCodes.FAILURE);
-            error.text(e.getLocalizedMessage());
+            error.text("TunnelStream.closeSubstream() Exception: " + e.getLocalizedMessage());
             return ReactorReturnCodes.FAILURE;
         }
         catch (InternalError e)
         {
             error.errorId(ReactorReturnCodes.FAILURE);
-            error.text(e.getLocalizedMessage());
+            error.text("TunnelStream.closeSubstream() InternalError: " + e.getLocalizedMessage());
             return ReactorReturnCodes.FAILURE;          
         }
 
@@ -1338,10 +1388,17 @@ public class TunnelStream
 	
 	int releaseBuffer(TunnelStreamBuffer buffer, Error error)
 	{
+		if (!buffer.isBigBuffer()) // not big buffer
+		{
         buffer.persistenceBuffer(null, null);
 		
         _bufferPool.releaseBufferSlice(buffer);
         _tunnelStreamBufferPool.push(buffer, TunnelStreamBuffer.RETRANS_LINK);
+		}
+		else // big buffer
+		{
+			_bigBufferPool.releaseBuffer((TunnelStreamBigBuffer)buffer);
+		}
         
 		return ReactorReturnCodes.SUCCESS;
 	}
@@ -1351,10 +1408,10 @@ public class TunnelStream
         TunnelStreamBuffer tunnelBuffer = null;
         int ret;
         
-        if (length > _classOfService.common().maxMsgSize())
+        if (length > _classOfService.common().maxFragmentSize())
         {
             error.errorId(ReactorReturnCodes.INVALID_USAGE);
-            error.text("Message size is too large.");
+            error.text("Fragment size is too large.");
             return null;
         }
 
@@ -1415,6 +1472,12 @@ public class TunnelStream
             
             _tmpBuffer.data().put((byte)OpCodes.DATA);
     
+        	if (_classOfService.common().streamVersion() >= CosCommon.CURRENT_STREAM_VERSION) // only current stream version or greater supports fragmentation
+        	{
+	            // put dummy data for fragmentation info
+	            _tmpBuffer.data().put((byte)0);
+        	}
+    
             if ((ret = _encIter.encodeNonRWFComplete(_tmpBuffer, true)) != CodecReturnCodes.SUCCESS)
             {
                 releaseBuffer(tunnelBuffer, error);
@@ -1438,6 +1501,118 @@ public class TunnelStream
             tunnelBuffer.setCurrentPositionAsEndOfEncoding();
             tunnelBuffer.setToInnerWriteBuffer();
         }
+
+        return tunnelBuffer;
+    }
+    
+    TunnelStreamBuffer getBufferForFragmentation(int length, int totalMsgLen, int fragmentNumber, int msgId, int containerType, boolean msgComplete, Error error)
+    {
+        TunnelStreamBuffer tunnelBuffer = null;
+        int ret;
+        
+        if ((tunnelBuffer = _tunnelStreamBufferPool.pop(TunnelStreamBuffer.RETRANS_LINK)) == null)
+            tunnelBuffer = new TunnelStreamBuffer();
+        
+        tunnelBuffer.clear(length);
+        _bufferPool.getBufferSlice(tunnelBuffer, length + SlicedBufferPool.TUNNEL_STREAM_HDR_SIZE, true);
+        
+        if (tunnelBuffer.data() == null)
+        {
+            _tunnelStreamBufferPool.push(tunnelBuffer, TunnelStreamBuffer.RETRANS_LINK);
+            error.errorId(ReactorReturnCodes.NO_BUFFERS);
+            error.text("TunnelStream is out of buffers");
+            return null;
+        }
+
+        _encIter.clear();
+        _encIter.setBufferAndRWFVersion(tunnelBuffer, _classOfService.common().protocolMajorVersion(), _classOfService.common().protocolMinorVersion());
+        
+        _tunnelStreamHdr.clear();
+        _tunnelStreamHdr.msgClass(MsgClasses.GENERIC);
+        /* Use channel-facing stream ID (so message can go directly to the channel even if watchlist is enabled. */
+        _tunnelStreamHdr.streamId(_channelStreamId);
+        _tunnelStreamHdr.domainType(domainType());
+        if (totalMsgLen > _classOfService.common().maxFragmentSize()) // message to be fragmented
+        {
+        	_tunnelStreamHdr.containerType(DataTypes.OPAQUE); // container type is opaque for fragmented messages
+        }
+        else // no fragmentation necessary 
+        {
+        	_tunnelStreamHdr.containerType(containerType); // use passed in container type
+        }
+        
+        _tunnelStreamHdr.applyHasExtendedHdr();
+        if (msgComplete)
+        {
+        	_tunnelStreamHdr.applyMessageComplete();
+        }
+        _tunnelStreamHdr.applyHasSeqNum();
+        _tunnelStreamHdr.seqNum(_sendLastSeqNum); // placeholder, needs to be replaced immediately before sending
+        tunnelBuffer.seqNum(_sendLastSeqNum); // placeholder, needs to be replaced immediately before sending
+
+        if ((ret = _tunnelStreamHdr.encodeInit(_encIter,  0)) != CodecReturnCodes.ENCODE_EXTENDED_HEADER)
+        {
+            releaseBuffer(tunnelBuffer, error);
+            error.errorId(ret);
+            error.text("Unable to encode TunnelStream header");
+            return null;
+        }
+        
+        if ((ret = _encIter.encodeNonRWFInit(_tmpBuffer)) != CodecReturnCodes.SUCCESS)
+        {
+            releaseBuffer(tunnelBuffer, error);
+            error.errorId(ret);
+            error.text("Unable to encode TunnelStream header");
+            return null;
+        }
+        
+        if (_tmpBuffer.length() < 1)
+        {
+            releaseBuffer(tunnelBuffer, error);
+            error.errorId(ReactorReturnCodes.FAILURE);
+            error.text("Unable to encode TunnelStream header");
+           return null;
+        }
+        
+        _tmpBuffer.data().put((byte)OpCodes.DATA);
+        
+        if (totalMsgLen > _classOfService.common().maxFragmentSize())
+        {
+	        // add fragmentation information
+	        _tmpBuffer.data().put((byte)1); // fragmentation flag
+	        _tmpBuffer.data().putInt(totalMsgLen); // total message length
+	        _tmpBuffer.data().putInt(fragmentNumber); // fragment number
+	        _tmpBuffer.data().putShort((short)msgId); // message id
+	        _tmpBuffer.data().put((byte)(containerType - DataTypes.CONTAINER_TYPE_MIN)); // container type
+        }
+        else
+        {
+        	// no fragmentation necessary 
+	        _tmpBuffer.data().put((byte)0); // no fragmentation
+        }
+
+        if ((ret = _encIter.encodeNonRWFComplete(_tmpBuffer, true)) != CodecReturnCodes.SUCCESS)
+        {
+            releaseBuffer(tunnelBuffer, error);
+            error.errorId(ret);
+            error.text("Unable to encode TunnelStream header");
+            return null;
+        }
+
+        if ((ret =_tunnelStreamHdr.encodeExtendedHeaderComplete(_encIter,  true)) < CodecReturnCodes.SUCCESS)
+        {
+            releaseBuffer(tunnelBuffer, error);
+            error.errorId(ret);
+            error.text("Unable to encode TunnelStream header");
+            return null;
+        }
+
+        // set TunnelStream header length on buffer
+        tunnelBuffer.tunnelStreamHeaderLen(tunnelBuffer.length());
+        
+        // set ByteBuffer limit to requested length plus position after TunnelStream header encode
+        tunnelBuffer.setCurrentPositionAsEndOfEncoding();
+        tunnelBuffer.setToInnerWriteBuffer();
 
         return tunnelBuffer;
     }
@@ -1480,7 +1655,10 @@ public class TunnelStream
             }
 
             /* Set to full buffer length. */
+            if (!tunnelBuffer.isBigBuffer())
+            {
             tunnelBuffer.setToFullWritebuffer();
+            }
             
             if (substreamSession != null) // queue message
             {
@@ -1638,6 +1816,8 @@ public class TunnelStream
                         }
                     }
                     
+                    if (!tunnelBuffer.isBigBuffer()) // not big buffer
+                    {
                     // replace container type if not a message
                     if (containerType != DataTypes.MSG)
                     {
@@ -1662,21 +1842,104 @@ public class TunnelStream
                         return ReactorReturnCodes.SUCCESS;
                     }
                 }
+                    else // big buffer
+                    {
+                    	// fragment buffer
+                    	ret = fragmentBuffer((TunnelStreamBigBuffer)tunnelBuffer, containerType, error);
+                    	if (ret == ReactorReturnCodes.SUCCESS)
+                    	{
+    	                    error.text("");
+    	                    error.errorId(ReactorReturnCodes.SUCCESS);
+    	    
+    	                    if (_tunnelStreamState == TunnelStreamState.STREAM_OPEN)
+    	                    {
+    	                        _reactorChannel.tunnelStreamManager().addTunnelStreamToDispatchList(this);
+    	                        ret = 1;
+    	                    }
+                    	}
+                    	
+                    	return ret;
+                    }
+                }
             }
         }
         catch (Exception e)
         {
             error.errorId(ReactorReturnCodes.FAILURE);
-            error.text(e.getLocalizedMessage());
+            error.text("TunnelStream.submit() Exception: " + e.getLocalizedMessage());
             return ReactorReturnCodes.FAILURE;
         }
         catch (InternalError e)
         {
             error.errorId(ReactorReturnCodes.FAILURE);
-            error.text(e.getLocalizedMessage());
+            error.text("TunnelStream.submit() InternalError: " + e.getLocalizedMessage());
             return ReactorReturnCodes.FAILURE;          
         }
     }
+
+    /* Fragments a big buffer and queues the fragments for sending on next dispatch.
+     * If fragmentation cannot be completed, the progress is saved so it can be completed later. */
+    private int fragmentBuffer(TunnelStreamBigBuffer tunnelBigBuffer, int containerType, Error error)
+    {
+    	int totalMsgLength = tunnelBigBuffer.length();
+    	int bytesRemainingToSend = !tunnelBigBuffer.fragmentationInProgress() ? totalMsgLength : tunnelBigBuffer.bytesRemainingToSend();
+    	int fragmentNumber = !tunnelBigBuffer.fragmentationInProgress() ? 1 : tunnelBigBuffer.lastFragmentId();
+    	int messageId = !tunnelBigBuffer.fragmentationInProgress() ? messageId() : tunnelBigBuffer.messageId();
+    	if (_pendingBigBufferList.count() == 0 || tunnelBigBuffer.fragmentationInProgress()) // process if no pending big buffers in list or fragmentation has already started
+    	{
+	    	while (bytesRemainingToSend > 0)
+	    	{
+	    		int lengthOfFragment = bytesRemainingToSend >= _classOfService.common().maxFragmentSize() ? _classOfService.common().maxFragmentSize() : bytesRemainingToSend;
+	    		boolean msgComplete = bytesRemainingToSend <= _classOfService.common().maxFragmentSize() ? true : false;
+	    		TunnelStreamBuffer tunnelBuffer = getBufferForFragmentation(lengthOfFragment, totalMsgLength, fragmentNumber++, messageId, containerType, msgComplete, error);
+	    		if (tunnelBuffer != null)
+	    		{
+	    			// copy data to fragment buffer
+	                tunnelBuffer.setToFullWritebuffer();
+	    			tunnelBuffer.data().put(tunnelBigBuffer.data().array(), totalMsgLength - bytesRemainingToSend, lengthOfFragment);
+	    			tunnelBuffer.setCurrentPositionAsEndOfEncoding();
+	    			
+	    			// adjust bytesRemainingToSend
+	    			bytesRemainingToSend -= lengthOfFragment;
+	    			
+	    			_outboundTransmitList.push(tunnelBuffer, TunnelStreamBuffer.RETRANS_LINK);
+	    		}
+	    		else // cannot fully fragment buffer
+	    		{
+	    			// save progress in big buffer and add to pending big buffer list if not already there
+	    			tunnelBigBuffer.saveWriteProgress(totalMsgLength, bytesRemainingToSend, fragmentNumber - 1, messageId, containerType);
+	    			if (!_pendingBigBufferList.contains(tunnelBigBuffer, TunnelStreamBigBuffer.BIG_BUFFER_LINK)) // not already in list
+	    			{
+	    				_pendingBigBufferList.push(tunnelBigBuffer, TunnelStreamBigBuffer.BIG_BUFFER_LINK);
+	    			}
+	    			break;
+	    		}
+	    	}
+	    	
+	    	if (bytesRemainingToSend == 0)
+	    	{
+	    		// remove from pending big buffer list
+	    		if (_pendingBigBufferList.count() > 0)
+	    		{
+	    			_pendingBigBufferList.remove(tunnelBigBuffer, TunnelStreamBigBuffer.BIG_BUFFER_LINK);
+	    		}
+        		
+	    		// release big buffer since now fully fragmented
+	    		releaseBuffer(tunnelBigBuffer, error);
+	    	}
+    	}
+    	else // list already has pending big buffers
+    	{
+			// save progress in big buffer and add to pending big buffer list if not already there
+			tunnelBigBuffer.saveWriteProgress(totalMsgLength, bytesRemainingToSend, fragmentNumber, messageId, containerType);
+			if (!_pendingBigBufferList.contains(tunnelBigBuffer, TunnelStreamBigBuffer.BIG_BUFFER_LINK)) // not already in list
+			{
+				_pendingBigBufferList.push(tunnelBigBuffer, TunnelStreamBigBuffer.BIG_BUFFER_LINK);
+			}
+    	}
+
+		return ReactorReturnCodes.SUCCESS;
+	}
 
     private int decodeMsg(TunnelStreamBuffer buffer, Error error)
     {
@@ -1707,6 +1970,24 @@ public class TunnelStream
     		{
     		    if ((ret = writeChannelBuffer(_writeCallAgainBuffer, error)) < ReactorReturnCodes.SUCCESS)
     		        return ret;
+    		}
+        		
+    		// if big buffer send in progress, process pending big buffers
+    		int pendingBigBufferListCount = _pendingBigBufferList.count();
+    		for (int i = 0; i < pendingBigBufferListCount; i++)
+    		{
+    			TunnelStreamBigBuffer bigBuffer = _pendingBigBufferList.peek();
+            	ret = fragmentBuffer(bigBuffer, bigBuffer.containerType(), error);
+            	if (ret == ReactorReturnCodes.SUCCESS)
+            	{
+                    error.text("");
+                    error.errorId(ReactorReturnCodes.SUCCESS);
+    
+                    if (_tunnelStreamState == TunnelStreamState.STREAM_OPEN)
+                    {
+                        _reactorChannel.tunnelStreamManager().addTunnelStreamToDispatchList(this);
+                    }
+            	}
     		}
         		
     		switch(_tunnelStreamState)
@@ -1741,9 +2022,13 @@ public class TunnelStream
     				{
     				    _tunnelStreamMsg.name("TunnelStream");
     				}
+    				// decrement stream version if this is a retry
+    				if (_requestRetryCount > 0)
+    				{
+    					_classOfService.common().streamVersion(_classOfService.common().streamVersion() - 1);
+    				}
     				_tunnelStreamMsg.classOfService(_classOfService);
     
-    				
                     if (_reactorChannel.watchlist() == null)
                     {
                         /* Message can go directly to channel. */
@@ -1869,6 +2154,8 @@ public class TunnelStream
                         _sendNakRangeList.count(0);
                     }
                     
+                    if (!_jUnitSkipHandleTransmit)
+                    {
                     if ((ret = handleTransmit(error)) != ReactorReturnCodes.SUCCESS)
                     {
                     	return ret;
@@ -1880,6 +2167,11 @@ public class TunnelStream
                     }
                     else
                         _reactorChannel.tunnelStreamManager().removeTunnelStreamFromDispatchList(this);
+                    }
+                    else
+                    {
+                    	_reactorChannel.tunnelStreamManager().removeTunnelStreamFromDispatchList(this);
+                    }
 
                     updateTimeout(System.nanoTime());
     
@@ -2239,13 +2531,13 @@ public class TunnelStream
         catch (Exception e)
         {
             error.errorId(ReactorReturnCodes.FAILURE);
-            error.text(e.getLocalizedMessage());
+            error.text("TunnelStream.dispatch() Exception: " + e.getLocalizedMessage());
             return ReactorReturnCodes.FAILURE;
         }
 		catch (InternalError e)
 		{
             error.errorId(ReactorReturnCodes.FAILURE);
-            error.text(e.getLocalizedMessage());
+            error.text("TunnelStream.dispatch() InternalError: " + e.getLocalizedMessage());
             return ReactorReturnCodes.FAILURE;		    
 		}
 	}
@@ -2567,6 +2859,7 @@ public class TunnelStream
     		if (deliveredMsg.msgClass() == MsgClasses.GENERIC)
     		{
     		    _decIter.clear();
+    		    _tunnelStreamMsg.classOfService(_classOfService);
     			ret = _tunnelStreamMsg.decode(_decIter, (GenericMsg)deliveredMsg, _recvAckRangeList, _recvNakRangeList);
     			if (ret != CodecReturnCodes.SUCCESS)
     			{
@@ -2665,6 +2958,7 @@ public class TunnelStream
                         case TunnelStreamMsg.OpCodes.RETRANS:
                             TunnelSubstream substreamSession = null;
                             TunnelStreamMsg.TunnelStreamData dataHeader = (TunnelStreamMsg.TunnelStreamData)_tunnelStreamMsg; 
+                            
                             int seqCompare;
     
                             seqCompare = TunnelStreamUtil.seqNumCompare(
@@ -2770,10 +3064,18 @@ public class TunnelStream
                                         if (buffer != null)
                                         {
                                             deliveredMsg.encodedDataBody().copy(buffer.data());
-                                            msgReceived(buffer, (deliveredMsg.containerType() == DataTypes.MSG) ? _decSubMsg : null, deliveredMsg.containerType());
+                                    		
+                                    		ret = ReactorReturnCodes.SUCCESS;
+                                    		if ((int)(((TunnelStreamMsgImpl)_tunnelStreamMsg).dataMsgFlag() & TunnelStreamMsg.TunnelStreamData.Flags.FRAGMENTED) == 0) // non-fragmented message
+                                    		{                                    	             
+                                    			ret = msgReceived(buffer, (deliveredMsg.containerType() == DataTypes.MSG) ? _decSubMsg : null, deliveredMsg.containerType());
+                                    		}
+                                    		else // fragmented message
+                                    		{ 
+                                    			ret = handleTunnelStreamFragmentedMsg(dataHeader, buffer.data(), dataHeader.containerType(), _errorInfo);
+                                    		}
                                             releaseBuffer((TunnelStreamBuffer)buffer, error);
-                
-                                            return ReactorReturnCodes.SUCCESS;
+                                			return ret; 
                                         }
                                         else
                                         {
@@ -2787,10 +3089,18 @@ public class TunnelStream
                                     if (buffer != null)
                                     {
                                         deliveredMsg.encodedDataBody().copy(buffer.data());
-                                        msgReceived(buffer,  (deliveredMsg.containerType() == DataTypes.MSG) ? _decSubMsg : null, deliveredMsg.containerType());
+                              			
+                              			ret = ReactorReturnCodes.SUCCESS;
+                              			if ((int)(((TunnelStreamMsgImpl)_tunnelStreamMsg).dataMsgFlag() & TunnelStreamMsg.TunnelStreamData.Flags.FRAGMENTED) == 0) // non-fragmented message
+                              			{                                	
+                              				ret = msgReceived(buffer,  (deliveredMsg.containerType() == DataTypes.MSG) ? _decSubMsg : null, deliveredMsg.containerType());
+                              			}
+                              			else // fragmented message
+                              			{
+                              				ret = handleTunnelStreamFragmentedMsg(dataHeader, buffer.data(), dataHeader.containerType(), _errorInfo);                              				
+                              			}
                                         releaseBuffer((TunnelStreamBuffer)buffer, error);
-            
-                                        return ReactorReturnCodes.SUCCESS;
+                          				return ret;
                                     }
                                     else
                                     {
@@ -2798,7 +3108,6 @@ public class TunnelStream
                                     }
                                 }
                             }
-    
     					case TunnelStreamMsg.OpCodes.ACK:
     						if ((ret = processAck((TunnelStreamMsg.TunnelStreamAck)_tunnelStreamMsg, _recvAckRangeList, _recvNakRangeList, error)) != ReactorReturnCodes.SUCCESS)
     							return ret;
@@ -2845,13 +3154,13 @@ public class TunnelStream
         catch (Exception e)
         {
             error.errorId(ReactorReturnCodes.FAILURE);
-            error.text(e.getLocalizedMessage());
+            error.text("TunnelStream.readMsg() Exception: " + e.getLocalizedMessage());
             return ReactorReturnCodes.FAILURE;
         }
         catch (InternalError e)
         {
             error.errorId(ReactorReturnCodes.FAILURE);
-            error.text(e.getLocalizedMessage());
+            error.text("TunnelStream.readMsg() InternalError: " + e.getLocalizedMessage());
             return ReactorReturnCodes.FAILURE;          
         }
 	}
@@ -3024,13 +3333,13 @@ public class TunnelStream
 		catch (Exception e)
 		{	
 			error.errorId(ReactorReturnCodes.FAILURE);
-			error.text(e.getLocalizedMessage());
+            error.text("TunnelStream.processAck() Exception: " + e.getLocalizedMessage());
 			return ReactorReturnCodes.FAILURE;
 		}
         catch (InternalError e)
         {
             error.errorId(ReactorReturnCodes.FAILURE);
-            error.text(e.getLocalizedMessage());
+            error.text("TunnelStream.processAck() InternalError: " + e.getLocalizedMessage());
             return ReactorReturnCodes.FAILURE;          
         }
 		        
@@ -3215,13 +3524,13 @@ public class TunnelStream
                 catch (Exception e)
                 {
                     error.errorId(ReactorReturnCodes.FAILURE);
-                    error.text(e.getLocalizedMessage());
+                    error.text("TunnelStream.handleTimer() Exception: " + e.getLocalizedMessage());
                     return ReactorReturnCodes.FAILURE;
                 }
                 catch (InternalError e)
                 {
                     error.errorId(ReactorReturnCodes.FAILURE);
-                    error.text(e.getLocalizedMessage());
+                    error.text("TunnelStream.handleTimer() InternalError: " + e.getLocalizedMessage());
                     return ReactorReturnCodes.FAILURE;          
                 }
 
@@ -3390,4 +3699,136 @@ public class TunnelStream
     {
         return _tableKey;
     }
+    
+    // gets message id for fragmentation
+    int messageId()
+    {
+    	// defined as unsigned short starting from 1
+    	int msgId = ++_messageId;
+    	if (msgId > MAX_MSG_ID)
+    	{
+    		msgId = _messageId = 1;
+    	}
+    	
+    	return msgId;
+    }
+    
+    // estimate encoded message size
+    private int encodedMsgSize(Msg msg)
+    {
+    	int msgSize = 128;
+    	MsgKey key = msg.msgKey();
+
+    	msgSize += msg.encodedDataBody().length();
+
+    	if (key != null)
+    	{
+    		if (key.checkHasName())
+    			msgSize += key.name().length();
+
+    		if (key.checkHasAttrib())
+    			msgSize += key.encodedAttrib().length();
+    	}
+    	
+    	return msgSize;
+    }
+    
+    int handleTunnelStreamFragmentedMsg(TunnelStreamMsg.TunnelStreamData dataHeader, ByteBuffer fragmentedBuffer, int containerType, ReactorErrorInfo errorInfo)
+    {
+    	int ret = ReactorReturnCodes.SUCCESS;
+    	TunnelStreamBigBuffer bigBuffer;
+    	_tempWlInteger.value(dataHeader.messageId());
+    	
+    	if ( dataHeader.fragmentNumber() > 1) 
+    	{    	
+    		if(_msgIdBigBufferMap.containsKey(_tempWlInteger))
+    		{
+    			bigBuffer = _msgIdBigBufferMap.get(_tempWlInteger);
+    		}
+    		else 
+    		{
+    			return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+    					"TunnelStream.handleTunnelStreamFragmentedMsg",
+    					"Received fragmented message with fragmentNumber > 1 but never received fragmentNumber of 1.");   
+    		}
+
+    		bigBuffer.data().put(fragmentedBuffer);
+    		bigBuffer._bytesAlreadyCopied  = bigBuffer.data().position();
+    		
+    		// if all bytes received, call back user with re-assembled buffer and clean up
+    		if (bigBuffer._bytesAlreadyCopied >= dataHeader.totalMsgLength()) 
+    		{
+    			// set big buffer for reading
+    			bigBuffer.setCurrentPositionAsEndOfEncoding();
+    			bigBuffer.setAsFullReadBuffer();
+    			
+    			// call back user
+    			if (dataHeader.containerType() != DataTypes.MSG)
+    			{
+    				ret = msgReceived(bigBuffer, null, containerType);
+    			}
+    			else
+    			{
+    				_decIter.clear();
+    				_decIter.setBufferAndRWFVersion(bigBuffer, _classOfService.common().protocolMajorVersion(), _classOfService.common().protocolMinorVersion());
+    				
+    				if ((ret = _tempMsg.decode(_decIter)) != ReactorReturnCodes.SUCCESS)
+    				{
+        				return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+        						"TunnelStream.handleTunnelStreamFragmentedMsg",
+        						"Failed to decode re-assembled message.");    					
+    				}
+    				
+    				ret = msgReceived(bigBuffer, _tempMsg, containerType);
+    			}
+    			
+    			// remove from hash table
+			    _msgIdBigBufferMap.remove(_tempWlInteger);
+			    releaseBuffer(bigBuffer, errorInfo);				
+    		}
+    	}
+    	else // first fragment
+    	{
+    		// check if re-assembly already in progress and overwrite previous re-assembly if it exists    
+       		if(_msgIdBigBufferMap.containsKey(_tempWlInteger))
+    		{
+               // get that bigBuffer and clear it
+    			bigBuffer = _msgIdBigBufferMap.get(_tempWlInteger);
+    			bigBuffer.clear(bigBuffer.capacity());
+    		}
+    		else
+    		{
+    			bigBuffer = _bigBufferPool.getBuffer((int)dataHeader.totalMsgLength() <= _classOfService.common().maxFragmentSize() ? _classOfService.common().maxFragmentSize()+1 : (int)dataHeader.totalMsgLength(), errorInfo);
+
+    			_msgIdBigBufferMap.put(	_tempWlInteger, bigBuffer);
+   
+    			if (bigBuffer == null)
+    			{
+    				return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+    						"TunnelStream.handleTunnelStreamFragmentedMsg",
+    						"Unable to acquire a big buffer.");        
+    			}    		
+    		}
+      		bigBuffer.data().put(fragmentedBuffer);
+    		bigBuffer._bytesAlreadyCopied = bigBuffer.data().position();
+    	}
+    	return ret;
+    }   
+
+	boolean handleRequestRetry()
+	{
+		if (_tunnelStreamState != TunnelStreamState.WAITING_REFRESH || _requestRetryCount >= MAX_REQUEST_RETRIES)
+		{
+			_requestRetryCount = 0;
+			return false;
+		}
+		else // retry request
+		{
+			// change back to SEND_REQUEST state to force retry with different stream version
+			_tunnelStreamState = TunnelStreamState.SEND_REQUEST;
+			_requestRetryCount++;
+            _reactorChannel.tunnelStreamManager().addTunnelStreamToDispatchList(this);
+			return true;
+		}
+	}    
 }

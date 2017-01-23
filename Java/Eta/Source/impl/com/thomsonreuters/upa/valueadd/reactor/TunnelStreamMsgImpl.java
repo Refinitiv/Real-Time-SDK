@@ -36,6 +36,16 @@ class TunnelStreamMsgImpl extends TunnelStreamMsg
 
     private Msg _encMsg;
     
+    // tunnel stream fragmentation attributes for TunnelStreamData
+    int _dataMsgFlag;
+    long _totalMsgLength;
+    long _fragmentNumber;
+    int _messageId;
+    int _containerType;
+    
+    // default stream version
+    int _streamVersion = CosCommon.CURRENT_STREAM_VERSION;
+    
     TunnelStreamMsgImpl()
     {
         _encMsg = CodecFactory.createMsg();
@@ -164,6 +174,11 @@ class TunnelStreamMsgImpl extends TunnelStreamMsg
         clearBase();
         _opCode = OpCodes.DATA;
         _seqNum = 0;
+        _dataMsgFlag = 0;
+        _totalMsgLength = 0;
+        _fragmentNumber = 0;
+        _messageId = 0;
+        _containerType = 0;
     }
 
     public void clearRetrans()
@@ -177,6 +192,56 @@ class TunnelStreamMsgImpl extends TunnelStreamMsg
     {
         return 128;
     }
+
+	public int dataMsgFlag()
+	{
+		return _dataMsgFlag;
+	}
+
+	public void dataMsgFlag(int flag)
+	{
+		_dataMsgFlag = flag;
+	}
+
+	public long totalMsgLength()
+	{
+		return _totalMsgLength;
+	}
+
+	public void totalMsgLength(long totalMsgLength)
+	{
+		_totalMsgLength = totalMsgLength;
+	}
+
+	public long fragmentNumber()
+	{
+		return _fragmentNumber;
+	}
+
+	public void fragmentNumber(long fragmentNumber)
+	{
+		_fragmentNumber = fragmentNumber;
+	}
+
+	public int messageId()
+	{
+		return _messageId;
+	}
+
+	public void messageId(int messageId)
+	{
+		_messageId = messageId;
+	}
+
+	public int containerType()
+	{
+		return _containerType;
+	}
+
+	public void containerType(int containerType)
+	{
+		_containerType = containerType;
+	}	
 
     public int encodeDataInit(EncodeIterator encIter)
     {
@@ -200,14 +265,33 @@ class TunnelStreamMsgImpl extends TunnelStreamMsg
         if ((ret = encIter.encodeNonRWFInit(_tmpBuffer)) != CodecReturnCodes.SUCCESS)
             return ret;
         
-        if (_tmpBuffer.length() < 1)
+        int lengthRequired = 2 + ((_dataMsgFlag & Flags.FRAGMENTED) > 0 ? 11 : 0);
+        if (_tmpBuffer.length() < lengthRequired)
             return CodecReturnCodes.BUFFER_TOO_SMALL;
         
         _tmpBuffer.data().put((byte)_opCode);
 
+    	if ((_classOfService != null && _classOfService.common().streamVersion() >= CosCommon.CURRENT_STREAM_VERSION) ||
+        	(_classOfService == null && _streamVersion >= CosCommon.CURRENT_STREAM_VERSION)) // only current stream version or greater supports fragmentation
+    	{
+	        // fragmentation flag
+	        _tmpBuffer.data().put((byte)_dataMsgFlag);
+	        
+	        // populate other fragmentation fields if fragmentation flag set
+	        if ((_dataMsgFlag & Flags.FRAGMENTED) > 0)
+	        {
+		        _tmpBuffer.data().putInt((int)_totalMsgLength);
+		
+		        _tmpBuffer.data().putInt((int)_fragmentNumber);
+		
+		        _tmpBuffer.data().putShort((short)_messageId);
+		
+		        _tmpBuffer.data().put((byte)_containerType);
+	        }
+    	}
+
         if ((ret = encIter.encodeNonRWFComplete(_tmpBuffer, true)) != CodecReturnCodes.SUCCESS)
             return ret;
-        
         
         if ((ret = _encMsg.encodeExtendedHeaderComplete(encIter,  true))
                 < CodecReturnCodes.SUCCESS)
@@ -219,6 +303,64 @@ class TunnelStreamMsgImpl extends TunnelStreamMsg
     public int encodeDataComplete(EncodeIterator encIter)
     {
         return _encMsg.encodeComplete(encIter, true);
+    }
+
+    // JUnit test method
+    int encodeDataInitOpaque(EncodeIterator encIter)
+    {
+        GenericMsg genericMsg = (GenericMsg)_encMsg;
+        int ret;
+
+        genericMsg.clear();
+        genericMsg.msgClass(MsgClasses.GENERIC);
+        genericMsg.streamId(_streamId);
+        genericMsg.domainType(_domainType);
+        genericMsg.containerType(DataTypes.OPAQUE);
+        genericMsg.applyHasExtendedHdr();
+        genericMsg.applyMessageComplete();
+
+        genericMsg.applyHasSeqNum();
+        genericMsg.seqNum(_seqNum);
+
+        if ((ret = genericMsg.encodeInit(encIter,  0)) != CodecReturnCodes.ENCODE_EXTENDED_HEADER)
+            return ret;
+        
+        if ((ret = encIter.encodeNonRWFInit(_tmpBuffer)) != CodecReturnCodes.SUCCESS)
+            return ret;
+        
+        int lengthRequired = 2 + ((_dataMsgFlag & Flags.FRAGMENTED) > 0 ? 11 : 0);
+        if (_tmpBuffer.length() < lengthRequired)
+            return CodecReturnCodes.BUFFER_TOO_SMALL;
+        
+        _tmpBuffer.data().put((byte)_opCode);
+
+    	if ((_classOfService != null && _classOfService.common().streamVersion() >= CosCommon.CURRENT_STREAM_VERSION) ||
+        	(_classOfService == null && _streamVersion >= CosCommon.CURRENT_STREAM_VERSION)) // only current stream version or greater supports fragmentation
+    	{
+	        // fragmentation flag
+	        _tmpBuffer.data().put((byte)_dataMsgFlag);
+	        
+	        // populate other fragmentation fields if fragmentation flag set
+	        if ((_dataMsgFlag & Flags.FRAGMENTED) > 0)
+	        {
+		        _tmpBuffer.data().putInt((int)_totalMsgLength);
+		
+		        _tmpBuffer.data().putInt((int)_fragmentNumber);
+		
+		        _tmpBuffer.data().putShort((short)_messageId);
+		
+		        _tmpBuffer.data().put((byte)(_containerType - DataTypes.CONTAINER_TYPE_MIN));
+	        }
+    	}
+
+        if ((ret = encIter.encodeNonRWFComplete(_tmpBuffer, true)) != CodecReturnCodes.SUCCESS)
+            return ret;
+        
+        if ((ret = _encMsg.encodeExtendedHeaderComplete(encIter,  true))
+                < CodecReturnCodes.SUCCESS)
+            return ret;
+        
+        return CodecReturnCodes.SUCCESS;
     }
 
     /* Ack Header ***/
@@ -373,6 +515,20 @@ class TunnelStreamMsgImpl extends TunnelStreamMsg
             {
                 case OpCodes.DATA:
                 case OpCodes.RETRANS:
+                	if ((_classOfService != null && _classOfService.common().streamVersion() >= CosCommon.CURRENT_STREAM_VERSION) ||
+                		(_classOfService == null && _streamVersion >= CosCommon.CURRENT_STREAM_VERSION)) // only current stream version or greater supports fragmentation
+                	{
+	                	_dataMsgFlag = byteBuffer.get();
+	                    // decode other fragmentation fields if fragmentation flag set
+	                    if ((_dataMsgFlag & Flags.FRAGMENTED) > 0)
+	                    {
+	                    	_totalMsgLength = byteBuffer.getInt();
+	                    	_fragmentNumber = byteBuffer.getInt();
+	                    	_messageId = byteBuffer.getShort();
+	                    	_containerType = byteBuffer.get() + DataTypes.CONTAINER_TYPE_MIN;
+	                    }
+                	}
+                	
                     if (genericMsg.checkHasSeqNum() == false)
                         return CodecReturnCodes.INCOMPLETE_DATA;
 

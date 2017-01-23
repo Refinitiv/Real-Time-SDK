@@ -237,8 +237,8 @@ public class VaDoubleLinkList<T>
 		assert(i == _count);
 	}
 	
-	/* returns if an element is contained in the list */
-	boolean contains(T elem, Link<T> queueLink)
+	/* Returns true if an element is contained in the list */
+	public boolean contains(T elem, Link<T> queueLink)
 	{
         for(T link = _head; link != null; link = queueLink.getNext(link))
         {

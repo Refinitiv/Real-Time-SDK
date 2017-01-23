@@ -57,6 +57,12 @@ abstract class TunnelStreamMsg
 
 	interface TunnelStreamData
 	{
+		class Flags
+		{
+			static final int NONE = 0x00;
+			static final int FRAGMENTED = 0x01;
+		} 
+
 		public void clearData();
 
 		/* Data message is retransmitted. */
@@ -70,6 +76,21 @@ abstract class TunnelStreamMsg
 		
 	    public int seqNum();
 	    public void seqNum(int seqNum);
+	    
+	    public int dataMsgFlag();
+	    public void dataMsgFlag(int flag);
+
+	    public long totalMsgLength();
+	    public void totalMsgLength(long totalMsgLength);
+
+	    public long fragmentNumber();
+	    public void fragmentNumber(long fragmentNumber);
+
+	    public int messageId();
+	    public void messageId(int messageId);
+
+	    public int containerType();
+	    public void containerType(int containerType);
 	}
 
 	interface TunnelStreamAck

@@ -12,11 +12,18 @@ import com.thomsonreuters.upa.rdm.ClassesOfService;
 public class CosCommon
 {
     /** The current version of the class of service. */
-    static final int CURRENT_STREAM_VERSION = 1;
     
-    public static final int DEFAULT_MAX_MSG_SIZE = 6144;
+    static final int CURRENT_STREAM_VERSION = 2;
+    
+    public static final int DEFAULT_MAX_MSG_SIZE = 614400;
+    public static final int DEFAULT_MAX_FRAGMENT_SIZE = 6144;
+    public static final int SUPPS_FRAGMENTATION = 1;
+    
     
     int _maxMsgSize = DEFAULT_MAX_MSG_SIZE;
+    int _maxFragmentSize = DEFAULT_MAX_FRAGMENT_SIZE;
+    int _supportFragmentation = SUPPS_FRAGMENTATION;
+    
     int _protocolType = Codec.protocolType();
     int _protocolMajorVersion = Codec.majorVersion();
     int _protocolMinorVersion = Codec.minorVersion();
@@ -39,6 +46,25 @@ public class CosCommon
     public void maxMsgSize(int maxMsgSize)
     {
         _maxMsgSize = maxMsgSize;
+    }
+
+    /**
+     * Returns the maximum fragment size. Set by providers to convey the
+     * maximum fragment size it supports.
+     */
+    public int maxFragmentSize()
+    {
+        return _maxFragmentSize;
+    }
+    
+    /**
+     * Sets the maximum fragment size. Set by providers to convey the
+     * maximum fragment size it supports. Must be a positive number up
+     * to 2,147,483,647.
+     */
+    public void maxFragmentSize(int maxFragmentSize)
+    {
+        _maxFragmentSize = maxFragmentSize;
     }
 
     /**
@@ -99,12 +125,24 @@ public class CosCommon
         _streamVersion = streamVersion;
     }
 
+    int supportFragmentation()
+    {
+		return _supportFragmentation;
+	}
+
+	void supportFragmentation(int supportFragmentation)
+	{
+		_supportFragmentation = supportFragmentation;
+	}
+
     /**
      * Clears the CosCommon for re-use.
      */
     public void clear()
     {
         _maxMsgSize = DEFAULT_MAX_MSG_SIZE;
+        _maxFragmentSize = DEFAULT_MAX_FRAGMENT_SIZE;
+        _supportFragmentation = SUPPS_FRAGMENTATION;
         _protocolType = Codec.protocolType();
         _protocolMajorVersion = Codec.majorVersion();
         _protocolMinorVersion = Codec.minorVersion();

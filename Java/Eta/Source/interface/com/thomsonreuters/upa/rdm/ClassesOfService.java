@@ -75,6 +75,9 @@ public class ClassesOfService
         /** :MaxMsgSize */
         public static final Buffer MAX_MSG_SIZE = CodecFactory.createBuffer();        
 
+        /** :MaxFragmentSize */
+        public static final Buffer MAX_FRAGMENT_SIZE = CodecFactory.createBuffer();        
+        
         /** :ProtocolType */
         public static final Buffer PROTOCOL_TYPE = CodecFactory.createBuffer();        
 
@@ -90,6 +93,9 @@ public class ClassesOfService
         /** :Type */
         public static final Buffer TYPE = CodecFactory.createBuffer();
         
+        /** :SupportsFragmentation */
+        public static final Buffer SUPPS_FRAGMENTATION = CodecFactory.createBuffer();      
+        
         static
         {
             /** :StreamVersion */
@@ -97,6 +103,9 @@ public class ClassesOfService
             
             /** :MaxMsgSize */
             MAX_MSG_SIZE.data(":MaxMsgSize");
+            
+            /** :MaxFragmentSize */
+            MAX_FRAGMENT_SIZE.data(":MaxFragmentSize");            
             
             /** :ProtocolType */
             PROTOCOL_TYPE.data(":ProtocolType");
@@ -112,6 +121,9 @@ public class ClassesOfService
             
             /** :Type */
             TYPE.data(":Type");
+            
+            /** :SupportsFragmentation */
+            SUPPS_FRAGMENTATION.data(":SupportsFragmentation");
         }
     }
 

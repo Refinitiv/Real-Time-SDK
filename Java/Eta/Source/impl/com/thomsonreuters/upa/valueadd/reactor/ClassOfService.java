@@ -31,7 +31,7 @@ import com.thomsonreuters.upa.transport.TransportFactory;
  * */
 public class ClassOfService
 {
-    private final int DEFAULT_BIDIRECTIONAL_FLOW_CONTROL_VALUE = CosCommon.DEFAULT_MAX_MSG_SIZE * 2;
+    private final int DEFAULT_BIDIRECTIONAL_FLOW_CONTROL_VALUE = CosCommon.DEFAULT_MAX_FRAGMENT_SIZE * 2;    
     private CosCommon _commonProperties = new CosCommon();
     private CosAuthentication _authentication = new CosAuthentication();
     private CosFlowControl _flowControl = new CosFlowControl();
@@ -54,7 +54,7 @@ public class ClassOfService
     
     public ClassOfService()
     {
-        _tempBuffer.data(ByteBuffer.allocate(256));
+        _tempBuffer.data(ByteBuffer.allocate(512));
     }
     
     /**
@@ -317,6 +317,11 @@ public class ClassOfService
                                             _tempUInt.decode(_dIter);
                                             _commonProperties.maxMsgSize((int)_tempUInt.toLong());
                                         }
+                                        if (_elemEntry.name().equals(ClassesOfService.ElementNames.MAX_FRAGMENT_SIZE))
+                                        {
+                                            _tempUInt.decode(_dIter);
+                                            _commonProperties.maxMsgSize((int)_tempUInt.toLong());
+                                        }
                                         else if (_elemEntry.name().equals(ClassesOfService.ElementNames.PROTOCOL_TYPE))
                                         {
                                             _tempUInt.decode(_dIter);
@@ -336,6 +341,11 @@ public class ClassOfService
                                         {
                                             _tempUInt.decode(_dIter);
                                             _commonProperties.streamVersion((int)_tempUInt.toLong());
+                                        } 
+                                        else if (_elemEntry.name().equals(ClassesOfService.ElementNames.SUPPS_FRAGMENTATION))
+                                        {
+                                            _tempUInt.decode(_dIter);                                          
+                                         	_commonProperties.supportFragmentation((int)_tempUInt.toLong());                                      
                                         } 
                                         break;
                                     case ClassesOfService.FilterIds.AUTHENTICATION:
@@ -539,10 +549,40 @@ public class ClassOfService
             _elemEntry.clear();
             _elemEntry.name(ClassesOfService.ElementNames.MAX_MSG_SIZE);
             _elemEntry.dataType(DataTypes.UINT);
+            if ( _commonProperties.streamVersion() > 1)
+            {
             _tempUInt.value(_commonProperties.maxMsgSize());
+            }
+            else
+            {
+            	_tempUInt.value(_commonProperties.maxFragmentSize());            	
+            }
             if ((ret = _elemEntry.encode(eIter, _tempUInt)) < CodecReturnCodes.SUCCESS)
             {
                 return ret;
+            }
+            
+            // maxFragmentSize and supportFragmentation flag
+            if ( _commonProperties.streamVersion() > 1)
+            {	
+            	
+            	_elemEntry.clear();
+            	_elemEntry.name(ClassesOfService.ElementNames.MAX_FRAGMENT_SIZE);
+            	_elemEntry.dataType(DataTypes.UINT);
+            	_tempUInt.value(_commonProperties.maxFragmentSize());
+            	if ((ret = _elemEntry.encode(eIter, _tempUInt)) < CodecReturnCodes.SUCCESS)
+            	{
+            		return ret;
+            	}
+            	
+              	_elemEntry.clear();
+            	_elemEntry.name(ClassesOfService.ElementNames.SUPPS_FRAGMENTATION);
+            	_elemEntry.dataType(DataTypes.UINT);
+            	_tempUInt.value(_commonProperties.supportFragmentation());
+            if ((ret = _elemEntry.encode(eIter, _tempUInt)) < CodecReturnCodes.SUCCESS)
+            {
+                return ret;
+            	}
             }
         }
 

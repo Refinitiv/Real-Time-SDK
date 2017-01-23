@@ -1880,9 +1880,9 @@ public class Reactor
                 {
                     if ((ret = _tunnelStreamRequestEvent.classOfService().decodeCommonProperties(_reactorChannel, msg.encodedDataBody(), errorInfo)) == ReactorReturnCodes.SUCCESS)
                     {
-                        // check if stream version is current stream version
+                        // check if stream version is less than or equal to current stream version
                         int requestedStreamVersion = _tunnelStreamRequestEvent.classOfService().common().streamVersion();
-                        if (requestedStreamVersion == CosCommon.CURRENT_STREAM_VERSION)
+                        if (requestedStreamVersion <= CosCommon.CURRENT_STREAM_VERSION)
                         {
                             isValid = true;
                         }
@@ -3433,7 +3433,7 @@ public class Reactor
     
     int getMaxFragmentSize(TunnelStream tunnelStream)
     {
-        return tunnelStream.classOfService().common().maxMsgSize();
+        return tunnelStream.classOfService().common().maxFragmentSize();
     }
 
     /* Process a message received for a known TunnelStream. */
@@ -3590,11 +3590,11 @@ public class Reactor
                     sendAndHandleTunnelStreamStatusEventCallback("Reactor.performChannelRead", reactorChannel, tunnelStream, msgBuf, msg, _tmpState, errorInfo);
                 }
 
-                /* Check if received class of service stream version matches current class
+                /* Check if received class of service stream version is less than or equal to current class
                  * of service stream version. If not, callback with closed state.
                  */
                 CosCommon commonProperties = tunnelStream.classOfService().common();
-                if (commonProperties.streamVersion() == CosCommon.CURRENT_STREAM_VERSION)
+                if (commonProperties.streamVersion() <= CosCommon.CURRENT_STREAM_VERSION)
                 {
                     if (tunnelStream.classOfService().authentication().type() != ClassesOfService.AuthenticationTypes.OMM_LOGIN)
                     {
@@ -3633,6 +3633,8 @@ public class Reactor
         else // status 
         {
             // forward status to tunnel stream event callback
+        	if (!tunnelStream.handleRequestRetry())
+        	{
             StatusMsg statusMsg = (StatusMsg)msg;
 
             if (statusMsg.checkHasState())
@@ -3644,6 +3646,7 @@ public class Reactor
             // always close tunnel stream handler for status message close
             if (statusMsg.state().streamState() == StreamStates.CLOSED || statusMsg.state().streamState() == StreamStates.CLOSED_RECOVER)
                 tunnelStream.close(_finalStatusEvent, errorInfo.error());
+        	}
         }
 
         if ((retval = reactorChannel.checkTunnelManagerEvents(errorInfo)) != ReactorReturnCodes.SUCCESS)

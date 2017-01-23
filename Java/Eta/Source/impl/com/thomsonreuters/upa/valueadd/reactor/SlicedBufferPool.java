@@ -31,7 +31,7 @@ class SlicedBufferPool
         
         SliceableBuffer()
         {
-            _data = ByteBuffer.allocateDirect(_maxMsgSize + TUNNEL_STREAM_HDR_SIZE);
+            _data = ByteBuffer.allocate(_maxMsgSize + TUNNEL_STREAM_HDR_SIZE);
         }
         
         int _position;
@@ -202,6 +202,7 @@ class SlicedBufferPool
         _currentBuffer._position += length;
         _currentBuffer._numSlicesInUse++;
         bufferImpl._parentBuffer = _currentBuffer;
+        bufferImpl._isUserBuffer = false;
 	}
 
     // gets a buffers slice for use by the tunnel stream

@@ -867,8 +867,8 @@ public class ReactorChannel extends VaNode
         _reactor._reactorLock.lock();
         try
         {
-            // send reject if stream versions don't match
-            if (event.classOfService().common().streamVersion() != CosCommon.CURRENT_STREAM_VERSION)
+            // send reject if connecting stream version is greater than current stream version
+            if (event.classOfService().common().streamVersion() > CosCommon.CURRENT_STREAM_VERSION)
             {
                 _tunnelStreamRejectOptions.clear();
                 _tunnelStreamRejectOptions.state().streamState(StreamStates.CLOSED);
@@ -903,6 +903,7 @@ public class ReactorChannel extends VaNode
             
             // validate accepted class of service
             boolean isServer = (_server != null ? true : false);
+            options.classOfService().common().streamVersion(event.classOfService().common().streamVersion());
             if (!options.classOfService().isValid(isServer, errorInfo))
             {
                 return _reactor.populateErrorInfo(errorInfo,

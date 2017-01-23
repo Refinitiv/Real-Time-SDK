@@ -13,10 +13,13 @@ import com.thomsonreuters.upa.valueadd.reactor.SlicedBufferPool.SliceableBuffer;
  * and internally to send data over the tunnel stream. */ 
 class TunnelStreamBuffer implements TransportBuffer
 {
+	boolean _isBigBuffer; // flag to indicate big buffer
+	
     /* The actual data represented as a ByteBuffer. */
-    private ByteBuffer _data;
+    protected ByteBuffer _data;
 
- 	private int _startPos, _innerCapacity, _encodedPosition;
+ 	protected int _startPos, _encodedPosition;
+ 	private int _innerCapacity;
 	private int _seqNum;
 	int _containerType;
 	SliceableBuffer _parentBuffer; // used by SlicedBufferPool
@@ -370,4 +373,9 @@ class TunnelStreamBuffer implements TransportBuffer
 		data().limit(tmpLimit);
 		data().position(tmpPos);
 	}
+    
+    boolean isBigBuffer()
+    {
+    	return _isBigBuffer;
+    }
 }
