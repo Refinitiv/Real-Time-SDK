@@ -548,16 +548,14 @@ public class Consumer implements ResponseCallback
         {
             channelSession.setConnectionType(ConnectionTypes.ENCRYPTED);
             _tunnelingConnectOpts.tunnelingInfo().tunnelingType("encrypted");
-            // build tunneling and credentials config and pass to
-            // channelSession.connectOptions(connectOptions)
+            // build tunneling and credentials config and pass to channelSession
             setEncryptedConfiguration(_tunnelingConnectOpts);
         }
         else if (connectionType.equals("http"))
         {
             channelSession.setConnectionType(ConnectionTypes.HTTP);
             _tunnelingConnectOpts.tunnelingInfo().tunnelingType("http");
-            // build http and credentials config and pass to
-            // channelSession.connectOptions(connectOptions)
+            // build http and credentials config and pass to channelSession
             setHTTPconfiguration(_tunnelingConnectOpts);
         }
 

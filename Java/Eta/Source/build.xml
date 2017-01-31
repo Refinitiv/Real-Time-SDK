@@ -43,6 +43,7 @@
 		<echo message="Creating a directory for the compiler output" />
         <mkdir dir="${bin.dir}"/>
         <mkdir dir="${bin.dir}/stubs"/>
+        <mkdir dir="${libs.dir}"/>
     </target>
 	
 	<target name="clean">

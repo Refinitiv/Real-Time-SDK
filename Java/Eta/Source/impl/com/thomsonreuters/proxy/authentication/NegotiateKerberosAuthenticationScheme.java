@@ -14,19 +14,19 @@ public class NegotiateKerberosAuthenticationScheme extends KerberosAuthenticatio
     
     // Example krb5 config file:
     //		[libdefaults]
-    //			default_realm = AMERS.IME.REUTERS.COM
+    //			default_realm = EXAMPLE.COM
     //			default_tkt_enctypes = aes128-cts rc4-hmac des3-cbc-sha1 des-cbc-md5 des-cbc-crc
     //			default_tgs_enctypes = aes128-cts rc4-hmac des3-cbc-sha1 des-cbc-md5 des-cbc-crc
     //			permitted_enctypes   = aes128-cts rc4-hmac des3-cbc-sha1 des-cbc-md5 des-cbc-crc
     //
     //		[realms]
-    //			AMERS.IME.REUTERS.COM  = {
-    //				kdc = damers1.amers.ime.reuters.com 
-    //				default_domain = AMERS.IME.REUTERS.COM 
+    //			EXAMPLE.COM  = {
+    //				kdc = kdc1.example.com 
+    //				default_domain = EXAMPLE.COM 
     //		}
     //
     //		[domain_realm]
-    //			.AMERS.IME.REUTERS.COM = AMERS.IME.REUTERS.COM
+    //			.EXAMPLE.COM = EXAMPLE.COM
 
     private static final String NEGOTIATEKERBEROS_RESPONSE_PREFIX = "NEGOTIATE ";	
 
