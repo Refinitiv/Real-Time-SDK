@@ -41,6 +41,7 @@ class DictionaryRefreshImpl extends MsgBaseImpl
     private int verbosity;
     private long sequenceNumber;
     private int startFid;
+    private int startEnumTableCount;
     
     private Int tmpInt = CodecFactory.createInt();
     private DataDictionary dictionary = CodecFactory.createDataDictionary();
@@ -103,6 +104,7 @@ class DictionaryRefreshImpl extends MsgBaseImpl
         destRefreshMsg.serviceId(serviceId());
         destRefreshMsg.dictionaryType(dictionaryType());
         destRefreshMsg.startFid(startFid());
+        destRefreshMsg.startEnumTableCount(startEnumTableCount());
         destRefreshMsg.flags(flags);
 
         // dictionaryname
@@ -149,6 +151,7 @@ class DictionaryRefreshImpl extends MsgBaseImpl
         dictionaryType = 0;
         sequenceNumber = 0;
         startFid = -32768; // MIN_FID
+        startEnumTableCount = 0;
         dataBody.clear();
     }
 
@@ -186,11 +189,6 @@ class DictionaryRefreshImpl extends MsgBaseImpl
         refreshMsg.msgKey().filter(verbosity());
         refreshMsg.msgKey().serviceId(serviceId());
       
-        
-        if(dictionaryType == Dictionary.Types.ENUM_TABLES)
-        {
-            refreshMsg.applyRefreshComplete();
-        }
         
         int ret = refreshMsg.encodeInit(encodeIter, 0);
         if (ret < CodecReturnCodes.SUCCESS)
@@ -236,11 +234,26 @@ class DictionaryRefreshImpl extends MsgBaseImpl
             }
             case Dictionary.Types.ENUM_TABLES:
             {
+                tmpInt.value(startEnumTableCount);            	
                 //encode dictionary into message
-                ret = dictionary.encodeEnumTypeDictionary(encodeIter, verbosity(), error);
+                int dictEncodeRet = dictionary.encodeEnumTypeDictionaryAsMultiPart(encodeIter, tmpInt, verbosity(), error);
+                if (dictEncodeRet != CodecReturnCodes.SUCCESS)
+                {
+                	if (dictEncodeRet != CodecReturnCodes.DICT_PART_ENCODED) 
+                    {
+                        // dictionary encode failed
+                        return dictEncodeRet;
+                    }
+                }
+                else
+                {
+                    // set refresh complete flag
+                    ret = encodeIter.setRefreshCompleteFlag();
                 if (ret != CodecReturnCodes.SUCCESS)
                 {
+                        error.text("Unable to set refresh complete flag to dictionary refresh msg");
                     return ret;
+                }
                 }
 
                 //complete encode message
@@ -249,6 +262,8 @@ class DictionaryRefreshImpl extends MsgBaseImpl
                 {
                     return ret;
                 }
+                startEnumTableCount = (int)tmpInt.toLong();
+                return dictEncodeRet;
             }
         }
         
@@ -458,11 +473,21 @@ class DictionaryRefreshImpl extends MsgBaseImpl
         return startFid;
     }
 
+    public int startEnumTableCount()
+    {
+        return startEnumTableCount;
+    }    
+
     public void startFid(int startFid)
     {
         this.startFid = startFid;
     }
 
+    public void startEnumTableCount(int startEnumTableCount)
+    {
+        this.startEnumTableCount = startEnumTableCount;
+    }     
+    
     public DataDictionary dictionary()
     {
         return dictionary;

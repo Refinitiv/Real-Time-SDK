@@ -73,6 +73,12 @@ class DataDictionaryImpl implements DataDictionary
     	return CodecReturnCodes.FAILURE;
     }
     
+    @Override    
+    public int encodeEnumTypeDictionaryAsMultiPart(EncodeIterator iter, Int currentEnumTableEntry, int verbosity, Error error);    
+	{
+    	return CodecReturnCodes.FAILURE;
+	}		
+
     @Override
     public int decodeEnumTypeDictionary(DecodeIterator iter, int verbosity, Error error)
     {

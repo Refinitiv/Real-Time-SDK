@@ -1798,6 +1798,441 @@ class DataDictionaryImpl implements DataDictionary
         return CodecReturnCodes.SUCCESS;
     }
     
+
+    
+    private int rollbackEnumDictionaryElementList(EncodeIterator iter)
+    {
+    	int ret;
+    	if ((ret = elemList.encodeComplete(iter, false)) < 0 )
+    		return ret;
+    	if ((ret = seriesEntry.encodeComplete(iter, false)) < 0)
+    		return ret;
+    	return series.encodeComplete(iter, true);
+    }    
+    
+    private int rollbackEnumDictionaryElementEntry(EncodeIterator iter)
+    {
+    	int ret;
+    	if ((ret = elemEntry.encodeComplete(iter, false)) < 0 )
+    		return ret;
+    	return rollbackEnumDictionaryElementList(iter);
+    }      
+    
+    private int rollbackEnumDictionaryArray(EncodeIterator iter)
+    {
+    	int ret;
+    	if ((ret = arr.encodeComplete(iter, false)) < 0 )
+    		return ret;
+    	return rollbackEnumDictionaryElementEntry(iter);
+    }      
+    
+    private int rollbackEnumDictionarySeriesEntry(EncodeIterator iter)
+    {
+    	int ret;
+    	if ((ret = seriesEntry.encodeComplete(iter, false)) < 0 )
+    		return ret;
+    	return series.encodeComplete(iter, true);
+    }    
+    
+    @Override
+    public int encodeEnumTypeDictionaryAsMultiPart(EncodeIterator iter, Int currentEnumTableEntry, int verbosity, Error error)
+    {
+        int ret;
+        int curEnumTableEntry = (int) currentEnumTableEntry.toLong();        
+
+        if (!_isInitialized)
+        {
+            setError(error, "Dictionary not initialized");
+            return CodecReturnCodes.FAILURE;
+        }
+
+        series.clear();
+        seriesEntry.clear();
+        elemList.clear();
+        elemEntry.clear();
+        arr.clear();
+        arrEntry.clear();
+        tempInt.clear();
+        tempEnum.clear();
+        setDb.clear();
+        setDb.definitions()[0].count(enumSetDef0_Normal.count());
+        setDb.definitions()[0].entries(enumSetDef0_Normal.entries());
+        setDb.definitions()[0].setId(enumSetDef0_Normal.setId());
+
+        /* Set the data format */
+        series.containerType(DataTypes.ELEMENT_LIST);
+        series.flags(SeriesFlags.HAS_SUMMARY_DATA);
+
+        /* Don't encode set definitions for info */
+        if (verbosity > Dictionary.VerbosityValues.INFO)
+            series.applyHasSetDefs();
+
+        /* If first packet, then send hint and summary data */
+        if ((ret = series.encodeInit(iter, 0, 0)) < 0)
+        {
+            setError(error, "encodeSeriesInit failed " + ret);
+            return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;
+        }
+
+        if (verbosity > Dictionary.VerbosityValues.INFO)
+        {
+            /* Encode set definition */
+            if ((ret = setDb.encode(iter)) < 0)
+            {
+                setError(error, "encodeLocalElementSetDefDb failed " + ret);
+                return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;
+            }
+
+            if ((ret = series.encodeSetDefsComplete(iter, true)) < 0)
+            {
+                setError(error, "encodeSeriesSetDefsComplete failed " + ret);
+                return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;
+            }
+        }
+
+        /* Summary data */
+        if ((ret = encodeDataDictSummaryData(iter, Dictionary.Types.ENUM_TABLES, series, error)) < 0)
+            return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;
+
+        /* Don't encode actual entries for info */
+        if (verbosity > Dictionary.VerbosityValues.INFO)
+        {
+        	
+    		/* Need to keep track of the number of the series entry we are encoding, if it is the first series entry
+			in the message and we get the RSSL_RET_BUFFER_TOO_SMALL we can not encode partial series entry and 
+			we need to fail */
+        	int startCount = curEnumTableEntry;        	
+
+            for (; curEnumTableEntry < _enumTableCount; ++curEnumTableEntry)
+            {
+                /* Encode each table */
+                EnumTypeTable table;
+
+                seriesEntry.clear();
+
+                if ((ret = seriesEntry.encodeInit(iter, 0)) == CodecReturnCodes.BUFFER_TOO_SMALL &&
+                		curEnumTableEntry > startCount)
+                {
+                	if ((ret = rollbackEnumDictionarySeriesEntry(iter)) < 0)
+                	{
+                		setError(error, "encodeSeriesEntryInit failed " + ret);
+                    	return CodecReturnCodes.FAILURE;
+                	}
+                	else
+                	{
+                		currentEnumTableEntry.value(curEnumTableEntry);
+                		return CodecReturnCodes.DICT_PART_ENCODED;
+                	}
+                }
+                else if (ret < 0)
+                {
+            		setError(error, "encodeSeriesEntryInit failed " + ret);
+            		return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;
+                }
+
+                elemList.clear();
+                elemList.flags(ElementListFlags.HAS_SET_DATA | ElementListFlags.HAS_SET_ID);
+                elemList.setId(0);
+
+                if ((ret = elemList.encodeInit(iter, setDb, 0)) == CodecReturnCodes.BUFFER_TOO_SMALL &&
+                		curEnumTableEntry > startCount)
+                {
+                	if ((ret = rollbackEnumDictionaryElementList(iter)) < 0)
+                	{
+                		setError(error, "rollbackEnumDictionaryElementList failed " + ret);
+                		return CodecReturnCodes.FAILURE;
+                	}
+                	else
+                	{
+                		currentEnumTableEntry.value(curEnumTableEntry);
+                		return CodecReturnCodes.DICT_PART_ENCODED;
+                	}
+                }
+                else if (ret < 0)
+                {
+                	setError(error, "encodeElementListInit failed " + ret);
+                	return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;
+                }
+
+                table = _enumTables[curEnumTableEntry];
+
+                /* Fids */
+                elemEntry.clear();
+                elemEntry.dataType(DataTypes.ARRAY);
+                elemEntry.name(ElementNames.ENUM_FIDS);
+                if ((ret = elemEntry.encodeInit(iter, 0)) == CodecReturnCodes.BUFFER_TOO_SMALL &&
+                		curEnumTableEntry > startCount)
+                {
+                	if ((ret = rollbackEnumDictionaryElementEntry(iter)) < 0)
+                	{
+                		setError(error, "rollbackEnumDictionaryElementEntry failed " + ret);
+                		return CodecReturnCodes.FAILURE;                		
+                	}
+                	else
+                	{
+                		currentEnumTableEntry.value(curEnumTableEntry);
+                		return CodecReturnCodes.DICT_PART_ENCODED;
+                	}
+                }
+                else if (ret < 0)
+                {
+                    setError(error, "encodeElementEntryInit failed " + ret);
+                    return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;
+                }
+
+                arr.clear();
+                arr.itemLength(2);
+                arr.primitiveType(DataTypes.INT);
+                if ((ret = arr.encodeInit(iter)) == CodecReturnCodes.BUFFER_TOO_SMALL &&
+                		curEnumTableEntry > startCount)
+                {
+                	if ((ret = rollbackEnumDictionaryArray(iter)) < 0)
+                	{
+                		setError(error, "rollbackEnumDictionaryArray failed " + ret);
+                		return CodecReturnCodes.FAILURE;                     		
+                	}
+                	else
+                	{
+                		currentEnumTableEntry.value(curEnumTableEntry);
+                		return CodecReturnCodes.DICT_PART_ENCODED;
+                	}
+                }
+                else if (ret < 0)
+                {
+                    setError(error, "encodeArrayInit failed " + ret);
+                    return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;
+                }
+
+                for (int j = 0; j < table.fidReferenceCount(); ++j)
+                {
+                    tempInt.value(table.fidReferences()[j]);
+                    arrEntry.clear();
+                    if ((ret = arrEntry.encode(iter, tempInt)) == CodecReturnCodes.BUFFER_TOO_SMALL &&
+                    		curEnumTableEntry > startCount)
+                    {
+                    	if ((ret = rollbackEnumDictionaryArray(iter)) < 0)
+                    	{
+                    		setError(error, "rollbackEnumDictionaryArray failed " + ret);
+                    		return CodecReturnCodes.FAILURE;                     		
+                    	}
+                    	else
+                    	{
+                    		currentEnumTableEntry.value(curEnumTableEntry);
+                    		return CodecReturnCodes.DICT_PART_ENCODED;
+                    	}                   	
+                    }
+                    else if (ret < 0)
+                    {
+                        setError(error, "encodeArrayEntry failed " + ret);
+                        return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;
+                    }
+                }
+
+                if ((ret = arr.encodeComplete(iter, true)) < 0)
+                {
+                    setError(error, "encodeArrayComplete failed " + ret);
+                    return CodecReturnCodes.FAILURE;
+                }
+
+                if ((ret = elemEntry.encodeComplete(iter, true)) < 0)
+                {
+                    setError(error, "encodeElementEntryComplete failed " + ret);
+                    return CodecReturnCodes.FAILURE;
+                }
+
+                /* Values */
+                elemEntry.clear();
+                elemEntry.dataType(DataTypes.ARRAY);
+                elemEntry.name(ElementNames.ENUM_VALUE);
+                if ((ret = elemEntry.encodeInit(iter, 0)) == CodecReturnCodes.BUFFER_TOO_SMALL &&
+                		curEnumTableEntry > startCount)
+                {
+                	if ((ret = rollbackEnumDictionaryElementEntry(iter)) < 0)
+                	{
+                		setError(error, "rollbackEnumDictionaryElementEntry failed " + ret);
+                		return CodecReturnCodes.FAILURE;                   		
+                	}
+                	else
+                	{
+                		currentEnumTableEntry.value(curEnumTableEntry);
+                		return CodecReturnCodes.DICT_PART_ENCODED;
+                	}   
+                }
+                else if (ret < 0)
+                {
+                    setError(error, "encodeElementEntryInit failed " + ret);
+                    return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;
+                }
+
+                arr.clear();
+                arr.itemLength(0);
+                arr.primitiveType(DataTypes.ENUM);
+                if ((ret = arr.encodeInit(iter)) == CodecReturnCodes.BUFFER_TOO_SMALL &&
+                		curEnumTableEntry > startCount)
+                {
+                	if ((ret = rollbackEnumDictionaryArray(iter)) < 0)
+                	{
+                		setError(error, "rollbackEnumDictionaryArray failed " + ret);
+                		return CodecReturnCodes.FAILURE;                 		
+                	}
+                	else
+                	{
+                		currentEnumTableEntry.value(curEnumTableEntry);
+                		return CodecReturnCodes.DICT_PART_ENCODED;
+                	}
+                }
+                else if (ret < 0)
+                {
+                    setError(error, "encodeArrayInit failed " + ret);
+                    return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;           	
+                }
+
+                for (int j = 0; j <= table.maxValue(); ++j)
+                {
+                    arrEntry.clear();
+                    if (table.enumTypes()[j] != null)
+                    {
+                        tempEnum.value(table.enumTypes()[j].value());
+                        if ((ret = arrEntry.encode(iter, tempEnum)) == CodecReturnCodes.BUFFER_TOO_SMALL &&
+                        		curEnumTableEntry > startCount)
+                        {
+                        	if ((ret = rollbackEnumDictionaryArray(iter)) < 0)
+                        	{
+                        		setError(error, "rollbackEnumDictionaryArray failed " + ret);
+                        		return CodecReturnCodes.FAILURE;                   		
+                        	}
+                        	else
+                        	{
+                        		currentEnumTableEntry.value(curEnumTableEntry);
+                        		return CodecReturnCodes.DICT_PART_ENCODED;
+                        	}
+                        }
+                        else if (ret < 0)
+                        {
+                            setError(error, "encodeArrayEntry failed " + ret);
+                            return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;      
+                        }
+                    }
+                }
+
+                if ((ret = arr.encodeComplete(iter, true)) < 0)
+                {
+                    setError(error, "encodeArrayComplete failed " + ret);
+                    return CodecReturnCodes.FAILURE;
+                }
+
+                if ((ret = elemEntry.encodeComplete(iter, true)) < 0)
+                {
+                    setError(error, "encodeElementEntryComplete failed " + ret);
+                    return CodecReturnCodes.FAILURE;
+                }
+
+                /* Display */
+                elemEntry.clear();
+                elemEntry.dataType(DataTypes.ARRAY);
+                elemEntry.name(ElementNames.ENUM_DISPLAY);
+                if ((ret = elemEntry.encodeInit(iter, 0)) == CodecReturnCodes.BUFFER_TOO_SMALL &&
+                		curEnumTableEntry > startCount)
+                {
+                	if ((ret = rollbackEnumDictionaryElementEntry(iter)) < 0)
+                	{
+                		setError(error, "rollbackEnumDictionaryElementEntry failed " + ret);
+                		return CodecReturnCodes.FAILURE;                   		
+                	}
+                	else
+                	{
+                		currentEnumTableEntry.value(curEnumTableEntry);
+                		return CodecReturnCodes.DICT_PART_ENCODED;
+                	}
+                }
+                else if (ret < 0)
+                {
+                    setError(error, "encodeElementEntryInit failed " + ret);
+                    return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;     
+                }
+
+                arr.clear();
+                arr.itemLength(0);
+                arr.primitiveType(DataTypes.ASCII_STRING);
+                if ((ret = arr.encodeInit(iter)) == CodecReturnCodes.BUFFER_TOO_SMALL &&
+                		curEnumTableEntry > startCount)
+                {
+                	if ((ret = rollbackEnumDictionaryArray(iter)) < 0)
+                	{
+                		setError(error, "rollbackEnumDictionaryArray failed " + ret);
+                		return CodecReturnCodes.FAILURE;                   		
+                	}
+                	else
+                	{
+                		currentEnumTableEntry.value(curEnumTableEntry);
+                		return CodecReturnCodes.DICT_PART_ENCODED;
+                	}                		
+                }
+            	else if (ret < 0)
+            	{
+            		setError(error, "encodeArrayInit failed " + ret);
+            		return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;     
+            	}
+
+                for (int j = 0; j <= table.maxValue(); ++j)
+                {
+                    arrEntry.clear();
+                    if (table.enumTypes()[j] != null && (ret = arrEntry.encode(iter, table.enumTypes()[j].display()))== CodecReturnCodes.BUFFER_TOO_SMALL &&
+                    		curEnumTableEntry > startCount)
+                    {
+                    	if ((ret = rollbackEnumDictionaryArray(iter)) < 0)
+                    	{
+                    		setError(error, "rollbackEnumDictionaryArray failed " + ret);
+                    		return CodecReturnCodes.FAILURE;                   		
+                    	}
+                    	else
+                    	{
+                    		currentEnumTableEntry.value(curEnumTableEntry);
+                    		return CodecReturnCodes.DICT_PART_ENCODED;
+                    	}                      	
+                    }
+                    else if (ret < 0)
+                    {
+                        setError(error, "encodeArrayEntry failed " + ret);
+                		return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;                     	
+                    }
+                }
+
+                if ((ret = arr.encodeComplete(iter, true)) < 0)
+                {
+                    setError(error, "encodeArrayComplete failed " + ret);
+                    return CodecReturnCodes.FAILURE;
+                }
+
+                if ((ret = elemEntry.encodeComplete(iter, true)) < 0)
+                {
+                    setError(error, "encodeElementEntryComplete failed " + ret);
+                    return CodecReturnCodes.FAILURE;
+                }
+
+                if ((ret = elemList.encodeComplete(iter, true)) < 0)
+                {
+                    setError(error, "encodeElementListComplete failed " + ret);
+                    return CodecReturnCodes.FAILURE;
+                }
+
+                if ((ret = seriesEntry.encodeComplete(iter, true)) < 0)
+                {
+                    setError(error, "encodeSeriesEntryComplete failed " + ret);
+                    return CodecReturnCodes.FAILURE;
+                }
+            }
+        }
+
+        if ((ret = series.encodeComplete(iter, true)) < 0)
+        {
+            setError(error, "encodeSeriesComplete failed " + ret);
+            return CodecReturnCodes.FAILURE;
+        }
+
+        return CodecReturnCodes.SUCCESS;
+    }
+    
     @Override
     public int decodeEnumTypeDictionary(DecodeIterator iter, int verbosity, Error error)
     {
