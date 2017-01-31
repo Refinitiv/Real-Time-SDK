@@ -42,7 +42,6 @@
 	<target name="init">
 		<echo message="Creating a directory for the compiler output" />
         <mkdir dir="${bin.dir}"/>
-        <mkdir dir="${bin.dir}/stubs"/>
         <mkdir dir="${libs.dir}"/>
     </target>
 	
@@ -117,6 +116,7 @@
 
 	<target depends="init" name="build-stubs">
 		<echo message="Building the ETAJ Stubs" />		
+		<mkdir dir="${bin.dir}/stubs"/>
 		<echo message="${ant.project.name}: ${ant.file}" />
 		<echo message="Compiling the project" />
         <javac debug="false" debuglevel="${debuglevel}" destdir="${stubs.dir}" source="${source}" target="${target}" includeantruntime="false">
