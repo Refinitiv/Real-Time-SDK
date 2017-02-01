@@ -210,7 +210,7 @@ static RsslRet encodeFieldDictionaryResponse(RsslChannel* chnl, RsslDictionaryRe
 		msg.flags |= RSSL_RFMF_CLEAR_CACHE;
 	}
 
-	snprintf(stateText, 128, "Field Dictionary Refresh (starting fid %d)", *dictionaryFid);
+	snprintf(stateText, MAX_DICTIONARY_REQ_INFO_STRLEN, "Field Dictionary Refresh (starting fid %d)", *dictionaryFid);
 	msg.state.text.data = stateText;
 	msg.state.text.length = (RsslUInt32)strlen(stateText) + 1;
 	
@@ -380,13 +380,14 @@ static RsslRet encodeDictionaryRequest(RsslChannel* chnl, RsslBuffer* msgBuf, co
  * dictionaryReqInfo - The dictionary request information
  * msgBuf - The message buffer to encode the dictionary response into
  */
-static RsslRet encodeEnumTypeDictionaryResponse(RsslChannel* chnl, RsslDictionaryRequestInfo* dictionaryReqInfo, RsslBuffer* msgBuf) 
+static RsslRet encodeEnumTypeDictionaryResponse(RsslChannel* chnl, RsslDictionaryRequestInfo* dictionaryReqInfo, RsslInt32* dictionaryFid, RsslBuffer* msgBuf, RsslBool firstPartMultiPartRefresh)
 {
 	RsslRet ret = 0;
 	RsslRefreshMsg msg = RSSL_INIT_REFRESH_MSG;
 	char stateText[MAX_DICTIONARY_REQ_INFO_STRLEN];
 	char errTxt[256];
 	RsslBuffer errorText = {255, (char*)errTxt};
+	RsslBool dictionaryComplete = RSSL_FALSE;
 	RsslEncodeIterator encodeIter;
 
 	/* clear encode iterator */
@@ -402,8 +403,15 @@ static RsslRet encodeEnumTypeDictionaryResponse(RsslChannel* chnl, RsslDictionar
 	msg.msgBase.msgKey.filter = dictionaryReqInfo->MsgKey.filter;
 	msg.msgBase.msgKey.flags = RSSL_MKF_HAS_NAME | RSSL_MKF_HAS_FILTER | RSSL_MKF_HAS_SERVICE_ID;
 	msg.msgBase.msgKey.serviceId = dictionaryReqInfo->serviceId;
-	msg.flags = RSSL_RFMF_HAS_MSG_KEY | RSSL_RFMF_REFRESH_COMPLETE | RSSL_RFMF_SOLICITED | RSSL_RFMF_CLEAR_CACHE;
-	snprintf(stateText, 128, "Enum Type Dictionary Refresh");
+	msg.flags = RSSL_RFMF_HAS_MSG_KEY | RSSL_RFMF_SOLICITED;
+	
+	/* when doing a multi part refresh only the first part has the RSSL_RFMF_CLEAR_CACHE flag set */
+	if (firstPartMultiPartRefresh)
+	{
+		msg.flags |= RSSL_RFMF_CLEAR_CACHE;
+	}
+
+	snprintf(stateText, MAX_DICTIONARY_REQ_INFO_STRLEN, "Enum Type Dictionary Refresh (starting fid %d)", *dictionaryFid);
 	msg.state.text.data = stateText;
 	msg.state.text.length = (RsslUInt32)strlen(stateText) + 1;
 	
@@ -427,11 +435,19 @@ static RsslRet encodeEnumTypeDictionaryResponse(RsslChannel* chnl, RsslDictionar
 		return ret;
 	}
 
-	/* encode dictionary into message */
-	if ((ret = rsslEncodeEnumTypeDictionary(&encodeIter, &dictionary, (RDMDictionaryVerbosityValues)dictionaryReqInfo->MsgKey.filter, &errorText)) != RSSL_RET_SUCCESS)
+	if ((ret = rsslEncodeEnumTypeDictionaryAsMultiPart(&encodeIter, &dictionary, dictionaryFid, (RDMDictionaryVerbosityValues)dictionaryReqInfo->MsgKey.filter, &errorText)) != RSSL_RET_SUCCESS)
 	{
-		printf("rsslEncodeEnumTypeDictionary() failed '%s'\n",errorText.data );
+		if (ret != RSSL_RET_DICT_PART_ENCODED)
+		{
+			printf("rsslEncodeEnumTypeDictionaryAsMultiPart() failed '%s'\n", errorText.data);
 		return ret;
+	}
+	}
+	else /* dictionary encode complete */
+	{
+		dictionaryComplete = RSSL_TRUE;
+		/* set refresh complete flag */
+		rsslSetRefreshCompleteFlag(&encodeIter);
 	}
 	
 	/* complete encode message */
@@ -442,7 +458,14 @@ static RsslRet encodeEnumTypeDictionaryResponse(RsslChannel* chnl, RsslDictionar
 	}
 	msgBuf->length = rsslGetEncodedBufferLength(&encodeIter);
 
+	if (dictionaryComplete)
+	{
 	return RSSL_RET_SUCCESS;
+}
+	else
+	{
+		return RSSL_RET_DICT_PART_ENCODED;
+	}
 }
 
 /*
@@ -624,15 +647,18 @@ static RsslRet sendEnumTypeDictionaryResponse(RsslChannel* chnl, RsslDictionaryR
 	RsslRet ret;
 	RsslError error;
 	RsslBuffer* msgBuf = 0;
+	RsslInt32 dictionaryFid = 0;
+	RsslBool firstPart = RSSL_TRUE;
 
-
+	while (RSSL_TRUE)
+	{
 	/* get a buffer for the dictionary response */
 	msgBuf = rsslGetBuffer(chnl, MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE, RSSL_FALSE, &error);
 
 	if (msgBuf != NULL)
 	{
 		/* encode dictionary response */
-		ret = encodeEnumTypeDictionaryResponse(chnl, dictionaryReqInfo, msgBuf);
+			ret = encodeEnumTypeDictionaryResponse(chnl, dictionaryReqInfo, &dictionaryFid, msgBuf, firstPart);
 		if (ret < RSSL_RET_SUCCESS)
 		{
 			rsslReleaseBuffer(msgBuf, &error); 
@@ -640,14 +666,33 @@ static RsslRet sendEnumTypeDictionaryResponse(RsslChannel* chnl, RsslDictionaryR
 			return ret;
 		}
 
+			firstPart = RSSL_FALSE;
+
 		/* send dictionary response */
 		if (sendMessage(chnl, msgBuf) != RSSL_RET_SUCCESS)
 			return RSSL_RET_FAILURE;
+
+			/* break out of loop when all dictionary responses sent */
+			if (ret == RSSL_RET_SUCCESS)
+			{
+				break;
+			}
+
+			/* sleep between dictionary responses */
+#if defined(_WIN32)
+			Sleep(1);
+#else
+			struct timespec sleeptime;
+			sleeptime.tv_sec = 0;
+			sleeptime.tv_nsec = 1000000;
+			nanosleep(&sleeptime, 0);
+#endif
 	}
 	else
 	{
 		printf("rsslGetBuffer(): Failed <%s>\n", error.text);
 		return RSSL_RET_FAILURE;
+	}
 	}
 
 	return RSSL_RET_SUCCESS;
@@ -783,7 +828,7 @@ static RsslRet encodeDictionaryCloseStatus(RsslChannel *chnl, RsslBuffer* msgBuf
 	msg.state.streamState = RSSL_STREAM_CLOSED;
 	msg.state.dataState = RSSL_DATA_SUSPECT;
 	msg.state.code = RSSL_SC_NONE;
-	snprintf(stateText, 128, "Dictionary stream closed");
+	sprintf(stateText, "Dictionary stream closed");
 	msg.state.text.data = stateText;
 	msg.state.text.length = (RsslUInt32)strlen(stateText) + 1;
 
@@ -872,14 +917,14 @@ static RsslRet encodeDictionaryRequestReject(RsslChannel* chnl, RsslInt32 stream
 	case UNKNOWN_DICTIONARY_NAME:
 		msg.state.code = RSSL_SC_NOT_FOUND;
 		msg.state.streamState = RSSL_STREAM_CLOSED;
-		snprintf(stateText, 128, "Dictionary request rejected for stream id %d - dictionary name unknown", streamId);
+		sprintf(stateText, "Dictionary request rejected for stream id %d - dictionary name unknown", streamId);
 		msg.state.text.data = stateText;
 		msg.state.text.length = (RsslUInt32)strlen(stateText) + 1;
 		break;
 	case MAX_DICTIONARY_REQUESTS_REACHED:
 		msg.state.code = RSSL_SC_TOO_MANY_ITEMS;
 		msg.state.streamState = RSSL_STREAM_CLOSED_RECOVER;
-		snprintf(stateText, 128, "Dictionary request rejected for stream id %d - max request count reached", streamId);
+		sprintf(stateText, "Dictionary request rejected for stream id %d - max request count reached", streamId);
 		msg.state.text.data = stateText;
 		msg.state.text.length = (RsslUInt32)strlen(stateText) + 1;
 		break;

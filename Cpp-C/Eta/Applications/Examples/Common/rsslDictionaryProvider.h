@@ -15,7 +15,7 @@ extern "C" {
 #define MAX_DICTIONARY_REQ_INFO_STRLEN 128
 #define MAX_DICTIONARY_STATUS_MSG_SIZE 1024
 #define MAX_FIELD_DICTIONARY_MSG_SIZE 8192
-#define MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE 128000
+#define MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE 12800
 
 #define FIELD_DICTIONARY_STREAM_ID -1
 #define ENUM_TYPE_DICTIONARY_STREAM_ID -2
@@ -42,7 +42,7 @@ RsslDataDictionary* getDictionary();
 static RsslRet encodeFieldDictionaryResponse(RsslChannel* chnl, RsslDictionaryRequestInfo* dictionaryReqInfo, RsslBuffer* msgBuf, RsslInt32* dictionaryFid, RsslBool firstPartMultiPartRefresh);
 static RsslRet encodeDictionaryRequestReject(RsslChannel* chnl, RsslInt32 streamId, RsslDictionaryRejectReason reason, RsslBuffer* msgBuf);
 static RsslDictionaryRequestInfo* getDictionaryReqInfo(RsslChannel* chnl, RsslMsg* msg, RsslMsgKey* key);
-static RsslRet encodeEnumTypeDictionaryResponse(RsslChannel* chnl, RsslDictionaryRequestInfo* dictionaryReqInfo, RsslBuffer* msgBuf);
+static RsslRet encodeEnumTypeDictionaryResponse(RsslChannel* chnl, RsslDictionaryRequestInfo* dictionaryReqInfo, RsslInt32* dictionaryFid, RsslBuffer* msgBuf, RsslBool firstPartMultiPartRefresh);
 RsslRet processDictionaryRequest(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIterator* dIter);
 static RsslRet decodeDictionaryRequest(RsslDictionaryRequestInfo* dictionaryReqInfo, RsslMsg* msg, RsslMsgKey* key, RsslDecodeIterator* dIter);
 static RsslRet sendFieldDictionaryResponse(RsslChannel* chnl, RsslDictionaryRequestInfo* dictionaryReqInfo);
