@@ -123,20 +123,26 @@ RSSL_VA_API RsslRet rsslEncodeRDMDictionaryMsg(RsslEncodeIterator *pIter, RsslRD
 					return dictEncodeRet;
 				}
 				case RDM_DICTIONARY_ENUM_TABLES:
-					if ((ret = rsslEncodeEnumTypeDictionaryAsMultiPart(pIter, pDictionaryRefresh->pDictionary, &pDictionaryRefresh->enumStartFid, (RDMDictionaryVerbosityValues)pDictionaryRefresh->verbosity, &errorText)) != RSSL_RET_SUCCESS)
+				{
+					RsslRet dictEncodeRet;
+					if ((dictEncodeRet = rsslEncodeEnumTypeDictionaryAsMultiPart(pIter, pDictionaryRefresh->pDictionary, &pDictionaryRefresh->enumStartFid, (RDMDictionaryVerbosityValues)pDictionaryRefresh->verbosity, &errorText)) != RSSL_RET_SUCCESS)
+					{
+						if (dictEncodeRet != RSSL_RET_DICT_PART_ENCODED)
 					{
 						rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "rsslEncodeEnumTypeDictionaryAsMultiPart failed: %.*s", errorText.length, errorText.data);
 						return ret;
 					}
+					}
 
-					if (ret == RSSL_RET_SUCCESS)
+					if (dictEncodeRet == RSSL_RET_SUCCESS)
 					rsslSetRefreshCompleteFlag(pIter);
 
 					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgComplete(pIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
 
 					pError->rsslErrorInfoCode = RSSL_EIC_SUCCESS;
 					*pBytesWritten = rsslGetEncodedBufferLength(pIter);
-					return ret;
+					return dictEncodeRet;
+				}
 				default:
 					pError->rsslErrorInfoCode = RSSL_EIC_FAILURE;
 					rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Unknown dictionary type: %u", pDictionaryRefresh->type);
