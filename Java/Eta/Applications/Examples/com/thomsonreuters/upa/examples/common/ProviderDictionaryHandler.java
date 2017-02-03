@@ -46,7 +46,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryStatus
 public class ProviderDictionaryHandler
 {
     private static final int MAX_FIELD_DICTIONARY_MSG_SIZE = 8192;
-    private static final int MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE = 128000;
+    private static final int MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE = 12800;
     private static final int MAX_DICTIONARY_STATUS_MSG_SIZE = 1024;
     
     private static final String FIELD_DICTIONARY_FILE_NAME = "RDMFieldDictionary";
