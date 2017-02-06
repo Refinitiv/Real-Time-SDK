@@ -206,6 +206,15 @@ public interface DictionaryRefresh extends DictionaryMsg
     public void startFid(int startFid);
 
     /**
+     * This field is initialized with 0 and after encoding each
+     * part, updated with the start Enum Table Count for next encoded part. 
+     * When decoding, this is not used.
+     * 
+     * @param startEnumTableCount
+     */
+    public void startEnumTableCount(int startEnumTableCount);    
+
+    /**
      * This field is initialized with dictionary->minFid and after encoding each
      * part, updated with the start Fid for next encoded part. When decoding,
      * this is not used.
@@ -213,6 +222,15 @@ public interface DictionaryRefresh extends DictionaryMsg
      * @return startFid
      */
     public int startFid();
+    
+    /**
+     * This field is initialized with 0 and after encoding each
+     * part, updated with the start Enum Table Count for next encoded part. 
+     * When decoding, this is not used.
+     * 
+     * @return startEnumTableCount
+     */
+    public int startEnumTableCount();    
 
     /**
      * Checks the presence of clear cache flag.

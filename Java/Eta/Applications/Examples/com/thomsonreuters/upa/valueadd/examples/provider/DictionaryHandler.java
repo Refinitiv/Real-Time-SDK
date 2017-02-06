@@ -18,6 +18,7 @@ import com.thomsonreuters.upa.transport.TransportReturnCodes;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryRefresh;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryRefreshFlags;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryStatus;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
@@ -41,7 +42,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
 class DictionaryHandler
 {
     private static final int MAX_FIELD_DICTIONARY_MSG_SIZE = 8192;
-    private static final int MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE = 128000;
+    private static final int MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE = 12800;
     private static final int MAX_DICTIONARY_STATUS_MSG_SIZE = 1024;
     
     private static final String FIELD_DICTIONARY_FILE_NAME = "RDMFieldDictionary";
@@ -327,6 +328,8 @@ class DictionaryHandler
                                                  dictionaryRequest.dictionaryName().position(), dictionaryRequest.dictionaryName().length());
         _dictionaryRefresh.applySolicited();
         
+        boolean firstMultiPart = true;
+        
         while (true)
         {
             // get a buffer for the dictionary response
@@ -345,6 +348,14 @@ class DictionaryHandler
                 return ret;
             }
 
+            if (firstMultiPart)
+            {
+            	_dictionaryRefresh.applyClearCache();
+            	firstMultiPart = false;
+            }
+            else
+            	_dictionaryRefresh.flags( DictionaryRefreshFlags.SOLICITED );               
+            
             // encode message
             ret = _dictionaryRefresh.encode(_encodeIter);
             if (ret < CodecReturnCodes.SUCCESS)
@@ -384,13 +395,8 @@ class DictionaryHandler
      */
     int sendEnumTypeDictionaryResponse(ReactorChannel chnl, DictionaryRequest dictionaryRequest, ReactorErrorInfo errorInfo)
     {
-        // get a buffer for the dictionary response
-        TransportBuffer msgBuf = chnl.getBuffer(MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE, false, errorInfo);
-        if (msgBuf == null)
-            return CodecReturnCodes.FAILURE;
-
-        // encode dictionary refresh - enum type
         _dictionaryRefresh.clear();
+        
         _dictionaryRefresh.rdmMsgType(DictionaryMsgType.REFRESH);
         _dictionaryRefresh.streamId(dictionaryRequest.streamId());
         _dictionaryRefresh.dictionaryType(Dictionary.Types.ENUM_TABLES);
@@ -398,38 +404,71 @@ class DictionaryHandler
         _dictionaryRefresh.serviceId(dictionaryRequest.serviceId());
         _dictionaryRefresh.verbosity(dictionaryRequest.verbosity());
         _dictionaryRefresh.applySolicited();
-        _dictionaryRefresh.applyRefreshComplete();
 
         _dictionaryRefresh.state().streamState(StreamStates.OPEN);
         _dictionaryRefresh.state().dataState(DataStates.OK);
         _dictionaryRefresh.state().code(StateCodes.NONE);
-        _dictionaryRefresh.state().text().data("Enum Type Dictionary Refresh");
 
         // dictionaryName
         _dictionaryRefresh.dictionaryName().data(dictionaryRequest.dictionaryName().data(),
                                                  dictionaryRequest.dictionaryName().position(), dictionaryRequest.dictionaryName().length());
 
-        // clear encode iterator
-        _encodeIter.clear();
-        int ret = _encodeIter.setBufferAndRWFVersion(msgBuf, chnl.majorVersion(), chnl.minorVersion());
-        if (ret < CodecReturnCodes.SUCCESS)
+        boolean firstMultiPart = true;
+        
+        while (true)
         {
-            errorInfo.error().text("EncodeIterator.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
-            return ret;
+            // get a buffer for the dictionary response
+            TransportBuffer msgBuf = chnl.getBuffer(MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE, false, errorInfo);
+            if (msgBuf == null)
+                return CodecReturnCodes.FAILURE;        	
+        	
+        	_dictionaryRefresh.state().text().data("Enum Type Dictionary Refresh (starting enum " + _dictionaryRefresh.startEnumTableCount() + ")");
+
+        	// clear encode iterator
+	        _encodeIter.clear();
+	        int ret = _encodeIter.setBufferAndRWFVersion(msgBuf, chnl.majorVersion(), chnl.minorVersion());
+	        if (ret < CodecReturnCodes.SUCCESS)
+	        {
+	            errorInfo.error().text("EncodeIterator.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
+	            return ret;
+	        }
+	
+            if (firstMultiPart)
+            {
+            	_dictionaryRefresh.applyClearCache();
+            	firstMultiPart = false;
+            }
+            else
+            	_dictionaryRefresh.flags( DictionaryRefreshFlags.SOLICITED );   	        
+	        
+	        // encode message
+	        ret = _dictionaryRefresh.encode(_encodeIter);
+	        if (ret < CodecReturnCodes.SUCCESS)
+	        {
+	            errorInfo.error().text("DictionaryRefresh.encode() failed");
+	            return ret;
+	        }
+	
+	        // send dictionary response
+	        if (chnl.submit(msgBuf, _submitOptions, errorInfo) != TransportReturnCodes.SUCCESS)
+	            return CodecReturnCodes.FAILURE;
+	        
+            // break out of loop when all dictionary responses sent
+            if (ret == CodecReturnCodes.SUCCESS)
+            {
+                break;
+            }
+
+            // sleep between dictionary responses
+            try
+            {
+                Thread.sleep(1);
+            }
+            catch (InterruptedException e)
+            {
+            }	        
+
         }
-
-        // encode message
-        ret = _dictionaryRefresh.encode(_encodeIter);
-        if (ret < CodecReturnCodes.SUCCESS)
-        {
-            errorInfo.error().text("DictionaryRefresh.encode() failed");
-            return ret;
-        }
-
-        // send dictionary response
-        if (chnl.submit(msgBuf, _submitOptions, errorInfo) != TransportReturnCodes.SUCCESS)
-            return CodecReturnCodes.FAILURE;
-
 
         return CodecReturnCodes.SUCCESS;
     }

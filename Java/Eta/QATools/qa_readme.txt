@@ -23,3 +23,8 @@ The provider will then need to check for the same pattern in the fully assembled
 VAProvider31-02002:  Alter VAProvider to validate incoming tunnel stream message as a generic message with opaque
 buffer data body of "1, 2, 3....255" repeated.  If the content is as expected, this code change prints a "TEST PASSED".
 This code change works in conjunction with VAConsumer31-02002.
+
+Consumer00-00010: Altered the code of the Consumer application to both read the dictionary from file
+and download from the netowork. Once the dictionaries are loded they are compared to see if they are the same.
+This is testing the encoding of dictionary messages as multi parts refreshes.
+

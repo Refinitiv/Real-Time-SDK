@@ -443,11 +443,23 @@ class DictionaryMsgImpl implements DictionaryMsg, DictionaryRequest, DictionaryC
     }
 
     @Override
+    public void startEnumTableCount(int startEnumTableCount)
+    {
+        rdmDictionaryRefresh().startEnumTableCount(startEnumTableCount);
+    }
+    
+    @Override
     public int startFid()
     {
         return rdmDictionaryRefresh().startFid();
     }
 
+    @Override
+    public int startEnumTableCount()
+    {
+        return rdmDictionaryRefresh().startEnumTableCount();
+    }    
+    
     @Override
     public int copy(DictionaryRefresh destRefreshMsg)
     {
