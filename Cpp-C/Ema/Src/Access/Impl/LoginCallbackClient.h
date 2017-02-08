@@ -214,6 +214,8 @@ public :
 
 	void processChannelEvent( RsslReactorChannelEvent* );
 
+	Channel* getActiveChannel();
+
 private :
 
 	static const EmaString			_clientName;

@@ -257,8 +257,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 			{
 				strBuilder().append("directory retrieval failed (timed out after waiting ")
 						.append(_activeConfig.directoryRequestTimeOut).append(" milliseconds) for ");
-				int count = _loginCallbackClient.loginChannelList().size();
-				ChannelInfo loginChanInfo = _loginCallbackClient.loginChannelList().get(count - 1);
+				ChannelInfo loginChanInfo = _loginCallbackClient.activeChannelInfo();
 				if( loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.SOCKET)
 				{
 					SocketChannelConfig channelConfig = (SocketChannelConfig) loginChanInfo._channelConfig;
@@ -296,8 +295,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 			{
 				strBuilder().append("dictionary retrieval failed (timed out after waiting ")
 						.append(_activeConfig.dictionaryRequestTimeOut).append(" milliseconds) for ");
-				int count = _loginCallbackClient.loginChannelList().size();
-				ChannelInfo loginChanInfo = _loginCallbackClient.loginChannelList().get(count - 1);
+				ChannelInfo loginChanInfo = _loginCallbackClient.activeChannelInfo();
 				if( loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.SOCKET)
 				{
 					SocketChannelConfig channelConfig = (SocketChannelConfig) loginChanInfo._channelConfig;
