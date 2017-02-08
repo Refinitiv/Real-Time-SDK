@@ -849,7 +849,9 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		        ( _state != RsslChannelUpStreamNotOpenEnum ) )
 			rsslReactorDispatchLoop( _activeConfig.dispatchTimeoutApiThread, _activeConfig.maxDispatchCountApiThread, _bEventReceived );
 
-		ChannelConfig* pChannelcfg = _activeConfig.configChannelSet[0];
+		ChannelConfig* pChannelcfg = _activeConfig.findChannelConfig(_pLoginCallbackClient->getActiveChannel());
+		if (!pChannelcfg)
+			pChannelcfg = _activeConfig.configChannelSet[_activeConfig.configChannelSet.size()-1];
 
 		if ( _eventTimedOut )
 		{
