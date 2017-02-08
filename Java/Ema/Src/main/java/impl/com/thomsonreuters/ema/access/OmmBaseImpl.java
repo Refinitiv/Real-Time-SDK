@@ -879,7 +879,8 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 	
 			if (_eventTimeout)
 			{
-				ChannelConfig currentConfig = _activeConfig.channelConfigSet.get( 0 );
+				ChannelInfo channelInfo = _loginCallbackClient.activeChannelInfo();
+				ChannelConfig currentConfig = (channelInfo != null ) ? channelInfo._channelConfig : _activeConfig.channelConfigSet.get(  _activeConfig.channelConfigSet.size() -1 );
 				strBuilder().append("login failed (timed out after waiting ")
 						.append(_activeConfig.loginRequestTimeOut).append(" milliseconds) for ");
 				if (currentConfig.rsslConnectionType == ConnectionTypes.SOCKET)

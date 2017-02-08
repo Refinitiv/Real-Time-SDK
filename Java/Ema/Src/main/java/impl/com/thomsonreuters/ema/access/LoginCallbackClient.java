@@ -483,6 +483,24 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 		return _loginItemList;
 	}
 	
+	ChannelInfo activeChannelInfo()
+	{
+		if (_loginChannelList != null)
+		{
+			int numOfChannel = _loginChannelList.size();
+			for ( int  idx = 0; idx < numOfChannel; ++idx )
+			{
+				ReactorChannel.State state  = _loginChannelList.get(idx).rsslReactorChannel().state();
+				if (state == ReactorChannel.State.READY || state == ReactorChannel.State.UP)
+					return _loginChannelList.get(idx);
+			}
+			
+			return numOfChannel > 0 ? _loginChannelList.get(numOfChannel-1) : null;
+		}
+		
+		return null;
+	}
+	
 	RefreshMsg rsslRefreshMsg()
 	{
 		return _rsslRefreshMsg;

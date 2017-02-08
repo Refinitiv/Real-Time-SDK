@@ -133,7 +133,7 @@ void OmmConsumerImpl::loadDictionary()
 	{
 		EmaString failureMsg( "dictionary retrieval failed (timed out after waiting " );
 		failureMsg.append( _activeConfig.dictionaryRequestTimeOut ).append( " milliseconds) for " );
-		ChannelConfig* pChannelcfg = _activeConfig.configChannelSet[0];
+		ChannelConfig* pChannelcfg = _activeConfig.findChannelConfig(_pLoginCallbackClient->getActiveChannel());
 		if ( pChannelcfg->getType() == ChannelConfig::SocketChannelEnum )
 		{
 			SocketChannelConfig* channelConfig( reinterpret_cast< SocketChannelConfig* >( pChannelcfg ) );
@@ -173,7 +173,7 @@ void OmmConsumerImpl::loadDirectory()
 	{
 		EmaString failureMsg( "directory retrieval failed (timed out after waiting " );
 		failureMsg.append( _activeConfig.directoryRequestTimeOut ).append( " milliseconds) for " );
-		ChannelConfig* pChannelcfg = _activeConfig.configChannelSet[0];
+		ChannelConfig* pChannelcfg = _activeConfig.findChannelConfig(_pLoginCallbackClient->getActiveChannel());
 		if ( pChannelcfg->getType() == ChannelConfig::SocketChannelEnum )
 		{
 			SocketChannelConfig* channelConfig( reinterpret_cast< SocketChannelConfig* >( pChannelcfg ) );

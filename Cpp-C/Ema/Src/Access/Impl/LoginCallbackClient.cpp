@@ -1261,6 +1261,18 @@ NiProviderLoginItem* LoginCallbackClient::getLoginItem( const ReqMsg&, OmmProvid
 	return li;
 }
 
+Channel* LoginCallbackClient::getActiveChannel()
+{
+	UInt32 size = _loginList.size();
+	for ( UInt32 idx = 0; idx < size; ++idx )
+	{
+		if ( _loginList.operator[](idx)->getChannel()->getChannelState() == Channel::ChannelReadyEnum )
+			return _loginList.operator[](idx)->getChannel();
+	}
+
+	return size > 0? (_loginList.operator[](size -1)->getChannel()) : NULL;
+}
+
 const EmaString& LoginCallbackClient::getLoginFailureMessage()
 {
 	return _loginFailureMsg;
