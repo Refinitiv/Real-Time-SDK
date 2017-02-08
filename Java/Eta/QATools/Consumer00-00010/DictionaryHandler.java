@@ -44,7 +44,7 @@ public class DictionaryHandler
     protected static final String ENUM_TABLE_DOWNLOAD_NAME = "RWFEnum";
 
     protected DataDictionary dictionary;
-// APIQA: ETA-2660
+// APIQA: Adding another dictionary object
     protected DataDictionary dictionaryFromNetwork;
 // END APIQA
     protected boolean fieldDictionaryLoaded = false;
@@ -65,7 +65,7 @@ public class DictionaryHandler
     public DictionaryHandler()
     {
         dictionary = CodecFactory.createDataDictionary();
-// APIQA: ETA-2660
+// APIQA: Creating dictionary object
         dictionaryFromNetwork = CodecFactory.createDataDictionary();
 // END APIQA
         states = new State[2];
@@ -88,7 +88,7 @@ public class DictionaryHandler
         com.thomsonreuters.upa.transport.Error error = TransportFactory.createError();
 
         dictionary.clear();
-// APIQA: ETA-2660
+// APIQA: Clearing dictionary object
         dictionaryFromNetwork.clear();
 // END APIQA
         if (dictionary.loadFieldDictionary(FIELD_DICTIONARY_FILE_NAME, error) < 0)
@@ -98,7 +98,7 @@ public class DictionaryHandler
         }
         else
         {
-// APIQA: ETA-2660
+// APIQA: Changed the code to keep the flags set to false even that the dictionar was loaded from file
             fieldDictionaryLoaded = false;
             fieldDictionaryLoadedFromFile = false;
 // END APIQA
@@ -111,7 +111,7 @@ public class DictionaryHandler
         }
         else
         {
-// APIQA: ETA-2660
+// APIQA: Changed the code to keep the flags set to false even that the dictionar was loaded from file
             enumTypeDictionaryLoaded = false;
             enumTypeDictionaryLoadedFromFile = false;
 // END APIQA
@@ -335,7 +335,7 @@ public class DictionaryHandler
             RefreshMsg refreshMsg = (RefreshMsg)msg;
             states[0].dataState(refreshMsg.state().dataState());
             states[0].streamState(refreshMsg.state().streamState());        	
-// APIQA: ETA-2660              
+// APIQA: decode the network dictionary
             ret = dictionaryFromNetwork.decodeFieldDictionary(dIter, Dictionary.VerbosityValues.VERBOSE, error);
 // END APIQA
             if (ret != CodecReturnCodes.SUCCESS)
@@ -355,7 +355,7 @@ public class DictionaryHandler
             RefreshMsg refreshMsg = (RefreshMsg)msg;
             states[1].dataState(refreshMsg.state().dataState());
             states[1].streamState(refreshMsg.state().streamState());               
-// APIQA: ETA-2660               
+// APIQA: decode the network dictionary
              ret = dictionaryFromNetwork.decodeEnumTypeDictionary(dIter, Dictionary.VerbosityValues.VERBOSE, error);
 // END APIQA
             if (ret != CodecReturnCodes.SUCCESS)
@@ -376,7 +376,7 @@ public class DictionaryHandler
                     msg.streamId());
             return CodecReturnCodes.FAILURE;
         }
-// APIQA: ETA-2660 This code compares the downloaded dictionary with the 
+// APIQA: This code compares the downloaded dictionary with the 
 // dictionary from the file dictionary
         if (isFieldDictionaryLoaded() && isEnumTypeDictionaryLoaded())
         {
