@@ -2917,6 +2917,9 @@ class DataDictionaryImpl implements DataDictionary
             {
                 if (fileData[_lastPosition] != ' ' && fileData[_lastPosition] != '\t')
                 {
+                    if (fileData[_lastPosition] == '\n' || fileData[_lastPosition] == '\r')
+                        break;
+
                     _startPosition = _lastPosition;
                     startFound = true;
                 }
@@ -2930,10 +2933,12 @@ class DataDictionaryImpl implements DataDictionary
             }
         }
 
-        if (_lastPosition - _startPosition > 0)
+        if (_lastPosition - _startPosition > 0 && startFound)
         {
             retStr = new String(fileData, _startPosition, _lastPosition - _startPosition);
         }
+        else
+            retStr = new String();
 
         return retStr;
     }
