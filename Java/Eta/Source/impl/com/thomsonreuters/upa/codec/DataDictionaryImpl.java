@@ -2749,6 +2749,7 @@ class DataDictionaryImpl implements DataDictionary
     private String display(char[] fileData)
     {
         boolean startFound = false;
+        char delim = 0;
 
         for (_lastPosition++; _lastPosition < fileData.length; _lastPosition++)
         {
@@ -2756,13 +2757,14 @@ class DataDictionaryImpl implements DataDictionary
             {
                 if (fileData[_lastPosition] == '"' || fileData[_lastPosition] == '#')
                 {
-                    _startPosition = ++_lastPosition;
+                    delim = fileData[_lastPosition++];
+                    _startPosition = _lastPosition;
                     startFound = true;
                 }
             }
             else
             {
-                if (fileData[_lastPosition] == '"' || fileData[_lastPosition] == '#')
+                if (fileData[_lastPosition] == delim )
                 {
                     break;
                 }
