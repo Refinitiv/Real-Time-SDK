@@ -920,6 +920,8 @@ class DataDictionaryImpl implements DataDictionary
             return MfFieldTypes.ALPHANUMERIC;
         else if (compareTo(fileData, "ENUMERATED"))
             return MfFieldTypes.ENUMERATED;
+        else if (compareTo(fileData, "TIME_SECONDS"))
+            return MfFieldTypes.TIME_SECONDS;        
         else if (compareTo(fileData, "TIME"))
             return MfFieldTypes.TIME;
         else if (compareTo(fileData, "PRICE"))
@@ -928,8 +930,6 @@ class DataDictionaryImpl implements DataDictionary
             return MfFieldTypes.DATE;
         else if (compareTo(fileData, "BINARY"))
             return MfFieldTypes.BINARY;
-        else if (compareTo(fileData, "TIME_SECONDS"))
-            return MfFieldTypes.TIME_SECONDS;
         else if (compareTo(fileData, "NONE"))
             return MfFieldTypes.NONE;
         return c_MfeedError;
