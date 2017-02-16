@@ -335,10 +335,10 @@ class DataDictionaryImpl implements DataDictionary
                 /* Initialize to zero since will be filled in later, if exists */
                 newDictEntry._rippleToField = 0;
 
-                if (_fieldDictFileLine[ripplesToPos] != 'N' &&
-                        _fieldDictFileLine[ripplesToPos + 1] != 'U' &&
-                        _fieldDictFileLine[ripplesToPos + 2] != 'L' &&
-                        _fieldDictFileLine[ripplesToPos + 3] != 'L')
+                if (!(_fieldDictFileLine[ripplesToPos] == 'N' &&
+                        _fieldDictFileLine[ripplesToPos + 1] == 'U' &&
+                        _fieldDictFileLine[ripplesToPos + 2] == 'L' &&
+                        _fieldDictFileLine[ripplesToPos + 3] == 'L'))
                 {
                     if (rippleAcronym.length() > 0)
                     {
