@@ -924,7 +924,7 @@ class DirectoryItem<T> extends SingleItem<T>
 			rsslRequestMsg.worstQos().rateInfo(65535);
 		}	
 
-		if (_baseImpl.activeConfig().channelConfigSet.get(0).msgKeyInUpdates)
+		if (_baseImpl.activeConfig().msgKeyInUpdates)
 			rsslRequestMsg.applyMsgKeyInUpdates();
 		
 		if (_directory != null)

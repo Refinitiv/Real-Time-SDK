@@ -26,6 +26,7 @@ class Login;
 class Directory;
 class Dictionary;
 class StreamId;
+class ActiveConfig;
 class ChannelConfig;
 
 class Channel : public ListLinks< Channel >
@@ -158,7 +159,7 @@ private :
 
 	bool							_bInitialChannelReadyEventReceived;
 
-	void channelParametersToString( ChannelConfig*, EmaString& );
+	void channelParametersToString(ActiveConfig&, ChannelConfig*, EmaString& );
 
 	ChannelCallbackClient( OmmBaseImpl&, RsslReactor* );
 

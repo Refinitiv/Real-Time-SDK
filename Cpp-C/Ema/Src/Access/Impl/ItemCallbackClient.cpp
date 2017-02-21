@@ -365,7 +365,7 @@ bool SingleItem::submit( RsslRequestMsg* pRsslRequestMsg )
 
 	bool msgKeyInUpdatesSet = ( pRsslRequestMsg->flags & RSSL_RQMF_MSG_KEY_IN_UPDATES ) ? true : false;
 
-	pRsslRequestMsg->flags |= _ommBaseImpl.getActiveConfig().configChannelSet[0]->msgKeyInUpdates ? RSSL_RQMF_MSG_KEY_IN_UPDATES : 0;
+	pRsslRequestMsg->flags |= _ommBaseImpl.getActiveConfig().msgKeyInUpdates ? RSSL_RQMF_MSG_KEY_IN_UPDATES : 0;
 	submitMsgOpts.pRsslMsg = (RsslMsg*) pRsslRequestMsg;
 
 	RsslBuffer serviceNameBuffer;

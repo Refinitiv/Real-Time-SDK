@@ -19,6 +19,7 @@
 
 			<!-- Dictionary is optional: defaulted to "ChannelDictionary"								-->
 			<Dictionary value="Dictionary_1"/>
+			<XmlTraceToStdout value="0"/>
 		</Consumer>
 		
 		<Consumer>
@@ -29,6 +30,7 @@
 			<ChannelSet value="Channel_1, Channel_2"/>
 			
 			<Dictionary value="Dictionary_2"/>
+			<XmlTraceToStdout value="0"/>
 		</Consumer>
 		
 	</ConsumerList>
@@ -60,6 +62,7 @@
 			<!-- which allows applications to specify and control the directory.						-->
 			<Directory value="Directory_1"/>
 			
+			<XmlTraceToStdout value="0"/>
 		</NiProvider>
 		
 		<NiProvider>
@@ -69,6 +72,7 @@
 			
 			<Directory value="Directory_2"/>
 			
+			<XmlTraceToStdout value="0"/>
 		</NiProvider>
 		
 	</NiProviderList>
@@ -134,7 +138,6 @@
 			<TcpNodelay value="1"/>
 			<Host value="localhost"/>
 			<Port value="14002"/>
-			<XmlTraceToStdout value="0"/>
 		</Channel>
 		<Channel>
 			<Name value="Channel_2"/>
@@ -152,7 +155,6 @@
 			<TcpNodelay value="1"/>
 			<Host value="localhost"/>
 			<Port value="14003"/>
-			<XmlTraceToStdout value="0"/>
 		</Channel>
 	</ChannelList>
 </ChannelGroup>

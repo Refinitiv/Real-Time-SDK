@@ -2433,7 +2433,7 @@ class SingleItem<T> extends Item<T>
 			rsslRequestMsg.worstQos().rateInfo(65535);
 		}	
 		
-		if (_baseImpl.activeConfig().channelConfigSet.get(0).msgKeyInUpdates)
+		if (_baseImpl.activeConfig().msgKeyInUpdates)
 			rsslRequestMsg.applyMsgKeyInUpdates();
 		
 		rsslSubmitOptions.requestMsgOptions().userSpecObj(this);

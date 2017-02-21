@@ -402,7 +402,7 @@ void ChannelCallbackClient::destroy( ChannelCallbackClient*& pClient )
 	}
 }
 
-void ChannelCallbackClient::channelParametersToString( ChannelConfig* pChannelCfg, EmaString& strChannelParams )
+void ChannelCallbackClient::channelParametersToString(ActiveConfig& activeConfig, ChannelConfig* pChannelCfg, EmaString& strChannelParams )
 {
 	bool bValidChType = true;
 	EmaString strConnectionType;
@@ -506,9 +506,9 @@ void ChannelCallbackClient::channelParametersToString( ChannelConfig* pChannelCf
 		strChannelParams.append( "RsslReactor " ).append( ptrToStringAsHex( _pRsslReactor ) ).append( CR )
 		.append( "InterfaceName " ).append( pChannelCfg->interfaceName ).append( CR )
 		.append( cfgParameters )
-		.append( "reconnectAttemptLimit " ).append( pChannelCfg->reconnectAttemptLimit ).append( CR )
-		.append( "reconnectMinDelay " ).append( pChannelCfg->reconnectMinDelay ).append( " msec" ).append( CR )
-		.append( "reconnectMaxDelay " ).append( pChannelCfg->reconnectMaxDelay ).append( " msec" ).append( CR )
+		.append( "reconnectAttemptLimit " ).append( activeConfig.reconnectAttemptLimit ).append( CR )
+		.append( "reconnectMinDelay " ).append( activeConfig.reconnectMinDelay ).append( " msec" ).append( CR )
+		.append( "reconnectMaxDelay " ).append( activeConfig.reconnectMaxDelay ).append( " msec" ).append( CR )
 		.append( "connectionPingTimeout " ).append( pChannelCfg->connectionPingTimeout ).append( " msec" ).append( CR );
 	}
 }
@@ -527,7 +527,8 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 	componentVersionInfo.append( emaComponentBldtype );
 	componentVersionInfo.append( ")" );
 
-	EmaVector< ChannelConfig* >& activeConfigChannelSet = _ommBaseImpl.getActiveConfig().configChannelSet;
+	ActiveConfig& activeConfig = _ommBaseImpl.getActiveConfig();
+	EmaVector< ChannelConfig* >& activeConfigChannelSet = activeConfig.configChannelSet;
 	UInt32 channelCfgSetLastIndex = activeConfigChannelSet.size() - 1;
 
 	RsslReactorConnectInfo* reactorConnectInfo = 0;
@@ -552,9 +553,9 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 	rsslClearReactorConnectOptions( &connectOpt );
 	connectOpt.connectionCount = activeConfigChannelSet.size();
 	connectOpt.reactorConnectionList = reactorConnectInfo;
-	connectOpt.reconnectAttemptLimit = activeConfigChannelSet[channelCfgSetLastIndex]->reconnectAttemptLimit;
-	connectOpt.reconnectMinDelay = activeConfigChannelSet[channelCfgSetLastIndex]->reconnectMinDelay;
-	connectOpt.reconnectMaxDelay = activeConfigChannelSet[channelCfgSetLastIndex]->reconnectMaxDelay;
+	connectOpt.reconnectAttemptLimit = activeConfig.reconnectAttemptLimit;
+	connectOpt.reconnectMinDelay = activeConfig.reconnectMinDelay;
+	connectOpt.reconnectMaxDelay = activeConfig.reconnectMaxDelay;
 	connectOpt.initializationTimeout = 5;
 
 	EmaString channelParams;
@@ -664,28 +665,11 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 			supportedConnectionTypeChannelCount++;
 
 			channelNames += pChannel->getName();
-			if ( i < channelCfgSetLastIndex )
-			{
-				channelNames.append( ", " );
-				activeConfigChannelSet[i]->reconnectAttemptLimit = connectOpt.reconnectAttemptLimit;
-				activeConfigChannelSet[i]->reconnectMaxDelay = connectOpt.reconnectMaxDelay;
-				activeConfigChannelSet[i]->reconnectMinDelay = connectOpt.reconnectMinDelay;
-				activeConfigChannelSet[i]->xmlTraceFileName =  activeConfigChannelSet[channelCfgSetLastIndex]->xmlTraceFileName;
-				activeConfigChannelSet[i]->xmlTraceToFile = activeConfigChannelSet[channelCfgSetLastIndex]->xmlTraceToFile;
-				activeConfigChannelSet[i]->xmlTraceToStdout = activeConfigChannelSet[channelCfgSetLastIndex]->xmlTraceToStdout;
-				activeConfigChannelSet[i]->xmlTraceToMultipleFiles = activeConfigChannelSet[channelCfgSetLastIndex]->xmlTraceToMultipleFiles;
-				activeConfigChannelSet[i]->xmlTraceWrite = activeConfigChannelSet[channelCfgSetLastIndex]->xmlTraceWrite;
-				activeConfigChannelSet[i]->xmlTraceRead = activeConfigChannelSet[channelCfgSetLastIndex]->xmlTraceRead;
-				activeConfigChannelSet[i]->xmlTracePing = activeConfigChannelSet[channelCfgSetLastIndex]->xmlTracePing;
-				activeConfigChannelSet[i]->xmlTraceHex = activeConfigChannelSet[channelCfgSetLastIndex]->xmlTraceHex;
-				activeConfigChannelSet[i]->xmlTraceMaxFileSize = activeConfigChannelSet[channelCfgSetLastIndex]->xmlTraceMaxFileSize;
-				activeConfigChannelSet[i]->msgKeyInUpdates = activeConfigChannelSet[channelCfgSetLastIndex]->msgKeyInUpdates;
-			}
 
 			if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			{
 				channelParams.clear();
-				channelParametersToString( activeConfigChannelSet[i], channelParams );
+				channelParametersToString(activeConfig, activeConfigChannelSet[i], channelParams );
 				temp.append( CR ).append( i + 1 ).append( "] " ).append( channelParams );
 				if ( i == ( connectOpt.connectionCount - 1 ) )
 					_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
@@ -931,9 +915,10 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 			}
 		}
 
-		if ( pChannelConfig->xmlTraceToFile || pChannelConfig->xmlTraceToStdout )
+		ActiveConfig& activeConfig = _ommBaseImpl.getActiveConfig();
+		if ( activeConfig.xmlTraceToFile || activeConfig.xmlTraceToStdout )
 		{
-			EmaString fileName( pChannelConfig->xmlTraceFileName );
+			EmaString fileName( activeConfig.xmlTraceFileName );
 			fileName.append( "_" );
 
 			RsslTraceOptions traceOptions;
@@ -941,28 +926,28 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 
 			traceOptions.traceMsgFileName = ( char* )fileName.c_str();
 
-			if ( pChannelConfig->xmlTraceToFile )
+			if ( activeConfig.xmlTraceToFile )
 				traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE;
 
-			if ( pChannelConfig->xmlTraceToStdout )
+			if ( activeConfig.xmlTraceToStdout )
 				traceOptions.traceFlags |= RSSL_TRACE_TO_STDOUT;
 
-			if ( pChannelConfig->xmlTraceToMultipleFiles )
+			if ( activeConfig.xmlTraceToMultipleFiles )
 				traceOptions.traceFlags |= RSSL_TRACE_TO_MULTIPLE_FILES;
 
-			if ( pChannelConfig->xmlTraceWrite )
+			if ( activeConfig.xmlTraceWrite )
 				traceOptions.traceFlags |= RSSL_TRACE_WRITE;
 
-			if ( pChannelConfig->xmlTraceRead )
+			if ( activeConfig.xmlTraceRead )
 				traceOptions.traceFlags |= RSSL_TRACE_READ;
 
-			if ( pChannelConfig->xmlTracePing )
+			if ( activeConfig.xmlTracePing )
 				traceOptions.traceFlags |= RSSL_TRACE_PING;
 
-			if ( pChannelConfig->xmlTraceHex )
+			if ( activeConfig.xmlTraceHex )
 				traceOptions.traceFlags |= RSSL_TRACE_HEX;
 
-			traceOptions.traceMsgMaxFileSize = pChannelConfig->xmlTraceMaxFileSize;
+			traceOptions.traceMsgMaxFileSize = activeConfig.xmlTraceMaxFileSize;
 
 			if ( RSSL_RET_SUCCESS != rsslReactorChannelIoctl( pRsslReactorChannel, ( RsslIoctlCodes )RSSL_TRACE, ( void* )&traceOptions, &rsslErrorInfo ) )
 			{

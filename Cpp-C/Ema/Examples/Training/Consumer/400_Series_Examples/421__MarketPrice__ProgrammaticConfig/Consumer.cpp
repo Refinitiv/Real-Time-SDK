@@ -109,7 +109,20 @@ void createProgramaticConfig( Map& configMap )
 		.addUInt( "MaxDispatchCountApiThread", 500 )
 		.addUInt( "MaxDispatchCountUserThread", 500 )
 		.addInt( "ReactorEventFdPort", 45000 )
-		.addInt( "PipePort", 4001 ).complete() ).complete();
+		.addInt( "PipePort", 4001 )
+		.addInt("ReconnectAttemptLimit", 10)
+		.addInt("ReconnectMinDelay", 2000)
+		.addInt("ReconnectMaxDelay", 6000)
+		.addAscii("XmlTraceFileName", "MyXMLTrace")
+		.addInt("XmlTraceMaxFileSize", 50000000)
+		.addUInt("XmlTraceToFile", 1)
+		.addUInt("XmlTraceToStdout", 0)
+		.addUInt("XmlTraceToMultipleFiles", 1)
+		.addUInt("XmlTraceWrite", 1)
+		.addUInt("XmlTraceRead", 1)
+		.addUInt("XmlTracePing", 1)
+		.addUInt("XmlTraceHex", 1)
+		.addUInt("MsgKeyInUpdates", 1).complete() ).complete();
 
 	elementList.addMap( "ConsumerList", innerMap );
 
@@ -126,22 +139,9 @@ void createProgramaticConfig( Map& configMap )
 		.addEnum("CompressionType", 1)
 		.addUInt( "GuaranteedOutputBuffers", 5000 )
 		.addUInt( "ConnectionPingTimeout", 50000 )
-		.addInt("ReconnectAttemptLimit", 10)
-		.addInt( "ReconnectMinDelay", 2000 )
-		.addInt( "ReconnectMaxDelay", 6000 )
 		.addAscii( "Host", "localhost" )
 		.addAscii("Port", "14002" )
-		.addUInt( "TcpNodelay", 0 )
-		.addAscii( "XmlTraceFileName", "MyXMLTrace" )
-		.addInt( "XmlTraceMaxFileSize", 50000000 )
-		.addUInt( "XmlTraceToFile", 1 )
-		.addUInt( "XmlTraceToStdout", 0 )
-		.addUInt( "XmlTraceToMultipleFiles", 1 )
-		.addUInt( "XmlTraceWrite", 1 )
-		.addUInt( "XmlTraceRead", 1 )
-		.addUInt( "XmlTracePing", 1 )
-		.addUInt( "XmlTraceHex", 1 )
-		.addUInt( "MsgKeyInUpdates", 1 ).complete() ).complete();
+		.addUInt( "TcpNodelay", 0 ).complete() ).complete();
 
 	elementList.addMap( "ChannelList", innerMap );
 

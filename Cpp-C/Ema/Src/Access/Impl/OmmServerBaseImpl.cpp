@@ -171,6 +171,59 @@ void OmmServerBaseImpl::readConfig(EmaConfigServerImpl* pConfigServerImpl)
 	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "MaxDispatchCountUserThread", tmp))
 		_activeServerConfig.maxDispatchCountUserThread = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
 
+	if (pConfigServerImpl->get<EmaString>(instanceNodeName + "XmlTraceFileName", _activeServerConfig.xmlTraceFileName))
+		_activeServerConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
+
+	Int64 tmp1;
+	if (pConfigServerImpl->get<Int64>(instanceNodeName + "XmlTraceMaxFileSize", tmp1) && tmp1 > 0)
+	{
+		_activeServerConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
+		_activeServerConfig.xmlTraceMaxFileSize = tmp1;
+	}
+
+	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "XmlTraceToFile", tmp))
+	{
+		_activeServerConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
+		_activeServerConfig.xmlTraceToFile = tmp > 0 ? true : false;
+	}
+
+	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "XmlTraceToStdout", tmp))
+	{
+		_activeServerConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
+		_activeServerConfig.xmlTraceToStdout = tmp > 0 ? true : false;
+	}
+
+	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "XmlTraceToMultipleFiles", tmp))
+	{
+		_activeServerConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
+		_activeServerConfig.xmlTraceToMultipleFiles = tmp > 0 ? true : false;
+	}
+
+	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "XmlTraceWrite", tmp))
+	{
+		_activeServerConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
+		_activeServerConfig.xmlTraceWrite = tmp > 0 ? true : false;
+	}
+
+	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "XmlTraceRead", tmp))
+	{
+		_activeServerConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
+		_activeServerConfig.xmlTraceRead = tmp > 0 ? true : false;
+	}
+
+	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "XmlTracePing", tmp))
+	{
+		_activeServerConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
+		_activeServerConfig.xmlTracePing = tmp > 0 ? true : false;
+
+	}
+
+	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "XmlTraceHex", tmp))
+	{
+		_activeServerConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
+		_activeServerConfig.xmlTraceHex = tmp > 0 ? true : false;
+	}
+
 	pConfigServerImpl->get<Int64>(instanceNodeName + "PipePort", _activeServerConfig.pipePort);
 
 	pConfigServerImpl->getLoggerName(_activeServerConfig.configuredName, _activeServerConfig.loggerConfig.loggerName);
@@ -325,59 +378,90 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 	if (pConfigServerImpl->get<UInt64>(serverNodeName + "HighWaterMark", tempUInt))
 		newServerConfig->highWaterMark = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
 
-	pConfigServerImpl->get<EmaString>(serverNodeName + "XmlTraceFileName", newServerConfig->xmlTraceFileName);
+	EmaString instanceNodeName(pConfigServerImpl->getInstanceNodeName());
+	instanceNodeName.append(_activeServerConfig.configuredName).append("|");
 
-	Int64 tempInt = 0;
-	if (pConfigServerImpl->get<Int64>(serverNodeName + "XmlTraceMaxFileSize", tempInt))
+	/* @deprecated DEPRECATED:
+	 * All Xml trace configuration is per provider instance based now.
+	 * The following code will be removed in the future.
+	 */
+	if (!_activeServerConfig.parameterConfigGroup)
 	{
-		if (tempInt > 0)
-			newServerConfig->xmlTraceMaxFileSize = tempInt;
-	}
+		if (pConfigServerImpl->get<EmaString>(serverNodeName + "XmlTraceFileName", _activeServerConfig.xmlTraceFileName))
+		{
+			EmaString errorMsg("This ConfigValue is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
+			pConfigServerImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
+		}
 
-	tempUInt = 0;
-	if (pConfigServerImpl->get<UInt64>(serverNodeName + "XmlTraceToFile", tempUInt))
-	{
-		if (tempUInt > 0)
-			newServerConfig->xmlTraceToFile = true;
-	}
+		Int64 tmp = 0;
+		if (pConfigServerImpl->get<Int64>(serverNodeName + "XmlTraceMaxFileSize", tmp))
+		{
+			if (tmp > 0)
+				_activeServerConfig.xmlTraceMaxFileSize = tmp;
 
-	tempUInt = 0;
-	if (pConfigServerImpl->get<UInt64>(serverNodeName + "XmlTraceToStdout", tempUInt))
-	{
-		newServerConfig->xmlTraceToStdout = tempUInt > 0 ? true : false;
-	}
+			EmaString errorMsg("This ConfigValue is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
+			pConfigServerImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
+		}
 
-	tempUInt = 0;
-	if (pConfigServerImpl->get<UInt64>(serverNodeName + "XmlTraceToMultipleFiles", tempUInt))
-	{
-		if (tempUInt > 0)
-			newServerConfig->xmlTraceToMultipleFiles = true;
-	}
+		if (pConfigServerImpl->get<UInt64>(serverNodeName + "XmlTraceToFile", tempUInt))
+		{ 
+			if (tempUInt > 0)
+				_activeServerConfig.xmlTraceToFile = true;
 
-	tempUInt = 1;
-	if (pConfigServerImpl->get<UInt64>(serverNodeName + "XmlTraceWrite", tempUInt))
-	{
-		if (tempUInt == 0)
-			newServerConfig->xmlTraceWrite = false;
-	}
+			EmaString errorMsg("This ConfigValue is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
+			pConfigServerImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
+		}
 
-	tempUInt = 1;
-	if (pConfigServerImpl->get<UInt64>(serverNodeName + "XmlTraceRead", tempUInt))
-	{
-		if (tempUInt == 0)
-			newServerConfig->xmlTraceRead = false;
-	}
+		if (pConfigServerImpl->get<UInt64>(serverNodeName + "XmlTraceToStdout", tempUInt))
+		{
+			_activeServerConfig.xmlTraceToStdout = tempUInt > 0 ? true : false;
 
-	tempUInt = 0;
-	if (pConfigServerImpl->get<UInt64>(serverNodeName + "XmlTracePing", tempUInt))
-	{
-		newServerConfig->xmlTracePing = tempUInt == 0 ? false : true;
-	}
+			EmaString errorMsg("This ConfigValue is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
+			pConfigServerImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
+		}
 
-	tempUInt = 0;
-	if (pConfigServerImpl->get<UInt64>(serverNodeName + "XmlTraceHex", tempUInt))
-	{
-		newServerConfig->xmlTraceHex = tempUInt == 0 ? false : true;
+		if (pConfigServerImpl->get<UInt64>(serverNodeName + "XmlTraceToMultipleFiles", tempUInt))
+		{
+			if (tempUInt > 0)
+				_activeServerConfig.xmlTraceToMultipleFiles = true;
+
+			EmaString errorMsg("This ConfigValue is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
+			pConfigServerImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
+		}
+
+		if (pConfigServerImpl->get<UInt64>(serverNodeName + "XmlTraceWrite", tempUInt))
+		{
+			if (tempUInt == 0)
+				_activeServerConfig.xmlTraceWrite = false;
+
+			EmaString errorMsg("This ConfigValue is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
+			pConfigServerImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
+		}
+
+		if (pConfigServerImpl->get<UInt64>(serverNodeName + "XmlTraceRead", tempUInt))
+		{
+			if (tempUInt == 0)
+				_activeServerConfig.xmlTraceRead = false;
+
+			EmaString errorMsg("This ConfigValue is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
+			pConfigServerImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
+		}
+
+		if (pConfigServerImpl->get<UInt64>(serverNodeName + "XmlTracePing", tempUInt))
+		{
+			_activeServerConfig.xmlTracePing = tempUInt == 0 ? false : true;
+
+			EmaString errorMsg("This ConfigValue is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
+			pConfigServerImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
+		}
+
+		if (pConfigServerImpl->get<UInt64>(serverNodeName + "XmlTraceHex", tempUInt))
+		{
+			_activeServerConfig.xmlTraceHex = tempUInt == 0 ? false : true;
+
+			EmaString errorMsg("This ConfigValue is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
+			pConfigServerImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
+		}
 	}
 
 	return newServerConfig;

@@ -115,7 +115,17 @@ BaseConfig::BaseConfig() :
 	dispatchTimeoutApiThread(DEFAULT_DISPATCH_TIMEOUT_API_THREAD),
 	maxDispatchCountApiThread(DEFAULT_MAX_DISPATCH_COUNT_API_THREAD),
 	maxDispatchCountUserThread(DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD),
+	xmlTraceMaxFileSize(DEFAULT_XML_TRACE_MAX_FILE_SIZE),
+	xmlTraceToFile(DEFAULT_XML_TRACE_TO_FILE),
+	xmlTraceToStdout(DEFAULT_XML_TRACE_TO_STDOUT),
+	xmlTraceToMultipleFiles(DEFAULT_XML_TRACE_TO_MULTIPLE_FILE),
+	xmlTraceWrite(DEFAULT_XML_TRACE_WRITE),
+	xmlTraceRead(DEFAULT_XML_TRACE_READ),
+	xmlTracePing(DEFAULT_XML_TRACE_PING),
+	xmlTraceHex(DEFAULT_XML_TRACE_HEX),
+	xmlTraceFileName(DEFAULT_XML_TRACE_FILE_NAME),
 	loggerConfig(),
+	parameterConfigGroup(PARAMETER_NOT_SET),
 	catchUnhandledException(DEFAULT_HANDLE_EXCEPTION)
 {
 }
@@ -133,6 +143,16 @@ void BaseConfig::clear()
 	dispatchTimeoutApiThread = DEFAULT_DISPATCH_TIMEOUT_API_THREAD;
 	maxDispatchCountApiThread = DEFAULT_MAX_DISPATCH_COUNT_API_THREAD;
 	maxDispatchCountUserThread = DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD;
+	xmlTraceMaxFileSize = DEFAULT_XML_TRACE_MAX_FILE_SIZE;
+	xmlTraceToFile = DEFAULT_XML_TRACE_TO_FILE;
+	xmlTraceToStdout = DEFAULT_XML_TRACE_TO_STDOUT;
+	xmlTraceToMultipleFiles = DEFAULT_XML_TRACE_TO_MULTIPLE_FILE;
+	xmlTraceWrite = DEFAULT_XML_TRACE_WRITE;
+	xmlTraceRead = DEFAULT_XML_TRACE_READ;
+	xmlTracePing = DEFAULT_XML_TRACE_PING;
+	xmlTraceHex = DEFAULT_XML_TRACE_HEX;
+	xmlTraceFileName = DEFAULT_XML_TRACE_FILE_NAME;
+	parameterConfigGroup = PARAMETER_NOT_SET;
 	loggerConfig.clear();
 }
 
@@ -188,6 +208,10 @@ ActiveConfig::ActiveConfig( const EmaString& defaultServiceName ) :
 	loginRequestTimeOut( DEFAULT_LOGIN_REQUEST_TIMEOUT ),
 	directoryRequestTimeOut( DEFAULT_DIRECTORY_REQUEST_TIMEOUT ),
 	dictionaryRequestTimeOut( DEFAULT_DICTIONARY_REQUEST_TIMEOUT ),
+	reconnectAttemptLimit(DEFAULT_RECONNECT_ATTEMPT_LIMIT),
+	reconnectMinDelay(DEFAULT_RECONNECT_MIN_DELAY),
+	reconnectMaxDelay(DEFAULT_RECONNECT_MAX_DELAY),
+	msgKeyInUpdates(DEFAULT_MSGKEYINUPDATES),
 	pipePort(DEFAULT_PIPE_PORT),
 	pRsslRDMLoginReq( 0 ),
 	pRsslDirectoryRequestMsg( 0 ),
@@ -227,6 +251,10 @@ void ActiveConfig::clear()
 	requestTimeout = DEFAULT_REQUEST_TIMEOUT;
 	postAckTimeout = DEFAULT_POST_ACK_TIMEOUT;
 	maxOutstandingPosts = DEFAULT_MAX_OUTSTANDING_POSTS;
+	reconnectAttemptLimit = DEFAULT_RECONNECT_ATTEMPT_LIMIT;
+	reconnectMinDelay = DEFAULT_RECONNECT_MIN_DELAY;
+	reconnectMaxDelay = DEFAULT_RECONNECT_MAX_DELAY;
+	msgKeyInUpdates = DEFAULT_MSGKEYINUPDATES;
 	dictionaryConfig.clear();
 	pRsslRDMLoginReq = 0;
 	pRsslDirectoryRequestMsg = 0;
@@ -295,6 +323,29 @@ void ActiveConfig::setMaxOutstandingPosts( UInt64 value )
 		maxOutstandingPosts = 0xFFFFFFFF;
 	else
 		maxOutstandingPosts = ( UInt32 )value;
+}
+
+void ActiveConfig::setReconnectAttemptLimit(Int64 value)
+{
+	if (value >= 0)
+	{
+		reconnectAttemptLimit = value > 0x7FFFFFFF ? 0x7FFFFFFF : (Int32)value;
+	}
+}
+void ActiveConfig::setReconnectMinDelay(Int64 value)
+{
+	if (value > 0)
+	{
+		reconnectMinDelay = value > 0x7FFFFFFF ? 0x7FFFFFFF : (Int32)value;
+	}
+}
+
+void ActiveConfig::setReconnectMaxDelay(Int64 value)
+{
+	if (value > 0)
+	{
+		reconnectMaxDelay = value > 0x7FFFFFFF ? 0x7FFFFFFF : (Int32)value;
+	}
 }
 
 ChannelConfig* ActiveConfig::findChannelConfig( const Channel* pChannel )
@@ -417,7 +468,6 @@ ChannelConfig::ChannelConfig()
 ChannelConfig::ChannelConfig( RsslConnectionTypes type ) :
 	name(),
 	interfaceName( DEFAULT_INTERFACE_NAME ),
-	xmlTraceFileName( DEFAULT_XML_TRACE_FILE_NAME ),
 	compressionType( DEFAULT_COMPRESSION_TYPE ),
 	compressionThreshold( DEFAULT_COMPRESSION_THRESHOLD ),
 	connectionType( type ),
@@ -427,18 +477,6 @@ ChannelConfig::ChannelConfig( RsslConnectionTypes type ) :
 	sysSendBufSize( DEFAULT_SYS_SEND_BUFFER_SIZE ),
 	sysRecvBufSize( DEFAULT_SYS_RECEIVE_BUFFER_SIZE ),
 	highWaterMark( DEFAULT_HIGH_WATER_MARK ),
-	reconnectAttemptLimit( DEFAULT_RECONNECT_ATTEMPT_LIMIT ),
-	reconnectMinDelay( DEFAULT_RECONNECT_MIN_DELAY ),
-	reconnectMaxDelay( DEFAULT_RECONNECT_MAX_DELAY ),
-	xmlTraceMaxFileSize( DEFAULT_XML_TRACE_MAX_FILE_SIZE ),
-	xmlTraceToFile( DEFAULT_XML_TRACE_TO_FILE ),
-	xmlTraceToStdout( DEFAULT_XML_TRACE_TO_STDOUT ),
-	xmlTraceToMultipleFiles( DEFAULT_XML_TRACE_TO_MULTIPLE_FILE ),
-	xmlTraceWrite( DEFAULT_XML_TRACE_WRITE ),
-	xmlTraceRead( DEFAULT_XML_TRACE_READ ),
-	xmlTracePing( DEFAULT_XML_TRACE_PING ),
-	xmlTraceHex( DEFAULT_XML_TRACE_HEX ),
-	msgKeyInUpdates( DEFAULT_MSGKEYINUPDATES ),
 	pChannel( 0 )
 {
 }
@@ -447,7 +485,6 @@ void ChannelConfig::clear()
 {
 	name.clear();
 	interfaceName = DEFAULT_INTERFACE_NAME;
-	xmlTraceFileName = DEFAULT_XML_TRACE_FILE_NAME;
 	compressionType = DEFAULT_COMPRESSION_TYPE;
 	compressionThreshold = DEFAULT_COMPRESSION_THRESHOLD;
 	connectionPingTimeout = DEFAULT_CONNECTION_PINGTIMEOUT;
@@ -456,18 +493,6 @@ void ChannelConfig::clear()
 	sysSendBufSize = DEFAULT_SYS_SEND_BUFFER_SIZE;
 	sysRecvBufSize = DEFAULT_SYS_RECEIVE_BUFFER_SIZE;
 	highWaterMark = DEFAULT_HIGH_WATER_MARK;
-	reconnectAttemptLimit = DEFAULT_RECONNECT_ATTEMPT_LIMIT;
-	reconnectMinDelay = DEFAULT_RECONNECT_MIN_DELAY;
-	reconnectMaxDelay = DEFAULT_RECONNECT_MAX_DELAY;
-	xmlTraceMaxFileSize = DEFAULT_XML_TRACE_MAX_FILE_SIZE;
-	xmlTraceToFile = DEFAULT_XML_TRACE_TO_FILE;
-	xmlTraceToStdout = DEFAULT_XML_TRACE_TO_STDOUT;
-	xmlTraceToMultipleFiles = DEFAULT_XML_TRACE_TO_MULTIPLE_FILE;
-	xmlTraceWrite = DEFAULT_XML_TRACE_WRITE;
-	xmlTraceRead = DEFAULT_XML_TRACE_READ;
-	xmlTracePing = DEFAULT_XML_TRACE_PING;
-	xmlTraceHex = DEFAULT_XML_TRACE_HEX;
-	msgKeyInUpdates = DEFAULT_MSGKEYINUPDATES;
 	pChannel = 0;
 }
 
@@ -493,29 +518,6 @@ void ChannelConfig::setNumInputBuffers( UInt64 value )
 	}
 }
 
-void ChannelConfig::setReconnectAttemptLimit( Int64 value )
-{
-	if ( value >= 0 )
-	{
-		reconnectAttemptLimit = value > 0x7FFFFFFF ? 0x7FFFFFFF : ( Int32 )value;
-	}
-}
-void ChannelConfig::setReconnectMinDelay( Int64 value )
-{
-	if ( value > 0 )
-	{
-		reconnectMinDelay = value > 0x7FFFFFFF ? 0x7FFFFFFF : ( Int32 )value;
-	}
-}
-
-void ChannelConfig::setReconnectMaxDelay( Int64 value )
-{
-	if ( value > 0 )
-	{
-		reconnectMaxDelay = value > 0x7FFFFFFF ? 0x7FFFFFFF : ( Int32 )value;
-	}
-}
-
 ServerConfig::ServerConfig( RsslConnectionTypes type ) :
 	name(),
 	interfaceName(DEFAULT_INTERFACE_NAME),
@@ -529,16 +531,7 @@ ServerConfig::ServerConfig( RsslConnectionTypes type ) :
 	numInputBuffers(DEFAULT_NUM_INPUT_BUFFERS),
 	sysSendBufSize(DEFAULT_PROVIDER_SYS_SEND_BUFFER_SIZE),
 	sysRecvBufSize(DEFAULT_PROVIDER_SYS_RECEIVE_BUFFER_SIZE),
-	highWaterMark(DEFAULT_HIGH_WATER_MARK),
-	xmlTraceMaxFileSize(DEFAULT_XML_TRACE_MAX_FILE_SIZE),
-	xmlTraceToFile(DEFAULT_XML_TRACE_TO_FILE),
-	xmlTraceToStdout(DEFAULT_XML_TRACE_TO_STDOUT),
-	xmlTraceToMultipleFiles(DEFAULT_XML_TRACE_TO_MULTIPLE_FILE),
-	xmlTraceWrite(DEFAULT_XML_TRACE_WRITE),
-	xmlTraceRead(DEFAULT_XML_TRACE_READ),
-	xmlTracePing(DEFAULT_XML_TRACE_PING),
-	xmlTraceHex(DEFAULT_XML_TRACE_HEX),
-	msgKeyInUpdates(DEFAULT_MSGKEYINUPDATES)
+	highWaterMark(DEFAULT_HIGH_WATER_MARK)
 {
 
 }

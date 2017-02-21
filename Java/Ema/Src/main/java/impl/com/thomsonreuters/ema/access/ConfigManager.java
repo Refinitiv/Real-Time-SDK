@@ -54,197 +54,204 @@ class ConfigManager
 	static int ROOT = 1001;
 	
 	// Consumer
-	public static int ConsumerGroup = 1;
-	public static int DefaultConsumer = 2;
-	public static int ConsumerList = 3;
-	public static int Consumer = 4;
+	public static final int ConsumerGroup = 1;
+	public static final int DefaultConsumer = 2;
+	public static final int ConsumerList = 3;
+	public static final int Consumer = 4;
 	
-	public static int ConsumerName = 5;
-	public static int ConsumerChannelName = 6;
-	public static int ConsumerLoggerName = 7;
-	public static int ConsumerDictionaryName = 8;
+	public static final int ConsumerName = 5;
+	public static final int ConsumerChannelName = 6;
+	public static final int ConsumerLoggerName = 7;
+	public static final int ConsumerDictionaryName = 8;
 	
-	public static int CatchUnhandledException = 9;
-	public static int ConsumerCatchUnhandledException = 10;
-	public static int ChannelSet = 11;
-	public static int DictionaryRequestTimeOut = 12;
-	public static int DirectoryRequestTimeOut = 13;
-	public static int DispatchTimeoutApiThread = 14;
-	public static int ItemCountHint = 15;
-	public static int LoginRequestTimeOut = 16;
-	public static int MaxDispatchCountApiThread = 17;
-	public static int MaxDispatchCountUserThread = 18;
-	public static int MaxOutstandingPosts = 19;
-	public static int ObeyOpenWindow = 20;
+	public static final int CatchUnhandledException = 9;
+	public static final int ConsumerCatchUnhandledException = 10;
+	public static final int ChannelSet = 11;
+	public static final int DictionaryRequestTimeOut = 12;
+	public static final int DirectoryRequestTimeOut = 13;
+	public static final int DispatchTimeoutApiThread = 14;
+	public static final int ItemCountHint = 15;
+	public static final int LoginRequestTimeOut = 16;
+	public static final int MaxDispatchCountApiThread = 17;
+	public static final int MaxDispatchCountUserThread = 18;
+	public static final int MaxOutstandingPosts = 19;
+	public static final int ObeyOpenWindow = 20;
 
-	public static int PostAckTimeout = 21;
-	public static int RequestTimeout = 22;
-	public static int ServiceCountHint = 23;
+	public static final int PostAckTimeout = 21;
+	public static final int RequestTimeout = 22;
+	public static final int ServiceCountHint = 23;
 	
-	public static int ConnectionPingTimeout = 24;
-	public static int GuaranteedOutputBuffers = 25;
-	public static int InterfaceName = 26;
-	public static int NumInputBuffers = 27;
-	public static int SysRecvBufSize = 28;
-	public static int SysSendBufSize = 29;
-	public static int XmlTraceFileName = 30;
-	public static int XmlTraceHex = 31;
-	public static int XmlTraceMaxFileSize = 32;
-	public static int XmlTracePing = 33;
-	public static int XmlTraceRead = 34;
-	public static int XmlTraceToFile = 35;
-	public static int XmlTraceToMultipleFiles = 36;
-	public static int XmlTraceToStdout = 37;
-	public static int XmlTraceWrite = 38;
-	public static int HighWaterMark = 39;
-	public static int ConnectionMinPingTimeout = 40;
+	public static final int ConnectionPingTimeout = 24;
+	public static final int GuaranteedOutputBuffers = 25;
+	public static final int InterfaceName = 26;
+	public static final int NumInputBuffers = 27;
+	public static final int SysRecvBufSize = 28;
+	public static final int SysSendBufSize = 29;
+	public static final int XmlTraceFileName = 30;
+	public static final int XmlTraceHex = 31;
+	public static final int XmlTraceMaxFileSize = 32;
+	public static final int XmlTracePing = 33;
+	public static final int XmlTraceRead = 34;
+	public static final int XmlTraceToFile = 35;
+	public static final int XmlTraceToMultipleFiles = 36;
+	public static final int XmlTraceToStdout = 37;
+	public static final int XmlTraceWrite = 38;
+	public static final int HighWaterMark = 39;
+	public static final int ConnectionMinPingTimeout = 40;
+	public static final int MsgKeyInUpdates = 41;
+	public static final int ReconnectAttemptLimit = 42;
+	public static final int ReconnectMaxDelay = 43;	
+	public static final int ReconnectMinDelay = 44;
 
 	// Channel: Global
-	public static int ChannelGroup = 100;
-	public static int ChannelList = 101;
-	public static int Channel = 102;
-	public static int ChannelName = 103;
-	public static int ChannelType = 104;
+	public static final int ChannelGroup = 100;
+	public static final int ChannelList = 101;
+	public static final int Channel = 102;
+	public static final int ChannelName = 103;
+	public static final int ChannelType = 104;
 	
-	public static int ChannelMsgKeyInUpdates = 105;
-	
-	public static int ChannelReconnectAttemptLimit = 106;
-	public static int ChannelReconnectMaxDelay = 107;	
-	public static int ChannelReconnectMinDelay = 108;
+	@Deprecated
+	public static final int ChannelMsgKeyInUpdates = 105;
+	@Deprecated
+	public static final int ChannelReconnectAttemptLimit = 106;
+	@Deprecated
+	public static final int ChannelReconnectMaxDelay = 107;
+	@Deprecated
+	public static final int ChannelReconnectMinDelay = 108;
 
 	
 	// Channel: Socket, HTTP, Encrypted
-	public static int ChannelCompressionThreshold = 200;
-	public static int ChannelCompressionType = 201;
-	public static int ChannelHost = 202;
-	public static int ChannelObjectName = 203;
-	public static int ChannelPort = 204;
-	public static int ChannelTcpNodelay = 205;
-	public static int ChannelDirectSocketWrite = 206;
+	public static final int ChannelCompressionThreshold = 200;
+	public static final int ChannelCompressionType = 201;
+	public static final int ChannelHost = 202;
+	public static final int ChannelObjectName = 203;
+	public static final int ChannelPort = 204;
+	public static final int ChannelTcpNodelay = 205;
+	public static final int ChannelDirectSocketWrite = 206;
 	
 	// Channel: Multicast
-	public static int ChannelDisconnectOnGap = 300;
-	public static int ChannelHsmInterface = 301;
-	public static int ChannelHsmInterval = 302;
-	public static int ChannelHsmMultAddress = 303;
-	public static int ChannelHsmPort = 304;
-	public static int Channelndata = 305;
-	public static int Channelnmissing = 306;
-	public static int Channelnrreq = 307;
-	public static int ChannelPacketTTL = 308;
-	public static int ChannelpktPoolLimitHigh = 309;
-	public static int ChannelpktPoolLimitLow = 310;
-	public static int ChannelRecvAddress = 311;
-	public static int ChannelRecvPort = 312;
-	public static int ChannelSendAddress = 313;
-	public static int ChannelSendPort = 314;
-	public static int Channeltbchold = 315;
-	public static int ChanneltcpControlPort = 316;
-	public static int Channeltdata = 317;
-	public static int Channeltpphold = 318;
-	public static int Channeltrreq = 319;
-	public static int Channeltwait = 320;
-	public static int ChannelUnicastPort = 321;
-	public static int ChanneluserQLimit = 322;
+	public static final int ChannelDisconnectOnGap = 300;
+	public static final int ChannelHsmInterface = 301;
+	public static final int ChannelHsmInterval = 302;
+	public static final int ChannelHsmMultAddress = 303;
+	public static final int ChannelHsmPort = 304;
+	public static final int Channelndata = 305;
+	public static final int Channelnmissing = 306;
+	public static final int Channelnrreq = 307;
+	public static final int ChannelPacketTTL = 308;
+	public static final int ChannelpktPoolLimitHigh = 309;
+	public static final int ChannelpktPoolLimitLow = 310;
+	public static final int ChannelRecvAddress = 311;
+	public static final int ChannelRecvPort = 312;
+	public static final int ChannelSendAddress = 313;
+	public static final int ChannelSendPort = 314;
+	public static final int Channeltbchold = 315;
+	public static final int ChanneltcpControlPort = 316;
+	public static final int Channeltdata = 317;
+	public static final int Channeltpphold = 318;
+	public static final int Channeltrreq = 319;
+	public static final int Channeltwait = 320;
+	public static final int ChannelUnicastPort = 321;
+	public static final int ChanneluserQLimit = 322;
 		
 	// Dictionary	
-	public static int DictionaryGroup = 400;
-	public static int DefaultDictionary = 401;
-	public static int DictionaryList = 402;
-	public static int Dictionary = 403;
-	public static int DictionaryName = 404;
-	public static int DictionaryType = 405;
-	public static int DictionaryEnumTypeDefFileName = 406;
-	public static int DictionaryRDMFieldDictFileName = 407;
-	public static int DictionaryDictionaryID = 408;
-	public static int DictionaryRdmFieldDictionaryItemName = 409;
-	public static int DictionaryEnumTypeDefItemName = 410;
-	public static int DictionaryFieldDictFragmentSize = 411;
-	public static int DictionaryEnumTypeFragmentSize = 412;
+	public static final int DictionaryGroup = 400;
+	public static final int DefaultDictionary = 401;
+	public static final int DictionaryList = 402;
+	public static final int Dictionary = 403;
+	public static final int DictionaryName = 404;
+	public static final int DictionaryType = 405;
+	public static final int DictionaryEnumTypeDefFileName = 406;
+	public static final int DictionaryRDMFieldDictFileName = 407;
+	public static final int DictionaryDictionaryID = 408;
+	public static final int DictionaryRdmFieldDictionaryItemName = 409;
+	public static final int DictionaryEnumTypeDefItemName = 410;
+	public static final int DictionaryFieldDictFragmentSize = 411;
+	public static final int DictionaryEnumTypeFragmentSize = 412;
 	
 	// NIProvider
-	public static int NiProviderGroup = 500;
-	public static int DefaultNiProvider = 501;
-	public static int NiProviderList = 502;
-	public static int NiProvider = 503;
+	public static final int NiProviderGroup = 500;
+	public static final int DefaultNiProvider = 501;
+	public static final int NiProviderList = 502;
+	public static final int NiProvider = 503;
 	
-	public static int NiProviderName = 504;
-	public static int NiProviderChannelName = 505;
-	public static int NiProviderDirectoryName = 506;
-	public static int NiProviderRefreshFirstRequired = 507;
-	public static int NiProviderMergeSourceDirectoryStreams = 508;
-	public static int NiProviderRecoverUserSubmitSourceDirectory = 509;
-	public static int NiProviderRemoveItemsOnDisconnect = 510;
+	public static final int NiProviderName = 504;
+	public static final int NiProviderChannelName = 505;
+	public static final int NiProviderDirectoryName = 506;
+	public static final int NiProviderRefreshFirstRequired = 507;
+	public static final int NiProviderMergeSourceDirectoryStreams = 508;
+	public static final int NiProviderRecoverUserSubmitSourceDirectory = 509;
+	public static final int NiProviderRemoveItemsOnDisconnect = 510;
 	
 	// Directory
-	public static int DirectoryGroup = 600;
-	public static int DefaultDirectory = 601;
-	public static int DirectoryList = 602;
-	public static int Directory = 603;
-	public static int DirectoryName = 604;
+	public static final int DirectoryGroup = 600;
+	public static final int DefaultDirectory = 601;
+	public static final int DirectoryList = 602;
+	public static final int Directory = 603;
+	public static final int DirectoryName = 604;
 	
 	// Service
-	public static int Service = 605;
-	public static int ServiceName = 606;
-	public static int ServiceInfoFilter = 607;
-	public static int ServiceInfoFilterServiceId = 608;
-	public static int ServiceInfoFilterVendor = 609;
-	public static int ServiceInfoFilterIsSource = 610;
-	public static int ServiceInfoFilterCapabilities = 611;
-	public static int ServiceInfoFilterCapabilitiesCapabilitiesEntry = 612;
-	public static int ServiceInfoFilterDictionariesProvided = 613;
-	public static int ServiceInfoFilterDictionariesProvidedDictionariesProvidedEntry = 614;
-	public static int ServiceInfoFilterDictionariesUsed = 615;
-	public static int ServiceInfoFilterDictionariesUsedDictionariesUsedEntry = 616;
-	public static int ServiceInfoFilterQoS = 617;
-	public static int ServiceInfoFilterQoSEntry = 618;
-	public static int ServiceInfoFilterQoSEntryTimeliness = 619;
-	public static int ServiceInfoFilterQoSEntryRate = 620;
-	public static int ServiceInfoFilterSupportsQoSRange = 621;
-	public static int ServiceInfoFilterItemList = 622;
-	public static int ServiceInfoFilterAcceptingConsumerStatus = 623;
-	public static int ServiceInfoFilterSupportsOutOfBandSnapshots = 624;
-	public static int ServiceStateFilter = 625;
-	public static int ServiceStateFilterServiceState = 626;
-	public static int ServiceStateFilterAcceptingRequests = 627;
-	public static int ServiceStateFilterStatus = 628;
-	public static int ServiceStateFilterStatusStreamState = 629;
-	public static int ServiceStateFilterStatusDataState = 630;
-	public static int ServiceStateFilterStatusStatusCode = 631;
-	public static int ServiceStateFilterStatusStatusText = 632;
+	public static final int Service = 605;
+	public static final int ServiceName = 606;
+	public static final int ServiceInfoFilter = 607;
+	public static final int ServiceInfoFilterServiceId = 608;
+	public static final int ServiceInfoFilterVendor = 609;
+	public static final int ServiceInfoFilterIsSource = 610;
+	public static final int ServiceInfoFilterCapabilities = 611;
+	public static final int ServiceInfoFilterCapabilitiesCapabilitiesEntry = 612;
+	public static final int ServiceInfoFilterDictionariesProvided = 613;
+	public static final int ServiceInfoFilterDictionariesProvidedDictionariesProvidedEntry = 614;
+	public static final int ServiceInfoFilterDictionariesUsed = 615;
+	public static final int ServiceInfoFilterDictionariesUsedDictionariesUsedEntry = 616;
+	public static final int ServiceInfoFilterQoS = 617;
+	public static final int ServiceInfoFilterQoSEntry = 618;
+	public static final int ServiceInfoFilterQoSEntryTimeliness = 619;
+	public static final int ServiceInfoFilterQoSEntryRate = 620;
+	public static final int ServiceInfoFilterSupportsQoSRange = 621;
+	public static final int ServiceInfoFilterItemList = 622;
+	public static final int ServiceInfoFilterAcceptingConsumerStatus = 623;
+	public static final int ServiceInfoFilterSupportsOutOfBandSnapshots = 624;
+	public static final int ServiceStateFilter = 625;
+	public static final int ServiceStateFilterServiceState = 626;
+	public static final int ServiceStateFilterAcceptingRequests = 627;
+	public static final int ServiceStateFilterStatus = 628;
+	public static final int ServiceStateFilterStatusStreamState = 629;
+	public static final int ServiceStateFilterStatusDataState = 630;
+	public static final int ServiceStateFilterStatusStatusCode = 631;
+	public static final int ServiceStateFilterStatusStatusText = 632;
 	
 	// IProvider
-	public static int IProviderGroup = 800;
-	public static int DefaultIProvider = 801;
-	public static int IProviderList = 802;
-	public static int IProvider = 803;
+	public static final int IProviderGroup = 800;
+	public static final int DefaultIProvider = 801;
+	public static final int IProviderList = 802;
+	public static final int IProvider = 803;
 	
-	public static int IProviderName = 804;
-	public static int IProviderServerName = 805;
-	public static int IProviderDirectoryName = 806;
-	public static int IProviderRefreshFirstRequired = 807;
-	public static int IProviderAcceptMessageWithoutAcceptingRequests = 808;
-	public static int IProviderAcceptDirMessageWithoutMinFilters = 809;
-	public static int IProviderAcceptMessageWithoutBeingLogin = 810;
-	public static int IProviderAcceptMessageSameKeyButDiffStream = 811;
-	public static int IProviderAcceptMessageThatChangesService = 812;
-	public static int IProviderAcceptMessageWithoutQosInRange = 813;
+	public static final int IProviderName = 804;
+	public static final int IProviderServerName = 805;
+	public static final int IProviderDirectoryName = 806;
+	public static final int IProviderRefreshFirstRequired = 807;
+	public static final int IProviderAcceptMessageWithoutAcceptingRequests = 808;
+	public static final int IProviderAcceptDirMessageWithoutMinFilters = 809;
+	public static final int IProviderAcceptMessageWithoutBeingLogin = 810;
+	public static final int IProviderAcceptMessageSameKeyButDiffStream = 811;
+	public static final int IProviderAcceptMessageThatChangesService = 812;
+	public static final int IProviderAcceptMessageWithoutQosInRange = 813;
 	
 	// Server: Global
-	public static int ServerGroup = 900;
-	public static int ServerList = 901;
-	public static int Server = 902;
-	public static int ServerName = 903;
-	public static int ServerType = 904;
+	public static final int ServerGroup = 900;
+	public static final int ServerList = 901;
+	public static final int Server = 902;
+	public static final int ServerName = 903;
+	public static final int ServerType = 904;
 	
 	// Server: Socket
-	public static int ServerCompressionThreshold = 1000;
-	public static int ServerCompressionType = 1001;
-	public static int ServerPort = 1002;
-	public static int ServerTcpNodelay = 1003;
-	public static int ServerDirectSocketWrite = 1004;
+	public static final int ServerCompressionThreshold = 1000;
+	public static final int ServerCompressionType = 1001;
+	public static final int ServerPort = 1002;
+	public static final int ServerTcpNodelay = 1003;
+	public static final int ServerDirectSocketWrite = 1004;
 	
-	public static int MAX_UINT16 = 0xFFFF;
+	public static final int MAX_UINT16 = 0xFFFF;
 	
 	static
 	{
@@ -284,6 +291,19 @@ class ConfigManager
 		ConsumerTagDict.add( "PostAckTimeout",PostAckTimeout );
 		ConsumerTagDict.add( "RequestTimeout",RequestTimeout );
 		ConsumerTagDict.add( "ServiceCountHint",ServiceCountHint );
+		ConsumerTagDict.add( "MsgKeyInUpdates",MsgKeyInUpdates );
+		ConsumerTagDict.add( "ReconnectAttemptLimit",ReconnectAttemptLimit );		
+		ConsumerTagDict.add( "ReconnectMaxDelay",ReconnectMaxDelay );
+		ConsumerTagDict.add( "ReconnectMinDelay",ReconnectMinDelay );
+		ConsumerTagDict.add( "XmlTraceFileName",XmlTraceFileName );		
+		ConsumerTagDict.add( "XmlTraceHex", XmlTraceHex );
+		ConsumerTagDict.add( "XmlTraceMaxFileSize", XmlTraceMaxFileSize );
+		ConsumerTagDict.add( "XmlTracePing", XmlTracePing );
+		ConsumerTagDict.add( "XmlTraceRead",XmlTraceRead );
+		ConsumerTagDict.add( "XmlTraceToFile",XmlTraceToFile );
+		ConsumerTagDict.add( "XmlTraceToMultipleFiles",XmlTraceToMultipleFiles );
+		ConsumerTagDict.add( "XmlTraceToStdout",XmlTraceToStdout );
+		ConsumerTagDict.add( "XmlTraceWrite",XmlTraceWrite );
 		
 		ChannelTagDict.add( "ChannelGroup",ChannelGroup );
 		ChannelTagDict.add( "ChannelList",ChannelList );
@@ -301,6 +321,8 @@ class ConfigManager
 		ChannelTagDict.add( "SysRecvBufSize",SysRecvBufSize );
 		ChannelTagDict.add( "SysSendBufSize",SysSendBufSize );
 		ChannelTagDict.add( "HighWaterMark",HighWaterMark );
+		
+		/* @deprecated The following code will be removed once all deprecated parameters are removed. */
 		ChannelTagDict.add( "XmlTraceFileName",XmlTraceFileName );		
 		ChannelTagDict.add( "XmlTraceHex", XmlTraceHex );
 		ChannelTagDict.add( "XmlTraceMaxFileSize", XmlTraceMaxFileSize );
@@ -376,6 +398,20 @@ class ConfigManager
 		NiProviderTagDict.add( "MergeSourceDirectoryStreams", NiProviderMergeSourceDirectoryStreams);
 		NiProviderTagDict.add( "RecoverUserSubmitSourceDirectory", NiProviderRecoverUserSubmitSourceDirectory);
 		NiProviderTagDict.add( "RemoveItemsOnDisconnect", NiProviderRemoveItemsOnDisconnect);
+		NiProviderTagDict.add( "MsgKeyInUpdates",MsgKeyInUpdates );
+		NiProviderTagDict.add( "ReconnectAttemptLimit",ReconnectAttemptLimit );		
+		NiProviderTagDict.add( "ReconnectMaxDelay",ReconnectMaxDelay );
+		NiProviderTagDict.add( "ReconnectMinDelay",ReconnectMinDelay );
+		NiProviderTagDict.add( "XmlTraceFileName",XmlTraceFileName );		
+		NiProviderTagDict.add( "XmlTraceHex", XmlTraceHex );
+		NiProviderTagDict.add( "XmlTraceMaxFileSize", XmlTraceMaxFileSize );
+		NiProviderTagDict.add( "XmlTracePing", XmlTracePing );
+		NiProviderTagDict.add( "XmlTraceRead",XmlTraceRead );
+		NiProviderTagDict.add( "XmlTraceToFile",XmlTraceToFile );
+		NiProviderTagDict.add( "XmlTraceToMultipleFiles",XmlTraceToMultipleFiles );
+		NiProviderTagDict.add( "XmlTraceToStdout",XmlTraceToStdout );
+		NiProviderTagDict.add( "XmlTraceWrite",XmlTraceWrite );
+		
 		
 		DirectoryTagDict.add( "DirectoryGroup", DirectoryGroup);
 		DirectoryTagDict.add( "DefaultDirectory", DefaultDirectory);
@@ -436,6 +472,14 @@ class ConfigManager
 		IProviderTagDict.add( "AcceptMessageWithoutQosInRange", IProviderAcceptMessageWithoutQosInRange);
 		IProviderTagDict.add( "FieldDictionaryFragmentSize", DictionaryFieldDictFragmentSize);
 		IProviderTagDict.add( "EnumTypeFragmentSize", DictionaryEnumTypeFragmentSize);
+		IProviderTagDict.add( "XmlTraceFileName",XmlTraceFileName );		
+		IProviderTagDict.add( "XmlTraceHex", XmlTraceHex );
+		IProviderTagDict.add( "XmlTraceMaxFileSize", XmlTraceMaxFileSize );
+		IProviderTagDict.add( "XmlTracePing", XmlTracePing );
+		IProviderTagDict.add( "XmlTraceRead", XmlTraceRead );
+		IProviderTagDict.add( "XmlTraceToFile", XmlTraceToFile );
+		IProviderTagDict.add( "XmlTraceToMultipleFiles", XmlTraceToMultipleFiles );
+		IProviderTagDict.add( "XmlTraceToStdout", XmlTraceToStdout );
 		
 		ServerTagDict.add( "ServerGroup", ServerGroup );
 		ServerTagDict.add( "ServerList" , ServerList );
@@ -451,6 +495,8 @@ class ConfigManager
 		ServerTagDict.add( "SysRecvBufSize",SysRecvBufSize );
 		ServerTagDict.add( "SysSendBufSize",SysSendBufSize );
 		ServerTagDict.add( "HighWaterMark",HighWaterMark );
+		
+		/* @deprecated The following code will be removed once all deprecated parameters are removed. */
 		ServerTagDict.add( "XmlTraceFileName",XmlTraceFileName );		
 		ServerTagDict.add( "XmlTraceHex", XmlTraceHex );
 		ServerTagDict.add( "XmlTraceMaxFileSize", XmlTraceMaxFileSize );
@@ -459,6 +505,7 @@ class ConfigManager
 		ServerTagDict.add( "XmlTraceToFile", XmlTraceToFile );
 		ServerTagDict.add( "XmlTraceToMultipleFiles", XmlTraceToMultipleFiles );
 		ServerTagDict.add( "XmlTraceToStdout", XmlTraceToStdout );
+		
 		ServerTagDict.add( "CompressionThreshold",ServerCompressionThreshold );
 		ServerTagDict.add( "Port", ServerPort );
 		ServerTagDict.add( "TcpNodelay",ServerTcpNodelay );

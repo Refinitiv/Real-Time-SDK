@@ -163,11 +163,10 @@ RsslReactorCallbackRet ServerChannelHandler::channelEventCallback(RsslReactor* p
 				}
 			}
 
-			if (ommServerBase->getActiveConfig().pServerConfig->xmlTraceToFile || ommServerBase->getActiveConfig().pServerConfig->xmlTraceToStdout)
+			ActiveServerConfig& activeConfig = ommServerBase->getActiveConfig();
+			if (activeConfig.xmlTraceToFile || activeConfig.xmlTraceToStdout)
 			{
-				ServerConfig* serverConfig = ommServerBase->getActiveConfig().pServerConfig;
-
-				EmaString fileName(serverConfig->xmlTraceFileName);
+				EmaString fileName(activeConfig.xmlTraceFileName);
 				fileName.append("_");
 
 				RsslTraceOptions traceOptions;
@@ -175,28 +174,28 @@ RsslReactorCallbackRet ServerChannelHandler::channelEventCallback(RsslReactor* p
 
 				traceOptions.traceMsgFileName = (char*)fileName.c_str();
 
-				if (serverConfig->xmlTraceToFile)
+				if (activeConfig.xmlTraceToFile)
 					traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE;
 
-				if (serverConfig->xmlTraceToStdout)
+				if (activeConfig.xmlTraceToStdout)
 					traceOptions.traceFlags |= RSSL_TRACE_TO_STDOUT;
 
-				if (serverConfig->xmlTraceToMultipleFiles)
+				if (activeConfig.xmlTraceToMultipleFiles)
 					traceOptions.traceFlags |= RSSL_TRACE_TO_MULTIPLE_FILES;
 
-				if (serverConfig->xmlTraceWrite)
+				if (activeConfig.xmlTraceWrite)
 					traceOptions.traceFlags |= RSSL_TRACE_WRITE;
 
-				if (serverConfig->xmlTraceRead)
+				if (activeConfig.xmlTraceRead)
 					traceOptions.traceFlags |= RSSL_TRACE_READ;
 
-				if (serverConfig->xmlTracePing)
+				if (activeConfig.xmlTracePing)
 					traceOptions.traceFlags |= RSSL_TRACE_PING;
 
-				if (serverConfig->xmlTraceHex)
+				if (activeConfig.xmlTraceHex)
 					traceOptions.traceFlags |= RSSL_TRACE_HEX;
 
-				traceOptions.traceMsgMaxFileSize = ommServerBase->getActiveConfig().pServerConfig->xmlTraceMaxFileSize;
+				traceOptions.traceMsgMaxFileSize = activeConfig.xmlTraceMaxFileSize;
 
 				if (RSSL_RET_SUCCESS != rsslReactorChannelIoctl(pRsslReactorChannel, (RsslIoctlCodes)RSSL_TRACE, (void*)&traceOptions, &rsslErrorInfo))
 				{

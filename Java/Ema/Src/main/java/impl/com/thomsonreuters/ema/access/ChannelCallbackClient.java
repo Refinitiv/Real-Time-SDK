@@ -163,7 +163,7 @@ class ChannelInfo
 		{
 			_toStringSet = true;
 			if (_toString == null)
-				_toString = new StringBuilder();
+				_toString = new StringBuilder(1024);
 			else
 				_toString.setLength(0);
 			
@@ -610,10 +610,10 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		}
 	}
 	
-	private String channelParametersToString( ChannelConfig channelCfg )
+	private String channelParametersToString(ActiveConfig activeConfig,  ChannelConfig channelCfg )
 	{
 		boolean bValidChType = true;
-		StringBuilder cfgParameters = new StringBuilder();
+		StringBuilder cfgParameters = new StringBuilder(512);
 		String compType;
 		String strConnectionType;
 		switch (channelCfg.compressionType)
@@ -694,9 +694,9 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 			tempBlder.append("RsslReactor ").append("@").append(Integer.toHexString(_rsslReactor.hashCode())).append(OmmLoggerClient.CR)
 			.append( "InterfaceName " ).append( channelCfg.interfaceName ).append( OmmLoggerClient.CR )
 			.append( cfgParameters )
-			.append( "reconnectAttemptLimit " ).append( channelCfg.reconnectAttemptLimit ).append( OmmLoggerClient.CR )
-			.append( "reconnectMinDelay " ).append( channelCfg.reconnectMinDelay ).append( " msec" ).append( OmmLoggerClient.CR )
-			.append( "reconnectMaxDelay " ).append( channelCfg.reconnectMaxDelay ).append( " msec" ).append( OmmLoggerClient.CR )
+			.append( "reconnectAttemptLimit " ).append( activeConfig.reconnectAttemptLimit ).append( OmmLoggerClient.CR )
+			.append( "reconnectMinDelay " ).append( activeConfig.reconnectMinDelay ).append( " msec" ).append( OmmLoggerClient.CR )
+			.append( "reconnectMaxDelay " ).append( activeConfig.reconnectMaxDelay ).append( " msec" ).append( OmmLoggerClient.CR )
 			.append( "guaranteedOutputBuffers " ).append( channelCfg.guaranteedOutputBuffers ).append( OmmLoggerClient.CR )
 			.append( "numInputBuffers " ).append( channelCfg.numInputBuffers ).append( OmmLoggerClient.CR )
 			.append( "sysRecvBufSize " ).append( channelCfg.sysRecvBufSize ).append( OmmLoggerClient.CR )
@@ -727,9 +727,9 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		errorStrUnsupportedConnectionType.append( "Unsupported connection type. Passed in type is ");
 
 		
-		_rsslReactorConnOptions.reconnectAttemptLimit(activeConfigChannelSet.get(channelCfgSetLastIndex).reconnectAttemptLimit);
-		_rsslReactorConnOptions.reconnectMinDelay(activeConfigChannelSet.get(channelCfgSetLastIndex).reconnectMinDelay);
-		_rsslReactorConnOptions.reconnectMaxDelay(activeConfigChannelSet.get(channelCfgSetLastIndex).reconnectMaxDelay);
+		_rsslReactorConnOptions.reconnectAttemptLimit(activeConfig.reconnectAttemptLimit);
+		_rsslReactorConnOptions.reconnectMinDelay(activeConfig.reconnectMinDelay);
+		_rsslReactorConnOptions.reconnectMaxDelay(activeConfig.reconnectMaxDelay);
 		com.thomsonreuters.upa.transport.ConnectOptions connectOptions = null;
 		
 		for(int i = 0; i < activeConfigChannelSet.size(); i++)
@@ -833,19 +833,10 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 				connectOptions.unifiedNetworkInfo().interfaceName( channelConfig.interfaceName);
 				connectOptions.unifiedNetworkInfo().unicastServiceName("");
 				channelNames.concat(channelConfig.name);
-				if( i < channelCfgSetLastIndex )
-				{
-					channelNames.concat( ", " );
-					activeConfigChannelSet.get(i).reconnectAttemptLimit = _rsslReactorConnOptions.reconnectAttemptLimit();
-					activeConfigChannelSet.get(i).reconnectMaxDelay = _rsslReactorConnOptions.reconnectMaxDelay();
-					activeConfigChannelSet.get(i).reconnectMinDelay = _rsslReactorConnOptions.reconnectMinDelay();
-					activeConfigChannelSet.get(i).xmlTraceEnable = activeConfigChannelSet.get(channelCfgSetLastIndex).xmlTraceEnable;
-					activeConfigChannelSet.get(i).msgKeyInUpdates = activeConfigChannelSet.get(channelCfgSetLastIndex).msgKeyInUpdates;
-				
-				}
+
 				if (_baseImpl.loggerClient().isTraceEnabled())
 				{
-					channelParams = channelParametersToString( activeConfigChannelSet.get( i ) );
+					channelParams = channelParametersToString( activeConfig, activeConfigChannelSet.get( i ) );
 					temp.append( OmmLoggerClient.CR ).append( i + 1 ).append( "] " ).append( channelParams );
 					if ( i == ( channelCfgSetLastIndex ) )				
 						_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.TRACE));

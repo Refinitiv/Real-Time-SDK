@@ -57,6 +57,7 @@
 			<!-- which allows applications to specify and control the directory.						-->
 			<Directory value="Directory_1"/>
 			
+			<XmlTraceToStdout value="0"/>
 		</NiProvider>
 		
 		<NiProvider>
@@ -66,6 +67,7 @@
 			
 			<Directory value="Directory_2"/>
 			
+			<XmlTraceToStdout value="0"/>
 		</NiProvider>
 		
 	</NiProviderList>
@@ -101,7 +103,6 @@
 			<DirectWrite value="1"/>
 			<Host value="localhost"/>
 			<Port value="14003"/>
-			<XmlTraceToStdout value="0"/>
 		</Channel>
 		
 	</ChannelList>

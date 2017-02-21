@@ -39,6 +39,8 @@ abstract class BaseConfig
 		maxDispatchCountApiThread = DEFAULT_MAX_DISPATCH_COUNT_API_THREAD;
 		maxDispatchCountUserThread = DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD;
 		userDispatch = DEFAULT_USER_DISPATCH;
+		xmlTraceEnable = ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
+		isSetCorrectConfigGroup = ActiveConfig.DEFAULT_SET_CORRECT_CONFIG_GROUP;
 	}
 	
 	void clear()
@@ -51,6 +53,8 @@ abstract class BaseConfig
 		userDispatch = DEFAULT_USER_DISPATCH;
 		configuredName = null;
 		instanceName = null;
+		xmlTraceEnable = ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
+		isSetCorrectConfigGroup = ActiveConfig.DEFAULT_SET_CORRECT_CONFIG_GROUP;
 	}
 	
 	String					configuredName;
@@ -61,6 +65,15 @@ abstract class BaseConfig
 	int						maxDispatchCountApiThread;
 	int						maxDispatchCountUserThread;
 	int		    			userDispatch;
+	boolean 			xmlTraceEnable;
+	
+	/*ReconnectAttemptLimit,ReconnectMinDelay,ReconnectMaxDelay,MsgKeyInUpdates,XmlTrace... is per Consumer, or per NIProvider
+	 *or per IProvider instance now. The per channel configuration on these parameters has been deprecated. This variable is 
+	 *used for handling deprecation cases.
+	 *True   -- mean there are one or more of  these parameters set in per Consumer, per NIProvider, or per IProvider instance.
+	 *False  -- mean there is none of them set in per Consumer, per NIProvider, or per IProvider instance.
+	 */
+	boolean            	isSetCorrectConfigGroup; 
 }
 
 abstract class ActiveConfig extends BaseConfig
@@ -109,6 +122,7 @@ abstract class ActiveConfig extends BaseConfig
 	final static int DEFAULT_USER_QLIMIT						= 65535;
 	final static boolean DEFAULT_XML_TRACE_ENABLE				= false;
 	final static boolean DEFAULT_DIRECT_SOCKET_WRITE			= false;
+	final static boolean DEFAULT_SET_CORRECT_CONFIG_GROUP 			= false;
 	
 	int						obeyOpenWindow;
 	int						requestTimeout;
@@ -127,6 +141,10 @@ abstract class ActiveConfig extends BaseConfig
 	String 					enumDictReqServiceName;
 	DictionaryConfig		dictionaryConfig;
 	static String		    defaultServiceName;
+	int					    reconnectAttemptLimit;
+	int						reconnectMinDelay;
+	int						reconnectMaxDelay;
+	boolean 				msgKeyInUpdates;
 	
 	ActiveConfig(String defaultServiceName)
 	{
@@ -140,6 +158,10 @@ abstract class ActiveConfig extends BaseConfig
 		 directoryRequestTimeOut = DEFAULT_DIRECTORY_REQUEST_TIMEOUT;
 		 dictionaryRequestTimeOut = DEFAULT_DICTIONARY_REQUEST_TIMEOUT;
 		 userDispatch = DEFAULT_USER_DISPATCH;
+		 reconnectAttemptLimit = ActiveConfig.DEFAULT_RECONNECT_ATTEMPT_LIMIT;
+		 reconnectMinDelay = ActiveConfig.DEFAULT_RECONNECT_MIN_DELAY;
+		 reconnectMaxDelay = ActiveConfig.DEFAULT_RECONNECT_MAX_DELAY;
+		 msgKeyInUpdates = ActiveConfig.DEFAULT_MSGKEYINUPDATES ;
 		 ActiveConfig.defaultServiceName = defaultServiceName;
 		 channelConfigSet = new ArrayList<>();
 	}
@@ -153,6 +175,10 @@ abstract class ActiveConfig extends BaseConfig
 		postAckTimeout = DEFAULT_POST_ACK_TIMEOUT;
 		maxOutstandingPosts = DEFAULT_MAX_OUTSTANDING_POSTS;
 		userDispatch = DEFAULT_USER_DISPATCH;
+		reconnectAttemptLimit = ActiveConfig.DEFAULT_RECONNECT_ATTEMPT_LIMIT;
+		reconnectMinDelay = ActiveConfig.DEFAULT_RECONNECT_MIN_DELAY;
+		reconnectMaxDelay = ActiveConfig.DEFAULT_RECONNECT_MAX_DELAY;
+		msgKeyInUpdates = ActiveConfig.DEFAULT_MSGKEYINUPDATES ;
 		dictionaryConfig.clear();
 
 		rsslRDMLoginRequest = null;
@@ -249,7 +275,6 @@ class ChannelConfig
 {
 	String				name;
 	String				interfaceName;
-	boolean				xmlTraceEnable;
 	int					compressionType;
 	int					compressionThreshold;
 	int					rsslConnectionType;
@@ -259,10 +284,6 @@ class ChannelConfig
 	int					sysRecvBufSize;
 	int					sysSendBufSize;
 	int 				highWaterMark;
-	int					reconnectAttemptLimit;
-	int					reconnectMinDelay;
-	int					reconnectMaxDelay;
-	boolean				msgKeyInUpdates;
 	ChannelInfo			channelInfo;
 
 	ChannelConfig() 
@@ -281,11 +302,6 @@ class ChannelConfig
 		sysSendBufSize = ActiveConfig.DEFAULT_SYS_SEND_BUFFER_SIZE;
 		sysRecvBufSize = ActiveConfig.DEFAULT_SYS_RECEIVE_BUFFER_SIZE;
 		highWaterMark = ActiveConfig.DEFAULT_HIGH_WATER_MARK;
-		reconnectAttemptLimit = ActiveConfig.DEFAULT_RECONNECT_ATTEMPT_LIMIT;
-		reconnectMinDelay = ActiveConfig.DEFAULT_RECONNECT_MIN_DELAY;
-		reconnectMaxDelay = ActiveConfig.DEFAULT_RECONNECT_MAX_DELAY;
-		xmlTraceEnable = ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
-		msgKeyInUpdates = ActiveConfig.DEFAULT_MSGKEYINUPDATES ;
 		rsslConnectionType = ActiveConfig.DEFAULT_CONNECTION_TYPE;	
 	}
 
@@ -300,7 +316,6 @@ class ServerConfig
 {
 	String				name;
 	String				interfaceName;
-	boolean				xmlTraceEnable;
 	int					compressionType;
 	int					compressionThreshold;
 	int					rsslConnectionType;
@@ -327,7 +342,6 @@ class ServerConfig
 		sysSendBufSize = ActiveServerConfig.DEFAULT_SERVER_SYS_SEND_BUFFER_SIZE;
 		sysRecvBufSize = ActiveServerConfig.DEFAULT_SERVER_SYS_RECEIVE_BUFFER_SIZE;
 		highWaterMark = ActiveConfig.DEFAULT_HIGH_WATER_MARK;
-		xmlTraceEnable = ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
 		rsslConnectionType = ActiveConfig.DEFAULT_CONNECTION_TYPE;
 		
 		connectionPingTimeout = ActiveServerConfig.DEFAULT_CONNECTION_PINGTIMEOUT;

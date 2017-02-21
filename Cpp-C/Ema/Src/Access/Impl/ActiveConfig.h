@@ -87,6 +87,14 @@
 #define DEFAULT_XML_TRACE_TO_STDOUT					  false
 #define DEFAULT_XML_TRACE_WRITE						  true
 
+/* 
+ * The following definitions will be removed in the future after the parameterConfigGroup variable has been removed.
+ */
+#define PARAMETER_NOT_SET							0x00  /*!< Indicates no parameters set in any config group */
+#define PARAMETER_SET_IN_CONSUMER_PROVIDER			0x01  /*!< Indicates that there are parameters set in Consumer, NIProvider or IProvider group inside EmaConfig.xml file */
+#define PARAMETER_SET_BY_PROGRAMMATIC				0x02  /*!< Indicates that there are parameters set through the programmatical way */
+
+
 namespace thomsonreuters {
 
 namespace ema {
@@ -115,15 +123,11 @@ public :
 
 	void setGuaranteedOutputBuffers( UInt64 value );
 	void setNumInputBuffers( UInt64 value );
-	void setReconnectAttemptLimit( Int64 value );
-	void setReconnectMinDelay( Int64 value );
-	void setReconnectMaxDelay( Int64 value );
 
 	virtual ChannelType getType() const = 0;
 
 	EmaString				name;
 	EmaString				interfaceName;
-	EmaString				xmlTraceFileName;
 	RsslCompTypes			compressionType;
 	UInt32					compressionThreshold;
 	RsslConnectionTypes		connectionType;
@@ -133,18 +137,6 @@ public :
 	UInt32					sysRecvBufSize;
 	UInt32					sysSendBufSize;
 	UInt32					highWaterMark;
-	Int32					reconnectAttemptLimit;
-	Int32					reconnectMinDelay;
-	Int32					reconnectMaxDelay;
-	Int64					xmlTraceMaxFileSize;
-	bool					xmlTraceToFile;
-	bool					xmlTraceToStdout;
-	bool					xmlTraceToMultipleFiles;
-	bool					xmlTraceWrite;
-	bool					xmlTraceRead;
-	bool					xmlTracePing;
-	bool					xmlTraceHex;
-	bool					msgKeyInUpdates;
 	Channel*				pChannel;
 
 private :
@@ -185,15 +177,6 @@ public:
 	UInt32					sysRecvBufSize;
 	UInt32					sysSendBufSize;
 	UInt32					highWaterMark;
-	Int64					xmlTraceMaxFileSize;
-	bool					xmlTraceToFile;
-	bool					xmlTraceToStdout;
-	bool					xmlTraceToMultipleFiles;
-	bool					xmlTraceWrite;
-	bool					xmlTraceRead;
-	bool					xmlTracePing;
-	bool					xmlTraceHex;
-	bool					msgKeyInUpdates;
 
 private:
 
@@ -416,11 +399,25 @@ public:
 
 	EmaString				configuredName;
 	EmaString				instanceName;
+	EmaString				xmlTraceFileName;
 	UInt32					itemCountHint;
 	UInt32					serviceCountHint;
 	Int64					dispatchTimeoutApiThread;
 	UInt32					maxDispatchCountApiThread;
 	UInt32					maxDispatchCountUserThread;
+	Int64					xmlTraceMaxFileSize;
+	bool					xmlTraceToFile;
+	bool					xmlTraceToStdout;
+	bool					xmlTraceToMultipleFiles;
+	bool					xmlTraceWrite;
+	bool					xmlTraceRead;
+	bool					xmlTracePing;
+	bool					xmlTraceHex;
+	/*ReconnectAttemptLimit,ReconnectMinDelay,ReconnectMaxDelay,MsgKeyInUpdates,XmlTrace... is per Consumer, or per NIProvider
+	 *or per IProvider instance now. The per channel configuration on these parameters has been deprecated. This variable is 
+	 *used for handling deprecation cases.
+	 */
+	UInt8					parameterConfigGroup;
 	bool					catchUnhandledException;
 	LoggerConfig			loggerConfig;
 };
@@ -442,6 +439,10 @@ public:
 	void setLoginRequestTimeOut( UInt64 );
 	void setDirectoryRequestTimeOut( UInt64 );
 	void setDictionaryRequestTimeOut( UInt64 );
+	void setReconnectAttemptLimit(Int64 value);
+	void setReconnectMinDelay(Int64 value);
+	void setReconnectMaxDelay(Int64 value);
+
 	ChannelConfig* findChannelConfig( const Channel* pChannel );
 	static bool findChannelConfig( EmaVector< ChannelConfig* >&, const EmaString&, unsigned int& );
 	void clearChannelSet();
@@ -455,6 +456,10 @@ public:
 	UInt32			loginRequestTimeOut;
 	UInt32			directoryRequestTimeOut;
 	UInt32			dictionaryRequestTimeOut;
+	Int32			reconnectAttemptLimit;
+	Int32			reconnectMinDelay;
+	Int32			reconnectMaxDelay;
+	bool			msgKeyInUpdates;
 	bool			catchUnhandledException;
 
 	DictionaryConfig		dictionaryConfig;

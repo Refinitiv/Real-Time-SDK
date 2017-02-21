@@ -78,7 +78,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 	
 	protected int _state = OmmImplState.NOT_INITIALIZED;
 	private Logger _loggerClient;
-	protected StringBuilder _strBuilder = new StringBuilder();
+	protected StringBuilder _strBuilder = new StringBuilder(1024);
 	private OmmInvalidUsageExceptionImpl _ommIUExcept;
 	private OmmInvalidHandleExceptionImpl _ommIHExcept;
 	private ActiveConfig _activeConfig;
@@ -172,8 +172,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 			if (_loggerClient.isTraceEnabled())
 				_loggerClient.trace(formatLogMessage(_activeConfig.instanceName, "Successfully open Selector.", Severity.TRACE));
 			
-			int channelSetSize = _activeConfig.channelConfigSet.size();
-			if (_activeConfig.channelConfigSet.get( channelSetSize - 1 ).xmlTraceEnable)
+			if (_activeConfig.xmlTraceEnable)
 				_rsslReactorOpts.enableXmlTracing();
 
 			_rsslReactorOpts.userSpecObj(this);
@@ -600,6 +599,36 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.MaxDispatchCountUserThread)) != null)
 				_activeConfig.maxDispatchCountUserThread = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
+				
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.ReconnectAttemptLimit)) != null)
+			{
+				_activeConfig.isSetCorrectConfigGroup = true;
+				_activeConfig.reconnectAttemptLimit = ce.intValue();
+			}
+			
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.ReconnectMinDelay)) != null)
+			{
+				_activeConfig.isSetCorrectConfigGroup = true;
+				_activeConfig.reconnectMinDelay = ce.intValue();
+			}
+			
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.ReconnectMaxDelay)) != null)
+			{
+				_activeConfig.isSetCorrectConfigGroup = true;
+				_activeConfig.reconnectMaxDelay = ce.intValue();
+			}
+	
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.MsgKeyInUpdates)) != null)
+			{
+				_activeConfig.isSetCorrectConfigGroup = true;
+				_activeConfig.msgKeyInUpdates = ce.booleanValue();
+			}
+	
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToStdout)) != null)
+			{
+				_activeConfig.isSetCorrectConfigGroup = true;
+				_activeConfig.xmlTraceEnable = ce.booleanValue();
+			}
 		}
 
 		// .........................................................................
@@ -610,10 +639,10 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 		if (channelName != null  && channelName.trim().length() > 0)
 		{
 			String[] pieces = channelName.split(",");
-
+			int lastChannelIndex = pieces.length - 1;
 			for (int i = 0; i < pieces.length; i++)
 			{
-				readChannelConfig(config,  pieces[i]);
+				readChannelConfig(config,  pieces[i], ( i == lastChannelIndex ? true : false) );
 			}
 		}
 		else
@@ -653,7 +682,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 		_activeConfig.rsslRDMLoginRequest = config.loginReq();
 	}
 	
-	void readChannelConfig(EmaConfigImpl configImpl, String channelName)
+	void readChannelConfig(EmaConfigImpl configImpl, String channelName, boolean lastChannel)
 	{
 		int maxInt = Integer.MAX_VALUE;		
 		ChannelConfig currentChannelConfig = null;
@@ -837,20 +866,44 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 					currentChannelConfig.highWaterMark = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_HIGH_WATER_MARK : ce.intLongValue();
 			}
 	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectAttemptLimit)) != null)
-				currentChannelConfig.reconnectAttemptLimit = ce.intValue();
-	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectMinDelay)) != null)
-				currentChannelConfig.reconnectMinDelay = ce.intValue();
-	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectMaxDelay)) != null)
-				currentChannelConfig.reconnectMaxDelay = ce.intValue();
-	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelMsgKeyInUpdates)) != null)
-				currentChannelConfig.msgKeyInUpdates = ce.booleanValue();
-	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToStdout)) != null)
-				currentChannelConfig.xmlTraceEnable = ce.booleanValue();
+			/* The following code will be removed once deprecated definitions from ConfigManager are removed. */
+			if (!_activeConfig.isSetCorrectConfigGroup && lastChannel)
+			{
+				if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectAttemptLimit)) != null)
+				{
+						_activeConfig.reconnectAttemptLimit = ce.intValue();
+						configImpl.errorTracker().append( "This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance." )
+						.create(Severity.WARNING);
+				}
+		
+				if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectMinDelay)) != null)
+				{
+						_activeConfig.reconnectMinDelay = ce.intValue();
+						configImpl.errorTracker().append( "This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance." )
+						.create(Severity.WARNING);
+				}
+		
+				if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectMaxDelay)) != null)
+				{
+						_activeConfig.reconnectMaxDelay = ce.intValue();
+						configImpl.errorTracker().append( "This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance." )
+						.create(Severity.WARNING);
+				}
+		
+				if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelMsgKeyInUpdates)) != null)
+				{
+						_activeConfig.msgKeyInUpdates = ce.booleanValue();
+						configImpl.errorTracker().append( "This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer instance." )
+						.create(Severity.WARNING);
+				}
+		
+				if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToStdout)) != null)
+				{
+						_activeConfig.xmlTraceEnable = ce.booleanValue();
+						configImpl.errorTracker().append(  "This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.")
+						.create(Severity.WARNING);
+				}
+			}
 		}
 		
 		_activeConfig.channelConfigSet.add( currentChannelConfig );

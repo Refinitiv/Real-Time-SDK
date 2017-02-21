@@ -169,7 +169,7 @@ protected:
 
 	virtual void readCustomConfig( EmaConfigImpl* ) = 0;
 
-	ChannelConfig* readChannelConfig( EmaConfigImpl*, const EmaString& );
+	ChannelConfig* readChannelConfig( EmaConfigImpl*, const EmaString& , bool);
 
 	bool readReliableMcastConfig( EmaConfigImpl*, const EmaString&, ReliableMcastChannelConfig*, EmaString& );
 

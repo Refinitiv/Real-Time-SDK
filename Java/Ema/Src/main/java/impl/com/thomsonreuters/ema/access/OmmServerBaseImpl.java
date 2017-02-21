@@ -202,7 +202,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			if (_loggerClient.isTraceEnabled())
 				_loggerClient.trace(formatLogMessage(_activeServerConfig.instanceName, "Successfully open Selector.", Severity.TRACE));
 
-			if (_activeServerConfig.serverConfig.xmlTraceEnable)
+			if (_activeServerConfig.xmlTraceEnable)
 				_rsslReactorOpts.enableXmlTracing();
 
 			_rsslReactorOpts.userSpecObj(this);
@@ -461,6 +461,12 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.MaxDispatchCountUserThread)) != null)
 				_activeServerConfig.maxDispatchCountUserThread = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
+				
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToStdout)) != null)
+			{
+				_activeServerConfig.isSetCorrectConfigGroup = true;
+				_activeServerConfig.xmlTraceEnable = ce.booleanValue();
+			}
 		}
 
 		// .........................................................................
@@ -589,8 +595,13 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 					currentServerConfig.highWaterMark = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_HIGH_WATER_MARK : ce.intLongValue();
 			}
 	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToStdout)) != null)
-				currentServerConfig.xmlTraceEnable = ce.booleanValue();
+			/* The following code will be removed once the deprecated XmlTraceToStdout is removed. */
+			if( (!_activeServerConfig.isSetCorrectConfigGroup && (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToStdout)) != null))
+			{
+					configImpl.errorTracker().append("This ConfigValue is no longer configured on a per-server basis; configure it instead in the IProvider instance.")
+					.create(Severity.WARNING);
+					_activeServerConfig.xmlTraceEnable = ce.booleanValue();
+			}
 			
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ConnectionPingTimeout)) != null)
 			{

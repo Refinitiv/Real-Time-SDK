@@ -197,6 +197,82 @@ void OmmBaseImpl::readConfig( EmaConfigImpl* pConfigImpl )
 	if ( pConfigImpl->get<UInt64>( instanceNodeName + "MaxDispatchCountUserThread", tmp ) )
 		_activeConfig.maxDispatchCountUserThread = static_cast<UInt32>( tmp > maxUInt32 ? maxUInt32 : tmp );
 
+	Int64 tmp1;
+	if (pConfigImpl->get<Int64>(instanceNodeName + "ReconnectAttemptLimit", tmp1))
+	{
+		_activeConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
+		_activeConfig.setReconnectAttemptLimit(tmp1);
+	}
+
+	if (pConfigImpl->get<Int64>(instanceNodeName + "ReconnectMinDelay", tmp1))
+	{
+		_activeConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
+		_activeConfig.setReconnectMinDelay(tmp1);
+	}
+
+	if (pConfigImpl->get<Int64>(instanceNodeName + "ReconnectMaxDelay", tmp1))
+	{
+		_activeConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
+		_activeConfig.setReconnectMaxDelay(tmp1);
+	}
+
+	if (pConfigImpl->get<EmaString>(instanceNodeName + "XmlTraceFileName", _activeConfig.xmlTraceFileName) )
+		_activeConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
+
+	if (pConfigImpl->get<Int64>(instanceNodeName + "XmlTraceMaxFileSize", tmp1) && tmp1 > 0)
+	{
+		_activeConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
+		_activeConfig.xmlTraceMaxFileSize = tmp1;
+	}
+
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "XmlTraceToFile", tmp))
+	{
+		_activeConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
+		_activeConfig.xmlTraceToFile = tmp > 0 ? true : false;
+	}
+
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "XmlTraceToStdout", tmp))
+	{
+		_activeConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
+		_activeConfig.xmlTraceToStdout = tmp > 0 ? true : false;
+	}
+
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "XmlTraceToMultipleFiles", tmp))
+	{
+		_activeConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
+		_activeConfig.xmlTraceToMultipleFiles = tmp > 0 ? true : false;
+	}
+
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "XmlTraceWrite", tmp))
+	{
+		_activeConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
+		_activeConfig.xmlTraceWrite = tmp > 0 ? true : false;
+	}
+
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "XmlTraceRead", tmp))
+	{
+		_activeConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
+		_activeConfig.xmlTraceRead = tmp > 0 ? true : false;
+	}
+
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "XmlTracePing", tmp))
+	{
+		_activeConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
+		_activeConfig.xmlTracePing = tmp > 0 ? true : false;
+	}
+
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "XmlTraceHex", tmp))
+	{
+		_activeConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
+		_activeConfig.xmlTraceHex = tmp > 0 ? true : false;
+	}
+
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "MsgKeyInUpdates", tmp))
+	{
+		_activeConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
+		_activeConfig.msgKeyInUpdates = tmp > 0 ? true : false;
+	}
+
 	pConfigImpl->get<Int64>( instanceNodeName + "PipePort", _activeConfig.pipePort );
 
 	pConfigImpl->getLoggerName( _activeConfig.configuredName, _activeConfig.loggerConfig.loggerName );
@@ -252,18 +328,20 @@ void OmmBaseImpl::readConfig( EmaConfigImpl* pConfigImpl )
 		if ( pConfigImpl->get<EmaString>( nodeName, channelSet ) )
 		{
 			char* pToken = NULL;
+			char* pNextToken = NULL;
 			pToken = strtok( const_cast<char*>( channelSet.c_str() ), "," );
 			do
 			{
 				if ( pToken )
 				{
 					channelName = pToken;
-					ChannelConfig* newChannelConfig = readChannelConfig( pConfigImpl, ( channelName.trimWhitespace() ) );
+					pNextToken = strtok(NULL, ",");
+					ChannelConfig* newChannelConfig = readChannelConfig( pConfigImpl, ( channelName.trimWhitespace() ), (pNextToken == NULL ? true : false) );
 					_activeConfig.configChannelSet.push_back( newChannelConfig );
 
 				}
 
-				pToken = strtok( NULL, "," );
+				pToken = pNextToken;
 			}
 			while ( pToken != NULL );
 		}
@@ -274,7 +352,7 @@ void OmmBaseImpl::readConfig( EmaConfigImpl* pConfigImpl )
 	}
 	else
 	{
-		ChannelConfig* newChannelConfig = readChannelConfig( pConfigImpl, ( channelName.trimWhitespace() ) );
+		ChannelConfig* newChannelConfig = readChannelConfig( pConfigImpl, ( channelName.trimWhitespace() ), true );
 		_activeConfig.configChannelSet.push_back( newChannelConfig );
 	}
 
@@ -288,8 +366,9 @@ void OmmBaseImpl::readConfig( EmaConfigImpl* pConfigImpl )
 		if ( isProgmaticCfgChannelName )
 		{
 			_activeConfig.clearChannelSet();
-			ChannelConfig* fileChannelConfig = readChannelConfig( pConfigImpl, ( channelName.trimWhitespace() ) );
-			ppc->retrieveChannelConfig( channelName.trimWhitespace(), _activeConfig, pConfigImpl->getUserSpecifiedHostname().length() > 0, fileChannelConfig );
+			ChannelConfig* fileChannelConfig = readChannelConfig( pConfigImpl, ( channelName.trimWhitespace() ), true);
+			ppc->retrieveChannelConfig( channelName.trimWhitespace(), _activeConfig, pConfigImpl->getUserSpecifiedHostname().length() > 0,
+										!(_activeConfig.parameterConfigGroup & PARAMETER_SET_BY_PROGRAMMATIC), fileChannelConfig );
 			if ( !( ActiveConfig::findChannelConfig( _activeConfig.configChannelSet, channelName.trimWhitespace(), posInProgCfg ) ) )
 				_activeConfig.configChannelSet.push_back( fileChannelConfig );
 			else
@@ -302,12 +381,15 @@ void OmmBaseImpl::readConfig( EmaConfigImpl* pConfigImpl )
 		{
 			_activeConfig.configChannelSet.clear();
 			char* pToken = NULL;
+			char* pNextToken = NULL;
 			pToken = strtok( const_cast<char*>( channelSet.c_str() ), "," );
 			while ( pToken != NULL )
 			{
 				channelName = pToken;
-				ChannelConfig* fileChannelConfig = readChannelConfig( pConfigImpl, ( channelName.trimWhitespace() ) );
-				ppc->retrieveChannelConfig( channelName.trimWhitespace(), _activeConfig, pConfigImpl->getUserSpecifiedHostname().length() > 0, fileChannelConfig );
+				pNextToken = strtok(NULL, ",");
+				ChannelConfig* fileChannelConfig = readChannelConfig( pConfigImpl, ( channelName.trimWhitespace() ), (pNextToken == NULL ? true : false));
+				ppc->retrieveChannelConfig(channelName.trimWhitespace(), _activeConfig, pConfigImpl->getUserSpecifiedHostname().length() > 0,
+											(pNextToken == NULL && !(_activeConfig.parameterConfigGroup & PARAMETER_SET_BY_PROGRAMMATIC)), fileChannelConfig );
 				if ( !( ActiveConfig::findChannelConfig( _activeConfig.configChannelSet, channelName.trimWhitespace(), posInProgCfg ) ) )
 					_activeConfig.configChannelSet.push_back( fileChannelConfig );
 				else
@@ -316,7 +398,7 @@ void OmmBaseImpl::readConfig( EmaConfigImpl* pConfigImpl )
 						delete fileChannelConfig;
 				}
 
-				pToken = strtok( NULL, "," );
+				pToken = pNextToken;
 			}
 		}
 	}
@@ -355,7 +437,7 @@ void OmmBaseImpl::useDefaultConfigValues( const EmaString& channelName, const Em
 	}
 }
 
-ChannelConfig* OmmBaseImpl::readChannelConfig( EmaConfigImpl* pConfigImpl, const EmaString&  channelName )
+ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const EmaString&  channelName, bool readLastChannel)
 {
 	ChannelConfig* newChannelConfig = NULL;
 	UInt32 maxUInt32( 0xFFFFFFFF );
@@ -568,61 +650,118 @@ ChannelConfig* OmmBaseImpl::readChannelConfig( EmaConfigImpl* pConfigImpl, const
 	if ( pConfigImpl->get<UInt64>( channelNodeName + "HighWaterMark", tempUInt ) )
 		newChannelConfig->highWaterMark = tempUInt > maxUInt32 ? maxUInt32 : (UInt32) tempUInt;
 
-	Int64 tempInt = -1;
-	if ( pConfigImpl->get<Int64>( channelNodeName + "ReconnectAttemptLimit", tempInt ) )
-		newChannelConfig->setReconnectAttemptLimit( tempInt );
+	/* @deprecated DEPRECATED:
+	 *ReconnectAttemptLimit,ReconnectMinDelay,ReconnectMaxDelay,MsgKeyInUpdates,XmlTrace is per consumer/niprov/iprov instance based now. 
+	  The following code will be removed in the future.
+	 */
+	if ( !_activeConfig.parameterConfigGroup && readLastChannel )
+	{
+		Int64 tmp = -1;
+		if (pConfigImpl->get<Int64>(channelNodeName + "ReconnectAttemptLimit", tmp))
+		{
+			_activeConfig.setReconnectAttemptLimit(tmp);
+			EmaString errorMsg("This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
+			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
+		}
 
-	tempInt = 0;
-	if ( pConfigImpl->get<Int64>( channelNodeName + "ReconnectMinDelay", tempInt ) )
-		newChannelConfig->setReconnectMinDelay( tempInt );
+		if (pConfigImpl->get<Int64>(channelNodeName + "ReconnectMinDelay", tmp))
+		{
+			_activeConfig.setReconnectMinDelay(tmp);
+			EmaString errorMsg("This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
+			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
+		}
 
-	tempInt = 0;
-	if ( pConfigImpl->get<Int64>( channelNodeName + "ReconnectMaxDelay", tempInt ) )
-		newChannelConfig->setReconnectMaxDelay( tempInt );
+		if (pConfigImpl->get<Int64>(channelNodeName + "ReconnectMaxDelay", tmp))
+		{
+			_activeConfig.setReconnectMaxDelay(tmp);
+			EmaString errorMsg("This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
+			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
+		}
+		
+		if (pConfigImpl->get<EmaString>(channelNodeName + "XmlTraceFileName", _activeConfig.xmlTraceFileName))
+		{
+			EmaString errorMsg("This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
+			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
+		}
+		
+		if (pConfigImpl->get<Int64>(channelNodeName + "XmlTraceMaxFileSize", tmp))
+		{
+			if (tmp > 0)
+				_activeConfig.xmlTraceMaxFileSize = tmp;
 
-	pConfigImpl->get<EmaString>( channelNodeName + "XmlTraceFileName", newChannelConfig->xmlTraceFileName );
+			EmaString errorMsg("This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
+			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
+		}
 
-	tempInt = 0;
-	pConfigImpl->get<Int64>( channelNodeName + "XmlTraceMaxFileSize", tempInt );
-	if ( tempInt > 0 )
-		newChannelConfig->xmlTraceMaxFileSize = tempInt;
+		if (pConfigImpl->get<UInt64>(channelNodeName + "XmlTraceToFile", tempUInt))
+		{
+			if (tempUInt > 0)
+				_activeConfig.xmlTraceToFile = true;
 
-	tempUInt = 0;
-	pConfigImpl->get<UInt64>( channelNodeName + "XmlTraceToFile", tempUInt );
-	if ( tempUInt > 0 )
-		newChannelConfig->xmlTraceToFile = true;
+			EmaString errorMsg("This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
+			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
+		}
 
-	tempUInt = 0;
-	pConfigImpl->get<UInt64>( channelNodeName + "XmlTraceToStdout", tempUInt );
-	newChannelConfig->xmlTraceToStdout = tempUInt > 0 ? true : false;
+		if (pConfigImpl->get<UInt64>(channelNodeName + "XmlTraceToStdout", tempUInt))
+		{
+			_activeConfig.xmlTraceToStdout = tempUInt > 0 ? true : false;
 
-	tempUInt = 0;
-	pConfigImpl->get<UInt64>( channelNodeName + "XmlTraceToMultipleFiles", tempUInt );
-	if ( tempUInt > 0 )
-		newChannelConfig->xmlTraceToMultipleFiles = true;
+			EmaString errorMsg("This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
+			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
+		}
 
-	tempUInt = 1;
-	pConfigImpl->get<UInt64>( channelNodeName + "XmlTraceWrite", tempUInt );
-	if ( tempUInt == 0 )
-		newChannelConfig->xmlTraceWrite = false;
+		if (pConfigImpl->get<UInt64>(channelNodeName + "XmlTraceToMultipleFiles", tempUInt))
+		{
+			if (tempUInt > 0)
+				_activeConfig.xmlTraceToMultipleFiles = true;
 
-	tempUInt = 1;
-	pConfigImpl->get<UInt64>( channelNodeName + "XmlTraceRead", tempUInt );
-	if ( tempUInt == 0 )
-		newChannelConfig->xmlTraceRead = false;
+			EmaString errorMsg("This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
+			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
+		}
 
-	tempUInt = 0;
-	pConfigImpl->get<UInt64>( channelNodeName + "XmlTracePing", tempUInt );
-	newChannelConfig->xmlTracePing = tempUInt == 0 ? false : true;
+		if (pConfigImpl->get<UInt64>(channelNodeName + "XmlTraceWrite", tempUInt))
+		{
+			if (tempUInt == 0)
+				_activeConfig.xmlTraceWrite = false;
 
-	tempUInt = 0;
-	pConfigImpl->get<UInt64>( channelNodeName + "XmlTraceHex", tempUInt );
-	newChannelConfig->xmlTraceHex = tempUInt == 0 ? false : true;
+			EmaString errorMsg("This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
+			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
+		}
 
-	tempUInt = 1;
-	pConfigImpl->get<UInt64>( channelNodeName + "MsgKeyInUpdates", tempUInt );
-	if ( tempUInt == 0 )
-		newChannelConfig->msgKeyInUpdates = false;
+		if (pConfigImpl->get<UInt64>(channelNodeName + "XmlTraceRead", tempUInt))
+		{
+			if (tempUInt == 0)
+				_activeConfig.xmlTraceRead = false;
+
+			EmaString errorMsg("This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
+			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
+		}
+
+		if (pConfigImpl->get<UInt64>(channelNodeName + "XmlTracePing", tempUInt))
+		{
+			_activeConfig.xmlTracePing = tempUInt == 0 ? false : true;
+
+			EmaString errorMsg("This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
+			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
+		}
+
+		if (pConfigImpl->get<UInt64>(channelNodeName + "XmlTraceHex", tempUInt))
+		{
+			_activeConfig.xmlTraceHex = tempUInt == 0 ? false : true;
+
+			EmaString errorMsg("This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
+			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
+		}
+
+		if (pConfigImpl->get<UInt64>(channelNodeName + "MsgKeyInUpdates", tempUInt))
+		{
+			if (tempUInt == 0)
+				_activeConfig.msgKeyInUpdates = false;
+
+			EmaString errorMsg("This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer instance.");
+			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
+		}
+	}
 
 	return newChannelConfig;
 }

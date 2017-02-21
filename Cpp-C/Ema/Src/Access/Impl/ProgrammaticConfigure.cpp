@@ -591,10 +591,10 @@ void  ProgrammaticConfigure::retrieveCustomConfig( const EmaString& instanceName
 		retrieveInstanceCustomConfig( *_configList[i], instanceName, _emaConfigErrList, activeConfig );
 }
 
-void  ProgrammaticConfigure::retrieveChannelConfig( const EmaString& channelName,  ActiveConfig& activeConfig, bool hostFnCalled, ChannelConfig* fileCfg )
+void  ProgrammaticConfigure::retrieveChannelConfig( const EmaString& channelName,  ActiveConfig& activeConfig, bool hostFnCalled, bool isReadingLastChannel, ChannelConfig* fileCfg)
 {
 	for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
-		retrieveChannel( *_configList[i], channelName, _emaConfigErrList, activeConfig, hostFnCalled, fileCfg );
+		retrieveChannel( *_configList[i], channelName, _emaConfigErrList, activeConfig, hostFnCalled, fileCfg, isReadingLastChannel);
 }
 
 void  ProgrammaticConfigure::retrieveLoggerConfig( const EmaString& loggerName, ActiveConfig& activeConfig )
@@ -665,6 +665,11 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 											switch ( eentry.getLoadType() )
 											{
 											case DataType::AsciiEnum:
+												if (eentry.getName() == "XmlTraceFileName")
+												{
+													activeConfig.xmlTraceFileName = eentry.getAscii();
+													activeConfig.parameterConfigGroup |= PARAMETER_SET_BY_PROGRAMMATIC;
+												}
 												break;
 
 											case DataType::UIntEnum:
@@ -692,6 +697,46 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 												{
 													activeConfig.setMaxDispatchCountUserThread( eentry.getUInt() );
 												}
+												else if (eentry.getName() == "XmlTraceToFile")
+												{
+													activeConfig.xmlTraceToFile = eentry.getUInt() ? true : false;
+													activeConfig.parameterConfigGroup |= PARAMETER_SET_BY_PROGRAMMATIC;
+												}
+												else if (eentry.getName() == "XmlTraceToStdout")
+												{
+													activeConfig.xmlTraceToStdout = eentry.getUInt() ? true : false;
+													activeConfig.parameterConfigGroup |= PARAMETER_SET_BY_PROGRAMMATIC;
+												}
+												else if (eentry.getName() == "XmlTraceToMultipleFiles")
+												{
+													activeConfig.xmlTraceToMultipleFiles = eentry.getUInt() ? true : false;
+													activeConfig.parameterConfigGroup |= PARAMETER_SET_BY_PROGRAMMATIC;
+												}
+												else if (eentry.getName() == "XmlTraceWrite")
+												{
+													activeConfig.xmlTraceWrite = eentry.getUInt() ? true : false;
+													activeConfig.parameterConfigGroup |= PARAMETER_SET_BY_PROGRAMMATIC;
+												}
+												else if (eentry.getName() == "XmlTraceRead")
+												{
+													activeConfig.xmlTraceRead = eentry.getUInt() ? true : false;
+													activeConfig.parameterConfigGroup |= PARAMETER_SET_BY_PROGRAMMATIC;
+												}
+												else if (eentry.getName() == "XmlTracePing")
+												{
+													activeConfig.xmlTracePing = eentry.getUInt() ? true : false;
+													activeConfig.parameterConfigGroup |= PARAMETER_SET_BY_PROGRAMMATIC;
+												}
+												else if (eentry.getName() == "XmlTraceHex")
+												{
+													activeConfig.xmlTraceHex = eentry.getUInt() ? true : false;
+													activeConfig.parameterConfigGroup |= PARAMETER_SET_BY_PROGRAMMATIC;
+												}
+												else if (eentry.getName() == "MsgKeyInUpdates")
+												{
+													activeConfig.msgKeyInUpdates = eentry.getUInt() ? true : false;
+													activeConfig.parameterConfigGroup |= PARAMETER_SET_BY_PROGRAMMATIC;
+												}
 												else if ( eentry.getName() == "LoginRequestTimeOut" )
 												{
 													activeConfig.setLoginRequestTimeOut( eentry.getUInt() );
@@ -703,6 +748,26 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 												if ( eentry.getName() == "DispatchTimeoutApiThread" )
 												{
 													activeConfig.dispatchTimeoutApiThread = eentry.getInt();
+												}
+												else if (eentry.getName() == "XmlTraceMaxFileSize")
+												{
+													activeConfig.xmlTraceMaxFileSize = eentry.getInt();
+													activeConfig.parameterConfigGroup |= PARAMETER_SET_BY_PROGRAMMATIC;
+												}
+												else if (eentry.getName() == "ReconnectAttemptLimit")
+												{
+													activeConfig.setReconnectAttemptLimit( eentry.getInt() );
+													activeConfig.parameterConfigGroup |= PARAMETER_SET_BY_PROGRAMMATIC;
+												}
+												else if (eentry.getName() == "ReconnectMinDelay")
+												{
+													activeConfig.setReconnectMinDelay( eentry.getInt() );
+													activeConfig.parameterConfigGroup |= PARAMETER_SET_BY_PROGRAMMATIC;
+												}
+												else if (eentry.getName() == "ReconnectMaxDelay")
+												{
+													activeConfig.setReconnectMaxDelay( eentry.getInt() );
+													activeConfig.parameterConfigGroup |= PARAMETER_SET_BY_PROGRAMMATIC;
 												}
 												else if ( eentry.getName() == "PipePort" )
 												{
@@ -860,7 +925,7 @@ void ProgrammaticConfigure::retrieveInstanceCustomConfig( const Map& map, const 
 }
 
 void ProgrammaticConfigure::retrieveChannel( const Map& map, const EmaString& channelName, EmaConfigErrorList& emaConfigErrList,
-    ActiveConfig& activeConfig, bool hostFnCalled, ChannelConfig* fileCfg )
+    ActiveConfig& activeConfig, bool hostFnCalled, ChannelConfig* fileCfg, bool isReadingLastChannel)
 {
 	map.reset();
 	while ( map.forth() )
@@ -890,7 +955,7 @@ void ProgrammaticConfigure::retrieveChannel( const Map& map, const EmaString& ch
 								if ( ( mapEntry.getKey().getDataType() == DataType::AsciiEnum ) && ( mapEntry.getKey().getAscii() == channelName ) )
 								{
 									if ( mapEntry.getLoadType() == DataType::ElementListEnum )
-										retrieveChannelInfo( mapEntry, channelName, emaConfigErrList, activeConfig, hostFnCalled, fileCfg );
+										retrieveChannelInfo( mapEntry, channelName, emaConfigErrList, activeConfig, hostFnCalled, fileCfg, isReadingLastChannel);
 								}
 							}
 						}
@@ -902,15 +967,14 @@ void ProgrammaticConfigure::retrieveChannel( const Map& map, const EmaString& ch
 }
 
 void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const EmaString& channelName, EmaConfigErrorList& emaConfigErrList,
-    ActiveConfig& activeConfig, bool hostFnCalled, ChannelConfig* fileCfg )
+    ActiveConfig& activeConfig, bool hostFnCalled, ChannelConfig* fileCfg, bool isReadingLastChannel)
 {
 	const ElementList& elementListChannel = mapEntry.getElementList();
 
-	EmaString name, interfaceName, host, port, xmlTraceFileName, objectName;
+	EmaString name, interfaceName, host, port, objectName;
 	UInt16 channelType, compressionType;
-	Int64 reconnectAttemptLimit, reconnectMinDelay, reconnectMaxDelay, xmlTraceMaxFileSize;
 	UInt64 guaranteedOutputBuffers, compressionThreshold, connectionPingTimeout, numInputBuffers, sysSendBufSize, sysRecvBufSize, highWaterMark,
-	       tcpNodelay, xmlTraceToFile, xmlTraceToStdout, xmlTraceToMultipleFiles, xmlTraceWrite, xmlTraceRead, xmlTracePing, xmlTraceHex, msgKeyInUpdates;
+	       tcpNodelay;
 
 	UInt64 flags = 0;
 	UInt32 maxUInt32 = 0xFFFFFFFF;
@@ -934,11 +998,12 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				port = channelEntry.getAscii();
 				flags |= 0x04;
 			}
-			else if ( channelEntry.getName() == "XmlTraceFileName" )
-			{
-				xmlTraceFileName = channelEntry.getAscii();
-				flags |= 0x08;
-			}
+			/* @deprecated DEPRECATED:
+			*ReconnectAttemptLimit,ReconnectMinDelay,ReconnectMaxDelay,MsgKeyInUpdates,XmlTrace is per consumer/niprov/iprov instance based now.
+			The following varable will be removed in the future.
+			*/
+			else if ( isReadingLastChannel && channelEntry.getName() == "XmlTraceFileName" )
+				activeConfig.xmlTraceFileName = channelEntry.getAscii();
 			else if ( channelEntry.getName() == "InterfaceName" )
 			{
 				interfaceName = channelEntry.getAscii();
@@ -1072,47 +1137,23 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				tcpNodelay = channelEntry.getUInt();
 				flags |= 0x80;
 			}
-			else if ( channelEntry.getName() == "XmlTraceToFile" )
-			{
-				xmlTraceToFile = channelEntry.getUInt();
-				flags |= 0x200;
-			}
-			else if ( channelEntry.getName() == "XmlTraceToStdout" )
-			{
-				xmlTraceToStdout = channelEntry.getUInt();
-				flags |= 0x400;
-			}
-			else if ( channelEntry.getName() == "XmlTraceToMultipleFiles" )
-			{
-				xmlTraceToMultipleFiles = channelEntry.getUInt();
-				flags |= 0x800;
-			}
-			else if ( channelEntry.getName() == "XmlTraceWrite" )
-			{
-				xmlTraceWrite = channelEntry.getUInt();
-				flags |= 0x1000;
-			}
-			else if ( channelEntry.getName() == "XmlTraceRead" )
-			{
-				xmlTraceRead = channelEntry.getUInt();
-				flags |= 0x2000;
-			}
-			else if ( channelEntry.getName() == "XmlTracePing" )
-			{
-				xmlTracePing = channelEntry.getUInt();
-				flags |= 0x2000000;
-			}
-			else if ( channelEntry.getName() == "XmlTraceHex" )
-			{
-				xmlTraceHex = channelEntry.getUInt();
-				flags |= 0x4000000;
-			}
-			else if ( channelEntry.getName() == "MsgKeyInUpdates" )
-			{
-				msgKeyInUpdates = channelEntry.getUInt();
-				flags |= 0x4000;
-			}
-			else if ( channelEntry.getName() == "ConnectionPingTimeout" )
+			else if (isReadingLastChannel && channelEntry.getName() == "XmlTraceToFile")
+				activeConfig.xmlTraceToFile = channelEntry.getUInt() ? true : false;
+			else if (isReadingLastChannel && channelEntry.getName() == "XmlTraceToStdout")
+				activeConfig.xmlTraceToStdout = channelEntry.getUInt() ? true : false;
+			else if (isReadingLastChannel && channelEntry.getName() == "XmlTraceToMultipleFiles")
+				activeConfig.xmlTraceToMultipleFiles = channelEntry.getUInt() ? true : false;
+			else if (isReadingLastChannel && channelEntry.getName() == "XmlTraceWrite")
+				activeConfig.xmlTraceWrite = channelEntry.getUInt() ? true : false;
+			else if (isReadingLastChannel && channelEntry.getName() == "XmlTraceRead")
+				activeConfig.xmlTraceRead = channelEntry.getUInt() ? true : false;
+			else if (isReadingLastChannel && channelEntry.getName() == "XmlTracePing")
+				activeConfig.xmlTracePing = channelEntry.getUInt() ? true : false;
+			else if (isReadingLastChannel && channelEntry.getName() == "XmlTraceHex")
+				activeConfig.xmlTraceHex = channelEntry.getUInt() ? true : false;
+			else if (isReadingLastChannel && channelEntry.getName() == "MsgKeyInUpdates")
+				activeConfig.msgKeyInUpdates = channelEntry.getUInt() ? true : false;
+			else if (channelEntry.getName() == "ConnectionPingTimeout" )
 			{
 				connectionPingTimeout = channelEntry.getUInt();
 				flags |= 0x8000;
@@ -1195,25 +1236,21 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 			break;
 
 		case DataType::IntEnum:
-			if ( channelEntry.getName() == "XmlTraceMaxFileSize" )
+			if (isReadingLastChannel && channelEntry.getName() == "XmlTraceMaxFileSize")
 			{
-				xmlTraceMaxFileSize = channelEntry.getInt();
-				flags |= 0x100;
+				activeConfig.xmlTraceMaxFileSize = channelEntry.getInt();
 			}
-			else if ( channelEntry.getName() == "ReconnectAttemptLimit" )
+			else if (isReadingLastChannel && channelEntry.getName() == "ReconnectAttemptLimit")
 			{
-				reconnectAttemptLimit = channelEntry.getInt();
-				flags |= 0x10000;
+				activeConfig.setReconnectAttemptLimit(channelEntry.getInt());
 			}
-			else if ( channelEntry.getName() == "ReconnectMinDelay" )
+			else if (isReadingLastChannel && channelEntry.getName() == "ReconnectMinDelay")
 			{
-				reconnectMinDelay = channelEntry.getInt();
-				flags |= 0x20000;
+				activeConfig.setReconnectMinDelay(channelEntry.getInt());
 			}
-			else if ( channelEntry.getName() == "ReconnectMaxDelay" )
+			else if (isReadingLastChannel && channelEntry.getName() == "ReconnectMaxDelay")
 			{
-				reconnectMaxDelay = channelEntry.getInt();
-				flags |= 0x40000;
+				activeConfig.setReconnectMaxDelay(channelEntry.getInt());
 			}
 			break;
 		}
@@ -1391,71 +1428,6 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 			pCurrentChannelConfig->connectionPingTimeout = connectionPingTimeout > maxUInt32  ? maxUInt32 : ( UInt32 )connectionPingTimeout;
 		else if ( useFileCfg )
 			pCurrentChannelConfig->connectionPingTimeout = fileCfg->connectionPingTimeout;
-
-		if ( flags & 0x10000 )
-			pCurrentChannelConfig->setReconnectAttemptLimit( reconnectAttemptLimit );
-		else if ( useFileCfg )
-			pCurrentChannelConfig->reconnectAttemptLimit = fileCfg->reconnectAttemptLimit;
-
-		if ( flags & 0x20000 )
-			pCurrentChannelConfig->setReconnectMinDelay( reconnectMinDelay );
-		else if ( useFileCfg )
-			pCurrentChannelConfig->reconnectMinDelay = fileCfg->reconnectMinDelay;
-
-		if ( flags & 0x40000 )
-			pCurrentChannelConfig->setReconnectMaxDelay( reconnectMaxDelay );
-		else if ( useFileCfg )
-			pCurrentChannelConfig->reconnectMaxDelay = fileCfg->reconnectMaxDelay;
-
-		if ( flags & 0x08 )
-			pCurrentChannelConfig->xmlTraceFileName = xmlTraceFileName;
-		else if ( useFileCfg )
-			pCurrentChannelConfig->xmlTraceFileName = fileCfg->xmlTraceFileName;
-
-		if ( flags & 0x100 )
-			pCurrentChannelConfig->xmlTraceMaxFileSize = xmlTraceMaxFileSize;
-		else if ( useFileCfg )
-			pCurrentChannelConfig->xmlTraceMaxFileSize = fileCfg->xmlTraceMaxFileSize;
-
-		if ( flags & 0x200 )
-			pCurrentChannelConfig->xmlTraceToFile = xmlTraceToFile ? true : false;
-		else if ( useFileCfg )
-			pCurrentChannelConfig->xmlTraceToFile = fileCfg->xmlTraceToFile;
-
-		if ( flags & 0x400 )
-			pCurrentChannelConfig->xmlTraceToStdout = xmlTraceToStdout ? true : false;
-		else if ( useFileCfg )
-			pCurrentChannelConfig->xmlTraceToStdout = fileCfg->xmlTraceToStdout;
-
-		if ( flags & 0x800 )
-			pCurrentChannelConfig->xmlTraceToMultipleFiles = xmlTraceToMultipleFiles ? true : false;
-		else if ( useFileCfg )
-			pCurrentChannelConfig->xmlTraceToMultipleFiles = fileCfg->xmlTraceToMultipleFiles;
-
-		if ( flags & 0x1000 )
-			pCurrentChannelConfig->xmlTraceWrite = xmlTraceWrite ? true : false;
-		else if ( useFileCfg )
-			pCurrentChannelConfig->xmlTraceWrite = fileCfg->xmlTraceWrite;
-
-		if ( flags & 0x2000 )
-			pCurrentChannelConfig->xmlTraceRead = xmlTraceRead ? true : false;
-		else if ( useFileCfg )
-			pCurrentChannelConfig->xmlTraceRead = fileCfg->xmlTraceRead;
-
-		if ( flags & 0x2000000 )
-			pCurrentChannelConfig->xmlTracePing = xmlTracePing ? true : false;
-		else if ( useFileCfg )
-			pCurrentChannelConfig->xmlTracePing = fileCfg->xmlTracePing;
-
-		if ( flags & 0x4000000 )
-			pCurrentChannelConfig->xmlTraceHex = xmlTraceHex ? true : false;
-		else if ( useFileCfg )
-			pCurrentChannelConfig->xmlTraceHex = fileCfg->xmlTraceHex;
-
-		if ( flags & 0x4000 )
-			pCurrentChannelConfig->msgKeyInUpdates = msgKeyInUpdates ? true : false;
-		else if ( useFileCfg )
-			pCurrentChannelConfig->msgKeyInUpdates = fileCfg->msgKeyInUpdates;
 	}
 }
 
