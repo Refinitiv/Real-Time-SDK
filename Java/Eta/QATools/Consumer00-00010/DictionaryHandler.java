@@ -24,6 +24,12 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsgTyp
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
 
+//APIQA: Adding for writing the string to files. 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+//END APIQA
+
 /**
  * This is the dictionary handler for the UPA consumer application. It provides
  * methods for loading the field/enumType dictionaries from a file and sending
@@ -378,14 +384,63 @@ public class DictionaryHandler
         }
 // APIQA: This code compares the downloaded dictionary with the 
 // dictionary from the file dictionary
-        if (isFieldDictionaryLoaded() && isEnumTypeDictionaryLoaded())
-        {
-            if (dictionary.enumTableCount() == dictionaryFromNetwork.enumTableCount() &&
-                dictionary.numberOfEntries() == dictionaryFromNetwork.numberOfEntries())
-                System.out.println("Dictionary from file and from network are the same");
-            else
-                System.out.println("ERROR: Dictionary from file is different than from the network");
-        }
+		String strDictionary;
+
+		if (isFieldDictionaryLoaded() && isEnumTypeDictionaryLoaded()) {
+			// first checking if the number of tables and entries matches
+			if (dictionary.enumTableCount() == dictionaryFromNetwork
+					.enumTableCount()
+					&& dictionary.numberOfEntries() == dictionaryFromNetwork
+							.numberOfEntries()) {
+				// Do some string replace to remove the unique strings to the
+				// file dictionary
+				strDictionary = (dictionary.toString())
+						.replaceAll("meaning=\"(.+)\"", "meaning=\"null\"")
+						.replaceAll("Filename=\"(.+)\"", "Filename=\"null\"")
+						.replaceAll("meaning=\"\"", "meaning=\"null\"")
+						.replaceAll("Desc=\"(.+)\"", "Desc=\"null\"")
+						.replaceAll("Build=\"(.+)\"", "Build=\"null\"")
+						.replaceAll("Date=\"(.+)\"", "Date=\"null\"");
+
+				// Compare the dictionaries using the toString methods.
+				if (strDictionary.equals(dictionaryFromNetwork.toString())) {
+					System.out
+							.println("Dictionary from file and from network are the same");
+				} else {
+					System.out
+							.println("ERROR: Dictionary from file is different than from the network");
+				}
+
+				// Write out the 3 different files for manual comparison in case
+				// the test fails.
+
+				BufferedWriter bw = null;
+				FileWriter fw = null;
+
+				try {
+					fw = new FileWriter("network_dictionary_dump.txt");
+					bw = new BufferedWriter(fw);
+					bw.write(dictionaryFromNetwork.toString());
+					bw.close();
+
+					fw = new FileWriter("altered_local_dictionary_dump.txt");
+					bw = new BufferedWriter(fw);
+					bw.write(strDictionary);
+					bw.close();
+
+					fw = new FileWriter("local_dictionary_dump.txt");
+					bw = new BufferedWriter(fw);
+					bw.write(dictionary.toString());
+					bw.close();
+
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} else
+				System.out
+						.println("ERROR: Dictionary from file is different than from the network, number of entries does not match");
+
+		}
 // END APIQA  
         return CodecReturnCodes.SUCCESS;
     }

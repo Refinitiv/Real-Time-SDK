@@ -335,10 +335,10 @@ class DataDictionaryImpl implements DataDictionary
                 /* Initialize to zero since will be filled in later, if exists */
                 newDictEntry._rippleToField = 0;
 
-                if (_fieldDictFileLine[ripplesToPos] != 'N' &&
-                        _fieldDictFileLine[ripplesToPos + 1] != 'U' &&
-                        _fieldDictFileLine[ripplesToPos + 2] != 'L' &&
-                        _fieldDictFileLine[ripplesToPos + 3] != 'L')
+                if (!(_fieldDictFileLine[ripplesToPos] == 'N' &&
+                        _fieldDictFileLine[ripplesToPos + 1] == 'U' &&
+                        _fieldDictFileLine[ripplesToPos + 2] == 'L' &&
+                        _fieldDictFileLine[ripplesToPos + 3] == 'L'))
                 {
                     if (rippleAcronym.length() > 0)
                     {
@@ -920,6 +920,8 @@ class DataDictionaryImpl implements DataDictionary
             return MfFieldTypes.ALPHANUMERIC;
         else if (compareTo(fileData, "ENUMERATED"))
             return MfFieldTypes.ENUMERATED;
+        else if (compareTo(fileData, "TIME_SECONDS"))
+            return MfFieldTypes.TIME_SECONDS;        
         else if (compareTo(fileData, "TIME"))
             return MfFieldTypes.TIME;
         else if (compareTo(fileData, "PRICE"))
@@ -928,8 +930,6 @@ class DataDictionaryImpl implements DataDictionary
             return MfFieldTypes.DATE;
         else if (compareTo(fileData, "BINARY"))
             return MfFieldTypes.BINARY;
-        else if (compareTo(fileData, "TIME_SECONDS"))
-            return MfFieldTypes.TIME_SECONDS;
         else if (compareTo(fileData, "NONE"))
             return MfFieldTypes.NONE;
         return c_MfeedError;
@@ -2749,6 +2749,7 @@ class DataDictionaryImpl implements DataDictionary
     private String display(char[] fileData)
     {
         boolean startFound = false;
+        char delim = 0;
 
         for (_lastPosition++; _lastPosition < fileData.length; _lastPosition++)
         {
@@ -2756,13 +2757,14 @@ class DataDictionaryImpl implements DataDictionary
             {
                 if (fileData[_lastPosition] == '"' || fileData[_lastPosition] == '#')
                 {
-                    _startPosition = ++_lastPosition;
+                    delim = fileData[_lastPosition++];
+                    _startPosition = _lastPosition;
                     startFound = true;
                 }
             }
             else
             {
-                if (fileData[_lastPosition] == '"' || fileData[_lastPosition] == '#')
+                if (fileData[_lastPosition] == delim )
                 {
                     break;
                 }
@@ -2915,6 +2917,9 @@ class DataDictionaryImpl implements DataDictionary
             {
                 if (fileData[_lastPosition] != ' ' && fileData[_lastPosition] != '\t')
                 {
+                    if (fileData[_lastPosition] == '\n' || fileData[_lastPosition] == '\r')
+                        break;
+
                     _startPosition = _lastPosition;
                     startFound = true;
                 }
@@ -2928,10 +2933,12 @@ class DataDictionaryImpl implements DataDictionary
             }
         }
 
-        if (_lastPosition - _startPosition > 0)
+        if (_lastPosition - _startPosition > 0 && startFound)
         {
             retStr = new String(fileData, _startPosition, _lastPosition - _startPosition);
         }
+        else
+            retStr = new String();
 
         return retStr;
     }
