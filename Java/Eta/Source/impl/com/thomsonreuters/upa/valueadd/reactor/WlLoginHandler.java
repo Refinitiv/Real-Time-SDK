@@ -161,7 +161,7 @@ class WlLoginHandler implements WlHandler
 		// send message if request not pending
 		if (_requestCount == 0)
 		{
-			if(requestMsg.checkPause() && _stream.isChannelUp())
+			if(_stream.isChannelUp())
 			{
 		if ((ret = _stream.sendMsg(requestMsg, submitOptions, errorInfo)) < ReactorReturnCodes.SUCCESS) 
 		{
