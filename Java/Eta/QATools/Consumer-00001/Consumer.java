@@ -14,15 +14,12 @@ import com.thomsonreuters.upa.codec.Qos;
 import com.thomsonreuters.upa.codec.QosRates;
 import com.thomsonreuters.upa.codec.QosTimeliness;
 import com.thomsonreuters.upa.examples.common.ChannelSession;
-import com.thomsonreuters.upa.examples.common.ResponseCallback;
-import com.thomsonreuters.upa.examples.common.DirectoryHandler;
-import com.thomsonreuters.upa.examples.common.DictionaryHandler;
+import com.thomsonreuters.upa.examples.common.CommandLine;
+import com.thomsonreuters.upa.examples.common.ConsumerLoginState;
 import com.thomsonreuters.upa.examples.common.LoginHandler;
-import com.thomsonreuters.upa.examples.common.StreamIdWatchList;
-import com.thomsonreuters.upa.examples.common.SymbolListHandler;
-import com.thomsonreuters.upa.shared.CommandLine;
-import com.thomsonreuters.upa.shared.ConsumerLoginState;
-import com.thomsonreuters.upa.shared.PingHandler;
+import com.thomsonreuters.upa.examples.common.DirectoryHandler;
+import com.thomsonreuters.upa.examples.common.PingHandler;
+import com.thomsonreuters.upa.examples.common.ResponseCallback;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.transport.ChannelInfo;
@@ -218,7 +215,8 @@ public class Consumer implements ResponseCallback
     private DecodeIterator dIter = CodecFactory.createDecodeIterator();
     private Msg responseMsg = CodecFactory.createMsg();
     
-    // private streams items are non-recoverable, it is not sent again after recovery
+    // private streams items are non-recoverable, it is not sent again after
+    // recovery
     private boolean mppsRequestSent = false;
     private boolean mbopsRequestSent = false;
     private boolean mbppsRequestSent = false;
@@ -228,7 +226,12 @@ public class Consumer implements ResponseCallback
     private String _localHostName = null;
     private String _localIPaddress = null;
 
-    public Consumer()
+	//APIQA:  adding a variable to count updates received
+	private long updatesReceived;
+	private int updateCount;
+	// END APIQA
+
+	public Consumer()
     {
         channelInfo = TransportFactory.createChannelInfo();
         itemWatchList = new StreamIdWatchList();
@@ -367,7 +370,8 @@ public class Consumer implements ResponseCallback
     }
 
     /*
-     * Wait for channel to become active. This finalizes the three-way handshake.
+     * Wait for channel to become active. This finalizes the three-way
+     * handshake.
      */
     private void waitUntilChannelActive(InProgInfo inProg) throws InterruptedException
     {
@@ -572,14 +576,16 @@ public class Consumer implements ResponseCallback
         {
             channelSession.setConnectionType(ConnectionTypes.ENCRYPTED);
             _tunnelingConnectOpts.tunnelingInfo().tunnelingType("encrypted");
-            // build tunneling and credentials config and pass to channelSession
+            // build tunneling and credentials config and pass to
+            // channelSession.connectOptions(connectOptions)
             setEncryptedConfiguration(_tunnelingConnectOpts);
         }
         else if (connectionType.equals("http"))
         {
             channelSession.setConnectionType(ConnectionTypes.HTTP);
             _tunnelingConnectOpts.tunnelingInfo().tunnelingType("http");
-            // build http and credentials config and pass to channelSession
+            // build http and credentials config and pass to
+            // channelSession.connectOptions(connectOptions)
             setHTTPconfiguration(_tunnelingConnectOpts);
         }
 
@@ -773,9 +779,9 @@ public class Consumer implements ResponseCallback
     /**
      * Call back method to process responses from channel. Processing responses
      * consists of performing a high level decode of the message and then
-     * calling the applicable specific method for further processing.
-     * chnl - The channel of the response
-     * buffer - The message buffer containing the response.
+     * calling the applicable specific method for further processing. chnl - The
+     * channel of the response buffer - The message buffer containing the
+     * response.
      */
     public void processResponse(ChannelSession chnl, TransportBuffer buffer)
     {
@@ -876,6 +882,21 @@ public class Consumer implements ResponseCallback
             closeChannel();
             System.exit(TransportReturnCodes.FAILURE);
         }
+        
+		// APIQA:  Incrementing update counter
+        if (responseMsg.msgClass() == MsgClasses.UPDATE)
+        {
+			updatesReceived++;
+			// APIQA: Send a login reissue with PAUSE ALL
+			if ( updatesReceived == 2 ) {
+				if (loginHandler.sendPauseResumeRequest(channelSession, error, true, false) != CodecReturnCodes.SUCCESS) {
+					System.out.println("------------APIQA: attempted login reissue failed. Error: " + error.text());
+				} else {
+					System.out.println("------------APIQA: PAUSE-ALL login reissue done.");
+				}
+			}
+        }
+		// END APIQA: Send a login reissue with PAUSE ALL
     }
 
     private void processDictionaryResp(ChannelSession chnl, Msg responseMsg, DecodeIterator dIter)
@@ -927,6 +948,21 @@ public class Consumer implements ResponseCallback
 
             System.out.println("Requested service '" + CommandLine.value("s") + "' not up. Waiting for service to be up...");
         }
+        
+		// APIQA: Send a login reissue with RESUME ALL
+        if (responseMsg.msgClass() == MsgClasses.UPDATE)
+        {
+        	updateCount++;
+			if (updateCount == 1) {
+				// Do a RESUME
+				if (loginHandler.sendPauseResumeRequest(channelSession, error, false, true) != CodecReturnCodes.SUCCESS) {
+					System.out.println("------------APIQA: attempted login reissue failed. Error: " + error.text());
+				} else {
+					System.out.println("------------APIQA: RESUME-ALL login reissue done.");
+				}
+			}
+        }
+		// END APIQA
     }
 
     private void processYieldCurveResp(Msg responseMsg, DecodeIterator dIter)
@@ -1152,7 +1188,8 @@ public class Consumer implements ResponseCallback
             return;
         }
 
-        // This sets up our basic timing so post messages will be sent periodically
+        // This sets up our basic timing so post messages will be sent
+        // periodically
         postHandler.initPostHandler();
 
         // posting has been initialized
@@ -1174,17 +1211,23 @@ public class Consumer implements ResponseCallback
         ConsumerLoginState loginState = loginHandler.loginState();
         if (loginState == ConsumerLoginState.OK_SOLICITED)
         {
-        	if (!chnl.isLoginReissue)
-        	{
-            ret = srcDirHandler.sendRequest(chnl, error);
-            if (ret != CodecReturnCodes.SUCCESS)
+            if (!chnl.isLoginReissue)
             {
-                System.out.println("Error sending directory request: " + error.text());
-                closeChannel();
-            	System.out.println("Consumer exits...");
-                System.exit(TransportReturnCodes.FAILURE);
+                // APIQA: Don't send directory request during PAUSE/RESUME
+                if (updateCount > 0)
+                {
+                    return;
+                }
+                // END APIQA
+                ret = srcDirHandler.sendRequest(chnl, error);
+                if (ret != CodecReturnCodes.SUCCESS)
+                {
+                    System.out.println("Error sending directory request: " + error.text());
+                    closeChannel();
+                    System.out.println("Consumer exits...");
+                    System.exit(TransportReturnCodes.FAILURE);
+                }
             }
-        }
         }
         else if (loginState == ConsumerLoginState.CLOSED)
         {
@@ -1205,7 +1248,11 @@ public class Consumer implements ResponseCallback
         }
         else if (loginState == ConsumerLoginState.SUSPECT)
         {
-            if (!loginHandler.refreshInfo().checkHasAttrib() || // default behavior when singleopen attrib not set
+            if (!loginHandler.refreshInfo().checkHasAttrib() || // default
+                                                                // behavior when
+                                                                // singleopen
+                                                                // attrib not
+                                                                // set
             loginHandler.refreshInfo().attrib().singleOpen() == 0)
             {
                 // login suspect from no single-open provider: 1) close source
@@ -1351,7 +1398,7 @@ public class Consumer implements ResponseCallback
         CommandLine.addOption("pdomain", "", "Proxy server domain");
         CommandLine.addOption("krbfile", "", "KRB File location and name");
         CommandLine.addOption("keyfile", "", "Keystore file location and name");
-        CommandLine.addOption("keypasswd", "", "Keystore password");        
+        CommandLine.addOption("keypasswd", "", "Keystore password");
         CommandLine.addOption("at", "", "Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN.");
         CommandLine.addOption("ax", "", "Specifies the Authentication Extended information.");
         CommandLine.addOption("aid", "", "Specifies the Application ID.");

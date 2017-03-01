@@ -596,6 +596,30 @@ class LoginMsgImpl implements LoginMsg, LoginRefresh, LoginRequest, LoginAck, Lo
         rdmLoginRequest().instanceId(instanceId);
     }
     
+    @Override
+    public Buffer authenticationExtended()
+    {
+        return rdmLoginRequest().authenticationExtended();
+    }
+
+    @Override
+    public void authenticationExtended(Buffer authenticationExtended)
+    {
+        rdmLoginRequest().authenticationExtended(authenticationExtended);
+    }
+
+    @Override
+    public void applyHasAuthenticationExtended()
+    {
+        rdmLoginRequest().applyHasAuthenticationExtended();
+    }
+
+    @Override
+    public boolean checkHasAuthenticationExtended()
+    {
+        return rdmLoginRequest().checkHasAuthenticationExtended();
+    }
+
     ///////////////////////////// Refresh ////////////////////////////////
     @Override
     public int copy(LoginRefresh destRefreshMsg)
@@ -716,6 +740,179 @@ class LoginMsgImpl implements LoginMsg, LoginRefresh, LoginRequest, LoginAck, Lo
     public void applyHasConnectionConfig()
     {
         rdmLoginRefresh().applyHasConnectionConfig();
+    }
+    
+    @Override
+    public void authenticationTTReissue(long authenticationTTReissue)
+    {
+        rdmLoginRefresh().authenticationTTReissue(authenticationTTReissue);
+    }
+
+    @Override
+    public long authenticationTTReissue()
+    {
+        return rdmLoginRefresh().authenticationTTReissue();
+    }
+
+    @Override
+    public boolean checkHasAuthenticationTTReissue()
+    {
+        return rdmLoginRefresh().checkHasAuthenticationTTReissue();
+    }
+
+    @Override
+    public void applyHasAuthenticationTTReissue()
+    {
+        rdmLoginRefresh().applyHasAuthenticationTTReissue();
+    }
+
+    @Override
+    public void authenticationExtendedResp(Buffer authenticationExtendedResp)
+    {
+        rdmLoginRefresh().authenticationExtendedResp(authenticationExtendedResp);
+    }
+
+    @Override
+    public Buffer authenticationExtendedResp()
+    {
+        return rdmLoginRefresh().authenticationExtendedResp();
+    }
+
+    @Override
+    public boolean checkHasAuthenticationExtendedResp()
+    {
+        return rdmLoginRefresh().checkHasAuthenticationExtendedResp();
+    }
+
+    @Override
+    public void applyHasAuthenticationExtendedResp()
+    {
+        rdmLoginRefresh().applyHasAuthenticationExtendedResp();
+    }
+
+    ///////////////////// refresh and status ////////////////// 
+    @Override
+    public void authenticationErrorCode(long authenticationErrorCode)
+    {
+        switch (rdmLoginMsgType)
+        {
+            case REFRESH:
+                rdmLoginRefresh().authenticationErrorCode(authenticationErrorCode);
+                break;
+            case STATUS:
+                rdmLoginStatus().authenticationErrorCode(authenticationErrorCode);
+                break;
+            default:
+                assert (false); // not supported on this message class
+        }
+    }
+
+    @Override
+    public long authenticationErrorCode()
+    {
+        switch (rdmLoginMsgType)
+        {
+            case REFRESH:
+                return rdmLoginRefresh().authenticationErrorCode();
+            case STATUS:
+                return rdmLoginStatus().authenticationErrorCode();
+            default:
+                assert (false); // not supported on this message class
+                return 0;
+        }
+    }
+
+    @Override
+    public boolean checkHasAuthenticationErrorCode()
+    {
+        switch (rdmLoginMsgType)
+        {
+            case REFRESH:
+                return rdmLoginRefresh().checkHasAuthenticationErrorCode();
+            case STATUS:
+                return rdmLoginStatus().checkHasAuthenticationErrorCode();
+            default:
+                assert (false); // not supported on this message class
+                return false;
+        }
+    }
+
+    @Override
+    public void applyHasAuthenticationErrorCode()
+    {
+        switch (rdmLoginMsgType)
+        {
+            case REFRESH:
+                rdmLoginRefresh().applyHasAuthenticationErrorCode();
+                break;
+            case STATUS:
+                rdmLoginStatus().applyHasAuthenticationErrorCode();
+                break;
+            default:
+                assert (false); // not supported on this message class
+        }
+    }
+
+    @Override
+    public void authenticationErrorText(Buffer authenticationErrorText)
+    {
+        switch (rdmLoginMsgType)
+        {
+            case REFRESH:
+                rdmLoginRefresh().authenticationErrorText(authenticationErrorText);
+                break;
+            case STATUS:
+                rdmLoginStatus().authenticationErrorText(authenticationErrorText);
+                break;
+            default:
+                assert (false); // not supported on this message class
+        }
+    }
+
+    @Override
+    public Buffer authenticationErrorText()
+    {
+        switch (rdmLoginMsgType)
+        {
+            case REFRESH:
+                return rdmLoginRefresh().authenticationErrorText();
+            case STATUS:
+                return rdmLoginStatus().authenticationErrorText();
+            default:
+                assert (false); // not supported on this message class
+                return null;
+        }
+    }
+
+    @Override
+    public boolean checkHasAuthenticationErrorText()
+    {
+        switch (rdmLoginMsgType)
+        {
+            case REFRESH:
+                return rdmLoginRefresh().checkHasAuthenticationErrorText();
+            case STATUS:
+                return rdmLoginStatus().checkHasAuthenticationErrorText();
+            default:
+                assert (false); // not supported on this message class
+                return false;
+        }
+    }
+
+    @Override
+    public void applyHasAuthenticationErrorText()
+    {
+        switch (rdmLoginMsgType)
+        {
+            case REFRESH:
+                rdmLoginRefresh().applyHasAuthenticationErrorText();
+                break;
+            case STATUS:
+                rdmLoginStatus().applyHasAuthenticationErrorText();
+                break;
+            default:
+                assert (false); // not supported on this message class
+        }
     }
     
     ///////////////////// refresh and request ////////////////// 

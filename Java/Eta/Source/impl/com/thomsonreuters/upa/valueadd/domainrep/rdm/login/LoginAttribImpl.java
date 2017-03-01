@@ -62,6 +62,7 @@ class LoginAttribImpl implements LoginAttrib
     
     public void clear()
     {
+    	flags = 0;
         applicationId.clear();
         applicationName.clear();
         position.clear();

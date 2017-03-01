@@ -36,6 +36,9 @@ class ConsumerCmdLineParser implements CommandLineParser
 	private String keystorePasswd;
 	private boolean cacheOption;
 	private int cacheInterval;
+	private String authenticationToken;
+	private String authenticationExtended;
+	private String applicationId;
 	
 	@Override
 	public boolean parseArgs(String[] args)
@@ -211,6 +214,21 @@ class ConsumerCmdLineParser implements CommandLineParser
     				cacheInterval = Integer.parseInt(args[++argsCount]);
     				++argsCount;
     			}
+    			else if ("-at".equals(args[argsCount]))
+    			{
+    				authenticationToken = args[++argsCount];
+    				++argsCount;
+    			}
+    			else if ("-ax".equals(args[argsCount]))
+    			{
+    				authenticationExtended = args[++argsCount];
+    				++argsCount;
+    			}
+    			else if ("-aid".equals(args[argsCount]))
+    			{
+    				applicationId = args[++argsCount];
+    				++argsCount;
+    			}
     			else // unrecognized command line argument
     			{
     				System.out.println("\nUnrecognized command line argument...\n");
@@ -352,6 +370,20 @@ class ConsumerCmdLineParser implements CommandLineParser
 		return cacheInterval;
 	}
 	
+	String authenticationToken()
+	{
+		return authenticationToken;
+	}
+	
+	String authenticationExtended()
+	{
+		return authenticationExtended;
+	}
+	
+	String applicationId()
+	{
+		return applicationId;
+	}
 	
 	@Override
 	public void printUsage()
@@ -395,7 +427,10 @@ class ConsumerCmdLineParser implements CommandLineParser
   				"\n -x provides an XML trace of messages\n" +
   				"\n -cache will store all open items in cache and periodically dump contents\n" +
   				"\n -cacheInterval number of seconds between displaying cache contents, must greater than 0\n" +
-				"\n -runtime adjusts the running time of the application");
+				"\n -runtime adjusts the running time of the application" +
+				"\n -at Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN" +
+				"\n -ax Specifies the Authentication Extended information" +
+				"\n -aid Specifies the Application ID");
 	}
 }
 

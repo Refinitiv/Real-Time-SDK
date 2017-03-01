@@ -89,6 +89,9 @@ class ChannelInfo
     boolean hasQServiceInfo = false;
     Service qServiceInfo = DirectoryMsgFactory.createService();
     
+	long loginReissueTime; // represented by epoch time in milliseconds
+	boolean canSendLoginReissue;
+	
     {
     	connectOptions.connectionList().add(connectInfo);
     	loginRefresh.rdmMsgType(LoginMsgType.REFRESH);

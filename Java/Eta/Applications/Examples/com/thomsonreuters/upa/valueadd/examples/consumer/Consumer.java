@@ -31,6 +31,7 @@ import com.thomsonreuters.upa.codec.StateCodes;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.rdm.Dictionary;
 import com.thomsonreuters.upa.rdm.DomainTypes;
+import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.transport.ConnectOptions;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
 import com.thomsonreuters.upa.transport.Error;
@@ -44,7 +45,6 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryStatus;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryUpdate;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
@@ -72,6 +72,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorMsgEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
 
 /**
  * <p>
@@ -204,6 +205,12 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
  * 
  * <li>-keypasswd keystore password for encryption.
  * 
+ * <li>-at Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN.
+ * 
+ * <li>-ax Specifies the Authentication Extended information.
+ * 
+ * <li>-aid Specifies the Application ID.
+ * 
  * </ul>
  * </p>
  */
@@ -264,6 +271,7 @@ public class Consumer implements ConsumerCallback
 	private long closeRunTime; 
 	boolean closeHandled;
 
+    private ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
 	
     public Consumer()
     {
@@ -466,6 +474,7 @@ public class Consumer implements ConsumerCallback
 					} // key can be canceled during shutdown
 				}
 			}
+	        
 	           // Handle run-time
             if (System.currentTimeMillis() >= runtime && !closeHandled)
             {
@@ -483,6 +492,33 @@ public class Consumer implements ConsumerCallback
 	        	handlePosting();
 	        	handleQueueMessaging();
 	        	handleTunnelStream();
+	        	
+		        // send login reissue if login reissue time has passed
+	        	for (ChannelInfo chnlInfo : chnlInfoList)
+	        	{
+	        		if (chnlInfo.reactorChannel == null ||
+	        	    	(chnlInfo.reactorChannel.state() != ReactorChannel.State.UP && 
+	        	    	chnlInfo.reactorChannel.state() != ReactorChannel.State.READY))
+        	    	{
+        	    		continue;
+        	    	}
+	        		
+	        		if (chnlInfo.canSendLoginReissue &&
+	        			System.currentTimeMillis() >= chnlInfo.loginReissueTime)
+	        		{
+						LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+						submitOptions.clear();
+						if (chnlInfo.reactorChannel.submit(loginRequest, submitOptions, errorInfo) !=  CodecReturnCodes.SUCCESS)
+						{
+							System.out.println("Login reissue failed. Error: " + errorInfo.error().text());
+						}
+						else
+						{
+							System.out.println("Login reissue sent");
+						}
+						chnlInfo.canSendLoginReissue = false;
+	        		}
+	        	}
 	        }	        
 	        
 	        if(closeHandled && queueMsgHandler != null && queueMsgHandler._chnlInfo != null &&
@@ -642,6 +678,9 @@ public class Consumer implements ConsumerCallback
     	        chnlInfo.hasServiceInfo = false;
     	        chnlInfo.hasQServiceInfo = false;
     	        
+    	        // reset canSendLoginReissue flag
+    	        chnlInfo.canSendLoginReissue = false;
+    	        
             	setItemState(chnlInfo, StreamStates.CLOSED_RECOVER, DataStates.SUSPECT, StateCodes.NONE );
             	
                 break;
@@ -750,6 +789,13 @@ public class Consumer implements ConsumerCallback
 				// set login stream id in MarketPriceHandler and YieldCurveHandler
 				chnlInfo.marketPriceHandler.loginStreamId(event.rdmLoginMsg().streamId());
 				chnlInfo.yieldCurveHandler.loginStreamId(event.rdmLoginMsg().streamId());
+				
+				// get login reissue time from authenticationTTReissue
+				if (chnlInfo.loginRefresh.checkHasAuthenticationTTReissue())
+				{
+					chnlInfo.loginReissueTime = chnlInfo.loginRefresh.authenticationTTReissue() * 1000;
+					chnlInfo.canSendLoginReissue = true;
+				}
 				break;
 			case STATUS:
 				LoginStatus loginStatus = (LoginStatus)event.rdmLoginMsg();
@@ -1364,20 +1410,38 @@ public class Consumer implements ConsumerCallback
         	chnlInfo.consumerRole.dictionaryMsgCallback(this);
         }
 
-		// use command line login user name if specified
-        if (consumerCmdLineParser.userName() != null && !consumerCmdLineParser.userName().equals(""))
-        {
-            LoginRequest loginRequest = (LoginRequest)LoginMsgFactory.createMsg();
-            loginRequest.rdmMsgType(LoginMsgType.REQUEST);
-            // use zero for stream id so default from role will override
-            loginRequest.initDefaultRequest(0);
-            loginRequest.userName().data(consumerCmdLineParser.userName());
-            chnlInfo.consumerRole.rdmLoginRequest(loginRequest);
-        }
-        
         // initialize consumer role to default
         chnlInfo.consumerRole.initDefaultRDMLoginRequest();
         chnlInfo.consumerRole.initDefaultRDMDirectoryRequest();
+
+		// use command line login user name if specified
+        if (consumerCmdLineParser.userName() != null && !consumerCmdLineParser.userName().equals(""))
+        {
+            LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+            loginRequest.userName().data(consumerCmdLineParser.userName());
+        }
+        
+        // use command line authentication token and extended authentication information if specified
+        if (consumerCmdLineParser.authenticationToken() != null && !consumerCmdLineParser.authenticationToken().equals(""))
+        {
+            LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+            loginRequest.userNameType(Login.UserIdTypes.AUTHN_TOKEN);
+            loginRequest.userName().data(consumerCmdLineParser.authenticationToken());
+
+            if (consumerCmdLineParser.authenticationExtended() != null && !consumerCmdLineParser.authenticationExtended().equals(""))
+            {
+            	loginRequest.applyHasAuthenticationExtended();
+                loginRequest.authenticationExtended().data(consumerCmdLineParser.authenticationExtended());
+            }
+        }
+        
+        // use command line application id if specified
+        if (consumerCmdLineParser.applicationId() != null && !consumerCmdLineParser.applicationId().equals(""))
+        {
+            LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+            loginRequest.attrib().applicationId().data(consumerCmdLineParser.applicationId());
+        }
+        
         // if unable to load from file and no queue messaging, enable consumer to download dictionary
         if ((fieldDictionaryLoadedFromFile == false ||
             enumTypeDictionaryLoadedFromFile == false) &&

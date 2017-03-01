@@ -25,6 +25,19 @@ public class LoginStatusFlags
      */
     public static final int CLEAR_CACHE = 0x08;
     
+    /** (0x0010) Indicates presence of the authenticationErrorCode member. 
+     * This is used when the userNameType member is set to
+     * {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN}
+     */
+    public static final int HAS_AUTHENTICATION_ERROR_CODE = 0x0010;
+
+    /** (0x0020) Indicates presence of the authenticationErrorText member. 
+     * This is used when the userNameType member is set to
+     * {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN}
+     */
+    public static final int HAS_AUTHENTICATION_ERROR_TEXT = 0x0020;
+
+  
     private LoginStatusFlags()
     {
         throw new AssertionError();

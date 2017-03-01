@@ -27,6 +27,9 @@ class NIProviderCmdLineParser implements CommandLineParser
 	private int runtime = 600; // default runtime is 600 seconds
 	private boolean enableXmlTracing;
 	private boolean cacheOption;
+	private String authenticationToken;
+	private String authenticationExtended;
+	private String applicationId;
 	
 	@Override
 	public boolean parseArgs(String[] args)
@@ -132,6 +135,21 @@ class NIProviderCmdLineParser implements CommandLineParser
     				cacheOption =  true;
     				++argsCount;								
     			}
+    			else if ("-at".equals(args[argsCount]))
+    			{
+    				authenticationToken = args[++argsCount];
+    				++argsCount;
+    			}
+    			else if ("-ax".equals(args[argsCount]))
+    			{
+    				authenticationExtended = args[++argsCount];
+    				++argsCount;
+    			}
+    			else if ("-aid".equals(args[argsCount]))
+    			{
+    				applicationId = args[++argsCount];
+    				++argsCount;
+    			}
     			else // unrecognized command line argument
     			{
     				System.out.println("\nUnrecognized command line argument...\n");
@@ -223,6 +241,21 @@ class NIProviderCmdLineParser implements CommandLineParser
 		return cacheOption;
 	}
 	
+	String authenticationToken()
+	{
+		return authenticationToken;
+	}
+	
+	String authenticationExtended()
+	{
+		return authenticationExtended;
+	}
+	
+	String applicationId()
+	{
+		return applicationId;
+	}
+
 	@Override
 	public void printUsage()
 	{
@@ -253,7 +286,10 @@ class NIProviderCmdLineParser implements CommandLineParser
 				"\n -uname changes the username used when logging into the provider\n" +
 				"\n -x provides an XML trace of messages\n" +
 				"\n -cache turn on the cache feature of the application\n" +
-				"\n -runtime adjusts the running time of the application");
+				"\n -runtime adjusts the running time of the application" +
+				"\n -at Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN" +
+				"\n -ax Specifies the Authentication Extended information" +
+				"\n -aid Specifies the Application ID");
 	}
 }
 

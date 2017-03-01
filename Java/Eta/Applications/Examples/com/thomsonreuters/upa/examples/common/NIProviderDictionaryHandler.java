@@ -290,7 +290,10 @@ public class NIProviderDictionaryHandler
     private boolean closeDictionary(ChannelSession chnl, int streamId, Error error)
     {
 		if( dictionaryClose == null )
+		{
 			dictionaryClose = (DictionaryClose)DictionaryMsgFactory.createMsg();
+			dictionaryClose.rdmMsgType(DictionaryMsgType.CLOSE);
+		}
 		
         /* get a buffer for the dictionary close */
         TransportBuffer msgBuf = chnl.getTransportBuffer(ChannelSession.MAX_MSG_SIZE, false, error);

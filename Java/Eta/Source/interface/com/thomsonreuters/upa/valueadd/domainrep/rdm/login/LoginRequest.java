@@ -54,7 +54,8 @@ public interface LoginRequest extends LoginMsg
     /**
      * Sets userName for login to the user specified buffer. Data and position
      * of serviceName buffer will be set to passed in buffer's data and
-     * position. Note that this creates garbage if buffer is backed by String
+     * position. For TREP Authentication, this should contain the Authentication
+     * Token. Note that this creates garbage if buffer is backed by String
      * object.
      * 
      * @param userName
@@ -284,5 +285,44 @@ public interface LoginRequest extends LoginMsg
      * This flag can also be bulk-set by {@link #flags(int)}
      */
     public void applyHasRole();
+
+    /**
+     * Gets the authentication extended data.
+     * 
+     * optionally used with the
+     * {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN} login
+     * userNameType.
+     * 
+     * @return authenticationExtended
+     */
+    public Buffer authenticationExtended();
+
+    /**
+     * Sets the authentication extended data.
+     * 
+     * Optionally used with the
+     * {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN} login
+     * userNameType.
+     * 
+     * @param authenticationExtended
+     */
+    public void authenticationExtended(Buffer authenticationExtended);
+
+    /**
+     * Checks the presence of the authenticationExtended data field.
+     * 
+     * This flag can also be bulk-get by {@link #flags()}
+     * 
+     * @return true - if authenticationExtended data field is present, false -
+     *         if not.
+     */
+    public boolean checkHasAuthenticationExtended();
+
+    /**
+     * Applies authentication extendedData field flag.
+     * 
+     * This flag can also be bulk-set by {@link #flags(int)}
+     */
+    public void applyHasAuthenticationExtended();
 
 }

@@ -36,6 +36,7 @@ import com.thomsonreuters.upa.shared.CommandLine;
 import com.thomsonreuters.upa.rdm.Dictionary;
 import com.thomsonreuters.upa.rdm.Dictionary.VerbosityValues;
 import com.thomsonreuters.upa.rdm.DomainTypes;
+import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.transport.ConnectOptions;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
 import com.thomsonreuters.upa.transport.Error;
@@ -50,6 +51,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryUpdate;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
 import com.thomsonreuters.upa.valueadd.examples.common.ConnectionArg;
 import com.thomsonreuters.upa.valueadd.examples.common.ItemArg;
@@ -142,6 +144,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  * [-plogin proxy userName] [-ppasswd proxy password] [-pdomain proxy domain]
  * [-krbfile proxyKRBFile] [-keyfile keystoreFile] [-keypasswd keystore password]
  * [-tunnel] [-tsDomain domain] [-tsAuth] [-qSourceName name] [-qDestName name] [-tsServiceName name]
+ * [-at authenticationToken] [-ax authenticationExtended] [-aid applicationId]
  *   
  * <p>
  * <ul>
@@ -199,6 +202,9 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  * <li>-tsServiceName (optional) specifies the service name for queue messages (if not specified, the service name specified in -c/-tcp is used)"
  * <li>-tsAuth (optional) specifies that consumer will request authentication when opening the tunnel stream. This applies to basic tunnel streams and those opened for queue messaging.
  * <li>-tsDomain (optional) specifies the domain that consumer will use when opening the tunnel stream. This applies to basic tunnel streams and those opened for queue messaging.
+ * <li>-at Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN.
+ * <li>-ax Specifies the Authentication Extended information.
+ * <li>-aid Specifies the Application ID.
  * </ul>
  * </p>
  */
@@ -440,6 +446,26 @@ public class WatchlistConsumer implements ConsumerCallback
 	        	handlePosting();
 	        	handleQueueMessaging();
 	        	handleTunnelStream();
+	        	
+		        // send login reissue if login reissue time has passed
+	        	for (ChannelInfo chnlInfo : chnlInfoList)
+	        	{
+	        		if (chnlInfo.canSendLoginReissue &&
+	        			System.currentTimeMillis() >= chnlInfo.loginReissueTime)
+	        		{
+						LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+						submitOptions.clear();
+						if (chnlInfo.reactorChannel.submit(loginRequest, submitOptions, errorInfo) !=  CodecReturnCodes.SUCCESS)
+						{
+							System.out.println("Login reissue failed. Error: " + errorInfo.error().text());
+						}
+						else
+						{
+							System.out.println("Login reissue sent");
+						}
+						chnlInfo.canSendLoginReissue = false;
+	        		}
+	        	}
 	        }	        
 	        
 	        if(closeHandled && queueMsgHandler != null && queueMsgHandler._chnlInfo != null &&
@@ -930,6 +956,12 @@ public class WatchlistConsumer implements ConsumerCallback
 				if ( chnlInfo.loginRefresh.checkHasUserName()) 
 					System.out.println(" UserName: " + chnlInfo.loginRefresh.userName().toString());
 				
+				// get login reissue time from authenticationTTReissue
+				if (chnlInfo.loginRefresh.checkHasAuthenticationTTReissue())
+				{
+					chnlInfo.loginReissueTime = chnlInfo.loginRefresh.authenticationTTReissue() * 1000;
+					chnlInfo.canSendLoginReissue = true;
+				}
 				
 				break;
 				
@@ -1470,6 +1502,25 @@ public class WatchlistConsumer implements ConsumerCallback
         {
             chnlInfo.consumerRole.rdmLoginRequest().userName().data(watchlistConsumerConfig.userName());
         }        
+        
+        // use command line authentication token and extended authentication information if specified
+        if (watchlistConsumerConfig.authenticationToken() != null && !watchlistConsumerConfig.authenticationToken().equals(""))
+        {
+            chnlInfo.consumerRole.rdmLoginRequest().userNameType(Login.UserIdTypes.AUTHN_TOKEN);
+            chnlInfo.consumerRole.rdmLoginRequest().userName().data(watchlistConsumerConfig.authenticationToken());
+
+            if (watchlistConsumerConfig.authenticationExtended() != null && !watchlistConsumerConfig.authenticationExtended().equals(""))
+            {
+            	chnlInfo.consumerRole.rdmLoginRequest().applyHasAuthenticationExtended();
+                chnlInfo.consumerRole.rdmLoginRequest().authenticationExtended().data(watchlistConsumerConfig.authenticationExtended());
+            }
+        }
+        
+        // use command line application id if specified
+        if (watchlistConsumerConfig.applicationId() != null && !watchlistConsumerConfig.applicationId().equals(""))
+        {
+            chnlInfo.consumerRole.rdmLoginRequest().attrib().applicationId().data(watchlistConsumerConfig.applicationId());
+        }
         
         chnlInfo.consumerRole.rdmLoginRequest().attrib().applyHasSingleOpen();
         chnlInfo.consumerRole.rdmLoginRequest().attrib().singleOpen(1);

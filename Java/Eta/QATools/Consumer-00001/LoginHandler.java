@@ -10,7 +10,6 @@ import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.codec.State;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.rdm.Login;
-import com.thomsonreuters.upa.shared.ConsumerLoginState;
 import com.thomsonreuters.upa.transport.Error;
 import com.thomsonreuters.upa.transport.TransportBuffer;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginClose;
@@ -18,6 +17,9 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
+// APIQA:
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequestFlags;
+// END APIQA
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
 
 /**
@@ -218,6 +220,84 @@ public class LoginHandler
         System.out.println(loginRequest.toString());
         return chnl.write(msgBuf, error);
     }
+ 
+    // APIQA: Method for sending a PAUSE ALL and RESUME ALL
+    public int sendPauseResumeRequest(ChannelSession chnl, Error error, boolean pauseAll, boolean resumeAll)
+    {
+        /* get a buffer for the login request */
+        TransportBuffer msgBuf = chnl.getTransportBuffer(TRANSPORT_BUFFER_SIZE_REQUEST, false, error);
+        if (msgBuf == null)
+            return CodecReturnCodes.FAILURE;
+
+        loginRequest.clear();
+
+        loginRequest.initDefaultRequest(LOGIN_STREAM_ID);
+        
+        if (pauseAll)
+        {
+        	loginRequest.applyPause();
+        	loginRequest.applyNoRefresh();
+        }
+        if (resumeAll)
+        {
+        	loginRequest.flags(loginRequest.flags() & ~LoginRequestFlags.PAUSE_ALL);
+        	loginRequest.flags(loginRequest.flags() & ~LoginRequestFlags.NO_REFRESH);
+        }
+
+        if (userName != null && !userName.isEmpty())
+        {
+            loginRequest.userName().data(userName);
+        }
+        
+        if (authenticationToken != null && !authenticationToken.isEmpty())
+        {
+        	loginRequest.applyHasUserNameType();
+        	loginRequest.userNameType(Login.UserIdTypes.AUTHN_TOKEN);
+        	loginRequest.userName().data(authenticationToken);
+        	
+	        if (authenticationExtended != null && !authenticationExtended.isEmpty())
+	        {
+	        	loginRequest.applyHasAuthenticationExtended();
+	        	loginRequest.authenticationExtended().data(authenticationExtended);
+	        }
+        }
+
+        if (applicationId != null && !applicationId.isEmpty())
+        {
+            loginRequest.applyHasAttrib();
+            loginRequest.attrib().applyHasApplicationId();
+            loginRequest.attrib().applicationId().data(applicationId);
+        }
+
+        if (applicationName != null && !applicationName.isEmpty())
+        {
+            loginRequest.applyHasAttrib();
+            loginRequest.attrib().applyHasApplicationName();
+            loginRequest.attrib().applicationName().data(applicationName);
+        }
+
+        loginRequest.applyHasRole();
+        loginRequest.role(role);
+
+        if (role == Login.RoleTypes.PROV)
+        {
+            loginRequest.attrib().applyHasSingleOpen();
+            loginRequest.attrib().singleOpen(0);
+        }
+
+        encIter.clear();
+        encIter.setBufferAndRWFVersion(msgBuf, chnl.channel().majorVersion(), chnl.channel().minorVersion());
+
+        int ret = loginRequest.encode(encIter);
+        if (ret != CodecReturnCodes.SUCCESS)
+        {
+            error.text("Encoding of login request failed: <" + CodecReturnCodes.toString(ret) + ">");
+            return ret;
+        }
+        System.out.println(loginRequest.toString());
+        return chnl.write(msgBuf, error);
+    }
+    // END APIQA: Method for sending a PAUSE ALL and RESUME ALL
 
     /**
      * Close the login stream. Note that closing login stream will automatically

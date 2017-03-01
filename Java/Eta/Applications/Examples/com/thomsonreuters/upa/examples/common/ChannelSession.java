@@ -82,6 +82,10 @@ public class ChannelSession
     private DataDictionary dictionaryForXml;
     private WriteArgs writeArgs = TransportFactory.createWriteArgs();
     
+	public long loginReissueTime; // represented by epoch time in milliseconds
+	public boolean canSendLoginReissue;
+	public boolean isLoginReissue;
+    
     public ChannelSession()
     {
         copts.clear();

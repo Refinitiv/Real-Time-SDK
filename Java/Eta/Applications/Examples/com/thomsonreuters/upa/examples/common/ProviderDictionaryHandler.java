@@ -785,7 +785,10 @@ public class ProviderDictionaryHandler
     private boolean closeDictionary(Channel chnl, int streamId, Error error)
     {
 		if( _dictionaryClose == null )
+		{
 			_dictionaryClose = (DictionaryClose)DictionaryMsgFactory.createMsg();
+			_dictionaryClose.rdmMsgType(DictionaryMsgType.CLOSE);
+		}
 		
         /* get a buffer for the dictionary close */
         TransportBuffer msgBuf = chnl.getBuffer(ChannelSession.MAX_MSG_SIZE, false, error);

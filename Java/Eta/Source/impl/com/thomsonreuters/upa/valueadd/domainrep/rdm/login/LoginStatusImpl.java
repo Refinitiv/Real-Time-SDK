@@ -8,6 +8,8 @@ import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.codec.DataStates;
 import com.thomsonreuters.upa.codec.DataTypes;
 import com.thomsonreuters.upa.codec.DecodeIterator;
+import com.thomsonreuters.upa.codec.ElementEntry;
+import com.thomsonreuters.upa.codec.ElementList;
 import com.thomsonreuters.upa.codec.EncodeIterator;
 import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.MsgClasses;
@@ -16,7 +18,9 @@ import com.thomsonreuters.upa.codec.State;
 import com.thomsonreuters.upa.codec.StateCodes;
 import com.thomsonreuters.upa.codec.StatusMsg;
 import com.thomsonreuters.upa.codec.StreamStates;
+import com.thomsonreuters.upa.codec.UInt;
 import com.thomsonreuters.upa.rdm.DomainTypes;
+import com.thomsonreuters.upa.rdm.ElementNames;
 import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.MsgBaseImpl;
 
@@ -25,8 +29,15 @@ class LoginStatusImpl extends MsgBaseImpl
     private State state;
     private Buffer userName;
     private int userNameType;
+    private long authenticationErrorCode;
+    private Buffer authenticationErrorText;
+    private static final String blankStringConst = new String(new byte[] { 0x0 });
     private int flags;
     
+    private ElementList elementList = CodecFactory.createElementList();
+    private ElementEntry element = CodecFactory.createElementEntry();
+    private UInt tmpUInt = CodecFactory.createUInt();
+
     private final static String eol = System.getProperty("line.separator");
     private final static String tab = "\t";
     private StatusMsg statusMsg = (StatusMsg)CodecFactory.createMsg();           
@@ -66,6 +77,19 @@ class LoginStatusImpl extends MsgBaseImpl
         	destStatusMsg.applyClearCache();
         }
        
+        if (checkHasAuthenticationErrorCode())
+        {
+            destStatusMsg.applyHasAuthenticationErrorCode();
+            destStatusMsg.authenticationErrorCode(authenticationErrorCode);
+        }
+        if (checkHasAuthenticationErrorText())
+        {
+            ByteBuffer byteBuffer = ByteBuffer.allocate(this.authenticationErrorText.length());
+            this.authenticationErrorText.copy(byteBuffer);
+            destStatusMsg.applyHasAuthenticationErrorText();
+            destStatusMsg.authenticationErrorText().data(byteBuffer);
+        }
+
         return CodecReturnCodes.SUCCESS;
     }
     
@@ -73,6 +97,7 @@ class LoginStatusImpl extends MsgBaseImpl
     {
         state = CodecFactory.createState();
         userName = CodecFactory.createBuffer();
+        authenticationErrorText = CodecFactory.createBuffer();
         streamId(1);
     }
     
@@ -97,6 +122,8 @@ class LoginStatusImpl extends MsgBaseImpl
         state.dataState(DataStates.OK);
         state.code(StateCodes.NONE);
         streamId(1);
+        authenticationErrorCode = 0;
+        authenticationErrorText.clear();
     }
 
     public int encode(EncodeIterator encodeIter)
@@ -106,6 +133,7 @@ class LoginStatusImpl extends MsgBaseImpl
         statusMsg.containerType(DataTypes.NO_DATA);
         statusMsg.msgClass(MsgClasses.STATUS);
         statusMsg.domainType(DomainTypes.LOGIN);
+
         if(checkHasUserName())
         {
             statusMsg.applyHasMsgKey();
@@ -115,6 +143,11 @@ class LoginStatusImpl extends MsgBaseImpl
             {
                 statusMsg.msgKey().applyHasNameType();
                 statusMsg.msgKey().nameType(userNameType());
+                if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
+                {
+                    statusMsg.msgKey().applyHasName();
+                    statusMsg.msgKey().name().data(blankStringConst);
+                }
             }
         }
         
@@ -132,11 +165,67 @@ class LoginStatusImpl extends MsgBaseImpl
             statusMsg.state().text(state().text());
         }
        
+        if (checkHasAuthenticationErrorCode() || checkHasAuthenticationErrorText())
+        {
+            statusMsg.applyHasMsgKey();
+            statusMsg.msgKey().applyHasAttrib();            
+            statusMsg.msgKey().attribContainerType(DataTypes.ELEMENT_LIST);
+
+            int ret = statusMsg.encodeInit(encodeIter, 0);
+            if (ret != CodecReturnCodes.ENCODE_MSG_KEY_ATTRIB)
+                return ret;
+            ret = encodeAttrib(encodeIter);
+            if (ret != CodecReturnCodes.SUCCESS)
+                return ret;
+            ret = statusMsg.encodeKeyAttribComplete(encodeIter, true);
+            if (ret < CodecReturnCodes.SUCCESS)
+                return ret;
+
+            ret = statusMsg.encodeComplete(encodeIter, true);
+            if (ret < CodecReturnCodes.SUCCESS)
+                return ret;
+        }
+        else
+        {
         int ret = statusMsg.encode(encodeIter);
         if (ret < CodecReturnCodes.SUCCESS)
             return ret;
 
         return CodecReturnCodes.SUCCESS;
+    }
+    
+
+        return CodecReturnCodes.SUCCESS;
+    }
+   
+    private int encodeAttrib(EncodeIterator encodeIter)
+    {
+        element.clear();
+        elementList.clear();
+        elementList.applyHasStandardData();
+        int ret = elementList.encodeInit(encodeIter, null, 0);
+        if (ret != CodecReturnCodes.SUCCESS)
+            return ret;
+
+        if (this.checkHasAuthenticationErrorCode())
+        {
+            element.dataType(DataTypes.UINT);
+            element.name(ElementNames.AUTHN_ERROR_CODE);
+            tmpUInt.value(authenticationErrorCode());
+            if ((ret = element.encode(encodeIter, tmpUInt)) != CodecReturnCodes.SUCCESS)
+                return ret;
+        }
+        if (checkHasAuthenticationErrorText() && authenticationErrorText().length() != 0)
+        {
+            element.dataType(DataTypes.ASCII_STRING);
+            element.name(ElementNames.AUTHN_ERROR_TEXT);
+            ret = element.encode(encodeIter, authenticationErrorText());
+            if (ret != CodecReturnCodes.SUCCESS)
+                return ret;
+        }        
+        
+        return elementList.encodeComplete(encodeIter, true);
+        
     }
     
     public int decode(DecodeIterator dIter, Msg msg)
@@ -145,7 +234,6 @@ class LoginStatusImpl extends MsgBaseImpl
         if (msg.msgClass() != MsgClasses.STATUS)
              return CodecReturnCodes.FAILURE;
         
-       
         StatusMsg statusMsg = (StatusMsg) msg;
         streamId(msg.streamId());
         if(statusMsg.checkHasState())
@@ -167,7 +255,9 @@ class LoginStatusImpl extends MsgBaseImpl
         }
         
         MsgKey msgKey = msg.msgKey();
-        if(msgKey != null && msgKey.checkHasName())
+        if (msgKey != null)
+        {
+            if (msgKey.checkHasName())
         {
             applyHasUserName();
             Buffer name = msgKey.name();
@@ -178,7 +268,57 @@ class LoginStatusImpl extends MsgBaseImpl
                 userNameType(msgKey.nameType());
             }
         }
+            if (msgKey.checkHasAttrib())
+            {
+                int ret = msg.decodeKeyAttrib(dIter, msgKey);
+                if (ret != CodecReturnCodes.SUCCESS)
+                    return ret;
+
+                return decodeAttrib(dIter);
+            }
+        }
+        return CodecReturnCodes.SUCCESS;
+    }
         
+    private int decodeAttrib(DecodeIterator dIter)
+    {
+        elementList.clear();
+        int ret = elementList.decode(dIter, null);
+        if (ret != CodecReturnCodes.SUCCESS)
+            return ret;
+
+        element.clear();
+        while ((ret = element.decode(dIter)) != CodecReturnCodes.END_OF_CONTAINER)
+        {
+            if (ret != CodecReturnCodes.SUCCESS)
+                return ret;
+            else if (element.name().equals(ElementNames.AUTHN_ERROR_CODE))
+            {
+                if (element.dataType() != DataTypes.UINT)
+                    return CodecReturnCodes.FAILURE;
+                ret = tmpUInt.decode(dIter);
+                if (ret != CodecReturnCodes.SUCCESS)
+                    return ret;
+                applyHasAuthenticationErrorCode();
+                authenticationErrorCode(tmpUInt.toLong());
+            }
+            else if (element.name().equals(ElementNames.AUTHN_ERROR_TEXT))
+            {
+                if (element.dataType() != DataTypes.ASCII_STRING
+                        && element.dataType() != DataTypes.BUFFER)
+                    return CodecReturnCodes.FAILURE;
+                if(element.encodedData().length() != 0)
+                {
+	                Buffer authenticationErrorText = element.encodedData();
+	                applyHasAuthenticationErrorText();
+	                authenticationErrorText().data(authenticationErrorText.data(),
+	                                               authenticationErrorText.position(),
+	                                               authenticationErrorText.length());
+	            }
+	            else
+	            	return CodecReturnCodes.FAILURE;
+            }
+        }
         return CodecReturnCodes.SUCCESS;
     }
 
@@ -256,6 +396,50 @@ class LoginStatusImpl extends MsgBaseImpl
         return (flags & LoginStatusFlags.CLEAR_CACHE) != 0;
     }
 
+    public void authenticationErrorCode(long authenticationErrorCode)
+    {
+        assert (checkHasAuthenticationErrorCode());
+        this.authenticationErrorCode = authenticationErrorCode;
+    }
+
+    public long authenticationErrorCode()
+    {
+        return authenticationErrorCode;
+    }
+
+    public boolean checkHasAuthenticationErrorCode()
+    {
+        return (flags() & LoginStatusFlags.HAS_AUTHENTICATION_ERROR_CODE) != 0;
+    }
+
+    public void applyHasAuthenticationErrorCode()
+    {
+        flags |= LoginStatusFlags.HAS_AUTHENTICATION_ERROR_CODE;
+    }
+
+    public void authenticationErrorText(Buffer authenticationErrorText)
+    {
+        assert (checkHasAuthenticationErrorText());
+        authenticationErrorText.data(authenticationErrorText.data(),
+                                     authenticationErrorText.position(),
+                                     authenticationErrorText.length());
+    }
+
+    public Buffer authenticationErrorText()
+    {
+        return authenticationErrorText;
+    }
+
+    public boolean checkHasAuthenticationErrorText()
+    {
+        return (flags() & LoginStatusFlags.HAS_AUTHENTICATION_ERROR_TEXT) != 0;
+    }
+
+    public void applyHasAuthenticationErrorText()
+    {
+        flags |= LoginStatusFlags.HAS_AUTHENTICATION_ERROR_TEXT;
+    }
+    
     
     public String toString()
     {
@@ -286,6 +470,21 @@ class LoginStatusImpl extends MsgBaseImpl
             stringBuf.append(eol);
         }
 
+        if (checkHasAuthenticationErrorCode())
+        {
+            stringBuf.append(tab);
+            stringBuf.append("authenticationErrorCode: ");
+            stringBuf.append(authenticationErrorCode());
+            stringBuf.append(eol);
+        }
+        if (checkHasAuthenticationErrorText())
+        {
+            stringBuf.append(tab);
+            stringBuf.append("authenticationErrorText: ");
+            stringBuf.append(authenticationErrorText());
+            stringBuf.append(eol);
+        }
+        
         return stringBuf.toString();
     }
     

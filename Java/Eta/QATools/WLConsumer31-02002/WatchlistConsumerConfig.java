@@ -8,7 +8,7 @@ import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.codec.MsgKey;
 import com.thomsonreuters.upa.codec.MsgKeyFlags;
 import com.thomsonreuters.upa.codec.State;
-import com.thomsonreuters.upa.shared.CommandLine;
+import com.thomsonreuters.upa.valueadd.examples.common.CommandLine;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
 import com.thomsonreuters.upa.valueadd.examples.common.ConnectionArg;
@@ -508,6 +508,13 @@ public class WatchlistConsumerConfig
 		return CommandLine.value("at");
     }
 
+// APIQA:  Adding ability to take an input of -at2 or 2nd token
+	String authenticationToken2()
+    {
+		return CommandLine.value("at2");
+    }
+// END APIQA
+
 	String authenticationExtended()
     {
 		return CommandLine.value("ax");
@@ -590,6 +597,9 @@ public class WatchlistConsumerConfig
         CommandLine.addOption("tsDomain", "", "(optional) specifes the domain a consumer uses when opening a tunnel stream. This applies to both basic tunnel streams and those for queue messaging");
         
         CommandLine.addOption("at", "", "Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN.");
+// APIQA:  Adding ability to take an input of -at2 or 2nd token
+        CommandLine.addOption("at2", "", "Specifies a 2nd Authentication Token used when doing a reissue. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN.");
+// END APIQA
         CommandLine.addOption("ax", "", "Specifies the Authentication Extended information.");
         CommandLine.addOption("aid", "", "Specifies the Application ID.");
     }	

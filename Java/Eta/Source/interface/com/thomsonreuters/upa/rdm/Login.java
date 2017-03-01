@@ -75,6 +75,12 @@ public class Login
          * If not present, cookie information may be well known or externally specified.
          */
         public static final int COOKIE = 4;
+        
+        /**
+         * String defining User Authentication Token is specified as the AUTHN_TOKEN
+         * login attribute.
+         */
+        public static final int AUTHN_TOKEN = 5;
     }
     
     /** Provider batch support flags. Any combination can be set by provider. */

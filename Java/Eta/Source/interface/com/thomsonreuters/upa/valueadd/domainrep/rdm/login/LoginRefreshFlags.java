@@ -31,7 +31,7 @@ public class LoginRefreshFlags
     /** (0x0010) Indicates presence of login support features member. */
     public static final int HAS_FEATURES = 0x0010;
 
-    /** (0x0002) Indicates presence of the userName member. */
+    /** (0x0020) Indicates presence of the userName member. */
     public static final int HAS_USERNAME = 0x0020;
 
     /** (0x0004) Indicates presence of the userNameType member. */
@@ -43,6 +43,33 @@ public class LoginRefreshFlags
      */
     public static final int SOLICITED = 0x0080;
 
+    //Reserve space for this flag
+    //public static final int HAS_PROVIDER_SUPPORT_DICTIONARY_DOWNLOAD = 0x0100; 
+
+    /** (0x0200) Indicates presence of the authenticationTTReissue member.
+    * This is used when the userNameType member is set to
+    * {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN}
+    */
+    public static final int HAS_AUTHENTICATION_TT_REISSUE = 0x0200;
+
+    /** (0x0400) Indicates presence of the authenticationExtendedResp member.
+     * This is optionally used when the userNameType member is set to
+     * {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN}
+     */
+    public static final int HAS_AUTHENTICATION_EXTENDED_RESP = 0x0400;
+
+    /** (0x0800) Indicates presence of the authenticationErrorCode member. 
+     * This is used when the userNameType member is set to
+     * {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN}
+     */
+    public static final int HAS_AUTHENTICATION_ERROR_CODE = 0x0800;
+
+    /** (0x1000) Indicates presence of the authenticationErrorText member. 
+     * This is used when the userNameType member is set to
+     * {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN}
+     */
+    public static final int HAS_AUTHENTICATION_ERROR_TEXT = 0x1000;
+    
     private LoginRefreshFlags()
     {
         throw new AssertionError();

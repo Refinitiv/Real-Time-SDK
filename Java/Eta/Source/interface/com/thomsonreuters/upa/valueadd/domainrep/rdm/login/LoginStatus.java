@@ -139,4 +139,79 @@ public interface LoginStatus extends LoginMsg
      * This flag can also be bulk-set by {@link #flags(int)}
      */
     public void applyClearCache();
+
+    /**
+     * Sets the authentication error code.
+     * 
+     * Used with the {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN}
+     * login userNameType.
+     * 
+     * @param authenticationErrorCode
+     */
+    public void authenticationErrorCode(long authenticationErrorCode);
+
+    /**
+     * Returns the authentication error code.
+     * 
+     * Used with the {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN} login userNameType.
+     * 
+     * @return authenticationErrorCode
+     */
+    public long authenticationErrorCode();
+
+    /**
+     * Checks the presence of the authentication error code field.
+     * 
+     * Used with the {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN} login userNameType.
+     * This flag can also be bulk-get by {@link #flags()}
+     * 
+     * @return true - if authenticationErrorCode field is present, false - if
+     *         not.
+     */
+    public boolean checkHasAuthenticationErrorCode();
+
+    /**
+     * Applies authenticationErrorCode field flag.
+     * 
+     * Used with the {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN} login userNameType.
+     * This flag can also be bulk-set by {@link #flags(int)}
+     */
+    public void applyHasAuthenticationErrorCode();
+
+    /**
+     * Sets the authentication error text.
+     * 
+     * Used with the {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN} login userNameType.
+     * 
+     * @param authenticationErrorText
+     */
+    public void authenticationErrorText(Buffer authenticationErrorText);
+
+    /**
+     * Returns the authentication error text.
+     * 
+     * Used with the {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN} login userNameType.
+     * 
+     * @return authenticationErrorText
+     */
+    public Buffer authenticationErrorText();
+
+    /**
+     * Checks the presence of the authentication error text field.
+     * 
+     * Used with the {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN} login userNameType.
+     * This flag can also be bulk-get by {@link #flags()}
+     * 
+     * @return true - if authenticationErrorText field is present, false - if
+     *         not.
+     */
+    public boolean checkHasAuthenticationErrorText();
+
+    /**
+     * Applies authenticationErrorText field flag.
+     * 
+     * Used with the {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN} login userNameType.
+     * This flag can also be bulk-set by {@link #flags(int)}
+     */
+    public void applyHasAuthenticationErrorText();
 }

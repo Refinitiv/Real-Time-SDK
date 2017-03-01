@@ -20,6 +20,7 @@ import com.thomsonreuters.upa.codec.DataStates;
 import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.rdm.DomainTypes;
+import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
 import com.thomsonreuters.upa.transport.Error;
 import com.thomsonreuters.upa.transport.IoctlCodes;
@@ -27,7 +28,6 @@ import com.thomsonreuters.upa.transport.TransportFactory;
 import com.thomsonreuters.upa.transport.TransportReturnCodes;
 import com.thomsonreuters.upa.valueadd.cache.CacheFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsg;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
@@ -50,6 +50,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorMsgEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
 
 /**
  * <p>This is a main class to run UPA NIProvider application. The purpose of this
@@ -160,6 +161,9 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
  * <li>-cache application supports apply/retrieve data to/from cache
  * <li>-runtime run time. Default is 600 seconds. Controls the time the
  * application will run before exiting, in seconds.
+ * <li>-at Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN.
+ * <li>-ax Specifies the Authentication Extended information.
+ * <li>-aid Specifies the Application ID.
  * </ul>
  * 
  */
@@ -205,6 +209,7 @@ public class NIProvider implements NIProviderCallback
 	
 	DateFormat formatter = new SimpleDateFormat("MM:dd:yy:HH:mm:ss");
 	
+    private ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
 
     public NIProvider()
     {
@@ -344,6 +349,33 @@ public class NIProvider implements NIProviderCallback
 	        	System.exit(ReactorReturnCodes.FAILURE);
 	        }
 	
+	        // send login reissue if login reissue time has passed
+        	for (ChannelInfo chnlInfo : chnlInfoList)
+        	{
+        		if (chnlInfo.reactorChannel == null ||
+	        	    (chnlInfo.reactorChannel.state() != ReactorChannel.State.UP && 
+	        	    chnlInfo.reactorChannel.state() != ReactorChannel.State.READY))
+    	    	{
+    	    		continue;
+    	    	}
+
+        		if (chnlInfo.canSendLoginReissue &&
+        			System.currentTimeMillis() >= chnlInfo.loginReissueTime)
+        		{
+					LoginRequest loginRequest = chnlInfo.niproviderRole.rdmLoginRequest();
+					submitOptions.clear();
+					if (chnlInfo.reactorChannel.submit(loginRequest, submitOptions, errorInfo) !=  CodecReturnCodes.SUCCESS)
+					{
+						System.out.println("Login reissue failed. Error: " + errorInfo.error().text());
+					}
+					else
+					{
+						System.out.println("Login reissue sent");
+					}
+					chnlInfo.canSendLoginReissue = false;
+        		}
+        	}
+
             // Handle run-time
             if (System.currentTimeMillis() >= runtime)
             {
@@ -496,6 +528,9 @@ public class NIProvider implements NIProviderCallback
                 // reset refreshesSent flag
                 refreshesSent = false;
                 
+    	        // reset canSendLoginReissue flag
+    	        chnlInfo.canSendLoginReissue = false;
+                
                 // unregister selectableChannel from Selector
                 if (event.reactorChannel().selectableChannel() != null)
                 {
@@ -574,6 +609,13 @@ public class NIProvider implements NIProviderCallback
 				// save loginRefresh
 				((LoginRefresh)event.rdmLoginMsg()).copy(chnlInfo.loginRefresh);
 	
+				// get login reissue time from authenticationTTReissue
+				if (chnlInfo.loginRefresh.checkHasAuthenticationTTReissue())
+				{
+					chnlInfo.loginReissueTime = chnlInfo.loginRefresh.authenticationTTReissue() * 1000;
+					chnlInfo.canSendLoginReissue = true;
+				}
+
 				break;
 			case STATUS:
 				LoginStatus loginStatus = (LoginStatus)event.rdmLoginMsg();
@@ -671,21 +713,38 @@ public class NIProvider implements NIProviderCallback
         chnlInfo.marketPriceHandler = new MarketPriceHandler(chnlInfo.itemWatchList, dictionary);    
         chnlInfo.marketByOrderHandler = new MarketByOrderHandler(chnlInfo.itemWatchList, dictionary);
      
-		// use command line login user name if specified
-        if (commandLineParser.userName() != null && !commandLineParser.userName().equals(""))
-        {
-            LoginRequest loginRequest = (LoginRequest)LoginMsgFactory.createMsg();
-            loginRequest.rdmMsgType(LoginMsgType.REQUEST);
-            // use zero for stream id so default from role will override
-            loginRequest.initDefaultRequest(0);
-            loginRequest.userName().data(commandLineParser.userName());
-            chnlInfo.niproviderRole.rdmLoginRequest(loginRequest);
-        }
-        
         // initialize niprovider role to default
         String serviceName = chnlInfo.connectionArg.service();
         chnlInfo.niproviderRole.initDefaultRDMLoginRequest();
         chnlInfo.niproviderRole.initDefaultRDMDirectoryRefresh(serviceName, defaultServiceId);       
+
+		// use command line login user name if specified
+        if (commandLineParser.userName() != null && !commandLineParser.userName().equals(""))
+        {
+            LoginRequest loginRequest = chnlInfo.niproviderRole.rdmLoginRequest();
+            loginRequest.userName().data(commandLineParser.userName());
+        }
+        
+        // use command line authentication token and extended authentication information if specified
+        if (commandLineParser.authenticationToken() != null && !commandLineParser.authenticationToken().equals(""))
+        {
+            LoginRequest loginRequest = chnlInfo.niproviderRole.rdmLoginRequest();
+            loginRequest.userNameType(Login.UserIdTypes.AUTHN_TOKEN);
+            loginRequest.userName().data(commandLineParser.authenticationToken());
+
+            if (commandLineParser.authenticationExtended() != null && !commandLineParser.authenticationExtended().equals(""))
+            {
+            	loginRequest.applyHasAuthenticationExtended();
+                loginRequest.authenticationExtended().data(commandLineParser.authenticationExtended());
+            }
+        }
+        
+        // use command line application id if specified
+        if (commandLineParser.applicationId() != null && !commandLineParser.applicationId().equals(""))
+        {
+            LoginRequest loginRequest = chnlInfo.niproviderRole.rdmLoginRequest();
+            loginRequest.attrib().applicationId().data(commandLineParser.applicationId());
+        }
  
         createItemLists(chnlInfo);
         

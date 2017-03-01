@@ -268,4 +268,153 @@ public interface LoginRefresh extends LoginMsg
      * This flag can also be bulk-set by {@link #flags(int)}
      */
     public void applyHasConnectionConfig();
+   
+    /**
+     * Sets the authentication time to reissue in seconds.
+     * 
+     * Used with the {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN}
+     * login userNameType.
+     * 
+     * @param authenticationTTReissue
+     */
+    public void authenticationTTReissue(long authenticationTTReissue);
+
+    /**
+     * Returns the authentication time to reissue in seconds.
+     * 
+     * Used with the {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN}
+     * login userNameType.
+     * 
+     * @return authenticationTTReissue
+     */
+    public long authenticationTTReissue();
+
+    /**
+     * Checks the presence of the authentication time to reissue field.
+     * 
+     * This flag can also be bulk-get by {@link #flags()}
+     * 
+     * @return true - if authenticationTTReissue field is present, false - if
+     *         not.
+     */
+    public boolean checkHasAuthenticationTTReissue();
+
+    /**
+     * Applies authenticationTTReissue field flag.
+     * 
+     * This flag can also be bulk-set by {@link #flags(int)}
+     */
+    public void applyHasAuthenticationTTReissue();
+
+    /**
+     * Sets the authentication extended response field.
+     * 
+     * Used with the {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN}
+     * login userNameType.
+     * 
+     * @param authenticationExtendedResp
+     */
+    public void authenticationExtendedResp(Buffer authenticationExtendedResp);
+
+    /**
+     * Returns the authentication extended data response.
+     * 
+     * Used with the {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN}
+     * login userNameType.
+     * 
+     * @return authenticationExtendedResp
+     */
+    public Buffer authenticationExtendedResp();
+
+    /**
+     * Checks the presence of the optional authentication extended response
+     * field.
+     * 
+     * This flag can also be bulk-get by {@link #flags()}
+     * 
+     * @return true - if authenticationExtendedResp field is present, false - if
+     *         not.
+     */
+    public boolean checkHasAuthenticationExtendedResp();
+
+    /**
+     * Applies authenticationExtendedResp field flag.
+     * 
+     * This flag can also be bulk-set by {@link #flags(int)}
+     */
+    public void applyHasAuthenticationExtendedResp();
+
+    /**
+     * Sets the authentication error code.
+     * 
+     * Used with the {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN}
+     * login userNameType.
+     * 
+     * @param authenticationErrorCode
+     */
+    public void authenticationErrorCode(long authenticationErrorCode);
+
+    /**
+     * Returns the authentication error code.
+     * 
+     * Used with the {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN}
+     * login userNameType.
+     * 
+     * @return authenticationErrorCode
+     */
+    public long authenticationErrorCode();
+
+    /**
+     * Checks the presence of the authentication error code field.
+     * 
+     * This flag can also be bulk-get by {@link #flags()}
+     * 
+     * @return true - if authenticationErrorCode field is present, false - if
+     *         not.
+     */
+    public boolean checkHasAuthenticationErrorCode();
+
+    /**
+     * Applies authenticationErrorCode field flag.
+     * 
+     * This flag can also be bulk-set by {@link #flags(int)}
+     */
+    public void applyHasAuthenticationErrorCode();
+
+    /**
+     * Sets the authentication error text.
+     * 
+     * Used with the {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN}
+     * login userNameType.
+     * 
+     * @param authenticationErrorText
+     */
+    public void authenticationErrorText(Buffer authenticationErrorText);
+
+    /**
+     * Returns the authentication error text.
+     * 
+     * Used with the {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN}
+     * login userNameType.
+     * 
+     * @return authenticationErrorText
+     */
+    public Buffer authenticationErrorText();
+
+    /**
+     * Checks the presence of the authentication error text field.
+     * 
+     * This flag can also be bulk-get by {@link #flags()}
+     * 
+     * @return true - if authenticationErrorText field is present, false - if
+     *         not.
+     */
+    public boolean checkHasAuthenticationErrorText();
+
+    /**
+     * Applies authenticationErrorText field flag.
+     * 
+     * This flag can also be bulk-set by {@link #flags(int)}
+     */
+    public void applyHasAuthenticationErrorText();
 }

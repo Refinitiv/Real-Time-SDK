@@ -21,6 +21,7 @@ import com.thomsonreuters.upa.valueadd.examples.common.CacheHandler;
 import com.thomsonreuters.upa.valueadd.examples.common.CacheInfo;
 import com.thomsonreuters.upa.valueadd.examples.niprovider.StreamIdWatchList.WatchListEntry;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel.State;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
@@ -87,6 +88,8 @@ class MarketByOrderHandler
     
     private int closeStream(ReactorChannel chnl, int streamId, ReactorErrorInfo errorInfo)
     {
+    	if(chnl.state() == State.UP)
+    	{
         //get a buffer for the item close
         TransportBuffer msgBuf = chnl.getBuffer(TRANSPORT_BUFFER_SIZE_CLOSE, false, errorInfo);
         if (msgBuf == null)
@@ -105,6 +108,8 @@ class MarketByOrderHandler
                         + CodecReturnCodes.toString(ret) + ">");
         }
         return chnl.submit(msgBuf, submitOptions, errorInfo);
+    	}
+    	return ReactorReturnCodes.SUCCESS;
     }
 
     /*

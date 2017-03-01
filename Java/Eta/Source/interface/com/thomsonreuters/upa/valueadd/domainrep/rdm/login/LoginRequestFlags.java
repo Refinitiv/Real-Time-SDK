@@ -41,6 +41,12 @@ public class LoginRequestFlags
      */
     public static final int PAUSE_ALL = 0x0080;
         
+    /** (0x0200) Indicates presence of the authentication extended data member 
+     * This is optionally used when the userNameType member is set to
+     * {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN}
+     */
+    public static final int HAS_AUTHENTICATION_EXTENDED = 0x0200;
+    
     private LoginRequestFlags()
     {
         throw new AssertionError();

@@ -32,7 +32,10 @@ class LoginRequestImpl extends MsgBaseImpl
     private Buffer instanceId;
     private Buffer password;
     private long role;
+    private Buffer authenticationToken;
+    private Buffer authenticationExtended;
 
+    private static final String blankStringConst = new String(new byte[] { 0x0 });
     private static String defaultUsername;
     
     private ElementEntry elementEntry = CodecFactory.createElementEntry();
@@ -42,7 +45,6 @@ class LoginRequestImpl extends MsgBaseImpl
     private final static String eol = System.getProperty("line.separator");
     private final static String tab = "\t";
 
-    
     public void flags(int flags)
     {
         this.flags = flags;
@@ -100,6 +102,15 @@ class LoginRequestImpl extends MsgBaseImpl
             destRequestMsg.applyHasRole();
             destRequestMsg.role(role);
         }
+        
+        if (checkHasAuthenticationExtended())
+        {
+            ByteBuffer byteBuffer = ByteBuffer.allocate(this.authenticationExtended.length());
+            this.authenticationExtended.copy(byteBuffer);
+            destRequestMsg.applyHasAuthenticationExtended();
+            destRequestMsg.authenticationExtended().data(byteBuffer);
+        }
+        
         return CodecReturnCodes.SUCCESS;
     }
 
@@ -107,6 +118,8 @@ class LoginRequestImpl extends MsgBaseImpl
     {
         password = CodecFactory.createBuffer();
         instanceId = CodecFactory.createBuffer();
+        authenticationToken = CodecFactory.createBuffer();
+        authenticationExtended = CodecFactory.createBuffer();
         attrib = new LoginAttribImpl();
         try
         {
@@ -145,6 +158,8 @@ class LoginRequestImpl extends MsgBaseImpl
         role = Login.RoleTypes.CONS;
         downloadConnectionConfig = 0;
         attrib.clear();
+        authenticationToken.clear();
+        authenticationExtended.clear();
     }
     
     public int decode(DecodeIterator dIter, Msg msg)
@@ -219,46 +234,102 @@ class LoginRequestImpl extends MsgBaseImpl
             {
                 if (elementEntry.dataType() != DataTypes.ASCII_STRING)
                     return CodecReturnCodes.FAILURE;
+                if(elementEntry.encodedData().length() != 0)
+                {
                 applyHasAttrib();
                 Buffer applicationId = elementEntry.encodedData();
                 attrib.applyHasApplicationId();
                 attrib.applicationId().data(applicationId.data(), applicationId.position(), applicationId.length());
             }
+                else
+                	return CodecReturnCodes.FAILURE;
+            }
             else if (elementEntry.name().equals(ElementNames.APPNAME))
             {
                 if (elementEntry.dataType() != DataTypes.ASCII_STRING)
                     return CodecReturnCodes.FAILURE;
+                if(elementEntry.encodedData().length() != 0)
+                {
                 applyHasAttrib();
                 Buffer applicationName = elementEntry.encodedData();
                 attrib.applyHasApplicationName();
                 attrib.applicationName().data(applicationName.data(), applicationName.position(), applicationName.length());
             }
+                else
+                	return CodecReturnCodes.FAILURE;
+            }
             else if (elementEntry.name().equals(ElementNames.POSITION))
             {
                 if (elementEntry.dataType() != DataTypes.ASCII_STRING)
                     return CodecReturnCodes.FAILURE;
-                
+                if(elementEntry.encodedData().length() != 0)
+                {
                 applyHasAttrib();
                 Buffer position = elementEntry.encodedData();
                 attrib.applyHasPosition();
                 attrib.position().data(position.data(), position.position(), position.length());
             }
+                else
+                	return CodecReturnCodes.FAILURE;
+            }
             else if (elementEntry.name().equals(ElementNames.PASSWORD))
             {
                 if (elementEntry.dataType() != DataTypes.ASCII_STRING)
                     return CodecReturnCodes.FAILURE;
+                
+                if(elementEntry.encodedData().length() != 0)
+                {
                 Buffer password = elementEntry.encodedData();
                 applyHasAttrib();
                 applyHasPassword();
                 password().data(password.data(), password.position(), password.length());
             }
+	            else
+	            	return CodecReturnCodes.FAILURE;
+            }
+            else if (elementEntry.name().equals(ElementNames.AUTHN_TOKEN))
+            {
+                if (elementEntry.dataType() != DataTypes.ASCII_STRING
+                        && elementEntry.dataType() != DataTypes.BUFFER)
+                    return CodecReturnCodes.FAILURE;
+                if(elementEntry.encodedData().length() != 0)
+                {
+	                Buffer authenticationToken = elementEntry.encodedData();
+	                userName().data(authenticationToken.data(),
+	                                           authenticationToken.position(),
+	                                           authenticationToken.length());
+                }
+	            else
+	            	return CodecReturnCodes.FAILURE;
+            }
+            else if (elementEntry.name().equals(ElementNames.AUTHN_EXTENDED))
+            {
+                if (elementEntry.dataType() != DataTypes.ASCII_STRING
+                        && elementEntry.dataType() != DataTypes.BUFFER)
+                    return CodecReturnCodes.FAILURE;
+                if(elementEntry.encodedData().length() != 0)
+                {
+	                Buffer authenticationExtended = elementEntry.encodedData();
+	                applyHasAuthenticationExtended();
+	                authenticationExtended().data(authenticationExtended.data(),
+	                                              authenticationExtended.position(),
+	                                              authenticationExtended.length());
+                }
+	            else
+	            	return CodecReturnCodes.FAILURE;
+            }
             else if (elementEntry.name().equals(ElementNames.INST_ID))
             {
                 if (elementEntry.dataType() != DataTypes.ASCII_STRING)
                     return CodecReturnCodes.FAILURE;
+                if(elementEntry.encodedData().length() != 0)
+                {
                 Buffer instanceId = elementEntry.encodedData();
                 applyHasInstanceId();
                 instanceId().data(instanceId.data(), instanceId.position(), instanceId.length());
+            }
+	            else
+	            	return CodecReturnCodes.FAILURE;
             }
             else if (elementEntry.name().equals(ElementNames.DOWNLOAD_CON_CONFIG))
             {
@@ -351,9 +422,10 @@ class LoginRequestImpl extends MsgBaseImpl
         {
             requestMsg.msgKey().applyHasNameType();
             requestMsg.msgKey().nameType(userNameType());
+            if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
+                requestMsg.msgKey().name().data(blankStringConst);
         }
 
-       
         requestMsg.msgKey().applyHasAttrib();
         requestMsg.msgKey().attribContainerType(DataTypes.ELEMENT_LIST);
         int ret = requestMsg.encodeInit(encodeIter, 0);
@@ -382,7 +454,7 @@ class LoginRequestImpl extends MsgBaseImpl
         if ((ret = elementList.encodeInit(encodeIter, null, 0)) != CodecReturnCodes.SUCCESS)
             return ret;
 
-        if (checkHasAttrib() && attrib.checkHasApplicationId())
+        if (checkHasAttrib() && attrib.checkHasApplicationId() && attrib.applicationId().length() != 0)
         {
             elementEntry.dataType(DataTypes.ASCII_STRING);
             elementEntry.name(ElementNames.APPID);
@@ -390,7 +462,7 @@ class LoginRequestImpl extends MsgBaseImpl
                 return ret;
         }
 
-        if (checkHasAttrib() && attrib.checkHasApplicationName())
+        if (checkHasAttrib() && attrib.checkHasApplicationName() && attrib.applicationName().length() != 0)
         {
             elementEntry.dataType(DataTypes.ASCII_STRING);
             elementEntry.name(ElementNames.APPNAME);
@@ -398,7 +470,7 @@ class LoginRequestImpl extends MsgBaseImpl
                 return ret;
         }
 
-        if (checkHasAttrib() && attrib.checkHasPosition())
+        if (checkHasAttrib() && attrib.checkHasPosition() && attrib.position().length() != 0)
         {
             elementEntry.dataType(DataTypes.ASCII_STRING);
             elementEntry.name(ElementNames.POSITION);
@@ -406,7 +478,7 @@ class LoginRequestImpl extends MsgBaseImpl
                 return ret;
         }
 
-        if (checkHasPassword())
+        if (checkHasPassword() && password().length() != 0)
         {
             elementEntry.dataType(DataTypes.ASCII_STRING);
             elementEntry.name(ElementNames.PASSWORD);
@@ -464,7 +536,23 @@ class LoginRequestImpl extends MsgBaseImpl
                 return ret;
         }
         
-        if (checkHasInstanceId())
+        if (checkHasUserNameType() && userNameType == Login.UserIdTypes.AUTHN_TOKEN && userName().length() != 0)
+        {
+            elementEntry.dataType(DataTypes.ASCII_STRING);
+            elementEntry.name(ElementNames.AUTHN_TOKEN);
+            if ((ret = elementEntry.encode(encodeIter, userName())) != CodecReturnCodes.SUCCESS)
+                return ret;
+
+            if (checkHasAuthenticationExtended() && authenticationExtended().length() != 0)
+            {
+                elementEntry.dataType(DataTypes.BUFFER);
+                elementEntry.name(ElementNames.AUTHN_EXTENDED);
+                if ((ret = elementEntry.encode(encodeIter, authenticationExtended())) != CodecReturnCodes.SUCCESS)
+                    return ret;
+            }
+        }
+        
+        if (checkHasInstanceId() && instanceId().length() != 0)
         {
             elementEntry.dataType(DataTypes.ASCII_STRING);
             elementEntry.name(ElementNames.INST_ID);
@@ -617,6 +705,14 @@ class LoginRequestImpl extends MsgBaseImpl
             stringBuf.append(eol);
         }
         
+        if (checkHasAuthenticationExtended())
+        {
+            stringBuf.append(tab);
+            stringBuf.append("authenticationExtended: ");
+            stringBuf.append(authenticationExtended());
+            stringBuf.append(eol);
+        }
+        
         return stringBuf.toString();
     }
     
@@ -721,6 +817,31 @@ class LoginRequestImpl extends MsgBaseImpl
         assert(checkHasAttrib());
         LoginAttribImpl loginAttribImpl = (LoginAttribImpl)attrib;
         loginAttribImpl.copyReferences(loginAttribImpl);
+    }
+    
+    
+    public Buffer authenticationExtended()
+    {
+        return authenticationExtended;
+    }
+
+    public void authenticationExtended(Buffer authenticationExtended)
+    {
+        assert (authenticationExtended != null) : "authenticationExtended can not be null";
+        assert (checkHasAuthenticationExtended()) : "authenticationExtended flag should be set first";
+        authenticationExtended().data(authenticationExtended.data(),
+                                      authenticationExtended.position(),
+                                      authenticationExtended.length());
+    }
+
+    public boolean checkHasAuthenticationExtended()
+    {
+        return (flags & LoginRequestFlags.HAS_AUTHENTICATION_EXTENDED) != 0;
+    }
+
+    public void applyHasAuthenticationExtended()
+    {
+        flags |= LoginRequestFlags.HAS_AUTHENTICATION_EXTENDED;
     }
     
     @Override

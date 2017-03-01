@@ -77,6 +77,20 @@ public class ElementNames
     /** SystemID */
     public static final Buffer SYSTEM_ID = CodecFactory.createBuffer();
 
+    // Authentication Support Feature - Well known Element Names
+    /** AUTHN_TOKEN */
+    public static final Buffer AUTHN_TOKEN = CodecFactory.createBuffer();
+    /** AUTHN_EXTENDED */
+    public static final Buffer AUTHN_EXTENDED = CodecFactory.createBuffer();
+    /** AUTHN_TT_REISSUE  */
+    public static final Buffer AUTHN_TT_REISSUE  = CodecFactory.createBuffer();
+    /** AUTHN_EXTENDED_RESP */
+    public static final Buffer AUTHN_EXTENDED_RESP = CodecFactory.createBuffer();
+    /** AUTHN_ERROR_CODE */
+    public static final Buffer AUTHN_ERROR_CODE = CodecFactory.createBuffer();
+    /** AUTHN_ERROR_TEXT */
+    public static final Buffer AUTHN_ERROR_TEXT = CodecFactory.createBuffer();
+
     // RDMService - Well known Element Names
     /** RDMService Name */
     public static final Buffer NAME = CodecFactory.createBuffer();
@@ -289,6 +303,20 @@ public class ElementNames
         /** SystemID */
         SYSTEM_ID.data("SystemID");
 
+        // Authentication Support Feature - Well known Element Names
+        /** AUTHN_TOKEN */
+        AUTHN_TOKEN.data("AuthenticationToken");
+        /** AUTHN_EXTENDED */
+        AUTHN_EXTENDED.data("AuthenticationExtended");
+        /** AUTHN_TT_REISSUE  */
+        AUTHN_TT_REISSUE.data("AuthenticationTTReissue");
+        /** AUTHN_EXTENDED_RESP */
+        AUTHN_EXTENDED_RESP.data("AuthenticationExtendedResp");
+        /** AUTHN_ERROR_CODE */
+        AUTHN_ERROR_CODE.data("AuthenticationErrorCode");
+        /** AUTHN_ERROR_TEXT */
+        AUTHN_ERROR_TEXT.data("AuthenticationErrorText");
+        
         // RDMService - Well known Element Names
         /** RDMService Name */
         NAME.data("Name");

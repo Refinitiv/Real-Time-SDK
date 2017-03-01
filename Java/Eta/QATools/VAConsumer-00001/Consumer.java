@@ -48,6 +48,9 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
+// APIQA:
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequestFlags;
+// END APIQA:
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
 import com.thomsonreuters.upa.valueadd.examples.common.CacheInfo;
 import com.thomsonreuters.upa.valueadd.examples.common.ConnectionArg;
@@ -270,8 +273,12 @@ public class Consumer implements ConsumerCallback
 	private long closetime;
 	private long closeRunTime; 
 	boolean closeHandled;
+	// APIQA: Adding variables
+	int eventCounter = 0;
+	int srcdirEventCounter = 0;
+	// END APIQA
 
-    private ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+	private ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
 	
     public Consumer()
     {
@@ -475,7 +482,7 @@ public class Consumer implements ConsumerCallback
 				}
 			}
 	        
-	           // Handle run-time
+	        // Handle run-time
             if (System.currentTimeMillis() >= runtime && !closeHandled)
             {
                 System.out.println("Consumer run-time expired, close now...");
@@ -887,6 +894,21 @@ public class Consumer implements ConsumerCallback
                         }
                     }
                 }
+				// APIQA:
+				srcdirEventCounter++;
+				if (srcdirEventCounter == 1) {
+					// Do a RESUME
+					LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+					loginRequest.flags(loginRequest.flags() &~ LoginRequestFlags.PAUSE_ALL);
+					loginRequest.flags(loginRequest.flags() &~ LoginRequestFlags.NO_REFRESH);
+					submitOptions.clear();
+					if ( (chnlInfo.reactorChannel.submit(loginRequest, submitOptions, errorInfo)) !=  CodecReturnCodes.SUCCESS) {
+						System.out.println("APIQA: Submit failed when attempting to send RESUME ALL. Error: " + errorInfo.error().text());
+					} else {
+						System.out.println("APIQA: sending RESUME ALL");
+					}
+				}
+				// END APIQA:
 
 				break;
 			case CLOSE:
@@ -1260,6 +1282,21 @@ public class Consumer implements ConsumerCallback
             case DomainTypes.MARKET_PRICE:
             	System.out.println("(Channel " + chnlInfo.reactorChannel.selectableChannel() + "):");
                 processMarketPriceResp(chnlInfo);
+				// APIQA: Send login reissue for PAUSE_ALL
+				eventCounter++;
+				if ( eventCounter == 3 ) 
+				{
+					LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+					loginRequest.applyPause();
+					loginRequest.applyNoRefresh();
+					submitOptions.clear();
+					if ( (chnlInfo.reactorChannel.submit(loginRequest, submitOptions, errorInfo)) !=  CodecReturnCodes.SUCCESS) {
+						System.out.println("APIQA: Submit failed when attempting to send PAUSE ALL. Error: " + errorInfo.error().text());
+					} else {
+						System.out.println("APIQA: sending PAUSE ALL");
+					}
+				}
+				// END APIQA
                 break;
             case DomainTypes.MARKET_BY_ORDER:
             	System.out.print("(Channel " + chnlInfo.reactorChannel.selectableChannel() + "):");
@@ -1571,12 +1608,7 @@ public class Consumer implements ConsumerCallback
             qServiceName = chnlInfo.connectionArg.qService();
             tunnelStreamHandler = new TunnelStreamHandler(chnlInfo.connectionArg.tunnelAuth(), chnlInfo.connectionArg.tunnelDomain());
         }
-        
-        // APIQA:  Handle tunnel stream message size configuration
-        if (tunnelStreamHandler != null)
-        	tunnelStreamHandler.setTunnelMsgSize(consumerCmdLineParser.tunnelMsgSize());
-        // END APIQA:
-        
+
         if (consumerCmdLineParser.cacheOption())
         {
         	initializeCache(chnlInfo.cacheInfo);

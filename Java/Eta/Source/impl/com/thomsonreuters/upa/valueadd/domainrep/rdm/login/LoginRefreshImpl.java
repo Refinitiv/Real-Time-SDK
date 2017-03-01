@@ -35,6 +35,11 @@ class LoginRefreshImpl extends MsgBaseImpl
     private LoginAttrib attrib;
     private LoginSupportFeatures features;
     private LoginConnectionConfig connectionConfig;
+    private long authenticationTTReissue;
+    private Buffer authenticationExtendedResp;
+    private long authenticationErrorCode;
+    private Buffer authenticationErrorText;
+    private static final String blankStringConst = new String(new byte[] { 0x0 });
 
     private ElementList elementList = CodecFactory.createElementList();
     private ElementEntry element = CodecFactory.createElementEntry();
@@ -50,6 +55,8 @@ class LoginRefreshImpl extends MsgBaseImpl
         attrib = new LoginAttribImpl();
         features = new LoginSupportFeaturesImpl();
         connectionConfig = new LoginConnectionConfigImpl();
+        authenticationExtendedResp = CodecFactory.createBuffer();
+        authenticationErrorText = CodecFactory.createBuffer();
     }
 
     public void clear()
@@ -63,6 +70,10 @@ class LoginRefreshImpl extends MsgBaseImpl
         userNameType = Login.UserIdTypes.NAME;
         userName.clear();
         sequenceNumber = 0;
+        authenticationTTReissue = 0;
+        authenticationErrorCode = 0;
+        authenticationExtendedResp.clear();
+        authenticationErrorText.clear();
         clearAttrib();
         connectionConfig.clear();
     }
@@ -94,6 +105,31 @@ class LoginRefreshImpl extends MsgBaseImpl
         {
             destRefreshMsg.applyHasSequenceNumber();
             destRefreshMsg.sequenceNumber(sequenceNumber);
+        }
+
+        if (checkHasAuthenticationTTReissue())
+        {
+            destRefreshMsg.applyHasAuthenticationTTReissue();
+            destRefreshMsg.authenticationTTReissue(authenticationTTReissue);
+        }
+        if (checkHasAuthenticationExtendedResp())
+        {
+            ByteBuffer byteBuffer = ByteBuffer.allocate(this.authenticationExtendedResp.length());
+            authenticationExtendedResp.copy(byteBuffer);
+            destRefreshMsg.applyHasAuthenticationExtendedResp();
+            destRefreshMsg.authenticationExtendedResp().data(byteBuffer);
+        }
+        if (checkHasAuthenticationErrorCode())
+        {
+            destRefreshMsg.applyHasAuthenticationErrorCode();
+            destRefreshMsg.authenticationErrorCode(authenticationErrorCode);
+        }
+        if (checkHasAuthenticationErrorText())
+        {
+            ByteBuffer byteBuffer = ByteBuffer.allocate(this.authenticationErrorText.length());
+            authenticationErrorText.copy(byteBuffer);
+            destRefreshMsg.applyHasAuthenticationErrorText();
+            destRefreshMsg.authenticationErrorText().data(byteBuffer);
         }
 
         if (checkClearCache())
@@ -222,6 +258,11 @@ class LoginRefreshImpl extends MsgBaseImpl
 
         if (checkHasUserNameType())
         {
+            if (userNameType == Login.UserIdTypes.AUTHN_TOKEN)
+            {
+                refreshMsg.msgKey().applyHasName();
+                refreshMsg.msgKey().name().data(blankStringConst);
+            }
             refreshMsg.msgKey().applyHasNameType();
             refreshMsg.msgKey().nameType(userNameType());
         }
@@ -301,6 +342,7 @@ class LoginRefreshImpl extends MsgBaseImpl
 
         if (msgKey.checkHasNameType())
         {
+            applyHasUserNameType();
             userNameType(msgKey.nameType());
         }
 
@@ -390,28 +432,44 @@ class LoginRefreshImpl extends MsgBaseImpl
             {
                 if (element.dataType() != DataTypes.ASCII_STRING)
                     return CodecReturnCodes.FAILURE;
+                
+                if(element.encodedData().length() != 0)
+                {
                 applyHasAttrib();
                 Buffer applicationId = element.encodedData();
                 attrib.applyHasApplicationId();
                 attrib.applicationId().data(applicationId.data(), applicationId.position(), applicationId.length());
             }
+                else
+                	return CodecReturnCodes.FAILURE;
+            }
             else if (element.name().equals(ElementNames.APPNAME))
             {
                 if (element.dataType() != DataTypes.ASCII_STRING)
                     return CodecReturnCodes.FAILURE;
+                if(element.encodedData().length() != 0)
+                {
                 applyHasAttrib();
                 Buffer applicationName = element.encodedData();
                 attrib.applyHasApplicationName();
                 attrib.applicationName().data(applicationName.data(), applicationName.position(), applicationName.length());
             }
+                else
+                	return CodecReturnCodes.FAILURE;
+            }
             else if (element.name().equals(ElementNames.POSITION))
             {
                 if (element.dataType() != DataTypes.ASCII_STRING)
                     return CodecReturnCodes.FAILURE;
+                if(element.encodedData().length() != 0)
+                {
                 applyHasAttrib();
                 Buffer position = element.encodedData();
                 attrib.applyHasPosition();
                 attrib.position().data(position.data(), position.position(), position.length());
+            }
+	            else
+	            	return CodecReturnCodes.FAILURE;
             }
             else if (element.name().equals(ElementNames.PROV_PERM_EXP))
             {
@@ -525,6 +583,58 @@ class LoginRefreshImpl extends MsgBaseImpl
                 features.applyHasSupportProviderDictionaryDownload();
                 features.supportProviderDictionaryDownload(tmpUInt.toLong());
             }            
+            else if (element.name().equals(ElementNames.AUTHN_TT_REISSUE))
+            {
+                if (element.dataType() != DataTypes.UINT)
+                    return CodecReturnCodes.FAILURE;
+                ret = tmpUInt.decode(dIter);
+                if (ret != CodecReturnCodes.SUCCESS)
+                    return ret;
+                applyHasAuthenticationTTReissue();
+                authenticationTTReissue(tmpUInt.toLong());
+            }
+            else if (element.name().equals(ElementNames.AUTHN_EXTENDED_RESP))
+            {
+                if (element.dataType() != DataTypes.ASCII_STRING
+                        && element.dataType() != DataTypes.BUFFER)
+                    return CodecReturnCodes.FAILURE;
+                if(element.encodedData().length() != 0)
+                {
+	                Buffer authenticationExtendedResp = element.encodedData();
+	                applyHasAuthenticationExtendedResp();
+	                authenticationExtendedResp().data(authenticationExtendedResp.data(),
+	                                                  authenticationExtendedResp.position(),
+	                                                  authenticationExtendedResp.length());
+	            }
+	            else
+	            	return CodecReturnCodes.FAILURE;
+            }
+            else if (element.name().equals(ElementNames.AUTHN_ERROR_CODE))
+            {
+                if (element.dataType() != DataTypes.UINT)
+                    return CodecReturnCodes.FAILURE;
+                ret = tmpUInt.decode(dIter);
+                if (ret != CodecReturnCodes.SUCCESS)
+                    return ret;
+                applyHasAuthenticationErrorCode();
+                authenticationErrorCode(tmpUInt.toLong());
+            }
+            else if (element.name().equals(ElementNames.AUTHN_ERROR_TEXT))
+            {
+                if (element.dataType() != DataTypes.ASCII_STRING
+                        && element.dataType() != DataTypes.BUFFER)
+                    return CodecReturnCodes.FAILURE;
+                if(element.encodedData().length() != 0)
+                {
+	                Buffer authenticationErrorText = element.encodedData();
+	                applyHasAuthenticationErrorText();
+	                authenticationErrorText().data(authenticationErrorText.data(),
+	                                               authenticationErrorText.position(),
+	                                               authenticationErrorText.length());
+                }
+	            else
+	            	return CodecReturnCodes.FAILURE;
+            }
         }
 
         return CodecReturnCodes.SUCCESS;
@@ -625,6 +735,94 @@ class LoginRefreshImpl extends MsgBaseImpl
         flags |= LoginRefreshFlags.HAS_SEQ_NUM;
     }
 
+    public void authenticationTTReissue(long authenticationTTReissue)
+    {
+        assert (checkHasAuthenticationTTReissue());
+        this.authenticationTTReissue = authenticationTTReissue;
+    }
+
+    public long authenticationTTReissue()
+    {
+        return authenticationTTReissue;
+    }
+
+    public boolean checkHasAuthenticationTTReissue()
+    {
+        return (flags() & LoginRefreshFlags.HAS_AUTHENTICATION_TT_REISSUE) != 0;
+    }
+
+    public void applyHasAuthenticationTTReissue()
+    {
+        flags |= LoginRefreshFlags.HAS_AUTHENTICATION_TT_REISSUE;
+    }
+
+    public void authenticationExtendedResp(Buffer authenticationExtendedResp)
+    {
+        assert (checkHasAuthenticationExtendedResp());
+        authenticationExtendedResp.data(authenticationExtendedResp.data(),
+                                        authenticationExtendedResp.position(),
+                                        authenticationExtendedResp.length());
+    }
+
+    public Buffer authenticationExtendedResp()
+    {
+        return authenticationExtendedResp;
+    }
+
+    public boolean checkHasAuthenticationExtendedResp()
+    {
+        return (flags() & LoginRefreshFlags.HAS_AUTHENTICATION_EXTENDED_RESP) != 0;
+    }
+
+    public void applyHasAuthenticationExtendedResp()
+    {
+        flags |= LoginRefreshFlags.HAS_AUTHENTICATION_EXTENDED_RESP;
+    }
+
+    public void authenticationErrorCode(long authenticationErrorCode)
+    {
+        assert (checkHasAuthenticationErrorCode());
+        this.authenticationErrorCode = authenticationErrorCode;
+    }
+
+    public long authenticationErrorCode()
+    {
+        return authenticationErrorCode;
+    }
+
+    public boolean checkHasAuthenticationErrorCode()
+    {
+        return (flags() & LoginRefreshFlags.HAS_AUTHENTICATION_ERROR_CODE) != 0;
+    }
+
+    public void applyHasAuthenticationErrorCode()
+    {
+        flags |= LoginRefreshFlags.HAS_AUTHENTICATION_ERROR_CODE;
+    }
+
+    public void authenticationErrorText(Buffer authenticationErrorText)
+    {
+        assert (checkHasAuthenticationErrorText());
+        authenticationErrorText.data(authenticationErrorText.data(),
+                                     authenticationErrorText.position(),
+                                     authenticationErrorText.length());
+    }
+
+    public Buffer authenticationErrorText()
+    {
+        return authenticationErrorText;
+    }
+
+    public boolean checkHasAuthenticationErrorText()
+    {
+        return (flags() & LoginRefreshFlags.HAS_AUTHENTICATION_ERROR_TEXT) != 0;
+    }
+
+    public void applyHasAuthenticationErrorText()
+    {
+        flags |= LoginRefreshFlags.HAS_AUTHENTICATION_ERROR_TEXT;
+    }
+    
     public LoginAttrib attrib()
     {
         return attrib;
@@ -678,9 +876,42 @@ class LoginRefreshImpl extends MsgBaseImpl
         if (ret != CodecReturnCodes.SUCCESS)
             return ret;
 
+        if (checkHasAuthenticationTTReissue())
+        {
+            element.dataType(DataTypes.UINT);
+            element.name(ElementNames.AUTHN_TT_REISSUE);
+            tmpUInt.value(authenticationTTReissue());
+            if ((ret = element.encode(encodeIter, tmpUInt)) != CodecReturnCodes.SUCCESS)
+                return ret;
+        }
+        if (checkHasAuthenticationExtendedResp() && authenticationExtendedResp().length() != 0)
+        {
+            element.dataType(DataTypes.ASCII_STRING);
+            element.name(ElementNames.AUTHN_EXTENDED_RESP);
+            ret = element.encode(encodeIter, authenticationExtendedResp());
+            if (ret != CodecReturnCodes.SUCCESS)
+                return ret;
+        }
+        if (checkHasAuthenticationErrorCode())
+        {
+            element.dataType(DataTypes.UINT);
+            element.name(ElementNames.AUTHN_ERROR_CODE);
+            tmpUInt.value(authenticationErrorCode());
+            if ((ret = element.encode(encodeIter, tmpUInt)) != CodecReturnCodes.SUCCESS)
+                return ret;
+        }
+        if (checkHasAuthenticationErrorText() && authenticationErrorText().length() != 0)
+        {
+            element.dataType(DataTypes.ASCII_STRING);
+            element.name(ElementNames.AUTHN_ERROR_TEXT);
+            ret = element.encode(encodeIter, authenticationErrorText());
+            if (ret != CodecReturnCodes.SUCCESS)
+                return ret;
+        }        
+        
         if (checkHasAttrib())
         {
-            if (attrib().checkHasApplicationId())
+            if (attrib().checkHasApplicationId() && attrib().applicationId().length() != 0)
             {
                 element.dataType(DataTypes.ASCII_STRING);
                 element.name(ElementNames.APPID);
@@ -689,7 +920,7 @@ class LoginRefreshImpl extends MsgBaseImpl
                     return ret;
             }
 
-            if (attrib().checkHasApplicationName())
+            if (attrib().checkHasApplicationName() && attrib().applicationName().length() != 0)
             {
                 element.dataType(DataTypes.ASCII_STRING);
                 element.name(ElementNames.APPNAME);
@@ -698,7 +929,7 @@ class LoginRefreshImpl extends MsgBaseImpl
                     return ret;
             }
 
-            if (attrib().checkHasPosition())
+            if (attrib().checkHasPosition() && attrib().position().length() != 0)
             {
                 element.dataType(DataTypes.ASCII_STRING);
                 element.name(ElementNames.POSITION);
@@ -835,6 +1066,35 @@ class LoginRefreshImpl extends MsgBaseImpl
             stringBuf.append(tab);
             stringBuf.append("isSolicited: ");
             stringBuf.append(true);
+            stringBuf.append(eol);
+        }
+
+        if (checkHasAuthenticationTTReissue())
+        {
+            stringBuf.append(tab);
+            stringBuf.append("authenticationTTReissue: ");
+            stringBuf.append(authenticationTTReissue());
+            stringBuf.append(eol);
+        }
+        if (checkHasAuthenticationExtendedResp())
+        {
+            stringBuf.append(tab);
+            stringBuf.append("authenticationExtendedResp: ");
+            stringBuf.append(authenticationExtendedResp());
+            stringBuf.append(eol);
+        }
+        if (checkHasAuthenticationErrorCode())
+        {
+            stringBuf.append(tab);
+            stringBuf.append("authenticationErrorCode: ");
+            stringBuf.append(authenticationErrorCode());
+            stringBuf.append(eol);
+        }
+        if (checkHasAuthenticationErrorText())
+        {
+            stringBuf.append(tab);
+            stringBuf.append("authenticationErrorText: ");
+            stringBuf.append(authenticationErrorText());
             stringBuf.append(eol);
         }
 

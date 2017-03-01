@@ -52,6 +52,8 @@ class ChannelInfo
 	
 	CacheInfo cacheInfo = new CacheInfo();
 
+	long loginReissueTime; // represented by epoch time in milliseconds
+	boolean canSendLoginReissue;
 
 	{
 	    connectOptions.connectionList().add(connectInfo);

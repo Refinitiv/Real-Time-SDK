@@ -112,6 +112,9 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
  * <li>-x. Provides XML tracing of messages.
  * <li>-runtime run time. Default is 600 seconds. Controls the time the
  * application will run before exiting, in seconds.
+ * <li>-at Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN.
+ * <li>-ax Specifies the Authentication Extended information.
+ * <li>-aid Specifies the Application ID.
  * </ul>
  * 
  * @see LoginHandler
@@ -243,6 +246,7 @@ public class NIProvider implements ResponseCallback
             loginHandler.role(Login.RoleTypes.PROV);
 
             /* Send login request message */
+            channelSession.isLoginReissue = false;
             if (loginHandler.sendRequest(channelSession, error) != CodecReturnCodes.SUCCESS)
             {
                 closeChannel();
@@ -375,6 +379,23 @@ public class NIProvider implements ResponseCallback
                 System.out.println("Error handling pings: " + error.text());
                 System.exit(TransportReturnCodes.FAILURE);
             }
+            
+	        // send login reissue if login reissue time has passed
+    		if (channelSession.canSendLoginReissue &&
+    			System.currentTimeMillis() >= channelSession.loginReissueTime)
+    		{
+	        	channelSession.isLoginReissue = true;
+				if (loginHandler.sendRequest(channelSession, error) !=  CodecReturnCodes.SUCCESS)
+				{
+					System.out.println("Login reissue failed. Error: " + error.text());
+				}
+				else
+				{
+					System.out.println("Login reissue sent");
+				}
+				channelSession.canSendLoginReissue = false;
+    		}
+    		
             currentTime = System.currentTimeMillis();
         }
     }
@@ -459,6 +480,9 @@ public class NIProvider implements ResponseCallback
         	System.exit(-1);
         }
         loginHandler.userName(CommandLine.value("uname"));
+        loginHandler.authenticationToken(CommandLine.value("at"));
+        loginHandler.authenticationExtended(CommandLine.value("ax"));
+        loginHandler.applicationId(CommandLine.value("aid"));
 
         /* set service name in directory handler */
         srcDirHandler.serviceName(CommandLine.value("s"));
@@ -638,6 +662,8 @@ public class NIProvider implements ResponseCallback
         ConsumerLoginState loginState = loginHandler.loginState();
         if (loginState == ConsumerLoginState.OK_SOLICITED)
         {
+        	if (!chnl.isLoginReissue)
+        	{
             ret = srcDirHandler.sendRefresh(chnl, error);
             if (ret != CodecReturnCodes.SUCCESS)
             {
@@ -647,6 +673,7 @@ public class NIProvider implements ResponseCallback
             }
             
             setupDictionary( chnl );
+        }
         }
         else if (loginState == ConsumerLoginState.CLOSED)
         {
@@ -684,6 +711,8 @@ public class NIProvider implements ResponseCallback
                     System.exit(TransportReturnCodes.FAILURE);
                 }
 
+            	if (!chnl.isLoginReissue)
+            	{
                 ret = srcDirHandler.sendRefresh(chnl, error);
                 if (ret != CodecReturnCodes.SUCCESS)
                 {
@@ -694,10 +723,19 @@ public class NIProvider implements ResponseCallback
 
                 sendItemRefreshes(chnl, srcDirHandler.serviceInfo(), error);
             }
+            }
             /*
              * login suspect from single-open provider: provider handles
              * recovery. consumer does nothing in this case.
              */
+        }
+        
+		// get login reissue time from authenticationTTReissue
+        if (responseMsg.msgClass() == MsgClasses.REFRESH &&
+        	loginHandler.refreshInfo().checkHasAuthenticationTTReissue())
+        {
+			chnl.loginReissueTime = loginHandler.refreshInfo().authenticationTTReissue() * 1000;
+			chnl.canSendLoginReissue = true;
         }
     }
 
@@ -826,6 +864,10 @@ public class NIProvider implements ResponseCallback
         CommandLine.addOption("uname", "Login user name. Default is system user name.");
         CommandLine.addOption("runtime", defaultRuntime, "Program runtime in seconds");
         CommandLine.addOption("x", "Provides XML tracing of messages.");
+
+        CommandLine.addOption("at", "", "Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN.");
+        CommandLine.addOption("ax", "", "Specifies the Authentication Extended information.");
+        CommandLine.addOption("aid", "", "Specifies the Application ID.");
     }
 
     /**
