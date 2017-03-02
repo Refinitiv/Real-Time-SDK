@@ -660,27 +660,27 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 		if (pConfigImpl->get<Int64>(channelNodeName + "ReconnectAttemptLimit", tmp))
 		{
 			_activeConfig.setReconnectAttemptLimit(tmp);
-			EmaString errorMsg("This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
+			EmaString errorMsg("ReconnectAttemptLimit is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
 			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 		}
 
 		if (pConfigImpl->get<Int64>(channelNodeName + "ReconnectMinDelay", tmp))
 		{
 			_activeConfig.setReconnectMinDelay(tmp);
-			EmaString errorMsg("This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
+			EmaString errorMsg("ReconnectMinDelay is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
 			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 		}
 
 		if (pConfigImpl->get<Int64>(channelNodeName + "ReconnectMaxDelay", tmp))
 		{
 			_activeConfig.setReconnectMaxDelay(tmp);
-			EmaString errorMsg("This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
+			EmaString errorMsg("ReconnectMaxDelay is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
 			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 		}
 		
 		if (pConfigImpl->get<EmaString>(channelNodeName + "XmlTraceFileName", _activeConfig.xmlTraceFileName))
 		{
-			EmaString errorMsg("This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
+			EmaString errorMsg("XmlTraceFileName is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
 			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 		}
 		
@@ -689,7 +689,7 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 			if (tmp > 0)
 				_activeConfig.xmlTraceMaxFileSize = tmp;
 
-			EmaString errorMsg("This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
+			EmaString errorMsg("XmlTraceMaxFileSize is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
 			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 		}
 
@@ -698,7 +698,7 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 			if (tempUInt > 0)
 				_activeConfig.xmlTraceToFile = true;
 
-			EmaString errorMsg("This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
+			EmaString errorMsg("XmlTraceToFile is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
 			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 		}
 
@@ -706,7 +706,7 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 		{
 			_activeConfig.xmlTraceToStdout = tempUInt > 0 ? true : false;
 
-			EmaString errorMsg("This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
+			EmaString errorMsg("XmlTraceToStdout is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
 			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 		}
 
@@ -715,7 +715,7 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 			if (tempUInt > 0)
 				_activeConfig.xmlTraceToMultipleFiles = true;
 
-			EmaString errorMsg("This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
+			EmaString errorMsg("XmlTraceToMultipleFiles is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
 			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 		}
 
@@ -724,7 +724,7 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 			if (tempUInt == 0)
 				_activeConfig.xmlTraceWrite = false;
 
-			EmaString errorMsg("This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
+			EmaString errorMsg("XmlTraceWrite is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
 			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 		}
 
@@ -733,7 +733,7 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 			if (tempUInt == 0)
 				_activeConfig.xmlTraceRead = false;
 
-			EmaString errorMsg("This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
+			EmaString errorMsg("XmlTraceRead is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
 			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 		}
 
@@ -741,7 +741,7 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 		{
 			_activeConfig.xmlTracePing = tempUInt == 0 ? false : true;
 
-			EmaString errorMsg("This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
+			EmaString errorMsg("XmlTracePing is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
 			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 		}
 
@@ -749,7 +749,7 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 		{
 			_activeConfig.xmlTraceHex = tempUInt == 0 ? false : true;
 
-			EmaString errorMsg("This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
+			EmaString errorMsg("XmlTraceHex is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.");
 			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 		}
 
@@ -758,7 +758,7 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 			if (tempUInt == 0)
 				_activeConfig.msgKeyInUpdates = false;
 
-			EmaString errorMsg("This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer instance.");
+			EmaString errorMsg("MsgKeyInUpdates is no longer configured on a per-channel basis; configure it instead in the Consumer instance.");
 			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 		}
 	}
