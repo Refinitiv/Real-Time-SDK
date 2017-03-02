@@ -22,6 +22,8 @@
 		<pathelement location="${libs.dir}/ansipage.jar"/>
  		<pathelement location="${submodule.dir}/jdacsUpalib.jar"/> 
  		<pathelement location="${submodule.dir}/upaValueAddCache.jar"/> 
+ 		<pathelement location="${libs.dir}/jdacsUpalib.jar"/> 
+ 		<pathelement location="${libs.dir}/upaValueAddCache.jar"/> 
     </path>
 
 	<target name="init">
