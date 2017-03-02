@@ -1045,15 +1045,16 @@ public class ReactorChannel extends VaNode
             statusMsg.applyQualifiedStream();
             statusMsg.domainType(event.domainType());
             statusMsg.streamId(event.streamId());
-            statusMsg.applyHasMsgKey();
-            statusMsg.msgKey().applyHasServiceId();
-            statusMsg.msgKey().serviceId(event.serviceId());
-            statusMsg.msgKey().applyHasName();
-            statusMsg.msgKey().name().data(event.name());
+            statusMsg.applyClearCache();
             statusMsg.applyHasState();
             options.state().copy(statusMsg.state());
             if (options.expectedClassOfService() != null)
             {
+                statusMsg.applyHasMsgKey();
+                statusMsg.msgKey().applyHasServiceId();
+                statusMsg.msgKey().serviceId(event.serviceId());
+                statusMsg.msgKey().applyHasName();
+                statusMsg.msgKey().name().data(event.name());
                 statusMsg.containerType(DataTypes.FILTER_LIST);
                 statusMsg.msgKey().applyHasFilter();
                 statusMsg.msgKey().filter(options.expectedClassOfService().filterFlags());
