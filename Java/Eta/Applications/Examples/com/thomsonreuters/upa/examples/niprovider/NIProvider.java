@@ -741,9 +741,14 @@ public class NIProvider implements ResponseCallback
 
     void setupDictionary(ChannelSession chnl)
     {
-    	if(	loginHandler.refreshInfo().checkHasFeatures() &&
-    		loginHandler.refreshInfo().features().checkHasSupportProviderDictionaryDownload() &&
-    		loginHandler.refreshInfo().features().supportProviderDictionaryDownload() == 1 )
+		if (!dictionaryHandler.loadDictionary(error)) 
+		{
+			/* if no local dictionary found maybe we can request it from ADH */
+			System.out.println("Local dictionary not available, will try to request it from ADH if it supports the Provider Dictionary Download\n");
+
+			if (loginHandler.refreshInfo().checkHasFeatures() 
+					&& loginHandler.refreshInfo().features().checkHasSupportProviderDictionaryDownload()
+					&& loginHandler.refreshInfo().features().supportProviderDictionaryDownload() == 1) 
     	{
     		int sendStatus = dictionaryHandler.sendDictionaryRequests(chnl,error,defaultServiceId);
     		
@@ -753,16 +758,14 @@ public class NIProvider implements ResponseCallback
     		}
     		else
     		{
-    			System.out.println("Dictionary could not be downloaded, unable to send request to the connection; "+error.text());
+					System.out.println("Dictionary could not be downloaded, unable to send request to the connection: " + error.text());
     			closeChannel();
     			System.exit(TransportReturnCodes.FAILURE);
     		}
     	}  
     	else
     	{
-			System.out.println("ADH does not support Dictionary Download; Attempting to load local dictionaries\n");
-    		if (!dictionaryHandler.loadDictionary(error))
-    		{
+				System.out.println("ADH does not support the Provider Dictionary Download\n");
     			closeChannel();
     			System.exit(TransportReturnCodes.FAILURE);
     		}
