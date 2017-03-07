@@ -150,6 +150,8 @@ public :
 
 	void handleMee( const char* );
 
+	Mutex& getUserLock();
+
 protected:
 
 	friend class OmmBaseImplMap<OmmBaseImpl>;

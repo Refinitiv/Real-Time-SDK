@@ -93,6 +93,10 @@ private :
 
 	bool isApiDispatching() const;
 
+	Int32 getNextProviderStreamId();
+
+	void returnProviderStreamId(Int32);
+
 	OmmNiProviderImpl();
 	OmmNiProviderImpl( const OmmNiProviderImpl& );
 	OmmNiProviderImpl& operator=( const OmmNiProviderImpl& );
@@ -147,6 +151,9 @@ private :
 	bool											_bIsStreamIdZeroRefreshSubmitted;
 	RsslRDMDirectoryMsg								_rsslDirectoryMsg;
 	RsslBuffer										_rsslDirectoryMsgBuffer;
+
+	Int32				    						_nextProviderStreamId;
+	EmaList<StreamId*>			 					_reusedProviderStreamIds;
 };
 
 }

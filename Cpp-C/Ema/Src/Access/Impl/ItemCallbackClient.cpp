@@ -56,6 +56,8 @@ const EmaString TunnelItemString( "TunnelItem" );
 const EmaString SubItemString( "SubItem" );
 const EmaString UnknownItemString( "UnknownItem" );
 
+#define CONSUMER_STARTING_STREAM_ID					  4
+
 Item::Item( OmmBaseImpl& ommBaseImpl ) :
 	_domainType( 0 ),
 	_streamId( 0 ),
@@ -237,8 +239,6 @@ SingleItem::~SingleItem()
 		delete _closedStatusInfo;
 		_closedStatusInfo = 0;
 	}
-	if ( _pDirectory && _pDirectory->getChannel() )
-		_pDirectory->getChannel()->returnStreamId( _streamId );
 }
 
 Item::ItemType SingleItem::getType() const 
@@ -386,7 +386,7 @@ bool SingleItem::submit( RsslRequestMsg* pRsslRequestMsg )
 		{
 			const EmaVector<SingleItem*>& singleItemList = static_cast<BatchItem &>( *this ).getSingleItemList();
 
-			submitMsgOpts.pRsslMsg->msgBase.streamId = _pDirectory->getChannel()->getNextStreamId( singleItemList.size() - 1 );
+			submitMsgOpts.pRsslMsg->msgBase.streamId = _ommBaseImpl.getItemCallbackClient().getNextStreamId( singleItemList.size() - 1 );
 			_streamId = submitMsgOpts.pRsslMsg->msgBase.streamId;
 
 			for ( UInt32 i = 1; i < singleItemList.size(); ++i )
@@ -398,7 +398,7 @@ bool SingleItem::submit( RsslRequestMsg* pRsslRequestMsg )
 		}
 		else
 		{
-			submitMsgOpts.pRsslMsg->msgBase.streamId = _pDirectory->getChannel()->getNextStreamId();
+			submitMsgOpts.pRsslMsg->msgBase.streamId = _ommBaseImpl.getItemCallbackClient().getNextStreamId();
 
 			_streamId = submitMsgOpts.pRsslMsg->msgBase.streamId;
 		}
@@ -759,7 +759,7 @@ bool NiProviderSingleItem::submit( RsslRequestMsg* pRsslRequestMsg )
 	if ( !_streamId )
 	{
 		if ( !submitMsgOpts.pRsslMsg->msgBase.streamId )
-			submitMsgOpts.pRsslMsg->msgBase.streamId = pChannel->getNextStreamId();
+			submitMsgOpts.pRsslMsg->msgBase.streamId = _ommBaseImpl.getItemCallbackClient().getNextStreamId();
 
 		_streamId = submitMsgOpts.pRsslMsg->msgBase.streamId;
 	}
@@ -920,8 +920,16 @@ void ItemCallbackClient::sendItemClosedStatus( void* pInfo )
 
 	rsslStatusMsg.msgBase.domainType = (UInt8)pClosedStatusInfo->getDomainType();
 
-	rsslStatusMsg.state.code = RSSL_SC_SOURCE_UNKNOWN;
-	rsslStatusMsg.state.dataState = RSSL_DATA_SUSPECT;
+	if (pClosedStatusInfo->getItem()->getType() == Item::BatchItemEnum)
+	{
+		rsslStatusMsg.state.dataState = RSSL_DATA_OK;
+		rsslStatusMsg.state.code = RSSL_SC_NONE;
+	}
+	else
+	{
+		rsslStatusMsg.state.dataState = RSSL_DATA_SUSPECT;
+		rsslStatusMsg.state.code = RSSL_SC_SOURCE_UNKNOWN;
+	}
 	rsslStatusMsg.state.streamState = RSSL_STREAM_CLOSED;
 	rsslStatusMsg.state.text.data = (char*)pClosedStatusInfo->getStatusText().c_str();
 	rsslStatusMsg.state.text.length = pClosedStatusInfo->getStatusText().length();
@@ -1193,9 +1201,6 @@ TunnelItem::~TunnelItem()
 		delete _closedStatusInfo;
 		_closedStatusInfo = 0;
 	}
-
-	if ( _pDirectory  && _pDirectory->getChannel() )
-		_pDirectory->getChannel()->returnStreamId( _streamId );
 }
 
 const Directory* TunnelItem::getDirectory()
@@ -1429,7 +1434,7 @@ bool TunnelItem::submit( const GenericMsg& )
 bool TunnelItem::submit( const TunnelStreamRequest& tunnelStreamRequest )
 {
 	_domainType = (UInt8)tunnelStreamRequest.getDomainType();
-	_streamId = _pDirectory->getChannel()->getNextStreamId();
+	_streamId = _ommBaseImpl.getItemCallbackClient().getNextStreamId();
 
 	RsslTunnelStreamOpenOptions tsOpenOptions;
 	rsslClearTunnelStreamOpenOptions( &tsOpenOptions );
@@ -1841,8 +1846,6 @@ bool SubItem::close()
 	rsslCloseMsg.msgBase.streamId = _streamId;
     bool retCode = reinterpret_cast<TunnelItem*>( _event.getParentHandle() )->submitSubItemMsg( (RsslMsg*)&rsslCloseMsg );
 	
-	reinterpret_cast<TunnelItem*>( _event.getParentHandle() )->returnSubItemStreamId( _streamId );
-	
 	remove();
 
 	return retCode;
@@ -1850,6 +1853,8 @@ bool SubItem::close()
 
 void SubItem::remove()
 {
+	reinterpret_cast<TunnelItem*>(_event.getParentHandle())->returnSubItemStreamId(_streamId);
+
 	delete this;
 }
 
@@ -1900,7 +1905,7 @@ Int32 ItemList::addItem( Item* pItem )
 	if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 	{
 		EmaString temp( "Added Item " );
-		temp.append( ptrToStringAsHex( pItem ) ).append( " to ItemList" ).append( CR )
+		temp.append( ptrToStringAsHex( pItem ) ).append(" of StreamId ").append(pItem->getStreamId()).append( " to ItemList" ).append( CR )
 			.append( "OmmConsumer name " ).append( _ommBaseImpl .getInstanceName() );
 		_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
 	}
@@ -1915,7 +1920,7 @@ void ItemList::removeItem( Item* pItem )
 	if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 	{
 		EmaString temp( "Removed Item " );
-		temp.append( ptrToStringAsHex( pItem ) ).append( " from ItemList" ).append( CR )
+		temp.append( ptrToStringAsHex( pItem ) ).append(" of StreamId ").append(pItem->getStreamId()).append( " from ItemList" ).append( CR )
 			.append( "Instance name " ).append( _ommBaseImpl .getInstanceName() );
 		_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
 	}
@@ -1928,9 +1933,14 @@ ItemCallbackClient::ItemCallbackClient( OmmBaseImpl& ommBaseImpl ) :
 	_genericMsg(),
 	_ackMsg(),
 	_ommBaseImpl( ommBaseImpl ),
-	_itemMap( ommBaseImpl.getActiveConfig().itemCountHint )
+	_itemMap( ommBaseImpl.getActiveConfig().itemCountHint ),
+	_streamIdMap(ommBaseImpl.getActiveConfig().itemCountHint),
+	_nextStreamIdWrapAround(false),
+	_streamIdAccessMutex()
 {
     _itemList = ItemList::create( ommBaseImpl );
+
+	_nextStreamId = CONSUMER_STARTING_STREAM_ID;
 
 	if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 	{
@@ -2519,7 +2529,7 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 				if ( pItem )
 				{
 					addToList( pItem );
-					addToMap( pItem );
+					addToItemMap( pItem );
 				}
 
 				return (UInt64)pItem;
@@ -2611,30 +2621,58 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 				{
 					BatchItem* pBatchItem = BatchItem::create( _ommBaseImpl, ommConsClient, closure );
 
+					int numOfItems = reqMsgEncoder.getBatchItemListSize();
 					if ( pBatchItem )
 					{
-						try {
-							pItem = pBatchItem;
-							pBatchItem->addBatchItems( reqMsgEncoder.getBatchItemListSize() );
-
-							if ( !pBatchItem->open( reqMsg ) )
+						try 
+						{
+							/* Start splitting the batch request into individual item request if _nextStreamIdWrapAround is true. */
+							if (_ommBaseImpl.getItemCallbackClient().nextStreamIdWrapAround(numOfItems))
 							{
-								for ( UInt32 i = 1 ; i < pBatchItem->getSingleItemList().size() ; i++ )
+								if (!splitAndSendSingleRequest(reqMsg, ommConsClient, closure))
 								{
-									Item::destroy( (Item*&)pBatchItem->getSingleItemList()[i] );
+									Item::destroy((Item*&)pBatchItem);
+
+									EmaString temp("Failed to split a batch request into single item requests on registerClient(). ");
+									temp.append("Instance name='").append(_ommBaseImpl.getInstanceName()).append("'.");
+									_ommBaseImpl.handleIue(temp);
+
+									return (UInt64)0;
 								}
 
-								Item::destroy( (Item*&)pItem );
+								addToList(pBatchItem);
+								addToItemMap(pBatchItem);
+
+								/*Send stream close status for the batch stream */
+								EmaString temp("Batch request acknowledged.");
+								pBatchItem->scheduleItemClosedStatus(reqMsgEncoder, temp);
+
+								return (UInt64)pBatchItem;
 							}
 							else
 							{
-								addToList( pBatchItem );
-								addToMap( pBatchItem );
+								pItem = pBatchItem;
+								pBatchItem->addBatchItems(numOfItems);
 
-								for ( UInt32 i = 1 ; i < pBatchItem->getSingleItemList().size() ; i++ )
+								if (!pBatchItem->open(reqMsg))
 								{
-									addToList( pBatchItem->getSingleItemList()[i] );
-									addToMap( pBatchItem->getSingleItemList()[i] );
+									for (UInt32 i = 1; i < pBatchItem->getSingleItemList().size(); i++)
+									{
+										Item::destroy((Item*&)pBatchItem->getSingleItemList()[i]);
+									}
+
+									Item::destroy((Item*&)pItem);
+								}
+								else
+								{
+									addToList(pBatchItem);
+									addToMap(pBatchItem);
+
+									for (UInt32 i = 1; i < pBatchItem->getSingleItemList().size(); i++)
+									{
+										addToList(pBatchItem->getSingleItemList()[i]);
+										addToMap(pBatchItem->getSingleItemList()[i]);
+									}
 								}
 							}
 						}
@@ -2708,7 +2746,7 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 				else
 				{
 					addToList( pItem );
-					addToMap( pItem );
+					addToItemMap( pItem );
 				}
 			}
 			catch ( ... )
@@ -2895,6 +2933,16 @@ bool ItemCallbackClient::UInt64Equal_To::operator()( const UInt64& x, const UInt
 	return x == y;
 }
 
+Int32 ItemCallbackClient::Int32rHasher::operator()(const Int32& value) const
+{
+	return value;
+}
+
+bool ItemCallbackClient::Int32Equal_To::operator()(const Int32& x, const Int32& y) const
+{
+	return x == y;
+}
+
 void ItemCallbackClient::addToList( Item* pItem )
 {
 	_itemList->addItem( pItem );
@@ -2908,9 +2956,152 @@ void ItemCallbackClient::removeFromList( Item* pItem )
 void ItemCallbackClient::addToMap( Item* pItem )
 {
 	_itemMap.insert( (UInt64)pItem, pItem );
+	_streamIdMap.insert(pItem->getStreamId(), NULL);
 }
 
-void ItemCallbackClient::removeFromMap( Item* pItem )
+void ItemCallbackClient::removeFromMap(Item* pItem)
 {
+	_ommBaseImpl.getUserLock().lock();
+
 	_itemMap.erase( (UInt64)pItem );
+	if ( pItem->getStreamId() > 0 )
+		_streamIdMap.erase( pItem->getStreamId() );
+	
+	_ommBaseImpl.getUserLock().unlock();
+}
+
+void ItemCallbackClient::addToItemMap(Item* pItem)
+{
+	_itemMap.insert((UInt64)pItem, pItem);
+}
+
+bool ItemCallbackClient::isStreamIdInUse( int nextStreamId )
+{
+	return _streamIdMap.find(nextStreamId);
+}
+
+bool ItemCallbackClient::splitAndSendSingleRequest(const ReqMsg& reqMsg, OmmConsumerClient& ommConsClient, void* closure)
+{
+	RsslRequestMsg* rsslReqMsg = static_cast<const ReqMsgEncoder&>(reqMsg.getEncoder()).getRsslRequestMsg();
+	rsslReqMsg->flags &= ~RSSL_RQMF_HAS_BATCH;
+
+	/*decode to get item names */
+	RsslElementList	rsslElementList;
+	RsslElementEntry rsslElementEntry;
+	RsslDecodeIterator decodeIter;
+
+	rsslClearDecodeIterator(&decodeIter);
+	rsslClearElementEntry(&rsslElementEntry);
+	rsslClearElementList(&rsslElementList);
+
+	RsslBuffer tempRsslBuffer = rsslReqMsg->msgBase.encDataBody;
+
+	/*No need to check return code because they have been checked in getItemListSize() function before this call*/
+	rsslSetDecodeIteratorBuffer(&decodeIter, &tempRsslBuffer);
+	rsslSetDecodeIteratorRWFVersion(&decodeIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+	rsslDecodeElementList(&decodeIter, &rsslElementList, 0);
+	while (true)
+	{
+		if (rsslDecodeElementEntry(&decodeIter, &rsslElementEntry) == RSSL_RET_SUCCESS)
+		{
+			if (rsslBufferIsEqual(&rsslElementEntry.name, &RSSL_ENAME_BATCH_ITEM_LIST) && rsslElementEntry.dataType == RSSL_DT_ARRAY)
+			{
+				RsslArray rsslArray;
+				rsslClearArray(&rsslArray);
+				rsslArray.encData = rsslElementEntry.encData;
+
+				if (rsslDecodeArray(&decodeIter, &rsslArray) >= RSSL_RET_SUCCESS)
+				{
+					if (rsslArray.primitiveType == RSSL_DT_ASCII_STRING)
+					{
+						RsslBuffer rsslBuffer;
+						rsslReqMsg->msgBase.msgKey.flags |= RSSL_MKF_HAS_NAME;
+						Item* pItem = NULL;
+
+						while (rsslDecodeArrayEntry(&decodeIter, &rsslBuffer) != RSSL_RET_END_OF_CONTAINER)
+						{
+							if (rsslDecodeBuffer(&decodeIter, &rsslReqMsg->msgBase.msgKey.name) == RSSL_RET_SUCCESS)
+							{
+								pItem = SingleItem::create(_ommBaseImpl, ommConsClient, closure, 0);
+
+								if (pItem)
+								{
+									try {
+										if (!pItem->open(reqMsg))
+											Item::destroy((Item*&)pItem);
+										else
+										{
+											addToList(pItem);
+											addToMap(pItem);
+										}
+									}
+									catch (...)
+									{
+										Item::destroy((Item*&)pItem);
+										throw;
+									}
+								}
+
+							}
+						}
+					}
+				}
+				rsslReqMsg->msgBase.msgKey.flags &= ~RSSL_MKF_HAS_NAME;
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+Int32 ItemCallbackClient::getNextStreamId(UInt32 numberOfBatchItems)
+{
+	Int32 retVal;
+	if (nextStreamIdWrapAround(numberOfBatchItems))
+	{
+		_nextStreamId = CONSUMER_STARTING_STREAM_ID;
+
+		if (OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
+		{
+			EmaString temp("Reach max number available for next stream id, will wrap around");
+			_ommBaseImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::VerboseEnum, temp.trimWhitespace());
+		}
+	}
+
+	if (!_nextStreamIdWrapAround)
+	{
+		if (numberOfBatchItems > 0)
+		{
+			int retVal = ++_nextStreamId;
+			_nextStreamId += numberOfBatchItems;
+			return retVal;
+		}
+
+		return ++_nextStreamId;
+	}
+	else
+	{
+		_streamIdAccessMutex.lock();
+		while (_ommBaseImpl.getItemCallbackClient().isStreamIdInUse(++_nextStreamId));
+		_streamIdAccessMutex.unlock();
+
+		if (_nextStreamId < 0)
+		{
+			EmaString temp("Unable to obtain next available stream id for item request.");
+			if (OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
+				_ommBaseImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, temp);
+
+			if (_ommBaseImpl.hasErrorClientHandler())
+				_ommBaseImpl.getErrorClientHandler().onInvalidUsage(temp);
+			else
+				throwIueException(temp);
+		}
+
+		return _nextStreamId;
+	}
+}
+
+bool ItemCallbackClient::nextStreamIdWrapAround(UInt32 numberOfBatchItems)
+{
+	return (_nextStreamId > INT_MAX - numberOfBatchItems - 1);
 }

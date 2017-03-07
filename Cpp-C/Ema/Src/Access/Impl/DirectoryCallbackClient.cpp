@@ -1566,7 +1566,7 @@ bool DirectoryItem::submit( RsslRequestMsg* pRsslRequestMsg )
 	if ( !_streamId )
 	{
 		if ( !submitMsgOpts.pRsslMsg->msgBase.streamId )
-			submitMsgOpts.pRsslMsg->msgBase.streamId = const_cast< Channel* >( _channel )->getNextStreamId();
+			submitMsgOpts.pRsslMsg->msgBase.streamId = _ommBaseImpl.getItemCallbackClient().getNextStreamId();
 		_streamId = submitMsgOpts.pRsslMsg->msgBase.streamId;
 	}
 	else
@@ -1619,7 +1619,7 @@ bool DirectoryItem::submit( RsslCloseMsg* pRsslCloseMsg )
 	if ( !_streamId )
 	{
 		if ( !submitMsgOpts.pRsslMsg->msgBase.streamId )
-			submitMsgOpts.pRsslMsg->msgBase.streamId = const_cast< Channel* >( _channel )->getNextStreamId();
+			submitMsgOpts.pRsslMsg->msgBase.streamId = _ommBaseImpl.getItemCallbackClient().getNextStreamId();
 		_streamId = submitMsgOpts.pRsslMsg->msgBase.streamId;
 	}
 	else

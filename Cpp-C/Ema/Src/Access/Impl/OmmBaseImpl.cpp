@@ -1592,6 +1592,11 @@ ActiveConfig& OmmBaseImpl::getActiveConfig()
 	return _activeConfig;
 }
 
+Mutex& OmmBaseImpl::getUserLock()
+{
+	return _userLock;
+}
+
 void OmmBaseImpl::run()
 {
 	while ( !Thread::isStopping() && !_atExit )
