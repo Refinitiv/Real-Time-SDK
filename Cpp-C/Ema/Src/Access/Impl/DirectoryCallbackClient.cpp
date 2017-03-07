@@ -1172,8 +1172,8 @@ void DirectoryCallbackClient::addDirectory( Directory* pDirectory )
 
 	_directoryByNameHt.insert( pDirectory->getNamePtr(), pDirectory );
 
-	if ( pDirectory->getState().getAcceptingRequests() == 1 &&
-	     pDirectory->getState().getServiceState() == 1 )
+	if ( _ommBaseImpl.getActiveConfig().dictionaryConfig.dictionaryType == Dictionary::FileDictionaryEnum ||
+		(pDirectory->getState().getAcceptingRequests() == 1 && pDirectory->getState().getServiceState() == 1) )
 		_ommBaseImpl.getDictionaryCallbackClient().downloadDictionary( *pDirectory );
 }
 
