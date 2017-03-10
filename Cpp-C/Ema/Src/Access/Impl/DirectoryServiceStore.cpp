@@ -2551,7 +2551,7 @@ bool DirectoryServiceStore::encodeDirectoryMsg(const RsslRDMDirectoryMsg& direct
 
 				if (pRDMService)
 				{
-					if (pRDMService->action == MapEntry::DeleteEnum)
+					if (pRDMService->action == RSSL_MPEA_DELETE_ENTRY)
 					{
 						encodeDirectoryMsg.refresh.serviceCount = 1;
 						encodeDirectoryMsg.refresh.serviceList = new RsslRDMService[encodeDirectoryMsg.refresh.serviceCount];
@@ -2590,7 +2590,7 @@ bool DirectoryServiceStore::encodeDirectoryMsg(const RsslRDMDirectoryMsg& direct
 					for (UInt32 idx = 0; idx < serviceCount; ++idx)
 					{
 
-						if (pServiceList[idx].action == MapEntry::DeleteEnum)
+						if (pServiceList[idx].action == RSSL_MPEA_DELETE_ENTRY)
 						{
 							encodeDirectoryMsg.refresh.serviceList[idx].action = pServiceList[idx].action;
 							encodeDirectoryMsg.refresh.serviceList[idx].serviceId = pServiceList[idx].serviceId;
@@ -2642,7 +2642,7 @@ bool DirectoryServiceStore::encodeDirectoryMsg(const RsslRDMDirectoryMsg& direct
 
 				if (pRDMService)
 				{
-					if (pRDMService->action == MapEntry::DeleteEnum)
+					if (pRDMService->action == RSSL_MPEA_DELETE_ENTRY)
 					{
 						encodeDirectoryMsg.update.serviceCount = 1;
 						encodeDirectoryMsg.update.serviceList = new RsslRDMService[encodeDirectoryMsg.update.serviceCount];
@@ -2681,7 +2681,7 @@ bool DirectoryServiceStore::encodeDirectoryMsg(const RsslRDMDirectoryMsg& direct
 
 					for (UInt32 idx = 0; idx < serviceCount; ++idx)
 					{
-						if (pServiceList[idx].action == MapEntry::DeleteEnum)
+						if (pServiceList[idx].action == RSSL_MPEA_DELETE_ENTRY)
 						{
 							encodeDirectoryMsg.update.serviceList[idx].action = pServiceList[idx].action;
 							encodeDirectoryMsg.update.serviceList[idx].serviceId = pServiceList[idx].serviceId;
