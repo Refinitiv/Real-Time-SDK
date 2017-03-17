@@ -207,7 +207,7 @@ public interface Msg extends XMLDecoder
      * Domain Type of this message, corresponds to a domain model definition
      * (values less than 128 are Thomson Reuters defined domain models, values
      * between 128 - 255 are user defined domain models).
-     * Must be in the range of 1 - 255.
+     * Must be in the range of 0 - 255.
      * 
      * @param domainType the domainType to set
      */
