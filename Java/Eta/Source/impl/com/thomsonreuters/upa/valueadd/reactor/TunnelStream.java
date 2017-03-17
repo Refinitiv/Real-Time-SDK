@@ -3441,7 +3441,9 @@ public class TunnelStream
             _xmlIter.setBufferAndRWFVersion(tBuffer,
                                             reactorChannel().channel().majorVersion(),
                                             reactorChannel().channel().minorVersion());
-            System.out.print("Outgoing Reactor message (" + new java.util.Date() + "):");
+			System.out.print("\n<!-- Outgoing Reactor message -->\n");
+			System.out.print("<!-- " + channel.selectableChannel().toString() + " -->\n");
+			System.out.print("<!-- " + new java.util.Date() + " -->");
             System.out.println(_xmlMsg.decodeToXml(_xmlIter, null));
         }
 
