@@ -52,9 +52,6 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
-// APIQA
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequestFlags;
-// END APIQA
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
 import com.thomsonreuters.upa.valueadd.examples.common.ConnectionArg;
 import com.thomsonreuters.upa.valueadd.examples.common.ItemArg;
@@ -269,13 +266,8 @@ public class WatchlistConsumer implements ConsumerCallback
     private CloseMsg closeMsg = (CloseMsg)CodecFactory.createMsg();
     private ItemRequest itemRequest;
     Buffer payload;
-
-	//APIQA:  adding a variable to count updates received
-	private long updatesReceived;
-	private int updateCount;
-	// END APIQA
-        
-    public WatchlistConsumer()
+    
+	public WatchlistConsumer()
     {
         fixdictionary = CodecFactory.createDataDictionary();
         
@@ -465,8 +457,6 @@ public class WatchlistConsumer implements ConsumerCallback
 					        chnlInfo.consumerRole.rdmLoginRequest().userName().data(watchlistConsumerConfig.authenticationToken2());
 						// END APIQA
 						LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
-						// APIQA:  Remove the PAUSE flag on a reissue to make sure this is not cached
-						loginRequest.flags(loginRequest.flags() & ~0x0080);
 						submitOptions.clear();
 						if (chnlInfo.reactorChannel.submit(loginRequest, submitOptions, errorInfo) !=  CodecReturnCodes.SUCCESS)
 						{
@@ -865,23 +855,6 @@ public class WatchlistConsumer implements ConsumerCallback
 
     			/* Decode data body according to its domain. */
     			itemDecoder.decodeDataBody(event.reactorChannel(), updateMsg);            	
-
-				// APIQA:  Incrementing update counter
-				updatesReceived++;
-				// APIQA: Manufacture a login reissue:
-				if ( updatesReceived == 2 ) {
-					LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
-					loginRequest.applyPause();
-					loginRequest.applyNoRefresh();
-					submitOptions.clear();
-					if ( (chnlInfo.reactorChannel.submit(loginRequest, submitOptions, errorInfo)) !=  CodecReturnCodes.SUCCESS) {
-						System.out.println("------------APIQA: attempted login reissue failed. Error: " + errorInfo.error().text());
-					} else {
-						System.out.println("------------APIQA: PAUSE-ALL login reissue done.");
-					}
-				}
-				// END APIQA: Manufacture a login reissue
-
             	break;
 
             case MsgClasses.STATUS:
@@ -1142,21 +1115,7 @@ public class WatchlistConsumer implements ConsumerCallback
 			    		chnlInfo.hasQServiceInfo = true;                
 			    	}
 			    }
-				// APIQA:
-				updateCount++;
-				if (updateCount == 1) {
-					// Do a RESUME
-					LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
-					loginRequest.flags(loginRequest.flags() &~ LoginRequestFlags.PAUSE_ALL);
-					loginRequest.flags(loginRequest.flags() &~ LoginRequestFlags.NO_REFRESH);
-					submitOptions.clear();
-					if ( (chnlInfo.reactorChannel.submit(loginRequest, submitOptions, errorInfo)) !=  CodecReturnCodes.SUCCESS) {
-						System.out.println("------------APIQA: attempted login reissue failed. Error: " + errorInfo.error().text());
-					} else {
-						System.out.println("------------APIQA: RESUME-ALL login reissue done.");
-					}
-				}
-				// END APIQA
+				
 				break;
 			case CLOSE:
 				System.out.println("Received Source Directory Close");

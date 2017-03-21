@@ -1142,21 +1142,6 @@ public class WatchlistConsumer implements ConsumerCallback
 			    		chnlInfo.hasQServiceInfo = true;                
 			    	}
 			    }
-				// APIQA:
-				updateCount++;
-				if (updateCount == 1) {
-					// Do a RESUME
-					LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
-					loginRequest.flags(loginRequest.flags() &~ LoginRequestFlags.PAUSE_ALL);
-					loginRequest.flags(loginRequest.flags() &~ LoginRequestFlags.NO_REFRESH);
-					submitOptions.clear();
-					if ( (chnlInfo.reactorChannel.submit(loginRequest, submitOptions, errorInfo)) !=  CodecReturnCodes.SUCCESS) {
-						System.out.println("------------APIQA: attempted login reissue failed. Error: " + errorInfo.error().text());
-					} else {
-						System.out.println("------------APIQA: RESUME-ALL login reissue done.");
-					}
-				}
-				// END APIQA
 				break;
 			case CLOSE:
 				System.out.println("Received Source Directory Close");
