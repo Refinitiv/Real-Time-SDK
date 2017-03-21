@@ -120,7 +120,7 @@ public class Reactor
     
     private Msg _xmlMsg = CodecFactory.createMsg();
     private DecodeIterator _xmlIter = CodecFactory.createDecodeIterator();
-    
+	private StringBuilder _xmlString = new StringBuilder(1500);
     private HashMap<Msg, TransportBuffer> _submitMsgMap = new HashMap<Msg, TransportBuffer>();
     private HashMap<MsgBase, TransportBuffer> _submitRdmMsgMap = new HashMap<MsgBase, TransportBuffer>();
     
@@ -1435,8 +1435,12 @@ public class Reactor
                     _xmlIter.setBufferAndRWFVersion(buffer,
                     								reactorChannel.channel().majorVersion(),
                     								reactorChannel.channel().minorVersion());
-                    System.out.print("Outgoing Reactor message (" + new java.util.Date() + "):");
-                    System.out.println(_xmlMsg.decodeToXml(_xmlIter, null));
+                    _xmlString.setLength(0);
+    				_xmlString.append("\n<!-- Outgoing Reactor message -->\n")
+    								  .append("<!-- ").append(reactorChannel.channel().selectableChannel().toString()).append(" -->\n")
+    						          .append("<!-- ").append(new java.util.Date()).append(" -->")
+    						          .append(_xmlMsg.decodeToXml(_xmlIter, null));
+    				System.out.println(_xmlString);
                 }
 
             	ret = reactorChannel.channel().write(buffer, submitOptions.writeArgs(), errorInfo.error());
@@ -1718,8 +1722,12 @@ public class Reactor
                 _xmlIter.setBufferAndRWFVersion(msgBuf,
                 								reactorChannel.channel().majorVersion(),
                 								reactorChannel.channel().minorVersion());
-                System.out.print("Incoming Reactor message (" + new java.util.Date() + "):");
-                System.out.println(_xmlMsg.decodeToXml(_xmlIter, null));
+                _xmlString.setLength(0);
+				_xmlString.append("\n<!-- Incoming Reactor message -->\n")
+								  .append("<!-- ").append(reactorChannel.channel().selectableChannel().toString()).append(" -->\n")
+						          .append("<!-- ").append(new java.util.Date()).append(" -->")
+						          .append(_xmlMsg.decodeToXml(_xmlIter, null));
+				System.out.println(_xmlString);
             }
 
             // update ping handler
@@ -2245,8 +2253,12 @@ public class Reactor
             _xmlIter.setBufferAndRWFVersion(msgBuf,
             								reactorChannel.channel().majorVersion(),
             								reactorChannel.channel().minorVersion());
-            System.out.print("Outgoing Reactor message (" + new java.util.Date() + "):");
-            System.out.println(_xmlMsg.decodeToXml(_xmlIter, null));
+            _xmlString.setLength(0);
+			_xmlString.append("\n<!-- Outgoing Reactor message -->\n")
+							  .append("<!-- ").append(reactorChannel.channel().selectableChannel().toString()).append(" -->\n")
+					          .append("<!-- ").append(new java.util.Date()).append(" -->")
+					          .append(_xmlMsg.decodeToXml(_xmlIter, null));
+			System.out.println(_xmlString);
         }
         retval = channel.write(msgBuf, _writeArgs, errorInfo.error());
         if (retval > TransportReturnCodes.SUCCESS)
@@ -2322,8 +2334,12 @@ public class Reactor
             _xmlIter.setBufferAndRWFVersion(msgBuf,
             								reactorChannel.channel().majorVersion(),
             								reactorChannel.channel().minorVersion());
-            System.out.print("Outgoing Reactor message (" + new java.util.Date() + "):");
-            System.out.println(_xmlMsg.decodeToXml(_xmlIter, null));
+            _xmlString.setLength(0);
+			_xmlString.append("\n<!-- Outgoing Reactor message -->\n")
+							  .append("<!-- ").append(reactorChannel.channel().selectableChannel().toString()).append(" -->\n")
+					          .append("<!-- ").append(new java.util.Date()).append(" -->")
+					          .append(_xmlMsg.decodeToXml(_xmlIter, null));
+			System.out.println(_xmlString);
         }
         retval = channel.write(msgBuf, _writeArgs, errorInfo.error());
         if (retval > TransportReturnCodes.SUCCESS)
@@ -2384,8 +2400,12 @@ public class Reactor
             _xmlIter.setBufferAndRWFVersion(msgBuf,
             								reactorChannel.channel().majorVersion(),
             								reactorChannel.channel().minorVersion());
-            System.out.print("Outgoing Reactor message (" + new java.util.Date() + "):");
-            System.out.println(_xmlMsg.decodeToXml(_xmlIter, null));
+            _xmlString.setLength(0);
+			_xmlString.append("\n<!-- Outgoing Reactor message -->\n")
+							  .append("<!-- ").append(reactorChannel.channel().selectableChannel().toString()).append(" -->\n")
+					          .append("<!-- ").append(new java.util.Date()).append(" -->")
+					          .append(_xmlMsg.decodeToXml(_xmlIter, null));
+			System.out.println(_xmlString);
         }
         retval = channel.write(msgBuf, _writeArgs, errorInfo.error());
         if (retval > TransportReturnCodes.SUCCESS)
@@ -2463,8 +2483,12 @@ public class Reactor
             _xmlIter.setBufferAndRWFVersion(msgBuf,
             								reactorChannel.channel().majorVersion(),
             								reactorChannel.channel().minorVersion());
-            System.out.print("Outgoing Reactor message (" + new java.util.Date() + "):");
-            System.out.println(_xmlMsg.decodeToXml(_xmlIter, null));
+            _xmlString.setLength(0);
+			_xmlString.append("\n<!-- Outgoing Reactor message -->\n")
+							  .append("<!-- ").append(reactorChannel.channel().selectableChannel().toString()).append(" -->\n")
+							  .append("<!-- ").append(new java.util.Date()).append(" -->")
+							  .append(_xmlMsg.decodeToXml(_xmlIter, null));
+			System.out.println(_xmlString);
         }
         retval = channel.write(msgBuf, _writeArgs, errorInfo.error());
         if (retval > TransportReturnCodes.SUCCESS)
@@ -2540,8 +2564,12 @@ public class Reactor
             _xmlIter.setBufferAndRWFVersion(msgBuf,
             								reactorChannel.channel().majorVersion(),
             								reactorChannel.channel().minorVersion());
-            System.out.print("Outgoing Reactor message (" + new java.util.Date() + "):");
-            System.out.println(_xmlMsg.decodeToXml(_xmlIter, null));
+            _xmlString.setLength(0);
+			_xmlString.append("\n<!-- Outgoing Reactor message -->\n")
+							  .append("<!-- ").append(reactorChannel.channel().selectableChannel().toString()).append(" -->\n")
+					          .append("<!-- ").append(new java.util.Date()).append(" -->")
+					          .append(_xmlMsg.decodeToXml(_xmlIter, null));
+			System.out.println(_xmlString);
         }
         retval = channel.write(msgBuf, _writeArgs, errorInfo.error());
         if (retval > TransportReturnCodes.SUCCESS)
@@ -2602,8 +2630,12 @@ public class Reactor
             _xmlIter.setBufferAndRWFVersion(msgBuf,
             								reactorChannel.channel().majorVersion(),
             								reactorChannel.channel().minorVersion());
-            System.out.print("Outgoing Reactor message (" + new java.util.Date() + "):");
-            System.out.println(_xmlMsg.decodeToXml(_xmlIter, null));
+            _xmlString.setLength(0);
+			_xmlString.append("\n<!-- Outgoing Reactor message -->\n")
+							  .append("<!-- ").append(reactorChannel.channel().selectableChannel().toString()).append(" -->\n")
+					          .append("<!-- ").append(new java.util.Date()).append(" -->")
+					          .append(_xmlMsg.decodeToXml(_xmlIter, null));
+			System.out.println(_xmlString);
         }
         retval = channel.write(msgBuf, _writeArgs, errorInfo.error());
         if (retval > TransportReturnCodes.SUCCESS)
@@ -2684,8 +2716,12 @@ public class Reactor
             _xmlIter.setBufferAndRWFVersion(msgBuf,
             								reactorChannel.channel().majorVersion(),
             								reactorChannel.channel().minorVersion());
-            System.out.print("Outgoing Reactor message (" + new java.util.Date() + "):");
-            System.out.println(_xmlMsg.decodeToXml(_xmlIter, null));
+            _xmlString.setLength(0);
+			_xmlString.append("\n<!-- Outgoing Reactor message -->\n")
+							  .append("<!-- ").append(reactorChannel.channel().selectableChannel().toString()).append(" -->\n")
+					          .append("<!-- ").append(new java.util.Date()).append(" -->")
+					          .append(_xmlMsg.decodeToXml(_xmlIter, null));
+			System.out.println(_xmlString);
         }
         retval = channel.write(msgBuf, _writeArgs, errorInfo.error());
         if (retval > TransportReturnCodes.SUCCESS)

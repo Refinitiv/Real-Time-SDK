@@ -11,6 +11,7 @@ import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.EncodeIterator;
 // APIQA
 import com.thomsonreuters.upa.codec.GenericMsg;
+import com.thomsonreuters.upa.codec.RefreshMsg;
 // END APIQA:
 import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.MsgClasses;
@@ -226,46 +227,77 @@ class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStre
             System.out.println("Login Refresh sent by Provider TunnelStreamHandler\n");
         }
 // APIQA
-        else if (event.containerType() == DataTypes.MSG && _msg.domainType() == DomainTypes.SYSTEM && _msg.msgClass() == MsgClasses.GENERIC)
+        else if (event.containerType() == DataTypes.MSG && _msg.domainType() == DomainTypes.SYSTEM && (_msg.msgClass() == MsgClasses.GENERIC || _msg.msgClass() == MsgClasses.REQUEST))
         {
-            boolean testPassed = true;
-            byte b = 0;
-            for (int i = event.msg().encodedDataBody().position(); i < event.msg().encodedDataBody().length(); i++, b++)
+            // put buffer into generic message if received message is generic
+            if (_msg.msgClass() == MsgClasses.GENERIC)
             {
-            	if (b == 256)
-            	{
-            		b = 0;
-            	}
-            	if (event.msg().encodedDataBody().data().get(i) != b)
-            	{
-            		testPassed =  false;
-            		break;
-            	}
+                boolean testPassed = true;
+                byte b = 0;
+                for (int i = event.msg().encodedDataBody().position(); i < event.msg().encodedDataBody().length(); i++, b++)
+                {
+                    if (b == 256)
+                    {
+                        b = 0;
+                    }
+                    if (event.msg().encodedDataBody().data().get(i) != b)
+                    {
+                        testPassed =  false;
+                        break;
+                    }
+                }
+
+                String resultString = testPassed ? "TEST PASSED" : "TEST FAILED";
+                System.out.println("Provider TunnelStreamHandler received MSG data: " + resultString + "\n");
+                
+                // get buffer to encode message into
+                Buffer buffer = CodecFactory.createBuffer();
+                buffer.data(resultString);
+
+            	GenericMsg genericMsg = (GenericMsg)CodecFactory.createMsg();
+                genericMsg.clear();
+                genericMsg.msgClass(MsgClasses.GENERIC);
+                genericMsg.streamId(_msg.streamId());
+                genericMsg.domainType(_msg.domainType());
+                genericMsg.containerType(DataTypes.OPAQUE);
+                genericMsg.encodedDataBody(buffer);
+    
+                // submit the encoded data buffer to the tunnel stream
+                _tunnelStreamSubmitOptions.clear();
+                _tunnelStreamSubmitOptions.containerType(DataTypes.OPAQUE);
+                if ((ret = event.tunnelStream().submit(genericMsg, event.errorInfo())) < ReactorReturnCodes.SUCCESS)
+                {
+                    System.out.println("TunnelStream.submit() failed: " + CodecReturnCodes.toString(ret)
+                            + "(" + event.errorInfo().error().text() + ")");
+                    return ReactorCallbackReturnCodes.SUCCESS;
+                }
             }
-
-            String resultString = testPassed ? "TEST PASSED" : "TEST FAILED";
-            System.out.println("Provider TunnelStreamHandler received MSG data: " + resultString + "\n");
-        	
-            // get buffer to encode message into
-        	GenericMsg genericMsg = (GenericMsg)CodecFactory.createMsg();
-            Buffer buffer = CodecFactory.createBuffer();
-            buffer.data(resultString);
-            
-            genericMsg.clear();
-            genericMsg.msgClass(MsgClasses.GENERIC);
-            genericMsg.streamId(event.tunnelStream().streamId());
-            genericMsg.domainType(event.tunnelStream().domainType());
-            genericMsg.containerType(DataTypes.OPAQUE);
-            genericMsg.encodedDataBody(buffer);
-
-            // submit the encoded data buffer to the tunnel stream
-            _tunnelStreamSubmitOptions.clear();
-            _tunnelStreamSubmitOptions.containerType(DataTypes.OPAQUE);
-            if ((ret = event.tunnelStream().submit(genericMsg, event.errorInfo())) < ReactorReturnCodes.SUCCESS)
+            else if (_msg.msgClass() == MsgClasses.REQUEST) // just send refresh message if request
             {
-                System.out.println("TunnelStream.submit() failed: " + CodecReturnCodes.toString(ret)
-                        + "(" + event.errorInfo().error().text() + ")");
-                return ReactorCallbackReturnCodes.SUCCESS;
+                RefreshMsg refreshMsg = (RefreshMsg)CodecFactory.createMsg();
+                refreshMsg.clear();
+                refreshMsg.msgClass(MsgClasses.REFRESH);
+                refreshMsg.streamId(_msg.streamId());
+                refreshMsg.domainType(_msg.domainType());
+                refreshMsg.containerType(DataTypes.NO_DATA);
+                refreshMsg.state().streamState(StreamStates.OPEN);
+                refreshMsg.state().dataState(DataStates.OK);
+                refreshMsg.state().code(StateCodes.NONE);
+                refreshMsg.state().text().data("TunnelStream Refresh Complete");
+                refreshMsg.applyHasMsgKey();
+                refreshMsg.msgKey().applyHasServiceId();
+                refreshMsg.msgKey().serviceId(_msg.msgKey().serviceId());
+                refreshMsg.msgKey().applyHasName();
+                refreshMsg.msgKey().name(_msg.msgKey().name());
+    
+                // submit the encoded data buffer to the tunnel stream
+                _tunnelStreamSubmitOptions.clear();
+                if ((ret = event.tunnelStream().submit(refreshMsg, event.errorInfo())) < ReactorReturnCodes.SUCCESS)
+                {
+                    System.out.println("TunnelStream.submit() failed: " + CodecReturnCodes.toString(ret)
+                            + "(" + event.errorInfo().error().text() + ")");
+                    return ReactorCallbackReturnCodes.SUCCESS;
+                }
             }
         }
 // END APIQA:

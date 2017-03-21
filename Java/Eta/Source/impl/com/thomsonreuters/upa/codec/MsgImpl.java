@@ -242,7 +242,7 @@ final class MsgImpl implements Msg, AckMsg, CloseMsg, GenericMsg, PostMsg, Refre
     @Override
     public void domainType(int domainType)
     {
-        assert (domainType > 0 && domainType <= 255) : "domainType is out of range. Refer to DomainTypes"; // uint8
+        assert (domainType >= 0 && domainType <= 255) : "domainType is out of range. Refer to DomainTypes"; // uint8
 
         _domainType = domainType;
     }

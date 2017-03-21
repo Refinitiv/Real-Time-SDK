@@ -1833,6 +1833,7 @@ public class WlItemHandler implements WlHandler
                         	wlItemGroup.groupId(groupId);
                         	wlItemGroup.wlService(wlStream.wlService());
                             wlStream.wlService().itemGroupTablePut(groupId, wlItemGroup);
+							wlStream.groupId(groupId);
                         	wlItemGroup.openStreamList().add(wlStream);
                         	WlInteger wlInteger = ReactorFactory.createWlInteger();
                             wlInteger.value(wlStream.streamId());
@@ -1845,9 +1846,13 @@ public class WlItemHandler implements WlHandler
                             _tempWlInteger.value(wlStream.streamId());
                             if (!wlItemGroup.streamIdToItemGroupTable().containsKey(_tempWlInteger))
                             {
-                        		wlItemGroup.openStreamList().add(wlStream);
-                        		WlInteger wlInteger = ReactorFactory.createWlInteger();
+								wlStream.groupId(wlItemGroup.groupId());
+
+								wlItemGroup.openStreamList().add(wlStream);
+
+								WlInteger wlInteger = ReactorFactory.createWlInteger();
                                 wlInteger.value(wlStream.streamId());
+								wlStream.groupTableKey(wlInteger);
                         		wlItemGroup.streamIdToItemGroupTable().put(wlInteger, wlStream);
                             }
                         }

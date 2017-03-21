@@ -872,35 +872,35 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectAttemptLimit)) != null)
 				{
 						_activeConfig.reconnectAttemptLimit = ce.intValue();
-						configImpl.errorTracker().append( "This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance." )
+						configImpl.errorTracker().append( "ChannelReconnectAttemptLimit is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance." )
 						.create(Severity.WARNING);
 				}
 		
 				if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectMinDelay)) != null)
 				{
 						_activeConfig.reconnectMinDelay = ce.intValue();
-						configImpl.errorTracker().append( "This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance." )
+						configImpl.errorTracker().append( "ChannelReconnectMinDelay is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance." )
 						.create(Severity.WARNING);
 				}
 		
 				if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectMaxDelay)) != null)
 				{
 						_activeConfig.reconnectMaxDelay = ce.intValue();
-						configImpl.errorTracker().append( "This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance." )
+						configImpl.errorTracker().append( "ChannelReconnectMaxDelay is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance." )
 						.create(Severity.WARNING);
 				}
 		
 				if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelMsgKeyInUpdates)) != null)
 				{
 						_activeConfig.msgKeyInUpdates = ce.booleanValue();
-						configImpl.errorTracker().append( "This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer instance." )
+						configImpl.errorTracker().append( "ChannelMsgKeyInUpdates is no longer configured on a per-channel basis; configure it instead in the Consumer instance." )
 						.create(Severity.WARNING);
 				}
 		
 				if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToStdout)) != null)
 				{
 						_activeConfig.xmlTraceEnable = ce.booleanValue();
-						configImpl.errorTracker().append(  "This ConfigValue is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.")
+						configImpl.errorTracker().append(  "XmlTraceToStdout is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.")
 						.create(Severity.WARNING);
 				}
 			}

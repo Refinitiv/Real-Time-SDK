@@ -389,7 +389,7 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 	{
 		if (pConfigServerImpl->get<EmaString>(serverNodeName + "XmlTraceFileName", _activeServerConfig.xmlTraceFileName))
 		{
-			EmaString errorMsg("This ConfigValue is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
+			EmaString errorMsg("XmlTraceFileName is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
 			pConfigServerImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 		}
 
@@ -399,7 +399,7 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 			if (tmp > 0)
 				_activeServerConfig.xmlTraceMaxFileSize = tmp;
 
-			EmaString errorMsg("This ConfigValue is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
+			EmaString errorMsg("XmlTraceMaxFileSize is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
 			pConfigServerImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 		}
 
@@ -408,7 +408,7 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 			if (tempUInt > 0)
 				_activeServerConfig.xmlTraceToFile = true;
 
-			EmaString errorMsg("This ConfigValue is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
+			EmaString errorMsg("XmlTraceToFile is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
 			pConfigServerImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 		}
 
@@ -416,7 +416,7 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 		{
 			_activeServerConfig.xmlTraceToStdout = tempUInt > 0 ? true : false;
 
-			EmaString errorMsg("This ConfigValue is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
+			EmaString errorMsg("XmlTraceToStdout is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
 			pConfigServerImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 		}
 
@@ -425,7 +425,7 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 			if (tempUInt > 0)
 				_activeServerConfig.xmlTraceToMultipleFiles = true;
 
-			EmaString errorMsg("This ConfigValue is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
+			EmaString errorMsg("XmlTraceToMultipleFiles is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
 			pConfigServerImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 		}
 
@@ -434,7 +434,7 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 			if (tempUInt == 0)
 				_activeServerConfig.xmlTraceWrite = false;
 
-			EmaString errorMsg("This ConfigValue is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
+			EmaString errorMsg("XmlTraceWrite is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
 			pConfigServerImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 		}
 
@@ -443,7 +443,7 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 			if (tempUInt == 0)
 				_activeServerConfig.xmlTraceRead = false;
 
-			EmaString errorMsg("This ConfigValue is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
+			EmaString errorMsg("XmlTraceRead is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
 			pConfigServerImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 		}
 
@@ -451,7 +451,7 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 		{
 			_activeServerConfig.xmlTracePing = tempUInt == 0 ? false : true;
 
-			EmaString errorMsg("This ConfigValue is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
+			EmaString errorMsg("XmlTracePing is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
 			pConfigServerImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 		}
 
@@ -459,7 +459,7 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 		{
 			_activeServerConfig.xmlTraceHex = tempUInt == 0 ? false : true;
 
-			EmaString errorMsg("This ConfigValue is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
+			EmaString errorMsg("XmlTraceHex is no longer configured on a per-server basis; configure it instead in the IProvider instance.");
 			pConfigServerImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 		}
 	}

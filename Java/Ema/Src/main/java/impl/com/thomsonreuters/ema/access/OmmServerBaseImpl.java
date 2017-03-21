@@ -598,7 +598,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			/* The following code will be removed once the deprecated XmlTraceToStdout is removed. */
 			if( (!_activeServerConfig.isSetCorrectConfigGroup && (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToStdout)) != null))
 			{
-					configImpl.errorTracker().append("This ConfigValue is no longer configured on a per-server basis; configure it instead in the IProvider instance.")
+					configImpl.errorTracker().append("XmlTraceToStdout is no longer configured on a per-server basis; configure it instead in the IProvider instance.")
 					.create(Severity.WARNING);
 					_activeServerConfig.xmlTraceEnable = ce.booleanValue();
 			}
