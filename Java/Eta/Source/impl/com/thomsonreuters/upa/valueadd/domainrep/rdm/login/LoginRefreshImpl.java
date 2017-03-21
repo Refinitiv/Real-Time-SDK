@@ -435,11 +435,11 @@ class LoginRefreshImpl extends MsgBaseImpl
                 
                 if(element.encodedData().length() != 0)
                 {
-                applyHasAttrib();
-                Buffer applicationId = element.encodedData();
-                attrib.applyHasApplicationId();
-                attrib.applicationId().data(applicationId.data(), applicationId.position(), applicationId.length());
-            }
+                	applyHasAttrib();
+	                Buffer applicationId = element.encodedData();
+	                attrib.applyHasApplicationId();
+	                attrib.applicationId().data(applicationId.data(), applicationId.position(), applicationId.length());
+                }
                 else
                 	return CodecReturnCodes.FAILURE;
             }
@@ -449,11 +449,11 @@ class LoginRefreshImpl extends MsgBaseImpl
                     return CodecReturnCodes.FAILURE;
                 if(element.encodedData().length() != 0)
                 {
-                applyHasAttrib();
-                Buffer applicationName = element.encodedData();
-                attrib.applyHasApplicationName();
-                attrib.applicationName().data(applicationName.data(), applicationName.position(), applicationName.length());
-            }
+	                applyHasAttrib();
+	                Buffer applicationName = element.encodedData();
+	                attrib.applyHasApplicationName();
+	                attrib.applicationName().data(applicationName.data(), applicationName.position(), applicationName.length());
+                }
                 else
                 	return CodecReturnCodes.FAILURE;
             }
@@ -463,11 +463,11 @@ class LoginRefreshImpl extends MsgBaseImpl
                     return CodecReturnCodes.FAILURE;
                 if(element.encodedData().length() != 0)
                 {
-                applyHasAttrib();
-                Buffer position = element.encodedData();
-                attrib.applyHasPosition();
-                attrib.position().data(position.data(), position.position(), position.length());
-            }
+	                applyHasAttrib();
+	                Buffer position = element.encodedData();
+	                attrib.applyHasPosition();
+	                attrib.position().data(position.data(), position.position(), position.length());
+	            }
 	            else
 	            	return CodecReturnCodes.FAILURE;
             }

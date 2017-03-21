@@ -163,15 +163,15 @@ class WlLoginHandler implements WlHandler
 		{
 			if(_stream.isChannelUp())
 			{
-		if ((ret = _stream.sendMsg(requestMsg, submitOptions, errorInfo)) < ReactorReturnCodes.SUCCESS) 
-		{
-			if (!isReissue) {
-				_loginRequest = null;
-				_stream.returnToPool();
-				_stream = null;
-			}
-			return ret;
-		}
+				if ((ret = _stream.sendMsg(requestMsg, submitOptions, errorInfo)) < ReactorReturnCodes.SUCCESS) 
+				{
+					if (!isReissue) {
+						_loginRequest = null;
+						_stream.returnToPool();
+						_stream = null;
+					}
+					return ret;
+				}
 			}
 		}
 		if (!requestMsg.checkNoRefresh() && _stream.isChannelUp())

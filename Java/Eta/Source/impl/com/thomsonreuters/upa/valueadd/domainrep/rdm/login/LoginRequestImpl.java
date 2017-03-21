@@ -144,6 +144,7 @@ class LoginRequestImpl extends MsgBaseImpl
         userName().data(defaultUsername);
         applyHasUserNameType(); 
         userNameType(Login.UserIdTypes.NAME);
+        applyHasAttrib();
         ((LoginAttribImpl)attrib).initDefaultAttrib();
     }
 
@@ -236,11 +237,11 @@ class LoginRequestImpl extends MsgBaseImpl
                     return CodecReturnCodes.FAILURE;
                 if(elementEntry.encodedData().length() != 0)
                 {
-                applyHasAttrib();
-                Buffer applicationId = elementEntry.encodedData();
-                attrib.applyHasApplicationId();
-                attrib.applicationId().data(applicationId.data(), applicationId.position(), applicationId.length());
-            }
+	                applyHasAttrib();
+	                Buffer applicationId = elementEntry.encodedData();
+	                attrib.applyHasApplicationId();
+	                attrib.applicationId().data(applicationId.data(), applicationId.position(), applicationId.length());
+                }
                 else
                 	return CodecReturnCodes.FAILURE;
             }
@@ -250,11 +251,11 @@ class LoginRequestImpl extends MsgBaseImpl
                     return CodecReturnCodes.FAILURE;
                 if(elementEntry.encodedData().length() != 0)
                 {
-                applyHasAttrib();
-                Buffer applicationName = elementEntry.encodedData();
-                attrib.applyHasApplicationName();
-                attrib.applicationName().data(applicationName.data(), applicationName.position(), applicationName.length());
-            }
+	                applyHasAttrib();
+	                Buffer applicationName = elementEntry.encodedData();
+	                attrib.applyHasApplicationName();
+	                attrib.applicationName().data(applicationName.data(), applicationName.position(), applicationName.length());
+                }
                 else
                 	return CodecReturnCodes.FAILURE;
             }
@@ -264,11 +265,11 @@ class LoginRequestImpl extends MsgBaseImpl
                     return CodecReturnCodes.FAILURE;
                 if(elementEntry.encodedData().length() != 0)
                 {
-                applyHasAttrib();
-                Buffer position = elementEntry.encodedData();
-                attrib.applyHasPosition();
-                attrib.position().data(position.data(), position.position(), position.length());
-            }
+	                applyHasAttrib();
+	                Buffer position = elementEntry.encodedData();
+	                attrib.applyHasPosition();
+	                attrib.position().data(position.data(), position.position(), position.length());
+                }
                 else
                 	return CodecReturnCodes.FAILURE;
             }
@@ -279,11 +280,11 @@ class LoginRequestImpl extends MsgBaseImpl
                 
                 if(elementEntry.encodedData().length() != 0)
                 {
-                Buffer password = elementEntry.encodedData();
-                applyHasAttrib();
-                applyHasPassword();
-                password().data(password.data(), password.position(), password.length());
-            }
+	                Buffer password = elementEntry.encodedData();
+	                applyHasAttrib();
+	                applyHasPassword();
+	                password().data(password.data(), password.position(), password.length());
+	            }
 	            else
 	            	return CodecReturnCodes.FAILURE;
             }
@@ -324,10 +325,10 @@ class LoginRequestImpl extends MsgBaseImpl
                     return CodecReturnCodes.FAILURE;
                 if(elementEntry.encodedData().length() != 0)
                 {
-                Buffer instanceId = elementEntry.encodedData();
-                applyHasInstanceId();
-                instanceId().data(instanceId.data(), instanceId.position(), instanceId.length());
-            }
+	                Buffer instanceId = elementEntry.encodedData();
+	                applyHasInstanceId();
+	                instanceId().data(instanceId.data(), instanceId.position(), instanceId.length());
+                }
 	            else
 	            	return CodecReturnCodes.FAILURE;
             }

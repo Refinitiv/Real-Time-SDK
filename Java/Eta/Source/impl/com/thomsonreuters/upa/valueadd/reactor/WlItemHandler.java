@@ -2214,7 +2214,7 @@ public class WlItemHandler implements WlHandler
 	        _statusMsg.clear();
 	        _statusMsg.applyHasState();
 	        _statusMsg.msgClass(MsgClasses.STATUS);
-	        _statusMsg.state().text().data("channel down.");
+	        _statusMsg.state().text().data("Login stream was closed.");
 	        handleClose(_statusMsg); 
     	}
 
