@@ -299,6 +299,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 		            	if( existDirectory.channelInfo() != chnlInfo )
 		            	{
 		            		chnlInfo.rsslDictionary(existDirectory.channelInfo().rsslDictionary());
+		            		existDirectory.channelInfo(chnlInfo);
 		            	}
 		            }
 		            else
@@ -313,9 +314,9 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 		            	_serviceById.put(oneService.serviceId(), directory);
 		            	_serviceByName.put(serviceName, directory);
 
-						if (newService.state().acceptingRequests() == 1 && newService.state().serviceState() == 1)
+						if (_baseImpl.activeConfig().dictionaryConfig.isLocalDictionary ||
+						(newService.state().acceptingRequests() == 1 && newService.state().serviceState() == 1))
 							_baseImpl.dictionaryCallbackClient().downloadDictionary(directory);
-						
 		            }
 	
 					break;
@@ -356,6 +357,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 	            	if((existDirectory != null) && existDirectory.channelInfo() != chnlInfo )
 	            	{
 	            		chnlInfo.rsslDictionary(existDirectory.channelInfo().rsslDictionary());
+	            		existDirectory.channelInfo(chnlInfo);
 	            	}
 
 					if (oneService.checkHasInfo())
@@ -901,7 +903,6 @@ class DirectoryItem<T> extends SingleItem<T>
 	void remove()
 	{
 		_baseImpl.itemCallbackClient().removeFromMap(this);
-		this.returnToPool();
 	}
 	
 	boolean submit(RequestMsg rsslRequestMsg)
@@ -934,8 +935,9 @@ class DirectoryItem<T> extends SingleItem<T>
 
 		if (_streamId == 0)
 		{
-			rsslRequestMsg.streamId(_channelInfo.nextStreamId(0));
+			rsslRequestMsg.streamId(_baseImpl._itemCallbackClient.nextStreamId(0));
 			_streamId = rsslRequestMsg.streamId();
+			_baseImpl._itemCallbackClient.addToMap(LongIdGenerator.nextLongId(), this);
 		}
 		else
 			rsslRequestMsg.streamId(_streamId);

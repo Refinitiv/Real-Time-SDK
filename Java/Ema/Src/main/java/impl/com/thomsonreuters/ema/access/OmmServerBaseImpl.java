@@ -956,7 +956,9 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 					}
 				}
 			}
-			while (true);
+			while (_selector != null);
+			
+			return false;
 			
 		} //end of Try		
 		catch (CancelledKeyException e)

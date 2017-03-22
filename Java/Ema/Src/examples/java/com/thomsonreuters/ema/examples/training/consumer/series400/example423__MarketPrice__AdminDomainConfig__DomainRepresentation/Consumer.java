@@ -2,34 +2,33 @@
 // *|            This source code is provided under the Apache 2.0 license      	--
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  					--
-// *|           Copyright Thomson Reuters 2016. All rights reserved.            		--
+// *|           Copyright Thomson Reuters 2017. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
-package com.thomsonreuters.ema.examples.training.consumer.series400.example420__MarketPrice__AdminDomainConfig;
-
-import com.thomsonreuters.ema.access.Msg;
+package com.thomsonreuters.ema.examples.training.consumer.series400.example423__MarketPrice__AdminDomainConfig__DomainRepresentation;
 
 import java.util.Iterator;
 
 import com.thomsonreuters.ema.access.AckMsg;
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.RefreshMsg;
-import com.thomsonreuters.ema.access.ReqMsg;
-import com.thomsonreuters.ema.access.StatusMsg;
-import com.thomsonreuters.ema.access.UpdateMsg;
-import com.thomsonreuters.ema.rdm.EmaRdm;
 import com.thomsonreuters.ema.access.Data;
 import com.thomsonreuters.ema.access.DataType;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.access.ElementList;
 import com.thomsonreuters.ema.access.EmaFactory;
 import com.thomsonreuters.ema.access.FieldEntry;
 import com.thomsonreuters.ema.access.FieldList;
+import com.thomsonreuters.ema.access.GenericMsg;
+import com.thomsonreuters.ema.access.Msg;
 import com.thomsonreuters.ema.access.OmmConsumer;
 import com.thomsonreuters.ema.access.OmmConsumerClient;
 import com.thomsonreuters.ema.access.OmmConsumerConfig;
 import com.thomsonreuters.ema.access.OmmConsumerEvent;
 import com.thomsonreuters.ema.access.OmmException;
+import com.thomsonreuters.ema.access.RefreshMsg;
+import com.thomsonreuters.ema.access.ReqMsg;
+import com.thomsonreuters.ema.access.StatusMsg;
+import com.thomsonreuters.ema.access.UpdateMsg;
+import com.thomsonreuters.ema.domain.login.Login.LoginReq;
+import com.thomsonreuters.ema.rdm.EmaRdm;
 
 
 class AppClient implements OmmConsumerClient
@@ -131,15 +130,12 @@ public class Consumer
 		{
 			AppClient appClient = new AppClient();
 			
+			LoginReq loginReq = EmaFactory.Domain.createLoginReq();
 			ReqMsg reqMsg = EmaFactory.createReqMsg();
-			ElementList elementList= EmaFactory.createElementList();
-			elementList.add(EmaFactory.createElementEntry().ascii(EmaRdm.ENAME_APP_ID, "127"));
-			elementList.add(EmaFactory.createElementEntry().ascii(EmaRdm.ENAME_POSITION, "127.0.0.1/net"));
-			elementList.add(EmaFactory.createElementEntry().uintValue(EmaRdm.ENAME_ALLOW_SUSPECT_DATA, 1));
-			
+
 			consumer = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig().operationModel(OmmConsumerConfig.OperationModel.USER_DISPATCH)
-					.addAdminMsg(reqMsg.domainType(EmaRdm.MMT_LOGIN).name("user").nameType(EmaRdm.USER_NAME).attrib(elementList))
-					.addAdminMsg(reqMsg.clear().domainType(EmaRdm.MMT_DIRECTORY).filter(EmaRdm.SERVICE_INFO_FILTER  | EmaRdm.SERVICE_STATE_FILTER | EmaRdm.SERVICE_GROUP_FILTER))
+					.addAdminMsg(loginReq.name("user").nameType(EmaRdm.USER_NAME).applicationId("127").position("127.0.0.1/net").allowSuspectData(true).message())
+					.addAdminMsg(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).filter(EmaRdm.SERVICE_INFO_FILTER  | EmaRdm.SERVICE_STATE_FILTER | EmaRdm.SERVICE_GROUP_FILTER))
 					.addAdminMsg(reqMsg.clear().domainType(EmaRdm.MMT_DICTIONARY).filter(EmaRdm.DICTIONARY_VERBOSE).name("RWFFld").serviceId(1))
 					.addAdminMsg(reqMsg.clear().domainType(EmaRdm.MMT_DICTIONARY).filter(EmaRdm.DICTIONARY_VERBOSE).name("RWFEnum").serviceId(1)));
 		

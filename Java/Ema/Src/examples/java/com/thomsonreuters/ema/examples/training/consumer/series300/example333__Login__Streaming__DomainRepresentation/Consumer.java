@@ -2,37 +2,39 @@
 // *|            This source code is provided under the Apache 2.0 license      	--
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  					--
-// *|           Copyright Thomson Reuters 2016. All rights reserved.            		--
+// *|           Copyright Thomson Reuters 2017. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
-package com.thomsonreuters.ema.examples.training.consumer.series300.example330__Login__Streaming;
+package com.thomsonreuters.ema.examples.training.consumer.series300.example333__Login__Streaming__DomainRepresentation;
 
-import com.thomsonreuters.ema.access.Msg;
 import com.thomsonreuters.ema.access.AckMsg;
-import com.thomsonreuters.ema.access.GenericMsg;
-import com.thomsonreuters.ema.access.RefreshMsg;
-import com.thomsonreuters.ema.access.ReqMsg;
-import com.thomsonreuters.ema.access.StatusMsg;
-import com.thomsonreuters.ema.access.UpdateMsg;
 import com.thomsonreuters.ema.access.Data;
 import com.thomsonreuters.ema.access.DataType;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.access.ElementEntry;
-import com.thomsonreuters.ema.access.ElementList;
-import com.thomsonreuters.ema.access.Vector;
-import com.thomsonreuters.ema.access.VectorEntry;
-import com.thomsonreuters.ema.rdm.EmaRdm;
 import com.thomsonreuters.ema.access.EmaFactory;
 import com.thomsonreuters.ema.access.FieldEntry;
 import com.thomsonreuters.ema.access.FieldList;
+import com.thomsonreuters.ema.access.GenericMsg;
+import com.thomsonreuters.ema.access.Msg;
 import com.thomsonreuters.ema.access.OmmConsumer;
 import com.thomsonreuters.ema.access.OmmConsumerClient;
 import com.thomsonreuters.ema.access.OmmConsumerEvent;
 import com.thomsonreuters.ema.access.OmmException;
+import com.thomsonreuters.ema.access.RefreshMsg;
+import com.thomsonreuters.ema.access.ReqMsg;
+import com.thomsonreuters.ema.access.StatusMsg;
+import com.thomsonreuters.ema.access.UpdateMsg;
+import com.thomsonreuters.ema.domain.login.Login.LoginRefresh;
+import com.thomsonreuters.ema.domain.login.Login.LoginReq;
+import com.thomsonreuters.ema.domain.login.Login.LoginStatus;
+import com.thomsonreuters.ema.rdm.EmaRdm;
 
 
 class AppClient implements OmmConsumerClient
 {
+    LoginRefresh _loginRefresh = EmaFactory.Domain.createLoginRefresh();
+    LoginStatus _loginStatus = EmaFactory.Domain.createLoginStatus();
+    
 	public void onRefreshMsg(RefreshMsg refreshMsg, OmmConsumerEvent event)
 	{
 		System.out.println("Received Refresh. Item Handle: " + event.handle() + " Closure: " + event.closure());
@@ -42,7 +44,15 @@ class AppClient implements OmmConsumerClient
 
 		System.out.println("Item State: " + refreshMsg.state());
 
-		decode( refreshMsg );
+		if (refreshMsg.domainType() == EmaRdm.MMT_LOGIN)
+		{   
+		    _loginRefresh.clear();
+	        System.out.println(_loginRefresh.message(refreshMsg).toString());   
+		}
+		else
+	    {
+		    decode( refreshMsg );
+	    }
 			
 		System.out.println();
 	}
@@ -69,6 +79,12 @@ class AppClient implements OmmConsumerClient
 		if (statusMsg.hasState())
 			System.out.println("Item State: " +statusMsg.state());
 		
+        if (statusMsg.domainType() == EmaRdm.MMT_LOGIN)
+        {
+            _loginStatus.clear();
+            System.out.println(_loginStatus.message(statusMsg).toString());   
+        }
+		
 		System.out.println();
 	}
 	
@@ -78,70 +94,11 @@ class AppClient implements OmmConsumerClient
 
 	void decode( Msg msg )
 	{
-		switch(msg.attrib().dataType())
-		{
-		case DataTypes.ELEMENT_LIST:
-			decode(msg.attrib().elementList());
-			break;
-		}
-
-		switch(msg.payload().dataType())
-		{
-		case  DataTypes.ELEMENT_LIST:
-			decode(msg.payload().elementList());
-			break;
-		case DataTypes.FIELD_LIST:
-			decode(msg.payload().fieldList());
-			break;
-		}
-	}
-	
-	void decode(ElementList elementList)
-	{
-		for(ElementEntry elementEntry : elementList)
-		{
-			System.out.print(" Name = " + elementEntry.name() + " DataType: " + DataType.asString(elementEntry.load().dataType()) + " Value: ");
-
-			if (Data.DataCode.BLANK == elementEntry.code())
-				System.out.println(" blank");
-			else
-				switch (elementEntry.loadType())
-				{
-				case DataTypes.REAL :
-					System.out.println(elementEntry.real().asDouble());
-					break;
-				case DataTypes.DATE :
-					System.out.println(elementEntry.date().day() + " / " + elementEntry.date().month() + " / " + elementEntry.date().year());
-					break;
-				case DataTypes.TIME :
-					System.out.println(elementEntry.time().hour() + ":" + elementEntry.time().minute() + ":" + elementEntry.time().second() + ":" + elementEntry.time().millisecond());
-					break;
-				case DataTypes.INT :
-					System.out.println(elementEntry.intValue());
-					break;
-				case DataTypes.UINT :
-					System.out.println(elementEntry.uintValue());
-					break;
-				case DataTypes.ASCII :
-					System.out.println(elementEntry.ascii());
-					break;
-				case DataTypes.ENUM :
-					System.out.println(elementEntry.enumValue());
-					break;
-				case DataTypes.RMTES:
-				    System.out.println(elementEntry.rmtes());
-				    break;
-				case DataTypes.ERROR :
-					System.out.println(elementEntry.error().errorCode() +" (" + elementEntry.error().errorCodeAsString() + ")");
-					break;
-				case DataTypes.VECTOR :
-					decode(elementEntry.vector());
-					break;
-				default :
-					System.out.println();
-					break;
-				}
-		}
+	    if (msg.attrib().dataType() == DataTypes.FIELD_LIST)
+	        decode(msg.attrib().fieldList());
+	    
+	    if (msg.payload().dataType() == DataTypes.FIELD_LIST)
+	        decode(msg.payload().fieldList());
 	}
 	
 	void decode(FieldList fieldList)
@@ -188,31 +145,6 @@ class AppClient implements OmmConsumerClient
 				}
 		}
 	}
-	
-	void decode(Vector vector)
-	{
-		switch (vector.summaryData().dataType())
-		{
-		case DataTypes.ELEMENT_LIST :
-			decode(vector.summaryData().elementList());
-			break;
-		}		
-
-		for(VectorEntry vectorEntry : vector)
-		{
-			System.out.print("Position: " + vectorEntry.position() + " Action = " + vectorEntry.vectorActionAsString() + " DataType: " + DataType.asString(vectorEntry.loadType()) + " Value: ");
-
-			switch (vectorEntry.loadType())
-			{
-			case DataTypes.ELEMENT_LIST :
-				decode(vectorEntry.elementList());
-				break;
-			default:
-				System.out.println();
-				break;
-			}
-		}
-	}
 }
 
 public class Consumer 
@@ -225,12 +157,14 @@ public class Consumer
 			AppClient appClient = new AppClient();
 			
 			consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig().host("localhost:14002").username("user"));
-			
-			ReqMsg reqMsg = EmaFactory.createReqMsg();
 		
-			long loginHandle = consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_LOGIN), appClient);
+			LoginReq loginReq = EmaFactory.Domain.createLoginReq();
 			
-			long handle = consumer.registerClient(reqMsg.clear().serviceName("DIRECT_FEED").name("IBM.N"), appClient);
+			long loginHandle = consumer.registerClient(loginReq.message(), appClient);
+			
+	        ReqMsg reqMsg = EmaFactory.createReqMsg();
+			
+			long handle = consumer.registerClient(reqMsg.serviceName("DIRECT_FEED").name("IBM.N"), appClient);
 
 			Thread.sleep(60000);			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
 		} 
