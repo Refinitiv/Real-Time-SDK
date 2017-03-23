@@ -3603,10 +3603,10 @@ public class Module_5_HandleItemRequest
             switch (dictionaryType)
             {
                 case Dictionary.Types.FIELD_DEFINITIONS:
-                    stateText = "Field Dictionary Refresh (starting fid %d)" + dictionaryFid;
+                    stateText = "Field Dictionary Refresh (starting fid " + dictionaryFid + ")";
                     break;
                 case Dictionary.Types.ENUM_TABLES:
-                    stateText = "Enum Type Dictionary Refresh (starting fid %d)" + dictionaryFid;
+                    stateText = "Enum Type Dictionary Refresh (starting fid " + dictionaryFid + ")";
                     break;
                 default:
                     break;

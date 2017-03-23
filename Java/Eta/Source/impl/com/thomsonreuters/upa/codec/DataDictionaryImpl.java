@@ -1350,10 +1350,10 @@ class DataDictionaryImpl implements DataDictionary
                 return CodecReturnCodes.FAILURE;
         }
 
-        /* Don't encode actual entries for info */
-        if (verbosity > Dictionary.VerbosityValues.INFO)
+        while (curFid <= _maxFid)
         {
-            while (curFid <= _maxFid)
+            /* Don't encode actual entries for info */
+            if (verbosity > Dictionary.VerbosityValues.INFO)
             {
                 /* Entries with type UNKNOWN were loaded from an enumtype.
                  * Don't send them since they aren't officially defined yet. */
@@ -1361,13 +1361,13 @@ class DataDictionaryImpl implements DataDictionary
                 {
                     if ((ret = encodeDataDictEntry(iter, _entriesArray[(int)curFid - MIN_FID], verbosity, error, setDb)) < 0)
                         return CodecReturnCodes.FAILURE;
-
+    
                     /* If we have filled the buffer, then complete */
                     if (ret == CodecReturnCodes.DICT_PART_ENCODED)
                         break;
                 }
-                (curFid)++;
             }
+            (curFid)++;
         }
 
         if ((ret = series.encodeComplete(iter, true)) < 0)
