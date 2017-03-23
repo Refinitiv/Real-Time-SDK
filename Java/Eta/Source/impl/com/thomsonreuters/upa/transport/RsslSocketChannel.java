@@ -1805,7 +1805,7 @@ class RsslSocketChannel extends UpaNode implements Channel
         buffer._isOwnedByApp = false;
         if (!_isJunitTest)
         {
-            if (((SocketBuffer)buffer._pool._poolOwner)._pool._isSharedPoolBuffer)
+            if (!buffer.isBigBuffer() && ((SocketBuffer)buffer._pool._poolOwner)._pool._isSharedPoolBuffer)
             {
                 if (bufferInt != _currentBuffer)
                 {
