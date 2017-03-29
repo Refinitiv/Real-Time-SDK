@@ -16,9 +16,9 @@ import com.thomsonreuters.upa.codec.Buffer;
 public interface AckMsg extends Msg
 {
     /**
-     * Checks the presence of the Extended Header flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Extended Header flag.
+     * 
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -27,9 +27,9 @@ public interface AckMsg extends Msg
     public boolean checkHasExtendedHdr();
 
     /**
-     * Checks the presence of the Text flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Text flag.
+     * 
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -38,9 +38,9 @@ public interface AckMsg extends Msg
     public boolean checkHasText();
 
     /**
-     * Checks the presence of the Private Stream flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Private Stream flag.
+     * 
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -49,9 +49,9 @@ public interface AckMsg extends Msg
     public boolean checkPrivateStream();
 
     /**
-     * Checks the presence of the Sequence Number flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Sequence Number flag.
+     * 
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -60,9 +60,9 @@ public interface AckMsg extends Msg
     public boolean checkHasSeqNum();
 
     /**
-     * Checks the presence of the Message Key flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Message Key flag.
+     * 
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -71,9 +71,9 @@ public interface AckMsg extends Msg
     public boolean checkHasMsgKey();
 
     /**
-     * Checks the presence of the NAK Code flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the NAK Code flag.
+     * 
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -82,9 +82,9 @@ public interface AckMsg extends Msg
     public boolean checkHasNakCode();
 
     /**
-     * Checks the presence of the Qualified Stream flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Qualified Stream flag.
+     * 
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -93,63 +93,63 @@ public interface AckMsg extends Msg
     public boolean checkQualifiedStream();
 
     /**
-     * Applies the Extended Header indication flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Extended Header indication flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasExtendedHdr();
 
     /**
-     * Applies the Text indication flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Text indication flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasText();
 
     /**
-     ** Applies the Private Stream indication flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     ** Applies the Private Stream indication flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      **/
     public void applyPrivateStream();
 
     /**
-     * Applies the Sequence Number indication flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Sequence Number indication flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasSeqNum();
 
     /**
-     * Applies the Message Key indication flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Message Key indication flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasMsgKey();
 
     /**
-     * Applies the NAK Code indication flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the NAK Code indication flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasNakCode();
 
     /**
-     * Applies the Qualified Stream indication flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Qualified Stream indication flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      **/

@@ -11,9 +11,9 @@ package com.thomsonreuters.upa.codec;
 public interface CloseMsg extends Msg
 {
     /**
-     * Checks the presence of the Extended Header presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Extended Header presence flag.
+     * 
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -22,9 +22,9 @@ public interface CloseMsg extends Msg
     public boolean checkHasExtendedHdr();
 
     /**
-     * Checks the presence of the Acknowledgment indication flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Acknowledgment indication flag.
+     * 
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -33,18 +33,18 @@ public interface CloseMsg extends Msg
     public boolean checkAck();
 
     /**
-     * Sets the Extended Header presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Sets the Extended Header presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasExtendedHdr();
 
     /**
-     * Sets the Acknowledgment indication flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Sets the Acknowledgment indication flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */

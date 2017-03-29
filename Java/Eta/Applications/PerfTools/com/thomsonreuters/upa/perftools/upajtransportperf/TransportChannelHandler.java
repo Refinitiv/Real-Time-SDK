@@ -247,7 +247,7 @@ public class TransportChannelHandler
      * @param stopTimeNsec - stop time in nano seconds
      * @param error Gives detailed information about error if any occurred
      *            during socket operations.
-     * @return negative value in case of error, >=0 if no errors.
+     * @return negative value in case of error, &gt;=0 if no errors.
      */
     public int readChannels(long stopTimeNsec, Error error)
     {
@@ -380,7 +380,7 @@ public class TransportChannelHandler
      * @param clientChannelInfo - client channel information
      * @param error Gives detailed information about error if any occurred
      *            during socket operations.
-     * @return negative value in case of error, >=0 if no errors.
+     * @return negative value in case of error, &gt;=0 if no errors.
      */
     public int initializeChannel(ClientChannelInfo clientChannelInfo, Error error)
     {
@@ -416,7 +416,7 @@ public class TransportChannelHandler
      * @param waitTimeMilliSec - wait time in milli seconds to try initialize
      *            channel
      * @param error - error information populated when error occurs
-     * @return < 0 if there is any error,
+     * @return &lt; 0 if there is any error,
      *         TransportReturnCodes.CHAN_INIT_IN_PROGRESS (2) if channel
      *         initialization in progress
      */

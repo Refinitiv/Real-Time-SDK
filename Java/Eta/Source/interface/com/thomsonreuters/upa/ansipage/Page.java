@@ -54,14 +54,16 @@ public class Page implements Cloneable
   /**
    * <P>The decode() method analyzes and parses the ANSI encoded update stream
    * and updates the PageUpdate list as well as the corresponding PageCell objects
-   * of the Page image.  </P>
-   * Decoding an ANSI stream is accomplished by using a finite
+   * of the Page image.  
+   * 
+   * <p>Decoding an ANSI stream is accomplished by using a finite
    * state machine.  Each of the ANSI escape sequences is parsed according to the state
    * into which the previous characters have the machine.  As the sequences are recognized,
    * the page image is modified. This allows the update list to be
    * sized without knowledge of the maximum amount of update information that a source
    * can communicate.  The page image should not be altered between calls to the decode()
-   * method.</P>
+   * method.
+   * 
    * <ul><li>As decode() is called, entries are added to the update list for the following
    *  reasons:
    * <li>For each repositioning of the cursor an entry with zero length is generated for that point.

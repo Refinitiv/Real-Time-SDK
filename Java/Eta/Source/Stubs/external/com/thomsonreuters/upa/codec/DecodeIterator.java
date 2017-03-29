@@ -41,8 +41,9 @@ import com.thomsonreuters.upa.transport.TransportBuffer;
  * <li class="blockList">
  * 
  * <pre>
+ * {@code
  * //Create DecodeIterator using CodecFactory
- * DecodeIterator decIter = CodecFactory.createDecodeIterator()}; 
+ * DecodeIterator decIter = CodecFactory.createDecodeIterator(); 
  * 
  * //Clear iterator 
  * clear();
@@ -58,6 +59,7 @@ import com.thomsonreuters.upa.transport.TransportBuffer;
  * 
  * //do decoding using iterator
  *  
+ * }
  * </pre>
  * 
  * </li>

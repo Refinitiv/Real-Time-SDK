@@ -85,7 +85,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  * the default callback for processing RsslMsgs. The main function
  * Initializes the UPA Reactor, makes the desired connections, and
  * dispatches for events.
- * This application makes use of the RDM package for easier decoding of Login & Source Directory
+ * This application makes use of the RDM package for easier decoding of Login &amp; Source Directory
  * messages.
  * </p>
  * <p>
@@ -143,7 +143,6 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  * [-krbfile proxyKRBFile] [-keyfile keystoreFile] [-keypasswd keystore password]
  * [-tunnel] [-tsDomain domain] [-tsAuth] [-qSourceName name] [-qDestName name] [-tsServiceName name]
  *   
- * <p>
  * <ul>
  * <li>-h Server host name. Default is <i>localhost</i>.
  * <li>-p Server port number. Default is <i>14002</i>.
@@ -200,7 +199,6 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  * <li>-tsAuth (optional) specifies that consumer will request authentication when opening the tunnel stream. This applies to basic tunnel streams and those opened for queue messaging.
  * <li>-tsDomain (optional) specifies the domain that consumer will use when opening the tunnel stream. This applies to basic tunnel streams and those opened for queue messaging.
  * </ul>
- * </p>
  */
 public class WatchlistConsumer implements ConsumerCallback
 {

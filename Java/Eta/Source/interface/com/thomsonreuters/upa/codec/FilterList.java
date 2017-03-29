@@ -256,9 +256,9 @@ public interface FilterList extends XMLDecoder
     public int decode(DecodeIterator iter);
 
     /**
-     * Checks the presence of the Per Entry Permission presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link #flags()}.
+     * Checks the presence of the Per Entry Permission presence flag.
+     * 
+     * <p>Flags may also be bulk-get via {@link #flags()}.
      * 
      * @see #flags()
      * 
@@ -267,9 +267,9 @@ public interface FilterList extends XMLDecoder
     public boolean checkHasPerEntryPermData();
 
     /**
-     * Checks the presence of the Total Count Hint presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link #flags()}.
+     * Checks the presence of the Total Count Hint presence flag.
+     * 
+     * <p>Flags may also be bulk-get via {@link #flags()}.
      * 
      * @see #flags()
      * 
@@ -278,18 +278,18 @@ public interface FilterList extends XMLDecoder
     public boolean checkHasTotalCountHint();
 
     /**
-     * Applies the Per Entry Permission presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link #flags(int)}.
+     * Applies the Per Entry Permission presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link #flags(int)}.
      * 
      * @see #flags(int)
      */
     public void applyHasPerEntryPermData();
 
     /**
-     * Applies the Total Count Hint presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link #flags(int)}.
+     * Applies the Total Count Hint presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link #flags(int)}.
      * 
      * @see #flags(int)
      */
