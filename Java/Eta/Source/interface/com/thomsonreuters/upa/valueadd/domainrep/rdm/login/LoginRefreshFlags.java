@@ -34,11 +34,11 @@ public class LoginRefreshFlags
     /** (0x0020) Indicates presence of the userName member. */
     public static final int HAS_USERNAME = 0x0020;
 
-    /** (0x0004) Indicates presence of the userNameType member. */
+    /** (0x0040) Indicates presence of the userNameType member. */
     public static final int HAS_USERNAME_TYPE = 0x0040;
 
     /**
-     * (0x0008) Indicates whether this refresh is being provided in response to
+     * (0x0080) Indicates whether this refresh is being provided in response to
      * a request.
      */
     public static final int SOLICITED = 0x0080;
