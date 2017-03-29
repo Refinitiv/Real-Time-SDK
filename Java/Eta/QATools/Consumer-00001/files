@@ -1,3 +1,0 @@
-# file,load_location,node_location
-Consumer.java,com/thomsonreuters/upa/examples/consumer,examples/com/thomsonreuters/upa/examples/consumer
-LoginHandler.java,com/thomsonreuters/upa/examples/common,examples/com/thomsonreuters/upa/examples/common

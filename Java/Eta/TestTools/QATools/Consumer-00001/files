@@ -1,0 +1,3 @@
+# file, relative_path to original file
+Consumer.java,com/thomsonreuters/upa/examples/consumer
+LoginHandler.java,com/thomsonreuters/upa/examples/common

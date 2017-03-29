@@ -475,7 +475,7 @@ public class Consumer implements ConsumerCallback
 				}
 			}
 	        
-	           // Handle run-time
+	        // Handle run-time
             if (System.currentTimeMillis() >= runtime && !closeHandled)
             {
                 System.out.println("Consumer run-time expired, close now...");
