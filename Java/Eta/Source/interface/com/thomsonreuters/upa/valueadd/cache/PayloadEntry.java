@@ -41,7 +41,7 @@ public interface PayloadEntry
 	 * OMM container in the message payload is applied to the cache entry
 	 * following the OMM rules of the message and the container type.
 	 *
-	 * When this function returns an error (< CodecReturnCodes.SUCCESS), some 
+	 * When this function returns an error (&lt; CodecReturnCodes.SUCCESS), some 
 	 * or all of the data could not be cached. Some errors returned by this function
 	 * can be handled as warnings, depending on application requirements. When
 	 * the function returns an error code, the CacheError errorId can be
@@ -56,7 +56,7 @@ public interface PayloadEntry
 	 * @param msg The partially decoded message structure
 	 * @param error The error information structure will be populated if the
 	 * payload data from the message could not be written to the cache entry
-	 * @return Returns failure codes (< CodecReturnCodes.SUCCESS) if the data could not be applied to the cache entry
+	 * @return Returns failure codes (&lt; CodecReturnCodes.SUCCESS) if the data could not be applied to the cache entry
 	 */
 	public int apply( DecodeIterator dIter, Msg msg, CacheError error );
 
@@ -85,7 +85,7 @@ public interface PayloadEntry
 	 * single part retrieval.
 	 * @param error The error in formation structure will be populated if payload
 	 * entry cache data could not be retrieved.
-	 * @return Failure codes (< CodecReturnCodes.SUCCESS) if data could not be
+	 * @return Failure codes (&lt; CodecReturnCodes.SUCCESS) if data could not be
 	 * retrieved from the container.
 	 * - CodecReturnCodes.BUFFER_TOO_SMALL indicates that the buffer size should be
 	 * increased in order to retrieve the data from the entry (single part or multi-part). 

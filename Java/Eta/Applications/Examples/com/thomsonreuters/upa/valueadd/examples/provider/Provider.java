@@ -116,10 +116,9 @@ import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamRequestEvent;
  * </p>
  * <p>
  * java -cp ./bin;../../Libs/upa.jar;../../Libs/upaValueAdd.jar;../../Libs/upaValueAddCache.jar
- * com.thomsonreuters.upa.valueadd.examples.provider.Provider [-p &ltport number&gt]
- * [-i &ltinterface name&gt] [-s &ltservice name&gt] [-id &ltservice ID&gt] [-cache] [-runtime &ltseconds&gt]
+ * com.thomsonreuters.upa.valueadd.examples.provider.Provider [-p &lt;port number&gt;]
+ * [-i &lt;interface name&gt;] [-s &lt;service name&gt;] [-id &lt;service ID&gt;] [-cache] [-runtime &lt;seconds&gt;]
  * </p>
- * <p>
  * <ul>
  * <li>-p server port number (defaults to 14002)
  * <li>-i interface name (defaults to null)
@@ -129,7 +128,6 @@ import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamRequestEvent;
  * <li>-cache application supports apply/retrieve data to/from cache
  * <li>-runtime application runtime in seconds (default is 1200)
  * </ul>
- * </p>
  */
 public class Provider implements ProviderCallback, TunnelStreamListenerCallback
 {

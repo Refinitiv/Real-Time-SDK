@@ -31,9 +31,9 @@ import com.thomsonreuters.upa.codec.Qos;
 public interface RequestMsg extends Msg
 {
     /**
-     * Checks the presence of the Extended Header presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Extended Header presence flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -42,9 +42,9 @@ public interface RequestMsg extends Msg
     public boolean checkHasExtendedHdr();
 
     /**
-     * Checks the presence of the Priority presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Priority presence flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -53,9 +53,9 @@ public interface RequestMsg extends Msg
     public boolean checkHasPriority();
 
     /**
-     * Checks the presence of the Streaming indication flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Streaming indication flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -64,9 +64,9 @@ public interface RequestMsg extends Msg
     public boolean checkStreaming();
 
     /**
-     * Checks the presence of the Message Key presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Message Key presence flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -75,9 +75,9 @@ public interface RequestMsg extends Msg
     public boolean checkMsgKeyInUpdates();
 
     /**
-     * Checks the presence of the Conflation Info presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Conflation Info presence flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -86,9 +86,9 @@ public interface RequestMsg extends Msg
     public boolean checkConfInfoInUpdates();
 
     /**
-     * Checks the presence of the No Refresh indication flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the No Refresh indication flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -97,9 +97,9 @@ public interface RequestMsg extends Msg
     public boolean checkNoRefresh();
 
     /**
-     * Checks the presence of the Quality of Service presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Quality of Service presence flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -108,9 +108,9 @@ public interface RequestMsg extends Msg
     public boolean checkHasQos();
 
     /**
-     * Checks the presence of the Worst Quality of Service presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Worst Quality of Service presence flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -119,9 +119,9 @@ public interface RequestMsg extends Msg
     public boolean checkHasWorstQos();
 
     /**
-     ** Checks the presence of the Private Stream indication flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     ** Checks the presence of the Private Stream indication flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      ** 
@@ -130,9 +130,9 @@ public interface RequestMsg extends Msg
     public boolean checkPrivateStream();
 
     /**
-     * Checks the presence of the Pause indication flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Pause indication flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -141,9 +141,9 @@ public interface RequestMsg extends Msg
     public boolean checkPause();
 
     /**
-     * Checks the presence of the View indication flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the View indication flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -152,9 +152,9 @@ public interface RequestMsg extends Msg
     public boolean checkHasView();
 
     /**
-     * Checks the presence of the Batch indication flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Batch indication flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -163,9 +163,9 @@ public interface RequestMsg extends Msg
     public boolean checkHasBatch();
 
     /**
-     ** Checks the presence of the Qualified Stream indication flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     ** Checks the presence of the Qualified Stream indication flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      ** 
@@ -174,117 +174,117 @@ public interface RequestMsg extends Msg
     public boolean checkQualifiedStream();
 
     /**
-     * Applies the Extended Header presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Extended Header presence flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasExtendedHdr();
 
     /**
-     * Applies the Priority presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Priority presence flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasPriority();
 
     /**
-     * Applies the Streaming indication flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Streaming indication flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyStreaming();
 
     /**
-     * Applies the Message Key presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Message Key presence flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyMsgKeyInUpdates();
 
     /**
-     * Applies the Conflation Information in Updates indication flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Conflation Information in Updates indication flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyConfInfoInUpdates();
 
     /**
-     * Applies the No Refresh indication flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the No Refresh indication flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyNoRefresh();
 
     /**
-     * Applies the Quality of Service presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Quality of Service presence flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasQos();
 
     /**
-     * Applies the Worst Quality of Service presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Worst Quality of Service presence flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasWorstQos();
 
     /**
-     ** Applies the Private Stream indication flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     ** Applies the Private Stream indication flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      **/
     public void applyPrivateStream();
 
     /**
-     * Applies the Pause indication flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Pause indication flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyPause();
 
     /**
-     * Applies the View indication flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the View indication flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasView();
 
     /**
-     * Applies the Batch indication flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Batch indication flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasBatch();
 
     /**
-     ** Applies the Qualified Stream indication flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     ** Applies the Qualified Stream indication flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      **/

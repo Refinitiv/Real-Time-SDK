@@ -138,11 +138,10 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
  * <p> 
  * java -cp ./bin;../../Libs/upa.jar;../../Libs/upaValueAdd.jar;../../Libs/upaValueAddCache.jar
  * com.thomsonreuters.upa.valueadd.examples.consumer.Consumer
- * [-c &lthostname&gt:&ltport&gt &ltservice name&gt &ltdomain&gt:&ltitem name&gt,...]
- * [-uname &ltLoginUsername&gt] [-view] [-post] [-offpost]  [-publisherInfo &ltuserId,address&gt] [-snapshot] [-runtime &ltseconds&gt]
- * [-cache] [-cacheInterval &ltseconds&gt]
+ * [-c &lt;hostname&gt;:&lt;port&gt; &lt;service name&gt; &lt;domain&gt;:&lt;item name&gt;,...]
+ * [-uname &lt;LoginUsername&gt;] [-view] [-post] [-offpost]  [-publisherInfo &lt;userId,address&gt;] [-snapshot] [-runtime &lt;seconds&gt;]
+ * [-cache] [-cacheInterval &lt;seconds&gt;]
  * </p>
- * <p>
  * <ul>
  * <li>-c specifies a connection to open and a list of items to request:
  * <ul>
@@ -205,7 +204,6 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
  * <li>-keypasswd keystore password for encryption.
  * 
  * </ul>
- * </p>
  */
 public class Consumer implements ConsumerCallback
 {

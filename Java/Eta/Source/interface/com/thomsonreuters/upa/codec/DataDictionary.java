@@ -95,7 +95,7 @@ public interface DataDictionary
      *            iterator must be cleared and initialized to the buffer to be used for encoding.
      * 
      * @param currentFid Tracks which fields have been encoded in case of
-     *            multi-part encoding. Must be initialized to dictionary->minFid
+     *            multi-part encoding. Must be initialized to {@literal dictionary->minFid}
      *            on the first call and is updated with each successfully encoded part.
      * 
      * @param verbosity The desired verbosity to encode.

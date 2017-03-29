@@ -58,7 +58,6 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
  * client application using ValueAdd components.
  * </p>
  * <H2>Summary</H2>
- * <p>
  * This class is responsible for the following:
  * <ul>
  * <li>Initialize and set command line options.
@@ -67,7 +66,6 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
  * Directory, Dictionary and default message callbacks.
  * <li>Connect to the ADH provider, send item refreshes, then send item updates.
  * </ul>
- * </p>
  * <p>
  * This class is also a call back for all events from Consumer/ADH. It
  * dispatches events to domain specific handlers.
@@ -100,10 +98,9 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
  * <p> 
  * java -cp ./bin;../../Libs/upa.jar;../../Libs/upaValueAdd.jar;../../Libs/upaValueAddCache.jar
  * com.thomsonreuters.upa.valueadd.examples.niprovider.NIProvider
- * [-c &lthostname&gt:&ltport&gt &ltservice &gt &ltdomain&gt:&ltitem name&gt,...]
- * [-uname &ltLoginUsername&gt] [-runtime &ltseconds&gt] [-bc &ltbackup hostname&gt:&lt backup port&gt]
+ * [-c &lt;hostname&gt;:&lt;port&gt; &lt;service &gt; &lt;domain&gt;:&lt;item name&gt;,...]
+ * [-uname &lt;LoginUsername&gt;] [-runtime &lt;seconds&gt;] [-bc &lt;backup hostname&gt;:&lt; backup port&gt;]
  * </p>
- * <p>
  * <ul>
  * <li>-c specifies a tcp connection to open and a list of items to provide:
  * <ul>
@@ -119,17 +116,15 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
  *  <li>backup port:     Backup port of ADH to connect to
  *  </ul>
  * </ul>
- * </p>
  * <p>
  * Tcp primary connection and Tcp backup connection can be replaced by reliable multicast primary and backup multicast connections. 
  * </p>
  * <p> 
  * java -cp ./obj;../../Libs/upa.jar;../Libs/upaValueAdd.jar;../Libs/upaValueAddCache.jar
  * com.thomsonreuters.upa.valueadd.examples.niprovider.NIProvider
- * [-segmentedMulticast &ltsa&gt:&ltsp&gt:&ltif&gt &ltra&gt:&ltrp&gt &ltup&gt &ltservice &gt &ltdomain&gt:&ltitem name&gt,...]
- * [-uname &ltLoginUsername&gt] [-runtime &ltseconds&gt] [-mbc &ltbsa&gt:&ltbsp&gt:&ltbif&gt &ltbra&gt:&ltbrp&gt &ltbup&gt] [-cache]
+ * [-segmentedMulticast &lt;sa&gt;:&lt;sp&gt;:&lt;if&gt; &lt;ra&gt;:&lt;rp&gt; &lt;up&gt; &lt;service &gt; &lt;domain&gt;:&lt;item name&gt;,...]
+ * [-uname &lt;LoginUsername&gt;] [-runtime &lt;seconds&gt;] [-mbc &lt;bsa&gt;:&lt;bsp&gt;:&lt;bif&gt; &lt;bra&gt;:&lt;brp&gt; &lt;bup&gt;] [-cache]
  * </p>
- * <p>
  * <ul>
  * <li>-segmentedMulticast specifies a reliable multicast connection to open and a list of items to provide:
  * <ul>
@@ -153,7 +148,6 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
  *  <li>bup:     Backup unicast port of ADH to connect to  
  *  </ul>
  * </ul>
- * </p>
  * <ul>
  * <li>-uname Login user name. Default is system user name.
  * <li>-x. Provides XML tracing of messages.

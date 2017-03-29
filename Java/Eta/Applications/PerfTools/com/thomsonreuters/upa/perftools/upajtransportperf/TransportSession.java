@@ -49,7 +49,7 @@ public class TransportSession
      * Send a burst of messages for one tick.
      * @param handler - Transport thread sending messages.
      * @param error - Gives detailed information about error if any occurred during socket operations.
-     * @return negative value in case of error, >=0 if no errors.
+     * @return negative value in case of error, &gt;=0 if no errors.
      */
     public int sendMsgBurst(TransportThread handler, Error error)
     {

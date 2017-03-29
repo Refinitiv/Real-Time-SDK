@@ -565,9 +565,9 @@ public interface MapEntry
     public int decode(DecodeIterator iter, Object keyData);
 
     /**
-     * Checks the presence of the Permission Data presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link #flags()}.
+     * Checks the presence of the Permission Data presence flag.
+     * 
+     * <p>Flags may also be bulk-get via {@link #flags()}.
      * 
      * @see #flags()
      * 
@@ -576,9 +576,9 @@ public interface MapEntry
     public boolean checkHasPermData();
 
     /**
-     * Applies the Permission Data presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link #flags(int)}.
+     * Applies the Permission Data presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link #flags(int)}.
      * 
      * @see #flags(int)
      */

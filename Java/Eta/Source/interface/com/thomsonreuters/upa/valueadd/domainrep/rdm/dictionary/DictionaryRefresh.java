@@ -69,7 +69,7 @@ public interface DictionaryRefresh extends DictionaryMsg
 
     /**
      * Applies the flag for presence of the dictionaryId, version, and type
-     * members .<br />
+     * members.<br>
      * 
      * This flag is typically not used as this information is automatically
      * added by the encode method when appropriate.
@@ -197,7 +197,7 @@ public interface DictionaryRefresh extends DictionaryMsg
     public Buffer dataBody();
 
     /**
-     * This field is initialized with dictionary->minFid and after encoding each
+     * This field is initialized with dictionary-&gt;minFid and after encoding each
      * part, updated with the start Fid for next encoded part. When decoding,
      * this is not used.
      * 
@@ -206,7 +206,7 @@ public interface DictionaryRefresh extends DictionaryMsg
     public void startFid(int startFid);
 
     /**
-     * This field is initialized with dictionary->minFid and after encoding each
+     * This field is initialized with dictionary-&gt;minFid and after encoding each
      * part, updated with the start Fid for next encoded part. When decoding,
      * this is not used.
      * 

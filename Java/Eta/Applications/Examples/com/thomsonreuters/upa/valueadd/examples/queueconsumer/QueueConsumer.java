@@ -74,9 +74,8 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
  * <p> 
  * java -cp ./bin;../../Libs/upa.jar;../../Libs/upaValueAdd.jar
  * com.thomsonreuters.upa.valueadd.examples.queueconsumer.QueueConsumer
- * [-c &lthostname&gt:&ltport&gt ]
+ * [-c &lt;hostname&gt;:&lt;port&gt; ]
  * </p>
- * <p>
  * <ul>
  * <li>-c specifies a connection to open:
  * <ul>
@@ -103,7 +102,6 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
  * <li>-tsDomain (optional) specifies the domain that consumer will use when opening the tunnel stream.
  * 
  * </ul>
- * </p>
  */
 public class QueueConsumer implements ConsumerCallback
 {    

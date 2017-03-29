@@ -42,15 +42,15 @@ public interface LoginSupportFeatures
     public int copy(LoginSupportFeatures destLoginSupportFeatures);
 
     /**
-     * Indicates whether the Provider supports Optimized Pause & Resume.
+     * Indicates whether the Provider supports Optimized Pause &amp; Resume.
      * 
      * @return supportOptimizedPauseResume. 1 - if provider supports Optimized
-     *         Pause & Resume. 0 - if not.
+     *         Pause &amp; Resume. 0 - if not.
      */
     public long supportOptimizedPauseResume();
 
     /**
-     * Indicates whether the Provider supports Optimized Pause & Resume.
+     * Indicates whether the Provider supports Optimized Pause &amp; Resume.
      * 
      * @param supportOptimizedPauseResume
      */
