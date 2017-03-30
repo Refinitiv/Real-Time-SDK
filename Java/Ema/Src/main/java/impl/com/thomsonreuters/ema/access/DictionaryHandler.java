@@ -354,17 +354,44 @@ class DictionaryHandler implements RDMDictionaryMsgCallback
 					 if( _apiAdminControl == false )
 		             {
 						 	ReqMsgImpl reqMsg = _ommServerBaseImpl.reqMsg();
-		                	
-			                reqMsg.decode(event.msg(), rsslReactorChannel.majorVersion(),
-			                			rsslReactorChannel.minorVersion(), getDictionaryByServiceId(event.msg().msgKey().serviceId()));
+						 	
+						 	int flags = event.msg().msgKey().flags();
+						 	
+						 	if ( (flags & MsgKeyFlags.HAS_SERVICE_ID) == MsgKeyFlags.HAS_SERVICE_ID )
+							{
+								reqMsg.decode(event.msg(), rsslReactorChannel.majorVersion(),
+			                			rsslReactorChannel.minorVersion(), getDictionaryByServiceId(event.msg().msgKey().serviceId()) );
+								
+								String serviceName = _ommServerBaseImpl.directoryServiceStore().serviceName(event.msg().msgKey().serviceId());
+								
+								if (serviceName != null)
+								{
+									flags &= ~MsgKeyFlags.HAS_SERVICE_ID;
+							
+									reqMsg._rsslMsg.msgKey().flags(flags);
+							
+									reqMsg.msgServiceName(serviceName);
+							
+									reqMsg._rsslMsg.msgKey().flags( flags | MsgKeyFlags.HAS_SERVICE_ID);
+								}
+								else
+								{						
+									sendRequestReject(event.reactorChannel(), event.rdmDictionaryMsg(), DictionaryRejectEnum.SERVICE_ID_NOT_FOUND , _errorInfo, true );
+									
+									_itemInfoList.remove(itemInfo);
+									_ommServerBaseImpl.removeItemInfo(itemInfo, false);
+									
+									return ReactorCallbackReturnCodes.SUCCESS;
+								}
+							}
 			                	
 			                 _ommServerBaseImpl.ommProviderEvent()._clientHandle = clientSession.clientHandle();
 			    			 _ommServerBaseImpl.ommProviderEvent()._closure = _ommServerBaseImpl.closure();
 			    			 _ommServerBaseImpl.ommProviderEvent()._ommProvider = _ommServerBaseImpl.provider();
 							 _ommServerBaseImpl.ommProviderEvent()._handle = itemInfo.handle();
 						
-						 _ommServerBaseImpl.ommProviderClient().onAllMsg(reqMsg, _ommServerBaseImpl.ommProviderEvent());
-						 _ommServerBaseImpl.ommProviderClient().onReissue(reqMsg, _ommServerBaseImpl.ommProviderEvent());
+							 _ommServerBaseImpl.ommProviderClient().onAllMsg(reqMsg, _ommServerBaseImpl.ommProviderEvent());
+							 _ommServerBaseImpl.ommProviderClient().onReissue(reqMsg, _ommServerBaseImpl.ommProviderEvent());
 		             }
 					 else
 					 {
@@ -571,7 +598,7 @@ class DictionaryHandler implements RDMDictionaryMsgCallback
                     _ommServerBaseImpl.loggerClient().error(_ommServerBaseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.ERROR));
                 }
                 
-                return CodecReturnCodes.SUCCESS;
+                return CodecReturnCodes.FAILURE;
             }
             
             _dictionaryRefresh.state().text().data("Field Dictionary Refresh (starting fid " + _dictionaryRefresh.startFid() + ")");
@@ -590,7 +617,7 @@ class DictionaryHandler implements RDMDictionaryMsgCallback
                     _ommServerBaseImpl.loggerClient().error(_ommServerBaseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.ERROR));
                 }
                 
-                return CodecReturnCodes.SUCCESS;
+                return CodecReturnCodes.FAILURE;
             }
     
             ret = _dictionaryRefresh.encode(_encodeIter);
@@ -605,6 +632,8 @@ class DictionaryHandler implements RDMDictionaryMsgCallback
                    
                     _ommServerBaseImpl.loggerClient().error(_ommServerBaseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.ERROR));
                 }
+                
+                return CodecReturnCodes.FAILURE;
             }
     
             int retCode = reactorChannel.submit(msgBuf, _ommServerBaseImpl._rsslSubmitOptions, error);
@@ -623,7 +652,8 @@ class DictionaryHandler implements RDMDictionaryMsgCallback
 
                     _ommServerBaseImpl.loggerClient().error(_ommServerBaseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.ERROR));
                 }
-                return CodecReturnCodes.SUCCESS;
+                
+                return CodecReturnCodes.FAILURE;
             }
             
             if (ret == CodecReturnCodes.SUCCESS)
@@ -685,7 +715,8 @@ class DictionaryHandler implements RDMDictionaryMsgCallback
     
                     _ommServerBaseImpl.loggerClient().error(_ommServerBaseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.ERROR));
                 }
-                return CodecReturnCodes.SUCCESS;
+                
+                return CodecReturnCodes.FAILURE;
             }
     
             _encodeIter.clear();
@@ -701,7 +732,8 @@ class DictionaryHandler implements RDMDictionaryMsgCallback
     
                     _ommServerBaseImpl.loggerClient().error(_ommServerBaseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.ERROR));
                 }
-                return CodecReturnCodes.SUCCESS;
+                
+                return CodecReturnCodes.FAILURE;
             }
     
             ret = _dictionaryRefresh.encode(_encodeIter);
@@ -716,6 +748,8 @@ class DictionaryHandler implements RDMDictionaryMsgCallback
     
                     _ommServerBaseImpl.loggerClient().error(_ommServerBaseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.ERROR));
                 }
+                
+                return CodecReturnCodes.FAILURE;
             }
     
             ret = reactorChannel.submit(msgBuf, _ommServerBaseImpl._rsslSubmitOptions, error);
@@ -732,7 +766,8 @@ class DictionaryHandler implements RDMDictionaryMsgCallback
     
                     _ommServerBaseImpl.loggerClient().error(_ommServerBaseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.ERROR));
                 }
-                return CodecReturnCodes.SUCCESS;
+                
+                return CodecReturnCodes.FAILURE;
             }
             
             if (ret == CodecReturnCodes.SUCCESS)
