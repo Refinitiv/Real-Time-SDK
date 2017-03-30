@@ -577,9 +577,22 @@ class DictionaryHandler implements RDMDictionaryMsgCallback
         _dictionaryRefresh.state().streamState(StreamStates.OPEN);
         _dictionaryRefresh.state().dataState(DataStates.OK);
         _dictionaryRefresh.state().code(StateCodes.NONE);
+        
+        boolean firstPartMultiPartRefresh = true;
+        int flags = _dictionaryRefresh.flags();
 
         while (true)
         {
+        	if (firstPartMultiPartRefresh)
+        	{
+        		_dictionaryRefresh.applyClearCache();
+        		firstPartMultiPartRefresh = false;
+        	}
+        	else
+        	{
+        		_dictionaryRefresh.flags(flags);
+        	}
+        	
             TransportBuffer msgBuf = reactorChannel.getBuffer(_maxFieldDictFragmentSize, false, error);
             
             if (msgBuf == null)
@@ -695,10 +708,22 @@ class DictionaryHandler implements RDMDictionaryMsgCallback
         _dictionaryRefresh.state().streamState(StreamStates.OPEN);
         _dictionaryRefresh.state().dataState(DataStates.OK);
         _dictionaryRefresh.state().code(StateCodes.NONE);
-        _dictionaryRefresh.state().text().data("Enum Type Dictionary Refresh");
+        
+        boolean firstPartMultiPartRefresh = true;
+        int flags =  _dictionaryRefresh.flags();
 
         while (true)
         {
+        	if (firstPartMultiPartRefresh)
+        	{
+        		_dictionaryRefresh.applyClearCache();
+        		firstPartMultiPartRefresh = false;
+        	}
+        	else
+        	{
+        		_dictionaryRefresh.flags(flags);
+        	}
+        	
             TransportBuffer msgBuf = reactorChannel.getBuffer(_maxEnumTypeFragmentSize, false, error);
             if (msgBuf == null)
             {
@@ -735,6 +760,8 @@ class DictionaryHandler implements RDMDictionaryMsgCallback
                 
                 return CodecReturnCodes.FAILURE;
             }
+            
+            _dictionaryRefresh.state().text().data("Enum Type Dictionary Refresh (starting enum table count " + _dictionaryRefresh.startEnumTableCount() + ")");
     
             ret = _dictionaryRefresh.encode(_encodeIter);
             if (ret < CodecReturnCodes.SUCCESS)
@@ -752,8 +779,7 @@ class DictionaryHandler implements RDMDictionaryMsgCallback
                 return CodecReturnCodes.FAILURE;
             }
     
-            ret = reactorChannel.submit(msgBuf, _ommServerBaseImpl._rsslSubmitOptions, error);
-            if (ret < CodecReturnCodes.SUCCESS)
+            if ( reactorChannel.submit(msgBuf, _ommServerBaseImpl._rsslSubmitOptions, error) < CodecReturnCodes.SUCCESS )
             {
                 if (_ommServerBaseImpl.loggerClient().isErrorEnabled())
                 {
