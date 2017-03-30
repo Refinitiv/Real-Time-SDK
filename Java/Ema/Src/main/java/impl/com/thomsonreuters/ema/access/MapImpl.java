@@ -7,6 +7,7 @@
 
 package com.thomsonreuters.ema.access;
 
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -485,15 +486,6 @@ class MapImpl extends CollectionDataImpl implements Map
 		
 		if (_mapCollection.isEmpty())
 			throw ommIUExcept().message("Map to be encoded is empty.");
-		
-		int ret = _rsslEncodeIter.setBufferAndRWFVersion(_rsslBuffer, _rsslMajVer, _rsslMinVer);
-	    if (ret != CodecReturnCodes.SUCCESS)
-	    {
-	    	String errText = errorString().append("Failed to setBufferAndRWFVersion on rssl encode iterator. Reason='")
-	    								.append(CodecReturnCodes.toString(ret))
-	    								.append("'").toString();
-	    	throw ommIUExcept().message(errText);
-	    }
 	    
 	    MapEntryImpl firstEntry = (MapEntryImpl)_mapCollection.get(0);
 	    int keyType = firstEntry._keyDataType; 
@@ -508,10 +500,18 @@ class MapImpl extends CollectionDataImpl implements Map
 		{
 			_rsslMap.containerType(Utilities.toRsslDataType(firstEntry.loadType()));
 		}
-	 
+		
+		int ret;
+		
+		setEncodedBufferIterator();
+		
 	    while ((ret = _rsslMap.encodeInit(_rsslEncodeIter, 0, 0)) == CodecReturnCodes.BUFFER_TOO_SMALL)
-	    {
-	    	_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
+	    {	    	
+	    	Buffer bigBuffer = CodecFactory.createBuffer();
+			bigBuffer.data(ByteBuffer.allocate(_rsslBuffer.capacity() * 2));
+			_rsslBuffer = bigBuffer;
+
+			setEncodedBufferIterator();
 	    }
 	    
 	    if (ret != CodecReturnCodes.SUCCESS)
@@ -566,6 +566,20 @@ class MapImpl extends CollectionDataImpl implements Map
 	    
 	    _encodeComplete = true;
 	    return _rsslBuffer;
+	}
+	
+	void setEncodedBufferIterator()
+	{
+		_rsslEncodeIter.clear();
+    	int ret = _rsslEncodeIter.setBufferAndRWFVersion(_rsslBuffer, _rsslMajVer, _rsslMinVer);
+    	
+    	if (ret != CodecReturnCodes.SUCCESS)
+	    {
+	    	String errText = errorString().append("Failed to setBufferAndRWFVersion on rssl encode iterator. Reason='")
+	    								.append(CodecReturnCodes.toString(ret))
+	    								.append("'").toString();
+	    	throw ommIUExcept().message(errText);
+	    }
 	}
 	
 	private int mapEntryEncode(int rsslDataType, com.thomsonreuters.upa.codec.MapEntry rsslMapEntry, Object cacheKeyData)

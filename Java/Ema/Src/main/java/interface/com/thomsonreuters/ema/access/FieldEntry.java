@@ -446,6 +446,24 @@ public interface FieldEntry
 	 * @return {@link com.thomsonreuters.ema.access.OmmEnum}
 	 */
 	public OmmEnum ommEnumValue();
+	
+	/** 
+	 * Indicates presence of the display value for the OmmEnum type.
+	 * 
+	 * @return true if the display value exists; false otherwise
+	 */
+	public boolean hasEnumDisplay();
+
+	/** 
+	 * Returns the display value for the OmmEnum type.
+	 * Calling this method must be preceded by a call to {@link #hasEnumDisplay()}.
+	 * @throws OmmInvalidUsageException if {@link #hasEnumDisplay()} returns false
+	 * @throws OmmInvalidUsageException if contained object is not {@link com.thomsonreuters.ema.access.OmmEnum}
+	 * @throws OmmInvalidUsageException if {@link com.thomsonreuters.ema.access.Data#code()} returns {@link com.thomsonreuters.ema.access.Data.DataCode#BLANK}
+	 * 
+	 * @return String containing the display value
+	 */
+	public String enumDisplay();
 
 	/**
 	 * Returns the current OMM data represented as a specific simple type.
