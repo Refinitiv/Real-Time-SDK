@@ -1272,21 +1272,21 @@ class DictionaryItem<T> extends SingleItem<T> implements TimeoutClient
 			return super.open( reqMsg );
 		else
 		{
-			if (_name.equals(DictionaryCallbackClient.DICTIONARY_RWFFID))
-			{
-				_currentFid = dictCBClient.defaultRsslDictionary().minFid();
-				_streamId = dictCBClient.fldStreamId();
-			}
-			else if (_name.equals(DictionaryCallbackClient.DICTIONARY_RWFENUM))
-			{
-				_currentFid = 0;
-				_streamId = dictCBClient.enumStreamId();
-			}
-	
 			DataDictionary rsslDictionary = dictCBClient.defaultRsslDictionary();
 	
 			if (rsslDictionary != null)
 			{
+				if (_name.equals(DictionaryCallbackClient.DICTIONARY_RWFFID))
+				{
+					_currentFid = rsslDictionary.minFid();
+					_streamId = dictCBClient.fldStreamId();
+				}
+				else if (_name.equals(DictionaryCallbackClient.DICTIONARY_RWFENUM))
+				{
+					_currentFid = 0;
+					_streamId = dictCBClient.enumStreamId();
+				}
+
 				if (!dictCBClient.isLocalDictionary())
 				{
 					ChannelDictionary<T> channelDict = dictCBClient.channelDictionaryList().get(0);

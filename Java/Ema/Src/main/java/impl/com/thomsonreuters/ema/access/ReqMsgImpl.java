@@ -482,32 +482,34 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 	{
 		((com.thomsonreuters.upa.codec.RequestMsg)_rsslMsg).applyHasQos();
 		Qos rsslQos = ((com.thomsonreuters.upa.codec.RequestMsg)_rsslMsg).qos();
-		Qos rsslWQos = null;
 		rsslQos.clear();
+		((com.thomsonreuters.upa.codec.RequestMsg)_rsslMsg).applyHasWorstQos();
+		Qos rsslWQos = ((com.thomsonreuters.upa.codec.RequestMsg)_rsslMsg).worstQos();
+		rsslWQos.clear();
+		
+		boolean hasQosRange = false;
 		
 		switch (rate)
 		{
 		case Rate.TICK_BY_TICK :
 			rsslQos.rate(com.thomsonreuters.upa.codec.QosRates.TICK_BY_TICK);
+			rsslWQos.rate(com.thomsonreuters.upa.codec.QosRates.TICK_BY_TICK);
 			break;
 		case Rate.JIT_CONFLATED :
 			rsslQos.rate(com.thomsonreuters.upa.codec.QosRates.JIT_CONFLATED);
+			rsslWQos.rate(com.thomsonreuters.upa.codec.QosRates.JIT_CONFLATED);
 			break;
 		case Rate.BEST_CONFLATED_RATE :
 			rsslQos.rate(com.thomsonreuters.upa.codec.QosRates.TIME_CONFLATED);
 			rsslQos.rateInfo (1);
 			
-			((com.thomsonreuters.upa.codec.RequestMsg)_rsslMsg).applyHasWorstQos();
-			rsslWQos = ((com.thomsonreuters.upa.codec.RequestMsg)_rsslMsg).worstQos();
-			rsslWQos.clear();
+			hasQosRange = true;
 			rsslWQos.rate(com.thomsonreuters.upa.codec.QosRates.JIT_CONFLATED);
 			break;
 		case Rate.BEST_RATE :
 			rsslQos.rate(com.thomsonreuters.upa.codec.QosRates.TICK_BY_TICK);
 
-			((com.thomsonreuters.upa.codec.RequestMsg)_rsslMsg).applyHasWorstQos();
-			rsslWQos = ((com.thomsonreuters.upa.codec.RequestMsg)_rsslMsg).worstQos();
-			rsslWQos.clear();
+			hasQosRange = true;
 			rsslWQos.rate( com.thomsonreuters.upa.codec.QosRates.JIT_CONFLATED);
 			break;
 		default :
@@ -515,10 +517,14 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 			{
 				rsslQos.rate(com.thomsonreuters.upa.codec.QosRates.TIME_CONFLATED);
 				rsslQos.rateInfo(rate);
+				
+				rsslWQos.rate(com.thomsonreuters.upa.codec.QosRates.TIME_CONFLATED);
+				rsslWQos.rateInfo(rate);
 			}
 			else
 			{
 				rsslQos.rate(com.thomsonreuters.upa.codec.QosRates.JIT_CONFLATED);
+				rsslWQos.rate(com.thomsonreuters.upa.codec.QosRates.JIT_CONFLATED);
 			}
 			break;
 		}
@@ -527,23 +533,20 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 		{
 		case Timeliness.REALTIME :
 			rsslQos.timeliness(com.thomsonreuters.upa.codec.QosTimeliness.REALTIME);
+			rsslWQos.timeliness(com.thomsonreuters.upa.codec.QosTimeliness.REALTIME);
 			break;
 		case Timeliness.BEST_DELAYED_TIMELINESS :
 			rsslQos.timeliness(com.thomsonreuters.upa.codec.QosTimeliness.DELAYED);
 			rsslQos.timeInfo(1);
 			
-			((com.thomsonreuters.upa.codec.RequestMsg)_rsslMsg).applyHasWorstQos();
-			rsslWQos = ((com.thomsonreuters.upa.codec.RequestMsg)_rsslMsg).worstQos();
-			rsslWQos.clear();
+			hasQosRange = true;
 			rsslWQos.timeliness(com.thomsonreuters.upa.codec.QosTimeliness.DELAYED);
 			rsslWQos.timeInfo(65535);
 			break;
 		case Timeliness.BEST_TIMELINESS :
 			rsslQos.timeliness(com.thomsonreuters.upa.codec.QosTimeliness.REALTIME);
 
-			((com.thomsonreuters.upa.codec.RequestMsg)_rsslMsg).applyHasWorstQos();
-			rsslWQos = ((com.thomsonreuters.upa.codec.RequestMsg)_rsslMsg).worstQos();
-			rsslWQos.clear();
+			hasQosRange = true;
 			rsslWQos.timeliness(com.thomsonreuters.upa.codec.QosTimeliness.DELAYED);
 			rsslWQos.timeInfo(65535);
 			break;
@@ -552,12 +555,28 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 			{
 				rsslQos.timeliness(com.thomsonreuters.upa.codec.QosTimeliness.DELAYED);
 				rsslQos.timeInfo(timeliness);
+				
+				rsslWQos.timeliness(com.thomsonreuters.upa.codec.QosTimeliness.DELAYED);
+				rsslWQos.timeInfo(timeliness);
 			}
 			else
 			{
 				rsslQos.timeliness(com.thomsonreuters.upa.codec.QosTimeliness.DELAYED_UNKNOWN);
+				rsslWQos.timeliness(com.thomsonreuters.upa.codec.QosTimeliness.DELAYED_UNKNOWN);
 			}
 			break;
+		}
+		
+		if ( hasQosRange )
+		{
+			rsslQos.dynamic(true);
+			rsslWQos.dynamic(true);
+		}
+		else
+		{
+			int flags = ((com.thomsonreuters.upa.codec.RequestMsg)_rsslMsg).flags();
+			flags &= ~com.thomsonreuters.upa.codec.RequestMsgFlags.HAS_WORST_QOS;
+			((com.thomsonreuters.upa.codec.RequestMsg)_rsslMsg).flags(flags);
 		}
 		
 		return this;
