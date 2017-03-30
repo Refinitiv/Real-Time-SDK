@@ -61,7 +61,9 @@ OmmNiProviderImpl::OmmNiProviderImpl(OmmProvider* ommProvider, const OmmNiProvid
 	_handleToStreamInfo(),
 	_streamInfoList(),
 	_bIsStreamIdZeroRefreshSubmitted(false),
-	_ommNiProviderDirectoryStore(*this, _activeConfig)
+	_ommNiProviderDirectoryStore(*this, _activeConfig),
+	_nextProviderStreamId(0),
+	_reusedProviderStreamIds()
 {
 	_activeConfig.operationModel = config._pImpl->getOperationModel();
 
@@ -87,7 +89,9 @@ OmmNiProviderImpl::OmmNiProviderImpl(OmmProvider* ommProvider, const OmmNiProvid
 	_handleToStreamInfo(),
 	_streamInfoList(),
 	_bIsStreamIdZeroRefreshSubmitted( false ),
-	_ommNiProviderDirectoryStore(*this, _activeConfig)
+	_ommNiProviderDirectoryStore(*this, _activeConfig),
+	_nextProviderStreamId(0),
+	_reusedProviderStreamIds()
 {
 	_activeConfig.operationModel = config._pImpl->getOperationModel();
 
@@ -113,7 +117,9 @@ OmmNiProviderImpl::OmmNiProviderImpl(OmmProvider* ommProvider, const OmmNiProvid
 	_handleToStreamInfo(),
 	_streamInfoList(),
 	_bIsStreamIdZeroRefreshSubmitted(false),
-	_ommNiProviderDirectoryStore(*this, _activeConfig)
+	_ommNiProviderDirectoryStore(*this, _activeConfig),
+	_nextProviderStreamId(0),
+	_reusedProviderStreamIds()
 {
 	_activeConfig.operationModel = config._pImpl->getOperationModel();
 
