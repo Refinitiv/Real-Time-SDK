@@ -123,9 +123,17 @@ public interface FieldEntry
 	 * @return String containing name of the entry
 	 */
 	public String name();
-
+	
 	/**
 	 * Returns a ripple FieldId if the current entry has a ripple field.<br>
+	 * Returns zero if no ripple field or the final ripple field of a ripple sequence.
+	 *
+	 * @return field id
+	 */
+	public int rippleTo();
+
+	/**
+	 * Returns a ripple FieldId if the entry has a ripple field.<br>
 	 * A subsequent call using the former non-zero return value as a formal parameter,
 	 * returns the next ripple field in a ripple sequence.<br>
 	 * Returns zero if no ripple field or the final ripple field of a ripple sequence.
@@ -134,6 +142,20 @@ public interface FieldEntry
 	 * @return field id
 	 */
 	public int rippleTo(int fieldId);
+	
+	/** Returns a ripple field name if the current entry has a ripple field.
+	 * 
+	 * @return ripple field name; empty string if no ripple field or the final ripple field of a ripple sequence.
+	 */
+	 public String rippleToName(); 
+	
+	/** Returns a ripple field name if the entry has a ripple field. A subsequent call using
+	  the former non-zero return value as a formal parameter, returns the next ripple field in
+	  a ripple sequence.
+	  @param fieldId field id value
+	  @return ripple field name; empty string if no ripple field or the final ripple field of a ripple sequence.
+	 */
+	 public String rippleToName(int fieldId); 
 
 	/**
 	 * Returns the contained Data based on the DataType.
@@ -446,6 +468,24 @@ public interface FieldEntry
 	 * @return {@link com.thomsonreuters.ema.access.OmmEnum}
 	 */
 	public OmmEnum ommEnumValue();
+	
+	/** 
+	 * Indicates presence of the display value for the OmmEnum type.
+	 * 
+	 * @return true if the display value exists; false otherwise
+	 */
+	public boolean hasEnumDisplay();
+
+	/** 
+	 * Returns the display value for the OmmEnum type.
+	 * Calling this method must be preceded by a call to {@link #hasEnumDisplay()}.
+	 * @throws OmmInvalidUsageException if {@link #hasEnumDisplay()} returns false
+	 * @throws OmmInvalidUsageException if contained object is not {@link com.thomsonreuters.ema.access.OmmEnum}
+	 * @throws OmmInvalidUsageException if {@link com.thomsonreuters.ema.access.Data#code()} returns {@link com.thomsonreuters.ema.access.Data.DataCode#BLANK}
+	 * 
+	 * @return String containing the display value
+	 */
+	public String enumDisplay();
 
 	/**
 	 * Returns the current OMM data represented as a specific simple type.

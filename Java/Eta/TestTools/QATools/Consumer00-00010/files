@@ -1,3 +1,2 @@
-#file, load_location, node_location
-DictionaryHandler.java, com/thomsonreuters/upa/examples/common, examples/com/thomsonreuters/upa/examples/common
-
+# file, relative_path to original file
+DictionaryHandler.java, com/thomsonreuters/upa/examples/common

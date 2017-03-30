@@ -475,7 +475,7 @@ public class Consumer implements ConsumerCallback
 				}
 			}
 	        
-	           // Handle run-time
+	        // Handle run-time
             if (System.currentTimeMillis() >= runtime && !closeHandled)
             {
                 System.out.println("Consumer run-time expired, close now...");
@@ -493,9 +493,9 @@ public class Consumer implements ConsumerCallback
 	        	handleQueueMessaging();
 	        	handleTunnelStream();
 	        	
-	        // send login reissue if login reissue time has passed
-        	for (ChannelInfo chnlInfo : chnlInfoList)
-        	{
+		        // send login reissue if login reissue time has passed
+	        	for (ChannelInfo chnlInfo : chnlInfoList)
+	        	{
 	        		if (chnlInfo.reactorChannel == null ||
 	        	    	(chnlInfo.reactorChannel.state() != ReactorChannel.State.UP && 
 	        	    	chnlInfo.reactorChannel.state() != ReactorChannel.State.READY))
@@ -503,22 +503,22 @@ public class Consumer implements ConsumerCallback
         	    		continue;
         	    	}
 	        		
-        		if (chnlInfo.canSendLoginReissue &&
-        			System.currentTimeMillis() >= chnlInfo.loginReissueTime)
-        		{
-					LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
-					submitOptions.clear();
-					if (chnlInfo.reactorChannel.submit(loginRequest, submitOptions, errorInfo) !=  CodecReturnCodes.SUCCESS)
-					{
-						System.out.println("Login reissue failed. Error: " + errorInfo.error().text());
-					}
-					else
-					{
-						System.out.println("Login reissue sent");
-					}
-					chnlInfo.canSendLoginReissue = false;
-        		}
-        	}
+	        		if (chnlInfo.canSendLoginReissue &&
+	        			System.currentTimeMillis() >= chnlInfo.loginReissueTime)
+	        		{
+						LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+						submitOptions.clear();
+						if (chnlInfo.reactorChannel.submit(loginRequest, submitOptions, errorInfo) !=  CodecReturnCodes.SUCCESS)
+						{
+							System.out.println("Login reissue failed. Error: " + errorInfo.error().text());
+						}
+						else
+						{
+							System.out.println("Login reissue sent");
+						}
+						chnlInfo.canSendLoginReissue = false;
+	        		}
+	        	}
 	        }	        
 	        
 	        if(closeHandled && queueMsgHandler != null && queueMsgHandler._chnlInfo != null &&

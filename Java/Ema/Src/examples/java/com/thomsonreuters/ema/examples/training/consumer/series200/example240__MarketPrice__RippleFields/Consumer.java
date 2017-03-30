@@ -80,33 +80,35 @@ class AppClient implements OmmConsumerClient
 				case DataTypes.REAL :
 					if (fieldEntry.fieldId() == 22)	// Display data for BID field name and its ripple fields
 					{
-						if (fieldEntry.rippleTo(fieldEntry.rippleTo(0)) == 24)
+						if (fieldEntry.rippleTo(fieldEntry.rippleTo()) == 24)
 							BID_2 = BID_1;
 
-						if (fieldEntry.rippleTo(0) == 23)
+						if (fieldEntry.rippleTo() == 23)
 							BID_1 = BID;
 
 						BID = fieldEntry.real().asDouble();
 
 						System.out.println("DataType: " + DataType.asString(fieldEntry.load().dataType()));
-						System.out.println("Fid: " + fieldEntry.fieldId() + " Value: " + BID);
-						System.out.println("Fid: " + fieldEntry.rippleTo(0) + " Value: " + BID_1);
-						System.out.println("Fid: " + fieldEntry.rippleTo(fieldEntry.rippleTo(0)) + " Value: " + BID_2);
+						System.out.println("Name: " + fieldEntry.name() + " (" + fieldEntry.fieldId() + ") Value: " + BID);
+						System.out.println("Name: " + fieldEntry.rippleToName() + " (" + fieldEntry.rippleTo() + ") Value: " + BID_1);
+						System.out.println("Name: " + fieldEntry.rippleToName(fieldEntry.rippleTo()) + " (" + fieldEntry.rippleTo(fieldEntry.rippleTo())
+						+ ") Value: " + BID_2);
 					}
 					else if (fieldEntry.fieldId() == 25) // Display data for ASK field name and its ripple fields
 					{
-						if (fieldEntry.rippleTo(fieldEntry.rippleTo(0)) == 27)
+						if (fieldEntry.rippleTo(fieldEntry.rippleTo()) == 27)
 							ASK_2 = ASK_1;
 
-						if (fieldEntry.rippleTo(0) == 26)
+						if (fieldEntry.rippleTo() == 26)
 							ASK_1 = ASK;
 
 						ASK = fieldEntry.real().asDouble();
 
 						System.out.println("DataType: " + DataType.asString(fieldEntry.load().dataType()));
-						System.out.println("Fid: " + fieldEntry.fieldId() + " Value: " + ASK);
-						System.out.println("Fid: " + fieldEntry.rippleTo(0) + " Value: " + ASK_1);
-						System.out.println("Fid: " + fieldEntry.rippleTo(fieldEntry.rippleTo(0)) + " Value: " + ASK_2);
+						System.out.println("Name: " + fieldEntry.name() + " (" + fieldEntry.fieldId() + ") Value: " + ASK);
+						System.out.println("Name: " + fieldEntry.rippleToName() + " (" + fieldEntry.rippleTo() + ") Value: " + ASK_1);
+						System.out.println("Name: " + fieldEntry.rippleToName(fieldEntry.rippleTo()) + " (" + fieldEntry.rippleTo(fieldEntry.rippleTo())
+						+ ") Value: " + ASK_2);
 					}
 					break;
 			}

@@ -10,6 +10,8 @@ package com.thomsonreuters.ema.access;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
+import com.thomsonreuters.ema.access.Data.DataCode;
+import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
@@ -18,6 +20,7 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 {
 	private com.thomsonreuters.upa.codec.DictionaryEntry _rsslDictionaryEntry;
 	private FieldListImpl _fieldList;
+	private com.thomsonreuters.upa.codec.Enum		_rsslEnumValue;
 	protected com.thomsonreuters.upa.codec.FieldEntry	_rsslFieldEntry;
 	
 	FieldEntryImpl() 
@@ -29,6 +32,7 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 	{
 		super(load);
 		_rsslFieldEntry = rsslFieldEntry;
+		_rsslEnumValue = com.thomsonreuters.upa.codec.CodecFactory.createEnum();
 	}
 	
 	@Override
@@ -42,6 +46,12 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 	{
 		return ((_rsslDictionaryEntry == null) ? DataImpl.EMPTY_STRING : (_rsslDictionaryEntry.acronym().toString()));
 	}
+	
+	@Override
+	public int rippleTo()
+	{
+		return rippleTo(0);
+	}
 
 	@Override
 	public int rippleTo(int fieldId)
@@ -49,9 +59,38 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 		if (fieldId == 0)
 			fieldId = _rsslFieldEntry.fieldId();
 		
-		com.thomsonreuters.upa.codec.DictionaryEntry rsslDictEntry = _fieldList != null ? _fieldList._rsslDictionary.entry(fieldId) : null;
+		com.thomsonreuters.upa.codec.DictionaryEntry rsslDictEntry = (_fieldList != null) && (_fieldList._rsslDictionary != null) ?
+				_fieldList._rsslDictionary.entry(fieldId) : null;
 		
 		return ((rsslDictEntry == null) ? 0 : rsslDictEntry.rippleToField());
+	}
+	
+	@Override
+	public String rippleToName() {
+		
+		return rippleToName(0);
+	}
+	
+	@Override
+	public String rippleToName(int fieldId) {
+		
+		if (fieldId == 0)
+			fieldId = _rsslFieldEntry.fieldId();
+		
+		com.thomsonreuters.upa.codec.DictionaryEntry rsslDictEntry = (_fieldList != null) && (_fieldList._rsslDictionary != null) ?
+				_fieldList._rsslDictionary.entry(fieldId) : null;
+		
+		if ( rsslDictEntry != null)
+		{
+			rsslDictEntry = _fieldList._rsslDictionary.entry(rsslDictEntry.rippleToField());
+			
+			if ( rsslDictEntry != null ) 
+			{
+				return rsslDictEntry.acronym().toString();
+			}
+		}
+		
+		return DataImpl.EMPTY_STRING;
 	}
 	
 	@Override
@@ -63,7 +102,7 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 				.append(" name=\"").append(name()).append("\"")
 				.append(" dataType=\"").append(DataType.asString(_load.dataType()));
 
-		if (_load.dataType() <= DataType.DataTypes.ARRAY)
+		if (_load.dataType() >= DataType.DataTypes.FIELD_LIST || _load.dataType() == DataType.DataTypes.ARRAY)
 		{
 			_toString.append("\"\n").append(_load.toString(1));
 			Utilities.addIndent(_toString, 0).append("FieldEntryEnd\n");
@@ -709,6 +748,69 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 	public FieldEntry codeRmtes(int fieldId)
 	{
 		return entryValue(fieldId, com.thomsonreuters.upa.codec.DataTypes.RMTES_STRING);
+	}
+	
+	@Override
+	public boolean hasEnumDisplay()
+	{
+		if  ( ( _load.dataType() == DataTypes.ENUM ) && ( DataCode.BLANK != _load.code() ) )
+		{					
+			if ( _rsslDictionaryEntry != null )
+			{
+				_rsslEnumValue.value( ((OmmEnum)_load).enumValue() );
+				
+				com.thomsonreuters.upa.codec.EnumType enumType = _fieldList._rsslDictionary.entryEnumType( _rsslDictionaryEntry,
+						_rsslEnumValue );
+				
+				if ( enumType != null )
+				{
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+
+	@Override
+	public String enumDisplay()
+	{
+		if ( _load.dataType() != DataTypes.ENUM )
+		{
+			StringBuilder error = errorString();
+			error.append( "Attempt to enumDisplay() while actual entry data type is ")
+				 .append( DataType.asString( _load.dataType() ) );
+			throw ommIUExcept().message( error.toString() );
+		}
+		else if ( DataCode.BLANK == _load.code() )
+			throw ommIUExcept().message( "Attempt to enumDisplay() while entry data is blank." );
+		
+		if ( _rsslDictionaryEntry != null )
+		{
+			_rsslEnumValue.value( ((OmmEnum)_load).enumValue() );
+			
+			com.thomsonreuters.upa.codec.EnumType enumType = _fieldList._rsslDictionary.entryEnumType( _rsslDictionaryEntry,
+					_rsslEnumValue );
+			
+			if( enumType != null )
+			{
+				return enumType.display().toString();
+			}
+			else
+			{
+				StringBuilder error = errorString();
+				error.append( "The enum value " ).append( _rsslEnumValue.toInt() ).append( " for the field Id " )
+				.append( _rsslFieldEntry.fieldId() ).append( " does not exist in the enumerated type dictionary" );
+				throw ommIUExcept().message( error.toString() );
+			}
+		}
+		else
+		{
+			StringBuilder error = errorString();
+			error.append( "The field Id  " )
+				 .append( _rsslFieldEntry.fieldId() ).append( " does not exist in the field dictionary" );
+			throw ommIUExcept().message( error.toString() );
+		}
 	}
 
 	private FieldEntry entryValue(int fieldId, int rsslDataType, DataImpl value)

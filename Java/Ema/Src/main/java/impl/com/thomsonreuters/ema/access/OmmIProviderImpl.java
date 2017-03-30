@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.thomsonreuters.ema.access.ConfigManager.ConfigAttributes;
 import com.thomsonreuters.ema.access.ConfigManager.ConfigElement;
+import com.thomsonreuters.ema.access.DirectoryServiceStore.ServiceIdInteger;
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
 import com.thomsonreuters.ema.rdm.EmaRdm;
 import com.thomsonreuters.upa.codec.Buffer;
@@ -353,6 +354,25 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 				return;
 			}
 			
+			if ( refreshMsgImpl.hasServiceName() )
+			{
+				if ( encodeServiceIdFromName(refreshMsgImpl.serviceName(), refreshMsgImpl._rsslMsg) )
+				{
+					refreshMsgImpl._rsslMsg.flags( refreshMsgImpl._rsslMsg.flags() | com.thomsonreuters.upa.codec.RefreshMsgFlags.HAS_MSG_KEY );
+				}
+				else
+				{
+					return;
+				}
+			} 
+			else if ( refreshMsgImpl.hasServiceId() )
+			{
+				if ( validateServiceId(refreshMsgImpl.serviceId(), refreshMsgImpl._rsslMsg ) == false )
+				{
+					return;
+				}
+			}
+			
 			if( handle == 0 )
 			{
 				StringBuilder text = strBuilder();
@@ -394,6 +414,25 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 				
 				loggerClient().trace(formatLogMessage(instanceName(),text.toString(), Severity.TRACE));
         	}
+			
+			if ( refreshMsgImpl.hasServiceName() )
+			{
+				if ( encodeServiceIdFromName(refreshMsgImpl.serviceName(), refreshMsgImpl._rsslMsg) )
+				{
+					refreshMsgImpl._rsslMsg.flags( refreshMsgImpl._rsslMsg.flags() | com.thomsonreuters.upa.codec.RefreshMsgFlags.HAS_MSG_KEY );
+				}
+				else
+				{
+					return;
+				}
+			}
+			else if ( refreshMsgImpl.hasServiceId() )
+			{
+				if ( validateServiceId(refreshMsgImpl.serviceId(), refreshMsgImpl._rsslMsg ) == false )
+				{
+					return;
+				}
+			}
 			
 			clientSession = itemInfo.clientSession();
 			refreshMsgImpl._rsslMsg.streamId((int)itemInfo.streamId().value());
@@ -539,6 +578,25 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 				loggerClient().trace(formatLogMessage(instanceName(),text.toString(), Severity.TRACE));
         	}
 			
+			if ( updateMsgImpl.hasServiceName() )
+			{
+				if ( encodeServiceIdFromName(updateMsgImpl.serviceName(), updateMsgImpl._rsslMsg) )
+				{
+					updateMsgImpl._rsslMsg.flags( updateMsgImpl._rsslMsg.flags() | com.thomsonreuters.upa.codec.UpdateMsgFlags.HAS_MSG_KEY );
+				}
+				else
+				{
+					return;
+				}
+			}
+			else if ( updateMsgImpl.hasServiceId() )
+			{
+				if ( validateServiceId(updateMsgImpl.serviceId(), updateMsgImpl._rsslMsg ) == false )
+				{
+					return;
+				}
+			}
+			
 			if(_activeConfig.refreshFirstRequired && !itemInfo.isSentRefresh())
 			{
 				userLock().unlock();
@@ -624,6 +682,46 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 				statusMsgImpl._rsslMsg.streamId((int)itemInfo.streamId().value());
 			}
 		}
+		else if ( statusMsgImpl.domainType() == EmaRdm.MMT_DICTIONARY )
+		{
+			if ( statusMsgImpl.hasServiceName() )
+			{
+				if ( encodeServiceIdFromName(statusMsgImpl.serviceName(), statusMsgImpl._rsslMsg) )
+				{
+					statusMsgImpl._rsslMsg.flags( statusMsgImpl._rsslMsg.flags() | com.thomsonreuters.upa.codec.StatusMsgFlags.HAS_MSG_KEY );
+				}
+				else
+				{
+					return;
+				}
+			}
+			else if ( statusMsgImpl.hasServiceId() )
+			{
+				if ( validateServiceId(statusMsgImpl.serviceId(), statusMsgImpl._rsslMsg ) == false )
+				{
+					return;
+				}
+			}
+			
+			if( handle == 0 )
+			{
+				StringBuilder text = strBuilder();
+				text.append("Fanout dictionary message for item handle = ");
+				
+				if (!submit(statusMsgImpl, _dictionaryHandler.getItemInfoList(), text, false) )
+				{
+					return;
+				}
+				
+				userLock().unlock();
+				return;
+			}
+			else
+			{
+				clientSession = itemInfo.clientSession();
+				statusMsgImpl._rsslMsg.streamId((int)itemInfo.streamId().value());
+			}
+		}
 		else
 		{
 			if( handle == 0 )
@@ -646,6 +744,25 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 				
 				loggerClient().trace(formatLogMessage(instanceName(),text.toString(), Severity.TRACE));
         	}
+			
+			if ( statusMsgImpl.hasServiceName() )
+			{
+				if ( encodeServiceIdFromName(statusMsgImpl.serviceName(), statusMsgImpl._rsslMsg) )
+				{
+					statusMsgImpl._rsslMsg.flags( statusMsgImpl._rsslMsg.flags() | com.thomsonreuters.upa.codec.StatusMsgFlags.HAS_MSG_KEY );
+				}
+				else
+				{
+					return;
+				}
+			}
+			else if ( statusMsgImpl.hasServiceId() )
+			{
+				if ( validateServiceId(statusMsgImpl.serviceId(), statusMsgImpl._rsslMsg ) == false )
+				{
+					return;
+				}
+			}
 			
 			clientSession = itemInfo.clientSession();
 			statusMsgImpl._rsslMsg.streamId((int)itemInfo.streamId().value());
@@ -962,6 +1079,61 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			itemInfo.itemGroup(groupId);
 			addItemGroup(itemInfo, groupId);
 		}
+	}
+	
+	boolean encodeServiceIdFromName(String serviceName, com.thomsonreuters.upa.codec.Msg rsslMsg)
+	{	
+		ServiceIdInteger serviceId = _ommIProviderDirectoryStore.serviceId(serviceName);
+		
+		if ( serviceId == null )
+		{
+			userLock().unlock();
+			strBuilder().append("Attempt to submit ").append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).
+			append(" with service name of ").append(serviceName).append(" that was not included in the SourceDirectory. Dropping this ").
+			append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).append(".");
+			handleInvalidUsage(_strBuilder.toString());
+			return false;
+		}
+		else if ( serviceId.value() > 65535)
+		{
+			userLock().unlock();
+			strBuilder().append("Attempt to submit ").append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).
+			append(" with service name of ").append(serviceName).append(" whose matching service id of ").append(serviceId.value()).
+			append(" is out of range. Dropping this ").append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).append(".");
+			handleInvalidUsage(_strBuilder.toString());
+			return false;
+		}
+		
+		rsslMsg.msgKey().serviceId(serviceId.value());
+		rsslMsg.msgKey().applyHasServiceId();
+				
+		return true;
+	}
+	
+	boolean validateServiceId(int serviceId, com.thomsonreuters.upa.codec.Msg rsslMsg)
+	{	
+		String serviceName = _ommIProviderDirectoryStore.serviceName(serviceId);
+		
+		if ( serviceName == null )
+		{
+			userLock().unlock();
+			strBuilder().append("Attempt to submit ").append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).
+			append(" with service Id of ").append(serviceId).append(" that was not included in the SourceDirectory. Dropping this ").
+			append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).append(".");
+			handleInvalidUsage(_strBuilder.toString());
+			return false;
+		}
+		else if ( serviceId > 65535)
+		{
+			userLock().unlock();
+			strBuilder().append("Attempt to submit ").append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).
+			append(" with service Id of ").append(serviceId).append(" is out of range. Dropping this ").
+			append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).append(".");
+			handleInvalidUsage(_strBuilder.toString());
+			return false;
+		}
+		
+		return true;
 	}
 
 	@Override

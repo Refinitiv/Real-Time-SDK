@@ -114,14 +114,16 @@ abstract class MarketDataHandler
         marketPriceRequest.serviceId(serviceInfo.serviceId());
         marketPriceRequest.applyHasPriority();
         marketPriceRequest.priority(1, 1);
-        marketPriceRequest.applyHasQos();
-        marketPriceRequest.qos().dynamic(false);
-        marketPriceRequest.qos().timeInfo(serviceInfo.info().qosList().get(0).timeInfo());
-        marketPriceRequest.qos().timeliness(serviceInfo.info().qosList().get(0)
-                .timeliness());
-        marketPriceRequest.qos().rateInfo(serviceInfo.info().qosList().get(0).rateInfo());
-        marketPriceRequest.qos().rate(serviceInfo.info().qosList().get(0).rate());
-    
+		if (serviceInfo.info().qosList().size() > 0)
+		{
+			marketPriceRequest.applyHasQos();
+			marketPriceRequest.qos().dynamic(false);
+			marketPriceRequest.qos().timeInfo(serviceInfo.info().qosList().get(0).timeInfo());
+			marketPriceRequest.qos().timeliness(serviceInfo.info().qosList().get(0)
+					.timeliness());
+			marketPriceRequest.qos().rateInfo(serviceInfo.info().qosList().get(0).rateInfo());
+			marketPriceRequest.qos().rate(serviceInfo.info().qosList().get(0).rate());
+		}
         marketPriceRequest.identifier(item.getRealTimeStreamId());
         marketPriceRequest.streamId(item.getSnapshotServerStreamId());
         ret = encodeAndSendRequest(chnl, marketPriceRequest, error);

@@ -106,7 +106,7 @@ class DataImpl extends VaNode implements Data
 				dType = Utilities.toEmaMsgClass[_rsslNestedMsgDecodeIter.extractMsgClass()];
 		}
 		else
-			dType = Utilities.toEmaDataType[rsslType];
+			dType = rsslType;
 
 		return dType;
 	}

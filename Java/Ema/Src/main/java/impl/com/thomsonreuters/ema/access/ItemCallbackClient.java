@@ -1182,7 +1182,7 @@ TunnelStreamStatusEventCallback
 			{
 				StringBuilder temp = _baseImpl.strBuilder();
 				temp.append("Received a tunnel stream message event containing an unsupported data type of")
-						.append(DataTypes.toString(Utilities.toEmaDataType[tunnelStreamMsgEvent.containerType()]))
+						.append(DataTypes.toString(tunnelStreamMsgEvent.containerType()))
 						.append(OmmLoggerClient.CR).append("Instance Name ").append(_baseImpl.instanceName())
 						.append(OmmLoggerClient.CR).append("RsslReactor ")
 						.append(Integer.toHexString(channelInfo.rsslReactor().hashCode()))
@@ -1677,30 +1677,7 @@ TunnelStreamStatusEventCallback
 						return 0;
 					}
 
-					if (requestMsg.msgKey().checkHasName())
-					{
-						String name = requestMsg.msgKey().name().toString();
-
-						if (!(name.equals(DictionaryCallbackClient.DICTIONARY_RWFFID)) && !(name.equals(DictionaryCallbackClient.DICTIONARY_RWFENUM)))
-						{
-							StringBuilder temp = _baseImpl.strBuilder();
-							
-				        	temp.append("Invalid ReqMsg's name : ")
-				        		.append(name)
-				        		.append("\nReqMsg's name must be \"RWFFld\" or \"RWFEnum\" for MMT_DICTIONARY domain type. ")
-								.append("Instance name='").append(_baseImpl.instanceName()).append("'.");
-
-				        	if (_baseImpl.loggerClient().isErrorEnabled())
-				        	{
-				        		_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
-				        	}
-
-				        	_baseImpl.handleInvalidUsage( temp.toString() );
-
-							return 0;
-						}
-					}
-					else
+					if (!requestMsg.msgKey().checkHasName())
 					{
 						StringBuilder temp = _baseImpl.strBuilder();
 						

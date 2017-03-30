@@ -231,45 +231,45 @@ class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStre
         {
             // put buffer into generic message if received message is generic
             if (_msg.msgClass() == MsgClasses.GENERIC)
+        {
+            boolean testPassed = true;
+            byte b = 0;
+            for (int i = event.msg().encodedDataBody().position(); i < event.msg().encodedDataBody().length(); i++, b++)
             {
-                boolean testPassed = true;
-                byte b = 0;
-                for (int i = event.msg().encodedDataBody().position(); i < event.msg().encodedDataBody().length(); i++, b++)
-                {
-                    if (b == 256)
-                    {
-                        b = 0;
-                    }
-                    if (event.msg().encodedDataBody().data().get(i) != b)
-                    {
-                        testPassed =  false;
-                        break;
-                    }
-                }
+            	if (b == 256)
+            	{
+            		b = 0;
+            	}
+            	if (event.msg().encodedDataBody().data().get(i) != b)
+            	{
+            		testPassed =  false;
+            		break;
+            	}
+            }
 
-                String resultString = testPassed ? "TEST PASSED" : "TEST FAILED";
-                System.out.println("Provider TunnelStreamHandler received MSG data: " + resultString + "\n");
-                
-                // get buffer to encode message into
-                Buffer buffer = CodecFactory.createBuffer();
-                buffer.data(resultString);
-
+            String resultString = testPassed ? "TEST PASSED" : "TEST FAILED";
+            System.out.println("Provider TunnelStreamHandler received MSG data: " + resultString + "\n");
+        	
+            // get buffer to encode message into
+            Buffer buffer = CodecFactory.createBuffer();
+            buffer.data(resultString);
+            
             	GenericMsg genericMsg = (GenericMsg)CodecFactory.createMsg();
-                genericMsg.clear();
-                genericMsg.msgClass(MsgClasses.GENERIC);
+            genericMsg.clear();
+            genericMsg.msgClass(MsgClasses.GENERIC);
                 genericMsg.streamId(_msg.streamId());
                 genericMsg.domainType(_msg.domainType());
-                genericMsg.containerType(DataTypes.OPAQUE);
-                genericMsg.encodedDataBody(buffer);
-    
-                // submit the encoded data buffer to the tunnel stream
-                _tunnelStreamSubmitOptions.clear();
-                _tunnelStreamSubmitOptions.containerType(DataTypes.OPAQUE);
-                if ((ret = event.tunnelStream().submit(genericMsg, event.errorInfo())) < ReactorReturnCodes.SUCCESS)
-                {
-                    System.out.println("TunnelStream.submit() failed: " + CodecReturnCodes.toString(ret)
-                            + "(" + event.errorInfo().error().text() + ")");
-                    return ReactorCallbackReturnCodes.SUCCESS;
+            genericMsg.containerType(DataTypes.OPAQUE);
+            genericMsg.encodedDataBody(buffer);
+
+            // submit the encoded data buffer to the tunnel stream
+            _tunnelStreamSubmitOptions.clear();
+            _tunnelStreamSubmitOptions.containerType(DataTypes.OPAQUE);
+            if ((ret = event.tunnelStream().submit(genericMsg, event.errorInfo())) < ReactorReturnCodes.SUCCESS)
+            {
+                System.out.println("TunnelStream.submit() failed: " + CodecReturnCodes.toString(ret)
+                        + "(" + event.errorInfo().error().text() + ")");
+                return ReactorCallbackReturnCodes.SUCCESS;
                 }
             }
             else if (_msg.msgClass() == MsgClasses.REQUEST) // just send refresh message if request

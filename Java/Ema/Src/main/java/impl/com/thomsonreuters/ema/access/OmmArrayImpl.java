@@ -73,7 +73,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 		{
 			Utilities.addIndent(_toString, indent)
 			.append("OmmArray with entries of dataType=\"")
-			.append(DataType.asString(Utilities.toEmaDataType[_rsslArray.primitiveType()])).append("\"");
+			.append(DataType.asString(_rsslArray.primitiveType())).append("\"");
 			
 			if (hasFixedWidth())
 				_toString.append(" fixed width=\"").append(fixedWidth()).append("\"");
@@ -365,7 +365,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 			switch(retCode)
 			{
 			case com.thomsonreuters.upa.codec.CodecReturnCodes.SUCCESS :
-			load = dataInstance(arrayEntry._load, Utilities.toEmaDataType[_rsslArray.primitiveType()]);
+			load = dataInstance(arrayEntry._load, _rsslArray.primitiveType());
 			load.decode(arrayEntry._rsslArrayEntry.encodedData(),_rsslDecodeIter);
 			break;
 			case com.thomsonreuters.upa.codec.CodecReturnCodes.INCOMPLETE_DATA :

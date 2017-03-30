@@ -754,6 +754,18 @@ class EncodeIteratorImpl implements EncodeIterator
         return unSetMsgFlag(MsgClasses.REFRESH, RefreshMsgFlags.REFRESH_COMPLETE);
     }
 
+	@Override
+	public int setGenericCompleteFlag()
+	{
+		return setMsgFlag(MsgClasses.GENERIC, GenericMsgFlags.MESSAGE_COMPLETE);
+	}
+
+	@Override
+	public int unsetGenericCompleteFlag()
+	{
+		return unSetMsgFlag(MsgClasses.GENERIC, GenericMsgFlags.MESSAGE_COMPLETE);
+	}
+
     @Override
     public int setStreamingFlag()
     {

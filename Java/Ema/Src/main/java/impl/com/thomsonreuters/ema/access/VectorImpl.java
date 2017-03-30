@@ -7,6 +7,7 @@
 
 package com.thomsonreuters.ema.access;
 
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -437,15 +438,6 @@ class VectorImpl extends CollectionDataImpl implements Vector
 		
 		if (_vectorCollection.isEmpty())
 			throw ommIUExcept().message("Series to be encoded is empty.");
-		
-		int ret = _rsslEncodeIter.setBufferAndRWFVersion(_rsslBuffer, _rsslMajVer, _rsslMinVer);
-	    if (ret != CodecReturnCodes.SUCCESS)
-	    {
-	    	String errText = errorString().append("Failed to setBufferAndRWFVersion on rssl encode iterator. Reason='")
-	    								.append(CodecReturnCodes.toString(ret))
-	    								.append("'").toString();
-	    	throw ommIUExcept().message(errText);
-	    }
 	    
 	    VectorEntryImpl firstEntry = (VectorEntryImpl)_vectorCollection.get(0);
 	    int entryType = firstEntry._entryDataType;
@@ -458,10 +450,18 @@ class VectorImpl extends CollectionDataImpl implements Vector
 	    {
 	    	_rsslVector.containerType(Utilities.toRsslDataType(firstEntry.loadType()));
 	    }
+	    
+	    int ret;
+	    
+	    setEncodedBufferIterator();
 
 	    while ((ret = _rsslVector.encodeInit(_rsslEncodeIter, 0, 0)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 	    {
-	    	_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
+	    	Buffer bigBuffer = CodecFactory.createBuffer();
+			bigBuffer.data(ByteBuffer.allocate(_rsslBuffer.capacity() * 2));
+			_rsslBuffer = bigBuffer;
+
+			setEncodedBufferIterator();
 	    }
 	    
 	    if (ret != CodecReturnCodes.SUCCESS)
@@ -512,6 +512,20 @@ class VectorImpl extends CollectionDataImpl implements Vector
 	     
 	    _encodeComplete = true;
 	    return _rsslBuffer;
+	}
+	
+	void setEncodedBufferIterator()
+	{
+		_rsslEncodeIter.clear();
+    	int ret = _rsslEncodeIter.setBufferAndRWFVersion(_rsslBuffer, _rsslMajVer, _rsslMinVer);
+    	
+    	if (ret != CodecReturnCodes.SUCCESS)
+	    {
+	    	String errText = errorString().append("Failed to setBufferAndRWFVersion on rssl encode iterator. Reason='")
+	    								.append(CodecReturnCodes.toString(ret))
+	    								.append("'").toString();
+	    	throw ommIUExcept().message(errText);
+	    }
 	}
 	
 	private VectorEntryImpl vectorEntryInstance()

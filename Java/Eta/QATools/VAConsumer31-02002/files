@@ -1,4 +1,0 @@
-# file,load_location,node_location
-Consumer.java,com/thomsonreuters/upa/valueadd/examples/consumer,valueadd/com/thomsonreuters/upa/valueadd/examples/consumer
-TunnelStreamHandler.java,com/thomsonreuters/upa/valueadd/examples/consumer,valueadd/com/thomsonreuters/upa/valueadd/examples/consumer
-ConsumerCmdLineParser.java,com/thomsonreuters/upa/valueadd/examples/consumer,valueadd/com/thomsonreuters/upa/valueadd/examples/consumer

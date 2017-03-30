@@ -70,6 +70,9 @@ class AppClient implements OmmProviderClient
 		
 		FieldList fieldList = EmaFactory.createFieldList();
 		
+		fieldList.add(EmaFactory.createFieldEntry().ascii(3,  reqMsg.name()));
+		fieldList.add(EmaFactory.createFieldEntry().enumValue(15, 840));
+		fieldList.add(EmaFactory.createFieldEntry().real(21, 3900, OmmReal.MagnitudeType.EXPONENT_NEG_2));
 		fieldList.add(EmaFactory.createFieldEntry().real(22, 3990, OmmReal.MagnitudeType.EXPONENT_NEG_2));
 		fieldList.add(EmaFactory.createFieldEntry().real(25, 3994, OmmReal.MagnitudeType.EXPONENT_NEG_2));
 		fieldList.add(EmaFactory.createFieldEntry().real(30, 9,  OmmReal.MagnitudeType.EXPONENT_0));
@@ -120,7 +123,9 @@ public class IProvider
 		
 				fieldList.clear();
 				fieldList.add(EmaFactory.createFieldEntry().real(22, 3991 + i, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+				fieldList.add(EmaFactory.createFieldEntry().real(25, 3994 + i, OmmReal.MagnitudeType.EXPONENT_NEG_2));
 				fieldList.add(EmaFactory.createFieldEntry().real(30, 10 + i, OmmReal.MagnitudeType.EXPONENT_0));
+				fieldList.add(EmaFactory.createFieldEntry().real(31, 19 + i, OmmReal.MagnitudeType.EXPONENT_0));
 			
 				provider.submit(updateMsg.clear().payload(fieldList), appClient.itemHandle );
 				
