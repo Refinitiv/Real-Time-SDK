@@ -7,6 +7,7 @@
 
 package com.thomsonreuters.ema.access;
 
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -408,15 +409,6 @@ class SeriesImpl extends CollectionDataImpl implements Series
 		
 		if (_seriesCollection.isEmpty())
 			throw ommIUExcept().message("Series to be encoded is empty.");
-		
-		int ret = _rsslEncodeIter.setBufferAndRWFVersion(_rsslBuffer, _rsslMajVer, _rsslMinVer);
-	    if (ret != CodecReturnCodes.SUCCESS)
-	    {
-	    	String errText = errorString().append("Failed to setBufferAndRWFVersion on rssl encode iterator. Reason='")
-	    								.append(CodecReturnCodes.toString(ret))
-	    								.append("'").toString();
-	    	throw ommIUExcept().message(errText);
-	    }
 	    
 	    SeriesEntryImpl firstEntry = (SeriesEntryImpl)_seriesCollection.get(0);
 	    int entryType = firstEntry._entryDataType;
@@ -429,10 +421,18 @@ class SeriesImpl extends CollectionDataImpl implements Series
 	    {
 	    	_rsslSeries.containerType(Utilities.toRsslDataType(firstEntry.loadType()));
 	    }
+	    
+	    int ret;
+	    
+	    setEncodedBufferIterator();
 		
 	    while ((ret = _rsslSeries.encodeInit(_rsslEncodeIter, 0, 0)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 	    {
-	    	_rsslBuffer = Utilities.realignBuffer(_rsslEncodeIter, _rsslBuffer.capacity() * 2);
+	    	Buffer bigBuffer = CodecFactory.createBuffer();
+			bigBuffer.data(ByteBuffer.allocate(_rsslBuffer.capacity() * 2));
+			_rsslBuffer = bigBuffer;
+
+			setEncodedBufferIterator();
 	    }
 	    
 	    if (ret != CodecReturnCodes.SUCCESS)
@@ -483,6 +483,20 @@ class SeriesImpl extends CollectionDataImpl implements Series
 	    
 	    _encodeComplete = true;
 	    return _rsslBuffer;
+	}
+	
+	void setEncodedBufferIterator()
+	{
+		_rsslEncodeIter.clear();
+    	int ret = _rsslEncodeIter.setBufferAndRWFVersion(_rsslBuffer, _rsslMajVer, _rsslMinVer);
+    	
+    	if (ret != CodecReturnCodes.SUCCESS)
+	    {
+	    	String errText = errorString().append("Failed to setBufferAndRWFVersion on rssl encode iterator. Reason='")
+	    								.append(CodecReturnCodes.toString(ret))
+	    								.append("'").toString();
+	    	throw ommIUExcept().message(errText);
+	    }
 	}
 	
 	private SeriesEntryImpl seriesEntryInstance()

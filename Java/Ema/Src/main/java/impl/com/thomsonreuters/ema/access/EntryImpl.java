@@ -641,7 +641,7 @@ abstract class EntryImpl extends VaNode
 	StringBuilder errorString()
 	{
 		if (_errorString == null)
-			_errorString = new StringBuilder();
+			_errorString = new StringBuilder(64);
 		else
 			_errorString.setLength(0);
 			
