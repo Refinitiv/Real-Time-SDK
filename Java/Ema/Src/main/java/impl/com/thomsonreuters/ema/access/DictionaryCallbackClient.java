@@ -1286,7 +1286,26 @@ class DictionaryItem<T> extends SingleItem<T> implements TimeoutClient
 					_currentFid = 0;
 					_streamId = dictCBClient.enumStreamId();
 				}
+				else
+				{
+					StringBuilder temp = _baseImpl.strBuilder();
+					
+		        	temp.append("Invalid ReqMsg's name : ")
+		        		.append(_name)
+		        		.append("\nReqMsg's name must be \"").append(DictionaryCallbackClient.DICTIONARY_RWFFID)
+		        		.append("\" or \"").append(DictionaryCallbackClient.DICTIONARY_RWFENUM).append("\" for MMT_DICTIONARY domain type. ")
+						.append("Instance name='").append(_baseImpl.instanceName()).append("'.");
 
+		        	if (_baseImpl.loggerClient().isErrorEnabled())
+		        	{
+		        		_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(DictionaryItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+		        	}
+
+		        	_baseImpl.handleInvalidUsage( temp.toString() );
+
+					return false;
+				}
+				
 				if (!dictCBClient.isLocalDictionary())
 				{
 					ChannelDictionary<T> channelDict = dictCBClient.channelDictionaryList().get(0);
