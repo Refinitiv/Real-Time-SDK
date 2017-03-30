@@ -210,7 +210,7 @@ class ElementListImpl extends CollectionDataImpl implements ElementList
 			Utilities.addIndent(_toString.append("\n"), indent).append("ElementEntry name=\"")
 					.append(elementEntry.name()).append("\" dataType=\"").append(DataType.asString(loadDataType));
 
-			if (DataTypes.ARRAY >= loadDataType || DataTypes.ERROR == loadDataType)
+			if (DataTypes.FIELD_LIST <= loadDataType || DataTypes.ARRAY == loadDataType  || DataTypes.ERROR == loadDataType) 
 			{
 				++indent;
 				_toString.append("\"\n").append(load.toString(indent));
@@ -313,7 +313,7 @@ class ElementListImpl extends CollectionDataImpl implements ElementList
 						elementEntry._rsslElementEntry.encodedData());
 				load = dataInstance(elementEntry._load, dType);
 
-				if (DataTypes.ERROR > dType && DataTypes.OPAQUE <= dType)
+				if ( dType < DataType.DataTypes.FIELD_LIST || dType == DataType.DataTypes.ANSI_PAGE )
 					load.decode(elementEntry._rsslElementEntry.encodedData(), _rsslDecodeIter);
 				else
 					load.decode(elementEntry._rsslElementEntry.encodedData(), _rsslMajVer, _rsslMinVer, _rsslDictionary, null);

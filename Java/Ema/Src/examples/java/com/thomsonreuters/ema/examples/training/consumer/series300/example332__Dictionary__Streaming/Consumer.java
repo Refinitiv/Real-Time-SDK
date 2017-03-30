@@ -8,21 +8,16 @@
 package com.thomsonreuters.ema.examples.training.consumer.series300.example332__Dictionary__Streaming;
 
 import com.thomsonreuters.ema.access.Msg;
-import com.thomsonreuters.ema.access.OmmArray;
-import com.thomsonreuters.ema.access.OmmArrayEntry;
 import com.thomsonreuters.ema.access.AckMsg;
 import com.thomsonreuters.ema.access.GenericMsg;
 import com.thomsonreuters.ema.access.RefreshMsg;
 import com.thomsonreuters.ema.access.ReqMsg;
-import com.thomsonreuters.ema.access.Series;
-import com.thomsonreuters.ema.access.SeriesEntry;
 import com.thomsonreuters.ema.access.StatusMsg;
 import com.thomsonreuters.ema.access.UpdateMsg;
 import com.thomsonreuters.ema.access.Data;
 import com.thomsonreuters.ema.access.DataType;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
-import com.thomsonreuters.ema.access.ElementEntry;
-import com.thomsonreuters.ema.access.ElementList;
+import com.thomsonreuters.ema.rdm.DataDictionary;
 import com.thomsonreuters.ema.rdm.EmaRdm;
 import com.thomsonreuters.ema.access.EmaFactory;
 import com.thomsonreuters.ema.access.FieldEntry;
@@ -34,6 +29,10 @@ import com.thomsonreuters.ema.access.OmmException;
 
 class AppClient implements OmmConsumerClient
 {
+	private DataDictionary dataDictionary = EmaFactory.createDataDictionary();
+	private boolean fldDictComplete = false;
+	private boolean enumTypeComplete = false;
+	
 	public void onRefreshMsg(RefreshMsg refreshMsg, OmmConsumerEvent event)
 	{
 		System.out.println("Received Refresh. Item Handle: " + event.handle() + " Closure: " + event.closure());
@@ -43,7 +42,7 @@ class AppClient implements OmmConsumerClient
 
 		System.out.println("Item State: " + refreshMsg.state());
 
-		decode(refreshMsg);
+		decode(refreshMsg, refreshMsg.complete());
 
 		System.out.println();
 	}
@@ -55,7 +54,7 @@ class AppClient implements OmmConsumerClient
 		System.out.println("Item Name: " + (updateMsg.hasName() ? updateMsg.name() : "<not set>"));
 		System.out.println("Service Name: " + (updateMsg.hasServiceName() ? updateMsg.serviceName() : "<not set>"));
 
-		decode(updateMsg);
+		decode(updateMsg, false);
 
 		System.out.println();
 	}
@@ -77,121 +76,40 @@ class AppClient implements OmmConsumerClient
 	public void onGenericMsg(GenericMsg genericMsg, OmmConsumerEvent event){}
 	public void onAllMsg(Msg msg, OmmConsumerEvent event){}
 
-	void decode(Msg msg)
+	void decode(Msg msg, boolean complete)
 	{
-		switch ( msg.attrib().dataType() )
-		{
-		case DataTypes.ELEMENT_LIST:
-			decode( msg.attrib().elementList() );
-			break;
-		}
-		
 		switch (msg.payload().dataType())
 		{
 		case DataTypes.SERIES:
-			decode(msg.payload().series());
+			
+			if ( msg.name().equals("RWFFld") )
+			{
+				dataDictionary.decodeFieldDictionary(msg.payload().series(), EmaRdm.DICTIONARY_NORMAL);
+				
+				if ( complete )
+				{
+					fldDictComplete = true;
+				}
+			}
+			else if ( msg.name().equals("RWFEnum") )
+			{
+				dataDictionary.decodeEnumTypeDictionary(msg.payload().series(), EmaRdm.DICTIONARY_NORMAL);
+				
+				if ( complete )
+				{
+					enumTypeComplete = true;
+				}
+			}
+		
+			if ( fldDictComplete && enumTypeComplete )
+			{
+				System.out.println(dataDictionary);
+			}
+		
 			break;
 		case DataTypes.FIELD_LIST:
 			decode(msg.payload().fieldList());
 			break;
-		case DataTypes.ELEMENT_LIST:
-			decode(msg.payload().elementList());
-			break;
-		}
-	}
-
-	void decode(ElementList elementList)
-	{
-		for (ElementEntry elementEntry : elementList)
-		{
-			System.out.print(" Name = " + elementEntry.name() + " DataType: "
-					+ DataType.asString(elementEntry.load().dataType()) + " Value: ");
-
-			if (Data.DataCode.BLANK == elementEntry.code())
-				System.out.println(" blank");
-			else
-				switch (elementEntry.loadType())
-				{
-				case DataTypes.REAL:
-					System.out.println(elementEntry.real().asDouble());
-					break;
-				case DataTypes.DATE:
-					System.out.println(elementEntry.date().day() + " / " + elementEntry.date().month() + " / "
-							+ elementEntry.date().year());
-					break;
-				case DataTypes.TIME:
-					System.out.println(elementEntry.time().hour() + ":" + elementEntry.time().minute() + ":"
-							+ elementEntry.time().second() + ":" + elementEntry.time().millisecond());
-					break;
-				case DataTypes.INT:
-					System.out.println(elementEntry.intValue());
-					break;
-				case DataTypes.UINT:
-					System.out.println(elementEntry.uintValue());
-					break;
-				case DataTypes.ASCII:
-					System.out.println(elementEntry.ascii());
-					break;
-				case DataTypes.ENUM:
-					System.out.println(elementEntry.enumValue());
-					break;
-				case DataTypes.ERROR:
-					System.out.println(
-							elementEntry.error().errorCode() + " (" + elementEntry.error().errorCodeAsString() + ")");
-					break;
-				case DataTypes.ARRAY:
-					System.out.println();
-					decode(elementEntry.array());
-					break;
-				default:
-					System.out.println();
-					break;
-				}
-		}
-	}
-
-	void decode(OmmArray array)
-	{
-		for (OmmArrayEntry arrayEntry : array)
-		{
-			System.out.print(" DataType: " + DataType.asString(arrayEntry.load().dataType()) + " Value: ");
-
-			if (Data.DataCode.BLANK == arrayEntry.code())
-				System.out.println(" blank");
-			else
-				switch (arrayEntry.loadType())
-				{
-				case DataTypes.REAL:
-					System.out.println(arrayEntry.real().asDouble());
-					break;
-				case DataTypes.DATE:
-					System.out.println(arrayEntry.date().day() + " / " + arrayEntry.date().month() + " / "
-							+ arrayEntry.date().year());
-					break;
-				case DataTypes.TIME:
-					System.out.println(arrayEntry.time().hour() + ":" + arrayEntry.time().minute() + ":"
-							+ arrayEntry.time().second() + ":" + arrayEntry.time().millisecond());
-					break;
-				case DataTypes.INT:
-					System.out.println(arrayEntry.intValue());
-					break;
-				case DataTypes.UINT:
-					System.out.println(arrayEntry.uintValue());
-					break;
-				case DataTypes.ASCII:
-					System.out.println(arrayEntry.ascii());
-					break;
-				case DataTypes.ENUM:
-					System.out.println(arrayEntry.enumValue());
-					break;
-				case DataTypes.ERROR:
-					System.out.println(
-							arrayEntry.error().errorCode() + " (" + arrayEntry.error().errorCodeAsString() + ")");
-					break;
-				default:
-					System.out.println();
-					break;
-				}
 		}
 	}
 	
@@ -241,31 +159,6 @@ class AppClient implements OmmConsumerClient
 					System.out.println();
 					break;
 				}
-		}
-	}
-
-	void decode(Series series)
-	{
-		switch (series.summaryData().dataType())
-		{
-		case DataTypes.ELEMENT_LIST:
-			decode(series.summaryData().elementList());
-			break;
-		}
-
-		for (SeriesEntry seriesEntry : series)
-		{
-			System.out.println(" DataType: " + DataType.asString(seriesEntry.loadType()) + " Value: ");
-
-			switch (seriesEntry.loadType())
-			{
-			case DataTypes.ELEMENT_LIST:
-				decode(seriesEntry.elementList());
-				break;
-			default:
-				System.out.println();
-				break;
-			}
 		}
 	}
 }

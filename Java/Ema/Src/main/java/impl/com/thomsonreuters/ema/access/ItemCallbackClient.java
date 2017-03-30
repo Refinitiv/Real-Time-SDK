@@ -1173,7 +1173,7 @@ TunnelStreamStatusEventCallback
 			{
 				StringBuilder temp = _baseImpl.strBuilder();
 				temp.append("Received a tunnel stream message event containing an unsupported data type of")
-						.append(DataTypes.toString(Utilities.toEmaDataType[tunnelStreamMsgEvent.containerType()]))
+						.append(DataTypes.toString(tunnelStreamMsgEvent.containerType()))
 						.append(OmmLoggerClient.CR).append("Instance Name ").append(_baseImpl.instanceName())
 						.append(OmmLoggerClient.CR).append("RsslReactor ")
 						.append(Integer.toHexString(channelInfo.rsslReactor().hashCode()))

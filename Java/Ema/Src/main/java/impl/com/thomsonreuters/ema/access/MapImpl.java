@@ -444,7 +444,7 @@ class MapImpl extends CollectionDataImpl implements Map
 						return;
 					}
 					
-					mapEntryKey = dataInstance(((DataImpl)mapEntry._keyDataDecoded.data()), Utilities.toEmaDataType[_rsslMap.keyPrimitiveType()]);
+					mapEntryKey = dataInstance(((DataImpl)mapEntry._keyDataDecoded.data()), _rsslMap.keyPrimitiveType());
 					mapEntryKey.decode(mapEntry._rsslMapEntry.encodedKey(), _keyDecodeIter);
 					
 					int rsslContainerType = ( mapEntry._rsslMapEntry.action() != MapEntryActions.DELETE)? _rsslMap.containerType() : com.thomsonreuters.upa.codec.DataTypes.NO_DATA;

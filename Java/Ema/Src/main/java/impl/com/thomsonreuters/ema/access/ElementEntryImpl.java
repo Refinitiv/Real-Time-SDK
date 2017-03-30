@@ -46,7 +46,7 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 				.append(" name=\"").append(name()).append("\"")
 				.append(" dataType=\"").append(DataType.asString(_load.dataType()));
 
-		if (_load.dataType() <= DataType.DataTypes.ARRAY)
+		if ( _load.dataType() >= DataType.DataTypes.FIELD_LIST || _load.dataType() ==  DataType.DataTypes.ARRAY )
 		{
 			_toString.append("\"\n").append(_load.toString(1));
 			Utilities.addIndent(_toString, 0).append("ElementEntryEnd\n");

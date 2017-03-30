@@ -7,6 +7,8 @@
 
 package com.thomsonreuters.ema.access;
 
+import com.thomsonreuters.ema.rdm.DataDictionary;
+import com.thomsonreuters.ema.rdm.DictionaryUtility;
 
 /**
  * EmaFactory is a factory class that creates Omm message objects and Omm container objects.
@@ -439,5 +441,37 @@ public class EmaFactory
 	public static TunnelStreamRequest createTunnelStreamRequest()
 	{
 		return new TunnelStreamRequestImpl();
-	}	
+	}
+	
+/**
+	 * Creates a {@link com.thomsonreuters.ema.rdm.DataDictionary}.
+	 * @return {@link com.thomsonreuters.ema.rdm.DataDictionary}
+	 */
+	public static DataDictionary createDataDictionary()
+	{
+		return new DataDictionaryImpl(true);
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.rdm.DataDictionary}.
+	 * This method creates a new instance by copying dictionary information from
+	 * the passed in parameter
+	 * 
+	 * @param dataDictionary specifies DataDictionary to copy data dictionary information
+	 * 
+	 * @return {@link com.thomsonreuters.ema.rdm.DataDictionary}
+	 */
+	public static DataDictionary createDataDictionary(DataDictionary dataDictionary)
+	{
+		return new DataDictionaryImpl((DataDictionaryImpl)dataDictionary);
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.rdm.DictionaryUtility}.
+	 * @return {@link com.thomsonreuters.ema.rdm.DictionaryUtility}
+	 */
+	public static DictionaryUtility createDictionaryUtility()
+	{
+		return new DictionaryUtilityImpl();
+	}
 }

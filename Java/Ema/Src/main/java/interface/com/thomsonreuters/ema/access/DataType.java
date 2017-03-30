@@ -67,114 +67,30 @@ public class DataType
 	public static class DataTypes
 	{
 		/**
-		 * A message to specify item interest.<br>
-		 * A consumer sends this message.
+		 * A signed integer. Can currently represent a value of up to 63 bits
+		 * along with a one bit sign (positive or negative).
 		 */
-		public final static int REQ_MSG = 0;
+		public final static int INT = 3;
 
 		/**
-		 * A message to open and change an item.<br>
-		 * A provider sends this message.
+		 * An unsigned integer. Can currently represent an unsigned value with
+		 * precision of up to 64 bits.
 		 */
-		public final static int REFRESH_MSG = 1;
+		public final static int UINT = 4;
 
 		/**
-		 * A message to change an item.<br>
-		 * A provider sends this message.
+		 * A 4-byte value that has a range of -3.4e38 to +3.4e38
+		 * with an accuracy of 6 to 7 decimal digits.<br>
+		 * This value is compliant with the IEEE-754 standard.
 		 */
-		public final static int UPDATE_MSG = 2;
+		public final static int FLOAT = 5;
 
 		/**
-		 * A message to indicate the state of an item.<br>
-		 * A provider sends this message.
+		 * An 8-byte value that has a range of -1.7e308 to +1.7e308
+		 * with an accuracy of 14 to 15 digits.<br>
+		 * This value is compliant with the IEEE-754 standard.
 		 */
-		public final static int STATUS_MSG = 3;
-
-		/**
-		 * A message to solicit alteration of an item.<br>
-		 * A consumer sends this message.
-		 */
-		public final static int POST_MSG = 4;
-
-		/**
-		 * A message to acknowledge the alteration of an item.<br>
-		 * A provider sends this message.
-		 */
-		public final static int ACK_MSG = 5;
-
-		/**
-		 * A message that has no implicit market information semantics.<br>
-		 * A consumer or provider may send this message.
-		 */
-		public final static int GENERIC_MSG = 6;
-
-		/**
-		 * A container of efficient, associative-referenced field identifier,
-		 * simple or complex value pairs.<br>
-		 * The field identifier references attributes
-		 * such as name and type in a field definition dictionary.
-		 */
-		public final static int FIELD_LIST = 7;
-		
-		/**
-		 * A container of flexible in-band, self-describing,
-		 * associative-referenced named simple or complex value pairs.
-		 */
-		public final static int ELEMENT_LIST = 8;
-
-		/**
-		 * A container of associative-referenced key
-		 * and complex value pairs, whose key is an arbitrary simple type.
-		 */
-		public final static int MAP = 9;
-
-		/**
-		 * A container of associative-referenced key
-		 * and complex value pairs, whose key is a numeric simple type.
-		 */
-		public final static int VECTOR = 10;
-		
-		/**
-		 * A container of implicitly-indexed accruable,
-		 * complex values, typically used for repetitively structured data.
-		 */
-		public final static int SERIES = 11;
-
-		/**
-		 * A container of loosely-coupled, associative-referenced numeric
-		 * and complex value pairs that may be segmented.
-		 */
-		public final static int FILTER_LIST = 12; 
-
-		/**
-		 * A buffer that should be agreed upon between Provider and Consumer.
-		 */
-		public final static int OPAQUE = 13;
-
-		/**
-		 * An XML buffer.
-		 */
-		public final static int XML = 14;
-
-		/**
-		 * An AnsiPage buffer.
-		 */
-		public final static int ANSI_PAGE = 15;
-
-		/**
-		 * A container of implicitly position-oriented simple types.
-		 */
-		public final static int ARRAY = 16;
-		
-		/**
-		 * A signed integer.
-		 */
-		public final static int INT = 17;
-
-		/**
-		 * An unsigned integer.
-		 */
-		public final static int UINT = 18;
+		public final static int DOUBLE = 6;
 
 		/**
 		 * An 8-byte precision (19-20 decimal places) fixed-placed
@@ -182,68 +98,68 @@ public class DataType
 		 * The range of a fractional part is 1/2 through 1/256.<br>
 		 * The range of an exponential part is 10-14 through 10+7.
 		 */
-		public final static int REAL = 19;
-		
-		/**
-		 * A 4-byte value that has a range of -3.4e38 to +3.4e38
-		 * with an accuracy of 6 to 7 decimal digits.<br>
-		 * This value is compliant with the IEEE-754 standard.
-		 */
-		public final static int FLOAT = 20;
+		public final static int REAL = 8;
 
 		/**
-		 * An 8-byte value that has a range of -1.7e308 to +1.7e308
-		 * with an accuracy of 14 to 15 digits.<br>
-		 * This value is compliant with the IEEE-754 standard.
+		 * A 4 byte value that represents a date with month, day, and year values.
 		 */
-		public final static int DOUBLE = 21;
+		public final static int DATE = 9;
 
-		 /**
-		  * A 4 byte value that represents a Gregorian date.
-		  */
-		public final static int DATE = 22;
-		
 		/**
 		 * A 3 or 5 byte value that includes information for hours, minutes, seconds,
 		 * and optional milliseconds, microseconds and nanoseconds.
 		 */
-		public final static int TIME = 23;
+		public final static int TIME = 10;
 
 		/**
 		 * A 7 or 9 byte combination of a Date and a Time.
 		 */
-		public final static int DATETIME = 24;
-		
+		public final static int DATETIME = 11;
+
 		/**
 		 * Quality Of Service, represents quality of service information
 		 * such as timeliness and rate.
 		 */
-		public final static int QOS = 25;
+		public final static int QOS = 12;
 
 		/**
-		 * State, represents data and stream state information.
+		 * State, represents data and stream state information. Allows a user to
+		 * send state information as part of data payload. Similar information can
+		 * also be conveyed in several EMA message headers.
 		 */
-		public final static int STATE = 26;
+		public final static int STATE = 13;
 
 		/**
 		 * A 2-byte signed value that can be expanded to a language
-		 * specific string in a Table Dictionary.
+		 * specific string in an enumerated type dictionary.
 		 */
-		public final static int ENUM = 27;
+		public final static int ENUM = 14;
 
-		public final static int BUFFER = 28; /** A general purpose buffer. */
+		/** 
+		 * The EMA Array type allows users to represent a simple base primitive type
+		 * list (all primitive types except OmmArray. The user can specify the
+		 * whether each is of a variable or fixed-length. Because the array is a
+		 * primitive type, if any primitive value in the array updates, the entire
+		 * array must be resent.
+		 */
+		public final static int ARRAY = 15;
+		
+		/** 
+		 * A general purpose buffer. 
+		 */
+		public final static int BUFFER = 16;
 
 		/**
 		 * An 8-bit characters encoding using the Reuters Basic Character Set (RBCS).<br>
 		 * The first 128 characters are equivalent to the ASCII character set (ANSI X3.4-1968).
 		 */
-		public final static int ASCII = 29;
+		public final static int ASCII = 17;
 
 		/**
 		 * A UTF-8 encoding of ISO 10646
 		 * (specified in section 3.9 of the Unicode 4.0 standard and IETF's RFC 3629).
 		 */
-		public final static int UTF8 = 30;
+		public final static int UTF8 = 18;
 
 		/**
 		 * An encoding with the Reuters Multilingual Text Encoding Standard.<br>
@@ -255,17 +171,145 @@ public class DataType
 		 * StringRMTES also supports RREP sequences for
 		 * character repetition and RHPA sequences for partial updates.
 		 */
-		public final static int RMTES = 31;
+		public final static int RMTES = 19;
 		
-		/**
-		 *  Indicates processing error.
-		 */
-		public final static int ERROR = 32;
-
 		/**
 		 * No Omm data value is present.
 		 */
-		public final static int NO_DATA = 33;
+		public final static int NO_DATA = 128;
+		
+		/**
+		 * A buffer that should be agreed upon between Provider and Consumer.
+		 */
+		public final static int OPAQUE = 130;
+
+		/**
+		 * An XML buffer.
+		 */
+		public final static int XML = 131;
+
+		/**
+		 * A highly optimized, non-uniform type, that contains field
+		 * identifier-value paired entries. fieldId refers to specific name and type
+		 * information as defined in an external field dictionary (such as RDMFieldDictionary).
+		 * FieldList's entry can house any data types, base primitive types, and container types.<br>
+		 * If the information and entry being updated contains a primitive type, any
+		 * previously stored or displayed data is replaced.<br>
+		 * If the entry contains another container type, action values associated with that type
+		 * specify how to update the information.
+		 */
+		public final static int FIELD_LIST = 132;
+
+		/**
+		 * A self-describing, non-uniform type, with each entry containing name,
+		 * dataType, and a value. This type is equivalent to FieldList, but without the
+		 * optimizations provided through fieldId use. ElementList's entry can house any DataType,
+		 * including base primitive types, and container types.<br>
+		 * If the updating information and entry contain a primitive type, any previously stored
+		 * or displayed data is replaced.<br>
+		 * If the entry contains another container type, action values associated with that type
+		 * specify how to update the information.
+		 */
+		public final static int ELEMENT_LIST = 133;
+		
+		/**
+		 * An AnsiPage buffer.
+		 */
+		public final static int ANSI_PAGE = 134;
+
+		/**
+		 * A non-uniform container of filterId-value paired entries. A filterId
+		 * corresponds to one of 32 possible bit-value identifiers, typically
+		 * defined by a domain model specification. FilterId's can be used to
+		 * indicate interest or presence of specific entries through the inclusion
+		 * of the filterId in the message key's filter member.<br>
+		 * FilterList's entry can house only container types. Each entry has an
+		 * associated action, which informs the user of how to apply the information
+		 * stored in the entry.
+		 */
+		public final static int FILTER_LIST = 135;
+
+		/**
+		 * A container of position index-value paired entries. This container is a
+		 * uniform type. Each entry's index is represented by an unsigned integer.<br>
+		 * Each entry has an associated action, which informs the user of how to apply
+		 * the information stored in the entry.
+		 */
+		public final static int VECTOR = 136;
+
+		/**
+		 * A container of key-value paired entries. Map is a uniform type for key
+		 * primitive type and entry's container type. Map's entry can include only
+		 * container types. Each entry's key is a base primitive type.<br> 
+		 * Each entry has an associated action, which informs the user of how to apply
+		 * the information stored in the entry.
+		 */
+		public final static int MAP = 137;
+
+		/**
+		 * A uniform type. This container is often used to represent table-based
+		 * information, where no explicit indexing is present or required. As
+		 * entries are received, the user should append them to any previously-received 
+		 * entries.<br>
+		 * Series's entry can include only container types and do not contain explicit
+		 * actions; though as entries are received,the user should append them to any
+		 * previously received entries.
+		 */
+		public final static int SERIES = 138;
+
+		/**
+		 * Indicates that the contents are another message. This allows the
+		 * application to house a message within a message or a message within
+		 * another container's entries. This type is typically used with posting.
+		 */
+		public final static int MSG = 141;
+
+		/**
+		 * A message to specify item interest.<br>
+		 * A consumer sends this message.
+		 */
+		public final static int REQ_MSG = 256;
+
+		/**
+		 * A message to open and change an item.<br>
+		 * A provider sends this message.
+		 */
+		public final static int REFRESH_MSG = 257;
+
+		/**
+		 * A message to change an item.<br>
+		 * A provider sends this message.
+		 */
+		public final static int UPDATE_MSG = 258;
+
+		/**
+		 * A message to indicate the state of an item.<br>
+		 * A provider sends this message.
+		 */
+		public final static int STATUS_MSG = 259;
+
+		/**
+		 * A message to solicit alteration of an item.<br>
+		 * A consumer sends this message.
+		 */
+		public final static int POST_MSG = 260;
+
+		/**
+		 * A message to acknowledge the alteration of an item.<br>
+		 * A provider sends this message.
+		 */
+		public final static int ACK_MSG = 261;
+
+		/**
+		 * A message that has no implicit market information semantics.<br>
+		 * A consumer or provider may send this message.
+		 */
+		public final static int GENERIC_MSG = 262;
+
+		/**
+		 *  Indicates processing error.
+		 */
+		public final static int ERROR = 270;	
 	}
 
 	/**
