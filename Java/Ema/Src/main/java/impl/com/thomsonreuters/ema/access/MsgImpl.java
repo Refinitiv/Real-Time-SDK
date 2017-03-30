@@ -54,7 +54,7 @@ class MsgImpl extends DataImpl implements Msg
 		if (objManager == null)
 		{
 			_rsslMsg = CodecFactory.createMsg(); 
-			_rsslMsg.msgClass(Utilities.toRsslMsgClass[_dataType]);
+			_rsslMsg.msgClass(Utilities.toRsslMsgClass[_dataType - DataType.DataTypes.REQ_MSG]);
 			_rsslMsg.domainType(DomainTypes.MARKET_PRICE);
 			_rsslMsg.containerType(com.thomsonreuters.upa.codec.DataTypes.NO_DATA);
 			
@@ -831,7 +831,7 @@ class MsgImpl extends DataImpl implements Msg
 			if (_rsslMsg != null)
 			{
 				_rsslMsg.clear(); 
-				_rsslMsg.msgClass(Utilities.toRsslMsgClass[_dataType]);
+				_rsslMsg.msgClass(Utilities.toRsslMsgClass[_dataType - DataType.DataTypes.REQ_MSG]);
 				_rsslMsg.domainType(DomainTypes.MARKET_PRICE);
 				_rsslMsg.containerType(com.thomsonreuters.upa.codec.DataTypes.NO_DATA);
 			}

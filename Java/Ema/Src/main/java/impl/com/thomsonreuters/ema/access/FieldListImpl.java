@@ -21,6 +21,7 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 {
 	private com.thomsonreuters.upa.codec.FieldList	_rsslFieldList = com.thomsonreuters.upa.codec.CodecFactory.createFieldList();
 	private LinkedList<FieldEntry> _fieldListCollection = new LinkedList<FieldEntry>(); 
+	DataDictionaryImpl _dataDictionaryImpl;
 	
 	FieldListImpl() 
 	{
@@ -30,6 +31,8 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 	FieldListImpl(EmaObjectManager objManager)
 	{
 		super(objManager);
+		
+		_dataDictionaryImpl = new DataDictionaryImpl(false);
 	} 
 			
 	@Override
@@ -234,7 +237,7 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 																  .append("\" dataType=\"")
 																  .append(DataType.asString(loadDataType));
 
-			if (DataTypes.ARRAY >= loadDataType || DataTypes.ERROR == loadDataType)
+			if (DataTypes.FIELD_LIST <= loadDataType || DataTypes.ARRAY == loadDataType  || DataTypes.ERROR == loadDataType) 
 			{
 				++indent; 
 				_toString.append("\"\n").append(load.toString(indent));
@@ -280,6 +283,8 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 			_errorCode = ErrorCode.NO_DICTIONARY;
 			return;
 		}
+		
+		_dataDictionaryImpl.rsslDataDictionary(rsslDictionary);
 
 		_rsslDecodeIter.clear();
 		int retCode = _rsslDecodeIter.setBufferAndRWFVersion(rsslBuffer, _rsslMajVer, _rsslMinVer);
@@ -350,7 +355,7 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 				{			
 					int dType = dataType(rsslDictionaryEntry.rwfType(), _rsslMajVer, _rsslMinVer, fieldEntry._rsslFieldEntry.encodedData());
 					load = dataInstance(fieldEntry._load, dType);
-					if (DataTypes.ERROR > dType && DataTypes.OPAQUE <= dType)
+					if ( dType < DataType.DataTypes.FIELD_LIST || dType == DataType.DataTypes.ANSI_PAGE )
 						load.decode(fieldEntry._rsslFieldEntry.encodedData(),_rsslDecodeIter);
 					else
 						load.decode(fieldEntry._rsslFieldEntry.encodedData(), _rsslMajVer, _rsslMinVer, _rsslDictionary, _rsslLocalFLSetDefDb);

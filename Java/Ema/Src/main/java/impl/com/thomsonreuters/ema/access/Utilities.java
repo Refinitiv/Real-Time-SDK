@@ -44,38 +44,6 @@ class Utilities
 	private final static String NewsTextAnalyticsDomainString = "NewsTextAnalytics Domain";
 	private final static String SystemDomainString = "System Domain";
 
-	static int toEmaDataType[] = { UnknownDT, UnknownDT, UnknownDT, DataTypes.INT, DataTypes.UINT, DataTypes.FLOAT,
-			DataTypes.DOUBLE, UnknownDT, DataTypes.REAL, DataTypes.DATE, DataTypes.TIME, DataTypes.DATETIME,
-			DataTypes.QOS, DataTypes.STATE, DataTypes.ENUM, DataTypes.ARRAY, DataTypes.BUFFER, DataTypes.ASCII,
-			DataTypes.UTF8, DataTypes.RMTES, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT,
-			UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT,
-			UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT,
-			UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT,
-			UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT,
-			UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT,
-			UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT,
-			UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT,
-			UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT,
-			UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT,
-			UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT,
-			UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT,
-			UnknownDT, UnknownDT, UnknownDT, DataTypes.NO_DATA, UnknownDT, DataTypes.OPAQUE, DataTypes.XML,
-			DataTypes.FIELD_LIST, DataTypes.ELEMENT_LIST, DataTypes.ANSI_PAGE, DataTypes.FILTER_LIST, DataTypes.VECTOR,
-			DataTypes.MAP, DataTypes.SERIES, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT,
-			UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT,
-			UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT,
-			UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT,
-			UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT,
-			UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT,
-			UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT,
-			UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT,
-			UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT,
-			UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT,
-			UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT,
-			UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT,
-			UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT,
-			UnknownDT, UnknownDT, UnknownDT };
-
 	static int toEmaMsgClass[] = { UnknownDT, DataTypes.REQ_MSG, DataTypes.REFRESH_MSG, DataTypes.STATUS_MSG,
 			DataTypes.UPDATE_MSG, UnknownDT, DataTypes.ACK_MSG, DataTypes.GENERIC_MSG, DataTypes.POST_MSG, UnknownDT,
 			UnknownDT, UnknownDT, UnknownDT, UnknownDT, UnknownDT };
@@ -338,4 +306,19 @@ class Utilities
 		eIter.realignBuffer(bigBuffer);
 		return bigBuffer;
 	}
+	
+	static void reallocate(com.thomsonreuters.upa.codec.EncodeIterator encodeIter, int newLength)
+	{
+		if  ( ( encodeIter.buffer() != null ) && ( encodeIter.buffer().capacity() >= newLength ) )
+		{
+			return;
+		}
+		
+		Buffer bigBuffer = CodecFactory.createBuffer();
+		bigBuffer.data(ByteBuffer.allocate(newLength));
+		
+		encodeIter.setBufferAndRWFVersion(bigBuffer, com.thomsonreuters.upa.codec.Codec.majorVersion(), 
+				com.thomsonreuters.upa.codec.Codec.minorVersion());
+	}
+	
 }

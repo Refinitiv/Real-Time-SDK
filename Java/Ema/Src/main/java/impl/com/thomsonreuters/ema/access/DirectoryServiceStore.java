@@ -1022,7 +1022,7 @@ abstract class DirectoryServiceStore
 		case com.thomsonreuters.upa.codec.DataTypes.ASCII_STRING:
 		{
 			errorText.append("Attempt to specify SourceDirectory info with a Map using key DataType of ")
-			.append( DataType.asString(Utilities.toEmaDataType[map.keyPrimitiveType()]))
+			.append( DataType.asString(map.keyPrimitiveType()))
 			.append(" while the expected key DataType is ")
 			.append( DataType.asString(DataType.DataTypes.UINT));
 			
@@ -1035,7 +1035,7 @@ abstract class DirectoryServiceStore
 		}
 		default:
 			errorText.append("Attempt to specify SourceDirectory info with a Map using key DataType of  ")
-			.append( DataType.asString(Utilities.toEmaDataType[map.keyPrimitiveType()]))
+			.append( DataType.asString(map.keyPrimitiveType()))
 			.append(" while the expected key DataType is ")
 			.append( DataType.asString(DataType.DataTypes.UINT) + " or " + DataType.asString(DataType.DataTypes.ASCII) );
 			return false;
@@ -1119,7 +1119,7 @@ abstract class DirectoryServiceStore
 			if( map.containerType() != com.thomsonreuters.upa.codec.DataTypes.FILTER_LIST )
 			{
 				errorText.append( "Attempt to specify Service with a container of " )
-				.append(DataType.asString(Utilities.toEmaDataType[map.containerType()]))
+				.append(DataType.asString(map.containerType()))
 				.append("  rather than the expected  ").append( DataType.asString(DataTypes.FILTER_LIST));
 				return false;
 			}
@@ -1188,7 +1188,7 @@ abstract class DirectoryServiceStore
 					{
 						int containerType = filterEntry.checkHasContainerType() ? filterEntry.containerType() : filterList.containerType();
 						errorText.append("Attempt to specify Service InfoFilter with a container of ");
-						errorText.append(DataType.asString(Utilities.toEmaDataType[containerType]));
+						errorText.append(DataType.asString(containerType));
 						errorText.append(" rather than the expected ").append(DataType.asString(DataTypes.ELEMENT_LIST));
 						return false;
 					}
@@ -1228,7 +1228,7 @@ abstract class DirectoryServiceStore
 							if ( elementEntry.dataType() != com.thomsonreuters.upa.codec.DataTypes.ASCII_STRING )
 							{
 								errorText.append("Attempt to specify Service Name with a ")
-								.append( DataType.asString(Utilities.toEmaDataType[elementEntry.dataType()]) )
+								.append( DataType.asString(elementEntry.dataType()) )
 								.append(" rather than the expected ").append( DataType.asString(DataTypes.ASCII));
 								return false;
 							}
