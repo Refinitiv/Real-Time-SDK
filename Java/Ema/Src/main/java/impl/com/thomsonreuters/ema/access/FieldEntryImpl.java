@@ -46,6 +46,12 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 	{
 		return ((_rsslDictionaryEntry == null) ? DataImpl.EMPTY_STRING : (_rsslDictionaryEntry.acronym().toString()));
 	}
+	
+	@Override
+	public int rippleTo()
+	{
+		return rippleTo(0);
+	}
 
 	@Override
 	public int rippleTo(int fieldId)
@@ -53,9 +59,38 @@ class FieldEntryImpl extends EntryImpl implements FieldEntry
 		if (fieldId == 0)
 			fieldId = _rsslFieldEntry.fieldId();
 		
-		com.thomsonreuters.upa.codec.DictionaryEntry rsslDictEntry = _fieldList != null ? _fieldList._rsslDictionary.entry(fieldId) : null;
+		com.thomsonreuters.upa.codec.DictionaryEntry rsslDictEntry = (_fieldList != null) && (_fieldList._rsslDictionary != null) ?
+				_fieldList._rsslDictionary.entry(fieldId) : null;
 		
 		return ((rsslDictEntry == null) ? 0 : rsslDictEntry.rippleToField());
+	}
+	
+	@Override
+	public String rippleToName() {
+		
+		return rippleToName(0);
+	}
+	
+	@Override
+	public String rippleToName(int fieldId) {
+		
+		if (fieldId == 0)
+			fieldId = _rsslFieldEntry.fieldId();
+		
+		com.thomsonreuters.upa.codec.DictionaryEntry rsslDictEntry = (_fieldList != null) && (_fieldList._rsslDictionary != null) ?
+				_fieldList._rsslDictionary.entry(fieldId) : null;
+		
+		if ( rsslDictEntry != null)
+		{
+			rsslDictEntry = _fieldList._rsslDictionary.entry(rsslDictEntry.rippleToField());
+			
+			if ( rsslDictEntry != null ) 
+			{
+				return rsslDictEntry.acronym().toString();
+			}
+		}
+		
+		return DataImpl.EMPTY_STRING;
 	}
 	
 	@Override
