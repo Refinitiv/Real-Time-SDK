@@ -364,6 +364,13 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 				{
 					return;
 				}
+			} 
+			else if ( refreshMsgImpl.hasServiceId() )
+			{
+				if ( validateServiceId(refreshMsgImpl.serviceId(), refreshMsgImpl._rsslMsg ) == false )
+				{
+					return;
+				}
 			}
 			
 			if( handle == 0 )
@@ -415,6 +422,13 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 					refreshMsgImpl._rsslMsg.flags( refreshMsgImpl._rsslMsg.flags() | com.thomsonreuters.upa.codec.RefreshMsgFlags.HAS_MSG_KEY );
 				}
 				else
+				{
+					return;
+				}
+			}
+			else if ( refreshMsgImpl.hasServiceId() )
+			{
+				if ( validateServiceId(refreshMsgImpl.serviceId(), refreshMsgImpl._rsslMsg ) == false )
 				{
 					return;
 				}
@@ -575,6 +589,13 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 					return;
 				}
 			}
+			else if ( updateMsgImpl.hasServiceId() )
+			{
+				if ( validateServiceId(updateMsgImpl.serviceId(), updateMsgImpl._rsslMsg ) == false )
+				{
+					return;
+				}
+			}
 			
 			if(_activeConfig.refreshFirstRequired && !itemInfo.isSentRefresh())
 			{
@@ -674,6 +695,13 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 					return;
 				}
 			}
+			else if ( statusMsgImpl.hasServiceId() )
+			{
+				if ( validateServiceId(statusMsgImpl.serviceId(), statusMsgImpl._rsslMsg ) == false )
+				{
+					return;
+				}
+			}
 			
 			if( handle == 0 )
 			{
@@ -724,6 +752,13 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 					statusMsgImpl._rsslMsg.flags( statusMsgImpl._rsslMsg.flags() | com.thomsonreuters.upa.codec.StatusMsgFlags.HAS_MSG_KEY );
 				}
 				else
+				{
+					return;
+				}
+			}
+			else if ( statusMsgImpl.hasServiceId() )
+			{
+				if ( validateServiceId(statusMsgImpl.serviceId(), statusMsgImpl._rsslMsg ) == false )
 				{
 					return;
 				}
@@ -1072,6 +1107,32 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 		rsslMsg.msgKey().serviceId(serviceId.value());
 		rsslMsg.msgKey().applyHasServiceId();
 				
+		return true;
+	}
+	
+	boolean validateServiceId(int serviceId, com.thomsonreuters.upa.codec.Msg rsslMsg)
+	{	
+		String serviceName = _ommIProviderDirectoryStore.serviceName(serviceId);
+		
+		if ( serviceName == null )
+		{
+			userLock().unlock();
+			strBuilder().append("Attempt to submit ").append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).
+			append(" with service Id of ").append(serviceId).append(" that was not included in the SourceDirectory. Dropping this ").
+			append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).append(".");
+			handleInvalidUsage(_strBuilder.toString());
+			return false;
+		}
+		else if ( serviceId > 65535)
+		{
+			userLock().unlock();
+			strBuilder().append("Attempt to submit ").append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).
+			append(" with service Id of ").append(serviceId).append(" is out of range. Dropping this ").
+			append(DataType.asString(Utilities.toEmaMsgClass[rsslMsg.msgClass()])).append(".");
+			handleInvalidUsage(_strBuilder.toString());
+			return false;
+		}
+		
 		return true;
 	}
 
