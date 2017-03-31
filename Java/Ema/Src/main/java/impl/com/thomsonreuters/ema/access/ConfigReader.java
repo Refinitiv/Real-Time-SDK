@@ -869,7 +869,7 @@ class ConfigReader
 			errorTracker().append( "reading configuration file [" )
 						.append( _configFileName )
 						.append( "] from [" ).append( _configFileLocation ).append( "]" )
-						.create(Severity.INFO);
+						.create(Severity.TRACE);
 			
 			XMLConfiguration config = null;
 			try 
@@ -878,7 +878,7 @@ class ConfigReader
 			} 
 			catch (ConfigurationException e) 
 			{
-				errorTracker().append(e.getMessage()).create(Severity.ERROR);
+				errorTracker().append(e.getMessage()).create(Severity.TRACE);
 				return;
 			}
 
