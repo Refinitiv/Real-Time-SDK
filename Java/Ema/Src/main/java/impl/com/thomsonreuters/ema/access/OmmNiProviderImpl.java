@@ -87,6 +87,9 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		super.initialize(_activeConfig, (OmmNiProviderConfigImpl)config);
 		
 		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
+		
+		_nextProviderStreamId = 0;	
+		_reusedProviderStreamIds = new ArrayList<IntObject>();
 	}
 	
 	OmmNiProviderImpl(OmmProviderConfig config, OmmProviderClient client, Object closure)
@@ -103,6 +106,9 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		super.initialize(_activeConfig, (OmmNiProviderConfigImpl)config);
 		
 		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
+		
+		_nextProviderStreamId = 0;	
+		_reusedProviderStreamIds = new ArrayList<IntObject>();
 	}
 
 	OmmNiProviderImpl(OmmProviderConfig config, OmmProviderErrorClient client)
@@ -122,6 +128,9 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		
 		
 		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
+		
+		_nextProviderStreamId = 0;	
+		_reusedProviderStreamIds = new ArrayList<IntObject>();
 	}
 	
 	OmmNiProviderImpl(OmmProviderConfig config, OmmProviderClient adminClient, OmmProviderErrorClient errorClient)
@@ -141,6 +150,9 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 
 		
 		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
+		
+		_nextProviderStreamId = 0;	
+		_reusedProviderStreamIds = new ArrayList<IntObject>();
 	}
 	
 	OmmNiProviderImpl(OmmProviderConfig config, OmmProviderClient adminClient, OmmProviderErrorClient errorClient, Object closure)
@@ -159,6 +171,9 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		_providerErrorClient = errorClient;
 		
 		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
+		
+		_nextProviderStreamId = 0;	
+		_reusedProviderStreamIds = new ArrayList<IntObject>();
 	}
 	
 	@Override
