@@ -10,6 +10,10 @@
     <tstamp>
         <format property="TODAY" pattern=" E MMM dd HH:mm:ss z yyyy" />
     </tstamp>
+    
+    <tstamp>
+        <format property="YEAR" pattern="yyyy" />
+    </tstamp>
 	
 	<property name="dist.dir" value="../"/>
 	<property name="submodule.dir" value="../../../Elektron-SDK-BinaryPack/Java/Eta/Libs"/>
@@ -25,6 +29,7 @@
 
 	<!-- the root of all build and runtime dependiences -->
 	<property name="ApacheClient.dir" value="${submodule.dir}/ApacheClient" />
+	<property name="ApacheClientLocal.dir" value="${libs.dir}/ApacheClient" />
 
 	<!-- the path to the http Apache Client runtime -->
 	<path id="ApacheClient.classpath">
@@ -34,6 +39,12 @@
 		<pathelement location="${ApacheClient.dir}/httpclient-cache-4.1.2.jar" />
 		<pathelement location="${ApacheClient.dir}/httpcore-4.1.2.jar" />
 		<pathelement location="${ApacheClient.dir}/httpmime-4.1.2.jar" />
+		<pathelement location="${ApacheClientLocal.dir}/commons-codec-1.4.jar" />
+		<pathelement location="${ApacheClientLocal.dir}/commons-logging-1.1.1.jar" />
+		<pathelement location="${ApacheClientLocal.dir}/httpclient-4.1.2.jar" />
+		<pathelement location="${ApacheClientLocal.dir}/httpclient-cache-4.1.2.jar" />
+		<pathelement location="${ApacheClientLocal.dir}/httpcore-4.1.2.jar" />
+		<pathelement location="${ApacheClientLocal.dir}/httpmime-4.1.2.jar" />
 	</path>
 	
 	<!-- marshalling directory (temporary directory for various files) -->
@@ -108,7 +119,7 @@
 			<doctitle>
 				<![CDATA[<h1>Elektron Transport API (ETA) 3.0 - Java Edition</h1>]]></doctitle>
 			<bottom>
-				<![CDATA[<i>Copyright &#169; 2016  Thomson Reuters. All Rights Reserved.</i>]]></bottom>
+				<![CDATA[<i>Copyright &#169; ${YEAR}  Thomson Reuters. All Rights Reserved.</i>]]></bottom>
 		</javadoc>
 
          <delete dir="${marshall.dir}" />
