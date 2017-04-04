@@ -54,7 +54,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service.ServiceGroup;
 import com.thomsonreuters.upa.valueadd.reactor.WlRequest.State;
 
-public class WlItemHandler implements WlHandler
+class WlItemHandler implements WlHandler
 {
     // non private stream copy flags
     int defaultCopyFlags = CopyMsgFlags.ALL_FLAGS & ~CopyMsgFlags.EXTENDED_HEADER & ~CopyMsgFlags.DATA_BODY;

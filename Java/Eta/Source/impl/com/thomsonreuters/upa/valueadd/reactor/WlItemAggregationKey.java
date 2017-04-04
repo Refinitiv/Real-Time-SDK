@@ -6,7 +6,7 @@ import com.thomsonreuters.upa.codec.Qos;
 import com.thomsonreuters.upa.valueadd.common.VaNode;
 
 /* Key used for aggregating item requests by MsgKey, domain type and Qos. */
-public class WlItemAggregationKey extends VaNode
+class WlItemAggregationKey extends VaNode
 {
     MsgKey _msgKey = CodecFactory.createMsgKey();
     MsgKey _msgKeyReference;

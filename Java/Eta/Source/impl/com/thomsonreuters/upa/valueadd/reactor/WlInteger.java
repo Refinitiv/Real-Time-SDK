@@ -3,7 +3,7 @@ package com.thomsonreuters.upa.valueadd.reactor;
 import com.thomsonreuters.upa.valueadd.common.VaNode;
 
 /* Watchlist specific integer object used for hash table lookup. */
-public class WlInteger extends VaNode
+class WlInteger extends VaNode
 {
     int _value;
     

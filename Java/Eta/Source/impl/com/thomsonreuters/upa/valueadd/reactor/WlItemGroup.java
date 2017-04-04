@@ -7,7 +7,7 @@ import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.valueadd.common.VaNode;
 
 /* Watchlist Item Group ID of a group of streams. */
-public class WlItemGroup extends VaNode
+class WlItemGroup extends VaNode
 {
 	WlService _wlService;
 	Buffer _groupId;

@@ -9,7 +9,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgFacto
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
 
 /* Watchlist service that contains necessary information regarding the service. */
-public class WlService extends VaNode
+class WlService extends VaNode
 {
     Service _rdmService = DirectoryMsgFactory.createService();
     long _numOutstandingRequests; // number of outstanding requests for service

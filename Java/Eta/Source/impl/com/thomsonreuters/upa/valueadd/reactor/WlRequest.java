@@ -9,7 +9,7 @@ import com.thomsonreuters.upa.codec.RequestMsg;
 import com.thomsonreuters.upa.valueadd.common.VaNode;
 
 /* Watchlist user request that contains user request information. */
-public class WlRequest extends VaNode
+class WlRequest extends VaNode
 {
     RequestMsg _requestMsg = (RequestMsg)CodecFactory.createMsg();  
     WlHandler _handler;
