@@ -49,5 +49,7 @@ class OmmRmtesImpl extends DataImpl implements OmmRmtes
 			_dataCode = DataCode.NO_CODE;
 		else
 			_dataCode = DataCode.BLANK;
+		
+	   _rsslBuffer = _rmtesBuffer.rsslBuffer();
 	}
 }
