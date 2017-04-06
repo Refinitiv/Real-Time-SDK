@@ -36,10 +36,11 @@ class PostUserInfoImpl implements PostUserInfo
     @Override
     public void userAddr(String userAddrString)
     {
-        assert (userAddrString != null) : "userAddr is null"; // uint32
+        assert (userAddrString != null) : "userAddr string is null"; // uint32
 
         int ipPart = 0;
         int byteCount = 0;
+        long tempAddr = 0;
         for (int i = 0; i < userAddrString.length(); i++)
         {
             char c = userAddrString.charAt(i);
@@ -53,16 +54,17 @@ class PostUserInfoImpl implements PostUserInfo
             }
             else
             {
-                _userAddr = (_userAddr << 8) + ipPart;
+            	tempAddr = (tempAddr << 8) + ipPart;
                 byteCount++;
                 ipPart = 0;
             }
         }
 
         // final part
-        _userAddr = (_userAddr << 8) + ipPart;
+        tempAddr = (tempAddr << 8) + ipPart;
         byteCount++;
         assert (byteCount == 4) : "userAddr is out of range (more than 4 parts)"; // uint32
+        _userAddr = tempAddr;
     }
 
     @Override
