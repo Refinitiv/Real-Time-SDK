@@ -22,7 +22,7 @@ void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEve
 	// submit a generic message when stream becomes open / ok
 	if ( refreshMsg.getState().getStreamState() == OmmState::OpenEnum &&
 		refreshMsg.getState().getDataState() == OmmState::OkEnum )
-		_pOmmConsumer->submit( GenericMsg().name( "genericMsg" ).payload( ElementList().addInt( "value", ++count ).complete() ), ommEvent.getHandle() );
+		_pOmmConsumer->submit( GenericMsg().domainType( 200 ).name( "genericMsg" ).payload( ElementList().addInt( "value", ++count ).complete() ), ommEvent.getHandle() );
 
 	decode( refreshMsg );
 }
@@ -52,7 +52,7 @@ void AppClient::onGenericMsg( const GenericMsg& genMsg, const OmmConsumerEvent& 
 {
 	cout << endl << "Received:    GenericMsg" << endl << "Item Handle: " << ommEvent.getHandle() << endl << "Closure:     " << ommEvent.getClosure() << endl;
 
-	_pOmmConsumer->submit( GenericMsg().name( "genericMsg" ).payload( ElementList().addInt( "value", ++count ).complete() ), ommEvent.getHandle() );
+	_pOmmConsumer->submit( GenericMsg().domainType( 200 ).name( "genericMsg" ).payload( ElementList().addInt( "value", ++count ).complete() ), ommEvent.getHandle() );
 
 	decode( genMsg );
 }
