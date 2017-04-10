@@ -304,7 +304,7 @@ class PostHandler
         {
         	try
         	{
-        		postMsg.postUserInfo().userAddr((new BigInteger(InetAddress.getLocalHost().getAddress())).intValue());
+        		postMsg.postUserInfo().userAddr(InetAddress.getLocalHost().getHostAddress());
         	}
         	catch (Exception e)
         	{
@@ -478,7 +478,7 @@ class PostHandler
         {        
         	try
         	{
-        		postMsg.postUserInfo().userAddr((new BigInteger(InetAddress.getLocalHost().getAddress())).intValue());
+        		postMsg.postUserInfo().userAddr(InetAddress.getLocalHost().getHostAddress());
         	}
         	catch (Exception e)
         	{
@@ -625,7 +625,7 @@ class PostHandler
         {                            
         	try
         	{
-        		postMsg.postUserInfo().userAddr((new BigInteger(InetAddress.getLocalHost().getAddress())).intValue());
+        		postMsg.postUserInfo().userAddr(InetAddress.getLocalHost().getHostAddress());
         	}
         	catch (Exception e)
         	{
