@@ -691,6 +691,9 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
          * InstanceId
          * Password
          * Pause
+         * No refresh
+         * 
+         * Note: Pause and no refresh should be removed from the cached request after submitting to the reactor
          */
         
         if(!_tempLoginReq.userName().isBlank() && !_tempLoginReq.userName().equals(rsslLoginRequest().userName()))
@@ -766,6 +769,11 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
         if(_tempLoginReq.checkPause())
         {
         	rsslLoginRequest().applyPause();
+        }
+        
+        if(_tempLoginReq.checkNoRefresh())
+        {
+        	rsslLoginRequest().applyNoRefresh();
         }
         
         return CodecReturnCodes.SUCCESS;
@@ -1001,9 +1009,10 @@ class LoginItem<T> extends SingleItem<T> implements TimeoutClient
 		
 		boolean submitRet = submit(_baseImpl.loginCallbackClient().rsslLoginRequest());
 		
-		/* Unset the pause all flag on the stored request. */
+		/* Unset the pause all and no refresh flags on the stored request. */
 		_baseImpl.loginCallbackClient().rsslLoginRequest().flags(_baseImpl.loginCallbackClient().rsslLoginRequest().flags() & ~LoginRequestFlags.PAUSE_ALL);
-		
+		_baseImpl.loginCallbackClient().rsslLoginRequest().flags(_baseImpl.loginCallbackClient().rsslLoginRequest().flags() & ~LoginRequestFlags.NO_REFRESH);
+
 		return submitRet;
 	}
 	
