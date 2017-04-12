@@ -343,7 +343,7 @@ class WlLoginHandler implements WlHandler
 		else // not pause
 		{
 			// handle resume
-			if (_awaitingResumeAll)
+			if (_awaitingResumeAll && !isTokenChange(loginRequest))
 			{
 				_awaitingResumeAll = false;
 
@@ -611,7 +611,14 @@ class WlLoginHandler implements WlHandler
 		return ReactorReturnCodes.SUCCESS;
 	}
 
-	@Override
+	/* Determines if there is a token change. */
+    boolean isTokenChange(LoginRequest loginRequest)
+    {
+        return (loginRequest.userNameType() == Login.UserIdTypes.TOKEN || loginRequest.userNameType() == Login.UserIdTypes.AUTHN_TOKEN) &&
+                (!loginRequest.userName().equals(_loginRequest.userName()) || !loginRequest.authenticationExtended().equals(_loginRequest.authenticationExtended()));
+    }
+
+    @Override
 	public int readMsg(WlStream wlStream, DecodeIterator dIter, Msg msg, ReactorErrorInfo errorInfo)
 	{
 		assert (_stream == wlStream);

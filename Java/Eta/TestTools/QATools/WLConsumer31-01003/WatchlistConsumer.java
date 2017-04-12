@@ -465,8 +465,10 @@ public class WatchlistConsumer implements ConsumerCallback
 					        chnlInfo.consumerRole.rdmLoginRequest().userName().data(watchlistConsumerConfig.authenticationToken2());
 						// END APIQA
 						LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
-						// APIQA:  Remove the PAUSE flag on a reissue to make sure this is not cached
-						loginRequest.flags(loginRequest.flags() & ~0x0080);
+						// APIQA:  Remove PAUSE and NO_REFRESH flags on a reissue to make sure these are not cached on the role 
+						loginRequest.flags(loginRequest.flags() & ~0x0080); // clear PAUSE 
+						loginRequest.flags(loginRequest.flags() & ~0x0040); // clear NO_REFRESH
+						// END APIQA
 						submitOptions.clear();
 						if (chnlInfo.reactorChannel.submit(loginRequest, submitOptions, errorInfo) !=  CodecReturnCodes.SUCCESS)
 						{
