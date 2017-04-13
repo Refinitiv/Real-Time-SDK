@@ -109,7 +109,7 @@ class AppClient implements OmmProviderClient
 		
 		ElementList elementList = EmaFactory.createElementList();
 		elementList.add(EmaFactory.createElementEntry().intValue("valueFromProvider", ++count));
-		event.provider().submit(EmaFactory.createGenericMsg().name("genericMsg").payload(elementList), event.handle());
+		event.provider().submit(EmaFactory.createGenericMsg().domainType(APP_DOMAIN).name("genericMsg").payload(elementList), event.handle());
 
 		System.out.println();
 	}
