@@ -569,6 +569,17 @@ RsslRet encodeMarketByPriceRefresh(RsslReactorChannel* pReactorChannel, RsslItem
 		return ret;
 	}
 
+	/* if this is the last multi part, set the refresh complete flag */
+	if (multiPartNo + 1 == MAX_REFRESH_PARTS)
+	{
+		ret = rsslSetRefreshCompleteFlag(&encodeIter);
+		if (ret < RSSL_RET_SUCCESS)
+		{
+			printf("rsslSetRefreshCompleteFlag() failed with return code: %d\n", ret);
+			return ret;
+		}
+	}
+
 	/* complete encode message */
 	if ((ret = rsslEncodeMsgComplete(&encodeIter, RSSL_TRUE)) < RSSL_RET_SUCCESS)
 	{
