@@ -303,11 +303,24 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 
 				if (_baseImpl.loggerClient().isInfoEnabled())
 				{
+					int count = reactorChannelInfo.channelInfo().componentInfo().size();
+					
 					StringBuilder temp = _baseImpl.strBuilder();
     	        	temp.append("Received ChannelUp event on channel ");
 					temp.append(chnlInfo.name()).append(OmmLoggerClient.CR)
-						.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR)
-						.append("Component Version ").append(reactorChannelInfo.channelInfo().componentInfo().get(0).componentVersion().toString());
+						.append("Instance Name ").append(_baseImpl.instanceName());
+						
+						if ( count != 0 )
+						{
+							temp.append(OmmLoggerClient.CR).append("Component Version ");
+							for (int i = 0; i < count; ++i)
+							{
+								temp.append(reactorChannelInfo.channelInfo().componentInfo().get(i).componentVersion());
+								if (i < count - 1)
+									temp.append(", ");
+							}
+						}
+					
 					_baseImpl.loggerClient().info(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.INFO));
 				}
 	
