@@ -54,7 +54,7 @@ void AppClient::processAppDomainGenericMsg(const GenericMsg& genericMsg, const O
 
 	cout << endl << "Received:    GenericMsg" << endl << "Item Handle: " << event.getHandle() << endl << "Closure:     " << event.getClosure() << endl;
 
-	event.getProvider().submit(GenericMsg().name("genericMsg").payload(ElementList().addInt("valueFromProvider", ++genericCount).complete()), event.getHandle());
+	event.getProvider().submit(GenericMsg().domainType(APP_DOMAIN).name("genericMsg").payload(ElementList().addInt("valueFromProvider", ++genericCount).complete()), event.getHandle());
 }
 
 void AppClient::onReqMsg( const ReqMsg& reqMsg, const OmmProviderEvent& event )
