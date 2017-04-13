@@ -165,7 +165,7 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 			        		.append(OmmLoggerClient.CR);
 			        	loginMsgToString(temp, loginMsg, loginMsg.rdmMsgType());
 			        	temp.append(OmmLoggerClient.CR)
-			    			.append("State: ").append(state.toString());
+			    			.append(state.toString());
 			        	
 			        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(LoginCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
 		        	}
@@ -180,7 +180,7 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 			        		.append(OmmLoggerClient.CR);
 			        	loginMsgToString(temp, loginMsg, loginMsg.rdmMsgType());
 			        	temp.append(OmmLoggerClient.CR)
-			    			.append("State: ").append(state.toString());
+		    			.append(state.toString());
 			        	
 			        	_baseImpl.loggerClient().warn(_baseImpl.formatLogMessage(LoginCallbackClient.CLIENT_NAME, temp.toString(), Severity.WARNING));
 		        	}
@@ -197,8 +197,8 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 			        	StringBuilder temp = _baseImpl.strBuilder();
 						
 			        	temp.append("RDMLogin stream was open with refresh message").append(OmmLoggerClient.CR)
-			        		.append(loginMsg.toString()).append(OmmLoggerClient.CR)
-							.append("State: ").append(state.toString());
+			        		.append(loginMsg.toString()).append(OmmLoggerClient.CR);
+
 			        	
 			        	_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(LoginCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
 		        	}
@@ -231,7 +231,7 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 				        		.append(OmmLoggerClient.CR);
 				        	loginMsgToString(temp, loginMsg, loginMsg.rdmMsgType());
 				        	temp.append(OmmLoggerClient.CR)
-				    			.append("State: ").append(state.toString());
+			    				.append(state.toString());
 				        	
 				        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(LoginCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
 			        	}
@@ -246,7 +246,7 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 				        		.append(OmmLoggerClient.CR);
 				        	loginMsgToString(temp, loginMsg, loginMsg.rdmMsgType());
 				        	temp.append(OmmLoggerClient.CR)
-				    			.append("State: ").append(state.toString());
+			    				.append(state.toString());
 				        	
 				        	_baseImpl.loggerClient().warn(_baseImpl.formatLogMessage(LoginCallbackClient.CLIENT_NAME, temp.toString(), Severity.WARNING));
 			        	}
@@ -261,8 +261,7 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 				        	StringBuilder temp = _baseImpl.strBuilder();
 							
 				        	temp.append("RDMLogin stream was open with status message").append(OmmLoggerClient.CR)
-				        		.append(loginMsg.toString()).append(OmmLoggerClient.CR)
-								.append("State: ").append(state.toString());
+				        		.append(loginMsg.toString()).append(OmmLoggerClient.CR);
 				        	
 				        	_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(LoginCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
 			        	}
