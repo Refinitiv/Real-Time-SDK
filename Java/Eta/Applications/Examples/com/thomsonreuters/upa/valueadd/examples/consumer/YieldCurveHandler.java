@@ -550,6 +550,7 @@ class YieldCurveHandler
 
 	public int decodePayload(DecodeIterator dIter, DataDictionary dictionary)
 	{
+		indentCount = 0;
 		return decodeFieldList(dIter, dictionary, fieldList, fieldEntry);
 	}
 	
