@@ -49,7 +49,7 @@ class AppClient implements OmmConsumerClient
 		{
 			ElementList elementList = EmaFactory.createElementList();
 			elementList.add(EmaFactory.createElementEntry().intValue("value", ++count));
-			_ommConsumer.submit(EmaFactory.createGenericMsg().name("genericMsg").payload(elementList), event.handle());
+			_ommConsumer.submit(EmaFactory.createGenericMsg().domainType(200).name("genericMsg").payload(elementList), event.handle());
 		}
 		
 		decode(refreshMsg);
@@ -88,7 +88,7 @@ class AppClient implements OmmConsumerClient
 		
 		ElementList elementList = EmaFactory.createElementList();
 		elementList.add(EmaFactory.createElementEntry().intValue("value", ++count));
-		_ommConsumer.submit(EmaFactory.createGenericMsg().name("genericMsg").payload(elementList), event.handle());
+		_ommConsumer.submit(EmaFactory.createGenericMsg().domainType(200).name("genericMsg").payload(elementList), event.handle());
 
 		System.out.println();
 	}
