@@ -224,7 +224,7 @@ public class Consumer
 		{
 			AppClient appClient = new AppClient();
 			
-			consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig().host("localhost:14002").username("user"));
+			consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig().host("localhost:14002").username("user"), appClient);
 			
 			ReqMsg reqMsg = EmaFactory.createReqMsg();
 		
