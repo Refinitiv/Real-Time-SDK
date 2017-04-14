@@ -97,8 +97,6 @@ public class NiProvider
 
 			ReqMsg reqMsg = EmaFactory.createReqMsg();
 				
-			long loginHandle = provider.registerClient(reqMsg.domainType(EmaRdm.MMT_LOGIN), appClient);
-				
             provider.dispatch( 1000000 );
                         
 			long itemHandle = 6;
