@@ -2178,7 +2178,7 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
     					}
     				}
     					break;
-                    case EmaRdm.ENAME_AUTHN_EXTENDED:
+                    case EmaRdm.ENAME_AUTHN_EXTENDED_RESP:
                     {
                     	if(elementEntry.code() != DataCode.BLANK)
     					{
