@@ -781,6 +781,8 @@ class DirectoryItem<T> extends SingleItem<T>
 				TimeoutClient client = closedStatusClient(_baseImpl.directoryCallbackClient(),
 															this, ((ReqMsgImpl)reqMsg).rsslMsg(),
 															temp.toString(), reqMsg.serviceName());
+				/* This ensures that the user will get a valid handle.  The callback should clean it up after. */
+				_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
 				_baseImpl.addTimeoutEvent(1000, client);
 				
 				return true;
@@ -800,6 +802,8 @@ class DirectoryItem<T> extends SingleItem<T>
 
 					TimeoutClient client = closedStatusClient(_baseImpl.directoryCallbackClient(),
 							this, ((ReqMsgImpl)reqMsg).rsslMsg(), temp.toString(), null);
+					/* This ensures that the user will get a valid handle.  The callback should clean it up after. */
+					_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
 					_baseImpl.addTimeoutEvent(1000, client);
 
 					return true;

@@ -368,6 +368,9 @@ class TunnelItem<T> extends Item<T> {
 							.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
 				_baseImpl.handleInvalidUsage(temp.toString());
+				
+				/* Assign a valid handle to this request.  This will be valid until the closed status event is given to the user */
+				_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
 
 				scheduleItemClosedStatus(tunnelStreamRequest, temp.toString());
 
@@ -386,6 +389,13 @@ class TunnelItem<T> extends Item<T> {
 							.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
 				_baseImpl.handleInvalidUsage(temp.toString());
+				
+				/* Assign a valid handle to this request.  This will be valid until the closed status event is given to the user */
+				_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
+
+				scheduleItemClosedStatus(tunnelStreamRequest, temp.toString());
+
+				return true;
 			}
 		}
 
@@ -818,6 +828,9 @@ class SubItem<T> extends Item<T>
 		{
 			StringBuilder temp = _baseImpl.strBuilder();
 			temp.append("Invalid attempt to open sub stream using serviceName.");
+			
+			/* Assign a valid handle to this request.  This will be valid until the closed status event is given to the user */
+			_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
 
 			scheduleItemClosedStatus(_baseImpl.itemCallbackClient(), this, ((ReqMsgImpl) reqMsg).rsslMsg(),
 					temp.toString(), reqMsg.serviceName());
@@ -1653,7 +1666,7 @@ TunnelStreamStatusEventCallback
 				case DomainTypes.LOGIN :
 				{
 					SingleItem<T> item = _baseImpl.loginCallbackClient().loginItem(reqMsg, client, closure);
-
+					/* Assign an available handle to the request */
 					return addToItemMap(LongIdGenerator.nextLongId(), item);
 				}
 				case DomainTypes.DICTIONARY :
@@ -2410,10 +2423,14 @@ class SingleItem<T> extends Item<T>
 			directory = _baseImpl.directoryCallbackClient().directory(reqMsg.serviceName());
 			if (directory == null)
 			{
+				/* EMA is generating the status down response because the service is not valid */
 				StringBuilder temp = _baseImpl.strBuilder();
 	        	temp.append("Service name of '")
 	        		.append(reqMsg.serviceName())
 	        		.append("' is not found.");
+	        	
+	        	/* Assign a handle to this request.  This will be valid until the closed status event is given to the user */
+				_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
 
 	        	scheduleItemClosedStatus(_baseImpl.itemCallbackClient(),
 											this, ((ReqMsgImpl)reqMsg).rsslMsg(), 
@@ -2428,6 +2445,8 @@ class SingleItem<T> extends Item<T>
 				directory = _baseImpl.directoryCallbackClient().directory(reqMsg.serviceId());
 			else
 			{
+				/* Assign a handle to this request.  This will be valid until the closed status event is given to the user */
+				_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
 				scheduleItemClosedStatus(_baseImpl.itemCallbackClient(),
 						this, ((ReqMsgImpl)reqMsg).rsslMsg(), 
 						"Passed in request message does not identify any service.",
@@ -2443,6 +2462,9 @@ class SingleItem<T> extends Item<T>
 	        	temp.append("Service id of '")
 	        		.append(reqMsg.serviceName())
 	        		.append("' is not found.");
+	        	
+	        	/* Assign a handle to this request.  This will be valid until the closed status event is given to the user */
+				_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
 	        	
 	        	scheduleItemClosedStatus(_baseImpl.itemCallbackClient(),
 						this, ((ReqMsgImpl)reqMsg).rsslMsg(), 
