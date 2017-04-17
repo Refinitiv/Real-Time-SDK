@@ -11,6 +11,7 @@ import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 
+import com.thomsonreuters.ema.access.Data.DataCode;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.domain.login.Login;
 import com.thomsonreuters.ema.domain.login.Login.LoginRefresh;
@@ -729,6 +730,22 @@ class LoginReqImpl extends LoginImpl implements LoginReq
 	        throw ommIUExcept().message("Domain type must be Login.");
 	    }
 	    
+		_allowSuspectDataSet = false;
+		_downloadConnectionConfigSet = false;
+		_providePermissionProfileSet = false;
+		_providePermissionExpressionsSet = false;
+		_singleOpenSet = false;
+		_supportProviderDictionaryDownloadSet = false;
+		_roleSet = false;
+		_applicationIdSet = false;
+		_applicationNameSet = false;
+		_applicationAuthTokenSet = false;
+		_instanceIdSet = false;
+		_passwordSet = false;
+		_positionSet = false;
+		_pauseSet = false;
+		_authenticationExtendedSet = false;
+	    
 	    if (reqMsg.hasNameType())
 	        nameType(reqMsg.nameType());
 	    if (reqMsg.hasName())
@@ -768,17 +785,26 @@ class LoginReqImpl extends LoginImpl implements LoginReq
     					break;
     				case EmaRdm.ENAME_APP_ID:
     				{
-    					applicationId(elementEntry.ascii().ascii());
+    					if(elementEntry.code() != DataCode.BLANK)
+    					{
+    						applicationId(elementEntry.ascii().ascii());
+    					}
     				}
     					break;
     				case EmaRdm.ENAME_APP_NAME:
     				{
-    					applicationName(elementEntry.ascii().ascii());
+    					if(elementEntry.code() != DataCode.BLANK)
+    					{
+    						applicationName(elementEntry.ascii().ascii());
+    					}
     				}
     					break;
     				case EmaRdm.ENAME_APPAUTH_TOKEN:
     				{
-    					applicationAuthorizationToken(elementEntry.ascii().ascii());
+    					if(elementEntry.code() != DataCode.BLANK)
+    					{
+    						applicationAuthorizationToken(elementEntry.ascii().ascii());
+    					}
     				}
     					break;
     				case EmaRdm.ENAME_DOWNLOAD_CON_CONFIG:
@@ -797,22 +823,34 @@ class LoginReqImpl extends LoginImpl implements LoginReq
     					break;
     				case EmaRdm.ENAME_INST_ID:
     				{
-    					instanceId(elementEntry.ascii().ascii());
+    					if(elementEntry.code() != DataCode.BLANK)
+    					{
+    						instanceId(elementEntry.ascii().ascii());
+    					}
     				}
     					break;
     				case EmaRdm.ENAME_PASSWORD:
     				{
-    					password(elementEntry.ascii().ascii());
+    					if(elementEntry.code() != DataCode.BLANK)
+    					{
+    						password(elementEntry.ascii().ascii());
+    					}
     				}
     					break;
     				case EmaRdm.ENAME_POSITION:
     				{
-    					position(elementEntry.ascii().ascii());
+    					if(elementEntry.code() != DataCode.BLANK)
+    					{
+    						position(elementEntry.ascii().ascii());
+    					}
     				}
     					break;
     				case EmaRdm.ENAME_AUTHN_EXTENDED:
     				{
-    				    authenticationExtended(elementEntry.buffer().buffer());
+    					if(elementEntry.code() != DataCode.BLANK)
+    					{
+    						authenticationExtended(elementEntry.buffer().buffer());
+    					}
     				}
     				    break;
     				case EmaRdm.ENAME_PROV_PERM_EXP:
@@ -893,7 +931,10 @@ class LoginReqImpl extends LoginImpl implements LoginReq
     				{
     				    if (!_nameTypeSet || _nameType != EmaRdm.USER_AUTH_TOKEN)
     				    {
-    				        throw ommIUExcept().message("NameType must be USER_AUTH_TOKEN when element list contains AuthenticationToken");
+    				    	if(elementEntry.code() != DataCode.BLANK)
+        					{
+    				    		throw ommIUExcept().message("NameType must be USER_AUTH_TOKEN when element list contains AuthenticationToken");
+        					}
     				    }
     				    name(elementEntry.ascii().ascii());
     				}
@@ -1895,6 +1936,28 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
             throw ommIUExcept().message("Domain type must be Login.");
         }
         
+    	_allowSuspectDataSet = false;
+    	_providePermissionProfileSet = false;
+    	_providePermissionExpressionsSet = false;
+    	_singleOpenSet = false;
+    	_supportBatchRequestsSet = false;
+    	_supportOptimizedPauseResumeSet = false;
+    	_supportProviderDictionaryDownloadSet = false;
+    	_applicationIdSet = false;
+    	_applicationNameSet = false;
+    	_positionSet = false;
+    	_supportViewRequestsSet = false;
+    	_supportStandbySet = false;
+    	_supportOmmPostSet = false;
+    	_supportEnhancedSymbolListSet = false;
+    	_authenticationExtendedRespSet = false;
+    	_authenticationTTReissueSet = false;
+    	_authenticationErrorCodeSet = false;
+    	_authenticationErrorTextSet = false;
+    	_solicitedSet = false;
+    	_seqNumSet = false;
+    	_stateSet = false;
+        
 	    if (refreshMsg.hasSeqNum())
 	        seqNum((int)refreshMsg.seqNum());
 	    if (refreshMsg.hasNameType())
@@ -1936,17 +1999,26 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
     					break;
     				case EmaRdm.ENAME_APP_ID:
     				{
-    					applicationId(elementEntry.ascii().ascii());
+    					if(elementEntry.code() != DataCode.BLANK)
+    					{
+    						applicationId(elementEntry.ascii().ascii());
+    					}
     				}
     					break;
     				case EmaRdm.ENAME_APP_NAME:
     				{
-    					applicationName(elementEntry.ascii().ascii());
+    					if(elementEntry.code() != DataCode.BLANK)
+    					{
+    						applicationName(elementEntry.ascii().ascii());
+    					}
     				}
     					break;
     				case EmaRdm.ENAME_POSITION:
     				{
-    					position(elementEntry.ascii().ascii());
+    					if(elementEntry.code() != DataCode.BLANK)
+    					{
+    						position(elementEntry.ascii().ascii());
+    					}
     				}
     					break;
     				case EmaRdm.ENAME_PROV_PERM_EXP:
@@ -2108,7 +2180,10 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
     					break;
                     case EmaRdm.ENAME_AUTHN_EXTENDED:
                     {
-                        authenticationExtendedResp(elementEntry.buffer().buffer());
+                    	if(elementEntry.code() != DataCode.BLANK)
+    					{
+                    		authenticationExtendedResp(elementEntry.buffer().buffer());
+    					}
                     }
                         break;
                     case EmaRdm.ENAME_AUTHN_TT_REISSUE:
@@ -2123,7 +2198,10 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
                         break;
                     case EmaRdm.ENAME_AUTHN_ERRORTEXT:
                     {
-                        authenticationErrorText(elementEntry.ascii().ascii());
+                    	if(elementEntry.code() != DataCode.BLANK)
+    					{
+                    		authenticationErrorText(elementEntry.ascii().ascii());
+    					}
                     }
                         break;
     				}
@@ -2548,6 +2626,10 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
             throw ommIUExcept().message("Domain type must be Login.");
         }
         
+        _authenticationErrorCodeSet = false;
+        _authenticationErrorTextSet = false;
+        _stateSet = false;
+        
         if (statusMsg.hasName())
             name(statusMsg.name());
         if (statusMsg.hasNameType())
@@ -2578,7 +2660,10 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
                         break;
                     case EmaRdm.ENAME_AUTHN_ERRORTEXT:
                     {
-                        authenticationErrorText(elementEntry.ascii().ascii());
+                    	if(elementEntry.code() != DataCode.BLANK)
+    					{
+                    		authenticationErrorText(elementEntry.ascii().ascii());
+    					}
                     }
                         break;
                     }
