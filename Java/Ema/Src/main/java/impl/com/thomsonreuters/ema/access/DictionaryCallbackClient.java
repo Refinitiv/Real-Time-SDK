@@ -1268,14 +1268,19 @@ class DictionaryItem<T> extends SingleItem<T> implements TimeoutClient
 		if (rsslReqMsg.msgKey().checkHasFilter())
 			_rsslFilter = (int)rsslReqMsg.msgKey().filter();
 
+		/* User is asking for a specific service's dictionary, submit the request to the Reactor */
 		if ( reqMsg.hasServiceName() || rsslReqMsg.msgKey().checkHasServiceId() )
 			return super.open( reqMsg );
 		else
 		{
+			/* This ensures that a valid handle is assigned to the request. */
+			_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
+
 			DataDictionary rsslDictionary = dictCBClient.defaultRsslDictionary();
 	
 			if (rsslDictionary != null)
 			{
+				/* EMA will generate the Dictionary from the cached values */  
 				if (_name.equals(DictionaryCallbackClient.DICTIONARY_RWFFID))
 				{
 					_currentFid = rsslDictionary.minFid();
@@ -1316,6 +1321,7 @@ class DictionaryItem<T> extends SingleItem<T> implements TimeoutClient
 	
 					channelDict.channelDictionaryLock().unlock();
 				}
+				
 	
 				_baseImpl.addTimeoutEvent(500, this);
 				
