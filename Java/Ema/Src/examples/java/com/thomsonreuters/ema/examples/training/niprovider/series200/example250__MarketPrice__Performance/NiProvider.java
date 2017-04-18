@@ -77,8 +77,7 @@ public class NiProvider {
 					fieldList.add(EmaFactory.createFieldEntry().real(30, 10 + (((handle & 0x1) == 1) ? 10 : 20), OmmReal.MagnitudeType.EXPONENT_0));
 					fieldList.add(EmaFactory.createFieldEntry().rmtes(296, ByteBuffer.wrap("NAS".getBytes())));
 					
-					updateMsg.clear();
-					updateMsg.serviceName("TEST_NI_PUB").name("RTR" + handle + ".N").payload( fieldList );
+					updateMsg.clear().serviceName("TEST_NI_PUB").name("RTR" + handle + ".N").payload( fieldList );
 					provider.submit( updateMsg, handle );
 					++updateCount;
 				}
