@@ -307,16 +307,12 @@ class LoginStatusImpl extends MsgBaseImpl
                 if (element.dataType() != DataTypes.ASCII_STRING
                         && element.dataType() != DataTypes.BUFFER)
                     return CodecReturnCodes.FAILURE;
-                if(element.encodedData().length() != 0)
-                {
-	                Buffer authenticationErrorText = element.encodedData();
-	                applyHasAuthenticationErrorText();
-	                authenticationErrorText().data(authenticationErrorText.data(),
-	                                               authenticationErrorText.position(),
-	                                               authenticationErrorText.length());
-	            }
-	            else
-	            	return CodecReturnCodes.FAILURE;
+
+                Buffer authenticationErrorText = element.encodedData();
+                applyHasAuthenticationErrorText();
+                authenticationErrorText().data(authenticationErrorText.data(),
+                                               authenticationErrorText.position(),
+                                               authenticationErrorText.length());
             }
         }
         return CodecReturnCodes.SUCCESS;

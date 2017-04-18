@@ -432,44 +432,34 @@ class LoginRefreshImpl extends MsgBaseImpl
             {
                 if (element.dataType() != DataTypes.ASCII_STRING)
                     return CodecReturnCodes.FAILURE;
-                
-                if(element.encodedData().length() != 0)
-                {
-                	applyHasAttrib();
-	                Buffer applicationId = element.encodedData();
-	                attrib.applyHasApplicationId();
-	                attrib.applicationId().data(applicationId.data(), applicationId.position(), applicationId.length());
-                }
-                else
-                	return CodecReturnCodes.FAILURE;
+
+            	applyHasAttrib();
+                Buffer applicationId = element.encodedData();
+                attrib.applyHasApplicationId();
+                attrib.applicationId().data(applicationId.data(), applicationId.position(), applicationId.length());
+
             }
             else if (element.name().equals(ElementNames.APPNAME))
             {
                 if (element.dataType() != DataTypes.ASCII_STRING)
                     return CodecReturnCodes.FAILURE;
-                if(element.encodedData().length() != 0)
-                {
-	                applyHasAttrib();
-	                Buffer applicationName = element.encodedData();
-	                attrib.applyHasApplicationName();
-	                attrib.applicationName().data(applicationName.data(), applicationName.position(), applicationName.length());
-                }
-                else
-                	return CodecReturnCodes.FAILURE;
+
+                applyHasAttrib();
+                Buffer applicationName = element.encodedData();
+                attrib.applyHasApplicationName();
+                attrib.applicationName().data(applicationName.data(), applicationName.position(), applicationName.length());
+
             }
             else if (element.name().equals(ElementNames.POSITION))
             {
                 if (element.dataType() != DataTypes.ASCII_STRING)
                     return CodecReturnCodes.FAILURE;
-                if(element.encodedData().length() != 0)
-                {
-	                applyHasAttrib();
-	                Buffer position = element.encodedData();
-	                attrib.applyHasPosition();
-	                attrib.position().data(position.data(), position.position(), position.length());
-	            }
-	            else
-	            	return CodecReturnCodes.FAILURE;
+
+                applyHasAttrib();
+                Buffer position = element.encodedData();
+                attrib.applyHasPosition();
+                attrib.position().data(position.data(), position.position(), position.length());
+
             }
             else if (element.name().equals(ElementNames.PROV_PERM_EXP))
             {
@@ -598,16 +588,13 @@ class LoginRefreshImpl extends MsgBaseImpl
                 if (element.dataType() != DataTypes.ASCII_STRING
                         && element.dataType() != DataTypes.BUFFER)
                     return CodecReturnCodes.FAILURE;
-                if(element.encodedData().length() != 0)
-                {
-	                Buffer authenticationExtendedResp = element.encodedData();
-	                applyHasAuthenticationExtendedResp();
-	                authenticationExtendedResp().data(authenticationExtendedResp.data(),
-	                                                  authenticationExtendedResp.position(),
-	                                                  authenticationExtendedResp.length());
-	            }
-	            else
-	            	return CodecReturnCodes.FAILURE;
+
+                Buffer authenticationExtendedResp = element.encodedData();
+                applyHasAuthenticationExtendedResp();
+                authenticationExtendedResp().data(authenticationExtendedResp.data(),
+                                                  authenticationExtendedResp.position(),
+                                                  authenticationExtendedResp.length());
+
             }
             else if (element.name().equals(ElementNames.AUTHN_ERROR_CODE))
             {
@@ -624,16 +611,13 @@ class LoginRefreshImpl extends MsgBaseImpl
                 if (element.dataType() != DataTypes.ASCII_STRING
                         && element.dataType() != DataTypes.BUFFER)
                     return CodecReturnCodes.FAILURE;
-                if(element.encodedData().length() != 0)
-                {
-	                Buffer authenticationErrorText = element.encodedData();
-	                applyHasAuthenticationErrorText();
-	                authenticationErrorText().data(authenticationErrorText.data(),
-	                                               authenticationErrorText.position(),
-	                                               authenticationErrorText.length());
-                }
-	            else
-	            	return CodecReturnCodes.FAILURE;
+
+                Buffer authenticationErrorText = element.encodedData();
+                applyHasAuthenticationErrorText();
+                authenticationErrorText().data(authenticationErrorText.data(),
+                                               authenticationErrorText.position(),
+                                               authenticationErrorText.length());
+
             }
         }
 
