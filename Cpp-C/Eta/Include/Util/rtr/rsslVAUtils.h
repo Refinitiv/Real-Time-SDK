@@ -33,20 +33,8 @@ RTR_C_INLINE RsslRet rsslDeepCopyConnectOpts(RsslConnectOptions *destOpts, RsslC
 	size_t tempLen = 0;
 	memset(destOpts, 0, sizeof(RsslConnectOptions));
 
-	destOpts->connectionType = sourceOpts->connectionType;
-	destOpts->compressionType = sourceOpts->compressionType;
-	destOpts->blocking = sourceOpts->blocking;
-	destOpts->tcp_nodelay = sourceOpts->tcp_nodelay;
-	destOpts->pingTimeout = sourceOpts->pingTimeout;
-	destOpts->guaranteedOutputBuffers = sourceOpts->guaranteedOutputBuffers;
-	destOpts->numInputBuffers = sourceOpts->numInputBuffers;
-	destOpts->protocolType = sourceOpts->protocolType;
-	destOpts->majorVersion = sourceOpts->majorVersion;
-	destOpts->minorVersion = sourceOpts->minorVersion;
-	destOpts->sysSendBufSize = sourceOpts->sysSendBufSize;
-	destOpts->sysRecvBufSize = sourceOpts->sysRecvBufSize;
-	destOpts->userSpecPtr = sourceOpts->userSpecPtr;
-
+	*destOpts = *sourceOpts;
+	
 	if(sourceOpts->hostName != 0)
 	{
 		tempLen = (strlen(sourceOpts->hostName)+1)*sizeof(char);
@@ -146,6 +134,32 @@ RTR_C_INLINE RsslRet rsslDeepCopyConnectOpts(RsslConnectOptions *destOpts, RsslC
 
 		strncpy(destOpts->connectionInfo.segmented.sendServiceName, sourceOpts->connectionInfo.segmented.sendServiceName, tempLen);
 	}
+	
+	if (sourceOpts->proxyOpts.proxyHostName != 0)
+	{
+		tempLen = (strlen(sourceOpts->proxyOpts.proxyHostName)+1)*sizeof(char);
+		destOpts->proxyOpts.proxyHostName = (char*)malloc(tempLen);
+
+		if (destOpts->proxyOpts.proxyHostName == 0)
+		{
+			return RSSL_RET_FAILURE;
+		}
+
+		strncpy(destOpts->proxyOpts.proxyHostName, sourceOpts->proxyOpts.proxyHostName, tempLen);
+	}
+	
+	if (sourceOpts->proxyOpts.proxyPort != 0)
+	{
+		tempLen = (strlen(sourceOpts->proxyOpts.proxyPort)+1)*sizeof(char);
+		destOpts->proxyOpts.proxyPort = (char*)malloc(tempLen);
+
+		if (destOpts->proxyOpts.proxyPort == 0)
+		{
+			return RSSL_RET_FAILURE;
+		}
+
+		strncpy(destOpts->proxyOpts.proxyPort, sourceOpts->proxyOpts.proxyPort, tempLen);
+	}
 
 	if (sourceOpts->componentVersion != 0)
 	{
@@ -159,12 +173,60 @@ RTR_C_INLINE RsslRet rsslDeepCopyConnectOpts(RsslConnectOptions *destOpts, RsslC
 
 		strncpy(destOpts->componentVersion, sourceOpts->componentVersion, tempLen);
 	}
-	destOpts->tcpOpts.tcp_nodelay = sourceOpts->tcpOpts.tcp_nodelay;
+	
+	if (sourceOpts->multicastOpts.hsmInterface != 0)
+	{
+		tempLen = (strlen(sourceOpts->multicastOpts.hsmInterface)+1)*sizeof(char);
+		destOpts->multicastOpts.hsmInterface = (char*)malloc(tempLen);
 
-	destOpts->multicastOpts = sourceOpts->multicastOpts;
+		if (destOpts->multicastOpts.hsmInterface == 0)
+		{
+			return RSSL_RET_FAILURE;
+		}
 
-	destOpts->shmemOpts.maxReaderLag = sourceOpts->shmemOpts.maxReaderLag;
+		strncpy(destOpts->multicastOpts.hsmInterface, sourceOpts->multicastOpts.hsmInterface, tempLen);
+	}
+	
+	if (sourceOpts->multicastOpts.hsmMultAddress != 0)
+	{
+		tempLen = (strlen(sourceOpts->multicastOpts.hsmMultAddress)+1)*sizeof(char);
+		destOpts->multicastOpts.hsmMultAddress = (char*)malloc(tempLen);
 
+		if (destOpts->multicastOpts.hsmMultAddress == 0)
+		{
+			return RSSL_RET_FAILURE;
+		}
+
+		strncpy(destOpts->multicastOpts.hsmMultAddress, sourceOpts->multicastOpts.hsmMultAddress, tempLen);
+	}
+	
+	if (sourceOpts->multicastOpts.hsmPort != 0)
+	{
+		tempLen = (strlen(sourceOpts->multicastOpts.hsmPort)+1)*sizeof(char);
+		destOpts->multicastOpts.hsmPort = (char*)malloc(tempLen);
+
+		if (destOpts->multicastOpts.hsmPort == 0)
+		{
+			return RSSL_RET_FAILURE;
+		}
+
+		strncpy(destOpts->multicastOpts.hsmPort, sourceOpts->multicastOpts.hsmPort, tempLen);
+	}
+	
+	if (sourceOpts->multicastOpts.tcpControlPort != 0)
+	{
+		tempLen = (strlen(sourceOpts->multicastOpts.tcpControlPort)+1)*sizeof(char);
+		destOpts->multicastOpts.tcpControlPort = (char*)malloc(tempLen);
+
+		if (destOpts->multicastOpts.tcpControlPort == 0)
+		{
+			return RSSL_RET_FAILURE;
+		}
+
+		strncpy(destOpts->multicastOpts.tcpControlPort, sourceOpts->multicastOpts.tcpControlPort, tempLen);
+	}
+	
+	
 	return RSSL_RET_SUCCESS;
 }
 
@@ -213,6 +275,41 @@ RTR_C_INLINE void rsslFreeConnectOpts(RsslConnectOptions *connOpts)
 	if(connOpts->connectionInfo.segmented.sendServiceName != 0)
 	{
 		free(connOpts->connectionInfo.segmented.sendServiceName);
+	}
+	
+	if(connOpts->componentVersion != 0)
+	{
+		free(connOpts->componentVersion);
+	}
+	
+	if(connOpts->proxyOpts.proxyHostName != 0)
+	{
+		free(connOpts->proxyOpts.proxyHostName);
+	}
+	
+	if(connOpts->proxyOpts.proxyPort != 0)
+	{
+		free(connOpts->proxyOpts.proxyPort);
+	}
+	
+	if(connOpts->multicastOpts.hsmInterface != 0)
+	{
+		free(connOpts->multicastOpts.hsmInterface);
+	}
+	
+	if(connOpts->multicastOpts.hsmMultAddress != 0)
+	{
+		free(connOpts->multicastOpts.hsmMultAddress);
+	}
+	
+	if(connOpts->multicastOpts.hsmPort != 0)
+	{
+		free(connOpts->multicastOpts.hsmPort);
+	}
+	
+	if(connOpts->multicastOpts.tcpControlPort != 0)
+	{
+		free(connOpts->multicastOpts.tcpControlPort);
 	}
 
 	memset(connOpts, 0, sizeof(RsslConnectOptions));
