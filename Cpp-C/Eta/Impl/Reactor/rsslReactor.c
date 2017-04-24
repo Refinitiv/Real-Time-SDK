@@ -1220,7 +1220,7 @@ RSSL_VA_API RsslRet rsslReactorSubmit(RsslReactor *pReactor, RsslReactorChannel 
 
 }
 
-static RsslUInt32 _reactorMsgEncodedSize(RsslMsg *pMsg)
+RsslUInt32 _reactorMsgEncodedSize(RsslMsg *pMsg)
 {
 	RsslUInt32 msgSize = 128;
 	const RsslMsgKey *pKey;

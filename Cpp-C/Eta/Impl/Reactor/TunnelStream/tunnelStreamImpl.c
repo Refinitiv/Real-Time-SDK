@@ -475,7 +475,7 @@ RsslRet tunnelStreamSubmitMsg(RsslTunnelStream *pTunnel,
 		return RSSL_RET_INVALID_ARGUMENT;
 	}
 
-	/* Handling an RDMMsg (either submitted as one or decoded from an RsslMsg). */
+	/* Handling an RDMMsg (either submitted as one or decoded from an RsslMsg that's a queue message). */
 	if (pRdmMsg != NULL)
 	{
 		if (isQueueMsg)
@@ -617,11 +617,47 @@ RsslRet tunnelStreamSubmitMsg(RsslTunnelStream *pTunnel,
 			return RSSL_RET_SUCCESS;
 		}
 	}
-	else
+	else // RsslMsg that's not a queue message
 	{
-		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, 
-				__FILE__, __LINE__, "No message provided.");
-		return RSSL_RET_INVALID_ARGUMENT;
+		// get encoded message size estimate
+		RsslUInt32 bufLength = _reactorMsgEncodedSize(pOpts->pRsslMsg);
+
+		// get buffer of estimated size
+		TunnelBufferImpl *pBufferImpl = tunnelStreamGetBuffer(pTunnelImpl, bufLength, RSSL_FALSE, RSSL_FALSE, pErrorInfo);
+
+		if (pBufferImpl != NULL)
+		{
+			RsslEncodeIterator eIter;
+			RsslRet ret;
+
+			// set encode iterator buffer
+			rsslClearEncodeIterator(&eIter);
+			rsslSetEncodeIteratorRWFVersion(&eIter, pReactorChannel->majorVersion, pReactorChannel->minorVersion);
+			rsslSetEncodeIteratorBuffer(&eIter, &pBufferImpl->_poolBuffer.buffer);
+
+			// encode message into buffer
+			if ((ret = rsslEncodeMsg(&eIter, pOpts->pRsslMsg)) == RSSL_RET_SUCCESS)
+			{
+				RsslTunnelStreamSubmitOptions submitOptions;
+				rsslClearTunnelStreamSubmitOptions(&submitOptions);
+
+				// submit encoded buffer
+				submitOptions.containerType = RSSL_DT_MSG;
+				pBufferImpl->_poolBuffer.buffer.length = rsslGetEncodedBufferLength(&eIter);
+				if ((ret = tunnelStreamSubmitBuffer(pTunnel, &pBufferImpl->_poolBuffer.buffer, &submitOptions, pErrorInfo)) < RSSL_RET_SUCCESS)
+				{
+					return ret;
+				}
+			}
+			else
+			{
+				return ret;
+			}
+		}
+		else
+		{
+			return pErrorInfo->rsslError.rsslErrorId;
+		}
 	}
 
 	if (pTunnelImpl->_tunnelBufferTransmitList.count > 0)

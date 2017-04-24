@@ -329,6 +329,9 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl);
 /* Write reactor thread function */
 RSSL_THREAD_DECLARE(runReactorWorker, pArg);
 
+/* Estimate encoded message size. */
+RsslUInt32 _reactorMsgEncodedSize(RsslMsg *pMsg);
+
 #ifdef __cplusplus
 };
 #endif
