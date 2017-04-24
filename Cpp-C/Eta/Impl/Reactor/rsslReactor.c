@@ -9,6 +9,7 @@
 #include "rtr/rsslReactorEventsImpl.h"
 #include "rtr/rsslWatchlist.h"
 #include "rtr/tunnelStreamImpl.h"
+#include "rtr/msgQueueEncDec.h"
 
 #include <assert.h>
 #ifdef _WIN32
@@ -3184,7 +3185,7 @@ RSSL_VA_API RsslRet rsslReactorOpenTunnelStream(RsslReactorChannel *pReactorChan
 	if ((ret = reactorLockInterface(pReactorImpl, RSSL_TRUE, pError)) != RSSL_RET_SUCCESS)
 		return ret;
 
-	if ((pTunnelStream = tunnelManagerOpenStream(pReactorChannelImpl->pTunnelManager, pOptions, RSSL_FALSE, NULL, pError)) == NULL)
+	if ((pTunnelStream = tunnelManagerOpenStream(pReactorChannelImpl->pTunnelManager, pOptions, RSSL_FALSE, NULL, COS_CURRENT_STREAM_VERSION, pError)) == NULL)
 		return (reactorUnlockInterface(pReactorImpl), pError->rsslError.rsslErrorId);
 
 	pTunnelStream->pReactorChannel = pReactorChannel;

@@ -140,6 +140,7 @@ librsslReactor_src = \
 	Reactor/rsslReactor.c \
 	Reactor/rsslReactorWorker.c \
 	Reactor/TunnelStream/bufferPool.c \
+	Reactor/TunnelStream/bigBufferPool.c \
 	Reactor/TunnelStream/tunnelManager.c \
 	Reactor/TunnelStream/msgQueueEncDec.c \
 	Reactor/TunnelStream/persistFile.c \

@@ -45,6 +45,9 @@
 		<ClCompile Include="Reactor\TunnelStream\bufferPool.c">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+		<ClCompile Include="Reactor\TunnelStream\bigBufferPool.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 		<ClCompile Include="Reactor\TunnelStream\tunnelManager.c">
 			<Filter>Source Files</Filter>
 		</ClCompile>
@@ -163,6 +166,9 @@
 			<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Reactor\TunnelStream\rtr\bufferPool.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Reactor\TunnelStream\rtr\bigBufferPool.h">
 			<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Reactor\TunnelStream\rtr\msgQueueEncDec.h">

@@ -263,7 +263,7 @@ typedef struct
 												 * If initialization does not complete in time, a RsslReactorChannelEvent will be sent indicating that the channel is down. */
 } RsslReactorConnectInfo;
 
-RTR_C_INLINE void rsslClearReactorConnectInfo(RsslReactorConnectInfo* pInfo)
+RTR_C_INLINE void rsslClearReactorConnectInfo(RsslReactorConnectInfo *pInfo)
 {
 	rsslClearConnectOpts(&pInfo->rsslConnectOptions);
 	pInfo->initializationTimeout = 60;
