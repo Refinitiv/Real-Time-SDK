@@ -694,7 +694,7 @@ int main(int argc, char **argv)
 
 			// send login reissue if login reissue time has passed
 			if (canSendLoginReissue == RSSL_TRUE &&
-				currentTime >= loginReissueTime)
+				currentTime >= (RsslInt)loginReissueTime)
 			{
 				isLoginReissue = RSSL_TRUE;
 				if (sendLoginRequest(rsslConsumerChannel, "rsslConsumer", RSSL_CONSUMER, &loginSuccessCallBack) != RSSL_RET_SUCCESS)
