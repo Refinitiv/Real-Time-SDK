@@ -711,7 +711,7 @@ int main(int argc, char **argv)
 
 		// send login reissue if login reissue time has passed
 		if (chnlCommand.canSendLoginReissue == RSSL_TRUE &&
-			currentTime >= chnlCommand.loginReissueTime)
+			currentTime >= (RsslInt)chnlCommand.loginReissueTime)
 		{
 			RsslReactorSubmitMsgOptions submitMsgOpts;
 			RsslErrorInfo rsslErrorInfo;
