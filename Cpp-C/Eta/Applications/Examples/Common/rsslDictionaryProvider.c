@@ -414,7 +414,7 @@ static RsslRet encodeEnumTypeDictionaryResponse(RsslChannel* chnl, RsslDictionar
 	snprintf(stateText, MAX_DICTIONARY_REQ_INFO_STRLEN, "Enum Type Dictionary Refresh (starting fid %d)", *dictionaryFid);
 	msg.state.text.data = stateText;
 	msg.state.text.length = (RsslUInt32)strlen(stateText) + 1;
-	
+
 	/* DictionaryName */
 	msg.msgBase.msgKey.name.data = dictionaryReqInfo->DictionaryName;
 	msg.msgBase.msgKey.name.length = (RsslUInt32)strlen(dictionaryReqInfo->DictionaryName);
@@ -440,8 +440,8 @@ static RsslRet encodeEnumTypeDictionaryResponse(RsslChannel* chnl, RsslDictionar
 		if (ret != RSSL_RET_DICT_PART_ENCODED)
 		{
 			printf("rsslEncodeEnumTypeDictionaryAsMultiPart() failed '%s'\n", errorText.data);
-		return ret;
-	}
+			return ret;
+		}
 	}
 	else /* dictionary encode complete */
 	{
@@ -460,8 +460,8 @@ static RsslRet encodeEnumTypeDictionaryResponse(RsslChannel* chnl, RsslDictionar
 
 	if (dictionaryComplete)
 	{
-	return RSSL_RET_SUCCESS;
-}
+		return RSSL_RET_SUCCESS;
+	}
 	else
 	{
 		return RSSL_RET_DICT_PART_ENCODED;
@@ -652,25 +652,25 @@ static RsslRet sendEnumTypeDictionaryResponse(RsslChannel* chnl, RsslDictionaryR
 
 	while (RSSL_TRUE)
 	{
-	/* get a buffer for the dictionary response */
-	msgBuf = rsslGetBuffer(chnl, MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE, RSSL_FALSE, &error);
+		/* get a buffer for the dictionary response */
+		msgBuf = rsslGetBuffer(chnl, MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE, RSSL_FALSE, &error);
 
-	if (msgBuf != NULL)
-	{
-		/* encode dictionary response */
-			ret = encodeEnumTypeDictionaryResponse(chnl, dictionaryReqInfo, &dictionaryFid, msgBuf, firstPart);
-		if (ret < RSSL_RET_SUCCESS)
+		if (msgBuf != NULL)
 		{
-			rsslReleaseBuffer(msgBuf, &error); 
-			printf("\nencodeEnumTypeDictionaryResponse() failed with return code: %d\n", ret);
-			return ret;
-		}
+			/* encode dictionary response */
+			ret = encodeEnumTypeDictionaryResponse(chnl, dictionaryReqInfo, &dictionaryFid, msgBuf, firstPart);
+			if (ret < RSSL_RET_SUCCESS)
+			{
+				rsslReleaseBuffer(msgBuf, &error);
+				printf("\nencodeEnumTypeDictionaryResponse() failed with return code: %d\n", ret);
+				return ret;
+			}
 
 			firstPart = RSSL_FALSE;
 
-		/* send dictionary response */
-		if (sendMessage(chnl, msgBuf) != RSSL_RET_SUCCESS)
-			return RSSL_RET_FAILURE;
+			/* send dictionary response */
+			if (sendMessage(chnl, msgBuf) != RSSL_RET_SUCCESS)
+				return RSSL_RET_FAILURE;
 
 			/* break out of loop when all dictionary responses sent */
 			if (ret == RSSL_RET_SUCCESS)
@@ -687,12 +687,12 @@ static RsslRet sendEnumTypeDictionaryResponse(RsslChannel* chnl, RsslDictionaryR
 			sleeptime.tv_nsec = 1000000;
 			nanosleep(&sleeptime, 0);
 #endif
-	}
-	else
-	{
-		printf("rsslGetBuffer(): Failed <%s>\n", error.text);
-		return RSSL_RET_FAILURE;
-	}
+		}
+		else
+		{
+			printf("rsslGetBuffer(): Failed <%s>\n", error.text);
+			return RSSL_RET_FAILURE;
+		}
 	}
 
 	return RSSL_RET_SUCCESS;
