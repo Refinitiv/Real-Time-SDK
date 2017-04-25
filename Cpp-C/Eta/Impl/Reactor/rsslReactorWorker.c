@@ -18,7 +18,7 @@
 #include <unistd.h>
 #endif
 
-/* Default select timeout in milliseconds if the worker thread is not waiting on a new ping, reconnection, or connection timeout event. */
+/* Default notification timeout in milliseconds if the worker thread is not waiting on a new ping, reconnection, or connection timeout event. */
 static const int defaultSelectTimeoutMs = 5000;
 
 /* A factor for how long the worker thread should wait to send a ping() with regard to each channel's ping timeout. 
@@ -41,7 +41,7 @@ RsslRet _reactorWorkerHandleChannelFailure(RsslReactorImpl *pReactorImpl, RsslRe
 /* Handles a successfully initialized channel */
 RsslRet _reactorWorkerProcessChannelUp(RsslReactorImpl *pReactorImpl, RsslReactorChannelImpl *pReactorChannel);
 
-/* Recalculate the "ping interval." It is the maximum time the worker will block in select(), since it must check for pings
+/* Recalculate the "ping interval." It is the maximum time the worker wait for notification, since it must check for pings
  * it may need to send. */
 static void _reactorWorkerCalculateNextTimeout(RsslReactorImpl *pReactorImpl, RsslUInt32 newPingTimeoutSeconds);
 
@@ -79,52 +79,32 @@ RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOpti
 	rsslInitQueue(&pReactorImpl->reactorWorker.inactiveChannels);
 	rsslInitQueue(&pReactorImpl->reactorWorker.reconnectingChannels);
 
-	if ((pReactorWorker->readFds = (fd_set*)malloc(pReactorImpl->fdSetSizeInBytes)) == NULL)
+	pReactorImpl->reactorWorker.pNotifier = rsslCreateNotifier(1024);
+	if (pReactorImpl->reactorWorker.pNotifier == NULL)
 	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to allocate memory.");
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to initialize notifier.");
 		return RSSL_RET_FAILURE;
 	}
-
-	if ((pReactorWorker->writeFds = (fd_set*)malloc(pReactorImpl->fdSetSizeInBytes)) == NULL)
-	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to allocate memory.");
-		return RSSL_RET_FAILURE;
-	}
-
-	if ((pReactorWorker->exceptFds = (fd_set*)malloc(pReactorImpl->fdSetSizeInBytes)) == NULL)
-	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to allocate memory.");
-		return RSSL_RET_FAILURE;
-	}
-
-	if ((pReactorWorker->useReadFds = (fd_set*)malloc(pReactorImpl->fdSetSizeInBytes)) == NULL)
-	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to allocate memory.");
-		return RSSL_RET_FAILURE;
-	}
-
-	if ((pReactorWorker->useWriteFds = (fd_set*)malloc(pReactorImpl->fdSetSizeInBytes)) == NULL)
-	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to allocate memory.");
-		return RSSL_RET_FAILURE;
-	}
-
-	if ((pReactorWorker->useExceptFds = (fd_set*)malloc(pReactorImpl->fdSetSizeInBytes)) == NULL)
-	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to allocate memory.");
-		return RSSL_RET_FAILURE;
-	}
-
-	memset(pReactorWorker->readFds, 0, pReactorImpl->fdSetSizeInBytes);
-	memset(pReactorWorker->writeFds, 0, pReactorImpl->fdSetSizeInBytes);
-	memset(pReactorWorker->exceptFds, 0, pReactorImpl->fdSetSizeInBytes);
-	memset(pReactorWorker->useReadFds, 0, pReactorImpl->fdSetSizeInBytes);
-	memset(pReactorWorker->useWriteFds, 0, pReactorImpl->fdSetSizeInBytes);
-	memset(pReactorWorker->useExceptFds, 0, pReactorImpl->fdSetSizeInBytes);
 
 	eventQueueFd = rsslGetEventQueueGroupSignalFD(&pReactorImpl->reactorWorker.activeEventQueueGroup);
-	FD_SET(eventQueueFd, pReactorImpl->reactorWorker.readFds);
-	FD_SET(eventQueueFd, pReactorImpl->reactorWorker.exceptFds);
+	if ((pReactorWorker->pQueueNotifierEvent = rsslCreateNotifierEvent()) == NULL)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to create event queue notifier event.");
+		return RSSL_RET_FAILURE;
+	}
+
+	if (rsslNotifierAddEvent(pReactorWorker->pNotifier, pReactorWorker->pQueueNotifierEvent, eventQueueFd, &pReactorWorker->workerQueue) < 0)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to add event queue notifier event.");
+		return RSSL_RET_FAILURE;
+	}
+
+	if (rsslNotifierRegisterRead(pReactorWorker->pNotifier, pReactorWorker->pQueueNotifierEvent) < 0)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to register event queue notifier event for reading.");
+		return RSSL_RET_FAILURE;
+	}
+
 
 	/* Start write reactor thread */
 	if (RSSL_THREAD_START(&pReactorImpl->reactorWorker.thread, runReactorWorker, pReactorImpl) < 0)
@@ -150,6 +130,10 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		RsslReactorChannelImpl *pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
 		_rsslChannelFreeConnectionList(pReactorChannel);
 		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
+		if (pReactorChannel->pNotifierEvent)
+			rsslDestroyNotifierEvent(pReactorChannel->pNotifierEvent);
+		if (pReactorChannel->pWorkerNotifierEvent)
+			rsslDestroyNotifierEvent(pReactorChannel->pWorkerNotifierEvent);
 		free(pReactorChannel);
 	}
 	while (pLink = rsslQueueRemoveFirstLink(&pReactorImpl->initializingChannels))
@@ -159,6 +143,10 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
 		if (pReactorChannel->pWatchlist)
 			rsslWatchlistDestroy(pReactorChannel->pWatchlist);
+		if (pReactorChannel->pNotifierEvent)
+			rsslDestroyNotifierEvent(pReactorChannel->pNotifierEvent);
+		if (pReactorChannel->pWorkerNotifierEvent)
+			rsslDestroyNotifierEvent(pReactorChannel->pWorkerNotifierEvent);
 		free(pReactorChannel);
 	}
 	while (pLink = rsslQueueRemoveFirstLink(&pReactorImpl->activeChannels))
@@ -168,6 +156,10 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
 		if (pReactorChannel->pWatchlist)
 			rsslWatchlistDestroy(pReactorChannel->pWatchlist);
+		if (pReactorChannel->pNotifierEvent)
+			rsslDestroyNotifierEvent(pReactorChannel->pNotifierEvent);
+		if (pReactorChannel->pWorkerNotifierEvent)
+			rsslDestroyNotifierEvent(pReactorChannel->pWorkerNotifierEvent);
 		free(pReactorChannel);
 	}
 	while (pLink = rsslQueueRemoveFirstLink(&pReactorImpl->inactiveChannels))
@@ -177,6 +169,10 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
 		if (pReactorChannel->pWatchlist)
 			rsslWatchlistDestroy(pReactorChannel->pWatchlist);
+		if (pReactorChannel->pNotifierEvent)
+			rsslDestroyNotifierEvent(pReactorChannel->pNotifierEvent);
+		if (pReactorChannel->pWorkerNotifierEvent)
+			rsslDestroyNotifierEvent(pReactorChannel->pWorkerNotifierEvent);
 		free(pReactorChannel);
 	}
 	while (pLink = rsslQueueRemoveFirstLink(&pReactorImpl->closingChannels))
@@ -186,6 +182,10 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
 		if (pReactorChannel->pWatchlist)
 			rsslWatchlistDestroy(pReactorChannel->pWatchlist);
+		if (pReactorChannel->pNotifierEvent)
+			rsslDestroyNotifierEvent(pReactorChannel->pNotifierEvent);
+		if (pReactorChannel->pWorkerNotifierEvent)
+			rsslDestroyNotifierEvent(pReactorChannel->pWorkerNotifierEvent);
 		free(pReactorChannel);
 	}
 	while (pLink = rsslQueueRemoveFirstLink(&pReactorImpl->reconnectingChannels))
@@ -195,41 +195,27 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
 		if (pReactorChannel->pWatchlist)
 			rsslWatchlistDestroy(pReactorChannel->pWatchlist);
+		if (pReactorChannel->pNotifierEvent)
+			rsslDestroyNotifierEvent(pReactorChannel->pNotifierEvent);
+		if (pReactorChannel->pWorkerNotifierEvent)
+			rsslDestroyNotifierEvent(pReactorChannel->pWorkerNotifierEvent);
 		free(pReactorChannel);
 	}
 
-	if (pReactorImpl->readFds)
-		free(pReactorImpl->readFds);
+	if (pReactorImpl->pNotifier)
+		rsslDestroyNotifier(pReactorImpl->pNotifier);
 
-	if (pReactorImpl->exceptFds)
-		free(pReactorImpl->exceptFds);
+	if (pReactorWorker->pNotifier)
+		rsslDestroyNotifier(pReactorWorker->pNotifier);
 
-	if (pReactorImpl->useReadFds)
-		free(pReactorImpl->useReadFds);
+	if (pReactorImpl->pQueueNotifierEvent)
+		rsslDestroyNotifierEvent(pReactorImpl->pQueueNotifierEvent);
 
-	if (pReactorImpl->useExceptFds)
-		free(pReactorImpl->useExceptFds);
+	if (pReactorWorker->pQueueNotifierEvent)
+		rsslDestroyNotifierEvent(pReactorWorker->pQueueNotifierEvent);
 
 	if (pReactorImpl->memoryBuffer.data)
 		free(pReactorImpl->memoryBuffer.data);
-
-	if (pReactorWorker->readFds)
-		free(pReactorWorker->readFds);
-
-	if (pReactorWorker->writeFds)
-		free(pReactorWorker->writeFds);
-
-	if (pReactorWorker->exceptFds)
-		free(pReactorWorker->exceptFds);
-
-	if (pReactorWorker->useReadFds)
-		free(pReactorWorker->useReadFds);
-
-	if (pReactorWorker->useWriteFds)
-		free(pReactorWorker->useWriteFds);
-
-	if (pReactorWorker->useExceptFds)
-		free(pReactorWorker->useExceptFds);
 
 	RSSL_MUTEX_DESTROY(&pReactorImpl->interfaceLock);
 	free(pReactorImpl);
@@ -248,9 +234,8 @@ RsslRet _reactorWorkerProcessChannelUp(RsslReactorImpl *pReactorImpl, RsslReacto
 	/* Initialization succeeded. Send channel up event. */
 
 	/* Remove read fd -- from now on the worker thread should mainly handle flushing */
-	FD_CLR(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->readFds);
-	FD_CLR(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->writeFds);
-	FD_CLR(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->exceptFds);
+	rsslNotifierUnregisterRead(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent);
+	rsslNotifierUnregisterWrite(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent);
 
 	_reactorWorkerMoveChannel(&pReactorWorker->activeChannels, pReactorChannel);
 	_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor));
@@ -284,9 +269,12 @@ RsslRet _reactorWorkerHandleChannelFailure(RsslReactorImpl *pReactorImpl, RsslRe
 	if(pReactorChannel->reactorChannel.pRsslChannel != 0 &&
 	   pReactorChannel->reactorChannel.pRsslChannel->socketId != REACTOR_INVALID_SOCKET)
 	{
-		FD_CLR(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->readFds);
-		FD_CLR(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->exceptFds);
-		FD_CLR(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->writeFds);
+		if (rsslNotifierRemoveEvent(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent) < 0)
+		{
+			rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
+					"Failed to remove channel from notifier.");
+			return RSSL_RET_FAILURE;
+		}
 	}
 
 	_reactorWorkerMoveChannel(&pReactorImpl->reactorWorker.inactiveChannels, pReactorChannel);
@@ -374,344 +362,354 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 		RsslReactorChannelImpl *pReactorChannel;
 		RsslQueueLink *pLink;
 
-		struct timeval selectTime;
-		memcpy(pReactorWorker->useReadFds, pReactorWorker->readFds, pReactorImpl->fdSetSizeInBytes);
-		memcpy(pReactorWorker->useWriteFds, pReactorWorker->writeFds, pReactorImpl->fdSetSizeInBytes);
-		memcpy(pReactorWorker->useExceptFds, pReactorWorker->exceptFds, pReactorImpl->fdSetSizeInBytes);
-
-		selectTime.tv_sec = pReactorWorker->sleepTimeMs / 1000;
-		selectTime.tv_usec = (pReactorWorker->sleepTimeMs - (selectTime.tv_sec * 1000)) * 1000;
-
-		ret = select(pReactorImpl->fdSetSize, pReactorWorker->useReadFds, pReactorWorker->useWriteFds, pReactorWorker->useExceptFds, &selectTime);
+		ret = rsslNotifierWait(pReactorWorker->pNotifier, pReactorWorker->sleepTimeMs * 1000);
 
 		pReactorWorker->lastRecordedTimeMs = getCurrentTimeMs(pReactorImpl->ticksPerMsec);
 
 
 		if (ret > 0)
 		{
-			RSSL_QUEUE_FOR_EACH_LINK(&pReactorWorker->initializingChannels, pLink)
+			int i;
+
+			for (i = 0; i < pReactorWorker->pNotifier->notifiedEventCount; ++i)
 			{
-				pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, workerLink, pLink);
-
-				if (FD_ISSET(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->useReadFds) ||
-					FD_ISSET(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->useWriteFds) ||
-					FD_ISSET(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->useExceptFds))
+				RsslNotifierEvent *pNotifierEvent = pReactorWorker->pNotifier->notifiedEvents[i];
+				void *object = rsslNotifierEventGetObject(pNotifierEvent);
+				if (object == &pReactorWorker->workerQueue)
 				{
-					RsslInProgInfo inProg = RSSL_INIT_IN_PROG_INFO;
-
-					/* Write descriptor is set initially in case this end starts the message hanshakes that rsslInitChannel() performs. 
-					 * Once rsslInitChannel() is called for the first time the channel can wait on the read descriptor for more messages.  
-					 * We will set the write descriptor again if an FD_CHANGE event occurs. */
-					FD_CLR(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->writeFds);
-					ret = rsslInitChannel(pReactorChannel->reactorChannel.pRsslChannel, &inProg, &pReactorChannel->channelWorkerCerr.rsslError);
-
-
-					switch(ret)
+					RsslReactorEventImpl *pEvent;
+					/* Message in event queue */
+					if ((pEvent = rsslReactorEventQueueGet(pEventQueue, &ret)))
 					{
-						case RSSL_RET_CHAN_INIT_IN_PROGRESS:
-							{
-								if (inProg.flags & RSSL_IP_FD_CHANGE)
+						switch(pEvent->base.eventType)
+						{
+							case RSSL_RCIMPL_ET_CHANNEL:
 								{
-									/* File descriptor changed. Update descriptor set.
-									 * No need to send an event back -- the application will only get the descriptors when we're done initializing. */
-									FD_CLR(inProg.oldSocket, pReactorWorker->exceptFds);
-									FD_CLR(inProg.oldSocket, pReactorWorker->readFds);
+									RsslReactorChannelEventImpl *pConnEvent = &pEvent->channelEventImpl;
+									pReactorChannel = (RsslReactorChannelImpl*)pConnEvent->channelEvent.pReactorChannel;
 
-									FD_SET(inProg.newSocket, pReactorWorker->readFds);
-									FD_SET(inProg.newSocket, pReactorWorker->exceptFds);
-									FD_SET(inProg.newSocket, pReactorWorker->writeFds);
+									switch(pConnEvent->channelEvent.channelEventType)
+									{
+										case RSSL_RCIMPL_CET_NEW_CHANNEL:
+											{
+												if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerProcessNewChannel(pReactorImpl, pReactorChannel) == RSSL_RET_SUCCESS, ret, &pReactorWorker->workerCerr))
+													return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+												break;
+											}
+										case RSSL_RC_CET_CHANNEL_DOWN:
+											{
+												if(pReactorChannel->reactorChannel.pRsslChannel != 0)
+												{
+													/* Make sure descriptors are cleared */
+													if (pReactorChannel->reactorChannel.pRsslChannel->socketId != REACTOR_INVALID_SOCKET)
+													{
+														if (rsslNotifierRemoveEvent(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent) < 0)
+														{
+															rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
+																	"Failed to remove channel from notifier.");
+															return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+														}
+													}
+												}
+
+												/* Remove channel from worker's list */
+												_reactorWorkerMoveChannel(&pReactorWorker->inactiveChannels, pReactorChannel);
+												pReactorChannel->lastPingSentMs = 0;
+
+												break;
+											}
+										case RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING:
+											{
+												_reactorWorkerMoveChannel(&pReactorImpl->reactorWorker.reconnectingChannels, pReactorChannel);
+												pReactorChannel->lastPingSentMs = 0;
+
+												if(pReactorChannel->reactorChannel.pRsslChannel != 0)
+												{
+													/* Make sure descriptors are cleared */
+													if (rsslNotifierRemoveEvent(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent) < 0)
+													{
+														rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
+																"Failed to remove channel from notifier.");
+														return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+													}
+
+													pReactorChannel->reactorChannel.socketId = (RsslSocket)REACTOR_INVALID_SOCKET;
+
+													/* Close the channel */
+													/* TODO: Error check? */
+													rsslCloseChannel(pReactorChannel->reactorChannel.pRsslChannel, &(pReactorChannel->channelWorkerCerr.rsslError));
+													pReactorChannel->reactorChannel.pRsslChannel = 0;
+												}
+
+												if(pReactorChannel->reconnectAttemptCount == 0)
+												{
+													pReactorChannel->reconnectDelay = pReactorChannel->reconnectMinDelay;
+
+												}
+												else
+												{
+													pReactorChannel->reconnectDelay = 2 * pReactorChannel->reconnectDelay;
+
+													if(pReactorChannel->reconnectDelay > pReactorChannel->reconnectMaxDelay)
+														pReactorChannel->reconnectDelay = pReactorChannel->reconnectMaxDelay;
+												}
+
+												pReactorChannel->reconnectAttemptCount++;
+
+												pReactorChannel->lastReconnectAttemptMs = pReactorImpl->reactorWorker.lastRecordedTimeMs;
+
+												_reactorWorkerCalculateNextTimeout(pReactorImpl, pReactorChannel->reconnectDelay);
+
+												break;
+
+											}
+										case RSSL_RCIMPL_CET_CLOSE_CHANNEL:
+											{
+												RsslReactorChannelEventImpl *pEvent = (RsslReactorChannelEventImpl*)rsslReactorEventQueueGetFromPool(&pReactorChannel->eventQueue);
+												RsslRet ret;
+
+												if ((pReactorChannel->workerParentList != &pReactorWorker->inactiveChannels) && (pReactorChannel->reactorChannel.pRsslChannel != NULL))
+												{
+													/* Make sure descriptors are cleared */
+													if (rsslNotifierRemoveEvent(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent) < 0)
+													{
+														rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
+																"Failed to remove channel from notifier.");
+														return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+													}
+												}
+
+												/* Close RSSL channel if present. */
+												if (pReactorChannel->reactorChannel.pRsslChannel)
+												{
+													if (!RSSL_ERROR_INFO_CHECK((ret = rsslCloseChannel(pReactorChannel->reactorChannel.pRsslChannel, &pReactorWorker->workerCerr.rsslError)) >= RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+													{
+														rsslSetErrorInfoLocation(&pReactorChannel->channelWorkerCerr, __FILE__, __LINE__);
+														return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+													}
+												}
+
+												/* Free connection list */
+												if(pReactorChannel->connectionOptList)
+												{
+													_rsslChannelFreeConnectionList(pReactorChannel);
+												}
+
+												_reactorWorkerMoveChannel(NULL, pReactorChannel);
+
+												/* Acknowledge that this channel has been closed. */
+												rsslClearReactorChannelEventImpl((RsslReactorChannelEventImpl*)pEvent);
+												pEvent->channelEvent.channelEventType = (RsslReactorChannelEventType)RSSL_RCIMPL_CET_CLOSE_CHANNEL_ACK;
+												pEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
+												pEvent->channelEvent.pError = pConnEvent->channelEvent.pError;
+												if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->eventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+													return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+											}
+											break;
+										default:
+											rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
+													"Unknown channel event type %d", pConnEvent->channelEvent.channelEventType);
+											return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+									}
+
+									break;
 								}
 
-								break;
-							}
+							case RSSL_RCIMPL_ET_FLUSH:
+								{
+									RsslReactorFlushEvent *pFlushEvent = &pEvent->flushEvent;
 
-						case RSSL_RET_SUCCESS:
-							{
-								if (_reactorWorkerProcessChannelUp(pReactorImpl, pReactorChannel) != RSSL_RET_SUCCESS)
-									return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
-								/* Channel is now active. Clear descriptor so we don't think we need to flush right away */
-								FD_CLR(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->useWriteFds);
-								break;
-							}
+									switch(pFlushEvent->flushEventType)
+									{
+										case RSSL_RCIMPL_FET_START_FLUSH:
+											pReactorChannel = (RsslReactorChannelImpl*)pFlushEvent->pReactorChannel;
+											if (pReactorChannel->reactorChannel.pRsslChannel != NULL && pReactorChannel->reactorChannel.pRsslChannel->socketId != REACTOR_INVALID_SOCKET)
+											{
+												if (rsslNotifierRegisterWrite(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent) < 0)
+												{
+													rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
+															"Failed to register write notification for flushing channel.");
+													return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+												}
+											}
+											break;
+										default:
+											rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
+													"Unknown flush event type %d", pFlushEvent->flushEventType);
+											return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+									}
+									break;
+								}
 
-						default:
-							{
-								/* Error */
-								rsslSetErrorInfoLocation(&pReactorChannel->channelWorkerCerr, __FILE__, __LINE__);
-								if (_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) != RSSL_RET_SUCCESS)
+							case RSSL_RCIMPL_ET_TIMER:
+								{
+									RsslReactorTimerEvent *pTimerEvent = &pEvent->timerEvent;
+									((RsslReactorChannelImpl*)pTimerEvent->pReactorChannel)->nextExpireTime = pTimerEvent->expireTime;
+									break;
+								}
+
+							case RSSL_RCIMPL_ET_REACTOR:
+								{
+									RsslReactorStateEvent *pReactorEvent = &pEvent->reactorEvent;
+
+									switch(pReactorEvent->reactorEventType)
+									{
+										case RSSL_RCIMPL_STET_SHUTDOWN:
+											_reactorWorkerHandleShutdownRequest(pReactorImpl, pReactorEvent->pErrorInfo);
+											break;
+										case RSSL_RCIMPL_STET_DESTROY:
+											return (_reactorWorkerCleanupReactor(pReactorImpl), RSSL_THREAD_RETURN());
+										default:
+											rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
+													"Unknown reactor event type %d", pReactorEvent->reactorEventType);
+											return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+									}
+									break;
+								}
+
+							default:
+								{
+									rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Unknown event type %d", pEvent->base.eventType);
 									return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
-								break;
-							}
+								}
+						}
 					}
+					else if (!RSSL_ERROR_INFO_CHECK(ret >= RSSL_RET_SUCCESS, ret, &pReactorWorker->workerCerr))
+						return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 				}
-
-			}
-
-			RSSL_QUEUE_FOR_EACH_LINK(&pReactorWorker->activeChannels, pLink)
-			{
-				pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, workerLink, pLink);
-				if (pReactorChannel->reactorChannel.pRsslChannel->socketId != REACTOR_INVALID_SOCKET &&
-					FD_ISSET(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->useWriteFds))
+				else
 				{
-					/* Flush */
-					ret = rsslFlush(pReactorChannel->reactorChannel.pRsslChannel, &pReactorChannel->channelWorkerCerr.rsslError);
-					pReactorChannel->lastPingSentMs = pReactorWorker->lastRecordedTimeMs;
+					pReactorChannel = (RsslReactorChannelImpl*)object;
 
-					if (ret < 0)
+					if (pReactorChannel->reactorChannel.pRsslChannel == NULL)
 					{
-						rsslSetErrorInfoLocation(&pReactorChannel->channelWorkerCerr, __FILE__, __LINE__);
-						if (_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) != RSSL_RET_SUCCESS)
+						/* We may have just closed this channel and started reconnecting it. Do not process notification for it. */
+					}
+					else if (rsslNotifierEventIsFdBad(pNotifierEvent))
+					{
+						/* When a bad file descriptor is encountered in the reactorWorker, it is likely because the
+						 * Reactor thread received an FD_CHANGE return from rsslRead. Update it. */
+						if (rsslNotifierUpdateEventFd(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent, pReactorChannel->reactorChannel.pRsslChannel->socketId) < 0)
 						{
+							rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
+									"Failed to update file descriptor for channel.");
 							return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 						}
 					}
-					else if (ret == 0)
+					else if (pReactorChannel->reactorChannel.pRsslChannel->state == RSSL_CH_STATE_INITIALIZING)
 					{
-						/* Can stop flushing now */
-						FD_CLR(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->writeFds);
-						_reactorWorkerSendFlushComplete(pReactorImpl, pReactorChannel);
-					}
-				}
-			}
+						RsslInProgInfo inProg = RSSL_INIT_IN_PROG_INFO;
 
-			if (FD_ISSET(eventQueueFd, pReactorWorker->useReadFds))
-			{
-				RsslReactorEventImpl *pEvent;
-				/* Message in event queue */
-				if ((pEvent = rsslReactorEventQueueGet(pEventQueue, &ret)))
-				{
-					switch(pEvent->base.eventType)
-					{
-						case RSSL_RCIMPL_ET_CHANNEL:
+						/* Write descriptor is set initially in case this end starts the message hanshakes that rsslInitChannel() performs. 
+						 * Once rsslInitChannel() is called for the first time the channel can wait on the read descriptor for more messages.  
+						 * We will set the write descriptor again if an FD_CHANGE event occurs. */
+						if (rsslNotifierUnregisterWrite(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent) < 0)
 						{
-							RsslReactorChannelEventImpl *pConnEvent = &pEvent->channelEventImpl;
-							pReactorChannel = (RsslReactorChannelImpl*)pConnEvent->channelEvent.pReactorChannel;
+							rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
+									"Failed to unregister write notification for initializing channel.");
+							return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+						}
+						ret = rsslInitChannel(pReactorChannel->reactorChannel.pRsslChannel, &inProg, &pReactorChannel->channelWorkerCerr.rsslError);
 
-							switch(pConnEvent->channelEvent.channelEventType)
-							{
-								case RSSL_RCIMPL_CET_NEW_CHANNEL:
+
+						switch(ret)
+						{
+							case RSSL_RET_CHAN_INIT_IN_PROGRESS:
 								{
-									if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerProcessNewChannel(pReactorImpl, pReactorChannel) == RSSL_RET_SUCCESS, ret, &pReactorWorker->workerCerr))
-										return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
-									break;
-								}
-								case RSSL_RC_CET_CHANNEL_DOWN:
-								{
-									if(pReactorChannel->reactorChannel.pRsslChannel != 0)
+									if (inProg.flags & RSSL_IP_FD_CHANGE)
 									{
-										/* Make sure descriptors are cleared */
-										if (pReactorChannel->reactorChannel.pRsslChannel->socketId != REACTOR_INVALID_SOCKET)
+										/* File descriptor changed. Update descriptor set.
+										 * No need to send an event back -- the application will only get the descriptors when we're done initializing. */
+										if (rsslNotifierUpdateEventFd(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent, pReactorChannel->reactorChannel.pRsslChannel->socketId) < 0)
 										{
-											FD_CLR(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->readFds);
-											FD_CLR(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->exceptFds);
-											FD_CLR(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->writeFds);
+											rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
+													"Failed to update notification event for initializing channel that is changing descriptor.");
+											return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 										}
-									}
-
-									/* Remove channel from worker's list */
-									_reactorWorkerMoveChannel(&pReactorWorker->inactiveChannels, pReactorChannel);
-
-									break;
-								}
-								case RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING:
-								{
-									_reactorWorkerMoveChannel(&pReactorImpl->reactorWorker.reconnectingChannels, pReactorChannel);
-
-									if(pReactorChannel->reactorChannel.pRsslChannel != 0)
-									{
-										/* Make sure descriptors are cleared */
-										if (pReactorChannel->reactorChannel.pRsslChannel->socketId != REACTOR_INVALID_SOCKET)
+										if (rsslNotifierRegisterRead(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent) < 0)
 										{
-											FD_CLR(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->readFds);
-											FD_CLR(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->exceptFds);
-											FD_CLR(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->writeFds);
+											rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
+													"Failed to register read notification for initializing channel that is changing descriptor.");
+											return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 										}
-
-										pReactorChannel->reactorChannel.socketId = (RsslSocket)REACTOR_INVALID_SOCKET;
-
-										/* Close the channel */
-										/* TODO: Error check? */
-										rsslCloseChannel(pReactorChannel->reactorChannel.pRsslChannel, &(pReactorChannel->channelWorkerCerr.rsslError));
-										pReactorChannel->reactorChannel.pRsslChannel = 0;
-									}
-
-									if(pReactorChannel->reconnectAttemptCount == 0)
-									{
-										pReactorChannel->reconnectDelay = pReactorChannel->reconnectMinDelay;
-
-									}
-									else
-									{
-										pReactorChannel->reconnectDelay = 2 * pReactorChannel->reconnectDelay;
-
-										if(pReactorChannel->reconnectDelay > pReactorChannel->reconnectMaxDelay)
-											pReactorChannel->reconnectDelay = pReactorChannel->reconnectMaxDelay;
-									}
-
-									pReactorChannel->reconnectAttemptCount++;
-
-									pReactorChannel->lastReconnectAttemptMs = pReactorImpl->reactorWorker.lastRecordedTimeMs;
-
-									_reactorWorkerCalculateNextTimeout(pReactorImpl, pReactorChannel->reconnectDelay);
-
-									break;
-
-								}
-								case RSSL_RCIMPL_CET_CLOSE_CHANNEL:
-								{
-									RsslReactorChannelEventImpl *pEvent = (RsslReactorChannelEventImpl*)rsslReactorEventQueueGetFromPool(&pReactorChannel->eventQueue);
-									RsslRet ret;
-
-									if ((pReactorChannel->workerParentList != &pReactorWorker->inactiveChannels) && (pReactorChannel->reactorChannel.pRsslChannel != NULL))
-									{
-										/* Make sure descriptors are cleared */
-										if (pReactorChannel->reactorChannel.pRsslChannel->socketId != REACTOR_INVALID_SOCKET)
+										if (rsslNotifierRegisterWrite(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent) < 0)
 										{
-											FD_CLR(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->readFds);
-											FD_CLR(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->exceptFds);
-											FD_CLR(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->writeFds);
-										}
-									}
-
-									/* Close RSSL channel if present. */
-									if (pReactorChannel->reactorChannel.pRsslChannel)
-									{
-										if (!RSSL_ERROR_INFO_CHECK((ret = rsslCloseChannel(pReactorChannel->reactorChannel.pRsslChannel, &pReactorWorker->workerCerr.rsslError)) >= RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
-										{
-											rsslSetErrorInfoLocation(&pReactorChannel->channelWorkerCerr, __FILE__, __LINE__);
+											rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
+													"Failed to register write notification for initializing channel that is changing descriptor.");
 											return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 										}
 									}
 
-									/* Free connection list */
-									if(pReactorChannel->connectionOptList)
-									{
-										_rsslChannelFreeConnectionList(pReactorChannel);
-									}
-
-									_reactorWorkerMoveChannel(NULL, pReactorChannel);
-
-									/* Acknowledge that this channel has been closed. */
-									rsslClearReactorChannelEventImpl((RsslReactorChannelEventImpl*)pEvent);
-									pEvent->channelEvent.channelEventType = (RsslReactorChannelEventType)RSSL_RCIMPL_CET_CLOSE_CHANNEL_ACK;
-									pEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
-									pEvent->channelEvent.pError = pConnEvent->channelEvent.pError;
-									if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->eventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
-										return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+									break;
 								}
-								break;
-								default:
-									rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
-											"Unknown channel event type %d", pConnEvent->channelEvent.channelEventType);
-									return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
-							}
 
-							break;
-						}
-
-						case RSSL_RCIMPL_ET_FLUSH:
-						{
-							RsslReactorFlushEvent *pFlushEvent = &pEvent->flushEvent;
-							
-							switch(pFlushEvent->flushEventType)
-							{
-								case RSSL_RCIMPL_FET_START_FLUSH:
-									pReactorChannel = (RsslReactorChannelImpl*)pFlushEvent->pReactorChannel;
-									if (pReactorChannel->reactorChannel.pRsslChannel != NULL && pReactorChannel->reactorChannel.pRsslChannel->socketId != REACTOR_INVALID_SOCKET)
+							case RSSL_RET_SUCCESS:
+								{
+									if (_reactorWorkerProcessChannelUp(pReactorImpl, pReactorChannel) != RSSL_RET_SUCCESS)
+										return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+									/* Channel is now active. Clear descriptor so we don't think we need to flush right away */
+									if (rsslNotifierUnregisterWrite(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent) < 0)
 									{
-										FD_SET(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->writeFds);
+										rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
+												"Failed to unregister write notification for initializing channel.");
+										return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 									}
 									break;
-								default:
-									rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
-											"Unknown flush event type %d", pFlushEvent->flushEventType);
-									return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
-							}
-							break;
-						}
+								}
 
-						case RSSL_RCIMPL_ET_TIMER:
-						{
-							RsslReactorTimerEvent *pTimerEvent = &pEvent->timerEvent;
-							((RsslReactorChannelImpl*)pTimerEvent->pReactorChannel)->nextExpireTime = pTimerEvent->expireTime;
-							break;
-						}
-
-						case RSSL_RCIMPL_ET_REACTOR:
-						{
-							RsslReactorStateEvent *pReactorEvent = &pEvent->reactorEvent;
-
-							switch(pReactorEvent->reactorEventType)
-							{
-								case RSSL_RCIMPL_STET_SHUTDOWN:
-									_reactorWorkerHandleShutdownRequest(pReactorImpl, pReactorEvent->pErrorInfo);
+							default:
+								{
+									/* Error */
+									rsslSetErrorInfoLocation(&pReactorChannel->channelWorkerCerr, __FILE__, __LINE__);
+									if (_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) != RSSL_RET_SUCCESS)
+										return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 									break;
-								case RSSL_RCIMPL_STET_DESTROY:
-									return (_reactorWorkerCleanupReactor(pReactorImpl), RSSL_THREAD_RETURN());
-								default:
-									rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
-											"Unknown reactor event type %d", pReactorEvent->reactorEventType);
-									return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
-							}
-							break;
-						}
-
-						default:
-						{
-							rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Unknown event type %d", pEvent->base.eventType);
-							return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+								}
 						}
 					}
+					else
+					{
+						if (pReactorChannel->reactorChannel.pRsslChannel->socketId != REACTOR_INVALID_SOCKET &&
+								rsslNotifierEventIsWritable(pNotifierEvent))
+						{
+							/* Flush */
+							ret = rsslFlush(pReactorChannel->reactorChannel.pRsslChannel, &pReactorChannel->channelWorkerCerr.rsslError);
+							pReactorChannel->lastPingSentMs = pReactorWorker->lastRecordedTimeMs;
+
+							if (ret < 0)
+							{
+								rsslSetErrorInfoLocation(&pReactorChannel->channelWorkerCerr, __FILE__, __LINE__);
+								if (_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) != RSSL_RET_SUCCESS)
+								{
+									return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+								}
+							}
+							else if (ret == 0)
+							{
+								/* Can stop flushing now */
+								if (rsslNotifierUnregisterWrite(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent) < 0)
+								{
+									rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
+											"Failed to unregister write notification for flushing channel.");
+									return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+								}
+								_reactorWorkerSendFlushComplete(pReactorImpl, pReactorChannel);
+							}
+						}
+					}
+					
 				}
-				else if (!RSSL_ERROR_INFO_CHECK(ret >= RSSL_RET_SUCCESS, ret, &pReactorWorker->workerCerr))
-					return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+
 			}
 		}
 		else if (ret < 0)
 		{
-			RsslQueueLink *pLink;
 #ifdef WIN32
 			switch(WSAGetLastError())
 #else
 			switch(errno)
 #endif
 			{
-#ifdef WIN32
-				case WSAENOTSOCK:
-#else
-				case EBADF:
-#endif
-					/* When a bad file descriptor is encountered in the reactorWorker, it is likely because rsslRead() 
-					 * received an FD_CHANGE event. Reset all descriptors and try again. */
-					memset(pReactorWorker->readFds, 0, pReactorImpl->fdSetSizeInBytes);
-					memset(pReactorWorker->writeFds, 0, pReactorImpl->fdSetSizeInBytes);
-					memset(pReactorWorker->exceptFds, 0, pReactorImpl->fdSetSizeInBytes);
-
-					FD_SET(eventQueueFd, pReactorWorker->readFds);
-					FD_SET(eventQueueFd, pReactorWorker->exceptFds);
-
-					/* Set all channel descriptors again, including write descriptors(this may result in extra "flush done" events being sent back). */
-					RSSL_QUEUE_FOR_EACH_LINK(&pReactorWorker->activeChannels, pLink)
-					{
-						pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, workerLink, pLink);
-						if (pReactorChannel->reactorChannel.pRsslChannel->socketId != REACTOR_INVALID_SOCKET)
-						{
-							FD_SET(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->writeFds);
-						}
-					}
-					RSSL_QUEUE_FOR_EACH_LINK(&pReactorWorker->initializingChannels, pLink)
-					{
-						pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, workerLink, pLink);
-						if (pReactorChannel->reactorChannel.pRsslChannel->socketId != REACTOR_INVALID_SOCKET)
-						{
-							FD_SET(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->writeFds);
-							FD_SET(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->readFds);
-							FD_SET(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->exceptFds);
-						}
-					}
-
-					continue;
-
 #ifdef WIN32
 				case WSAEINTR:
 #else
@@ -722,9 +720,9 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 				default:
 					rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
 #ifdef WIN32
-							"select() failed: %d", WSAGetLastError()
+							"rsslNotifierWait() failed: %d", WSAGetLastError()
 #else
-							"select() failed: %d", errno
+							"rsslNotifierWait() failed: %d", errno
 #endif
 							);
 					return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
@@ -893,7 +891,17 @@ RsslRet _reactorWorkerProcessNewChannel(RsslReactorImpl *pReactorImpl, RsslReact
 	RsslReactorWorker *pReactorWorker = &pReactorImpl->reactorWorker;
 
 	/* Add channel to descriptor set */
-	FD_SET(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->writeFds);
+	if (rsslNotifierAddEvent(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent, pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorChannel) < 0)
+	{
+		rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to add notifier event for initializing channel.");
+		return RSSL_RET_FAILURE;
+	}
+
+	if (rsslNotifierRegisterWrite(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent) < 0)
+	{
+		rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to register write notification for initializing channel.");
+		return RSSL_RET_FAILURE;
+	}
 
 	switch (pReactorChannel->reactorChannel.pRsslChannel->state)
 	{
@@ -901,8 +909,11 @@ RsslRet _reactorWorkerProcessNewChannel(RsslReactorImpl *pReactorImpl, RsslReact
 			_reactorWorkerMoveChannel(&pReactorWorker->initializingChannels, pReactorChannel);
 			_reactorWorkerCalculateNextTimeout(pReactorImpl, pReactorChannel->initializationTimeout*1000);
 			pReactorChannel->initializationStartTimeMs = pReactorWorker->lastRecordedTimeMs;
-			FD_SET(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->readFds);
-			FD_SET(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->exceptFds);
+			if (rsslNotifierRegisterRead(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent) < 0)
+			{
+				rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to register read notification for initializing channel.");
+				return RSSL_RET_FAILURE;
+			}
 			return RSSL_RET_SUCCESS;
 		case RSSL_CH_STATE_ACTIVE:
 		{

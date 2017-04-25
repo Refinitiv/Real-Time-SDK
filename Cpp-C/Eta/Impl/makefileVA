@@ -124,7 +124,8 @@ main: librsslReactor.a librsslRDM.a librsslVAUtil.a librsslVA.so
 
 librsslVAUtil_src = \
 	Util/rsslMemoryBuffer.c \
-	Util/rsslHashTable.c
+	Util/rsslHashTable.c \
+	Util/rsslNotifier.c
 
 librsslVAUtil_objs = $(addprefix $(OUTPUT_DIR)/obj/,$(librsslVAUtil_src:%.c=%.o))
 

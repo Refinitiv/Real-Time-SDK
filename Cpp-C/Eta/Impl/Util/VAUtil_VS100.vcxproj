@@ -189,12 +189,14 @@
   
   <ItemGroup>
     	<ClCompile Include="rsslMemoryBuffer.c"/>
+	<ClCompile Include="rsslNotifier.c"/>
 	<ClCompile Include="rsslHashTable.c"/>
 
   </ItemGroup>
   <ItemGroup>
     	<ClInclude Include="..\..\Include\Util\rtr\rsslEventSignal.h"/>
 	<ClInclude Include="..\..\Include\Util\rtr\rsslMemoryBuffer.h"/>
+	<ClInclude Include="..\..\Include\Util\rtr\rsslNotifier.h"/>
 	<ClInclude Include="..\..\Include\Util\rtr\rsslHashTable.h"/>
 	<ClInclude Include="..\..\Include\Util\rtr\rsslQueue.h"/>
 	<ClInclude Include="..\..\Include\Util\rtr\rsslThread.h"/>

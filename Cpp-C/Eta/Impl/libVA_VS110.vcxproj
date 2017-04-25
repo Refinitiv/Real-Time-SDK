@@ -219,6 +219,7 @@
   
   <ItemGroup>
     	<ClCompile Include="Util\rsslMemoryBuffer.c"/>
+	<ClCompile Include="Util\rsslNotifier.c"/>
 	<ClCompile Include="Util\rsslHashTable.c"/>
 	<ClCompile Include="Util\DllVAMain.c"/>
 	<ClCompile Include="RDM\rsslRDMDictionaryMsg.c"/>
@@ -252,6 +253,7 @@
   <ItemGroup>
     	<ClInclude Include="..\Include\Util\rtr\rsslEventSignal.h"/>
 	<ClInclude Include="..\Include\Util\rtr\rsslMemoryBuffer.h"/>
+	<ClInclude Include="..\Include\Util\rtr\rsslNotifier.h"/>
 	<ClInclude Include="..\Include\Util\rtr\rsslHashTable.h"/>
 	<ClInclude Include="..\Include\Util\rtr\rsslQueue.h"/>
 	<ClInclude Include="..\Include\Util\rtr\rsslThread.h"/>
