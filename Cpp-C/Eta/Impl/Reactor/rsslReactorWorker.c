@@ -278,6 +278,8 @@ RsslRet _reactorWorkerHandleChannelFailure(RsslReactorImpl *pReactorImpl, RsslRe
 	RsslReactorChannelEventImpl *pEvent = (RsslReactorChannelEventImpl*)rsslReactorEventQueueGetFromPool(&pReactorChannel->eventQueue);
 	RsslReactorWorker *pReactorWorker = &pReactorImpl->reactorWorker;
 
+	/* Need to indicate if the worker was attempting to connect or initialize the channel. */
+	RsslBool isConnectFailure = (pReactorChannel->workerParentList == &pReactorWorker->initializingChannels || pReactorChannel->workerParentList == &pReactorWorker->reconnectingChannels);
 
 	if(pReactorChannel->reactorChannel.pRsslChannel != 0 &&
 	   pReactorChannel->reactorChannel.pRsslChannel->socketId != REACTOR_INVALID_SOCKET)
@@ -294,8 +296,9 @@ RsslRet _reactorWorkerHandleChannelFailure(RsslReactorImpl *pReactorImpl, RsslRe
 	pEvent->channelEvent.channelEventType = RSSL_RC_CET_CHANNEL_DOWN;
 	pEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
 	pEvent->channelEvent.pError = pError;
+	pEvent->isConnectFailure = isConnectFailure;
 
-		_reactorWorkerCalculateNextTimeout(pReactorImpl, defaultSelectTimeoutMs);
+	_reactorWorkerCalculateNextTimeout(pReactorImpl, defaultSelectTimeoutMs);
 
 	if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->eventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
 		return RSSL_RET_FAILURE;
@@ -494,12 +497,15 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 								}
 								case RSSL_RC_CET_CHANNEL_DOWN:
 								{
-									/* Make sure descriptors are cleared */
-									if (pReactorChannel->reactorChannel.pRsslChannel->socketId != REACTOR_INVALID_SOCKET)
+									if(pReactorChannel->reactorChannel.pRsslChannel != 0)
 									{
-										FD_CLR(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->readFds);
-										FD_CLR(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->exceptFds);
-										FD_CLR(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->writeFds);
+										/* Make sure descriptors are cleared */
+										if (pReactorChannel->reactorChannel.pRsslChannel->socketId != REACTOR_INVALID_SOCKET)
+										{
+											FD_CLR(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->readFds);
+											FD_CLR(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->exceptFds);
+											FD_CLR(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->writeFds);
+										}
 									}
 
 									/* Remove channel from worker's list */
@@ -611,7 +617,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 							{
 								case RSSL_RCIMPL_FET_START_FLUSH:
 									pReactorChannel = (RsslReactorChannelImpl*)pFlushEvent->pReactorChannel;
-									if (pReactorChannel->reactorChannel.pRsslChannel->socketId != REACTOR_INVALID_SOCKET)
+									if (pReactorChannel->reactorChannel.pRsslChannel != NULL && pReactorChannel->reactorChannel.pRsslChannel->socketId != REACTOR_INVALID_SOCKET)
 									{
 										FD_SET(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorWorker->writeFds);
 									}

@@ -1165,7 +1165,17 @@ RSSL_VA_API RsslRet rsslReactorSubmit(RsslReactor *pReactor, RsslReactorChannel 
 		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_INVALID_ARGUMENT);
 
 	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
 		return (reactorUnlockInterface((RsslReactorImpl*)pReactor), RSSL_RET_FAILURE);
+	}
+
+	if (pReactorChannel->reactorParentQueue != &pReactorImpl->activeChannels)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Channel is not active.");
+		return (reactorUnlockInterface((RsslReactorImpl*)pReactor), RSSL_RET_FAILURE);
+	}
+
 
 	if (pReactorChannel->channelRole.base.roleType == RSSL_RC_RT_OMM_CONSUMER
 			&& pReactorChannel->channelRole.ommConsumerRole.watchlistOptions.enableWatchlist)
@@ -1255,7 +1265,10 @@ RSSL_VA_API RsslRet rsslReactorSubmitMsg(RsslReactor *pReactor, RsslReactorChann
 		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_INVALID_ARGUMENT);
 
 	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
 		return (reactorUnlockInterface((RsslReactorImpl*)pReactor), RSSL_RET_FAILURE);
+	}
 
 	if (pReactorChannel->pWatchlist)
 	{
@@ -1279,6 +1292,12 @@ RSSL_VA_API RsslRet rsslReactorSubmitMsg(RsslReactor *pReactor, RsslReactorChann
 		/* Watchlist is off. Encode the message for the application. */
 
 		RsslUInt32 msgSize;
+
+		if (pReactorChannel->reactorParentQueue != &pReactorImpl->activeChannels)
+		{
+			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Channel is not active.");
+			return (reactorUnlockInterface((RsslReactorImpl*)pReactor), RSSL_RET_FAILURE);
+		}
 
 		if (pReactorChannel->pWriteCallAgainBuffer)
 		{
@@ -1838,6 +1857,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 							/* Channel has been initialized by worker thread and is ready for reading & writing. */
 							FD_SET(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorImpl->readFds);
 							FD_SET(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorImpl->exceptFds);
+							pReactorChannel->requestedFlush = RSSL_FALSE; 
 
 							/* Reset reconnect attempt count (if  watchlist is enable, wait for a 
 							 * login stream first). */
@@ -1921,6 +1941,11 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 
 						case RSSL_RC_CET_CHANNEL_DOWN:
 						case RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING:
+							/* If the channel is currently down, this event may be due to the worker finding out at the same time the reactor did.
+							 * Ignore this event. Otherwise, it is redundant to provide to the application (we already know it's down), and it could
+							 * re-trigger connection recovery that is already underway. */
+							if (!pConnEvent->isConnectFailure && pReactorChannel->reactorParentQueue != &pReactorImpl->activeChannels)
+								break;
 
 							if (_reactorHandleChannelDown(pReactorImpl, pReactorChannel, pConnEvent->channelEvent.pError) != RSSL_RET_SUCCESS)
 								return RSSL_RET_FAILURE;
