@@ -448,7 +448,7 @@ RTR_C_INLINE void rsslClearRDMLoginStatus(RsslRDMLoginStatus *pStatus)
 	pStatus->state.dataState = RSSL_DATA_OK;
 	pStatus->state.code = RSSL_SC_NONE;
 	rsslClearBuffer(&pStatus->userName);
-	pStatus->userNameType = RDM_LOGIN_ROLE_CONS;
+	pStatus->userNameType = RDM_LOGIN_USER_NAME;
 	pStatus->authenticationErrorCode = 0;
 	rsslClearBuffer(&pStatus->authenticationErrorText);
 }
