@@ -4,14 +4,14 @@
 ! Thomson Reuters. Thomson Reuters may update or remove this
 ! document at any time without notice.
 !
-!   Version	 4.20.26_TREP_16.81		10/12/2016
-!	* Modified 10/12/2016 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.26.
+!   Version	 4.20.28_TREP_17.31		04/03/2017
+!	* Modified 04/03/2017 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.28.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.26_TREP
+!   Version: 4.20.28_TREP
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -24,14 +24,14 @@
 !     * RWF field type (RWF_DT_)
 !     * RWF maximum field length (for caching)
 !
-! Copyright Thomson Reuters 2016
+! Copyright Thomson Reuters 2017
 !
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.26
-!tag Build     004
-!tag Date      25-Aug-2016
+!tag Version   4.20.28
+!tag Build     001
+!tag Date      02-Feb-2017
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -41,7 +41,7 @@ PROD_PERM  "PERMISSION"             1  NULL        INTEGER             5  UINT64
 !
 ! Product permissions information.
 !
-RDNDISPLAY "DISPLAYTEMPLATE"        2  NULL        INTEGER             3  UINT32           1
+RDNDISPLAY "DISPLAYTEMPLATE"        2  NULL        INTEGER             3  UINT64           1
 !
 ! Display information for the IDN terminal device.
 !
@@ -889,7 +889,7 @@ NEXT_LR    "NEXT LINK"            238  NULL        ALPHANUMERIC       14  ASCII_
 !
 ! Next record pointer.
 !
-REF_COUNT  "REFERENCE COUNT"      239  NULL        INTEGER             3  UINT32           1
+REF_COUNT  "REFERENCE COUNT"      239  NULL        INTEGER             3  UINT64           1
 !
 ! Count of the number of references in a record.
 !
@@ -933,7 +933,7 @@ SEG_TEXT   "TEXT"                 258  NULL        ALPHANUMERIC      255  RMTES_
 !
 ! 255 byte take segment text field.
 !
-RECORDTYPE "RECORDTYPE"           259  NULL        INTEGER             3  UINT32           1
+RECORDTYPE "RECORDTYPE"           259  NULL        INTEGER             3  UINT64           1
 !
 ! Field which indicates the type of record and also the type of data in that record.
 !
@@ -1394,42 +1394,42 @@ BEST_ASK5  "BEST ASK 5"           445  NULL        PRICE              17  REAL64
 ! The five best ask price levels with the best in BEST_BID1. Note that these fields 
 ! are not rippled.
 !
-IDN_SERNO  "IDN SERNO"            450  NULL        BINARY              4  UINT32           3
+IDN_SERNO  "IDN SERNO"            450  NULL        BINARY              4  UINT64           3
 !
 ! Network termination serial number. If the termination is a keystation this is a 
 ! physical identifier of the keystation which is checked by the keystation on 
 ! retrieval of the permissions record.
 !
-REC_COUNT  "REC COUNT"            451  NULL        INTEGER             3  UINT32           1
+REC_COUNT  "REC COUNT"            451  NULL        INTEGER             3  UINT64           1
 !
 ! Number of permissions records for this network termination.
 !
-REV_LEVEL  "REV LEVEL"            452  NULL        INTEGER             3  UINT32           1
+REV_LEVEL  "REV LEVEL"            452  NULL        INTEGER             3  UINT64           1
 !
 ! Revision level of the permissions record.
 !
-REG_COUNT  "REG COUNT"            453  NULL        INTEGER             3  UINT32           1
+REG_COUNT  "REG COUNT"            453  NULL        INTEGER             3  UINT64           1
 !
 ! Number of (consecutive) REG_FIELDs in use in this record.
 !
-FILTER1    "FILTER1"              454  NULL        BINARY              3  UINT32           2
+FILTER1    "FILTER1"              454  NULL        BINARY              3  UINT64           2
 !
 ! This field is used to allow KCDs to filter permissions records identifying the node 
 ! group to which a KCD or KCD device belongs.
 !
-DEVICETYPE "DEVICETYPE"           455  NULL        BINARY              3  UINT32           2
+DEVICETYPE "DEVICETYPE"           455  NULL        BINARY              3  UINT64           2
 !
 ! Used to identify the type of device that is being permissioned.
 !
-REG_ID1    "REG ID1"              456  NULL        BINARY              3  UINT32           2
+REG_ID1    "REG ID1"              456  NULL        BINARY              3  UINT64           2
 REG_FIELD1 "REG FIELD1"           457  NULL        BINARY             43  BUFFER          32
-REG_ID2    "REG ID2"              458  NULL        BINARY              3  UINT32           2
+REG_ID2    "REG ID2"              458  NULL        BINARY              3  UINT64           2
 REG_FIELD2 "REG FIELD2"           459  NULL        BINARY             43  BUFFER          32
-REG_ID3    "REG ID3"              460  NULL        BINARY              3  UINT32           2
+REG_ID3    "REG ID3"              460  NULL        BINARY              3  UINT64           2
 REG_FIELD3 "REG FIELD3"           461  NULL        BINARY             43  BUFFER          32
-REG_ID4    "REG ID4"              462  NULL        BINARY              3  UINT32           2
+REG_ID4    "REG ID4"              462  NULL        BINARY              3  UINT64           2
 REG_FIELD4 "REG FIELD4"           463  NULL        BINARY             43  BUFFER          32
-REG_ID5    "REG ID5"              464  NULL        BINARY              3  UINT32           2
+REG_ID5    "REG ID5"              464  NULL        BINARY              3  UINT64           2
 REG_FIELD5 "REG FIELD5"           465  NULL        BINARY             43  BUFFER          32
 !
 ! The REG_ID1 field identifies the permissions register whose contents are held in the 
@@ -1441,51 +1441,51 @@ PROG_ID    "PROG ID"              468  NULL        ALPHANUMERIC       14  ASCII_
 ! reference is formatted using the alphaname character set. This field is updated 
 ! using a DRS operator command.
 !
-EXECUTE_IP "EXECUTE IP"           469  NULL        BINARY              3  UINT32           2
+EXECUTE_IP "EXECUTE IP"           469  NULL        BINARY              3  UINT64           2
 !
 ! Instruction pointer of the program's initial start address.
 !
-EXECUTE_CS "EXECUTE CS"           470  NULL        BINARY              3  UINT32           2
+EXECUTE_CS "EXECUTE CS"           470  NULL        BINARY              3  UINT64           2
 !
 ! Code segment of the program's initial start address.
 !
-REGISTR_0  "REGISTR_0"            471  NULL        BINARY              3  UINT32           2
-REGISTR_1  "REGISTR_1"            472  NULL        BINARY              3  UINT32           2
-REGISTR_2  "REGISTR_2"            473  NULL        BINARY              3  UINT32           2
-REGISTR_3  "REGISTR_3"            474  NULL        BINARY              3  UINT32           2
-REGISTR_4  "REGISTR_4"            475  NULL        BINARY              3  UINT32           2
-REGISTR_5  "REGISTR_5"            476  NULL        BINARY              3  UINT32           2
-REGISTR_6  "REGISTR_6"            477  NULL        BINARY              3  UINT32           2
-REGISTR_7  "REGISTR_7"            478  NULL        BINARY              3  UINT32           2
-REGISTR_8  "REGISTR_8"            479  NULL        BINARY              3  UINT32           2
-REGISTR_9  "REGISTR_9"            480  NULL        BINARY              3  UINT32           2
-REGISTR_10 "REGISTR_10"           481  NULL        BINARY              3  UINT32           2
-REGISTR_11 "REGISTR_11"           482  NULL        BINARY              3  UINT32           2
-REGISTR_12 "REGISTR_12"           483  NULL        BINARY              3  UINT32           2
-REGISTR_13 "REGISTR_13"           484  NULL        BINARY              3  UINT32           2
-REGISTR_14 "REGISTR_14"           485  NULL        BINARY              3  UINT32           2
-REGISTR_15 "REGISTR_15"           486  NULL        BINARY              3  UINT32           2
+REGISTR_0  "REGISTR_0"            471  NULL        BINARY              3  UINT64           2
+REGISTR_1  "REGISTR_1"            472  NULL        BINARY              3  UINT64           2
+REGISTR_2  "REGISTR_2"            473  NULL        BINARY              3  UINT64           2
+REGISTR_3  "REGISTR_3"            474  NULL        BINARY              3  UINT64           2
+REGISTR_4  "REGISTR_4"            475  NULL        BINARY              3  UINT64           2
+REGISTR_5  "REGISTR_5"            476  NULL        BINARY              3  UINT64           2
+REGISTR_6  "REGISTR_6"            477  NULL        BINARY              3  UINT64           2
+REGISTR_7  "REGISTR_7"            478  NULL        BINARY              3  UINT64           2
+REGISTR_8  "REGISTR_8"            479  NULL        BINARY              3  UINT64           2
+REGISTR_9  "REGISTR_9"            480  NULL        BINARY              3  UINT64           2
+REGISTR_10 "REGISTR_10"           481  NULL        BINARY              3  UINT64           2
+REGISTR_11 "REGISTR_11"           482  NULL        BINARY              3  UINT64           2
+REGISTR_12 "REGISTR_12"           483  NULL        BINARY              3  UINT64           2
+REGISTR_13 "REGISTR_13"           484  NULL        BINARY              3  UINT64           2
+REGISTR_14 "REGISTR_14"           485  NULL        BINARY              3  UINT64           2
+REGISTR_15 "REGISTR_15"           486  NULL        BINARY              3  UINT64           2
 !
 ! Sixteen registers which may optionally be used for component register initialisation.
 !
-DATREC_CNT "DATREC CNT"           487  NULL        BINARY              3  UINT32           2
+DATREC_CNT "DATREC CNT"           487  NULL        BINARY              3  UINT64           2
 !
 ! Count of the number of subsequent program data records which comprise the 
 ! component's program image.
 !
-LD_ADD_IP  "LD ADD IP"            488  NULL        BINARY              3  UINT32           2
+LD_ADD_IP  "LD ADD IP"            488  NULL        BINARY              3  UINT64           2
 !
 ! Instruction pointer of the load address.
 !
-LD_ADD_CS  "LD ADD CS"            489  NULL        BINARY              3  UINT32           2
+LD_ADD_CS  "LD ADD CS"            489  NULL        BINARY              3  UINT64           2
 !
 ! Code segment of the load address.
 !
-BYTE_COUNT "BYTE COUNT"           490  NULL        BINARY              3  UINT32           2
+BYTE_COUNT "BYTE COUNT"           490  NULL        BINARY              3  UINT64           2
 !
 ! Count of valid program data bytes contained in the following SECTOR fields.
 !
-CHECKSUM   "CHECKSUM"             491  NULL        INTEGER             3  UINT32           1
+CHECKSUM   "CHECKSUM"             491  NULL        INTEGER             3  UINT64           1
 !
 ! Checksum used for verifying the program header record contents. When the checksum is 
 ! added to the summation of all other fields in the record the result is zero.
@@ -2055,10 +2055,10 @@ FID_670    "FEED NUMBER 670"      670  NULL        ALPHANUMERIC       20  RMTES_
 FID_671    "FEED NUMBER 671"      671  NULL        PRICE              17  REAL64           7
 RESET_CAR  "RESET CALENDAR"       672  NULL        ALPHANUMERIC       20  RMTES_STRING    20
 IDX_SPREAD "INDEX SPREAD"         673  NULL        PRICE              17  REAL64           7
-SETTLEMENT "SETTLEMENT"           674  NULL        INTEGER             3  UINT32           1
+SETTLEMENT "SETTLEMENT"           674  NULL        INTEGER             3  UINT64           1
 PREM_QUOTE "PREMIUM QUOTE"        675  NULL        PRICE              17  REAL64           7
 PREM_QT2   "PREM QUOTE LEG 2"     676  NULL        PRICE              17  REAL64           7
-PREM_QT_CN "PREM QUOTE CON"       677  NULL        INTEGER             3  UINT32           1
+PREM_QT_CN "PREM QUOTE CON"       677  NULL        INTEGER             3  UINT64           1
 PREM_CURR  "PREMIUM CURRENCY"     678  NULL        ALPHANUMERIC        3  RMTES_STRING     3
 PREM_AMNT  "PREMIUM AMOUNT"       679  NULL        PRICE              17  REAL64           7
 PREM_AMNT2 "PREM AMOUNT LEG2"     680  NULL        PRICE              17  REAL64           7
@@ -2076,7 +2076,7 @@ HED_AMT_C2 "HEDGE AMT CURR2"      691  NULL        PRICE              17  REAL64
 H_A_C2_L2  "HEDGE AMT CURR2 L2"   692  NULL        PRICE              17  REAL64           7
 HED_RATE   "HEDGE RATE"           693  NULL        PRICE              17  REAL64           7
 HED_RATE2  "HEDGE RATE LEG 2"     694  NULL        PRICE              17  REAL64           7
-CUR_CONV   "CURRENT CONV"         695  NULL        INTEGER             3  UINT32           1
+CUR_CONV   "CURRENT CONV"         695  NULL        INTEGER             3  UINT64           1
 DISP_POS   "DISPLAY POSITION"     696  NULL        ALPHANUMERIC       68  RMTES_STRING    68
 PREM_DATE2 "PREM DATE LEG 2"      697  NULL        ALPHANUMERIC       12  RMTES_STRING    12
 B_CODE     "ON BEHALF OF CODE"    698  NULL        ALPHANUMERIC        5  RMTES_STRING     5
@@ -2127,13 +2127,13 @@ NAMED_ITEM "MKT REPORT"           719  NULL        ALPHANUMERIC       10  RMTES_
 !
 ! The name of the item or market report supplied by editorial to NPS and KABS.
 !
-TAKE_SEQNO "TAKE SEQNO"           720  NULL        INTEGER             3  UINT32           1
+TAKE_SEQNO "TAKE SEQNO"           720  NULL        INTEGER             3  UINT64           1
 !
 ! A sequential number designating the take sequence number based on temporal order of 
 ! receipt. Contains 0 for alerts 1 for the first take of a story and 2 through 255 for 
 ! subsequent takes.
 !
-NUM_SEGS   "NUM SEGS"             721  NULL        INTEGER             3  UINT32           1
+NUM_SEGS   "NUM SEGS"             721  NULL        INTEGER             3  UINT64           1
 !
 ! The number of text messages to follow that relate to the take.
 !
@@ -2574,7 +2574,7 @@ BENCH_DATE "BENCH DATE"           861  NULL        DATE               11  DATE  
 !
 ! The date of the benchmark price  BENCH_PRC FID 1155.
 !
-NETBACK    "NETBACK"              862  NULL        PRICE              17  REAL64           7
+NETBACK    "NETBACK"              862  NETBACK_2   PRICE              17  REAL64           7
 !
 ! A netback is a valuation of a crude oil based on the price of its refined products 
 ! allowing for freight.
@@ -3294,12 +3294,12 @@ CONV_FAC   "CONVRSION FACTR"     1078  NULL        PRICE              17  REAL64
 ! Conversion factor. In the commodities market this is used to convert between weights 
 ! and volumes.
 !
-BYTE_BMAP  "BIT MAP"             1079  NULL        INTEGER             3  UINT32           1
+BYTE_BMAP  "BIT MAP"             1079  NULL        INTEGER             3  UINT64           1
 !
 ! Single byte bit map field initially used to carry Monitor network A page attributes 
 ! in 64x14 page records.
 !
-PREF_DISP  "PREF DISP TMPLT"     1080  NULL        BINARY              3  UINT32           2
+PREF_DISP  "PREF DISP TMPLT"     1080  NULL        BINARY              3  UINT64           2
 !
 ! The 'preferred' display template number.
 !
@@ -3507,7 +3507,7 @@ SESSION_TP "SESSION TYPE"        1382  NULL        ENUMERATED    3 ( 1 )  ENUM  
 !
 ! Session type enumerated type field.
 !
-DSO_ID     "DATA SRCE OWNER"     1383  NULL        BINARY              3  UINT32           2
+DSO_ID     "DATA SRCE OWNER"     1383  NULL        BINARY              3  UINT64           2
 !
 ! Data source owner identification field.
 !
@@ -6384,59 +6384,59 @@ B_DISQY_25 "B DISQY 25"          2671  NULL        ENUMERATED    3 ( 1 )  ENUM  
 !
 ! Disclosed/Undisclosed Bid volumes
 !
-A_LEVEL_1  "ASK LEVEL 1"         2672  NULL        INTEGER             3  UINT32           1
-A_LEVEL_2  "ASK LEVEL 2"         2673  NULL        INTEGER             3  UINT32           1
-A_LEVEL_3  "ASK LEVEL 3"         2674  NULL        INTEGER             3  UINT32           1
-A_LEVEL_4  "ASK LEVEL 4"         2675  NULL        INTEGER             3  UINT32           1
-A_LEVEL_5  "ASK LEVEL 5"         2676  NULL        INTEGER             3  UINT32           1
-A_LEVEL_6  "ASK LEVEL 6"         2677  NULL        INTEGER             3  UINT32           1
-A_LEVEL_7  "ASK LEVEL 7"         2678  NULL        INTEGER             3  UINT32           1
-A_LEVEL_8  "ASK LEVEL 8"         2679  NULL        INTEGER             3  UINT32           1
-A_LEVEL_9  "ASK LEVEL 9"         2680  NULL        INTEGER             3  UINT32           1
-A_LEVEL_10 "ASK LEVEL 10"        2681  NULL        INTEGER             3  UINT32           1
-A_LEVEL_11 "ASK LEVEL 11"        2682  NULL        INTEGER             3  UINT32           1
-A_LEVEL_12 "ASK LEVEL 12"        2683  NULL        INTEGER             3  UINT32           1
-A_LEVEL_13 "ASK LEVEL 13"        2684  NULL        INTEGER             3  UINT32           1
-A_LEVEL_14 "ASK LEVEL 14"        2685  NULL        INTEGER             3  UINT32           1
-A_LEVEL_15 "ASK LEVEL 15"        2686  NULL        INTEGER             3  UINT32           1
-A_LEVEL_16 "ASK LEVEL 16"        2687  NULL        INTEGER             3  UINT32           1
-A_LEVEL_17 "ASK LEVEL 17"        2688  NULL        INTEGER             3  UINT32           1
-A_LEVEL_18 "ASK LEVEL 18"        2689  NULL        INTEGER             3  UINT32           1
-A_LEVEL_19 "ASK LEVEL 19"        2690  NULL        INTEGER             3  UINT32           1
-A_LEVEL_20 "ASK LEVEL 20"        2691  NULL        INTEGER             3  UINT32           1
-A_LEVEL_21 "ASK LEVEL 21"        2692  NULL        INTEGER             3  UINT32           1
-A_LEVEL_22 "ASK LEVEL 22"        2693  NULL        INTEGER             3  UINT32           1
-A_LEVEL_23 "ASK LEVEL 23"        2694  NULL        INTEGER             3  UINT32           1
-A_LEVEL_24 "ASK LEVEL 24"        2695  NULL        INTEGER             3  UINT32           1
-A_LEVEL_25 "ASK LEVEL 25"        2696  NULL        INTEGER             3  UINT32           1
+A_LEVEL_1  "ASK LEVEL 1"         2672  NULL        INTEGER             3  UINT64           1
+A_LEVEL_2  "ASK LEVEL 2"         2673  NULL        INTEGER             3  UINT64           1
+A_LEVEL_3  "ASK LEVEL 3"         2674  NULL        INTEGER             3  UINT64           1
+A_LEVEL_4  "ASK LEVEL 4"         2675  NULL        INTEGER             3  UINT64           1
+A_LEVEL_5  "ASK LEVEL 5"         2676  NULL        INTEGER             3  UINT64           1
+A_LEVEL_6  "ASK LEVEL 6"         2677  NULL        INTEGER             3  UINT64           1
+A_LEVEL_7  "ASK LEVEL 7"         2678  NULL        INTEGER             3  UINT64           1
+A_LEVEL_8  "ASK LEVEL 8"         2679  NULL        INTEGER             3  UINT64           1
+A_LEVEL_9  "ASK LEVEL 9"         2680  NULL        INTEGER             3  UINT64           1
+A_LEVEL_10 "ASK LEVEL 10"        2681  NULL        INTEGER             3  UINT64           1
+A_LEVEL_11 "ASK LEVEL 11"        2682  NULL        INTEGER             3  UINT64           1
+A_LEVEL_12 "ASK LEVEL 12"        2683  NULL        INTEGER             3  UINT64           1
+A_LEVEL_13 "ASK LEVEL 13"        2684  NULL        INTEGER             3  UINT64           1
+A_LEVEL_14 "ASK LEVEL 14"        2685  NULL        INTEGER             3  UINT64           1
+A_LEVEL_15 "ASK LEVEL 15"        2686  NULL        INTEGER             3  UINT64           1
+A_LEVEL_16 "ASK LEVEL 16"        2687  NULL        INTEGER             3  UINT64           1
+A_LEVEL_17 "ASK LEVEL 17"        2688  NULL        INTEGER             3  UINT64           1
+A_LEVEL_18 "ASK LEVEL 18"        2689  NULL        INTEGER             3  UINT64           1
+A_LEVEL_19 "ASK LEVEL 19"        2690  NULL        INTEGER             3  UINT64           1
+A_LEVEL_20 "ASK LEVEL 20"        2691  NULL        INTEGER             3  UINT64           1
+A_LEVEL_21 "ASK LEVEL 21"        2692  NULL        INTEGER             3  UINT64           1
+A_LEVEL_22 "ASK LEVEL 22"        2693  NULL        INTEGER             3  UINT64           1
+A_LEVEL_23 "ASK LEVEL 23"        2694  NULL        INTEGER             3  UINT64           1
+A_LEVEL_24 "ASK LEVEL 24"        2695  NULL        INTEGER             3  UINT64           1
+A_LEVEL_25 "ASK LEVEL 25"        2696  NULL        INTEGER             3  UINT64           1
 !
 ! The relative level of the Ask price.
 !
-B_LEVEL_1  "BID LEVEL 1"         2697  NULL        INTEGER             3  UINT32           1
-B_LEVEL_2  "BID LEVEL 2"         2698  NULL        INTEGER             3  UINT32           1
-B_LEVEL_3  "BID LEVEL 3"         2699  NULL        INTEGER             3  UINT32           1
-B_LEVEL_4  "BID LEVEL 4"         2700  NULL        INTEGER             3  UINT32           1
-B_LEVEL_5  "BID LEVEL 5"         2701  NULL        INTEGER             3  UINT32           1
-B_LEVEL_6  "BID LEVEL 6"         2702  NULL        INTEGER             3  UINT32           1
-B_LEVEL_7  "BID LEVEL 7"         2703  NULL        INTEGER             3  UINT32           1
-B_LEVEL_8  "BID LEVEL 8"         2704  NULL        INTEGER             3  UINT32           1
-B_LEVEL_9  "BID LEVEL 9"         2705  NULL        INTEGER             3  UINT32           1
-B_LEVEL_10 "BID LEVEL 10"        2706  NULL        INTEGER             3  UINT32           1
-B_LEVEL_11 "BID LEVEL 11"        2707  NULL        INTEGER             3  UINT32           1
-B_LEVEL_12 "BID LEVEL 12"        2708  NULL        INTEGER             3  UINT32           1
-B_LEVEL_13 "BID LEVEL 13"        2709  NULL        INTEGER             3  UINT32           1
-B_LEVEL_14 "BID LEVEL 14"        2710  NULL        INTEGER             3  UINT32           1
-B_LEVEL_15 "BID LEVEL 15"        2711  NULL        INTEGER             3  UINT32           1
-B_LEVEL_16 "BID LEVEL 16"        2712  NULL        INTEGER             3  UINT32           1
-B_LEVEL_17 "BID LEVEL 17"        2713  NULL        INTEGER             3  UINT32           1
-B_LEVEL_18 "BID LEVEL 18"        2714  NULL        INTEGER             3  UINT32           1
-B_LEVEL_19 "BID LEVEL 19"        2715  NULL        INTEGER             3  UINT32           1
-B_LEVEL_20 "BID LEVEL 20"        2716  NULL        INTEGER             3  UINT32           1
-B_LEVEL_21 "BID LEVEL 21"        2717  NULL        INTEGER             3  UINT32           1
-B_LEVEL_22 "BID LEVEL 22"        2718  NULL        INTEGER             3  UINT32           1
-B_LEVEL_23 "BID LEVEL 23"        2719  NULL        INTEGER             3  UINT32           1
-B_LEVEL_24 "BID LEVEL 24"        2720  NULL        INTEGER             3  UINT32           1
-B_LEVEL_25 "BID LEVEL 25"        2721  NULL        INTEGER             3  UINT32           1
+B_LEVEL_1  "BID LEVEL 1"         2697  NULL        INTEGER             3  UINT64           1
+B_LEVEL_2  "BID LEVEL 2"         2698  NULL        INTEGER             3  UINT64           1
+B_LEVEL_3  "BID LEVEL 3"         2699  NULL        INTEGER             3  UINT64           1
+B_LEVEL_4  "BID LEVEL 4"         2700  NULL        INTEGER             3  UINT64           1
+B_LEVEL_5  "BID LEVEL 5"         2701  NULL        INTEGER             3  UINT64           1
+B_LEVEL_6  "BID LEVEL 6"         2702  NULL        INTEGER             3  UINT64           1
+B_LEVEL_7  "BID LEVEL 7"         2703  NULL        INTEGER             3  UINT64           1
+B_LEVEL_8  "BID LEVEL 8"         2704  NULL        INTEGER             3  UINT64           1
+B_LEVEL_9  "BID LEVEL 9"         2705  NULL        INTEGER             3  UINT64           1
+B_LEVEL_10 "BID LEVEL 10"        2706  NULL        INTEGER             3  UINT64           1
+B_LEVEL_11 "BID LEVEL 11"        2707  NULL        INTEGER             3  UINT64           1
+B_LEVEL_12 "BID LEVEL 12"        2708  NULL        INTEGER             3  UINT64           1
+B_LEVEL_13 "BID LEVEL 13"        2709  NULL        INTEGER             3  UINT64           1
+B_LEVEL_14 "BID LEVEL 14"        2710  NULL        INTEGER             3  UINT64           1
+B_LEVEL_15 "BID LEVEL 15"        2711  NULL        INTEGER             3  UINT64           1
+B_LEVEL_16 "BID LEVEL 16"        2712  NULL        INTEGER             3  UINT64           1
+B_LEVEL_17 "BID LEVEL 17"        2713  NULL        INTEGER             3  UINT64           1
+B_LEVEL_18 "BID LEVEL 18"        2714  NULL        INTEGER             3  UINT64           1
+B_LEVEL_19 "BID LEVEL 19"        2715  NULL        INTEGER             3  UINT64           1
+B_LEVEL_20 "BID LEVEL 20"        2716  NULL        INTEGER             3  UINT64           1
+B_LEVEL_21 "BID LEVEL 21"        2717  NULL        INTEGER             3  UINT64           1
+B_LEVEL_22 "BID LEVEL 22"        2718  NULL        INTEGER             3  UINT64           1
+B_LEVEL_23 "BID LEVEL 23"        2719  NULL        INTEGER             3  UINT64           1
+B_LEVEL_24 "BID LEVEL 24"        2720  NULL        INTEGER             3  UINT64           1
+B_LEVEL_25 "BID LEVEL 25"        2721  NULL        INTEGER             3  UINT64           1
 !
 ! The relative level of the Bid price.
 !
@@ -7806,7 +7806,7 @@ CASH_EXDAT "CASH EXDAT"          3262  NULL        DATE               11  DATE  
 !
 ! The date on which the issue will trade ex-dividend with cash dividend.
 !
-PREV_DISP  "PREV DISP TMPLT"     3263  NULL        BINARY              3  UINT32           2
+PREV_DISP  "PREV DISP TMPLT"     3263  NULL        BINARY              3  UINT64           2
 !
 ! Field to hold original (4 digit) display template for DT upgrades. Same FID format 
 ! as PREF_DISP so can hold any values that FID can.
@@ -11200,7 +11200,7 @@ NAMEDITEMS "NAMED ITEMS"         4275  NULL        ALPHANUMERIC      255  RMTES_
 !
 ! Named items aka recurring reports
 !
-NEWS_PRIO  "NEWS PRIORITY"       4276  NULL        INTEGER             3  UINT32           1
+NEWS_PRIO  "NEWS PRIORITY"       4276  NULL        INTEGER             3  UINT64           1
 !
 ! News priority
 !
@@ -11228,7 +11228,7 @@ NEWSCODE20 "NEWS CODE 20"        4296  NULL        ALPHANUMERIC      255  RMTES_
 ! For all metadata which doesn't have specific fields in the new Logical Broadcast 
 ! Message (LBM)
 !
-SEG_NUM    "SEGMENT NUMBER"      4297  NULL        INTEGER             3  UINT32           1
+SEG_NUM    "SEGMENT NUMBER"      4297  NULL        INTEGER             3  UINT64           1
 !
 ! The number of this physical segment within the Logical Broadcast Message (LBM)
 !
@@ -11252,7 +11252,7 @@ TEXT_DIR   "TEXT DIRECTION"      4302  NULL        ALPHANUMERIC        1  RMTES_
 !
 ! Text directionality indicator
 !
-TOT_SEGS   "TOTAL SEGMENTS"      4303  NULL        INTEGER             3  UINT32           1
+TOT_SEGS   "TOTAL SEGMENTS"      4303  NULL        INTEGER             3  UINT64           1
 !
 ! The total number of physical segments within the Logical Broadcast Message (LBM)
 !
@@ -13551,7 +13551,7 @@ ITEM_CNTMX "ITEM CNT MAX"        5194  NULL        INTEGER            10  UINT64
 !
 ! Highest number of items available for subscription from the P2PS since last restart.
 !
-LH_UPDOWN  "LN HDLR UP/DOWN"     5195  NULL        INTEGER             3  UINT32           1
+LH_UPDOWN  "LN HDLR UP/DOWN"     5195  NULL        INTEGER             3  UINT64           1
 !
 ! Flag to indicate whether a Line Handler is currently up or down.  True=Up, 
 ! False=Down.
@@ -14324,7 +14324,7 @@ RETRAN_CNT "RETRANSMISSION CNT"  5527  NULL        INTEGER            10  UINT64
 !
 ! Total number of retransmission requests made in a 24 hour period.
 !
-COMOUT_CNT "COM OUTAGE COUNT"    5528  NULL        BINARY              3  UINT32           2
+COMOUT_CNT "COM OUTAGE COUNT"    5528  NULL        BINARY              3  UINT64           2
 !
 ! Number of north side communication outages since last Line Handler restart.
 !
@@ -14376,27 +14376,27 @@ ITEM_CT_ST "ITEM COUNT STALE"    5540  NULL        INTEGER            10  UINT64
 !
 ! Number of Items marked Stale out of the entire universe
 !
-SSL_UPSIZ  "SSL UPDATE SIZE"     5541  NULL        BINARY              3  UINT32           2
+SSL_UPSIZ  "SSL UPDATE SIZE"     5541  NULL        BINARY              3  UINT64           2
 !
 ! The average size of an SSL update in byes
 !
-RSSL_UPSIZ "RSSL UPDATE SIZE"    5542  NULL        BINARY              3  UINT32           2
+RSSL_UPSIZ "RSSL UPDATE SIZE"    5542  NULL        BINARY              3  UINT64           2
 !
 ! The average size of an RSSL update in bytes
 !
-MNT_USED   "MOUNTS USED"         5543  NULL        INTEGER             3  UINT32           1
+MNT_USED   "MOUNTS USED"         5543  NULL        INTEGER             3  UINT64           1
 !
 ! Number of P2PS Mounts in use
 !
-MNT_UNUSED "MOUNTS UNUSED"       5544  NULL        INTEGER             3  UINT32           1
+MNT_UNUSED "MOUNTS UNUSED"       5544  NULL        INTEGER             3  UINT64           1
 !
 ! Number of P2PS Mounts unused
 !
-MNT_TOTAL  "MOUNTS TOTAL"        5545  NULL        INTEGER             3  UINT32           1
+MNT_TOTAL  "MOUNTS TOTAL"        5545  NULL        INTEGER             3  UINT64           1
 !
 ! Total number of P2PS Mounts, used and unused
 !
-DISCON_CT  "DISCONNECT COUNT"    5546  NULL        BINARY              3  UINT32           2
+DISCON_CT  "DISCONNECT COUNT"    5546  NULL        BINARY              3  UINT64           2
 !
 ! Number of daily IPC Buffer Overflow disconnects
 !
@@ -14428,7 +14428,7 @@ UPDATE_RT  "UPDATE RATE"         5553  NULL        INTEGER            10  UINT64
 !
 ! Aggregate Messages Per Second Update Rate out of the P2PS across all applications
 !
-CPU_CT     "CPU COUNT"           5554  NULL        BINARY              3  UINT32           2
+CPU_CT     "CPU COUNT"           5554  NULL        BINARY              3  UINT64           2
 !
 ! Number of physical CPUs on the RDF-D
 !
@@ -17300,7 +17300,7 @@ METADATA5  "METADATA 5"          6393  NULL        ALPHANUMERIC      255  RMTES_
 !
 ! Feed metadata
 !
-DDS_DSO_ID "DDS DSO ID"          6401  NULL        BINARY              3  UINT32           2
+DDS_DSO_ID "DDS DSO ID"          6401  NULL        BINARY              3  UINT64           2
 !
 ! Elektron (DDS) equivalent of the IDN FID DSO_ID. Has its own set of values.
 !
@@ -17476,7 +17476,7 @@ CF_CURR    "CF CURRENCY"         6452  NULL        ENUMERATED    5 ( 3 )  ENUM  
 !
 ! Consolidated FID
 !
-RANK_POS   "RANKED POSITION"     6453  NULL        BINARY              3  UINT32           2
+RANK_POS   "RANKED POSITION"     6453  NULL        BINARY              3  UINT64           2
 !
 ! Map entry position indicator used to sort an ordered symbol list.
 !
@@ -17488,19 +17488,19 @@ PRICETHOLD "PRICE THRESHOLD"     6455  NULL        PRICE              17  REAL64
 !
 ! Price cut-off threshold specified as an absolute value. 
 !
-DOMAINTYPE "DOMAIN TYPE"         6456  NULL        INTEGER             3  UINT32           1
+DOMAINTYPE "DOMAIN TYPE"         6456  NULL        INTEGER             3  UINT64           1
 !
 ! DDS FID. The type of domain being used.
 !
-NAMETYPE   "NAME TYPE"           6457  NULL        INTEGER             3  UINT32           1
+NAMETYPE   "NAME TYPE"           6457  NULL        INTEGER             3  UINT64           1
 !
 ! DDS FID. EG. The type of name (EG. RIC, ISIN, CUSIP etc).
 !
-QOS        "QUALITY OF SERVICE"  6458  NULL        INTEGER             3  UINT32           1
+QOS        "QUALITY OF SERVICE"  6458  NULL        INTEGER             3  UINT64           1
 !
 ! DDS FID. Quality of service (EG Real-time, tick-by-tick etc).
 !
-SERVICE_ID "SERVICE ID"          6459  NULL        BINARY              3  UINT32           2
+SERVICE_ID "SERVICE ID"          6459  NULL        BINARY              3  UINT64           2
 !
 ! DDS FID. The service providing the item.
 !
@@ -17555,7 +17555,7 @@ SPS_TME_MS "SPS TIME MS"         6472  NULL        INTEGER            15  UINT64
 !
 ! GMT timestamp from the provider at the point of SPS transmission
 !
-SPS_FREQ   "SPS FREQUENCY"       6473  NULL        BINARY              3  UINT32           2
+SPS_FREQ   "SPS FREQUENCY"       6473  NULL        BINARY              3  UINT64           2
 !
 ! Frequency of the SPS publication in milliseconds
 !
@@ -17576,7 +17576,7 @@ SPS_SVC_TM "SPS SERVICE TIME"    6477  NULL        INTEGER            10  UINT64
 !
 ! Provider process up time in seconds
 !
-SPS_FAIL_T "SPS FAIL THRESHOLD"  6478  NULL        INTEGER             3  UINT32           1
+SPS_FAIL_T "SPS FAIL THRESHOLD"  6478  NULL        INTEGER             3  UINT64           1
 !
 ! Used to inform SPS consumers how many consecutive missed heartbeats constitute a 
 ! failure
@@ -17838,7 +17838,7 @@ ASK_DATE1  "ASK DATE"            6540  NULL        DATE               11  DATE  
 !
 ! The date associated with ASK_TIME1
 !
-INT_PR_RNK "INTRA PRICE RANK"    6541  NULL        INTEGER             3  UINT32           1
+INT_PR_RNK "INTRA PRICE RANK"    6541  NULL        INTEGER             3  UINT64           1
 !
 ! An integer value used to determine how an aggregated MBP/MBO row should be ranked 
 ! relative to other aggregated MBP/MBO rows with the same price
@@ -17880,8 +17880,7 @@ NO_ASKRD10 "NUM ASK ORDERS 10"   6563  NULL        INTEGER            15  UINT64
 !
 EXP_TYPE   "EXPIRATION TYPE"     6564  NULL        ENUMERATED    3 ( 2 )  ENUM             1
 !
-! A description of the style/type of of expiration associated with a derivatives 
-! contract.
+! A description of the style/type of expiration associated with a derivatives contract.
 !
 MIN_TRD_VO "MIN TRADE VOLUME"    6565  NULL        INTEGER            15  INT64            6
 !
@@ -17997,7 +17996,7 @@ CUSIP_XX   "CUSIP XX"            6595  NULL        ALPHANUMERIC        9  RMTES_
 !
 ! Nine character identification number assigned to U.S. securities. Redundant field.
 !
-SPS_SUCC_T "SPS SUCCESS THRESH"  6596  NULL        INTEGER             3  UINT32           1
+SPS_SUCC_T "SPS SUCCESS THRESH"  6596  NULL        INTEGER             3  UINT64           1
 !
 ! Used to inform SPS consumers how many consecutive received heartbeats constitute a 
 ! success (ie device back on line)
@@ -18047,19 +18046,19 @@ STS_RST_TM "STATS RESET TIME"    6607  NULL        TIME_SECONDS        8  TIME  
 !
 ! GMT time of day at which point the SPS stats are reset.
 !
-SPS_DM_GRP "SPS DOMAIN GROUP"    6608  NULL        BINARY              3  UINT32           2
+SPS_DM_GRP "SPS DOMAIN GROUP"    6608  NULL        BINARY              3  UINT64           2
 !
 ! States which domains the system processes
 !
-HASH_FROM  "HASH FROM"           6609  NULL        BINARY              6  UINT32           4
+HASH_FROM  "HASH FROM"           6609  NULL        BINARY              6  UINT64           4
 !
 ! Start value of a hash range (served by a MC)
 !
-HASH_TO    "HASH TO"             6610  NULL        BINARY              6  UINT32           4
+HASH_TO    "HASH TO"             6610  NULL        BINARY              6  UINT64           4
 !
 ! End value of a hash range (served by a MC)
 !
-RQ_MCST_AD "REQ MULTICAST ADD"   6611  NULL        BINARY              6  UINT32           4
+RQ_MCST_AD "REQ MULTICAST ADD"   6611  NULL        BINARY              6  UINT64           4
 !
 ! The multicast address to be used in communication between the SS and MC 
 ! corresponding to the specified hash range
@@ -18142,7 +18141,7 @@ CB_EXCHID  "CIRCUIT BRK EXCH"    6630  NULL        ENUMERATED    5 ( 3 )  ENUM  
 ! 1709 RDN_EXCHD2
 !
 SVC_STATE  "SERVICE STATE"       6633  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-SPS_REQRPT "REQ MCAST PORT"      6634  NULL        BINARY              6  UINT32           4
+SPS_REQRPT "REQ MCAST PORT"      6634  NULL        BINARY              6  UINT64           4
 RCD_TYP_LG "RECORD TYPE LRG"     6635  NULL        INTEGER            15  INT64            6
 !
 !
@@ -19723,16 +19722,51 @@ MOC2_BIDSZ "MOC2 BID SIZE"       7105  NULL        INTEGER            15  INT64 
 ! Secondary Market On Close TOB Bid Size where sizes are given with no price and price 
 ! is known at End of Day.
 !
-PRE_INT227 "PRED INTEGER 227"    7106  NULL        INTEGER            15  INT64            6
-PRE_INT228 "PRED INTEGER 228"    7107  NULL        INTEGER            15  INT64            6
-PRE_INT229 "PRED INTEGER 229"    7108  NULL        INTEGER            15  INT64            6
-PRE_INT230 "PRED INTEGER 230"    7109  NULL        INTEGER            15  INT64            6
-PRE_INT231 "PRED INTEGER 231"    7110  NULL        INTEGER            15  INT64            6
-PRE_INT232 "PRED INTEGER 232"    7111  NULL        INTEGER            15  INT64            6
-PRE_INT233 "PRED INTEGER 233"    7112  NULL        INTEGER            15  INT64            6
-PRE_INT234 "PRED INTEGER 234"    7113  NULL        INTEGER            15  INT64            6
-PRE_INT235 "PRED INTEGER 235"    7114  NULL        INTEGER            15  INT64            6
-PRE_INT236 "PRED INTEGER 236"    7115  NULL        INTEGER            15  INT64            6
+BMK_SEQNO  "BMK REF SEQ NUM"     7106  NULL        INTEGER            15  INT64            6
+!
+! Native message sequence number of the reference security, e.g. BMK associated with 
+! an instrument that is being quoted/traded. 
+!
+REOPEN_NUM "REOPEN NUMBER"       7107  NULL        INTEGER            15  INT64            6
+!
+! Number of times bond is re-opened
+!
+ST_BMK_TNR "STANDARD BMK TENOR"  7108  NULL        INTEGER            15  INT64            6
+!
+! Effective month tenor - number of month corresponding to the common tenor for a bond 
+! designated as a benchmark
+!
+THRESH_SEQ "THRESH SEQ NUM"      7109  NULL        INTEGER            15  INT64            6
+!
+! Native sequence number of the message flagged as containing a suspected price
+!
+ANLYTC_SEQ "ANALYTIC SEQ NUM"    7110  NULL        INTEGER            15  INT64            6
+!
+! Analytical Sequence Number by EVAI
+!
+RFC_DBE_DY "RFC DAYS EXP DAYS"   7111  NULL        INTEGER            15  INT64            6
+!
+! RFC Days Before Expiry.  The number of days from expiry from which the RFC will no 
+! longer be available.
+!
+RFC_IMINSZ "RFC INITOR MIN SZ"   7112  NULL        INTEGER            15  INT64            6
+!
+! Minimum RFC Initiator Quantity.  The minimum quantity required to submit an RFC as 
+! an initiator.
+!
+RFC_RMINSZ "RFC REATOR MIN SZ"   7113  NULL        INTEGER            15  INT64            6
+!
+! Minimum RFC Reactor Quantity.  The minimum quantity required to submit a response to 
+! the RFC during the improvement period. 
+!
+ESMA_TNT   "ESMA TTL NUM TRD"    7114  NULL        INTEGER            15  INT64            6
+!
+! ESMA official Total Number of Transactions
+!
+TR_ITNT    "TR IND TTL NUM TRD"  7115  NULL        INTEGER            15  INT64            6
+!
+! TR Current Indicative Total Number of Transactions
+!
 PRE_INT237 "PRED INTEGER 237"    7116  NULL        INTEGER            15  INT64            6
 PRE_INT238 "PRED INTEGER 238"    7117  NULL        INTEGER            15  INT64            6
 PRE_INT239 "PRED INTEGER 239"    7118  NULL        INTEGER            15  INT64            6
@@ -23610,7 +23644,10 @@ LEG2_SIMC  "LEG2 SIMC"           8332  NULL        ALPHANUMERIC       32  ASCII_
 !
 ! All contributors Chain RIC
 !
-PRE_AN034  "PRED ALPH NM 034"    8333  NULL        ALPHANUMERIC       32  ASCII_STRING    32
+ROU_ID_RIC "ROUTE INDEX RIC"     8333  NULL        ALPHANUMERIC       32  ASCII_STRING    32
+!
+! The Index RIC (Baltic) of a Freight Route
+!
 PRE_AN035  "PRED ALPH NM 035"    8334  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 PRE_AN036  "PRED ALPH NM 036"    8335  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 PRE_AN037  "PRED ALPH NM 037"    8336  NULL        ALPHANUMERIC       32  ASCII_STRING    32
@@ -24563,7 +24600,10 @@ ANL_DESC   "ANALYTIC DESC"       8681  NULL        ALPHANUMERIC       24  RMTES_
 !
 ! Native Value description for use in SDM
 !
-PRE_24T051 "PRED 24 TXT 051"     8682  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+BMK_CRV_ID "BMK CURVE ID"        8682  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Native venue reference CURVE ID
+!
 PRE_24T052 "PRED 24 TXT 052"     8683  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 PRE_24T053 "PRED 24 TXT 053"     8684  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 PRE_24T054 "PRED 24 TXT 054"     8685  NULL        ALPHANUMERIC       24  RMTES_STRING    24
@@ -24993,68 +25033,68 @@ PRE_LB100  "PRED 255 LB 100"     8875  NULL        ALPHANUMERIC      255  RMTES_
 !
 ! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
 !
-NF_1D      "NEWSFLAG 1DAY"       8876  NULL        INTEGER             3  UINT32           1
+NF_1D      "NEWSFLAG 1DAY"       8876  NULL        INTEGER             3  UINT64           1
 !
 ! Binary flag for news in last day 
 !
-NF_7D      "NEWSFLAG 7DAY"       8877  NULL        INTEGER             3  UINT32           1
+NF_7D      "NEWSFLAG 7DAY"       8877  NULL        INTEGER             3  UINT64           1
 !
 ! Binary flag for news in last 7 days 
 !
-NF_14D     "NEWSFLAG 14DAY"      8878  NULL        INTEGER             3  UINT32           1
+NF_14D     "NEWSFLAG 14DAY"      8878  NULL        INTEGER             3  UINT64           1
 !
 ! Binary flag for news in last 14 days 
 !
-NF_30D     "NEWSFLAG 30DAY"      8879  NULL        INTEGER             3  UINT32           1
+NF_30D     "NEWSFLAG 30DAY"      8879  NULL        INTEGER             3  UINT64           1
 !
 ! Binary flag for news in last 30 day s
 !
-NF_60D     "NEWSFLAG 60DAY"      8880  NULL        INTEGER             3  UINT32           1
+NF_60D     "NEWSFLAG 60DAY"      8880  NULL        INTEGER             3  UINT64           1
 !
 ! Binary flag for news in last 60 day s
 !
-NF_90D     "NEWSFLAG 90DAY"      8881  NULL        INTEGER             3  UINT32           1
+NF_90D     "NEWSFLAG 90DAY"      8881  NULL        INTEGER             3  UINT64           1
 !
 ! Binary flag for news in last 90 days 
 !
-PRE_1BN007 "PRED 1 BIN 007"      8882  NULL        INTEGER             3  UINT32           1
-PRE_1BN008 "PRED 1 BIN 008"      8883  NULL        INTEGER             3  UINT32           1
-PRE_1BN009 "PRED 1 BIN 009"      8884  NULL        INTEGER             3  UINT32           1
-PRE_1BN010 "PRED 1 BIN 010"      8885  NULL        INTEGER             3  UINT32           1
-PRE_1BN011 "PRED 1 BIN 011"      8886  NULL        INTEGER             3  UINT32           1
-PRE_1BN012 "PRED 1 BIN 012"      8887  NULL        INTEGER             3  UINT32           1
-PRE_1BN013 "PRED 1 BIN 013"      8888  NULL        INTEGER             3  UINT32           1
-PRE_1BN014 "PRED 1 BIN 014"      8889  NULL        INTEGER             3  UINT32           1
-PRE_1BN015 "PRED 1 BIN 015"      8890  NULL        INTEGER             3  UINT32           1
-PRE_1BN016 "PRED 1 BIN 016"      8891  NULL        INTEGER             3  UINT32           1
-PRE_1BN017 "PRED 1 BIN 017"      8892  NULL        INTEGER             3  UINT32           1
-PRE_1BN018 "PRED 1 BIN 018"      8893  NULL        INTEGER             3  UINT32           1
-PRE_1BN019 "PRED 1 BIN 019"      8894  NULL        INTEGER             3  UINT32           1
-PRE_1BN020 "PRED 1 BIN 020"      8895  NULL        INTEGER             3  UINT32           1
-PRE_1BN021 "PRED 1 BIN 021"      8896  NULL        INTEGER             3  UINT32           1
-PRE_1BN022 "PRED 1 BIN 022"      8897  NULL        INTEGER             3  UINT32           1
-PRE_1BN023 "PRED 1 BIN 023"      8898  NULL        INTEGER             3  UINT32           1
-PRE_1BN024 "PRED 1 BIN 024"      8899  NULL        INTEGER             3  UINT32           1
-PRE_2BN001 "PRED 2 BIN 001"      8900  NULL        BINARY              3  UINT32           2
-PRE_2BN002 "PRED 2 BIN 002"      8901  NULL        BINARY              3  UINT32           2
-PRE_2BN003 "PRED 2 BIN 003"      8902  NULL        BINARY              3  UINT32           2
-PRE_2BN004 "PRED 2 BIN 004"      8903  NULL        BINARY              3  UINT32           2
-PRE_2BN005 "PRED 2 BIN 005"      8904  NULL        BINARY              3  UINT32           2
-PRE_2BN006 "PRED 2 BIN 006"      8905  NULL        BINARY              3  UINT32           2
-PRE_2BN007 "PRED 2 BIN 007"      8906  NULL        BINARY              3  UINT32           2
-PRE_2BN008 "PRED 2 BIN 008"      8907  NULL        BINARY              3  UINT32           2
-PRE_2BN009 "PRED 2 BIN 009"      8908  NULL        BINARY              3  UINT32           2
-PRE_2BN010 "PRED 2 BIN 010"      8909  NULL        BINARY              3  UINT32           2
-PRE_2BN011 "PRED 2 BIN 011"      8910  NULL        BINARY              3  UINT32           2
-PRE_2BN012 "PRED 2 BIN 012"      8911  NULL        BINARY              3  UINT32           2
-PRE_2BN013 "PRED 2 BIN 013"      8912  NULL        BINARY              3  UINT32           2
-PRE_2BN014 "PRED 2 BIN 014"      8913  NULL        BINARY              3  UINT32           2
-PRE_2BN015 "PRED 2 BIN 015"      8914  NULL        BINARY              3  UINT32           2
-PRE_2BN016 "PRED 2 BIN 016"      8915  NULL        BINARY              3  UINT32           2
-PRE_2BN017 "PRED 2 BIN 017"      8916  NULL        BINARY              3  UINT32           2
-PRE_2BN018 "PRED 2 BIN 018"      8917  NULL        BINARY              3  UINT32           2
-PRE_2BN019 "PRED 2 BIN 019"      8918  NULL        BINARY              3  UINT32           2
-PRE_2BN020 "PRED 2 BIN 020"      8919  NULL        BINARY              3  UINT32           2
+PRE_1BN007 "PRED 1 BIN 007"      8882  NULL        INTEGER             3  UINT64           1
+PRE_1BN008 "PRED 1 BIN 008"      8883  NULL        INTEGER             3  UINT64           1
+PRE_1BN009 "PRED 1 BIN 009"      8884  NULL        INTEGER             3  UINT64           1
+PRE_1BN010 "PRED 1 BIN 010"      8885  NULL        INTEGER             3  UINT64           1
+PRE_1BN011 "PRED 1 BIN 011"      8886  NULL        INTEGER             3  UINT64           1
+PRE_1BN012 "PRED 1 BIN 012"      8887  NULL        INTEGER             3  UINT64           1
+PRE_1BN013 "PRED 1 BIN 013"      8888  NULL        INTEGER             3  UINT64           1
+PRE_1BN014 "PRED 1 BIN 014"      8889  NULL        INTEGER             3  UINT64           1
+PRE_1BN015 "PRED 1 BIN 015"      8890  NULL        INTEGER             3  UINT64           1
+PRE_1BN016 "PRED 1 BIN 016"      8891  NULL        INTEGER             3  UINT64           1
+PRE_1BN017 "PRED 1 BIN 017"      8892  NULL        INTEGER             3  UINT64           1
+PRE_1BN018 "PRED 1 BIN 018"      8893  NULL        INTEGER             3  UINT64           1
+PRE_1BN019 "PRED 1 BIN 019"      8894  NULL        INTEGER             3  UINT64           1
+PRE_1BN020 "PRED 1 BIN 020"      8895  NULL        INTEGER             3  UINT64           1
+PRE_1BN021 "PRED 1 BIN 021"      8896  NULL        INTEGER             3  UINT64           1
+PRE_1BN022 "PRED 1 BIN 022"      8897  NULL        INTEGER             3  UINT64           1
+PRE_1BN023 "PRED 1 BIN 023"      8898  NULL        INTEGER             3  UINT64           1
+PRE_1BN024 "PRED 1 BIN 024"      8899  NULL        INTEGER             3  UINT64           1
+PRE_2BN001 "PRED 2 BIN 001"      8900  NULL        BINARY              3  UINT64           2
+PRE_2BN002 "PRED 2 BIN 002"      8901  NULL        BINARY              3  UINT64           2
+PRE_2BN003 "PRED 2 BIN 003"      8902  NULL        BINARY              3  UINT64           2
+PRE_2BN004 "PRED 2 BIN 004"      8903  NULL        BINARY              3  UINT64           2
+PRE_2BN005 "PRED 2 BIN 005"      8904  NULL        BINARY              3  UINT64           2
+PRE_2BN006 "PRED 2 BIN 006"      8905  NULL        BINARY              3  UINT64           2
+PRE_2BN007 "PRED 2 BIN 007"      8906  NULL        BINARY              3  UINT64           2
+PRE_2BN008 "PRED 2 BIN 008"      8907  NULL        BINARY              3  UINT64           2
+PRE_2BN009 "PRED 2 BIN 009"      8908  NULL        BINARY              3  UINT64           2
+PRE_2BN010 "PRED 2 BIN 010"      8909  NULL        BINARY              3  UINT64           2
+PRE_2BN011 "PRED 2 BIN 011"      8910  NULL        BINARY              3  UINT64           2
+PRE_2BN012 "PRED 2 BIN 012"      8911  NULL        BINARY              3  UINT64           2
+PRE_2BN013 "PRED 2 BIN 013"      8912  NULL        BINARY              3  UINT64           2
+PRE_2BN014 "PRED 2 BIN 014"      8913  NULL        BINARY              3  UINT64           2
+PRE_2BN015 "PRED 2 BIN 015"      8914  NULL        BINARY              3  UINT64           2
+PRE_2BN016 "PRED 2 BIN 016"      8915  NULL        BINARY              3  UINT64           2
+PRE_2BN017 "PRED 2 BIN 017"      8916  NULL        BINARY              3  UINT64           2
+PRE_2BN018 "PRED 2 BIN 018"      8917  NULL        BINARY              3  UINT64           2
+PRE_2BN019 "PRED 2 BIN 019"      8918  NULL        BINARY              3  UINT64           2
+PRE_2BN020 "PRED 2 BIN 020"      8919  NULL        BINARY              3  UINT64           2
 !
 ! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
 !
@@ -25784,7 +25824,7 @@ PRE_080_MS "PRED TIME MS 080"    9139  NULL        INTEGER            15  UINT64
 !
 ! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
 !
-MC_REC_LAB "MC_RECOVERY_LABEL"   9140  NULL        BINARY              3  UINT32           2
+MC_REC_LAB "MC_RECOVERY_LABEL"   9140  NULL        BINARY              3  UINT64           2
 !
 ! Index into DDS Multicast Label File, must be present with valid index for any 
 ! Publisher supporting recovery, when supported
@@ -26228,24 +26268,75 @@ INTRSNP_DT "INTRADAY SNAP DATE"  9289  NULL        DATE               11  DATE  
 !
 ! Date when the intraday price was last snapped
 !
-PRE_DT179  "PRED DATE 179"       9290  NULL        DATE               11  DATE             4
-PRE_DT180  "PRED DATE 180"       9291  NULL        DATE               11  DATE             4
-PRE_DT181  "PRED DATE 181"       9292  NULL        DATE               11  DATE             4
-PRE_DT182  "PRED DATE 182"       9293  NULL        DATE               11  DATE             4
-PRE_DT183  "PRED DATE 183"       9294  NULL        DATE               11  DATE             4
-PRE_DT184  "PRED DATE 184"       9295  NULL        DATE               11  DATE             4
-PRE_DT185  "PRED DATE 185"       9296  NULL        DATE               11  DATE             4
-PRE_DT186  "PRED DATE 186"       9297  NULL        DATE               11  DATE             4
-PRE_DT187  "PRED DATE 187"       9298  NULL        DATE               11  DATE             4
-PRE_DT188  "PRED DATE 188"       9299  NULL        DATE               11  DATE             4
-PRE_DT189  "PRED DATE 189"       9300  NULL        DATE               11  DATE             4
-PRE_DT190  "PRED DATE 190"       9301  NULL        DATE               11  DATE             4
-PRE_DT191  "PRED DATE 191"       9302  NULL        DATE               11  DATE             4
-PRE_DT192  "PRED DATE 192"       9303  NULL        DATE               11  DATE             4
-PRE_DT193  "PRED DATE 193"       9304  NULL        DATE               11  DATE             4
-PRE_DT194  "PRED DATE 194"       9305  NULL        DATE               11  DATE             4
-PRE_DT195  "PRED DATE 195"       9306  NULL        DATE               11  DATE             4
-PRE_DT196  "PRED DATE 196"       9307  NULL        DATE               11  DATE             4
+NDOR_1     "NXT DT OF RELEASE"   9290  NULL        DATE               11  DATE             4
+!
+! To display the Next date of release.
+!
+FV_DATE    "FAIR VALUE DATE"     9291  NULL        DATE               11  DATE             4
+!
+! The date of the value in the field FAIR_VALUE
+!
+MET_DT_SC  "SEC MET VAL DATE"    9292  NULL        DATE               11  DATE             4
+!
+! Secondary Metric Value date field
+!
+R_A_TRD_DT "REL ASK TRD DT"      9293  NULL        DATE               11  DATE             4
+!
+! Related Date for ASK side for a trade reporting
+!
+R_B_TRD_DT "REL BID TRD DT"      9294  NULL        DATE               11  DATE             4
+!
+! Related Date for BID side for a trade reporting
+!
+DELIV_DT2  "DELIVERY DATE 2"     9295  NULL        DATE               11  DATE             4
+DELIV_DT3  "DELIVERY DATE 3"     9296  NULL        DATE               11  DATE             4
+!
+! Delivery Date. The Date for which the price is fixed
+!
+ADM_APR_DT "ADM APR DATE"        9297  NULL        DATE               11  DATE             4
+!
+! Date of approval of the admission to trading
+!
+ADM_REQ_DT "ADM REQ DATE"        9298  NULL        DATE               11  DATE             4
+!
+! Date of request for admission to trading
+!
+CLR_OBL_DT "CLR OBLIGATION DT"   9299  NULL        DATE               11  DATE             4
+!
+! Clearing Obligation Flag Effective Date
+!
+ESMATMV_DT "ESMA TMV DATE"       9300  NULL        DATE               11  DATE             4
+!
+! ESMA official Total Market Volume Date
+!
+ESMATNT_DT "ESMA TNT DATE"       9301  NULL        DATE               11  DATE             4
+!
+! ESMA official Total Number of Transactions Date
+!
+SRC_ES_DT  "SRC EGRESS DATE"     9302  NULL        DATE               11  DATE             4
+!
+! Publication date
+!
+TR_ITMV_DT "TR IND TMV DATE"     9303  NULL        DATE               11  DATE             4
+!
+! TR Current Indicative Total Market Volume Date
+!
+TR_ITNT_DT "TR IND TNT DATE"     9304  NULL        DATE               11  DATE             4
+!
+! TR Current Indicative Total Number of Transactions Date
+!
+TRD_OBL_DT "TRD OBLIGATION DT"   9305  NULL        DATE               11  DATE             4
+!
+! Trade Obligation Flag Effective Date
+!
+VNE_SUS_DT "VENUE SUS DATE"      9306  NULL        DATE               11  DATE             4
+!
+! Venue Suspension Effective Date
+!
+VNE_SUSEDT "VENUE SUS END DT"    9307  NULL        DATE               11  DATE             4
+!
+! Venue Suspension End Date
+!
 PRE_DT197  "PRED DATE 197"       9308  NULL        DATE               11  DATE             4
 PRE_DT198  "PRED DATE 198"       9309  NULL        DATE               11  DATE             4
 PRE_DT199  "PRED DATE 199"       9310  NULL        DATE               11  DATE             4
@@ -27961,171 +28052,570 @@ OPEN_MYLD  "OPEN MID YIELD"     10168  NULL        PRICE              17  REAL64
 !
 ! Open Mid Yield
 !
-PRERL1178  "PRED REAL 1178"     10169  NULL        PRICE              17  REAL64           7
-PRERL1179  "PRED REAL 1179"     10170  NULL        PRICE              17  REAL64           7
-PRERL1180  "PRED REAL 1180"     10171  NULL        PRICE              17  REAL64           7
-PRERL1181  "PRED REAL 1181"     10172  NULL        PRICE              17  REAL64           7
-PRERL1182  "PRED REAL 1182"     10173  NULL        PRICE              17  REAL64           7
-PRERL1183  "PRED REAL 1183"     10174  NULL        PRICE              17  REAL64           7
-PRERL1184  "PRED REAL 1184"     10175  NULL        PRICE              17  REAL64           7
-PRERL1185  "PRED REAL 1185"     10176  NULL        PRICE              17  REAL64           7
-PRERL1186  "PRED REAL 1186"     10177  NULL        PRICE              17  REAL64           7
-PRERL1187  "PRED REAL 1187"     10178  NULL        PRICE              17  REAL64           7
-PRERL1188  "PRED REAL 1188"     10179  NULL        PRICE              17  REAL64           7
-PRERL1189  "PRED REAL 1189"     10180  NULL        PRICE              17  REAL64           7
-PRERL1190  "PRED REAL 1190"     10181  NULL        PRICE              17  REAL64           7
-PRERL1191  "PRED REAL 1191"     10182  NULL        PRICE              17  REAL64           7
-PRERL1192  "PRED REAL 1192"     10183  NULL        PRICE              17  REAL64           7
-PRERL1193  "PRED REAL 1193"     10184  NULL        PRICE              17  REAL64           7
-PRERL1194  "PRED REAL 1194"     10185  NULL        PRICE              17  REAL64           7
-PRERL1195  "PRED REAL 1195"     10186  NULL        PRICE              17  REAL64           7
-PRERL1196  "PRED REAL 1196"     10187  NULL        PRICE              17  REAL64           7
-PRERL1197  "PRED REAL 1197"     10188  NULL        PRICE              17  REAL64           7
-PRERL1198  "PRED REAL 1198"     10189  NULL        PRICE              17  REAL64           7
-PRERL1199  "PRED REAL 1199"     10190  NULL        PRICE              17  REAL64           7
-PRERL1200  "PRED REAL 1200"     10191  NULL        PRICE              17  REAL64           7
-PRERL1201  "PRED REAL 1201"     10192  NULL        PRICE              17  REAL64           7
-PRERL1202  "PRED REAL 1202"     10193  NULL        PRICE              17  REAL64           7
-PRERL1203  "PRED REAL 1203"     10194  NULL        PRICE              17  REAL64           7
-PRERL1204  "PRED REAL 1204"     10195  NULL        PRICE              17  REAL64           7
-PRERL1205  "PRED REAL 1205"     10196  NULL        PRICE              17  REAL64           7
-PRERL1206  "PRED REAL 1206"     10197  NULL        PRICE              17  REAL64           7
-PRERL1207  "PRED REAL 1207"     10198  NULL        PRICE              17  REAL64           7
-PRERL1208  "PRED REAL 1208"     10199  NULL        PRICE              17  REAL64           7
-PRERL1209  "PRED REAL 1209"     10200  NULL        PRICE              17  REAL64           7
-PRERL1210  "PRED REAL 1210"     10201  NULL        PRICE              17  REAL64           7
-PRERL1211  "PRED REAL 1211"     10202  NULL        PRICE              17  REAL64           7
-PRERL1212  "PRED REAL 1212"     10203  NULL        PRICE              17  REAL64           7
-PRERL1213  "PRED REAL 1213"     10204  NULL        PRICE              17  REAL64           7
-PRERL1214  "PRED REAL 1214"     10205  NULL        PRICE              17  REAL64           7
-PRERL1215  "PRED REAL 1215"     10206  NULL        PRICE              17  REAL64           7
-PRERL1216  "PRED REAL 1216"     10207  NULL        PRICE              17  REAL64           7
-PRERL1217  "PRED REAL 1217"     10208  NULL        PRICE              17  REAL64           7
-PRERL1218  "PRED REAL 1218"     10209  NULL        PRICE              17  REAL64           7
-PRERL1219  "PRED REAL 1219"     10210  NULL        PRICE              17  REAL64           7
-PRERL1220  "PRED REAL 1220"     10211  NULL        PRICE              17  REAL64           7
-PRERL1221  "PRED REAL 1221"     10212  NULL        PRICE              17  REAL64           7
-PRERL1222  "PRED REAL 1222"     10213  NULL        PRICE              17  REAL64           7
-PRERL1223  "PRED REAL 1223"     10214  NULL        PRICE              17  REAL64           7
-PRERL1224  "PRED REAL 1224"     10215  NULL        PRICE              17  REAL64           7
-PRERL1225  "PRED REAL 1225"     10216  NULL        PRICE              17  REAL64           7
-PRERL1226  "PRED REAL 1226"     10217  NULL        PRICE              17  REAL64           7
-PRERL1227  "PRED REAL 1227"     10218  NULL        PRICE              17  REAL64           7
-PRERL1228  "PRED REAL 1228"     10219  NULL        PRICE              17  REAL64           7
-PRERL1229  "PRED REAL 1229"     10220  NULL        PRICE              17  REAL64           7
-PRERL1230  "PRED REAL 1230"     10221  NULL        PRICE              17  REAL64           7
-PRERL1231  "PRED REAL 1231"     10222  NULL        PRICE              17  REAL64           7
-PRERL1232  "PRED REAL 1232"     10223  NULL        PRICE              17  REAL64           7
-PRERL1233  "PRED REAL 1233"     10224  NULL        PRICE              17  REAL64           7
-PRERL1234  "PRED REAL 1234"     10225  NULL        PRICE              17  REAL64           7
-PRERL1235  "PRED REAL 1235"     10226  NULL        PRICE              17  REAL64           7
-PRERL1236  "PRED REAL 1236"     10227  NULL        PRICE              17  REAL64           7
-PRERL1237  "PRED REAL 1237"     10228  NULL        PRICE              17  REAL64           7
-PRERL1238  "PRED REAL 1238"     10229  NULL        PRICE              17  REAL64           7
-PRERL1239  "PRED REAL 1239"     10230  NULL        PRICE              17  REAL64           7
-PRERL1240  "PRED REAL 1240"     10231  NULL        PRICE              17  REAL64           7
-PRERL1241  "PRED REAL 1241"     10232  NULL        PRICE              17  REAL64           7
-PRERL1242  "PRED REAL 1242"     10233  NULL        PRICE              17  REAL64           7
-PRERL1243  "PRED REAL 1243"     10234  NULL        PRICE              17  REAL64           7
-PRERL1244  "PRED REAL 1244"     10235  NULL        PRICE              17  REAL64           7
-PRERL1245  "PRED REAL 1245"     10236  NULL        PRICE              17  REAL64           7
-PRERL1246  "PRED REAL 1246"     10237  NULL        PRICE              17  REAL64           7
-PRERL1247  "PRED REAL 1247"     10238  NULL        PRICE              17  REAL64           7
-PRERL1248  "PRED REAL 1248"     10239  NULL        PRICE              17  REAL64           7
-PRERL1249  "PRED REAL 1249"     10240  NULL        PRICE              17  REAL64           7
-PRERL1250  "PRED REAL 1250"     10241  NULL        PRICE              17  REAL64           7
-PRERL1251  "PRED REAL 1251"     10242  NULL        PRICE              17  REAL64           7
-PRERL1252  "PRED REAL 1252"     10243  NULL        PRICE              17  REAL64           7
-PRERL1253  "PRED REAL 1253"     10244  NULL        PRICE              17  REAL64           7
-PRERL1254  "PRED REAL 1254"     10245  NULL        PRICE              17  REAL64           7
-PRERL1255  "PRED REAL 1255"     10246  NULL        PRICE              17  REAL64           7
-PRERL1256  "PRED REAL 1256"     10247  NULL        PRICE              17  REAL64           7
-PRERL1257  "PRED REAL 1257"     10248  NULL        PRICE              17  REAL64           7
-PRERL1258  "PRED REAL 1258"     10249  NULL        PRICE              17  REAL64           7
-PRERL1259  "PRED REAL 1259"     10250  NULL        PRICE              17  REAL64           7
-PRERL1260  "PRED REAL 1260"     10251  NULL        PRICE              17  REAL64           7
-PRERL1261  "PRED REAL 1261"     10252  NULL        PRICE              17  REAL64           7
-PRERL1262  "PRED REAL 1262"     10253  NULL        PRICE              17  REAL64           7
-PRERL1263  "PRED REAL 1263"     10254  NULL        PRICE              17  REAL64           7
-PRERL1264  "PRED REAL 1264"     10255  NULL        PRICE              17  REAL64           7
-PRERL1265  "PRED REAL 1265"     10256  NULL        PRICE              17  REAL64           7
-PRERL1266  "PRED REAL 1266"     10257  NULL        PRICE              17  REAL64           7
-PRERL1267  "PRED REAL 1267"     10258  NULL        PRICE              17  REAL64           7
-PRERL1268  "PRED REAL 1268"     10259  NULL        PRICE              17  REAL64           7
-PRERL1269  "PRED REAL 1269"     10260  NULL        PRICE              17  REAL64           7
-PRERL1270  "PRED REAL 1270"     10261  NULL        PRICE              17  REAL64           7
-PRERL1271  "PRED REAL 1271"     10262  NULL        PRICE              17  REAL64           7
-PRERL1272  "PRED REAL 1272"     10263  NULL        PRICE              17  REAL64           7
-PRERL1273  "PRED REAL 1273"     10264  NULL        PRICE              17  REAL64           7
-PRERL1274  "PRED REAL 1274"     10265  NULL        PRICE              17  REAL64           7
-PRERL1275  "PRED REAL 1275"     10266  NULL        PRICE              17  REAL64           7
-PRERL1276  "PRED REAL 1276"     10267  NULL        PRICE              17  REAL64           7
-PRERL1277  "PRED REAL 1277"     10268  NULL        PRICE              17  REAL64           7
-PRERL1278  "PRED REAL 1278"     10269  NULL        PRICE              17  REAL64           7
-PRERL1279  "PRED REAL 1279"     10270  NULL        PRICE              17  REAL64           7
-PRERL1280  "PRED REAL 1280"     10271  NULL        PRICE              17  REAL64           7
-PRERL1281  "PRED REAL 1281"     10272  NULL        PRICE              17  REAL64           7
-PRERL1282  "PRED REAL 1282"     10273  NULL        PRICE              17  REAL64           7
-PRERL1283  "PRED REAL 1283"     10274  NULL        PRICE              17  REAL64           7
-PRERL1284  "PRED REAL 1284"     10275  NULL        PRICE              17  REAL64           7
-PRERL1285  "PRED REAL 1285"     10276  NULL        PRICE              17  REAL64           7
-PRERL1286  "PRED REAL 1286"     10277  NULL        PRICE              17  REAL64           7
-PRERL1287  "PRED REAL 1287"     10278  NULL        PRICE              17  REAL64           7
-PRERL1288  "PRED REAL 1288"     10279  NULL        PRICE              17  REAL64           7
-PRERL1289  "PRED REAL 1289"     10280  NULL        PRICE              17  REAL64           7
-PRERL1290  "PRED REAL 1290"     10281  NULL        PRICE              17  REAL64           7
-PRERL1291  "PRED REAL 1291"     10282  NULL        PRICE              17  REAL64           7
-PRERL1292  "PRED REAL 1292"     10283  NULL        PRICE              17  REAL64           7
-PRERL1293  "PRED REAL 1293"     10284  NULL        PRICE              17  REAL64           7
-PRERL1294  "PRED REAL 1294"     10285  NULL        PRICE              17  REAL64           7
-PRERL1295  "PRED REAL 1295"     10286  NULL        PRICE              17  REAL64           7
-PRERL1296  "PRED REAL 1296"     10287  NULL        PRICE              17  REAL64           7
-PRERL1297  "PRED REAL 1297"     10288  NULL        PRICE              17  REAL64           7
-PRERL1298  "PRED REAL 1298"     10289  NULL        PRICE              17  REAL64           7
-PRERL1299  "PRED REAL 1299"     10290  NULL        PRICE              17  REAL64           7
-PRERL1300  "PRED REAL 1300"     10291  NULL        PRICE              17  REAL64           7
-PRERL1301  "PRED REAL 1301"     10292  NULL        PRICE              17  REAL64           7
-PRERL1302  "PRED REAL 1302"     10293  NULL        PRICE              17  REAL64           7
-PRERL1303  "PRED REAL 1303"     10294  NULL        PRICE              17  REAL64           7
-PRERL1304  "PRED REAL 1304"     10295  NULL        PRICE              17  REAL64           7
-PRERL1305  "PRED REAL 1305"     10296  NULL        PRICE              17  REAL64           7
-PRERL1306  "PRED REAL 1306"     10297  NULL        PRICE              17  REAL64           7
-PRERL1307  "PRED REAL 1307"     10298  NULL        PRICE              17  REAL64           7
-PRERL1308  "PRED REAL 1308"     10299  NULL        PRICE              17  REAL64           7
-PRERL1309  "PRED REAL 1309"     10300  NULL        PRICE              17  REAL64           7
-PRERL1310  "PRED REAL 1310"     10301  NULL        PRICE              17  REAL64           7
-PRERL1311  "PRED REAL 1311"     10302  NULL        PRICE              17  REAL64           7
-PRERL1312  "PRED REAL 1312"     10303  NULL        PRICE              17  REAL64           7
-PRERL1313  "PRED REAL 1313"     10304  NULL        PRICE              17  REAL64           7
-PRERL1314  "PRED REAL 1314"     10305  NULL        PRICE              17  REAL64           7
-PRERL1315  "PRED REAL 1315"     10306  NULL        PRICE              17  REAL64           7
-PRERL1316  "PRED REAL 1316"     10307  NULL        PRICE              17  REAL64           7
-PRERL1317  "PRED REAL 1317"     10308  NULL        PRICE              17  REAL64           7
-PRERL1318  "PRED REAL 1318"     10309  NULL        PRICE              17  REAL64           7
-PRERL1319  "PRED REAL 1319"     10310  NULL        PRICE              17  REAL64           7
-PRERL1320  "PRED REAL 1320"     10311  NULL        PRICE              17  REAL64           7
-PRERL1321  "PRED REAL 1321"     10312  NULL        PRICE              17  REAL64           7
-PRERL1322  "PRED REAL 1322"     10313  NULL        PRICE              17  REAL64           7
-PRERL1323  "PRED REAL 1323"     10314  NULL        PRICE              17  REAL64           7
-PRERL1324  "PRED REAL 1324"     10315  NULL        PRICE              17  REAL64           7
-PRERL1325  "PRED REAL 1325"     10316  NULL        PRICE              17  REAL64           7
-PRERL1326  "PRED REAL 1326"     10317  NULL        PRICE              17  REAL64           7
-PRERL1327  "PRED REAL 1327"     10318  NULL        PRICE              17  REAL64           7
-PRERL1328  "PRED REAL 1328"     10319  NULL        PRICE              17  REAL64           7
-PRERL1329  "PRED REAL 1329"     10320  NULL        PRICE              17  REAL64           7
-PRERL1330  "PRED REAL 1330"     10321  NULL        PRICE              17  REAL64           7
-PRERL1331  "PRED REAL 1331"     10322  NULL        PRICE              17  REAL64           7
-PRERL1332  "PRED REAL 1332"     10323  NULL        PRICE              17  REAL64           7
-PRERL1333  "PRED REAL 1333"     10324  NULL        PRICE              17  REAL64           7
-PRERL1334  "PRED REAL 1334"     10325  NULL        PRICE              17  REAL64           7
-PRERL1335  "PRED REAL 1335"     10326  NULL        PRICE              17  REAL64           7
-PRERL1336  "PRED REAL 1336"     10327  NULL        PRICE              17  REAL64           7
-PRERL1337  "PRED REAL 1337"     10328  NULL        PRICE              17  REAL64           7
-PRERL1338  "PRED REAL 1338"     10329  NULL        PRICE              17  REAL64           7
-PRERL1339  "PRED REAL 1339"     10330  NULL        PRICE              17  REAL64           7
-PRERL1340  "PRED REAL 1340"     10331  NULL        PRICE              17  REAL64           7
-PRERL1341  "PRED REAL 1341"     10332  NULL        PRICE              17  REAL64           7
-PRERL1342  "PRED REAL 1342"     10333  NULL        PRICE              17  REAL64           7
+FCAST_VAL  "FCAST VALUE"        10169  NULL        PRICE              17  REAL64           7
+!
+! Forecast Value
+!
+FCAST_SEST "FCAST SMT EST"      10170  NULL        PRICE              17  REAL64           7
+!
+! SmartEstimate, weighted by contributor performance
+!
+BA_NAUMILE "BALLAST NAU MILES"  10171  NULL        PRICE              17  REAL64           7
+!
+! Ballast Nautical Miles. Field to show the distance in nautical miles from origin 
+! port to load port
+!
+BA_VSL_SPD "BALLAST VSL SPD"    10172  NULL        PRICE              17  REAL64           7
+!
+! Ballast Vessel Speed. Field to show the speed of the vessel in Knot when there is no 
+! cargo onboard
+!
+BALLST_PDE "BALLAST PERIOD"     10173  NULL        PRICE              17  REAL64           7
+!
+! Ballast Period. Time taken from origin to load port.
+!
+FRGT_RATE1 "FREIGHT RATE 1"     10174  FRGT_RATE2  PRICE              17  REAL64           7
+!
+! Field to display the Freight Rate
+!
+FRGT_RATE2 "FREIGHT RATE 2"     10175  FRGT_RATE3  PRICE              17  REAL64           7
+!
+! Ripple FID of FRGT_RATE1
+!
+FRGT_RATE3 "FREIGHT RATE 3"     10176  NULL        PRICE              17  REAL64           7
+!
+! Ripple FID of FRGT_RATE2
+!
+LA_NAUMILE "LADEN NAU MILES"    10177  NULL        PRICE              17  REAL64           7
+!
+! Laden Nautical Miles. Field to show the distance in nautical miles from load port to 
+! discharge port
+!
+LA_VSL_SPD "LADEN VSL SPD"      10178  NULL        PRICE              17  REAL64           7
+!
+! Laden Vessel Speed. Field to show the speed of the vessel in Knot when the vessel is 
+! carrying cargo
+!
+LADEN_PDE  "LADEN PERIOD"       10179  NULL        PRICE              17  REAL64           7
+!
+! Laden Period. Time taken from load port to discharge port
+!
+LUMPSUM    "LUMP SUM"           10180  NULL        PRICE              17  REAL64           7
+!
+! Freight Lumpsum
+!
+NB_D_DLY   "AVG DAYS OF DELAY"  10181  NULL        PRICE              17  REAL64           7
+!
+! Average number of Days of Delay taken from one destination to another.
+!
+PCT_WS1    "PCT WORLDSCALE1"    10182  PCT_WS2     PRICE              17  REAL64           7
+PCT_WS2    "PCT WORLDSCALE2"    10183  PCT_WS3     PRICE              17  REAL64           7
+PCT_WS3    "PCT WORLDSCALE3"    10184  NULL        PRICE              17  REAL64           7
+!
+! Percentage Worldscale
+!
+TC_AVG     "TIME CHART AVG RT"  10185  NULL        PRICE              17  REAL64           7
+!
+! Time Charter Average
+!
+TC_RATE1   "TIME CHARTER RATE1" 10186  TC_RATE2    PRICE              17  REAL64           7
+TC_RATE2   "TIME CHARTER RATE2" 10187  TC_RATE3    PRICE              17  REAL64           7
+TC_RATE3   "TIME CHARTER RATE3" 10188  NULL        PRICE              17  REAL64           7
+!
+! Time Charter Rate
+!
+TCE_RATE   "TIME CHART EQV RT"  10189  NULL        PRICE              17  REAL64           7
+!
+! Time Charter Equivalent rate
+!
+VSL_DWT    "VESSEL DWT"         10190  NULL        PRICE              17  REAL64           7
+!
+! Deadweight Tonnage of a ship/vessel.
+!
+AVG_CS_API "AVG CRD SLATE API"  10191  NULL        PRICE              17  REAL64           7
+!
+! The average API Gravity of a crude slate
+!
+AVG_CS_SPG "AVG CRD SLATE SPG"  10192  NULL        PRICE              17  REAL64           7
+!
+! The average Specific Gravity of a crude slate
+!
+AVG_CS_SUL "AVG CRD SLATE SUL"  10193  NULL        PRICE              17  REAL64           7
+!
+! The average percentage sulphur content of a crude slate
+!
+AVG_CS_TAN "AVG CRD SLATE TAN"  10194  NULL        PRICE              17  REAL64           7
+!
+! The average Total Acid Number (TAN) of a crude slate
+!
+CAP_UTIL   "CAP UTILISED"       10195  NULL        PRICE              17  REAL64           7
+!
+! The percentage of capacity utilized of the total available capacity
+!
+CDU_CAPCTY "CDU CAPACITY"       10196  NULL        PRICE              17  REAL64           7
+!
+! The total capacity of the Crude Distillation Unit (CDU) expressed in Million Barrels 
+! per Day
+!
+CRD_TAN    "CRUDE TAN"          10197  NULL        PRICE              17  REAL64           7
+!
+! Total Acid Number. A measurement of acidity in Crude Oil.
+!
+CRUDE_RUN  "CRUDE RUN"          10198  NULL        PRICE              17  REAL64           7
+!
+! Amount of feedstock processed by a refinery unit during a given time. Expressed in 
+! Million Barrels per Day
+!
+EFF_FACTOR "EFFICIENCY FACTOR"  10199  NULL        PRICE              17  REAL64           7
+!
+! The efficiency factor
+!
+GC_RATIO   "GAS COAL RATIO"     10200  NULL        PRICE              17  REAL64           7
+!
+! The Gas or Coal ratio used in spark/dark spread calculation
+!
+INPUT_PRC  "INPUT PRICE"        10201  NULL        PRICE              17  REAL64           7
+!
+! The input price of the raw material
+!
+LEG3_PRICE "LEG3 PRICE"         10202  NULL        PRICE              17  REAL64           7
+LEG4_PRICE "LEG4 PRICE"         10203  NULL        PRICE              17  REAL64           7
+!
+! The current price of the spread leg
+!
+NETBACK_2  "NETBACK 2"          10204  NETBACK_3   PRICE              17  REAL64           7
+!
+! Ripple FID of NETBACK
+!
+NETBACK_3  "NETBACK 3"          10205  NULL        PRICE              17  REAL64           7
+!
+! Ripple FID of NETBACK_2
+!
+PFT_MGN_1  "PROFIT MRGN 1"      10206  PFT_MGN_2   PRICE              17  REAL64           7
+!
+! Profit Margin Value
+!
+PFT_MGN_2  "PROFIT MRGN 2"      10207  PFT_MGN_3   PRICE              17  REAL64           7
+!
+! Ripple FID of PFT_MGN_1
+!
+PFT_MGN_3  "PROFIT MRGN 3"      10208  NULL        PRICE              17  REAL64           7
+!
+! Ripple FID of PFT_MGN_2
+!
+SPK_SPD_1  "SPARK SPREAD 1"     10209  NULL        PRICE              17  REAL64           7
+SPK_SPD_2  "SPARK SPREAD 2"     10210  NULL        PRICE              17  REAL64           7
+SPK_SPD_3  "SPARK SPREAD 3"     10211  NULL        PRICE              17  REAL64           7
+SPK_SPD_4  "SPARK SPREAD 4"     10212  NULL        PRICE              17  REAL64           7
+SPK_SPD_5  "SPARK SPREAD 5"     10213  NULL        PRICE              17  REAL64           7
+SPK_SPD_6  "SPARK SPREAD 6"     10214  NULL        PRICE              17  REAL64           7
+SPK_SPD_7  "SPARK SPREAD 7"     10215  NULL        PRICE              17  REAL64           7
+SPK_SPD_8  "SPARK SPREAD 8"     10216  NULL        PRICE              17  REAL64           7
+SPK_SPD_9  "SPARK SPREAD 9"     10217  NULL        PRICE              17  REAL64           7
+SPK_SPD_10 "SPARK SPREAD 10"    10218  NULL        PRICE              17  REAL64           7
+SPK_SPD_11 "SPARK SPREAD 11"    10219  NULL        PRICE              17  REAL64           7
+SPK_SPD_12 "SPARK SPREAD 12"    10220  NULL        PRICE              17  REAL64           7
+SPK_SPD_13 "SPARK SPREAD 13"    10221  NULL        PRICE              17  REAL64           7
+SPK_SPD_14 "SPARK SPREAD 14"    10222  NULL        PRICE              17  REAL64           7
+SPK_SPD_15 "SPARK SPREAD 15"    10223  NULL        PRICE              17  REAL64           7
+SPK_SPD_16 "SPARK SPREAD 16"    10224  NULL        PRICE              17  REAL64           7
+!
+! The spark/dark spread value for a given heat rate factor.
+!
+VP_CS_EHVY "VOL PCT EHVY"       10225  NULL        PRICE              17  REAL64           7
+!
+! The volume percent of Extra Heavy crude oils in a crude slate
+!
+VP_CS_ELGT "VOL PCT ELGT"       10226  NULL        PRICE              17  REAL64           7
+!
+! The volume percent of Extra Light crude oils in a crude slate
+!
+VP_CS_HSUL "VOL PCT HSUL"       10227  NULL        PRICE              17  REAL64           7
+!
+! The volume percent of High Sulphur crude oils in a crude slate
+!
+VP_CS_HVY  "VOL PCT HVY"        10228  NULL        PRICE              17  REAL64           7
+!
+! The volume percent of Heavy crude oils in a crude slate
+!
+VP_CS_LGT  "VOL PCT LGT"        10229  NULL        PRICE              17  REAL64           7
+!
+! The volume percent of Light crude oils in a crude slate
+!
+VP_CS_LSUL "VOL PCT LSUL"       10230  NULL        PRICE              17  REAL64           7
+!
+! The volume percent of Low Sulphur crude oils in a crude slate
+!
+VP_CS_MED  "VOL PCT MED"        10231  NULL        PRICE              17  REAL64           7
+!
+! The volume percent of Medium crude oils in a crude slate
+!
+VP_CS_MSUL "VOL PCT MSUL"       10232  NULL        PRICE              17  REAL64           7
+!
+! The volume percent of Medium Sulphur crude oils in a crude slate
+!
+YLD_PCT_1  "YIELD PCT 1"        10233  NULL        PRICE              17  REAL64           7
+YLD_PCT_2  "YIELD PCT 2"        10234  NULL        PRICE              17  REAL64           7
+YLD_PCT_3  "YIELD PCT 3"        10235  NULL        PRICE              17  REAL64           7
+YLD_PCT_4  "YIELD PCT 4"        10236  NULL        PRICE              17  REAL64           7
+YLD_PCT_5  "YIELD PCT 5"        10237  NULL        PRICE              17  REAL64           7
+YLD_PCT_6  "YIELD PCT 6"        10238  NULL        PRICE              17  REAL64           7
+YLD_PCT_7  "YIELD PCT 7"        10239  NULL        PRICE              17  REAL64           7
+YLD_PCT_8  "YIELD PCT 8"        10240  NULL        PRICE              17  REAL64           7
+YLD_PCT_9  "YIELD PCT 9"        10241  NULL        PRICE              17  REAL64           7
+YLD_PCT_10 "YIELD PCT 10"       10242  NULL        PRICE              17  REAL64           7
+YLD_PCT_11 "YIELD PCT 11"       10243  NULL        PRICE              17  REAL64           7
+YLD_PCT_12 "YIELD PCT 12"       10244  NULL        PRICE              17  REAL64           7
+YLD_PCT_13 "YIELD PCT 13"       10245  NULL        PRICE              17  REAL64           7
+YLD_PCT_14 "YIELD PCT 14"       10246  NULL        PRICE              17  REAL64           7
+YLD_PCT_15 "YIELD PCT 15"       10247  NULL        PRICE              17  REAL64           7
+YLD_PCT_16 "YIELD PCT 16"       10248  NULL        PRICE              17  REAL64           7
+!
+! The percentage of the product produced from the raw material input
+!
+ADJ_MIDPRC "ADJUSTED MID PRICE" 10249  NULL        PRICE              17  REAL64           7
+!
+! Adjusted/Unadjusted price Mid
+!
+ASP_ANCHG  "ASP NCHG ASK"       10250  NULL        PRICE              17  REAL64           7
+!
+! Asset Swap Spread Ask Net Change 
+!
+ASP_BNCHG  "ASP NCHG BID"       10251  NULL        PRICE              17  REAL64           7
+!
+! Asset Swap Spread Bid Net Change 
+!
+ASP_MNCHG  "ASP NCHG MID"       10252  NULL        PRICE              17  REAL64           7
+!
+! Asset Swap Spread Mid Net Change 
+!
+ASP1M_A    "ASP 1M ASK"         10253  NULL        PRICE              17  REAL64           7
+!
+! Asset Swap Spread Ask (1M)
+!
+ASP1M_M    "ASP 1M MID"         10254  NULL        PRICE              17  REAL64           7
+!
+! Asset Swap Spread Mid(1M)
+!
+ASP3M_A    "ASP 3M ASK"         10255  NULL        PRICE              17  REAL64           7
+!
+! Asset Swap Spread Ask (3M)
+!
+ASP3M_M    "ASP 3M MID"         10256  NULL        PRICE              17  REAL64           7
+!
+! Asset Swap Spread Mid (3M)
+!
+ASP6M_A    "ASP 6M ASK"         10257  NULL        PRICE              17  REAL64           7
+!
+! Asset Swap Spread Ask (6M)
+!
+ASP6M_M    "ASP 6M MID"         10258  NULL        PRICE              17  REAL64           7
+!
+! Asset Swap Spread Mid (6M)
+!
+ASTSWPSD_M "AST SWAP SPRD MID"  10259  NULL        PRICE              17  REAL64           7
+!
+! Asset Swap Spread Mid (STD)
+!
+BEVN_INF_A "BRKEVEN INFL ASK"   10260  NULL        PRICE              17  REAL64           7
+!
+! Break-even Inflation Ask
+!
+BEVN_INF_M "BRKEVEN INFL MID"   10261  NULL        PRICE              17  REAL64           7
+!
+! Break-even Inflation Mid
+!
+BMK_SPDMID "BMK SPREAD MID"     10262  NULL        PRICE              17  REAL64           7
+!
+! Benchmark Spread Mid
+!
+BPV_A      "BASIS PT VAL ASK"   10263  NULL        PRICE              17  REAL64           7
+!
+! BPV Ask
+!
+BPV_B      "BASIS PT VAL BID"   10264  NULL        PRICE              17  REAL64           7
+!
+! BPV Bid Price
+!
+CDS_BSMT_A "CTS CDS BASIS ASK"  10265  NULL        PRICE              17  REAL64           7
+!
+! Closest-to-maturity CDS Basis Ask
+!
+CDS_BSMT_M "CTS CDS BASIS MID"  10266  NULL        PRICE              17  REAL64           7
+!
+! Closest-to-maturity CDS Basis Mid
+!
+CNVEXITY_A "CONVEXITY ASK"      10267  NULL        PRICE              17  REAL64           7
+!
+! Convexity Ask value
+!
+CNVEXITY_B "CONVEXITY BID"      10268  NULL        PRICE              17  REAL64           7
+!
+! Convexity Bid value
+!
+DIRTY_MID  "DIRTY MID PRC"      10269  NULL        PRICE              17  REAL64           7
+!
+! Gross Price Mid
+!
+INT_BEI_A  "INT BRKEN INFL ASK" 10270  NULL        PRICE              17  REAL64           7
+!
+! Interpolated BEI Ask
+!
+INT_BEI_M  "INT BRKEN INFL MID" 10271  NULL        PRICE              17  REAL64           7
+!
+! Interpolated BEI Mid
+!
+INT_BSIS_A "INT CDS BASIS ASK"  10272  NULL        PRICE              17  REAL64           7
+!
+! Interpolated CDS basis Ask
+!
+INT_BSIS_M "INT CDS BASIS MID"  10273  NULL        PRICE              17  REAL64           7
+!
+! Interpolated CDS basis Mid
+!
+INT_G_SP_A "INT GOVT SPRD ASK"  10274  NULL        PRICE              17  REAL64           7
+!
+! Interpolated G-Spread Ask
+!
+INT_G_SP_M "INT GOVT SPRD MID"  10275  NULL        PRICE              17  REAL64           7
+!
+! Interpolated G-Spread Mid
+!
+INT_G_YLDA "INT GOVT YIELD ASK" 10276  NULL        PRICE              17  REAL64           7
+!
+! Interpolated Benchmark Yield Ask
+!
+INT_G_YLDM "INT GOVT YIELD MID" 10277  NULL        PRICE              17  REAL64           7
+!
+! Interpolated Benchmark Yield Mid
+!
+ISMA_M_YLD "ISMA MID YIELD"     10278  NULL        PRICE              17  REAL64           7
+!
+! ISMA Yield Mid (no redemption type)
+!
+MAC_DRTN_A "MACAULAY DURTN ASK" 10279  NULL        PRICE              17  REAL64           7
+!
+! Macaulay Duration Ask
+!
+MAC_DRTN_B "MACAULAY DURTN BI"  10280  NULL        PRICE              17  REAL64           7
+!
+! Macaulay Duration Bid
+!
+MID_ZSPRD  "MID ZSPREAD"        10281  NULL        PRICE              17  REAL64           7
+!
+! Z-spread Mid
+!
+MOD_DRTN_A "MOD DURTN ASK"      10282  NULL        PRICE              17  REAL64           7
+!
+! Modified Duration Ask
+!
+MOD_DRTN_B "MOD DURTN BID"      10283  NULL        PRICE              17  REAL64           7
+!
+! Modified Duration Bid
+!
+OAS_MID    "OAS MID"            10284  NULL        PRICE              17  REAL64           7
+!
+! OAS Mid
+!
+OIS_SPD_A  "OIS SPREAD ASK"     10285  NULL        PRICE              17  REAL64           7
+!
+! OIS Spread Ask (interpolate only - no extrapolate)
+!
+OIS_SPD_B  "OIS SPREAD BID"     10286  NULL        PRICE              17  REAL64           7
+!
+! OIS Bid Spread (interpolate only - no extrapolate)
+!
+SIMP_MGN_M "SIMPLE MARGIN MID"  10287  NULL        PRICE              17  REAL64           7
+!
+! Simple margin Mid
+!
+SWAP_SPRDM "SWAP SPREAD MID"    10288  NULL        PRICE              17  REAL64           7
+!
+! Swap Spread Mid
+!
+TED_SPD_A  "TED SPREAD ASK"     10289  NULL        PRICE              17  REAL64           7
+!
+! TED Spread Ask
+!
+TED_SPD_M  "TED SPREAD MID"     10290  NULL        PRICE              17  REAL64           7
+!
+! TED Spread Mid
+!
+BMK_CRV_AY "BMK CURVE ADJ YLD"  10291  NULL        PRICE              17  REAL64           7
+!
+! Adjusted yield for constant maturity point on reference curve
+!
+YLDADJ_BMK "YLD ADJ TO BMK"     10292  NULL        PRICE              17  REAL64           7
+!
+! Yield adjustment to arrive at constant maturity yield on reference curve
+!
+CLN_PRC_A  "CLEAN ASK PRC"      10293  NULL        PRICE              17  REAL64           7
+!
+! Clean Price Ask
+!
+CLN_PRC_M  "CLEAN MID PRC"      10294  NULL        PRICE              17  REAL64           7
+!
+! Clean Price Mid
+!
+EFP_MIDYLD "EFP MID SPREAD"     10295  NULL        PRICE              17  REAL64           7
+!
+! Exchange for Physical Mid Yield Spread
+!
+RELASK_TRD "REL ASK TRADE"      10296  NULL        PRICE              17  REAL64           7
+!
+! Related Ask for a trade reporting
+!
+RELBID_TRD "REL BID TRADE"      10297  NULL        PRICE              17  REAL64           7
+!
+! Related BID for a trade reporting
+!
+BASE_LOAD  "BASE LOAD"          10298  NULL        PRICE              17  REAL64           7
+!
+! The Baseload Power Price
+!
+BASISNETCH "BASIS NETCHNG"      10299  NULL        PRICE              17  REAL64           7
+!
+! Basis Net Change.
+!
+BSLD_CLS   "BASE LOAD CLS PRC"  10300  NULL        PRICE              17  REAL64           7
+!
+! Today's Baseload Power Price Close
+!
+DIFF_PRICE "DIFF PRICE"         10301  NULL        PRICE              17  REAL64           7
+!
+! Differential Price. The difference in price compared to a benchmark price / 
+! difference in price between grades.
+!
+MAX_PRICE  "MAX PRICE"          10302  NULL        PRICE              17  REAL64           7
+!
+! The highest/maximum price 
+!
+MIN_PRICE  "MIN PRICE"          10303  NULL        PRICE              17  REAL64           7
+!
+! The lowest/minimum price 
+!
+MOIST_PCT  "MOIST PCT"          10304  NULL        PRICE              17  REAL64           7
+!
+! A measure of moisture content in Grains. Expressed in percentage.
+!
+OFPK_LOAD  "OFF PEAK LOAD"      10305  NULL        PRICE              17  REAL64           7
+!
+! The OffPeak Power Price
+!
+OPLD_CLS   "OFPK LOAD CLS PRC"  10306  NULL        PRICE              17  REAL64           7
+!
+! Today's OffPeak Power Price Close
+!
+OUTRT_PRC  "OUTRIGHT PRICE"     10307  NULL        PRICE              17  REAL64           7
+!
+! Outright Price
+!
+PEAK_LOAD  "PEAK LOAD"          10308  NULL        PRICE              17  REAL64           7
+!
+! The Peakload Power Price
+!
+PKLD_CLS   "PEAK LOAD CLS PRC"  10309  NULL        PRICE              17  REAL64           7
+!
+! Today's Peakload Power Price Close
+!
+PURITY_PCT "PURITY PCT"         10310  NULL        PRICE              17  REAL64           7
+!
+! Purity Percentage. A measure of the purity of metals.
+!
+SPOT_PRICE "SPOT PRICE"         10311  NULL        PRICE              17  REAL64           7
+!
+! Commodity Spot/Cash Price
+!
+DRK_MINOSZ "DARK MIN ORD SZ"    10312  NULL        PRICE              17  REAL64           7
+!
+! Dark pool minimum order quantity
+!
+RFC_PICPCT "RFC PICK UP PCT"    10313  NULL        PRICE              17  REAL64           7
+!
+! RFC Pick Up Percentage.  Defines the percentage of the RFC Initiator quantity that 
+! is available for RFC responses during the final execution at the RFC price.
+!
+UADJ_A_PRC "UADJ ASK PRC"       10314  NULL        PRICE              17  REAL64           7
+!
+! Unadjusted Ask price for IDX bonds
+!
+UADJ_B_PRC "UADJ BID PRC"       10315  NULL        PRICE              17  REAL64           7
+!
+! Unadjusted Bid price for IDX bonds
+!
+UADJ_M_PRC "UADJ MID PRC"       10316  NULL        PRICE              17  REAL64           7
+!
+! Unadjusted Mid price for IDX bonds
+!
+ESMA_ADNA  "ESMA AVG DAY AMT"   10317  NULL        PRICE              17  REAL64           7
+!
+! ESMA Average Daily Notional Amount (ADNA) per instrument
+!
+ESMA_ADNT  "ESMA AVG DAY TRD"   10318  NULL        PRICE              17  REAL64           7
+!
+! ESMA Average Daily number of Trades per instrument
+!
+ESMA_ADT   "ESMA AVG DAY TNOV"  10319  NULL        PRICE              17  REAL64           7
+!
+! ESMA Average Daily Turnover (ADT) per instrument
+!
+ESMA_AVT   "ESMA AVG TRANS VAL" 10320  NULL        PRICE              17  REAL64           7
+!
+! ESMA Average Value of Transaction (AVT) per instrument
+!
+ESMA_PDT   "ESMA TRDD DAY PCT"  10321  NULL        PRICE              17  REAL64           7
+!
+! ESMA Percentage of days traded over the period considered
+!
+FIXEDRATE2 "FIXEDRATE 2"        10322  NULL        PRICE              17  REAL64           7
+!
+! Fixed rate of leg 2
+!
+PRETRD_LIS "PRE TRD LIS"        10323  NULL        PRICE              17  REAL64           7
+!
+! Pre Trade Large In Scale (LIS) Threshold
+!
+PRETRDSSTI "PRE TRD SSTI"       10324  NULL        PRICE              17  REAL64           7
+!
+! Pre Trade Size Specific To Instrument (SSTI) Threshold
+!
+PSTTRD_LIS "POST TRD LIS"       10325  NULL        PRICE              17  REAL64           7
+!
+! Post Trade Large In Scale (LIS) Threshold
+!
+PSTTRDSSTI "POST TRD SSTI"      10326  NULL        PRICE              17  REAL64           7
+!
+! Post Trade Size Specific To Instrument (SSTI) Threshold
+!
+TR_ADNA    "TR AVG DAY AMT"     10327  NULL        PRICE              17  REAL64           7
+!
+! TR Average Daily Notional Amount (ADNA) per instrument
+!
+TR_ADNT    "TR AVG DAY TRD"     10328  NULL        PRICE              17  REAL64           7
+!
+! TR Average Daily number of Trades per instrument
+!
+TR_ADT     "TR AVG DAY TNOV"    10329  NULL        PRICE              17  REAL64           7
+!
+! TR Average Daily Turnover (ADT) per instrument
+!
+TR_AVT     "TR AVG TRANS VAL"   10330  NULL        PRICE              17  REAL64           7
+!
+! TR Average Value of Transaction (AVT) per instrument
+!
+TR_PDT     "TR TRDD DAY PCT"    10331  NULL        PRICE              17  REAL64           7
+!
+! TR Percentage of days traded over the period considered
+!
+CLEAR_SPD  "CLEARING HSE SPRD"  10332  NULL        PRICE              17  REAL64           7
+!
+! Clearing house spread.  Shows the difference between quotes from the same source for 
+! the same instrument for different clearing venues.
+!
+AVG_SWP_PT "AVG SWAP POINT"     10333  NULL        PRICE              17  REAL64           7
+!
+! Average swap point
+!
 PRERL1343  "PRED REAL 1343"     10334  NULL        PRICE              17  REAL64           7
 PRERL1344  "PRED REAL 1344"     10335  NULL        PRICE              17  REAL64           7
 PRERL1345  "PRED REAL 1345"     10336  NULL        PRICE              17  REAL64           7
@@ -29480,22 +29970,66 @@ MID_TONE1  "MID TONE 1"         11643  NULL        ALPHANUMERIC        4  RMTES_
 !
 ! Mid price qualifier
 !
-PRE_4TX087 "PRED 4 TXT 087"     11644  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX088 "PRED 4 TXT 088"     11645  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX089 "PRED 4 TXT 089"     11646  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX090 "PRED 4 TXT 090"     11647  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX091 "PRED 4 TXT 091"     11648  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX092 "PRED 4 TXT 092"     11649  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX093 "PRED 4 TXT 093"     11650  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX094 "PRED 4 TXT 094"     11651  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX095 "PRED 4 TXT 095"     11652  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX096 "PRED 4 TXT 096"     11653  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX097 "PRED 4 TXT 097"     11654  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX098 "PRED 4 TXT 098"     11655  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX099 "PRED 4 TXT 099"     11656  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX100 "PRED 4 TXT 100"     11657  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX101 "PRED 4 TXT 101"     11658  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX102 "PRED 4 TXT 102"     11659  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+SESS_FL1   "SESS STATUS FLAG1"  11644  SESS_FL2    ALPHANUMERIC        4  RMTES_STRING     4
+SESS_FL2   "SESS STATUS FLAG2"  11645  SESS_FL3    ALPHANUMERIC        4  RMTES_STRING     4
+SESS_FL3   "SESS STATUS FLAG3"  11646  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Market session price status flag
+!
+BLK_CONCD5 "BLK TRD COND CDE 5" 11647  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Secondary native block trade condition code
+!
+CAN_CONCD5 "CAN COND CDE 5"     11648  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Secondary native cancelled trade condition code
+!
+CONDCODE_5 "CONDITION CODE 5"   11649  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Secondary native trade condition code
+!
+CRS_CONCD5 "CRS COND CDE 5"     11650  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Secondary native cross trade condition code
+!
+DRK_CONCD5 "DARK COND CDE 5"    11651  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Secondary native dark condition code
+!
+INS_CONCD5 "INS COND CDE 5"     11652  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Secondary native trade correction condition code
+!
+IRG_CONCD5 "IRG COND CDE 5"     11653  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Secondary native last ineligible trade condition code
+!
+ODD_CONCD5 "ODD TRD COND CDE 5" 11654  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Secondary native odd lot trade condition code
+!
+OFF_CONCD5 "OFFBK COND CDE 5"   11655  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Secondary native off book trade condition code
+!
+PD_CONCD5  "PRVD COND CDE 5"    11656  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Secondary native previous day trade condition code
+!
+RFC_AT_IND "RFC ACTIVE IND"     11657  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Request for Cross (RFC) facility status indicator to show whether RFC is currently 
+! active
+!
+RFC_QU_IND "RFC QUEUED IND"     11658  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Request for Cross (RFC) facility status indicator to show whether RFC is currently 
+! queued 
+!
+ISS_LEI    "ISSUER LEI"         11659  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Legal Identity Identifier (LEI) of issuer or trading venue operator
+!
 PRE_4TX103 "PRED 4 TXT 103"     11660  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 PRE_4TX104 "PRED 4 TXT 104"     11661  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 PRE_4TX105 "PRED 4 TXT 105"     11662  NULL        ALPHANUMERIC        4  RMTES_STRING     4
@@ -29813,35 +30347,78 @@ EVENT_CDE5 "EVENT COND CDE 5"   11816  NULL        ALPHANUMERIC       10  RMTES_
 !
 ! Native Event Type 5
 !
-PRE_10T092 "PRED 10 TXT 092"    11817  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T093 "PRED 10 TXT 093"    11818  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T094 "PRED 10 TXT 094"    11819  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T095 "PRED 10 TXT 095"    11820  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T096 "PRED 10 TXT 096"    11821  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T097 "PRED 10 TXT 097"    11822  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T098 "PRED 10 TXT 098"    11823  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T099 "PRED 10 TXT 099"    11824  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T100 "PRED 10 TXT 100"    11825  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T101 "PRED 10 TXT 101"    11826  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T102 "PRED 10 TXT 102"    11827  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T103 "PRED 10 TXT 103"    11828  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T104 "PRED 10 TXT 104"    11829  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T105 "PRED 10 TXT 105"    11830  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T106 "PRED 10 TXT 106"    11831  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T107 "PRED 10 TXT 107"    11832  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T108 "PRED 10 TXT 108"    11833  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T109 "PRED 10 TXT 109"    11834  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T110 "PRED 10 TXT 110"    11835  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T111 "PRED 10 TXT 111"    11836  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T112 "PRED 10 TXT 112"    11837  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T113 "PRED 10 TXT 113"    11838  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T114 "PRED 10 TXT 114"    11839  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T115 "PRED 10 TXT 115"    11840  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T116 "PRED 10 TXT 116"    11841  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T117 "PRED 10 TXT 117"    11842  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T118 "PRED 10 TXT 118"    11843  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T119 "PRED 10 TXT 119"    11844  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T120 "PRED 10 TXT 120"    11845  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+REF_PRD    "REFERENCE PERIOD"   11817  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Reference Period associated with the Next Date of Release
+!
+MMT_VER    "MMT VERSION"        11818  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Provides the version of MMT that the value in MMT_CLASS is mapped from
+!
+SPKD_DES1  "SPK SPRD DES 1"     11819  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+SPKD_DES2  "SPK SPRD DES 2"     11820  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+SPKD_DES3  "SPK SPRD DES 3"     11821  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+SPKD_DES4  "SPK SPRD DES 4"     11822  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+SPKD_DES5  "SPK SPRD DES 5"     11823  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+SPKD_DES6  "SPK SPRD DES 6"     11824  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+SPKD_DES7  "SPK SPRD DES 7"     11825  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+SPKD_DES8  "SPK SPRD DES 8"     11826  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+SPKD_DES9  "SPK SPRD DES 9"     11827  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+SPKD_DES10 "SPK SPRD DES 10"    11828  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+SPKD_DES11 "SPK SPRD DES 11"    11829  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+SPKD_DES12 "SPK SPRD DES 12"    11830  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+SPKD_DES13 "SPK SPRD DES 13"    11831  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+SPKD_DES14 "SPK SPRD DES 14"    11832  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+SPKD_DES15 "SPK SPRD DES 15"    11833  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+SPKD_DES16 "SPK SPRD DES 16"    11834  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Description of the heat factor for the spark spread value. Ex: The heat rate could 
+! be 7000, 7500, 8000 etc., BTU/Kwh
+!
+TR_UUID    "TR UNIQ USER ID"    11835  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Thomson Reuters Unique User Id
+!
+BMK_ISS_ST "BMK ISSUE STATUS"   11836  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Benchmark security issue status 
+!
+INST_ACT_N "INST ACTIVITY IND"  11837  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Native instrument activity indicator
+!
+BLOCK_HOUR "BLOCK HOUR"         11838  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Field to display the exact hour(s) in a block
+!
+EMIS_PERD  "EMISSION PERIOD"    11839  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Reference period for emission allowances and emission allowance derivatives only
+!
+EMIS_TYPE  "EMISSION ALWNC TP"  11840  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Emission allowances type
+!
+MIFIR_C_TP "MIFIR CONTRACT TP"  11841  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Contract type, if MiFIR identifier is a derivative
+!
+MIFIR_ID   "MIFIR ID"           11842  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! MiFIR identifier for non-equity instruments
+!
+MIFIR_U_AS "MIFIR UNDLY A CLA"  11843  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! MiFIR Asset class of the underlying instrument
+!
+TENOR_2    "TENOR 2"            11844  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! IR Term of contract of leg 2
+!
+UN_TENOR   "UNDERLYING TENOR"   11845  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Term of the index/benchmark of a floating rate bond or swap leg
+!
 PRE_10T121 "PRED 10 TXT 121"    11846  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 PRE_10T122 "PRED 10 TXT 122"    11847  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 PRE_10T123 "PRED 10 TXT 123"    11848  NULL        ALPHANUMERIC       10  RMTES_STRING    10
@@ -29988,9 +30565,21 @@ PRE_20T057 "PRED 20 TXT 057"    11988  NULL        ALPHANUMERIC       20  RMTES_
 PRE_20T058 "PRED 20 TXT 058"    11989  NULL        ALPHANUMERIC       20  RMTES_STRING    20
 PRE_20T059 "PRED 20 TXT 059"    11990  NULL        ALPHANUMERIC       20  RMTES_STRING    20
 PRE_20T060 "PRED 20 TXT 060"    11991  NULL        ALPHANUMERIC       20  RMTES_STRING    20
-PRE_24T065 "PRED 24 TXT 065"    11992  NULL        ALPHANUMERIC       24  RMTES_STRING    24
-PRE_24T066 "PRED 24 TXT 066"    11993  NULL        ALPHANUMERIC       24  RMTES_STRING    24
-PRE_24T067 "PRED 24 TXT 067"    11994  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
+!
+STRGY_TYPN "STRGY TYP NATIVE"   11992  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Native strategy type
+!
+SINT_IND   "SINT INDICATOR"     11993  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Systematic internaliser indicator MiFID II
+!
+UN_LEI     "UNDERLYING LEI"     11994  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Underlying Issuer Legal Identity Identifier (LEI)
+!
 PRE_24T068 "PRED 24 TXT 068"    11995  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 PRE_24T069 "PRED 24 TXT 069"    11996  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 PRE_24T070 "PRED 24 TXT 070"    11997  NULL        ALPHANUMERIC       24  RMTES_STRING    24
@@ -30153,10 +30742,22 @@ INTRSNP_DS "INTRADAY SNAP DESC" 12077  NULL        ALPHANUMERIC       32  RMTES_
 !
 ! Description for the intraday price snap
 !
-PRE_32T027 "PRED 32 TXT 027"    12078  NULL        ALPHANUMERIC       32  RMTES_STRING    32
-PRE_32T028 "PRED 32 TXT 028"    12079  NULL        ALPHANUMERIC       32  RMTES_STRING    32
-PRE_32T029 "PRED 32 TXT 029"    12080  NULL        ALPHANUMERIC       32  RMTES_STRING    32
-PRE_32T030 "PRED 32 TXT 030"    12081  NULL        ALPHANUMERIC       32  RMTES_STRING    32
+CRD_STREAM "CRUDE OIL NAME"     12078  NULL        ALPHANUMERIC       32  RMTES_STRING    32
+!
+! The Crude Oil Name
+!
+RFNY_NAME  "REFINERY NAME"      12079  NULL        ALPHANUMERIC       32  RMTES_STRING    32
+!
+! The petroleum refinery name
+!
+COM_GRADE  "COMMOD GRADE"       12080  NULL        ALPHANUMERIC       32  RMTES_STRING    32
+!
+! Field to describe the grade/variety of a commodity
+!
+CLEAR_HSE2 "CLEARING HOUSE 2"   12081  NULL        ALPHANUMERIC       32  RMTES_STRING    32
+!
+! Clearing house 2 for which the spread is shown in CLEAR_SPD
+!
 PRE_32T031 "PRED 32 TXT 031"    12082  NULL        ALPHANUMERIC       32  RMTES_STRING    32
 PRE_32T032 "PRED 32 TXT 032"    12083  NULL        ALPHANUMERIC       32  RMTES_STRING    32
 PRE_32T033 "PRED 32 TXT 033"    12084  NULL        ALPHANUMERIC       32  RMTES_STRING    32
@@ -30338,7 +30939,10 @@ MKTVAL_UN2 "MKTVAL UNS 2"       12222  NULL        ALPHANUMERIC       40  RMTES_
 ! An alphanumeric field for storing extremely large market capitalisation value for 
 ! indices
 !
-PRE_40T036 "PRED 40 TXT 036"    12223  NULL        ALPHANUMERIC       40  RMTES_STRING    40
+FISN       "FIN INST SHT NAME"  12223  NULL        ALPHANUMERIC       40  RMTES_STRING    40
+!
+! Financial instrument short name in accordance with ISO 18774
+!
 PRE_40T037 "PRED 40 TXT 037"    12224  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 PRE_40T038 "PRED 40 TXT 038"    12225  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 PRE_40T039 "PRED 40 TXT 039"    12226  NULL        ALPHANUMERIC       40  RMTES_STRING    40
@@ -30848,56 +31452,56 @@ PRE255T151 "PRED 255 TXT 151"   12708  NULL        ALPHANUMERIC      255  RMTES_
 PRE255T152 "PRED 255 TXT 152"   12709  NULL        ALPHANUMERIC      255  RMTES_STRING   255
 PRE255T153 "PRED 255 TXT 153"   12710  NULL        ALPHANUMERIC      255  RMTES_STRING   255
 PRE255T154 "PRED 255 TXT 154"   12711  NULL        ALPHANUMERIC      255  RMTES_STRING   255
-PRE_1BN025 "PRED 1 BIN 025"     12712  NULL        INTEGER             3  UINT32           1
-PRE_1BN026 "PRED 1 BIN 026"     12713  NULL        INTEGER             3  UINT32           1
-PRE_1BN027 "PRED 1 BIN 027"     12714  NULL        INTEGER             3  UINT32           1
-PRE_1BN028 "PRED 1 BIN 028"     12715  NULL        INTEGER             3  UINT32           1
-PRE_1BN029 "PRED 1 BIN 029"     12716  NULL        INTEGER             3  UINT32           1
-PRE_1BN030 "PRED 1 BIN 030"     12717  NULL        INTEGER             3  UINT32           1
-PRE_1BN031 "PRED 1 BIN 031"     12718  NULL        INTEGER             3  UINT32           1
-PRE_1BN032 "PRED 1 BIN 032"     12719  NULL        INTEGER             3  UINT32           1
-PRE_1BN033 "PRED 1 BIN 033"     12720  NULL        INTEGER             3  UINT32           1
-PRE_1BN034 "PRED 1 BIN 034"     12721  NULL        INTEGER             3  UINT32           1
-PRE_1BN035 "PRED 1 BIN 035"     12722  NULL        INTEGER             3  UINT32           1
-PRE_1BN036 "PRED 1 BIN 036"     12723  NULL        INTEGER             3  UINT32           1
-PRE_1BN037 "PRED 1 BIN 037"     12724  NULL        INTEGER             3  UINT32           1
-PRE_1BN038 "PRED 1 BIN 038"     12725  NULL        INTEGER             3  UINT32           1
-PRE_1BN039 "PRED 1 BIN 039"     12726  NULL        INTEGER             3  UINT32           1
-PRE_1BN040 "PRED 1 BIN 040"     12727  NULL        INTEGER             3  UINT32           1
-PRE_1BN041 "PRED 1 BIN 041"     12728  NULL        INTEGER             3  UINT32           1
-PRE_1BN042 "PRED 1 BIN 042"     12729  NULL        INTEGER             3  UINT32           1
-PRE_1BN043 "PRED 1 BIN 043"     12730  NULL        INTEGER             3  UINT32           1
-PRE_1BN044 "PRED 1 BIN 044"     12731  NULL        INTEGER             3  UINT32           1
-PRE_1BN045 "PRED 1 BIN 045"     12732  NULL        INTEGER             3  UINT32           1
-PRE_1BN046 "PRED 1 BIN 046"     12733  NULL        INTEGER             3  UINT32           1
-PRE_1BN047 "PRED 1 BIN 047"     12734  NULL        INTEGER             3  UINT32           1
-PRE_1BN048 "PRED 1 BIN 048"     12735  NULL        INTEGER             3  UINT32           1
-PRE_1BN049 "PRED 1 BIN 049"     12736  NULL        INTEGER             3  UINT32           1
-PRE_1BN050 "PRED 1 BIN 050"     12737  NULL        INTEGER             3  UINT32           1
-PRE_1BN051 "PRED 1 BIN 051"     12738  NULL        INTEGER             3  UINT32           1
-PRE_1BN052 "PRED 1 BIN 052"     12739  NULL        INTEGER             3  UINT32           1
-PRE_1BN053 "PRED 1 BIN 053"     12740  NULL        INTEGER             3  UINT32           1
-PRE_1BN054 "PRED 1 BIN 054"     12741  NULL        INTEGER             3  UINT32           1
-PRE_1BN055 "PRED 1 BIN 055"     12742  NULL        INTEGER             3  UINT32           1
-PRE_1BN056 "PRED 1 BIN 056"     12743  NULL        INTEGER             3  UINT32           1
-PRE_1BN057 "PRED 1 BIN 057"     12744  NULL        INTEGER             3  UINT32           1
-PRE_1BN058 "PRED 1 BIN 058"     12745  NULL        INTEGER             3  UINT32           1
-PRE_1BN059 "PRED 1 BIN 059"     12746  NULL        INTEGER             3  UINT32           1
-PRE_1BN060 "PRED 1 BIN 060"     12747  NULL        INTEGER             3  UINT32           1
-PRE_1BN061 "PRED 1 BIN 061"     12748  NULL        INTEGER             3  UINT32           1
-PRE_1BN062 "PRED 1 BIN 062"     12749  NULL        INTEGER             3  UINT32           1
-PRE_1BN063 "PRED 1 BIN 063"     12750  NULL        INTEGER             3  UINT32           1
-PRE_1BN064 "PRED 1 BIN 064"     12751  NULL        INTEGER             3  UINT32           1
-PRE_1BN065 "PRED 1 BIN 065"     12752  NULL        INTEGER             3  UINT32           1
-PRE_1BN066 "PRED 1 BIN 066"     12753  NULL        INTEGER             3  UINT32           1
-PRE_1BN067 "PRED 1 BIN 067"     12754  NULL        INTEGER             3  UINT32           1
-PRE_1BN068 "PRED 1 BIN 068"     12755  NULL        INTEGER             3  UINT32           1
-PRE_1BN069 "PRED 1 BIN 069"     12756  NULL        INTEGER             3  UINT32           1
-PRE_1BN070 "PRED 1 BIN 070"     12757  NULL        INTEGER             3  UINT32           1
-PRE_1BN071 "PRED 1 BIN 071"     12758  NULL        INTEGER             3  UINT32           1
-PRE_1BN072 "PRED 1 BIN 072"     12759  NULL        INTEGER             3  UINT32           1
-PRE_1BN073 "PRED 1 BIN 073"     12760  NULL        INTEGER             3  UINT32           1
-PRE_1BN074 "PRED 1 BIN 074"     12761  NULL        INTEGER             3  UINT32           1
+PRE_1BN025 "PRED 1 BIN 025"     12712  NULL        INTEGER             3  UINT64           1
+PRE_1BN026 "PRED 1 BIN 026"     12713  NULL        INTEGER             3  UINT64           1
+PRE_1BN027 "PRED 1 BIN 027"     12714  NULL        INTEGER             3  UINT64           1
+PRE_1BN028 "PRED 1 BIN 028"     12715  NULL        INTEGER             3  UINT64           1
+PRE_1BN029 "PRED 1 BIN 029"     12716  NULL        INTEGER             3  UINT64           1
+PRE_1BN030 "PRED 1 BIN 030"     12717  NULL        INTEGER             3  UINT64           1
+PRE_1BN031 "PRED 1 BIN 031"     12718  NULL        INTEGER             3  UINT64           1
+PRE_1BN032 "PRED 1 BIN 032"     12719  NULL        INTEGER             3  UINT64           1
+PRE_1BN033 "PRED 1 BIN 033"     12720  NULL        INTEGER             3  UINT64           1
+PRE_1BN034 "PRED 1 BIN 034"     12721  NULL        INTEGER             3  UINT64           1
+PRE_1BN035 "PRED 1 BIN 035"     12722  NULL        INTEGER             3  UINT64           1
+PRE_1BN036 "PRED 1 BIN 036"     12723  NULL        INTEGER             3  UINT64           1
+PRE_1BN037 "PRED 1 BIN 037"     12724  NULL        INTEGER             3  UINT64           1
+PRE_1BN038 "PRED 1 BIN 038"     12725  NULL        INTEGER             3  UINT64           1
+PRE_1BN039 "PRED 1 BIN 039"     12726  NULL        INTEGER             3  UINT64           1
+PRE_1BN040 "PRED 1 BIN 040"     12727  NULL        INTEGER             3  UINT64           1
+PRE_1BN041 "PRED 1 BIN 041"     12728  NULL        INTEGER             3  UINT64           1
+PRE_1BN042 "PRED 1 BIN 042"     12729  NULL        INTEGER             3  UINT64           1
+PRE_1BN043 "PRED 1 BIN 043"     12730  NULL        INTEGER             3  UINT64           1
+PRE_1BN044 "PRED 1 BIN 044"     12731  NULL        INTEGER             3  UINT64           1
+PRE_1BN045 "PRED 1 BIN 045"     12732  NULL        INTEGER             3  UINT64           1
+PRE_1BN046 "PRED 1 BIN 046"     12733  NULL        INTEGER             3  UINT64           1
+PRE_1BN047 "PRED 1 BIN 047"     12734  NULL        INTEGER             3  UINT64           1
+PRE_1BN048 "PRED 1 BIN 048"     12735  NULL        INTEGER             3  UINT64           1
+PRE_1BN049 "PRED 1 BIN 049"     12736  NULL        INTEGER             3  UINT64           1
+PRE_1BN050 "PRED 1 BIN 050"     12737  NULL        INTEGER             3  UINT64           1
+PRE_1BN051 "PRED 1 BIN 051"     12738  NULL        INTEGER             3  UINT64           1
+PRE_1BN052 "PRED 1 BIN 052"     12739  NULL        INTEGER             3  UINT64           1
+PRE_1BN053 "PRED 1 BIN 053"     12740  NULL        INTEGER             3  UINT64           1
+PRE_1BN054 "PRED 1 BIN 054"     12741  NULL        INTEGER             3  UINT64           1
+PRE_1BN055 "PRED 1 BIN 055"     12742  NULL        INTEGER             3  UINT64           1
+PRE_1BN056 "PRED 1 BIN 056"     12743  NULL        INTEGER             3  UINT64           1
+PRE_1BN057 "PRED 1 BIN 057"     12744  NULL        INTEGER             3  UINT64           1
+PRE_1BN058 "PRED 1 BIN 058"     12745  NULL        INTEGER             3  UINT64           1
+PRE_1BN059 "PRED 1 BIN 059"     12746  NULL        INTEGER             3  UINT64           1
+PRE_1BN060 "PRED 1 BIN 060"     12747  NULL        INTEGER             3  UINT64           1
+PRE_1BN061 "PRED 1 BIN 061"     12748  NULL        INTEGER             3  UINT64           1
+PRE_1BN062 "PRED 1 BIN 062"     12749  NULL        INTEGER             3  UINT64           1
+PRE_1BN063 "PRED 1 BIN 063"     12750  NULL        INTEGER             3  UINT64           1
+PRE_1BN064 "PRED 1 BIN 064"     12751  NULL        INTEGER             3  UINT64           1
+PRE_1BN065 "PRED 1 BIN 065"     12752  NULL        INTEGER             3  UINT64           1
+PRE_1BN066 "PRED 1 BIN 066"     12753  NULL        INTEGER             3  UINT64           1
+PRE_1BN067 "PRED 1 BIN 067"     12754  NULL        INTEGER             3  UINT64           1
+PRE_1BN068 "PRED 1 BIN 068"     12755  NULL        INTEGER             3  UINT64           1
+PRE_1BN069 "PRED 1 BIN 069"     12756  NULL        INTEGER             3  UINT64           1
+PRE_1BN070 "PRED 1 BIN 070"     12757  NULL        INTEGER             3  UINT64           1
+PRE_1BN071 "PRED 1 BIN 071"     12758  NULL        INTEGER             3  UINT64           1
+PRE_1BN072 "PRED 1 BIN 072"     12759  NULL        INTEGER             3  UINT64           1
+PRE_1BN073 "PRED 1 BIN 073"     12760  NULL        INTEGER             3  UINT64           1
+PRE_1BN074 "PRED 1 BIN 074"     12761  NULL        INTEGER             3  UINT64           1
 !
 ! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
 !
@@ -31456,13 +32060,13 @@ RFQ_SIDE   "RFQ SIDE"           12920  NULL        ENUMERATED    3 ( 3 )  ENUM  
 !
 BID_TICK1  "BID PRC TICK 1"     12921  BID_TICK2   ENUMERATED    3 ( 1 )  ENUM             1
 BID_TICK2  "BID PRC TICK 2"     12922  BID_TICK3   ENUMERATED    3 ( 1 )  ENUM             1
-BID_TICK3  "BID PRC TICK 3"     12923  NULL        ENUMERATED    3 ( 1 )  ENUM             1
+BID_TICK3  "BID PRC TICK 3"     12923  BID_TICK4   ENUMERATED    3 ( 1 )  ENUM             1
 !
 ! Direction of bid
 !
 ASK_TICK1  "ASK PRC TICK 1"     12924  ASK_TICK2   ENUMERATED    3 ( 1 )  ENUM             1
 ASK_TICK2  "ASK PRC TICK 2"     12925  ASK_TICK3   ENUMERATED    3 ( 1 )  ENUM             1
-ASK_TICK3  "ASK PRC TICK 3"     12926  NULL        ENUMERATED    3 ( 1 )  ENUM             1
+ASK_TICK3  "ASK PRC TICK 3"     12926  ASK_TICK4   ENUMERATED    3 ( 1 )  ENUM             1
 !
 ! Direction of ask
 !
@@ -31555,7 +32159,7 @@ ACT_REL_ST "ACTUAL RELEASE STA" 12947  NULL        ENUMERATED    3 ( 8 )  ENUM  
 !
 DEF_FC_TP  "DEFAULT FCAST TYPE" 12948  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 !
-! The averaging methodology used for the consensus forecast value
+! The statistical methodology used for the consensus forecast value
 !
 LEG1_CO_FL "LEG1 COLLAT FLAG"   12949  NULL        ENUMERATED    3 ( 3 )  ENUM             1
 !
@@ -31616,9 +32220,7 @@ LEG2_PAYFQ "LEQ2 PAY FRQ"       12961  NULL        ENUMERATED    3 ( 8 )  ENUM  
 EXP_UP_FRQ "EXPECTED UPDT FRQ"  12962  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 !
 ! Enumerated type field that indicates the specific day or month or season or quarter 
-! when an instrument is expected to update. Examples: The PR_FREQ field would indicate 
-! 'Weekly' but this field EXP_UP_FRQ would indicate which day in the week, like 
-! Tuesday, Wednesday etc.,
+! when an instrument is expected to update
 !
 DCNT_BAS1  "DAY CNT BASIS 1"    12963  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 DCNT_BAS2  "DAY CNT BASIS 2"    12964  NULL        ENUMERATED    3 ( 8 )  ENUM             1
@@ -31661,61 +32263,187 @@ SULPH_UNIT "SULPHUR UNIT"       12975  NULL        ENUMERATED    3 ( 8 )  ENUM  
 !
 ! The unit used in the field SULPHUR
 !
-PRE_1ET275 "PRED 1 ET 275"      12976  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET276 "PRED 1 ET 276"      12977  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET277 "PRED 1 ET 277"      12978  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET278 "PRED 1 ET 278"      12979  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET279 "PRED 1 ET 279"      12980  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET280 "PRED 1 ET 280"      12981  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET281 "PRED 1 ET 281"      12982  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET282 "PRED 1 ET 282"      12983  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET283 "PRED 1 ET 283"      12984  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET284 "PRED 1 ET 284"      12985  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET285 "PRED 1 ET 285"      12986  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET286 "PRED 1 ET 286"      12987  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET287 "PRED 1 ET 287"      12988  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET288 "PRED 1 ET 288"      12989  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET289 "PRED 1 ET 289"      12990  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET290 "PRED 1 ET 290"      12991  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET291 "PRED 1 ET 291"      12992  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET292 "PRED 1 ET 292"      12993  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET293 "PRED 1 ET 293"      12994  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET294 "PRED 1 ET 294"      12995  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET295 "PRED 1 ET 295"      12996  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET296 "PRED 1 ET 296"      12997  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET297 "PRED 1 ET 297"      12998  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET298 "PRED 1 ET 298"      12999  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET299 "PRED 1 ET 299"      13000  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET300 "PRED 1 ET 300"      13001  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET301 "PRED 1 ET 301"      13002  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET302 "PRED 1 ET 302"      13003  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET303 "PRED 1 ET 303"      13004  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET304 "PRED 1 ET 304"      13005  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET305 "PRED 1 ET 305"      13006  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET306 "PRED 1 ET 306"      13007  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET307 "PRED 1 ET 307"      13008  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET308 "PRED 1 ET 308"      13009  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET309 "PRED 1 ET 309"      13010  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET310 "PRED 1 ET 310"      13011  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET311 "PRED 1 ET 311"      13012  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET312 "PRED 1 ET 312"      13013  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET313 "PRED 1 ET 313"      13014  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET314 "PRED 1 ET 314"      13015  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET315 "PRED 1 ET 315"      13016  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET316 "PRED 1 ET 316"      13017  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET317 "PRED 1 ET 317"      13018  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET318 "PRED 1 ET 318"      13019  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET319 "PRED 1 ET 319"      13020  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET320 "PRED 1 ET 320"      13021  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET321 "PRED 1 ET 321"      13022  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET322 "PRED 1 ET 322"      13023  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET323 "PRED 1 ET 323"      13024  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET324 "PRED 1 ET 324"      13025  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET325 "PRED 1 ET 325"      13026  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET326 "PRED 1 ET 326"      13027  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET327 "PRED 1 ET 327"      13028  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET328 "PRED 1 ET 328"      13029  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET329 "PRED 1 ET 329"      13030  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+CARGO_TYPE "CARGO TYPE"         12976  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! The type of commodity transported.
+!
+ROUTE_INDX "ROUTE INDEX"        12977  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Field to Show the Freight Routes
+!
+VESSEL_TYP "VESSEL TYPE"        12978  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! The type of vessel/tanker used to transport a commodity.
+!
+CS_API_IND "CRD SLATE API IND"  12979  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! Indicator of the average crude slate API value. Indicates if the value is New, 
+! Changed or Unchanged from the previous value.
+!
+CS_EHVY_IN "CRD SLATE EHVY IND" 12980  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! Indicator of the volume percent of extra heavy crude in the crude slate. Indicates 
+! if the value is New, Changed or Unchanged from the previous value.
+!
+CS_ELGT_IN "CRD SLATE ELGT IND" 12981  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! Indicator of the volume percent of extra light crude in the crude slate. Indicates 
+! if the value is New, Changed or Unchanged from the previous value.
+!
+CS_HSUL_IN "CRD SLATE HSUL IND" 12982  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! Indicator of the volume percent of high sulphur crude in the crude slate. Indicates 
+! if the value is New, Changed or Unchanged from the previous value.
+!
+CS_HVY_IN  "CRD SLATE HVY IND"  12983  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! Indicator of the volume percent of heavy crude in the crude slate. Indicates if the 
+! value is New, Changed or Unchanged from the previous value.
+!
+CS_LGT_IN  "CRD SLATE LGT IND"  12984  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! Indicator of the volume percent of light crude in the crude slate. Indicates if the 
+! value is New, Changed or Unchanged from the previous value.
+!
+CS_LSUL_IN "CRD SLATE LSUL IND" 12985  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! Indicator of the volume percent of low sulphur crude in the crude slate. Indicates 
+! if the value is New, Changed or Unchanged from the previous value.
+!
+CS_MED_IN  "CRD SLATE MED IND"  12986  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! Indicator of the volume percent of medium crude in the crude slate. Indicates if the 
+! value is New, Changed or Unchanged from the previous value.
+!
+CS_MSUL_IN "CRD SLATE MSUL IND" 12987  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! Indicator of the volume percent of medium sulphur crude in the crude slate. 
+! Indicates if the value is New, Changed or Unchanged from the previous value.
+!
+CS_SPG_IND "CRD SLATE SPG IND"  12988  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! Indicator of the average crude slate specific gravity value. Indicates if the value 
+! is New, Changed or Unchanged from the previous value.
+!
+CS_SUL_IND "CRD SLATE SUL IND"  12989  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! Indicator of the average crude slate Sulphur value. Indicates if the value is New, 
+! Changed or Unchanged from the previous value.
+!
+CS_TAN_IND "CRD SLATE TAN IND"  12990  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! Indicator of the average crude slate TAN value. Indicates if the value is New, 
+! Changed or Unchanged from the previous value.
+!
+PCTVOL_IND "PCT VOL IND"        12991  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! Percentage volume indicator
+!
+COMPLX_IND "COMPLEXITY IND"     12992  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Complexity Indicator. The type or complexity of the refinery.
+!
+OUT_PROD1  "OUTPUT PROD 1"      12993  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+OUT_PROD2  "OUTPUT PROD 2"      12994  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+OUT_PROD3  "OUTPUT PROD 3"      12995  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+OUT_PROD4  "OUTPUT PROD 4"      12996  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+OUT_PROD5  "OUTPUT PROD 5"      12997  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+OUT_PROD6  "OUTPUT PROD 6"      12998  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+OUT_PROD7  "OUTPUT PROD 7"      12999  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+OUT_PROD8  "OUTPUT PROD 8"      13000  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+OUT_PROD9  "OUTPUT PROD 9"      13001  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+OUT_PROD10 "OUTPUT PROD 10"     13002  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+OUT_PROD11 "OUTPUT PROD 11"     13003  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+OUT_PROD12 "OUTPUT PROD 12"     13004  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+OUT_PROD13 "OUTPUT PROD 13"     13005  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+OUT_PROD14 "OUTPUT PROD 14"     13006  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+OUT_PROD15 "OUTPUT PROD 15"     13007  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+OUT_PROD16 "OUTPUT PROD 16"     13008  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Product from the raw input material
+!
+ASK_TICK4  "ASK PRC TICK 4"     13009  ASK_TICK5   ENUMERATED    3 ( 1 )  ENUM             1
+ASK_TICK5  "ASK PRC TICK 5"     13010  NULL        ENUMERATED    3 ( 1 )  ENUM             1
+!
+! Direction of ask
+!
+BID_TICK4  "BID PRC TICK 4"     13011  BID_TICK5   ENUMERATED    3 ( 1 )  ENUM             1
+BID_TICK5  "BID PRC TICK 5"     13012  NULL        ENUMERATED    3 ( 1 )  ENUM             1
+!
+! Direction of bid
+!
+AVGPRC_TP1 "AVG PRC TYPE 1"     13013  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Average Price Type
+!
+BLK_HR_TYP "BLOCK HOUR TP"      13014  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Description of the hour block
+!
+DELIV_PRD  "DELIVERY PERIOD"    13015  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Delivery Period. The Day/period for which the price is fixed
+!
+TRD_MD_TYP "TRD MODE TYPE"      13016  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Indicates the primary type and style of trade match mechanism used by the venue
+!
+ADM_TRD_RQ "ADM TRD RQT"        13017  NULL        ENUMERATED    3 ( 5 )  ENUM             1
+!
+! Request for admission to trading by issuer
+!
+CLR_OBL_FL "CLR OBLIGATION FLG" 13018  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Clearing Obligation Flag
+!
+CMD_BASE   "COMMOD BASE PROD"   13019  NULL        ENUMERATED    3 ( 4 )  ENUM             1
+!
+! Base product (ESMA RTS 23)
+!
+CMD_SUB    "COMMOD SUB PROD"    13020  NULL        ENUMERATED    3 ( 4 )  ENUM             1
+!
+! Sub product (ESMA RTS 23)
+!
+CMD_SUB2   "COMMOD SUB PROD 2"  13021  NULL        ENUMERATED    3 ( 4 )  ENUM             1
+!
+! Further sub product (ESMA RTS 23)
+!
+COMMOD_IN  "COMMOD DERV IND"    13022  NULL        ENUMERATED    3 ( 5 )  ENUM             1
+!
+! Commodities derivative indicator
+!
+FNL_PR_TYP "FINAL PRC TYPE"     13023  NULL        ENUMERATED    3 ( 4 )  ENUM             1
+!
+! Final price type
+!
+LIQIND_INS "LIQ IND INST"       13024  NULL        ENUMERATED    3 ( 5 )  ENUM             1
+!
+! MiFID II Liquidity Indicator instrument
+!
+LIQIND_SCL "LIQ IND SUB CLA"    13025  NULL        ENUMERATED    3 ( 5 )  ENUM             1
+!
+! MiFID II Liquidity Indicator sub-class
+!
+PRC_PNDG   "PRC PNDG FLG"       13026  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! MiFID II price pending flag
+!
+TRAN_TYP   "TRANSACTION TYPE"   13027  NULL        ENUMERATED    3 ( 4 )  ENUM             1
+!
+! Transaction type
+!
+TRD_OBL_FL "TRD OBLIGATION FLG" 13028  NULL        ENUMERATED    3 ( 5 )  ENUM             1
+!
+! MiFID II Trade Obligation Flag
+!
+UN_CUR_TP  "UNDLY CUR TYPE"     13029  NULL        ENUMERATED    3 ( 4 )  ENUM             1
+!
+! Type of underlying currency for FX derivatives
+!
+VNE_SUS_FL "VENUE SUS FLAG"     13030  NULL        ENUMERATED    3 ( 5 )  ENUM             1
+!
+! Venue Suspension Flag
+!
 PRE_1ET330 "PRED 1 ET 330"      13031  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET331 "PRED 1 ET 331"      13032  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET332 "PRED 1 ET 332"      13033  NULL        ENUMERATED    3 ( 8 )  ENUM             1
@@ -32719,19 +33447,58 @@ TRDSHM_EL2 "ELIGBL TRD SCHEME2" 13569  NULL        ENUMERATED    5 ( 8 )  ENUM  
 !
 ! Secondary trading scheme eligibility field
 !
-PRE_2ET249 "PRED 2 ET 249"      13570  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET250 "PRED 2 ET 250"      13571  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET251 "PRED 2 ET 251"      13572  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET252 "PRED 2 ET 252"      13573  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET253 "PRED 2 ET 253"      13574  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET254 "PRED 2 ET 254"      13575  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET255 "PRED 2 ET 255"      13576  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET256 "PRED 2 ET 256"      13577  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET257 "PRED 2 ET 257"      13578  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET258 "PRED 2 ET 258"      13579  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET259 "PRED 2 ET 259"      13580  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET260 "PRED 2 ET 260"      13581  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET261 "PRED 2 ET 261"      13582  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+INPUT_ORGN "INPUT ORIGIN"       13570  NULL        ENUMERATED    5 ( 3 )  ENUM             2
+!
+! The Country/Region from where the raw material input originates
+!
+LEG3_CURR  "LEG3 CURRENCY"      13571  NULL        ENUMERATED    5 ( 3 )  ENUM             2
+!
+! Currency associated with the Nth leg of a strategy
+!
+LEG3_EXCH  "LEG3 EXCH ID"       13572  NULL        ENUMERATED    5 ( 3 )  ENUM             2
+!
+! Exchange on which the 3rd leg instrument is traded
+!
+LEG4_CURR  "LEG4 CURRENCY"      13573  NULL        ENUMERATED    5 ( 3 )  ENUM             2
+!
+! Currency associated with the Nth leg of a strategy
+!
+LEG4_EXCH  "LEG4 EXCH ID"       13574  NULL        ENUMERATED    5 ( 3 )  ENUM             2
+!
+! Exchange on which the 4th leg instrument is traded
+!
+DSCG_PORT  "DISCHARGE PORT"     13575  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Field to show the discharge port of a Vessel.
+!
+DSCG_ZONE  "DISCHARGE ZONE"     13576  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Field to show the zone in which the cargo is discharged from Vessel.
+!
+LOAD_PORT  "LOADING PORT"       13577  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Field to show the loading point of a Vessel.
+!
+LOAD_ZONE  "LOADING ZONE"       13578  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Field to show the zone in which the cargo is loaded onto Vessel.
+!
+ORGN_PORT  "ORIGIN PORT"        13579  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Field to show the starting point of a Vessel.
+!
+CLR_CTRY   "CLEARING CTRY CODE" 13580  NULL        ENUMERATED    5 ( 3 )  ENUM             2
+!
+! Clearing House Country Code
+!
+PRC_QULFTN "PRC QUALIFICATION"  13581  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Identify securities for consumption on an application
+!
+CNV_PAR_UT "CONV PARITY UNIT"   13582  NULL        ENUMERATED    5 ( 3 )  ENUM             2
+!
+! Convertible Pricing Unit
+!
 PRE_2ET262 "PRED 2 ET 262"      13583  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET263 "PRED 2 ET 263"      13584  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET264 "PRED 2 ET 264"      13585  NULL        ENUMERATED    5 ( 8 )  ENUM             2
@@ -34069,7 +34836,13 @@ PRE_4TX171 "PRED 4 TXT 171"     14377  NULL        ALPHANUMERIC        4  RMTES_
 PRE_4TX172 "PRED 4 TXT 172"     14378  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 PRE_4TX173 "PRED 4 TXT 173"     14379  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 PRE_4TX174 "PRED 4 TXT 174"     14380  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_16T065 "PRED 16 TXT 065"    14381  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+!
+! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
+!
+LEG3_TENOR "LEG3 TENOR"         14381  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+!
+! Tenor associated with Nth leg of a strategy
+!
 PRE_16T066 "PRED 16 TXT 066"    14382  NULL        ALPHANUMERIC       16  RMTES_STRING    16
 PRE_16T067 "PRED 16 TXT 067"    14383  NULL        ALPHANUMERIC       16  RMTES_STRING    16
 PRE_16T068 "PRED 16 TXT 068"    14384  NULL        ALPHANUMERIC       16  RMTES_STRING    16
@@ -34342,20 +35115,63 @@ MSP_O_T_NS "MID SPRD OPEN T_NS" 14521  NULL        INTEGER            15  TIME  
 !
 ! Mid Spread Open time in nanosecond granularity
 !
-PRE_092_NS "PRED TIME NS 092"   14522  NULL        INTEGER            15  TIME             8
-PRE_093_NS "PRED TIME NS 093"   14523  NULL        INTEGER            15  TIME             8
-PRE_094_NS "PRED TIME NS 094"   14524  NULL        INTEGER            15  TIME             8
-PRE_095_NS "PRED TIME NS 095"   14525  NULL        INTEGER            15  TIME             8
-PRE_096_NS "PRED TIME NS 096"   14526  NULL        INTEGER            15  TIME             8
-PRE_097_NS "PRED TIME NS 097"   14527  NULL        INTEGER            15  TIME             8
-PRE_098_NS "PRED TIME NS 098"   14528  NULL        INTEGER            15  TIME             8
-PRE_099_NS "PRED TIME NS 099"   14529  NULL        INTEGER            15  TIME             8
-PRE_100_NS "PRED TIME NS 100"   14530  NULL        INTEGER            15  TIME             8
-PRE_101_NS "PRED TIME NS 101"   14531  NULL        INTEGER            15  TIME             8
-PRE_102_NS "PRED TIME NS 102"   14532  NULL        INTEGER            15  TIME             8
-PRE_103_NS "PRED TIME NS 103"   14533  NULL        INTEGER            15  TIME             8
-PRE_104_NS "PRED TIME NS 104"   14534  NULL        INTEGER            15  TIME             8
-PRE_105_NS "PRED TIME NS 105"   14535  NULL        INTEGER            15  TIME             8
+MET_SCT_NS "SEC MET VAL TIM NS" 14522  NULL        INTEGER            15  TIME             8
+!
+! Secondary Metric Value time field
+!
+R_A_TRD_NS "REL ASK TRD TM NS"  14523  NULL        INTEGER            15  TIME             8
+!
+! Related Time for ASK side for a trade reporting 
+!
+R_B_TRD_NS "REL BID TRD TM NS"  14524  NULL        INTEGER            15  TIME             8
+!
+! Related Time for BID side for a trade reporting
+!
+INDAUC_NS  "IND AUC TIME NS"    14525  NULL        INTEGER            15  TIME             8
+!
+! Time of indicative auction price
+!
+ISS_REF_NS "ISS REF TIME NS"    14526  NULL        INTEGER            15  TIME             8
+!
+! Time of the last update to the field ISS_REFPRC
+!
+LIQ_TIM_NS "LIQ VALUE TIM NS"   14527  NULL        INTEGER            15  TIME             8
+!
+! The time of liquidity value was assigned to an issue
+!
+MKT_CLS_NS "MKT CLS TM NS"      14528  NULL        INTEGER            15  TIME             8
+!
+! Market close time.
+!
+ORIG_TM_NS "ORIG TRD TIM NS"    14529  NULL        INTEGER            15  TIME             8
+!
+! Original Trade Time
+!
+PD_CDE_NS  "PERIOD CODE TM NS"  14530  NULL        INTEGER            15  TIME             8
+!
+! Start Time of the Current Period for the market segment
+!
+PRTY_TM_NS "PARITY TIME NS"     14531  NULL        INTEGER            15  TIME             8
+!
+! Time for Parity
+!
+RFC_AT_NS  "RFC ACTIVE TM NS"   14532  NULL        INTEGER            15  TIME             8
+!
+! Activity time field for RFC_ACTIVE
+!
+RFC_IPD_NS "RFC IMP PRD NS"     14533  NULL        INTEGER            15  TIME             8
+!
+! RFC Improvement Period.  Defines the duration of the RFC Improvement Period.
+!
+RFC_QU_NS  "RFC QUEUED TM NS"   14534  NULL        INTEGER            15  TIME             8
+!
+! Activity time field for RFC_QUEUED
+!
+RFC_TBC_NS "RFC TIME CLOSE NS"  14535  NULL        INTEGER            15  TIME             8
+!
+! RFC Expiry Time Before Close.  The time from market close from which the RFC will be 
+! deactivated.
+!
 PRE_106_NS "PRED TIME NS 106"   14536  NULL        INTEGER            15  TIME             8
 PRE_107_NS "PRED TIME NS 107"   14537  NULL        INTEGER            15  TIME             8
 PRE_108_NS "PRED TIME NS 108"   14538  NULL        INTEGER            15  TIME             8
@@ -34612,12 +35428,12 @@ MM_NEAR    "MM_NEAR"            15305  NULL        PRICE              17  REAL64
 MM_FAR     "MM_FAR"             15306  NULL        PRICE              17  REAL64           7
 MM_SWAP    "MM_SWAP"            15307  NULL        PRICE              17  REAL64           7
 BRO_AMNT   "BRO_AMNT"           15308  NULL        PRICE              17  REAL64           7
-IS_BLOCK   "IS_BLOCK"           15309  NULL        INTEGER             3  UINT32           1
-CLEAR_ELGB "CLEAR_ELGB"         15310  NULL        INTEGER             3  UINT32           1
-MK_CL_EX   "MK_CL_EX"           15311  NULL        INTEGER             3  UINT32           1
-TK_CL_EX   "TK_CL_EX"           15312  NULL        INTEGER             3  UINT32           1
-MK_US_PER  "MK_US_PER"          15313  NULL        INTEGER             3  UINT32           1
-TK_US_PER  "TK_US_PER"          15314  NULL        INTEGER             3  UINT32           1
+IS_BLOCK   "IS_BLOCK"           15309  NULL        INTEGER             3  UINT64           1
+CLEAR_ELGB "CLEAR_ELGB"         15310  NULL        INTEGER             3  UINT64           1
+MK_CL_EX   "MK_CL_EX"           15311  NULL        INTEGER             3  UINT64           1
+TK_CL_EX   "TK_CL_EX"           15312  NULL        INTEGER             3  UINT64           1
+MK_US_PER  "MK_US_PER"          15313  NULL        INTEGER             3  UINT64           1
+TK_US_PER  "TK_US_PER"          15314  NULL        INTEGER             3  UINT64           1
 MK_REP_JUR "MK_REP_JURISD"      15315  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 TK_REP_JUR "TK_REP_JURISD"      15316  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 !
@@ -35306,21 +36122,70 @@ DELV_TNOV  "DELV TNOV"          32232  NULL        PRICE              17  REAL64
 ! Trade Turnover for trades that would result in the delivery of securities from one 
 ! party to another at the end of trading day
 !
-PRE_LRL085 "PRED LRG REAL 085"  32233  NULL        PRICE              17  REAL64           8
-PRE_LRL086 "PRED LRG REAL 086"  32234  NULL        PRICE              17  REAL64           8
-PRE_LRL087 "PRED LRG REAL 087"  32235  NULL        PRICE              17  REAL64           8
-PRE_LRL088 "PRED LRG REAL 088"  32236  NULL        PRICE              17  REAL64           8
-PRE_LRL089 "PRED LRG REAL 089"  32237  NULL        PRICE              17  REAL64           8
-PRE_LRL090 "PRED LRG REAL 090"  32238  NULL        PRICE              17  REAL64           8
-PRE_LRL091 "PRED LRG REAL 091"  32239  NULL        PRICE              17  REAL64           8
-PRE_LRL092 "PRED LRG REAL 092"  32240  NULL        PRICE              17  REAL64           8
-PRE_LRL093 "PRED LRG REAL 093"  32241  NULL        PRICE              17  REAL64           8
-PRE_LRL094 "PRED LRG REAL 094"  32242  NULL        PRICE              17  REAL64           8
-PRE_LRL095 "PRED LRG REAL 095"  32243  NULL        PRICE              17  REAL64           8
-PRE_LRL096 "PRED LRG REAL 096"  32244  NULL        PRICE              17  REAL64           8
-PRE_LRL097 "PRED LRG REAL 097"  32245  NULL        PRICE              17  REAL64           8
-PRE_LRL098 "PRED LRG REAL 098"  32246  NULL        PRICE              17  REAL64           8
-PRE_LRL099 "PRED LRG REAL 099"  32247  NULL        PRICE              17  REAL64           8
+PRI_LO_RNG "PRIOR LOW RNG"      32233  NULL        PRICE              17  REAL64           8
+!
+! When the prior value is provided as a value range, i.e., between 0.25 and 0.5, this 
+! field shows the lower value of the prior range
+!
+PRI_UP_RNG "PRIOR UPP RNG"      32234  NULL        PRICE              17  REAL64           8
+!
+! When the prior value is provided as a value range, i.e., between 0.25 and 0.5, this 
+! field shows the upper value of the prior range
+!
+PRIOR_REV  "PRIOR REV PERIOD"   32235  NULL        PRICE              17  REAL64           8
+!
+! To record a revision to the prior period's observation.
+!
+PRI_REV_UR "PRIOR REV UPP RNG"  32236  NULL        PRICE              17  REAL64           8
+!
+! When the prior revision value is provided as a value range, i.e., between 0.25 and 
+! 0.5, this field shows the upper value of the prior revision range
+!
+PRI_REV_LR "PRIOR REV LOW RNG"  32237  NULL        PRICE              17  REAL64           8
+!
+! When the prior revision value is provided as a value range, i.e., between 0.25 and 
+! 0.5, this field shows the lower value of the prior revision range
+!
+RTR_POLL   "RTR POLL"           32238  NULL        PRICE              17  REAL64           8
+!
+! Reuters Poll consensus forecast
+!
+MET_VAL21  "METRIC VALUE 21"    32239  NULL        PRICE              17  REAL64           8
+!
+! Metric Value 21
+!
+MET_VAL22  "METRIC VALUE 22"    32240  NULL        PRICE              17  REAL64           8
+!
+! Metric Value 22
+!
+MET_VAL23  "METRIC VALUE 23"    32241  NULL        PRICE              17  REAL64           8
+!
+! Metric Value 23
+!
+MET_VAL24  "METRIC VALUE 24"    32242  NULL        PRICE              17  REAL64           8
+!
+! Metric Value 24
+!
+MET_VAL25  "METRIC VALUE 25"    32243  NULL        PRICE              17  REAL64           8
+!
+! Metric Value 25
+!
+MET_VAL26  "METRIC VALUE 26"    32244  NULL        PRICE              17  REAL64           8
+!
+! Metric Value 26
+!
+HSTVOL_DEC "HST VOL DEC"        32245  NULL        PRICE              17  REAL64           8
+!
+! The previous day's accumulated volume. With decimals.
+!
+ESMA_TMV   "ESMA TTL MKT VOL"   32246  NULL        PRICE              17  REAL64           8
+!
+! ESMA official Total Market Volume
+!
+TR_ITMV    "TR IND TTL MKT VOL" 32247  NULL        PRICE              17  REAL64           8
+!
+! TR Current Indicative Total Market Volume
+!
 PRE_LRL100 "PRED LRG REAL 100"  32248  NULL        PRICE              17  REAL64           8
 PRE_LRL101 "PRED LRG REAL 101"  32249  NULL        PRICE              17  REAL64           8
 PRE_LRL102 "PRED LRG REAL 102"  32250  NULL        PRICE              17  REAL64           8
@@ -35590,7 +36455,7 @@ SUB_ACVOL  "SUB TRD ACVOL"      32487  NULL        INTEGER            15  UINT64
 !
 ! Total volume of Substitution For Forward trades
 !
-VEHICLEID  "VEHICLE PERM ID"    32488  NULL        INTEGER            15  UINT64           8
+VEH_PERMID "VEHICLE PERM ID"    32488  NULL        INTEGER            15  UINT64           8
 !
 ! Vehicle Perm ID
 !
@@ -35611,7 +36476,10 @@ DELV_ACVOL "DELV ACVOL"         32492  NULL        INTEGER            15  UINT64
 ! Accumulated Trade Volume for trades that would result in the delivery of securities 
 ! from one party to another at the end of trading day
 !
-PR_UINT015 "PRED UNS INT 015"   32493  NULL        INTEGER            15  UINT64           8
+HST_EX_VOL "HST EXCH VOL UNS"   32493  NULL        INTEGER            15  UINT64           8
+!
+! The previous day's un-scaled accumulated volume reported by the exchange/source
+!
 PR_UINT016 "PRED UNS INT 016"   32494  NULL        INTEGER            15  UINT64           8
 PR_UINT017 "PRED UNS INT 017"   32495  NULL        INTEGER            15  UINT64           8
 PR_UINT018 "PRED UNS INT 018"   32496  NULL        INTEGER            15  UINT64           8
@@ -36111,15 +36979,15 @@ NF_AMT_OS  "NONE FF AMT OS"     32699  NULL        INTEGER            15  UINT64
 !
 ! Non-free float amount outstanding
 !
-FEED_STS   "FEED STATUS"        32700  NULL        INTEGER             3  UINT32           1
+FEED_STS   "FEED STATUS"        32700  NULL        INTEGER             3  UINT64           1
 !
 ! The feed status: 0=Open, 1=Closed, 2=Holiday, 3=Off, 4=Unknown
 !
-LINE_ID    "LINE ID"            32701  NULL        INTEGER             3  UINT32           1
+LINE_ID    "LINE ID"            32701  NULL        INTEGER             3  UINT64           1
 !
 ! The line id being monitored for status below: 0-63 
 !
-LINE_STS   "LINE STATUS"        32702  NULL        INTEGER             3  UINT32           1
+LINE_STS   "LINE STATUS"        32702  NULL        INTEGER             3  UINT64           1
 !
 ! Status of the line: 0=Active, 1=Inactive, 2=Ignored, 3=Unknown
 !
@@ -36139,16 +37007,16 @@ P2PMT_USER "P2PS MT USER"       32706  NULL        ALPHANUMERIC       25  RMTES_
 !
 ! User name provided by the application attached to P2PS through this mount   
 !
-P2PMT_WTCH "P2PS MT WATCHLIST"  32707  NULL        INTEGER            15  UINT32           4
+P2PMT_WTCH "P2PS MT WATCHLIST"  32707  NULL        INTEGER            15  UINT64           4
 !
 ! Count of items of interest to this connection (watchlist count)   
 !
-P2PMT_BF   "P2PS MT BUFFER"     32708  NULL        INTEGER            15  UINT32           4
+P2PMT_BF   "P2PS MT BUFFER"     32708  NULL        INTEGER            15  UINT64           4
 !
 ! Percentage of P2PS buffers used by this mount.  P2PS will disconnect this mount if 
 ! the buffer percentage reaches a pre-determined threshold  
 !
-P2PMT_BFMX "P2PS BUFF MAX"      32709  NULL        INTEGER            15  UINT32           4
+P2PMT_BFMX "P2PS BUFF MAX"      32709  NULL        INTEGER            15  UINT64           4
 !
 ! Peak buffer usage of this mount.  This is not a percentage
 !
@@ -36156,11 +37024,11 @@ NIC_MXIP   "NIC MAXS IP"        32710  NULL        ALPHANUMERIC       15  RMTES_
 !
 ! The IP of the NIC being described
 !
-NIC_MXSENT "NIC MAX BPS SENT"   32711  NULL        INTEGER            15  UINT32           4
+NIC_MXSENT "NIC MAX BPS SENT"   32711  NULL        INTEGER            15  UINT64           4
 !
 ! The peak bytes per second sent by this NIC since LHFIX rollover
 !
-NIC_MXRECV "NIC MAX BPS RECV"   32712  NULL        INTEGER            15  UINT32           4
+NIC_MXRECV "NIC MAX BPS RECV"   32712  NULL        INTEGER            15  UINT64           4
 !
 ! The peak bytes per second received by this NIC since LHFIX rollover
 !
