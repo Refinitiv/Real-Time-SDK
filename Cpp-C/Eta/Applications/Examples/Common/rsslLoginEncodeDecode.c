@@ -14,7 +14,7 @@
 #include <unistd.h>
 #endif
 
-static const char *blankUserName = "\0";
+static char *blankUserName = "\0";
 
 /*
  * Encodes the login request.  Returns success if encoding

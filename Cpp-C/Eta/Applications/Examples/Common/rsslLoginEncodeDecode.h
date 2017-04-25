@@ -52,7 +52,7 @@ typedef struct {
 	char		AuthenticationStatusErrorText[MAX_LOGIN_INFO_STRLEN];
 	RsslUInt64  AuthenticationTTReissue;
 	RsslBool	HasAuthenticationStatusErrorCode;
-	RsslInt64   AuthenticationStatusErrorCode;
+	RsslUInt64   AuthenticationStatusErrorCode;
 	RsslUInt64	ProvidePermissionProfile;
 	RsslUInt64	ProvidePermissionExpressions;
 	RsslUInt64	SingleOpen;
