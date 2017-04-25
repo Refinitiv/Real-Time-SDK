@@ -867,7 +867,7 @@ static void handleRuntime()
 	if (currentTime >= rsslNIProviderRuntime)
 	{
 		/* send close status messages to all streams */
-		if ((rsslNIProviderChannel != NULL) && (rsslNIProviderChannel->socketId != -1))
+		if ((rsslNIProviderChannel != NULL) && (rsslNIProviderChannel->state == RSSL_CH_STATE_ACTIVE))
 		{
 			/* send close status messages to all item streams */
 			sendItemCloseStatusMsgs(rsslNIProviderChannel);
