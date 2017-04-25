@@ -570,10 +570,12 @@ RsslRet wlLoginProcessConsumerMsg(WlLogin *pLogin, WlBase *pBase,
 
 					if (pLoginRequest->pCurrentToken)
 					{
-						/* If a pending next token is present, free it and set the new token to the next pending token */
-						if (pLoginRequest->pNextToken)
+						/* If a next token is present, or the stream state is either in a PENDING_REQUEST or PENDING_RESPONSE, set the pNewToken */
+						if (pLoginRequest->pNextToken || pLogin->pRequest->base.pStream->requestState == WL_STRS_PENDING_RESPONSE || pLogin->pRequest->base.pStream->requestState == WL_STRS_PENDING_REQUEST)
 						{
-							free(pLoginRequest->pNextToken);
+							/* If a pending next token is present, free it and set the new token to the next pending token */
+							if(pLoginRequest->pNextToken != NULL)
+								free(pLoginRequest->pNextToken);
 							pLoginRequest->pNextToken = pNewToken;
 							
 						}
@@ -595,7 +597,6 @@ RsslRet wlLoginProcessConsumerMsg(WlLogin *pLogin, WlBase *pBase,
 										pLoginRequest->pCurrentToken->buffer;
 							}
 
-							/* New token can be sent now. */
 							pendingRequest = RSSL_TRUE;
 						}
 					}
@@ -637,7 +638,9 @@ RsslRet wlLoginProcessConsumerMsg(WlLogin *pLogin, WlBase *pBase,
 				}
 
 				/* Make sure refresh is requested if needed. */
-				if (!(pLoginReqMsg->flags & RDM_LG_RQF_NO_REFRESH))
+				if (pLoginReqMsg->flags & RDM_LG_RQF_NO_REFRESH)
+					pOrigLoginReqMsg->flags |= RDM_LG_RQF_NO_REFRESH;
+				else
 					pOrigLoginReqMsg->flags &= ~RDM_LG_RQF_NO_REFRESH;
 
 				pStream = pLogin->pRequest->base.pStream;

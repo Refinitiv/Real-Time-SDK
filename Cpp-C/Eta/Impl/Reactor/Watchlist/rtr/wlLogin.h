@@ -33,8 +33,8 @@ typedef struct
 	WlRequestBase			base;
 	RsslRDMLoginRequest		*pLoginReqMsg;
 	RsslBuffer				rdmMsgMemoryBuffer;
-	WlUserToken				*pCurrentToken;
-	WlUserToken				*pNextToken;
+	WlUserToken				*pCurrentToken;			/* Current open request token */
+	WlUserToken				*pNextToken;			/* Pending next request token */
 } WlLoginRequest;
 
 /* Creates a login request. */

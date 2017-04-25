@@ -3254,7 +3254,7 @@ RsslRet rsslWatchlistSubmitMsg(RsslWatchlist *pWatchlist,
 						WlLoginRequest *pLoginRequest = (WlLoginRequest*)pWatchlistImpl->login.pRequest;
 						RsslQueueLink *pLink;
 
-						while(pLink = rsslQueueRemoveFirstLink(&pWatchlistImpl->base.requestedServices))
+						while(pLink = rsslQueuePeekFront(&pWatchlistImpl->base.requestedServices))
 						{
 							RsslQueueLink *pRequestLink;
 							WlRequestedService *pRequestedService = RSSL_QUEUE_LINK_TO_OBJECT(WlRequestedService, 
@@ -3267,14 +3267,12 @@ RsslRet rsslWatchlistSubmitMsg(RsslWatchlist *pWatchlist,
 								wlDirectoryRequestDestroy(pDirectoryRequest);
 							}
 
-							while (pRequestLink = rsslQueueRemoveFirstLink(&pRequestedService->itemRequests))
+							while (pRequestLink = rsslQueuePeekFront(&pRequestedService->itemRequests))
 							{
 								WlItemRequest *pItemRequest = RSSL_QUEUE_LINK_TO_OBJECT(WlItemRequest,
 										qlRequestedService, pRequestLink);
-
-								if (pItemRequest->base.pStream)
-									wlItemStreamRemoveRequest(
-											(WlItemStream*)pItemRequest->base.pStream, pItemRequest);
+								wlItemRequestClose(&pWatchlistImpl->base, &pWatchlistImpl->items,
+									pItemRequest);
 
 								switch(pItemRequest->base.domainType)
 								{
@@ -3289,6 +3287,8 @@ RsslRet rsslWatchlistSubmitMsg(RsslWatchlist *pWatchlist,
 								}
 							}
 
+							/* The service should be clear at this point, so we can delete pRequestedService. */
+							wlRequestedServiceClose(&pWatchlistImpl->base, pRequestedService);
 							wlRequestedServiceDestroy(pRequestedService);
 						}
 
