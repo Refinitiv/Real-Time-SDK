@@ -52,6 +52,8 @@ public :
 
 	Int16 getRippleTo( Int16 fieldId = 0 ) const;
 
+	const EmaString& getRippleToName(Int16 fieldId = 0) const;
+
 	const Data& getLoad() const;
 
 	Data** getLoadPtr();
@@ -102,7 +104,7 @@ private :
 
 	EmaStringInt				_name;
 
-	EmaStringInt				_rippleToName;
+	mutable EmaStringInt		_rippleToName;
 
 	EmaBufferInt				_hexBuffer;
 

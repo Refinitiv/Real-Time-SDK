@@ -65,9 +65,10 @@ void AppClient::decode( const FieldList& fl )
 					BID = fe.getReal().getAsDouble();
 
 					cout << "DataType: " << DataType( fe.getLoad().getDataType() ) << endl;
-					cout << "Name: " << fe.getName() << " Value: " << BID << endl;
-					cout << "Name: " << fe.getRippleTo() << " Value: " << BID_1 << endl;
-					cout << "Name: " << fe.getRippleTo( fe.getRippleTo() ) << " Value: " << BID_2 << endl;
+				cout << "Name: " << fe.getName() << " (" << fe.getFieldId() << ") Value: " << BID << endl;
+				cout << "Name: " << fe.getRippleToName() << " (" << fe.getRippleTo() << ") Value: " << BID_1 << endl;
+				cout << "Name: " << fe.getRippleToName(fe.getRippleTo()) << " (" << fe.getRippleTo(fe.getRippleTo()) << 
+					") Value: " << BID_2 << endl;
 				}
 				else if ( fe.getFieldId() == 25 ) // Display data for ASK field name and its ripple fields
 				{
@@ -80,9 +81,10 @@ void AppClient::decode( const FieldList& fl )
 					ASK = fe.getReal().getAsDouble();
 
 					cout << "DataType: " << DataType( fe.getLoad().getDataType() ) << endl;
-					cout << "Name: " << fe.getName() << " Value: " << ASK << endl;
-					cout << "Name: " << fe.getRippleTo() << " Value: " << ASK_1 << endl;
-					cout << "Name: " << fe.getRippleTo(fe.getRippleTo()) << " Value: " << ASK_2 << endl;
+				cout << "Name: " << fe.getName() << " (" << fe.getFieldId() << ") Value: " << ASK << endl;
+				cout << "Name: " << fe.getRippleToName() << " (" << fe.getRippleTo() << ") Value: " << ASK_1 << endl;
+				cout << "Name: " << fe.getRippleToName(fe.getRippleTo()) << " (" << fe.getRippleTo(fe.getRippleTo()) <<
+					") Value: " << ASK_2 << endl;
 				}
 				break;
 		}

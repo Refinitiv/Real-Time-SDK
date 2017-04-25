@@ -90,6 +90,11 @@ Int16 FieldEntry::getRippleTo( Int16 fieldId ) const
 	return _pDecoder->getRippleTo( fieldId );
 }
 
+const EmaString& FieldEntry::getRippleToName(Int16 fieldId) const
+{
+	return _pDecoder->getRippleToName(fieldId);
+}
+
 Int64 FieldEntry::getInt() const
 {
 	if ( (*_pLoad)->getDataType() != DataType::IntEnum )

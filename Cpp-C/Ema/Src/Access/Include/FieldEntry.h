@@ -138,6 +138,14 @@ public :
 	*/
 	Int16 getRippleTo( Int16 fieldId = 0 ) const;
 
+	/** Returns a ripple field name if the current entry has a ripple field. A subsequent call using
+		the former non-zero return value as a formal parameter, returns the next ripple field in
+		a ripple sequence.
+		@param[in] fieldId
+		@return ripple field name; empty string if no ripple field or the final ripple field of a ripple sequence.
+	*/
+	const EmaString& getRippleToName(Int16 fieldId = 0) const;
+
 	/** Returns the contained Data based on the DataType.
 		@return Data class reference to contained object
 	*/

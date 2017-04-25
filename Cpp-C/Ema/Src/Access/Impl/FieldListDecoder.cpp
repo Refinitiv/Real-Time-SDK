@@ -744,6 +744,30 @@ Int16 FieldListDecoder::getRippleTo( Int16 fieldId ) const
 		return _pRsslDictionary->entriesArray[fieldId]->rippleToField;
 }
 
+const EmaString& FieldListDecoder::getRippleToName(Int16 fieldId) const
+{
+	if ( !fieldId )
+		fieldId = _rsslFieldEntry.fieldId;
+
+	_rippleToName.clear();
+
+	RsslDictionaryEntry* rsslDictionaryEntry = _pRsslDictionary->entriesArray[ fieldId ];
+
+	if ( rsslDictionaryEntry )
+	{
+		rsslDictionaryEntry = _pRsslDictionary->entriesArray[ rsslDictionaryEntry->rippleToField ];
+
+		if ( rsslDictionaryEntry )
+		{
+			_rippleToName.setInt( rsslDictionaryEntry->acronym.data, rsslDictionaryEntry->acronym.length, true );
+		}
+	}
+
+	return _rippleToName.toString();
+}
+
+}
+
 bool FieldListDecoder::decodingStarted() const
 {
 	return _decodingStarted;
