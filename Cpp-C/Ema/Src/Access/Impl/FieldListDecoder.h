@@ -76,6 +76,9 @@ public :
 
 	OmmError::ErrorCode getErrorCode() const;
 
+	bool hasEnumDisplay(UInt16 enumValue) const;
+
+	const EmaString& getEnumDisplay(UInt16 enumValue) const;
 private :
 
 	bool getNextData( const EmaVector< Int16 >& );
@@ -105,6 +108,8 @@ private :
 	EmaStringInt				_name;
 
 	mutable EmaStringInt		_rippleToName;
+
+	mutable EmaStringInt		_enumDisplayValue;
 
 	EmaBufferInt				_hexBuffer;
 

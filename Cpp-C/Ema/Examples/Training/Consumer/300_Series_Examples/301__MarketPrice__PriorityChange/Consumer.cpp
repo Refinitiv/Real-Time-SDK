@@ -86,7 +86,7 @@ void AppClient::decode( const FieldList& fl )
 				cout << fe.getAscii() << endl;
 				break;
 			case DataType::EnumEnum :
-				cout << fe.getEnum() << endl;
+				fe.hasEnumDisplay() ? cout << fe.getEnumDisplay() << endl : cout << fe.getEnum() << endl;
 				break;
 			case DataType::ErrorEnum :
 				cout << fe.getError().getErrorCode() << "( " << fe.getError().getErrorCodeAsString() << " )" << endl;

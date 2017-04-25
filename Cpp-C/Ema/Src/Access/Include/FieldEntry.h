@@ -327,6 +327,20 @@ public :
 	*/
 	UInt16 getEnum() const;
 
+	/** Indicates presence of the display value for the OmmEnum type.
+		@return true if the display value exists; false otherwise
+	*/
+	bool hasEnumDisplay() const;
+
+	/** Returns the display value for the OmmEnum type.
+		Calling this method must be preceded by a call to hasEnumDisplay().
+		@throw OmmInvalidUsageException if hasEnumDisplay() returns false
+		@throw OmmInvalidUsageException if contained object is not OmmEnum
+		@throw OmmInvalidUsageException if getCode() returns Data::BlankEnum
+		@return EmaString containing the display value
+	*/
+	const EmaString& getEnumDisplay() const;
+
 	/** Returns the current OMM data represented as a specific simple type.
 		@throw OmmInvalidUsageException if contained object is not OmmBuffer
 		@throw OmmInvalidUsageException if getCode() returns Data::BlankEnum
