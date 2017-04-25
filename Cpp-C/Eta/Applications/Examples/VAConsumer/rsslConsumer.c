@@ -1604,7 +1604,7 @@ static RsslRet decodeEntryFromCache(ChannelCommand *pCommand, RsslPayloadEntryHa
 			break;
 
 		case RSSL_DMT_YIELD_CURVE:
-			ret = decodeYieldCurveFieldList(&pCommand->dictionary, &dIter, &localFieldSetDefDb);
+			ret = decodeYieldCurvePayload(&pCommand->dictionary, &dIter, &localFieldSetDefDb);
 			break;
 
 		default:

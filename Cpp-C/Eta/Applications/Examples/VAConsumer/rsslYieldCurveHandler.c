@@ -33,6 +33,13 @@ static short indentCount = 0;
 /* used to print the indents */
 static const char* indents [] = {"", "    ", "        ", "            "};
 
+/* Decodes and prints the Yield Curve payload. */
+RsslRet decodeYieldCurvePayload(RsslDataDictionary *dictionary, RsslDecodeIterator *dIter, RsslLocalFieldSetDefDb *fieldSetDefDb)
+{
+	indentCount = 0;
+	return decodeYieldCurveFieldList(dictionary, dIter, fieldSetDefDb);
+}
+
 /*
  * Removes an entry from the item name list.
  * pCommand - the ChannelCommand to send an item request to

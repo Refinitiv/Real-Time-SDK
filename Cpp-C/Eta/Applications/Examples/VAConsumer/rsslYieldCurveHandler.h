@@ -39,6 +39,8 @@ RsslRet decodeYieldCurveFieldList(RsslDataDictionary *dictionary, RsslDecodeIter
 static RsslRet decodeArray(RsslDataDictionary *dictionary, RsslDecodeIterator *dIter);
 /* called to decode Primitive */
 static RsslRet decodePrimitive(RsslDataDictionary *dictionary, RsslDecodeIterator *dIter, RsslDataType dataType, RsslBool isArray);
+/* Decodes and prints the Yield Curve payload. */
+RsslRet decodeYieldCurvePayload(RsslDataDictionary *dictionary, RsslDecodeIterator *dIter, RsslLocalFieldSetDefDb *fieldSetDefDb);
 
 
 #ifdef __cplusplus
