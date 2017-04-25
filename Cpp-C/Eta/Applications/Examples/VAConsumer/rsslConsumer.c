@@ -1163,7 +1163,7 @@ int main(int argc, char **argv)
 				}
 
 				if (chanCommands[i].canSendLoginReissue == RSSL_TRUE &&
-					currentTime >= chanCommands[i].loginReissueTime)
+					currentTime >= (RsslInt)(chanCommands[i].loginReissueTime))
 				{
 					RsslReactorSubmitMsgOptions submitMsgOpts;
 					RsslErrorInfo rsslErrorInfo;
