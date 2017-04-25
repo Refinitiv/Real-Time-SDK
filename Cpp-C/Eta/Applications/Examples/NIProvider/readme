@@ -38,7 +38,7 @@ is not intended to be used for measuring performance.
 Application Name:
 -----------------
 
-rsslNIProvider
+NIProvider
 
 ------------------
 Setup Environment:
@@ -56,12 +56,12 @@ the non-interactive provider application exits.
 Command line usage:
 -------------------  
 
-rsslNIProvider
+NIProvider
 (runs with a default set of parameters (-h localhost -p 14003 -s DIRECT_FEED -mp TRI))
 
 or 
 
-rsslNIProvider.exe [-uname <LoginUsername>] [-s <ServiceName>] [-id <ServiceId>] [-mp <MarketPrice Item Name>] [-mbo <MarketByOrder Item Name>] [ -x ] [-runtime <seconds>]
+NIProvider.exe [-uname <LoginUsername>] [-s <ServiceName>] [-id <ServiceId>] [-mp <MarketPrice Item Name>] [-mbo <MarketByOrder Item Name>] [ -x ] [-runtime <seconds>] [-at <AuthenticationToken>] [-ax <AuthenticationExtended>] [-aid <ApplicationId>]
 
  -mp For each occurance, provides item using Market Price domain.
  -mbo For each occurance, provides item using Market By Order domain.
@@ -104,10 +104,19 @@ Specifying the -u option configures the unicast port of the reliable multicast n
 
 Specifying the -i option configures the network interface of the reliable multicast network.
 
+Specifying the -at option configures the token used for TREP Authentication.  This should be used 
+in place of a userName.  This token is retrieved from a token generator, and passed to TREP, which
+will verify the token against a token validator.  For more information about the TREP Authentication
+feature, please see the Developers guide and the TREP Authentication guide. 
+
+Specifying the -ax option configures the authentication extended information used for TREP Authentication.
+
+Specifying the -aid option configures the Application Id.
+
 Specifying the -runtime option controls the time the application will run
 before exiting, in seconds.
 
-- rsslNIProvider -? displays command line options.
+- NIProvider -? displays command line options.
 
 - Pressing the CTRL+C buttons terminates the program. 
 
@@ -117,13 +126,13 @@ Compiling Source:
 
 The included makefile is set up to run from the file
 locations as presented through the distribution package.
-It is set up for building on the UPA supported 
+It is set up for building on the Transport API supported 
 Solaris or Linux platforms using the supported compilers.
 
 The LINKTYPE value in the makefile is used to control
-whether the application is built using UPA static or
-shared libraries. The default build uses UPA static
-libraries. To use UPA shared libraries,
+whether the application is built using Transport API static or
+shared libraries. The default build uses Transport API static
+libraries. To use Transport API shared libraries,
 set LINKTYPE=Shared.
 
 To compile, run the gmake command.

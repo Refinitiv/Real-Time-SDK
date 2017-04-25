@@ -50,7 +50,6 @@ WlLoginRequest *wlLoginRequestCreate(RsslRDMLoginRequest *pLoginReqMsg, void *pU
 	WlLoginRequest *pLoginRequest = (WlLoginRequest*)malloc(sizeof(WlLoginRequest));
 	verify_malloc(pLoginRequest, pErrorInfo, NULL);
 	memset(pLoginRequest, 0, sizeof(WlLoginRequest));
-	rsslInitQueue(&pLoginRequest->newTokens);
 
 	if (!(pLoginRequest->pLoginReqMsg = 
 				(RsslRDMLoginRequest*)wlCreateRdmMsgCopy((RsslRDMMsg*)pLoginReqMsg, 
@@ -71,15 +70,12 @@ void wlLoginRequestDestroy(WlBase *pBase, WlLoginRequest *pLoginRequest)
 	RsslQueueLink *pLink;
 
 	free(pLoginRequest->pLoginReqMsg);
+	
 	if (pLoginRequest->pCurrentToken)
 		free(pLoginRequest->pCurrentToken);
-
-	while (pLink = rsslQueueRemoveFirstLink(&pLoginRequest->newTokens))
-	{
-		WlUserToken *pUserToken = RSSL_QUEUE_LINK_TO_OBJECT(WlUserToken, 
-				qlTokensPendingRefresh, pLink);
-		free(pUserToken);
-	}
+	
+	if(pLoginRequest->pNextToken)
+		free(pLoginRequest->pNextToken);
 
 	while (pLink = rsslQueueRemoveFirstLink(&pLoginRequest->base.openPosts))
 	{
@@ -135,37 +131,38 @@ void wlLoginSetNextUserToken(WlLogin *pLogin, WlBase *pBase)
 {
 	WlLoginRequest *pLoginRequest = pLogin->pRequest;
 	WlLoginStream *pLoginStream = pLogin->pStream;
-	RsslQueueLink *pTokenLink =
-		rsslQueueRemoveFirstLink(&pLoginRequest->newTokens);
 
 
-	if (pTokenLink)
+	if (pLoginRequest->pNextToken)
 	{
-		/* Now the next token needs a refresh. 
-		 * Stay in the pending-refresh queue. */
-
-		if (pLoginRequest->pCurrentToken)
+		/* There is a pending token refresh.  
+		 * Send the pending refresh */
+		if(pLoginRequest->pCurrentToken)
 		{
 			free(pLoginRequest->pCurrentToken);
-			pLoginRequest->pCurrentToken = NULL;
 		}
+		
+		pLoginRequest->pCurrentToken = pLoginRequest->pNextToken;
+		pLoginRequest->pNextToken = NULL;
 
-		pLoginRequest->pCurrentToken = 
-			RSSL_QUEUE_LINK_TO_OBJECT(WlUserToken, 
-					qlTokensPendingRefresh, pTokenLink);
-
-		pLoginRequest->pLoginReqMsg->userName = 
-			pLoginRequest->pCurrentToken->buffer;
+		if(pLoginRequest->pLoginReqMsg->flags & RDM_LG_RQF_HAS_USERNAME_TYPE && 
+				pLoginRequest->pLoginReqMsg->userNameType == RDM_LOGIN_USER_AUTHN_TOKEN)
+		{
+			pLoginRequest->pLoginReqMsg->userName =
+				pLoginRequest->pCurrentToken->buffer;
+			pLoginRequest->pLoginReqMsg->authenticationExtended = 
+				pLoginRequest->pCurrentToken->extBuffer;
+		}
+		else
+		{
+			pLoginRequest->pLoginReqMsg->userName = 
+					pLoginRequest->pCurrentToken->buffer;
+		}
 
 		if (pLoginRequest->pCurrentToken->needRefresh)
 			pLoginRequest->pLoginReqMsg->flags &= ~RDM_LG_RQF_NO_REFRESH;
 
 		wlSetStreamMsgPending(pBase, &pLoginStream->base);
-	}
-	else
-	{
-		/* Matched token and more more tokens. Token is up to date. */
-		pLoginRequest->currentTokenRefreshed = RSSL_TRUE;
 	}
 }
 
@@ -255,10 +252,10 @@ RsslRet wlLoginProcessProviderMsg(WlLogin *pLogin, WlBase *pBase,
 				if (pLogin->pRequest)
 				{
 					pLoginRefresh->flags |= RDM_LG_RFF_HAS_SINGLE_OPEN;
-					if (pLoginReqMsg->flags 
-							& RDM_LG_RQF_HAS_SINGLE_OPEN)
-						pLoginRefresh->singleOpen = 
-							pLoginRequest->pLoginReqMsg->singleOpen;
+					if (pLoginReqMsg->flags
+						& RDM_LG_RQF_HAS_SINGLE_OPEN)
+						pLoginRefresh->singleOpen =
+						pLoginRequest->pLoginReqMsg->singleOpen;
 					else
 						pLoginRefresh->singleOpen = 1;
 
@@ -268,40 +265,44 @@ RsslRet wlLoginProcessProviderMsg(WlLogin *pLogin, WlBase *pBase,
 					pLoginRefresh->flags |= RDM_LG_RFF_HAS_SUPPORT_ENH_SL;
 					pLoginRefresh->supportEnhancedSymbolList = RDM_SYMBOL_LIST_SUPPORT_DATA_STREAMS;
 
-					/* Store provider configurations for use (note that the refresh structure should 
+					/* Store provider configurations for use (note that the refresh structure should
 					 * have default values if the corresponding element was not present
 					 * in the encoded message). */
-					pBase->config.supportOptimizedPauseResume 
+					pBase->config.supportOptimizedPauseResume
 						= pLoginRefresh->supportOptimizedPauseResume;
-					pBase->config.supportViewRequests 
+					pBase->config.supportViewRequests
 						= pLoginRefresh->supportViewRequests;
 					pBase->gapRecovery = pLoginRefresh->sequenceNumberRecovery;
 					pBase->gapTimeout = pLoginRefresh->sequenceRetryInterval * 1000;
 					pBase->maxBufferedBroadcastMsgs = pLoginRefresh->updateBufferLimit;
 
-					pLoginRequest->pLoginReqMsg->flags |= RDM_LG_RQF_NO_REFRESH;
-
 					if (pLoginReqMsg->flags & RDM_LG_RQF_HAS_USERNAME_TYPE
-							&& pLoginReqMsg->userNameType == RDM_LOGIN_USER_TOKEN
-							&& !pLoginRequest->currentTokenRefreshed)
+						&& pLoginRequest->pNextToken)
 					{
-						/* Match token. */
-						if (!(pLoginRefresh->flags & RDM_LG_RFF_HAS_USERNAME)
-								|| !(pLoginRefresh->flags & RDM_LG_RFF_HAS_USERNAME_TYPE)
-								|| pLoginRefresh->userNameType != RDM_LOGIN_USER_TOKEN
-								|| !rsslBufferIsEqual(&pLoginRefresh->userName, 
-									&pLoginRequest->pLoginReqMsg->userName))
+						/* If this is an Authentication token type, then the response will not contain the key */
+						if (pLoginReqMsg->userNameType == RDM_LOGIN_USER_AUTHN_TOKEN)
 						{
-							rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
-									"Login response contained non-matching user token.");
-							return RSSL_RET_FAILURE;
-						}
-						else
 							wlLoginSetNextUserToken(pLogin, pBase);
+						}
+						else if (pLoginRefresh->userNameType == pLoginReqMsg->userNameType)
+						{
+							/* Match user token. */
+							if (pLoginRefresh->userNameType == RDM_LOGIN_USER_TOKEN)
+							{
+								if (rsslBufferIsEqual(&pLoginRefresh->userName, &pLoginRequest->pLoginReqMsg->userName))
+								{
+									wlLoginSetNextUserToken(pLogin, pBase);
+								}
+								else
+								{
+									rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+										"Login response contained non-matching user token.");
+									return RSSL_RET_FAILURE;
+								}
+							}
+						}
 					}
-
 				}
-
 
 				break;
 			}
@@ -401,21 +402,18 @@ RsslRet wlLoginProcessConsumerMsg(WlLogin *pLogin, WlBase *pBase,
 				if (!rsslBufferIsEqual(&pLoginReqMsg->userName, &pOrigLoginReqMsg->userName))
 				{
 					if ( pLoginReqMsg->flags & RDM_LG_RQF_HAS_USERNAME_TYPE
-							&& pLoginReqMsg->userNameType == RDM_LOGIN_USER_TOKEN)
+							&& (pLoginReqMsg->userNameType == RDM_LOGIN_USER_TOKEN || pLoginReqMsg->userNameType == RDM_LOGIN_USER_AUTHN_TOKEN))
 					{
 						newUserToken = RSSL_TRUE;
-
-
 					}
 					else
 					{
-
 						rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, 
 								__FILE__, __LINE__, "Login userName does not match existing request.");
 						return RSSL_RET_INVALID_DATA;
 					}
 				}
-
+				
 				if (!wlMatchLoginParameterBuffer(&pLoginReqMsg->applicationId,
 							pLoginReqMsg->flags, &pOrigLoginReqMsg->applicationId,
 							pOrigLoginReqMsg->flags, RDM_LG_RQF_HAS_APPLICATION_ID))
@@ -526,35 +524,76 @@ RsslRet wlLoginProcessConsumerMsg(WlLogin *pLogin, WlBase *pBase,
 				{
 					WlUserToken *pNewToken;
 
-					/* Create copy of new token. */
-					pNewToken = (WlUserToken*)malloc(sizeof(WlUserToken)
-							+ pLoginReqMsg->userName.length);
-
-					verify_malloc(pNewToken, pErrorInfo, RSSL_RET_FAILURE);
-					pNewToken->buffer.data = 
-						(char*)pNewToken + sizeof(WlUserToken);
-					pNewToken->buffer.length = pLoginReqMsg->userName.length;
-					memcpy(pNewToken->buffer.data, 
-							pLoginReqMsg->userName.data,
-							pNewToken->buffer.length);
+					if(pLoginReqMsg->flags & RDM_LG_RQF_HAS_USERNAME_TYPE && 
+							pLoginReqMsg->userNameType == RDM_LOGIN_USER_AUTHN_TOKEN)
+					{
+						/* Create copy of new token. */
+						pNewToken = (WlUserToken*)malloc(sizeof(WlUserToken)
+								+ pLoginReqMsg->userName.length + pLoginReqMsg->authenticationExtended.length);
+								
+						verify_malloc(pNewToken, pErrorInfo, RSSL_RET_FAILURE);
+						pNewToken->buffer.data = 
+							(char*)pNewToken + sizeof(WlUserToken);
+						pNewToken->buffer.length = pLoginReqMsg->userName.length;
+						memcpy(pNewToken->buffer.data, 
+								pLoginReqMsg->userName.data,
+								pNewToken->buffer.length);
+						pNewToken->extBuffer.data = 
+							(char*)pNewToken + sizeof(WlUserToken) + pNewToken->buffer.length;
+						pNewToken->extBuffer.length = pLoginReqMsg->authenticationExtended.length;
+						if(pNewToken->extBuffer.length > 0)
+						{
+							memcpy(pNewToken->extBuffer.data, 
+									pLoginReqMsg->authenticationExtended.data,
+									pNewToken->extBuffer.length);
+						}
+						else
+							pNewToken->extBuffer.data = 0;
+					}
+					else
+					{
+						/* Create copy of new token. */
+						pNewToken = (WlUserToken*)malloc(sizeof(WlUserToken)
+								+ pLoginReqMsg->userName.length);
+								
+						verify_malloc(pNewToken, pErrorInfo, RSSL_RET_FAILURE);
+						pNewToken->buffer.data = 
+							(char*)pNewToken + sizeof(WlUserToken);
+						pNewToken->buffer.length = pLoginReqMsg->userName.length;
+						memcpy(pNewToken->buffer.data, 
+								pLoginReqMsg->userName.data,
+								pNewToken->buffer.length);
+					}
 
 					pNewToken->needRefresh = (pLoginReqMsg->flags & RDM_LG_RQF_NO_REFRESH) ?
 						RSSL_FALSE : RSSL_TRUE;
 
 					if (pLoginRequest->pCurrentToken)
 					{
-						if (!pLoginRequest->currentTokenRefreshed)
+						/* If a pending next token is present, free it and set the new token to the next pending token */
+						if (pLoginRequest->pNextToken)
 						{
-							/* Still waiting for a response to the current token. */
-							rsslQueueAddLinkToBack(&pLoginRequest->newTokens,
-									&pNewToken->qlTokensPendingRefresh);
+							free(pLoginRequest->pNextToken);
+							pLoginRequest->pNextToken = pNewToken;
+							
 						}
 						else
 						{
 							free(pLoginRequest->pCurrentToken);
 							pLoginRequest->pCurrentToken = pNewToken;
-							pLoginRequest->pLoginReqMsg->userName = 
-								pLoginRequest->pCurrentToken->buffer;
+							if(pLoginReqMsg->flags & RDM_LG_RQF_HAS_USERNAME_TYPE && 
+									pLoginReqMsg->userNameType == RDM_LOGIN_USER_AUTHN_TOKEN)
+							{
+								pLoginRequest->pLoginReqMsg->userName =
+									pLoginRequest->pCurrentToken->buffer;
+								pLoginReqMsg->authenticationExtended = 
+									pLoginRequest->pCurrentToken->extBuffer;
+							}
+							else
+							{
+								pLoginRequest->pLoginReqMsg->userName = 
+										pLoginRequest->pCurrentToken->buffer;
+							}
 
 							/* New token can be sent now. */
 							pendingRequest = RSSL_TRUE;
@@ -563,12 +602,21 @@ RsslRet wlLoginProcessConsumerMsg(WlLogin *pLogin, WlBase *pBase,
 					else
 					{
 						pLoginRequest->pCurrentToken = pNewToken;
-						pLoginRequest->pLoginReqMsg->userName = pNewToken->buffer;
+						if(pLoginReqMsg->flags & RDM_LG_RQF_HAS_USERNAME_TYPE && 
+								pLoginReqMsg->userNameType == RDM_LOGIN_USER_AUTHN_TOKEN)
+						{
+							pLoginRequest->pLoginReqMsg->userName =
+								pLoginRequest->pCurrentToken->buffer;
+							pLoginReqMsg->authenticationExtended = 
+								pLoginRequest->pCurrentToken->extBuffer;
+						}
+						else
+						{
+							pLoginRequest->pLoginReqMsg->userName = 
+									pLoginRequest->pCurrentToken->buffer;
+						}
 						pendingRequest = RSSL_TRUE;
 					}
-
-					if ( !(pLoginReqMsg->flags & RDM_LG_RQF_NO_REFRESH))
-						pLoginRequest->currentTokenRefreshed = RSSL_FALSE;
 				}
 				else
 				{

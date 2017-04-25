@@ -93,8 +93,11 @@ void printUsageAndExit(char *appName)
 {
 
 	printf("Usage: %s [-tcp [<hostname>:<port> <service name>]] or [-segmentedMulticast [<sendAddress>:<sendPort>:<interfaceName> <recvAddress>:<recvPort> <unicastPort> <service name>]] [<domain>:<item name>,...] [-runtime <seconds>] [-cache]\n"
-			"\n -x   specifies that XML tracing should be enabled"
-			"\n -tcp specifies a tcp connection to open and a list of items to request:"
+			"\n -x              specifies that XML tracing should be enabled"
+			"\n -uname          specifies the user name"
+			"\n -at             Specifies the Authentication Token. If this is present, the login user name type will be RDM_LOGIN_USER_AUTHN_TOKEN"
+			"\n -ax             Specifies the Authentication Extended information"
+			"\n -tcp 	        specifies a tcp connection to open and a list of items to request:"
 			"\n     hostname:        Hostname of provider to connect to"
 			"\n     port:            Port of provider to connect to"
 			"\n     service:         Name of service to request items from on this connection\n"
@@ -111,6 +114,7 @@ void printUsageAndExit(char *appName)
 			"\n     Example Usage: -tcp localhost:14002 DIRECT_FEED mp:TRI,mbo:MSFT\n"
 			"\n -runtime adjusts the running time of the application.\n"
 			"\n -cache enables cache for the NI provider item payload data\n"
+			"\n -aid Specifies the Application ID\n"
 			, appName);
 	exit(-1);
 }
@@ -136,6 +140,24 @@ void handleConfig(int argc, char **argv, NIChannelCommand *pCommand)
 			i += 2;
 			snprintf(pCommand->username.data, MAX_BUFFER_LENGTH, "%s", argv[i-1]);
 			pCommand->username.length = (RsslUInt32)strlen(pCommand->username.data);
+		}
+		else if(strcmp("-at", argv[i]) == 0)
+		{
+			i += 2;
+			snprintf(pCommand->authenticationToken.data, MAX_AUTHN_LENGTH, "%s", argv[i-1]);
+			pCommand->authenticationToken.length = (RsslUInt32)strlen(pCommand->authenticationToken.data);
+		}
+		else if(strcmp("-ax", argv[i]) == 0)
+		{
+			i += 2;
+			snprintf(pCommand->authenticationExtended.data, MAX_AUTHN_LENGTH, "%s", argv[i-1]);
+			pCommand->authenticationExtended.length = (RsslUInt32)strlen(pCommand->authenticationExtended.data);
+		}
+		else if(strcmp("-aid", argv[i]) == 0)
+		{
+			i += 2;
+			snprintf(pCommand->applicationId.data, MAX_BUFFER_LENGTH, "%s", argv[i-1]);
+			pCommand->applicationId.length = (RsslUInt32)strlen(pCommand->applicationId.data);
 		}
 		else if(strcmp("-x", argv[i]) == 0)
 		{
@@ -522,6 +544,7 @@ void recoverConnection(RsslReactor *pReactor, RsslReactorChannel *pChannel, NICh
 
 	pCommand->startWrite = RSSL_FALSE;
 
+	pCommand->canSendLoginReissue = RSSL_FALSE;
 }
 
 
@@ -541,6 +564,9 @@ int main(int argc, char **argv)
 	RsslBuffer errBuf = {128, &err[0]};
 	
 	int selRet;
+
+	time_t currentTime = 0;
+	RsslRet ret;
 
 	rsslInitNIChannelCommand(&chnlCommand);
 
@@ -675,6 +701,32 @@ int main(int argc, char **argv)
 				/* Reactor has shutdown. Clean up and exit. */
 				cleanUpAndExit();
 			}
+		}
+	
+		/* get current time */
+		if ((currentTime = time(NULL)) < 0)
+		{
+			printf("time() failed.\n");
+		}
+
+		// send login reissue if login reissue time has passed
+		if (chnlCommand.canSendLoginReissue == RSSL_TRUE &&
+			currentTime >= chnlCommand.loginReissueTime)
+		{
+			RsslReactorSubmitMsgOptions submitMsgOpts;
+			RsslErrorInfo rsslErrorInfo;
+
+			rsslClearReactorSubmitMsgOptions(&submitMsgOpts);
+			submitMsgOpts.pRDMMsg = (RsslRDMMsg*)chnlCommand.pRole->ommNIProviderRole.pLoginRequest;
+			if ((ret = rsslReactorSubmitMsg(pReactor,chnlCommand.reactorChannel,&submitMsgOpts,&rsslErrorInfo)) != RSSL_RET_SUCCESS)
+			{
+				printf("Login reissue failed:  %d(%s)\n", ret, rsslErrorInfo.rsslError.text);
+			}
+			else
+			{
+				printf("Login reissue sent\n");
+			}
+			chnlCommand.canSendLoginReissue = RSSL_FALSE;
 		}
 	}
 }

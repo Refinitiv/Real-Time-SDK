@@ -3863,6 +3863,10 @@ static RsslRet wlStreamSubmitMsg(RsslWatchlistImpl *pWatchlistImpl,
 
 					wlUnsetStreamMsgPending(&pWatchlistImpl->base, &pStream->base);
 
+					/* If this was a pause message, unset the pause flag */
+					if (pWatchlistImpl->login.pRequest->pLoginReqMsg->flags & RDM_LG_RQF_PAUSE_ALL)
+						pWatchlistImpl->login.pRequest->pLoginReqMsg->flags &= ~RDM_LG_RQF_PAUSE_ALL;
+
 
 					if (pWatchlistImpl->login.pRequest->pCurrentToken
 							&& !pWatchlistImpl->login.pRequest->pCurrentToken->needRefresh)

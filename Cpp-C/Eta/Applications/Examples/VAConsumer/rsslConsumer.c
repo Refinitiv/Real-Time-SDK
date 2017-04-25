@@ -71,7 +71,13 @@ static RsslReactor *pReactor = NULL;
 
 char userNameBlock[128];
 static char traceOutputFile[128];
+char authnTokenBlock[1024];
+char authnExtendedBlock[1024];
+char appIdBlock[128];
 RsslBuffer userName = RSSL_INIT_BUFFER;
+RsslBuffer authnToken = RSSL_INIT_BUFFER;
+RsslBuffer authnExtended = RSSL_INIT_BUFFER;
+RsslBuffer appId = RSSL_INIT_BUFFER;
 
 static void displayCache(ChannelCommand *pCommand);
 static void displayCacheDomain(ChannelCommand *pCommand, RsslUInt8 domainType, RsslBool privateStreams, RsslInt32 itemCount, ItemRequest items[]);
@@ -98,6 +104,9 @@ void printUsageAndExit(char *appName)
 			"\n         Example Usage: -tcp localhost:14002 DIRECT_FEED mp:TRI,mp:GOOG,mpps:FB,mbo:MSFT,mbpps:IBM,sl"
 			"\n           (for SymbolList requests, a name can be optionally specified)\n"
 			"\n -uname changes the username used when logging into the provider.\n"
+			"\n -at Specifies the Authentication Token. If this is present, the login user name type will be RDM_LOGIN_USER_AUTHN_TOKEN.\n"
+			"\n -ax Specifies the Authentication Extended information. \n"
+			"\n -aid Specifies the Application ID.\n"
 			"\n -view specifies each request using a basic dynamic view.\n"
 			"\n -post specifies that the application should attempt to send post messages on the first requested Market Price item.\n"
 			"\n -offpost specifies that the application should attempt to send post messages on the login stream (i.e., off-stream)\n"
@@ -146,6 +155,24 @@ void parseCommandLine(int argc, char **argv)
 				i += 2;
 				userName.length = snprintf(userNameBlock, sizeof(userNameBlock), "%s", argv[i-1]);
 				userName.data = userNameBlock;
+			}
+			else if(strcmp("-at", argv[i]) == 0)
+			{
+				i += 2;
+				authnToken.length = snprintf(authnTokenBlock, sizeof(authnTokenBlock), "%s", argv[i-1]);
+				authnToken.data = authnTokenBlock;
+			}
+			else if(strcmp("-ax", argv[i]) == 0)
+			{
+				i += 2;
+				authnExtended.length = snprintf(authnExtendedBlock, sizeof(authnExtendedBlock), "%s", argv[i-1]);
+				authnExtended.data = authnExtendedBlock;
+			}
+			else if(strcmp("-aid", argv[i]) == 0)
+			{
+				i += 2;
+				appId.length = snprintf(appIdBlock, sizeof(appIdBlock), "%s", argv[i-1]);
+				appId.data = appIdBlock;
 			}
 			else if(strcmp("-view", argv[i]) == 0)
 			{
@@ -903,6 +930,27 @@ int main(int argc, char **argv)
 	/* If a username was specified, change username on login request. */
 	if (userName.length)
 		loginRequest.userName = userName;
+	
+	/* If an authentication Token was specified, set it on the login request and set the user name type to RDM_LOGIN_USER_AUTHN_TOKEN */
+	if (authnToken.length)
+	{
+		loginRequest.flags |= RDM_LG_RQF_HAS_USERNAME_TYPE;
+		loginRequest.userName = authnToken;
+		loginRequest.userNameType = RDM_LOGIN_USER_AUTHN_TOKEN;
+		
+		if(authnExtended.length)
+		{
+			loginRequest.flags |= RDM_LG_RQF_HAS_AUTHN_EXTENDED;
+			loginRequest.authenticationExtended = authnExtended;
+		}
+	}
+		
+	if (appId.length)
+	{
+		loginRequest.flags |= RDM_LG_RQF_HAS_APPLICATION_ID;
+		loginRequest.applicationId = appId;
+	}
+		
 
 	/* Initialize the default directory request(Use 2 as the Directory Stream Id) */
 	if (rsslInitDefaultRDMDirectoryRequest(&dirRequest, 2) != RSSL_RET_SUCCESS)
@@ -1095,6 +1143,42 @@ int main(int argc, char **argv)
 				{
 					if (handlePosts(pReactor, &chanCommands[i]) != RSSL_RET_SUCCESS)
 						cleanUpAndExit(-1);
+				}
+			}
+
+			// send login reissue if login reissue time has passed
+			for (i = 0; i < channelCommandCount; ++i)
+			{
+				time_t currentTime = 0;
+
+				if (chanCommands[i].reactorChannelReady != RSSL_TRUE)
+				{
+					continue;
+				}
+	
+				/* get current time */
+				if ((currentTime = time(NULL)) < 0)
+				{
+					printf("time() failed.\n");
+				}
+
+				if (chanCommands[i].canSendLoginReissue == RSSL_TRUE &&
+					currentTime >= chanCommands[i].loginReissueTime)
+				{
+					RsslReactorSubmitMsgOptions submitMsgOpts;
+					RsslErrorInfo rsslErrorInfo;
+
+					rsslClearReactorSubmitMsgOptions(&submitMsgOpts);
+					submitMsgOpts.pRDMMsg = (RsslRDMMsg*)chanCommands[i].pRole->ommConsumerRole.pLoginRequest;
+					if ((ret = rsslReactorSubmitMsg(pReactor,chanCommands[i].reactorChannel,&submitMsgOpts,&rsslErrorInfo)) != RSSL_RET_SUCCESS)
+					{
+						printf("Login reissue failed:  %d(%s)\n", ret, rsslErrorInfo.rsslError.text);
+					}
+					else
+					{
+						printf("Login reissue sent\n");
+					}
+					chanCommands[i].canSendLoginReissue = RSSL_FALSE;
 				}
 			}
 		}

@@ -33,7 +33,7 @@ is not intended to be used for measuring performance.
 Application Name:
 -----------------
 
-rsslVANIProvider
+VANIProvider
 
 ------------------
 Setup Environment:
@@ -47,12 +47,12 @@ cannot be found, the non-interactive provider application exits.
 Command line usage:
 -------------------  
 
-./rsslVANIProvider -tcp <hostname>:<port> <service name>  <item list> [-runtime <seconds>] [-cache]
+./VANIProvider -tcp <hostname>:<port> <service name>  <item list> [-runtime <seconds>] [-cache] [-at <AuthenticationToken>] [-ax <AuthenticationExtended>] [-aid <ApplicationId>]
 
 For multicast connections:
 
-./rsslVANIProvider -segmentedMulticast <send address>:<send port>:<network interface address> 
-	<receive address>:<receive port> <unicast port> <service name> <item list> [-runtime <seconds>] [-cache]
+./VANIProvider -segmentedMulticast <send address>:<send port>:<network interface address> 
+	<receive address>:<receive port> <unicast port> <service name> <item list> [-runtime <seconds>] [-cache] 
 
 The items list is a comma-separated pair of <domain:item name>.  The domains for the item 
 list may be any of: mp(MarketPrice), mbo(MarketByOrder)
@@ -60,7 +60,16 @@ list may be any of: mp(MarketPrice), mbo(MarketByOrder)
 Specifying the -runtime option controls the time the application will run
 before exiting, in seconds.
 
-- rsslVANIProvider -? displays command line options.
+Specifying the -at option configures the token used for TREP Authentication.  This should be used 
+in place of a userName.  This token is retrieved from a token generator, and passed to TREP, which
+will verify the token against a token validator.  For more information about the TREP Authentication
+feature, please see the Developers guide and the TREP Authentication guide.  
+
+Specifying the -ax option configures the authentication extended information used for TREP Authentication.
+
+Specifying the -aid option configures the Application Id.
+
+- VANIProvider -? displays command line options.
 
 - Pressing the CTRL+C buttons terminates the program. 
 
@@ -70,20 +79,20 @@ Compiling Source:
 
 The included makefile is set up to run from the file
 locations as presented through the distribution package.
-It is set up for building on the UPA supported 
+It is set up for building on the Transport API supported 
 Solaris or Linux platforms using the supported compilers.
 
 The VA_CUSTOM_BUILT_LIBS value in the makefile is used to 
-link in UPA ValueAdd components compiled from the provided
+link in the Transport API ValueAdd components compiled from the provided
 source code.  If a custom library is used, VA_CUSTOM_BUILT_LIBS 
 should be set to Yes.  In addition, the user should point the 
 VA_INCLUDE locations to the location where the directory of 
 the current platform's library is built.
 
 The LINKTYPE value in the makefile is used to control
-whether the application is built using UPA static or
-shared libraries. The default build uses UPA static
-libraries. To use UPA shared libraries,
+whether the application is built using Transport API static or
+shared libraries. The default build uses Transport API static
+libraries. To use Transport API shared libraries,
 set LINKTYPE=Shared.
 
 To compile, run the gmake command.

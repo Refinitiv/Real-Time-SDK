@@ -20,6 +20,13 @@ typedef void (*LoginSuccessCallback)(RsslChannel* chnl);
 
 /* allows the application to set a username */
 void setUsername(char* username);
+/* allows the application to set an authentication token */
+void setAuthenticationToken(char* authenticationToken);
+/* allows the application to set authentication extended information */
+void setAuthenticationExtended(char* authenticationExtended);
+/* allows the application to set an application id */
+void setApplicationId(char* applicationId);
+
 /* sends a login request */
 RsslRet sendLoginRequest(RsslChannel* chnl, const char *appName, RsslUInt64 role, LoginSuccessCallback loginSuccessCB);
 /* processes login response messages */

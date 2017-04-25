@@ -17,13 +17,14 @@
 extern "C" {
 #endif
 	
-/* Represents a User Token, if the AAA API is in use. Used to update the login 
+/* Represents a User Token, if the AAA API or TREP Authentication is in use. Used to update the login 
  * request as the token changes. */
 typedef struct
 {
-	RsslQueueLink	qlTokensPendingRefresh;
 	RsslBuffer		buffer;
 	RsslBool		needRefresh;
+	RsslUInt8		nameType;
+	RsslBuffer		extBuffer;
 } WlUserToken;
 
 /* Represents the login request. */
@@ -32,9 +33,8 @@ typedef struct
 	WlRequestBase			base;
 	RsslRDMLoginRequest		*pLoginReqMsg;
 	RsslBuffer				rdmMsgMemoryBuffer;
-	RsslBool				currentTokenRefreshed;
 	WlUserToken				*pCurrentToken;
-	RsslQueue				newTokens;
+	WlUserToken				*pNextToken;
 } WlLoginRequest;
 
 /* Creates a login request. */

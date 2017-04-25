@@ -58,7 +58,6 @@ typedef enum {
  *	@{
  */
 
-
 typedef enum
 {
 	RDM_INSTRUMENT_NAME_TYPE_UNSPECIFIED		= 0,	/*!< (0) Symbology is not specified or not applicable */
@@ -112,7 +111,8 @@ typedef enum {
 	RDM_LOGIN_USER_NAME				= 1,	/*!< (1) Name */
 	RDM_LOGIN_USER_EMAIL_ADDRESS	= 2,	/*!< (2) Email address */
 	RDM_LOGIN_USER_TOKEN			= 3,	/*!< (3) User Token, typically a Triple A (AAA) token. */
-	RDM_LOGIN_USER_COOKIE			= 4		/*!< (4) User information is specified in a cookie.  */
+	RDM_LOGIN_USER_COOKIE			= 4,	/*!< (4) User information is specified in a cookie.  */
+	RDM_LOGIN_USER_AUTHN_TOKEN 		= 5 	/*!< (5) String defining User Authentication Token */
 } RDMLoginUserIdTypes;
 
 typedef enum {
@@ -199,7 +199,7 @@ typedef enum {
 	RDM_DIRECTORY_SERVICE_LOAD_FILTER				= 0x00000008,	/*!< (0x00000008) Source Load Filter Mask*/
 	RDM_DIRECTORY_SERVICE_DATA_FILTER				= 0x00000010,	/*!< (0x00000010) Source Data Filter Mask */
 	RDM_DIRECTORY_SERVICE_LINK_FILTER				= 0x00000020,	/*!< (0x00000020) Source Communication Link Information */
-	RDM_DIRECTORY_SERVICE_SEQ_MCAST_FILTER				= 0x00000040	/*!< (0x00000040) Source Sequenced Multicast Information */
+	RDM_DIRECTORY_SERVICE_SEQ_MCAST_FILTER			= 0x00000040	/*!< (0x00000040) Source Sequenced Multicast Information */
 } RDMDirectoryServiceFilterFlags;
 
 typedef enum {
@@ -209,7 +209,7 @@ typedef enum {
 	RDM_DIRECTORY_SERVICE_LOAD_ID				= 4,	/*!< (4) Source Load Filter ID */
 	RDM_DIRECTORY_SERVICE_DATA_ID				= 5,	/*!< (5) Source Data Filter ID */
 	RDM_DIRECTORY_SERVICE_LINK_ID				= 6,	/*!< (6) Communication Link Filter ID */
-	RDM_DIRECTORY_SERVICE_SEQ_MCAST_ID			= 7	/*!< (7) Sequenced Multicast Filter ID */
+	RDM_DIRECTORY_SERVICE_SEQ_MCAST_ID			= 7		/*!< (7) Sequenced Multicast Filter ID */
 } RDMDirectoryServiceFilterIds;
 
 typedef enum {
@@ -361,6 +361,12 @@ static const RsslBuffer RSSL_ENAME_PERSISTENT_MOUNT = { 15 , (char*)"PersistentM
 static const RsslBuffer RSSL_ENAME_SEQUENCE_RETRY_INTERVAL = { 21 , (char*)"SequenceRetryInterval" };
 static const RsslBuffer RSSL_ENAME_UPDATE_BUFFER_LIMIT = { 17 , (char*)"UpdateBufferLimit" };
 static const RsslBuffer RSSL_ENAME_SEQUENCE_NUMBER_RECOVERY = { 22 , (char*)"SequenceNumberRecovery" };
+static const RsslBuffer RSSL_ENAME_AUTHN_TOKEN = { 19, (char*)"AuthenticationToken" };
+static const RsslBuffer RSSL_ENAME_AUTHN_EXTENDED = { 22, (char*)"AuthenticationExtended" };
+static const RsslBuffer RSSL_ENAME_AUTHN_TT_REISSUE = { 23, (char*)"AuthenticationTTReissue" };
+static const RsslBuffer RSSL_ENAME_AUTHN_EXTENDED_RESP = { 26, (char*)"AuthenticationExtendedResp" };
+static const RsslBuffer RSSL_ENAME_AUTHN_ERROR_CODE = { 23, (char*)"AuthenticationErrorCode" };
+static const RsslBuffer RSSL_ENAME_AUTHN_ERROR_TEXT = { 23, (char*)"AuthenticationErrorText" };
 
 //Warm Standby - Well known Element Names
 static const RsslBuffer RSSL_ENAME_SUPPORT_STANDBY = { 14 , (char*)"SupportStandby" };

@@ -95,6 +95,11 @@ static const char *defaultInterface = "";
 
 static RsslBool directorySent = RSSL_FALSE;
 
+/* For TREP authentication login reissue */
+static RsslUInt loginReissueTime; // represented by epoch time in seconds
+static RsslBool canSendLoginReissue;
+static RsslBool isLoginReissue;
+
 /* 
  * Prints example usage and exits. 
  */
@@ -106,6 +111,9 @@ void printUsageAndExit(char *appName)
 	printf(" -mp For each occurance, provides item using Market Price domain.\n");
 	printf(" -mbo For each occurance, provides item using Market By Order domain.\n");
 	printf(" -id allows user to specify optional serviceId.\n");
+	printf(" -at Specifies the Authentication Token. If this is present, the login user name type will be RDM_LOGIN_USER_AUTHN_TOKEN.\n");
+	printf(" -ax Specifies the Authentication Extended information.\n");
+	printf(" -aid Specifies the Application ID.\n");
 	printf("\n -td prints out additional transport details from rsslReadEx() and rsslWriteEx() function calls \n");
 	printf(" -x provides an XML trace of messages.\n");
 	printf(" -runtime adjusts the running time of the application.\n");
@@ -142,6 +150,7 @@ int main(int argc, char **argv)
 	RsslUInt64 serviceId = 0;
 	int itemNameStartArg = 4;
 	static RsslBool itemProvided = RSSL_FALSE;
+	time_t currentTime;
 #ifdef _WIN32
 	int rcvBfrSize = 65535;
 	int sendBfrSize = 65535;
@@ -189,6 +198,21 @@ int main(int argc, char **argv)
 			{
 				i += 2;
 				setUsername(argv[i-1]);
+			}
+			else if(strcmp("-at", argv[i]) == 0)
+			{
+				i += 2;
+				setAuthenticationToken(argv[i-1]);
+			}
+			else if(strcmp("-ax", argv[i]) == 0)
+			{
+				i += 2;
+				setAuthenticationExtended(argv[i-1]);
+			}
+			else if(strcmp("-aid", argv[i]) == 0)
+			{
+				i += 2;
+				setApplicationId(argv[i-1]);
 			}
 			else if(strcmp("-h", argv[i]) == 0)
 			{
@@ -502,6 +526,7 @@ int main(int argc, char **argv)
 		initPingHandler(rsslNIProviderChannel);
 
 		/* Send login request message */
+		isLoginReissue = RSSL_FALSE;
 		if (sendLoginRequest(rsslNIProviderChannel, "rsslNIProvider", RSSL_PROVIDER, &loginSuccessCallBack) != RSSL_RET_SUCCESS)
 		{
 			cleanUpAndExit();
@@ -584,6 +609,27 @@ int main(int argc, char **argv)
 
 			/* Handle run-time */
 			handleRuntime();
+
+			if ((currentTime = time(NULL)) < 0)
+			{
+				printf("time() failed.\n");
+			}
+
+			// send login reissue if login reissue time has passed
+			if (canSendLoginReissue == RSSL_TRUE &&
+				currentTime >= loginReissueTime)
+			{
+				isLoginReissue = RSSL_TRUE;
+				if (sendLoginRequest(rsslNIProviderChannel, "rsslNIProvider", RSSL_PROVIDER, &loginSuccessCallBack) != RSSL_RET_SUCCESS)
+				{
+					printf("Login reissue failed\n");
+				}
+				else
+				{
+					printf("Login reissue sent\n");
+				}
+				canSendLoginReissue = RSSL_FALSE;
+			}
 		}
 	}
 }
@@ -973,27 +1019,38 @@ static void removeChannel(RsslChannel* chnl)
  */
 void loginSuccessCallBack(RsslChannel* chnl)
 {
+	RsslLoginResponseInfo* loginInfo = getLoginResponseInfo();
 
-	if (!directorySent)
+	if (isLoginReissue == RSSL_FALSE)
 	{
-		directorySent = RSSL_TRUE;
-		sendSourceDirectoryResponse(chnl);
+		if (!directorySent)
+		{
+			directorySent = RSSL_TRUE;
+			sendSourceDirectoryResponse(chnl);
+		}
+
+		if (!isDictionaryReady())
+		{
+			/* no local dictionary was loaded, we need to check if we can get it from the provider */
+			if (isProviderDictionaryDownloadSupported())
+			{
+				sendDictionaryRequests(chnl);
+				printf("Send Dictionary Request\n");
+			}
+			else
+			{
+				/* exit if dictionary cannot be loaded or requested */
+				printf("\nDictionary could not be downloaded, the connection does not support Provider Dictionary Download\n");
+				cleanUpAndExit();
+			}
+		}
 	}
 
-	if (!isDictionaryReady())
+	// get login reissue time from authenticationTTReissue
+	if (loginInfo->AuthenticationTTReissue != 0)
 	{
-		/* no local dictionary was loaded, we need to check if we can get it from the provider */
-		if (isProviderDictionaryDownloadSupported())
-		{
-			sendDictionaryRequests(chnl);
-			printf("Send Dictionary Request\n");
-		}
-		else
-		{
-			/* exit if dictionary cannot be loaded or requested */
-			printf("\nDictionary could not be downloaded, the connection does not support Provider Dictionary Download\n");
-			cleanUpAndExit();
-		}
+		loginReissueTime = loginInfo->AuthenticationTTReissue;
+		canSendLoginReissue = RSSL_TRUE;
 	}
 }
 
