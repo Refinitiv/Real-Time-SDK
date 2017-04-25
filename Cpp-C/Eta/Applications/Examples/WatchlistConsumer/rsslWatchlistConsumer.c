@@ -87,6 +87,13 @@ int main(int argc, char **argv)
 	nextPostTime = stopTime + POST_MESSAGE_FREQUENCY;
 	stopTime += watchlistConsumerConfig.runTime;
 
+	/* Initialize RSSL. The locking mode RSSL_LOCK_GLOBAL_AND_CHANNEL is required to use the RsslReactor. */
+	if (rsslInitialize(RSSL_LOCK_GLOBAL_AND_CHANNEL, &rsslErrorInfo.rsslError) != RSSL_RET_SUCCESS)
+	{
+		printf("rsslInitialize(): failed <%s>\n", rsslErrorInfo.rsslError.text);
+		exit(-1);
+	}
+
 
 	/* Prepare a default login request(Use 1 as the Login Stream ID). 
 	 * This function sets login request parameters according to what a consumer
@@ -143,12 +150,7 @@ int main(int argc, char **argv)
 	consumerRole.directoryMsgCallback = directoryMsgCallback;
 	consumerRole.dictionaryMsgCallback = dictionaryMsgCallback;
 
-	/* Initialize RSSL. The locking mode RSSL_LOCK_GLOBAL_AND_CHANNEL is required to use the RsslReactor. */
-	if (rsslInitialize(RSSL_LOCK_GLOBAL_AND_CHANNEL, &rsslErrorInfo.rsslError) != RSSL_RET_SUCCESS)
-	{
-		printf("rsslInitialize(): failed <%s>\n", rsslErrorInfo.rsslError.text);
-		exit(-1);
-	}
+
 
 	/* Create Reactor. */
 	rsslClearCreateReactorOptions(&reactorOpts);
