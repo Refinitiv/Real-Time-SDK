@@ -50,7 +50,7 @@ RsslRet encodeLoginRequest(RsslChannel* chnl, RsslLoginRequestInfo* loginReqInfo
 	/* If the nameType is USER_AUTHN_TOKEN, set the msgKey.name buffer to one character of '/0' */
 	if(loginReqInfo->NameType == RDM_LOGIN_USER_AUTHN_TOKEN)
 	{
-		msg.msgBase.msgKey.name.data = blankUserName;
+		msg.msgBase.msgKey.name.data = (char*)blankUserName;
 		msg.msgBase.msgKey.name.length = 1;
 		msg.msgBase.msgKey.nameType = RDM_LOGIN_USER_AUTHN_TOKEN;
 	}
