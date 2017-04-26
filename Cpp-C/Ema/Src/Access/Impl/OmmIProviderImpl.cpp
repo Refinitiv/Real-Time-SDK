@@ -707,15 +707,6 @@ void OmmIProviderImpl::submit(const StatusMsg& stausMsg, UInt64 handle)
 	}
 	else if (submitMsgOpts.pRsslMsg->msgBase.domainType == ema::rdm::MMT_DICTIONARY)
 	{
-		if (submitMsgOpts.pRsslMsg->msgBase.containerType != RSSL_DT_SERIES)
-		{
-			_userLock.unlock();
-			EmaString temp("Attempt to submit StatusMsg with Dictionary domain using container with wrong data type. Expected container data type is Series. Passed in is ");
-			temp += DataType((DataType::DataTypeEnum)submitMsgOpts.pRsslMsg->msgBase.containerType).toString();
-			handleIue(temp);
-			return;
-		}
-
 		if (handle == 0)
 		{
 			EmaString text("Fanout dictionary message for item handle = ");
@@ -987,7 +978,7 @@ void OmmIProviderImpl::handleItemInfo(int domainType, UInt64 handle, RsslState& 
 
 void OmmIProviderImpl::handleItemGroup(ItemInfo* itemInfo, RsslBuffer& groupId, RsslState& state)
 {
-	if ( ( groupId.length < 2 ) || (*groupId.data == '\0' && *(++groupId.data) == '\0') || !itemInfo->hasServiceId() )
+	if ( ( groupId.length < 2 ) || (groupId.data[0] == '\0' && groupId.data[1] == '\0') || !itemInfo->hasServiceId() )
 	{
 		return;
 	}
