@@ -1467,6 +1467,12 @@ Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOut, UInt32 count, bool& b
 
 		Int64 selectRetCode = 1;
 
+		// Do not wait infinitely in the select if there is a timeout event in the list.
+		if ( ( timeOut < 0 ) && getTimeOutList().size() != 0 )
+		{
+			return bMsgDispRcvd ? 0 : -1;
+		}
+
 #if defined( USING_SELECT )
 
 		fd_set useReadFds = _readFds;

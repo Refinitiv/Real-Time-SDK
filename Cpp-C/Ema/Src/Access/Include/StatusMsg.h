@@ -316,6 +316,7 @@ public :
 private :
 
 	friend class ItemCallbackClient;
+	friend class DictionaryCallbackClient;
 
 	const EmaString& toString( UInt64 ) const;
 
