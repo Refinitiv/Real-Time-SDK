@@ -1233,10 +1233,12 @@ RsslReactorCallbackRet LoginCallbackClient::processStatusMsg( RsslMsg* pRsslMsg,
 
 RsslReactorCallbackRet LoginCallbackClient::processGenericMsg( RsslMsg* pRsslMsg, RsslReactorChannel* pRsslReactorChannel, RsslRDMLoginMsgEvent* )
 {
+	Channel* channel = static_cast<Channel*>(pRsslReactorChannel->userSpecPtr);
+
 	StaticDecoder::setRsslData( &_genericMsg, pRsslMsg,
 	                            pRsslReactorChannel->majorVersion,
 	                            pRsslReactorChannel->minorVersion,
-	                            static_cast<Channel*>( pRsslReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
+								channel->getDictionary() ? channel->getDictionary()->getRsslDictionary() : 0);
 
 	for ( UInt32 idx = 0; idx < _loginItems.size(); ++idx )
 	{
@@ -1251,10 +1253,12 @@ RsslReactorCallbackRet LoginCallbackClient::processGenericMsg( RsslMsg* pRsslMsg
 
 RsslReactorCallbackRet LoginCallbackClient::processAckMsg( RsslMsg* pRsslMsg, RsslReactorChannel* pRsslReactorChannel, RsslRDMLoginMsgEvent* )
 {
+	Channel* channel = static_cast<Channel*>(pRsslReactorChannel->userSpecPtr);
+
 	StaticDecoder::setRsslData( &_ackMsg, pRsslMsg,
 	                            pRsslReactorChannel->majorVersion,
 	                            pRsslReactorChannel->minorVersion,
-	                            static_cast<Channel*>( pRsslReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
+								channel->getDictionary() ? channel->getDictionary()->getRsslDictionary() : 0);
 
 	for ( UInt32 idx = 0; idx < _loginItems.size(); ++idx )
 	{

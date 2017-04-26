@@ -1578,21 +1578,22 @@ bool DictionaryItem::open( const ReqMsg& reqMsg )
 	}
 	else
 	{
-		if ( _name == DictionaryCallbackClient::_rwfFldName )
-		{
-			_currentFid = _ommBaseImpl.getDictionaryCallbackClient().getDefaultDictionary()->getRsslDictionary()->minFid;
-			_streamId = _ommBaseImpl.getDictionaryCallbackClient().getDefaultDictionary()->getFldStreamId();
-		}
-		else if ( _name == DictionaryCallbackClient::_rwfEnumName )
-		{
-			_currentFid = 0;
-			_streamId = _ommBaseImpl.getDictionaryCallbackClient().getDefaultDictionary()->getEnumStreamId();
-		}
-
 		Dictionary* dictionary = _ommBaseImpl.getDictionaryCallbackClient().getDefaultDictionary();
 
 		if ( dictionary )
 		{
+			if (_name == DictionaryCallbackClient::_rwfFldName)
+			{
+				_currentFid = dictionary->getRsslDictionary()->minFid;
+				_streamId = dictionary->getFldStreamId();
+			}
+			else if (_name == DictionaryCallbackClient::_rwfEnumName)
+			{
+				_currentFid = 0;
+				_streamId = dictionary->getEnumStreamId();
+			}
+
+
 			if ( dictionary->getType() == Dictionary::ChannelDictionaryEnum )
 			{
 				ChannelDictionary* channelDict = static_cast<ChannelDictionary*>( dictionary );

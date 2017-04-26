@@ -2047,10 +2047,12 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslTunnelStream* pR
 	rsslStatusMsg.msgBase.msgKey.flags |= RSSL_MKF_HAS_SERVICE_ID;
 	rsslStatusMsg.msgBase.msgKey.serviceId = pRsslTunnelStream->serviceId;
 
-	StaticDecoder::setRsslData( &_statusMsg, (RsslMsg*)&rsslStatusMsg,
+	Channel* channel = static_cast<Channel*>(pTunnelStreamStatusEvent->pReactorChannel->userSpecPtr);
+
+	StaticDecoder::setRsslData(&_statusMsg, (RsslMsg*)&rsslStatusMsg,
 		pTunnelStreamStatusEvent->pReactorChannel->majorVersion,
 		pTunnelStreamStatusEvent->pReactorChannel->minorVersion,
- 		static_cast<Channel*>( pTunnelStreamStatusEvent->pReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
+		channel->getDictionary() ? channel->getDictionary()->getRsslDictionary() : 0);
 
 	static_cast<TunnelItem*>( pRsslTunnelStream->userSpecPtr )->rsslTunnelStream( pRsslTunnelStream );
 
@@ -2232,10 +2234,12 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslTunnelStream* pR
 
 RsslReactorCallbackRet ItemCallbackClient::processAckMsg( RsslTunnelStream* pRsslTunnelStream, RsslTunnelStreamMsgEvent* pTunnelStreamMsgEvent, Item* item )
 {
+	Channel* channel = static_cast<Channel*>(pTunnelStreamMsgEvent->pReactorChannel->userSpecPtr);
+
 	StaticDecoder::setRsslData( &_ackMsg, pTunnelStreamMsgEvent->pRsslMsg,
 		pTunnelStreamMsgEvent->pReactorChannel->majorVersion,
 		pTunnelStreamMsgEvent->pReactorChannel->minorVersion,
-		static_cast<Channel*>( pTunnelStreamMsgEvent->pReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
+		channel->getDictionary() ? channel->getDictionary()->getRsslDictionary() : 0);
 
 	_ommBaseImpl.msgDispatched();
 
@@ -2247,10 +2251,12 @@ RsslReactorCallbackRet ItemCallbackClient::processAckMsg( RsslTunnelStream* pRss
 
 RsslReactorCallbackRet ItemCallbackClient::processGenericMsg( RsslTunnelStream* pRsslTunnelStream, RsslTunnelStreamMsgEvent* pTunnelStreamMsgEvent, Item* item )
 {
+	Channel* channel = static_cast<Channel*>(pTunnelStreamMsgEvent->pReactorChannel->userSpecPtr);
+
 	StaticDecoder::setRsslData( &_genericMsg, pTunnelStreamMsgEvent->pRsslMsg,
 		pTunnelStreamMsgEvent->pReactorChannel->majorVersion,
 		pTunnelStreamMsgEvent->pReactorChannel->minorVersion,
-		static_cast<Channel*>( pTunnelStreamMsgEvent->pReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
+		channel->getDictionary() ? channel->getDictionary()->getRsslDictionary() : 0);
 
 	_ommBaseImpl.msgDispatched();
 
@@ -2262,10 +2268,12 @@ RsslReactorCallbackRet ItemCallbackClient::processGenericMsg( RsslTunnelStream* 
 
 RsslReactorCallbackRet ItemCallbackClient::processRefreshMsg( RsslTunnelStream* pRsslTunnelStream, RsslTunnelStreamMsgEvent* pTunnelStreamMsgEvent, Item* item )
 {
+	Channel* channel = static_cast<Channel*>(pTunnelStreamMsgEvent->pReactorChannel->userSpecPtr);
+
 	StaticDecoder::setRsslData( &_refreshMsg, pTunnelStreamMsgEvent->pRsslMsg,
 		pTunnelStreamMsgEvent->pReactorChannel->majorVersion,
 		pTunnelStreamMsgEvent->pReactorChannel->minorVersion,
-		static_cast<Channel*>( pTunnelStreamMsgEvent->pReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
+		channel->getDictionary() ? channel->getDictionary()->getRsslDictionary() : 0);
 
 	_ommBaseImpl.msgDispatched();
 
@@ -2287,10 +2295,12 @@ RsslReactorCallbackRet ItemCallbackClient::processRefreshMsg( RsslTunnelStream* 
 
 RsslReactorCallbackRet ItemCallbackClient::processUpdateMsg( RsslTunnelStream* pRsslTunnelStream, RsslTunnelStreamMsgEvent* pTunnelStreamMsgEvent, Item* item )
 {
+	Channel* channel = static_cast<Channel*>(pTunnelStreamMsgEvent->pReactorChannel->userSpecPtr);
+
 	StaticDecoder::setRsslData( &_updateMsg, pTunnelStreamMsgEvent->pRsslMsg,
 		pTunnelStreamMsgEvent->pReactorChannel->majorVersion,
 		pTunnelStreamMsgEvent->pReactorChannel->minorVersion,
-		static_cast<Channel*>( pTunnelStreamMsgEvent->pReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
+		channel->getDictionary() ? channel->getDictionary()->getRsslDictionary() : 0);
 
 	_ommBaseImpl.msgDispatched();
 
@@ -2302,10 +2312,12 @@ RsslReactorCallbackRet ItemCallbackClient::processUpdateMsg( RsslTunnelStream* p
 
 RsslReactorCallbackRet ItemCallbackClient::processStatusMsg( RsslTunnelStream* pRsslTunnelStream, RsslTunnelStreamMsgEvent* pTunnelStreamMsgEvent, Item* item )
 {
+	Channel* channel = static_cast<Channel*>(pTunnelStreamMsgEvent->pReactorChannel->userSpecPtr);
+
 	StaticDecoder::setRsslData( &_statusMsg, pTunnelStreamMsgEvent->pRsslMsg,
 		pTunnelStreamMsgEvent->pReactorChannel->majorVersion,
 		pTunnelStreamMsgEvent->pReactorChannel->minorVersion,
-		static_cast<Channel*>( pTunnelStreamMsgEvent->pReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
+		channel->getDictionary() ? channel->getDictionary()->getRsslDictionary() : 0);
 
 	_ommBaseImpl.msgDispatched();
 
@@ -2399,10 +2411,12 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslReactor* pRsslRe
 
 RsslReactorCallbackRet ItemCallbackClient::processRefreshMsg( RsslMsg* pRsslMsg, RsslReactorChannel* pRsslReactorChannel, RsslMsgEvent* pEvent )
 {
+	Channel* channel = static_cast<Channel*>(pRsslReactorChannel->userSpecPtr);
+
 	StaticDecoder::setRsslData( &_refreshMsg, pRsslMsg,
 		pRsslReactorChannel->majorVersion,
 		pRsslReactorChannel->minorVersion,
- 		static_cast<Channel*>( pRsslReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
+		channel->getDictionary() ? channel->getDictionary()->getRsslDictionary() : 0);
 
 	Item* pItem = (Item*)( pEvent->pStreamInfo->pUserSpec );
 
@@ -2431,10 +2445,12 @@ RsslReactorCallbackRet ItemCallbackClient::processRefreshMsg( RsslMsg* pRsslMsg,
 
 RsslReactorCallbackRet ItemCallbackClient::processUpdateMsg( RsslMsg* pRsslMsg, RsslReactorChannel* pRsslReactorChannel, RsslMsgEvent* pEvent )
 {
+	Channel* channel = static_cast<Channel*>(pRsslReactorChannel->userSpecPtr);
+
 	StaticDecoder::setRsslData( &_updateMsg, pRsslMsg,
 		pRsslReactorChannel->majorVersion,
 		pRsslReactorChannel->minorVersion,
- 		static_cast<Channel*>( pRsslReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
+		channel->getDictionary() ? channel->getDictionary()->getRsslDictionary() : 0);
 
 	Item* item = (Item*) pEvent->pStreamInfo->pUserSpec;
 
@@ -2453,10 +2469,12 @@ RsslReactorCallbackRet ItemCallbackClient::processUpdateMsg( RsslMsg* pRsslMsg, 
 
 RsslReactorCallbackRet ItemCallbackClient::processStatusMsg( RsslMsg* pRsslMsg, RsslReactorChannel* pRsslReactorChannel, RsslMsgEvent* pEvent )
 {
+	Channel* channel = static_cast<Channel*>(pRsslReactorChannel->userSpecPtr);
+
 	StaticDecoder::setRsslData( &_statusMsg, pRsslMsg,
 		pRsslReactorChannel->majorVersion,
 		pRsslReactorChannel->minorVersion,
- 		static_cast<Channel*>( pRsslReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
+		channel->getDictionary() ? channel->getDictionary()->getRsslDictionary() : 0);
 
 	Item* item = (Item*) pEvent->pStreamInfo->pUserSpec;
 
@@ -2479,10 +2497,12 @@ RsslReactorCallbackRet ItemCallbackClient::processStatusMsg( RsslMsg* pRsslMsg, 
 
 RsslReactorCallbackRet ItemCallbackClient::processGenericMsg( RsslMsg* pRsslMsg, RsslReactorChannel* pRsslReactorChannel, RsslMsgEvent* pEvent )
 {
+	Channel* channel = static_cast<Channel*>(pRsslReactorChannel->userSpecPtr);
+
 	StaticDecoder::setRsslData( &_genericMsg, pRsslMsg,
 		pRsslReactorChannel->majorVersion,
 		pRsslReactorChannel->minorVersion,
-		static_cast<Channel*>( pRsslReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
+		channel->getDictionary() ? channel->getDictionary()->getRsslDictionary() : 0);
 
 	Item* item = (Item*) pEvent->pStreamInfo->pUserSpec;
 
@@ -2499,10 +2519,12 @@ RsslReactorCallbackRet ItemCallbackClient::processGenericMsg( RsslMsg* pRsslMsg,
 
 RsslReactorCallbackRet ItemCallbackClient::processAckMsg( RsslMsg* pRsslMsg, RsslReactorChannel* pRsslReactorChannel, RsslMsgEvent* pEvent )
 {
+	Channel* channel = static_cast<Channel*>(pRsslReactorChannel->userSpecPtr);
+
 	StaticDecoder::setRsslData( &_ackMsg, pRsslMsg,
 		pRsslReactorChannel->majorVersion,
 		pRsslReactorChannel->minorVersion,
-		static_cast<Channel*>( pRsslReactorChannel->userSpecPtr )->getDictionary()->getRsslDictionary() );
+		channel->getDictionary() ? channel->getDictionary()->getRsslDictionary() : 0);
 
 	Item* item = (Item*) pEvent->pStreamInfo->pUserSpec;
 
