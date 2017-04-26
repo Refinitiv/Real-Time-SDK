@@ -379,7 +379,7 @@ void OmmNiProviderImpl::loadDirectory()
 		if ( pTempRsslMsg->msgBase.containerType != RSSL_DT_MAP )
 		{
 			EmaString temp( "Attempt to submit RefreshMsg with SourceDirectory domain using container with wrong data type. Expected container data type is Map. Passed in is " );
-			temp += DataType( dataType[pTempRsslMsg->msgBase.containerType] ).toString();
+			temp += DataType((DataType::DataTypeEnum)pTempRsslMsg->msgBase.containerType).toString();
 			handleIue( temp );
 			return;
 		}
@@ -812,7 +812,7 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 		{
 			_userLock.unlock();
 			EmaString temp("Attempt to submit RefreshMsg with SourceDirectory domain using container with wrong data type. Expected container data type is Map. Passed in is ");
-			temp += DataType(dataType[submitMsgOpts.pRsslMsg->msgBase.containerType]).toString();
+			temp += DataType((DataType::DataTypeEnum)submitMsgOpts.pRsslMsg->msgBase.containerType).toString();
 			handleIue(temp);
 			return;
 		}
@@ -1074,7 +1074,7 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 		{
 			_userLock.unlock();
 			EmaString temp( "Attempt to submit UpdateMsg with SourceDirectory domain using container with wrong data type. Expected is Map. Passed in is " );
-			temp += DataType( dataType[submitMsgOpts.pRsslMsg->msgBase.containerType] ).toString();
+			temp += DataType((DataType::DataTypeEnum)submitMsgOpts.pRsslMsg->msgBase.containerType).toString();
 			handleIue( temp );
 			return;
 		}

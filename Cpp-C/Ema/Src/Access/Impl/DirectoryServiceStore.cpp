@@ -1894,7 +1894,7 @@ bool DirectoryServiceStore::decodeSourceDirectory(RwfBuffer* pInBuffer, EmaStrin
 		break;
 	default:
 		errorText.set( "Attempt to specify SourceDirectory info with a Map using key DataType of " );
-		errorText += DataType( dataType[rsslMap.keyPrimitiveType] ).toString();
+		errorText += DataType((DataType::DataTypeEnum)rsslMap.keyPrimitiveType).toString();
 		errorText += EmaString( " while the expected key DataType is " );
 		errorText += DataType( DataType::UIntEnum ).toString();
 		return false;
@@ -1982,7 +1982,7 @@ bool DirectoryServiceStore::decodeSourceDirectoryKeyUInt(RsslMap& rsslMap, RsslD
 		if (rsslMap.containerType != RSSL_DT_FILTER_LIST)
 		{
 			errorText.set("Attempt to specify Service with a container of ");
-			errorText += DataType(dataType[rsslMap.containerType]).toString();
+			errorText += DataType((DataType::DataTypeEnum)rsslMap.containerType).toString();
 			errorText += EmaString(" rather than the expected ");
 			errorText += DataType(DataType::FilterListEnum).toString();
 			return false;
@@ -2050,7 +2050,7 @@ bool DirectoryServiceStore::decodeSourceDirectoryKeyUInt(RsslMap& rsslMap, RsslD
 				{
 					RsslContainerType type = (rsslFilterEntry.flags & RSSL_FTEF_HAS_CONTAINER_TYPE) ? rsslFilterEntry.containerType : rsslFilterList.containerType;
 					errorText.set("Attempt to specify Service InfoFilter with a container of ");
-					errorText += DataType(dataType[type]).toString();
+					errorText += DataType((DataType::DataTypeEnum)type).toString();
 					errorText += EmaString(" rather than the expected ");
 					errorText += DataType(DataType::ElementListEnum).toString();
 					return false;
@@ -2091,7 +2091,7 @@ bool DirectoryServiceStore::decodeSourceDirectoryKeyUInt(RsslMap& rsslMap, RsslD
 						if (rsslElementEntry.dataType != RSSL_DT_ASCII_STRING)
 						{
 							errorText.set("Attempt to specify Service Name with a ");
-							errorText += DataType(dataType[rsslElementEntry.dataType]).toString();
+							errorText += DataType((DataType::DataTypeEnum)rsslElementEntry.dataType).toString();
 							errorText += EmaString(" rather than the expected ");
 							errorText += DataType(DataType::AsciiEnum).toString();
 							return false;

@@ -311,7 +311,7 @@ void OmmIProviderImpl::submit(const RefreshMsg& refreshMsg, UInt64 handle)
 		{
 			_userLock.unlock();
 			EmaString temp("Attempt to submit RefreshMsg with Directory domain using container with wrong data type. Expected container data type is Map. Passed in is ");
-			temp += DataType(dataType[submitMsgOpts.pRsslMsg->msgBase.containerType]).toString();
+			temp += DataType((DataType::DataTypeEnum)submitMsgOpts.pRsslMsg->msgBase.containerType).toString();
 			handleIue(temp);
 			return;
 		}
@@ -369,7 +369,7 @@ void OmmIProviderImpl::submit(const RefreshMsg& refreshMsg, UInt64 handle)
 		{
 			_userLock.unlock();
 			EmaString temp("Attempt to submit RefreshMsg with Dictionary domain using container with wrong data type. Expected container data type is Series. Passed in is ");
-			temp += DataType(dataType[submitMsgOpts.pRsslMsg->msgBase.containerType]).toString();
+			temp += DataType((DataType::DataTypeEnum)submitMsgOpts.pRsslMsg->msgBase.containerType).toString();
 			handleIue(temp);
 
 			return;
@@ -506,7 +506,7 @@ void OmmIProviderImpl::submit(const UpdateMsg& updateMsg, UInt64 handle)
 		{
 			_userLock.unlock();
 			EmaString temp("Attempt to submit UpdateMsg with Directory domain using container with wrong data type. Expected container data type is Map. Passed in is ");
-			temp += DataType(dataType[submitMsgOpts.pRsslMsg->msgBase.containerType]).toString();
+			temp += DataType((DataType::DataTypeEnum)submitMsgOpts.pRsslMsg->msgBase.containerType).toString();
 			handleIue(temp);
 			return;
 		}
@@ -711,7 +711,7 @@ void OmmIProviderImpl::submit(const StatusMsg& stausMsg, UInt64 handle)
 		{
 			_userLock.unlock();
 			EmaString temp("Attempt to submit StatusMsg with Dictionary domain using container with wrong data type. Expected container data type is Series. Passed in is ");
-			temp += DataType(dataType[submitMsgOpts.pRsslMsg->msgBase.containerType]).toString();
+			temp += DataType((DataType::DataTypeEnum)submitMsgOpts.pRsslMsg->msgBase.containerType).toString();
 			handleIue(temp);
 			return;
 		}

@@ -846,7 +846,7 @@ void EmaConfigImpl::addAdminMsg( const RefreshMsg& refreshMsg )
 		if ( pRsslRefreshMsg->msgBase.containerType != RSSL_DT_MAP )
 		{
 			EmaString temp( "RefreshMsg with SourceDirectory passed into addAdminMsg( const RefreshMsg& ) contains a container with wrong data type. Expected container data type is Map. Passed in is " );
-			temp += DataType( dataType[pRsslRefreshMsg->msgBase.containerType] ).toString();
+			temp += DataType((DataType::DataTypeEnum)pRsslRefreshMsg->msgBase.containerType).toString();
 			EmaConfigError* mce( new EmaConfigError( temp, OmmLoggerClient::ErrorEnum ) );
 			_pEmaConfig->errors().add( mce );
 			return;
@@ -1033,7 +1033,7 @@ void EmaConfigServerImpl::addAdminMsg( const RefreshMsg& refreshMsg )
 			if (pRsslRefreshMsg->msgBase.containerType != RSSL_DT_MAP)
 			{
 				EmaString temp("RefreshMsg with SourceDirectory passed into addAdminMsg( const RefreshMsg& ) contains a container with wrong data type. Expected container data type is Map. Passed in is ");
-				temp += DataType(dataType[pRsslRefreshMsg->msgBase.containerType]).toString();
+				temp += DataType((DataType::DataTypeEnum)pRsslRefreshMsg->msgBase.containerType).toString();
 				EmaConfigError* mce(new EmaConfigError(temp, OmmLoggerClient::ErrorEnum));
 				_pEmaConfig->errors().add(mce);
 				return;

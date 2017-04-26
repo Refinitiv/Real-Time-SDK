@@ -33,7 +33,6 @@ namespace thomsonreuters {
 	}
 }
 
-extern const thomsonreuters::ema::access::DataType::DataTypeEnum dataType[];
 extern const thomsonreuters::ema::access::DataType::DataTypeEnum msgDataType[];
 
 bool getCurrentDir( thomsonreuters::ema::access::EmaString& );

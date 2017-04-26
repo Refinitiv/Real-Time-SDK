@@ -52,7 +52,7 @@ help:
 	@echo "target clean will clear all build directories for $(IDENT)"
 
 outputDir:
-	mkdir -p $(OUTPUT_DIR)/obj/Access/Impl $(OUTPUT_DIR)/obj/Rdm/Impl
+	mkdir -p $(OUTPUT_DIR)/obj/Access/Impl $(OUTPUT_DIR)/obj/Rdm/Impl $(OUTPUT_DIR)/obj/Domain/Login/Impl
 
 optimizedStaticClean:		OUTPUT_DIR := $(LIB_DIR)/$(IDENT)/Optimized
 optimizedStaticClean:

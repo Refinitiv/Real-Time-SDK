@@ -603,7 +603,7 @@ const EmaString& FieldEntry::toString() const
 		.append( " name=\"" ).append( _pDecoder->getName() ).append( "\"" )
 		.append( " dataType=\"" ).append( getDTypeAsString( (*_pLoad)->getDataType() ) );
 
-	if ( (*_pLoad)->getDataType() >= DataType::FieldListEnum || (*_pLoad)->getDataType() == DataType::ArrayEnum )
+	if ( (*_pLoad)->getDataType() <= DataType::ArrayEnum )
 	{
 		_toString.append( "\"\n" ).append( (*_pLoad)->toString( 1 ) );
 		addIndent( _toString, 0 ).append( "FieldEntryEnd\n" );

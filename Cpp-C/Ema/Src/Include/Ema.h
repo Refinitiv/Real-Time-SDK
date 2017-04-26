@@ -22,6 +22,7 @@
 #include "Access/Include/EmaBuffer.h"
 #include "Access/Include/EmaBufferU16.h"
 #include "Access/Include/EmaString.h"
+#include "Access/Include/EmaVector.h"
 #include "Access/Include/RmtesBuffer.h"
 
 #include "Rdm/Include/EmaRdm.h"
@@ -108,5 +109,12 @@
 #include "Access/Include/TunnelStreamRequest.h"
 
 #include "Domain/Login/Include/Login.h"
+
+#include "Rdm/Include/DataDictionary.h"
+#include "Rdm/Include/DictionaryEntry.h"
+#include "Rdm/Include/EnumType.h"
+#include "Rdm/Include/EnumTypeTable.h"
+#include "Rdm/Include/DictionaryUtility.h"
+
 
 #endif // __thomsonreuters_ema_Ema_h

@@ -147,6 +147,12 @@ namespace thomsonreuters {
 
 namespace ema {
 
+namespace rdm {
+
+class DictionaryUtility;
+
+}
+
 namespace access {
 
 class ReqMsg;
@@ -671,6 +677,8 @@ public :
 	//@}
 
 private :
+
+	friend class thomsonreuters::ema::rdm::DictionaryUtility;
 
 	void getInfoXmlStr( EmaString& ) const;
 

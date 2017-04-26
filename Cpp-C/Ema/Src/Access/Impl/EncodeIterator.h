@@ -26,7 +26,7 @@ public :
 
 	virtual ~EncodeIterator();
 
-	void clear();
+	void clear( UInt32 allocatedSize = 4096 );
 
 	void reallocate();
 

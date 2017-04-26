@@ -221,7 +221,7 @@ public :
 	
 	/** Specifies the amount of data (in bytes) that the remote peer can send to
 		the application over a reliable tunnel stream.
-		@param[in] size specifies number of bytes; valid range is 0 – 2,147,483,647
+		@param[in] size specifies number of bytes; valid range is 0 - 2,147,483,647
 		@return reference to this object
 		@throw OmmOutOfRangeException if passed in size is out of range
 		\remark If CosFlowControlType::NoneEnum is set, this parameter has no effect

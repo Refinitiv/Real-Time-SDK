@@ -31,6 +31,7 @@
 #include "TunnelStreamLoginReqMsgImpl.h"
 #include "StreamId.h"
 
+#include <limits.h>
 #include <new>
 
 using namespace thomsonreuters::ema::access;
@@ -56,7 +57,8 @@ const EmaString TunnelItemString( "TunnelItem" );
 const EmaString SubItemString( "SubItem" );
 const EmaString UnknownItemString( "UnknownItem" );
 
-#define CONSUMER_STARTING_STREAM_ID					  4
+#define CONSUMER_STARTING_STREAM_ID	4
+#define CONSUMER_MAX_STREAM_ID_MINUSONE (INT_MAX - 1)
 
 Item::Item( OmmBaseImpl& ommBaseImpl ) :
 	_domainType( 0 ),
@@ -1739,6 +1741,9 @@ SubItem::~SubItem()
 		delete _closedStatusInfo;
 		_closedStatusInfo = 0;
 	}
+
+	/*Need to set to 0 to avoid remove a wrong SingleItem of the same stream id from _streamIdMap*/
+	_streamId = 0;
 }
 
 Item::ItemType SubItem::getType() const 
@@ -2104,7 +2109,7 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslTunnelStream* pR
 		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Received a tunnel stream message event containing an unsupported data type of " );
-			temp += DataType( dataType[ pTunnelStreamMsgEvent->containerType ] ).toString();
+			temp += DataType((DataType::DataTypeEnum)pTunnelStreamMsgEvent->containerType).toString();
 
 			temp.append( CR )
 				.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
@@ -2775,7 +2780,7 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmProviderClie
 			if ( pItem )
 			{
 				addToList( pItem );
-				addToMap( pItem );
+				addToItemMap( pItem );
 			}
 
 			return (UInt64) pItem;
@@ -2964,6 +2969,7 @@ void ItemCallbackClient::removeFromMap(Item* pItem)
 	_ommBaseImpl.getUserLock().lock();
 
 	_itemMap.erase( (UInt64)pItem );
+
 	if ( pItem->getStreamId() > 0 )
 		_streamIdMap.erase( pItem->getStreamId() );
 	
@@ -3056,10 +3062,10 @@ bool ItemCallbackClient::splitAndSendSingleRequest(const ReqMsg& reqMsg, OmmCons
 
 Int32 ItemCallbackClient::getNextStreamId(UInt32 numberOfBatchItems)
 {
-	Int32 retVal;
-	if (nextStreamIdWrapAround(numberOfBatchItems))
+	if (_nextStreamId > CONSUMER_MAX_STREAM_ID_MINUSONE - numberOfBatchItems)
 	{
 		_nextStreamId = CONSUMER_STARTING_STREAM_ID;
+		_nextStreamIdWrapAround = true; 
 
 		if (OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
 		{
@@ -3103,5 +3109,5 @@ Int32 ItemCallbackClient::getNextStreamId(UInt32 numberOfBatchItems)
 
 bool ItemCallbackClient::nextStreamIdWrapAround(UInt32 numberOfBatchItems)
 {
-	return (_nextStreamId > INT_MAX - numberOfBatchItems - 1);
+	return (_nextStreamId > CONSUMER_MAX_STREAM_ID_MINUSONE - numberOfBatchItems);
 }

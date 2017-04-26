@@ -17,7 +17,7 @@
 
 #include <new>
 
-#define MAX_DICTIONARY_BUFFER_SIZE 16384
+#define MAX_DICTIONARY_BUFFER_SIZE 256000
 
 using namespace thomsonreuters::ema::access;
 
