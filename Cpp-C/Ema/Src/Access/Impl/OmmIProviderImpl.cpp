@@ -387,6 +387,13 @@ void OmmIProviderImpl::submit(const RefreshMsg& refreshMsg, UInt64 handle)
 				return;
 			}
 		}
+		else if (refreshMsgEncoder.hasServiceId())
+		{
+			if (validateServiceId(submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId, submitMsgOpts.pRsslMsg->msgBase) == false)
+			{
+				return;
+			}
+		}
 
 		if (handle == 0)
 		{
@@ -451,6 +458,13 @@ void OmmIProviderImpl::submit(const RefreshMsg& refreshMsg, UInt64 handle)
 				submitMsgOpts.pRsslMsg->refreshMsg.flags |= RSSL_RFMF_HAS_MSG_KEY;
 			}
 			else
+			{
+				return;
+			}
+		}
+		else if (refreshMsgEncoder.hasServiceId())
+		{
+			if (validateServiceId(submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId, submitMsgOpts.pRsslMsg->msgBase) == false)
 			{
 				return;
 			}
@@ -635,6 +649,13 @@ void OmmIProviderImpl::submit(const UpdateMsg& updateMsg, UInt64 handle)
 				return;
 			}
 		}
+		else if (updateMsgEncoder.hasServiceId())
+		{
+			if (validateServiceId(submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId, submitMsgOpts.pRsslMsg->msgBase) == false)
+			{
+				return;
+			}
+		}
 	}
 
 	RsslErrorInfo rsslErrorInfo;
@@ -758,6 +779,13 @@ void OmmIProviderImpl::submit(const StatusMsg& stausMsg, UInt64 handle)
 				return;
 			}
 		}
+		else if (statusMsgEncoder.hasServiceId())
+		{
+			if (validateServiceId(submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId, submitMsgOpts.pRsslMsg->msgBase) == false)
+			{
+				return;
+			}
+		}
 
 		if (handle == 0)
 		{
@@ -824,6 +852,13 @@ void OmmIProviderImpl::submit(const StatusMsg& stausMsg, UInt64 handle)
 				submitMsgOpts.pRsslMsg->statusMsg.flags |= RSSL_STMF_HAS_MSG_KEY;
 			}
 			else
+			{
+				return;
+			}
+		}
+		else if (statusMsgEncoder.hasServiceId())
+		{
+			if (validateServiceId(submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId, submitMsgOpts.pRsslMsg->msgBase) == false)
 			{
 				return;
 			}
@@ -1118,6 +1153,35 @@ bool OmmIProviderImpl::encodeServiceIdFromName(const EmaString& serviceName, Rss
 
 	serviceId = (RsslUInt16)*pServiceId;
 	rsslMsgBase.msgKey.flags |= RSSL_MKF_HAS_SERVICE_ID;
+
+	return true;
+}
+
+bool OmmIProviderImpl::validateServiceId(RsslUInt16 serviceId, RsslMsgBase& rsslMsgBase)
+{
+	EmaStringPtr* pServiceName = _ommIProviderDirectoryStore.getServiceNameById(serviceId);
+
+	if (!pServiceName)
+	{
+		_userLock.unlock();
+		EmaString temp("Attempt to submit ");
+		temp.append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).
+			append(" with service Id of ").append(serviceId).
+			append(" that was not included in the SourceDirectory. Dropping this ").
+			append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).append(".");
+		handleIue(temp);
+		return false;
+	}
+	else if (serviceId > 0xFFFF)
+	{
+		_userLock.unlock();
+		EmaString temp("Attempt to submit ");
+		temp.append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).
+			append(" with service Id of ").append(serviceId).append(" is out of range. Dropping this ").
+			append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).append(".");
+		handleIue(temp);
+		return false;
+	}
 
 	return true;
 }
