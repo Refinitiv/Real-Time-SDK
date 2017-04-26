@@ -74,8 +74,6 @@ int main( int argc, char* argv[] )
 		UpdateMsg update;
 		FieldList fieldList;
 
-		UInt64 loginHandle = provider.registerClient( ReqMsg().domainType( MMT_LOGIN ).name( "user" ), appClient, (void*) 1 );
-
 		provider.dispatch( 1000000 );		// calls to onRefreshMsg(), or onStatusMsg() execute on this thread
 
 		provider.submit( refresh.clear().serviceName( "NI_PUB" ).name( "TRI.N" )
