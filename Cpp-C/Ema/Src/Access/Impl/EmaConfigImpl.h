@@ -905,11 +905,14 @@ private :
 	EmaConfigImpl&			_emaConfigImpl;
 	EmaString				_username;
 	EmaString				_password;
+	EmaString				_authenticationToken;
+	EmaBuffer				_authenticationExtended;
 	EmaString				_position;
 	EmaString				_applicationId;
 	EmaString				_applicationName;
 	EmaString				_instanceId;
 	RsslRDMLoginRequest		_rsslRdmLoginRequest;
+	EmaString				_defaultApplicationName;
 };
 
 struct PortSetViaFunctionCall

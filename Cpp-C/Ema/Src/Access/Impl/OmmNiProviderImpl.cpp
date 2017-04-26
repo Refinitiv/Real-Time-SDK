@@ -54,6 +54,32 @@ OmmNiProviderImpl::OmmNiProviderImpl( OmmProvider* ommProvider, const OmmNiProvi
 	_handleToStreamInfo.rehash( _activeConfig.itemCountHint );
 }
 
+OmmNiProviderImpl::OmmNiProviderImpl(OmmProvider* ommProvider, const OmmNiProviderConfig& config, OmmProviderClient& adminClient, void* adminClosure) :
+	_activeConfig(),
+	OmmProviderImpl(ommProvider),
+	OmmBaseImpl(_activeConfig, adminClient, adminClosure),
+	_handleToStreamInfo(),
+	_streamInfoList(),
+	_bIsStreamIdZeroRefreshSubmitted(false),
+	_ommNiProviderDirectoryStore(*this, _activeConfig)
+{
+	_activeConfig.operationModel = config._pImpl->getOperationModel();
+
+	_activeConfig.directoryAdminControl = config.getConfigImpl()->getAdminControlDirectory();
+
+	_rsslDirectoryMsgBuffer.length = 2048;
+	_rsslDirectoryMsgBuffer.data = (char*)malloc(_rsslDirectoryMsgBuffer.length * sizeof(char));
+	if (!_rsslDirectoryMsgBuffer.data)
+	{
+		handleMee("Failed to allocate memory in OmmNiProviderImpl::OmmNiProviderImpl()");
+		return;
+	}
+
+	initialize(config._pImpl);
+
+	_handleToStreamInfo.rehash(_activeConfig.itemCountHint);
+}
+
 OmmNiProviderImpl::OmmNiProviderImpl(OmmProvider* ommProvider, const OmmNiProviderConfig& config, OmmProviderErrorClient& client) :
 	_activeConfig(),
 	OmmProviderImpl(ommProvider),
@@ -78,6 +104,32 @@ OmmNiProviderImpl::OmmNiProviderImpl(OmmProvider* ommProvider, const OmmNiProvid
 	initialize(config._pImpl);
 
 	_handleToStreamInfo.rehash( _activeConfig.itemCountHint );
+}
+
+OmmNiProviderImpl::OmmNiProviderImpl(OmmProvider* ommProvider, const OmmNiProviderConfig& config, OmmProviderClient& adminClient, OmmProviderErrorClient& client, void* adminClosure) :
+	_activeConfig(),
+	OmmProviderImpl(ommProvider),
+	OmmBaseImpl(_activeConfig, adminClient, client, adminClosure),
+	_handleToStreamInfo(),
+	_streamInfoList(),
+	_bIsStreamIdZeroRefreshSubmitted(false),
+	_ommNiProviderDirectoryStore(*this, _activeConfig)
+{
+	_activeConfig.operationModel = config._pImpl->getOperationModel();
+
+	_activeConfig.directoryAdminControl = config.getConfigImpl()->getAdminControlDirectory();
+
+	_rsslDirectoryMsgBuffer.length = 2048;
+	_rsslDirectoryMsgBuffer.data = (char*)malloc(_rsslDirectoryMsgBuffer.length * sizeof(char));
+	if (!_rsslDirectoryMsgBuffer.data)
+	{
+		handleMee("Failed to allocate memory in OmmNiProviderImpl::OmmNiProviderImpl()");
+		return;
+	}
+
+	initialize(config._pImpl);
+
+	_handleToStreamInfo.rehash(_activeConfig.itemCountHint);
 }
 
 OmmNiProviderImpl::~OmmNiProviderImpl()
@@ -669,6 +721,15 @@ UInt64 OmmNiProviderImpl::registerClient( const ReqMsg& reqMsg, OmmProviderClien
 	return handle;
 }
 
+void OmmNiProviderImpl::reissue(const ReqMsg& reqMsg, UInt64 handle)
+{
+	_userLock.lock();
+
+	if (_pItemCallbackClient) _pItemCallbackClient->reissue(reqMsg, handle);
+
+	_userLock.unlock();
+}
+
 void OmmNiProviderImpl::unregister( UInt64 handle )
 {
 	_userLock.lock();
@@ -723,6 +784,13 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 	}
 
 	Channel* pChannel = getChannelCallbackClient().getChannelList().front();
+
+	if (pChannel == NULL)
+	{
+		_userLock.unlock();
+		EmaString temp("No active channel to send message.");
+		handleIue(temp);
+	}
 
 	if (submitMsgOpts.pRsslMsg->msgBase.domainType == ema::rdm::MMT_DIRECTORY)
 	{
@@ -977,6 +1045,14 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 	}
 
 	Channel* pChannel = getChannelCallbackClient().getChannelList().front();
+
+	if (pChannel == NULL)
+	{
+		_userLock.unlock();
+		EmaString temp("Internal error: No active channel exists to send data.");
+
+		handleIue(temp);
+	}
 
 	if ( submitMsgOpts.pRsslMsg->msgBase.domainType == ema::rdm::MMT_DIRECTORY )
 	{
@@ -1235,6 +1311,14 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 
 	Channel* pChannel = getChannelCallbackClient().getChannelList().front();
 
+	if (pChannel == NULL)
+	{
+		_userLock.unlock();
+		EmaString temp("No active channel to send message.");
+
+		handleIue(temp);
+	}
+
 	if ( submitMsgOpts.pRsslMsg->msgBase.domainType == ema::rdm::MMT_DIRECTORY )
 	{
 		if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
@@ -1461,6 +1545,14 @@ void OmmNiProviderImpl::submit( const GenericMsg& msg, UInt64 handle )
 	}
 
 	Channel* pChannel = getChannelCallbackClient().getChannelList().front();
+
+	if (pChannel == NULL)
+	{
+		_userLock.unlock();
+		EmaString temp("No active channel to send message.");
+
+		handleIue(temp);
+	}
 
 	if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
 	{

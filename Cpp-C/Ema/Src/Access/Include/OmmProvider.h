@@ -253,6 +253,20 @@ public :
 	*/
 	UInt64 registerClient( const ReqMsg& reqMsg, OmmProviderClient& client, void* closure = 0 );
 
+	/** Changes the interest in an open item stream. The first formal parameter houses a ReqMsg.
+	ReqMsg attributes that may change are Priority(), InitialImage(), InterestAfterRefresh(),
+	Pause() and Payload ViewData(). The second formal parameter is a handle that identifies
+	the open stream to be modified.
+	@note This function can only be used with a Non-Interactive Provider.
+	@param[in] reqMsg specifies modifications to the open item stream
+	@param[in] handle identifies item to be modified
+	@return void
+	@throw OmmInvalidHandleException if passed in handle does not refer to an open stream
+	@throw OmmInvalidUsageException if passed in ReqMsg violates reissue rules
+	\remark This method is \ref ObjectLevelSafe
+	*/
+	void reissue( const ReqMsg& reqMsg, UInt64 handle );
+
 	/** Sends a GenericMsg.
 		@param[in] genericMsg specifies GenericMsg to be sent on the open item stream
 		@param[in] identifies handle associated with an item stream on which to send the GenericMsg

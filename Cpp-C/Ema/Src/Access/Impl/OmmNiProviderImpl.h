@@ -29,7 +29,11 @@ public :
 
 	OmmNiProviderImpl( OmmProvider*, const OmmNiProviderConfig& );
 
+	OmmNiProviderImpl(OmmProvider*, const OmmNiProviderConfig&, OmmProviderClient&, void* );
+
 	OmmNiProviderImpl( OmmProvider*, const OmmNiProviderConfig&, OmmProviderErrorClient& );
+
+	OmmNiProviderImpl(OmmProvider*, const OmmNiProviderConfig&, OmmProviderClient&, OmmProviderErrorClient&, void*);
 
 	virtual ~OmmNiProviderImpl();
 
@@ -44,6 +48,8 @@ public :
 	void removeSocket( RsslSocket );
 
 	void setRsslReactorChannelRole( RsslReactorChannelRole& );
+
+	void reissue(const ReqMsg&, UInt64);
 
 	void submit( const RefreshMsg&, UInt64 );
 

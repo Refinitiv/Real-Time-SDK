@@ -78,6 +78,8 @@ static const thomsonreuters::ema::access::UInt8 MMT_MAX_VALUE				= 255;	/*!< Max
 static const thomsonreuters::ema::access::UInt8 USER_NAME	        =	1;	/*!< String defining User Name */
 static const thomsonreuters::ema::access::UInt8 USER_EMAIL_ADDRESS	=	2;	/*!< String defining Email address */
 static const thomsonreuters::ema::access::UInt8 USER_TOKEN			=	3;	/*!< String defining User Token */
+static const thomsonreuters::ema::access::UInt8 USER_COOKIE			=   4;	/*!< String defining Cookie */
+static const thomsonreuters::ema::access::UInt8 USER_AUTH_TOKEN		=   5;	/*!< String defining User Auth Token */
 //@}
 
 ///@name Login Roles
@@ -277,6 +279,18 @@ static const  thomsonreuters::ema::access::EmaString ENAME_SUPPORT_PROVIDER_DICT
 static const  thomsonreuters::ema::access::EmaString ENAME_SEQUENCE_RETRY_INTERVAL( "SequenceRetryInterval", 21 );
 static const  thomsonreuters::ema::access::EmaString ENAME_UPDATE_BUFFER_LIMIT( "UpdateBufferLimit", 17 );
 static const  thomsonreuters::ema::access::EmaString ENAME_SEQUENCE_NUMBER_RECOVERY( "SequenceNumberRecovery", 22 );
+static const  thomsonreuters::ema::access::EmaString ENAME_AUTH_TOKEN("AuthenticationToken", 19);
+static const  thomsonreuters::ema::access::EmaString ENAME_AUTH_EXTENDED("AuthenticationExtended", 22);
+static const  thomsonreuters::ema::access::EmaString ENAME_AUTH_EXTENDED_RESP("AuthenticationExtendedResp", 26);
+static const  thomsonreuters::ema::access::EmaString ENAME_AUTH_TT_REISSUE("AuthenticationTTReissue", 23);
+static const  thomsonreuters::ema::access::EmaString ENAME_AUTH_ERRORCODE("AuthenticationErrorCode", 23);
+static const  thomsonreuters::ema::access::EmaString ENAME_AUTH_ERRORTEXT("AuthenticationErrorText", 23);
+static const  thomsonreuters::ema::access::EmaString ENAME_USERNAME("UserName", 8);
+static const  thomsonreuters::ema::access::EmaString ENAME_USERNAME_TYPE("UserNameType", 12);
+static const  thomsonreuters::ema::access::EmaString ENAME_SEQ_NUM("SequenceNumber", 14);
+static const  thomsonreuters::ema::access::EmaString ENAME_STATE("State", 5);
+static const  thomsonreuters::ema::access::EmaString ENAME_SOLICITED("Solicited", 9);
+static const  thomsonreuters::ema::access::EmaString ENAME_CLEARCACHE("ClearCache", 10);
 //@}
 
 ///@name Source Directory Names

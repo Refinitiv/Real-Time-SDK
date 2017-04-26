@@ -26,11 +26,25 @@ OmmConsumerImpl::OmmConsumerImpl( const OmmConsumerConfig& config ) :
 	OmmBaseImpl::initialize( config._pImpl );
 }
 
+OmmConsumerImpl::OmmConsumerImpl(const OmmConsumerConfig& config, OmmConsumerClient& adminClient, void* adminClosure) :
+	OmmBaseImpl(_activeConfig, adminClient, adminClosure)
+{
+	_activeConfig.operationModel = config._pImpl->operationModel();
+	OmmBaseImpl::initialize(config._pImpl);
+}
+
 OmmConsumerImpl::OmmConsumerImpl( const OmmConsumerConfig& config, OmmConsumerErrorClient& client ) :
 	OmmBaseImpl( _activeConfig, client )
 {
 	_activeConfig.operationModel = config._pImpl->operationModel();
 	OmmBaseImpl::initialize( config._pImpl );
+}
+
+OmmConsumerImpl::OmmConsumerImpl(const OmmConsumerConfig& config, OmmConsumerClient& adminClient, OmmConsumerErrorClient& errorClient, void* adminClosure ) :
+	OmmBaseImpl(_activeConfig, adminClient, errorClient, adminClosure)
+{
+	_activeConfig.operationModel = config._pImpl->operationModel();
+	OmmBaseImpl::initialize(config._pImpl);
 }
 
 OmmConsumerImpl::~OmmConsumerImpl()

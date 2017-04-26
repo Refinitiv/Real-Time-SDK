@@ -186,6 +186,12 @@ UInt64 OmmIProviderImpl::registerClient(const ReqMsg&, OmmProviderClient&, void*
 	return 0;
 }
 
+void OmmIProviderImpl::reissue(const ReqMsg&, UInt64 handle)
+{
+	handleIue("Calling the OmmIProviderImpl::reissue() method is not support in this release.");
+	return;
+}
+
 void OmmIProviderImpl::submit(const GenericMsg& genericMsg, UInt64 handle)
 {
 	RsslReactorSubmitMsgOptions submitMsgOpts;

@@ -107,4 +107,6 @@
 
 #include "Access/Include/TunnelStreamRequest.h"
 
+#include "Domain/Login/Include/Login.h"
+
 #endif // __thomsonreuters_ema_Ema_h

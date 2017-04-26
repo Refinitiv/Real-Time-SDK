@@ -48,6 +48,10 @@ const char* ptrToStringAsHex( void* );
 
 const char* timeString();
 
+int emaGetUserName(thomsonreuters::ema::access::EmaString& string);
+
+int emaGetPosition(thomsonreuters::ema::access::EmaString& string);
+
 thomsonreuters::ema::access::EmaString& addIndent( thomsonreuters::ema::access::EmaString& temp, thomsonreuters::ema::access::UInt64 indent, bool addLine = false );
 
 void clearRsslErrorInfo( RsslErrorInfo* pRsslErrorInfo );

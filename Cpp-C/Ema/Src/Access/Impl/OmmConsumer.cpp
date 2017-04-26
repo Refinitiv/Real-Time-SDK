@@ -28,6 +28,19 @@ OmmConsumer::OmmConsumer( const OmmConsumerConfig& config ) :
 		throwMeeException( "Failed to allocate memory for OmmConsumerImpl in OmmConsumer( const OmmConsumerConfig& )." );
 }
 
+OmmConsumer::OmmConsumer(const OmmConsumerConfig& config, OmmConsumerClient& client, void* closure ) :
+	_pImpl(0)
+{
+	try
+	{
+		_pImpl = new OmmConsumerImpl(config, client, closure);
+	}
+	catch (std::bad_alloc) {}
+
+	if (!_pImpl)
+		throwMeeException("Failed to allocate memory for OmmConsumerImpl in OmmConsumer( const OmmConsumerConfig& ).");
+}
+
 OmmConsumer::OmmConsumer( const OmmConsumerConfig& config, OmmConsumerErrorClient& client ) :
 	_pImpl( 0 )
 {
@@ -39,6 +52,19 @@ OmmConsumer::OmmConsumer( const OmmConsumerConfig& config, OmmConsumerErrorClien
 
 	if ( !_pImpl )
 		client.onMemoryExhaustion( "Failed to allocate memory for OmmConsumerImpl in OmmConsumer( const OmmConsumerConfig& , OmmConsumerErrorClient& )." );
+}
+
+OmmConsumer::OmmConsumer(const OmmConsumerConfig& config, OmmConsumerClient& adminClient, OmmConsumerErrorClient& errorClient, void* closure ) :
+	_pImpl(0)
+{
+	try
+	{
+		_pImpl = new OmmConsumerImpl(config, adminClient, errorClient, closure);
+	}
+	catch (std::bad_alloc) {}
+
+	if (!_pImpl)
+		errorClient.onMemoryExhaustion("Failed to allocate memory for OmmConsumerImpl in OmmConsumer( const OmmConsumerConfig& , OmmConsumerErrorClient& ).");
 }
 
 OmmConsumer::~OmmConsumer()

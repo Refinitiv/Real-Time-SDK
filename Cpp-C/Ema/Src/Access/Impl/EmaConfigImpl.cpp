@@ -2040,17 +2040,27 @@ RsslRefreshMsg* AdminRefreshMsg::get()
 	return &_rsslMsg;
 }
 
-LoginRdmReqMsg::LoginRdmReqMsg( EmaConfigImpl& emaConfigImpl ) :
-	_emaConfigImpl( emaConfigImpl ),
+LoginRdmReqMsg::LoginRdmReqMsg(EmaConfigImpl& emaConfigImpl) :
+	_emaConfigImpl(emaConfigImpl),
 	_username(),
 	_password(),
 	_position(),
 	_applicationId(),
 	_applicationName(),
+	_defaultApplicationName("ema"),
 	_instanceId()
 {
 	rsslClearRDMLoginRequest( &_rsslRdmLoginRequest );
-	_rsslRdmLoginRequest.rdmMsgBase.streamId = 1;
+	rsslInitDefaultRDMLoginRequest(&_rsslRdmLoginRequest, 1);
+
+	_rsslRdmLoginRequest.applicationName.data = (char*)_defaultApplicationName.c_str();
+	_rsslRdmLoginRequest.applicationName.length = _defaultApplicationName.length();
+
+	_applicationName = _defaultApplicationName;
+
+	_username.set(_rsslRdmLoginRequest.userName.data, _rsslRdmLoginRequest.userName.length);
+	_position.set(_rsslRdmLoginRequest.position.data, _rsslRdmLoginRequest.position.length);
+	_applicationId.set(_rsslRdmLoginRequest.applicationId.data, _rsslRdmLoginRequest.applicationId.length);
 }
 
 LoginRdmReqMsg::~LoginRdmReqMsg()
@@ -2066,6 +2076,16 @@ LoginRdmReqMsg& LoginRdmReqMsg::clear()
 	_applicationName.clear();
 	_instanceId.clear();
 	rsslClearRDMLoginRequest( &_rsslRdmLoginRequest );
+	rsslInitDefaultRDMLoginRequest(&_rsslRdmLoginRequest, 1);
+
+	_rsslRdmLoginRequest.applicationName.data = (char*)_defaultApplicationName.c_str();
+	_rsslRdmLoginRequest.applicationName.length = _defaultApplicationName.length();
+
+	_applicationName = _defaultApplicationName;
+
+	_username.set(_rsslRdmLoginRequest.userName.data, _rsslRdmLoginRequest.userName.length);
+	_position.set(_rsslRdmLoginRequest.position.data, _rsslRdmLoginRequest.position.length);
+	_applicationId.set(_rsslRdmLoginRequest.applicationId.data, _rsslRdmLoginRequest.applicationId.length);
 	return *this;
 }
 
@@ -2319,6 +2339,37 @@ LoginRdmReqMsg& LoginRdmReqMsg::set( RsslRequestMsg* pRsslRequestMsg )
 				}
 
 				_rsslRdmLoginRequest.flags |= RDM_LG_RQF_HAS_ROLE;
+			}
+			else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_AUTHN_TOKEN))
+			{
+				retCode = rsslDecodeBuffer(&dIter, &_rsslRdmLoginRequest.userName);
+				if (retCode != RSSL_RET_SUCCESS)
+				{
+					EmaString temp("Internal error while decoding login attribute of authentication token. Error='");
+					temp.append(rsslRetCodeToString(retCode)).append("'. Attribute will be skipped.");
+					_emaConfigImpl.appendConfigError(temp, OmmLoggerClient::WarningEnum);
+					continue;
+				}
+
+				_authenticationToken.set(_rsslRdmLoginRequest.userName.data, _rsslRdmLoginRequest.userName.length);
+				_rsslRdmLoginRequest.userName.data = (char*)_authenticationToken.c_str();
+				_rsslRdmLoginRequest.userName.length = _authenticationToken.length();
+			}
+			else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_AUTHN_EXTENDED))
+			{
+				retCode = rsslDecodeBuffer(&dIter, &_rsslRdmLoginRequest.authenticationExtended);
+				if (retCode != RSSL_RET_SUCCESS)
+				{
+					EmaString temp("Internal error while decoding login attribute of authentication token. Error='");
+					temp.append(rsslRetCodeToString(retCode)).append("'. Attribute will be skipped.");
+					_emaConfigImpl.appendConfigError(temp, OmmLoggerClient::WarningEnum);
+					continue;
+				}
+
+				_authenticationExtended.setFrom(_rsslRdmLoginRequest.authenticationExtended.data, _rsslRdmLoginRequest.authenticationExtended.length);
+				_rsslRdmLoginRequest.authenticationExtended.data = (char*)_authenticationExtended.c_buf();
+				_rsslRdmLoginRequest.authenticationExtended.length = _authenticationExtended.length();
+				_rsslRdmLoginRequest.flags |= RDM_LG_RQF_HAS_AUTHN_EXTENDED;
 			}
 
 			retCode = rsslDecodeElementEntry( &dIter, &elementEntry );

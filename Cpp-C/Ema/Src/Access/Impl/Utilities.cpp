@@ -10,14 +10,20 @@
 
 #ifdef WIN32
 #include <sys/timeb.h>
+#include <winsock2.h>
 #else
 #include <sys/time.h>
+#include <unistd.h>
 #endif
+
 
 #include "EmaBuffer.h"
 #include "EmaString.h"
 #include "Mutex.h"
 #include "Utilities.h"
+#include "rtr/rsslTransport.h"
+#include "rtr/rsslDataPackage.h"
+#include "rtr/rsslMessagePackage.h"
 
 #define MAX_LENGTH 2056
 
@@ -103,6 +109,8 @@ bool getCurrentDir( thomsonreuters::ema::access::EmaString& dir )
 }
 #endif
 
+
+
 void stateToString( RsslState* pState, thomsonreuters::ema::access::EmaString& stateString )
 {
 	if ( !pState )
@@ -177,6 +185,56 @@ EmaString& addIndent( EmaString& temp, UInt64 indent, bool addLine )
 		temp.append( "    " );
 
 	return temp;
+}
+
+int emaGetUserName(EmaString& string)
+{
+	RsslBuffer tmpBuf;
+	char tmpchar[256];
+	tmpBuf.data = tmpchar;
+	tmpBuf.length = 256;
+
+	if (rsslGetUserName(&tmpBuf) != RSSL_RET_SUCCESS)
+		return -1;
+
+	string.clear().set(tmpBuf.data, tmpBuf.length);
+
+	return 0;
+}
+
+int emaGetPosition(EmaString& string)
+{
+	RsslBuffer tmpBuf;
+	UInt32 ipaddr;
+	char tmpchar[256];
+	tmpBuf.data = tmpchar;
+	tmpBuf.length = 256;
+
+#ifdef WIN32
+	WSADATA wsaData;
+	WORD wVersionRequested = MAKEWORD(2, 2);
+	if (WSAStartup(wVersionRequested, &wsaData) != 0)
+		return -1;
+#endif
+
+	if (gethostname(tmpchar, sizeof(tmpchar)) != 0)
+		snprintf(tmpchar, 256, "localhost");
+
+	if (rsslHostByName(&tmpBuf, &ipaddr) == RSSL_RET_SUCCESS)
+	{
+		rsslIPAddrUIntToString(ipaddr, tmpchar);
+		string.clear().set(tmpchar, (UInt32)strlen(tmpchar)).append("/net");
+	}
+	else
+	{
+		string.clear().set("localhost");
+	}
+
+#ifdef WIN32
+	WSACleanup();
+#endif
+
+	return 0;
 }
 
 

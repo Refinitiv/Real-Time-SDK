@@ -40,6 +40,8 @@ public:
 
 	UInt64 registerClient(const ReqMsg&, OmmProviderClient&, void* closure = 0, UInt64 parentHandle = 0);
 
+	void reissue(const ReqMsg& reqMsg, UInt64 handle);
+
 	void submit(const GenericMsg&, UInt64);
 
 	void submit(const RefreshMsg&, UInt64);

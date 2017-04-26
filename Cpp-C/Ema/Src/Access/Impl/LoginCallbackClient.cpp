@@ -55,6 +55,9 @@ Login::Login() :
 	_applicationId(),
 	_applicationName(),
 	_instanceId(),
+	_authenticationErrorText(),
+	_authenticationExtended(),
+	_authenticationExtendedResp(),
 	_toString(),
 	_pChannel( 0 ),
 	_supportBatchRequest( 0 ),
@@ -67,6 +70,8 @@ Login::Login() :
 	_permissionProfile( 1 ),
 	_supportViewRequest( 0 ),
 	_role( 0 ),
+	_authenticationErrorCode( 0 ),
+	_authenticationTTReissue( 0 ),
 	_userNameType( 1 ),
 	_streamState( RSSL_STREAM_UNSPECIFIED ),
 	_dataState( RSSL_DATA_NO_CHANGE ),
@@ -78,7 +83,12 @@ Login::Login() :
 	_applicationIdSet( false ),
 	_applicationNameSet( false ),
 	_instanceIdSet( false ),
-	_stateSet( false )
+	_stateSet( false ),
+	_authenticationExtendedSet( false ),
+	_authenticationExtendedRespSet( false ),
+	_authenticationErrorCodeSet( false ),
+	_authenticationErrorTextSet( false ),
+	_authenticationTTReissueSet( false )
 {
 }
 
@@ -103,22 +113,30 @@ const EmaString& Login::toString()
 	if ( !_toStringSet )
 	{
 		_toStringSet = true;
-		_toString.set( "username " ).append( _usernameSet ? _username : "<not set>" ).append( CR )
-			.append( "usernameType " ).append( _userNameType ).append( CR )
-			.append( "position " ).append( _positionSet ? _position : "<not set>" ).append( CR )
-			.append( "appId " ).append( _applicationIdSet ? _applicationId : "<not set>" ).append( CR )
-			.append( "applicationName " ).append( _applicationNameSet ? _applicationName : "<not set>" ).append( CR )
-			.append( "instanceId " ).append( _instanceIdSet ? _instanceId : "<not set>" ).append( CR )
-			.append( "singleOpen " ).append( _singleOpen ).append( CR )
-			.append( "allowSuspect " ).append( _allowSuspect ).append( CR )
-			.append( "optimizedPauseResume " ).append( _pauseResume ).append( CR )
-			.append( "permissionExpressions " ).append( _permissionExpressions ).append( CR )
-			.append( "permissionProfile " ).append( _permissionProfile ).append( CR )
-			.append( "supportBatchRequest " ).append( _supportBatchRequest ).append( CR )
-			.append( "supportEnhancedSymbolList " ).append( _supportEnhancedSymbolList ).append( CR )
-			.append( "supportPost " ).append( _supportPost ).append( CR )
-			.append( "supportViewRequest " ).append( _supportViewRequest )
-			.append( "role " ).append( _role );
+		_toString.set("username ").append(_usernameSet ? _username : "<not set>").append(CR)
+			.append("usernameType ").append(_userNameType).append(CR)
+			.append("position ").append(_positionSet ? _position : "<not set>").append(CR)
+			.append("appId ").append(_applicationIdSet ? _applicationId : "<not set>").append(CR)
+			.append("applicationName ").append(_applicationNameSet ? _applicationName : "<not set>").append(CR)
+			.append("instanceId ").append(_instanceIdSet ? _instanceId : "<not set>").append(CR)
+			.append("singleOpen ").append(_singleOpen).append(CR)
+			.append("allowSuspect ").append(_allowSuspect).append(CR)
+			.append("optimizedPauseResume ").append(_pauseResume).append(CR)
+			.append("permissionExpressions ").append(_permissionExpressions).append(CR)
+			.append("permissionProfile ").append(_permissionProfile).append(CR)
+			.append("supportBatchRequest ").append(_supportBatchRequest).append(CR)
+			.append("supportEnhancedSymbolList ").append(_supportEnhancedSymbolList).append(CR)
+			.append("supportPost ").append(_supportPost).append(CR)
+			.append("supportViewRequest ").append(_supportViewRequest).append(CR)
+			.append("role ").append(_role);
+
+		if (_authenticationTTReissueSet)
+			_toString.append(CR).append("authenticationTTReissue ").append(_authenticationTTReissue);
+		if (_authenticationErrorCodeSet)
+			_toString.append(CR).append("authenticationErrorCode ").append(_authenticationErrorCode);
+		if (_authenticationErrorTextSet)
+			_toString.append(CR).append("authenticationErrorText ").append(_authenticationErrorText);
+
 	}
 
 	return _toString;
@@ -212,6 +230,38 @@ Login& Login::set( RsslRDMLoginRefresh* pRefresh )
 	else
 		_positionSet = false;
 
+	if (pRefresh->flags & RDM_LG_RFF_HAS_AUTHN_ERROR_CODE)
+	{
+		_authenticationErrorCode = pRefresh->authenticationErrorCode;
+		_authenticationErrorCodeSet = true;
+	}
+	else
+		_authenticationErrorCodeSet = false;
+
+	if ((pRefresh->flags & RDM_LG_RFF_HAS_AUTHN_ERROR_TEXT) && pRefresh->authenticationErrorText.length)
+	{
+		_authenticationErrorText.set(pRefresh->authenticationErrorText.data, pRefresh->authenticationErrorText.length);
+		_authenticationErrorTextSet = true;
+	}
+	else
+		_authenticationErrorTextSet = false;
+
+	if (pRefresh->flags & RDM_LG_RFF_HAS_AUTHN_TT_REISSUE)
+	{
+		_authenticationTTReissue = pRefresh->authenticationTTReissue;
+		_authenticationTTReissueSet = true;
+	}
+	else
+		_authenticationTTReissueSet = false;
+
+	if ((pRefresh->flags & RDM_LG_RFF_HAS_AUTHN_EXTENDED_RESP) && pRefresh->authenticationExtendedResp.length)
+	{
+		_authenticationExtendedResp.setFrom(pRefresh->authenticationExtendedResp.data, pRefresh->authenticationExtendedResp.length);
+		_authenticationExtendedRespSet = true;
+	}
+	else
+		_authenticationExtendedRespSet = false;
+
 	_passwordSet = false;
 
 	_stateSet = true;
@@ -269,7 +319,7 @@ Login& Login::set( RsslRDMLoginRequest* pRequest )
 	_username.set( pRequest->userName.data, pRequest->userName.length );
 	_usernameSet = true;
 
-	if ( pRequest->flags & RDM_LG_RQF_HAS_APPLICATION_ID )
+	if ( pRequest->flags & RDM_LG_RQF_HAS_APPLICATION_ID && pRequest->applicationId.length )
 	{
 		_applicationId.set( pRequest->applicationId.data, pRequest->applicationId.length );
 		_applicationIdSet = true;
@@ -277,7 +327,7 @@ Login& Login::set( RsslRDMLoginRequest* pRequest )
 	else
 		_applicationIdSet = false;
 
-	if ( pRequest->flags & RDM_LG_RQF_HAS_APPLICATION_NAME )
+	if ( pRequest->flags & RDM_LG_RQF_HAS_APPLICATION_NAME && pRequest->applicationName.length)
 	{
 		_applicationName.set( pRequest->applicationName.data, pRequest->applicationName.length );
 		_applicationNameSet = true;
@@ -285,7 +335,7 @@ Login& Login::set( RsslRDMLoginRequest* pRequest )
 	else
 		_applicationNameSet = false;
 
-	if ( pRequest->flags & RDM_LG_RQF_HAS_INSTANCE_ID )
+	if ( pRequest->flags & RDM_LG_RQF_HAS_INSTANCE_ID && pRequest->instanceId.length)
 	{
 		_instanceId.set( pRequest->instanceId.data, pRequest->instanceId.length );
 		_instanceIdSet = true;
@@ -293,13 +343,21 @@ Login& Login::set( RsslRDMLoginRequest* pRequest )
 	else
 		_instanceIdSet = false;
 
-	if ( pRequest->flags & RDM_LG_RQF_HAS_POSITION )
+	if ( pRequest->flags & RDM_LG_RQF_HAS_POSITION && pRequest->position.length)
 	{
 		_position.set( pRequest->position.data, pRequest->position.length );
 		_positionSet = true;
 	}
 	else
 		_positionSet = false;
+
+	if (pRequest->flags & RDM_LG_RQF_HAS_AUTHN_EXTENDED && pRequest->authenticationExtended.length)
+	{
+		_authenticationExtended.setFrom(pRequest->authenticationExtended.data, pRequest->authenticationExtended.length);
+		_authenticationExtendedSet = true;
+	}
+	else
+		_authenticationExtendedSet = false;
 
 	_passwordSet = false;
 
@@ -420,6 +478,46 @@ bool Login::populate( RsslRefreshMsg& refresh, RsslBuffer& buffer )
 		text.length = _position.length();
 		retCode = rsslEncodeElementEntry( &eIter, &rsslEE, &text );
 		if ( retCode != RSSL_RET_SUCCESS )
+			return false;
+	}
+
+	if (_authenticationErrorCodeSet)
+	{
+		rsslEE.dataType = RSSL_DT_UINT;
+		rsslEE.name = RSSL_ENAME_AUTHN_ERROR_CODE;
+		retCode = rsslEncodeElementEntry(&eIter, &rsslEE, &_authenticationErrorCode);
+		if (retCode != RSSL_RET_SUCCESS)
+			return false;
+	}
+
+	if (_authenticationErrorTextSet)
+	{
+		rsslEE.dataType = RSSL_DT_ASCII_STRING;
+		rsslEE.name = RSSL_ENAME_AUTHN_ERROR_TEXT;
+		text.data = (char*)_authenticationErrorText.c_str();
+		text.length = _authenticationErrorText.length();
+		retCode = rsslEncodeElementEntry(&eIter, &rsslEE, &text);
+		if (retCode != RSSL_RET_SUCCESS)
+			return false;
+	}
+
+	if (_authenticationTTReissueSet)
+	{
+		rsslEE.dataType = RSSL_DT_UINT;
+		rsslEE.name = RSSL_ENAME_AUTHN_TT_REISSUE;
+		retCode = rsslEncodeElementEntry(&eIter, &rsslEE, &_authenticationTTReissue);
+		if (retCode != RSSL_RET_SUCCESS)
+			return false;
+	}
+
+	if (_authenticationExtendedRespSet)
+	{
+		rsslEE.dataType = RSSL_DT_ASCII_STRING;
+		rsslEE.name = RSSL_ENAME_AUTHN_EXTENDED_RESP;
+		text.data = (char*)_authenticationExtendedResp.c_buf();
+		text.length = _authenticationExtendedResp.length();
+		retCode = rsslEncodeElementEntry(&eIter, &rsslEE, &text);
+		if (retCode != RSSL_RET_SUCCESS)
 			return false;
 	}
 
@@ -587,7 +685,6 @@ LoginCallbackClient::LoginCallbackClient( OmmBaseImpl& ommBaseImpl ) :
 	_ommBaseImpl( ommBaseImpl ),
 	_requestLogin( 0 ),
 	_loginItems(),
-	_loginItemsOnChannelDown(),
 	_loginFailureMsg()
 {
 	if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
@@ -599,7 +696,6 @@ LoginCallbackClient::LoginCallbackClient( OmmBaseImpl& ommBaseImpl ) :
 LoginCallbackClient::~LoginCallbackClient()
 {
 	_loginItems.clear();
-	_loginItemsOnChannelDown.clear();
 
 	Login::destroy( _requestLogin );
 
@@ -640,6 +736,7 @@ void LoginCallbackClient::destroy( LoginCallbackClient*& pClient )
 void LoginCallbackClient::initialize()
 {
 	rsslClearRDMLoginRequest( &_loginRequestMsg );
+	_notifyChannelDownReconnecting = false;
 
 	if ( !_ommBaseImpl.getActiveConfig().pRsslRDMLoginReq->userName.length )
 	{
@@ -695,6 +792,9 @@ void LoginCallbackClient::initialize()
 		.append( _requestLogin->toString() );
 		_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
 	}
+
+	/* Initialize the refresh flag */
+	_refreshReceived = false;
 }
 
 UInt32 LoginCallbackClient::sendLoginClose()
@@ -705,6 +805,126 @@ UInt32 LoginCallbackClient::sendLoginClose()
 RsslRDMLoginRequest* LoginCallbackClient::getLoginRequest()
 {
 	return &_loginRequestMsg;
+}
+
+/* This function will take in an RsslRDMLoginRequest, and overlay any string element changes to the stored request login request in the loginCallbackClient.
+  In addition, this function will apply the pause flag. */
+void LoginCallbackClient::overlayLoginRequest(RsslRDMLoginRequest* pRequest)
+{
+	RsslRDMLoginRequest tempRequest;
+	bool bufferChange = false;
+	/* Copy the RsslRDMLoginRequest's values */
+	tempRequest = _loginRequestMsg;
+
+	if (pRequest->userName.length != 0 && !rsslBufferIsEqual(&pRequest->userName, &_loginRequestMsg.userName))
+	{
+		tempRequest.userName = pRequest->userName;
+		bufferChange = true;
+	}
+
+	if (pRequest->flags & RDM_LG_RQF_HAS_APPLICATION_ID)
+	{
+		if (!(_loginRequestMsg.flags & RDM_LG_RQF_HAS_APPLICATION_ID) || !rsslBufferIsEqual(&pRequest->applicationId, &_loginRequestMsg.applicationId))
+		{
+			tempRequest.applicationId = pRequest->applicationId;
+			tempRequest.flags |= RDM_LG_RQF_HAS_APPLICATION_ID;
+			bufferChange = true;
+		}
+	}
+
+	if (pRequest->flags & RDM_LG_RQF_HAS_PASSWORD)
+	{
+		if (!(_loginRequestMsg.flags & RDM_LG_RQF_HAS_PASSWORD) || !rsslBufferIsEqual(&pRequest->password, &_loginRequestMsg.password))
+		{
+			tempRequest.password = pRequest->password;
+			tempRequest.flags |= RDM_LG_RQF_HAS_PASSWORD;
+			bufferChange = true;
+		}
+	}
+
+	if (pRequest->flags & RDM_LG_RQF_HAS_APPLICATION_NAME)
+	{
+		if (!(_loginRequestMsg.flags & RDM_LG_RQF_HAS_APPLICATION_NAME) ||  !rsslBufferIsEqual(&pRequest->applicationName, &_loginRequestMsg.applicationName))
+		{
+			tempRequest.applicationName = pRequest->applicationName;
+			tempRequest.flags |= RDM_LG_RQF_HAS_APPLICATION_NAME;
+			bufferChange = true;
+		}
+	}
+
+	if (pRequest->flags & RDM_LG_RQF_HAS_INSTANCE_ID)
+	{
+		if (!(_loginRequestMsg.flags & RDM_LG_RQF_HAS_INSTANCE_ID) || !rsslBufferIsEqual(&pRequest->instanceId, &_loginRequestMsg.instanceId))
+		{
+			tempRequest.instanceId = pRequest->instanceId;
+			tempRequest.flags |= RDM_LG_RQF_HAS_INSTANCE_ID;
+			bufferChange = true;
+		}
+	}
+
+	if (pRequest->flags & RDM_LG_RQF_HAS_APPLICATION_AUTHORIZATION_TOKEN)
+	{
+		if (!(_loginRequestMsg.flags & RDM_LG_RQF_HAS_APPLICATION_AUTHORIZATION_TOKEN) || !rsslBufferIsEqual(&pRequest->applicationAuthorizationToken, &_loginRequestMsg.applicationAuthorizationToken))
+		{
+			tempRequest.applicationAuthorizationToken = pRequest->applicationAuthorizationToken;
+			tempRequest.flags |= RDM_LG_RQF_HAS_APPLICATION_AUTHORIZATION_TOKEN;
+			bufferChange = true;
+		}
+	}
+
+	if (pRequest->flags & RDM_LG_RQF_HAS_AUTHN_EXTENDED)
+	{
+		if (!(_loginRequestMsg.flags & RDM_LG_RQF_HAS_AUTHN_EXTENDED) || !rsslBufferIsEqual(&pRequest->applicationAuthorizationToken, &_loginRequestMsg.applicationAuthorizationToken))
+		{
+			tempRequest.authenticationExtended = pRequest->authenticationExtended;
+			tempRequest.flags |= RDM_LG_RQF_HAS_AUTHN_EXTENDED;
+			bufferChange = true;
+		}
+	}
+
+	/* Set the pause all flag.  Unset this after submitting it to the reactor */
+	if (pRequest->flags & RDM_LG_RQF_PAUSE_ALL)
+	{
+		tempRequest.flags |= RDM_LG_RQF_PAUSE_ALL;
+		bufferChange = true;
+	}
+
+
+
+	
+	/* Deep copy the tempRequest onto the previous request.  Since we're potentially pulling data from 
+	   the the previous memory buffer, do not free the buffer'd until the copy operation is complete. */
+	if (bufferChange == true)
+	{
+		RsslBuffer tempLRB;
+		char* tmpBuffer;
+		tempLRB.length = 1000;
+		tmpBuffer = (char*)malloc(tempLRB.length);
+		tempLRB.data = tmpBuffer;
+		if (!tempLRB.data)
+		{
+			_ommBaseImpl.handleMee("Failed to allocate memory for RsslRDMLoginRequest in LoginCallbackClient.");
+			return;
+		}
+
+		while (RSSL_RET_BUFFER_TOO_SMALL == rsslCopyRDMLoginRequest(&_loginRequestMsg, &tempRequest, &tempLRB))
+		{
+			/* Buffer too small, free the data and re-malloc */
+			free(tmpBuffer);
+			tempLRB.length += tempLRB.length;
+			tmpBuffer = (char*)malloc(tempLRB.length);
+			tempLRB.data = tmpBuffer;
+
+			if (!tempLRB.data)
+			{
+				_ommBaseImpl.handleMee("Failed to allocate memory for RsslRDMLoginRequest in LoginCallbackClient.");
+				return;
+			}
+		}
+
+		free(_loginRequestBuffer);
+		_loginRequestBuffer = tmpBuffer;
+	}
 }
 
 RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslReactor,
@@ -803,6 +1023,8 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
 			}
 		}
+
+		_refreshReceived = true;
 
 		_loginItemLock.lock();
 
@@ -1056,6 +1278,9 @@ void LoginCallbackClient::processChannelEvent( RsslReactorChannelEvent* pEvent )
 	{
 		_ommBaseImpl.reLoadDirectory();
 
+		if (!_notifyChannelDownReconnecting)
+			break;
+
 		RsslStatusMsg rsslStatusMsg;
 		char tempBuffer[1000];
 		RsslBuffer temp;
@@ -1076,21 +1301,23 @@ void LoginCallbackClient::processChannelEvent( RsslReactorChannelEvent* pEvent )
 			pEvent->pReactorChannel->minorVersion,
 			0 );
 
-		for ( UInt32 idx = 0; idx < _loginItemsOnChannelDown.size(); ++idx )
+		for ( UInt32 idx = 0; idx < _loginItems.size(); ++idx )
 		{
 			_ommBaseImpl.msgDispatched();
-			Item* item = _loginItemsOnChannelDown[idx];
+			Item* item = _loginItems[idx];
 			item->onAllMsg( _statusMsg );
 			item->onStatusMsg( _statusMsg );
-
-			_loginItems.push_back( item );
 		}
 
-		_loginItemsOnChannelDown.clear();
+		_notifyChannelDownReconnecting = false;
+
 	}
 	break;
 	case RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING :
 	{
+
+		if (_notifyChannelDownReconnecting)
+			break;
 		RsslStatusMsg rsslStatusMsg;
 		char tempBuffer[1000];
 		RsslBuffer temp;
@@ -1117,11 +1344,10 @@ void LoginCallbackClient::processChannelEvent( RsslReactorChannelEvent* pEvent )
 			Item* item = _loginItems[idx];
 			item->onAllMsg( _statusMsg );
 			item->onStatusMsg( _statusMsg );
-
-			_loginItemsOnChannelDown.push_back( item );
 		}
 
-		_loginItems.clear();
+		_notifyChannelDownReconnecting = true;
+
 	}
 	break;
 	case RSSL_RC_CET_CHANNEL_DOWN :
@@ -1233,15 +1459,23 @@ bool LoginCallbackClient::convertRdmLoginToRsslBuffer( RsslReactorChannel* pRssl
 	return true;
 }
 
+Login* LoginCallbackClient::getLogin()
+{
+	return _requestLogin;
+}
+
 LoginItem* LoginCallbackClient::getLoginItem( const ReqMsg&, OmmConsumerClient& ommConsClient, void* closure )
 {
 	LoginItem* li = LoginItem::create( _ommBaseImpl, ommConsClient, closure, _loginList );
 
 	if ( li )
 	{
-		LoginItemCreationCallbackStruct* liccs( new LoginItemCreationCallbackStruct( this, li ) );
-		TimeOut* timeOut = new TimeOut( _ommBaseImpl, 10, LoginCallbackClient::handleLoginItemCallback, liccs, true );
-		_loginItems.push_back( li );
+		_loginItems.push_back(li);
+		if (_refreshReceived == true)
+		{
+			LoginItemCreationCallbackStruct* liccs(new LoginItemCreationCallbackStruct(this, li));
+			TimeOut* timeOut = new TimeOut(_ommBaseImpl, 10, LoginCallbackClient::handleLoginItemCallback, liccs, true);
+		}
 	}
 
 	return li;
@@ -1253,9 +1487,13 @@ NiProviderLoginItem* LoginCallbackClient::getLoginItem( const ReqMsg&, OmmProvid
 
 	if ( li )
 	{
-		NiProviderLoginItemCreationCallbackStruct* liccs( new NiProviderLoginItemCreationCallbackStruct( this, li ) );
-		TimeOut* timeOut = new TimeOut( _ommBaseImpl, 10, LoginCallbackClient::handleLoginItemCallback, liccs, true );
-		_loginItems.push_back( li );
+		_loginItems.push_back(li);
+		if (_refreshReceived == true)
+		{
+			NiProviderLoginItemCreationCallbackStruct* liccs(new NiProviderLoginItemCreationCallbackStruct(this, li));
+			TimeOut* timeOut = new TimeOut(_ommBaseImpl, 10, LoginCallbackClient::handleLoginItemCallback, liccs, true);
+		}
+		
 	}
 
 	return li;
@@ -1327,7 +1565,36 @@ bool LoginItem::close()
 
 bool LoginItem::modify( const ReqMsg& reqMsg )
 {
-	return submit( static_cast<const ReqMsgEncoder&>( reqMsg.getEncoder() ).getRsslRequestMsg() );
+	RsslRDMLoginRequest tempRequest;
+	rsslClearRDMLoginRequest(&tempRequest);
+	RsslDecodeIterator dIter;
+	rsslClearDecodeIterator(&dIter);
+	RsslBuffer tmpBuf;
+	rsslClearBuffer(&tmpBuf);
+	RsslErrorInfo errorInfo;
+	bool ret;
+
+	char* tempBuffer;
+
+	rsslSetDecodeIteratorRWFVersion(&dIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+
+	if (rsslDecodeRDMLoginMsg(&dIter, (RsslMsg*)(static_cast<const ReqMsgEncoder&>(reqMsg.getEncoder())).getRsslRequestMsg(), (RsslRDMLoginMsg*)&tempRequest, &tmpBuf, &errorInfo) != RSSL_RET_SUCCESS)
+	{
+		EmaString temp("Internal error: rsslDecodeRDMLoginMsg failed.");
+		temp.append(CR)
+			.append("Error Location ").append(errorInfo.errorLocation).append(CR)
+			.append("Error Text ").append(errorInfo.rsslError.text);
+		_ommBaseImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace());
+	}
+
+	_ommBaseImpl.getLoginCallbackClient().overlayLoginRequest(&tempRequest);
+
+	ret = submit( _ommBaseImpl.getLoginCallbackClient().getLoginRequest() );
+	/* Unset the Pause flag on the cached request */
+	_ommBaseImpl.getLoginCallbackClient().getLoginRequest()->flags &= ~RDM_LG_RQF_PAUSE_ALL;
+
+	return ret;
+
 }
 
 bool LoginItem::submit( const PostMsg& postMsg )
@@ -1340,17 +1607,17 @@ bool LoginItem::submit( const GenericMsg& genMsg )
 	return submit( static_cast<const GenericMsgEncoder&>( genMsg.getEncoder() ).getRsslGenericMsg() );
 }
 
-bool LoginItem::submit( RsslRequestMsg* pRsslRequestMsg )
+bool LoginItem::submit( RsslRDMLoginRequest* pRsslRequestMsg )
 {
 	RsslReactorSubmitMsgOptions submitMsgOpts;
-	pRsslRequestMsg->msgBase.streamId = _streamId;
+	pRsslRequestMsg->rdmMsgBase.streamId = _streamId;
 
 	UInt32 size = _loginList->size();
 	for ( UInt32 idx = 0; idx < size; ++idx )
 	{
 		rsslClearReactorSubmitMsgOptions( &submitMsgOpts );
 
-		submitMsgOpts.pRsslMsg = ( RsslMsg* )pRsslRequestMsg;
+		submitMsgOpts.pRDMMsg = ( RsslRDMMsg* )pRsslRequestMsg;
 
 		submitMsgOpts.majorVersion = _loginList->operator[]( idx )->getChannel()->getRsslChannel()->majorVersion;
 		submitMsgOpts.minorVersion = _loginList->operator[]( idx )->getChannel()->getRsslChannel()->minorVersion;
@@ -1565,9 +1832,39 @@ bool NiProviderLoginItem::close()
 	return true;
 }
 
-bool NiProviderLoginItem::modify( const ReqMsg& )
+bool NiProviderLoginItem::modify( const ReqMsg& reqMsg )
 {
-	return false;
+	RsslRDMLoginRequest tempRequest;
+	rsslClearRDMLoginRequest(&tempRequest);
+	RsslDecodeIterator dIter;
+	rsslClearDecodeIterator(&dIter);
+	RsslBuffer tmpBuf;
+	rsslClearBuffer(&tmpBuf);
+	RsslErrorInfo errorInfo;
+
+	bool ret;
+
+	char* tempBuffer;
+
+	/* Decode the msg to the temp RDMLoginRequest*/
+	rsslSetDecodeIteratorRWFVersion(&dIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+
+	if (rsslDecodeRDMLoginMsg(&dIter, (RsslMsg*)(static_cast<const ReqMsgEncoder&>(reqMsg.getEncoder())).getRsslRequestMsg(), (RsslRDMLoginMsg*)&tempRequest, &tmpBuf, &errorInfo) != RSSL_RET_SUCCESS)
+	{
+		EmaString temp("Internal error: rsslDecodeRDMLoginMsg failed.");
+		temp.append(CR)
+			.append("Error Location ").append(errorInfo.errorLocation).append(CR)
+			.append("Error Text ").append(errorInfo.rsslError.text);
+		_ommBaseImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace());
+	}
+
+	_ommBaseImpl.getLoginCallbackClient().overlayLoginRequest(&tempRequest);
+
+	ret = submit(_ommBaseImpl.getLoginCallbackClient().getLoginRequest());
+	/* Unset the Pause flag on the cached request */
+	_ommBaseImpl.getLoginCallbackClient().getLoginRequest()->flags &= ~RDM_LG_RQF_PAUSE_ALL;
+
+	return ret;
 }
 
 bool NiProviderLoginItem::submit( const PostMsg& )
@@ -1580,17 +1877,17 @@ bool NiProviderLoginItem::submit( const GenericMsg& genMsg )
 	return submit( static_cast<const GenericMsgEncoder&>( genMsg.getEncoder() ).getRsslGenericMsg() );
 }
 
-bool NiProviderLoginItem::submit( RsslRequestMsg* pRsslRequestMsg )
+bool NiProviderLoginItem::submit(RsslRDMLoginRequest* pRsslRequestMsg )
 {
 	RsslReactorSubmitMsgOptions submitMsgOpts;
-	pRsslRequestMsg->msgBase.streamId = _streamId;
+	pRsslRequestMsg->rdmMsgBase.streamId = _streamId;
 
 	UInt32 size = _loginList->size();
 	for ( UInt32 idx = 0; idx < size; ++idx )
 	{
 		rsslClearReactorSubmitMsgOptions( &submitMsgOpts );
 
-		submitMsgOpts.pRsslMsg = (RsslMsg*) pRsslRequestMsg;
+		submitMsgOpts.pRDMMsg = (RsslRDMMsg*) pRsslRequestMsg;
 
 		submitMsgOpts.majorVersion = _loginList->operator[]( idx )->getChannel()->getRsslChannel()->majorVersion;
 		submitMsgOpts.minorVersion = _loginList->operator[]( idx )->getChannel()->getRsslChannel()->minorVersion;
