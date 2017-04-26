@@ -551,6 +551,10 @@ RsslReturnCodes DictionaryHandler::sendFieldDictionaryResponse(RsslReactor* reac
 			dictionaryRefresh.refresh.flags |= RDM_DC_RFF_CLEAR_CACHE;
 			firstPartMultiPartRefresh = false;
 		}
+		else
+		{
+			dictionaryRefresh.refresh.flags &= ~RDM_DC_RFF_CLEAR_CACHE;
+		}
 
 		clearRsslErrorInfo(rsslErrorInfo);
 		RsslBuffer* msgBuf = rsslReactorGetBuffer(reactorChannel, ommServerBaseImpl->getDictionaryHandler()._maxFieldDictFragmentSize, RSSL_FALSE, rsslErrorInfo);
@@ -737,6 +741,10 @@ RsslReturnCodes DictionaryHandler::sendEnumTypeDictionaryResponse(RsslReactor* r
 			dictionaryRefresh.refresh.flags |= RDM_DC_RFF_CLEAR_CACHE;
 			firstPartMultiPartRefresh = false;
 		}
+		else
+		{
+			dictionaryRefresh.refresh.flags &= ~RDM_DC_RFF_CLEAR_CACHE;
+		}
 
 		clearRsslErrorInfo(rsslErrorInfo);
 		RsslBuffer* msgBuf = rsslReactorGetBuffer(reactorChannel, ommServerBaseImpl->getDictionaryHandler()._maxEnumTypeFragmentSize, RSSL_FALSE, rsslErrorInfo);
@@ -826,7 +834,7 @@ RsslReturnCodes DictionaryHandler::sendEnumTypeDictionaryResponse(RsslReactor* r
 
 		clearRsslErrorInfo(rsslErrorInfo);
 		int ret = rsslReactorSubmit(reactor, reactorChannel, msgBuf, &submitOpts, rsslErrorInfo);
-		if (retCode < RSSL_RET_SUCCESS)
+		if (ret < RSSL_RET_SUCCESS)
 		{
 			while (ret == RSSL_RET_WRITE_CALL_AGAIN)
 				ret = rsslReactorSubmit(reactor, reactorChannel, msgBuf, &submitOpts, rsslErrorInfo);
@@ -1041,7 +1049,7 @@ RsslReturnCodes DictionaryHandler::sendRequestReject(RsslReactor* reactor, RsslR
 
 	clearRsslErrorInfo(rsslErrorInfo);
 	int ret = rsslReactorSubmit(reactor, reactorChannel, msgBuf, &submitOpts, rsslErrorInfo);
-	if (retCode < RSSL_RET_SUCCESS)
+	if (ret < RSSL_RET_SUCCESS)
 	{
 		while (ret == RSSL_RET_WRITE_CALL_AGAIN)
 			ret = rsslReactorSubmit(reactor, reactorChannel, msgBuf, &submitOpts, rsslErrorInfo);
