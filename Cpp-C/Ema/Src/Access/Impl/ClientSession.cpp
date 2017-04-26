@@ -139,7 +139,7 @@ bool ClientSession::checkingExistingReq(ItemInfo * itemInfo)
 	}
 }
 
- ItemInfo* ClientSession::getItemInfo(UInt32 streamId) const
+ ItemInfo* ClientSession::getItemInfo(Int32 streamId) const
 {
 	ItemInfo** itemInfoPtr = _streamIdToItemInfoHash.find(streamId);
 

@@ -36,7 +36,7 @@ public:
 
 	RsslReactorChannel* getChannel() const;
 
-	ItemInfo* getItemInfo(UInt32) const;
+	ItemInfo* getItemInfo(Int32) const;
 
 	void setChannel(RsslReactorChannel*);
 

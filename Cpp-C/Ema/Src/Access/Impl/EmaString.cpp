@@ -285,9 +285,17 @@ EmaString& EmaString::set ( const char* str, UInt32 length )
 
 EmaString& EmaString::append ( Int64 i )
 {
+	/* Check for length overflow before malloc */
+	if (((UInt64)_length + 22) >= (UInt64)EmaString::npos)
+	{
+		const char* temp = "The total length of the passed in string is larger than MAX_UINT32. EmaString::append( Int64 ).";
+		throwIueException(temp);
+		return *this;
+	}
+
     if ( _capacity <= _length + 21 )
     {
-        _capacity = _length + 22;
+	     _capacity = _length + 22;
 
         char* pNewString = ( char* ) malloc ( _capacity );
         if ( !pNewString )
@@ -317,6 +325,14 @@ EmaString& EmaString::append ( Int64 i )
 
 EmaString& EmaString::append ( UInt64 i )
 {
+	/* Check for length overflow before malloc */
+	if (((UInt64)_length + 22) >= (UInt64)EmaString::npos)
+	{
+		const char* temp = "The total length of the passed in string is larger than MAX_UINT32. EmaString::append( UInt64 ).";
+		throwIueException(temp);
+		return *this;
+	}
+
     if ( _capacity <= _length + 21 )
     {
         _capacity = _length + 22;
@@ -345,6 +361,14 @@ EmaString& EmaString::append ( UInt64 i )
 
 EmaString& EmaString::append ( Int32 i )
 {
+	/* Check for length overflow before malloc */
+	if (((UInt64)_length + 13) >= (UInt64)EmaString::npos)
+	{
+		const char* temp = "The total length of the passed in string is larger than MAX_UINT32. EmaString::append( Int32 ).";
+		throwIueException(temp);
+		return *this;
+	}
+
     if ( _capacity <= _length + 12 )
     {
         _capacity = _length + 13;
@@ -377,9 +401,17 @@ EmaString& EmaString::append ( Int32 i )
 
 EmaString& EmaString::append ( UInt32 i )
 {
-    if ( _capacity <= _length + 12 )
+	/* Check for length overflow before malloc */
+	if (((UInt64)_length + 13) >= (UInt64)EmaString::npos)
+	{
+		const char* temp = "The total length of the passed in string is larger than MAX_UINT32. EmaString::append( UInt32 ).";
+		throwIueException(temp);
+		return *this;
+	}
+	
+	if ( _capacity <= _length + 12 )
     {
-        _capacity = _length + 13;
+		_capacity = _length + 13;
 
         char* pNewString = ( char* ) malloc ( _capacity );
         if ( !pNewString )
@@ -409,7 +441,15 @@ EmaString& EmaString::append ( UInt32 i )
 
 EmaString& EmaString::append ( float f )
 {
-    if ( _capacity <= _length + 32 )
+	/* Check for length overflow before malloc */
+	if (((UInt64)_length + 33) >= (UInt64)EmaString::npos)
+	{
+		const char* temp = "The total length of the passed in string is larger than MAX_UINT32. EmaString::append( float ).";
+		throwIueException(temp);
+		return *this;
+	}
+	
+	if ( _capacity <= _length + 32 )
     {
         _capacity = _length + 33;
 
@@ -441,7 +481,15 @@ EmaString& EmaString::append ( float f )
 
 EmaString& EmaString::append ( double d )
 {
-    if ( _capacity <= _length + 32 )
+	/* Check for length overflow before malloc */
+	if (((UInt64)_length + 33) >= (UInt64)EmaString::npos)
+	{
+		const char* temp = "The total length of the passed in string is larger than MAX_UINT32. EmaString::append( double ).";
+		throwIueException(temp);
+		return *this;
+	}
+	
+	if ( _capacity <= _length + 32 )
     {
         _capacity = _length + 33;
 
@@ -473,9 +521,17 @@ EmaString& EmaString::append ( double d )
 
 EmaString& EmaString::append ( const char* str )
 {
-    UInt32 strLength = str ? static_cast<UInt32> ( strlen ( str ) ) : 0;
+    UInt64 strLength = str ? static_cast<UInt64> ( strlen ( str ) ) : 0;
 
     if ( !strLength ) return *this;
+
+	/* Check for length overflow before malloc */
+	if (((UInt64)_length + strLength + 1) >= (UInt64)EmaString::npos)
+	{
+		const char* temp = "The total length of the passed in string is larger than MAX_UINT32. EmaString::append( const char* ).";
+		throwIueException(temp);
+		return *this;
+	}
 
     if ( _capacity <= _length + strLength )
     {
@@ -518,6 +574,14 @@ EmaString& EmaString::append ( const char* str )
 EmaString& EmaString::append ( const EmaString& other )
 {
     if ( !other._length ) return *this;
+
+	/* Check for length overflow before malloc */
+	if (((UInt64)_length + (UInt64)other._length + 1) >= (UInt64)EmaString::npos)
+	{
+		const char* temp = "The total length of the passed in string is larger than MAX_UINT32. EmaString::append( EmaString ).";
+		throwIueException(temp);
+		return *this;
+	}
 
     if ( _capacity <= _length + other._length )
     {

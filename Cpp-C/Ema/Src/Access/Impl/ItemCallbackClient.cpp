@@ -995,6 +995,10 @@ ClosedStatusInfo::ClosedStatusInfo( Item* pItem, const ReqMsgEncoder& reqMsgEnco
 	if ( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.flags & RSSL_MKF_HAS_ATTRIB )
 	{
 		_msgKey.encAttrib.data = (char*) malloc( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.encAttrib.length + 1 );
+		if (!_msgKey.encAttrib.data)
+		{
+			throwMeeException("Failed to allocate memory for encoded attrib inClosedStatusInfo( Item* , const ReqMsgEncoder& , const EmaString& ).");
+		}
 		_msgKey.encAttrib.length = reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.encAttrib.length + 1;
 	}
 

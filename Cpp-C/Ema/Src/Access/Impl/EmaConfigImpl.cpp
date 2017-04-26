@@ -200,6 +200,13 @@ OmmLoggerClient::Severity EmaConfigBaseImpl::readXMLconfiguration(const EmaStrin
 	}
 
 	char* xmlData = reinterpret_cast<char*>(malloc(statBuffer.st_size + 1));
+	if (!xmlData)
+	{
+		EmaString errorMsg("Failed to allocate memory for reading configuration file[");
+		errorMsg.append(fileName).append("];");
+		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
+		return OmmLoggerClient::ErrorEnum;
+	}
 	size_t bytesRead(fread(reinterpret_cast<void*>(xmlData), sizeof(char), statBuffer.st_size, fp));
 	if (!bytesRead)
 	{
@@ -1599,8 +1606,14 @@ AdminReqMsg& AdminReqMsg::set( RsslRequestMsg* pRsslRequestMsg )
 		if ( _rsslMsg.extendedHeader.length > _header.length )
 		{
 			if ( _header.data ) free( _header.data );
+			_header.data = 0;
 
 			_header.data = (char*) malloc( _rsslMsg.extendedHeader.length );
+			if (!_header.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Request extended header in AdminReqMsg::set()");			
+				return *this;
+			}
 			_header.length = _rsslMsg.extendedHeader.length;
 		}
 
@@ -1618,8 +1631,14 @@ AdminReqMsg& AdminReqMsg::set( RsslRequestMsg* pRsslRequestMsg )
 		if ( _rsslMsg.msgBase.encDataBody.length > _payload.length )
 		{
 			if ( _payload.data ) free( _payload.data );
+			_payload.data = 0;
 
 			_payload.data = (char*) malloc( _rsslMsg.msgBase.encDataBody.length );
+			if (!_payload.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Request payload in AdminReqMsg::set()");
+				return *this;
+			}
 			_payload.length = _rsslMsg.msgBase.encDataBody.length;
 		}
 
@@ -1637,8 +1656,15 @@ AdminReqMsg& AdminReqMsg::set( RsslRequestMsg* pRsslRequestMsg )
 		if ( _rsslMsg.msgBase.msgKey.encAttrib.length > _attrib.length )
 		{
 			if ( _attrib.data ) free( _attrib.data );
+			_attrib.data = 0;
 
 			_attrib.data = (char*) malloc( _rsslMsg.msgBase.msgKey.encAttrib.length );
+
+			if (!_attrib.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Request msgKey.attrib in AdminReqMsg::set()");
+				return *this;
+			}
 			_attrib.length = _rsslMsg.msgBase.msgKey.encAttrib.length;
 		}
 
@@ -1656,8 +1682,16 @@ AdminReqMsg& AdminReqMsg::set( RsslRequestMsg* pRsslRequestMsg )
 		if ( _rsslMsg.msgBase.msgKey.name.length > _name.length )
 		{
 			if ( _name.data ) free( _name.data );
+			_name.data = 0;
 
 			_name.data = (char*) malloc( _rsslMsg.msgBase.msgKey.name.length );
+			
+			if (!_name.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Request msgKey.name in AdminReqMsg::set()");
+				return *this;
+			}
+
 			_name.length = _rsslMsg.msgBase.msgKey.name.length;
 		}
 
@@ -1728,8 +1762,13 @@ AdminRefreshMsg::AdminRefreshMsg( const AdminRefreshMsg& other ) :
 	if ( _rsslMsg.flags & RSSL_RQMF_HAS_EXTENDED_HEADER )
 	{
 		if ( _header.data ) free( _header.data );
+		_header.data = 0;
 
 		_header.data = (char*) malloc( _rsslMsg.extendedHeader.length );
+		if (!_header.data)
+		{
+			throwMeeException("Failed to allocate memory for encoded Admin Refresh Extended Header in AdminRefreshMsg::AdminRefreshMsg()");
+		}
 		_header.length = _rsslMsg.extendedHeader.length;
 
 		memcpy( _header.data, _rsslMsg.extendedHeader.data, _header.length );
@@ -1744,8 +1783,13 @@ AdminRefreshMsg::AdminRefreshMsg( const AdminRefreshMsg& other ) :
 	if ( _rsslMsg.msgBase.containerType != RSSL_DT_NO_DATA )
 	{
 		if ( _payload.data ) free( _payload.data );
+		_payload.data = 0;
 
 		_payload.data = (char*) malloc( _rsslMsg.msgBase.encDataBody.length );
+		if (!_payload.data)
+		{
+			throwMeeException("Failed to allocate memory for encoded Admin Refresh Payload in AdminRefreshMsg::AdminRefreshMsg()");
+		}
 		_payload.length = _rsslMsg.msgBase.encDataBody.length;
 
 		memcpy( _payload.data, _rsslMsg.msgBase.encDataBody.data, _payload.length );
@@ -1760,8 +1804,13 @@ AdminRefreshMsg::AdminRefreshMsg( const AdminRefreshMsg& other ) :
 	if ( _rsslMsg.msgBase.msgKey.flags & RSSL_MKF_HAS_ATTRIB )
 	{
 		if ( _attrib.data ) free( _attrib.data );
+		_attrib.data = 0;
 
 		_attrib.data = (char*) malloc( _rsslMsg.msgBase.msgKey.encAttrib.length );
+		if (!_attrib.data)
+		{
+			throwMeeException("Failed to allocate memory for encoded Admin Refresh msgKey.attrib in AdminRefreshMsg::AdminRefreshMsg()");
+		}
 		_attrib.length = _rsslMsg.msgBase.msgKey.encAttrib.length;
 
 		memcpy( _attrib.data, _rsslMsg.msgBase.msgKey.encAttrib.data, _attrib.length );
@@ -1776,8 +1825,13 @@ AdminRefreshMsg::AdminRefreshMsg( const AdminRefreshMsg& other ) :
 	if ( _rsslMsg.msgBase.msgKey.flags & RSSL_MKF_HAS_NAME )
 	{
 		if ( _name.data ) free( _name.data );
+		_name.data = 0; 
 
 		_name.data = (char*) malloc( _rsslMsg.msgBase.msgKey.name.length );
+		if (!_name.data)
+		{
+			throwMeeException("Failed to allocate memory for encoded Admin Refresh msgKey.name in AdminRefreshMsg::AdminRefreshMsg()");
+		}
 		_name.length = _rsslMsg.msgBase.msgKey.name.length;
 
 		memcpy( _name.data, _rsslMsg.msgBase.msgKey.name.data, _name.length );
@@ -1792,8 +1846,13 @@ AdminRefreshMsg::AdminRefreshMsg( const AdminRefreshMsg& other ) :
 	if ( _rsslMsg.state.text.data )
 	{
 		if ( _statusText.data ) free( _statusText.data );
+		_statusText.data = 0;
 
 		_statusText.data = (char*) malloc( _rsslMsg.state.text.length );
+		if (!_statusText.data)
+		{
+			throwMeeException("Failed to allocate memory for encoded Admin Refresh state text in AdminRefreshMsg::AdminRefreshMsg()");
+		}
 		_statusText.length = _rsslMsg.state.text.length;
 
 		memcpy( _statusText.data, _rsslMsg.state.text.data, _statusText.length );
@@ -1815,8 +1874,14 @@ AdminRefreshMsg& AdminRefreshMsg::operator=( const AdminRefreshMsg& other )
 		if ( _rsslMsg.extendedHeader.length > _header.length )
 		{
 			if ( _header.data ) free( _header.data );
+			_header.data = 0;
 
 			_header.data = (char*) malloc( _rsslMsg.extendedHeader.length );
+			if (!_header.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Refresh extended header in AdminRefreshMsg::operator=");
+				return *this;
+			}
 			_header.length = _rsslMsg.extendedHeader.length;
 		}
 
@@ -1834,8 +1899,14 @@ AdminRefreshMsg& AdminRefreshMsg::operator=( const AdminRefreshMsg& other )
 		if ( _rsslMsg.msgBase.encDataBody.length > _payload.length )
 		{
 			if ( _payload.data ) free( _payload.data );
+			_payload.data = 0;
 
 			_payload.data = (char*) malloc( _rsslMsg.msgBase.encDataBody.length );
+			if (!_payload.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Refresh payload in AdminRefreshMsg::operator=");
+				return *this;
+			}
 			_payload.length = _rsslMsg.msgBase.encDataBody.length;
 		}
 
@@ -1853,8 +1924,14 @@ AdminRefreshMsg& AdminRefreshMsg::operator=( const AdminRefreshMsg& other )
 		if ( _rsslMsg.msgBase.msgKey.encAttrib.length > _attrib.length )
 		{
 			if ( _attrib.data ) free( _attrib.data );
+			_attrib.data = 0;
 
 			_attrib.data = (char*) malloc( _rsslMsg.msgBase.msgKey.encAttrib.length );
+			if (!_attrib.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Refresh msgKey.attrib in AdminRefreshMsg::operator=");
+				return *this;
+			}
 			_attrib.length = _rsslMsg.msgBase.msgKey.encAttrib.length;
 		}
 
@@ -1872,8 +1949,14 @@ AdminRefreshMsg& AdminRefreshMsg::operator=( const AdminRefreshMsg& other )
 		if ( _rsslMsg.msgBase.msgKey.name.length > _name.length )
 		{
 			if ( _name.data ) free( _name.data );
+			_name.data = 0;
 
 			_name.data = (char*) malloc( _rsslMsg.msgBase.msgKey.name.length );
+			if (!_name.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Refresh name in AdminRefreshMsg::operator=");
+				return *this;
+			}
 			_name.length = _rsslMsg.msgBase.msgKey.name.length;
 		}
 
@@ -1891,8 +1974,14 @@ AdminRefreshMsg& AdminRefreshMsg::operator=( const AdminRefreshMsg& other )
 		if ( _rsslMsg.state.text.length > _statusText.length )
 		{
 			if ( _statusText.data ) free( _statusText.data );
+			_statusText.data = 0;
 
 			_statusText.data = (char*) malloc( _rsslMsg.state.text.length );
+			if (!_statusText.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Refresh status text in AdminRefreshMsg::operator=");
+				return *this;
+			}
 			_statusText.length = _rsslMsg.state.text.length;
 		}
 
@@ -1935,8 +2024,14 @@ AdminRefreshMsg& AdminRefreshMsg::set( RsslRefreshMsg* pRsslRefreshMsg )
 		if ( _rsslMsg.extendedHeader.length > _header.length )
 		{
 			if ( _header.data ) free( _header.data );
+			_header.data = 0;
 
 			_header.data = (char*) malloc( _rsslMsg.extendedHeader.length );
+			if (!_header.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Refresh Extended Header in AdminRefreshMsg::set");
+				return *this;
+			}
 			_header.length = _rsslMsg.extendedHeader.length;
 		}
 
@@ -1954,8 +2049,14 @@ AdminRefreshMsg& AdminRefreshMsg::set( RsslRefreshMsg* pRsslRefreshMsg )
 		if ( _rsslMsg.msgBase.encDataBody.length > _payload.length )
 		{
 			if ( _payload.data ) free( _payload.data );
+			_payload.data = 0;
 
 			_payload.data = (char*) malloc( _rsslMsg.msgBase.encDataBody.length );
+			if (!_payload.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Refresh Payload in AdminRefreshMsg::set");
+				return *this;
+			}
 			_payload.length = _rsslMsg.msgBase.encDataBody.length;
 		}
 
@@ -1973,8 +2074,14 @@ AdminRefreshMsg& AdminRefreshMsg::set( RsslRefreshMsg* pRsslRefreshMsg )
 		if ( _rsslMsg.msgBase.msgKey.encAttrib.length > _attrib.length )
 		{
 			if ( _attrib.data ) free( _attrib.data );
+			_attrib.data = 0;
 
 			_attrib.data = (char*) malloc( _rsslMsg.msgBase.msgKey.encAttrib.length );
+			if (!_attrib.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Refresh msgKey.attrib in AdminRefreshMsg::set");
+				return *this;
+			}
 			_attrib.length = _rsslMsg.msgBase.msgKey.encAttrib.length;
 		}
 
@@ -1992,8 +2099,14 @@ AdminRefreshMsg& AdminRefreshMsg::set( RsslRefreshMsg* pRsslRefreshMsg )
 		if ( _rsslMsg.msgBase.msgKey.name.length > _name.length )
 		{
 			if ( _name.data ) free( _name.data );
+			_name.data = 0;
 
 			_name.data = (char*) malloc( _rsslMsg.msgBase.msgKey.name.length );
+			if (!_name.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Refresh msgKey.name in AdminRefreshMsg::set");
+				return *this;
+			}
 			_name.length = _rsslMsg.msgBase.msgKey.name.length;
 		}
 
@@ -2011,8 +2124,14 @@ AdminRefreshMsg& AdminRefreshMsg::set( RsslRefreshMsg* pRsslRefreshMsg )
 		if ( _rsslMsg.state.text.length > _statusText.length )
 		{
 			if ( _statusText.data ) free( _statusText.data );
+			_statusText.data = 0;
 
 			_statusText.data = (char*) malloc( _rsslMsg.state.text.length );
+			if (!_statusText.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Refresh status text in AdminRefreshMsg::set");
+				return *this;
+			}
 			_statusText.length = _rsslMsg.state.text.length;
 		}
 
