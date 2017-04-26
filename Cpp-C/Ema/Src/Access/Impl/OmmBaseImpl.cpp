@@ -1175,46 +1175,48 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		        ( _state != RsslChannelUpStreamNotOpenEnum ) )
 			rsslReactorDispatchLoop( _activeConfig.dispatchTimeoutApiThread, _activeConfig.maxDispatchCountApiThread, _bEventReceived );
 
-		ChannelConfig* pChannelcfg = _activeConfig.findChannelConfig(_pLoginCallbackClient->getActiveChannel());
-		if (!pChannelcfg)
-			pChannelcfg = _activeConfig.configChannelSet[_activeConfig.configChannelSet.size()-1];
-
-		if ( _eventTimedOut )
+	    if ( !_atExit )
 		{
-			EmaString failureMsg( "login failed (timed out after waiting " );
-			failureMsg.append( _activeConfig.loginRequestTimeOut ).append( " milliseconds) for " );
-			if ( pChannelcfg->getType() == ChannelConfig::SocketChannelEnum )
-			{
-				SocketChannelConfig* channelConfig( reinterpret_cast< SocketChannelConfig* >( pChannelcfg ) );
-				failureMsg.append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append( ")" );
-			}
-			else if ( pChannelcfg->getType() == ChannelConfig::HttpChannelEnum )
-			{
-				HttpChannelConfig* channelConfig( reinterpret_cast< HttpChannelConfig* >( pChannelcfg ) );
-				failureMsg.append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append( ")" );
-			}
-			else if ( pChannelcfg->getType() == ChannelConfig::EncryptedChannelEnum )
-			{
-				EncryptedChannelConfig* channelConfig( reinterpret_cast< EncryptedChannelConfig* >( pChannelcfg ) );
-				failureMsg.append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append( ")" );
-			}
+			ChannelConfig* pChannelcfg = _activeConfig.findChannelConfig(_pLoginCallbackClient->getActiveChannel());
+			if (!pChannelcfg)
+				pChannelcfg = _activeConfig.configChannelSet[_activeConfig.configChannelSet.size()-1];
 
-			throwIueException( failureMsg );
-			return;
-		}
-		else if ( _state == RsslChannelUpStreamNotOpenEnum )
-		{
-			if ( timeOutLengthInMicroSeconds != 0 ) loginWatcher->cancel();
-			throwIueException( getLoginCallbackClient().getLoginFailureMessage() );
-			return;
+			if ( _eventTimedOut )
+			{
+				EmaString failureMsg( "login failed (timed out after waiting " );
+				failureMsg.append( _activeConfig.loginRequestTimeOut ).append( " milliseconds) for " );
+				if ( pChannelcfg->getType() == ChannelConfig::SocketChannelEnum )
+				{
+					SocketChannelConfig* channelConfig( reinterpret_cast< SocketChannelConfig* >( pChannelcfg ) );
+					failureMsg.append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append( ")" );
+				}
+				else if ( pChannelcfg->getType() == ChannelConfig::HttpChannelEnum )
+				{
+					HttpChannelConfig* channelConfig( reinterpret_cast< HttpChannelConfig* >( pChannelcfg ) );
+					failureMsg.append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append( ")" );
+				}
+				else if ( pChannelcfg->getType() == ChannelConfig::EncryptedChannelEnum )
+				{
+					EncryptedChannelConfig* channelConfig( reinterpret_cast< EncryptedChannelConfig* >( pChannelcfg ) );
+					failureMsg.append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append( ")" );
+				}
+
+				throwIueException( failureMsg );
+				return;
+			}
+			else if ( _state == RsslChannelUpStreamNotOpenEnum )
+			{
+				if ( timeOutLengthInMicroSeconds != 0 ) loginWatcher->cancel();
+				throwIueException( getLoginCallbackClient().getLoginFailureMessage() );
+				return;
+			}
+			else
+			{
+				if ( timeOutLengthInMicroSeconds != 0 ) loginWatcher->cancel();
+				loginWatcher = 0;
+			}
 		}
 		else
-		{
-			if ( timeOutLengthInMicroSeconds != 0 ) loginWatcher->cancel();
-			loginWatcher = 0;
-		}
-
-		if ( _atExit )
 		{
 			throwIueException( "Application or user initiated exit while waiting for login response." );
 			return;
