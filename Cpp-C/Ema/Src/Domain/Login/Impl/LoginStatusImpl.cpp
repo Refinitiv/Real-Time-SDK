@@ -357,6 +357,9 @@ void LoginStatusImpl::decode(const StatusMsg& statusMsg)
 	if (statusMsg.hasNameType())
 		nameType(statusMsg.getNameType());
 
+	if ( statusMsg.getAttrib().getDataType() != DataType::ElementListEnum )
+	  return;
+
 	while (statusMsg.getAttrib().getElementList().forth())
 	{
 		const ElementEntry& elementEntry = statusMsg.getAttrib().getElementList().getEntry();
