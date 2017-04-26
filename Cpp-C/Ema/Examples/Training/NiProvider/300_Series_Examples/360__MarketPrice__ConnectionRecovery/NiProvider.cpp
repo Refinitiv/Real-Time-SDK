@@ -68,7 +68,7 @@ int main( int argc, char* argv[] )
 	{
 		AppClient appClient;
 
-		OmmProvider provider( OmmNiProviderConfig().operationModel( OmmNiProviderConfig::UserDispatchEnum ).username( "user" ) );
+		OmmProvider provider( OmmNiProviderConfig().operationModel( OmmNiProviderConfig::UserDispatchEnum ).username( "user" ), appClient );
 		UInt64 triHandle = 6;
 		RefreshMsg refresh;
 		UpdateMsg update;
