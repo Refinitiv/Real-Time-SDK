@@ -375,6 +375,19 @@ void OmmIProviderImpl::submit(const RefreshMsg& refreshMsg, UInt64 handle)
 			return;
 		}
 
+		if (refreshMsgEncoder.hasServiceName())
+		{
+			if ( encodeServiceIdFromName(refreshMsgEncoder.getServiceName(), submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId,
+				submitMsgOpts.pRsslMsg->msgBase) )
+			{
+				submitMsgOpts.pRsslMsg->refreshMsg.flags |= RSSL_RFMF_HAS_MSG_KEY;
+			}
+			else
+			{
+				return;
+			}
+		}
+
 		if (handle == 0)
 		{
 			EmaString text("Fanout dictionary message for item handle = ");
@@ -429,6 +442,19 @@ void OmmIProviderImpl::submit(const RefreshMsg& refreshMsg, UInt64 handle)
 
 		pReactorChannel = itemInfo->getClientSession()->getChannel();
 		submitMsgOpts.pRsslMsg->msgBase.streamId = itemInfo->getStreamId();
+
+		if (refreshMsgEncoder.hasServiceName())
+		{
+			if ( encodeServiceIdFromName(refreshMsgEncoder.getServiceName(), submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId,
+				submitMsgOpts.pRsslMsg->msgBase) )
+			{
+				submitMsgOpts.pRsslMsg->refreshMsg.flags |= RSSL_RFMF_HAS_MSG_KEY;
+			}
+			else
+			{
+				return;
+			}
+		}
 
 		if ( itemInfo->isPrivateStream() )
 			submitMsgOpts.pRsslMsg->refreshMsg.flags |= RSSL_RFMF_PRIVATE_STREAM;
@@ -596,6 +622,19 @@ void OmmIProviderImpl::submit(const UpdateMsg& updateMsg, UInt64 handle)
 		}
 
 		submitMsgOpts.pRsslMsg->msgBase.streamId = itemInfo->getStreamId();
+
+		if (updateMsgEncoder.hasServiceName())
+		{
+			if ( encodeServiceIdFromName(updateMsgEncoder.getServiceName(), submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId,
+				submitMsgOpts.pRsslMsg->msgBase) )
+			{
+				submitMsgOpts.pRsslMsg->updateMsg.flags |= RSSL_UPMF_HAS_MSG_KEY;
+			}
+			else
+			{
+				return;
+			}
+		}
 	}
 
 	RsslErrorInfo rsslErrorInfo;
@@ -707,6 +746,19 @@ void OmmIProviderImpl::submit(const StatusMsg& stausMsg, UInt64 handle)
 	}
 	else if (submitMsgOpts.pRsslMsg->msgBase.domainType == ema::rdm::MMT_DICTIONARY)
 	{
+		if (statusMsgEncoder.hasServiceName())
+		{
+			if ( encodeServiceIdFromName(statusMsgEncoder.getServiceName(), submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId,
+				submitMsgOpts.pRsslMsg->msgBase) )
+			{
+				submitMsgOpts.pRsslMsg->statusMsg.flags |= RSSL_STMF_HAS_MSG_KEY;
+			}
+			else
+			{
+				return;
+			}
+		}
+
 		if (handle == 0)
 		{
 			EmaString text("Fanout dictionary message for item handle = ");
@@ -763,6 +815,19 @@ void OmmIProviderImpl::submit(const StatusMsg& stausMsg, UInt64 handle)
 
 		pReactorChannel = itemInfo->getClientSession()->getChannel();
 		submitMsgOpts.pRsslMsg->msgBase.streamId = itemInfo->getStreamId();
+
+		if (statusMsgEncoder.hasServiceName())
+		{
+			if ( encodeServiceIdFromName(statusMsgEncoder.getServiceName(), submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId,
+				submitMsgOpts.pRsslMsg->msgBase) )
+			{
+				submitMsgOpts.pRsslMsg->statusMsg.flags |= RSSL_STMF_HAS_MSG_KEY;
+			}
+			else
+			{
+				return;
+			}
+		}
 
 		if ((submitMsgOpts.pRsslMsg->statusMsg.flags & RSSL_STMF_HAS_GROUP_ID) == RSSL_STMF_HAS_GROUP_ID)
 		{
@@ -1022,6 +1087,39 @@ void OmmIProviderImpl::submit(const AckMsg& ackMsg, UInt64 handle)
 DirectoryServiceStore& OmmIProviderImpl::getDirectoryServiceStore()
 {
 	return _ommIProviderDirectoryStore;
+}
+
+bool OmmIProviderImpl::encodeServiceIdFromName(const EmaString& serviceName, RsslUInt16& serviceId, RsslMsgBase& rsslMsgBase)
+{
+	UInt64* pServiceId = _ommIProviderDirectoryStore.getServiceIdByName(&serviceName);
+
+	if (!pServiceId)
+	{
+		_userLock.unlock();
+		EmaString temp("Attempt to submit ");
+		temp.append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).
+			append(" with service name of ").append(serviceName).
+			append(" that was not included in the SourceDirectory. Dropping this ").
+			append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).append(".");
+		handleIue(temp);
+		return false;
+	}
+	else if (*pServiceId > 0xFFFF)
+	{
+		_userLock.unlock();
+		EmaString temp("Attempt to submit ");
+		temp.append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).
+			append(" with service name of ").append(serviceName).
+			append(" whose matching service id of ").append(*pServiceId).append(" is out of range. Dropping this ").
+			append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).append(".");
+		handleIue(temp);
+		return false;
+	}
+
+	serviceId = (RsslUInt16)*pServiceId;
+	rsslMsgBase.msgKey.flags |= RSSL_MKF_HAS_SERVICE_ID;
+
+	return true;
 }
 
 void OmmIProviderImpl::onServiceDelete(ClientSession* clientSession, RsslUInt serviceId)

@@ -66,6 +66,8 @@ public:
 
 private:
 
+	bool encodeServiceIdFromName(const EmaString& serviceName, RsslUInt16& serviceId, RsslMsgBase& rsslMsgBase );
+
 	bool submit(RsslReactorSubmitMsgOptions submitMsgOptions, const EmaVector< ItemInfo* >& itemList, EmaString& text, bool applyDirectoryFilter, RsslErrorInfo& rsslErrorInfo);
 
 	void handleItemInfo(int domainType, UInt64 handle, RsslState& state);
