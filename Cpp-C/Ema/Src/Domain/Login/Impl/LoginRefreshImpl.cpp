@@ -1155,6 +1155,9 @@ void LoginRefreshImpl::decode(const RefreshMsg& refreshMsg)
 	if (refreshMsg.hasSeqNum())
 		seqNum(refreshMsg.getSeqNum());
 
+	if ( refreshMsg.getAttrib().getDataType() != DataType::ElementListEnum )
+	  return;
+
 	while (refreshMsg.getAttrib().getElementList().forth())
 	{
 		const ElementEntry& elementEntry = refreshMsg.getAttrib().getElementList().getEntry();

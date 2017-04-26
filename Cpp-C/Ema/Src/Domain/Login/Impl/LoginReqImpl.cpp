@@ -832,6 +832,9 @@ void LoginReqImpl::decode(const ReqMsg& reqMsg)
 	if (reqMsg.hasNameType())
 		nameType(reqMsg.getNameType());
 
+	if ( reqMsg.getAttrib().getDataType() != DataType::ElementListEnum )
+	  return;
+
 	while (reqMsg.getAttrib().getElementList().forth())
 	{
 		const ElementEntry& elementEntry = reqMsg.getAttrib().getElementList().getEntry();
