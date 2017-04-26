@@ -31,6 +31,9 @@ void AppClient::processMarketPriceRequest( const ReqMsg& reqMsg, const OmmProvid
 	event.getProvider().submit( RefreshMsg().name( reqMsg.getName() ).serviceName( reqMsg.getServiceName() ).
 		state( OmmState::OpenEnum, OmmState::OkEnum, OmmState::NoneEnum, "Refresh Completed" ).solicited( true ).
 		payload( FieldList().
+			addAscii( 3, reqMsg.getName() ).
+			addEnum( 15, 840 ).
+			addReal( 21, 3900, OmmReal::ExponentNeg2Enum ).
 			addReal( 22, 3990, OmmReal::ExponentNeg2Enum ).
 			addReal( 25, 3994, OmmReal::ExponentNeg2Enum ).
 			addReal( 30, 9, OmmReal::Exponent0Enum ).
@@ -83,7 +86,9 @@ int main( int argc, char* argv[] )
 
 			provider.submit( UpdateMsg().payload(FieldList().
 				addReal( 22, 3391 + i, OmmReal::ExponentNeg2Enum ).
+				addReal( 25, 3994 + i, OmmReal::ExponentNeg2Enum ).
 				addReal( 30, 10 + i, OmmReal::Exponent0Enum ).
+				addReal( 31, 19 + i, OmmReal::Exponent0Enum).
 				complete() ), itemHandle );
 
 			while (getCurrentTime() - startTime < 1000);;
