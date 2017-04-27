@@ -1592,7 +1592,15 @@ bool DictionaryItem::open( const ReqMsg& reqMsg )
 				_currentFid = 0;
 				_streamId = dictionary->getEnumStreamId();
 			}
-
+			else
+			{
+				EmaString temp("Invalid ReqMsg's name : ");
+				temp.append(_name);
+				temp.append("\nReqMsg's name must be \"RWFFld\" or \"RWFEnum\" for MMT_DICTIONARY domain type. ");
+				temp.append("Instance name='").append(_ommBaseImpl.getInstanceName()).append("'.");
+				_ommBaseImpl.handleIue(temp);
+				return false;
+			}
 
 			if ( dictionary->getType() == Dictionary::ChannelDictionaryEnum )
 			{

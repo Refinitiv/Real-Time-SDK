@@ -2585,21 +2585,7 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 					return 0;
 				}
 
-				if ( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.flags & RSSL_MKF_HAS_NAME )
-				{
-					EmaString name( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.name.data, reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.name.length );
-
-					if ( ( name != "RWFFld" ) && ( name != "RWFEnum" ) )
-					{
-						EmaString temp( "Invalid ReqMsg's name : " );
-						temp.append( name );
-						temp.append( "\nReqMsg's name must be \"RWFFld\" or \"RWFEnum\" for MMT_DICTIONARY domain type. ");
-						temp.append( "Instance name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
-						_ommBaseImpl.handleIue( temp );
-						return 0;
-					}
-				}
-				else
+				if ( ( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.flags & RSSL_MKF_HAS_NAME ) == 0 )
 				{
 					EmaString temp( "ReqMsg's name is not defined. " );
 					temp.append( "Instance name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
