@@ -68,6 +68,9 @@ void printUsageAndExit(int argc, char **argv)
 			" -offpost Specifies that the application should attempt to send post messages on the login stream (i.e., off-stream)\n"
 			" -x       Enables tracing of messages sent to and received from the channel.\n"
 			" -runTime Adjusts the running time of the application.\n"
+			" -at	   Specifies the Authentication Token. If this is present, the login user name type will be RDM_LOGIN_USER_AUTHN_TOKEN.\n"
+			" -ax      Specifies the Authentication Extended information.\n"
+			" -aid	   Specifies the Application ID.\n"
 			"\n"
 			" Connection options for socket, http, and encrypted connection types:\n"
 			"   [ -h <Server Hostname> ] [ -p <Port> ]\n"
@@ -254,6 +257,27 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 			watchlistConsumerConfig.userName.length = 
 				(RsslUInt32)snprintf(watchlistConsumerConfig._userNameMem, 255, "%s", argv[i]);
 			watchlistConsumerConfig.userName.data = watchlistConsumerConfig._userNameMem;
+		}
+		else if (0 == strcmp(argv[i], "-at"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.authenticationToken.length = 
+				(RsslUInt32)snprintf(watchlistConsumerConfig._authenticationTokenMem, 1024, "%s", argv[i]);
+			watchlistConsumerConfig.authenticationToken.data = watchlistConsumerConfig._authenticationTokenMem;
+		}
+		else if (0 == strcmp(argv[i], "-ax"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.authenticationExtended.length = 
+				(RsslUInt32)snprintf(watchlistConsumerConfig._authenticationExtendedMem, 1024, "%s", argv[i]);
+			watchlistConsumerConfig.authenticationExtended.data = watchlistConsumerConfig._authenticationExtendedMem;
+		}
+		else if (0 == strcmp(argv[i], "-aid"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.appId.length = 
+				(RsslUInt32)snprintf(watchlistConsumerConfig._appIdMem, 255, "%s", argv[i]);
+			watchlistConsumerConfig.appId.data = watchlistConsumerConfig._appIdMem;
 		}
 		else if (0 == strcmp(argv[i], "-mp"))
 		{
@@ -456,12 +480,19 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 		addItem((char*)"TRI.N", RSSL_DMT_MARKET_PRICE, RSSL_FALSE);
 	}
 
-	printf( "  Interface: %s\n"
-			"  UserName: %s\n"
-			"  ServiceName: %s\n"
+	printf( "  Interface: %s\n", watchlistConsumerConfig.interface);
+	if(watchlistConsumerConfig.authenticationToken.length)
+	{
+		printf( " AuthenticationToken: %s\n", watchlistConsumerConfig.authenticationToken.data);
+	}
+	else
+	{
+		printf(	"  UserName: %s\n", 
+			watchlistConsumerConfig.userName.length ? watchlistConsumerConfig.userName.data : "(use system login name)");
+	}
+	
+	printf(	"  ServiceName: %s\n"
 			"  Run Time: %us\n",
-			watchlistConsumerConfig.interface,
-			watchlistConsumerConfig.userName.length ? watchlistConsumerConfig.userName.data : "(use system login name)",
 			watchlistConsumerConfig.serviceName.data,
 			watchlistConsumerConfig.runTime);
 

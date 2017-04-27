@@ -10,7 +10,7 @@
 #define __thomsonreuters_ema_access_EmaVector_h
 
 #include "EmaString.h"
-#include "ExceptionTranslator.h"
+#include "OmmOutOfRangeException.h"
 
 #include <new>
 
@@ -128,6 +128,32 @@ private :
 	UInt32		_capacity;
 	UInt32		_size;
 	T*			_list;
+
+	class EmaVectorException : public OmmOutOfRangeException
+	{
+	private:
+
+		EmaVectorException(const EmaString& text)
+		{
+			OmmException::statusText(text);
+		}
+
+		virtual ~EmaVectorException(){}
+
+		EmaVectorException(const EmaVectorException& other) :
+			OmmOutOfRangeException(other){}
+
+		EmaVectorException& operator=(const EmaVectorException& other)
+		{
+			if (this == &other) return *this;
+
+			OmmException::operator=(other);
+
+			return *this;
+		}
+
+		friend class EmaVector;
+	};
 };
 
 template< class T >
@@ -271,7 +297,8 @@ T& EmaVector< T >::operator[]( UInt32 position )
 {
 	if (position >= _size)
 	{
-		throwOorException(EmaString("Passed in position is out of range."));
+		EmaVectorException exception("Passed in position is out of range.");
+		throw exception;
 	}
 
 	return _list[position];
@@ -282,7 +309,8 @@ const T& EmaVector< T >::operator[]( UInt32 position ) const
 {
 	if (position >= _size)
 	{
-		throwOorException(EmaString("Passed in position is out of range."));
+		EmaVectorException exception("Passed in position is out of range.");
+		throw exception;
 	}
 
 	return _list[position];

@@ -50,6 +50,7 @@ typedef struct
 	RsslRequestMsg					*pReqMsg;			/* Associated RsslRequestMsg. */
 	RsslBool						eventCosDecoded;	/* Whether the classOfService has been decoded. */
 	RsslClassOfService				classOfService;		/* Class of service for this request. Only valid if eventCosDecoded is true. */
+	RsslUInt						streamVersion;		/* stream version of this request */
 } NewTunnelStreamRequest;
 
 /* Retrieve a channel buffer from the TunnelManager's channel. */

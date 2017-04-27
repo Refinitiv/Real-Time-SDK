@@ -14,14 +14,18 @@
 #include "ReqMsg.h"
 #include "ReqMsgEncoder.h"
 #include "StaticDecoder.h"
+#include "Decoder.h"
 
 #include <new>
 
-#define MAX_DICTIONARY_BUFFER_SIZE 16384
+#define MAX_DICTIONARY_BUFFER_SIZE 448000
+#define DEFAULT_DICTIONARY_RESP_HEADER_SIZE 20480
 
 using namespace thomsonreuters::ema::access;
 
 const EmaString DictionaryCallbackClient::_clientName( "DictionaryCallbackClient" );
+const EmaString DictionaryCallbackClient::_rwfFldName("RWFFld");
+const EmaString DictionaryCallbackClient::_rwfEnumName("RWFEnum");
 const EmaString LocalDictionary::_clientName( "LocalDictionary" );
 const EmaString ChannelDictionary::_clientName( "ChannelDictionary" );
 const EmaString DictionaryItem::_clientName( "DictionaryItem" );
@@ -73,7 +77,7 @@ void LocalDictionary::destroy( LocalDictionary*& pDictionary )
 
 Dictionary::DictionaryType LocalDictionary::getType() const
 {
-	return DictionaryType::FileDictionaryEnum;
+	return FileDictionaryEnum;
 }
 
 LocalDictionary::LocalDictionary( OmmCommonImpl& ommCommonImpl, BaseConfig& baseConfig ) :
@@ -582,9 +586,6 @@ void ChannelDictionary::notifyStatusToListener( const RsslRDMDictionaryStatus& s
 	rsslClearStatusMsg( &statusMsg );
 	RsslEncodeIterator encodeIter;
 	RsslBuffer msgBuf;
-	msgBuf.length = 512;
-	msgBuf.data = new char[msgBuf.length];
-	RsslRet ret;
 
 	for ( UInt32 index = 0 ; index < _pListenerList->size(); index++ )
 	{
@@ -598,90 +599,24 @@ void ChannelDictionary::notifyStatusToListener( const RsslRDMDictionaryStatus& s
 		statusMsg.msgBase.streamId = dictItem->getStreamId();
 		statusMsg.msgBase.domainType = RSSL_DMT_DICTIONARY;
 		statusMsg.msgBase.containerType = RSSL_DT_NO_DATA;
-		statusMsg.flags = RSSL_STMF_HAS_STATE;
+		statusMsg.flags = RSSL_STMF_HAS_STATE | RSSL_STMF_HAS_MSG_KEY;
+		statusMsg.msgBase.msgKey.flags = RSSL_MKF_HAS_NAME;
+		statusMsg.msgBase.msgKey.name.data = (char*)dictItem->getName().c_str();
+		statusMsg.msgBase.msgKey.name.length = dictItem->getName().length();
 		statusMsg.state.streamState = status.state.streamState;
 		statusMsg.state.dataState = status.state.dataState;
 		statusMsg.state.code = status.state.code;
 		statusMsg.state.text.data = status.state.text.data;
 		statusMsg.state.text.length = status.state.text.length;
 
-		if ( ( ret = rsslSetEncodeIteratorBuffer( &encodeIter, &msgBuf ) ) != RSSL_RET_SUCCESS )
-		{
-			if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
-				                                       "Internal error. Failed to set encode iterator buffer in ChannelDictionary::notifyStatusToListener()" );
-
-			delete[] msgBuf.data;
-			_channelDictLock.unlock();
-			return;
-		}
-
-		if ( ( ret = rsslSetEncodeIteratorRWFVersion( &encodeIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION ) ) != RSSL_RET_SUCCESS )
-		{
-			if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
-				                                       "Internal error. Failed to set encode iterator RWF version in ChannelDictionary::notifyStatusToListener()" );
-
-			delete[] msgBuf.data;
-			_channelDictLock.unlock();
-			return;
-		}
-
-		ret = rsslEncodeMsg( &encodeIter, ( RsslMsg* )&statusMsg );
-		while ( ret == RSSL_RET_BUFFER_TOO_SMALL )
-		{
-			delete[] msgBuf.data;
-			msgBuf.length = msgBuf.length * 2;
-			msgBuf.data = new char[msgBuf.length];
-
-			ret = rsslSetEncodeIteratorBuffer( &encodeIter, &msgBuf );
-			if ( ret != RSSL_RET_SUCCESS )
-			{
-				if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-					_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
-					                                       "Internal error. Failed to set encode iterator buffer in ChannelDictionary::notifyStatusToListener()" );
-
-				delete[] msgBuf.data;
-				_channelDictLock.unlock();
-				return;
-			}
-
-			ret = rsslSetEncodeIteratorRWFVersion( &encodeIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION );
-			if ( ret != RSSL_RET_SUCCESS )
-			{
-				if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-					_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
-					                                       "Internal error. Failed to set encode iterator RWF version in ChannelDictionary::notifyStatusToListener()" );
-
-				delete[] msgBuf.data;
-				_channelDictLock.unlock();
-				return;
-			}
-
-			if ( ( ret = rsslEncodeMsg( &encodeIter, ( RsslMsg* )&statusMsg ) ) < RSSL_RET_SUCCESS )
-			{
-				if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-					_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
-					                                       "Internal error. Failed to encode in ChannelDictionary::notifyStatusToListener()" );
-
-				delete[] msgBuf.data;
-				_channelDictLock.unlock();
-				return;
-			}
-		}
-
-		msgBuf.length = rsslGetEncodedBufferLength( &encodeIter );
-
-		dictItem->getImpl().getDictionaryCallbackClient().processStatusMsg( &msgBuf,
-		    RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, dictItem );
-
+		dictItem->getImpl().getDictionaryCallbackClient().encodeAndNotifyStatusMsg(dictItem, &statusMsg, &msgBuf, DEFAULT_DICTIONARY_RESP_HEADER_SIZE, 
+			RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, &encodeIter, "ChannelDictionary::notifyStatusToListener");
+	
 		if ( status.state.streamState != RSSL_STREAM_OPEN )
 			_pListenerList->removePosition( index );
 
 		break;
 	}
-
-	delete[] msgBuf.data;
 
 	_channelDictLock.unlock();
 }
@@ -1116,51 +1051,8 @@ RsslReactorCallbackRet DictionaryCallbackClient::processCallback( RsslReactor* p
 	{
 		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
-			                                       "Internal error. Received RsslRDMDictionaryMsgEvent with no RsslRDMDictionaryMsg in DictionaryCallbackClient::processCallback()" );
-		return RSSL_RC_CRET_SUCCESS;
-	}
+			       "Internal error. Received RsslRDMDictionaryMsgEvent with no RsslRDMDictionaryMsg in DictionaryCallbackClient::processCallback()" );
 
-	RsslBuffer rsslMsgBuffer;
-	rsslMsgBuffer.length = MAX_DICTIONARY_BUFFER_SIZE;
-	rsslMsgBuffer.data = ( char* )malloc( sizeof( char ) * rsslMsgBuffer.length );
-
-	if ( !rsslMsgBuffer.data )
-	{
-		const char* temp = "Failed to allocate memory in DictionaryCallbackClient::processCallback()";
-		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-
-		if ( _ommBaseImpl.hasErrorClientHandler() )
-			_ommBaseImpl.getErrorClientHandler().onMemoryExhaustion( temp );
-		else
-			throwMeeException( temp );
-
-		free( rsslMsgBuffer.data );
-		return RSSL_RC_CRET_SUCCESS;
-	}
-
-	RsslEncIterator eIter;
-	rsslClearEncodeIterator( &eIter );
-
-	RsslRet retCode = rsslSetEncodeIteratorRWFVersion( &eIter, pRsslReactorChannel->majorVersion, pRsslReactorChannel->minorVersion );
-	if ( retCode != RSSL_RET_SUCCESS )
-	{
-		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
-			                                       "Internal error. Failed to set encode iterator version in DictionaryCallbackClient::processCallback()" );
-
-		free( rsslMsgBuffer.data );
-		return RSSL_RC_CRET_SUCCESS;
-	}
-
-	retCode = rsslSetEncodeIteratorBuffer( &eIter, &rsslMsgBuffer );
-	if ( retCode != RSSL_RET_SUCCESS )
-	{
-		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
-			                                       "Internal error. Failed to set encode iterator buffer in DictionaryCallbackClient::processCallback()" );
-
-		free( rsslMsgBuffer.data );
 		return RSSL_RC_CRET_SUCCESS;
 	}
 
@@ -1168,12 +1060,17 @@ RsslReactorCallbackRet DictionaryCallbackClient::processCallback( RsslReactor* p
 	clearRsslErrorInfo( &rsslErrorInfo );
 	char errorBuf[255];
 	RsslBuffer errorText = { 255, errorBuf };
-	RsslRet ret = RSSL_RET_SUCCESS;
+	RsslRet retCode = RSSL_RET_SUCCESS;
 	UInt32 completeFlag  = 0;
+	RsslBuffer rsslMsgBuffer;
+	rsslClearBuffer(&rsslMsgBuffer);
+	RsslEncIterator eIter;
+	rsslClearEncodeIterator(&eIter);
 
 	switch ( pEvent->pRDMDictionaryMsg->rdmMsgBase.rdmMsgType )
 	{
 	case RDM_DC_MT_REFRESH:
+	{
 		RsslDecodeIterator dIter;
 		rsslClearDecodeIterator( &dIter );
 		RsslDataDictionary rsslDataDictionary;
@@ -1182,144 +1079,75 @@ RsslReactorCallbackRet DictionaryCallbackClient::processCallback( RsslReactor* p
 		{
 			if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			{
-				EmaString temp( "Internal error: failed to set RWF Version while decoding dictionary" );
+				EmaString temp( "Internal error: failed to set RWF Version while decoding dictionary in DictionaryCallbackClient::processCallback()" );
 				temp.append( CR )
 				.append( "Trying to set " )
 				.append( pRsslReactorChannel->majorVersion ).append( "." ).append( pRsslReactorChannel->minorVersion );
 				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
 			}
 
-			free( rsslMsgBuffer.data );
 			return RSSL_RC_CRET_SUCCESS;
 		}
 
-		if ( RSSL_RET_SUCCESS != rsslSetDecodeIteratorBuffer( &dIter, & pEvent->pRDMDictionaryMsg->refresh.dataBody ) )
+		if ( RSSL_RET_SUCCESS != rsslSetDecodeIteratorBuffer( &dIter, &pEvent->pRDMDictionaryMsg->refresh.dataBody ) )
 		{
 			if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			{
-				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, "Internal error: failed to set iterator buffer while decoding dictionary" );
+				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
+					"Internal error: failed to set iterator buffer while decoding dictionary in DictionaryCallbackClient::processCallback()" );
 			}
 
-			free( rsslMsgBuffer.data );
 			return RSSL_RC_CRET_SUCCESS;
 		}
 
-		if ( pItem->getName() == "RWFFld" )
+		if ( pItem->getDictionaryType() == 0 )
 		{
-			ret = rsslDecodeFieldDictionary( &dIter, &rsslDataDictionary, ( RDMDictionaryVerbosityValues )pItem->getFilter(), &errorText );
-
-			if ( pEvent->pRDMDictionaryMsg->refresh.type == 0 )
-				pEvent->pRDMDictionaryMsg->refresh.type = 1;
+			pItem->setDictionaryType( pEvent->pRDMDictionaryMsg->refresh.type );
 		}
-		else if ( pItem->getName() == "RWFEnum" )
+		else
 		{
-			ret = rsslDecodeEnumTypeDictionary( &dIter, &rsslDataDictionary, ( RDMDictionaryVerbosityValues )pItem->getFilter(), &errorText );
-
-			if ( pEvent->pRDMDictionaryMsg->refresh.type == 0 )
-				pEvent->pRDMDictionaryMsg->refresh.type = 2;
+			pEvent->pRDMDictionaryMsg->refresh.type = pItem->getDictionaryType();
 		}
 
-		if ( ret != RSSL_RET_SUCCESS )
+		if ( pEvent->pRDMDictionaryMsg->refresh.type == RDM_DICTIONARY_FIELD_DEFINITIONS )
+		{
+			retCode = rsslDecodeFieldDictionary(&dIter, &rsslDataDictionary, (RDMDictionaryVerbosityValues)pItem->getFilter(), &errorText);
+		}
+		else if ( pEvent->pRDMDictionaryMsg->refresh.type == RDM_DICTIONARY_ENUM_TABLES )
+		{
+			retCode = rsslDecodeEnumTypeDictionary(&dIter, &rsslDataDictionary, (RDMDictionaryVerbosityValues)pItem->getFilter(), &errorText);
+		}
+
+		if (retCode != RSSL_RET_SUCCESS)
 		{
 			if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			{
-				EmaString temp( "Internal error: failed to decode data dictionary" );
-				temp.append( CR )
-				.append( "Trying to set " )
-				.append( pRsslReactorChannel->majorVersion ).append( "." ).append( pRsslReactorChannel->minorVersion );
+				EmaString temp( "Internal error: failed to decode data dictionary in DictionaryCallbackClient::processCallback()" );
+				temp.append(CR).append("Reason='").append(errorText.data).append("'");
 				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
 			}
 
-			free( rsslMsgBuffer.data );
 			return RSSL_RC_CRET_SUCCESS;
 		}
 
-		completeFlag = pEvent->pRDMDictionaryMsg->refresh.flags & RDM_DC_RFF_IS_COMPLETE;
+		if ( RSSL_RET_SUCCESS != allocateAndSetEncodeIteratorBuffer(&rsslMsgBuffer, pEvent->pRDMDictionaryMsg->refresh.dataBody.length + DEFAULT_DICTIONARY_RESP_HEADER_SIZE,
+			pRsslReactorChannel->majorVersion, pRsslReactorChannel->minorVersion, &eIter, "DictionaryCallbackClient::processCallback()"))
+		{
+			return RSSL_RC_CRET_SUCCESS;
+		}
+
+		bool completeFlag = pEvent->pRDMDictionaryMsg->refresh.flags & RDM_DC_RFF_IS_COMPLETE ? true : false;
 		pEvent->pRDMDictionaryMsg->refresh.pDictionary = &rsslDataDictionary;
 		pEvent->pRDMDictionaryMsg->refresh.flags &= ~( RDM_DC_RFF_IS_COMPLETE | RDM_DC_RFF_HAS_INFO );
-
 		retCode = rsslEncodeRDMDictionaryMsg( &eIter, pEvent->pRDMDictionaryMsg, &rsslMsgBuffer.length, &rsslErrorInfo );
 
 		while ( retCode == RSSL_RET_BUFFER_TOO_SMALL || retCode == RSSL_RET_DICT_PART_ENCODED )
 		{
-			if ( retCode == RSSL_RET_BUFFER_TOO_SMALL )
-			{
-				free( rsslMsgBuffer.data );
-
-				rsslMsgBuffer.length += rsslMsgBuffer.length;
-				rsslMsgBuffer.data = ( char* )malloc( sizeof( char ) * rsslMsgBuffer.length );
-
-				if ( !rsslMsgBuffer.data )
-				{
-					_ommBaseImpl.handleMee( "Failed to allocate memory in DictionaryCallbackClient::processCallback()" );
-					return RSSL_RC_CRET_SUCCESS;
-				}
-			}
-			else
-			{
-				if ( processRefreshMsg( &rsslMsgBuffer, completeFlag,  pRsslReactorChannel->majorVersion, pRsslReactorChannel->minorVersion, pItem ) !=  RSSL_RC_CRET_SUCCESS )
-				{
-					if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-						_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
-						                                       "Internal error. Failed to set encode refresh message in DictionaryCallbackClient::processCallback()" );
-
-					free( rsslMsgBuffer.data );
-					return RSSL_RC_CRET_SUCCESS;
-				}
-			}
-
-			retCode = rsslSetEncodeIteratorBuffer( &eIter, &rsslMsgBuffer );
-			if ( retCode != RSSL_RET_SUCCESS )
-			{
-				if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-					_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
-					                                       "Internal error. Failed to set encode iterator buffer in DictionaryCallbackClient::processCallback()" );
-
-				free( rsslMsgBuffer.data );
-				return RSSL_RC_CRET_SUCCESS;
-			}
-
-			ret = rsslSetEncodeIteratorRWFVersion( &eIter, pRsslReactorChannel->majorVersion, pRsslReactorChannel->minorVersion );
-			if ( ret != RSSL_RET_SUCCESS )
-			{
-				if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-					_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
-					                                       "Internal error. Failed to set encode iterator RWF version in DictionaryCallbackClient::processCallback()" );
-
-				free( rsslMsgBuffer.data );
-				return RSSL_RC_CRET_SUCCESS;
-			}
-
-			retCode = rsslEncodeRDMDictionaryMsg( &eIter, pEvent->pRDMDictionaryMsg, &rsslMsgBuffer.length, &rsslErrorInfo );
-		}
-
-		if ( retCode == RSSL_RET_SUCCESS )
-		{
-			if ( processRefreshMsg( &rsslMsgBuffer, completeFlag,  pRsslReactorChannel->majorVersion, pRsslReactorChannel->minorVersion, pItem ) !=  RSSL_RC_CRET_SUCCESS )
-			{
-				if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-					_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
-					                                       "Internal error. Failed to set encode refresh message in DictionaryCallbackClient::processCallback()" );
-
-				free( rsslMsgBuffer.data );
-				return RSSL_RC_CRET_SUCCESS;
-			}
-		}
-
-		break;
-
-	case RDM_DC_MT_STATUS:
-		retCode = rsslEncodeRDMDictionaryMsg( &eIter, pEvent->pRDMDictionaryMsg, &rsslMsgBuffer.length, &rsslErrorInfo );
-		while ( retCode == RSSL_RET_BUFFER_TOO_SMALL )
-		{
 			free( rsslMsgBuffer.data );
 
-			rsslMsgBuffer.length += rsslMsgBuffer.length;
-			rsslMsgBuffer.data = ( char* )malloc( sizeof( char ) * rsslMsgBuffer.length );
-
-			if ( !rsslMsgBuffer.data )
+			if (RSSL_RET_SUCCESS != allocateAndSetEncodeIteratorBuffer(&rsslMsgBuffer, rsslMsgBuffer.length * 2, pRsslReactorChannel->majorVersion, pRsslReactorChannel->minorVersion, &eIter,
+				"DictionaryCallbackClient::processCallback()") )
 			{
-				_ommBaseImpl.handleMee( "Failed to allocate memory in DictionaryCallbackClient::processCallback()" );
 				return RSSL_RC_CRET_SUCCESS;
 			}
 
@@ -1328,20 +1156,41 @@ RsslReactorCallbackRet DictionaryCallbackClient::processCallback( RsslReactor* p
 
 		if ( retCode == RSSL_RET_SUCCESS )
 		{
-			processStatusMsg( &rsslMsgBuffer, pRsslReactorChannel->majorVersion, pRsslReactorChannel->minorVersion, pItem );
+			processRefreshMsg(&rsslMsgBuffer, pRsslReactorChannel->majorVersion, pRsslReactorChannel->minorVersion, pItem, completeFlag );
 		}
+	}
+	break;
+
+	case RDM_DC_MT_STATUS:
+
+		RsslStatusMsg statusMsg;
+		rsslClearStatusMsg(&statusMsg);
+		statusMsg.msgBase.streamId = pEvent->pRDMDictionaryMsg->rdmMsgBase.streamId;
+		statusMsg.msgBase.domainType = pEvent->pRDMDictionaryMsg->rdmMsgBase.domainType;
+		statusMsg.msgBase.containerType = RSSL_DT_NO_DATA;
+		statusMsg.flags = RSSL_STMF_HAS_STATE | RSSL_STMF_HAS_MSG_KEY;
+		statusMsg.msgBase.msgKey.flags = RSSL_MKF_HAS_NAME | RSSL_MKF_HAS_SERVICE_ID;
+		statusMsg.msgBase.msgKey.name.data = (char*)pItem->getName().c_str();
+		statusMsg.msgBase.msgKey.name.length = pItem->getName().length();
+		statusMsg.msgBase.msgKey.serviceId = (RsslUInt16)pItem->getDirectory()->getId();
+		statusMsg.state = pEvent->pRDMDictionaryMsg->status.state;
+
+		encodeAndNotifyStatusMsg(pItem, &statusMsg, &rsslMsgBuffer, DEFAULT_DICTIONARY_RESP_HEADER_SIZE, pRsslReactorChannel->majorVersion,
+			pRsslReactorChannel->minorVersion, &eIter, "DictionaryCallbackClient::processCallback()");
+		
+		return RSSL_RC_CRET_SUCCESS;
 
 		break;
 	default :
-	{
-		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
-			                                       "Internal error. Received unexpected type of RsslRDMDictionaryMsg in DictionaryCallbackClient::processCallback()" );
-		break;
-	}
+		{
+			if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
+						"Internal error. Received unexpected type of RsslRDMDictionaryMsg in DictionaryCallbackClient::processCallback()" );
+			break;
+		}
 	}
 
-	if ( retCode != RSSL_RET_SUCCESS && retCode != RSSL_RET_DICT_PART_ENCODED )
+	if ( retCode != RSSL_RET_SUCCESS )
 	{
 		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
@@ -1355,53 +1204,137 @@ RsslReactorCallbackRet DictionaryCallbackClient::processCallback( RsslReactor* p
 			.append( "Error Text " ).append( rsslErrorInfo.rsslError.text );
 			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 		}
-
-		free( rsslMsgBuffer.data );
-		return RSSL_RC_CRET_SUCCESS;
 	}
 
 	free( rsslMsgBuffer.data );
 	return RSSL_RC_CRET_SUCCESS;
 }
 
-RsslReactorCallbackRet DictionaryCallbackClient::processRefreshMsg( RsslBuffer* msgBuf, UInt32 completeFlag, UInt8 majorVersion, UInt8 minorVersion,
-    DictionaryItem* dictionaryItem )
+int DictionaryCallbackClient::allocateAndSetEncodeIteratorBuffer(RsslBuffer* rsslBuffer, UInt32 allocateBufferSize, UInt8 majorVersion, UInt8 minorVersion, 
+	RsslEncodeIterator* rsslEncodeIterator, const char* methodName)
+{
+	rsslBuffer->length = allocateBufferSize;
+
+	rsslBuffer->data = (char*)malloc(sizeof(char) * rsslBuffer->length);
+
+	if ( !rsslBuffer->data )
+	{
+		EmaString text("Failed to allocate memory in ");
+		text.append(methodName);
+		_ommBaseImpl.handleMee(text.c_str());
+		return RSSL_RET_FAILURE;
+	}
+
+	int retCode = rsslSetEncodeIteratorRWFVersion(rsslEncodeIterator, majorVersion, minorVersion);
+	if ( retCode != RSSL_RET_SUCCESS )
+	{
+		EmaString text("Internal error. Failed to set encode iterator RWF version in ");
+		text.append(methodName);
+		if (OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
+			_ommBaseImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum,
+			text.c_str());
+
+		free(rsslBuffer->data);
+		return retCode;
+	}
+
+	retCode = rsslSetEncodeIteratorBuffer(rsslEncodeIterator, rsslBuffer);
+	if ( retCode != RSSL_RET_SUCCESS )
+	{
+		EmaString text("Internal error. Failed to set encode iterator buffer in ");
+		text.append(methodName);
+		if (OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
+			_ommBaseImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum,
+			text.c_str());
+
+		free(rsslBuffer->data);
+		return retCode;
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
+void DictionaryCallbackClient::encodeAndNotifyStatusMsg(DictionaryItem* dictionaryItem, RsslStatusMsg* statusMsg, RsslBuffer* msgBuf, UInt32 bufferSize, UInt8 majorVersion, UInt8 minorVersion,
+	RsslEncodeIterator* rsslEncodeIterator, const char* methodName)
+{
+	if (RSSL_RET_SUCCESS != dictionaryItem->getImpl().getDictionaryCallbackClient().allocateAndSetEncodeIteratorBuffer(msgBuf, bufferSize, majorVersion,
+		minorVersion, rsslEncodeIterator, methodName))
+	{
+		return;
+	} 
+
+	int ret = rsslEncodeMsg(rsslEncodeIterator, (RsslMsg*)statusMsg);
+	while (ret == RSSL_RET_BUFFER_TOO_SMALL)
+	{
+		free(msgBuf->data);
+
+		if (RSSL_RET_SUCCESS != dictionaryItem->getImpl().getDictionaryCallbackClient().allocateAndSetEncodeIteratorBuffer(msgBuf, msgBuf->length * 2, majorVersion, minorVersion, rsslEncodeIterator,
+			methodName))
+		{
+			return;
+		}
+
+		ret = rsslEncodeMsg(rsslEncodeIterator, (RsslMsg*)statusMsg);
+	}
+
+	if (ret != RSSL_RET_SUCCESS)
+	{
+		EmaString text("Internal error. Failed to encode Status message in ");
+		text.append(text);
+		if (OmmLoggerClient::ErrorEnum >= dictionaryItem->getImpl().getActiveConfig().loggerConfig.minLoggerSeverity)
+			dictionaryItem->getImpl().getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum,
+			text.c_str());
+
+		free(msgBuf->data);
+		return;
+	}
+
+	msgBuf->length = rsslGetEncodedBufferLength(rsslEncodeIterator);
+
+	dictionaryItem->getImpl().getDictionaryCallbackClient().processStatusMsg(msgBuf,
+		majorVersion, minorVersion, dictionaryItem);
+
+	free(msgBuf->data);
+}
+
+RsslReactorCallbackRet DictionaryCallbackClient::processRefreshMsg( RsslBuffer* msgBuf, UInt8 majorVersion, UInt8 minorVersion, DictionaryItem* dictionaryItem,
+	bool completeFlag)
 {
 	RsslDecodeIterator rsslDecodeIterator;
 	RsslRefreshMsg rsslRefreshMsg;
 	RsslRet ret = RSSL_RET_SUCCESS;
 
-	rsslClearDecodeIterator( &rsslDecodeIterator );
-	rsslClearRefreshMsg( &rsslRefreshMsg );
+	rsslClearDecodeIterator(&rsslDecodeIterator);
+	rsslClearRefreshMsg(&rsslRefreshMsg);
 
-	if ( ( ret = rsslSetDecodeIteratorBuffer( &rsslDecodeIterator, msgBuf ) ) != RSSL_RET_SUCCESS )
+	if ((ret = rsslSetDecodeIteratorBuffer(&rsslDecodeIterator, msgBuf)) != RSSL_RET_SUCCESS)
 	{
-		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
-			                                       "Internal error. Failed to set encode iterator buffer in DictionaryCallbackClient::processRefreshMsg()" );
+		if (OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
+			_ommBaseImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum,
+			"Internal error. Failed to set encode iterator buffer in DictionaryCallbackClient::processRefreshMsg()");
 
 		return RSSL_RC_CRET_FAILURE;
 	}
 
-	if ( ( ret = rsslSetDecodeIteratorRWFVersion( &rsslDecodeIterator, majorVersion, minorVersion ) ) != RSSL_RET_SUCCESS )
+	if ((ret = rsslSetDecodeIteratorRWFVersion(&rsslDecodeIterator, majorVersion, minorVersion)) != RSSL_RET_SUCCESS)
 	{
-		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
-			                                       "Internal error. Failed to set encode iterator RWF version in DictionaryCallbackClient::processRefreshMsg()" );
+		if (OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
+			_ommBaseImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum,
+			"Internal error. Failed to set encode iterator RWF version in DictionaryCallbackClient::processRefreshMsg()");
 
 		return RSSL_RC_CRET_FAILURE;
 	}
 
-	if ( ( ret = rsslDecodeMsg( &rsslDecodeIterator, ( RsslMsg* )&rsslRefreshMsg ) ) != RSSL_RET_SUCCESS )
+	if ((ret = rsslDecodeMsg(&rsslDecodeIterator, (RsslMsg*)&rsslRefreshMsg)) != RSSL_RET_SUCCESS)
 	{
-		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
-			                                       "Internal error. Failed to decode message in DictionaryCallbackClient::processRefreshMsg()" );
+		if (OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
+			_ommBaseImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum,
+			"Internal error. Failed to decode message in DictionaryCallbackClient::processRefreshMsg()");
 
 		return RSSL_RC_CRET_FAILURE;
 	}
 
-	if ( completeFlag )
+	if (completeFlag)
 	{
 		rsslRefreshMsg.flags |= RSSL_RFMF_REFRESH_COMPLETE;
 	}
@@ -1410,29 +1343,15 @@ RsslReactorCallbackRet DictionaryCallbackClient::processRefreshMsg( RsslBuffer* 
 		rsslRefreshMsg.flags &= ~RSSL_RFMF_REFRESH_COMPLETE;
 	}
 
-	StaticDecoder::setRsslData( &_refreshMsg, ( RsslMsg* )&rsslRefreshMsg, majorVersion, minorVersion, 0 );
+	StaticDecoder::setRsslData(&_refreshMsg, (RsslMsg*)&rsslRefreshMsg, majorVersion, minorVersion, 0);
 
-	_ommBaseImpl.msgDispatched();
-
-	dictionaryItem->onAllMsg( _refreshMsg );
-	dictionaryItem->onRefreshMsg( _refreshMsg );
-
-	if ( _refreshMsg.getState().getStreamState() == OmmState::NonStreamingEnum )
+	if ( dictionaryItem->getDirectory() && _refreshMsg.hasServiceId() )
 	{
-		if ( _refreshMsg.getComplete() )
-			dictionaryItem->remove();
+		if ( _refreshMsg.getServiceId() == dictionaryItem->getDirectory()->getId() )
+		{
+			_refreshMsg.getDecoder().setServiceName(dictionaryItem->getDirectory()->getName().c_str(), dictionaryItem->getDirectory()->getName().length());
+		}
 	}
-	else if ( _refreshMsg.getState().getStreamState() != OmmState::OpenEnum )
-	{
-		dictionaryItem->remove();
-	}
-
-	return RSSL_RC_CRET_SUCCESS;
-}
-
-RsslReactorCallbackRet DictionaryCallbackClient::processRefreshMsg( RsslBuffer* msgBuf, UInt8 majorVersion, UInt8 minorVersion, DictionaryItem* dictionaryItem )
-{
-	StaticDecoder::setRsslData( &_refreshMsg, msgBuf, RSSL_DT_MSG, majorVersion, minorVersion, 0 );
 
 	_ommBaseImpl.msgDispatched();
 
@@ -1455,6 +1374,14 @@ RsslReactorCallbackRet DictionaryCallbackClient::processRefreshMsg( RsslBuffer* 
 RsslReactorCallbackRet DictionaryCallbackClient::processStatusMsg( RsslBuffer* msgBuf, UInt8 majorVersion, UInt8 minorVersion, DictionaryItem* dictionaryItem )
 {
 	StaticDecoder::setRsslData( &_statusMsg, msgBuf, RSSL_DT_MSG, majorVersion, minorVersion, 0 );
+
+	if ( dictionaryItem->getDirectory() && _statusMsg.hasServiceId() )
+	{
+		if ( _statusMsg.getServiceId() == dictionaryItem->getDirectory()->getId() )
+		{
+			_statusMsg.getDecoder().setServiceName( dictionaryItem->getDirectory()->getName().c_str(), dictionaryItem->getDirectory()->getName().length() );
+		}
+	}
 
 	_ommBaseImpl.msgDispatched();
 
@@ -1506,28 +1433,34 @@ void DictionaryCallbackClient::sendInternalMsg( void* item )
 	RsslDecodeIterator decodeIter;
 	rsslClearDecodeIterator( &decodeIter );
 
-	msgBuf.data = new char[MAX_DICTIONARY_BUFFER_SIZE];
-	msgBuf.length = MAX_DICTIONARY_BUFFER_SIZE;
-
 	if ( dictionary->isLoaded() )
 	{
+		msgBuf.length = MAX_DICTIONARY_BUFFER_SIZE;
+		msgBuf.data = (char*)malloc(sizeof(char) * msgBuf.length);
+
+		if (!msgBuf.data)
+		{
+			dictItem->getImpl().handleMee("Failed to allocate memory in DictionaryCallbackClient::sendInternalMsg()");
+			return;
+		}
+
 		const RsslDataDictionary* rsslDataDictionary = dictionary->getRsslDictionary();
 		RsslInt32 dictionaryFid = dictItem->getCurrentFid();
 
-		if ( dictItem->getName() == "RWFFld" )
+		if ( dictItem->getName() == DictionaryCallbackClient::_rwfFldName )
 		{
 			if ( dictionaryFid == rsslDataDictionary->minFid )
 				firstPart = true;
 
-			ret = DictionaryItem::encodeDataDictionaryResp( msgBuf, dictItem->getName(), dictItem->getFilter(), dictItem->getStreamId() ,
+			ret = DictionaryItem::encodeDataDictionaryResp( *dictItem, msgBuf, dictItem->getName(), dictItem->getFilter(), dictItem->getStreamId() ,
 			      firstPart, const_cast<RsslDataDictionary*>( rsslDataDictionary ), dictionaryFid );
 		}
-		else if ( dictItem->getName() == "RWFEnum" )
+		else if ( dictItem->getName() == DictionaryCallbackClient::_rwfEnumName )
 		{
 			if ( dictionaryFid == 0 )
 				firstPart = true;
 
-			ret = DictionaryItem::encodeDataDictionaryResp( msgBuf, dictItem->getName(), dictItem->getFilter(), dictItem->getStreamId(),
+			ret = DictionaryItem::encodeDataDictionaryResp( *dictItem, msgBuf, dictItem->getName(), dictItem->getFilter(), dictItem->getStreamId(),
 			      firstPart, const_cast<RsslDataDictionary*>( rsslDataDictionary ), dictionaryFid );
 		}
 
@@ -1535,7 +1468,9 @@ void DictionaryCallbackClient::sendInternalMsg( void* item )
 		{
 			dictItem->setCurrentFid( dictionaryFid );
 			dictItem->getImpl().getDictionaryCallbackClient().processRefreshMsg( &msgBuf,
-			    RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, dictItem );
+				RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, dictItem, ret == RSSL_RET_SUCCESS ? true : false);
+			
+			free( msgBuf.data );
 		}
 
 		if ( ret == RSSL_RET_DICT_PART_ENCODED )
@@ -1544,60 +1479,28 @@ void DictionaryCallbackClient::sendInternalMsg( void* item )
 			return;
 		}
 
-		if ( ret != RSSL_RET_SUCCESS )
+		if (ret != RSSL_RET_SUCCESS)
 		{
 			RsslStatusMsg statusMsg;
-			rsslClearStatusMsg( &statusMsg );
+			rsslClearStatusMsg(&statusMsg);
 			RsslEncodeIterator encodeIter;
-			rsslClearEncodeIterator( &encodeIter );
+			rsslClearEncodeIterator(&encodeIter);
 
-			statusMsg.msgBase.msgClass = RSSL_MC_STATUS;
 			statusMsg.msgBase.streamId = dictItem->getStreamId();
 			statusMsg.msgBase.domainType = RSSL_DMT_DICTIONARY;
 			statusMsg.msgBase.containerType = RSSL_DT_NO_DATA;
-			statusMsg.flags = RSSL_STMF_HAS_STATE;
+			statusMsg.flags = RSSL_STMF_HAS_STATE | RSSL_STMF_HAS_MSG_KEY;
+			statusMsg.msgBase.msgKey.flags = RSSL_MKF_HAS_NAME;
+			statusMsg.msgBase.msgKey.name.data = (char*)dictItem->getName().c_str();
+			statusMsg.msgBase.msgKey.name.length = dictItem->getName().length();
 			statusMsg.state.streamState = RSSL_STREAM_CLOSED;
 			statusMsg.state.dataState = RSSL_DATA_SUSPECT;
 			statusMsg.state.code = RSSL_SC_ERROR;
 			statusMsg.state.text.data = (char*)"Failed to provide data dictionary: Internal error.";
-			statusMsg.state.text.length = ( RsslUInt32 )strlen( statusMsg.state.text.data ) + 1;
+			statusMsg.state.text.length = (RsslUInt32)strlen(statusMsg.state.text.data) + 1;
 
-			if ( ( ret = rsslSetEncodeIteratorBuffer( &encodeIter, &msgBuf ) ) != RSSL_RET_SUCCESS )
-			{
-				if ( OmmLoggerClient::ErrorEnum >= dictItem->getImpl().getActiveConfig().loggerConfig.minLoggerSeverity )
-					dictItem->getImpl().getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
-					    "Internal error. Failed to set encode iterator buffer in DictionaryCallbackClient::sendInternalMsg()" );
-
-				delete[] msgBuf.data;
-				return;
-			}
-
-			if ( ( ret = rsslSetEncodeIteratorRWFVersion( &encodeIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION ) ) != RSSL_RET_SUCCESS )
-			{
-				if ( OmmLoggerClient::ErrorEnum >= dictItem->getImpl().getActiveConfig().loggerConfig.minLoggerSeverity )
-					dictItem->getImpl().getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
-					    "Internal error. Failed to set encode iterator RWF version in DictionaryCallbackClient::sendInternalMsg()" );
-
-				delete[] msgBuf.data;
-				return;
-			}
-
-			if ( ( ret = rsslEncodeMsg( &encodeIter, ( RsslMsg* )&statusMsg ) ) != RSSL_RET_SUCCESS )
-			{
-				if ( OmmLoggerClient::ErrorEnum >= dictItem->getImpl().getActiveConfig().loggerConfig.minLoggerSeverity )
-					dictItem->getImpl().getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
-					    "Internal error. Failed to encode msg in DictionaryCallbackClient::sendInternalMsg()" );
-
-				delete[] msgBuf.data;
-				return;
-			}
-
-			msgBuf.length = rsslGetEncodedBufferLength( &encodeIter );
-
-			dictItem->getImpl().getDictionaryCallbackClient().processStatusMsg( &msgBuf,
-			    RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, dictItem );
-
-			delete[] msgBuf.data;
+			dictItem->getImpl().getDictionaryCallbackClient().encodeAndNotifyStatusMsg(dictItem, &statusMsg, &msgBuf, DEFAULT_DICTIONARY_RESP_HEADER_SIZE,
+				RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, &encodeIter, "DictionaryCallbackClient::sendInternalMsg()");
 		}
 	}
 	else
@@ -1607,64 +1510,31 @@ void DictionaryCallbackClient::sendInternalMsg( void* item )
 		RsslEncodeIterator encodeIter;
 		rsslClearEncodeIterator( &encodeIter );
 
-		statusMsg.msgBase.msgClass = RSSL_MC_STATUS;
 		statusMsg.msgBase.streamId = dictItem->getStreamId();
 		statusMsg.msgBase.domainType = RSSL_DMT_DICTIONARY;
 		statusMsg.msgBase.containerType = RSSL_DT_NO_DATA;
-		statusMsg.flags = RSSL_STMF_HAS_STATE;
+		statusMsg.flags = RSSL_STMF_HAS_STATE | RSSL_STMF_HAS_MSG_KEY;
+		statusMsg.msgBase.msgKey.flags = RSSL_MKF_HAS_NAME;
+		statusMsg.msgBase.msgKey.name.data = (char*)dictItem->getName().c_str();
+		statusMsg.msgBase.msgKey.name.length = dictItem->getName().length();
 		statusMsg.state.streamState = RSSL_STREAM_CLOSED_RECOVER;
 		statusMsg.state.dataState = RSSL_DATA_SUSPECT;
 		statusMsg.state.code = RSSL_SC_ERROR;
 		statusMsg.state.text.data = (char*)"Data dictionary is not ready to provide.";
 		statusMsg.state.text.length = ( RsslUInt32 )strlen( statusMsg.state.text.data ) + 1;
 
-		if ( ( ret = rsslSetEncodeIteratorBuffer( &encodeIter, &msgBuf ) ) != RSSL_RET_SUCCESS )
-		{
-			if ( OmmLoggerClient::ErrorEnum >= dictItem->getImpl().getActiveConfig().loggerConfig.minLoggerSeverity )
-				dictItem->getImpl().getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
-				    "Internal error. Failed to set encode iterator buffer in DictionaryCallbackClient::sendInternalMsg()" );
-
-			delete[] msgBuf.data;
-			return;
-		}
-
-		if ( ( ret = rsslSetEncodeIteratorRWFVersion( &encodeIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION ) ) != RSSL_RET_SUCCESS )
-		{
-			if ( OmmLoggerClient::ErrorEnum >= dictItem->getImpl().getActiveConfig().loggerConfig.minLoggerSeverity )
-				dictItem->getImpl().getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
-				    "Internal error. Failed to set encode iterator RWF version in DictionaryCallbackClient::sendInternalMsg()" );
-
-			delete[] msgBuf.data;
-			return;
-		}
-
-		if ( ( ret = rsslEncodeMsg( &encodeIter, ( RsslMsg* )&statusMsg ) ) != RSSL_RET_SUCCESS )
-		{
-			if ( OmmLoggerClient::ErrorEnum >= dictItem->getImpl().getActiveConfig().loggerConfig.minLoggerSeverity )
-				dictItem->getImpl().getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
-				    "Internal error. Failed to encode msg in DictionaryCallbackClient::sendInternalMsg()" );
-
-			delete[] msgBuf.data;
-			return;
-		}
-
-		msgBuf.length = rsslGetEncodedBufferLength( &encodeIter );
-
-		dictItem->getImpl().getDictionaryCallbackClient().processStatusMsg( &msgBuf,
-		    RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, dictItem );
-
-		delete[] msgBuf.data;
-		return;
+		dictItem->getImpl().getDictionaryCallbackClient().encodeAndNotifyStatusMsg(dictItem, &statusMsg, &msgBuf, DEFAULT_DICTIONARY_RESP_HEADER_SIZE,
+			RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, &encodeIter, "DictionaryCallbackClient::sendInternalMsg()");
 	}
 }
-
 
 DictionaryItem::DictionaryItem( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure ) :
 	SingleItem( ommBaseImpl, ommConsClient, closure, 0 ),
 	_name(),
 	_currentFid( 0 ),
 	_filter( 0 ),
-	_isRemoved( false )
+	_isRemoved( false ),
+	_dictionaryType( 0 )
 {
 }
 
@@ -1708,21 +1578,30 @@ bool DictionaryItem::open( const ReqMsg& reqMsg )
 	}
 	else
 	{
-		if ( _name == "RWFFld" )
-		{
-			_currentFid = _ommBaseImpl.getDictionaryCallbackClient().getDefaultDictionary()->getRsslDictionary()->minFid;
-			_streamId = _ommBaseImpl.getDictionaryCallbackClient().getDefaultDictionary()->getFldStreamId();
-		}
-		else if ( _name == "RWFEnum" )
-		{
-			_currentFid = 0;
-			_streamId = _ommBaseImpl.getDictionaryCallbackClient().getDefaultDictionary()->getEnumStreamId();
-		}
-
 		Dictionary* dictionary = _ommBaseImpl.getDictionaryCallbackClient().getDefaultDictionary();
 
 		if ( dictionary )
 		{
+			if (_name == DictionaryCallbackClient::_rwfFldName)
+			{
+				_currentFid = dictionary->getRsslDictionary()->minFid;
+				_streamId = dictionary->getFldStreamId();
+			}
+			else if (_name == DictionaryCallbackClient::_rwfEnumName)
+			{
+				_currentFid = 0;
+				_streamId = dictionary->getEnumStreamId();
+			}
+			else
+			{
+				EmaString temp("Invalid ReqMsg's name : ");
+				temp.append(_name);
+				temp.append("\nReqMsg's name must be \"RWFFld\" or \"RWFEnum\" for MMT_DICTIONARY domain type. ");
+				temp.append("Instance name='").append(_ommBaseImpl.getInstanceName()).append("'.");
+				_ommBaseImpl.handleIue(temp);
+				return false;
+			}
+
 			if ( dictionary->getType() == Dictionary::ChannelDictionaryEnum )
 			{
 				ChannelDictionary* channelDict = static_cast<ChannelDictionary*>( dictionary );
@@ -1743,6 +1622,16 @@ bool DictionaryItem::open( const ReqMsg& reqMsg )
 			return false;
 		}
 	}
+}
+
+void DictionaryItem::setDictionaryType(UInt64 dictionaryType)
+{
+	_dictionaryType = dictionaryType;
+}
+
+UInt64 DictionaryItem::getDictionaryType()
+{
+	return _dictionaryType;
 }
 
 void DictionaryItem::setCurrentFid( Int32 fid )
@@ -1847,7 +1736,7 @@ void DictionaryItem::ScheduleRemove( void* item )
 	delete( DictionaryItem* )item;
 }
 
-RsslRet DictionaryItem::encodeDataDictionaryResp( RsslBuffer& msgBuf, const EmaString& name, unsigned char filter, RsslInt32 streamId,
+RsslRet DictionaryItem::encodeDataDictionaryResp( DictionaryItem& dictionaryItem, RsslBuffer& msgBuf, const EmaString& name, unsigned char filter, RsslInt32 streamId,
     bool firstMultiRefresh, RsslDataDictionary* rsslDataDictionary, Int32& currentFid )
 {
 	RsslRet ret = RSSL_RET_SUCCESS;
@@ -1880,13 +1769,6 @@ RsslRet DictionaryItem::encodeDataDictionaryResp( RsslBuffer& msgBuf, const EmaS
 
 	while ( true )
 	{
-		if ( ret == RSSL_RET_BUFFER_TOO_SMALL )
-		{
-			delete[] msgBuf.data;
-			msgBuf.data = new char[msgBuf.length * 2 ];
-			msgBuf.length = msgBuf.length * 2;
-		}
-
 		if ( ( ret = rsslSetEncodeIteratorBuffer( &encodeIter, &msgBuf ) ) < RSSL_RET_SUCCESS )
 		{
 			return ret;
@@ -1902,11 +1784,11 @@ RsslRet DictionaryItem::encodeDataDictionaryResp( RsslBuffer& msgBuf, const EmaS
 			return ret;
 		}
 
-		if ( name == "RWFFld" )
+		if ( name == DictionaryCallbackClient::_rwfFldName )
 		{
 			ret = rsslEncodeFieldDictionary( &encodeIter, rsslDataDictionary, &currentFid, ( RDMDictionaryVerbosityValues )filter, &errorText );
 		}
-		else
+		else if ( name == DictionaryCallbackClient::_rwfEnumName )
 		{
 			ret = rsslEncodeEnumTypeDictionaryAsMultiPart( &encodeIter, rsslDataDictionary, &currentFid, ( RDMDictionaryVerbosityValues )filter, &errorText );
 		}
@@ -1915,6 +1797,19 @@ RsslRet DictionaryItem::encodeDataDictionaryResp( RsslBuffer& msgBuf, const EmaS
 		{
 			if ( ret == RSSL_RET_BUFFER_TOO_SMALL )
 			{
+				free( msgBuf.data );
+
+				try
+				{
+					msgBuf.length = msgBuf.length * 2;
+					msgBuf.data = (char*)malloc(sizeof(char) * msgBuf.length);
+				}
+				catch (std::bad_alloc)
+				{
+					dictionaryItem.getImpl().handleMee("Failed to allocate memory in DictionaryCallbackClient::encodeDataDictionaryResp()");
+					return RSSL_RET_FAILURE;
+				}
+
 				continue;
 			}
 			else if ( ret != RSSL_RET_DICT_PART_ENCODED )

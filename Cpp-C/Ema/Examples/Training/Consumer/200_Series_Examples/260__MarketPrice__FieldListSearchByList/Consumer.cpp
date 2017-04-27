@@ -44,7 +44,7 @@ void AppClient::decode( const FieldList& fl )
 	ElementList searchList;
 
 	// specify the set of fids to search for; use fid #s
-	searchList.addArray( "", OmmArray().addInt( 3 ).addInt( 21 ).addInt( 22 ).addInt( 25 ).complete() ).complete();
+	searchList.addArray( "", OmmArray().addInt( 3 ).addInt( 15 ).addInt( 21 ).addInt( 22 ).addInt( 25 ).complete() ).complete();
 
 	while ( fl.forth( searchList ) )		// search for a set of matching fids
 	{
@@ -79,7 +79,7 @@ void AppClient::decode( const FieldList& fl )
 				cout << fe.getError().getErrorCode() << "( " << fe.getError().getErrorCodeAsString() << " )" << endl;
 				break;
 			case DataType::EnumEnum:
-				cout << fe.getEnum() << endl;
+				fe.hasEnumDisplay() ? cout << fe.getEnumDisplay() << endl : cout << fe.getEnum() << endl;
 				break;
 			case DataType::RmtesEnum:
 				cout << fe.getRmtes().toString() << endl;

@@ -63,10 +63,7 @@ Channel::Channel( const EmaString& name, RsslReactor* pRsslReactor ) :
 	_pLogin( 0 ),
 	_pDictionary( 0 ),
 	_directoryList(),
-	_toStringSet( false ),
-	_nextStreamId( 4 ),
-	_recoveredStreamIds(),
-	_streamIdMutex()
+	_toStringSet( false )
 {
 }
 
@@ -155,51 +152,6 @@ Channel& Channel::setDictionary( Dictionary* pDictionary )
 	return *this;
 }
 
-Int32 Channel::getNextStreamId( UInt32 numberOfBatchItems )
-{
-	Int32 retVal;
-
-	if ( numberOfBatchItems )
-	{
-		_streamIdMutex.lock();
-		retVal = ++_nextStreamId;
-		_nextStreamId += numberOfBatchItems;
-		_streamIdMutex.unlock();
-	}
-	else
-	{
-		_streamIdMutex.lock();
-		if ( _recoveredStreamIds.empty() )
-		{
-			retVal = ++_nextStreamId;
-			_streamIdMutex.unlock();
-		}
-		else
-		{
-			StreamId* tmp( _recoveredStreamIds.pop_back() );
-			_streamIdMutex.unlock();
-			retVal = ( *tmp )();
-			delete tmp;
-		}
-	}
-	return retVal;
-}
-
-void Channel::returnStreamId( Int32 streamId )
-{
-	try
-	{
-		StreamId* sId = new StreamId( streamId );
-		_streamIdMutex.lock();
-		_recoveredStreamIds.push_back( sId );
-		_streamIdMutex.unlock();
-	}
-	catch ( std::bad_alloc )
-	{
-		throwMeeException( "Failed to allocate memory in Channel::returnStreamId()" );
-	}
-}
-
 const EmaString& Channel::toString() const
 {
 	if ( !_toStringSet )
@@ -260,6 +212,7 @@ void ChannelList::addChannel( Channel* pChannel )
 void ChannelList::removeChannel( Channel* pChannel )
 {
 	_list.remove( pChannel );
+    Channel::destroy( pChannel );
 }
 
 UInt32 ChannelList::size() const
@@ -518,8 +471,7 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 	RsslReactorChannelRole role;
 	_ommBaseImpl.setRsslReactorChannelRole( role );
 
-	EmaString componentVersionInfo( COMPONENT_NAME );
-	componentVersionInfo.append( NEWVERSTRING );
+	EmaString componentVersionInfo(COMPONENTNAME);
 	componentVersionInfo.append( EMA_COMPONENT_VER_PLATFORM );
 	componentVersionInfo.append( COMPILE_BITS_STR );
 	componentVersionInfo.append( emaComponentLinkType );

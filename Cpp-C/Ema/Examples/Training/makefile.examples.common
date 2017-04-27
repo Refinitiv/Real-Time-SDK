@@ -39,27 +39,10 @@ INCLUDES = -I$(ROOTNODE)/Ema/Src/Include -I$(ROOTNODE)/Ema/Src
 
 EXE_DIR     = $(OUTPUT_DIR)
 SYSTEM_LIBS = -lnsl -lpthread -ldl -lrt
-ifeq ($(USE_CUSTOM_BUILD),true)
-STATIC_LIBS = -L$(ROOTNODE)/Ema/Src/Access/Libs/$(IDENT)/$(LIBTYPE)
-else
 STATIC_LIBS = -L$(ROOTNODE)/Ema/Libs/$(IDENT)/$(LIBTYPE)
-endif
 STATIC_LIBS += -lema $(SYSTEM_LIBS)
 
-ifeq ($(findstring GSG,$(DISTRIBUTION_SRC)), GSG)
-	ifeq ($(USE_CUSTOM_BUILD),true)
-		SHARED_LIBS =	-L$(ROOTNODE)/Ema/Src/Access/Libs/$(IDENT)/$(LIBTYPE)/Shared
-	else
-		SHARED_LIBS =	-L$(ROOTNODE)/Ema/Libs/$(IDENT)/$(LIBTYPE)/Shared
-	endif
-else
-	ifeq ($(findstring GitHub,$(DISTRIBUTION_SRC)), GitHub)
-	SHARED_LIBS =	-L$(ROOTNODE)/Ema/Libs/$(IDENT)/$(LIBTYPE)/Shared
-	STATIC_LIBS =   -L$(ROOTNODE)/Ema/Libs/$(IDENT)/$(LIBTYPE) -lema $(SYSTEM_LIBS)
-	else
-$(error makefile.common variable DISTRIBUTION_SRC must be 'GitHub' or 'GSG')
-	endif
-endif
+SHARED_LIBS =	-L$(ROOTNODE)/Ema/Libs/$(IDENT)/$(LIBTYPE)/Shared
 SHARED_LIBS +=	-L$(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/Shared		\
 		-lema -lrssl -lrsslVA $(SYSTEM_LIBS)
 

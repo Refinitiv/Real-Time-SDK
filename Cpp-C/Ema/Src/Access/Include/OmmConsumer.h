@@ -161,6 +161,15 @@ public :
 	 */
 	OmmConsumer( const OmmConsumerConfig& config );
 
+	//@{
+	/** Create an OmmConsumer with OmmConsumerConfig. The OmmConsumer enables functionality
+	that includes subscribing, posting and distributing generic messages.
+	This constructor will also register for all login events via the provided OmmConsumerClient and optional closure.
+	\remark Enables exception throwing as means of error reporting.
+	\remark This affects exceptions thrown from OmmConsumer methods
+	*/
+	OmmConsumer(const OmmConsumerConfig& config, OmmConsumerClient& client, void* closure = 0 );
+
 	/** Create an OmmConsumer with OmmConsumerConfig with an OmmConsumerErrorClient that provides
 		select global errors via callbacks opposed to exception.The OmmConsumer enables functionality
 		that includes subscribing, posting and distributing generic messages.
@@ -168,6 +177,15 @@ public :
 		\remark This affects OmmConsumer methods that would throw exceptions otherwise.
 	 */
 	OmmConsumer( const OmmConsumerConfig& config, OmmConsumerErrorClient& client );
+
+	/** Create an OmmConsumer with OmmConsumerConfig with an OmmConsumerErrorClient that provides
+	select global errors via callbacks opposed to exception.The OmmConsumer enables functionality
+	that includes subscribing, posting and distributing generic messages.
+	This constructor will also register for all login events via the provided OmmConsumerClient and optional closure.
+	\remark Enables OmmConsumerErrorClient's callbacks as means of error reporting.
+	\remark This affects OmmConsumer methods that would throw exceptions otherwise.
+	*/
+	OmmConsumer( const OmmConsumerConfig& config, OmmConsumerClient& adminClient, OmmConsumerErrorClient& errorClient, void* closure = 0 );
 	//@}
 
 	///@name Destructor

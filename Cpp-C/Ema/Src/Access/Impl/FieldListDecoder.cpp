@@ -10,7 +10,10 @@
 #include "StaticDecoder.h"
 #include "Encoder.h"
 
+#include <new>
+
 using namespace thomsonreuters::ema::access;
+using namespace thomsonreuters::ema::rdm;
 
 extern const EmaString& getDTypeAsString( DataType::DataTypeEnum );
 
@@ -33,11 +36,31 @@ FieldListDecoder::FieldListDecoder() :
  _atEnd( false )
 {
 	createLoadPool( _pLoadPool );
+
+	try
+	{
+		_pDataDictionary = new DataDictionary(false);
+	}
+	catch (std::bad_alloc)
+	{
+		throwMeeException("Failed to allocate memory in FieldListDecoder::FieldListDecoder().");
+	}
 }
 
 FieldListDecoder::~FieldListDecoder()
 {
 	destroyLoadPool( _pLoadPool );
+
+	if (_pDataDictionary)
+	{
+		delete _pDataDictionary;
+		_pDataDictionary = 0;
+	}
+}
+
+const thomsonreuters::ema::rdm::DataDictionary& FieldListDecoder::getDataDictionary()
+{
+	return *_pDataDictionary;
 }
 
 bool FieldListDecoder::hasInfo() const
@@ -233,6 +256,8 @@ bool FieldListDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rssl
 		_errorCode = OmmError::NoDictionaryEnum;
 		return false;
 	}
+
+	_pDataDictionary->_pImpl->setRsslDataDictionary(_pRsslDictionary);
 
 	rsslClearDecodeIterator( &_decodeIter );
 
@@ -742,6 +767,68 @@ Int16 FieldListDecoder::getRippleTo( Int16 fieldId ) const
 		return 0;
 	else
 		return _pRsslDictionary->entriesArray[fieldId]->rippleToField;
+}
+
+const EmaString& FieldListDecoder::getRippleToName(Int16 fieldId) const
+{
+	if ( !fieldId )
+		fieldId = _rsslFieldEntry.fieldId;
+
+	_rippleToName.clear();
+
+	RsslDictionaryEntry* rsslDictionaryEntry = _pRsslDictionary->entriesArray[ fieldId ];
+
+	if ( rsslDictionaryEntry )
+	{
+		rsslDictionaryEntry = _pRsslDictionary->entriesArray[ rsslDictionaryEntry->rippleToField ];
+
+		if ( rsslDictionaryEntry )
+		{
+			_rippleToName.setInt( rsslDictionaryEntry->acronym.data, rsslDictionaryEntry->acronym.length, true );
+		}
+	}
+
+	return _rippleToName.toString();
+}
+
+bool FieldListDecoder::hasEnumDisplay(UInt16 enumValue) const
+{
+	if ( !_rsslDictionaryEntry )
+		return false;
+
+	return getFieldEntryEnumType( const_cast<RsslDictionaryEntry*>(_rsslDictionaryEntry), enumValue ) ? true : false;
+}
+
+const EmaString& FieldListDecoder::getEnumDisplay(UInt16 enumValue) const
+{
+	if ( _rsslDictionaryEntry )
+	{
+		RsslEnumType* rsslEnumType = getFieldEntryEnumType( const_cast<RsslDictionaryEntry*>(_rsslDictionaryEntry), enumValue );
+
+		if ( rsslEnumType )
+		{
+			_enumDisplayValue.setInt( rsslEnumType->display.data, rsslEnumType->display.length, false );
+		}
+		else
+		{
+			_enumDisplayValue.clear();
+
+			EmaString errorText( "The enum value " );
+			errorText.append( enumValue).append( " for the field Id " );
+			errorText.append( _rsslFieldEntry.fieldId ).append( " does not exist in the enumerated type dictionary" );
+			throwIueException( errorText );
+		}
+	}
+	else
+	{
+		_enumDisplayValue.clear();
+
+		EmaString errorText( "The field Id " );
+		errorText.append( _rsslFieldEntry.fieldId ).append( " does not exist in the field dictionary" );
+		throwIueException( errorText );
+	}
+
+	return _enumDisplayValue.toString();
 }
 
 bool FieldListDecoder::decodingStarted() const

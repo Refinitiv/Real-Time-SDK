@@ -40,7 +40,7 @@ RsslRet tunnelManagerProcessTimer(TunnelManager *pManager, RsslInt64 currentTime
  * If copyName is false, it will presume the passed-in name is already allocated and
  * take that reference instead of creating a new copy. */
 RsslTunnelStream* tunnelManagerOpenStream(TunnelManager *pManager,
-		RsslTunnelStreamOpenOptions *pOptions, RsslBool isProvider, RsslClassOfService *pRemoteCos, RsslErrorInfo *pErrorInfo);
+		RsslTunnelStreamOpenOptions *pOptions, RsslBool isProvider, RsslClassOfService *pRemoteCos, RsslUInt streamVersion, RsslErrorInfo *pErrorInfo);
 
 /* Read a message for a RsslTunnelStream. */
 RsslRet tunnelManagerReadMsg(TunnelManager *pManager, RsslMsg *pMsg, RsslErrorInfo *pErrorInfo);

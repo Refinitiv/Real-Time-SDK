@@ -30,6 +30,7 @@ extern "C" {
 #define CHAN_CMD_MAX_ITEMS 5
 #define MAX_BUFFER_LENGTH 128
 #define LOGIN_ARRAY_LENGTH 2048
+#define MAX_AUTHN_LENGTH 1024
 
 /* Used to tell each channel what to request through the VA example */
 typedef struct
@@ -60,6 +61,8 @@ typedef struct
 	RsslBuffer unicastServiceName;
 	
 	RsslBuffer username;
+	RsslBuffer authenticationToken;
+	RsslBuffer authenticationExtended;
 	RsslBuffer applicationId;
 	RsslBuffer password;
 	RsslBuffer instanceId;
@@ -85,7 +88,10 @@ typedef struct
 	RsslRDMService 		service;
 	RsslRDMDirectoryRefresh directoryRefresh;
 	/* service id associated with the service name requested by application */
-	
+
+	/* For TREP authentication login reissue */
+	RsslUInt loginReissueTime; // represented by epoch time in seconds
+	RsslBool canSendLoginReissue;
 } NIChannelCommand;
 
 RTR_C_INLINE void rsslInitNIChannelCommand(NIChannelCommand *pChannelCommand)
@@ -114,9 +120,9 @@ RTR_C_INLINE void rsslInitNIChannelCommand(NIChannelCommand *pChannelCommand)
 	pChannelCommand->loginRefreshBuffer.data = pChannelCommand->loginRefreshArray;
 	pChannelCommand->loginRefreshBuffer.length = LOGIN_ARRAY_LENGTH;
 	
-	pChannelCommand->channelCommandArray = (char*)malloc(4096*sizeof(char));
+	pChannelCommand->channelCommandArray = (char*)malloc(6144*sizeof(char));
 	pChannelCommand->channelCommandBuffer.data = pChannelCommand->channelCommandArray;
-	pChannelCommand->channelCommandBuffer.length = 4096;
+	pChannelCommand->channelCommandBuffer.length = 6144;
 	
 	pChannelCommand->reconnect = RSSL_FALSE;
 	pChannelCommand->timeToReconnect = 0;
@@ -142,6 +148,11 @@ RTR_C_INLINE void rsslInitNIChannelCommand(NIChannelCommand *pChannelCommand)
 	pChannelCommand->unicastServiceName.data = (char*)rsslReserveBufferMemory(&pChannelCommand->channelCommandBuffer, 1, MAX_BUFFER_LENGTH);
 	pChannelCommand->unicastServiceName.length = 0;
 	
+	pChannelCommand->authenticationToken.data = (char*)rsslReserveBufferMemory(&pChannelCommand->channelCommandBuffer, 1, MAX_AUTHN_LENGTH);
+	pChannelCommand->authenticationToken.length = 0;
+	
+	pChannelCommand->authenticationExtended.data = (char*)rsslReserveBufferMemory(&pChannelCommand->channelCommandBuffer, 1, MAX_AUTHN_LENGTH);
+	pChannelCommand->authenticationExtended.length = 0;
 	
 	pChannelCommand->applicationId.data = (char*)rsslReserveBufferMemory(&pChannelCommand->channelCommandBuffer, 1, MAX_BUFFER_LENGTH);
 	pChannelCommand->applicationId.length = 0;

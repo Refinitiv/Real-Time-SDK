@@ -341,7 +341,7 @@ void OmmArrayDecoder::setAtExit()
 
 DataType::DataTypeEnum OmmArrayDecoder::getLoadDataType() const
 {
-	return dataType[ _rsslArray.primitiveType ];
+	return (DataType::DataTypeEnum)_rsslArray.primitiveType;
 }
 
 bool OmmArrayDecoder::decodingStarted() const

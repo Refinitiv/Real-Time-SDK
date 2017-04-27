@@ -66,9 +66,6 @@ public :
 	Channel& addDirectory( Directory* );
 	Channel& removeDirectory( Directory* );
 
-	Int32 getNextStreamId( UInt32 numberOfBatchItems = 0 );
-	void returnStreamId( Int32 );
-
 	const EmaString& toString() const;
 
 	bool operator==( const Channel& );
@@ -85,11 +82,7 @@ private :
 	Dictionary*				_pDictionary;
 	EmaVector< Directory* >	_directoryList;
 	mutable bool			_toStringSet;
-
-	Int32					_nextStreamId;
-	EmaList< StreamId* >	_recoveredStreamIds;
-	Mutex					_streamIdMutex;
-
+		
 	Channel( const EmaString&, RsslReactor* );
 	virtual ~Channel();
 

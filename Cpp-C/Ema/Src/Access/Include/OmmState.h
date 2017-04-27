@@ -30,9 +30,22 @@ namespace thomsonreuters {
 
 namespace ema {
 
+namespace domain {
+
+namespace login {
+
+class LoginReqImpl;
+class LoginRefreshImpl;
+class LoginStatusImpl;
+
+}
+
+}
+
 namespace access {
 
 class OmmStateDecoder;
+
 
 class EMA_ACCESS_API OmmState : public Data
 {
@@ -184,6 +197,9 @@ private :
 	friend class StaticDecoder;
 	friend class RefreshMsgDecoder;
 	friend class StatusMsgDecoder;
+	friend class thomsonreuters::ema::domain::login::LoginStatusImpl;
+	friend class thomsonreuters::ema::domain::login::LoginRefreshImpl;
+	friend class thomsonreuters::ema::domain::login::LoginReqImpl;
 
 	Decoder& getDecoder();
 	bool hasDecoder() const;

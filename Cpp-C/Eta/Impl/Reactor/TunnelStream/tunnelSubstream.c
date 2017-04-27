@@ -131,7 +131,7 @@ TunnelSubstream *tunnelSubstreamOpen(RsslTunnelStream *pTunnel,
 		}
 
 		pfOpts.currentTimeMs = tunnelStreamGetCurrentTimeMs(pSubstreamImpl->_tunnelImpl);
-		pfOpts.maxMsgSize = (RsslUInt32)pSubstreamImpl->_tunnelImpl->base.classOfService.common.maxMsgSize;
+		pfOpts.maxMsgSize = (RsslUInt32)pSubstreamImpl->_tunnelImpl->base.classOfService.common.maxFragmentSize;
 
 		pSubstreamImpl->_pPersistFile = persistFileOpen(&pfOpts, &pSubstreamImpl->_lastInSeqNum, &pSubstreamImpl->_lastOutSeqNum, pErrorInfo);
 
@@ -152,8 +152,8 @@ TunnelSubstream *tunnelSubstreamOpen(RsslTunnelStream *pTunnel,
 	}
 
 	length = msgQueueSubstreamRequestHeaderBufferSize(&requestMsg);
-	if (length > pSubstreamImpl->_tunnelImpl->base.classOfService.common.maxMsgSize)
-		length = (RsslUInt32)pSubstreamImpl->_tunnelImpl->base.classOfService.common.maxMsgSize;
+	if (length > pSubstreamImpl->_tunnelImpl->base.classOfService.common.maxFragmentSize)
+		length = (RsslUInt32)pSubstreamImpl->_tunnelImpl->base.classOfService.common.maxFragmentSize;
 
 	/* Queue request in tunnel stream. */
 	if ((pBuffer = (RsslBuffer*)tunnelStreamGetBuffer(pSubstreamImpl->_tunnelImpl,
@@ -303,8 +303,8 @@ RsslRet tunnelSubstreamSubmit(TunnelSubstream *pSubstream,
 			dataMsg.identifier = pInData->identifier;
 
 			length = msgQueueSubstreamDataHeaderBufferSize(&dataMsg);
-			if (length > pSubstreamImpl->_tunnelImpl->base.classOfService.common.maxMsgSize)
-				length = (RsslUInt32)pSubstreamImpl->_tunnelImpl->base.classOfService.common.maxMsgSize;
+			if (length > pSubstreamImpl->_tunnelImpl->base.classOfService.common.maxFragmentSize)
+				length = (RsslUInt32)pSubstreamImpl->_tunnelImpl->base.classOfService.common.maxFragmentSize;
 
 			/* Since we translate, get a separate buffer. Note that this buffer
 			 * is released if something fails -- the application must release it's own buffer, if any. */
@@ -453,7 +453,7 @@ static RsslRet _tunnelSubstreamSendRecoveredMessage(TunnelSubstreamImpl *pSubstr
 	assert(pSubstreamImpl->base._state == SBS_OPEN);
 
 
-	if (pMsg->_msgLength > pTunnelImpl->base.classOfService.common.maxMsgSize)
+	if (pMsg->_msgLength > pTunnelImpl->base.classOfService.common.maxFragmentSize)
 	{
 		/* Message is too large to send. */
 		RsslBuffer tmpBuffer;
@@ -957,8 +957,8 @@ RsslRet tunnelSubstreamRead(TunnelSubstream *pSubstream,
 					ackMsg.seqNum = pDataMsg->seqNum;
 
 					length = msgQueueSubstreamAckHeaderBufferSize(&ackMsg);
-					if (length > pSubstreamImpl->_tunnelImpl->base.classOfService.common.maxMsgSize)
-						length = (RsslUInt32)pSubstreamImpl->_tunnelImpl->base.classOfService.common.maxMsgSize;
+					if (length > pSubstreamImpl->_tunnelImpl->base.classOfService.common.maxFragmentSize)
+						length = (RsslUInt32)pSubstreamImpl->_tunnelImpl->base.classOfService.common.maxFragmentSize;
 
 					if ((pBuffer = (RsslBuffer*)tunnelStreamGetBuffer(pSubstreamImpl->_tunnelImpl,
 									length, RSSL_FALSE, RSSL_FALSE, pErrorInfo)) == NULL)
@@ -1110,8 +1110,8 @@ RsslRet tunnelSubstreamClose(TunnelSubstream *pSubstream,
 			closeMsg.msgBase.containerType = RSSL_DT_NO_DATA;
 
 			length = 128;
-			if (length > pSubstreamImpl->_tunnelImpl->base.classOfService.common.maxMsgSize)
-				length = (RsslUInt32)pSubstreamImpl->_tunnelImpl->base.classOfService.common.maxMsgSize;
+			if (length > pSubstreamImpl->_tunnelImpl->base.classOfService.common.maxFragmentSize)
+				length = (RsslUInt32)pSubstreamImpl->_tunnelImpl->base.classOfService.common.maxFragmentSize;
 
 			/* Queue close in tunnel stream. */
 			if ((pBuffer = (RsslBuffer*)tunnelStreamGetBuffer(pSubstreamImpl->_tunnelImpl,

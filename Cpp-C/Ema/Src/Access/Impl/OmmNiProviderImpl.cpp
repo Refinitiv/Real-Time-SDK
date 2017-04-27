@@ -18,9 +18,14 @@
 #include "Utilities.h"
 #include "EmaRdm.h"
 #include "OmmQosDecoder.h"
+#include "StreamId.h"
 #include "DirectoryServiceStore.h"
 
 #include <new>
+
+#ifdef WIN32
+#pragma warning( disable : 4355)
+#endif
 
 using namespace thomsonreuters::ema::access;
 using namespace thomsonreuters::ema::rdm;
@@ -32,7 +37,9 @@ OmmNiProviderImpl::OmmNiProviderImpl( OmmProvider* ommProvider, const OmmNiProvi
 	_handleToStreamInfo(),
 	_streamInfoList(),
 	_bIsStreamIdZeroRefreshSubmitted( false ),
-	_ommNiProviderDirectoryStore(*this, _activeConfig)
+	_ommNiProviderDirectoryStore(*this, _activeConfig),
+	_nextProviderStreamId(0),
+	_reusedProviderStreamIds()
 {
 	_activeConfig.operationModel = config._pImpl->getOperationModel();
 
@@ -51,6 +58,34 @@ OmmNiProviderImpl::OmmNiProviderImpl( OmmProvider* ommProvider, const OmmNiProvi
 	_handleToStreamInfo.rehash( _activeConfig.itemCountHint );
 }
 
+OmmNiProviderImpl::OmmNiProviderImpl(OmmProvider* ommProvider, const OmmNiProviderConfig& config, OmmProviderClient& adminClient, void* adminClosure) :
+	_activeConfig(),
+	OmmProviderImpl(ommProvider),
+	OmmBaseImpl(_activeConfig, adminClient, adminClosure),
+	_handleToStreamInfo(),
+	_streamInfoList(),
+	_bIsStreamIdZeroRefreshSubmitted(false),
+	_ommNiProviderDirectoryStore(*this, _activeConfig),
+	_nextProviderStreamId(0),
+	_reusedProviderStreamIds()
+{
+	_activeConfig.operationModel = config._pImpl->getOperationModel();
+
+	_activeConfig.directoryAdminControl = config.getConfigImpl()->getAdminControlDirectory();
+
+	_rsslDirectoryMsgBuffer.length = 2048;
+	_rsslDirectoryMsgBuffer.data = (char*)malloc(_rsslDirectoryMsgBuffer.length * sizeof(char));
+	if (!_rsslDirectoryMsgBuffer.data)
+	{
+		handleMee("Failed to allocate memory in OmmNiProviderImpl::OmmNiProviderImpl()");
+		return;
+	}
+
+	initialize(config._pImpl);
+
+	_handleToStreamInfo.rehash(_activeConfig.itemCountHint);
+}
+
 OmmNiProviderImpl::OmmNiProviderImpl(OmmProvider* ommProvider, const OmmNiProviderConfig& config, OmmProviderErrorClient& client) :
 	_activeConfig(),
 	OmmProviderImpl(ommProvider),
@@ -58,7 +93,9 @@ OmmNiProviderImpl::OmmNiProviderImpl(OmmProvider* ommProvider, const OmmNiProvid
 	_handleToStreamInfo(),
 	_streamInfoList(),
 	_bIsStreamIdZeroRefreshSubmitted( false ),
-	_ommNiProviderDirectoryStore(*this, _activeConfig)
+	_ommNiProviderDirectoryStore(*this, _activeConfig),
+	_nextProviderStreamId(0),
+	_reusedProviderStreamIds()
 {
 	_activeConfig.operationModel = config._pImpl->getOperationModel();
 
@@ -75,6 +112,34 @@ OmmNiProviderImpl::OmmNiProviderImpl(OmmProvider* ommProvider, const OmmNiProvid
 	initialize(config._pImpl);
 
 	_handleToStreamInfo.rehash( _activeConfig.itemCountHint );
+}
+
+OmmNiProviderImpl::OmmNiProviderImpl(OmmProvider* ommProvider, const OmmNiProviderConfig& config, OmmProviderClient& adminClient, OmmProviderErrorClient& client, void* adminClosure) :
+	_activeConfig(),
+	OmmProviderImpl(ommProvider),
+	OmmBaseImpl(_activeConfig, adminClient, client, adminClosure),
+	_handleToStreamInfo(),
+	_streamInfoList(),
+	_bIsStreamIdZeroRefreshSubmitted(false),
+	_ommNiProviderDirectoryStore(*this, _activeConfig),
+	_nextProviderStreamId(0),
+	_reusedProviderStreamIds()
+{
+	_activeConfig.operationModel = config._pImpl->getOperationModel();
+
+	_activeConfig.directoryAdminControl = config.getConfigImpl()->getAdminControlDirectory();
+
+	_rsslDirectoryMsgBuffer.length = 2048;
+	_rsslDirectoryMsgBuffer.data = (char*)malloc(_rsslDirectoryMsgBuffer.length * sizeof(char));
+	if (!_rsslDirectoryMsgBuffer.data)
+	{
+		handleMee("Failed to allocate memory in OmmNiProviderImpl::OmmNiProviderImpl()");
+		return;
+	}
+
+	initialize(config._pImpl);
+
+	_handleToStreamInfo.rehash(_activeConfig.itemCountHint);
 }
 
 OmmNiProviderImpl::~OmmNiProviderImpl()
@@ -318,7 +383,7 @@ void OmmNiProviderImpl::loadDirectory()
 		if ( pTempRsslMsg->msgBase.containerType != RSSL_DT_MAP )
 		{
 			EmaString temp( "Attempt to submit RefreshMsg with SourceDirectory domain using container with wrong data type. Expected container data type is Map. Passed in is " );
-			temp += DataType( dataType[pTempRsslMsg->msgBase.containerType] ).toString();
+			temp += DataType((DataType::DataTypeEnum)pTempRsslMsg->msgBase.containerType).toString();
 			handleIue( temp );
 			return;
 		}
@@ -666,6 +731,15 @@ UInt64 OmmNiProviderImpl::registerClient( const ReqMsg& reqMsg, OmmProviderClien
 	return handle;
 }
 
+void OmmNiProviderImpl::reissue(const ReqMsg& reqMsg, UInt64 handle)
+{
+	_userLock.lock();
+
+	if (_pItemCallbackClient) _pItemCallbackClient->reissue(reqMsg, handle);
+
+	_userLock.unlock();
+}
+
 void OmmNiProviderImpl::unregister( UInt64 handle )
 {
 	_userLock.lock();
@@ -721,6 +795,13 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 
 	Channel* pChannel = getChannelCallbackClient().getChannelList().front();
 
+	if (pChannel == NULL)
+	{
+		_userLock.unlock();
+		EmaString temp("No active channel to send message.");
+		handleIue(temp);
+	}
+
 	if (submitMsgOpts.pRsslMsg->msgBase.domainType == ema::rdm::MMT_DIRECTORY)
 	{
 		if (OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity)
@@ -735,7 +816,7 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 		{
 			_userLock.unlock();
 			EmaString temp("Attempt to submit RefreshMsg with SourceDirectory domain using container with wrong data type. Expected container data type is Map. Passed in is ");
-			temp += DataType(dataType[submitMsgOpts.pRsslMsg->msgBase.containerType]).toString();
+			temp += DataType((DataType::DataTypeEnum)submitMsgOpts.pRsslMsg->msgBase.containerType).toString();
 			handleIue(temp);
 			return;
 		}
@@ -765,7 +846,7 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 			{
 				try
 				{
-					submitMsgOpts.pRsslMsg->msgBase.streamId = -pChannel->getNextStreamId();
+					submitMsgOpts.pRsslMsg->msgBase.streamId =getNextProviderStreamId();
 					StreamInfoPtr pTemp = new StreamInfo(submitMsgOpts.pRsslMsg->msgBase.streamId);
 					_handleToStreamInfo.insert(handle, pTemp);
 					_streamInfoList.push_back(pTemp);
@@ -773,7 +854,7 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 				}
 				catch (std::bad_alloc)
 				{
-					pChannel->returnStreamId(submitMsgOpts.pRsslMsg->msgBase.streamId);
+					returnProviderStreamId(submitMsgOpts.pRsslMsg->msgBase.streamId);
 					_userLock.unlock();
 					handleMee("Failed to allocate memory in OmmNiProviderImpl::submit( const RefreshMsg& )");
 					return;
@@ -843,7 +924,7 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 			submitMsgOpts.pRsslMsg->msgBase.msgKey.flags |= RSSL_MKF_HAS_SERVICE_ID;
 			submitMsgOpts.pRsslMsg->refreshMsg.flags &= ~RSSL_RFMF_SOLICITED;
 
-			submitMsgOpts.pRsslMsg->msgBase.streamId = -pChannel->getNextStreamId();
+			submitMsgOpts.pRsslMsg->msgBase.streamId =getNextProviderStreamId();
 
 			try
 			{
@@ -856,7 +937,7 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 			}
 			catch ( std::bad_alloc )
 			{
-				pChannel->returnStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
+				returnProviderStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
 				_userLock.unlock();
 				handleMee( "Failed to allocate memory in OmmNiProviderImpl::submit( const RefreshMsg& )" );
 				return;
@@ -877,7 +958,7 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 
 			submitMsgOpts.pRsslMsg->refreshMsg.flags &= ~RSSL_RFMF_SOLICITED;
 
-			submitMsgOpts.pRsslMsg->msgBase.streamId = -pChannel->getNextStreamId();
+			submitMsgOpts.pRsslMsg->msgBase.streamId =getNextProviderStreamId();
 
 			try
 			{
@@ -889,7 +970,7 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 			}
 			catch ( std::bad_alloc )
 			{
-				pChannel->returnStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
+				returnProviderStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
 				_userLock.unlock();
 				handleMee( "Failed to allocate memory in OmmNiProviderImpl::submit( const RefreshMsg& )" );
 				return;
@@ -913,7 +994,7 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 			_streamInfoList.removeValue( *pTempStreamInfoPtr );
 			delete *pTempStreamInfoPtr;
 			_handleToStreamInfo.erase( handle );
-			pChannel->returnStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
+			returnProviderStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
 		}
 
 		_userLock.unlock();
@@ -939,7 +1020,7 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 		_streamInfoList.removeValue( *pTempStreamInfoPtr );
 		delete *pTempStreamInfoPtr;
 		_handleToStreamInfo.erase( handle );
-		pChannel->returnStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
+		returnProviderStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
 	}
 
 	if ( !submitMsgOpts.pRsslMsg->msgBase.streamId )
@@ -975,6 +1056,14 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 
 	Channel* pChannel = getChannelCallbackClient().getChannelList().front();
 
+	if (pChannel == NULL)
+	{
+		_userLock.unlock();
+		EmaString temp("Internal error: No active channel exists to send data.");
+
+		handleIue(temp);
+	}
+
 	if ( submitMsgOpts.pRsslMsg->msgBase.domainType == ema::rdm::MMT_DIRECTORY )
 	{
 		if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
@@ -989,7 +1078,7 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 		{
 			_userLock.unlock();
 			EmaString temp( "Attempt to submit UpdateMsg with SourceDirectory domain using container with wrong data type. Expected is Map. Passed in is " );
-			temp += DataType( dataType[submitMsgOpts.pRsslMsg->msgBase.containerType] ).toString();
+			temp += DataType((DataType::DataTypeEnum)submitMsgOpts.pRsslMsg->msgBase.containerType).toString();
 			handleIue( temp );
 			return;
 		}
@@ -1035,7 +1124,7 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 
 				try
 				{
-					submitMsgOpts.pRsslMsg->msgBase.streamId = -pChannel->getNextStreamId();
+					submitMsgOpts.pRsslMsg->msgBase.streamId =getNextProviderStreamId();
 					StreamInfoPtr pTemp = new StreamInfo( submitMsgOpts.pRsslMsg->msgBase.streamId );
 					_handleToStreamInfo.insert( handle, pTemp );
 					_streamInfoList.push_back( pTemp );
@@ -1043,7 +1132,7 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 				}
 				catch ( std::bad_alloc )
 				{
-					pChannel->returnStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
+					returnProviderStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
 					_userLock.unlock();
 					handleMee( "Failed to allocate memory in OmmNiProviderImpl::submit( const UpdateMsg& )" );
 					return;
@@ -1118,7 +1207,7 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 			submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId = (RsslUInt16) *pServiceId;
 			submitMsgOpts.pRsslMsg->msgBase.msgKey.flags |= RSSL_MKF_HAS_SERVICE_ID;
 
-			submitMsgOpts.pRsslMsg->msgBase.streamId = -pChannel->getNextStreamId();
+			submitMsgOpts.pRsslMsg->msgBase.streamId =getNextProviderStreamId();
 
 			try
 			{
@@ -1130,7 +1219,7 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 			}
 			catch ( std::bad_alloc )
 			{
-				pChannel->returnStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
+				returnProviderStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
 				_userLock.unlock();
 				handleMee( "Failed to allocate memory in OmmNiProviderImpl::submit( const UpdateMsg& )" );
 				return;
@@ -1149,7 +1238,7 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 				return;
 			}
 
-			submitMsgOpts.pRsslMsg->msgBase.streamId = -pChannel->getNextStreamId();
+			submitMsgOpts.pRsslMsg->msgBase.streamId =getNextProviderStreamId();
 
 			try
 			{
@@ -1161,7 +1250,7 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 			}
 			catch ( std::bad_alloc )
 			{
-				pChannel->returnStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
+				returnProviderStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
 				_userLock.unlock();
 				handleMee( "Failed to allocate memory in OmmNiProviderImpl::submit( const RefreshMsg& )" );
 				return;
@@ -1185,7 +1274,7 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 			_streamInfoList.removeValue( *pTempStreamInfoPtr );
 			delete *pTempStreamInfoPtr;
 			_handleToStreamInfo.erase( handle );
-			pChannel->returnStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
+			returnProviderStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
 		}
 
 		_userLock.unlock();
@@ -1232,6 +1321,14 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 
 	Channel* pChannel = getChannelCallbackClient().getChannelList().front();
 
+	if (pChannel == NULL)
+	{
+		_userLock.unlock();
+		EmaString temp("No active channel to send message.");
+
+		handleIue(temp);
+	}
+
 	if ( submitMsgOpts.pRsslMsg->msgBase.domainType == ema::rdm::MMT_DIRECTORY )
 	{
 		if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
@@ -1274,7 +1371,7 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 
 				try
 				{
-					submitMsgOpts.pRsslMsg->msgBase.streamId = -pChannel->getNextStreamId();
+					submitMsgOpts.pRsslMsg->msgBase.streamId =getNextProviderStreamId();
 					StreamInfoPtr pTemp = new StreamInfo( submitMsgOpts.pRsslMsg->msgBase.streamId );
 					_handleToStreamInfo.insert( handle, pTemp );
 					_streamInfoList.push_back( pTemp );
@@ -1282,7 +1379,7 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 				}
 				catch ( std::bad_alloc )
 				{
-					pChannel->returnStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
+					returnProviderStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
 					_userLock.unlock();
 					handleMee( "Failed to allocate memory in OmmNiProviderImpl::submit( const StatusMsg& )" );
 					return;
@@ -1343,7 +1440,7 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 			submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId = (RsslUInt16) *pServiceId;
 			submitMsgOpts.pRsslMsg->msgBase.msgKey.flags |= RSSL_MKF_HAS_SERVICE_ID;
 
-			submitMsgOpts.pRsslMsg->msgBase.streamId = -pChannel->getNextStreamId();
+			submitMsgOpts.pRsslMsg->msgBase.streamId =getNextProviderStreamId();
 
 			try
 			{
@@ -1355,7 +1452,7 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 			}
 			catch ( std::bad_alloc )
 			{
-				pChannel->returnStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
+				returnProviderStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
 				_userLock.unlock();
 				handleMee( "Failed to allocate memory in OmmNiProviderImpl::submit( const StatusMsg& )" );
 				return;
@@ -1375,7 +1472,7 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 				return;
 			}
 
-			submitMsgOpts.pRsslMsg->msgBase.streamId = -pChannel->getNextStreamId();
+			submitMsgOpts.pRsslMsg->msgBase.streamId =getNextProviderStreamId();
 
 			try
 			{
@@ -1387,7 +1484,7 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 			}
 			catch ( std::bad_alloc )
 			{
-				pChannel->returnStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
+				returnProviderStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
 				_userLock.unlock();
 				handleMee( "Failed to allocate memory in OmmNiProviderImpl::submit( const StatusMsg& )" );
 				return;
@@ -1411,7 +1508,7 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 			_streamInfoList.removeValue( *pTempStreamInfoPtr );
 			delete *pTempStreamInfoPtr;
 			_handleToStreamInfo.erase( handle );
-			pChannel->returnStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
+			returnProviderStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
 		}
 
 		_userLock.unlock();
@@ -1437,7 +1534,7 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 		_streamInfoList.removeValue( *pTempStreamInfoPtr );
 		delete *pTempStreamInfoPtr;
 		_handleToStreamInfo.erase( handle );
-		pChannel->returnStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
+		returnProviderStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
 	}
 
 	_userLock.unlock();
@@ -1458,6 +1555,14 @@ void OmmNiProviderImpl::submit( const GenericMsg& msg, UInt64 handle )
 	}
 
 	Channel* pChannel = getChannelCallbackClient().getChannelList().front();
+
+	if (pChannel == NULL)
+	{
+		_userLock.unlock();
+		EmaString temp("No active channel to send message.");
+
+		handleIue(temp);
+	}
 
 	if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
 	{
@@ -1595,4 +1700,30 @@ bool OmmNiProviderImpl::getServiceName( UInt64 serviceId, EmaString& serviceName
 	}
 
 	return retCode;
+}
+
+Int32 OmmNiProviderImpl::getNextProviderStreamId()
+{
+	if (_reusedProviderStreamIds.size() == 0)
+		return --_nextProviderStreamId;
+	else
+	{
+		StreamId* tmp(_reusedProviderStreamIds.pop_back());
+		Int32 retVal = (*tmp)();
+		delete tmp;
+		return retVal;
+	}
+}
+
+void OmmNiProviderImpl::returnProviderStreamId(Int32 streamId)
+{
+	try
+	{
+		StreamId* sId = new StreamId(streamId);
+		_reusedProviderStreamIds.push_back(sId);
+	}
+	catch (std::bad_alloc)
+	{
+		throwMeeException("Failed to allocate memory in OmmNiProviderImpl::returnProviderStreamId()");
+	}
 }

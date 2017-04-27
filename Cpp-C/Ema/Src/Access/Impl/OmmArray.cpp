@@ -98,7 +98,7 @@ const EmaString& OmmArray::toString( UInt64 indent ) const
 
 		addIndent( _toString.clear(), indent )
 			.append( "OmmArray with entries of dataType=\"" )
-			.append( getDTypeAsString( dataType[ tempDecoder.getRsslDataType() ] ) ).append( "\"" );
+			.append(getDTypeAsString((DataType::DataTypeEnum)tempDecoder.getRsslDataType())).append("\"");
 
 		if ( tempDecoder.hasFixedWidth() )
 			_toString.append( " fixed width=\"" ).append( (UInt32)tempDecoder.getFixedWidth() ).append( "\"" );

@@ -363,8 +363,10 @@ void simpleTunnelMsgHandlerProcessNewStream(SimpleTunnelMsgHandler *pSimpleTunne
 
 	printf("Received TunnelStream request on Stream ID %d.\n", pEvent->streamId);
 
-	if (pSimpleTunnelMsgHandler->tunnelStreamHandler.tunnelStreamOpenRequested)
-		rejectString = (char*)"Consumer already has a tunnel stream open. This provider example only supports one tunnel stream.";
+	if (pSimpleTunnelMsgHandler == NULL)
+		rejectString = (char*)"Provider tunnel stream limit reached."; // limited by MAX_TUNNEL_STREAMS in rsslProvider.h
+	else if (pSimpleTunnelMsgHandler->tunnelStreamHandler.tunnelStreamOpenRequested)
+		rejectString = (char*)"Consumer already has a tunnel stream open.";
 
 	if (rejectString == NULL)
 	{
@@ -474,7 +476,7 @@ char* simpleTunnelMsgHandlerCheckRequestedClassOfService(SimpleTunnelMsgHandler 
 		return (char*)"This provider doesn't support this type of authentication.";
 
 	if (pCos->flowControl.type != RDM_COS_FC_BIDIRECTIONAL)
-		return (char*)"This provider requires bidrectional flow control.";
+		return (char*)"This provider requires bidirectional flow control.";
 
 	if (pCos->guarantee.type != RDM_COS_GU_NONE)
 		return (char*)"This provider does not support guaranteed streams.";

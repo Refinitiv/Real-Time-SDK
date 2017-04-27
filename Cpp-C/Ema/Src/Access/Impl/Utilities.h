@@ -33,7 +33,6 @@ namespace thomsonreuters {
 	}
 }
 
-extern const thomsonreuters::ema::access::DataType::DataTypeEnum dataType[];
 extern const thomsonreuters::ema::access::DataType::DataTypeEnum msgDataType[];
 
 bool getCurrentDir( thomsonreuters::ema::access::EmaString& );
@@ -47,6 +46,10 @@ void hexToString( thomsonreuters::ema::access::EmaString& output, const thomsonr
 const char* ptrToStringAsHex( void* );
 
 const char* timeString();
+
+int emaGetUserName(thomsonreuters::ema::access::EmaString& string);
+
+int emaGetPosition(thomsonreuters::ema::access::EmaString& string);
 
 thomsonreuters::ema::access::EmaString& addIndent( thomsonreuters::ema::access::EmaString& temp, thomsonreuters::ema::access::UInt64 indent, bool addLine = false );
 

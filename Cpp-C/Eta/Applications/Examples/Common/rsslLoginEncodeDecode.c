@@ -14,6 +14,8 @@
 #include <unistd.h>
 #endif
 
+static char *blankUserName = "\0";
+
 /*
  * Encodes the login request.  Returns success if encoding
  * succeeds or failure if encoding fails.
@@ -28,7 +30,7 @@ RsslRet encodeLoginRequest(RsslChannel* chnl, RsslLoginRequestInfo* loginReqInfo
 	RsslMsgKey key = RSSL_INIT_MSG_KEY;
 	RsslElementEntry	element = RSSL_INIT_ELEMENT_ENTRY;
 	RsslElementList	elementList = RSSL_INIT_ELEMENT_LIST;
-	RsslBuffer applicationId, applicationName, position, password, instanceId;
+	RsslBuffer applicationId, applicationName, position, password, instanceId, authenticationToken, authenticationExtended;
 	RsslEncodeIterator encodeIter;
 
 	/* clear encode iterator */
@@ -45,9 +47,20 @@ RsslRet encodeLoginRequest(RsslChannel* chnl, RsslLoginRequestInfo* loginReqInfo
 	/* set msgKey members */
 	msg.msgBase.msgKey.flags = RSSL_MKF_HAS_ATTRIB | RSSL_MKF_HAS_NAME_TYPE | RSSL_MKF_HAS_NAME;
 	/* Username */
-	msg.msgBase.msgKey.name.data = loginReqInfo->Username;
-	msg.msgBase.msgKey.name.length = (RsslUInt32)strlen(loginReqInfo->Username);
-	msg.msgBase.msgKey.nameType = RDM_LOGIN_USER_NAME;
+	/* If the nameType is USER_AUTHN_TOKEN, set the msgKey.name buffer to one character of '/0' */
+	if(loginReqInfo->NameType == RDM_LOGIN_USER_AUTHN_TOKEN)
+	{
+		msg.msgBase.msgKey.name.data = (char*)blankUserName;
+		msg.msgBase.msgKey.name.length = 1;
+		msg.msgBase.msgKey.nameType = RDM_LOGIN_USER_AUTHN_TOKEN;
+	}
+	else
+	{	
+		/* Otherwise, encode the userName as normal */
+		msg.msgBase.msgKey.name.data =  (char*)loginReqInfo->Username;
+		msg.msgBase.msgKey.name.length = (RsslUInt32)strlen(loginReqInfo->Username);
+		msg.msgBase.msgKey.nameType = RDM_LOGIN_USER_NAME;
+	}
 	msg.msgBase.msgKey.attribContainerType = RSSL_DT_ELEMENT_LIST;
 
 
@@ -75,6 +88,35 @@ RsslRet encodeLoginRequest(RsslChannel* chnl, RsslLoginRequestInfo* loginReqInfo
 		printf("rsslEncodeElementListInit() failed with return code: %d\n", ret);
 		return ret;
 	}
+	
+	/* If the user nameType is RDM_LOGIN_USER_AUTHN_TOKEN, encode the authentication token information */
+	if(loginReqInfo->NameType == RDM_LOGIN_USER_AUTHN_TOKEN)
+	{
+		authenticationToken.data = (char*)loginReqInfo->AuthenticationToken;
+		authenticationToken.length = (RsslUInt32)strlen(loginReqInfo->AuthenticationToken);
+		element.dataType = RSSL_DT_ASCII_STRING;
+		element.name = RSSL_ENAME_AUTHN_TOKEN;
+		if ((ret = rsslEncodeElementEntry(&encodeIter, &element, &authenticationToken)) < RSSL_RET_SUCCESS)
+		{
+			printf("rsslEncodeElementEntry() failed with return code: %d\n", ret);
+			return ret;
+		}
+		
+		/* Encode the authentication extended information, if present */
+		if(strlen(loginReqInfo->AuthenticationExtended) != 0)
+		{
+			authenticationExtended.data = (char*)loginReqInfo->AuthenticationExtended;
+			authenticationExtended.length = (RsslUInt32)strlen(loginReqInfo->AuthenticationExtended);
+			element.dataType = RSSL_DT_BUFFER;
+			element.name = RSSL_ENAME_AUTHN_EXTENDED;
+			if ((ret = rsslEncodeElementEntry(&encodeIter, &element, &authenticationExtended)) < RSSL_RET_SUCCESS)
+			{
+				printf("rsslEncodeElementEntry() failed with return code: %d\n", ret);
+				return ret;
+			}
+		}
+	}
+
 	/* ApplicationId */
 	applicationId.data = (char*)loginReqInfo->ApplicationId;
 	applicationId.length = (RsslUInt32)strlen(loginReqInfo->ApplicationId);
@@ -246,6 +288,35 @@ RsslRet decodeLoginRequest(RsslLoginRequestInfo* loginReqInfo, RsslMsg* msg, Rss
 			if (ret == RSSL_RET_SUCCESS)
 			{
 				/* get login request information */
+				/* Authentication Token */
+				if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_TOKEN))
+				{
+					if (element.encData.length < 255)
+					{
+						strncpy(loginReqInfo->AuthenticationToken, element.encData.data, element.encData.length);
+						loginReqInfo->AuthenticationToken[element.encData.length] = '\0';
+					}
+					else
+					{
+						strncpy(loginReqInfo->AuthenticationToken, element.encData.data, 255 - 1);
+						loginReqInfo->AuthenticationToken[255 - 1] = '\0';
+					}
+				}
+				/* Authentication Extended */
+				if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_EXTENDED))
+				{
+					if (element.encData.length < 255)
+					{
+						strncpy(loginReqInfo->AuthenticationToken, element.encData.data, element.encData.length);
+						loginReqInfo->AuthenticationToken[element.encData.length] = '\0';
+					}
+					else
+					{
+						strncpy(loginReqInfo->AuthenticationToken, element.encData.data, 255 - 1);
+						loginReqInfo->AuthenticationToken[255 - 1] = '\0';
+					}
+				}
+				
 				/* ApplicationId */
 				if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_APPID))
 				{
@@ -676,8 +747,57 @@ RsslRet decodeLoginResponse(RsslLoginResponseInfo* loginRespInfo, RsslMsg* msg, 
 			if (ret == RSSL_RET_SUCCESS)
 			{
 				/* get login response information */
+				/* AuthenticationTTReissue */
+				if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_TT_REISSUE))
+				{
+					ret = rsslDecodeUInt(dIter, &loginRespInfo->AuthenticationTTReissue);
+					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+					{
+						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+						return ret;
+					}
+				}
+				/* AuthenticationExtendedResponse */
+				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_EXTENDED_RESP))
+				{
+					if (element.encData.length < MAX_LOGIN_INFO_STRLEN)
+					{
+						strncpy(loginRespInfo->AuthenticationExtendedResponse, element.encData.data, element.encData.length);
+						loginRespInfo->AuthenticationExtendedResponse[element.encData.length] = '\0';
+					}
+					else
+					{
+						strncpy(loginRespInfo->AuthenticationExtendedResponse, element.encData.data, MAX_LOGIN_INFO_STRLEN - 1);
+						loginRespInfo->AuthenticationExtendedResponse[MAX_LOGIN_INFO_STRLEN - 1] = '\0';
+					}
+				}
+				/* AuthenticationStatusErrorText */
+				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_ERROR_TEXT))
+				{
+					if (element.encData.length < MAX_LOGIN_INFO_STRLEN)
+					{
+						strncpy(loginRespInfo->AuthenticationStatusErrorText, element.encData.data, element.encData.length);
+						loginRespInfo->AuthenticationStatusErrorText[element.encData.length] = '\0';
+					}
+					else
+					{
+						strncpy(loginRespInfo->AuthenticationStatusErrorText, element.encData.data, MAX_LOGIN_INFO_STRLEN - 1);
+						loginRespInfo->AuthenticationStatusErrorText[MAX_LOGIN_INFO_STRLEN - 1] = '\0';
+					}
+				}
+				/* AuthenticationStatusErrorCode */
+				if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_ERROR_CODE))
+				{
+					ret = rsslDecodeUInt(dIter, &loginRespInfo->AuthenticationStatusErrorCode);
+					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+					{
+						printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+						return ret;
+					}
+					loginRespInfo->HasAuthenticationStatusErrorCode = RSSL_TRUE;
+				}
 				/* AllowSuspectData */
-				if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_ALLOW_SUSPECT_DATA))
+				else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_ALLOW_SUSPECT_DATA))
 				{
 					ret = rsslDecodeUInt(dIter, &loginRespInfo->AllowSuspectData);
 					if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)

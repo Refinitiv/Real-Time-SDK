@@ -81,6 +81,8 @@ typedef struct
 {
 	RsslReactorEventImplBase base;
 	RsslReactorChannelEvent channelEvent;
+	RsslBool isConnectFailure; /* Indicated by worker for for channel-down events. Indicates whether the failure occurred while
+								* attempting to connect/initialize the channel. */
 } RsslReactorChannelEventImpl;
 
 RTR_C_INLINE void rsslClearReactorChannelEventImpl(RsslReactorChannelEventImpl *pEvent)

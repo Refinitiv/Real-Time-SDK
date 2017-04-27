@@ -116,7 +116,7 @@ typedef struct
 } RsslTunnelStreamRequestEvent;
 
 /**
- * @brief Decodes the ClassOfService information contained in an RsslTun
+ * @brief Decodes the ClassOfService information contained in an RsslTunnelStreamRequestEvent
  * @see RsslTunnelStreamQueueMsgCallback
  */
 RSSL_VA_API RsslRet rsslTunnelStreamRequestGetCos(RsslTunnelStreamRequestEvent *pEvent, 

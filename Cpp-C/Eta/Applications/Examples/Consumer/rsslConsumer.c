@@ -62,6 +62,9 @@ static char proxyHostname[128];
 static char proxyPort[128];
 static char libsslName[128];
 static char libcryptoName[128];
+static char authenticationToken[255];
+static char authenticationExtended[255];
+static char applicationId[128];
 static RsslConnectionTypes connType = RSSL_CONN_TYPE_SOCKET;
 static RsslUInt32 pingTimeoutServer = 0;
 static RsslUInt32 pingTimeoutClient = 0;
@@ -99,6 +102,11 @@ static const char *defaultInterface = "";
 static const char *defaultProxyHost = "";
 static const char *defaultProxyPort = "";
 
+/* For TREP authentication login reissue */
+static RsslUInt loginReissueTime; // represented by epoch time in seconds
+static RsslBool canSendLoginReissue;
+static RsslBool isLoginReissue;
+
 int main(int argc, char **argv)
 {
 	struct timeval time_interval;
@@ -113,6 +121,7 @@ int main(int argc, char **argv)
 	RsslInProgInfo inProg = RSSL_INIT_IN_PROG_INFO;
 	int i;
 	RsslInitializeExOpts initOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
+	time_t currentTime;
 #ifdef _WIN32
 	int rcvBfrSize = 65535;
 	int sendBfrSize = 65535;
@@ -122,6 +131,9 @@ int main(int argc, char **argv)
 	snprintf(serviceName, 128, "%s", defaultServiceName);
 	snprintf(interfaceName, 128, "%s", defaultInterface);
 	setUsername((char *)"");
+	setAuthenticationToken((char *)"");
+	setAuthenticationExtended((char *)"");
+	setApplicationId((char *)"");
 	snprintf(proxyHostname, 128, "%s", defaultProxyHost);
 	snprintf(proxyPort, 128, "%s", defaultProxyPort);
 
@@ -162,6 +174,21 @@ int main(int argc, char **argv)
 			{
 				i += 2;
 				setUsername(argv[i-1]);
+			}
+			else if(strcmp("-at", argv[i]) == 0)
+			{
+				i += 2;
+				setAuthenticationToken(argv[i-1]);
+			}
+			else if(strcmp("-ax", argv[i]) == 0)
+			{
+				i += 2;
+				setAuthenticationExtended(argv[i-1]);
+			}
+			else if(strcmp("-aid", argv[i]) == 0)
+			{
+				i += 2;
+				setApplicationId(argv[i-1]);
 			}
 			else if(strcmp("-h", argv[i]) == 0)
 			{
@@ -345,6 +372,9 @@ int main(int argc, char **argv)
 				printf("\n -sl requests symbol list using Symbol List domain. (symbol list name optional)\n");
 				printf("\n -td prints out additional transport details from rsslReadEx() and rsslWriteEx() function calls \n");
 				printf("\n -x provides an XML trace of messages.\n");
+				printf("\n -at Specifies the Authentication Token. If this is present, the login user name type will be RDM_LOGIN_USER_AUTHN_TOKEN.\n");
+				printf("\n -ax Specifies the Authentication Extended information.\n");
+				printf("\n -aid Specifies the Application ID.\n");
 				printf("\n -runtime adjusts the time the application runs.\n");
 #ifdef _WIN32
 				/* WINDOWS: wait for user to enter something before exiting  */
@@ -568,6 +598,7 @@ int main(int argc, char **argv)
 		initPingHandler(rsslConsumerChannel);
 
 		/* Send login request message */
+		isLoginReissue = RSSL_FALSE;
 		if (sendLoginRequest(rsslConsumerChannel, "rsslConsumer", RSSL_CONSUMER, &loginSuccessCallBack) != RSSL_RET_SUCCESS)
 		{
 			cleanUpAndExit();
@@ -654,6 +685,27 @@ int main(int argc, char **argv)
 				if (handlePosts(rsslConsumerChannel, connectionRecovery) != RSSL_RET_SUCCESS)
 					recoverConnection();
 				connectionRecovery = RSSL_FALSE;
+			}
+
+			if ((currentTime = time(NULL)) < 0)
+			{
+				printf("time() failed.\n");
+			}
+
+			// send login reissue if login reissue time has passed
+			if (canSendLoginReissue == RSSL_TRUE &&
+				currentTime >= (RsslInt)loginReissueTime)
+			{
+				isLoginReissue = RSSL_TRUE;
+				if (sendLoginRequest(rsslConsumerChannel, "rsslConsumer", RSSL_CONSUMER, &loginSuccessCallBack) != RSSL_RET_SUCCESS)
+				{
+					printf("Login reissue failed\n");
+				}
+				else
+				{
+					printf("Login reissue sent\n");
+				}
+				canSendLoginReissue = RSSL_FALSE;
 			}
 		}
 	}
@@ -1155,13 +1207,23 @@ void loginSuccessCallBack(RsslChannel* chnl)
 {
 	RsslLoginResponseInfo* loginInfo = getLoginResponseInfo();
 
-	if (!isInLoginSuspectState || (isInLoginSuspectState && !loginInfo->SingleOpen))
+	if (isLoginReissue == RSSL_FALSE)
 	{
-		sendSourceDirectoryRequest(chnl);
-		if (offPostEnabled)
+		if (!isInLoginSuspectState || (isInLoginSuspectState && !loginInfo->SingleOpen))
 		{
-			enableOffstreamPost();
+			sendSourceDirectoryRequest(chnl);
+			if (offPostEnabled)
+			{
+				enableOffstreamPost();
+			}
 		}
+	}
+
+	// get login reissue time from authenticationTTReissue
+	if (loginInfo->AuthenticationTTReissue != 0)
+	{
+		loginReissueTime = loginInfo->AuthenticationTTReissue;
+		canSendLoginReissue = RSSL_TRUE;
 	}
 }
 

@@ -9,6 +9,7 @@
 #include "rtr/rsslReactorEventsImpl.h"
 #include "rtr/rsslWatchlist.h"
 #include "rtr/tunnelStreamImpl.h"
+#include "rtr/msgQueueEncDec.h"
 
 #include <assert.h>
 #ifdef _WIN32
@@ -168,6 +169,13 @@ static RsslReactorChannelImpl* _reactorTakeChannel(RsslReactorImpl *pReactorImpl
 		rsslClearReactorChannelImpl(pReactorImpl, pReactorChannel);
 		rsslInitQueueLink(&pReactorChannel->reactorQueueLink);
 		rsslInitReactorEventQueue(&pReactorChannel->eventQueue, 5, &pReactorImpl->activeEventQueueGroup);
+
+		if ((pReactorChannel->pWorkerNotifierEvent = rsslCreateNotifierEvent()) == NULL)
+			return NULL;
+
+		if ((pReactorChannel->pNotifierEvent = rsslCreateNotifierEvent()) == NULL)
+			return NULL;
+
 	}
 	else
 		pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
@@ -332,64 +340,46 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
 		rsslClearReactorChannelImpl(pReactorImpl, pNewChannel);
 		rsslInitQueueLink(&pNewChannel->reactorQueueLink);
 		rsslInitReactorEventQueue(&pNewChannel->eventQueue, 5, &pReactorImpl->activeEventQueueGroup);
+
+		if ((pNewChannel->pNotifierEvent = rsslCreateNotifierEvent()) == NULL)
+			return NULL;
+
+		if ((pNewChannel->pWorkerNotifierEvent = rsslCreateNotifierEvent()) == NULL)
+			return NULL;
+
 		_reactorMoveChannel(&pReactorImpl->channelPool, pNewChannel);
 	}
 
-	/* Initialize fd sets and sizes. */
-#ifdef WIN32
-	pReactorImpl->fdSetSize = FD_SETSIZE;
-	pReactorImpl->fdSetSizeInBytes = sizeof(fd_set);
-#else
-	getrlimit(RLIMIT_NOFILE, &rlimit);
-	pReactorImpl->fdSetSize = (size_t)rlimit.rlim_cur;
-
-	/* do not allow fdSetSize to be smaller than FD_SETSIZE */
-	if (pReactorImpl->fdSetSize < FD_SETSIZE)
-		pReactorImpl->fdSetSize = FD_SETSIZE;
-
-	/* fdSetSize needs to be a multiple of 8 */
-	fdSetSizeRemainder = pReactorImpl->fdSetSize % 8;
-	if (fdSetSizeRemainder > 0)
-		pReactorImpl->fdSetSize += (8 - fdSetSizeRemainder);
-
-	pReactorImpl->fdSetSizeInBytes = pReactorImpl->fdSetSize / 8;
-#endif
-
-	if ((pReactorImpl->readFds = (fd_set*)malloc(pReactorImpl->fdSetSizeInBytes)) == NULL)
+	if ((pReactorImpl->pNotifier = rsslCreateNotifier(1024)) == NULL)
 	{
 		_reactorWorkerCleanupReactor(pReactorImpl);
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to allocate memory.");
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to create reactor notifier.");
 		return NULL;
 	}
 
-	if ((pReactorImpl->exceptFds = (fd_set*)malloc(pReactorImpl->fdSetSizeInBytes)) == NULL)
+	if ((pReactorImpl->pQueueNotifierEvent = rsslCreateNotifierEvent()) == NULL)
 	{
 		_reactorWorkerCleanupReactor(pReactorImpl);
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to allocate memory.");
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to create reactor event queue notifier event.");
 		return NULL;
 	}
 
-	if ((pReactorImpl->useReadFds = (fd_set*)malloc(pReactorImpl->fdSetSizeInBytes)) == NULL)
-	{
-		_reactorWorkerCleanupReactor(pReactorImpl);
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to allocate memory.");
-		return NULL;
-	}
-
-	if ((pReactorImpl->useExceptFds = (fd_set*)malloc(pReactorImpl->fdSetSizeInBytes)) == NULL)
-	{
-		_reactorWorkerCleanupReactor(pReactorImpl);
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to allocate memory.");
-		return NULL;
-	}
-	memset(pReactorImpl->readFds, 0, pReactorImpl->fdSetSizeInBytes);
-	memset(pReactorImpl->exceptFds, 0, pReactorImpl->fdSetSizeInBytes);
-	memset(pReactorImpl->useReadFds, 0, pReactorImpl->fdSetSizeInBytes);
-	memset(pReactorImpl->useExceptFds, 0, pReactorImpl->fdSetSizeInBytes);
 
 	pReactorImpl->reactor.eventFd = rsslGetEventQueueGroupSignalFD(&pReactorImpl->activeEventQueueGroup);
-	FD_SET(pReactorImpl->reactor.eventFd, pReactorImpl->readFds);
-	FD_SET(pReactorImpl->reactor.eventFd, pReactorImpl->exceptFds);
+
+	if (rsslNotifierAddEvent(pReactorImpl->pNotifier, pReactorImpl->pQueueNotifierEvent, pReactorImpl->reactor.eventFd, &pReactorImpl->reactorEventQueue) < 0)
+	{
+		_reactorWorkerCleanupReactor(pReactorImpl);
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to add event for reactor event queue notfiication.");
+		return NULL;
+	}
+
+	if (rsslNotifierRegisterRead(pReactorImpl->pNotifier, pReactorImpl->pQueueNotifierEvent) < 0)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
+				"Failed to register read notification for reactor event queue.");
+		return NULL;
+	}
 
 	/* Initialize memory block for decoding RDM structures */
 	memBuf = (char*)malloc(pReactorImpl->dispatchDecodeMemoryBufferSize);
@@ -444,6 +434,7 @@ static void _reactorShutdown(RsslReactorImpl *pReactorImpl, RsslErrorInfo *pErro
 static RsslRet _reactorCleanupReactor(RsslReactorImpl *pReactorImpl)
 {
 	RsslReactorStateEvent *pEvent;
+	RsslThreadId thread = pReactorImpl->reactorWorker.thread;
 
 	/* Tell worker thread to cleanup all memory. */
 
@@ -451,7 +442,7 @@ static RsslRet _reactorCleanupReactor(RsslReactorImpl *pReactorImpl)
 	rsslClearReactorEvent(pEvent);
 	pEvent->reactorEventType = RSSL_RCIMPL_STET_DESTROY;
 	rsslReactorEventQueuePut(&pReactorImpl->reactorWorker.workerQueue, (RsslReactorEventImpl*)pEvent);
-	RSSL_THREAD_JOIN(pReactorImpl->reactorWorker.thread);
+	RSSL_THREAD_JOIN(thread);
 	return RSSL_RET_SUCCESS;
 }
 
@@ -627,12 +618,6 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 
 	if ((ret = _validateRole(pRole, pError)) != RSSL_RET_SUCCESS)
 		goto reactorConnectFail;
-
-	if (pReactorImpl->channelCount == FD_SETSIZE - 1)
-	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Cannot add channel -- file descriptor limit reached.");
-		goto reactorConnectFail;
-	}
 
 	pReactorChannel = _reactorTakeChannel(pReactorImpl, &pReactorImpl->channelPool);
 
@@ -841,13 +826,6 @@ RSSL_VA_API RsslRet rsslReactorAccept(RsslReactor *pReactor, RsslServer *pServer
 	if (_validateRole(pRole, pError) != RSSL_RET_SUCCESS)
 		return (reactorUnlockInterface((RsslReactorImpl*)pReactor), RSSL_RET_INVALID_ARGUMENT);
 
-	if (pReactorImpl->channelCount == FD_SETSIZE - 1)
-	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Cannot add channel -- file descriptor limit reached.");
-		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
-	}
-
-
 	if (!(pChannel = rsslAccept(pServer, &pOpts->rsslAcceptOptions, &pError->rsslError)))
 	{
 		rsslSetErrorInfoLocation(pError, __FILE__, __LINE__);
@@ -888,7 +866,6 @@ RSSL_VA_API RsslRet rsslReactorAccept(RsslReactor *pReactor, RsslServer *pServer
 RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispatchOptions *pDispatchOpts, RsslErrorInfo *pError)
 {
 	RsslReactorImpl *pReactorImpl = (RsslReactorImpl*)pReactor;
-	struct timeval selectTime = {0, 0};
 	RsslRet ret;
 	RsslUInt32  channelsToCheck, channelsWithData;
 	RsslUInt32 maxMsgs = pDispatchOpts->maxMessages;
@@ -899,21 +876,19 @@ RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispat
 	/* Record current time. */
 	pReactorImpl->lastRecordedTimeMs = getCurrentTimeMs(pReactorImpl->ticksPerMsec);
 
-	/* Call select to see which if any channels have something to read. */
-	memcpy(pReactorImpl->useReadFds, pReactorImpl->readFds, pReactorImpl->fdSetSizeInBytes);
-	memcpy(pReactorImpl->useExceptFds, pReactorImpl->exceptFds, pReactorImpl->fdSetSizeInBytes);
-	if ((ret = select(pReactorImpl->fdSetSize, pReactorImpl->useReadFds, NULL, pReactorImpl->useExceptFds, &selectTime)) < 0)
+	/* See which channels have something to read. */
+	if ((ret = rsslNotifierWait(pReactorImpl->pNotifier, 0)) < 0)
 	{
 #ifdef WIN32
-		int selectErrno = WSAGetLastError();
-		if (selectErrno == WSAEINTR)
+		int notifierErrno = WSAGetLastError();
+		if (notifierErrno == WSAEINTR)
 			return (reactorUnlockInterface(pReactorImpl), RSSL_RET_SUCCESS);
 #else
-		int selectErrno = errno;
-		if (selectErrno == EINTR)
+		int notifierErrno = errno;
+		if (notifierErrno == EINTR)
 			return (reactorUnlockInterface(pReactorImpl), RSSL_RET_SUCCESS);
 #endif
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "select() failed: %d", selectErrno);
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "rsslNotifierWait() failed: %d", notifierErrno);
 		_reactorShutdown(pReactorImpl, pError);
 		_reactorSendShutdownEvent(pReactorImpl, pError);
 		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
@@ -928,7 +903,7 @@ RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispat
 		{
 			RsslReactorChannelImpl *pReactorChannel;
 
-			if ((FD_ISSET(pReactorImpl->reactor.eventFd, pReactorImpl->useReadFds) || FD_ISSET(pReactorImpl->reactor.eventFd, pReactorImpl->useExceptFds) ))
+			if (rsslNotifierEventIsReadable(pReactorImpl->pQueueNotifierEvent))
 			{
 				RsslReactorEventQueue *pQueue;
 
@@ -950,19 +925,19 @@ RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispat
 			while(maxMsgs > 0 && channelsWithData > 0)
 			{
 				RsslQueueLink *pLink;
-				RsslBool isFdSet;
+				RsslBool isFdReadable;
 
 				pLink = rsslQueueRemoveFirstLink(&pReactorImpl->activeChannels);
 				rsslQueueAddLinkToBack(&pReactorImpl->activeChannels, pLink);
 
 				pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
 
-				isFdSet = FD_ISSET(pReactorChannel->reactorChannel.socketId, pReactorImpl->useReadFds) || FD_ISSET(pReactorChannel->reactorChannel.socketId, pReactorImpl->useExceptFds);
+				isFdReadable = rsslNotifierEventIsReadable(pReactorChannel->pNotifierEvent);
 
 				/* A channel has something to read if either:
 				 * - The last return from rsslRead() was greater than zero, indicating there were still bytes in RSSL's queue
 				 * - The file descriptor is set because there is data from the socket */
-				if (pReactorChannel->readRet > 0 || isFdSet)
+				if (pReactorChannel->readRet > 0 || isFdReadable)
 				{
 					if ((ret = _reactorDispatchFromChannel(pReactorImpl, pReactorChannel, pError)) < RSSL_RET_SUCCESS)
 					{
@@ -980,11 +955,8 @@ RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispat
 					else if (pReactorChannel->readRet <= RSSL_RET_SUCCESS)
 					{
 						--channelsWithData;
-						if (isFdSet)
-						{
-							FD_CLR(pReactorChannel->reactorChannel.socketId, pReactorImpl->useReadFds);
-							FD_CLR(pReactorChannel->reactorChannel.socketId, pReactorImpl->useExceptFds);
-						}
+						if (isFdReadable)
+							rsslNotifierEventClearNotifiedFlags(pReactorChannel->pNotifierEvent);
 					}
 					if (channelsToCheck > 0) --channelsToCheck;
 					if (maxMsgs > 0) --maxMsgs;
@@ -1028,7 +1000,7 @@ RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispat
 					/* A channel has something to read if either:
 					 * - The last return from rsslRead() was greater than zero, indicating there were still bytes in RSSL's queue
 					 * - The file descriptor is set because there is data from the socket */
-					if (pReactorChannel->readRet > 0 || FD_ISSET(pReactorChannel->reactorChannel.socketId, pReactorImpl->useReadFds) || FD_ISSET(pReactorChannel->reactorChannel.socketId, pReactorImpl->useExceptFds))
+					if (pReactorChannel->readRet > 0 || rsslNotifierEventIsReadable(pReactorChannel->pNotifierEvent))
 						return (reactorUnlockInterface(pReactorImpl), 1);
 
 					--channelsToCheck;
@@ -1049,7 +1021,7 @@ RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispat
 				return (reactorUnlockInterface(pReactorImpl), RSSL_RET_INVALID_ARGUMENT);
 			}
 
-			if ((FD_ISSET(pReactorImpl->reactor.eventFd, pReactorImpl->useReadFds) || FD_ISSET(pReactorImpl->reactor.eventFd, pReactorImpl->useExceptFds)))
+			if (rsslNotifierEventIsReadable(pReactorImpl->pQueueNotifierEvent))
 			{
 
 				/* Dispatch from reactor queue */
@@ -1104,7 +1076,7 @@ RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispat
 			/* A channel has something to read if either:
 			 * - The last return from rsslRead() was greater than zero, indicating there were still bytes in RSSL's queue
 			 * - The file descriptor is set because there is data from the socket */
-			if (pReactorChannel->readRet > 0 || FD_ISSET(pDispatchOpts->pReactorChannel->socketId, pReactorImpl->useReadFds) || FD_ISSET(pDispatchOpts->pReactorChannel->socketId, pReactorImpl->useExceptFds))
+			if (pReactorChannel->readRet > 0 || rsslNotifierEventIsReadable(pReactorChannel->pNotifierEvent))
 			{
 				while (maxMsgs > 0 && channelsToCheck > 0)
 				{
@@ -1164,7 +1136,17 @@ RSSL_VA_API RsslRet rsslReactorSubmit(RsslReactor *pReactor, RsslReactorChannel 
 		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_INVALID_ARGUMENT);
 
 	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
 		return (reactorUnlockInterface((RsslReactorImpl*)pReactor), RSSL_RET_FAILURE);
+	}
+
+	if (pReactorChannel->reactorParentQueue != &pReactorImpl->activeChannels)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Channel is not active.");
+		return (reactorUnlockInterface((RsslReactorImpl*)pReactor), RSSL_RET_FAILURE);
+	}
+
 
 	if (pReactorChannel->channelRole.base.roleType == RSSL_RC_RT_OMM_CONSUMER
 			&& pReactorChannel->channelRole.ommConsumerRole.watchlistOptions.enableWatchlist)
@@ -1220,7 +1202,7 @@ RSSL_VA_API RsslRet rsslReactorSubmit(RsslReactor *pReactor, RsslReactorChannel 
 
 }
 
-static RsslUInt32 _reactorMsgEncodedSize(RsslMsg *pMsg)
+RsslUInt32 _reactorMsgEncodedSize(RsslMsg *pMsg)
 {
 	RsslUInt32 msgSize = 128;
 	const RsslMsgKey *pKey;
@@ -1254,7 +1236,10 @@ RSSL_VA_API RsslRet rsslReactorSubmitMsg(RsslReactor *pReactor, RsslReactorChann
 		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_INVALID_ARGUMENT);
 
 	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
 		return (reactorUnlockInterface((RsslReactorImpl*)pReactor), RSSL_RET_FAILURE);
+	}
 
 	if (pReactorChannel->pWatchlist)
 	{
@@ -1278,6 +1263,12 @@ RSSL_VA_API RsslRet rsslReactorSubmitMsg(RsslReactor *pReactor, RsslReactorChann
 		/* Watchlist is off. Encode the message for the application. */
 
 		RsslUInt32 msgSize;
+
+		if (pReactorChannel->reactorParentQueue != &pReactorImpl->activeChannels)
+		{
+			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Channel is not active.");
+			return (reactorUnlockInterface((RsslReactorImpl*)pReactor), RSSL_RET_FAILURE);
+		}
 
 		if (pReactorChannel->pWriteCallAgainBuffer)
 		{
@@ -1452,10 +1443,11 @@ static RsslRet _reactorHandleChannelDown(RsslReactorImpl *pReactorImpl, RsslReac
 
 	pEvent = (RsslReactorChannelEventImpl*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorWorker.workerQueue);
 
-	if(pChannel && pChannel->socketId != REACTOR_INVALID_SOCKET)
+	if (rsslNotifierRemoveEvent(pReactorImpl->pNotifier, pReactorChannel->pNotifierEvent) < 0)
 	{
-		FD_CLR(pChannel->socketId, pReactorImpl->readFds);
-		FD_CLR(pChannel->socketId, pReactorImpl->exceptFds);
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
+				"Failed to remove notification event for disconnected channel.");
+		return RSSL_RET_FAILURE;
 	}
 
 	if(pReactorChannel->reconnectAttemptLimit != 0 && pReactorChannel->reconnectAttemptCount != pReactorChannel->reconnectAttemptLimit)
@@ -1664,10 +1656,11 @@ RSSL_VA_API RsslRet rsslReactorCloseChannel(RsslReactor *pReactor, RsslReactorCh
 		/* Channel is not currently trying to close.  Start the process of shutting it down. */
 		RsslReactorChannelEventImpl *pEvent = (RsslReactorChannelEventImpl*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorWorker.workerQueue);
 
-		if(pChannel && pChannel->socketId != REACTOR_INVALID_SOCKET)
+		if (rsslNotifierRemoveEvent(pReactorImpl->pNotifier, pReactorChannel->pNotifierEvent) < 0)
 		{
-			FD_CLR(pChannel->socketId, pReactorImpl->readFds);
-			FD_CLR(pChannel->socketId, pReactorImpl->exceptFds);
+			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
+					"Failed to remove notification event for disconnected channel.");
+			return RSSL_RET_FAILURE;
 		}
 
 		_reactorMoveChannel(&pReactorImpl->closingChannels, pReactorChannel);
@@ -1835,8 +1828,20 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 					{
 						case RSSL_RC_CET_CHANNEL_UP:
 							/* Channel has been initialized by worker thread and is ready for reading & writing. */
-							FD_SET(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorImpl->readFds);
-							FD_SET(pReactorChannel->reactorChannel.pRsslChannel->socketId, pReactorImpl->exceptFds);
+							if (rsslNotifierAddEvent(pReactorImpl->pNotifier, pReactorChannel->pNotifierEvent, pReactorChannel->reactorChannel.socketId, pReactorChannel) < 0)
+							{
+								rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
+										"Failed to add notification event for initialized channel.");
+								return RSSL_RET_FAILURE;
+							}
+							if (rsslNotifierRegisterRead(pReactorImpl->pNotifier, pReactorChannel->pNotifierEvent) < 0)
+							{
+								rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
+										"Failed to register read notification for initialized channel.");
+								return RSSL_RET_FAILURE;
+							}
+
+							pReactorChannel->requestedFlush = RSSL_FALSE;
 
 							/* Reset reconnect attempt count (if  watchlist is enable, wait for a 
 							 * login stream first). */
@@ -1920,6 +1925,11 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 
 						case RSSL_RC_CET_CHANNEL_DOWN:
 						case RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING:
+							/* If the channel is currently down, this event may be due to the worker finding out at the same time the reactor did.
+							 * Ignore this event. Otherwise, it is redundant to provide to the application (we already know it's down), and it could
+							 * re-trigger connection recovery that is already underway. */
+							if (!pConnEvent->isConnectFailure && pReactorChannel->reactorParentQueue != &pReactorImpl->activeChannels)
+								break;
 
 							if (_reactorHandleChannelDown(pReactorImpl, pReactorChannel, pConnEvent->channelEvent.pError) != RSSL_RET_SUCCESS)
 								return RSSL_RET_FAILURE;
@@ -2935,12 +2945,8 @@ static RsslRet _reactorDispatchFromChannel(RsslReactorImpl *pReactorImpl, RsslRe
 		/* Update ping time & notication logic */
 		pReactorChannel->lastPingReadMs = pReactorImpl->lastRecordedTimeMs;
 
-		if (ret == RSSL_RET_SUCCESS)
-		{
-			/* Clear notification */
-			FD_CLR(pChannel->socketId, pReactorImpl->useReadFds);
-			FD_CLR(pChannel->socketId, pReactorImpl->useExceptFds);
-		}
+		if (ret == RSSL_RET_SUCCESS) 
+			rsslNotifierEventClearNotifiedFlags(pReactorChannel->pNotifierEvent); /* Done reading. */
 
 		/* Decode the message header. Call the appropriate callback function based on the domainType. */
 		rsslClearMsg(&msg);
@@ -3045,24 +3051,26 @@ static RsslRet _reactorDispatchFromChannel(RsslReactorImpl *pReactorImpl, RsslRe
 				return RSSL_RET_SUCCESS;
 			case RSSL_RET_READ_WOULD_BLOCK:
 				/* Clear descriptor so that we will ignore this channel until the next notification call */
-				FD_CLR(pChannel->socketId, pReactorImpl->useReadFds);
-				FD_CLR(pChannel->socketId, pReactorImpl->useExceptFds);
+				rsslNotifierEventClearNotifiedFlags(pReactorChannel->pNotifierEvent);
 				pReactorChannel->readRet = 0;
 				return RSSL_RET_SUCCESS;
 			case RSSL_RET_READ_FD_CHANGE:
 				{
 					RsslReactorEventImpl rsslEvent;
 
-					/* Change descriptors */
-					FD_CLR(pChannel->oldSocketId, pReactorImpl->useReadFds);
-					FD_CLR(pChannel->oldSocketId, pReactorImpl->useExceptFds);
-					FD_SET(pChannel->socketId, pReactorImpl->useReadFds);
-					FD_SET(pChannel->socketId, pReactorImpl->useExceptFds);
-
-					FD_CLR(pChannel->oldSocketId, pReactorImpl->readFds);
-					FD_CLR(pChannel->oldSocketId, pReactorImpl->exceptFds);
-					FD_SET(pChannel->socketId, pReactorImpl->readFds);
-					FD_SET(pChannel->socketId, pReactorImpl->exceptFds);
+					/* Descriptor changed, update notification. */
+					if (rsslNotifierUpdateEventFd(pReactorImpl->pNotifier, pReactorChannel->pNotifierEvent, pChannel->socketId) < 0)
+					{
+						rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
+								"Failed to add notification event for initializing channel that is changing descriptor.");
+						return RSSL_RET_FAILURE;
+					}
+					if (rsslNotifierRegisterRead(pReactorImpl->pNotifier, pReactorChannel->pNotifierEvent) < 0)
+					{
+						rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
+								"Failed to register read notification for initializing channel that is changing descriptor.");
+						return RSSL_RET_FAILURE;
+					}
 
 					/* Copy changed sockets to reactor channel */
 					pReactorChannel->reactorChannel.socketId = pChannel->socketId;
@@ -3184,7 +3192,7 @@ RSSL_VA_API RsslRet rsslReactorOpenTunnelStream(RsslReactorChannel *pReactorChan
 	if ((ret = reactorLockInterface(pReactorImpl, RSSL_TRUE, pError)) != RSSL_RET_SUCCESS)
 		return ret;
 
-	if ((pTunnelStream = tunnelManagerOpenStream(pReactorChannelImpl->pTunnelManager, pOptions, RSSL_FALSE, NULL, pError)) == NULL)
+	if ((pTunnelStream = tunnelManagerOpenStream(pReactorChannelImpl->pTunnelManager, pOptions, RSSL_FALSE, NULL, COS_CURRENT_STREAM_VERSION, pError)) == NULL)
 		return (reactorUnlockInterface(pReactorImpl), pError->rsslError.rsslErrorId);
 
 	pTunnelStream->pReactorChannel = pReactorChannel;

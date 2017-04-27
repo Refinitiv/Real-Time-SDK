@@ -176,7 +176,7 @@ RsslReactor *pReactor = 0;
 
 int main(int argc, char **argv)
 {
-	int i;
+	int i, j;
 	struct timeval time_interval;
 	fd_set useRead;
 	fd_set useExcept;
@@ -196,6 +196,8 @@ int main(int argc, char **argv)
 	RsslCreateReactorOptions reactorOpts;
 
 	RsslReactorDispatchOptions dispatchOpts;
+
+	time_t nextSendTime;
 
 	/* Initialize RSSL. The locking mode RSSL_LOCK_GLOBAL_AND_CHANNEL is required to use the RsslReactor. */
 	if (rsslInitialize(RSSL_LOCK_GLOBAL_AND_CHANNEL, &rsslErrorInfo.rsslError) != RSSL_RET_SUCCESS)
@@ -351,6 +353,9 @@ int main(int argc, char **argv)
 	rsslClearReactorDispatchOptions(&dispatchOpts);
 	dispatchOpts.maxMessages = MAX_CLIENT_SESSIONS;
 
+	// initialize next send time
+	nextSendTime = time(NULL) + UPDATE_INTERVAL;
+
 	/* this is the main loop */
 	while(RSSL_TRUE)
 	{
@@ -359,29 +364,11 @@ int main(int argc, char **argv)
 		time_interval.tv_sec = UPDATE_INTERVAL;
 		time_interval.tv_usec = 0;
 
-
 		/* Call select() to check for any messages */
 		selRet = select(FD_SETSIZE,&useRead,
 		    NULL,&useExcept,&time_interval);
 
-		if (selRet == 0) /* no messages received, send updates and continue */
-		{
-			/* Send market price updates for each connected channel */
-			updateItemInfo();
-			for (i = 0; i < MAX_CLIENT_SESSIONS; i++)
-			{
-				if (clientSessions[i].clientChannel != NULL)
-				{
-					if (sendItemUpdates(pReactor, clientSessions[i].clientChannel) != RSSL_RET_SUCCESS)
-					{
-						removeClientSessionForChannel(pReactor, clientSessions[i].clientChannel);
-					}
-
-					handleSimpleTunnelMsgHandler(pReactor, clientSessions[i].clientChannel, &clientSessions[i].simpleTunnelMsgHandler);
-				}
-			}
-		}
-		else if (selRet > 0)
+		if (selRet > 0)
 		{
 			RsslRet ret;
 
@@ -446,6 +433,34 @@ int main(int argc, char **argv)
 			cleanUpAndExit();
 		}
 
+		// send any updates at next send time
+		if (time(NULL) >= nextSendTime)
+		{
+			/* Send market price updates for each connected channel */
+			updateItemInfo();
+			for (i = 0; i < MAX_CLIENT_SESSIONS; i++)
+			{
+				if (clientSessions[i].clientChannel != NULL)
+				{
+					if (sendItemUpdates(pReactor, clientSessions[i].clientChannel) != RSSL_RET_SUCCESS)
+					{
+						removeClientSessionForChannel(pReactor, clientSessions[i].clientChannel);
+					}
+
+					// send any tunnel stream messages
+					for (j = 0; j < MAX_TUNNEL_STREAMS; j++)
+					{
+						if (clientSessions[i].simpleTunnelMsgHandler[j].tunnelStreamHandler.pTunnelStream != NULL)
+						{
+							handleSimpleTunnelMsgHandler(pReactor, clientSessions[i].clientChannel, &clientSessions[i].simpleTunnelMsgHandler[j]);
+						}
+					}
+				}
+			}
+
+			nextSendTime += UPDATE_INTERVAL;
+		}
+
 		/* Handle run-time */
 		handleRuntime();
 	}
@@ -470,7 +485,7 @@ static void initRuntime()
  */
 static void handleRuntime()
 {
-	int i;
+	int i, j;
 	time_t currentTime = 0;
 	RsslRet	retval = 0;
 
@@ -486,20 +501,19 @@ static void handleRuntime()
 			if (clientSessions[i].clientChannel != NULL)
 			{
 				/* If any tunnel streams are still open, wait for them to close before quitting. */
-				for(i = 0; i < MAX_CLIENT_SESSIONS; ++i)
+				for (j = 0; j < MAX_CLIENT_SESSIONS; j++)
 				{
-					if (clientSessions[i].simpleTunnelMsgHandler.tunnelStreamHandler.pTunnelStream != NULL)
-					{
-						tunnelStreamsOpen = RSSL_TRUE;
+					if (clientSessions[i].simpleTunnelMsgHandler[j].tunnelStreamHandler.pTunnelStream != NULL)
+				{
+					tunnelStreamsOpen = RSSL_TRUE;
 						
-						if (!runTimeExpired)
-							simpleTunnelMsgHandlerCloseStreams(&clientSessions[i].simpleTunnelMsgHandler);
-						else
-							break;
-					}
+					if (!runTimeExpired)
+							simpleTunnelMsgHandlerCloseStreams(&clientSessions[i].simpleTunnelMsgHandler[j]);
+					else
+						break;
 				}
-
 			}
+		}
 		}
 
 		if (!runTimeExpired)
@@ -603,8 +617,20 @@ RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReactorChan
 RsslReactorCallbackRet tunnelStreamListenerCallback(RsslTunnelStreamRequestEvent *pEvent, RsslErrorInfo *pErrorInfo)
 {
 	RsslClientSessionInfo *pClientSessionInfo = (RsslClientSessionInfo*)pEvent->pReactorChannel->userSpecPtr;
+	SimpleTunnelMsgHandler *pSimpleTunnelMsgHandler = NULL;
+	int i;
 
-	simpleTunnelMsgHandlerProcessNewStream(&pClientSessionInfo->simpleTunnelMsgHandler, pEvent);
+	/* find simpleTunnelMsgHandler that's not in use */
+	for (i = 0; i < MAX_TUNNEL_STREAMS; i++)
+	{
+		if (pClientSessionInfo->simpleTunnelMsgHandler[i].tunnelStreamHandler.tunnelStreamOpenRequested == RSSL_FALSE)
+		{
+			pSimpleTunnelMsgHandler = &pClientSessionInfo->simpleTunnelMsgHandler[i];
+			break;
+		}
+	}
+
+	simpleTunnelMsgHandlerProcessNewStream(pSimpleTunnelMsgHandler, pEvent);
 	
 	return RSSL_RC_CRET_SUCCESS;
 }

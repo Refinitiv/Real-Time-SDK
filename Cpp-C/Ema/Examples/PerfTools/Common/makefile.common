@@ -1,116 +1,32 @@
-#Sets the root directory for this package
-ROOTPLAT=../../..
-#If user wants to build the examples using their custom build EMA library set the DISTRIBUTION_SRC=CUSTOM
-DISTRIBUTION_SRC=
-#If User wants to build with Optimized_Assert builds, change LIBTYPE=Optimized_Assert
-LIBTYPE=Optimized
-#If User wants to build with Shared libraries, change LINKTYPE=Shared
-LINKTYPE=
-
-XML_ROOT=$(ROOTPLAT)/../Eta/Utils/Libxml2
-
-#
-# assume this is some type of Linux 
-#
+ROOTNODE=$(shell cd ../../../..; pwd)
 OS_VER=$(shell lsb_release -r | sed 's/\.[0-9]//')
 DIST=$(shell lsb_release -i)
-CFLAGS = -m64 
-
+CC=g++
 
 ifeq ($(findstring RedHat,$(DIST)), RedHat)
 	ifeq ($(findstring 6, $(OS_VER)), 6)
-		# assume AS6 (or greater)
-		ifeq ($(findstring CUSTOM,$(DISTRIBUTION_SRC)), CUSTOM)
-			LIB_DIR=$(ROOTPLAT)/Src/Access/Libs/RHEL6_64_GCC444/$(LIBTYPE)/$(LINKTYPE)
-		else
-			LIB_DIR=$(ROOTPLAT)/Libs/RHEL6_64_GCC444/$(LIBTYPE)/$(LINKTYPE)
-		endif
-		XML_LIB_DIR=$(XML_ROOT)/RHEL6_64_GCC444/Static
-		ETA_LIB_DIR=$(ROOTPLAT)/../Eta/Libs/RHEL6_64_GCC444/$(LIBTYPE)/$(LINKTYPE)
-		OUTPUT_DIR=./RHEL6_64_GCC444/$(LIBTYPE)/$(LINKTYPE)
-		CFLAGS += -DLinux -DLINUX -Dx86_Linux_4X -Dx86_Linux_5X -Dx86_Linux_6X -DLinuxVersion=6 
+		IDENT= RHEL6_64_GCC444
 	endif
-else 
+else
         ifeq ($(findstring OracleServer, $(DIST)), OracleServer)
                 ifeq ($(findstring 6, $(OS_VER)), 6)
-			# OL6
-			ifeq ($(findstring CUSTOM,$(DISTRIBUTION_SRC)), CUSTOM)
-				LIB_DIR=$(ROOTPLAT)/Src/Access/Libs/RHEL6_64_GCC444/$(LIBTYPE)/$(LINKTYPE)
-			else
-				LIB_DIR=$(ROOTPLAT)/Libs/RHEL6_64_GCC444/$(LIBTYPE)/$(LINKTYPE)
-			endif
-			XML_LIB_DIR=$(XML_ROOT)/OL6_64_GCC444/Static
-			ETA_LIB_DIR=$(ROOTPLAT)/../Eta/Libs/RHEL6_64_GCC444/$(LIBTYPE)/$(LINKTYPE)
-			OUTPUT_DIR=./OL6_64_GCC444/$(LIBTYPE)/$(LINKTYPE)
-			CFLAGS += -DLinux -DLINUX -Dx86_Linux_4X -Dx86_Linux_5X -Dx86_Linux_6X -DLinuxVersion=6 
-                else
-			# assume OL7 (or greater)
-			ifeq ($(findstring CUSTOM,$(DISTRIBUTION_SRC)), CUSTOM)
-				LIB_DIR=$(ROOTPLAT)/Src/Access/Libs/OL7_64_GCC482/$(LIBTYPE)/$(LINKTYPE)
-			else
-				LIB_DIR=$(ROOTPLAT)/Libs/OL7_64_GCC482/$(LIBTYPE)/$(LINKTYPE)
-			endif
-			XML_LIB_DIR=$(XML_ROOT)/OL7_64_GCC482/Static
-			ETA_LIB_DIR=$(ROOTPLAT)/../Eta/Libs/OL7_64_GCC482/$(LIBTYPE)/$(LINKTYPE)
-			OUTPUT_DIR=./OL7_64_GCC482/$(LIBTYPE)/$(LINKTYPE)
-			CFLAGS += -DLinux -DLINUX -Dx86_Linux_4X -Dx86_Linux_5X -Dx86_Linux_6X -DLinuxVersion=7
-                endif
-        else
+			IDENT= OL6_64_GCC444
+		else
+			IDENT= OL7_64_GCC482
+		endif
+	else
                 ifeq ($(findstring CentOS, $(DIST)), CentOS)
                         ifeq ($(findstring 7, $(OS_VER)), 7)
-				# assume AS7 (or greater)
-				ifeq ($(findstring CUSTOM,$(DISTRIBUTION_SRC)), CUSTOM)
-					LIB_DIR=$(ROOTPLAT)/Src/Access/Libs/OL7_64_GCC482/$(LIBTYPE)/$(LINKTYPE)
-				else
-					LIB_DIR=$(ROOTPLAT)/Libs/OL7_64_GCC482/$(LIBTYPE)/$(LINKTYPE)
-				endif
-				XML_LIB_DIR=$(XML_ROOT)/CENTOS7_64_GCC482/Static
-				ETA_LIB_DIR=$(ROOTPLAT)/../Eta/Libs/OL7_64_GCC482/$(LIBTYPE)/$(LINKTYPE)
-				OUTPUT_DIR=./CENTOSL7_64_GCC482/$(LIBTYPE)/$(LINKTYPE)
-				CFLAGS += -DLinux -DLINUX -Dx86_Linux_4X -Dx86_Linux_5X -Dx86_Linux_6X -DLinuxVersion=7
-                        endif
-                endif
-        endif
+				IDENT=CENTOS7_64_GCC482
+			endif
+		endif
+	endif
 endif
 
-CFLAGS += -D_SVID_SOURCE=1 -DCOMPILE_64BITS 
-CLIBS = $(LIB_DIR)
-LIB_PATH = -L$(LIB_DIR) -L$(XML_LIB_DIR)
-HEADER_INC = -I../Common   -I$(ROOTPLAT)/Src  -I$(ROOTPLAT)/Src/Access/Include  -I$(ROOTPLAT)/Src/Include  -I$(ROOTPLAT)/Src/Rdm/Include -I$(ROOTPLAT)/../Eta/Utils/Libxml2/include 
-
-ifeq ($(LINKTYPE),Shared)
-	LN_HOMEPATH=../../..
-	LIB_PATH += -L$(ETA_LIB_DIR)
-	EMA_LIB = -lema -lrsslVA -lrssl $(XML_LIB_DIR)/libxml2.a 
-else
-	LN_HOMEPATH=../..
-	EMA_LIB = $(LIB_DIR)/libema.a $(XML_LIB_DIR)/libxml2.a 
+ifndef IDENT
+$(error unsupported environment)
 endif
 
-
-EXE_DIR=$(OUTPUT_DIR)
-
-export COMPILER=gnu
-export CC=/usr/bin/g++
-CFLAGS += -DNDEBUG -D_iso_stdcpp_ -D_BSD_SOURCE=1 -D_POSIX_SOURCE=1 -D_POSIX_C_SOURCE=199506L -D_XOPEN_SOURCE=500 -D_REENTRANT -D_POSIX_PTHREAD_SEMANTICS -D_GNU_SOURCE -O3
-SYSTEM_LIBS = -lnsl -lpthread -lrt -ldl -lm
-LNCMD = ln -is
-
-$(OUTPUT_DIR)/obj/Dummy/%.o : %.cpp
-	rm -f $@
-	mkdir -p $(dir $@)
-	$(CC)  -c $(CFLAGS) $(HEADER_INC) -o $@ $<
-
-$(OUTPUT_DIR)/obj/%.o : %.cpp
-	rm -f $@
-	mkdir -p $(dir $@)
-	$(CC)  -c $(CFLAGS) $(HEADER_INC) -o $@ $<
-
-
-$(OUTPUT_DIR)/%.o : %.cpp
-	rm -f $@
-	mkdir -p $(dir $@)
-	$(CC)  -c $(CFLAGS) $(HEADER_INC) -o $@ $<
-
-XML_LIB_SRC = $(ROOTPLAT)/../Eta/Utils/Libxml2/
+CFLAGS += -m64 -D_REENTRANT -DLinux -O3 -DCOMPILE_64BITS
+INCLUDES = -I$(ROOTNODE)/Ema/Src/Include -I$(ROOTNODE)/Ema/Src -I$(ROOTNODE)/Eta/Utils/Libxml2/include
 

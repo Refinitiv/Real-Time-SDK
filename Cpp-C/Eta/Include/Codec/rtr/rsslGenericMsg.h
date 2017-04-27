@@ -236,6 +236,19 @@ RTR_C_ALWAYS_INLINE void rsslGenericMsgApplyHasSecondarySeqNum(RsslGenericMsg *p
 {
 	pGenericMsg->flags |= RSSL_GNMF_HAS_SECONDARY_SEQ_NUM;
 }
+
+/**
+* @brief Set the RSSL_GNMF_MESSAGE_COMPLETE flag on an encoded RsslGenericMsg buffer
+* @see RsslGenericFlags
+*/
+RSSL_API RsslRet rsslSetGenericCompleteFlag(RsslEncodeIterator		*pIter);
+
+/**
+* @brief Unset the RSSL_GNMF_MESSAGE_COMPLETE flag on an encoded RsslGenericMsg buffer
+* @see RsslGenericFlags
+*/
+RSSL_API RsslRet rsslUnsetGenericCompleteFlag(RsslEncodeIterator		*pIter);
+
 #define rsslGenericMsgApplyHasSecSeqNum rsslGenericMsgApplyHasSecondarySeqNum
 
 /**

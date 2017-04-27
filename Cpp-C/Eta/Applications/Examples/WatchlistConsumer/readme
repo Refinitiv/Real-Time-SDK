@@ -48,7 +48,7 @@ This application is not intended to be used for measuring performance.
 Application Name:
 -----------------
 
-rsslWatchlistConsumer
+WatchlistConsumer
 
 ------------------
 Setup Environment:
@@ -62,17 +62,18 @@ cannot be found, they are requested from the provider.
 Command line usage:
 -------------------  
 
-rsslWatchlistConsumer
+WatchlistConsumer
 
 (runs with a default set of parameters (-h localhost -p 14002 -s DIRECT_FEED -mp TRI))
 
 or
 
-rsslWatchlistConsumer or rsslWatchlistConsumer [ -c <Connection Type> ] 
+WatchlistConsumer or WatchlistConsumer [ -c <Connection Type> ] 
   [ -if <Interface Name> ] [ -u <Login UserName> ] [-s <ServiceName>] 
   [ -mp <MarketPrice ItemName> ] [ -mbo <MarketByOrder ItemName> ] 
   [ -mbp <MarketByPrice ItemName> ] [ -yc <YieldCurve ItemName> ] 
   [ -sl <SymbolList ItemName> ] [ -sld <SymbolList ItemName> ] [ -view ] [ -runTime <TimeToRun> ]
+  [-at <AuthenticationToken>] [-ax <AuthenticationExtended>] [-aid <ApplicationId>]
 
   Connection options for socket, http, and encrypted connection types:
     [ -h <Server Hostname> ] [ -p <Port> ]
@@ -126,10 +127,19 @@ messaging or queue messaging (it is applied to either).
 The -tsDomain option specifies the domainType to use when opening the tunnel stream,
 for the simple tunnel messaging or queue messaging.
 
+Specifying the -at option configures the token used for TREP Authentication.  This should be used 
+in place of a userName.  This token is retrieved from a token generator, and passed to TREP, which
+will verify the token against a token validator.  For more information about the TREP Authentication
+feature, please see the Developers guide and the TREP Authentication guide.
+
+Specifying the -ax option configures the authentication extended information used for TREP Authentication.
+
+Specifying the -aid option configures the Application Id.
+
 Specifying the -runTime option controls the time the application will run
 before exiting, in seconds.
 
-- rsslWatchlistConsumer -? displays command line options.  
+- WatchlistConsumer -? displays command line options.  
 
 
 -----------------
@@ -138,20 +148,20 @@ Compiling Source:
 
 The included makefile is set up to run from the file
 locations as presented through the distribution package.
-It is set up for building on the UPA supported 
+It is set up for building on the Transport API supported 
 Solaris or Linux platforms using the supported compilers.
 
 The VA_CUSTOM_BUILT_LIBS value in the makefile is used to 
-link in UPA ValueAdd components compiled from the provided
+link in the Transport API ValueAdd components compiled from the provided
 source code.  If a custom library is used, VA_CUSTOM_BUILT_LIBS 
 should be set to Yes.  In addition, the user should point the 
 VA_INCLUDE locations to the location where the directory of 
 the current platform's library is built.
 
 The LINKTYPE value in the makefile is used to control
-whether the application is built using UPA static or
-shared libraries. The default build uses UPA static
-libraries. To use UPA shared libraries,
+whether the application is built using Transport API static or
+shared libraries. The default build uses Transport API static
+libraries. To use Transport API shared libraries,
 set LINKTYPE=Shared.
 
 To compile, run the gmake command.

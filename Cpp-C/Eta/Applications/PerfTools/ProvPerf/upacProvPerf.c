@@ -349,7 +349,6 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 	
 			if (pProvSession)
 			{
-				free(pProvSession->pChannelInfo);
 				providerSessionDestroy(pProviderThread, pProvSession);
 			}
 
@@ -439,6 +438,7 @@ static RsslRet acceptReactorConnection(RsslServer *pRsslSrvr, RsslErrorInfo *pRs
 	ProviderThread *pProvThread;
 	ProviderSession *pProvSession;
 	RsslInt32 i, minProviderConnCount, connHandlerIndex;
+	int ret;
 
 	// find least loaded reactor thread
 	minProviderConnCount = 0x7fffffff;
@@ -480,7 +480,14 @@ static RsslRet acceptReactorConnection(RsslServer *pRsslSrvr, RsslErrorInfo *pRs
 	rsslClearReactorAcceptOptions(&aopts);
 	aopts.rsslAcceptOptions.userSpecPtr = pProvSession;
 
-	return rsslReactorAccept(pProvThread->pReactor, pRsslSrvr, &aopts, (RsslReactorChannelRole*)&providerRole, &rsslErrorInfo);
+	if ((ret = rsslReactorAccept(pProvThread->pReactor, pRsslSrvr, &aopts, (RsslReactorChannelRole*)&providerRole, &rsslErrorInfo))
+			!= RSSL_RET_SUCCESS)
+	{
+		providerSessionDestroy(pProvThread, pProvSession);
+		return ret;
+	}
+
+	return RSSL_RET_SUCCESS;
 }
 
 int main(int argc, char **argv)

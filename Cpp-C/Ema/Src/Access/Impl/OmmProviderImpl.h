@@ -37,6 +37,8 @@ public :
 
 	virtual UInt64 registerClient(const ReqMsg&, OmmProviderClient&, void* closure = 0, UInt64 parentHandle = 0) = 0;
 
+	virtual void reissue(const ReqMsg&, UInt64) = 0;
+
 	virtual void submit(const GenericMsg&, UInt64) = 0;
 
 	virtual void submit(const RefreshMsg&, UInt64) = 0;

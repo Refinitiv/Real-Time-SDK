@@ -179,7 +179,9 @@ typedef struct
 	char* channelCommandArray;
 	RsslBuffer channelCommandBuffer;
 
-
+	/* For TREP authentication login reissue */
+	RsslUInt loginReissueTime; // represented by epoch time in seconds
+	RsslBool canSendLoginReissue;
 } ChannelCommand;
 
 /*
@@ -430,7 +432,8 @@ RTR_C_INLINE void clearChannelCommand(ChannelCommand *pCommand)
 	pCommand->sendSymbolList = RSSL_FALSE;
 	pCommand->userSpecSymbolList = RSSL_FALSE;
 	pCommand->foundItemList = RSSL_FALSE;
-	
+	pCommand->canSendLoginReissue = RSSL_FALSE;
+
 	state.streamState = RSSL_STREAM_CLOSED_RECOVER;
 	state.dataState = RSSL_DATA_SUSPECT;
 	state.code = 0;

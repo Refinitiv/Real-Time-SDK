@@ -97,7 +97,7 @@ void StaticDecoder::setRsslData( Data* pData, RsslBuffer* pRsslBuffer, RsslDataT
 		dType = msgDataType[ rsslExtractMsgClass( &decodeIter ) ];
 	}
 	else
-		dType = dataType[rsslType];
+		dType = (DataType::DataTypeEnum)rsslType;
 
 	morph( pData, dType );
 

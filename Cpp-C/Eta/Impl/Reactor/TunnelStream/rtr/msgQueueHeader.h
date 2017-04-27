@@ -27,6 +27,11 @@ typedef enum {
 	TS_MC_CLOSE		= 7
 } TunnelStreamMsgOpcodes;
 
+typedef enum {
+	TS_DF_NONE			= 0x00,
+	TS_DF_FRAGMENTED	= 0x01
+} TunnelStreamDataFlags;
+
 #define MAX_RANGES 255
 
 typedef struct {
@@ -116,6 +121,12 @@ RTR_C_INLINE int tunnelStreamStatusBufferSize(TunnelStreamRefresh *pStatus)
 typedef struct {
 	TunnelStreamMsgBase	base;
 	RsslUInt32			seqNum;
+	RsslUInt8 			flags;
+	RsslUInt32			totalMsgLength;
+	RsslUInt32			fragmentNumber;
+	RsslUInt16			messageId;
+	RsslUInt8 			containerType;
+	RsslBool			msgComplete;
 } TunnelStreamData;
 
 RTR_C_INLINE void tunnelStreamDataClear(TunnelStreamData *dataHeader)

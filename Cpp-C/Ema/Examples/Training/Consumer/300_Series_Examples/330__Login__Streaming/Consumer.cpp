@@ -149,7 +149,7 @@ void AppClient::decode( const FieldList& fl )
 				cout << fe.getError().getErrorCode() << "( " << fe.getError().getErrorCodeAsString() << " )" << endl;
 				break;
 			case DataType::EnumEnum:
-				cout << fe.getEnum() << endl;
+				fe.hasEnumDisplay() ? cout << fe.getEnumDisplay() << endl : cout << fe.getEnum() << endl;
 				break;
 			case DataType::RmtesEnum:
 				cout << fe.getRmtes().toString() << endl;
@@ -195,11 +195,8 @@ int main( int argc, char* argv[] )
 {
 	try {
 		AppClient client;
-		OmmConsumer consumer( OmmConsumerConfig().operationModel( OmmConsumerConfig::UserDispatchEnum ).username( "user" ));
+		OmmConsumer consumer( OmmConsumerConfig().operationModel( OmmConsumerConfig::UserDispatchEnum ).username( "user" ), client);
 		void* closure = (void*)1;
-		
-		// open login stream and obtain its handle
-		UInt64 loginHandle = consumer.registerClient( ReqMsg().domainType( MMT_LOGIN ).name( "user" ), client, closure );
 		
 		UInt64 itemHandle = consumer.registerClient(ReqMsg().serviceName( "DIRECT_FEED" ).name( "IBM.N" ), client, closure );
 		

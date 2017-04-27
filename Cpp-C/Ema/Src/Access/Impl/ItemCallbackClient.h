@@ -236,14 +236,13 @@ public :
 	void remove();
 
 	ItemType getType() const;
+	void scheduleItemClosedStatus(const ReqMsgEncoder&, const EmaString&);
 
 protected :
 
 	SingleItem( OmmBaseImpl& , OmmConsumerClient& , void* , Item* );
 
 	virtual ~SingleItem();
-
-	void scheduleItemClosedStatus( const ReqMsgEncoder& , const EmaString& );
 
 private :
 
@@ -462,6 +461,15 @@ public :
 
 	void addToMap( Item* );
 	void removeFromMap( Item* );
+	void addToItemMap( Item* );
+
+	bool isStreamIdInUse( int );
+
+	bool splitAndSendSingleRequest( const ReqMsg& , OmmConsumerClient& , void* );
+
+	Int32 getNextStreamId(UInt32 numberOfBatchItems = 0);
+
+	bool nextStreamIdWrapAround(UInt32);
 
 private :
 
@@ -494,6 +502,26 @@ private :
 	typedef HashTable< UInt64 , ItemPtr , UInt64rHasher , UInt64Equal_To > ItemMap;
 
 	ItemMap							_itemMap;
+
+	class Int32rHasher {
+	public:
+		Int32 operator()(const Int32 &) const;
+	};
+
+	class Int32Equal_To {
+	public:
+		bool operator()(const Int32 &, const Int32 &) const;
+	};
+
+	typedef HashTable< Int32, ItemPtr, Int32rHasher, Int32Equal_To > StreamIdMap;
+
+	StreamIdMap						_streamIdMap;
+
+	Int32							_nextStreamId;
+
+	bool							_nextStreamIdWrapAround;
+
+	Mutex							_streamIdAccessMutex;
 
 	RsslReactorCallbackRet processAckMsg( RsslMsg* , RsslReactorChannel* , RsslMsgEvent* );
 	RsslReactorCallbackRet processGenericMsg( RsslMsg* , RsslReactorChannel* , RsslMsgEvent* );

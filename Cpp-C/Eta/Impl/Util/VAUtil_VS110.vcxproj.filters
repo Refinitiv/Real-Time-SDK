@@ -18,6 +18,9 @@
 		<ClCompile Include="rsslMemoryBuffer.c">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+		<ClCompile Include="rsslNotifier.c">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 		<ClCompile Include="rsslHashTable.c">
 			<Filter>Source Files</Filter>
 		</ClCompile>
@@ -28,6 +31,9 @@
 			<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\Include\Util\rtr\rsslMemoryBuffer.h">
+			<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\Include\Util\rtr\rsslNotifier.h">
 			<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\Include\Util\rtr\rsslHashTable.h">

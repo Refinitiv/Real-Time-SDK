@@ -24,6 +24,10 @@
 #include "ServerChannelHandler.h"
 #include "RdmUtilities.h"
 
+#ifdef WIN32
+#pragma warning( disable : 4355)
+#endif
+
 using namespace thomsonreuters::ema::access;
 
 OmmIProviderImpl::OmmIProviderImpl(OmmProvider* ommProvider, const OmmIProviderConfig& ommIProviderConfig, OmmProviderClient& ommProviderClient, void* closure) :
@@ -186,6 +190,12 @@ UInt64 OmmIProviderImpl::registerClient(const ReqMsg&, OmmProviderClient&, void*
 	return 0;
 }
 
+void OmmIProviderImpl::reissue(const ReqMsg&, UInt64 handle)
+{
+	handleIue("Calling the OmmIProviderImpl::reissue() method is not support in this release.");
+	return;
+}
+
 void OmmIProviderImpl::submit(const GenericMsg& genericMsg, UInt64 handle)
 {
 	RsslReactorSubmitMsgOptions submitMsgOpts;
@@ -292,8 +302,8 @@ void OmmIProviderImpl::submit(const RefreshMsg& refreshMsg, UInt64 handle)
 			pReactorChannel = itemInfo->getClientSession()->getChannel();
 			submitMsgOpts.pRsslMsg->msgBase.streamId = itemInfo->getStreamId();
 
-			if ((submitMsgOpts.pRsslMsg->refreshMsg.state.streamState == RsslStreamStates::RSSL_STREAM_OPEN) &&
-				(submitMsgOpts.pRsslMsg->refreshMsg.state.dataState == RsslDataStates::RSSL_DATA_OK))
+			if ((submitMsgOpts.pRsslMsg->refreshMsg.state.streamState == RSSL_STREAM_OPEN) &&
+				(submitMsgOpts.pRsslMsg->refreshMsg.state.dataState == RSSL_DATA_OK))
 			{
 				itemInfo->getClientSession()->setLogin(true);
 			}
@@ -305,7 +315,7 @@ void OmmIProviderImpl::submit(const RefreshMsg& refreshMsg, UInt64 handle)
 		{
 			_userLock.unlock();
 			EmaString temp("Attempt to submit RefreshMsg with Directory domain using container with wrong data type. Expected container data type is Map. Passed in is ");
-			temp += DataType(dataType[submitMsgOpts.pRsslMsg->msgBase.containerType]).toString();
+			temp += DataType((DataType::DataTypeEnum)submitMsgOpts.pRsslMsg->msgBase.containerType).toString();
 			handleIue(temp);
 			return;
 		}
@@ -363,10 +373,30 @@ void OmmIProviderImpl::submit(const RefreshMsg& refreshMsg, UInt64 handle)
 		{
 			_userLock.unlock();
 			EmaString temp("Attempt to submit RefreshMsg with Dictionary domain using container with wrong data type. Expected container data type is Series. Passed in is ");
-			temp += DataType(dataType[submitMsgOpts.pRsslMsg->msgBase.containerType]).toString();
+			temp += DataType((DataType::DataTypeEnum)submitMsgOpts.pRsslMsg->msgBase.containerType).toString();
 			handleIue(temp);
 
 			return;
+		}
+
+		if (refreshMsgEncoder.hasServiceName())
+		{
+			if ( encodeServiceIdFromName(refreshMsgEncoder.getServiceName(), submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId,
+				submitMsgOpts.pRsslMsg->msgBase) )
+			{
+				submitMsgOpts.pRsslMsg->refreshMsg.flags |= RSSL_RFMF_HAS_MSG_KEY;
+			}
+			else
+			{
+				return;
+			}
+		}
+		else if (refreshMsgEncoder.hasServiceId())
+		{
+			if (validateServiceId(submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId, submitMsgOpts.pRsslMsg->msgBase) == false)
+			{
+				return;
+			}
 		}
 
 		if (handle == 0)
@@ -423,6 +453,26 @@ void OmmIProviderImpl::submit(const RefreshMsg& refreshMsg, UInt64 handle)
 
 		pReactorChannel = itemInfo->getClientSession()->getChannel();
 		submitMsgOpts.pRsslMsg->msgBase.streamId = itemInfo->getStreamId();
+
+		if (refreshMsgEncoder.hasServiceName())
+		{
+			if ( encodeServiceIdFromName(refreshMsgEncoder.getServiceName(), submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId,
+				submitMsgOpts.pRsslMsg->msgBase) )
+			{
+				submitMsgOpts.pRsslMsg->refreshMsg.flags |= RSSL_RFMF_HAS_MSG_KEY;
+			}
+			else
+			{
+				return;
+			}
+		}
+		else if (refreshMsgEncoder.hasServiceId())
+		{
+			if (validateServiceId(submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId, submitMsgOpts.pRsslMsg->msgBase) == false)
+			{
+				return;
+			}
+		}
 
 		if ( itemInfo->isPrivateStream() )
 			submitMsgOpts.pRsslMsg->refreshMsg.flags |= RSSL_RFMF_PRIVATE_STREAM;
@@ -500,7 +550,7 @@ void OmmIProviderImpl::submit(const UpdateMsg& updateMsg, UInt64 handle)
 		{
 			_userLock.unlock();
 			EmaString temp("Attempt to submit UpdateMsg with Directory domain using container with wrong data type. Expected container data type is Map. Passed in is ");
-			temp += DataType(dataType[submitMsgOpts.pRsslMsg->msgBase.containerType]).toString();
+			temp += DataType((DataType::DataTypeEnum)submitMsgOpts.pRsslMsg->msgBase.containerType).toString();
 			handleIue(temp);
 			return;
 		}
@@ -590,6 +640,26 @@ void OmmIProviderImpl::submit(const UpdateMsg& updateMsg, UInt64 handle)
 		}
 
 		submitMsgOpts.pRsslMsg->msgBase.streamId = itemInfo->getStreamId();
+
+		if (updateMsgEncoder.hasServiceName())
+		{
+			if ( encodeServiceIdFromName(updateMsgEncoder.getServiceName(), submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId,
+				submitMsgOpts.pRsslMsg->msgBase) )
+			{
+				submitMsgOpts.pRsslMsg->updateMsg.flags |= RSSL_UPMF_HAS_MSG_KEY;
+			}
+			else
+			{
+				return;
+			}
+		}
+		else if (updateMsgEncoder.hasServiceId())
+		{
+			if (validateServiceId(submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId, submitMsgOpts.pRsslMsg->msgBase) == false)
+			{
+				return;
+			}
+		}
 	}
 
 	RsslErrorInfo rsslErrorInfo;
@@ -701,13 +771,24 @@ void OmmIProviderImpl::submit(const StatusMsg& stausMsg, UInt64 handle)
 	}
 	else if (submitMsgOpts.pRsslMsg->msgBase.domainType == ema::rdm::MMT_DICTIONARY)
 	{
-		if (submitMsgOpts.pRsslMsg->msgBase.containerType != RSSL_DT_SERIES)
+		if (statusMsgEncoder.hasServiceName())
 		{
-			_userLock.unlock();
-			EmaString temp("Attempt to submit StatusMsg with Dictionary domain using container with wrong data type. Expected container data type is Series. Passed in is ");
-			temp += DataType(dataType[submitMsgOpts.pRsslMsg->msgBase.containerType]).toString();
-			handleIue(temp);
-			return;
+			if ( encodeServiceIdFromName(statusMsgEncoder.getServiceName(), submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId,
+				submitMsgOpts.pRsslMsg->msgBase) )
+			{
+				submitMsgOpts.pRsslMsg->statusMsg.flags |= RSSL_STMF_HAS_MSG_KEY;
+			}
+			else
+			{
+				return;
+			}
+		}
+		else if (statusMsgEncoder.hasServiceId())
+		{
+			if (validateServiceId(submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId, submitMsgOpts.pRsslMsg->msgBase) == false)
+			{
+				return;
+			}
 		}
 
 		if (handle == 0)
@@ -766,6 +847,26 @@ void OmmIProviderImpl::submit(const StatusMsg& stausMsg, UInt64 handle)
 
 		pReactorChannel = itemInfo->getClientSession()->getChannel();
 		submitMsgOpts.pRsslMsg->msgBase.streamId = itemInfo->getStreamId();
+
+		if (statusMsgEncoder.hasServiceName())
+		{
+			if ( encodeServiceIdFromName(statusMsgEncoder.getServiceName(), submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId,
+				submitMsgOpts.pRsslMsg->msgBase) )
+			{
+				submitMsgOpts.pRsslMsg->statusMsg.flags |= RSSL_STMF_HAS_MSG_KEY;
+			}
+			else
+			{
+				return;
+			}
+		}
+		else if (statusMsgEncoder.hasServiceId())
+		{
+			if (validateServiceId(submitMsgOpts.pRsslMsg->msgBase.msgKey.serviceId, submitMsgOpts.pRsslMsg->msgBase) == false)
+			{
+				return;
+			}
+		}
 
 		if ((submitMsgOpts.pRsslMsg->statusMsg.flags & RSSL_STMF_HAS_GROUP_ID) == RSSL_STMF_HAS_GROUP_ID)
 		{
@@ -944,7 +1045,7 @@ bool OmmIProviderImpl::submit(RsslReactorSubmitMsgOptions submitMsgOptions, cons
 
 void OmmIProviderImpl::handleItemInfo(int domainType, UInt64 handle, RsslState& state)
 {
-	if ( state.streamState != RsslStreamStates::RSSL_STREAM_OPEN )
+	if ( state.streamState != RSSL_STREAM_OPEN )
 	{
 		ItemInfoPtr itemInfo = getItemInfo(handle);
 
@@ -981,7 +1082,7 @@ void OmmIProviderImpl::handleItemInfo(int domainType, UInt64 handle, RsslState& 
 
 void OmmIProviderImpl::handleItemGroup(ItemInfo* itemInfo, RsslBuffer& groupId, RsslState& state)
 {
-	if ( ( groupId.length < 2 ) || (*groupId.data == '\0' && *(++groupId.data) == '\0') || !itemInfo->hasServiceId() )
+	if ( ( groupId.length < 2 ) || (groupId.data[0] == '\0' && groupId.data[1] == '\0') || !itemInfo->hasServiceId() )
 	{
 		return;
 	}
@@ -1027,6 +1128,68 @@ DirectoryServiceStore& OmmIProviderImpl::getDirectoryServiceStore()
 	return _ommIProviderDirectoryStore;
 }
 
+bool OmmIProviderImpl::encodeServiceIdFromName(const EmaString& serviceName, RsslUInt16& serviceId, RsslMsgBase& rsslMsgBase)
+{
+	UInt64* pServiceId = _ommIProviderDirectoryStore.getServiceIdByName(&serviceName);
+
+	if (!pServiceId)
+	{
+		_userLock.unlock();
+		EmaString temp("Attempt to submit ");
+		temp.append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).
+			append(" with service name of ").append(serviceName).
+			append(" that was not included in the SourceDirectory. Dropping this ").
+			append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).append(".");
+		handleIue(temp);
+		return false;
+	}
+	else if (*pServiceId > 0xFFFF)
+	{
+		_userLock.unlock();
+		EmaString temp("Attempt to submit ");
+		temp.append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).
+			append(" with service name of ").append(serviceName).
+			append(" whose matching service id of ").append(*pServiceId).append(" is out of range. Dropping this ").
+			append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).append(".");
+		handleIue(temp);
+		return false;
+	}
+
+	serviceId = (RsslUInt16)*pServiceId;
+	rsslMsgBase.msgKey.flags |= RSSL_MKF_HAS_SERVICE_ID;
+
+	return true;
+}
+
+bool OmmIProviderImpl::validateServiceId(RsslUInt16 serviceId, RsslMsgBase& rsslMsgBase)
+{
+	EmaStringPtr* pServiceName = _ommIProviderDirectoryStore.getServiceNameById(serviceId);
+
+	if (!pServiceName)
+	{
+		_userLock.unlock();
+		EmaString temp("Attempt to submit ");
+		temp.append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).
+			append(" with service Id of ").append(serviceId).
+			append(" that was not included in the SourceDirectory. Dropping this ").
+			append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).append(".");
+		handleIue(temp);
+		return false;
+	}
+	else if (serviceId > 0xFFFF)
+	{
+		_userLock.unlock();
+		EmaString temp("Attempt to submit ");
+		temp.append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).
+			append(" with service Id of ").append(serviceId).append(" is out of range. Dropping this ").
+			append(DataType(msgDataType[rsslMsgBase.msgClass]).toString()).append(".");
+		handleIue(temp);
+		return false;
+	}
+
+	return true;
+}
+
 void OmmIProviderImpl::onServiceDelete(ClientSession* clientSession, RsslUInt serviceId)
 {
 	if (clientSession)
@@ -1051,7 +1214,7 @@ void OmmIProviderImpl::onServiceStateChange(ClientSession* clientSession, RsslUI
 {
 	if (serviceState.flags & RDM_SVC_STF_HAS_STATUS)
 	{
-		if (serviceState.status.streamState == RsslStreamStates::RSSL_STREAM_CLOSED_RECOVER)
+		if (serviceState.status.streamState == RSSL_STREAM_CLOSED_RECOVER)
 		{
 			if (clientSession)
 			{
@@ -1101,7 +1264,7 @@ void OmmIProviderImpl::onServiceGroupChange(ClientSession* clientSession, RsslUI
 		
 		if (pGroupState->flags & RDM_SVC_GRF_HAS_STATUS)
 		{
-			if (pGroupState->status.streamState == RsslStreamStates::RSSL_STREAM_CLOSED_RECOVER)
+			if (pGroupState->status.streamState == RSSL_STREAM_CLOSED_RECOVER)
 			{
 				if (clientSession)
 				{

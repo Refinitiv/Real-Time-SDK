@@ -63,7 +63,7 @@ is not intended to be used for measuring performance.
 Application Name:
 -----------------
 
-rsslVAConsumer
+VAConsumer
 
 ------------------
 Setup Environment:
@@ -77,12 +77,12 @@ cannot be found, they are requested from the provider.
 Command line usage:
 -------------------  
 
-rsslVAConsumer 
+VAConsumer 
 (runs with a default set of paramters(-tcp localhost:14002 DIRECT_FEED mp:TRI -tcp localhost:14002 DIRECT_FEED mp:.DJI))
 
 or
 
-rsslVAConsumer [-tcp [<hostname>:<port> <service>] [<domain>:<item name>,...] [-uname <LoginUsername>] [-view] [-post] [-offpost] [-snapshot] [-x] [-runtime <seconds>] [-cache] [-cacheInterval <seconds>] [-qSourceName <name>] [-qDestName <name>] [-tsServiceName <service>] [-tunnel] [-tsAuth] [-tsDomain <domain>]
+VAConsumer [-tcp [<hostname>:<port> <service>] [<domain>:<item name>,...] [-uname <LoginUsername>] [-at <AuthenticationToken>] [-ax <AuthenticationExtended>] [-aid <ApplicationId>] [-view] [-post] [-offpost] [-snapshot] [-x] [-runtime <seconds>] [-cache] [-cacheInterval <seconds>] [-qSourceName <name>] [-qDestName <name>] [-tsServiceName <service>] [-tunnel] [-tsAuth] [-tsDomain]
 
 
 -tcp specifies creating a channel on the given host and port, a service to request items from, and the list of items to request.
@@ -119,10 +119,6 @@ before exiting, in seconds.
 Specifying the -cache option will store each received refresh or update payload into
 a cache, instead of decoding to the console. 
 
-The -uname option changes the username used when logging into the provider.
-
-The -x option enables tracing of messages received on the connection, to the screen and to a file.
-
 Specifying the -cacheInterval will set the number of seconds between the display of the
 cache contents. The default value is 0: cache contents are not displayed at regular intervals,
 but only displayed on exit when runtime completes.
@@ -154,7 +150,17 @@ for the simple tunnel messaging or queue messaging. Like the other queue messagi
 this is associated with a channel (specified by the -tcp option). This option may be specified 
 once per channel.
 
-- rsslVAConsumer -? displays command line options.  
+Specifying the -at option configures the token used for TREP Authentication.  This should be used 
+in place of a userName.  This token is retrieved from a token generator, and passed to TREP, which
+will verify the token against a token validator.  For more information about the TREP Authentication
+feature, please see the Developers guide and the TREP Authentication guide.
+
+Specifying the -ax option configures the authentication extended information used for TREP Authentication.
+
+Specifying the -aid option configures the Application Id.
+
+
+- VAConsumer -? displays command line options.  
 
 - Pressing the CTRL+C buttons terminates the program.  
 
@@ -164,20 +170,20 @@ Compiling Source:
 
 The included makefile is set up to run from the file
 locations as presented through the distribution package.
-It is set up for building on the UPA supported 
+It is set up for building on the Transport API supported 
 Solaris or Linux platforms using the supported compilers.
 
 The VA_CUSTOM_BUILT_LIBS value in the makefile is used to 
-link in UPA ValueAdd components compiled from the provided
+link in the Transport API ValueAdd components compiled from the provided
 source code.  If a custom library is used, VA_CUSTOM_BUILT_LIBS 
 should be set to Yes.  In addition, the user should point the 
 VA_INCLUDE locations to the location where the directory of 
 the current platform's library is built.
 
 The LINKTYPE value in the makefile is used to control
-whether the application is built using UPA static or
-shared libraries. The default build uses UPA static
-libraries. To use UPA shared libraries,
+whether the application is built using Transport API static or
+shared libraries. The default build uses Transport API static
+libraries. To use Transport API shared libraries,
 set LINKTYPE=Shared.
 
 To compile, run the gmake command.

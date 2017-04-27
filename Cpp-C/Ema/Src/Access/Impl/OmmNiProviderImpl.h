@@ -29,7 +29,11 @@ public :
 
 	OmmNiProviderImpl( OmmProvider*, const OmmNiProviderConfig& );
 
+	OmmNiProviderImpl(OmmProvider*, const OmmNiProviderConfig&, OmmProviderClient&, void* );
+
 	OmmNiProviderImpl( OmmProvider*, const OmmNiProviderConfig&, OmmProviderErrorClient& );
+
+	OmmNiProviderImpl(OmmProvider*, const OmmNiProviderConfig&, OmmProviderClient&, OmmProviderErrorClient&, void*);
 
 	virtual ~OmmNiProviderImpl();
 
@@ -44,6 +48,8 @@ public :
 	void removeSocket( RsslSocket );
 
 	void setRsslReactorChannelRole( RsslReactorChannelRole& );
+
+	void reissue(const ReqMsg&, UInt64);
 
 	void submit( const RefreshMsg&, UInt64 );
 
@@ -92,6 +98,10 @@ private :
 	bool realocateBuffer( RsslBuffer* , RsslBuffer* , RsslEncodeIterator* , EmaString& );
 
 	bool isApiDispatching() const;
+
+	Int32 getNextProviderStreamId();
+
+	void returnProviderStreamId(Int32);
 
 	OmmNiProviderImpl();
 	OmmNiProviderImpl( const OmmNiProviderImpl& );
@@ -147,6 +157,9 @@ private :
 	bool											_bIsStreamIdZeroRefreshSubmitted;
 	RsslRDMDirectoryMsg								_rsslDirectoryMsg;
 	RsslBuffer										_rsslDirectoryMsgBuffer;
+
+	Int32				    						_nextProviderStreamId;
+	EmaList<StreamId*>			 					_reusedProviderStreamIds;
 };
 
 }

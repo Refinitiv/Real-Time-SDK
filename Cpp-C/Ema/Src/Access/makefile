@@ -13,15 +13,7 @@ else
 	endif
 endif
 
-ifeq ($(findstring GitHub,$(DISTRIBUTION_SRC)), GitHub)
-	LIB_DIR=$(shell pwd | sed 's_/Ema\/.*_/Ema/Libs_')
-else
-	ifeq ($(findstring GSG,$(DISTRIBUTION_SRC)), GSG)
-		LIB_DIR=Libs
-	else
-$(error makefile.common variable DISTRIBUTION_SRC must be 'GitHub' or 'GSG')
-	endif
-endif
+LIB_DIR=../../Libs
 
 ifndef IDENT	
 $(error unsupported environment)
@@ -52,7 +44,7 @@ help:
 	@echo "target clean will clear all build directories for $(IDENT)"
 
 outputDir:
-	mkdir -p $(OUTPUT_DIR)/obj/Access/Impl $(OUTPUT_DIR)/obj/Rdm/Impl
+	mkdir -p $(OUTPUT_DIR)/obj/Access/Impl $(OUTPUT_DIR)/obj/Rdm/Impl $(OUTPUT_DIR)/obj/Domain/Login/Impl
 
 optimizedStaticClean:		OUTPUT_DIR := $(LIB_DIR)/$(IDENT)/Optimized
 optimizedStaticClean:

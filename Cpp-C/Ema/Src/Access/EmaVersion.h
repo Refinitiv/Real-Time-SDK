@@ -5,15 +5,16 @@
 	 CHANGE BELOW HERE
 --------------------------------------------------------------------------*/
 #define Ema_Release_Major		3	
-#define Ema_Release_Minor		0
-#define Ema_Product_Major		6	
+#define Ema_Release_Minor		1
+#define Ema_Product_Major		0	
 #define Ema_Product_Minor		1	
 #define PRODNAME			"Elektron Message API EMA "
-#define PRODVERNAME			"3.0.6"
+#define PRODVERNAME			"3.1.0"
 #define COMPANYNAME			"Thomson Reuters, Oak Brook, IL"
-#define COPYRIGHTYEAR			"2016"
-#define DDATE				"Mon Dec 5 11:00:00 CDT 2016"
-#define INTERNALVERSION			"(Internal Node: Ema 3.0.6.1)"
+#define COPYRIGHTYEAR			"2017"
+#define COMPONENTNAME		"ema3.1.0.L1"
+#define DDATE				"Mar 17 11:00:00 CDT 2017"
+#define INTERNALVERSION			"(Internal Node: Ema 3.1.0)"
 /*--------------------------------------------------------------------------
 	 CHANGE ABOVE HERE
 --------------------------------------------------------------------------*/
@@ -55,18 +56,13 @@ extern char emaComponentBldtype[];
 extern char emaComponentLinkType[]; 
 #endif
 
-#define COMPONENT_NAME "ema"
 #define COMPILE_BITS_STR "64-bit "
 
-#define STR_EXPAND(str) #str
-#define MKSTR(str) STR_EXPAND(str)
-
-#define NEWVERSTRING MKSTR(Ema_Release_Major) "." MKSTR(Ema_Release_Minor) "." MKSTR(Ema_Product_Major) "." MKSTR(Ema_Product_Minor)
 
 /* ------------------------------------------------------------- */
 /* The following are used in the rc files for the windows builds */
 /* ------------------------------------------------------------- */
-#define Ema_VersionString		NEWVERSTRING " (" BLDTYPE ")\0"   /* format "6.0.0.23 (BLDTYPE)\0" */
+#define Ema_VersionString		COMPONENTNAME " (" BLDTYPE ")\0"   /* format "6.0.0.23 (BLDTYPE)\0" */
 #define Ema_ProdName			PRODNAME "\0"
 #define Ema_Version			Ema_Release_Major,Ema_Release_Minor,Ema_Product_Major,Ema_Product_Minor
 #define Ema_InternalNode		INTERNALVERSION "\0"

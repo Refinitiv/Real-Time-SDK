@@ -138,6 +138,14 @@ public :
 	*/
 	Int16 getRippleTo( Int16 fieldId = 0 ) const;
 
+	/** Returns a ripple field name if the current entry has a ripple field. A subsequent call using
+		the former non-zero return value as a formal parameter, returns the next ripple field in
+		a ripple sequence.
+		@param[in] fieldId
+		@return ripple field name; empty string if no ripple field or the final ripple field of a ripple sequence.
+	*/
+	const EmaString& getRippleToName(Int16 fieldId = 0) const;
+
 	/** Returns the contained Data based on the DataType.
 		@return Data class reference to contained object
 	*/
@@ -318,6 +326,20 @@ public :
 		@return UInt16
 	*/
 	UInt16 getEnum() const;
+
+	/** Indicates presence of the display value for the OmmEnum type.
+		@return true if the display value exists; false otherwise
+	*/
+	bool hasEnumDisplay() const;
+
+	/** Returns the display value for the OmmEnum type.
+		Calling this method must be preceded by a call to hasEnumDisplay().
+		@throw OmmInvalidUsageException if hasEnumDisplay() returns false
+		@throw OmmInvalidUsageException if contained object is not OmmEnum
+		@throw OmmInvalidUsageException if getCode() returns Data::BlankEnum
+		@return EmaString containing the display value
+	*/
+	const EmaString& getEnumDisplay() const;
 
 	/** Returns the current OMM data represented as a specific simple type.
 		@throw OmmInvalidUsageException if contained object is not OmmBuffer

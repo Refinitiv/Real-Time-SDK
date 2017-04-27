@@ -152,9 +152,7 @@ public :
 
 	RsslReactorCallbackRet processCallback( RsslReactor*, RsslReactorChannel*, RsslRDMDictionaryMsgEvent* );
 
-	RsslReactorCallbackRet processRefreshMsg( RsslBuffer*, UInt32 , UInt8 , UInt8 , DictionaryItem* );
-
-	RsslReactorCallbackRet processRefreshMsg( RsslBuffer*, UInt8 , UInt8 , DictionaryItem* );
+	RsslReactorCallbackRet processRefreshMsg( RsslBuffer*, UInt8 , UInt8 , DictionaryItem*, bool );
 
 	RsslReactorCallbackRet processStatusMsg( RsslBuffer*, UInt8 , UInt8 , DictionaryItem* );
 
@@ -166,9 +164,17 @@ public :
 
 	Dictionary* getDefaultDictionary() const;
 
+	void encodeAndNotifyStatusMsg(DictionaryItem*, RsslStatusMsg*, RsslBuffer*, UInt32, UInt8, UInt8, RsslEncodeIterator*, const char *);
+
 	static void sendInternalMsg( void* );
 
+	static const EmaString	_rwfFldName;
+
+	static const EmaString	_rwfEnumName;
+
 private :
+
+	int allocateAndSetEncodeIteratorBuffer(RsslBuffer*, UInt32, UInt8, UInt8, RsslEncodeIterator*, const char *);
 
 	bool downloadDictionaryFromService( const Directory& );
 
@@ -215,12 +221,14 @@ public :
 	Int32 getCurrentFid();
 	Int32 getStreamId();
 	bool isRemoved();
+	UInt64 getDictionaryType();
 
 	void setName( const EmaString& );
 	void setFilter( unsigned char );
 	void setCurrentFid( Int32 fid );
+	void setDictionaryType( UInt64 );
 
-	static RsslRet encodeDataDictionaryResp( RsslBuffer&, const EmaString&, unsigned char, RsslInt32 streamId, bool, RsslDataDictionary*, Int32& );
+	static RsslRet encodeDataDictionaryResp( DictionaryItem&, RsslBuffer&, const EmaString&, unsigned char, RsslInt32 streamId, bool, RsslDataDictionary*, Int32& );
 
 	static void ScheduleRemove( void* );
 
@@ -236,6 +244,7 @@ private :
 	UInt8						_filter;
 	Int32						_currentFid;
 	bool						_isRemoved;
+	UInt64						_dictionaryType;
 
 	DictionaryItem( OmmBaseImpl&, OmmConsumerClient& , void* );
 

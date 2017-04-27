@@ -80,9 +80,11 @@ void ReqMsgEncoder::qos( UInt32 timeliness, UInt32 rate )
 	{	
 	case ReqMsg::TickByTickEnum :
 		_rsslRequestMsg.qos.rate = RSSL_QOS_RATE_TICK_BY_TICK;
+		_rsslRequestMsg.worstQos.rate = RSSL_QOS_RATE_TICK_BY_TICK;
 		break;
 	case ReqMsg::JustInTimeConflatedEnum :
 		_rsslRequestMsg.qos.rate = RSSL_QOS_RATE_JIT_CONFLATED;
+		_rsslRequestMsg.worstQos.rate = RSSL_QOS_RATE_JIT_CONFLATED;
 		break;
 	case ReqMsg::BestConflatedRateEnum :
 		_rsslRequestMsg.qos.rate = RSSL_QOS_RATE_TIME_CONFLATED;
@@ -100,10 +102,13 @@ void ReqMsgEncoder::qos( UInt32 timeliness, UInt32 rate )
 		{
 			_rsslRequestMsg.qos.rate = RSSL_QOS_RATE_TIME_CONFLATED;
 			_rsslRequestMsg.qos.rateInfo = rate;
+			_rsslRequestMsg.worstQos.rate = RSSL_QOS_RATE_TIME_CONFLATED;
+			_rsslRequestMsg.worstQos.rateInfo = rate;
 		}
 		else
 		{
 			_rsslRequestMsg.qos.rate = RSSL_QOS_RATE_JIT_CONFLATED;
+			_rsslRequestMsg.worstQos.rate = RSSL_QOS_RATE_JIT_CONFLATED;
 		}
 		break;
 	}
@@ -112,6 +117,7 @@ void ReqMsgEncoder::qos( UInt32 timeliness, UInt32 rate )
 	{
 	case ReqMsg::RealTimeEnum :
 		_rsslRequestMsg.qos.timeliness = RSSL_QOS_TIME_REALTIME;
+		_rsslRequestMsg.worstQos.timeliness = RSSL_QOS_TIME_REALTIME;
 		break;
 	case ReqMsg::BestDelayedTimelinessEnum :
 		_rsslRequestMsg.qos.timeliness = RSSL_QOS_TIME_DELAYED;
@@ -131,11 +137,20 @@ void ReqMsgEncoder::qos( UInt32 timeliness, UInt32 rate )
 		{
 			_rsslRequestMsg.qos.timeliness = RSSL_QOS_TIME_DELAYED;
 			_rsslRequestMsg.qos.timeInfo = timeliness;
+			_rsslRequestMsg.worstQos.timeliness = RSSL_QOS_TIME_DELAYED;
+			_rsslRequestMsg.worstQos.timeInfo = timeliness;
 		}
 		else
 		{
 			_rsslRequestMsg.qos.timeliness = RSSL_QOS_TIME_DELAYED_UNKNOWN;
+			_rsslRequestMsg.worstQos.timeliness = RSSL_QOS_TIME_DELAYED_UNKNOWN;
 		}
+	}
+
+	if (_rsslRequestMsg.flags & RSSL_RQMF_HAS_WORST_QOS)
+	{
+		_rsslRequestMsg.qos.dynamic = RSSL_TRUE;
+		_rsslRequestMsg.worstQos.dynamic = RSSL_TRUE;
 	}
 }
 
