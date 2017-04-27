@@ -584,8 +584,7 @@ void OmmServerBaseImpl::initialize(EmaConfigServerImpl* serverConfigImpl)
 
 		RsslBindOptions bindOptions = RSSL_INIT_BIND_OPTS;
 
-		EmaString componentVersionInfo(COMPONENT_NAME);
-		componentVersionInfo.append(NEWVERSTRING);
+		EmaString componentVersionInfo(COMPONENTNAME);
 		componentVersionInfo.append(EMA_COMPONENT_VER_PLATFORM);
 		componentVersionInfo.append(COMPILE_BITS_STR);
 		componentVersionInfo.append(emaComponentLinkType);

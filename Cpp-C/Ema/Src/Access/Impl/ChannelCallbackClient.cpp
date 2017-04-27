@@ -470,8 +470,7 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 	RsslReactorChannelRole role;
 	_ommBaseImpl.setRsslReactorChannelRole( role );
 
-	EmaString componentVersionInfo( COMPONENT_NAME );
-	componentVersionInfo.append( NEWVERSTRING );
+	EmaString componentVersionInfo(COMPONENTNAME);
 	componentVersionInfo.append( EMA_COMPONENT_VER_PLATFORM );
 	componentVersionInfo.append( COMPILE_BITS_STR );
 	componentVersionInfo.append( emaComponentLinkType );
