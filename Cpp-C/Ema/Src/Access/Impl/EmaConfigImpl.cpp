@@ -13,6 +13,8 @@
 #include <stdlib.h>
 #ifndef WIN32
 #include <unistd.h>
+#else
+#pragma warning( disable : 4355)
 #endif
 
 #include <new>
@@ -1435,6 +1437,24 @@ namespace ema {
 namespace access {
 
 template<>
+void XMLConfigElement<UInt64>::print() const
+{
+	printf("%s (parent %p)", _name.c_str(), _parent);
+	printf(": %llu", _values[0]);
+	for (unsigned int i = 1; i < _values.size(); ++i)
+		printf(", %llu", _values[i]);
+}
+
+template<>
+void XMLConfigElement<Int64>::print() const
+{
+	printf("%s (parent %p)", _name.c_str(), _parent);
+	printf(": %lld", _values[0]);
+	for (unsigned int i = 1; i < _values.size(); ++i)
+		printf(", %lld", _values[i]);
+}
+
+template<>
 void XMLConfigElement< EmaString >::print() const
 {
 	printf( "%s (parent %p)", _name.c_str(), _parent );
@@ -1450,6 +1470,78 @@ void XMLConfigElement< bool >::print() const
 	printf( _values[0] == true ? ": true" : ": false" );
 	for ( unsigned int i = 0; i < _values.size(); ++i )
 		printf( _values[i] == true ? ", true" : ", false" );
+}
+
+template<>
+void XMLConfigElement<OmmLoggerClient::Severity>::print() const
+{
+	printf("%s (parent %p)", _name.c_str(), _parent);
+	printf(": %d", _values[0]);
+	for (unsigned int i = 1; i < _values.size(); ++i)
+		printf(", %d", _values[i]);
+}
+
+template<>
+void XMLConfigElement<OmmLoggerClient::LoggerType>::print() const
+{
+	printf("%s (parent %p)", _name.c_str(), _parent);
+	printf(": %d", _values[0]);
+	for (unsigned int i = 1; i < _values.size(); ++i)
+		printf(", %d", _values[i]);
+}
+
+template<>
+void XMLConfigElement<Dictionary::DictionaryType>::print() const
+{
+	printf("%s (parent %p)", _name.c_str(), _parent);
+	printf(": %d", _values[0]);
+	for (unsigned int i = 1; i < _values.size(); ++i)
+		printf(", %d", _values[i]);
+}
+
+template<>
+void XMLConfigElement<RsslConnectionTypes>::print() const
+{
+	printf("%s (parent %p)", _name.c_str(), _parent);
+	printf(": %d", _values[0]);
+	for (unsigned int i = 1; i < _values.size(); ++i)
+		printf(", %d", _values[i]);
+}
+
+template<>
+void XMLConfigElement<RsslCompTypes>::print() const
+{
+	printf("%s (parent %p)", _name.c_str(), _parent);
+	printf(": %d", _values[0]);
+	for (unsigned int i = 1; i < _values.size(); ++i)
+		printf(", %d", _values[i]);
+}
+
+template<>
+void XMLConfigElement<OmmState::StreamState>::print() const
+{
+	printf("%s (parent %p)", _name.c_str(), _parent);
+	printf(": %d", _values[0]);
+	for (unsigned int i = 1; i < _values.size(); ++i)
+		printf(", %d", _values[i]);
+}
+
+template<>
+void XMLConfigElement<OmmState::DataState>::print() const
+{
+	printf("%s (parent %p)", _name.c_str(), _parent);
+	printf(": %d", _values[0]);
+	for (unsigned int i = 1; i < _values.size(); ++i)
+		printf(", %d", _values[i]);
+}
+
+template<>
+void XMLConfigElement<OmmState::StatusCode>::print() const
+{
+	printf("%s (parent %p)", _name.c_str(), _parent);
+	printf(": %d", _values[0]);
+	for (unsigned int i = 1; i < _values.size(); ++i)
+		printf(", %d", _values[i]);
 }
 
 template<>

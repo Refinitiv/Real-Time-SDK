@@ -1578,8 +1578,6 @@ bool LoginItem::modify( const ReqMsg& reqMsg )
 	RsslErrorInfo errorInfo;
 	bool ret;
 
-	char* tempBuffer;
-
 	rsslSetDecodeIteratorRWFVersion(&dIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
 
 	if (rsslDecodeRDMLoginMsg(&dIter, (RsslMsg*)(static_cast<const ReqMsgEncoder&>(reqMsg.getEncoder())).getRsslRequestMsg(), (RsslRDMLoginMsg*)&tempRequest, &tmpBuf, &errorInfo) != RSSL_RET_SUCCESS)
@@ -1847,8 +1845,6 @@ bool NiProviderLoginItem::modify( const ReqMsg& reqMsg )
 	RsslErrorInfo errorInfo;
 
 	bool ret;
-
-	char* tempBuffer;
 
 	/* Decode the msg to the temp RDMLoginRequest*/
 	rsslSetDecodeIteratorRWFVersion(&dIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);

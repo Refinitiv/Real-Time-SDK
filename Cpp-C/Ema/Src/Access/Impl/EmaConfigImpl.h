@@ -119,14 +119,7 @@ public:
 			_values.push_back( tmp->_values[0] );
 	}
 
-	void print() const
-	{
-		printf( "%s (parent %p)", _name.c_str(), _parent );
-		printf( ": %d", _values[0] );
-		for ( unsigned int i = 1; i < _values.size(); ++i )
-			printf( ", %d", _values[i] );
-		fflush( stdout );
-	}
+	void print() const;
 
 	bool operator==( const XMLConfigElement& ) const;
 

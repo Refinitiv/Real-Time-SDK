@@ -285,7 +285,7 @@ RsslReactorCallbackRet LoginHandler::loginCallback(RsslReactor* pReactor, RsslRe
 		}
 	}
 
-	return RsslReactorCallbackRet::RSSL_RC_CRET_SUCCESS;
+	return RSSL_RC_CRET_SUCCESS;
 }
 
 void LoginHandler::sendLoginReject(RsslReactorChannel* reactorChannel, RsslInt32 streamId, RsslStateCodes stateCode, EmaString& stateText)

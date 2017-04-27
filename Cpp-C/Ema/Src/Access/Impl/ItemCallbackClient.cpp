@@ -997,7 +997,7 @@ ClosedStatusInfo::ClosedStatusInfo( Item* pItem, const ReqMsgEncoder& reqMsgEnco
 		_msgKey.encAttrib.data = (char*) malloc( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.encAttrib.length + 1 );
 		if (!_msgKey.encAttrib.data)
 		{
-			throwMeeException("Failed to allocate memory for encoded attrib inClosedStatusInfo( Item* , const ReqMsgEncoder& , const EmaString& ).");
+			throwMeeException("Failed to allocate memory for encoded attrib in ClosedStatusInfo( Item* , const ReqMsgEncoder& , const EmaString& ).");
 		}
 		_msgKey.encAttrib.length = reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.encAttrib.length + 1;
 	}
@@ -3009,7 +3009,7 @@ void ItemCallbackClient::addToItemMap(Item* pItem)
 
 bool ItemCallbackClient::isStreamIdInUse( int nextStreamId )
 {
-	return _streamIdMap.find(nextStreamId);
+	return _streamIdMap.find(nextStreamId) != 0;
 }
 
 bool ItemCallbackClient::splitAndSendSingleRequest(const ReqMsg& reqMsg, OmmConsumerClient& ommConsClient, void* closure)
@@ -3088,7 +3088,7 @@ bool ItemCallbackClient::splitAndSendSingleRequest(const ReqMsg& reqMsg, OmmCons
 
 Int32 ItemCallbackClient::getNextStreamId(UInt32 numberOfBatchItems)
 {
-	if (_nextStreamId > CONSUMER_MAX_STREAM_ID_MINUSONE - numberOfBatchItems)
+	if ((UInt32)_nextStreamId > CONSUMER_MAX_STREAM_ID_MINUSONE - numberOfBatchItems)
 	{
 		_nextStreamId = CONSUMER_STARTING_STREAM_ID;
 		_nextStreamIdWrapAround = true; 
@@ -3135,5 +3135,5 @@ Int32 ItemCallbackClient::getNextStreamId(UInt32 numberOfBatchItems)
 
 bool ItemCallbackClient::nextStreamIdWrapAround(UInt32 numberOfBatchItems)
 {
-	return (_nextStreamId > CONSUMER_MAX_STREAM_ID_MINUSONE - numberOfBatchItems);
+	return ((UInt32)_nextStreamId > CONSUMER_MAX_STREAM_ID_MINUSONE - numberOfBatchItems);
 }

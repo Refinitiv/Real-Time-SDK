@@ -44,7 +44,7 @@ InfoFilter::InfoFilter() :
 	itemList(),
 	supportsOutOfBandSnapshots(DEFAULT_SERVICE_SUPPORTS_OUT_OF_BAND_SNAPSHATS),
 	acceptingConsumerStatus(DEFAULT_SERVICE_ACCEPTING_CONSUMER_SERVICE),
-	action(RsslFilterEntryActions::RSSL_FTEA_CLEAR_ENTRY),
+	action(RSSL_FTEA_CLEAR_ENTRY),
 	flags(0)
 {
 }
@@ -104,7 +104,7 @@ void InfoFilter::clear()
 	itemList.clear();
 	supportsOutOfBandSnapshots = DEFAULT_SERVICE_SUPPORTS_OUT_OF_BAND_SNAPSHATS;
 	acceptingConsumerStatus = DEFAULT_SERVICE_ACCEPTING_CONSUMER_SERVICE;
-	action = RsslFilterEntryActions::RSSL_FTEA_CLEAR_ENTRY;
+	action = RSSL_FTEA_CLEAR_ENTRY;
 	flags = 0;
 }
 
@@ -187,7 +187,7 @@ StateFilter::StateFilter() :
 	acceptingRequests(DEFAULT_ACCEPTING_REQUESTS),
 	status(),
 	statusText(),
-	action(RsslFilterEntryActions::RSSL_FTEA_CLEAR_ENTRY),
+	action(RSSL_FTEA_CLEAR_ENTRY),
 	flags(0)
 {
 	rsslClearState(&status);
@@ -229,7 +229,7 @@ void StateFilter::clear()
 	acceptingRequests = DEFAULT_ACCEPTING_REQUESTS;
 	rsslClearState(&status);
 	statusText.clear();
-	action = RsslFilterEntryActions::RSSL_FTEA_CLEAR_ENTRY;
+	action = RSSL_FTEA_CLEAR_ENTRY;
 	flags = 0;
 }
 
@@ -262,7 +262,7 @@ GroupFilter::GroupFilter() :
 	mergedToGroupId(),
 	status(),
 	statusText(),
-	action(RsslFilterEntryActions::RSSL_FTEA_CLEAR_ENTRY),
+	action(RSSL_FTEA_CLEAR_ENTRY),
 	flags(0)
 {
 
@@ -302,7 +302,7 @@ void GroupFilter::clear()
 	mergedToGroupId.clear();
 	rsslClearState(&status);
 	statusText.clear();
-	action = RsslFilterEntryActions::RSSL_FTEA_CLEAR_ENTRY;
+	action = RSSL_FTEA_CLEAR_ENTRY;
 	flags = 0;
 }
 
@@ -310,7 +310,7 @@ LoadFilter::LoadFilter() :
 	openLimit(0),
 	openWindow(0),
 	loadFactor(0),
-	action(RsslFilterEntryActions::RSSL_FTEA_CLEAR_ENTRY),
+	action(RSSL_FTEA_CLEAR_ENTRY),
 	flags(0)
 {
 }
@@ -346,7 +346,7 @@ void LoadFilter::clear()
 	openLimit = 0;
 	openWindow = 0;
 	loadFactor = 0;
-	action = RsslFilterEntryActions::RSSL_FTEA_CLEAR_ENTRY;
+	action = RSSL_FTEA_CLEAR_ENTRY;
 	flags = 0;
 }
 
@@ -382,7 +382,7 @@ Link::Link() :
 	linkCode(DEFAULT_LINK_CODE),
 	text(),
 	name(),
-	action(RsslMapEntryActions::RSSL_MPEA_ADD_ENTRY),
+	action(RSSL_MPEA_ADD_ENTRY),
 	flags(0)
 {
 }
@@ -422,7 +422,7 @@ void Link::clear()
 	linkCode = DEFAULT_LINK_CODE;
 	text = "";
 	name = "";
-	action = RsslMapEntryActions::RSSL_MPEA_ADD_ENTRY;
+	action = RSSL_MPEA_ADD_ENTRY;
 	flags = 0;
 }
 
@@ -457,7 +457,7 @@ void Link::apply(RsslRDMServiceLink& rsslRdmServiceLink)
 }
 
 LinkFilter::LinkFilter() :
-	action(RsslFilterEntryActions::RSSL_FTEA_CLEAR_ENTRY)
+	action(RSSL_FTEA_CLEAR_ENTRY)
 {
 }
 
@@ -479,7 +479,7 @@ void LinkFilter::clear()
 	}
 
 	_linkList.clear();
-	action = RsslFilterEntryActions::RSSL_FTEA_CLEAR_ENTRY;
+	action = RSSL_FTEA_CLEAR_ENTRY;
 }
 
 void LinkFilter::addLink(const Link& link)
@@ -1619,7 +1619,7 @@ bool DirectoryServiceStore::submitSourceDirectory(ClientSession* clientSession, 
 					{
 						switch (pServiceList->state.action)
 						{
-						case RsslFilterEntryActions::RSSL_FTEA_SET_ENTRY:
+						case RSSL_FTEA_SET_ENTRY:
 
 							notifyOnServiceStateChange(clientSession, *pServiceList);
 
@@ -1633,7 +1633,7 @@ bool DirectoryServiceStore::submitSourceDirectory(ClientSession* clientSession, 
 					{
 						switch (pServiceList->info.action)
 						{
-						case RsslFilterEntryActions::RSSL_FTEA_SET_ENTRY:
+						case RSSL_FTEA_SET_ENTRY:
 
 							service.infoFilter.apply(pServiceList->info);
 							flags |= RDM_SVCF_HAS_INFO;
@@ -1645,7 +1645,7 @@ bool DirectoryServiceStore::submitSourceDirectory(ClientSession* clientSession, 
 					{
 						switch (pServiceList->load.action)
 						{
-						case RsslFilterEntryActions::RSSL_FTEA_SET_ENTRY:
+						case RSSL_FTEA_SET_ENTRY:
 
 							service.loadFilter.apply(pServiceList->load);
 							break;
@@ -1659,7 +1659,7 @@ bool DirectoryServiceStore::submitSourceDirectory(ClientSession* clientSession, 
 
 						switch (pServiceList->linkInfo.action)
 						{
-						case RsslFilterEntryActions::RSSL_FTEA_SET_ENTRY:
+						case RSSL_FTEA_SET_ENTRY:
 						{
 							service.linkFilter.clear();
 
@@ -1671,14 +1671,14 @@ bool DirectoryServiceStore::submitSourceDirectory(ClientSession* clientSession, 
 
 								if (pLink)
 								{
-									if (pServiceList->linkInfo.linkList[idx].action == RsslMapEntryActions::RSSL_MPEA_UPDATE_ENTRY)
+									if (pServiceList->linkInfo.linkList[idx].action == RSSL_MPEA_UPDATE_ENTRY)
 									{
 										pLink->apply(pServiceList->linkInfo.linkList[idx]);
 									}
 								}
 								else
 								{
-									if (pServiceList->linkInfo.linkList[idx].action == RsslMapEntryActions::RSSL_MPEA_ADD_ENTRY)
+									if (pServiceList->linkInfo.linkList[idx].action == RSSL_MPEA_ADD_ENTRY)
 									{
 										link.apply(pServiceList->linkInfo.linkList[idx]);
 										service.linkFilter.addLink(link);
@@ -1715,7 +1715,7 @@ bool DirectoryServiceStore::submitSourceDirectory(ClientSession* clientSession, 
 					{
 						switch (pServiceList->state.action)
 						{
-						case RsslFilterEntryActions::RSSL_FTEA_SET_ENTRY:
+						case RSSL_FTEA_SET_ENTRY:
 						{
 							notifyOnServiceStateChange(clientSession, *pServiceList);
 
@@ -1724,13 +1724,13 @@ bool DirectoryServiceStore::submitSourceDirectory(ClientSession* clientSession, 
 						}
 						break;
 
-						case RsslFilterEntryActions::RSSL_FTEA_UPDATE_ENTRY:
+						case RSSL_FTEA_UPDATE_ENTRY:
 						{
 							notifyOnServiceStateChange(clientSession, *pServiceList);
 							pService->stateFilter.apply(pServiceList->state);
 						}
 						break;
-						case RsslFilterEntryActions::RSSL_FTEA_CLEAR_ENTRY:
+						case RSSL_FTEA_CLEAR_ENTRY:
 							pService->stateFilter.clear();
 							break;
 						}
@@ -1740,18 +1740,18 @@ bool DirectoryServiceStore::submitSourceDirectory(ClientSession* clientSession, 
 					{
 						switch (pServiceList->load.action)
 						{
-						case RsslFilterEntryActions::RSSL_FTEA_SET_ENTRY:
+						case RSSL_FTEA_SET_ENTRY:
 						{
 							pService->loadFilter.clear();
 							pService->loadFilter.apply(pServiceList->load);
 						}
 						break;
 
-						case RsslFilterEntryActions::RSSL_FTEA_UPDATE_ENTRY:
+						case RSSL_FTEA_UPDATE_ENTRY:
 							pService->loadFilter.apply(pServiceList->load);
 							break;
 
-						case RsslFilterEntryActions::RSSL_FTEA_CLEAR_ENTRY:
+						case RSSL_FTEA_CLEAR_ENTRY:
 							pService->loadFilter.clear();
 							break;
 						}
@@ -1764,7 +1764,7 @@ bool DirectoryServiceStore::submitSourceDirectory(ClientSession* clientSession, 
 
 						switch (pServiceList->linkInfo.action)
 						{
-						case RsslFilterEntryActions::RSSL_FTEA_SET_ENTRY:
+						case RSSL_FTEA_SET_ENTRY:
 						{
 							pService->linkFilter.clear();
 
@@ -1776,14 +1776,14 @@ bool DirectoryServiceStore::submitSourceDirectory(ClientSession* clientSession, 
 
 								if (pLink)
 								{
-									if (pServiceList->linkInfo.linkList[idx].action == RsslMapEntryActions::RSSL_MPEA_UPDATE_ENTRY)
+									if (pServiceList->linkInfo.linkList[idx].action == RSSL_MPEA_UPDATE_ENTRY)
 									{
 										pLink->apply(pServiceList->linkInfo.linkList[idx]);
 									}
 								}
 								else
 								{
-									if (pServiceList->linkInfo.linkList[idx].action == RsslMapEntryActions::RSSL_MPEA_ADD_ENTRY)
+									if (pServiceList->linkInfo.linkList[idx].action == RSSL_MPEA_ADD_ENTRY)
 									{
 										link.apply(pServiceList->linkInfo.linkList[idx]);
 										pService->linkFilter.addLink(link);
@@ -1792,7 +1792,7 @@ bool DirectoryServiceStore::submitSourceDirectory(ClientSession* clientSession, 
 							}
 						}
 						break;
-						case RsslFilterEntryActions::RSSL_FTEA_UPDATE_ENTRY:
+						case RSSL_FTEA_UPDATE_ENTRY:
 
 							for (RsslUInt32 idx = 0; idx < pServiceList->linkInfo.linkCount; idx++)
 							{
@@ -1802,14 +1802,14 @@ bool DirectoryServiceStore::submitSourceDirectory(ClientSession* clientSession, 
 
 								if (pLink)
 								{
-									if (pServiceList->linkInfo.linkList[idx].action == RsslMapEntryActions::RSSL_MPEA_UPDATE_ENTRY)
+									if (pServiceList->linkInfo.linkList[idx].action == RSSL_MPEA_UPDATE_ENTRY)
 									{
 										pLink->apply(pServiceList->linkInfo.linkList[idx]);
 									}
 								}
 								else
 								{
-									if (pServiceList->linkInfo.linkList[idx].action == RsslMapEntryActions::RSSL_MPEA_ADD_ENTRY)
+									if (pServiceList->linkInfo.linkList[idx].action == RSSL_MPEA_ADD_ENTRY)
 									{
 										link.apply(pServiceList->linkInfo.linkList[idx]);
 										pService->linkFilter.addLink(link);
@@ -1818,7 +1818,7 @@ bool DirectoryServiceStore::submitSourceDirectory(ClientSession* clientSession, 
 							}
 
 							break;
-						case RsslFilterEntryActions::RSSL_FTEA_CLEAR_ENTRY:
+						case RSSL_FTEA_CLEAR_ENTRY:
 							pService->linkFilter.clear();
 							break;
 						}

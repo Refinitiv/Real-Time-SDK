@@ -122,7 +122,7 @@ RsslReactorCallbackRet DictionaryHandler::dictionaryCallback(RsslReactor* pReact
 
 	if (!pDictionaryMsg)
 	{
-		sendRequestReject(pReactor, pReactorChannel, pRDMDictionaryMsgEvent, DictionaryRejectEnum::DICTIONARY_INVALID_MESSAGE, errorInfo, false);
+		sendRequestReject(pReactor, pReactorChannel, pRDMDictionaryMsgEvent, DICTIONARY_INVALID_MESSAGE, errorInfo, false);
 
 		if (OmmLoggerClient::ErrorEnum >= ommServerBaseImpl->getActiveConfig().loggerConfig.minLoggerSeverity)
 		{
@@ -139,7 +139,7 @@ RsslReactorCallbackRet DictionaryHandler::dictionaryCallback(RsslReactor* pReact
 
 	if (!ommServerBaseImpl->getActiveConfig().acceptMessageWithoutBeingLogin && !clientSession->isLogin())
 	{
-		sendRequestReject(pReactor, pReactorChannel, pRDMDictionaryMsgEvent, DictionaryRejectEnum::USER_IS_NOT_LOGGED_IN, errorInfo);
+		sendRequestReject(pReactor, pReactorChannel, pRDMDictionaryMsgEvent, USER_IS_NOT_LOGGED_IN, errorInfo);
 
 		return RSSL_RC_CRET_SUCCESS;
 	}
@@ -176,7 +176,7 @@ RsslReactorCallbackRet DictionaryHandler::dictionaryCallback(RsslReactor* pReact
 
 					if (!serviceNamePtr)
 					{
-						sendRequestReject(pReactor, pReactorChannel, pRDMDictionaryMsgEvent, DictionaryRejectEnum::SERVICE_ID_NOT_FOUND, errorInfo);
+						sendRequestReject(pReactor, pReactorChannel, pRDMDictionaryMsgEvent, SERVICE_ID_NOT_FOUND, errorInfo);
 						return RSSL_RC_CRET_SUCCESS;
 					}
 
@@ -333,7 +333,7 @@ RsslReactorCallbackRet DictionaryHandler::dictionaryCallback(RsslReactor* pReact
 
 			if (!itemInfo)
 			{
-				sendRequestReject(pReactor, pReactorChannel, pRDMDictionaryMsgEvent, DictionaryRejectEnum::DICTIONARY_INVALID_MESSAGE, errorInfo, false);
+				sendRequestReject(pReactor, pReactorChannel, pRDMDictionaryMsgEvent, DICTIONARY_INVALID_MESSAGE, errorInfo, false);
 			}
 
 			if (OmmLoggerClient::ErrorEnum >= ommServerBaseImpl->getActiveConfig().loggerConfig.minLoggerSeverity)
@@ -364,7 +364,7 @@ bool DictionaryHandler::sendDicitonaryResponse(RsslReactor* pReactor, RsslReacto
 
 	if (!dictionaryPayload)
 	{
-		sendRequestReject(pReactor, pReactorChannel, pRDMDictionaryMsgEvent, DictionaryRejectEnum::DICTIONARY_NAME_NOT_FOUND, errorInfo);
+		sendRequestReject(pReactor, pReactorChannel, pRDMDictionaryMsgEvent, DICTIONARY_NAME_NOT_FOUND, errorInfo);
 
 		return false;
 	}
@@ -374,7 +374,7 @@ bool DictionaryHandler::sendDicitonaryResponse(RsslReactor* pReactor, RsslReacto
 		{
 			if (sendFieldDictionaryResponse(pReactor, pReactorChannel, pRDMDictionaryMsgEvent->pRDMDictionaryMsg, dictionaryPayload->getDictionary(), errorInfo) != RSSL_RET_SUCCESS)
 			{
-				sendRequestReject(pReactor, pReactorChannel, pRDMDictionaryMsgEvent, DictionaryRejectEnum::DICTIONARY_ENCODING_FAILED, errorInfo);
+				sendRequestReject(pReactor, pReactorChannel, pRDMDictionaryMsgEvent, DICTIONARY_ENCODING_FAILED, errorInfo);
 				return false;
 			}
 		}
@@ -382,7 +382,7 @@ bool DictionaryHandler::sendDicitonaryResponse(RsslReactor* pReactor, RsslReacto
 		{
 			if (sendEnumTypeDictionaryResponse(pReactor, pReactorChannel, pRDMDictionaryMsgEvent->pRDMDictionaryMsg, dictionaryPayload->getDictionary(), errorInfo) != RSSL_RET_SUCCESS)
 			{
-				sendRequestReject(pReactor, pReactorChannel, pRDMDictionaryMsgEvent, DictionaryRejectEnum::DICTIONARY_ENCODING_FAILED, errorInfo);
+				sendRequestReject(pReactor, pReactorChannel, pRDMDictionaryMsgEvent, DICTIONARY_ENCODING_FAILED, errorInfo);
 				return false;
 			}
 		}
@@ -529,7 +529,7 @@ RsslReturnCodes DictionaryHandler::sendFieldDictionaryResponse(RsslReactor* reac
 
 	rsslClearRDMDictionaryMsg(&dictionaryRefresh);
 
-	dictionaryRefresh.rdmMsgBase.rdmMsgType = RsslRDMDictionaryMsgType::RDM_DC_MT_REFRESH;
+	dictionaryRefresh.rdmMsgBase.rdmMsgType = RDM_DC_MT_REFRESH;
 	dictionaryRefresh.rdmMsgBase.streamId = dictionaryRequest->rdmMsgBase.streamId;
 	dictionaryRefresh.refresh.type = RDM_DICTIONARY_FIELD_DEFINITIONS;
 	dictionaryRefresh.refresh.pDictionary = (RsslDataDictionary*)dictionary->getRsslDictionary();
@@ -538,9 +538,9 @@ RsslReturnCodes DictionaryHandler::sendFieldDictionaryResponse(RsslReactor* reac
 	dictionaryRefresh.refresh.dictionaryName = dictionaryRequest->request.dictionaryName;
 	dictionaryRefresh.refresh.flags = RDM_DC_RFF_SOLICITED;
 
-	dictionaryRefresh.refresh.state.streamState = RsslStreamStates::RSSL_STREAM_OPEN;
-	dictionaryRefresh.refresh.state.dataState = RsslDataStates::RSSL_DATA_OK;
-	dictionaryRefresh.refresh.state.code = RsslStateCodes::RSSL_SC_NONE;
+	dictionaryRefresh.refresh.state.streamState = RSSL_STREAM_OPEN;
+	dictionaryRefresh.refresh.state.dataState = RSSL_DATA_OK;
+	dictionaryRefresh.refresh.state.code = RSSL_SC_NONE;
 
 	bool firstPartMultiPartRefresh = true;
 
@@ -575,7 +575,7 @@ RsslReturnCodes DictionaryHandler::sendFieldDictionaryResponse(RsslReactor* reac
 				ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 			}
 
-			return RsslReturnCodes::RSSL_RET_BUFFER_NO_BUFFERS;
+			return RSSL_RET_BUFFER_NO_BUFFERS;
 		}
 
 		RsslEncodeIterator encodeIter;
@@ -594,7 +594,7 @@ RsslReturnCodes DictionaryHandler::sendFieldDictionaryResponse(RsslReactor* reac
 				ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 			}
 
-			return RsslReturnCodes::RSSL_RET_FAILURE;
+			return RSSL_RET_FAILURE;
 		}
 
 		retCode = rsslSetEncodeIteratorBuffer(&encodeIter, msgBuf);
@@ -610,7 +610,7 @@ RsslReturnCodes DictionaryHandler::sendFieldDictionaryResponse(RsslReactor* reac
 				ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 			}
 
-			return RsslReturnCodes::RSSL_RET_FAILURE;
+			return RSSL_RET_FAILURE;
 		}
 
 		stateText.set("Field Dictionary Refresh (starting fid ");
@@ -637,7 +637,7 @@ RsslReturnCodes DictionaryHandler::sendFieldDictionaryResponse(RsslReactor* reac
 				ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 			}
 
-			return RsslReturnCodes::RSSL_RET_FAILURE;
+			return RSSL_RET_FAILURE;
 		}
 
 		RsslReactorSubmitOptions submitOpts;
@@ -685,7 +685,7 @@ RsslReturnCodes DictionaryHandler::sendFieldDictionaryResponse(RsslReactor* reac
 				}
 			}
 
-			return RsslReturnCodes::RSSL_RET_FAILURE;
+			return RSSL_RET_FAILURE;
 		}
 		
 		if (retCode == RSSL_RET_SUCCESS)
@@ -705,7 +705,7 @@ RsslReturnCodes DictionaryHandler::sendFieldDictionaryResponse(RsslReactor* reac
 		ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::VerboseEnum, temp);
 	}
 
-	return RsslReturnCodes::RSSL_RET_SUCCESS;
+	return RSSL_RET_SUCCESS;
 }
 
 RsslReturnCodes DictionaryHandler::sendEnumTypeDictionaryResponse(RsslReactor* reactor, RsslReactorChannel* reactorChannel, RsslRDMDictionaryMsg* dictionaryRequest, Dictionary* dictionary, RsslErrorInfo* rsslErrorInfo)
@@ -717,7 +717,7 @@ RsslReturnCodes DictionaryHandler::sendEnumTypeDictionaryResponse(RsslReactor* r
 
 	rsslClearRDMDictionaryMsg(&dictionaryRefresh);
 
-	dictionaryRefresh.rdmMsgBase.rdmMsgType = RsslRDMDictionaryMsgType::RDM_DC_MT_REFRESH;
+	dictionaryRefresh.rdmMsgBase.rdmMsgType = RDM_DC_MT_REFRESH;
 	dictionaryRefresh.rdmMsgBase.streamId = dictionaryRequest->rdmMsgBase.streamId;
 	dictionaryRefresh.refresh.type = RDM_DICTIONARY_ENUM_TABLES;
 	dictionaryRefresh.refresh.pDictionary = (RsslDataDictionary*)dictionary->getRsslDictionary();
@@ -726,9 +726,9 @@ RsslReturnCodes DictionaryHandler::sendEnumTypeDictionaryResponse(RsslReactor* r
 	dictionaryRefresh.refresh.dictionaryName = dictionaryRequest->request.dictionaryName;
 	dictionaryRefresh.refresh.flags = RDM_DC_RFF_SOLICITED;
 
-	dictionaryRefresh.refresh.state.streamState = RsslStreamStates::RSSL_STREAM_OPEN;
-	dictionaryRefresh.refresh.state.dataState = RsslDataStates::RSSL_DATA_OK;
-	dictionaryRefresh.refresh.state.code = RsslStateCodes::RSSL_SC_NONE;
+	dictionaryRefresh.refresh.state.streamState = RSSL_STREAM_OPEN;
+	dictionaryRefresh.refresh.state.dataState = RSSL_DATA_OK;
+	dictionaryRefresh.refresh.state.code = RSSL_SC_NONE;
 
 	EmaString stateText;
 
@@ -764,7 +764,7 @@ RsslReturnCodes DictionaryHandler::sendEnumTypeDictionaryResponse(RsslReactor* r
 
 				ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 			}
-			return RsslReturnCodes::RSSL_RET_BUFFER_NO_BUFFERS;
+			return RSSL_RET_BUFFER_NO_BUFFERS;
 		}
 
 		RsslEncodeIterator encodeIter;
@@ -783,7 +783,7 @@ RsslReturnCodes DictionaryHandler::sendEnumTypeDictionaryResponse(RsslReactor* r
 				ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 			}
 
-			return RsslReturnCodes::RSSL_RET_FAILURE;
+			return RSSL_RET_FAILURE;
 		}
 
 		retCode = rsslSetEncodeIteratorBuffer(&encodeIter, msgBuf);
@@ -799,7 +799,7 @@ RsslReturnCodes DictionaryHandler::sendEnumTypeDictionaryResponse(RsslReactor* r
 				ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 			}
 
-			return RsslReturnCodes::RSSL_RET_FAILURE;
+			return RSSL_RET_FAILURE;
 		}
 
 		stateText.set("Enum Dictionary Refresh (starting enum fid ");
@@ -826,7 +826,7 @@ RsslReturnCodes DictionaryHandler::sendEnumTypeDictionaryResponse(RsslReactor* r
 				ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 			}
 
-			return RsslReturnCodes::RSSL_RET_FAILURE;
+			return RSSL_RET_FAILURE;
 		}
 
 		RsslReactorSubmitOptions submitOpts;
@@ -867,7 +867,7 @@ RsslReturnCodes DictionaryHandler::sendEnumTypeDictionaryResponse(RsslReactor* r
 				ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 			}
 
-			return RsslReturnCodes::RSSL_RET_FAILURE;
+			return RSSL_RET_FAILURE;
 		}
 
 		if (retCode == RSSL_RET_SUCCESS)
@@ -887,7 +887,7 @@ RsslReturnCodes DictionaryHandler::sendEnumTypeDictionaryResponse(RsslReactor* r
 		ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::VerboseEnum, temp);
 	}
 
-	return RsslReturnCodes::RSSL_RET_SUCCESS;
+	return RSSL_RET_SUCCESS;
 }
 
 RsslReturnCodes DictionaryHandler::sendRequestReject(RsslReactor* reactor, RsslReactorChannel* reactorChannel, RsslRDMDictionaryMsgEvent* rdmDictionaryMsgEvent, DictionaryRejectEnum reason, RsslErrorInfo* rsslErrorInfo, bool traceMessage)
@@ -920,19 +920,19 @@ RsslReturnCodes DictionaryHandler::sendRequestReject(RsslReactor* reactor, RsslR
 			ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 		}
 
-		return RsslReturnCodes::RSSL_RET_BUFFER_NO_BUFFERS;
+		return RSSL_RET_BUFFER_NO_BUFFERS;
 	}
 
 	RsslRDMDictionaryMsg& dictionaryStatus = ommServerBaseImpl->getDictionaryHandler()._rdmDictionaryStatus;
 
 	rsslClearRDMDictionaryMsg(&dictionaryStatus);
 
-	dictionaryStatus.rdmMsgBase.rdmMsgType = RsslRDMDictionaryMsgType::RDM_DC_MT_STATUS;
+	dictionaryStatus.rdmMsgBase.rdmMsgType = RDM_DC_MT_STATUS;
 	dictionaryStatus.rdmMsgBase.streamId = rdmDictionaryMsgEvent->baseMsgEvent.pRsslMsg->msgBase.streamId;
 	dictionaryStatus.status.flags = RDM_DC_STF_HAS_STATE;
-	dictionaryStatus.status.state.dataState = RsslDataStates::RSSL_DATA_SUSPECT;
-	dictionaryStatus.status.state.code = RsslStateCodes::RSSL_SC_ERROR;
-	dictionaryStatus.status.state.streamState = RsslStreamStates::RSSL_STREAM_CLOSED_RECOVER;
+	dictionaryStatus.status.state.dataState = RSSL_DATA_SUSPECT;
+	dictionaryStatus.status.state.code = RSSL_SC_ERROR;
+	dictionaryStatus.status.state.streamState = RSSL_STREAM_CLOSED_RECOVER;
 
 	EmaString stateText;
 
@@ -1004,7 +1004,7 @@ RsslReturnCodes DictionaryHandler::sendRequestReject(RsslReactor* reactor, RsslR
 			ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 		}
 
-		return RsslReturnCodes::RSSL_RET_FAILURE;
+		return RSSL_RET_FAILURE;
 	}
 
 	retCode = rsslSetEncodeIteratorBuffer(&encodeIter, msgBuf);
@@ -1020,7 +1020,7 @@ RsslReturnCodes DictionaryHandler::sendRequestReject(RsslReactor* reactor, RsslR
 			ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 		}
 
-		return RsslReturnCodes::RSSL_RET_FAILURE;
+		return RSSL_RET_FAILURE;
 	}
 
 	clearRsslErrorInfo(rsslErrorInfo);
@@ -1041,7 +1041,7 @@ RsslReturnCodes DictionaryHandler::sendRequestReject(RsslReactor* reactor, RsslR
 			ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);
 		}
 
-		return RsslReturnCodes::RSSL_RET_FAILURE;
+		return RSSL_RET_FAILURE;
 	}
 
 	RsslReactorSubmitOptions submitOpts;
@@ -1085,10 +1085,10 @@ RsslReturnCodes DictionaryHandler::sendRequestReject(RsslReactor* reactor, RsslR
 			}
 		}
 
-		return RsslReturnCodes::RSSL_RET_FAILURE;
+		return RSSL_RET_FAILURE;
 	}
 
-	return RsslReturnCodes::RSSL_RET_SUCCESS;
+	return RSSL_RET_SUCCESS;
 }
 
 size_t DictionaryHandler::EmaStringPtrHasher::operator()(const EmaString& value) const

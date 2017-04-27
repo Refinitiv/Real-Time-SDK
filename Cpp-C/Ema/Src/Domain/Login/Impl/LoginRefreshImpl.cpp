@@ -402,7 +402,7 @@ LoginRefreshImpl& LoginRefreshImpl::state(const OmmState& state)
 
 	_rsslState->streamState = state.getStreamState();
 	_rsslState->dataState = state.getDataState();
-	_rsslState->code = state.getStatusCode();
+	_rsslState->code = (UInt8)state.getStatusCode();
 	_rsslState->text.data = (char*)state.getStatusText().c_str();
 	_rsslState->text.length = state.getStatusText().length();
 	_stateText.setInt(_rsslState->text.data, _rsslState->text.length, false);
@@ -629,7 +629,7 @@ bool LoginRefreshImpl::getSingleOpen() const
 
 UInt32 LoginRefreshImpl::getSupportBatchRequests() const
 {
-	return _supportBatchRequests;
+	return (UInt32)_supportBatchRequests;
 }
 
 UInt32 LoginRefreshImpl::getSupportEnhancedSymbolList() const
@@ -1180,17 +1180,17 @@ void LoginRefreshImpl::decode(const RefreshMsg& refreshMsg)
 			}
 			else if (elementName == ENAME_APP_ID )
 			{
-				if (elementEntry.getCode() == Data::DataCode::NoCodeEnum)
+				if (elementEntry.getCode() == Data::NoCodeEnum)
 					applicationId(elementEntry.getAscii());
 			}
 			else if (elementName == ENAME_APP_NAME)
 			{
-				if (elementEntry.getCode() == Data::DataCode::NoCodeEnum)
+				if (elementEntry.getCode() == Data::NoCodeEnum)
 					applicationName(elementEntry.getAscii());
 			}
 			else if (elementName == ENAME_POSITION)
 			{
-				if (elementEntry.getCode() == Data::DataCode::NoCodeEnum)
+				if (elementEntry.getCode() == Data::NoCodeEnum)
 					position(elementEntry.getAscii());
 			}
 			else if (elementName == ENAME_PROV_PERM_EXP)
@@ -1344,12 +1344,12 @@ void LoginRefreshImpl::decode(const RefreshMsg& refreshMsg)
 			}
 			else if (elementName == ENAME_AUTH_EXTENDED_RESP)
 			{
-				if (elementEntry.getCode() == Data::DataCode::NoCodeEnum)
+				if (elementEntry.getCode() == Data::NoCodeEnum)
 					authenticationExtended(elementEntry.getBuffer());
 			}
 			else if (elementName == ENAME_AUTH_TT_REISSUE)
 			{
-				if (elementEntry.getCode() == Data::DataCode::NoCodeEnum)
+				if (elementEntry.getCode() == Data::NoCodeEnum)
 					authenticationTTReissue(elementEntry.getUInt());
 			}
 			else if (elementName == ENAME_AUTH_ERRORCODE)
@@ -1358,7 +1358,7 @@ void LoginRefreshImpl::decode(const RefreshMsg& refreshMsg)
 			}
 			else if (elementName == ENAME_AUTH_ERRORTEXT)
 			{
-				if (elementEntry.getCode() == Data::DataCode::NoCodeEnum)
+				if (elementEntry.getCode() == Data::NoCodeEnum)
 					authenticationErrorText(elementEntry.getAscii());
 			}
 		}

@@ -857,19 +857,19 @@ void LoginReqImpl::decode(const ReqMsg& reqMsg)
 			}
 			else if (elementName == ENAME_APP_ID)
 			{
-				if(elementEntry.getCode() == Data::DataCode::NoCodeEnum)
+				if(elementEntry.getCode() == Data::NoCodeEnum)
 					applicationId(elementEntry.getAscii());
 				
 			}
 
 			else if (elementName == ENAME_APP_NAME)
 			{
-				if (elementEntry.getCode() == Data::DataCode::NoCodeEnum)
+				if (elementEntry.getCode() == Data::NoCodeEnum)
 					applicationName(elementEntry.getAscii());
 			}
 			else if (elementName == ENAME_APPAUTH_TOKEN)
 			{
-				if (elementEntry.getCode() == Data::DataCode::NoCodeEnum)
+				if (elementEntry.getCode() == Data::NoCodeEnum)
 					applicationAuthorizationToken(elementEntry.getAscii());
 			}
 			else if (elementName == ENAME_DOWNLOAD_CON_CONFIG)
@@ -887,17 +887,17 @@ void LoginReqImpl::decode(const ReqMsg& reqMsg)
 			}
 			else if (elementName == ENAME_INST_ID)
 			{
-				if (elementEntry.getCode() == Data::DataCode::NoCodeEnum)
+				if (elementEntry.getCode() == Data::NoCodeEnum)
 					instanceId(elementEntry.getAscii());
 			}
 			else if (elementName == ENAME_PASSWORD)
 			{
-				if (elementEntry.getCode() == Data::DataCode::NoCodeEnum)
+				if (elementEntry.getCode() == Data::NoCodeEnum)
 					password(elementEntry.getAscii());
 			}
 			else if (elementName == ENAME_POSITION)
 			{
-				if (elementEntry.getCode() == Data::DataCode::NoCodeEnum)
+				if (elementEntry.getCode() == Data::NoCodeEnum)
 					position(elementEntry.getAscii());
 			}
 			else if (elementName == ENAME_PROV_PERM_EXP)
@@ -974,7 +974,7 @@ void LoginReqImpl::decode(const ReqMsg& reqMsg)
 			}
 			else if (elementName == ENAME_AUTH_EXTENDED)
 			{
-				if (elementEntry.getCode() == Data::DataCode::NoCodeEnum)
+				if (elementEntry.getCode() == Data::NoCodeEnum)
 					authenticationExtended(elementEntry.getBuffer());
 			}
 			else if (elementName == ENAME_AUTH_TOKEN)
@@ -984,7 +984,7 @@ void LoginReqImpl::decode(const ReqMsg& reqMsg)
 					EmaString text("NameType must be USER_AUTH_TOKEN when element list contains AuthenticationToken");
 					throwIueException(text);
 				}
-				if (elementEntry.getCode() == Data::DataCode::NoCodeEnum)
+				if (elementEntry.getCode() == Data::NoCodeEnum)
 					name(elementEntry.getAscii());
 			}
 		}

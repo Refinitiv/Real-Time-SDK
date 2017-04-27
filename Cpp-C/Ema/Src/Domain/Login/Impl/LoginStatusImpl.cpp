@@ -154,7 +154,7 @@ LoginStatusImpl& LoginStatusImpl::state(const OmmState& state)
 
 	_rsslState->streamState = state.getStreamState();
 	_rsslState->dataState = state.getDataState();
-	_rsslState->code = state.getStatusCode();
+	_rsslState->code = (UInt8)state.getStatusCode();
 	_rsslState->text.data = (char*)state.getStatusText().c_str();
 	_rsslState->text.length = state.getStatusText().length();
 	_stateText.setInt(_rsslState->text.data, _rsslState->text.length, false);
@@ -373,7 +373,7 @@ void LoginStatusImpl::decode(const StatusMsg& statusMsg)
 			}
 			else if (elementName == ENAME_AUTH_ERRORTEXT)
 			{
-				if (elementEntry.getCode() == Data::DataCode::NoCodeEnum)
+				if (elementEntry.getCode() == Data::NoCodeEnum)
 					authenticationErrorText(elementEntry.getAscii());
 			}
 		}

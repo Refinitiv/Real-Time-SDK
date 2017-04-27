@@ -521,12 +521,12 @@ EmaString& EmaString::append ( double d )
 
 EmaString& EmaString::append ( const char* str )
 {
-    UInt64 strLength = str ? static_cast<UInt64> ( strlen ( str ) ) : 0;
+    size_t strLength = str ? static_cast<size_t> ( strlen ( str ) ) : 0;
 
     if ( !strLength ) return *this;
 
 	/* Check for length overflow before malloc */
-	if (((UInt64)_length + strLength + 1) >= (UInt64)EmaString::npos)
+	if (((size_t)_length + strLength + 1) >= (size_t)EmaString::npos)
 	{
 		const char* temp = "The total length of the passed in string is larger than MAX_UINT32. EmaString::append( const char* ).";
 		throwIueException(temp);
@@ -535,7 +535,7 @@ EmaString& EmaString::append ( const char* str )
 
     if ( _capacity <= _length + strLength )
     {
-        _capacity = _length + strLength + 1;
+        _capacity = _length + (UInt32)strLength + 1;
 
         char* pNewString = ( char* ) malloc ( _capacity );
         if ( !pNewString )
@@ -553,7 +553,7 @@ EmaString& EmaString::append ( const char* str )
 
         memcpy ( pNewString + _length, str, strLength );
 
-        _length += strLength;
+        _length += (UInt32)strLength;
 
         * ( pNewString + _length ) = 0x00;
 
@@ -563,7 +563,7 @@ EmaString& EmaString::append ( const char* str )
     {
         memcpy ( _pString + _length, str, strLength );
 
-        _length += strLength;
+        _length += (UInt32)strLength;
 
         * ( _pString + _length ) = 0x00;
     }

@@ -299,7 +299,7 @@ RsslReactorCallbackRet ServerChannelHandler::channelEventCallback(RsslReactor* p
 		}
 	}
 
-	return RsslReactorCallbackRet::RSSL_RC_CRET_SUCCESS;
+	return RSSL_RC_CRET_SUCCESS;
 }
 
 ServerChannelHandler* ServerChannelHandler::create(OmmServerBaseImpl* ommServerBaseImpl)

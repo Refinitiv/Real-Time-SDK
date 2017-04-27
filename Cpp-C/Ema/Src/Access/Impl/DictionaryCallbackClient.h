@@ -164,7 +164,7 @@ public :
 
 	Dictionary* getDefaultDictionary() const;
 
-	void encodeAndNotifyStatusMsg(DictionaryItem*, RsslStatusMsg*, RsslBuffer*, UInt32, UInt8, UInt8, RsslEncodeIterator*, char *);
+	void encodeAndNotifyStatusMsg(DictionaryItem*, RsslStatusMsg*, RsslBuffer*, UInt32, UInt8, UInt8, RsslEncodeIterator*, const char *);
 
 	static void sendInternalMsg( void* );
 
@@ -174,7 +174,7 @@ public :
 
 private :
 
-	int allocateAndSetEncodeIteratorBuffer(RsslBuffer*, UInt32, UInt8, UInt8, RsslEncodeIterator*, char *);
+	int allocateAndSetEncodeIteratorBuffer(RsslBuffer*, UInt32, UInt8, UInt8, RsslEncodeIterator*, const char *);
 
 	bool downloadDictionaryFromService( const Directory& );
 

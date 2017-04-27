@@ -24,6 +24,10 @@
 #include "ServerChannelHandler.h"
 #include "RdmUtilities.h"
 
+#ifdef WIN32
+#pragma warning( disable : 4355)
+#endif
+
 using namespace thomsonreuters::ema::access;
 
 OmmIProviderImpl::OmmIProviderImpl(OmmProvider* ommProvider, const OmmIProviderConfig& ommIProviderConfig, OmmProviderClient& ommProviderClient, void* closure) :
@@ -298,8 +302,8 @@ void OmmIProviderImpl::submit(const RefreshMsg& refreshMsg, UInt64 handle)
 			pReactorChannel = itemInfo->getClientSession()->getChannel();
 			submitMsgOpts.pRsslMsg->msgBase.streamId = itemInfo->getStreamId();
 
-			if ((submitMsgOpts.pRsslMsg->refreshMsg.state.streamState == RsslStreamStates::RSSL_STREAM_OPEN) &&
-				(submitMsgOpts.pRsslMsg->refreshMsg.state.dataState == RsslDataStates::RSSL_DATA_OK))
+			if ((submitMsgOpts.pRsslMsg->refreshMsg.state.streamState == RSSL_STREAM_OPEN) &&
+				(submitMsgOpts.pRsslMsg->refreshMsg.state.dataState == RSSL_DATA_OK))
 			{
 				itemInfo->getClientSession()->setLogin(true);
 			}
@@ -1041,7 +1045,7 @@ bool OmmIProviderImpl::submit(RsslReactorSubmitMsgOptions submitMsgOptions, cons
 
 void OmmIProviderImpl::handleItemInfo(int domainType, UInt64 handle, RsslState& state)
 {
-	if ( state.streamState != RsslStreamStates::RSSL_STREAM_OPEN )
+	if ( state.streamState != RSSL_STREAM_OPEN )
 	{
 		ItemInfoPtr itemInfo = getItemInfo(handle);
 
@@ -1210,7 +1214,7 @@ void OmmIProviderImpl::onServiceStateChange(ClientSession* clientSession, RsslUI
 {
 	if (serviceState.flags & RDM_SVC_STF_HAS_STATUS)
 	{
-		if (serviceState.status.streamState == RsslStreamStates::RSSL_STREAM_CLOSED_RECOVER)
+		if (serviceState.status.streamState == RSSL_STREAM_CLOSED_RECOVER)
 		{
 			if (clientSession)
 			{
@@ -1260,7 +1264,7 @@ void OmmIProviderImpl::onServiceGroupChange(ClientSession* clientSession, RsslUI
 		
 		if (pGroupState->flags & RDM_SVC_GRF_HAS_STATUS)
 		{
-			if (pGroupState->status.streamState == RsslStreamStates::RSSL_STREAM_CLOSED_RECOVER)
+			if (pGroupState->status.streamState == RSSL_STREAM_CLOSED_RECOVER)
 			{
 				if (clientSession)
 				{

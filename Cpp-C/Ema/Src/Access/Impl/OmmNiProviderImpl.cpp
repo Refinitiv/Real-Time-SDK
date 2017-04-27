@@ -23,6 +23,10 @@
 
 #include <new>
 
+#ifdef WIN32
+#pragma warning( disable : 4355)
+#endif
+
 using namespace thomsonreuters::ema::access;
 using namespace thomsonreuters::ema::rdm;
 

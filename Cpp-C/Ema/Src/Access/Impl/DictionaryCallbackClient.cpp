@@ -77,7 +77,7 @@ void LocalDictionary::destroy( LocalDictionary*& pDictionary )
 
 Dictionary::DictionaryType LocalDictionary::getType() const
 {
-	return DictionaryType::FileDictionaryEnum;
+	return FileDictionaryEnum;
 }
 
 LocalDictionary::LocalDictionary( OmmCommonImpl& ommCommonImpl, BaseConfig& baseConfig ) :
@@ -1211,7 +1211,7 @@ RsslReactorCallbackRet DictionaryCallbackClient::processCallback( RsslReactor* p
 }
 
 int DictionaryCallbackClient::allocateAndSetEncodeIteratorBuffer(RsslBuffer* rsslBuffer, UInt32 allocateBufferSize, UInt8 majorVersion, UInt8 minorVersion, 
-	RsslEncodeIterator* rsslEncodeIterator, char* methodName)
+	RsslEncodeIterator* rsslEncodeIterator, const char* methodName)
 {
 	rsslBuffer->length = allocateBufferSize;
 
@@ -1255,7 +1255,7 @@ int DictionaryCallbackClient::allocateAndSetEncodeIteratorBuffer(RsslBuffer* rss
 }
 
 void DictionaryCallbackClient::encodeAndNotifyStatusMsg(DictionaryItem* dictionaryItem, RsslStatusMsg* statusMsg, RsslBuffer* msgBuf, UInt32 bufferSize, UInt8 majorVersion, UInt8 minorVersion,
-	RsslEncodeIterator* rsslEncodeIterator, char* methodName)
+	RsslEncodeIterator* rsslEncodeIterator, const char* methodName)
 {
 	if (RSSL_RET_SUCCESS != dictionaryItem->getImpl().getDictionaryCallbackClient().allocateAndSetEncodeIteratorBuffer(msgBuf, bufferSize, majorVersion,
 		minorVersion, rsslEncodeIterator, methodName))
