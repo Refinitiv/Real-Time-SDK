@@ -86,7 +86,7 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug Shared MDd|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
+  </ImportGroup>  
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
@@ -160,7 +160,9 @@
       <AdditionalDependencies>msvcprt.lib;msvcrt.lib; libema.lib; libxml2.lib; ws2_32.lib; wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)EmaCppConsPerf.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\..\Libs\WIN_64_VS140\Release_MD;..\..\..\..\Eta\Utils\Libxml2\WIN_64_VS140\Release_MD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      ..\..\..\Libs\WIN_64_VS140\Release_MD;..\..\..\..\Eta\Utils\Libxml2\WIN_64_VS140\Release_MD;%(AdditionalLibraryDirectories)
+      </AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
@@ -209,7 +211,9 @@ if not exist WIN_64_VS140\Release_MD\350k.xml mklink /h WIN_64_VS140\Release_MD\
       <AdditionalDependencies>msvcprt.lib;msvcrt.lib; libema.lib; libxml2.lib; ws2_32.lib; wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)EmaCppConsPerf.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\..\Libs\WIN_64_VS140\Release_MD\Shared;..\..\..\..\Eta\Utils\Libxml2\WIN_64_VS140\Release_MD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      ..\..\..\Libs\WIN_64_VS140\Release_MD\Shared;..\..\..\..\Eta\Utils\Libxml2\WIN_64_VS140\Release_MD;%(AdditionalLibraryDirectories)
+      </AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
@@ -257,7 +261,9 @@ if not exist WIN_64_VS140\Release_MD\Shared\350k.xml mklink /h WIN_64_VS140\Rele
       <AdditionalDependencies>msvcprt.lib;msvcrt.lib; libema.lib; libxml2.lib; ws2_32.lib; wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)EmaCppConsPerf.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\..\Libs\WIN_64_VS140\Release_MD_Assert;..\..\..\..\Eta\Utils\Libxml2\WIN_64_VS140\Release_MD_Assert;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      ..\..\..\Libs\WIN_64_VS140\Release_MD_Assert;..\..\..\..\Eta\Utils\Libxml2\WIN_64_VS140\Release_MD_Assert;%(AdditionalLibraryDirectories)
+      </AdditionalLibraryDirectories>    
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
@@ -306,7 +312,9 @@ if not exist WIN_64_VS140\Release_MD_Assert\350k.xml mklink /h WIN_64_VS140\Rele
       <AdditionalDependencies>msvcprt.lib;msvcrt.lib; libema.lib; libxml2.lib; ws2_32.lib; wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)EmaCppConsPerf.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\..\Libs\WIN_64_VS140\Release_MD_Assert\Shared;..\..\..\..\Eta\Utils\Libxml2\WIN_64_VS140\Release_MD_Assert;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      ..\..\..\Libs\WIN_64_VS140\Release_MD_Assert\Shared;..\..\..\..\Eta\Utils\Libxml2\WIN_64_VS140\Release_MD_Assert;%(AdditionalLibraryDirectories)
+      </AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
@@ -354,7 +362,9 @@ if not exist WIN_64_VS140\Release_MD_Assert\Shared\350k.xml mklink /h WIN_64_VS1
       <AdditionalDependencies>msvcprtd.lib;msvcrtd.lib; libema.lib; libxml2.lib; ws2_32.lib; wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)EmaCppConsPerf.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\..\Libs\WIN_64_VS140\Debug_MDd;..\..\..\..\Eta\Utils\Libxml2\WIN_64_VS140\Debug_MDd;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      ..\..\..\Libs\WIN_64_VS140\Debug_MDd;..\..\..\..\Eta\Utils\Libxml2\WIN_64_VS140\Debug_MDd;%(AdditionalLibraryDirectories)
+      </AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
@@ -403,7 +413,9 @@ if not exist WIN_64_VS140\Debug_MDd\350k.xml mklink /h WIN_64_VS140\Debug_MDd\35
       <AdditionalDependencies>msvcprtd.lib;msvcrtd.lib; libema.lib; libxml2.lib; ws2_32.lib; wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)EmaCppConsPerf.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\..\Libs\WIN_64_VS140\Debug_MDd\Shared;..\..\..\..\Eta\Utils\Libxml2\WIN_64_VS140\Debug_MDd;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      ..\..\..\Libs\WIN_64_VS140\Debug_MDd\Shared;..\..\..\..\Eta\Utils\Libxml2\WIN_64_VS140\Debug_MDd;%(AdditionalLibraryDirectories)
+      </AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>

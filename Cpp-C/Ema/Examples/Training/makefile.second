@@ -47,10 +47,5 @@ createLinks:
 
 optimizedStatic:	$(TARGETS)
 optimizedAssertStatic:	$(TARGETS)
-ifeq ($(findstring GSG,$(DISTRIBUTION_SRC)), GSG)
 optimizedShared:	createLinks $(TARGETS)
 optimizedAssertShared:	createLinks $(TARGETS)
-else
-optimizedShared:	$(TARGETS)
-optimizedAssertShared:	$(TARGETS)
-endif

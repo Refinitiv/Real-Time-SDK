@@ -38,17 +38,7 @@ SRC=	$(shell ls *.cpp)
 OBJS=   $(SRC:%.cpp=$(OUTPUT_DIR)/obj/%.o)
 LIBS = -lema -lPerfTools
 
-ifeq ($(USE_CUSTOM_BUILD),true)
-ifeq ($(IDENT),OL6_64_GCC444)
-$(error custom build not supported for OL6)
-else ifeq ($(IDENT),CENTOS7_64_GCC482)
-$(error custom build not supported for CENTOS7)
-else				#USE_CUSTOM_BUILD true; supported environment
-	EMA_LIB_PATH=-L$(ROOTNODE)/Ema/Src/Access/Libs/$(OUTPUT_DIR)
-endif
-else				#USE_CUSTOM_BUILD false
-	EMA_LIB_PATH=-L$(ROOTNODE)/Ema/Libs/$(OUTPUT_DIR)
-endif
+EMA_LIB_PATH=-L$(ROOTNODE)/Ema/Libs/$(OUTPUT_DIR)
 
 ETA_SHARED_LIB_PATH=-L$(ROOTNODE)/Eta/Libs/$(OUTPUT_DIR)
 # libema not built for OL6, so use RHEL6; also not built for CENTOS, so use OL7

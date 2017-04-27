@@ -13,15 +13,7 @@ else
 	endif
 endif
 
-ifeq ($(findstring GitHub,$(DISTRIBUTION_SRC)), GitHub)
-	LIB_DIR=$(shell pwd | sed 's_/Ema\/.*_/Ema/Libs_')
-else
-	ifeq ($(findstring GSG,$(DISTRIBUTION_SRC)), GSG)
-		LIB_DIR=Libs
-	else
-$(error makefile.common variable DISTRIBUTION_SRC must be 'GitHub' or 'GSG')
-	endif
-endif
+LIB_DIR=../../Libs
 
 ifndef IDENT	
 $(error unsupported environment)
