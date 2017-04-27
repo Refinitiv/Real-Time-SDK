@@ -769,7 +769,7 @@ inline XMLnode* XMLnode::find< XMLnode >( const EmaString& itemToRetrieve )
 	Int32 length( itemToRetrieve.length() );
 	EmaString nodeName;
 	XMLnode* tmp( this );
-	EmaConfigErrorList* e( new EmaConfigErrorList );
+	EmaConfigErrorList* errorList;
 	EmaString foundPath;
 	while ( length )
 	{
@@ -789,7 +789,11 @@ inline XMLnode* XMLnode::find< XMLnode >( const EmaString& itemToRetrieve )
 			begin = end + 1;
 		}
 
-		tmp = const_cast< XMLnode*>( tmp->_children->find( nodeName, &e ) );
+		errorList = new EmaConfigErrorList();
+		tmp = const_cast< XMLnode*>( tmp->_children->find( nodeName, &errorList ) );
+
+		delete errorList;
+
 		if ( tmp )
 		{
 			if ( foundPath.length() )

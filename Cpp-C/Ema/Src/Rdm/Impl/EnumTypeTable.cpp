@@ -11,6 +11,11 @@ EnumTypeTable::EnumTypeTable()
 
 EnumTypeTable::~EnumTypeTable()
 {
+	if ( _pImpl )
+	{
+		delete _pImpl;
+		_pImpl = 0;
+	}
 }
 
 EnumTypeTable& EnumTypeTable::operator=(const EnumTypeTable& other)

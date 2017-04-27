@@ -19,6 +19,17 @@ _pFidsList(0)
 
 EnumTypeTableImpl::~EnumTypeTableImpl()
 {
+	if ( _pEnumTypeList )
+	{
+		delete _pEnumTypeList;	
+		_pEnumTypeList = 0;
+	}
+
+	if ( _pFidsList )
+	{
+   		delete _pFidsList;
+		_pFidsList = 0;
+	}
 }
 
 RsslEnumTypeTable* EnumTypeTableImpl::getRsslEnumTypeTable() const

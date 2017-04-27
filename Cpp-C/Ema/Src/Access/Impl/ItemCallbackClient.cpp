@@ -1207,6 +1207,14 @@ TunnelItem::~TunnelItem()
 		delete _closedStatusInfo;
 		_closedStatusInfo = 0;
 	}
+
+    StreamId* streamId = returnedSubItemStreamIds.pop_back();
+
+	while (streamId)
+	{
+		delete streamId;
+		streamId = returnedSubItemStreamIds.pop_back();
+	}
 }
 
 const Directory* TunnelItem::getDirectory()

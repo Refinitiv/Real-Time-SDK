@@ -26,6 +26,11 @@ EnumType& EnumType::operator=(const EnumType& other)
 
 EnumType::~EnumType()
 {
+	if ( _pImpl )
+	{
+		delete _pImpl;
+		_pImpl = 0;
+	}
 }
 
 thomsonreuters::ema::access::UInt16 EnumType::getValue() const

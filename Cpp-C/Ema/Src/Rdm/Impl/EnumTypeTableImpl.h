@@ -24,6 +24,7 @@ class EnumTypeTableImpl
 public:
 
 	EnumTypeTableImpl();
+	virtual ~EnumTypeTableImpl();
 
 	const thomsonreuters::ema::access::EmaVector<EnumType>& getEnumTypes() const;
 
@@ -48,7 +49,6 @@ private:
 	mutable thomsonreuters::ema::access::EmaVector<thomsonreuters::ema::access::Int16>*    _pFidsList;
 
 	EnumTypeTableImpl(RsslEnumTypeTable*);
-	virtual ~EnumTypeTableImpl();
 };
 
 }

@@ -41,6 +41,17 @@ MarketItemHandler::MarketItemHandler(OmmServerBaseImpl* ommServerBaseImpl) :
 
 MarketItemHandler::~MarketItemHandler()
 {
+	if (_rsslMsgBuffer.data)
+	{
+		free(_rsslMsgBuffer.data);
+		_rsslMsgBuffer.data = 0;
+	}	
+
+	if (_rsslQosStringBuffer.data)
+	{
+		free(_rsslQosStringBuffer.data);
+		_rsslQosStringBuffer.data = 0;
+	}
 }
 
 void MarketItemHandler::initialize()

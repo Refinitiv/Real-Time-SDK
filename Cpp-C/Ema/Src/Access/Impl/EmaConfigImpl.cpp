@@ -1148,12 +1148,21 @@ void XMLnode::verifyDefaultConsumer()
 				return;
 
 			NameString* name( theNames.pop_front() );
+			bool foundDefaultName = false;
 			while ( name )
 			{
 				if ( *name == *defaultName )
-					return;
-				else name = theNames.pop_front();
+				{
+					foundDefaultName = true;
+				}
+
+				delete name;
+				name = theNames.pop_front();
 			}
+
+		    if (foundDefaultName)
+				return;	
+
 			EmaString errorMsg( "specified default consumer name [" );
 			errorMsg.append( *defaultName ).append( "] was not found in the configured consumers" );
 			throwIceException( errorMsg );
@@ -1181,13 +1190,22 @@ void XMLnode::verifyDefaultNiProvider()
 			if ( theNames.empty() && *defaultName == "EmaNiProvider" )
 				return;
 
-			NameString* name( theNames.pop_front() );
-			while ( name )
-			{
-				if ( *name == *defaultName )
-					return;
-				else name = theNames.pop_front();
-			}
+            NameString* name( theNames.pop_front() );
+            bool foundDefaultName = false;
+            while ( name )
+            {
+                if ( *name == *defaultName )
+                {
+                    foundDefaultName = true;
+                }
+
+                delete name;
+                name = theNames.pop_front();
+            }
+
+            if (foundDefaultName)
+                return;
+
 			EmaString errorMsg( "specified default ni provider name [" );
 			errorMsg.append( *defaultName ).append( "] was not found in the configured ni providers" );
 			throwIceException( errorMsg );
@@ -1215,13 +1233,22 @@ void XMLnode::verifyDefaultDirectory()
 			if ( theNames.empty() && *defaultName == "EmaDirectory" )
 				return;
 
-			NameString* name( theNames.pop_front() );
-			while ( name )
-			{
-				if ( *name == *defaultName )
-					return;
-				else name = theNames.pop_front();
-			}
+            NameString* name( theNames.pop_front() );
+            bool foundDefaultName = false;
+            while ( name )
+            {
+                if ( *name == *defaultName )
+                {
+                    foundDefaultName = true;
+                }
+
+                delete name;
+                name = theNames.pop_front();
+            }
+
+            if (foundDefaultName)
+                return;
+
 			EmaString errorMsg( "specified default directory name [" );
 			errorMsg.append( *defaultName ).append( "] was not found in the configured directories" );
 			throwIceException( errorMsg );
@@ -1229,7 +1256,7 @@ void XMLnode::verifyDefaultDirectory()
 		else if ( *defaultName != "EmaDirectory" )
 		{
 			EmaString errorMsg( "default ni directory name [" );
-			errorMsg.append( *defaultName ).append( "] was specified, but no ni directories with this name were configured" );
+			errorMsg.append( *defaultName ).append( "] was specified, but no directories with this name were configured" );
 			throwIceException( errorMsg );
 		}
 	}

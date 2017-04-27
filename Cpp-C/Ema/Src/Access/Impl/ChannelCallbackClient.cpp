@@ -212,6 +212,7 @@ void ChannelList::addChannel( Channel* pChannel )
 void ChannelList::removeChannel( Channel* pChannel )
 {
 	_list.remove( pChannel );
+    Channel::destroy( pChannel );
 }
 
 UInt32 ChannelList::size() const
