@@ -428,6 +428,7 @@ if not exist WIN_64_VS140\Debug_MDd\Shared\EmaConfig.xml mklink /h WIN_64_VS140\
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Consumer.h" />
+
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />

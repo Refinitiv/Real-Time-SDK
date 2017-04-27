@@ -434,6 +434,7 @@ if not exist WIN_64_VS110\Debug_MDd\Shared\enumtype.def mklink /h WIN_64_VS110\D
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IProvider.h" />
+
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />

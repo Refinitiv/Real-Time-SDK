@@ -422,6 +422,7 @@ if not exist WIN_64_VS100\Debug_MDd\Shared\EmaConfig.xml mklink /h WIN_64_VS100\
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NiProvider.h" />
+
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
