@@ -52,7 +52,7 @@ public class KerberosAuthenticationScheme implements IAuthenticationScheme
     @SuppressWarnings("unused")
     private int ntlmResponseCount = 0;
     boolean stopScheme = false;
-    String db; // debug env variable
+    static String db; // debug env variable
 
     private static HashMap<String, String> loginConfigOptions = new HashMap<String, String>();
 
@@ -249,6 +249,17 @@ public class KerberosAuthenticationScheme implements IAuthenticationScheme
             }
         }
 
+        //confirm possible Krb5LoginModule ticket cache file exists (may be used for Kerberos login config)
+        String ticketCache = System.getProperty("krb_login_config_ticketCache");
+        if ((ticketCache!=null) && !ticketCache.isEmpty())
+        {
+            final File file = new File(ticketCache);
+            if (!file.exists())
+            {
+                throw new FileNotFoundException("krb5 ticket cache file: " + ticketCache);
+            }
+        }
+        
         // load Kerberos login config manually (not using login.conf)
         loadLoginConfig();
 
@@ -276,8 +287,23 @@ public class KerberosAuthenticationScheme implements IAuthenticationScheme
             public AppConfigurationEntry[] getAppConfigurationEntry(String cname)
             {
                  String name = com.sun.security.auth.module.Krb5LoginModule.class.getName();
-                 
+
                  loginConfigOptions.put("com.sun.security.auth.module.Krb5LoginModule", "required");
+                 String useTC = System.getProperty("krb_login_config_useTicketCache");
+                 if ((useTC!=null) && useTC.equals("true"))
+                 {
+                     loginConfigOptions.put("useTicketCache", "true");
+
+                     String doNotPrompt = System.getProperty("krb_login_config_doNotPrompt");
+                     if ((doNotPrompt!=null) && doNotPrompt.equals("true"))
+                         loginConfigOptions.put("doNotPrompt", "true");
+
+                     String TC = System.getProperty("krb_login_config_ticketCache");
+                     if ((TC!=null) && !TC.isEmpty())
+                         loginConfigOptions.put("ticketCache", TC);
+                 }
+                 if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
+                     loginConfigOptions.put("debug", "true");
                              
                  AppConfigurationEntry ace = new AppConfigurationEntry(name, 
                                                                        AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
