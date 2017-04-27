@@ -41,6 +41,10 @@ The following configuration files are required:
 - RDMFieldDictionary and enumtype.def, located in the etc directory.
 - 350k.xml, located in PerfTools/Common
 - MsgData.xml, located in PerfTools/Common (only required if posting). Currently posting is not supported.
+- EmaCppConsPerf includes the PerfTools library. For shared builds, the location of that
+  library must be included in the LD_LIBRARY_PATH. The library (libPerfTools.so) will be found in
+  PerfTools/Common/<env>/Optimized/Shared/obj or PerfTools/Common/<env>/Optimized_Assert/Shared/obj
+  where <env> is your build directory (i.e., OL7_64_GCC482)
 
 -------------------
 Command line usage:
